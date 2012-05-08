@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>GenomeGraph / The GeneNetwork</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/general.css'>
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/menu.css'>
+<SCRIPT SRC="javascript/webqtl.js"></SCRIPT>
+
+</HEAD>
+<BODY  bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff onload="javascript:initialDatasetSelection()">
+<TABLE cellSpacing=5 cellPadding=4 width="100%" border=0>
+	<TBODY>
+	<TR>
+		<script language="JavaScript" src="/javascript/header.js"></script>
+	</TR>
+	<TR>
+		<TD bgColor=#eeeeee class="solidBorder">
+		<Table width= "100%" cellSpacing=0 cellPadding=5><TR>
+	<!-- Body Start from Here -->
+		<TD vAlign=top width="45%" bgColor=#eeeeee>
+			<P class="title">Introduction <A HREF="webqtl/main.py?FormID=editHtml">
+			<img src="images/modify.gif" alt="modify this page" border= 0 valign="middle"></A></P>
+
+
+<BLOCKQUOTE>
+
+<A HREF="gghelp.html" target="_empty" class="fs14">GenomeGraph</A> is designed to help discover genetic sources of variation in trait and transcript expression at a global level. Choose a database and click on the Mapping button. The y-axis marks the physical locations of genes from which transcripts are synthesized. In contrast, the x-axis plots the locations of the highest <A HREF="glossary.html#L" target="_empty" class="fs14">LRS</A> values associated with each trait or transcript; in essence, the location of the best QTL. The false discovery rate (FDR) can be tuned from 1 (all data shown) to values between 0.1 and 0.01 (only transcripts with significant QTLs shown).
+
+<P>Note that many data set results are still being computed. You may encounter an "in progress" message.
+
+<P>For a more complete explanation see Chesler, Lu and colleagues (<A HREF="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=15711545" class="fs14" target="_empty">2005</A>), or the <A HREF="gghelp.html" target="_empty" class="fs14">GenomeGraph Help</A> page.
+		</BLOCKQUOTE>
+
+		</TD>
+		<TD vAlign=top width="55%" bgColor=#eeeeee>
+			<P class="title">Choose Data Set</P>
+			<Center>
+			<Form METHOD="POST" ACTION="webqtl/main.py" ENCTYPE="multipart/form-data" NAME="SEARCHFORM">
+			<TABLE width="90%">
+				
+				<TR>
+					<TD align=right height=40>
+						<P>Choose Species</P>
+					</TD>
+					<TD width=20>
+					</TD>
+					<TD NOWRAP>
+						<DIV Id="menu0">
+						<Select NAME="species" size=1 id="species" onChange="fillOptions('species');">
+						</Select>
+						</DIV>
+					</TD>
+				</TR>
+				
+				
+				<TR>
+					<TD align=right height=40>
+						<P>Group</P>
+					</TD>
+					<TD width=20>
+					</TD>
+					<TD NOWRAP>
+						<DIV Id="menu1">
+						<Select NAME="cross" size=1 id="cross" onChange="fillOptions('cross');">
+						</Select>
+						<input type="button" class="button" value="Info" onCLick="javascript:crossinfo();">
+						</DIV>
+					</TD>
+				</TR>
+				
+				<TR>
+					<TD align=right height=40>
+						<P>Type</P>
+					</TD>
+					<TD width=20>
+					</TD>
+					<TD NOWRAP>
+						<DIV Id="menu2"><Select NAME="tissue" size=1 id="tissue" onChange="fillOptions('tissue');">
+						</Select>
+						</DIV>
+					</TD>
+				</TR>
+				
+				<TR>
+					<TD align=right height=40>
+						<P>Database</P>
+					</TD>
+					<TD width=20>
+					</TD>
+					<TD NOWRAP>
+						<DIV Id="menu3">
+						<Select NAME="database" size=1 id="database">
+						</Select>
+						<input type="button" class="button" value="Info" onCLick="javascript:databaseinfo();">
+						</DIV>
+					</TD>
+				</TR>
+				
+				<TR>
+					<TD colspan=3 align="center" height=50>
+						<input type="button" CLASS="button" value="Mapping" onClick="databaseFunc(this.form, 'transciptMapping');">
+						<input type="button" CLASS="button" value="Download" onClick="databaseFunc(this.form, 'genAllDbResult', 'Generating Excel file, please wait.');">
+						<input type="button" CLASS="button" value="Set To Default" onClick="setDefault(this.form);">
+					</TD>
+				</TR>
+			
+			</TABLE>
+			<INPUT TYPE="hidden" NAME="FormID" VALUE="searchResult">
+			<INPUT TYPE="hidden" NAME="RISet" VALUE="BXD">
+			<SCRIPT src="/javascript/selectDatasetMenu.js"></SCRIPT>
+			</Form>
+			</center>
+		</TD>
+		</TR></TABLE>
+		</TD>
+	</TR>
+	<TR>
+		<TD align=center bgColor=#ddddff class="solidBorder">
+	 	<!--Start of footer-->
+		<TABLE width="90%">
+		<script language='JavaScript' src='/javascript/footer.js'></script>
+		</TABLE>
+		<!--End of footer-->
+		</TD>
+	</TR>
+</TABLE>
+<!-- /Footer -->
+<script language="JavaScript" src="javascript/menu_new.js"></script>
+<script language="JavaScript" src="javascript/menu_items.js"></script>
+<script language="JavaScript" src="javascript/menu_tpl.js"></script>
+<script language="JavaScript">
+	<!--//
+	new menu (MENU_ITEMS, MENU_POS);
+	//-->
+</script>
+
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-3782271-1";
+urchinTracker();
+</script>
+</BODY>
+</HTML>

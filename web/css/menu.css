@@ -1,0 +1,203 @@
+/* --- menu styles ---
+note:
+	not all browsers render styles the same way so try out your style sheet
+	on different browsers before publishing;
+*/
+/* level 0 inner */
+.m0l0iout {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Bold; 
+	padding: 4px;
+	color: #0000DD;
+}
+.m0l0iover {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Bold; 
+	padding: 4px;
+	color: #FFFFFF;
+}
+
+/* level 0 outer */
+.m0l0oout {
+	font-size: 12px;
+	font-weight: Bold; 
+	border : 1px solid #FFFFFF;
+	background: #ddddff;
+}
+.m0l0oover {
+	font-size: 12px;
+	font-weight: Bold; 
+	border : 1px solid #FFFFFF;
+	background: #4F8EB6;
+}
+
+/* level 1 inner */
+.m0l1iout {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Normal;
+	text-decoration: none;
+	padding: 4px;
+	color: #000082;
+}
+.m0l1iover {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Bold;
+	text-decoration : none;
+	padding: 3px;
+	color: #ffffff;
+	border : 1px solid #000000;
+	margin : 2px;
+	background: #4F8EB6;
+}
+
+/* level 1 outer */
+.m0l1oout {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}
+.m0l1oover {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}
+
+/* level 2 inner */
+.m0l2iout {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Normal;
+	text-decoration: none;
+	padding: 4px;
+	color: #000082;
+}
+
+.m0l2iover {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Bold;
+	text-decoration: none;
+	padding: 3px;
+	color: #ffffff;
+	border : 1px solid #000000;
+	margin : 2px;
+	background: #4F8EB6;
+}
+
+/* level 2 outer */
+.m0l2oout {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}
+.m0l2oover {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}
+
+/* level 3 inner */
+.m0l3iout {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Normal;
+	text-decoration: none;
+	padding: 4px;
+	color: #000082;
+}
+
+.m0l3iover {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Bold;
+	text-decoration: none;
+	padding: 3px;
+	color: #ffffff;
+	border : 1px solid #000000;
+	margin : 2px;
+	background: #4F8EB6;
+}
+
+/* level 3 outer */
+.m0l3oout {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}
+.m0l3oover {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}
+
+/* level 4 inner */
+.m0l4iout {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Normal;
+	text-decoration: none;
+	padding: 4px;
+	color: #000082;
+}
+
+.m0l4iover {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Bold;
+	text-decoration: none;
+	padding: 3px;
+	color: #ffffff;
+	border : 1px solid #000000;
+	margin : 2px;
+	background: #4F8EB6;
+}
+
+/* level 4 outer */
+.m0l4oout {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}
+.m0l4oover {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}
+
+/* level 5 inner */
+.m0l5iout {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Normal;
+	text-decoration: none;
+	padding: 4px;
+	color: #000082;
+}
+
+.m0l5iover {
+	font-family: verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: Bold;
+	text-decoration: none;
+	padding: 3px;
+	color: #ffffff;
+	border : 1px solid #000000;
+	margin : 2px;
+	background: #4F8EB6;
+}
+
+/* level 5 outer */
+.m0l5oout {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}
+.m0l5oover {
+	text-decoration : none;
+	border : 1px solid #999999;
+	background: #EEEEEE;
+}

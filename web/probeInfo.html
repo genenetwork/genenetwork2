@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Probe Information</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/general.css'>
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/menu.css'>
+<SCRIPT SRC="javascript/webqtl.js"></SCRIPT>
+
+</HEAD>
+<BODY  bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff>
+<TABLE cellSpacing=5 cellPadding=4 width="100%" border=0>
+	<TBODY>
+	<TR>
+		<script language="JavaScript" src="/javascript/header.js"></script>
+	</TR>
+	<TR>
+		<TD bgColor=#eeeeee class="solidBorder">
+		<Table width= "100%" cellSpacing=0 cellPadding=5><TR>
+		<!-- Body Start from Here -->
+		<TD vAlign=top width="100%" height=200 bgColor=#eeeeee>
+		<P class="title">Explanation of the Probe Information Table <A HREF="/webqtl/main.py?FormID=editHtml"><img src="images/modify.gif" alt="modify this page" border= 0 valign="middle"></A></P>
+		
+		<OL>
+<LI><P class="fs14"><A NAME="probe"></A> The probe identifier is usually a six character symbol. The first three characters provide the X coordinate of the probe cell on the Affymetrix array (U74Av2, M430AB, or M430 2.0); for example 222 signifies column 222 and X85 signifies column 85 ("X" is used as a buffer character). Similarly, the second set of three characters in each probe ID provides the Y coordinate of the probe cell. The Perfect Match (PM) probes always end in an odd integer. The MisMatch probes (MM) always end in an even integer. Note that PM and MM probes come in pairs located in the same colum but adjacent rows (e.g. X22Y35 and X22Y36). Some probes on the 430 2.0 have x and y axis coordinates >999. Data source: <A HREF="http://www.affymetrix.com/index.affx" class="fs14"> Affymetrix</A>.</P>
+
+<LI><P class="fs14"><A NAME="Sequence"></A> The 25 nucleotide sequence of probes in 5' to 3' order. The 5' end of each probe is attached to the quartz array substrate; the 3' end is free and often frayed. Roughly 10% to 20% of oligonucleotides are likely to be complete 25-mers. Alternating green and black colors highlight the Perfect Match sequence (GREEN), and the MisMatch sequence (BLACK). Note that the 13th nucleotide always differs between pairs of PM and MM probes in adjacent rows of this table. Data source:<A HREF="http://www.affymetrix.com/index.affx" class="fs14"> Affymetrix</A>.</P>
+
+<LI><P><A NAME="bl2seq"></A> <B>Blast 2 Sequences</B> (bl2seq) is an NCBI tool that aligns the 25-mer probe sequence to the GenBank accession that Affymetrix reports having used to design the probes. We automatically submit both data type types to NCBI's <A HREF="http://www.ncbi.nlm.nih.gov/blast/blast_overview.shtml" class="fs14"> BLAST 2</A> server and return the results of this simple alignment in a new window. You can check that probes were correctly designed to hybridize to the cRNA sample and are not inadvertently antisense probes. Note that the GenBank entry may be backwards in orientation in which case, the probes may be correctly oriented even if they appear to be on the wrong strand.</P>
+
+<LI><P class="fs14"><A NAME="Exon"></A> This column provides the approximate exon number to which the probe sequences should bind. If no exon is listed then in 9 out of 10 cases, the probes target the 3' untranslated region (3' UTR) at the end of the message near to the polyadenylation site. A format such as &quot;7*8&quot; signifies that the probe sequence is taken from both exons 7 and 8. Affymetrix tries to use probes that target the 3' UTR since these tend to be more common to transcripts produced by a gene. However, many genes actually have alternate 3' UTRs. For example <I>Egr1</I> has two different mRNAs with 3' UTRs that are separated by several hundred base pairs. To confirm exon assignment of probes please click on the BLAT PM PROBES button above. This will open a BLAT Search Results window. Click on the link that is labeled "browser" to the far left. Finally, click on the Zoom Out 10X button (far right toward the top). Data source:<A HREF="http://www.ensembl.org/Mus_musculus/" class="fs14"> Ensembl</A> and UTHSC by Yanhua Qu. We thank Yan Cui for use of his Linux cluster to make these assignments.</P>
+
+<LI><P class="fs14"><A NAME="Tm"></A> The approximate melting temperature of the probe sequence and the cRNA. These estimates are actually computed for DNA-DNA duplex rather than DNA-cRNA heteroduplex. Data source: Leonard Schalkwyk and Yanhua Qu.</P>
+
+<LI><P class="fs14"><A NAME="KBT"></A> These stacking energy estimates (K<SUB>b</SUB>T) are the free energies computed using the method of <A HREF="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=12794640&dopt=Abstract" class="fs14">Li Zhang and Mike Miles (Nat. Biotech 21:818).</A> In essence, they provide an estimate of the gene-specfic binding energy (GSB) and the non-specific binding energy (NSB). Low values of GSB and higher values of NSB tend to enhance specificity/stability of binding between the DNA probe and the cRNA target (lower free energy reflects tighter binding). These value are computed for DNA-DNA hybrids and will typically underestimate the binding of DNA-cRNA heteroduplex.  The larger the difference between GSB and NSB (assuming GSB is already lower), the better. It is often the case that lower GSB values are associated with higher mean signal of the probes. (text by M Miles 9/22/03, last update 01/13/05).</P>
+
+<LI><P class="fs14"><A NAME="Mean"></A> The mean probe signal intensity averaged across all strains (not cases) in this specific data set. Please refer to the INFO page for a summary of strains and cases used to generate this particular data set. The scale of these numbers is close to a log base 2 reexpression of the orginal Affymetrix CEL file output. However, the value have usually been standardized as describe in the INFO page ("2z+8" method). Data source:<A HREF="dbdoc/U74Av2RMA_Raw_ProbeSet_March04.html" class="fs14"> INFO page</A></P>
+
+<LI><P class="fs14"><A NAME="Stdev"></A> The sample standard deviation of probe signal across the strain mean estimates. Please refer to the INFO page  for a summary of strains and cases used to generate in this data set. Data source:<A HREF="dbdoc/U74Av2RMA_Raw_ProbeSet_March04.html" class="fs14"> INFO page</A></P>
+
+<LI><P class="fs14"><A NAME="h2"></A> Heritability of the probe signal intensity computed across the panel of isogenic strains. Heritability is essentially the ratio of the between-strain mean square error term to the sum of the within-strain mean square error term (the error mean square) plus the between-strain mean square error term. A highly informative probe is one with little withiin-strain variability but a great deal of among-strain variability. Naturally, we attempt to correct for batch effects and other non-genetic sources of among-strain variability. Some probes may have anomalously high heritability due to the presence of a sequence variant such as a SNP in the transcript sequence that is complementary to the probe. Small deletions in one of the parental strains will also generate high heritability in some probes (see Pparbp for an example). When we can confirm that probes do contain a SNP or other sequence variant, we discount that probe and do not use it for generating a heritability-weighted consensus estimate of transcript expression.</P>
+
+<LI><P class="fs14"><A NAME="location"></A>Mouse mm8 probe set locations (historical). Should be updated to mm9. Probe locations were obtained from Ensembl ftp://ftp.ensembl.org/pub/current_mus_musculus/data/mysql/mus_musculus_core_43 by Hongqiang Li. We made use of text files and MySQL tables called:
+<OL>
+<LI>oligo_feature.txt.table.gz (25774 KB file of 3/1/07 1:53:00 AM) 
+<LI>oligo_probe.txt.table.gz (24411 KB 3/1/07 1:54:00 AM)
+<LI>seq_region.txt.table.gz 	(383 KB, 3/1/07 1:59:00 AM)
+</OL>
+  </P>
+
+<LI><P class="fs14"><A NAME="snps"></A>This column provides the names of single nucleotide polymorphisms that overlap the probe sequence. You can link from entries in this column directly to the GeneNetwork SNP Browser.</P>
+</OL>
+
+		</TD>
+		</TR></TABLE>
+		</TD>
+	</TR>
+	<TR>
+		<TD align=center bgColor=#ddddff class="solidBorder">
+		<!--Start of footer-->
+		<TABLE width="90%">
+		<script language='JavaScript' src='/javascript/footer.js'></script>
+		</TABLE>
+		<!--End of footer-->
+		</TD>
+	</TR>
+</TABLE>
+<!-- /Footer -->
+<script language="JavaScript" src="/javascript/menu_new.js"></script>
+<script language="JavaScript" src="/javascript/menu_items.js"></script>
+<script language="JavaScript" src="/javascript/menu_tpl.js"></script>
+<script language="JavaScript">
+	<!--//
+	new menu (MENU_ITEMS, MENU_POS);
+	//-->
+</script>
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-3782271-1";
+urchinTracker();
+</script>
+</BODY>
+</HTML>

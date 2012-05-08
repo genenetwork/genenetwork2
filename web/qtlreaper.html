@@ -1,0 +1,404 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>QTL Reaper</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/general.css'>
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/menu.css'>
+<SCRIPT SRC="javascript/webqtl.js"></SCRIPT>
+
+</HEAD>
+<BODY  bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff>
+<TABLE cellSpacing=5 cellPadding=4 width="100%" border=0>
+	<TBODY>
+	<TR>
+		<script language="JavaScript" src="/javascript/header.js"></script>
+	</TR>
+	<TR>
+		<TD bgColor=#eeeeee class="solidBorder">
+		
+		<Table width= "100%" cellSpacing=0 cellPadding=5>
+		<TR>
+		     <!-- Body Start from Here -->
+		     <TD>
+		     <B><Font size=+1>What is the QTL Reaper?</font></b>  <A HREF="/webqtl/main.py?FormID=editHtml"><img src="images/modify.gif" alt="modify this page" border= 0 valign="middle"></A>
+
+<P>
+QTL Reaper is command line software for rapidly mapping quantitative trait
+loci from large datasets with many phenotypes per genotype (per subject 
+or inbred strain) such as those generated using microarrays, where every
+gene expression level measurement may be treated as a phenotype. 
+This program is a batch-mode version of <A
+href="http://www.genenetwork.org" target="_blank"
+class="fs14">WebQTL</A> and is written in C and compiled as a Python
+module. 
+<p>
+QTL Reaper requires as input a phenotype data set and
+genotypes for a mapping population such as set of recombinant inbred
+strains, an F2 intercross, or a backcross. The program computes
+linkage between each trait and all genotypes, evaluating the P-value
+of linkage by permutation. For each trait, QTL Reaper ramps up the
+number of permutations as necessary to define the empirical P-value
+to a reasonable level of precision. It also performs bootstrap
+resampling to estimate the confidence region for the location of
+putative QTLs.
+
+		     </TD>
+		     </TR>
+		     <TR>
+		          <TD width="50">
+
+<B><Font size=+1>How to Setup and Use QTL Reaper</FONT></B>
+
+<p>
+<B>1.</B> Download QTL Reaper from <A href="http://sourceforge.net/projects/qtlreaper/" target="_blank" class="fs14">SourceForge</A>.
+			  <br><BR>
+			  
+<B>2.</B> Building and installing QTL Reaper
+			  <br>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>a)</B> Open a terminal or command prompt.
+
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>b)</B> Gunzip and untar the package file, then enter the qtlreaper directory. If you are using the Macintosh OS, you may need to comment out lines 29 and 30 in <B>setup.py</B> using a text editor before building.
+
+<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;<B>c)</B> To compile qtlreaper module, execute:<font size="-1"><b> python setup.py build</b></font>. Administrator privileges are needed to install qtlreaper, as it is a global module for python. To compile qtlreaper on a PC, Visual Studio 7.1+ (or its Python-component libraries) is required. The setup.py script may be modified if you wish to use your own blas and lapack libraries. To install the qtlreaper module, execute: <b>python setup.py install</B>
+
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<B>d)</B> Check that the library <font size="-1"><B>reaper.so</B></font> has been installed in a location that is included in the Python path. You can check the Python path when Python is running by executing the Python commands <font size="-1"><B>import sys</B></font> and <font size="-1"><B>sys.path</B></font>. Under Mac OS X 10.4, the standard location would be <font size="-1"><B>/System/Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages</B></font>. 
+
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<B>e)</B> Run Python, if you have not already, by typing <font size="-1"><B>python</B></font> at the terminal prompt. If <font size="-1"><B>reaper.so</B></font> is installed properly, it is not necesary to change to a specific directory before running Python. Alternately, the user may navigate to the directory with reaper.so, then start python, then type 'import reaper' for the same functionality, without requiring the module be installed.
+
+<!-- FIND OUT WHAT THIS IS CALLED ON LINUX OR WINTEL -->
+<p>
+				
+
+<B>3.</B> Instructions for Using QTL Reaper
+
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>a)</B> Now that Python is running, import qtlreaper by typing <font size="-1"<b>import reaper</B></font> in the terminal.
+
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;From here, the user can create a data set into which data can be placed by executing the following command. This command creates a Dataset object which, in this example, we call <font size="-1"><B>mydataset</B></font>. In place of <font size="-1"><B>mydataset</B></font>, you can use any name that begins with a letter.
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size="-1"><b> mydataset = reaper.Dataset()</b></font>.
+
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;At this point a <a href="#format" class="fs14">properly formated file</A> can be read into the newly created Dataset object using the command: 
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size="-1"><b> mydataset.read("path/to/file")</B></font>.
+
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>b)</b> The user now may examine a number of data fields in the Dataset object by simply typing their names in the format <font size="-1"><b> mydataset.command</B></font>. This usage is standard Python syntax for displaying the data of an object.
+
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The names of these data fields are:
+<DIR> 
+<UL>
+<LI><b>type</B>: Displays the type of dataset (RI Set or Intercross or Backcross, etc.)
+<LI><b>name</b>: Displays the name of the mapping population (BXD, B6D2F2, CXBRIX, etc.)
+<LI><b>prgy</b>: Lists the names of the individuals or strains
+<LI><b>nprgy</b>: Lists the number of individuals or strains 
+<LI><b>pat</b>: Shows the paternal parent type or strain
+<LI><b>mat</b>: Shows the maternal parent type or strain
+<LI><b>nloci</B>: Displays the number of marker loci used to map
+</UL>
+</DIR>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<b>c)</b>
+Data related to a specific chromosome or a specific marker on a chromosome can be displayed by using the following syntax, where <font size="-1"><B>chr#</B></font> represents a chromosome number and <font size="-1"><B>marker#</B></font> represents a marker number. The syntax, which is standard Python sytax applied to a Dataset object is:
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b> mydataset[chr#].name</B> or <b> mydataset[chr#][marker#].name</B>,  where the possible data field names include:
+
+<DIR>
+<UL>
+<LI><b>mydataset[chr#].name</b>: Displays the name of the selected chromosome
+<LI>[0]: Indicates the first chromosome 
+<LI>[-1]: Used  as a shortcut to the last chromosome
+<LI><b>mydataset[chr#][marker#].name</b>: Displays the marker at the selected array location
+<LI>[0][0]: Indicates the first chromosome and first marker location
+<LI><b>mydataset[chr#][marker#].cM</B>: Displays the location of the marker in cM
+<LI><B>mydataset[chr#][marker#].Mb</b>: Displays the location of the marker in Mb (if available)
+<LI><b>mydataset[chr#][marker#].genotype</B>: Shows the genotype (scored as - 1, 0, and +1) of the elements in the array
+<LI><B>mydataset[chr#][marker#].genotext</b>: Describes the selected elements in the array as maternal, heterozygous, or paternal genotypes
+<LI><b>len(mydataset[chr#])</B>: Displays the number of markers in the selected chromosome
+</UL>
+</DIR>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<b>d)</b> Manually putting data into QTL Reaper
+<UL>
+<DIR>
+<LI><b>NewData = ['String1', 12.5, 'String2']</b>: Creates a list containing any number of strings and/or floats - quotes are needed between each string element, but not around a numerical element.
+<LI><b>NewData2 = 'Thing1', 3.141, 'Thing2'</B>: Creates a tuple containing any number of strings and/or floats - the same as above, but without square brackets around the sides.
+</DIR>
+</UL>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>e)</B> Generating new tables and data 
+<UL>
+<DIR>
+<LI><b>NewVariableName = YourVariableName.addinterval()</B>: Creates a new object, calculating intervals at every 1cM
+<LI><b>NewVariableName.nloci</B>: Displays the number of loci in the newly calculated interval.
+<LI><b>Chrom_No_Variable = reaper.Dataset()</B>: Creates a new object that is a duplicate of the original YourVariableName.
+<LI><b>Chrom_No_Variable.chromosome = [YourVariableName[#]]</b>: Extracts a specific chromosome out of YVN and sets ChromVar equal to it.
+</DIR>
+</UL>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>f)</b> Calculating regression, QTLs, bootstrap tests, permutations, and group variance
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (All variable names with 'x' below are examples and the entire variable name can be changed.)
+<UL>
+<DIR>
+<LI><b>QTLx = YourVariableName.regression(strains = NewData, trait = NewData2, variance = NewData3, control="NewData4"</b>: Sets up a QTL with data to be analyzed. Variance and control are optional controls.
+<LI><b>QTLx.sort()</B>: Sorts the QTL data by absolute value of the LRS.
+<LI><b>max(QTLx)</B>: Displays the data for the highest QTL
+<LI><B>max(QTLx).lrs</b>: Gives the exact LRS value for the highest QTL
+<LI><B>max(QTLx).locus</b>: Shows the locus data
+<LI><b>min(QTLx)</b>: Displays the data for the lowest QTL
+<LI><b>min(QTLx).lrs</b>: Gives the exact LRS value for the lowest QTL
+<LI><b>min(QTLx).locus</b>: Shows the locus data
+<LI><b>bootX = YourVariableName.bootstrap(strains = newData, trait = NewData2, variance = newData 3, nboot = #)</B>: Does a bootstrap test on selected data. Variance is an optional control, nboot can be set to any positive integer.
+<LI><b>permuX = YourVariableName.permutation(straints = newData, trait = NewData2, variance = newData3, nperm = #, thresh = #)</B>: Returns a list of highest LRS from each permutation, ascending. Variance, nperm, and thresh are all optional. Thresh and nperm should be set as positive integers if either is used.
+<LI><b>pvalueX = reaper.pvalue(max(QTLx).lrs, permuX)</b>: Calculates the p-value for the selected permutation.
+<LI>ANOVA: ANalysis Of VAriance between groups, a two-step function.
+<LI><b>listvariable = [3, 2.1, 5, 3.2, 1.3, 3.6, 1.6, 3.9, 4.1, 2]</b>: Creates the list that will be analyzed.
+<LI><b>mean, median, variance, stdev, stderr, N = reaper.anova(listvariable)</b>: Does the group calculations. The calculations are then displayed by entering them as an individual command (i.e. <b>mean</b> or <b>median</B>).
+</DIR>
+</UL>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>g)</B> Reading from an Input file, such as trait data. (Sample <b>trait.txt</b> is included in the QTLReaper download's Example folder) Below: This  pulls the first line of File.txt and puts it into 'header' and the second line into 'fileData.'
+<blockquote>
+import string
+<br>newFile = open("..Path/..To/File.txt")
+<br>header = newFile.readline()
+<br>header = string.split(header)
+<br>header = map(string.strip, header)
+<br>strains = header[1:]
+<br>fileData = newFile.readline()
+<br>fileData = string.split(fileData)
+<br>fileData = map(string.strip, fileData[1:])
+<br>fileData = map(float, fileData)
+</blockquote>
+<a name="format" class="subtitle"></a>
+
+<B>4.</B> Formatting Input Files: <blockquote>
+The primary input files for QTLReaper must be in an exact, specific
+format to work properly. Before exporting this data, ensure that your
+first three columns of data are in this order: Chromosome, Locus, and
+cM. Mb location may be added as an optional fourth column, though it
+cannot be a substitute for cM. It must be a plain text, tab-delimited
+document with Unix line breaks. Microsoft Excel, BBEdit, and other
+applications will have the option to export as a tab-delimited text
+document, most likely under the "save as" option.  Many applications have the
+option to change the line breaks to Unix (in BBEdit, for example, in
+the Options section of "Save As"). This can also be conveniently accomplished in
+Windows by using fromdos.exe, a small free utility available <a href="http://www.thefreecountry.com" class="fs14">here</a>.
+<p>
+Once the file is exported, the
+data may be pushed down a few lines to make room for (optional)
+header information. (Remember to convert these line breaks to Unix style
+if adding the header information on a Windows or Macintosh machine!)
+At the top, above all the data, the user may add
+the information that is called by the .type, .name, and .mat/.pat
+commands listed above. This is done by: <font
+size="-1"><b>@type:</b>, <b>@name:</B></font>, and <font
+size="-1"><b>@mat/@pat:</B></font> with stating the necessary
+information following the colon (no space). All these declarations
+should be placed on separate lines.
+
+<p>
+<font size="-1"><B>BXD.txt</B></font> and <font
+size="-1"><b>BXD2.txt</B></font> are examples of properly formatted
+files, and are contained in the QTLReaper download's Example folder.
+A larger, non-sample-only dataset is available for <A
+href="ftp://atlas.utmem.edu/public/BXD_WebQTL_Genotypes_June05.txt"
+class="fs14">download</A> (722k, its Macintosh line breaks will
+have to be converted to Unix line breaks to function properly.)
+</blockquote>
+
+
+<B>5.</B> Example:
+<Blockquote>
+<pre>
+<I><Font color="#228822">#Import the reaper module</Font></I>
+import reaper
+<I><Font color="#228822">#Initiate a Python Dataset object</Font></I>
+bxdGeno = reaper.Dataset()
+<I><Font color="#228822">#read genotype information from a file</Font></I>
+<I><Font color="#228822">#argument is a string containing the filename and location</Font></I>
+<I><Font color="#228822">#file is a tab-delimited text file</Font></I>
+bxdGeno.read("../../Example/BXD.txt")
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822"># Dataset Object</Font></I>
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822">#dataset type (RI Set or Intercross)</Font></I>
+bxdGeno.type
+<I><Font color="#228822">#dataset name</Font></I>
+bxdGeno.name
+<I><Font color="#228822">#progeny</Font></I>
+bxdGeno.prgy
+<I><Font color="#228822">#number of progeny</Font></I>
+bxdGeno.nprgy
+<I><Font color="#228822">#parent 1</Font></I>
+bxdGeno.pat
+<I><Font color="#228822">#parent 2</Font></I>
+bxdGeno.mat
+<I><Font color="#228822">#Number of Loci</Font></I>
+bxdGeno.nloci
+<I><Font color="#228822">#Number of Chromosome</Font></I>
+len(bxdGeno[0])
+<I><Font color="#228822">#1st Chromosome</Font></I>
+bxdGeno[0].name
+<I><Font color="#228822">#last Chromosome</Font></I>
+bxdGeno[-1].name
+<I><Font color="#228822">#1st Locus</Font></I>
+bxdGeno[0][0].name
+<I><Font color="#228822">#last Locus</Font></I>
+bxdGeno[-1][-1].name
+<I><Font color="#228822">#Locus cM</Font></I>
+bxdGeno[-1][-1].cM
+<I><Font color="#228822">#Whether physical info (Mb) are available</Font></I>
+bxdGeno[-1][-1].Mbmap
+<I><Font color="#228822">#Locus Mb</Font></I>
+bxdGeno[-1][-1].Mb, if physical info are available
+<I><Font color="#228822">#Locus genotype in numbers</Font></I>
+bxdGeno[-1][-1].genotype
+<I><Font color="#228822">#Locus genotype in abbrevs</Font></I>
+bxdGeno[-1][-1].genotext
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822"># Interval Map</Font></I>
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822">#Calculate intervals at 1cM, generate a new dataset object </Font></I>
+bxdIntervalGeno = bxdGeno.addinterval()
+<I><Font color="#228822">#Number of Loci</Font></I>
+bxdIntervalGeno.nloci
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822"># individual chromosome</Font></I>
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822">#You can create a new dataset object which contains</Font></I>
+<I><Font color="#228822">only one chromosome for individual chromosome analyses </Font></I>
+chr_1_bxdGeno = reaper.Dataset()
+chr_1_bxdGeno.chromosome = [bxdGeno[0]]
+<I><Font color="#228822">#Number of Loci</Font></I>
+chr_1_bxdGeno.nloci
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822"># Member functions</Font></I>
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822">#Most reaper functions require two lists as inputs</Font></I>
+<I><Font color="#228822">#the first list is the case or strain list; the second is the trait values list</Font></I>
+<I><Font color="#228822">#the two lists should have the same number of members</Font></I>
+<I><Font color="#228822">#the strain list should have the same cases or strains as those listed in the header 
+<br> of the genotype file or should be a subset of those</Font></I>
+strains =['BXD1', 'BXD2', 'BXD5', 'BXD6', 'BXD8', 'BXD9', 'BXD11', 'BXD12', 'BXD13',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'BXD14', 'BXD15', 'BXD16', 'BXD18', 'BXD19', 'BXD20', 'BXD21', 'BXD22',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'BXD23', 'BXD24', 'BXD25', 'BXD27', 'BXD42']
+trait =  [53.570 ,63.885 ,56.700 ,61.750 ,66.325 ,65.150 ,60.400 ,57.920 ,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;51.925 ,62.350 ,67.175 ,65.850 ,52.425 ,60.925 ,65.350 ,56.750 ,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;59.750 ,57.888 ,60.250 ,64.433 ,57.125 ,63.600]
+<I><Font color="#228822">#vaiance list will be used in weighted regression (using 1/variance as the weights)</Font></I>
+variance = [0.777, 0.108, 1.78, 1.18, 0.370, 0.808, 1.549, 0.710, 0.257, 1.482, 1.816, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.711, 1.204, 0.059, 0.182, 0.591, 0.357, 0.072, 0.490, 0.239, 0.905, 1.327]
+<I><Font color="#228822">#genotypes of a control locus as a cofactor in the regression</Font></I>
+control = "D1Mit1"
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822"># Regression</Font></I>
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822">#the result is a list of QTL Objects</Font></I>
+<I><Font color="#228822">#simple regression (no variance and no control cofactor)</Font></I>
+qtl1 = bxdGeno.regression(strains = strains, trait = trait)
+<I><Font color="#228822">#weighted regression (variance weighting but no control cofactor)</Font></I>
+qtl2 = bxdGeno.regression(strains = strains, trait = trait, variance = variance)
+<I><Font color="#228822">#composite regression (control cofactor with or without variance weighting)</Font></I>
+qtl3 = bxdGeno.regression(strains = strains, trait = trait, control = "D1Mit1")
+qtl4 = bxdGeno.regression(strains = strains, trait = trait, variance = variance, control = "D1Mit1")
+<I><Font color="#228822">#maximum QTL</Font></I>
+max(qtl1)
+max(qtl2)
+max(qtl3)
+max(qtl4)
+<I><Font color="#228822">#maximum LRS</Font></I>
+max(qtl1).lrs
+max(qtl2).lrs
+max(qtl3).lrs
+max(qtl4).lrs
+<I><Font color="#228822">#Locus with maximum LRS</Font></I>
+max(qtl1).locus
+max(qtl1).locus.name
+<I><Font color="#228822">#sort the qtl list</Font></I>
+qtl1.sort()
+qtl2.sort()
+qtl3.sort()
+qtl4.sort()
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822"># Permutation</Font></I>
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822">#returns a list of highest LRS value for each permutation in ascending order</Font></I>
+<I><Font color="#228822">#fixed number permutations</Font></I>
+permu1 = bxdGeno.permutation(strains = strains, trait = trait,nperm=1000)
+permu2 = bxdGeno.permutation(strains = strains, trait = trait, variance = variance,nperm=1000)
+<I><Font color="#228822">#progressive permutation</Font></I>
+<I><Font color="#228822">#keep on doing permutations until the threshold LRS is not in the top 10</Font></I> 
+<I><Font color="#228822">#or the total number of permutations reaches 1,000,000 </Font></I>
+permu3 = bxdGeno.permutation(strains = strains, trait = trait, thresh = 23)
+<I><Font color="#228822">#calculate p-value</Font></I>
+pv1 = reaper.pvalue(max(qtl1).lrs, permu1)
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822"># Bootstrap</Font></I>
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822">#returns a list of counts of times that a locus has the highest LRS score</Font></I>
+<I><Font color="#228822">#the length of the list equal to the total number of markers</Font></I>
+boot1 = bxdGeno.bootstrap(strains = strains, trait = trait, nboot=1000)
+boot2 = bxdGeno.bootstrap(strains = strains, trait = trait, variance = variance, nboot=1000)
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822"># Anova </Font></I>
+<I><Font color="#228822">################</Font></I>
+<I><Font color="#228822"># A simple ANOVA (ANalysis Of VAriance between groups) function</Font></I>
+list = [1, 2, 4.1, 2, 4, 3.2, 1.1, 5, 5.6, 7.1, 2.3, 4.3, 3.6]
+mean, median, variance, stdev, stderr, N = reaper.anova(list)
+<I><Font color="#228822">#######################</Font></I>
+<I><Font color="#228822"># Read from Input file</Font></I>
+<I><Font color="#228822">#######################</Font></I>
+<I><Font color="#228822">#It is easy to read from tab-delimited input file to generate the strain and trait value lists</Font></I>
+<I><Font color="#228822">#use the included trait.txt as example</Font></I>
+import string
+fp = open("../../Example/trait.txt")
+header = fp.readline()
+header = string.split(header)
+header = map(string.strip, header)
+<I><Font color="#228822">#strip any blank characters</Font></I>
+strains = header[1:]
+<I><Font color="#228822">#the header here is the strain list</Font></I>
+trait = fp.readline()
+trait = string.split(trait)
+trait = map(string.strip, trait[1:])
+<I><Font color="#228822">#strip any blank characters</Font></I>
+trait = map(float, trait)
+<I><Font color="#228822">#the trait here is the trait valuelist</Font></I>
+</pre>
+</Blockquote>
+			 	  
+&nbsp;&nbsp;&nbsp;&nbsp;<A NAME="about">About this text file</A>
+<Blockquote>
+QTL Reaper Tutorial written by Evan Williams, July 2005. Edits by EGW, Aug 4. 2005; KFM, March 20, 2006. Last edit by KFM, March 20, 2006.</Blockquote>
+		</TD>
+		</TR>
+		</TABLE>
+		</TD>
+
+
+	</TR>
+	<TR>
+		<TD align=center bgColor=#ddddff class="solidBorder">
+		<!--Start of footer-->
+		<TABLE width="90%">
+		<script language='JavaScript' src='/javascript/footer.js'></script>
+		</TABLE>
+		<!--End of footer-->
+		</TD>
+	</TR>
+</TABLE>
+<!-- /Footer -->
+<script language="JavaScript" src="/javascript/menu_new.js"></script>
+<script language="JavaScript" src="/javascript/menu_items.js"></script>
+<script language="JavaScript" src="/javascript/menu_tpl.js"></script>
+<script language="JavaScript">
+	<!--//
+	new menu (MENU_ITEMS, MENU_POS);
+	//-->
+</script>
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-3782271-1";
+urchinTracker();
+</script>
+</BODY>
+</HTML>

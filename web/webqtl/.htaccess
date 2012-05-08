@@ -1,0 +1,5 @@
+AddHandler python-program .py
+PythonHandler main
+PythonInterpreter GeneNetwork
+PythonOption session FileSession
+PythonDebug On

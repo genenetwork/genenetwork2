@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>GNF Microarray March03 / WebQTL</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<LINK REL="stylesheet" TYPE="text/css" HREF='/css/general.css'>
+<LINK REL="stylesheet" TYPE="text/css" HREF='/css/menu.css'>
+<SCRIPT SRC="/javascript/webqtl.js"></SCRIPT>
+
+
+</HEAD>
+<BODY  bottommargin="5" topmargin="5" leftmargin="5" rightmargin="5" marginheight="5" marginwidth="5" text=#000000 bgColor=#ffffff>
+<TABLE cellSpacing=3 cellPadding=4 width="100%" border=0>
+<TBODY>
+<TR>
+<script language="JavaScript" src="/javascript/header.js"></script>
+</TR>
+<TR>
+<!-- Body Start from Here -->
+<TD vAlign=top width="100%" colspan=2 bgColor=#eeeeee>
+
+<P class="title">Groningen-GNF Hematopoietic Cells U74Av2 (Mar03) MAS5
+
+ <A HREF="/webqtl/main.py?FormID=editHtml"><img src="/images/modify.gif" alt="modify this page" border= 0 valign="middle"></A><BR><BR>Accession number: <A HREF="/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=5">GN5</A></P>
+
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;Summary:</P>
+
+<Blockquote><P>
+This data set is now superceeded by the March 2004 RMA data set. The original March 2003 data freeze provides estimates of mRNA expression in hematopoietic stem cells (HSC) from adult female BXD recombinant inbred mice measured using Affymetrix U74Av2 microarrays. Data were generated at the Genomics Institute of the Norvartis Research Foundations (GNF) and by de Haan and colleagues at the University of Groningen. Samples  from 22 strains were hybridized to 44 arrays in a single batch. Data were processed using the Microarray Suite 5 (<a href="www.affymetrix.com/support/technical/whitepapers/sadd_whitepaper.pdf" class="normal">MAS 5</a>) protocol of Affymetrix. To simplify comparison between data sets (HSC and other tissues), the MAS 5 values of each array were log2 transformed and adjusted to an average of 8 units.</P>
+</Blockquote>
+
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;About the mice used to map microarray data:</P>
+
+<Blockquote><P>BXD recombinant inbred mice were purchased from The Jackson Laboratory and upon arrival were housed under clean conventional conditions in the Central Animal Facility of the University of Groningen, Netherlands. We used female mice between 3 and 6 months old.</P>
+
+<P>Stem cells (described below) were isolated from pooled bone marrow obtained from three BXD animals per strain. Pooled RNA samples were split in two aliquots and each sample was independently amplified and hybridized to the U74Av2 array (3 mice x 2 arrays).</P>
+</Blockquote>
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;About the tissue used to generate these data:</P>
+
+<Blockquote><P>Bone marrow cells were flushed from the femurs and tibiae of three mice and pooled. After standard erythrocyte lysis nucleated cells were incubated with normal rat serum for 15 min at 4 degrees Celsius. Subsequently cells were stained with a panel of biotinylated lineage-specific antibodies (murine progenitor enrichment cocktail, containing anti-CD5, anti-CD45R, anti-CD11b, anti-TER119, anti-Gr-1, and anti-7-4, Stem Cell Technologies, Vancouver, Canada), FITC-anti-Sca-1 and APC-anti-c-kit (Pharmingen). Cells were washed twice, and incubated for 30 minutes with streptavidin-PerCP (Pharmingen). After two washes cells were resuspended in PBS with 1% BSA, and purified using a MoFlo flow cytometer. The lineage-depleted bone marrow cell population was defined as the 5% cells showing least PerCP-fluorescence intensity. Stem cell yield across all BXD samples varied from 16,000 to 118,000 Lin-Sca-1+ c-kit+ cells. A small aliquot of each sample of purified cells was functionally tested for stem cell activity by directly depositing single cells in a cobblestone area forming cell assay. The remainder of the cells was immediately collected in RNA lysis buffer. Total RNA was isolated using StrataPrep Total RNA Microprep kit  (Stratagene) as described by the manufacturer. RNA pellets were resolved in 500 microliters absolute ethanol, and sent on dry ice by courrier to GNF, La Jolla, CA.
+</P></Blockquote>
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;About amplification and hybridization:</P>
+<Blockquote><P>Total RNA was quantified using RiboGreen and split into equal aliquots of approximately 10 ng, representing RNA from approximately 10,000 cells, and labeled using a total of three rounds of RNA amplification, exactly as described previously (Scherer et al. <a href="http://www.ncbi.nlm.nih.gov:80/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=12661160&dopt=Abstract" target="_blank" class="normal">2003</a>). Labeled cRNA was fractionated and hybridized to the U74Av2 microarray following standard Affymetrix protocols.
+</P></Blockquote>
+
+
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;About the chromosome and megabase position values:</P>
+
+<Blockquote>The chromosomal locations of probe sets and gene markers were determined by BLAT analysis using the Mouse Genome Sequencing Consortium Oct 2003 Assembly (see <a href="http://genome.ucsc.edu/cgi-bin/hgBlat?command=start&org=mouse" class="normal">http://genome.ucsc.edu/</a>). We thank Yan Cui (UTHSC) for allowing us to use his Linux cluster to perform this analysis.</Blockquote>
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;About data processing:</P>
+
+<Blockquote><B>Probe (cell) level data from the CEL file: </B>These CEL values produced by MAS 5 are the 75% quantiles from a set of <a href="images/AffyU74.pdf" target="_blank" class="normal">36 pixel </a>values per cell.
+<UL>
+<LI>Step 1: We added an offset of 1.0 to the CEL expression values for each cell to ensure that all values could be logged without generating negative values.
+
+<LI>Step 2: We took the log2 of each cell.
+
+<LI>Step 3: We computed the Z score for each cell.
+
+<LI>Step 4: We multiplied all Z scores by 2.
+
+<LI>Step 5: We added 8 to the value of all Z scores. The consequence of this simple set of transformations is to produce a set of Z scores that have a mean of 8, a variance of 4, and a standard deviation of 2. The advantage of this modified Z score is that a two-fold difference in expression level corresponds approximately to a 1 unit difference.
+
+<LI>Step 6: We computed the arithmetic mean of the values for the set of microarrays for each of the individual strains.
+</UL>
+<B>Probe set data from the TXT file: </B>These TXT files were generated using the MAS 5. The same simple steps described above were also applied to these values. Every microarray data set therefore has a mean expression of 8 with a standard deviation of 2. A 1-unit difference therefore represents roughly a two-fold difference in expression level. Expression levels below 5 are usually close to background noise levels.</Blockquote>
+
+
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;About the array probe set names:</P>
+<Blockquote> <P>
+Most probe sets on the U74Av2 array consist of a total of 32 probes, divided into 16 perfect match probes and 16 mismatch controls. Each set of these 25-nucleotide-long probes has an identifier code that includes a unique number, an underscore character, and several suffix characters that highlight design features.  The most common probe set suffix is  <b>at</b>. This code indicates that the probes should hybridize relatively selectively with the complementary anti-sense target (i.e., the complemenary RNA) produced from a single gene. Other codes include:</P>
+
+<li> <b>f_at (sequence family)</b>: Some probes in this probe set will hybridize to identical and/or slightly different sequences of related gene transcripts.</li>
+
+<li><b>s_at (similarity constraint)</b>: All Probes in this probe set target common sequences found in transcripts from several genes. </li>
+
+<li> <b>g_at (common groups)</b>: Some probes in this set target identical sequences in multiple genes and some target unique sequences in the intended target gene.</li>
+
+<li> <b>r_at (rules dropped)</b>: Probe sets for which it was not possible to pick a full set of unique probes using the Affymetrix probe selection rules. Probes were picked after dropping some of the selection rules.</li>
+
+<li> <b>i_at (incomplete)</b>: Designates probe sets for which there are fewer than the standard numbers of unique probes specified in the design (16 perfect match for the U74Av2).</li>
+
+<li> <b>st (sense target)</b>: Designates a sense target; almost always generated in error.</li>
+
+<P>Descriptions for the probe set extensions were taken from the Affymetrix<a href="./dbdoc/data_analysis_fundamentals_manual.pdf" class="normal"> GeneChip Expression Analysis Fundamentals</a>.
+</P></Blockquote>
+
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;Data source acknowledgment:</P>
+<Blockquote><P>Cell and samples were generated by Leonid V. Bystrykh, Ellen Weersing, Bert Dontje, Gerald de Haan, Department of Stem Cell Biology, University of Groningen, the Netherlands. RNA amplification and array processing were carried out by Michael Cooke, John Hogenesch, Andrew Su, and colleagues at GNF. </p>
+
+<p>Data normalization and conversion for WebQTL were handled by Robert Williams, Kenneth Manly, Jintao Wang, and Yanhua Qu at UTHSC and Roswell Park Cancer Institute.</p>
+</Blockquote>
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;References:</P>
+<Blockquote><P>Scherer A, Krause A, Walker JR, Sutton SE, Seron D, Raulf F, Cooke MP (2003) Optimized protocol for linear RNA amplification and application to gene expression profiling of human renal biopsies. Biotechniques  34:546-550, 552-554, 556.
+</P></Blockquote>
+<Blockquote><P>de Haan G, Bystrykh LV, Weersing E, Dontje B, Geiger H, Ivanova N, Lemischka IR, Vellenga E, Van Zant G (2002) A genetic and genomic analysis identifies a cluster of genes associated with hematopoietic cell turnover Blood 100:2056-2062.
+</P></Blockquote>
+<Blockquote><P>
+Wang J, Williams RW, Manly KF (2003) WebQTL: Web-based complex trait analysis. Neuroinformatics 1: 299-308.
+</P></Blockquote>
+<Blockquote><P>
+Williams RW, Manly KF, Shou S, Chesler E, Hsu HC, Mountz J, Wang J, Threadgill DW, Lu L (2002) Massively parallel complex trait analysis of transcriptional activity in mouse brain. International Mouse Genome Conference 16:46.
+</P></Blockquote>
+
+
+<P class="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;Information about this text file:</P>
+<Blockquote><P>
+This text file originally generated by GdH and RWW, March 2003. Updated by RWW, October 30, 2004.
+</P></Blockquote>
+
+
+<P></P>
+
+</TD>
+</TR>
+<TR>
+<TD colspan=2 align=center bgColor=#ddddff>
+
+
+
+<!--Start of footer-->
+<TABLE width="90%">
+<script language='JavaScript' src='/javascript/footer.js'></script>
+</TABLE>
+<!--End of footer-->
+
+
+
+</TD>
+</TR>
+</TABLE>
+<!-- /Footer -->
+
+<!-- menu script itself. you should not modify this file -->
+<script language="JavaScript" src="/javascript/menu_new.js"></script>
+<!-- items structure. menu hierarchy and links are stored there -->
+<script language="JavaScript" src="/javascript/menu_items.js"></script>
+<!-- files with geometry and styles structures -->
+<script language="JavaScript" src="/javascript/menu_tpl.js"></script>
+<script language="JavaScript">
+<!--//
+// Note where menu initialization block is located in HTML document.
+// Don't try to position menu locating menu initialization block in
+// some table cell or other HTML element. Always put it before </body>
+
+// each menu gets two parameters (see demo files)
+// 1. items structure
+// 2. geometry structure
+
+new menu (MENU_ITEMS, MENU_POS);
+// make sure files containing definitions for these variables are linked to the document
+// if you got some javascript error like "MENU_POS is not defined", then you've made syntax
+// error in menu_tpl.js file or that file isn't linked properly.
+
+// also take a look at stylesheets loaded in header in order to set styles
+//-->
+</script>
+</BODY>
+</HTML>

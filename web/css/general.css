@@ -1,0 +1,244 @@
+@import url(import.css);
+
+body 
+{
+	font-family : verdana, geneva, lucida, 'lucida grande', arial, helvetica;
+	font-weight : Normal;
+}
+
+Blockquote {
+	margin : 14px 18px 14px 18px;
+}
+
+/*Font size*/
+.fs10 {font-size : 10px}
+.fs11 {font-size : 11px}
+.fs12 {font-size : 12px}
+.fs13 {font-size : 13px}
+.fs14 {font-size : 14px}
+.fs15 {font-size : 15px}
+.fs16 {font-size : 16px}
+.fs17 {font-size : 17px}
+
+/*Font Weight*/
+.fwb {font-weight : Bold}
+.fwn {font-weight : Normal}
+
+/*Font Style*/
+.fsI {font-style : Italic}
+
+/*Font family*/
+.ffv {font-family : verdana, geneva, lucida, 'lucida grande', arial, helvetica;}
+.ffl {font-family : lucida, verdana, 'lucida grande', helvetica, arial, geneva;}
+.ffmono {font-family : "CourierNew", Courier, mono;}
+
+/*Color*/
+.cr {color : #f00}
+.cg {color : #0f0}
+.cdg {color : darkgreen}
+.cb {color : #00f}
+.c222 {color : #222}
+.c999 {color : #999}
+.c00d {color : #00d}
+.cori {color : #CC9933}
+.crb {color : royalblue}
+.cw {color : #fff}
+.cbl {color : #000000}
+.cydull {color : #cfcf32}
+.cdefault {color : #503A7D}
+
+/*backColor*/
+.cbr {background-color : #f00}
+.cbg {background-color : #0f0}
+.cbdg {background-color : darkgreen}
+.cbb {background-color : #00f}
+.cb222 {background-color : #222}
+.cbg22t {background-color : #FF6}
+.cbg22c {background-color : #5CB3FF}
+.cbg2C {background-color : #1569C7}
+.cbg22a {background-color : #F66}
+.cbg22g {background-color : #CF9}
+.cb00d {background-color : #00d}
+.cb222 {background-color : #222}
+.cbeee {background-color : #eee}
+.cbori {background-color : #CC9933}
+.cbrb {background-color : royalblue}
+.cbdb {background-color : #2D2DB5}
+.cbw {background-color : #fff}
+.cbydull {background-color : #cfcf32}
+.cbrdull {background-color : #c33232}
+.cbgdull {background-color : #32c332}
+.cbbdull {background-color : #1569C7}
+.cbpdull {background-color : #c332c3}
+.cbccc {background-color : #ccc}
+.cbddf {background-color : #ddf}
+
+.nowrap {white-space: nowrap;}
+
+/*Table Cell*/
+.collap {border-collapse : collapse;}
+
+TH.header { 
+    background-image: url(/images/bg.gif);
+    background-color: #4169E1;     
+    cursor: pointer; 
+    background-repeat: no-repeat; 
+    background-position: center left; 
+    padding-left: 20px; 
+    margin-left: -1px; 
+} 
+TH.headerSortUp { 
+    background-image: url(/images/desc.gif); 
+    background-color: #4169E1; 
+} 
+TH.headerSortDown { 
+    background-image: url(/images/asc.gif); 
+    background-color: #4169E1; 
+} 
+
+TD, P {color : #222222; font-size : 13px}
+TD.b1 {border : 1px solid #999999; padding : 3px;}
+TH.b1 {border : 1px solid #999999; padding : 3px;}
+TD.bt1 {border-top : 1px solid #999999; padding : 3px;}
+TD.bb1 {border-bottom : 1px solid #999999; padding : 3px;}
+
+.b2 {border : 2px solid royalblue; padding : 3px;}
+
+.bd1 {border : 1px dashed #999999; padding : 6px;}
+
+TD.outlier {background-color : yellow;}
+
+TR.alt td {
+		background: #e6e8fa;
+}
+
+TR.over td {
+		background: #82CFFD;
+}
+
+/*Table Row*/
+.toggleShowHide { color : #0000DD; cursor: pointer;}
+.invisible {display: none;}
+
+/*Link*/
+A.font_black:link {color: #000000; text-decoration : None}
+A.font_black:active {color: #000000; text-decoration : None}
+A.font_black:hover {color: #000000; text-decoration : None}
+A.font_black:visited {color: #000000; text-decoration : None}
+
+A {font-family : lucida, 'lucida grande', verdana, helvetica, arial, geneva; 
+	font-weight : Bold; font-size : 13px; text-decoration : None}
+
+A:link, A:visited {color : #0000DD; text-decoration : None}
+
+A:active {color : #FF0000; text-decoration : None}
+
+A:hover {color : #FF0000; text-decoration : None}
+
+A.background_grey {background:#dddddd;padding:2;}
+
+A.non_bold {font-weight : Normal; color : #0000DD;} 
+
+/*Border Style*/
+.solidBorder {border : 1px solid #CCCCCC; padding : 2px;}
+.doubleBorder {border : double #AAAAAA; padding : 2px;}
+
+/*Title style*/
+.title {font-weight:Bold; color:#222222; font-size:16px}
+
+.subtitle {font-family : lucida, verdana, 'lucida grande', helvetica, arial, geneva; 
+	font-weight:Bold; font-size:14px; color:#000082}
+	
+.sectionheader {font-family : arial, verdana, 'lucida grande', helvetica, lucida, geneva; 
+	font-weight:Bold; font-size:14px; vertical-align: middle; display:block; color:#000000; background-color:#DDDDDD; line-height:24px; height:24px;}
+
+/*drop shadow*/
+#v3 .wrap1 {background:url(/images/shadow/shadow.gif) right bottom no-repeat;}
+#v3 .wrap2 {background:url(/images/shadow/corner_bl.gif) -12px 100% no-repeat;}
+#v3 .wrap3 {
+	padding:0 9px 9px 0;
+	background:url(/images/shadow/corner_tr.gif) 100% -12px no-repeat;}
+
+
+/*steal from google*/
+
+  .tabsTableBox {
+    width:100%;
+    border-spacing:0;
+    border-collapse:collapse;
+    margin-top:5px;
+    font-size:smaller;
+    text-align:center;
+  }
+  .tabsTableBox td {
+    padding-right:5px;
+    padding-left:5px;
+    padding-bottom:3px;
+  }  
+
+/*For making the Custom Strain box in snpBrowser.py a default width, instead of looking weird always*/
+.customBoxWidth {
+ width: 143px;
+}
+  .selectedBox {
+    border-top:1px solid #676767;
+    border-right:1px solid #676767;
+    border-left:1px solid #676767;
+    width:80;
+    font-weight:bolder;
+    color:#3366cc; 
+    font-size:12px;
+  }
+  .unselectedBox {
+    background-color:#dddddd;
+    border-top:1px solid #aaaaaa;
+    width:80;
+    border-right:1px solid #aaaaaa;
+    border-left:1px solid #aaaaaa;
+    border-bottom:1px solid #676767;
+    font-size:12px;
+  }
+  
+  .spacerTabBox {
+    border-bottom:1px solid #676767;
+    width:5px;
+  }
+  
+  .emptyTabBox {
+    border-bottom:1px solid #676767;
+  }
+  
+/*For font color of 'Get Any' and 'Combined' in the main page*/
+.searchtip
+{
+color: #999999;
+}
+
+
+/*For font style and color of commands and keywords in the scriptable interface page*/
+.keywords
+{
+font-family : "CourierNew", Courier, mono;
+font-size : 15px;
+color : #0000FF;
+font-weight : Normal
+}
+/*For RIsample.html page*/
+.strains
+{
+border:1px solid #999999;
+border-top:1px solid #940;
+border-bottom:1px solid #940;
+padding:5;
+background-color:#ddf;
+font-family:verdana;
+}
+.values
+{
+border:1px solid #999999;
+border-top:1px solid #940;
+border-bottom:1px solid #940;
+padding:5;
+background-color:#eee;
+font-family:courier;
+}

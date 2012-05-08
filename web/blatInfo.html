@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>HTML Template</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/general.css'>
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/menu.css'>
+<SCRIPT SRC="javascript/webqtl.js"></SCRIPT>
+</HEAD>
+<BODY  bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff>
+<TABLE cellSpacing=5 cellPadding=4 width="100%" border=0>
+	<TBODY>
+	<TR>
+		<script language="JavaScript" src="/javascript/header.js"></script>
+	</TR>
+	<TR>
+		<TD bgColor=#eeeeee class="solidBorder">
+		<Table width= "100%" cellSpacing=0 cellPadding=5><TR>
+		<!-- Body Start from Here -->
+		
+		<TD vAlign=top width="100%" height=200 bgColor=#eeeeee>
+		<P class="title">BLAT Specificity, Scores, and the Verify Location Button<A HREF="/webqtl/main.py?FormID=editHtml">
+		<img src="images/modify.gif" alt="modify this page" border= 0 valign="middle"></A></P>
+		
+
+<P><B>BLAT Specificity</B> provides a simple estimate of the quality of the alignment (specificity) of a group of probes on an array to a specific gene target. Values typically ranges from about 0.5 to 10, and higher values are better. Values less than 2 indicate that a probe sequence is not highly specific to one location in the genome. These probes may still be prefectly usable. Remember, you are interested in alignment to coding sequence (mRNA), but the BLAT function actually tests the entire genome, including regions that are almost never expressed. 
+
+<P>Specificity is computed as a simple ratio between the top (or correct) BLAT score to the second best (or incorrect) alignment. When the second BLAT score is low or null (no second-best alignment), then we declare a specificity value of 10 (great specificity). When the correct alignment is second best (this is not rare), then we declare the BLAT specificity to be 0.5. Values of 0.5 to 1.0 typically mean that probes have several possible matches across the whole genome. 
+
+<P><B>BLAT Score</B> provide an estimate of the number of nucleotides that align well to one region of the genome. The maximum number can equal the length of the probe or probe set. For Affymetrix probe sets this number will usually be between 60 and 260. For Illumina and Agilent probes this number will typically be between 40 and 60.
+
+<P>You can replicate the BLAT analysis by clicking on the <B>Verify</B> function button (one of the large square icons on Trait Data and Analysis page). This button triggers a new request to align the probe sequences to the most recent assembly of the genome using the UCSC Genome Browser <A HREF="http://genome.ucsc.edu/FAQ/FAQblat.html" target="new">Blat</A> function. For example if you click on this button while viewing Affymetrix probe set 1421393_at, the following long and tedious command will be sent by GeneNetwork to the UCSC Genome Browser (this string of text is called a "get" command):
+
+<DIR>
+<SMALL>
+<P>http://genome.ucsc.edu/cgi-bin/hgBlat?org=mouse&db=mm8&type=0&sort=0&output=0&userSeq=%3E
+<BR><B>1421393_at_A</B>%0ACGCTACTGGTCGGTTGACAAGCTCGGGCGCTGGTAGCTG
+<BR>GGACTACCTGCCTCAGCTGCTCGCACGACGGCCTAGACGGTGGCTGGTGGGCGCCT
+<BR>CCGCGCTGTGGTTGTCCGCGACCGCACGCGCGCGGCGGGTGGCTGGGACCTCGCG
+<BR>TTCGCTGGAGGACCTGAGCTCCTGCCCACGGGCTCCAGCCTGGAGTCCGAGGTATGA
+%0A%3E<BR>Probe_121277%0ACGCTACTGGTCGGTTGACAAGCTCG%0A%3E
+<BR>Probe_X66255%0ACTACTGGTCGGTTGACAAGCTCGGG%0A%3E
+<BR>Probe_X70307%0AGCGCTGGTAGCTGGGACTACCTGCC%0A%3E
+<BR>Probe_256627%0ATCAGCTGCTCGCACGACGGCCTAGA%0A%3E
+<BR>Probe_567263%0ACTGCTCGCACGACGGCCTAGACGGT%0A%3E
+<BR>Probe_X58653%0ATAGACGGTGGCTGGTGGGCGCCTCC%0A%3E
+<BR>Probe_481305%0AGCGCTGTGGTTGTCCGCGACCGCAC%0A%3E
+<BR>Probe_X36299%0AGCGCGCGGCGGGTGGCTGGGACCTC%0A%3E
+<BR>Probe_164119%0AACCTCGCGTTCGCTGGAGGACCTGA%0A%3E
+<BR>Probe_692403%0AGAGGACCTGAGCTCCTGCCCACGGG%0A%3E
+<BR>Probe_333261%0ACTCCAGCCTGGAGTCCGAGGTATGA%0A
+</SMALL>
+</DIR>
+
+<P>A BLAT Search Results window will appear that lists the best matches of this sequence in the genome; in this case on mouse Chr 7 at 45.700822 Mb. 
+
+<P>
+<DIR><IMG src="images/upload/BLATVerify1.png" valign="top">
+</DIR>
+
+<DIR><P><SMALL><B>Legend</B>: The first <B>Verify</B> output page from the Genome Browser lists the best genomic matches to the sequence of Affymetrix probe set 1421393_at. The best match has a score of 201 out of 207 nucleotides.  One poor alignment (score of 25) is also given for the whole probe set to Chr 8 (an intron in <I>Nfix</I>. The individual probes are also listed and they have perfect scores, given their short length (25 of 25). </SMALL></P>
+</DIR>
+
+<P>To the far left of the BLAT Search Results page you will see links that are labeled <B>browser</B>.  Click on the top line and you will see a small segment of the genome that matches the sequence on the array. Click on the <B>10x</B> <B>zoom out</B> button in order to see a bit more of the chromosome and the genes in the local region.
+
+
+<P>
+<DIR><IMG src="images/upload/BLATVerify2.png" valign="top">
+</DIR>
+
+<DIR><P><SMALL><B>Legend</B>: A typical <B>Verify</B> output page from the Genome Browser shows the alignment of Affymetrix probe set 1421393_at and its constituent set of eleven short (25 nucleotide) probes. The probe set is aligning to the negative strand (reading from right to left). The corresponding part of the <I>Grin2d</I> gene is shown in blue toward the bottom (the last exon and 3' untranslated region). </SMALL></P>
+</DIR>
+
+
+
+
+<P>
+<P>
+	<TR>
+		</TD>
+		<!-- Body End Here -->
+		</TR></TABLE>
+		</TD>
+	</TR>
+		<TD align=center bgColor=#ddddff class="solidBorder">
+		<!--Start of footer-->
+		<TABLE width="90%">
+		<script language='JavaScript' src='/javascript/footer.js'></script>
+		</TABLE>
+		<!--End of footer-->
+		</TD>
+	</TR>
+</TABLE>
+<!-- /Footer -->
+<script language="JavaScript" src="javascript/menu_new.js"></script>
+<script language="JavaScript" src="javascript/menu_items.js"></script>
+<script language="JavaScript" src="javascript/menu_tpl.js"></script>
+<script language="JavaScript">
+	<!--//
+	new menu (MENU_ITEMS, MENU_POS);
+	//-->
+</script>
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-3782271-1";
+urchinTracker();
+</script>
+</BODY>
+</HTML>

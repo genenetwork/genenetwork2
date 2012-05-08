@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+<TITLE>How to Search</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<base href="http://www.genenetwork.org/">
+<LINK REL="stylesheet" TYPE="text/css" HREF='/css/general.css'>
+<LINK REL="stylesheet" TYPE="text/css" HREF='/css/menu.css'>
+<SCRIPT SRC="/javascript/webqtl.js"></SCRIPT>
+</HEAD>
+
+<BODY bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff>
+
+<TABLE cellSpacing=5 cellPadding=4 width="100%" border=0>
+	<TBODY>
+	<TR>
+		<TD bgColor=#eeeeee class="solidBorder">
+		<Table width="100%" cellSpacing=0 cellPadding=5 border="0"><TR>
+		<!-- Body Start from Here -->
+		<TD valign="top" height="200" width="100%" bgcolor="#eeeeee">
+
+<P class="title">Advanced Searching and General Advice  <A HREF="/webqtl/main.py?FormID=editHtml" target="_blank"><img src="images/modify.gif" alt="modify this page" border= 0 valign="middle"></A></P>
+
+<Blockquote>
+
+<P>First select the most appropriate SPECIES, GROUP, data TYPE, and DATABASE. You can then enter terms and values into either the <B>Get Any</B> or the <B>Combined </B> search blocks. <B>Get Any</B> will retrieves more records (logical OR), whereas the <B>Combined</B> fields will find only records that intersect or match all terms (logical AND). You can directly enter standard text, gene symbols, GenBank IDs, mRNA reference sequence IDs (NM_*), probe/probe set IDs or even Gene Ontology IDs (for example GO:16798) into the <B>Get Any</B> or the <B>Combined </B> fields using either the standard or advanced Search page. The search fields are not case-sensitive; <I>app</I> and <I>APP</I> are equivalent. Terms can be separated by a space, comma, slash, colon or semicolon. 
+
+<P><B>*</B> or <B>?</B>  can be used to represent any of several characters. Use * for one or more characters and ? for single characters such as hyphens or periods. 
+
+<P>When in doubt, start with short terms and use an asterisk at the start or end of the term (e.g., <I>*enkephalin</I> or <I>Hoxb*</I>). When searching for probes or probe sets such as <I>1436869_at_B</I>, it is easiest to enter <I>1436869*</I>. 
+
+<P>To search for a term or word that is in GeneWiki, please just enter "wiki=xxx", for example, wiki=GENSAT to list all genes and transcripts for which there is a GeneWiki entry that includes the text string "GENSAT." These searches are not case sensitive.
+
+<P>A maximum of 500 characters are allowed in either search field. Approximately 60 GenBank, RefSeq, Unigene, or probe set IDs or other IDs will fit. It is a good idea to enter the full string, for example <I>Mm.57202</I> including the period for Unigene IDs. You can enter the reference mRNA sequence (Refseq) for a gene, such as <I>NM_007467</I>. Enter them with the underscore character (<B>_</B>).  Although <I>*57202</I> will work, this search may also pick up unintended records.
+
+<P>As mentioned the <B>Get Any</B> field will retrieve records that match any of the terms in any order (logical OR). A search string such as <I>amyloid beta</I> may generate too many records (over 1000 in some databases) because <I>beta</I> is so common. In contrast, the <B>Combined</B> field performs a logical AND operation and retrieves only records that intersect all terms. Searching for <I>amyloid beta</I> or <I>beta amyloid</I> in this field yields fewer than 50 hits.
+
+<P>A single Search Results page lists up to 100 records, and provides links to as many as 20 other pages and a maximum of 2000 records. If a search generates more than 2000 matches, you will need to make the search more selective. Try using the ? wildcard to retain a specific sequence and order of words such as in <I>receptor?binding</I>. 
+
+<P>All Published Phenotypes databases can be searched by the last names of authors. These databases cannot yet be reliably searched using general terms such as <I>morphology</I> or <I>neuropharm*</I> or year of publication.
+
+<P>Multiple <B>Phenotype databases</B> can be searched in a single operation by selecting the <I>All Species </I> option in the pull-down selection menus ("Choose Species"). You can then enter a phrase such as "body weight" in the ALL field to generate a Search Results list of phenotypes in multiple groups (AXB, BXD, BXH, CXB, etc.).
+
+<P><B>Genotype databases</B> can usually be searched by the name, chromosome, or location of markers. To find all markers on Chr 7, type the number <B>7</B> into either entry field. To find all markers on Chr X between 50 and 80 Mb, type this string into either entry field: <B>Mb=(ChrX 50 80)</B>.
+
+<P><B>Make Default</B>: Please use the option labeled <B>Set To Default</B>. This allows you to change the initial database displayed when you begin a search. For this option to work, permission for cookies needs to be enabled on your browser. A cookie is a small text file stored on your computer used by our server to keep track of preferred settings. (If you are logged in for special projects, the cookie also keeps your user name and password.) To test that the Default option works properly, change the settings and reload the search page. If this does not work as expected, check the preference settings of your browser.
+
+<P>In some cases you may need more data than is available from a standard GeneNetwork output page. Please review the <A HREF="http://www.genenetwork.org/faq.html" target="_blank" class="fs14">FAQ</A> page and get familiar with the <A HREF="http://www.genenetwork.org/faq.html#Q-7"  target="_blank" class="fs14">Simple Query Interface</A> (note that this complex page may load slowly in some browsers). 
+
+</Blockquote>
+
+<P class="title">
+Advanced Search Methods
+</P>
+
+<Blockquote>
+More complex searches of some databases are possible using controlled syntax. Gene expression databases can be searched by the chromosomal locations of genes, by the average expression of their transcripts, by the range of values among cases or strains, by the peak linkage values (LRS scores), or by Gene Ontology membership. These search parameters can be combined. For example, to find all transcripts that are transcribed from genes located on chromosome 1 between 98 and 104 megabases use this search format:
+  
+<UL>
+<LI><B>Position=(Chr1  98 104)</B>  [Note: No space between <B>Chr</B> and the number or letter of the chromosome. As usual, the search string is case insensitive. Commas may be added between elements for visual clarity.]
+ <LI><B>Pos=(Chr1 98 104)</B>
+<LI><B>Mb=(Chr1 98 104)</B>
+</UL>
+
+<P>To find all transcripts with expression that average between 15.0 and 16.0 units, use this format:
+<UL>
+<LI><B>Mean=(15.0 16.0)</B>
+</UL>
+
+
+<P>To find all transcripts that vary 10-fold to 100-fold among strains or cases, use this format:
+<UL>
+<LI><B>Range=(10 100)</B>
+</UL>
+
+<P>To search for a term or word that is in <B>GeneWiki</B>, please just enter either:
+<UL>
+<LI><B>WIKI=xxx</B>, for example, WIKI=GENSAT to access all genes and transcripts for which there is a GeneWiki entry that includes the text string "GENSAT." These searches are not case sensitive.
+
+<LI><B>RIF=xxx</B>, for example, RIF=autism to access all genes and transcripts for which there is a GeneRIF entry inthe GeneWiki for the term "autism".
+</UL>
+
+<LI><B>rif=XXX wiki=XXX</B>, for example, rif=autism wiki=autism  to access all genes and transcripts with either a RIF entry or WIKI entry that included "autism."
+
+<P>In the examples above, the search terms are not case sensitive. 
+
+<P> Many of the GeneNetwork databases have been exhaustively analyzed using <A HREF="http://www.genenetwork.org/qtlreaper.html" target="_blank" class="fs14">QTL Reaper</A>, a high throughput mapping program designed to handle large array data sets. It is possible to search most array databases to find those transcripts that have <A HREF="http://www.genenetwork.org/glossary.html#Q" target="_blank" class="fs14">QTLs</A> with peak <A HREF="http://www.genenetwork.org/glossary.html#L" target="_blank" class="fs14">LRS</A> or <A HREF="http://www.genenetwork.org/glossary.html#L" target="_blank" class="fs14">LOD</A> scores within a particular range of values. Genome-wide P values are computed using a <A HREF="http://www.genenetwork.org/glossary.html#P" target="_blank" class="fs14">permutation test</A>. 
+
+
+<P><A NAME="cistrans_query">&nbsp;</A>
+To find traits by peak LRS value or by p value range, the search syntax needs to follow these rules:
+
+<UL>
+<LI><B>LRS=(Low_LRS_limit, High_LRS_limit)</B>: for example, LRS=(20 30) will find all traits that have a best QTL that has a peak genome-wide LRS value between 20 and 30 (LOD = LRS/4.61). It will not tell you where these QTLs are located, but it will instead provide you a list of the traits that meant this condition.
+
+<LI><B>pvalue=(Low_limit, High_limit)</B>: for example, pvalue=(0.0001 0.001) where the P value is the genome-wide significance level established by permutation. This is very similar to the LRS search above but uses permutation P values rather than LRS or LOD scores.
+
+<LI><B>CisLRS=(Low_LRS_limit, High_LRS_limit, Mb_buffer)</B>:  This command will find all expression traits that have a single best QTL that is located close to the gene from which it is expressed. The inclusion buffer value (in megabases) is used to set the limits on how close the QTL peak must be to the gene location. The inclusion buffer should usually be set to a value of 10 Mb or less, depending on the mapping population. Commas are not required between parameter values.
+
+<LI><B>TransLRS=(Low_LRS_limit, High_LRS_limit, Mb_buffer)</B>: This command will find all transcripts that have a single best QTL that is not located close to the gene from which the transcript is expressed located more than the exclusion buffer value (in megabases) from the gene from which the transcript is expressed. The exclusion buffer should usually be set at greater than 10 to 20 Mb. Commas are not required. 
+
+<LI><B>LRS=(Low_LRS_limit, High_LRS_limit, ChrNN, Mb_Low_Limit, Mb_High_Limit)</B>: for example, LRS=(20, 900, Chr12, 0, 130). This command will find all transcripts that have a single best QTL that is located on Chr 12 between 0 Mb and 130 Mb in the LRS range of 20 to 900. Commas are not required.
+
+<LI><B>LRS=(Low_LRS_limit, High_LRS_limit, ChrNN, Mb_Low_Limit, Mb_High_Limit)</B> and  <B>TransLRS=(Low_LRS_limit, High_LRS_limit, Mb_buffer)</B>: for example, LRS=(20, 900, Chr12, 0, 130) transLRS=(20, 900, 25). This combination of commands will find all transcripts that have a single best trans-QTL that is located on Chr 12 between 0 Mb and 130 Mb in the LRS range of 20 to 900 with a 25 Mb exclusion buffer. Commas are not required.  
+
+<P>You need to replace the text such as "Low_LRS_limit" with a real value such as "15". But do not use the quotes.
+For example, you might type this string into the ALL field to find CisQTLs that map to Chr 1 between 170 and 180 Mb with LRS values between 100 and 500.
+
+<BR> CisLRS=(100, 500, 10) LRS=(100, 500 chr1 170 180)
+
+
+</UL>
+
+<P>The search strings above require a database of values that we precompute using <A HREF="http://www.genenetwork.org/qtlreaper.html" target="_blank" class="fs14">QTL Reaper</A>. If QTL Reaper has not yet been used, then these searches will not return records. 
+
+<P>These search strings can be combined to generate more complex queries. For example, enter these search phrases into the ALL (intersection of) field:
+
+<UL>
+
+<LI><B>Mb=(Chr1 50 100)  LRS=(20 200)</B>  to find all transcripts with genes on Chr 1 between 50 and 100 Mb that also have top LRS scores in the range from 20 to 200 anywhere in the genome. 
+
+<LI><B>MB=(ChrX 0 20) Mean=(10 25)</B>  to find all transcripts with genes on Chr X between 0 and 20 Mb that also have mean expression in the range from 10 to 25.
+
+<LI><B>transLRS=(9.2 1000 20)  LRS=(9.2 1000 Chr11 50 80)</B> will find all transcripts with best trans QTLs (LRS > 9.2) that map to Chr 11 between 50 and 70 Mb (with a 20 Mb trans exclusion buffer).  
+
+<LI><B>Mb=(Chr2 100 200) GO:0007268</B> to find any transcripts on Chr 2 between 100 and 200 Mb that belong to the Gene Ontology category GO:0007268 "synaptic transmission." More below on GO searches.
+
+<LI><B>Mb=(Chr1 0 210)  Mean=(12 20)  TransLRS=(15 300 25) </B> in the ALL field to find all transcripts located on Chr 1 (the Mb values of 0 and 210 cover the entire chromosome) that have mean expression above a value of 12 (quite high) and that have a major trans-acting QTL located at least 25 Mb away for the location of the transcript's "parent" gene.  If this search fails, then confirm that it works when  used in combination with the Hippocampus Consortium Dec05 PDNN database. You should get 13 returns, including <I>Psmc6</I>, <I>Offrl1</I>, and <I>Ptp4a1</I>. Start with lenient criteria to ensure that the search works with the database that interests you, and if it does, then increase the selectivity.
+
+
+</UL> 
+
+<P class="title">
+Searches for Categories of Genes 
+</P>
+
+<P><B><A HREF="http://www.geneontology.org/" target="_blank" class="fs14">Gene Ontology</A> term searches</B>: This search feature allows you to find transcripts related to particular categories using appropriate GO identifers.  For example, to extract all transcripts associated with "synapse" enter the string <I>GO:0045202</I>, or for more specificity, enter the string <I>GO:0016079</I> for "synaptic vesicle exocytosis" in the ANY field. Similarly, to review all transcripts associated with transcriptional control AND that have high LRS scores, enter the string <I>GO:0003700</I> in the ALL field along with a string such as "LRS=(30 300)". This combination will retrieve all transcription factor-associated genes with QTL scores between 30 and 300. 
+
+<P>To browse or find GO terms and classes browse <A HREF="http://www.godatabase.org/cgi-bin/amigo/go.cgi" target="_blank" class="fs14">AmiGo</A>.
+
+<P>Or use <A HREF="http://www.gopubmed.org/" target="_blank" class="fs14">GoPubMed</A> and a set of search terms such as "visual transduction photoreceptor" to extract the correct GO term and identifier "phototransduction" = GO:0007602.
+
+<P>As of September 2005, the GO contains approximately 20,000 terms of which 6,300 terms are associated with genes/transcripts in one or more of the GeneNetwork databases. Approximately 700 high level GO terms will return well over 200 hits. It is therefore useful to select more specific GO terms that return 100 or fewer transcripts or genes. GO search ID numbers can be used together with other search parameters (OR and AND Booleans by using the ANY and ALL fields).
+
+
+<P class="title">
+GET commands and Scriptable Interface Queries
+</P>
+
+A GET command is a simple data request that takes the form of an odd looking URL address. For more details on the many allowed GET commands used by the GeneNetwork please see the <A HREF="http://www.genenetwork.org/CGIDoc.html" target="_blank" class="fs14">Scriptable Interface</A> overview. The Scriptable Interface is designed primarily to handle queries from other databases and web services, but you can also use this method as a quick way to generate more comprehensive output files. For example, if you need to review the complete list of correlations of Huntingtin (probe set 1425969_a_at_A) with all 45137 expression traits in the <I>HBP Rosen Striatum M430V2 (Apr05) PDNN Clean</I> database then you would paste this particular GET command in the URL box of your browser:
+
+<UL>
+<LI><B>
+
+http://www.genenetwork.org/webqtl/main.py?cmd=cor&probeset=1425969_a_at&db=Str04-05PDNNC&searchdb=Str04-05PDNNC&return=45137&sort=pvalue
+</B>    (Please note that this type of query may take several minutes and will not be accompanied with a progress bar.)
+</UL>
+
+<!-- THIS LIST OF DATABASE ABBREVIATIONS IS AN ABOMINATION  -->
+
+<P>To obtain a list of the database abbreviations link to <A HREF="http://www.genenetwork.org/webqtl/main.py?cmd=help">Help</A>.
+
+
+<!-- THIS SIMPLE QUERY INTERFACE IS IN DIRE NEED OF UPDATING (2009)-->
+
+<P>To completely avoid learning the structure of GET commands, the GeneNetwork also has a <A HREF="http://www.genenetwork.org/GUI.html" target="_empty"class="fs14">Simple Query Interface</A> mentioned already once above (look under the <B>Search</B> menu). This interface assembles the GET command for you. All you need to do is select parameters. 
+
+<P>The size of a GeneNetwork database can be determined by entering a single * in either search field.
+
+<P>
+
+</Blockquote>
+
+		</TD>
+		</TR></TABLE>
+		</TD>
+	</TR>
+</TABLE>
+
+
+</BODY>
+</HTML>

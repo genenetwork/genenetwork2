@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>QTL heatmap</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/general.css'>
+<LINK REL="stylesheet" TYPE="text/css" HREF='css/menu.css'>
+<SCRIPT SRC="javascript/webqtl.js"></SCRIPT>
+
+
+</HEAD>
+<BODY  bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff>
+<TABLE cellSpacing=5 cellPadding=4 width="100%" border=0>
+	<TBODY>
+	<TR>
+		<script language="JavaScript" src="/javascript/header.js"></script>
+	</TR>
+	<TR>
+		<TD bgColor=#eeeeee class="solidBorder">
+		<Table width= "100%" cellSpacing=0 cellPadding=5><TR>
+		<!-- Body Start from Here -->
+		<TD valign="top" height="200" width="100%" bgcolor="#eeeeee">
+
+			<P class="title">What is QTL heatmap? <A HREF="/webqtl/main.py?FormID=editHtml"><img src="images/modify.gif" alt="modify this page" border= 0 valign="middle"></A></P>
+
+<Blockquote>
+The upper part of this page includes a hierarchical cluster tree of the set of traits you selected in the previous window. To generate this plot, we initially compute distances between pairs of traits using (1 - r) where r is the Pearson product-moment correlation. The hierarchy is assembled by successively linking traits and groups of traits.
+<P></P>
+The lower part of this page provides a QTL heat map for all members of the Cluster Tree, extending from proximal Chr 1 at the top to distal Chr X at the bottom. Each vertical column or stripe encodes the genome-wide p value computed on the basis of 1000 permutations. Orange triangles mark the approximate location of genes.
+<P></P>
+These QTL heat maps can be redrawn using alternative color assignments using the "Redraw Cluster Tree" option. The default heat map is "Grey + Blue + Red" in which more intense colors mark chromosomal regions with comparatively high linkage statistics  and the spectrum encodes the allelic effect. For example, blue-green regions are those in which one of the parental alleles (e.g., C57BL/6J) is associated with higher trait values, whereas red-yellow regions are those in which the other parental allele is associated with higher trait values. Grey and black regions have insignfiicant linkage to trait variance. The "Blue + Red" option is similar but the entire genome is encoded for allele polarity, including regions without significant linkage. Finally, " Single Spectrum" provides a plot that does not distinguish between allelic effects and encodes the p values, ranging from insignificant (dark blue) to genome-wide significant (bright red).
+<P></P>
+</Blockquote>
+
+<P></P>
+		</TD>
+		</TR></TABLE>
+		</TD>
+	</TR>
+	<TR>
+		<TD align=center bgColor=#ddddff class="solidBorder">
+		<!--Start of footer-->
+		<TABLE width="90%">
+		<script language='JavaScript' src='/javascript/footer.js'></script>
+		</TABLE>
+		<!--End of footer-->
+		</TD>
+	</TR>
+</TABLE>
+<!-- /Footer -->
+<script language="JavaScript" src="/javascript/menu_new.js"></script>
+<script language="JavaScript" src="/javascript/menu_items.js"></script>
+<script language="JavaScript" src="/javascript/menu_tpl.js"></script>
+<script language="JavaScript">
+	<!--//
+	new menu (MENU_ITEMS, MENU_POS);
+	//-->
+</script>
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-3782271-1";
+urchinTracker();
+</script>
+</BODY>
+</HTML>

@@ -1,0 +1,831 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>HBTRC-MLC Human Cerebellum Agilent Normal (Jun11) mlratio</TITLE>
+
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<META NAME="keywords" CONTENT="genetics, bioinformatics, genome, phenome, gene expression, complex trait analysis, gene mapping, SNP, quantitative trait locus QTL, expression eQTL, WebQTL, Traitnet, Traitnetwork, personalized medicine">
+<META NAME="description" CONTENT ="GeneNetwork is a free scientific web resource used to study relationships between differences in genes, environmental factors, phenotypes, and disease risk." >
+<META NAME="author" CONTENT ="GeneNetwork developers" >
+<META NAME="geo.placename" CONTENT ="Memphis, TN" >
+<META NAME="geo.region" CONTENT="US-TN">
+
+<LINK REL="stylesheet" TYPE="text/css" HREF='/css/general.css'>
+<LINK REL="stylesheet" TYPE="text/css" HREF='/css/menu.css'>
+<link rel="stylesheet" media="all" type="text/css" href="/css/tabbed_pages.css" />
+<LINK REL="apple-touch-icon" href="/images/ipad_icon3.png" />
+<link type="text/css" href='/css/custom-theme/jquery-ui-1.8.12.custom.css' rel='Stylesheet' />
+<link type="text/css" href='/css/tab_style.css' rel='Stylesheet' />
+
+<script type="text/javascript" src="/javascript/jquery-1.5.2.min.js"></script>
+<SCRIPT SRC="/javascript/webqtl.js"></SCRIPT>
+<SCRIPT SRC="/javascript/dhtml.js"></SCRIPT>
+<SCRIPT SRC="/javascript/jqueryFunction.js"></SCRIPT>
+<script src="/javascript/tabbed_pages.js" type="text/javascript"></script>
+<script src="/javascript/jquery-ui-1.8.12.custom.min.js" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3782271-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</HEAD>
+<BODY  bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff >
+
+<TABLE cellSpacing=5 cellPadding=4 width="100%" border=0>
+	<TBODY>
+	<!-- Start of header -->
+	<TR>
+		
+
+<TD width=30 rowSpan=5>&nbsp;</TD>
+<TD bgColor=#ffffff NOWRAP="yes" width="100%" class="solidBorder">
+	<Table width= "100%" cellSpacing=0 cellPadding=0>
+		<TR>
+			<TD width= "100%" id="smallsize">
+				<a href="/">
+				<IMG src="/images/upload/GeneNet_Banner2009c.png" border="0">
+				</a>
+			</TD>
+			<TD valign="bottom">
+				<A HREF="http://www.touchgraph.com/TGGoogleBrowser.php?start=genenetwork.org&signed=false" target="_blank">
+					<IMG SRC="/images/upload/NetworkLogo.png" width="101" height="73" border="0">
+				</a>
+			</td>
+			<TD valign="bottom">
+				<IMG src="/images/webqtllogo2.gif" alt="WebQTL" border="0">
+			</TD>
+		</TR>
+	</Table>
+</TD>
+<TD width=30 rowSpan=5>&nbsp;</TD>
+</TR>
+
+<TR>
+<!--Home Help Search News Papers Policies Accounts Links-->
+<TD bgColor=#ddddff NOWRAP="yes" class="solidBorder">
+<table width=100% cellSpacing=0 cellPadding=0 border=0>
+<tr>
+<td aligh=left NOWRAP="yes">
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp1" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp1'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp1'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Home</Strong></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp2" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp2'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp2'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Search</Strong></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp3" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp3'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp3'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Help</Strong></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp4" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp4'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp4'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<A Href="/whats_new.html"  style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>News</Strong></A></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp5" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp5'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp5'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<A Href="/reference.html"  style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>References</Strong></A></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp6" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp6'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp6'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Policies</Strong></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp8" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp8'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp8'])"  style="font-size:12px;font-family:verdana;color:#0000ae">
+<A Href="/links.html" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Links</Strong></A></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+</td>
+<td align="right" NOWRAP="yes">
+
+&nbsp;&nbsp;&nbsp;
+</td>
+</tr>
+</table>
+</TD>
+
+
+	</TR>
+	<!-- End of header -->
+
+	<!-- Start of body -->
+	<TR>
+		<TD  bgColor=#eeeeee class="solidBorder">
+		<Table width= "100%" cellSpacing=0 cellPadding=5>
+		<TR>
+		
+	<P class="title">HBTRC-MLC Human Cerebellum Agilent Normal (Jun11) mlratio<A HREF="/webqtl/main.py?FormID=editHtml"><img src="/images/modify.gif" alt="modify this page" border= 0 valign="middle"></A><BR><BR>
+	
+	Accession number: <A HREF="/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=361">GN361</A></P>
+	<p>
+<blockquote>
+<p class="subtitle">Summary:</p>
+<p>This study aims at identifying functional variation in the human genome (especially as it pertains to brain expressed RNAs) and elucidate its relationship to disease and drug response. The ~800 individuals in this dataset are composed of approximately 400 Alzheimers disease (AD) cases, 230 Huntington's Disease (HD) and 170 controls (N) matched for age, gender, and post mortem interval (PMI). The tissue specimens for this study were provided by Harvard Brain Tissue Resource Center (HBTRC). Three brain regions (cerebellum, visual cortex, and dorsolateral prefrontal cortex) from the same individuals were profiled on a custom-made Agilent 44K microarray of 39,280 DNA probes uniquely targeting 37,585 known and predicted genes, including splice variants, miRNAs and high-confidence non-coding RNA sequences. The individuals were genotyped on two different platforms, the Illumina HumanHap650Y array and a custom Perlegen 300K array (a focused panel for detection of singleton SNPs). Clinical outcomes available include age at onset, age at death, Braak scores (AD), Vonsattel scores (HD), Regional brain enlargement/atrophy.</p>
+</blockquote>
+</p>
+<P>
+<blockquote>
+<p class="subtitle">Data Source Acknowledgements:</p>
+<p>
+<p>
+Species: Human<br>
+Tissue: Brain visual cortex,Brain cerebellum,Brain prefrontal cortex<br>
+Disease: Neurological Disease<br>
+Investigator: Francine Benes/ Eric Schadt<br>
+Institution: Harvard Brain Tissue Resource Center/ Merck Research Laboratories<br>
+Approximate Number Subjects: 803</p>
+<p>
+The Harvard Brain dataset was contributed by Merck Pharmaceutical through the Sage Bionetworks Repository. The tissues were provided by Harvard Brain Tissue Resource Center which is supported in part by PHS grant R24 MH068855 (<a href="http://www.brainbank.mclean.org/" target="_blank">http://www.brainbank.mclean.org/</a>).
+</p>
+<p>This data packet contains genotypes, clinical traits, as well as expression traits measured in three regions of the brain: visual cortex, cerebellum, prefrontal cortex.  Samples were collected from 803 participants including 388 diagnosed with Alzheimer's disease and 220 diagnosed with Huntington's disease.  Genotypes were run using two platforms (Illumina and Perlagen).  Expression traits were profiled using a custom Agilent platform.
+Western-IRB has confirmed that this dataset residing in Sage Bionetworks Repository is 'exempt' under federal regulation 45 CFR 46.101(b)4 and does not involve human subject research as defined by OHRP guidelines.
+</p>
+</blockquote>
+</p>
+<p>
+<table border="0" cellpadding="0" cellspacing="0" bgcolor="#000000" width="70%"><tr><td>
+
+<table width="100%" border="0" cellpadding="5" cellspacing="1">
+
+<tr bgcolor="royalblue"><td><font color=#FFFFFF>	Series	</font></td><td><font color=#FFFFFF>	Cerebellum in GN	</font></td><td><font color=#FFFFFF>	Condition	</font></td><td><font color=#FFFFFF>	Gender	</font></td><td><font color=#FFFFFF>	BioSample Name	</font></td></tr>
+<tr bgcolor="#eeeeee"><td>	1	</td><td>	HB_029_N	</td><td>	N	</td><td>	NA	</td><td>	3405_VC_N_0859	</td></tr>
+<tr bgcolor="#eeeeee"><td>	2	</td><td>	HB_058_N	</td><td>	N	</td><td>	NA	</td><td>	4021_VC_N_0854	</td></tr>
+<tr bgcolor="#eeeeee"><td>	3	</td><td>	HB_064_N	</td><td>	N	</td><td>	NA	</td><td>	4338_VC_N_0861	</td></tr>
+<tr bgcolor="#eeeeee"><td>	4	</td><td>	HB_086_N	</td><td>	N	</td><td>	NA	</td><td>	4729_PF_N_0756	</td></tr>
+<tr bgcolor="#eeeeee"><td>	5	</td><td>	HB_091_N	</td><td>	N	</td><td>	NA	</td><td>	4741_VC_N_0864	</td></tr>
+<tr bgcolor="#eeeeee"><td>	6	</td><td>	HB_092_N	</td><td>	N	</td><td>	NA	</td><td>	4744_VC_N_0865	</td></tr>
+<tr bgcolor="#eeeeee"><td>	7	</td><td>	HB_102_N	</td><td>	N	</td><td>	NA	</td><td>	4810_VC_N_0869	</td></tr>
+<tr bgcolor="#eeeeee"><td>	8	</td><td>	HB_119_N	</td><td>	N	</td><td>	NA	</td><td>	4872_VC_N_0878	</td></tr>
+<tr bgcolor="#eeeeee"><td>	9	</td><td>	HB_147_N	</td><td>	N	</td><td>	NA	</td><td>	5021_VC_N_0852	</td></tr>
+<tr bgcolor="#eeeeee"><td>	10	</td><td>	HB_161_N	</td><td>	N	</td><td>	NA	</td><td>	5077_VC_N_0851	</td></tr>
+<tr bgcolor="#eeeeee"><td>	11	</td><td>	HB_162_N	</td><td>	N	</td><td>	NA	</td><td>	5081_VC_N_1021	</td></tr>
+<tr bgcolor="#eeeeee"><td>	12	</td><td>	HB_166_N	</td><td>	N	</td><td>	NA	</td><td>	5095_VC_N_1024	</td></tr>
+<tr bgcolor="#eeeeee"><td>	13	</td><td>	HB_183_N	</td><td>	N	</td><td>	NA	</td><td>	5162_VC_N_0850	</td></tr>
+<tr bgcolor="#eeeeee"><td>	14	</td><td>	HB_206_N	</td><td>	N	</td><td>	NA	</td><td>	5245_VC_N_0849	</td></tr>
+<tr bgcolor="#eeeeee"><td>	15	</td><td>	HB_215_N	</td><td>	N	</td><td>	NA	</td><td>	5270_VC_N_0848	</td></tr>
+<tr bgcolor="#eeeeee"><td>	16	</td><td>	HB_218_N	</td><td>	N	</td><td>	NA	</td><td>	5276_CR_N_0912	</td></tr>
+<tr bgcolor="#eeeeee"><td>	17	</td><td>	HB_223_N	</td><td>	N	</td><td>	NA	</td><td>	5287_VC_N_0916	</td></tr>
+<tr bgcolor="#eeeeee"><td>	18	</td><td>	HB_226_N	</td><td>	N	</td><td>	NA	</td><td>	5294_VC_N_0919	</td></tr>
+<tr bgcolor="#eeeeee"><td>	19	</td><td>	HB_241_N	</td><td>	N	</td><td>	NA	</td><td>	5326_CR_N_0652	</td></tr>
+<tr bgcolor="#eeeeee"><td>	20	</td><td>	HB_243_N	</td><td>	N	</td><td>	NA	</td><td>	5333_VC_N_1262	</td></tr>
+<tr bgcolor="#eeeeee"><td>	21	</td><td>	HB_247_N	</td><td>	N	</td><td>	NA	</td><td>	5341_VC_N_0923	</td></tr>
+<tr bgcolor="#eeeeee"><td>	22	</td><td>	HB_257_N	</td><td>	N	</td><td>	NA	</td><td>	5368_PF_N_1032	</td></tr>
+<tr bgcolor="#eeeeee"><td>	23	</td><td>	HB_264_N	</td><td>	N	</td><td>	NA	</td><td>	5384_VC_N_0924	</td></tr>
+<tr bgcolor="#eeeeee"><td>	24	</td><td>	HB_295_N	</td><td>	N	</td><td>	NA	</td><td>	5452_VC_N_1268	</td></tr>
+<tr bgcolor="#eeeeee"><td>	25	</td><td>	HB_300_N	</td><td>	N	</td><td>	NA	</td><td>	5463_VC_N_0845	</td></tr>
+<tr bgcolor="#eeeeee"><td>	26	</td><td>	HB_311_N	</td><td>	N	</td><td>	NA	</td><td>	5489_CR_N_0942	</td></tr>
+<tr bgcolor="#eeeeee"><td>	27	</td><td>	HB_324_N	</td><td>	N	</td><td>	NA	</td><td>	5531_VC_N_0844	</td></tr>
+<tr bgcolor="#eeeeee"><td>	28	</td><td>	HB_332_N	</td><td>	N	</td><td>	NA	</td><td>	5547_VC_N_0843	</td></tr>
+<tr bgcolor="#eeeeee"><td>	29	</td><td>	HB_340_N	</td><td>	N	</td><td>	NA	</td><td>	5568_VC_N_0842	</td></tr>
+<tr bgcolor="#eeeeee"><td>	30	</td><td>	HB_360_N	</td><td>	N	</td><td>	NA	</td><td>	5619_CR_N_0645	</td></tr>
+<tr bgcolor="#eeeeee"><td>	31	</td><td>	HB_365_N	</td><td>	N	</td><td>	NA	</td><td>	5632_VC_N_0838	</td></tr>
+<tr bgcolor="#eeeeee"><td>	32	</td><td>	HB_367_N	</td><td>	N	</td><td>	NA	</td><td>	5637_VC_N_0837	</td></tr>
+<tr bgcolor="#eeeeee"><td>	33	</td><td>	HB_382_N	</td><td>	N	</td><td>	NA	</td><td>	5684_PF_N_1270	</td></tr>
+<tr bgcolor="#eeeeee"><td>	34	</td><td>	HB_396_N	</td><td>	N	</td><td>	NA	</td><td>	5718_VC_N_0956	</td></tr>
+<tr bgcolor="#eeeeee"><td>	35	</td><td>	HB_398_N	</td><td>	N	</td><td>	NA	</td><td>	5722_VC_N_1044	</td></tr>
+<tr bgcolor="#eeeeee"><td>	36	</td><td>	HB_400_N	</td><td>	N	</td><td>	NA	</td><td>	5726_VC_N_0834_Bis	</td></tr>
+<tr bgcolor="#eeeeee"><td>	37	</td><td>	HB_403_N	</td><td>	N	</td><td>	NA	</td><td>	5734_VC_N_0833	</td></tr>
+<tr bgcolor="#eeeeee"><td>	38	</td><td>	HB_414_N	</td><td>	N	</td><td>	NA	</td><td>	5772_VC_N_0832_Bis	</td></tr>
+<tr bgcolor="#eeeeee"><td>	39	</td><td>	HB_416_N	</td><td>	N	</td><td>	NA	</td><td>	5778_CR_N_0962	</td></tr>
+<tr bgcolor="#eeeeee"><td>	40	</td><td>	HB_418_N	</td><td>	N	</td><td>	NA	</td><td>	5789_PF_N_1273	</td></tr>
+<tr bgcolor="#eeeeee"><td>	41	</td><td>	HB_421_N	</td><td>	N	</td><td>	NA	</td><td>	5799_VC_N_1058	</td></tr>
+<tr bgcolor="#eeeeee"><td>	42	</td><td>	HB_423_N	</td><td>	N	</td><td>	NA	</td><td>	5803_VC_N_0966	</td></tr>
+<tr bgcolor="#eeeeee"><td>	43	</td><td>	HB_426_N	</td><td>	N	</td><td>	NA	</td><td>	5806_PF_N_1064	</td></tr>
+<tr bgcolor="#eeeeee"><td>	44	</td><td>	HB_427_N	</td><td>	N	</td><td>	NA	</td><td>	5810_CR_N_0636	</td></tr>
+<tr bgcolor="#eeeeee"><td>	45	</td><td>	HB_431_N	</td><td>	N	</td><td>	NA	</td><td>	5823_VC_N_0829	</td></tr>
+<tr bgcolor="#eeeeee"><td>	46	</td><td>	HB_432_N	</td><td>	N	</td><td>	NA	</td><td>	5826_VC_N_0828	</td></tr>
+<tr bgcolor="#eeeeee"><td>	47	</td><td>	HB_433_N	</td><td>	N	</td><td>	NA	</td><td>	5827_VC_N_0827	</td></tr>
+<tr bgcolor="#eeeeee"><td>	48	</td><td>	HB_436_N	</td><td>	N	</td><td>	NA	</td><td>	5832_PF_N_1145	</td></tr>
+<tr bgcolor="#eeeeee"><td>	49	</td><td>	HB_443_N	</td><td>	N	</td><td>	NA	</td><td>	5852_VC_N_0826	</td></tr>
+<tr bgcolor="#eeeeee"><td>	50	</td><td>	HB_446_N	</td><td>	N	</td><td>	NA	</td><td>	5859_VC_N_0825	</td></tr>
+<tr bgcolor="#eeeeee"><td>	51	</td><td>	HB_449_N	</td><td>	N	</td><td>	NA	</td><td>	5866_VC_N_0824	</td></tr>
+<tr bgcolor="#eeeeee"><td>	52	</td><td>	HB_450_N	</td><td>	N	</td><td>	NA	</td><td>	5867_VC_N_1277	</td></tr>
+<tr bgcolor="#eeeeee"><td>	53	</td><td>	HB_453_N	</td><td>	N	</td><td>	NA	</td><td>	5876_VC_N_0823	</td></tr>
+<tr bgcolor="#eeeeee"><td>	54	</td><td>	HB_462_N	</td><td>	N	</td><td>	NA	</td><td>	5903_VC_N_0822	</td></tr>
+<tr bgcolor="#eeeeee"><td>	55	</td><td>	HB_464_N	</td><td>	N	</td><td>	NA	</td><td>	5905_VC_N_0820	</td></tr>
+<tr bgcolor="#eeeeee"><td>	56	</td><td>	HB_468_N	</td><td>	N	</td><td>	NA	</td><td>	5912_VC_N_1286	</td></tr>
+<tr bgcolor="#eeeeee"><td>	57	</td><td>	HB_472_N	</td><td>	N	</td><td>	NA	</td><td>	5925_VC_N_1289	</td></tr>
+<tr bgcolor="#eeeeee"><td>	58	</td><td>	HB_475_N	</td><td>	N	</td><td>	NA	</td><td>	5936_VC_N_0979	</td></tr>
+<tr bgcolor="#eeeeee"><td>	59	</td><td>	HB_476_N	</td><td>	N	</td><td>	NA	</td><td>	5938_VC_N_0819	</td></tr>
+<tr bgcolor="#eeeeee"><td>	60	</td><td>	HB_480_N	</td><td>	N	</td><td>	NA	</td><td>	5946_VC_N_0985	</td></tr>
+<tr bgcolor="#eeeeee"><td>	61	</td><td>	HB_485_N	</td><td>	N	</td><td>	NA	</td><td>	5959_VC_N_0818	</td></tr>
+<tr bgcolor="#eeeeee"><td>	62	</td><td>	HB_486_N	</td><td>	N	</td><td>	NA	</td><td>	5963_VC_N_0987	</td></tr>
+<tr bgcolor="#eeeeee"><td>	63	</td><td>	HB_495_N	</td><td>	N	</td><td>	NA	</td><td>	5980_VC_N_0989	</td></tr>
+<tr bgcolor="#eeeeee"><td>	64	</td><td>	HB_497_N	</td><td>	N	</td><td>	NA	</td><td>	5985_VC_N_0990	</td></tr>
+<tr bgcolor="#eeeeee"><td>	65	</td><td>	HB_500_N	</td><td>	N	</td><td>	NA	</td><td>	5990_VC_N_0817	</td></tr>
+<tr bgcolor="#eeeeee"><td>	66	</td><td>	HB_501_N	</td><td>	N	</td><td>	NA	</td><td>	5991_VC_N_0816	</td></tr>
+<tr bgcolor="#eeeeee"><td>	67	</td><td>	HB_504_N	</td><td>	N	</td><td>	NA	</td><td>	5996_VC_N_0815	</td></tr>
+<tr bgcolor="#eeeeee"><td>	68	</td><td>	HB_505_N	</td><td>	N	</td><td>	NA	</td><td>	5998_VC_N_0814	</td></tr>
+<tr bgcolor="#eeeeee"><td>	69	</td><td>	HB_507_N	</td><td>	N	</td><td>	NA	</td><td>	6006_VC_N_0813	</td></tr>
+<tr bgcolor="#eeeeee"><td>	70	</td><td>	HB_508_N	</td><td>	N	</td><td>	NA	</td><td>	6007_CR_N_0618	</td></tr>
+<tr bgcolor="#eeeeee"><td>	71	</td><td>	HB_509_N	</td><td>	N	</td><td>	NA	</td><td>	6008_PF_N_1081	</td></tr>
+<tr bgcolor="#eeeeee"><td>	72	</td><td>	HB_512_N	</td><td>	N	</td><td>	NA	</td><td>	6023_PF_N_1155	</td></tr>
+<tr bgcolor="#eeeeee"><td>	73	</td><td>	HB_516_N	</td><td>	N	</td><td>	NA	</td><td>	6030_VC_N_0810	</td></tr>
+<tr bgcolor="#eeeeee"><td>	74	</td><td>	HB_519_N	</td><td>	N	</td><td>	NA	</td><td>	6034_VC_N_0809	</td></tr>
+<tr bgcolor="#eeeeee"><td>	75	</td><td>	HB_532_N	</td><td>	N	</td><td>	NA	</td><td>	6060_VC_N_1292	</td></tr>
+<tr bgcolor="#eeeeee"><td>	76	</td><td>	HB_541_N	</td><td>	N	</td><td>	NA	</td><td>	6092_VC_N_1001	</td></tr>
+<tr bgcolor="#eeeeee"><td>	77	</td><td>	HB_542_N	</td><td>	N	</td><td>	NA	</td><td>	6096_VC_N_0807	</td></tr>
+<tr bgcolor="#eeeeee"><td>	78	</td><td>	HB_544_N	</td><td>	N	</td><td>	NA	</td><td>	6101_CR_N_1161	</td></tr>
+<tr bgcolor="#eeeeee"><td>	79	</td><td>	HB_547_N	</td><td>	N	</td><td>	NA	</td><td>	6110_VC_N_1295	</td></tr>
+<tr bgcolor="#eeeeee"><td>	80	</td><td>	HB_551_N	</td><td>	N	</td><td>	NA	</td><td>	6124_VC_N_0806	</td></tr>
+<tr bgcolor="#eeeeee"><td>	81	</td><td>	HB_557_N	</td><td>	N	</td><td>	NA	</td><td>	6134_PF_N_1297	</td></tr>
+<tr bgcolor="#eeeeee"><td>	82	</td><td>	HB_560_N	</td><td>	N	</td><td>	NA	</td><td>	6142_VC_N_0805	</td></tr>
+<tr bgcolor="#eeeeee"><td>	83	</td><td>	HB_569_N	</td><td>	N	</td><td>	NA	</td><td>	6166_VC_N_0804	</td></tr>
+<tr bgcolor="#eeeeee"><td>	84	</td><td>	HB_570_N	</td><td>	N	</td><td>	NA	</td><td>	6170_VC_N_0803	</td></tr>
+<tr bgcolor="#eeeeee"><td>	85	</td><td>	HB_572_N	</td><td>	N	</td><td>	NA	</td><td>	6172_VC_N_1008	</td></tr>
+<tr bgcolor="#eeeeee"><td>	86	</td><td>	HB_577_N	</td><td>	N	</td><td>	NA	</td><td>	6182_VC_N_1166	</td></tr>
+<tr bgcolor="#eeeeee"><td>	87	</td><td>	HB_579_N	</td><td>	N	</td><td>	NA	</td><td>	6187_CR_N_0607	</td></tr>
+<tr bgcolor="#eeeeee"><td>	88	</td><td>	HB_581_N	</td><td>	N	</td><td>	NA	</td><td>	6191_VC_N_1010	</td></tr>
+<tr bgcolor="#eeeeee"><td>	89	</td><td>	HB_584_N	</td><td>	N	</td><td>	NA	</td><td>	6196_CR_N_0605	</td></tr>
+<tr bgcolor="#eeeeee"><td>	90	</td><td>	HB_586_N	</td><td>	N	</td><td>	NA	</td><td>	6200_VC_N_0799	</td></tr>
+<tr bgcolor="#eeeeee"><td>	91	</td><td>	HB_587_N	</td><td>	N	</td><td>	NA	</td><td>	6206_PF_N_1176	</td></tr>
+<tr bgcolor="#eeeeee"><td>	92	</td><td>	HB_589_N	</td><td>	N	</td><td>	NA	</td><td>	6213_VC_N_0798	</td></tr>
+<tr bgcolor="#eeeeee"><td>	93	</td><td>	HB_601_N	</td><td>	N	</td><td>	NA	</td><td>	6241_VC_N_0796	</td></tr>
+<tr bgcolor="#eeeeee"><td>	94	</td><td>	HB_604_N	</td><td>	N	</td><td>	NA	</td><td>	6260_VC_N_0794	</td></tr>
+<tr bgcolor="#eeeeee"><td>	95	</td><td>	HB_609_N	</td><td>	N	</td><td>	NA	</td><td>	6270_VC_N_0793	</td></tr>
+<tr bgcolor="#eeeeee"><td>	96	</td><td>	HB_618_N	</td><td>	N	</td><td>	NA	</td><td>	6289_VC_N_0791	</td></tr>
+<tr bgcolor="#eeeeee"><td>	97	</td><td>	HB_622_N	</td><td>	N	</td><td>	NA	</td><td>	6310_VC_N_0790	</td></tr>
+<tr bgcolor="#eeeeee"><td>	98	</td><td>	HB_625_N	</td><td>	N	</td><td>	NA	</td><td>	6314_VC_N_0789	</td></tr>
+<tr bgcolor="#eeeeee"><td>	99	</td><td>	HB_637_N	</td><td>	N	</td><td>	NA	</td><td>	6340_VC_N_0786	</td></tr>
+<tr bgcolor="#eeeeee"><td>	100	</td><td>	HB_638_N	</td><td>	N	</td><td>	NA	</td><td>	6341_VC_N_0785	</td></tr>
+<tr bgcolor="#eeeeee"><td>	101	</td><td>	HB_640_N	</td><td>	N	</td><td>	NA	</td><td>	6347_VC_N_0784	</td></tr>
+<tr bgcolor="#eeeeee"><td>	102	</td><td>	HB_641_N	</td><td>	N	</td><td>	NA	</td><td>	6356_VC_N_0783	</td></tr>
+<tr bgcolor="#eeeeee"><td>	103	</td><td>	HB_643_N	</td><td>	N	</td><td>	NA	</td><td>	6363_VC_N_0781	</td></tr>
+<tr bgcolor="#eeeeee"><td>	104	</td><td>	HB_644_N	</td><td>	N	</td><td>	NA	</td><td>	6366_VC_N_0780	</td></tr>
+<tr bgcolor="#eeeeee"><td>	105	</td><td>	HB_645_N	</td><td>	N	</td><td>	NA	</td><td>	6374_VC_N_0779	</td></tr>
+<tr bgcolor="#eeeeee"><td>	106	</td><td>	HB_650_N	</td><td>	N	</td><td>	NA	</td><td>	6384_VC_N_0777	</td></tr>
+<tr bgcolor="#eeeeee"><td>	107	</td><td>	HB_651_N	</td><td>	N	</td><td>	NA	</td><td>	6386_VC_N_0776	</td></tr>
+<tr bgcolor="#eeeeee"><td>	108	</td><td>	HB_653_N	</td><td>	N	</td><td>	NA	</td><td>	6388_VC_N_0775	</td></tr>
+<tr bgcolor="#eeeeee"><td>	109	</td><td>	HB_659_N	</td><td>	N	</td><td>	NA	</td><td>	6406_VC_N_1180	</td></tr>
+<tr bgcolor="#eeeeee"><td>	110	</td><td>	HB_662_N	</td><td>	N	</td><td>	NA	</td><td>	6411_VC_N_0771	</td></tr>
+<tr bgcolor="#eeeeee"><td>	111	</td><td>	HB_663_N	</td><td>	N	</td><td>	NA	</td><td>	6415_VC_N_0770	</td></tr>
+<tr bgcolor="#eeeeee"><td>	112	</td><td>	HB_670_N	</td><td>	N	</td><td>	NA	</td><td>	6436_VC_N_0769	</td></tr>
+<tr bgcolor="#eeeeee"><td>	113	</td><td>	HB_687_N	</td><td>	N	</td><td>	NA	</td><td>	6484_VC_N_0765	</td></tr>
+<tr bgcolor="#eeeeee"><td>	114	</td><td>	HB_689_N	</td><td>	N	</td><td>	NA	</td><td>	6486_VC_N_0764	</td></tr>
+<tr bgcolor="#eeeeee"><td>	115	</td><td>	HB_694_N	</td><td>	N	</td><td>	NA	</td><td>	6500_VC_N_0763	</td></tr>
+<tr bgcolor="#eeeeee"><td>	116	</td><td>	HB_697_N	</td><td>	N	</td><td>	NA	</td><td>	6512_VC_N_0762	</td></tr>
+<tr bgcolor="#eeeeee"><td>	117	</td><td>	HB_700_N	</td><td>	N	</td><td>	NA	</td><td>	6520_VC_N_0761	</td></tr>
+<tr bgcolor="#eeeeee"><td>	118	</td><td>	HB_711_N	</td><td>	N	</td><td>	NA	</td><td>	6543_PF_N_1191	</td></tr>
+<tr bgcolor="#eeeeee"><td>	119	</td><td>	HB_714_N	</td><td>	N	</td><td>	NA	</td><td>	6549_VC_N_1198	</td></tr>
+<tr bgcolor="#eeeeee"><td>	120	</td><td>	HB_717_N	</td><td>	N	</td><td>	NA	</td><td>	6553_PF_N_2284	</td></tr>
+<tr bgcolor="#eeeeee"><td>	121	</td><td>	HB_721_N	</td><td>	N	</td><td>	NA	</td><td>	6560_VC_N_2578	</td></tr>
+<tr bgcolor="#eeeeee"><td>	122	</td><td>	HB_726_N	</td><td>	N	</td><td>	NA	</td><td>	6573_PF_N_2293	</td></tr>
+<tr bgcolor="#eeeeee"><td>	123	</td><td>	HB_730_N	</td><td>	N	</td><td>	NA	</td><td>	6580_VC_N_2306	</td></tr>
+<tr bgcolor="#eeeeee"><td>	124	</td><td>	HB_735_N	</td><td>	N	</td><td>	NA	</td><td>	6588_VC_N_1213	</td></tr>
+<tr bgcolor="#eeeeee"><td>	125	</td><td>	HB_737_N	</td><td>	N	</td><td>	NA	</td><td>	6593_VC_N_1219	</td></tr>
+<tr bgcolor="#eeeeee"><td>	126	</td><td>	HB_738_N	</td><td>	N	</td><td>	NA	</td><td>	6594_VC_N_1222	</td></tr>
+<tr bgcolor="#eeeeee"><td>	127	</td><td>	HB_759_N	</td><td>	N	</td><td>	NA	</td><td>	6645_VC_N_1231	</td></tr>
+<tr bgcolor="#eeeeee"><td>	128	</td><td>	HB_764_N	</td><td>	N	</td><td>	NA	</td><td>	6655_VC_N_1240	</td></tr>
+<tr bgcolor="#eeeeee"><td>	129	</td><td>	HB_765_N	</td><td>	N	</td><td>	NA	</td><td>	6656_VC_N_1243	</td></tr>
+<tr bgcolor="#eeeeee"><td>	130	</td><td>	HB_767_N	</td><td>	N	</td><td>	NA	</td><td>	6661_PF_N_2341	</td></tr>
+<tr bgcolor="#eeeeee"><td>	131	</td><td>	HB_770_N	</td><td>	N	</td><td>	NA	</td><td>	6669_VC_N_1246	</td></tr>
+<tr bgcolor="#eeeeee"><td>	132	</td><td>	HB_772_N	</td><td>	N	</td><td>	NA	</td><td>	6676_PF_N_1248	</td></tr>
+<tr bgcolor="#eeeeee"><td>	133	</td><td>	HB_001_HD	</td><td>	HD	</td><td>	F	</td><td>	2028_CR_H_2282	</td></tr>
+<tr bgcolor="#eeeeee"><td>	134	</td><td>	HB_003_HD	</td><td>	HD	</td><td>	F	</td><td>	2685_PF_H_2212	</td></tr>
+<tr bgcolor="#eeeeee"><td>	135	</td><td>	HB_004_HD	</td><td>	HD	</td><td>	M	</td><td>	2706_CR_H_2432	</td></tr>
+<tr bgcolor="#eeeeee"><td>	136	</td><td>	HB_006_HD	</td><td>	HD	</td><td>	M	</td><td>	2737_VC_H_2194	</td></tr>
+<tr bgcolor="#eeeeee"><td>	137	</td><td>	HB_007_HD	</td><td>	HD	</td><td>	NA	</td><td>	2769_VC_H_2193	</td></tr>
+<tr bgcolor="#eeeeee"><td>	138	</td><td>	HB_008_HD	</td><td>	HD	</td><td>	F	</td><td>	2790_CR_H_1890	</td></tr>
+<tr bgcolor="#eeeeee"><td>	139	</td><td>	HB_009_HD	</td><td>	HD	</td><td>	NA	</td><td>	2879_VC_H_2192	</td></tr>
+<tr bgcolor="#eeeeee"><td>	140	</td><td>	HB_010_HD	</td><td>	HD	</td><td>	M	</td><td>	2960_VC_H_2002	</td></tr>
+<tr bgcolor="#eeeeee"><td>	141	</td><td>	HB_011_HD	</td><td>	HD	</td><td>	F	</td><td>	3053_VC_H_2001	</td></tr>
+<tr bgcolor="#eeeeee"><td>	142	</td><td>	HB_012_HD	</td><td>	HD	</td><td>	F	</td><td>	3128_VC_H_1999	</td></tr>
+<tr bgcolor="#eeeeee"><td>	143	</td><td>	HB_014_HD	</td><td>	HD	</td><td>	F	</td><td>	3149_PF_H_2110	</td></tr>
+<tr bgcolor="#eeeeee"><td>	144	</td><td>	HB_015_HD	</td><td>	HD	</td><td>	F	</td><td>	3150_VC_H_1996	</td></tr>
+<tr bgcolor="#eeeeee"><td>	145	</td><td>	HB_016_HD	</td><td>	HD	</td><td>	F	</td><td>	3177_VC_H_2191	</td></tr>
+<tr bgcolor="#eeeeee"><td>	146	</td><td>	HB_017_HD	</td><td>	HD	</td><td>	NA	</td><td>	3195_VC_H_2190	</td></tr>
+<tr bgcolor="#eeeeee"><td>	147	</td><td>	HB_018_HD	</td><td>	HD	</td><td>	M	</td><td>	3200_VC_H_2189	</td></tr>
+<tr bgcolor="#eeeeee"><td>	148	</td><td>	HB_019_HD	</td><td>	HD	</td><td>	M	</td><td>	3209_VC_H_2188	</td></tr>
+<tr bgcolor="#eeeeee"><td>	149	</td><td>	HB_020_HD	</td><td>	HD	</td><td>	M	</td><td>	3224_VC_H_1994	</td></tr>
+<tr bgcolor="#eeeeee"><td>	150	</td><td>	HB_022_HD	</td><td>	HD	</td><td>	F	</td><td>	3242_PF_H_2105	</td></tr>
+<tr bgcolor="#eeeeee"><td>	151	</td><td>	HB_024_HD	</td><td>	HD	</td><td>	NA	</td><td>	3272_VC_H_2186	</td></tr>
+<tr bgcolor="#eeeeee"><td>	152	</td><td>	HB_027_HD	</td><td>	HD	</td><td>	M	</td><td>	3356_VC_H_2439	</td></tr>
+<tr bgcolor="#eeeeee"><td>	153	</td><td>	HB_028_HD	</td><td>	HD	</td><td>	F	</td><td>	3394_PF_H_2104	</td></tr>
+<tr bgcolor="#eeeeee"><td>	154	</td><td>	HB_031_HD	</td><td>	HD	</td><td>	M	</td><td>	3430_VC_H_1990	</td></tr>
+<tr bgcolor="#eeeeee"><td>	155	</td><td>	HB_032_HD	</td><td>	HD	</td><td>	NA	</td><td>	3444_PF_H_2208	</td></tr>
+<tr bgcolor="#eeeeee"><td>	156	</td><td>	HB_034_HD	</td><td>	HD	</td><td>	F	</td><td>	3482_VC_H_1987	</td></tr>
+<tr bgcolor="#eeeeee"><td>	157	</td><td>	HB_036_HD	</td><td>	HD	</td><td>	M	</td><td>	3576_VC_H_1984	</td></tr>
+<tr bgcolor="#eeeeee"><td>	158	</td><td>	HB_037_HD	</td><td>	HD	</td><td>	F	</td><td>	3579_VC_H_1983	</td></tr>
+<tr bgcolor="#eeeeee"><td>	159	</td><td>	HB_038_HD	</td><td>	HD	</td><td>	F	</td><td>	3584_VC_H_2183	</td></tr>
+<tr bgcolor="#eeeeee"><td>	160	</td><td>	HB_039_HD	</td><td>	HD	</td><td>	NA	</td><td>	3635_VC_H_2182	</td></tr>
+<tr bgcolor="#eeeeee"><td>	161	</td><td>	HB_041_HD	</td><td>	HD	</td><td>	F	</td><td>	3695_CR_H_2267	</td></tr>
+<tr bgcolor="#eeeeee"><td>	162	</td><td>	HB_042_HD	</td><td>	HD	</td><td>	M	</td><td>	3697_VC_H_1982	</td></tr>
+<tr bgcolor="#eeeeee"><td>	163	</td><td>	HB_043_HD	</td><td>	HD	</td><td>	NA	</td><td>	3703_VC_H_2180	</td></tr>
+<tr bgcolor="#eeeeee"><td>	164	</td><td>	HB_044_HD	</td><td>	HD	</td><td>	NA	</td><td>	3723_VC_H_2179	</td></tr>
+<tr bgcolor="#eeeeee"><td>	165	</td><td>	HB_046_HD	</td><td>	HD	</td><td>	F	</td><td>	3735_VC_H_1981	</td></tr>
+<tr bgcolor="#eeeeee"><td>	166	</td><td>	HB_050_HD	</td><td>	HD	</td><td>	M	</td><td>	3820_PF_H_2207	</td></tr>
+<tr bgcolor="#eeeeee"><td>	167	</td><td>	HB_051_HD	</td><td>	HD	</td><td>	F	</td><td>	3849_CR_H_2262	</td></tr>
+<tr bgcolor="#eeeeee"><td>	168	</td><td>	HB_054_HD	</td><td>	HD	</td><td>	M	</td><td>	3884_VC_H_2175	</td></tr>
+<tr bgcolor="#eeeeee"><td>	169	</td><td>	HB_056_HD	</td><td>	HD	</td><td>	NA	</td><td>	4012_VC_H_2174	</td></tr>
+<tr bgcolor="#eeeeee"><td>	170	</td><td>	HB_057_HD	</td><td>	HD	</td><td>	NA	</td><td>	4013_VC_H_2173	</td></tr>
+<tr bgcolor="#eeeeee"><td>	171	</td><td>	HB_059_HD	</td><td>	HD	</td><td>	NA	</td><td>	4066_VC_H_2172	</td></tr>
+<tr bgcolor="#eeeeee"><td>	172	</td><td>	HB_060_HD	</td><td>	HD	</td><td>	NA	</td><td>	4094_VC_H_2171	</td></tr>
+<tr bgcolor="#eeeeee"><td>	173	</td><td>	HB_061_HD	</td><td>	HD	</td><td>	F	</td><td>	4116_VC_H_2170	</td></tr>
+<tr bgcolor="#eeeeee"><td>	174	</td><td>	HB_062_HD	</td><td>	HD	</td><td>	NA	</td><td>	4121_VC_H_2169	</td></tr>
+<tr bgcolor="#eeeeee"><td>	175	</td><td>	HB_063_HD	</td><td>	HD	</td><td>	NA	</td><td>	4215_VC_H_2167	</td></tr>
+<tr bgcolor="#eeeeee"><td>	176	</td><td>	HB_065_HD	</td><td>	HD	</td><td>	M	</td><td>	4340_PF_H_2091	</td></tr>
+<tr bgcolor="#eeeeee"><td>	177	</td><td>	HB_066_HD	</td><td>	HD	</td><td>	F	</td><td>	4344_VC_H_1977	</td></tr>
+<tr bgcolor="#eeeeee"><td>	178	</td><td>	HB_067_HD	</td><td>	HD	</td><td>	M	</td><td>	4346_VC_H_2165	</td></tr>
+<tr bgcolor="#eeeeee"><td>	179	</td><td>	HB_069_HD	</td><td>	HD	</td><td>	F	</td><td>	4356_VC_H_2164	</td></tr>
+<tr bgcolor="#eeeeee"><td>	180	</td><td>	HB_070_HD	</td><td>	HD	</td><td>	NA	</td><td>	4386_CR_H_2249	</td></tr>
+<tr bgcolor="#eeeeee"><td>	181	</td><td>	HB_072_HD	</td><td>	HD	</td><td>	NA	</td><td>	4404_VC_H_2161	</td></tr>
+<tr bgcolor="#eeeeee"><td>	182	</td><td>	HB_073_HD	</td><td>	HD	</td><td>	F	</td><td>	4411_VC_H_1975	</td></tr>
+<tr bgcolor="#eeeeee"><td>	183	</td><td>	HB_074_HD	</td><td>	HD	</td><td>	NA	</td><td>	4430_VC_H_2465	</td></tr>
+<tr bgcolor="#eeeeee"><td>	184	</td><td>	HB_075_HD	</td><td>	HD	</td><td>	M	</td><td>	4470_VC_H_1974	</td></tr>
+<tr bgcolor="#eeeeee"><td>	185	</td><td>	HB_076_HD	</td><td>	HD	</td><td>	F	</td><td>	4497_CR_H_1860	</td></tr>
+<tr bgcolor="#eeeeee"><td>	186	</td><td>	HB_077_HD	</td><td>	HD	</td><td>	M	</td><td>	4509_CR_H_2244	</td></tr>
+<tr bgcolor="#eeeeee"><td>	187	</td><td>	HB_079_HD	</td><td>	HD	</td><td>	M	</td><td>	4631_VC_H_1971	</td></tr>
+<tr bgcolor="#eeeeee"><td>	188	</td><td>	HB_080_HD	</td><td>	HD	</td><td>	F	</td><td>	4653_PF_H_2083	</td></tr>
+<tr bgcolor="#eeeeee"><td>	189	</td><td>	HB_081_HD	</td><td>	HD	</td><td>	NA	</td><td>	4678_CR_H_2242	</td></tr>
+<tr bgcolor="#eeeeee"><td>	190	</td><td>	HB_084_HD	</td><td>	HD	</td><td>	M	</td><td>	4718_VC_H_2125	</td></tr>
+<tr bgcolor="#eeeeee"><td>	191	</td><td>	HB_090_HD	</td><td>	HD	</td><td>	NA	</td><td>	4740_CR_H_2474	</td></tr>
+<tr bgcolor="#eeeeee"><td>	192	</td><td>	HB_094_HD	</td><td>	HD	</td><td>	NA	</td><td>	4754_CR_H_2476	</td></tr>
+<tr bgcolor="#eeeeee"><td>	193	</td><td>	HB_098_HD	</td><td>	HD	</td><td>	NA	</td><td>	4780_VC_H_2151	</td></tr>
+<tr bgcolor="#eeeeee"><td>	194	</td><td>	HB_101_HD	</td><td>	HD	</td><td>	F	</td><td>	4809_VC_H_2148	</td></tr>
+<tr bgcolor="#eeeeee"><td>	195	</td><td>	HB_105_HD	</td><td>	HD	</td><td>	NA	</td><td>	4819_CR_H_2238	</td></tr>
+<tr bgcolor="#eeeeee"><td>	196	</td><td>	HB_106_HD	</td><td>	HD	</td><td>	F	</td><td>	4822_VC_H_1969	</td></tr>
+<tr bgcolor="#eeeeee"><td>	197	</td><td>	HB_108_HD	</td><td>	HD	</td><td>	M	</td><td>	4826_VC_H_1968	</td></tr>
+<tr bgcolor="#eeeeee"><td>	198	</td><td>	HB_109_HD	</td><td>	HD	</td><td>	M	</td><td>	4828_VC_H_2124	</td></tr>
+<tr bgcolor="#eeeeee"><td>	199	</td><td>	HB_115_HD	</td><td>	HD	</td><td>	NA	</td><td>	4855_CR_H_2235	</td></tr>
+<tr bgcolor="#eeeeee"><td>	200	</td><td>	HB_121_HD	</td><td>	HD	</td><td>	F	</td><td>	4902_VC_H_1967	</td></tr>
+<tr bgcolor="#eeeeee"><td>	201	</td><td>	HB_129_HD	</td><td>	HD	</td><td>	NA	</td><td>	4938_VC_H_1966	</td></tr>
+<tr bgcolor="#eeeeee"><td>	202	</td><td>	HB_141_HD	</td><td>	HD	</td><td>	F	</td><td>	4996_PF_H_2076	</td></tr>
+<tr bgcolor="#eeeeee"><td>	203	</td><td>	HB_152_HD	</td><td>	HD	</td><td>	NA	</td><td>	5034_CR_H_2233	</td></tr>
+<tr bgcolor="#eeeeee"><td>	204	</td><td>	HB_153_HD	</td><td>	HD	</td><td>	M	</td><td>	5043_VC_H_1960	</td></tr>
+<tr bgcolor="#eeeeee"><td>	205	</td><td>	HB_159_HD	</td><td>	HD	</td><td>	M	</td><td>	5062_VC_H_1959	</td></tr>
+<tr bgcolor="#eeeeee"><td>	206	</td><td>	HB_172_HD	</td><td>	HD	</td><td>	F	</td><td>	5114_PF_H_2070	</td></tr>
+<tr bgcolor="#eeeeee"><td>	207	</td><td>	HB_175_HD	</td><td>	HD	</td><td>	M	</td><td>	5127_PF_H_2068	</td></tr>
+<tr bgcolor="#eeeeee"><td>	208	</td><td>	HB_180_HD	</td><td>	HD	</td><td>	M	</td><td>	5148_VC_H_1944	</td></tr>
+<tr bgcolor="#eeeeee"><td>	209	</td><td>	HB_185_HD	</td><td>	HD	</td><td>	F	</td><td>	5167_CR_H_2231	</td></tr>
+<tr bgcolor="#eeeeee"><td>	210	</td><td>	HB_188_HD	</td><td>	HD	</td><td>	F	</td><td>	5172_VC_H_1951	</td></tr>
+<tr bgcolor="#eeeeee"><td>	211	</td><td>	HB_191_HD	</td><td>	HD	</td><td>	M	</td><td>	5180_VC_H_1949	</td></tr>
+<tr bgcolor="#eeeeee"><td>	212	</td><td>	HB_196_HD	</td><td>	HD	</td><td>	NA	</td><td>	5199_PF_H_2202	</td></tr>
+<tr bgcolor="#eeeeee"><td>	213	</td><td>	HB_203_HD	</td><td>	HD	</td><td>	F	</td><td>	5228_PF_H_2059	</td></tr>
+<tr bgcolor="#eeeeee"><td>	214	</td><td>	HB_207_HD	</td><td>	HD	</td><td>	NA	</td><td>	5248_PF_H_2201	</td></tr>
+<tr bgcolor="#eeeeee"><td>	215	</td><td>	HB_228_HD	</td><td>	HD	</td><td>	F	</td><td>	5299_CR_H_2228	</td></tr>
+<tr bgcolor="#eeeeee"><td>	216	</td><td>	HB_233_HD	</td><td>	HD	</td><td>	M	</td><td>	5312_VC_H_1938	</td></tr>
+<tr bgcolor="#eeeeee"><td>	217	</td><td>	HB_235_HD	</td><td>	HD	</td><td>	F	</td><td>	5316_VC_H_1937	</td></tr>
+<tr bgcolor="#eeeeee"><td>	218	</td><td>	HB_242_HD	</td><td>	HD	</td><td>	F	</td><td>	5328_PF_H_2048	</td></tr>
+<tr bgcolor="#eeeeee"><td>	219	</td><td>	HB_266_HD	</td><td>	HD	</td><td>	M	</td><td>	5387_VC_H_1928	</td></tr>
+<tr bgcolor="#eeeeee"><td>	220	</td><td>	HB_271_HD	</td><td>	HD	</td><td>	M	</td><td>	5394_PF_H_2039	</td></tr>
+<tr bgcolor="#eeeeee"><td>	221	</td><td>	HB_272_HD	</td><td>	HD	</td><td>	F	</td><td>	5396_VC_H_1925	</td></tr>
+<tr bgcolor="#eeeeee"><td>	222	</td><td>	HB_279_HD	</td><td>	HD	</td><td>	F	</td><td>	5409_VC_H_1924	</td></tr>
+<tr bgcolor="#eeeeee"><td>	223	</td><td>	HB_294_HD	</td><td>	HD	</td><td>	M	</td><td>	5448_VC_H_1921	</td></tr>
+<tr bgcolor="#eeeeee"><td>	224	</td><td>	HB_301_HD	</td><td>	HD	</td><td>	NA	</td><td>	5464_VC_H_1919	</td></tr>
+<tr bgcolor="#eeeeee"><td>	225	</td><td>	HB_304_HD	</td><td>	HD	</td><td>	F	</td><td>	5471_VC_H_1918	</td></tr>
+<tr bgcolor="#eeeeee"><td>	226	</td><td>	HB_321_HD	</td><td>	HD	</td><td>	NA	</td><td>	5522_PF_H_2199	</td></tr>
+<tr bgcolor="#eeeeee"><td>	227	</td><td>	HB_361_HD	</td><td>	HD	</td><td>	F	</td><td>	5622_VC_H_2121	</td></tr>
+<tr bgcolor="#eeeeee"><td>	228	</td><td>	HB_370_HD	</td><td>	HD	</td><td>	M	</td><td>	5645_VC_H_1904	</td></tr>
+<tr bgcolor="#eeeeee"><td>	229	</td><td>	HB_371_HD	</td><td>	HD	</td><td>	F	</td><td>	5648_PF_H_2016	</td></tr>
+<tr bgcolor="#eeeeee"><td>	230	</td><td>	HB_384_HD	</td><td>	HD	</td><td>	F	</td><td>	5688_PF_H_2012	</td></tr>
+<tr bgcolor="#eeeeee"><td>	231	</td><td>	HB_390_HD	</td><td>	HD	</td><td>	M	</td><td>	5704_PF_H_2009	</td></tr>
+<tr bgcolor="#eeeeee"><td>	232	</td><td>	HB_393_HD	</td><td>	HD	</td><td>	F	</td><td>	5709_VC_H_1895	</td></tr>
+<tr bgcolor="#eeeeee"><td>	233	</td><td>	HB_402_HD	</td><td>	HD	</td><td>	F	</td><td>	5732_PF_H_2007	</td></tr>
+<tr bgcolor="#eeeeee"><td>	234	</td><td>	HB_405_HD	</td><td>	HD	</td><td>	NA	</td><td>	5742_PF_H_2006	</td></tr>
+<tr bgcolor="#eeeeee"><td>	235	</td><td>	HB_407_HD	</td><td>	HD	</td><td>	M	</td><td>	5745_PF_H_2005	</td></tr>
+<tr bgcolor="#eeeeee"><td>	236	</td><td>	HB_408_HD	</td><td>	HD	</td><td>	M	</td><td>	5747_VC_H_1891	</td></tr>
+<tr bgcolor="#eeeeee"><td>	237	</td><td>	HB_415_HD	</td><td>	HD	</td><td>	NA	</td><td>	5777_PF_H_1551	</td></tr>
+<tr bgcolor="#eeeeee"><td>	238	</td><td>	HB_417_HD	</td><td>	HD	</td><td>	M	</td><td>	5784_PF_H_1554	</td></tr>
+<tr bgcolor="#eeeeee"><td>	239	</td><td>	HB_424_HD	</td><td>	HD	</td><td>	M	</td><td>	5804_VC_H_1558	</td></tr>
+<tr bgcolor="#eeeeee"><td>	240	</td><td>	HB_444_HD	</td><td>	HD	</td><td>	M	</td><td>	5856_VC_H_1567	</td></tr>
+<tr bgcolor="#eeeeee"><td>	241	</td><td>	HB_457_HD	</td><td>	HD	</td><td>	M	</td><td>	5896_VC_H_1570	</td></tr>
+<tr bgcolor="#eeeeee"><td>	242	</td><td>	HB_466_HD	</td><td>	HD	</td><td>	M	</td><td>	5910_PF_H_1572	</td></tr>
+<tr bgcolor="#eeeeee"><td>	243	</td><td>	HB_478_HD	</td><td>	HD	</td><td>	M	</td><td>	5941_CR_H_1583	</td></tr>
+<tr bgcolor="#eeeeee"><td>	244	</td><td>	HB_487_HD	</td><td>	HD	</td><td>	F	</td><td>	5964_VC_H_1597	</td></tr>
+<tr bgcolor="#eeeeee"><td>	245	</td><td>	HB_511_HD	</td><td>	HD	</td><td>	M	</td><td>	6019_PF_H_2198	</td></tr>
+<tr bgcolor="#eeeeee"><td>	246	</td><td>	HB_513_HD	</td><td>	HD	</td><td>	F	</td><td>	6024_VC_H_1612	</td></tr>
+<tr bgcolor="#eeeeee"><td>	247	</td><td>	HB_515_HD	</td><td>	HD	</td><td>	F	</td><td>	6028_CR_H_1613	</td></tr>
+<tr bgcolor="#eeeeee"><td>	248	</td><td>	HB_518_HD	</td><td>	HD	</td><td>	M	</td><td>	6033_VC_H_1618	</td></tr>
+<tr bgcolor="#eeeeee"><td>	249	</td><td>	HB_522_HD	</td><td>	HD	</td><td>	M	</td><td>	6037_PF_H_1626	</td></tr>
+<tr bgcolor="#eeeeee"><td>	250	</td><td>	HB_527_HD	</td><td>	HD	</td><td>	F	</td><td>	6047_VC_H_1639	</td></tr>
+<tr bgcolor="#eeeeee"><td>	251	</td><td>	HB_528_HD	</td><td>	HD	</td><td>	M	</td><td>	6051_PF_H_1641	</td></tr>
+<tr bgcolor="#eeeeee"><td>	252	</td><td>	HB_530_HD	</td><td>	HD	</td><td>	M	</td><td>	6054_VC_H_1648	</td></tr>
+<tr bgcolor="#eeeeee"><td>	253	</td><td>	HB_537_HD	</td><td>	HD	</td><td>	F	</td><td>	6071_PF_H_1653	</td></tr>
+<tr bgcolor="#eeeeee"><td>	254	</td><td>	HB_549_HD	</td><td>	HD	</td><td>	M	</td><td>	6119_CR_H_1670	</td></tr>
+<tr bgcolor="#eeeeee"><td>	255	</td><td>	HB_593_HD	</td><td>	HD	</td><td>	NA	</td><td>	6219_CR_H_2567	</td></tr>
+<tr bgcolor="#eeeeee"><td>	256	</td><td>	HB_610_HD	</td><td>	HD	</td><td>	NA	</td><td>	6275_PF_H_1692	</td></tr>
+<tr bgcolor="#eeeeee"><td>	257	</td><td>	HB_616_HD	</td><td>	HD	</td><td>	F	</td><td>	6284_CR_H_1694	</td></tr>
+<tr bgcolor="#eeeeee"><td>	258	</td><td>	HB_626_HD	</td><td>	HD	</td><td>	M	</td><td>	6315_VC_H_1702	</td></tr>
+<tr bgcolor="#eeeeee"><td>	259	</td><td>	HB_639_HD	</td><td>	HD	</td><td>	F	</td><td>	6344_CR_H_1703	</td></tr>
+<tr bgcolor="#eeeeee"><td>	260	</td><td>	HB_649_HD	</td><td>	HD	</td><td>	F	</td><td>	6382_CR_H_1709	</td></tr>
+<tr bgcolor="#eeeeee"><td>	261	</td><td>	HB_661_HD	</td><td>	HD	</td><td>	M	</td><td>	6408_VC_H_1714	</td></tr>
+<tr bgcolor="#eeeeee"><td>	262	</td><td>	HB_682_HD	</td><td>	HD	</td><td>	M	</td><td>	6467_PF_H_1725	</td></tr>
+<tr bgcolor="#eeeeee"><td>	263	</td><td>	HB_683_HD	</td><td>	HD	</td><td>	M	</td><td>	6472_VC_H_1729	</td></tr>
+<tr bgcolor="#eeeeee"><td>	264	</td><td>	HB_691_HD	</td><td>	HD	</td><td>	F	</td><td>	6493_VC_H_1732	</td></tr>
+<tr bgcolor="#eeeeee"><td>	265	</td><td>	HB_692_HD	</td><td>	HD	</td><td>	M	</td><td>	6495_CR_H_1733	</td></tr>
+<tr bgcolor="#eeeeee"><td>	266	</td><td>	HB_707_HD	</td><td>	HD	</td><td>	M	</td><td>	6535_PF_H_1737	</td></tr>
+<tr bgcolor="#eeeeee"><td>	267	</td><td>	HB_709_HD	</td><td>	HD	</td><td>	F	</td><td>	6539_CR_H_1739	</td></tr>
+<tr bgcolor="#eeeeee"><td>	268	</td><td>	HB_725_HD	</td><td>	HD	</td><td>	M	</td><td>	6572_PF_H_1746	</td></tr>
+<tr bgcolor="#eeeeee"><td>	269	</td><td>	HB_732_HD	</td><td>	HD	</td><td>	F	</td><td>	6584_VC_H_1750	</td></tr>
+<tr bgcolor="#eeeeee"><td>	270	</td><td>	HB_734_HD	</td><td>	HD	</td><td>	F	</td><td>	6587_CR_H_1751	</td></tr>
+<tr bgcolor="#eeeeee"><td>	271	</td><td>	HB_748_HD	</td><td>	HD	</td><td>	NA	</td><td>	6615_VC_H_2315	</td></tr>
+<tr bgcolor="#eeeeee"><td>	272	</td><td>	HB_750_HD	</td><td>	HD	</td><td>	NA	</td><td>	6628_PF_H_2326	</td></tr>
+<tr bgcolor="#eeeeee"><td>	273	</td><td>	HB_758_HD	</td><td>	HD	</td><td>	NA	</td><td>	6643_VC_H_2602	</td></tr>
+<tr bgcolor="#eeeeee"><td>	274	</td><td>	HB_760_HD	</td><td>	HD	</td><td>	M	</td><td>	6646_PF_H_1761	</td></tr>
+<tr bgcolor="#eeeeee"><td>	275	</td><td>	HB_762_HD	</td><td>	HD	</td><td>	M	</td><td>	6650_VC_H_1765	</td></tr>
+<tr bgcolor="#eeeeee"><td>	276	</td><td>	HB_766_HD	</td><td>	HD	</td><td>	M	</td><td>	6658_VC_H_1768	</td></tr>
+<tr bgcolor="#eeeeee"><td>	277	</td><td>	HB_768_HD	</td><td>	HD	</td><td>	NA	</td><td>	6663_VC_H_1771	</td></tr>
+<tr bgcolor="#eeeeee"><td>	278	</td><td>	HB_769_HD	</td><td>	HD	</td><td>	M	</td><td>	6666_VC_H_1774	</td></tr>
+<tr bgcolor="#eeeeee"><td>	279	</td><td>	HB_774_HD	</td><td>	HD	</td><td>	NA	</td><td>	6689_PF_H_2344	</td></tr>
+<tr bgcolor="#eeeeee"><td>	280	</td><td>	HB_778_HD	</td><td>	HD	</td><td>	NA	</td><td>	6696_PF_H_2356	</td></tr>
+<tr bgcolor="#eeeeee"><td>	281	</td><td>	HB_780_HD	</td><td>	HD	</td><td>	NA	</td><td>	6704_PF_H_2362	</td></tr>
+<tr bgcolor="#eeeeee"><td>	282	</td><td>	HB_790_HD	</td><td>	HD	</td><td>	NA	</td><td>	6788_PF_H_2389	</td></tr>
+<tr bgcolor="#eeeeee"><td>	283	</td><td>	HB_800_HD	</td><td>	HD	</td><td>	NA	</td><td>	6807_PF_H_2419	</td></tr>
+<tr bgcolor="#eeeeee"><td>	284	</td><td>	HB_802_HD	</td><td>	HD	</td><td>	NA	</td><td>	6811_PF_H_2425	</td></tr>
+<tr bgcolor="#eeeeee"><td>	285	</td><td>	HB_045_AD	</td><td>	AD	</td><td>	NA	</td><td>	3734_CR_A_0122	</td></tr>
+<tr bgcolor="#eeeeee"><td>	286	</td><td>	HB_048_AD	</td><td>	AD	</td><td>	NA	</td><td>	3791_CR_A_0128	</td></tr>
+<tr bgcolor="#eeeeee"><td>	287	</td><td>	HB_053_AD	</td><td>	AD	</td><td>	NA	</td><td>	3877_CR_A_0134	</td></tr>
+<tr bgcolor="#eeeeee"><td>	288	</td><td>	HB_055_AD	</td><td>	AD	</td><td>	NA	</td><td>	3893_VC_A_0142	</td></tr>
+<tr bgcolor="#eeeeee"><td>	289	</td><td>	HB_068_AD	</td><td>	AD	</td><td>	NA	</td><td>	4349_VC_A_0148	</td></tr>
+<tr bgcolor="#eeeeee"><td>	290	</td><td>	HB_082_AD	</td><td>	AD	</td><td>	NA	</td><td>	4712_CR_A_0309	</td></tr>
+<tr bgcolor="#eeeeee"><td>	291	</td><td>	HB_085_AD	</td><td>	AD	</td><td>	NA	</td><td>	4726_VC_A_0311	</td></tr>
+<tr bgcolor="#eeeeee"><td>	292	</td><td>	HB_087_AD	</td><td>	AD	</td><td>	NA	</td><td>	4730_CR_A_0315	</td></tr>
+<tr bgcolor="#eeeeee"><td>	293	</td><td>	HB_089_AD	</td><td>	AD	</td><td>	NA	</td><td>	4733_VC_A_0320	</td></tr>
+<tr bgcolor="#eeeeee"><td>	294	</td><td>	HB_093_AD	</td><td>	AD	</td><td>	NA	</td><td>	4749_VC_A_0323	</td></tr>
+<tr bgcolor="#eeeeee"><td>	295	</td><td>	HB_095_AD	</td><td>	AD	</td><td>	NA	</td><td>	4759_CR_A_0327	</td></tr>
+<tr bgcolor="#eeeeee"><td>	296	</td><td>	HB_097_AD	</td><td>	AD	</td><td>	NA	</td><td>	4773_CR_A_0866	</td></tr>
+<tr bgcolor="#eeeeee"><td>	297	</td><td>	HB_099_AD	</td><td>	AD	</td><td>	NA	</td><td>	4785_VC_A_0332	</td></tr>
+<tr bgcolor="#eeeeee"><td>	298	</td><td>	HB_100_AD	</td><td>	AD	</td><td>	NA	</td><td>	4795_VC_A_0335	</td></tr>
+<tr bgcolor="#eeeeee"><td>	299	</td><td>	HB_103_AD	</td><td>	AD	</td><td>	NA	</td><td>	4811_VC_A_0341	</td></tr>
+<tr bgcolor="#eeeeee"><td>	300	</td><td>	HB_104_AD	</td><td>	AD	</td><td>	NA	</td><td>	4813_CR_A_0345	</td></tr>
+<tr bgcolor="#eeeeee"><td>	301	</td><td>	HB_112_AD	</td><td>	AD	</td><td>	NA	</td><td>	4842_VC_A_0870	</td></tr>
+<tr bgcolor="#eeeeee"><td>	302	</td><td>	HB_113_AD	</td><td>	AD	</td><td>	NA	</td><td>	4850_CR_A_0351	</td></tr>
+<tr bgcolor="#eeeeee"><td>	303	</td><td>	HB_114_AD	</td><td>	AD	</td><td>	NA	</td><td>	4852_CR_A_0354	</td></tr>
+<tr bgcolor="#eeeeee"><td>	304	</td><td>	HB_117_AD	</td><td>	AD	</td><td>	NA	</td><td>	4868_VC_A_0874	</td></tr>
+<tr bgcolor="#eeeeee"><td>	305	</td><td>	HB_122_AD	</td><td>	AD	</td><td>	NA	</td><td>	4904_CR_A_1132	</td></tr>
+<tr bgcolor="#eeeeee"><td>	306	</td><td>	HB_123_AD	</td><td>	AD	</td><td>	NA	</td><td>	4905_VC_A_0884	</td></tr>
+<tr bgcolor="#eeeeee"><td>	307	</td><td>	HB_124_AD	</td><td>	AD	</td><td>	NA	</td><td>	4916_VC_A_0886	</td></tr>
+<tr bgcolor="#eeeeee"><td>	308	</td><td>	HB_125_AD	</td><td>	AD	</td><td>	NA	</td><td>	4917_CR_A_0360	</td></tr>
+<tr bgcolor="#eeeeee"><td>	309	</td><td>	HB_126_AD	</td><td>	AD	</td><td>	NA	</td><td>	4921_VC_A_0362	</td></tr>
+<tr bgcolor="#eeeeee"><td>	310	</td><td>	HB_128_AD	</td><td>	AD	</td><td>	NA	</td><td>	4936_CR_A_0369	</td></tr>
+<tr bgcolor="#eeeeee"><td>	311	</td><td>	HB_130_AD	</td><td>	AD	</td><td>	NA	</td><td>	4939_VC_A_0888	</td></tr>
+<tr bgcolor="#eeeeee"><td>	312	</td><td>	HB_131_AD	</td><td>	AD	</td><td>	NA	</td><td>	4944_CR_A_0889	</td></tr>
+<tr bgcolor="#eeeeee"><td>	313	</td><td>	HB_132_AD	</td><td>	AD	</td><td>	NA	</td><td>	4946_CR_A_0372	</td></tr>
+<tr bgcolor="#eeeeee"><td>	314	</td><td>	HB_134_AD	</td><td>	AD	</td><td>	NA	</td><td>	4951_CR_A_0891	</td></tr>
+<tr bgcolor="#eeeeee"><td>	315	</td><td>	HB_135_AD	</td><td>	AD	</td><td>	NA	</td><td>	4953_VC_A_0893	</td></tr>
+<tr bgcolor="#eeeeee"><td>	316	</td><td>	HB_136_AD	</td><td>	AD	</td><td>	NA	</td><td>	4965_VC_A_0160	</td></tr>
+<tr bgcolor="#eeeeee"><td>	317	</td><td>	HB_137_AD	</td><td>	AD	</td><td>	NA	</td><td>	4966_VC_A_0374	</td></tr>
+<tr bgcolor="#eeeeee"><td>	318	</td><td>	HB_138_AD	</td><td>	AD	</td><td>	NA	</td><td>	4969_VC_A_0895	</td></tr>
+<tr bgcolor="#eeeeee"><td>	319	</td><td>	HB_140_AD	</td><td>	AD	</td><td>	NA	</td><td>	4993_CR_A_0896	</td></tr>
+<tr bgcolor="#eeeeee"><td>	320	</td><td>	HB_146_AD	</td><td>	AD	</td><td>	NA	</td><td>	5018_CR_A_0384	</td></tr>
+<tr bgcolor="#eeeeee"><td>	321	</td><td>	HB_148_AD	</td><td>	AD	</td><td>	NA	</td><td>	5022_VC_A_0386	</td></tr>
+<tr bgcolor="#eeeeee"><td>	322	</td><td>	HB_150_AD	</td><td>	AD	</td><td>	NA	</td><td>	5031_VC_A_0392	</td></tr>
+<tr bgcolor="#eeeeee"><td>	323	</td><td>	HB_151_AD	</td><td>	AD	</td><td>	NA	</td><td>	5033_CR_A_0396	</td></tr>
+<tr bgcolor="#eeeeee"><td>	324	</td><td>	HB_154_AD	</td><td>	AD	</td><td>	NA	</td><td>	5048_VC_A_1321	</td></tr>
+<tr bgcolor="#eeeeee"><td>	325	</td><td>	HB_155_AD	</td><td>	AD	</td><td>	NA	</td><td>	5056_VC_A_0398	</td></tr>
+<tr bgcolor="#eeeeee"><td>	326	</td><td>	HB_156_AD	</td><td>	AD	</td><td>	NA	</td><td>	5057_VC_A_0163	</td></tr>
+<tr bgcolor="#eeeeee"><td>	327	</td><td>	HB_157_AD	</td><td>	AD	</td><td>	NA	</td><td>	5059_VC_A_0401	</td></tr>
+<tr bgcolor="#eeeeee"><td>	328	</td><td>	HB_158_AD	</td><td>	AD	</td><td>	NA	</td><td>	5061_PF_A_2612	</td></tr>
+<tr bgcolor="#eeeeee"><td>	329	</td><td>	HB_160_AD	</td><td>	AD	</td><td>	NA	</td><td>	5064_PF_A_2615	</td></tr>
+<tr bgcolor="#eeeeee"><td>	330	</td><td>	HB_165_AD	</td><td>	AD	</td><td>	NA	</td><td>	5092_CR_A_0899	</td></tr>
+<tr bgcolor="#eeeeee"><td>	331	</td><td>	HB_168_AD	</td><td>	AD	</td><td>	NA	</td><td>	5097_VC_A_0407	</td></tr>
+<tr bgcolor="#eeeeee"><td>	332	</td><td>	HB_170_AD	</td><td>	AD	</td><td>	NA	</td><td>	5101_VC_A_0410	</td></tr>
+<tr bgcolor="#eeeeee"><td>	333	</td><td>	HB_174_AD	</td><td>	AD	</td><td>	NA	</td><td>	5124_PF_A_1343	</td></tr>
+<tr bgcolor="#eeeeee"><td>	334	</td><td>	HB_179_AD	</td><td>	AD	</td><td>	NA	</td><td>	5145_VC_A_1351	</td></tr>
+<tr bgcolor="#eeeeee"><td>	335	</td><td>	HB_181_AD	</td><td>	AD	</td><td>	NA	</td><td>	5152_CR_A_0414	</td></tr>
+<tr bgcolor="#eeeeee"><td>	336	</td><td>	HB_184_AD	</td><td>	AD	</td><td>	NA	</td><td>	5166_VC_A_1354	</td></tr>
+<tr bgcolor="#eeeeee"><td>	337	</td><td>	HB_194_AD	</td><td>	AD	</td><td>	NA	</td><td>	5193_VC_A_1360	</td></tr>
+<tr bgcolor="#eeeeee"><td>	338	</td><td>	HB_197_AD	</td><td>	AD	</td><td>	NA	</td><td>	5202_CR_A_1368	</td></tr>
+<tr bgcolor="#eeeeee"><td>	339	</td><td>	HB_199_AD	</td><td>	AD	</td><td>	NA	</td><td>	5205_VC_A_0166	</td></tr>
+<tr bgcolor="#eeeeee"><td>	340	</td><td>	HB_200_AD	</td><td>	AD	</td><td>	NA	</td><td>	5210_VC_A_0905	</td></tr>
+<tr bgcolor="#eeeeee"><td>	341	</td><td>	HB_205_AD	</td><td>	AD	</td><td>	NA	</td><td>	5235_VC_A_0419	</td></tr>
+<tr bgcolor="#eeeeee"><td>	342	</td><td>	HB_208_AD	</td><td>	AD	</td><td>	NA	</td><td>	5249_VC_A_0422	</td></tr>
+<tr bgcolor="#eeeeee"><td>	343	</td><td>	HB_209_AD	</td><td>	AD	</td><td>	NA	</td><td>	5252_VC_A_0907	</td></tr>
+<tr bgcolor="#eeeeee"><td>	344	</td><td>	HB_211_AD	</td><td>	AD	</td><td>	NA	</td><td>	5257_VC_A_0169	</td></tr>
+<tr bgcolor="#eeeeee"><td>	345	</td><td>	HB_216_AD	</td><td>	AD	</td><td>	NA	</td><td>	5272_VC_A_0425	</td></tr>
+<tr bgcolor="#eeeeee"><td>	346	</td><td>	HB_219_AD	</td><td>	AD	</td><td>	NA	</td><td>	5279_CR_A_0147	</td></tr>
+<tr bgcolor="#eeeeee"><td>	347	</td><td>	HB_221_AD	</td><td>	AD	</td><td>	NA	</td><td>	5283_VC_A_0145	</td></tr>
+<tr bgcolor="#eeeeee"><td>	348	</td><td>	HB_222_AD	</td><td>	AD	</td><td>	NA	</td><td>	5285_VC_A_0141	</td></tr>
+<tr bgcolor="#eeeeee"><td>	349	</td><td>	HB_224_AD	</td><td>	AD	</td><td>	NA	</td><td>	5288_VC_A_0428	</td></tr>
+<tr bgcolor="#eeeeee"><td>	350	</td><td>	HB_230_AD	</td><td>	AD	</td><td>	NA	</td><td>	5301_VC_A_0174	</td></tr>
+<tr bgcolor="#eeeeee"><td>	351	</td><td>	HB_231_AD	</td><td>	AD	</td><td>	NA	</td><td>	5305_VC_A_1384	</td></tr>
+<tr bgcolor="#eeeeee"><td>	352	</td><td>	HB_232_AD	</td><td>	AD	</td><td>	NA	</td><td>	5310_CR_A_0176	</td></tr>
+<tr bgcolor="#eeeeee"><td>	353	</td><td>	HB_234_AD	</td><td>	AD	</td><td>	NA	</td><td>	5313_PF_A_2618	</td></tr>
+<tr bgcolor="#eeeeee"><td>	354	</td><td>	HB_236_AD	</td><td>	AD	</td><td>	NA	</td><td>	5317_PF_A_2624	</td></tr>
+<tr bgcolor="#eeeeee"><td>	355	</td><td>	HB_238_AD	</td><td>	AD	</td><td>	NA	</td><td>	5322_CR_A_2632	</td></tr>
+<tr bgcolor="#eeeeee"><td>	356	</td><td>	HB_240_AD	</td><td>	AD	</td><td>	NA	</td><td>	5325_VC_A_0137	</td></tr>
+<tr bgcolor="#eeeeee"><td>	357	</td><td>	HB_244_AD	</td><td>	AD	</td><td>	NA	</td><td>	5337_VC_A_1387	</td></tr>
+<tr bgcolor="#eeeeee"><td>	358	</td><td>	HB_245_AD	</td><td>	AD	</td><td>	NA	</td><td>	5339_VC_A_0181	</td></tr>
+<tr bgcolor="#eeeeee"><td>	359	</td><td>	HB_250_AD	</td><td>	AD	</td><td>	NA	</td><td>	5346_VC_A_1393	</td></tr>
+<tr bgcolor="#eeeeee"><td>	360	</td><td>	HB_251_AD	</td><td>	AD	</td><td>	NA	</td><td>	5350_VC_A_0184	</td></tr>
+<tr bgcolor="#eeeeee"><td>	361	</td><td>	HB_252_AD	</td><td>	AD	</td><td>	NA	</td><td>	5355_VC_A_0133	</td></tr>
+<tr bgcolor="#eeeeee"><td>	362	</td><td>	HB_253_AD	</td><td>	AD	</td><td>	NA	</td><td>	5359_CR_A_1395	</td></tr>
+<tr bgcolor="#eeeeee"><td>	363	</td><td>	HB_258_AD	</td><td>	AD	</td><td>	NA	</td><td>	5370_PF_A_1400	</td></tr>
+<tr bgcolor="#eeeeee"><td>	364	</td><td>	HB_259_AD	</td><td>	AD	</td><td>	NA	</td><td>	5371_PF_A_2636	</td></tr>
+<tr bgcolor="#eeeeee"><td>	365	</td><td>	HB_260_AD	</td><td>	AD	</td><td>	NA	</td><td>	5375_VC_A_0188	</td></tr>
+<tr bgcolor="#eeeeee"><td>	366	</td><td>	HB_263_AD	</td><td>	AD	</td><td>	NA	</td><td>	5381_VC_A_0022	</td></tr>
+<tr bgcolor="#eeeeee"><td>	367	</td><td>	HB_265_AD	</td><td>	AD	</td><td>	NA	</td><td>	5385_VC_A_1402	</td></tr>
+<tr bgcolor="#eeeeee"><td>	368	</td><td>	HB_267_AD	</td><td>	AD	</td><td>	NA	</td><td>	5389_VC_A_0928	</td></tr>
+<tr bgcolor="#eeeeee"><td>	369	</td><td>	HB_268_AD	</td><td>	AD	</td><td>	NA	</td><td>	5390_CR_A_0151	</td></tr>
+<tr bgcolor="#eeeeee"><td>	370	</td><td>	HB_273_AD	</td><td>	AD	</td><td>	NA	</td><td>	5400_PF_A_2645	</td></tr>
+<tr bgcolor="#eeeeee"><td>	371	</td><td>	HB_274_AD	</td><td>	AD	</td><td>	NA	</td><td>	5401_VC_A_0931	</td></tr>
+<tr bgcolor="#eeeeee"><td>	372	</td><td>	HB_275_AD	</td><td>	AD	</td><td>	NA	</td><td>	5404_PF_A_2648	</td></tr>
+<tr bgcolor="#eeeeee"><td>	373	</td><td>	HB_276_AD	</td><td>	AD	</td><td>	NA	</td><td>	5406_VC_A_0933	</td></tr>
+<tr bgcolor="#eeeeee"><td>	374	</td><td>	HB_277_AD	</td><td>	AD	</td><td>	NA	</td><td>	5407_PF_A_2651	</td></tr>
+<tr bgcolor="#eeeeee"><td>	375	</td><td>	HB_280_AD	</td><td>	AD	</td><td>	NA	</td><td>	5412_VC_A_0935	</td></tr>
+<tr bgcolor="#eeeeee"><td>	376	</td><td>	HB_281_AD	</td><td>	AD	</td><td>	NA	</td><td>	5413_PF_A_2657	</td></tr>
+<tr bgcolor="#eeeeee"><td>	377	</td><td>	HB_283_AD	</td><td>	AD	</td><td>	NA	</td><td>	5419_VC_A_0937	</td></tr>
+<tr bgcolor="#eeeeee"><td>	378	</td><td>	HB_284_AD	</td><td>	AD	</td><td>	NA	</td><td>	5420_VC_A_0939	</td></tr>
+<tr bgcolor="#eeeeee"><td>	379	</td><td>	HB_285_AD	</td><td>	AD	</td><td>	NA	</td><td>	5421_CR_A_0432	</td></tr>
+<tr bgcolor="#eeeeee"><td>	380	</td><td>	HB_286_AD	</td><td>	AD	</td><td>	NA	</td><td>	5423_PF_A_2660	</td></tr>
+<tr bgcolor="#eeeeee"><td>	381	</td><td>	HB_288_AD	</td><td>	AD	</td><td>	NA	</td><td>	5425_PF_A_2666	</td></tr>
+<tr bgcolor="#eeeeee"><td>	382	</td><td>	HB_289_AD	</td><td>	AD	</td><td>	NA	</td><td>	5426_VC_A_1405	</td></tr>
+<tr bgcolor="#eeeeee"><td>	383	</td><td>	HB_290_AD	</td><td>	AD	</td><td>	NA	</td><td>	5433_VC_A_0434	</td></tr>
+<tr bgcolor="#eeeeee"><td>	384	</td><td>	HB_296_AD	</td><td>	AD	</td><td>	NA	</td><td>	5456_PF_A_2675	</td></tr>
+<tr bgcolor="#eeeeee"><td>	385	</td><td>	HB_299_AD	</td><td>	AD	</td><td>	NA	</td><td>	5461_VC_A_0192	</td></tr>
+<tr bgcolor="#eeeeee"><td>	386	</td><td>	HB_302_AD	</td><td>	AD	</td><td>	NA	</td><td>	5465_PF_A_2678	</td></tr>
+<tr bgcolor="#eeeeee"><td>	387	</td><td>	HB_303_AD	</td><td>	AD	</td><td>	NA	</td><td>	5469_VC_A_1417	</td></tr>
+<tr bgcolor="#eeeeee"><td>	388	</td><td>	HB_305_AD	</td><td>	AD	</td><td>	NA	</td><td>	5479_PF_A_1421	</td></tr>
+<tr bgcolor="#eeeeee"><td>	389	</td><td>	HB_306_AD	</td><td>	AD	</td><td>	NA	</td><td>	5480_VC_A_0437	</td></tr>
+<tr bgcolor="#eeeeee"><td>	390	</td><td>	HB_307_AD	</td><td>	AD	</td><td>	NA	</td><td>	5482_VC_A_0028	</td></tr>
+<tr bgcolor="#eeeeee"><td>	391	</td><td>	HB_308_AD	</td><td>	AD	</td><td>	NA	</td><td>	5483_VC_A_0941	</td></tr>
+<tr bgcolor="#eeeeee"><td>	392	</td><td>	HB_309_AD	</td><td>	AD	</td><td>	NA	</td><td>	5487_CR_A_0441	</td></tr>
+<tr bgcolor="#eeeeee"><td>	393	</td><td>	HB_310_AD	</td><td>	AD	</td><td>	NA	</td><td>	5488_CR_A_0194	</td></tr>
+<tr bgcolor="#eeeeee"><td>	394	</td><td>	HB_312_AD	</td><td>	AD	</td><td>	NA	</td><td>	5500_VC_A_0198	</td></tr>
+<tr bgcolor="#eeeeee"><td>	395	</td><td>	HB_313_AD	</td><td>	AD	</td><td>	NA	</td><td>	5502_PF_A_2684	</td></tr>
+<tr bgcolor="#eeeeee"><td>	396	</td><td>	HB_315_AD	</td><td>	AD	</td><td>	NA	</td><td>	5513_PF_A_2687	</td></tr>
+<tr bgcolor="#eeeeee"><td>	397	</td><td>	HB_316_AD	</td><td>	AD	</td><td>	NA	</td><td>	5516_PF_A_2690	</td></tr>
+<tr bgcolor="#eeeeee"><td>	398	</td><td>	HB_317_AD	</td><td>	AD	</td><td>	NA	</td><td>	5517_PF_A_2693	</td></tr>
+<tr bgcolor="#eeeeee"><td>	399	</td><td>	HB_318_AD	</td><td>	AD	</td><td>	NA	</td><td>	5518_CR_A_0030	</td></tr>
+<tr bgcolor="#eeeeee"><td>	400	</td><td>	HB_319_AD	</td><td>	AD	</td><td>	NA	</td><td>	5519_CR_A_2695	</td></tr>
+<tr bgcolor="#eeeeee"><td>	401	</td><td>	HB_320_AD	</td><td>	AD	</td><td>	NA	</td><td>	5520_PF_A_2699	</td></tr>
+<tr bgcolor="#eeeeee"><td>	402	</td><td>	HB_322_AD	</td><td>	AD	</td><td>	NA	</td><td>	5527_VC_A_0945	</td></tr>
+<tr bgcolor="#eeeeee"><td>	403	</td><td>	HB_325_AD	</td><td>	AD	</td><td>	NA	</td><td>	5532_PF_A_2702	</td></tr>
+<tr bgcolor="#eeeeee"><td>	404	</td><td>	HB_328_AD	</td><td>	AD	</td><td>	NA	</td><td>	5541_PF_A_2705	</td></tr>
+<tr bgcolor="#eeeeee"><td>	405	</td><td>	HB_330_AD	</td><td>	AD	</td><td>	NA	</td><td>	5544_VC_A_0201	</td></tr>
+<tr bgcolor="#eeeeee"><td>	406	</td><td>	HB_334_AD	</td><td>	AD	</td><td>	NA	</td><td>	5554_VC_A_0452	</td></tr>
+<tr bgcolor="#eeeeee"><td>	407	</td><td>	HB_335_AD	</td><td>	AD	</td><td>	NA	</td><td>	5557_VC_A_0950	</td></tr>
+<tr bgcolor="#eeeeee"><td>	408	</td><td>	HB_337_AD	</td><td>	AD	</td><td>	NA	</td><td>	5560_VC_A_0204	</td></tr>
+<tr bgcolor="#eeeeee"><td>	409	</td><td>	HB_342_AD	</td><td>	AD	</td><td>	NA	</td><td>	5571_PF_A_1430	</td></tr>
+<tr bgcolor="#eeeeee"><td>	410	</td><td>	HB_345_AD	</td><td>	AD	</td><td>	NA	</td><td>	5583_PF_A_2708	</td></tr>
+<tr bgcolor="#eeeeee"><td>	411	</td><td>	HB_347_AD	</td><td>	AD	</td><td>	NA	</td><td>	5589_PF_A_2714	</td></tr>
+<tr bgcolor="#eeeeee"><td>	412	</td><td>	HB_349_AD	</td><td>	AD	</td><td>	NA	</td><td>	5592_PF_A_2717	</td></tr>
+<tr bgcolor="#eeeeee"><td>	413	</td><td>	HB_352_AD	</td><td>	AD	</td><td>	NA	</td><td>	5604_VC_A_0037	</td></tr>
+<tr bgcolor="#eeeeee"><td>	414	</td><td>	HB_353_AD	</td><td>	AD	</td><td>	NA	</td><td>	5607_PF_A_2723	</td></tr>
+<tr bgcolor="#eeeeee"><td>	415	</td><td>	HB_356_AD	</td><td>	AD	</td><td>	NA	</td><td>	5615_VC_A_0041	</td></tr>
+<tr bgcolor="#eeeeee"><td>	416	</td><td>	HB_357_AD	</td><td>	AD	</td><td>	NA	</td><td>	5616_CR_A_0127	</td></tr>
+<tr bgcolor="#eeeeee"><td>	417	</td><td>	HB_358_AD	</td><td>	AD	</td><td>	NA	</td><td>	5617_CR_A_0456	</td></tr>
+<tr bgcolor="#eeeeee"><td>	418	</td><td>	HB_359_AD	</td><td>	AD	</td><td>	NA	</td><td>	5618_CR_A_0044	</td></tr>
+<tr bgcolor="#eeeeee"><td>	419	</td><td>	HB_362_AD	</td><td>	AD	</td><td>	NA	</td><td>	5625_CR_A_2495	</td></tr>
+<tr bgcolor="#eeeeee"><td>	420	</td><td>	HB_363_AD	</td><td>	AD	</td><td>	NA	</td><td>	5626_CR_A_2498	</td></tr>
+<tr bgcolor="#eeeeee"><td>	421	</td><td>	HB_364_AD	</td><td>	AD	</td><td>	NA	</td><td>	5629_CR_A_0390	</td></tr>
+<tr bgcolor="#eeeeee"><td>	422	</td><td>	HB_369_AD	</td><td>	AD	</td><td>	NA	</td><td>	5643_VC_A_1143	</td></tr>
+<tr bgcolor="#eeeeee"><td>	423	</td><td>	HB_373_AD	</td><td>	AD	</td><td>	NA	</td><td>	5654_VC_A_0047	</td></tr>
+<tr bgcolor="#eeeeee"><td>	424	</td><td>	HB_375_AD	</td><td>	AD	</td><td>	NA	</td><td>	5660_CR_A_0462	</td></tr>
+<tr bgcolor="#eeeeee"><td>	425	</td><td>	HB_376_AD	</td><td>	AD	</td><td>	NA	</td><td>	5661_VC_A_0464	</td></tr>
+<tr bgcolor="#eeeeee"><td>	426	</td><td>	HB_377_AD	</td><td>	AD	</td><td>	NA	</td><td>	5667_VC_A_2509	</td></tr>
+<tr bgcolor="#eeeeee"><td>	427	</td><td>	HB_378_AD	</td><td>	AD	</td><td>	NA	</td><td>	5668_VC_A_1438	</td></tr>
+<tr bgcolor="#eeeeee"><td>	428	</td><td>	HB_383_AD	</td><td>	AD	</td><td>	NA	</td><td>	5686_CR_A_2728	</td></tr>
+<tr bgcolor="#eeeeee"><td>	429	</td><td>	HB_386_AD	</td><td>	AD	</td><td>	NA	</td><td>	5695_VC_A_0953	</td></tr>
+<tr bgcolor="#eeeeee"><td>	430	</td><td>	HB_389_AD	</td><td>	AD	</td><td>	NA	</td><td>	5700_VC_A_2514	</td></tr>
+<tr bgcolor="#eeeeee"><td>	431	</td><td>	HB_391_AD	</td><td>	AD	</td><td>	NA	</td><td>	5705_CR_A_0474	</td></tr>
+<tr bgcolor="#eeeeee"><td>	432	</td><td>	HB_392_AD	</td><td>	AD	</td><td>	NA	</td><td>	5706_VC_A_0476	</td></tr>
+<tr bgcolor="#eeeeee"><td>	433	</td><td>	HB_394_AD	</td><td>	AD	</td><td>	NA	</td><td>	5713_VC_A_0479	</td></tr>
+<tr bgcolor="#eeeeee"><td>	434	</td><td>	HB_397_AD	</td><td>	AD	</td><td>	NA	</td><td>	5721_CR_A_0210	</td></tr>
+<tr bgcolor="#eeeeee"><td>	435	</td><td>	HB_404_AD	</td><td>	AD	</td><td>	NA	</td><td>	5735_CR_A_0489	</td></tr>
+<tr bgcolor="#eeeeee"><td>	436	</td><td>	HB_406_AD	</td><td>	AD	</td><td>	NA	</td><td>	5744_CR_A_0960	</td></tr>
+<tr bgcolor="#eeeeee"><td>	437	</td><td>	HB_409_AD	</td><td>	AD	</td><td>	NA	</td><td>	5749_CR_A_0159	</td></tr>
+<tr bgcolor="#eeeeee"><td>	438	</td><td>	HB_410_AD	</td><td>	AD	</td><td>	NA	</td><td>	5751_CR_A_2518	</td></tr>
+<tr bgcolor="#eeeeee"><td>	439	</td><td>	HB_411_AD	</td><td>	AD	</td><td>	NA	</td><td>	5755_CR_A_2731	</td></tr>
+<tr bgcolor="#eeeeee"><td>	440	</td><td>	HB_413_AD	</td><td>	AD	</td><td>	NA	</td><td>	5766_VC_A_0214	</td></tr>
+<tr bgcolor="#eeeeee"><td>	441	</td><td>	HB_419_AD	</td><td>	AD	</td><td>	NA	</td><td>	5790_VC_A_0217	</td></tr>
+<tr bgcolor="#eeeeee"><td>	442	</td><td>	HB_420_AD	</td><td>	AD	</td><td>	NA	</td><td>	5796_CR_A_0964	</td></tr>
+<tr bgcolor="#eeeeee"><td>	443	</td><td>	HB_428_AD	</td><td>	AD	</td><td>	NA	</td><td>	5811_CR_A_2524	</td></tr>
+<tr bgcolor="#eeeeee"><td>	444	</td><td>	HB_429_AD	</td><td>	AD	</td><td>	NA	</td><td>	5819_CR_A_2527	</td></tr>
+<tr bgcolor="#eeeeee"><td>	445	</td><td>	HB_430_AD	</td><td>	AD	</td><td>	NA	</td><td>	5822_CR_A_2530	</td></tr>
+<tr bgcolor="#eeeeee"><td>	446	</td><td>	HB_434_AD	</td><td>	AD	</td><td>	NA	</td><td>	5828_CR_A_2533	</td></tr>
+<tr bgcolor="#eeeeee"><td>	447	</td><td>	HB_435_AD	</td><td>	AD	</td><td>	NA	</td><td>	5831_CR_A_0222	</td></tr>
+<tr bgcolor="#eeeeee"><td>	448	</td><td>	HB_437_AD	</td><td>	AD	</td><td>	NA	</td><td>	5839_CR_A_2539	</td></tr>
+<tr bgcolor="#eeeeee"><td>	449	</td><td>	HB_438_AD	</td><td>	AD	</td><td>	NA	</td><td>	5843_CR_A_0227	</td></tr>
+<tr bgcolor="#eeeeee"><td>	450	</td><td>	HB_439_AD	</td><td>	AD	</td><td>	NA	</td><td>	5845_CR_A_0230	</td></tr>
+<tr bgcolor="#eeeeee"><td>	451	</td><td>	HB_441_AD	</td><td>	AD	</td><td>	NA	</td><td>	5849_CR_A_0233	</td></tr>
+<tr bgcolor="#eeeeee"><td>	452	</td><td>	HB_442_AD	</td><td>	AD	</td><td>	NA	</td><td>	5850_CR_A_0495	</td></tr>
+<tr bgcolor="#eeeeee"><td>	453	</td><td>	HB_445_AD	</td><td>	AD	</td><td>	NA	</td><td>	5858_CR_A_0969	</td></tr>
+<tr bgcolor="#eeeeee"><td>	454	</td><td>	HB_448_AD	</td><td>	AD	</td><td>	NA	</td><td>	5864_CR_A_0974	</td></tr>
+<tr bgcolor="#eeeeee"><td>	455	</td><td>	HB_451_AD	</td><td>	AD	</td><td>	NA	</td><td>	5871_CR_A_2542	</td></tr>
+<tr bgcolor="#eeeeee"><td>	456	</td><td>	HB_454_AD	</td><td>	AD	</td><td>	NA	</td><td>	5879_CR_A_2545	</td></tr>
+<tr bgcolor="#eeeeee"><td>	457	</td><td>	HB_455_AD	</td><td>	AD	</td><td>	NA	</td><td>	5887_CR_A_0976_Bis	</td></tr>
+<tr bgcolor="#eeeeee"><td>	458	</td><td>	HB_459_AD	</td><td>	AD	</td><td>	NA	</td><td>	5898_CR_A_2548	</td></tr>
+<tr bgcolor="#eeeeee"><td>	459	</td><td>	HB_460_AD	</td><td>	AD	</td><td>	NA	</td><td>	5900_VC_A_0237	</td></tr>
+<tr bgcolor="#eeeeee"><td>	460	</td><td>	HB_461_AD	</td><td>	AD	</td><td>	NA	</td><td>	5901_CR_A_0239	</td></tr>
+<tr bgcolor="#eeeeee"><td>	461	</td><td>	HB_469_AD	</td><td>	AD	</td><td>	NA	</td><td>	5914_CR_A_2554	</td></tr>
+<tr bgcolor="#eeeeee"><td>	462	</td><td>	HB_471_AD	</td><td>	AD	</td><td>	NA	</td><td>	5922_VC_A_0246	</td></tr>
+<tr bgcolor="#eeeeee"><td>	463	</td><td>	HB_473_AD	</td><td>	AD	</td><td>	NA	</td><td>	5927_CR_A_2560	</td></tr>
+<tr bgcolor="#eeeeee"><td>	464	</td><td>	HB_474_AD	</td><td>	AD	</td><td>	NA	</td><td>	5933_VC_A_1071	</td></tr>
+<tr bgcolor="#eeeeee"><td>	465	</td><td>	HB_477_AD	</td><td>	AD	</td><td>	NA	</td><td>	5939_CR_A_1151	</td></tr>
+<tr bgcolor="#eeeeee"><td>	466	</td><td>	HB_479_AD	</td><td>	AD	</td><td>	NA	</td><td>	5945_VC_A_0983	</td></tr>
+<tr bgcolor="#eeeeee"><td>	467	</td><td>	HB_484_AD	</td><td>	AD	</td><td>	NA	</td><td>	5956_CR_A_0123	</td></tr>
+<tr bgcolor="#eeeeee"><td>	468	</td><td>	HB_489_AD	</td><td>	AD	</td><td>	NA	</td><td>	5968_VC_A_1075	</td></tr>
+<tr bgcolor="#eeeeee"><td>	469	</td><td>	HB_491_AD	</td><td>	AD	</td><td>	NA	</td><td>	5971_CR_A_0119	</td></tr>
+<tr bgcolor="#eeeeee"><td>	470	</td><td>	HB_492_AD	</td><td>	AD	</td><td>	NA	</td><td>	5972_VC_A_0251	</td></tr>
+<tr bgcolor="#eeeeee"><td>	471	</td><td>	HB_494_AD	</td><td>	AD	</td><td>	NA	</td><td>	5979_CR_A_0115	</td></tr>
+<tr bgcolor="#eeeeee"><td>	472	</td><td>	HB_498_AD	</td><td>	AD	</td><td>	NA	</td><td>	5988_VC_A_0503	</td></tr>
+<tr bgcolor="#eeeeee"><td>	473	</td><td>	HB_502_AD	</td><td>	AD	</td><td>	NA	</td><td>	5994_PF_A_1605	</td></tr>
+<tr bgcolor="#eeeeee"><td>	474	</td><td>	HB_503_AD	</td><td>	AD	</td><td>	NA	</td><td>	5995_CR_A_2563	</td></tr>
+<tr bgcolor="#eeeeee"><td>	475	</td><td>	HB_510_AD	</td><td>	AD	</td><td>	NA	</td><td>	6017_CR_A_0048	</td></tr>
+<tr bgcolor="#eeeeee"><td>	476	</td><td>	HB_514_AD	</td><td>	AD	</td><td>	NA	</td><td>	6025_VC_A_0506	</td></tr>
+<tr bgcolor="#eeeeee"><td>	477	</td><td>	HB_517_AD	</td><td>	AD	</td><td>	NA	</td><td>	6031_VC_A_0258	</td></tr>
+<tr bgcolor="#eeeeee"><td>	478	</td><td>	HB_520_AD	</td><td>	AD	</td><td>	NA	</td><td>	6035_VC_A_1621	</td></tr>
+<tr bgcolor="#eeeeee"><td>	479	</td><td>	HB_523_AD	</td><td>	AD	</td><td>	NA	</td><td>	6038_VC_A_0261	</td></tr>
+<tr bgcolor="#eeeeee"><td>	480	</td><td>	HB_524_AD	</td><td>	AD	</td><td>	NA	</td><td>	6042_VC_A_1156	</td></tr>
+<tr bgcolor="#eeeeee"><td>	481	</td><td>	HB_525_AD	</td><td>	AD	</td><td>	NA	</td><td>	6044_VC_A_0264	</td></tr>
+<tr bgcolor="#eeeeee"><td>	482	</td><td>	HB_531_AD	</td><td>	AD	</td><td>	NA	</td><td>	6056_CR_A_0999	</td></tr>
+<tr bgcolor="#eeeeee"><td>	483	</td><td>	HB_533_AD	</td><td>	AD	</td><td>	NA	</td><td>	6061_PF_A_1650	</td></tr>
+<tr bgcolor="#eeeeee"><td>	484	</td><td>	HB_534_AD	</td><td>	AD	</td><td>	NA	</td><td>	6066_VC_A_0270	</td></tr>
+<tr bgcolor="#eeeeee"><td>	485	</td><td>	HB_535_AD	</td><td>	AD	</td><td>	NA	</td><td>	6067_PF_A_1452	</td></tr>
+<tr bgcolor="#eeeeee"><td>	486	</td><td>	HB_536_AD	</td><td>	AD	</td><td>	NA	</td><td>	6068_VC_A_0273	</td></tr>
+<tr bgcolor="#eeeeee"><td>	487	</td><td>	HB_545_AD	</td><td>	AD	</td><td>	NA	</td><td>	6102_CR_A_1661	</td></tr>
+<tr bgcolor="#eeeeee"><td>	488	</td><td>	HB_546_AD	</td><td>	AD	</td><td>	NA	</td><td>	6107_CR_A_0055	</td></tr>
+<tr bgcolor="#eeeeee"><td>	489	</td><td>	HB_550_AD	</td><td>	AD	</td><td>	NA	</td><td>	6120_VC_A_0058	</td></tr>
+<tr bgcolor="#eeeeee"><td>	490	</td><td>	HB_552_AD	</td><td>	AD	</td><td>	NA	</td><td>	6126_VC_A_1675	</td></tr>
+<tr bgcolor="#eeeeee"><td>	491	</td><td>	HB_553_AD	</td><td>	AD	</td><td>	NA	</td><td>	6129_PF_A_0274	</td></tr>
+<tr bgcolor="#eeeeee"><td>	492	</td><td>	HB_554_AD	</td><td>	AD	</td><td>	NA	</td><td>	6130_VC_A_1678	</td></tr>
+<tr bgcolor="#eeeeee"><td>	493	</td><td>	HB_555_AD	</td><td>	AD	</td><td>	NA	</td><td>	6131_CR_A_0510	</td></tr>
+<tr bgcolor="#eeeeee"><td>	494	</td><td>	HB_556_AD	</td><td>	AD	</td><td>	NA	</td><td>	6132_CR_A_0513	</td></tr>
+<tr bgcolor="#eeeeee"><td>	495	</td><td>	HB_558_AD	</td><td>	AD	</td><td>	NA	</td><td>	6137_VC_A_1681	</td></tr>
+<tr bgcolor="#eeeeee"><td>	496	</td><td>	HB_564_AD	</td><td>	AD	</td><td>	NA	</td><td>	6153_VC_A_1465	</td></tr>
+<tr bgcolor="#eeeeee"><td>	497	</td><td>	HB_565_AD	</td><td>	AD	</td><td>	NA	</td><td>	6154_VC_A_1468	</td></tr>
+<tr bgcolor="#eeeeee"><td>	498	</td><td>	HB_566_AD	</td><td>	AD	</td><td>	NA	</td><td>	6157_VC_A_0062	</td></tr>
+<tr bgcolor="#eeeeee"><td>	499	</td><td>	HB_568_AD	</td><td>	AD	</td><td>	NA	</td><td>	6164_CR_A_1005	</td></tr>
+<tr bgcolor="#eeeeee"><td>	500	</td><td>	HB_571_AD	</td><td>	AD	</td><td>	NA	</td><td>	6171_CR_A_0065	</td></tr>
+<tr bgcolor="#eeeeee"><td>	501	</td><td>	HB_573_AD	</td><td>	AD	</td><td>	NA	</td><td>	6174_VC_A_0068	</td></tr>
+<tr bgcolor="#eeeeee"><td>	502	</td><td>	HB_576_AD	</td><td>	AD	</td><td>	NA	</td><td>	6180_CR_A_0281	</td></tr>
+<tr bgcolor="#eeeeee"><td>	503	</td><td>	HB_583_AD	</td><td>	AD	</td><td>	NA	</td><td>	6194_VC_A_0071	</td></tr>
+<tr bgcolor="#eeeeee"><td>	504	</td><td>	HB_585_AD	</td><td>	AD	</td><td>	NA	</td><td>	6198_VC_A_0073	</td></tr>
+<tr bgcolor="#eeeeee"><td>	505	</td><td>	HB_590_AD	</td><td>	AD	</td><td>	NA	</td><td>	6215_VC_A_0518	</td></tr>
+<tr bgcolor="#eeeeee"><td>	506	</td><td>	HB_591_AD	</td><td>	AD	</td><td>	NA	</td><td>	6216_VC_A_1476	</td></tr>
+<tr bgcolor="#eeeeee"><td>	507	</td><td>	HB_592_AD	</td><td>	AD	</td><td>	NA	</td><td>	6218_CR_A_0522	</td></tr>
+<tr bgcolor="#eeeeee"><td>	508	</td><td>	HB_594_AD	</td><td>	AD	</td><td>	NA	</td><td>	6223_VC_A_0288	</td></tr>
+<tr bgcolor="#eeeeee"><td>	509	</td><td>	HB_596_AD	</td><td>	AD	</td><td>	NA	</td><td>	6226_CR_A_0076	</td></tr>
+<tr bgcolor="#eeeeee"><td>	510	</td><td>	HB_597_AD	</td><td>	AD	</td><td>	NA	</td><td>	6227_VC_A_0080	</td></tr>
+<tr bgcolor="#eeeeee"><td>	511	</td><td>	HB_598_AD	</td><td>	AD	</td><td>	NA	</td><td>	6231_VC_A_1479	</td></tr>
+<tr bgcolor="#eeeeee"><td>	512	</td><td>	HB_605_AD	</td><td>	AD	</td><td>	NA	</td><td>	6261_VC_A_0084	</td></tr>
+<tr bgcolor="#eeeeee"><td>	513	</td><td>	HB_608_AD	</td><td>	AD	</td><td>	NA	</td><td>	6268_CR_A_0525	</td></tr>
+<tr bgcolor="#eeeeee"><td>	514	</td><td>	HB_611_AD	</td><td>	AD	</td><td>	NA	</td><td>	6279_VC_A_0089	</td></tr>
+<tr bgcolor="#eeeeee"><td>	515	</td><td>	HB_612_AD	</td><td>	AD	</td><td>	NA	</td><td>	6280_VC_A_0091	</td></tr>
+<tr bgcolor="#eeeeee"><td>	516	</td><td>	HB_613_AD	</td><td>	AD	</td><td>	NA	</td><td>	6281_CR_A_0528	</td></tr>
+<tr bgcolor="#eeeeee"><td>	517	</td><td>	HB_621_AD	</td><td>	AD	</td><td>	NA	</td><td>	6308_VC_A_1503	</td></tr>
+<tr bgcolor="#eeeeee"><td>	518	</td><td>	HB_623_AD	</td><td>	AD	</td><td>	NA	</td><td>	6311_CR_A_0531	</td></tr>
+<tr bgcolor="#eeeeee"><td>	519	</td><td>	HB_624_AD	</td><td>	AD	</td><td>	NA	</td><td>	6312_CR_A_0534	</td></tr>
+<tr bgcolor="#eeeeee"><td>	520	</td><td>	HB_630_AD	</td><td>	AD	</td><td>	NA	</td><td>	6324_PF_A_1514	</td></tr>
+<tr bgcolor="#eeeeee"><td>	521	</td><td>	HB_633_AD	</td><td>	AD	</td><td>	NA	</td><td>	6332_VC_A_1518	</td></tr>
+<tr bgcolor="#eeeeee"><td>	522	</td><td>	HB_634_AD	</td><td>	AD	</td><td>	NA	</td><td>	6335_VC_A_0536	</td></tr>
+<tr bgcolor="#eeeeee"><td>	523	</td><td>	HB_635_AD	</td><td>	AD	</td><td>	NA	</td><td>	6336_CR_A_0290	</td></tr>
+<tr bgcolor="#eeeeee"><td>	524	</td><td>	HB_636_AD	</td><td>	AD	</td><td>	NA	</td><td>	6338_VC_A_0539	</td></tr>
+<tr bgcolor="#eeeeee"><td>	525	</td><td>	HB_642_AD	</td><td>	AD	</td><td>	NA	</td><td>	6358_VC_A_0545	</td></tr>
+<tr bgcolor="#eeeeee"><td>	526	</td><td>	HB_652_AD	</td><td>	AD	</td><td>	NA	</td><td>	6387_VC_A_0093	</td></tr>
+<tr bgcolor="#eeeeee"><td>	527	</td><td>	HB_657_AD	</td><td>	AD	</td><td>	NA	</td><td>	6394_VC_A_0551	</td></tr>
+<tr bgcolor="#eeeeee"><td>	528	</td><td>	HB_664_AD	</td><td>	AD	</td><td>	NA	</td><td>	6416_VC_A_1095	</td></tr>
+<tr bgcolor="#eeeeee"><td>	529	</td><td>	HB_666_AD	</td><td>	AD	</td><td>	NA	</td><td>	6422_CR_A_0555	</td></tr>
+<tr bgcolor="#eeeeee"><td>	530	</td><td>	HB_669_AD	</td><td>	AD	</td><td>	NA	</td><td>	6431_VC_A_0294	</td></tr>
+<tr bgcolor="#eeeeee"><td>	531	</td><td>	HB_674_AD	</td><td>	AD	</td><td>	NA	</td><td>	6449_VC_A_1183	</td></tr>
+<tr bgcolor="#eeeeee"><td>	532	</td><td>	HB_680_AD	</td><td>	AD	</td><td>	NA	</td><td>	6458_CR_A_2570	</td></tr>
+<tr bgcolor="#eeeeee"><td>	533	</td><td>	HB_685_AD	</td><td>	AD	</td><td>	NA	</td><td>	6481_VC_A_0560	</td></tr>
+<tr bgcolor="#eeeeee"><td>	534	</td><td>	HB_690_AD	</td><td>	AD	</td><td>	NA	</td><td>	6489_CR_A_0100	</td></tr>
+<tr bgcolor="#eeeeee"><td>	535	</td><td>	HB_696_AD	</td><td>	AD	</td><td>	NA	</td><td>	6511_VC_A_1119	</td></tr>
+<tr bgcolor="#eeeeee"><td>	536	</td><td>	HB_698_AD	</td><td>	AD	</td><td>	NA	</td><td>	6515_CR_A_0564	</td></tr>
+<tr bgcolor="#eeeeee"><td>	537	</td><td>	HB_699_AD	</td><td>	AD	</td><td>	NA	</td><td>	6518_VC_A_0103	</td></tr>
+<tr bgcolor="#eeeeee"><td>	538	</td><td>	HB_703_AD	</td><td>	AD	</td><td>	NA	</td><td>	6523_VC_A_0107	</td></tr>
+<tr bgcolor="#eeeeee"><td>	539	</td><td>	HB_704_AD	</td><td>	AD	</td><td>	NA	</td><td>	6530_VC_A_0112	</td></tr>
+<tr bgcolor="#eeeeee"><td>	540	</td><td>	HB_706_AD	</td><td>	AD	</td><td>	NA	</td><td>	6534_VC_A_0306	</td></tr>
+<tr bgcolor="#eeeeee"><td>	541	</td><td>	HB_712_AD	</td><td>	AD	</td><td>	NA	</td><td>	6546_PF_A_1194	</td></tr>
+<tr bgcolor="#eeeeee"><td>	542	</td><td>	HB_713_AD	</td><td>	AD	</td><td>	NA	</td><td>	6548_PF_A_1541	</td></tr>
+<tr bgcolor="#eeeeee"><td>	543	</td><td>	HB_715_AD	</td><td>	AD	</td><td>	NA	</td><td>	6550_VC_A_1201	</td></tr>
+<tr bgcolor="#eeeeee"><td>	544	</td><td>	HB_718_AD	</td><td>	AD	</td><td>	NA	</td><td>	6554_PF_A_1203	</td></tr>
+<tr bgcolor="#eeeeee"><td>	545	</td><td>	HB_720_AD	</td><td>	AD	</td><td>	NA	</td><td>	6559_PF_A_2287	</td></tr>
+<tr bgcolor="#eeeeee"><td>	546	</td><td>	HB_722_AD	</td><td>	AD	</td><td>	NA	</td><td>	6561_CR_A_2582	</td></tr>
+<tr bgcolor="#eeeeee"><td>	547	</td><td>	HB_723_AD	</td><td>	AD	</td><td>	NA	</td><td>	6562_PF_A_2290	</td></tr>
+<tr bgcolor="#eeeeee"><td>	548	</td><td>	HB_724_AD	</td><td>	AD	</td><td>	NA	</td><td>	6564_CR_A_2585	</td></tr>
+<tr bgcolor="#eeeeee"><td>	549	</td><td>	HB_727_AD	</td><td>	AD	</td><td>	NA	</td><td>	6575_CR_A_2298	</td></tr>
+<tr bgcolor="#eeeeee"><td>	550	</td><td>	HB_728_AD	</td><td>	AD	</td><td>	NA	</td><td>	6577_PF_A_2299	</td></tr>
+<tr bgcolor="#eeeeee"><td>	551	</td><td>	HB_729_AD	</td><td>	AD	</td><td>	NA	</td><td>	6578_PF_A_2302	</td></tr>
+<tr bgcolor="#eeeeee"><td>	552	</td><td>	HB_731_AD	</td><td>	AD	</td><td>	NA	</td><td>	6582_VC_A_1207	</td></tr>
+<tr bgcolor="#eeeeee"><td>	553	</td><td>	HB_733_AD	</td><td>	AD	</td><td>	NA	</td><td>	6585_VC_A_1210	</td></tr>
+<tr bgcolor="#eeeeee"><td>	554	</td><td>	HB_736_AD	</td><td>	AD	</td><td>	NA	</td><td>	6590_PF_A_1215	</td></tr>
+<tr bgcolor="#eeeeee"><td>	555	</td><td>	HB_743_AD	</td><td>	AD	</td><td>	NA	</td><td>	6603_PF_A_1448	</td></tr>
+<tr bgcolor="#eeeeee"><td>	556	</td><td>	HB_745_AD	</td><td>	AD	</td><td>	NA	</td><td>	6610_PF_A_1227	</td></tr>
+<tr bgcolor="#eeeeee"><td>	557	</td><td>	HB_746_AD	</td><td>	AD	</td><td>	NA	</td><td>	6612_PF_A_2308	</td></tr>
+<tr bgcolor="#eeeeee"><td>	558	</td><td>	HB_749_AD	</td><td>	AD	</td><td>	NA	</td><td>	6617_VC_A_2587	</td></tr>
+<tr bgcolor="#eeeeee"><td>	559	</td><td>	HB_751_AD	</td><td>	AD	</td><td>	NA	</td><td>	6629_VC_A_2330	</td></tr>
+<tr bgcolor="#eeeeee"><td>	560	</td><td>	HB_752_AD	</td><td>	AD	</td><td>	NA	</td><td>	6630_VC_A_2590	</td></tr>
+<tr bgcolor="#eeeeee"><td>	561	</td><td>	HB_753_AD	</td><td>	AD	</td><td>	NA	</td><td>	6632_PF_A_2332	</td></tr>
+<tr bgcolor="#eeeeee"><td>	562	</td><td>	HB_754_AD	</td><td>	AD	</td><td>	NA	</td><td>	6637_VC_A_2596	</td></tr>
+<tr bgcolor="#eeeeee"><td>	563	</td><td>	HB_755_AD	</td><td>	AD	</td><td>	NA	</td><td>	6638_VC_A_2599	</td></tr>
+<tr bgcolor="#eeeeee"><td>	564	</td><td>	HB_756_AD	</td><td>	AD	</td><td>	NA	</td><td>	6639_VC_A_2336	</td></tr>
+<tr bgcolor="#eeeeee"><td>	565	</td><td>	HB_757_AD	</td><td>	AD	</td><td>	NA	</td><td>	6641_PF_A_2338	</td></tr>
+<tr bgcolor="#eeeeee"><td>	566	</td><td>	HB_763_AD	</td><td>	AD	</td><td>	NA	</td><td>	6654_VC_A_1237	</td></tr>
+<tr bgcolor="#eeeeee"><td>	567	</td><td>	HB_773_AD	</td><td>	AD	</td><td>	NA	</td><td>	6681_VC_A_1252	</td></tr>
+<tr bgcolor="#eeeeee"><td>	568	</td><td>	HB_775_AD	</td><td>	AD	</td><td>	NA	</td><td>	6693_VC_A_2348	</td></tr>
+<tr bgcolor="#eeeeee"><td>	569	</td><td>	HB_776_AD	</td><td>	AD	</td><td>	NA	</td><td>	6694_VC_A_2351	</td></tr>
+<tr bgcolor="#eeeeee"><td>	570	</td><td>	HB_777_AD	</td><td>	AD	</td><td>	NA	</td><td>	6695_PF_A_2353	</td></tr>
+<tr bgcolor="#eeeeee"><td>	571	</td><td>	HB_779_AD	</td><td>	AD	</td><td>	NA	</td><td>	6699_PF_A_2359	</td></tr>
+<tr bgcolor="#eeeeee"><td>	572	</td><td>	HB_781_AD	</td><td>	AD	</td><td>	NA	</td><td>	6708_VC_A_2366	</td></tr>
+<tr bgcolor="#eeeeee"><td>	573	</td><td>	HB_782_AD	</td><td>	AD	</td><td>	NA	</td><td>	6776_PF_A_2607	</td></tr>
+<tr bgcolor="#eeeeee"><td>	574	</td><td>	HB_783_AD	</td><td>	AD	</td><td>	NA	</td><td>	6778_PF_A_2368	</td></tr>
+<tr bgcolor="#eeeeee"><td>	575	</td><td>	HB_784_AD	</td><td>	AD	</td><td>	NA	</td><td>	6779_PF_A_2371	</td></tr>
+<tr bgcolor="#eeeeee"><td>	576	</td><td>	HB_785_AD	</td><td>	AD	</td><td>	NA	</td><td>	6780_PF_A_2374	</td></tr>
+<tr bgcolor="#eeeeee"><td>	577	</td><td>	HB_786_AD	</td><td>	AD	</td><td>	NA	</td><td>	6782_PF_A_2377	</td></tr>
+<tr bgcolor="#eeeeee"><td>	578	</td><td>	HB_787_AD	</td><td>	AD	</td><td>	NA	</td><td>	6784_PF_A_2380	</td></tr>
+<tr bgcolor="#eeeeee"><td>	579	</td><td>	HB_788_AD	</td><td>	AD	</td><td>	NA	</td><td>	6785_CR_A_2385	</td></tr>
+<tr bgcolor="#eeeeee"><td>	580	</td><td>	HB_789_AD	</td><td>	AD	</td><td>	NA	</td><td>	6787_CR_A_2388	</td></tr>
+<tr bgcolor="#eeeeee"><td>	581	</td><td>	HB_791_AD	</td><td>	AD	</td><td>	NA	</td><td>	6790_PF_A_2392	</td></tr>
+<tr bgcolor="#eeeeee"><td>	582	</td><td>	HB_792_AD	</td><td>	AD	</td><td>	NA	</td><td>	6791_PF_A_2395	</td></tr>
+<tr bgcolor="#eeeeee"><td>	583	</td><td>	HB_793_AD	</td><td>	AD	</td><td>	NA	</td><td>	6793_PF_A_2398	</td></tr>
+<tr bgcolor="#eeeeee"><td>	584	</td><td>	HB_794_AD	</td><td>	AD	</td><td>	NA	</td><td>	6794_PF_A_2401	</td></tr>
+<tr bgcolor="#eeeeee"><td>	585	</td><td>	HB_795_AD	</td><td>	AD	</td><td>	NA	</td><td>	6797_PF_A_2404	</td></tr>
+<tr bgcolor="#eeeeee"><td>	586	</td><td>	HB_796_AD	</td><td>	AD	</td><td>	NA	</td><td>	6798_PF_A_2407	</td></tr>
+<tr bgcolor="#eeeeee"><td>	587	</td><td>	HB_797_AD	</td><td>	AD	</td><td>	NA	</td><td>	6799_VC_A_2411	</td></tr>
+<tr bgcolor="#eeeeee"><td>	588	</td><td>	HB_798_AD	</td><td>	AD	</td><td>	NA	</td><td>	6801_VC_A_2414	</td></tr>
+<tr bgcolor="#eeeeee"><td>	589	</td><td>	HB_799_AD	</td><td>	AD	</td><td>	NA	</td><td>	6803_VC_A_2417	</td></tr>
+<tr bgcolor="#eeeeee"><td>	590	</td><td>	HB_801_AD	</td><td>	AD	</td><td>	NA	</td><td>	6809_PF_A_2422	</td></tr>
+<tr bgcolor="#eeeeee"><td>	591	</td><td>	HB_803_AD	</td><td>	AD	</td><td>	NA	</td><td>	6818_CR_A_2430	</td></tr></table>
+</td></p>
+</p>
+	
+		</TR>
+		</TABLE>
+		</TD>
+	</TR>
+	<!-- End of body -->
+
+        <!-- Start of footer -->
+	<TR>
+		
+<TD align=center bgColor=#ddddff class="solidBorder">
+<TABLE width="100%">
+<TR>
+	<TD align="left">
+		<A HREF="http://citg.uthsc.edu/" target="_blank">
+		<IMG SRC="/images/upload/CITGLogo.png" alt="CITG" border="0"></A>
+	</TD>
+	<TD align="left" id="smallsize" style="font-size:11px;font-family:verdana;color:black">
+		Service initiated June 15, 2001. Site by
+		<A class="smallsize" HREF="mailto:xzhou15@uthsc.edu">Xiaodong Zhou</A>,
+		<A class="smallsize" HREF="mailto:lyan6@uthsc.edu">Lei Yan</A>,
+		<A class="smallsize" HREF="mailto:nliu4@uthsc.edu" target="_blank">Ning Liu</A>,
+		<A class="smallsize" HREF="mailto:zachary.a.sloan@gmail.com">Zachary Sloan</A>,
+		<A class="smallsize" HREF="mailto:rudi.alberts@helmholtz-hzi.de">Rudi Alberts</A>,
+		<A class="smallsize" HREF="mailto:acenteno@uthsc.edu" target="_blank">Arthur Centeno</A>, Jintao Wang, Lu Lu, Kenneth Manly, Robert W. Williams, and <A class="smallsize" HREF="/credit.html">colleagues</A>.
+	</TD>
+	<TD align="right">
+		<A HREF="http://www.python.org/" target="_blank">
+		<IMG src="/images/upload/PythonLogo.png" alt="Python Powered" border="0"></A>
+	</TD>
+	<TD align="right">
+		<A HREF="http://www.neuinfo.org"  target="_blank">
+		<img src="/images/upload/Nif.png" alt="Registered with Nif" border="0"></A>
+	</TD>
+</TR>
+<TR>
+	<TD>
+	</TD>
+	<TD colspan=3  style="font-size:12px;font-family:verdana;color:black">
+		GeneNetwork support from:
+		<UL>
+		<LI><a class="smallsize" target="_blank" href="http://citg.uthsc.edu">The UT Center for Integrative and Translational Genomics</A>
+		<LI><a class="smallsize" target="_blank" href="http://www.iniastress.org">NIAAA</A> Integrative Neuroscience Initiative on Alcoholism (U01AA13499, U24AA13513, U01AA014425)
+		<LI><a class="smallsize" target="_blank" href="http://www.drugabuse.gov/about/organization/Genetics/geneexpression/index.html">NIDA</A>, <a class="smallsize" target="_blank" href="http://www.nimh.nih.gov/">NIMH</A>, and <a class="smallsize" target="_blank" href="http://www.niaaa.nih.gov/">NIAAA</A> (P20-DA 21131)
+		<LI>NCI <a class="smallsize" target="_blank" href="http://emice.nci.nih.gov/">MMHCC</A> (U01CA105417), <a class="smallsize" target="_blank" href="http://www.ncrr.nih.gov/">NCRR</A> <a class="smallsize" target="_blank" href="http://www.nbirn.net/TestBeds/Mouse/index.htm">BIRN</A>,  (U24 RR021760)
+		</UL>
+	</TD>
+</TR>
+<TR>
+	<TD colspan=4 id="smallsize" align="left">
+		&nbsp;&nbsp;&nbsp;&nbsp;
+	</TD>
+</TR>
+</TABLE>
+</TD>
+
+
+	</TR>
+	<!-- End of footer -->
+</TABLE>
+
+<!-- menu script itself. you should not modify this file -->
+<script language="JavaScript" src="/javascript/menu_new.js"></script>
+<!-- items structure. menu hierarchy and links are stored there -->
+<script language="JavaScript" src="/javascript/menu_items.js"></script>
+<!-- files with geometry and styles structures -->
+<script language="JavaScript" src="/javascript/menu_tpl.js"></script>
+<script language="JavaScript">
+	<!--//
+	// Note where menu initialization block is located in HTML document.
+	// Don't try to position menu locating menu initialization block in
+	// some table cell or other HTML element. Always put it before </body>
+	// each menu gets two parameters (see demo files)
+	// 1. items structure
+	// 2. geometry structure
+	new menu (MENU_ITEMS, MENU_POS);
+	// make sure files containing definitions for these variables are linked to the document
+	// if you got some javascript error like "MENU_POS is not defined", then you've made syntax
+	// error in menu_tpl.js file or that file isn't linked properly.
+	
+	// also take a look at stylesheets loaded in header in order to set styles
+	//-->
+</script>
+</BODY>
+</HTML>
