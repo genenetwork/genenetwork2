@@ -1,4 +1,5 @@
-# test
+# This JavaScript was written by Zach Sloan in 2009-2010.
+# This script is used in the Network Graph output from the Trait Collection window
 
 var searchResults = document.getElementById('searchResult').value.split("\t");
 var symbolList = document.getElementById('symbolList').value.split("\t");
