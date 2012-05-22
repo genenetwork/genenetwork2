@@ -67,7 +67,7 @@ index_body_string = """
 					<!--  DATABASE  SELECTION -->		
 									<TR>
 										<TD align=right height=35 style="font-size:14px;font-family:verdana;color:black">
-											<B>Database:</B>
+											<B>Data Set:</B>
 										</TD>
 
 										<TD width="3%">
@@ -221,6 +221,7 @@ Quick HELP Examples and </B>
 				<li><a href="http://galaxy.genenetwork.org/" target="_blank">Galaxy</a> at UTHSC</li>
 				<li>GeneNetwork at <a href="http://ec2.genenetwork.org/" target="_blank">Amazon Cloud (EC2)</a></li>
 				<li>GeneNetwork Source Codes at <a href="http://sourceforge.net/projects/genenetwork/" target="_blank">SourceForge</a></li>
+				<li>GeneNetwork Source Codes at <a href="https://github.com/genenetwork/genenetwork" target="_blank">GitHub</a></li>
 			</ul>
 		</p>
 							<P>____________________________
@@ -271,7 +272,7 @@ Quick HELP Examples and </B>
 								<LI><A HREF="http://gn.genetics.ucla.edu/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">California at UCLA</A>
 								<LI><A HREF="http://genenetwork.helmholtz-hzi.de/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Germany at the HZI</A>
 								<LI><A HREF="https://genenetwork.hubrecht.eu/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Netherlands at the Hubrecht</A> (Development)
-								<LI><A HREF="http://xzhou3.memphis.edu/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Memphis at the U of M</A>
+								<LI><A HREF="http://genenetwork.memphis.edu/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Memphis at the U of M</A>
 								<LI><A HREF="http://webqtl.bic.nus.edu.sg/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Singapore at the NUS</A>
  								<LI><A HREF="http://genenetwork.epfl.ch/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Switzerland at the EPFL</A>
 							</UL>

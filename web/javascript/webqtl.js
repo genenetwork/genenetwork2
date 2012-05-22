@@ -945,7 +945,7 @@ function mixedChipError(methodName){
 Used by GoTreePage.py, add the parameter 'chipName'
 */
 function unknownChipError(chipName){
-	alert("Sorry, the analysis was interrupted because your selections from GeneNetwork apparently include data from platform"+ chipName +"which is unknown by WebGestalt. Please reselect traits and submit again.");
+	alert("Sorry, the analysis was interrupted because your selections from GeneNetwork apparently include data from platform "+ chipName +" which is unknown by WebGestalt. Please reselect traits and submit again.");
 	window.close();
 }
 

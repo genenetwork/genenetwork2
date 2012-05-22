@@ -20,8 +20,10 @@ from base.templatePage import templatePage
 from utility import webqtlUtil
 from dbFunction import webqtlDatabaseFunction
 
+import PubmedSearch
+
 import logging
-logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
+logging.basicConfig(filename="/tmp/gn_log_leiyan", level=logging.INFO)
 _log = logging.getLogger("search")
 
 class SearchResultPage(templatePage):
@@ -155,7 +157,16 @@ class SearchResultPage(templatePage):
 			geneIdListQuery = " geneId=%s" % string.join(string.split(geneIdListQuery), "-")
 
 		self.ANDkeyword = fd.formdata.getfirst('ANDkeyword', "")
+		_log.info("self.ANDkeyword[1]: " + self.ANDkeyword)
+		pubmedSearchObject = PubmedSearch.PubmedSearch(self.ANDkeyword, self.database[0].id)
+		self.ANDkeyword = pubmedSearchObject.getNewS()
+		_log.info("self.ANDkeyword[2]: " + self.ANDkeyword)
+
 		self.ORkeyword = fd.formdata.getfirst('ORkeyword', "")
+		_log.info("self.ORkeyword[1]: " + self.ORkeyword)
+		pubmedSearchObject = PubmedSearch.PubmedSearch(self.ORkeyword, self.database[0].id)
+		self.ORkeyword = pubmedSearchObject.getNewS()
+		_log.info("self.ORkeyword[2]: "+self.ORkeyword)
 
 		self.ORkeyword += geneIdListQuery
 
@@ -485,7 +496,7 @@ class SearchResultPage(templatePage):
 		self.results = []
 		for item in searchCountQuery:
 		    start_time = datetime.datetime.now()
-		    _log.info("Executing query: %s"%(item))
+		    _log.info("111 Executing query: %s"%(item))
 		    self.cursor.execute(item)
 		    allResults.append(self.cursor.fetchall())
 		    end_time = datetime.datetime.now()
@@ -497,6 +508,7 @@ class SearchResultPage(templatePage):
 		#searchCountQuery retrieve all the results, for counting use only
 		if searchCountQuery != searchQuery:
 			for item in searchQuery:
+				_log.info("222 Executing query: %s"%(item))
 				self.cursor.execute(item)
 				self.results.append(self.cursor.fetchall())
 		else:
