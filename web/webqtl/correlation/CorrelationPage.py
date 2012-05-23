@@ -1,4 +1,4 @@
-# Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
+## Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License
@@ -53,9 +53,6 @@ from correlation import correlationFunction
 import logging
 logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
 _log = logging.getLogger("correlation")
-
-debug_file = open("/home/zas1024/gn/web/corr_debug.txt","w")
-debug_file2 = open("/home/zas1024/gn/web/corr_debug2.txt","w")
 
 METHOD_SAMPLE_PEARSON = "1"
 METHOD_SAMPLE_RANK = "2"
@@ -222,37 +219,15 @@ def get_species(fd, cursor):
 
 
 def sortTraitCorrelations(traits, method="1"):
-    for trait in traits:
-        if trait.lit_corr != None and float(trait.lit_corr) > 0.6:
-            debug_file.write(str(trait.lit_corr) + "\n")
     if method in TISSUE_METHODS:
-        #traits.sort(key=lambda trait: trait.tissue_corr != None and abs(float(trait.tissue_corr)) or 0)
         traits.sort(key=lambda trait: trait.tissue_corr != None and abs(trait.tissue_corr), reverse=True)
     elif method == METHOD_LIT:
-        #traits.sort(key=lambda trait: trait.lit_corr != None and abs(float(trait.lit_corr)) or 0)
         traits.sort(key=lambda trait: trait.lit_corr != None and abs(trait.lit_corr), reverse=True)
     else:
-        #traits.sort(key=lambda trait: trait.correlation != None and abs(float(trait.correlation)) or 0)
         traits.sort(key=lambda trait: trait.correlation != None and abs(trait.correlation), reverse=True)
-
-    for trait in traits:
-        if trait.lit_corr != None and float(trait.lit_corr) > 0.6:
-            debug_file2.write(str(trait.lit_corr) + "\n")        
 
     return traits
 
-
-
-def cmpTraitCorr(A,B):
-    try:
-        if abs(A.correlation) < abs(B.correlation):
-            return 1
-        elif abs(A.correlation) == abs(B.correlation):
-            return 0
-        else:
-            return -1                  
-    except:
-        return 0   
 
 def auth_user_for_db(db, cursor, target_db_name, privilege, username):
     """Authorize a user for access to a database if that database is
