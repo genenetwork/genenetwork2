@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+{% block content %}
+<!-- Start of body -->
+	<TR>
+		<TD  bgColor=#eeeeee class="solidBorder">
+            <Table width= "100%" cellSpacing=0 cellPadding=5>
+                <TR>
+                    <TD valign="top" height="200" width="100%" bgcolor="#eeeeee">
+                        <P class="title">Search Results</P>
+                        <BLOCKQUOTE>GeneNetwork searched the following databases:
+                            <ul>
+                                {% for db in database %}
+                                    <li><a href="/dbdoc/{{db.fullname}}">{{ db.fullname }}</a></li>
+                                {% endfor %}
+                            </ul>
+
+                            For all records  that match:
+                            <ul>
+                                {% if ORkeyword2 %}
+                                    <li>
+                                        {% for word in ORkeyword2 %}
+                                            <strong>{{word}}</strong> {% if not loop.last %} or {% endif %}
+                                        {% endfor %}
+                                    </li>
+                                {% endif %}
+                                {% if ANDkeyword2 %}
+                                    <li>
+                                        {% for word in ANDkeyword2 %}
+                                            <strong>{{word}}</strong> {% if not loop.last %} and {% endif %}
+                                        {% endfor %}
+                                    </li>
+                                {% endif %}
+                            </ul>
+
+                            <P>GeneNetwork found <strong>{{ numify(nresults, "record", "records") }}</strong>.</P>
+
+                            <P>To study a record, click on its ID below.</P>
+
+                            <P>To add one or more records to your Selection window, use the checkbox and then click the <STRONG>Add to Collection</STRONG> button.</P>
+                        </BLOCKQUOTE>
+                        <FORM METHOD="GET" ACTION="/search" ENCTYPE="multipart/form-data" NAME="showDatabaseBXD">
+
+                        <INPUT TYPE="hidden" NAME="database" VALUE="_">
+                        <INPUT TYPE="hidden" NAME="incparentsf1" VALUE="ON">
+                        <INPUT TYPE="hidden" NAME="FormID" VALUE="showDatabase">
+                        <INPUT TYPE="hidden" NAME="ProbeSetID" VALUE="_">
+                        <INPUT TYPE="hidden" NAME="RISet" VALUE="BXD">
+                        <INPUT TYPE="hidden" NAME="CellID" VALUE="_">
+                        <P>
+                        <TABLE border="0" cellpadding="0" cellspacing="2" width="100%">
+                            <TR>
+                                <TD>
+                                    <TABLE border="0" cellpadding="0" cellspacing="2" width="20%">
+                                        <TR>
+                                            <TD width="25%">
+                                                <A HREF="#" onClick="checkAll(document.getElementsByName('showDatabaseBXD')[0]);">
+                                                <IMG src="/images/select_all2_final.jpg" alt="Select All" name="selectall" style="border:none;" title="Select All"></A>
+                                            </TD>
+                                            <TD width="25%">
+                                                <A HREF="#" onClick="checkNone(document.getElementsByName('showDatabaseBXD')[0]);">
+                                                    <IMG src="/images/select_none2_final.jpg" alt="Select None" style="border:none;" title="Select None">
+                                                </A>
+                                            </TD>
+                                            <TD width="25%">
+                                                <A HREF="#" onClick="checkInvert(document.getElementsByName('showDatabaseBXD')[0]);">
+                                                    <IMG src="/images/invert_selection2_final.jpg" alt="Invert Selection" name="selectinvert" style="border:none;" title="Invert Selection">
+                                                </A>
+                                            </TD>
+                                            <TD width="25%">
+                                                <A HREF="#">
+                                                    <IMG src="/images/add_collection1_final.jpg" alt="Add To Collection" name="addselect" style="border:none;" title="Add To Collection">
+                                                </A>
+                                            </TD>
+                                        </TR>
+                                        <TR>
+                                            <TD width="25%">&nbsp;&nbsp;Select</TD>
+                                            <TD width="255">&nbsp;Deselect</TD>
+                                            <TD width="25%">&nbsp;&nbsp;&nbsp;Invert</TD>
+                                            <TD width="25%">&nbsp;&nbsp;&nbsp;&nbsp;Add</TD>
+                                        </TR></TABLE>
+                                </TD>
+                            </TR>
+                            <TR>
+                                <TD height="40">
+                                    <INPUT TYPE="button" NAME="Default_Name" class="button" VALUE="Download Table" onClick="location.href='/tmp/Search_fYr7h2Hn.xls'">
+                                </TD>
+                            </TR>
+                            <TR>
+                                <TD>
+                                    <DIV id="sortable">
+                                        <TABLE class="collap b2" cellpadding="5" cellspacing="1">
+                                            <TR>
+                                                <TD class="fs13 fwb ffl b1 cw cbrb" nowrap="ON">
+                                                </TD>
+                                                <TD class="fs13 fwb ffl b1 cw cbrb">
+                                                    Record
+                                                    <BR>ID<BR>
+                                                    <DIV style="float: bottom;">
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=record_id&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
+                                                        </A>
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=record_id&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
+                                                        </A>
+                                                    </DIV>
+                                                </TD>
+                                                <TD class="fs13 fwb ffl b1 cw cbrb">
+                                                    Symbol<BR><BR>
+                                                    <DIV style="float: bottom;">
+                                                        <IMG src="/images/sortupon.gif" alt="sortupon.gif" border="0">
+                                                            <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=symbol&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                                <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
+                                                            </A>
+                                                    </DIV>
+                                                </TD>
+                                                <TD class="fs13 fwb ffl b1 cw cbrb">
+                                                    Description<BR><BR>
+                                                    <DIV style="float: bottom;">
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=desc&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
+                                                        </A>
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=desc&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
+                                                        </A>
+                                                    </DIV>
+                                                </TD>
+                                                <TD class="fs13 fwb ffl b1 cw cbrb">Location<BR>Chr and Mb<BR>
+                                                    <DIV style="float: bottom;">
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=location&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
+                                                        </A>
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=location&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
+                                                        </A>
+                                                    </DIV>
+                                                </TD>
+                                                <TD class="fs13 fwb ffl b1 cw cbrb">Mean<BR>Expr<BR>
+                                                <DIV style="float: bottom;">
+                                                    <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=mean&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                        <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
+                                                    </A>
+                                                    <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=mean&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                        <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
+                                                    </A>
+                                                </DIV>
+                                                </TD>
+                                                <TD class="fs13 fwb ffl b1 cw cbrb" nowrap="ON">Max<BR>LRS<BR>
+                                                    <DIV style="float: bottom;">
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=lrs&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
+                                                        </A>
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=lrs&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
+                                                        </A>
+                                                    </DIV>
+                                                </TD>
+                                                <TD class="fs13 fwb ffl b1 cw cbrb" nowrap="ON">Max LRS Location<BR>Chr and Mb<BR>
+                                                    <DIV style="float: bottom;">
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=lrs_location&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
+                                                        </A>
+                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=lrs_location&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
+                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
+                                                        </A>
+                                                    </DIV>
+                                                </TD>
+                                            </TR>
+                                            {% for thisTrait in traitList %}
+                                            <TR id="{{ thisTrait }}">
+                                                <TD class="fs12 fwn ffl b1 c222" nowrap="on">{{ loop.index }}
+                                                    <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox" VALUE="{{ thisTrait }}" onClick="highlight(this)">
+                                                </TD>
+                                                <TD class="fs12 fwn b1 c222">
+                                                    <A HREF="javascript:showDatabase3('{{ thisFormName }}','{{thisTrait.db.name}}','{{ thisTrait.name }}','{{ thisTrait.cellid }}')" class="fs12 fwn">{{ thisTrait.name.upper() }}</A>
+                                                </TD>
+                                                <TD class="fs12 fwn b1 c222 fsI">
+                                                    <A HREF="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{thisTrait.geneid}}" TARGET="_blank" class="font_black fs12 fwn">
+                                                        {{ thisTrait.symbol }}
+                                                    </A>
+                                                </TD>
+                                                <TD class="fs12 fwn b1 c222">{{ thisTrait.description_display }}</TD>
+                                                <TD class="fs12 fwn b1 c222" nowrap="on">{{ thisTrait.trait_location_repr }}</TD>
+                                                <TD class="fs12 fwn b1 c222" nowrap="ON" align="right">{{ thisTrait.mean }}</TD>
+                                                <TD class="fs12 fwn b1 c222" nowrap="on" align="right">{{ thisTrait.LRS_score_repr }}</TD>
+                                                <TD class="fs12 fwn b1 c222" nowrap="on">{{ thisTrait.LRS_location_repr }}</TD>
+                                            </TR>
+                                            {% endfor %}
+                                        </TABLE>
+                                    </DIV>
+                                </TD>
+                            </TR>
+                        </TABLE>
+                        <INPUT TYPE="hidden" NAME="Default_Name">
+                        </FORM>
+                    </TD>
+                </TR>
+            </TABLE>
+		</TD>
+	</TR>
+<!-- End of body -->
+
+{% endblock %}
