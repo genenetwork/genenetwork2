@@ -2,5 +2,4 @@ Flask==0.8
 Jinja2==2.6
 MySQL-python==1.2.3
 Werkzeug==0.8.3
-pyXLWriter==0.4a3
 wsgiref==0.1.2
