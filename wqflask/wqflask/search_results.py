@@ -59,25 +59,12 @@ class SearchResultPage(templatePage):
     nkeywords = 0
 
     def __init__(self, fd):
-        _log.info("Got here - xerxes2")
-        _log.info("sys.path: %s" % (sys.path))
-        #_log.info(causeanerror)
-        _log.info("xerxesc")
-        #self.jtemplate = JinjaEnv.get_template('SearchResultPage.html')
-        #templatePage.__init__(self, fd)
-
         if not self.openMysql():
             return
 
-        _log.info("xerxesd")
-
-        #self.dict['title'] = 'Search Results'
-        #TD_LR = HT.TD(height=200,width="100%",bgColor='#eeeeee',valign="top")
-        print("e2.8")
         self.database = [fd['database']]
-        print("e2.9")
+
         if not self.database or self.database == 'spacer':
-            print("e3")
             #Error, No database selected
             heading = "Search Result"
             detail = ['''No database was selected for this search, please
@@ -85,16 +72,14 @@ class SearchResultPage(templatePage):
             self.error(heading=heading,detail=detail,error="No Database Selected")
             return
         elif type(self.database) == type(""):
-            print("e3.2")
             #convert database into a database list
             #was used for multiple databases search, this
             #feature has been abandoned,
             self.database = string.split(self.database,',')
         else:
-            print("e3.4")
             pass
 
-        print("e4")
+
         ###########################################
         #   Names and IDs of RISet / F2 set
         ###########################################
@@ -155,7 +140,6 @@ class SearchResultPage(templatePage):
             #XZ, August 24,2010: Since self.singleCross = True, it's safe to assign one species Id.
             self.speciesId = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.database[0].riset)
 
-        print("e4.5")
         ###########################################
         #    make sure search from same type of databases
         ###########################################
@@ -175,22 +159,20 @@ class SearchResultPage(templatePage):
         elif self.dbType == "Geno":
             self.searchField = ['Name','Chr']
 
-        print("e4.6")
         ###########################################
         #       Search Options
         ###########################################
         self.matchwhole = fd['matchwhole']
-        print("e4.65")
         #split result into pages
         self.pageNumber = fd.get('pageno', 0)
-        print("e4.7")
+
         try:
             self.pageNumber = int(self.pageNumber)
         except Exception as why:
             print(why)
             self.pageNumber = 0
 
-        print("e5")
+
         ###########################################
         #       Generate Mysql Query
         ###########################################
@@ -252,7 +234,6 @@ class SearchResultPage(templatePage):
             dbUrlLink = " were"
         else:
             dbUrl =  self.database[0].genHTML()
-            print("glasses:", dbUrl)
             dbUrlLink = " was"
 
         #SearchText = HT.Blockquote('GeneNetwork searched the ', dbUrl, ' for all records ')
@@ -309,7 +290,6 @@ class SearchResultPage(templatePage):
         #            SearchText.append(" and ")
         #
         #SearchText.append(". ")
-        _log.info("fweep")
         #if self.nresults == 0:
         #    heading = "Search Result"
         #    detail = ["Sorry, GeneNetwork did not find any records matching your request. Please check the syntax or try the ANY rather than the ALL field."]
@@ -331,7 +311,7 @@ class SearchResultPage(templatePage):
 
 
         #TD_LR.append(HT.Paragraph('Search Results', Class="title"), SearchText)
-        _log.info("flop")
+
         self.genSearchResultTable()
         #self.dict['body'] = str(TD_LR)
         #self.dict['js1'] = ''
@@ -397,7 +377,7 @@ class SearchResultPage(templatePage):
             tblobj = {}
             mainfmName = thisFormName
             species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=RISet)
-            _log.info("flap trait is: %s" % (thisTrait.db.type))
+
             if thisTrait.db.type=="Geno":
                 tblobj['header'] = self.getTableHeaderForGeno(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
 
@@ -534,7 +514,7 @@ class SearchResultPage(templatePage):
         self.results = []
         for item in searchCountQuery:
             start_time = datetime.datetime.now()
-            _log.info("foo - Executing query: %s"%(item))
+            _log.info("Executing query: %s"%(item))
             self.cursor.execute(item)
             allResults.append(self.cursor.fetchall())
             end_time = datetime.datetime.now()

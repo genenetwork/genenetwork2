@@ -15,9 +15,5 @@ def index_page():
 
 @app.route("/search")
 def search():
-    print("request is:", request.args)
     the_search = search_results.SearchResultPage(request.args)
-    print("At rendering...")
-    print(pf(the_search.__dict__))
-    print("yack:", the_search.database[0].genHTML())
     return render_template("search_result_page.html", **the_search.__dict__)
