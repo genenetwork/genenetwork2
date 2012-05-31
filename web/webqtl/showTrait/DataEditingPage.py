@@ -416,13 +416,15 @@ class DataEditingPage(templatePage):
 					UTHSC_BLAT_URL = ""
 				
 				if UCSC_BLAT_URL:
-					verifyButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % UCSC_BLAT_URL)
-					verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="addselect", alt=" Check probe locations at UCSC ", title=" Check probe locations at UCSC ", style="border:none;")
+					verifyButton = HT.Href(url="#")
+					verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="verify", alt=" Check probe locations at UCSC ", 
+						title=" Check probe locations at UCSC ", onClick="javascript:openNewWin('%s'); return false;" % UCSC_BLAT_URL, style="border:none;")
 					verifyButton.append(verifyButtonImg)
 					verifyText = 'Verify'
 				if UTHSC_BLAT_URL:	
-					rnaseqButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % UTHSC_BLAT_URL)
-					rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="addselect", alt=" View probes, SNPs, and RNA-seq at UTHSC ", title=" View probes, SNPs, and RNA-seq at UTHSC ", style="border:none;")
+					rnaseqButton = HT.Href(url="#")
+					rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="rnaseq", alt=" View probes, SNPs, and RNA-seq at UTHSC ", 
+						title=" View probes, SNPs, and RNA-seq at UTHSC ", onClick="javascript:openNewWin('%s'); return false;" % UTHSC_BLAT_URL, style="border:none;")
 					rnaseqButton.append(rnaseqButtonImg)
 					rnaseqText = 'RNA-seq'											
 				tSpan.append(HT.BR())
@@ -590,10 +592,24 @@ class DataEditingPage(templatePage):
 					url="http://string.embl.de/newstring_cgi/show_link_summary.pl?identifier=%s" \
 					% thisTrait.symbol,Class="fs14 fwn", \
 					title="Protein interactions: known and inferred"), style=linkStyle), "&nbsp;"*2)
-				if thisTrait.geneid:
+				if thisTrait.symbol:
+					#ZS: The "species scientific" converts the plain English species names we're using to their scientific names, which are needed for PANTHER's input
+					#We should probably use the scientific name along with the English name (if not instead of) elsewhere as well, given potential non-English speaking users
+					if _Species == "mouse":
+						species_scientific = "Mus%20musculus"
+					elif _Species == "rat":
+						species_scientific = "Rattus%20norvegicus"
+					elif _Species == "human":
+						species_scientific = "Homo%20sapiens"
+					elif _Species == "drosophila":
+						species_scientific = "Drosophila%20melanogaster"
+					else:
+						species_scientific = "all"
+
+					species_scientific
 					tSpan.append(HT.Span(HT.Href(text= 'PANTHER',target="mainFrame", \
-						url="http://www.pantherdb.org/genes/gene.do?acc=%s"  \
-						% thisTrait.geneid,Class="fs14 fwn", \
+						url="http://www.pantherdb.org/genes/geneList.do?searchType=basic&fieldName=all&organism=%s&listType=1&fieldValue=%s"  \
+						% (species_scientific, thisTrait.symbol),Class="fs14 fwn", \
 					title="Gene and protein data resources from Celera-ABI"), style=linkStyle), "&nbsp;"*2)
 				else:
 					pass
@@ -755,11 +771,12 @@ class DataEditingPage(templatePage):
 					UCSC_BLAT_URL = ""
 					UTHSC_BLAT_URL = ""
 				if UCSC_BLAT_URL:
-					verifyButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % UCSC_BLAT_URL)
+					#verifyButton = HT.Href(url="#", onClick="openNewWin('%s')" % UCSC_BLAT_URL)
+					verifyButton = HT.Href(url="#")
 					verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="addselect", alt=" Check probe locations at UCSC ", title=" Check probe locations at UCSC ", style="border:none;")
 					verifyButton.append(verifyButtonImg)	
 					verifyText = "Verify"
-					rnaseqButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % UTHSC_BLAT_URL)
+					rnaseqButton = HT.Href(url="#", onClick="openNewWin('%s')" % UTHSC_BLAT_URL)
 					rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="addselect", alt=" View probes, SNPs, and RNA-seq at UTHSC ", title=" View probes, SNPs, and RNA-seq at UTHSC ", style="border:none;")
 					rnaseqButton.append(rnaseqButtonImg)			
 					rnaseqText = "RNA-seq"								

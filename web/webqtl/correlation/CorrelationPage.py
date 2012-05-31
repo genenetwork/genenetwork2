@@ -23,6 +23,9 @@
 # Created by GeneNetwork Core Team 2010/08/10
 #
 # Last updated by NL 2011/02/11
+# Last updated by Christian Fernandez 2012/04/07
+# Refactored correlation calculation into smaller functions in preparation of
+# separating html from existing code
 
 import string
 from math import *
@@ -47,447 +50,324 @@ from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from correlation import correlationFunction
 
+import logging
+logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
+_log = logging.getLogger("correlation")
+
+METHOD_SAMPLE_PEARSON = "1"
+METHOD_SAMPLE_RANK = "2"
+METHOD_LIT = "3"
+METHOD_TISSUE_PEARSON = "4"
+METHOD_TISSUE_RANK = "5"
+
+TISSUE_METHODS = [METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK]
+
+TISSUE_MOUSE_DB = 1
+
+class AuthException(Exception): pass
+
+
+class Trait(object):
+    def __init__(self, name, raw_values = None, lit_corr = None, tissue_corr = None, p_tissue = None):
+        self.name = name
+        self.raw_values = raw_values
+        self.lit_corr = lit_corr
+        self.tissue_corr = tissue_corr
+        self.p_tissue = p_tissue
+        self.correlation = 0
+        self.p_value = 0
+
+    @staticmethod
+    def from_csv(line, data_start = 1):
+        name = line[0]
+        numbers = line[data_start:]
+    #	_log.info(numbers)
+        numbers = [ float(number) for number in numbers ]
+
+        return Trait(name, raw_values = numbers)
+
+    def calculate_correlation(self, values, method):
+        """Calculate the correlation value and p value according to the method specified"""
+
+        #ZS: This takes the list of values of the trait our selected trait is being correlated against and removes the values of the samples our trait has no value for
+        #There's probably a better way of dealing with this, but I'll have to ask Christian
+        updated_raw_values = [] 
+        updated_values = []
+        for i in range(len(values)):
+            if values[i] != "None":
+                updated_raw_values.append(self.raw_values[i])
+                updated_values.append(values[i])
+
+        self.raw_values = updated_raw_values
+        values = updated_values
+
+        if method == METHOD_SAMPLE_PEARSON or method == METHOD_LIT or method == METHOD_TISSUE_PEARSON:
+            corr,nOverlap = webqtlUtil.calCorrelation(self.raw_values, values, len(values))
+        else:
+            corr,nOverlap = webqtlUtil.calCorrelationRank(self.raw_values, values, len(values))
+
+        self.correlation = corr
+        self.overlap = nOverlap
+
+        if self.overlap < 3:
+            self.p_value = 1.0
+        else:
+            #ZS - This is probably the wrong way to deal with this. Correlation values of 1.0 definitely exist (the trait correlated against itself), so zero division needs to br prevented.
+            if abs(self.correlation) >= 1.0:
+                self.p_value = 0.0
+            else:
+                ZValue = 0.5*log((1.0+self.correlation)/(1.0-self.correlation))
+                ZValue = ZValue*sqrt(self.overlap-3)
+                self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))
+
+	
+
+#XZ, 01/14/2009: This method is for parallel computing only.
+#XZ: It is supposed to be called when "Genetic Correlation, Pearson's r" (method 1)
+#XZ: or "Genetic Correlation, Spearman's rho" (method 2) is selected
+def compute_corr( input_nnCorr, input_trait, input_list, computing_method):
+
+    allcorrelations = []
+
+    for line in input_list:
+	tokens = line.split('","')
+	tokens[-1] = tokens[-1][:-2] #remove the last "
+	tokens[0] = tokens[0][1:] #remove the first "
+
+	traitdataName = tokens[0]
+	database_trait = tokens[1:]
+
+	if computing_method == "1": #XZ: Pearson's r
+	    corr,nOverlap = utility.webqtlUtil.calCorrelationText(input_trait, database_trait, input_nnCorr)
+	else: #XZ: Spearman's rho
+	    corr,nOverlap = utility.webqtlUtil.calCorrelationRankText(input_trait, database_trait, input_nnCorr)
+	traitinfo = [traitdataName,corr,nOverlap]
+	allcorrelations.append(traitinfo)
+
+    return allcorrelations
+
+def get_correlation_method_key(form_data):
+    #XZ, 09/28/2008: if user select "1", then display 1, 3 and 4.
+    #XZ, 09/28/2008: if user select "2", then display 2, 3 and 5.
+    #XZ, 09/28/2008: if user select "3", then display 1, 3 and 4.
+    #XZ, 09/28/2008: if user select "4", then display 1, 3 and 4.
+    #XZ, 09/28/2008: if user select "5", then display 2, 3 and 5.		
+
+    method = form_data.formdata.getvalue("method")
+    if method not in ["1", "2", "3" ,"4", "5"]:
+	return "1"
+
+    return method
+
+
+def get_custom_trait(form_data, cursor):
+    """Pulls the custom trait, if it exists, out of the form data"""
+    trait_name = form_data.formdata.getvalue('fullname')
+
+    if trait_name:
+	trait = webqtlTrait(fullname=trait_name, cursor=cursor)
+	trait.retrieveInfo()
+	return trait
+    else:
+	return None
+
+
+#XZ, 09/18/2008: get the information such as value, variance of the input strain names from the form.		
+def get_sample_data(form_data):
+    if form_data.allstrainlist:
+	mdpchoice = form_data.formdata.getvalue('MDPChoice')
+	#XZ, in HTML source code, it is "BXD Only" or "BXH only", and so on
+	if mdpchoice == "1":
+	    strainlist = form_data.f1list + form_data.strainlist
+	#XZ, in HTML source code, it is "MDP Only"
+	elif mdpchoice == "2":
+	    strainlist = []
+	    strainlist2 = form_data.f1list + form_data.strainlist
+	    for strain in form_data.allstrainlist:
+		if strain not in strainlist2:
+		    strainlist.append(strain)
+	    #So called MDP Panel
+	    if strainlist:
+		strainlist = form_data.f1list+form_data.parlist+strainlist
+	#XZ, in HTML source code, it is "All Cases"
+	else:
+	    strainlist = form_data.allstrainlist
+	#XZ, 09/18/2008: put the trait data into dictionary form_data.allTraitData
+	form_data.readData(form_data.allstrainlist)
+    else:	
+	mdpchoice = None	
+	strainlist = form_data.strainlist
+	#XZ, 09/18/2008: put the trait data into dictionary form_data.allTraitData
+	form_data.readData()
+
+    return strainlist
+
+
+def get_mdp_choice(form_data):
+    if form_data.allstrainlist:
+	return form_data.formdata.getvalue("MDPChoice")
+    else:
+	return None
+
+
+def get_species(fd, cursor):
+    #XZ, 3/16/2010: variable RISet must be pass by the form
+    RISet = fd.RISet
+    #XZ, 12/12/2008: get species infomation
+    species = webqtlDatabaseFunction.retrieveSpecies(cursor=cursor, RISet=RISet)
+    return species
+
+
+def sortTraitCorrelations(traits, method="1"):
+    if method in TISSUE_METHODS:
+        traits.sort(key=lambda trait: trait.tissue_corr != None and abs(trait.tissue_corr), reverse=True)
+    elif method == METHOD_LIT:
+        traits.sort(key=lambda trait: trait.lit_corr != None and abs(trait.lit_corr), reverse=True)
+    else:
+        traits.sort(key=lambda trait: trait.correlation != None and abs(trait.correlation), reverse=True)
+
+    return traits
+
+
+def auth_user_for_db(db, cursor, target_db_name, privilege, username):
+    """Authorize a user for access to a database if that database is
+    confidential. A db (identified by a record in ProbeSetFreeze) contains a
+    list of authorized users who may access it, as well as its confidentiality
+    level.
+
+    If the current user's privilege level is greater than 'user', ie: root or
+    admin, then they are automatically authed, otherwise, check the
+    AuthorizedUsers field for the presence of their name."""
+
+    if db.type == 'ProbeSet':
+	cursor.execute('SELECT Id, Name, FullName, confidentiality, AuthorisedUsers FROM ProbeSetFreeze WHERE Name = "%s"' %  target_db_name)
+	indId, indName, indFullName, confidential, AuthorisedUsers = cursor.fetchall()[0]
+
+	if confidential:
+	    authorized = 0
+
+	    #for the dataset that confidentiality is 1
+	    #1. 'admin' and 'root' can see all of the dataset
+	    #2. 'user' can see the dataset that AuthorisedUsers contains his id(stored in the Id field of User table)
+	    if webqtlConfig.USERDICT[privilege] > webqtlConfig.USERDICT['user']:
+		authorized = 1
+	    else:
+		if username in AuthorisedUsers.split(","):
+		    authorized = 1
+
+	    if not authorized:
+		raise AuthException("The %s database you selected is not open to the public at this time, please go back and select other database." % indFullName)
+
 
 class CorrelationPage(templatePage):
 
     corrMinInformative = 4
 
+    PAGE_HEADING = "Correlation Table"
+    CORRELATION_METHODS = {"1" : "Genetic Correlation (Pearson's r)",
+			   "2" : "Genetic Correlation (Spearman's rho)",
+			   "3" : "SGO Literature Correlation",
+			   "4" : "Tissue Correlation (Pearson's r)", 
+			   "5" : "Tissue Correlation (Spearman's rho)"}
+
+    RANK_ORDERS = {"1": 0, "2": 1, "3": 0, "4": 0, "5": 1}
+
+
+    def error(self, message, error="Error", heading = None):
+	heading = heading or self.PAGE_HEADING
+	return templatePage.error(heading = heading, detail = [message], error=error)
+
     def __init__(self, fd):
 
-        #XZ, 01/14/2009: This method is for parallel computing only.
-        #XZ: It is supposed to be called when "Genetic Correlation, Pearson's r" (method 1)
-        #XZ: or "Genetic Correlation, Spearman's rho" (method 2) is selected
-        def compute_corr( input_nnCorr, input_trait, input_list, computing_method):
-
-            allcorrelations = []
-
-            for line in input_list:
-                tokens = line.split('","')
-                tokens[-1] = tokens[-1][:-2] #remove the last "
-                tokens[0] = tokens[0][1:] #remove the first "
-
-                traitdataName = tokens[0]
-                database_trait = tokens[1:]
-
-                if computing_method == "1": #XZ: Pearson's r
-                    corr,nOverlap = utility.webqtlUtil.calCorrelationText(input_trait, database_trait, input_nnCorr)
-                else: #XZ: Spearman's rho
-                    corr,nOverlap = utility.webqtlUtil.calCorrelationRankText(input_trait, database_trait, input_nnCorr)
-                traitinfo = [traitdataName,corr,nOverlap]
-                allcorrelations.append(traitinfo)
-
-            return allcorrelations
-
-
+	# Call the superclass constructor
         templatePage.__init__(self, fd)
 
+	# Connect to the database
         if not self.openMysql():
             return
-		
+
+	# Read the genotype from a file
         if not fd.genotype:
             fd.readGenotype()
 
-        #XZ, 09/18/2008: get the information such as value, variance of the input strain names from the form.		
-        if fd.allstrainlist:
-            mdpchoice = fd.formdata.getvalue('MDPChoice')
-            #XZ, in HTML source code, it is "BXD Only" or "BXH only", and so on
-            if mdpchoice == "1":
-                strainlist = fd.f1list + fd.strainlist
-            #XZ, in HTML source code, it is "MDP Only"
-            elif mdpchoice == "2":
-                strainlist = []
-                strainlist2 = fd.f1list + fd.strainlist
-                for strain in fd.allstrainlist:
-                    if strain not in strainlist2:
-                        strainlist.append(strain)
-                #So called MDP Panel
-                if strainlist:
-                    strainlist = fd.f1list+fd.parlist+strainlist
-            #XZ, in HTML source code, it is "All Cases"
-            else:
-                strainlist = fd.allstrainlist
-            #XZ, 09/18/2008: put the trait data into dictionary fd.allTraitData
-            fd.readData(fd.allstrainlist)
-        else:	
-            mdpchoice = None	
-            strainlist = fd.strainlist
-            #XZ, 09/18/2008: put the trait data into dictionary fd.allTraitData
-            fd.readData()
-
-        #XZ, 3/16/2010: variable RISet must be pass by the form
-        RISet = fd.RISet
-        #XZ, 12/12/2008: get species infomation
-        species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=RISet)
+        sample_list = get_sample_data(fd)
+        mdp_choice = get_mdp_choice(fd) # No idea what this is yet
+        self.species = get_species(fd, self.cursor)
 
         #XZ, 09/18/2008: get all information about the user selected database.
-        self.target_db_name = fd.formdata.getvalue('database')
+        target_db_name = fd.formdata.getvalue('database')
+        self.target_db_name = target_db_name
 
         try:
-            self.db = webqtlDataset(self.target_db_name, self.cursor)
+            self.db = webqtlDataset(target_db_name, self.cursor)
         except:
-            heading = "Correlation Table"
             detail = ["The database you just requested has not been established yet."]
-            self.error(heading=heading,detail=detail)
+            self.error(detail)
             return
 
-        #XZ, 09/18/2008: check if user has the authority to get access to the database.
-        if self.db.type == 'ProbeSet':
-            self.cursor.execute('SELECT Id, Name, FullName, confidentiality, AuthorisedUsers FROM ProbeSetFreeze WHERE Name = "%s"' %  self.target_db_name)
-            indId, indName, indFullName, confidential, AuthorisedUsers = self.cursor.fetchall()[0]
-
-            if confidential == 1:
-                access_to_confidential_dataset = 0
-
-                #for the dataset that confidentiality is 1
-                #1. 'admin' and 'root' can see all of the dataset
-                #2. 'user' can see the dataset that AuthorisedUsers contains his id(stored in the Id field of User table)
-                if webqtlConfig.USERDICT[self.privilege] > webqtlConfig.USERDICT['user']:
-                    access_to_confidential_dataset = 1
-                else:
-                    AuthorisedUsersList=AuthorisedUsers.split(',')
-                    if AuthorisedUsersList.__contains__(self.userName):
-                        access_to_confidential_dataset = 1
-
-                if not access_to_confidential_dataset:
-                    #Error, Confidential Database
-                    heading = "Correlation Table"
-                    detail = ["The %s database you selected is not open to the public at this time, please go back and select other database." % indFullName]
-                    self.error(heading=heading,detail=detail,error="Confidential Database")
-                    return
+	 # Auth if needed
+        try:
+	     auth_user_for_db(self.db, self.cursor, target_db_name, self.privilege, self.userName)
+        except AuthException, e:
+            detail = [e.message]
+            return self.error(detail)
 
         #XZ, 09/18/2008: filter out the strains that have no value.
-        _strains, _vals, _vars, N = fd.informativeStrains(strainlist)
+        self.sample_names, vals, vars, N = fd.informativeStrains(sample_list)
 
-        N = len(_strains)
+	 #CF - If less than a minimum number of strains/cases in common, don't calculate anything
+        if len(self.sample_names) < self.corrMinInformative:
+            detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corrMinInformative, fd.RISet)]
+            self.error(heading=PAGE_HEADING,detail=detail)
 
-        if N < self.corrMinInformative:
-            heading = "Correlation Table"
-            detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corrMinInformative, RISet)]
-            self.error(heading=heading,detail=detail)
-            return
 
-        #XZ, 09/28/2008: if user select "1", then display 1, 3 and 4.
-        #XZ, 09/28/2008: if user select "2", then display 2, 3 and 5.
-        #XZ, 09/28/2008: if user select "3", then display 1, 3 and 4.
-        #XZ, 09/28/2008: if user select "4", then display 1, 3 and 4.
-        #XZ, 09/28/2008: if user select "5", then display 2, 3 and 5.		
-        methodDict = {"1":"Genetic Correlation (Pearson's r)","2":"Genetic Correlation (Spearman's rho)","3":"SGO Literature Correlation","4":"Tissue Correlation (Pearson's r)", "5":"Tissue Correlation (Spearman's rho)"}
-        self.method = fd.formdata.getvalue('method')
-        if self.method not in ("1","2","3","4","5"):
-            self.method = "1"
+        self.method = get_correlation_method_key(fd)
+        correlation_method = self.CORRELATION_METHODS[self.method]
+        rankOrder = self.RANK_ORDERS[self.method]
 
+	 # CF - Number of results returned
         self.returnNumber = int(fd.formdata.getvalue('criteria'))
 
-        myTrait = fd.formdata.getvalue('fullname')
-        if myTrait:
-            myTrait = webqtlTrait(fullname=myTrait, cursor=self.cursor)
-            myTrait.retrieveInfo()
+        self.record_count = 0
+
+        myTrait = get_custom_trait(fd, self.cursor)
+
 
         # We will not get Literature Correlations if there is no GeneId because there is nothing to look against
-        try:
-            input_trait_GeneId = int(fd.formdata.getvalue('GeneId'))
-        except:
-            input_trait_GeneId = None
+        self.gene_id = int(fd.formdata.getvalue('GeneId') or 0)
 
         # We will not get Tissue Correlations if there is no gene symbol because there is nothing to look against
-        try:
-            input_trait_symbol = myTrait.symbol
-        except:
-            input_trait_symbol = None
-
+        self.trait_symbol = myTrait.symbol
                 
-        #XZ, 12/12/2008: if the species is rat or human, translate the geneid to mouse geneid
-        input_trait_mouse_geneid = self.translateToMouseGeneID(species, input_trait_GeneId)
 
+        #XZ, 12/12/2008: if the species is rat or human, translate the geneid to mouse geneid
+        self.input_trait_mouse_gene_id = self.translateToMouseGeneID(self.species, self.gene_id)
 
         #XZ: As of Nov/13/2010, this dataset is 'UTHSC Illumina V6.2 RankInv B6 D2 average CNS GI average (May 08)'
-        TissueProbeSetFreezeId = 1
+        self.tissue_probeset_freeze_id = 1
 
-        #XZ, 09/22/2008: If we need search by GeneId, 
-        #XZ, 09/22/2008: we have to check if this GeneId is in the literature or tissue correlation table.
-        #XZ, 10/15/2008: We also to check if the selected database is probeset type.
-        if self.method == "3" or self.method == "4" or self.method == "5":
-            if self.db.type != "ProbeSet":
-               self.error(heading="Wrong correlation type",detail="It is not possible to compute the %s between your trait and data in this %s database. Please try again after selecting another type of correlation." % (methodDict[self.method],self.db.name),error="Correlation Type Error")
-               return
-
-            """
-            if not input_trait_GeneId:
-                self.error(heading="No Associated GeneId",detail="This trait has no associated GeneId, so we are not able to show any literature or tissue related information.",error="No GeneId Error")
-                return 
-            """
-
-            #XZ: We have checked geneid did exist 
-
-            if self.method == "3":
-                if not input_trait_GeneId or not self.checkForLitInfo(input_trait_mouse_geneid):
-                    self.error(heading="No Literature Info",detail="This gene does not have any associated Literature Information.",error="Literature Correlation Error")
-                    return  
-
-            if self.method == "4" or self.method == "5":
-                if not input_trait_symbol:
-                    self.error(heading="No Tissue Correlation Information",detail="This gene does not have any associated Tissue Correlation Information.",error="Tissue Correlation Error")
-                    return
-
-                if not self.checkSymbolForTissueCorr(TissueProbeSetFreezeId, myTrait.symbol):
-                    self.error(heading="No Tissue Correlation Information",detail="This gene does not have any associated Tissue Correlation Information.",error="Tissue Correlation Error")
-                    return
+        traitList = self.correlate(vals)
+        
+        _log.info("Done doing correlation calculation")
 
 ############################################################################################################################################
-
-        allcorrelations = []
-        nnCorr = len(_vals)
-
-        #XZ: Use the fast method only for probeset dataset, and this dataset must have been created.
-        #XZ: Otherwise, use original method
-
-        useFastMethod = False
-
-        if self.db.type == "ProbeSet":
-
-            DatabaseFileName = self.getFileName( target_db_name=self.target_db_name )
-            DirectoryList = os.listdir(webqtlConfig.TEXTDIR)  ### List of existing text files.  Used to check if a text file already exists
-
-            if DatabaseFileName in DirectoryList:
-                useFastMethod = True
-
-        if useFastMethod:
-            if 1:
-            #try:
-                useLit = False
-                if self.method == "3":
-                    litCorrs = self.fetchLitCorrelations(species=species, GeneId=input_trait_GeneId, db=self.db, returnNumber=self.returnNumber)
-                    useLit = True
-
-                useTissueCorr = False
-                if self.method == "4" or self.method == "5":
-                    tissueCorrs = self.fetchTissueCorrelations(db=self.db, primaryTraitSymbol=input_trait_symbol, TissueProbeSetFreezeId=TissueProbeSetFreezeId, method=self.method, returnNumber = self.returnNumber)
-                    useTissueCorr = True
-
-                datasetFile = open(webqtlConfig.TEXTDIR+DatabaseFileName,'r')
-
-                #XZ, 01/08/2009: read the first line
-                line = datasetFile.readline()
-                dataset_strains = webqtlUtil.readLineCSV(line)[1:]
-
-                #XZ, 01/08/2009: This step is critical. It is necessary for this new method.
-                #XZ: The original function fetchAllDatabaseData uses all strains stored in variable _strains to
-                #XZ: retrieve the values of each strain from database in real time.
-                #XZ: The new method uses all strains stored in variable dataset_strains to create a new variable
-                #XZ: _newvals. _newvals has the same length as dataset_strains. The items in _newvals is in
-                #XZ: the same order of items in dataset_strains. The value of each item in _newvals is either
-                #XZ: the value of correspinding strain in _vals or 'None'. 
-                _newvals = []
-                for item in dataset_strains:
-                    if item in _strains:
-                        _newvals.append(_vals[_strains.index(item)])
-                    else:
-                        _newvals.append('None')
-
-                nnCorr = len(_newvals)
-
-                #XZ, 01/14/2009: If literature corr or tissue corr is selected,
-                #XZ: there is no need to use parallel computing.
-                if useLit or useTissueCorr:
-                    for line in datasetFile:
-                        traitdata=webqtlUtil.readLineCSV(line)
-                        traitdataName = traitdata[0]
-                        traitvals = traitdata[1:]
-
-                        if useLit:
-                            if not litCorrs.has_key( traitdataName ):
-                                continue
-
-                        if useTissueCorr:
-                            if not tissueCorrs.has_key( traitdataName ):
-                                continue
-
-                        if self.method == "3" or self.method == "4":
-                            corr,nOverlap = webqtlUtil.calCorrelationText(traitvals,_newvals,nnCorr)
-                        else:
-                            corr,nOverlap = webqtlUtil.calCorrelationRankText(traitvals,_newvals,nnCorr)
-
-                        traitinfo = [traitdataName,corr,nOverlap]
-
-                        if useLit:
-                            traitinfo.append(litCorrs[traitdataName])
-
-                        if useTissueCorr:
-                            tempCorr, tempPValue = tissueCorrs[traitdataName]
-                            traitinfo.append(tempCorr)
-                            traitinfo.append(tempPValue)
-
-                        allcorrelations.append(traitinfo)
-                #XZ, 01/14/2009: If genetic corr is selected, use parallel computing
-                else:
-                    input_line_list = datasetFile.readlines()
-                    all_line_number = len(input_line_list)
-
-                    step = 1000
-                    job_number = math.ceil( float(all_line_number)/step )
-
-                    job_input_lists = []
-
-                    for job_index in range( int(job_number) ):
-                        starti = job_index*step
-                        endi = min((job_index+1)*step, all_line_number)
-
-                        one_job_input_list = []
-
-                        for i in range( starti, endi ):
-                            one_job_input_list.append( input_line_list[i] )
-
-                        job_input_lists.append( one_job_input_list )
-
-                    ppservers = ()
-                    # Creates jobserver with automatically detected number of workers
-                    job_server = pp.Server(ppservers=ppservers)
-
-                    jobs = []
-                    results = []
-
-                    for one_job_input_list in job_input_lists: #pay attention to modules from outside
-                        jobs.append( job_server.submit(func=compute_corr, args=(nnCorr, _newvals, one_job_input_list, self.method), depfuncs=(), modules=("utility.webqtlUtil",)) )
-
-                    for one_job in jobs:
-                        one_result = one_job()
-                        results.append( one_result )
-
-                    for one_result in results:
-                        for one_traitinfo in one_result:
-                            allcorrelations.append( one_traitinfo )
-
-                datasetFile.close()
-                totalTraits = len(allcorrelations)
-            #except:
-            #    useFastMethod = False
-            #    self.error(heading="No computation method",detail="Something is wrong within the try except block in CorrelationPage python module.",error="Computation Error")
-            #    return
-
-        #XZ, 01/08/2009: use the original method to retrieve from database and compute.            
-        if not useFastMethod:
-
-            traitdatabase, dataStartPos = self.fetchAllDatabaseData(species=species, GeneId=input_trait_GeneId, GeneSymbol=input_trait_symbol, strains=_strains, db=self.db, method=self.method, returnNumber=self.returnNumber, tissueProbeSetFreezeId=TissueProbeSetFreezeId)
-
-            totalTraits = len(traitdatabase) #XZ, 09/18/2008: total trait number
-
-            for traitdata in traitdatabase:
-                traitdataName = traitdata[0]
-                traitvals = traitdata[dataStartPos:]
-                if self.method == "1" or self.method == "3" or self.method == "4":
-                    corr,nOverlap = webqtlUtil.calCorrelation(traitvals,_vals,nnCorr)
-                else:
-                    corr,nOverlap = webqtlUtil.calCorrelationRank(traitvals,_vals,nnCorr)
-
-                traitinfo = [traitdataName,corr,nOverlap]
-
-                #XZ, 09/28/2008: if user select '3', then fetchAllDatabaseData would give us LitCorr in the [1] position
-                #XZ, 09/28/2008: if user select '4' or '5', then fetchAllDatabaseData would give us Tissue Corr in the [1] position
-                #XZ, 09/28/2008: and Tissue Corr P Value in the [2] position
-                if input_trait_GeneId and self.db.type == "ProbeSet":
-                    if self.method == "3":
-                        traitinfo.append( traitdata[1] )
-                    if self.method == "4" or self.method == "5":
-                        traitinfo.append( traitdata[1] )
-                        traitinfo.append( traitdata[2] )
-
-                allcorrelations.append(traitinfo)
-
-
-#############################################################
-
-        if self.method == "3" and input_trait_GeneId:
-            allcorrelations.sort(webqtlUtil.cmpLitCorr)
-        #XZ, 3/31/2010: Theoretically, we should create one function 'comTissueCorr'
-        #to compare each trait by their tissue corr p values.
-        #But because the tissue corr p values are generated by permutation test,
-        #the top ones always have p value 0. So comparing p values actually does nothing.
-        #In addition, for the tissue data in our database, the N is always the same.
-        #So it's safe to compare with tissue corr statistic value.
-        #That's the same as literature corr. 
-        elif self.method in ["4","5"] and input_trait_GeneId:
-            allcorrelations.sort(webqtlUtil.cmpLitCorr)
-        else:
-            allcorrelations.sort(webqtlUtil.cmpCorr)
-
-
-        #XZ, 09/20/2008: we only need the top ones.
-        self.returnNumber = min(self.returnNumber,len(allcorrelations))
-        allcorrelations = allcorrelations[:self.returnNumber]
-
-        addLiteratureCorr = False
-        addTissueCorr = False
-
-        traitList = []
-        for item in allcorrelations:
-            thisTrait = webqtlTrait(db=self.db, name=item[0], cursor=self.cursor)
-            thisTrait.retrieveInfo( QTL='Yes' )
-
-            nOverlap = item[2]
-            corr = item[1]
-
-            #XZ: calculate corrPValue
-            if nOverlap < 3:
-                corrPValue = 1.0
-            else:
-                if abs(corr) >= 1.0:
-                    corrPValue = 0.0
-                else:
-                    ZValue = 0.5*log((1.0+corr)/(1.0-corr))
-                    ZValue = ZValue*sqrt(nOverlap-3)
-                    corrPValue = 2.0*(1.0 - reaper.normp(abs(ZValue)))
-
-            thisTrait.Name = item[0]
-            thisTrait.corr = corr
-            thisTrait.nOverlap = nOverlap
-            thisTrait.corrPValue = corrPValue
-            # NL, 07/19/2010
-            # js function changed, add a new parameter rankOrder for js function 'showTissueCorrPlot'
-            rankOrder = 0;
-            if self.method in ["2","5"]:
-                rankOrder = 1;     
-            thisTrait.rankOrder =rankOrder
-	
-            #XZ, 26/09/2008: Method is 4 or 5. Have fetched tissue corr, but no literature correlation yet.
-            if len(item) == 5:
-                thisTrait.tissueCorr = item[3]
-                thisTrait.tissuePValue = item[4]
-                addLiteratureCorr = True
-
-            #XZ, 26/09/2008: Method is 3,  Have fetched literature corr, but no tissue corr yet.
-            elif len(item) == 4:
-                thisTrait.LCorr = item[3]
-                thisTrait.mouse_geneid = self.translateToMouseGeneID(species, thisTrait.geneid)
-                addTissueCorr = True
-
-            #XZ, 26/09/2008: Method is 1 or 2. Have NOT fetched literature corr and tissue corr yet.
-            # Phenotype data will not have geneid, and neither will some probes
-            # we need to handle this because we will get an attribute error
-            else:
-                if input_trait_mouse_geneid and self.db.type=="ProbeSet":
-                    addLiteratureCorr = True
-                if input_trait_symbol and self.db.type=="ProbeSet":
-                    addTissueCorr = True
-
-            traitList.append(thisTrait)
-
-        if addLiteratureCorr:
-            traitList = self.getLiteratureCorrelationByList(input_trait_mouse_geneid, species, traitList)
-        if addTissueCorr:
-            traitList = self.getTissueCorrelationByList( primaryTraitSymbol=input_trait_symbol, traitList=traitList,TissueProbeSetFreezeId =TissueProbeSetFreezeId, method=self.method)
-
-########################################################
 
         TD_LR = HT.TD(height=200,width="100%",bgColor='#eeeeee')
 
         mainfmName = webqtlUtil.genRandStr("fm_")
         form = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name= mainfmName, submit=HT.Input(type='hidden'))
-        hddn = {'FormID':'showDatabase', 'ProbeSetID':'_','database':self.target_db_name, 'databaseFull':self.db.fullname, 'CellID':'_', 'RISet':RISet, 'identification':fd.identification}
+        hddn = {'FormID': 'showDatabase', 
+	        'ProbeSetID': '_',
+		'database': self.target_db_name, 
+		'databaseFull': self.db.fullname, 
+		'CellID': '_', 
+		'RISet': fd.RISet, 
+		'identification': fd.identification}
 
         if myTrait:
             hddn['fullname']=fd.formdata.getvalue('fullname')
-        if mdpchoice:
-            hddn['MDPChoice']=mdpchoice
+        if mdp_choice:
+            hddn['MDPChoice']=mdp_choice
 
 
         #XZ, 09/18/2008: pass the trait data to next page by hidden parameters.
@@ -510,13 +390,13 @@ class CorrelationPage(templatePage):
         #XZ, 3/11/2010: add one parameter to record if the method is rank order.
         form.append(HT.Input(name="rankOrder", value="%s" % rankOrder, type='hidden'))
 
-        form.append(HT.Input(name="TissueProbeSetFreezeId", value="%s" % TissueProbeSetFreezeId, type='hidden'))
+        form.append(HT.Input(name="TissueProbeSetFreezeId", value="%s" % self.tissue_probeset_freeze_id, type='hidden'))
 
         ####################################
         # generate the info on top of page #
         ####################################
 
-        info = self.getTopInfo(myTrait=myTrait, method=self.method, db=self.db, target_db_name=self.target_db_name, returnNumber=self.returnNumber, methodDict=methodDict, totalTraits=totalTraits, identification=fd.identification  )
+        info = self.getTopInfo(myTrait=myTrait, method=self.method, db=self.db, target_db_name=self.target_db_name, returnNumber=self.returnNumber, methodDict=self.CORRELATION_METHODS, totalTraits=traitList, identification=fd.identification  )
 
         ##############
         # Excel file #
@@ -536,7 +416,7 @@ class CorrelationPage(templatePage):
 #####################################################################
 
 
-
+        #Select All, Deselect All, Invert Selection, Add to Collection
         mintmap = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'showIntMap');" % mainfmName)
         mintmap_img = HT.Image("/images/multiple_interval_mapping1_final.jpg", name='mintmap', alt="Multiple Interval Mapping", title="Multiple Interval Mapping", style="border:none;")
         mintmap.append(mintmap_img)
@@ -555,10 +435,10 @@ class CorrelationPage(templatePage):
         partialCorr = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'partialCorrInput');" % mainfmName) 
         partialCorr_img = HT.Image("/images/partial_correlation_final.jpg", name='partialCorr', alt="Partial Correlation", title="Partial Correlation", style="border:none;")
         partialCorr.append(partialCorr_img)
-        addselect = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (RISet, mainfmName))
+        addselect = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (fd.RISet, mainfmName))
         addselect_img = HT.Image("/images/add_collection1_final.jpg", name="addselect", alt="Add To Collection", title="Add To Collection", style="border:none;")
         addselect.append(addselect_img)
-	selectall = HT.Href(url="#redirect", onClick="checkAll(document.getElementsByName('%s')[0]);" % mainfmName)
+        selectall = HT.Href(url="#redirect", onClick="checkAll(document.getElementsByName('%s')[0]);" % mainfmName)
         selectall_img = HT.Image("/images/select_all2_final.jpg", name="selectall", alt="Select All", title="Select All", style="border:none;")
         selectall.append(selectall_img)
         selectinvert = HT.Href(url="#redirect", onClick = "checkInvert(document.getElementsByName('%s')[0]);" % mainfmName)
@@ -575,20 +455,90 @@ class CorrelationPage(templatePage):
         selectandor.append(('OR','or'))
         selectandor.selected.append('AND')
         
-	pageTable = HT.TableLite(cellSpacing=0,cellPadding=0,width="100%", border=0, align="Left")
 
-	containerTable = HT.TableLite(cellSpacing=0,cellPadding=0,width="90%",border=0, align="Left")
+        #External analysis tools
+        GCATButton = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'GCAT');" % mainfmName)
+        GCATButton_img = HT.Image("/images/GCAT_logo_final.jpg", name="GCAT", alt="GCAT", title="GCAT", style="border:none")
+        GCATButton.append(GCATButton_img)
 
-	optionsTable = HT.TableLite(cellSpacing=2, cellPadding=0,width="320", height="80", border=0, align="Left")
-        optionsTable.append(HT.TR(HT.TD(selectall), HT.TD(reset), HT.TD(selectinvert), HT.TD(addselect), align="left"))
-        optionsTable.append(HT.TR(HT.TD("&nbsp;"*1,"Select"), HT.TD("Deselect"), HT.TD("&nbsp;"*1,"Invert"), HT.TD("&nbsp;"*3,"Add")))
+        ODE = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'ODE');" % mainfmName)
+        ODE_img = HT.Image("/images/ODE_logo_final.jpg", name="ode", alt="ODE", title="ODE", style="border:none")
+        ODE.append(ODE_img)
+
+        '''
+        #XZ, 07/07/2010: I comment out this block of code.
+        WebGestaltScript = HT.Script(language="Javascript")
+        WebGestaltScript.append("""
+setTimeout('openWebGestalt()', 2000);
+function openWebGestalt(){
+var thisForm = document['WebGestalt'];
+makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
+}   
+        """ % (mainfmName, len(traitList))) 
+        '''
+
+        self.cursor.execute('SELECT GeneChip.GO_tree_value FROM GeneChip, ProbeFreeze, ProbeSetFreeze WHERE GeneChip.Id = ProbeFreeze.ChipId and ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeSetFreeze.Name = "%s"' % self.db.name)
+        result = self.cursor.fetchone()
+
+        if result:
+            GO_tree_value = result[0]
+
+        if GO_tree_value:
+        
+            WebGestalt = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'GOTree');" % mainfmName)
+            WebGestalt_img = HT.Image("/images/webgestalt_icon_final.jpg", name="webgestalt", alt="Gene Set Analysis Toolkit", title="Gene Set Analysis Toolkit", style="border:none")        
+            WebGestalt.append(WebGestalt_img)      
+              
+            hddnWebGestalt = {
+                              'id_list':'',
+                              'correlation':'',
+                              'id_value':'', 
+                              'llid_list':'',
+                              'id_type':GO_tree_value,
+                              'idtype':'',
+                              'species':'',
+                              'list':'',
+                              'client':''}
+
+            hddnWebGestalt['ref_type'] = hddnWebGestalt['id_type']
+            hddnWebGestalt['cat_type'] = 'GO'
+            hddnWebGestalt['significancelevel'] = 'Top10'
+
+            if self.species == 'rat':
+                hddnWebGestalt['org'] = 'Rattus norvegicus'
+            elif self.species == 'human':
+                hddnWebGestalt['org'] = 'Homo sapiens'
+            elif self.species == 'mouse':
+                hddnWebGestalt['org'] = 'Mus musculus'
+            else:
+                hddnWebGestalt['org'] = ''
+        
+            for key in hddnWebGestalt.keys():
+                form.append(HT.Input(name=key, value=hddnWebGestalt[key], type='hidden'))
+
+
+        #Create tables with options, etc
+
+        pageTable = HT.TableLite(cellSpacing=0,cellPadding=0,width="100%", border=0, align="Left")
+
+        containerTable = HT.TableLite(cellSpacing=0,cellPadding=0,width="90%",border=0, align="Left")
+
+        
+        if not GO_tree_value:
+            optionsTable = HT.TableLite(cellSpacing=2, cellPadding=0,width="480", height="80", border=0, align="Left")
+            optionsTable.append(HT.TR(HT.TD(selectall), HT.TD(reset), HT.TD(selectinvert), HT.TD(addselect), HT.TD(GCATButton), HT.TD(ODE), align="left"))
+            optionsTable.append(HT.TR(HT.TD("&nbsp;"*1,"Select"), HT.TD("Deselect"), HT.TD("&nbsp;"*1,"Invert"), HT.TD("&nbsp;"*3,"Add"), HT.TD("Gene Set"), HT.TD("&nbsp;"*2,"GCAT")))            
+        else:
+            optionsTable = HT.TableLite(cellSpacing=2, cellPadding=0,width="560", height="80", border=0, align="Left")
+            optionsTable.append(HT.TR(HT.TD(selectall), HT.TD(reset), HT.TD(selectinvert), HT.TD(addselect), HT.TD(GCATButton), HT.TD(ODE), HT.TD(WebGestalt), align="left"))
+            optionsTable.append(HT.TR(HT.TD("&nbsp;"*1,"Select"), HT.TD("Deselect"), HT.TD("&nbsp;"*1,"Invert"), HT.TD("&nbsp;"*3,"Add"), HT.TD("Gene Set"), HT.TD("&nbsp;"*2,"GCAT"), HT.TD("&nbsp;"*3, "ODE")))
         containerTable.append(HT.TR(HT.TD(optionsTable)))
 
         functionTable = HT.TableLite(cellSpacing=2,cellPadding=0,width="480",height="80", border=0, align="Left")
         functionRow = HT.TR(HT.TD(networkGraph, width="16.7%"), HT.TD(cormatrix, width="16.7%"), HT.TD(partialCorr, width="16.7%"), HT.TD(mcorr, width="16.7%"), HT.TD(mintmap, width="16.7%"), HT.TD(heatmap), align="left")
         labelRow = HT.TR(HT.TD("&nbsp;"*1,HT.Text("Graph")), HT.TD("&nbsp;"*1,HT.Text("Matrix")), HT.TD("&nbsp;"*1,HT.Text("Partial")), HT.TD(HT.Text("Compare")), HT.TD(HT.Text("QTL Map")), HT.TD(HT.Text(text="Heat Map")))
         functionTable.append(functionRow, labelRow)
-	containerTable.append(HT.TR(HT.TD(functionTable), HT.BR()))
+        containerTable.append(HT.TR(HT.TD(functionTable), HT.BR()))
 
         #more_options = HT.Image("/images/more_options1_final.jpg", name='more_options', alt="Expand Options", title="Expand Options", style="border:none;", Class="toggleShowHide")
 
@@ -597,12 +547,14 @@ class CorrelationPage(templatePage):
         moreOptions = HT.Input(type='button',name='options',value='More Options', onClick="",Class="toggle")
         fewerOptions = HT.Input(type='button',name='options',value='Fewer Options', onClick="",Class="toggle")
 
+        """
         if (fd.formdata.getvalue('showHideOptions') == 'less'):		
-			containerTable.append(HT.TR(HT.TD("&nbsp;"), height="10"), HT.TR(HT.TD(HT.Div(fewerOptions, Class="toggleShowHide"))))
-			containerTable.append(HT.TR(HT.TD("&nbsp;")))
+            containerTable.append(HT.TR(HT.TD("&nbsp;"), height="10"), HT.TR(HT.TD(HT.Div(fewerOptions, Class="toggleShowHide"))))
+            containerTable.append(HT.TR(HT.TD("&nbsp;")))
         else:	
-			containerTable.append(HT.TR(HT.TD("&nbsp;"), height="10"), HT.TR(HT.TD(HT.Div(moreOptions, Class="toggleShowHide"))))	
-			containerTable.append(HT.TR(HT.TD("&nbsp;")))
+            containerTable.append(HT.TR(HT.TD("&nbsp;"), height="10"), HT.TR(HT.TD(HT.Div(moreOptions, Class="toggleShowHide"))))	
+            containerTable.append(HT.TR(HT.TD("&nbsp;")))
+        """
 
         containerTable.append(HT.TR(HT.TD(HT.Span(selecttraits,' with r > ',selectgt, ' ',selectandor, ' r < ',selectlt,Class="bd1 cbddf fs11")), style="display:none;", Class="extra_options"))
 
@@ -615,9 +567,9 @@ class CorrelationPage(templatePage):
 
         if self.db.type=="Geno":
 
-	    containerTable.append(HT.TR(HT.TD(xlsUrl, height=40)))
+            containerTable.append(HT.TR(HT.TD(xlsUrl, height=60)))
 
-	    pageTable.append(HT.TR(HT.TD(containerTable)))
+            pageTable.append(HT.TR(HT.TD(containerTable)))
 
             tblobj['header'], worksheet = self.getTableHeaderForGeno( method=self.method, worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
             newrow += 1
@@ -636,9 +588,9 @@ class CorrelationPage(templatePage):
 
             div = HT.Div(webqtlUtil.genTableObj(tblobj=tblobj, file=filename, sortby=sortby, tableID = "sortable", addIndex = "1"), corrScript, Id="sortable")
 
-	    pageTable.append(HT.TR(HT.TD(div)))
+            pageTable.append(HT.TR(HT.TD(div)))
 
- 	    form.append(HT.Input(name='ShowStrains',type='hidden', value =1),
+            form.append(HT.Input(name='ShowStrains',type='hidden', value =1),
             	 	HT.Input(name='ShowLine',type='hidden', value =1),
             		HT.P(), HT.P(), pageTable)
             TD_LR.append(corrHeading, info, form, HT.P())
@@ -649,9 +601,9 @@ class CorrelationPage(templatePage):
 
         elif self.db.type=="Publish":
 
-	    containerTable.append(HT.TR(HT.TD(xlsUrl, height=40)))
+            containerTable.append(HT.TR(HT.TD(xlsUrl, height=40)))
 
-	    pageTable.append(HT.TR(HT.TD(containerTable)))
+            pageTable.append(HT.TR(HT.TD(containerTable)))
 	
             tblobj['header'], worksheet = self.getTableHeaderForPublish(method=self.method, worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
             newrow += 1
@@ -661,7 +613,7 @@ class CorrelationPage(templatePage):
             corrScript = HT.Script(language="Javascript")
             corrScript.append("var corrArray = new Array();")
             
-            tblobj['body'], worksheet, corrScript = self.getTableBodyForPublish(traitList=traitList, formName=mainfmName, worksheet=worksheet, newrow=newrow, corrScript=corrScript, species=species)
+            tblobj['body'], worksheet, corrScript = self.getTableBodyForPublish(traitList=traitList, formName=mainfmName, worksheet=worksheet, newrow=newrow, corrScript=corrScript, species=self.species)
 
             workbook.close()
 
@@ -671,7 +623,7 @@ class CorrelationPage(templatePage):
 			# NL, 07/27/2010. genTableObj function has been moved from templatePage.py to webqtlUtil.py;
             div = HT.Div(webqtlUtil.genTableObj(tblobj=tblobj, file=filename, sortby=sortby, tableID = "sortable", addIndex = "1"), corrScript, Id="sortable")
 
-	    pageTable.append(HT.TR(HT.TD(div)))
+            pageTable.append(HT.TR(HT.TD(div)))
 
             form.append(
             HT.Input(name='ShowStrains',type='hidden', value =1),
@@ -685,7 +637,6 @@ class CorrelationPage(templatePage):
 
 
         elif self.db.type=="ProbeSet":
-
             tblobj['header'], worksheet = self.getTableHeaderForProbeSet(method=self.method, worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
             newrow += 1
 
@@ -694,7 +645,7 @@ class CorrelationPage(templatePage):
             corrScript = HT.Script(language="Javascript")
             corrScript.append("var corrArray = new Array();")
 
-            tblobj['body'], worksheet, corrScript = self.getTableBodyForProbeSet(traitList=traitList, primaryTrait=myTrait, formName=mainfmName, worksheet=worksheet, newrow=newrow, corrScript=corrScript, species=species)
+            tblobj['body'], worksheet, corrScript = self.getTableBodyForProbeSet(traitList=traitList, primaryTrait=myTrait, formName=mainfmName, worksheet=worksheet, newrow=newrow, corrScript=corrScript, species=self.species)
 
             workbook.close()
             objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
@@ -741,95 +692,21 @@ class CorrelationPage(templatePage):
 
             #updated by NL. Delete function generateJavaScript, move js files to dhtml.js, webqtl.js and jqueryFunction.js
             #variables: filename, strainIds and vals are required by getquerystring function
-            strainIds=self.getStrainIds(species=species, strains=_strains)
+            strainIds=self.getStrainIds(species=self.species, strains=self.sample_names)
             var1 = HT.Input(name="filename", value=filename, type='hidden')
             var2 = HT.Input(name="strainIds", value=strainIds, type='hidden')
-            var3 = HT.Input(name="vals", value=_vals, type='hidden')
+            var3 = HT.Input(name="vals", value=vals, type='hidden')
             customizerButton = HT.Input(type="button", Class="button", value="Add Correlation", onClick = "xmlhttpPost('%smain.py?FormID=AJAX_table', 'sortable', (getquerystring(this.form)))" % webqtlConfig.CGIDIR)
 
             containerTable.append(HT.TR(HT.TD(HT.Span(var1,var2,var3,customizerButton, "with", dbCustomizer, Class="bd1 cbddf fs11"), HT.BR(), HT.BR()), style="display:none;", Class="extra_options"))
 
-            #outside analysis part
-            GCATButton = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'GCAT');" % mainfmName)
-            GCATButton_img = HT.Image("/images/GCAT_logo_final.jpg", name="GCAT", alt="GCAT", title="GCAT", style="border:none")
-            GCATButton.append(GCATButton_img)
+            containerTable.append(HT.TR(HT.TD(xlsUrl, HT.BR(), HT.BR())))
 
-            ODE = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'ODE');" % mainfmName)
-            ODE_img = HT.Image("/images/ODE_logo_final.jpg", name="ode", alt="ODE", title="ODE", style="border:none")
-            ODE.append(ODE_img)
+            pageTable.append(HT.TR(HT.TD(containerTable)))
 
-            '''
-            #XZ, 07/07/2010: I comment out this block of code.
-            WebGestaltScript = HT.Script(language="Javascript")
-            WebGestaltScript.append("""
-setTimeout('openWebGestalt()', 2000);
-function openWebGestalt(){
-	var thisForm = document['WebGestalt'];
-	makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
-}	
-            """ % (mainfmName, len(traitList)))	
-            '''
+            pageTable.append(HT.TR(HT.TD(div)))
 
-            self.cursor.execute('SELECT GeneChip.GO_tree_value FROM GeneChip, ProbeFreeze, ProbeSetFreeze WHERE GeneChip.Id = ProbeFreeze.ChipId and ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeSetFreeze.Name = "%s"' % self.db.name)
-            result = self.cursor.fetchone()
-
-            if result:
-                GO_tree_value = result[0]
-
-            if GO_tree_value:
-            
-                WebGestalt = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'GOTree');" % mainfmName)
-                WebGestalt_img = HT.Image("/images/webgestalt_icon_final.jpg", name="webgestalt", alt="Gene Set Analysis Toolkit", title="Gene Set Analysis Toolkit", style="border:none")        
-                WebGestalt.append(WebGestalt_img)      
-                  
-                hddnWebGestalt = {
-                                  'id_list':'',
-                                  'correlation':'',
-                                  'id_value':'', 
-                                  'llid_list':'',
-                                  'id_type':GO_tree_value,
-                                  'idtype':'',
-                                  'species':'',
-                                  'list':'',
-                                  'client':''}
-
-                hddnWebGestalt['ref_type'] = hddnWebGestalt['id_type']
-                hddnWebGestalt['cat_type'] = 'GO'
-                hddnWebGestalt['significancelevel'] = 'Top10'
-
-                if species == 'rat':
-                    hddnWebGestalt['org'] = 'Rattus norvegicus'
-                elif species == 'human':
-                    hddnWebGestalt['org'] = 'Homo sapiens'
-                elif species == 'mouse':
-                    hddnWebGestalt['org'] = 'Mus musculus'
-                else:
-                    hddnWebGestalt['org'] = ''
-            
-                for key in hddnWebGestalt.keys():
-                    form.append(HT.Input(name=key, value=hddnWebGestalt[key], type='hidden'))
-
-
-	    LinkOutTable = HT.TableLite(cellSpacing=2,cellPadding=0,width="320",height="80", border=0, align="Left")
-
-	    if not GO_tree_value:
-	        LinkOutRow = HT.TR(HT.TD(GCATButton, width="50%"), HT.TD(ODE, width="50%"), align="left")
-	        LinkOutLabels = HT.TR(HT.TD("&nbsp;", HT.Text("GCAT"), width="50%"), HT.TD("&nbsp;",HT.Text("ODE"), width="50%"), align="left")
-	    else:
-	        LinkOutRow = HT.TR(HT.TD(WebGestalt, width="25%"), HT.TD(GCATButton, width="25%"), HT.TD(ODE, width="25%"), align="left")
-	        LinkOutLabels = HT.TR(HT.TD(HT.Text("Gene Set")), HT.TD("&nbsp;"*2, HT.Text("GCAT")), HT.TD("&nbsp;"*3, HT.Text("ODE")), style="display:none;", Class="extra_options")
-
-	    LinkOutTable.append(LinkOutRow,LinkOutLabels)
-
-            containerTable.append(HT.TR(HT.TD(LinkOutTable), Class="extra_options", style="display:none;"))
-
-	    containerTable.append(HT.TR(HT.TD(xlsUrl, HT.BR(), HT.BR())))
-
-	    pageTable.append(HT.TR(HT.TD(containerTable)))
-
-	    pageTable.append(HT.TR(HT.TD(div)))
-
-            if species == 'human':
+            if self.species == 'human':
                 heatmap = ""
             
             form.append(HT.Input(name='ShowStrains',type='hidden', value =1),
@@ -1009,7 +886,7 @@ Resorting this table <br>
                 tempTable = self.getTempLiteratureTable(species=species, input_species_geneid=GeneId, returnNumber=returnNumber)
 
             if method == "4" or method == "5":
-                tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=GeneSymbol, TissueProbeSetFreezeId=tissueProbeSetFreezeId, method=method, returnNumber=returnNumber)
+                tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=GeneSymbol, TissueProbeSetFreezeId=TISSUE_MOUSE_DB, method=method, returnNumber=returnNumber)
 
         for step in range(nnn):
             temp = []
@@ -1068,18 +945,30 @@ Resorting this table <br>
             oridata.append(results)
 
         datasize = len(oridata[0])
-        traitdatabase = []
-        # put all of the seperate data together into a huge list of lists
+        traits = []
+        # put all of the separate data together into a huge list of lists
         for j in range(datasize):
             traitdata = list(oridata[0][j])
             for i in range(1,nnn):
                 traitdata += list(oridata[i][j][dataStartPos:])
-            traitdatabase.append(traitdata)
+
+            trait = Trait(traitdata[0], traitdata[dataStartPos:])
+
+            if method == METHOD_LIT:
+                trait.lit_corr = traitdata[1]
+
+            if method in TISSUE_METHODS:
+                trait.tissue_corr = traitdata[1]
+                trait.p_tissue = traitdata[2]
+
+            traits.append(trait)
 
         if tempTable:
             self.cursor.execute( 'DROP TEMPORARY TABLE %s' % tempTable )
 
-        return traitdatabase, dataStartPos
+	return traits
+
+
 
 
     # XZ, 09/20/2008: This function creates TEMPORARY TABLE tmpTableName_2 and return its name. 
@@ -1159,7 +1048,7 @@ Resorting this table <br>
             except:
                 return 0
 
-        symbolCorrDict, symbolPvalueDict = self.calculateCorrOfAllTissueTrait(primaryTraitSymbol=primaryTraitSymbol, TissueProbeSetFreezeId=TissueProbeSetFreezeId, method=method)
+        symbolCorrDict, symbolPvalueDict = self.calculateCorrOfAllTissueTrait(primaryTraitSymbol=primaryTraitSymbol, TissueProbeSetFreezeId=TISSUE_MOUSE_DB, method=method)
 
         symbolCorrList = symbolCorrDict.items()
 
@@ -1216,7 +1105,7 @@ Resorting this table <br>
         Returns a dictionary of 'TraitID':(tissueCorr, tissuePValue) for the requested correlation"""
 
 
-        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=primaryTraitSymbol, TissueProbeSetFreezeId=TissueProbeSetFreezeId, method=method, returnNumber=returnNumber)
+        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=primaryTraitSymbol, TissueProbeSetFreezeId=TISSUE_MOUSE_DB, method=method, returnNumber=returnNumber)
 
         query = "SELECT ProbeSet.Name, %s.Correlation, %s.PValue" %  (tempTable, tempTable)
         query += ' FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze)'
@@ -1276,6 +1165,225 @@ Resorting this table <br>
 
         return traitList
 
+    def get_trait(self, cached, vals):
+        
+        if cached:
+            _log.info("Using the fast method because the file exists")
+            lit_corrs = {}
+            tissue_corrs = {}
+            use_lit = False
+            if self.method == METHOD_LIT:
+                lit_corrs = self.fetchLitCorrelations(species=self.species, GeneId=self.gene_id, db=self.db, returnNumber=self.returnNumber)
+                use_lit = True
+
+            use_tissue_corr = False
+            if self.method in TISSUE_METHODS:
+                tissue_corrs = self.fetchTissueCorrelations(db=self.db, primaryTraitSymbol=self.trait_symbol, TissueProbeSetFreezeId=TISSUE_MOUSE_DB, method=self.method, returnNumber = self.returnNumber)
+                use_tissue_corr = True
+
+            DatabaseFileName = self.getFileName( target_db_name=self.target_db_name )
+            datasetFile = open(webqtlConfig.TEXTDIR+DatabaseFileName,'r')
+
+            #XZ, 01/08/2009: read the first line
+            line = datasetFile.readline()
+            cached_sample_names = webqtlUtil.readLineCSV(line)[1:]
+
+            #XZ, 01/08/2009: This step is critical. It is necessary for this new method.
+            #XZ: The original function fetchAllDatabaseData uses all strains stored in variable _strains to
+            #XZ: retrieve the values of each strain from database in real time.
+            #XZ: The new method uses all strains stored in variable dataset_strains to create a new variable
+            #XZ: _newvals. _newvals has the same length as dataset_strains. The items in _newvals is in
+            #XZ: the same order of items in dataset_strains. The value of each item in _newvals is either
+            #XZ: the value of correspinding strain in _vals or 'None'. 
+            new_vals = []
+            for name in cached_sample_names:
+                if name in self.sample_names:
+                    new_vals.append(float(vals[self.sample_names.index(name)]))
+                else:
+                    new_vals.append('None')
+
+            nnCorr = len(new_vals)
+
+            #XZ, 01/14/2009: If literature corr or tissue corr is selected,
+            #XZ: there is no need to use parallel computing.
+
+            traits = []
+            data_start = 1
+            for line in datasetFile:
+                raw_trait = webqtlUtil.readLineCSV(line)
+                trait = Trait.from_csv(raw_trait, data_start) 
+                trait.lit_corr = lit_corrs.get(trait.name)
+                trait.tissue_corr, trait.p_tissue = tissue_corrs.get(trait.name, (None, None))
+                traits.append(trait)
+
+            return traits, new_vals
+        
+        else:
+            _log.info("Using the slow method for correlation")
+
+            _log.info("Fetching from database")
+            traits = self.fetchAllDatabaseData(species=self.species, GeneId=self.gene_id, GeneSymbol=self.trait_symbol, strains=self.sample_names, db=self.db, method=self.method, returnNumber=self.returnNumber, tissueProbeSetFreezeId= self.tissue_probeset_freeze_id)
+            _log.info("Done fetching from database")
+            totalTraits = len(traits) #XZ, 09/18/2008: total trait number
+
+        return traits, vals
+
+
+	def do_parallel_correlation(self):
+	    _log.info("Invoking parallel computing")
+	    input_line_list = datasetFile.readlines()
+	    _log.info("Read lines from the file")
+	    all_line_number = len(input_line_list)
+
+	    step = 1000
+	    job_number = math.ceil( float(all_line_number)/step )
+
+	    job_input_lists = []
+
+	    _log.info("Configuring jobs")
+
+	    for job_index in range( int(job_number) ):
+		starti = job_index*step
+		endi = min((job_index+1)*step, all_line_number)
+
+		one_job_input_list = []
+
+		for i in range( starti, endi ):
+		    one_job_input_list.append( input_line_list[i] )
+
+		job_input_lists.append( one_job_input_list )
+
+	    _log.info("Creating pp servers")
+
+	    ppservers = ()
+	    # Creates jobserver with automatically detected number of workers
+	    job_server = pp.Server(ppservers=ppservers)
+
+	    _log.info("Done creating servers")
+
+	    jobs = []
+	    results = []
+
+	    _log.info("Starting parallel computation, submitting jobs")
+	    for one_job_input_list in job_input_lists: #pay attention to modules from outside
+		jobs.append( job_server.submit(func=compute_corr, args=(nnCorr, _newvals, one_job_input_list, self.method), depfuncs=(), modules=("utility.webqtlUtil",)) )
+	    _log.info("Done submitting jobs")
+
+	    for one_job in jobs:
+		one_result = one_job()
+		results.append( one_result )
+
+	    _log.info("Acquiring results")
+
+	    for one_result in results:
+		for one_traitinfo in one_result:
+		    allcorrelations.append( one_traitinfo )
+
+	    _log.info("Appending the results")
+
+	datasetFile.close()
+	totalTraits = len(allcorrelations)
+	_log.info("Done correlating using the fast method")
+
+
+    def correlate(self, vals):
+
+        correlations = []
+
+        #XZ: Use the fast method only for probeset dataset, and this dataset must have been created.
+        #XZ: Otherwise, use original method
+        _log.info("Entering correlation")
+
+        db_filename = self.getFileName( target_db_name=self.target_db_name )
+
+        cache_available = db_filename in os.listdir(webqtlConfig.TEXTDIR)
+
+	 # If the cache file exists, do a cached correlation for probeset data
+        if self.db.type == "ProbeSet":
+#	    if self.method in [METHOD_SAMPLE_PEARSON, METHOD_SAMPLE_RANK] and cache_available:
+#		traits = do_parallel_correlation()
+#
+#	    else:
+
+            (traits, vals) = self.get_trait(cache_available, vals)
+
+            for trait in traits:
+                trait.calculate_correlation(vals, self.method)
+
+        self.record_count = len(traits) #ZS: This isn't a good way to get this value, so I need to change it later
+
+        #XZ, 3/31/2010: Theoretically, we should create one function 'comTissueCorr'
+        #to compare each trait by their tissue corr p values.
+        #But because the tissue corr p values are generated by permutation test,
+        #the top ones always have p value 0. So comparing p values actually does nothing.
+        #In addition, for the tissue data in our database, the N is always the same.
+        #So it's safe to compare with tissue corr statistic value.
+        #That's the same as literature corr. 
+        #if self.method in [METHOD_LIT, METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK] and self.gene_id:
+        #    traits.sort(webqtlUtil.cmpLitCorr)
+        #else:
+        #if self.method in TISSUE_METHODS:
+        #    sort(traits, key=lambda A: math.fabs(A.tissue_corr))
+        #elif self.method == METHOD_LIT:
+        #    traits.sort(traits, key=lambda A: math.fabs(A.lit_corr))
+        #else:
+        traits = sortTraitCorrelations(traits, self.method)
+
+        # Strip to the top N correlations
+        traits = traits[:min(self.returnNumber, len(traits))]
+
+        addLiteratureCorr = False
+        addTissueCorr = False
+
+        trait_list = []
+        for trait in traits:
+            db_trait = webqtlTrait(db=self.db, name=trait.name, cursor=self.cursor)
+            db_trait.retrieveInfo( QTL='Yes' )
+
+            db_trait.Name = trait.name
+            db_trait.corr = trait.correlation
+            db_trait.nOverlap = trait.overlap
+            db_trait.corrPValue = trait.p_value
+
+            # NL, 07/19/2010
+            # js function changed, add a new parameter rankOrder for js function 'showTissueCorrPlot'
+            db_trait.RANK_ORDER = self.RANK_ORDERS[self.method]
+	
+            #XZ, 26/09/2008: Method is 4 or 5. Have fetched tissue corr, but no literature correlation yet.
+            if self.method in TISSUE_METHODS:
+                db_trait.tissueCorr = trait.tissue_corr
+                db_trait.tissuePValue = trait.p_tissue
+                addTissueCorr = True
+                
+
+            #XZ, 26/09/2008: Method is 3,  Have fetched literature corr, but no tissue corr yet.
+            elif self.method == METHOD_LIT:
+                db_trait.LCorr = trait.lit_corr
+                db_trait.mouse_geneid = self.translateToMouseGeneID(self.species, db_trait.geneid)
+                addLiteratureCorr = True
+
+            #XZ, 26/09/2008: Method is 1 or 2. Have NOT fetched literature corr and tissue corr yet.
+            # Phenotype data will not have geneid, and neither will some probes
+            # we need to handle this because we will get an attribute error
+            else:
+                if self.input_trait_mouse_gene_id and self.db.type=="ProbeSet":
+                    addLiteratureCorr = True
+                if self.trait_symbol and self.db.type=="ProbeSet":
+                    addTissueCorr = True
+
+            trait_list.append(db_trait)
+
+        if addLiteratureCorr:
+            trait_list = self.getLiteratureCorrelationByList(self.input_trait_mouse_gene_id, 
+						    self.species, trait_list)
+        if addTissueCorr:
+            trait_list = self.getTissueCorrelationByList(
+			primaryTraitSymbol = self.trait_symbol, 
+			traitList = trait_list,
+			TissueProbeSetFreezeId = TISSUE_MOUSE_DB, 
+			method=self.method)
+
+	return trait_list
 
 
     def calculateCorrOfAllTissueTrait(self, primaryTraitSymbol=None, TissueProbeSetFreezeId=None, method=None):
@@ -1283,10 +1391,10 @@ Resorting this table <br>
         symbolCorrDict = {}
         symbolPvalueDict = {}
 
-        primaryTraitSymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=[primaryTraitSymbol], TissueProbeSetFreezeId=TissueProbeSetFreezeId)
+        primaryTraitSymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=[primaryTraitSymbol], TissueProbeSetFreezeId=TISSUE_MOUSE_DB)
         primaryTraitValue = primaryTraitSymbolValueDict.values()[0]
 
-        SymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=[], TissueProbeSetFreezeId=TissueProbeSetFreezeId)
+        SymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=[], TissueProbeSetFreezeId=TISSUE_MOUSE_DB)
 
         if method in ["2","5"]:
             symbolCorrDict, symbolPvalueDict = correlationFunction.batchCalTissueCorr(primaryTraitValue,SymbolValueDict,method='spearman')
@@ -1301,7 +1409,7 @@ Resorting this table <br>
     #XZ, 10/13/2010
     def getTissueCorrelationByList(self, primaryTraitSymbol=None, traitList=None, TissueProbeSetFreezeId=None, method=None):
 
-        primaryTraitSymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=[primaryTraitSymbol], TissueProbeSetFreezeId=TissueProbeSetFreezeId)
+        primaryTraitSymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=[primaryTraitSymbol], TissueProbeSetFreezeId=TISSUE_MOUSE_DB)
 
         if primaryTraitSymbol.lower() in primaryTraitSymbolValueDict:
             primaryTraitValue = primaryTraitSymbolValueDict[primaryTraitSymbol.lower()]
@@ -1312,7 +1420,7 @@ Resorting this table <br>
                 if hasattr(thisTrait, 'symbol'):
                     geneSymbolList.append(thisTrait.symbol)
 
-            SymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=geneSymbolList, TissueProbeSetFreezeId=TissueProbeSetFreezeId)
+            SymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=geneSymbolList, TissueProbeSetFreezeId=TISSUE_MOUSE_DB)
 
             for thisTrait in traitList:
                 if hasattr(thisTrait, 'symbol') and thisTrait.symbol and thisTrait.symbol.lower() in SymbolValueDict:
@@ -1339,7 +1447,7 @@ Resorting this table <br>
         if myTrait:
             if method in ["1","2"]: #genetic correlation
                 info = HT.Paragraph("Values of Record %s in the " % myTrait.getGivenName(), HT.Href(text=myTrait.db.fullname,url=webqtlConfig.INFOPAGEHREF % myTrait.db.name,target="_blank", Class="fwn"), 
-                                     " database were compared to all %d records in the " % totalTraits, HT.Href(text=db.fullname,url=webqtlConfig.INFOPAGEHREF % target_db_name,target="_blank", Class="fwn"),
+                                     " database were compared to all %d records in the " % self.record_count, HT.Href(text=db.fullname,url=webqtlConfig.INFOPAGEHREF % target_db_name,target="_blank", Class="fwn"),
                                      ' database. The top %d correlations ranked by the %s are displayed.' % (returnNumber,methodDict[method]),
                                      ' You can resort this list using the small arrowheads in the top row.')
             else:
@@ -1359,7 +1467,7 @@ Resorting this table <br>
                                      ' You can resort this list using the small arrowheads in the top row.' )
 
         elif identification:
-            info = HT.Paragraph('Values of %s were compared to all %d traits in '  % (identification, totalTraits),
+            info = HT.Paragraph('Values of %s were compared to all %d traits in '  % (identification, self.record_count),
                                  HT.Href(text=db.fullname,url=webqtlConfig.INFOPAGEHREF % target_db_name,target="_blank",Class="fwn"),
                                  ' database. The TOP %d correlations ranked by the %s are displayed.' % (returnNumber,methodDict[method]),
                                  ' You can resort this list using the small arrowheads in the top row.')
@@ -1934,7 +2042,7 @@ Resorting this table <br>
                 TCorr = thisTrait.tissueCorr
                 TCorrStr = "%2.3f" % thisTrait.tissueCorr
                 # NL, 07/19/2010: add a new parameter rankOrder for js function 'showTissueCorrPlot'
-                rankOrder = thisTrait.rankOrder
+                rankOrder = self.RANK_ORDERS[self.method]
                 TCorrPlotURL = "javascript:showTissueCorrPlot('%s','%s','%s',%d)" %(formName, primaryTrait.symbol, thisTrait.symbol,rankOrder)
                 tr.append(TDCell(HT.TD(HT.Href(text=TCorrStr, url=TCorrPlotURL, Class="fs12 fwn ff1"), Class="fs12 fwn ff1 b1 c222", align='right'), TCorrStr, abs(TCorr)))
             else:
