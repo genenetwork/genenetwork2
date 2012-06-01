@@ -280,13 +280,13 @@ class DataEditingPage(templatePage):
 
 					if snpurl:
 						snpBrowserButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % snpurl)
-						snpBrowserButton_img = HT.Image("/images/snp_icon.jpg", name="addselect", alt=" View SNPs and Indels ", title=" View SNPs and Indels ", style="border:none;")
+						snpBrowserButton_img = HT.Image("/images/snp_icon.jpg", name="snpbrowser", alt=" View SNPs and Indels ", title=" View SNPs and Indels ", style="border:none;")
 						snpBrowserButton.append(snpBrowserButton_img)	
 						snpBrowserText = "SNPs"				
 
 				#XZ: Show GeneWiki for all species
 				geneWikiButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE) + "?FormID=geneWiki&symbol=%s" % thisTrait.symbol))
-				geneWikiButton_img = HT.Image("/images/genewiki_icon.jpg", name="addselect", alt=" Write or review comments about this gene ", title=" Write or review comments about this gene ", style="border:none;")
+				geneWikiButton_img = HT.Image("/images/genewiki_icon.jpg", name="genewiki", alt=" Write or review comments about this gene ", title=" Write or review comments about this gene ", style="border:none;")
 				geneWikiButton.append(geneWikiButton_img)
 				geneWikiText = 'GeneWiki'					
 
@@ -295,7 +295,7 @@ class DataEditingPage(templatePage):
 					 if _Species in ("mouse", "rat", "human"):
 						similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), thisTrait.symbol, _Species)
 						similarButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % similarUrl)
-						similarButton_img = HT.Image("/images/find_icon.jpg", name="addselect", alt=" Find similar expression data ", title=" Find similar expression data ", style="border:none;")
+						similarButton_img = HT.Image("/images/find_icon.jpg", name="similar", alt=" Find similar expression data ", title=" Find similar expression data ", style="border:none;")
 						similarButton.append(similarButton_img)
 						similarText = "Find"		
 				else:
@@ -416,15 +416,15 @@ class DataEditingPage(templatePage):
 					UTHSC_BLAT_URL = ""
 				
 				if UCSC_BLAT_URL:
-					verifyButton = HT.Href(url="#")
+					verifyButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % UCSC_BLAT_URL)
 					verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="verify", alt=" Check probe locations at UCSC ", 
-						title=" Check probe locations at UCSC ", onClick="javascript:openNewWin('%s'); return false;" % UCSC_BLAT_URL, style="border:none;")
+						title=" Check probe locations at UCSC ", style="border:none;")
 					verifyButton.append(verifyButtonImg)
 					verifyText = 'Verify'
 				if UTHSC_BLAT_URL:	
-					rnaseqButton = HT.Href(url="#")
+					rnaseqButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % UTHSC_BLAT_URL)
 					rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="rnaseq", alt=" View probes, SNPs, and RNA-seq at UTHSC ", 
-						title=" View probes, SNPs, and RNA-seq at UTHSC ", onClick="javascript:openNewWin('%s'); return false;" % UTHSC_BLAT_URL, style="border:none;")
+						title=" View probes, SNPs, and RNA-seq at UTHSC ", style="border:none;")
 					rnaseqButton.append(rnaseqButtonImg)
 					rnaseqText = 'RNA-seq'											
 				tSpan.append(HT.BR())
@@ -444,8 +444,8 @@ class DataEditingPage(templatePage):
 				if probeResult[0] > 0:
 					probeurl = "%s?FormID=showProbeInfo&database=%s&ProbeSetID=%s&CellID=%s&RISet=%s&incparentsf1=ON" \
 						% (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), thisTrait.db, thisTrait.name, thisTrait.cellid, fd.RISet)
-					probeButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % probeurl)
-					probeButton_img = HT.Image("/images/probe_icon.jpg", name="addselect", alt=" Check sequence of probes ", title=" Check sequence of probes ", style="border:none;")
+					probeButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % probeurl)
+					probeButton_img = HT.Image("/images/probe_icon.jpg", name="probe", alt=" Check sequence of probes ", title=" Check sequence of probes ", style="border:none;")
 					probeButton.append(probeButton_img)
 					probeText = "Probes"	
 
@@ -773,11 +773,11 @@ class DataEditingPage(templatePage):
 				if UCSC_BLAT_URL:
 					#verifyButton = HT.Href(url="#", onClick="openNewWin('%s')" % UCSC_BLAT_URL)
 					verifyButton = HT.Href(url="#")
-					verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="addselect", alt=" Check probe locations at UCSC ", title=" Check probe locations at UCSC ", style="border:none;")
+					verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="verify", alt=" Check probe locations at UCSC ", title=" Check probe locations at UCSC ", style="border:none;")
 					verifyButton.append(verifyButtonImg)	
 					verifyText = "Verify"
 					rnaseqButton = HT.Href(url="#", onClick="openNewWin('%s')" % UTHSC_BLAT_URL)
-					rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="addselect", alt=" View probes, SNPs, and RNA-seq at UTHSC ", title=" View probes, SNPs, and RNA-seq at UTHSC ", style="border:none;")
+					rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="rnaseq", alt=" View probes, SNPs, and RNA-seq at UTHSC ", title=" View probes, SNPs, and RNA-seq at UTHSC ", style="border:none;")
 					rnaseqButton.append(rnaseqButtonImg)			
 					rnaseqText = "RNA-seq"								
 
