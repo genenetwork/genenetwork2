@@ -17,3 +17,7 @@ def index_page():
 def search():
     the_search = search_results.SearchResultPage(request.args)
     return render_template("search_result_page.html", **the_search.__dict__)
+
+@app.route("/showDatabaseBXD")
+def showDatabaseBXD():
+    return None

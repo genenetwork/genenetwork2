@@ -5,9 +5,9 @@ from wqflask import app
 from flask import render_template
 
 ###################################################
-#
+#                                                 #
 # This file uses only spaces for indentation      #
-#
+#                                                 #
 ###################################################
 
 import string
@@ -36,7 +36,7 @@ from utility import webqtlUtil
 from dbFunction import webqtlDatabaseFunction
 
 import logging
-logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
+logging.basicConfig(filename="/tmp/flask_gn_log", level=logging.INFO)
 
 _log = logging.getLogger("search")
 _ch = logging.StreamHandler()

@@ -11,5 +11,11 @@ from wqflask import app
 #
 # For more info see: http://www.cyberciti.biz/faq/iptables-block-port/
 
+import logging
+logging.basicConfig(filename="/tmp/flask_gn_log", level=logging.INFO)
+
+_log = logging.getLogger("search")
+_ch = logging.StreamHandler()
+_log.addHandler(_ch)
 
 app.run(host='0.0.0.0')

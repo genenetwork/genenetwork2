@@ -172,7 +172,10 @@
                                                     <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox" VALUE="{{ thisTrait }}" onClick="highlight(this)">
                                                 </TD>
                                                 <TD class="fs12 fwn b1 c222">
-                                                    <A HREF="javascript:showDatabase3('{{ thisFormName }}','{{thisTrait.db.name}}','{{ thisTrait.name }}','{{ thisTrait.cellid }}')" class="fs12 fwn">{{ thisTrait.name.upper() }}</A>
+													<A HREF="javascript:showDatabase3('{{ thisFormName }}','{{thisTrait.db.name}}','{{ thisTrait.name }}','{{ thisTrait.cellid }}')" class="fs12 fwn"> - </a>
+													<a href="{{ url_for('showDatabaseBXD', database=thisTrait.db.name, ProbeSetID=thisTrait.name, incparentsf1='ON', RISet='BXD')}}" class="fs12 fwn">
+														{{ thisTrait.name.upper() }}
+													</a>
                                                 </TD>
                                                 <TD class="fs12 fwn b1 c222 fsI">
                                                     <A HREF="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{thisTrait.geneid}}" TARGET="_blank" class="font_black fs12 fwn">
