@@ -42,9 +42,9 @@ class ShowTraitPage(DataEditingPage):
 
 		if not self.openMysql():
 			return
-			
+
 		TD_LR = HT.TD(height=200,width="100%",bgColor='#eeeeee')
-		
+
 		if traitInfos:
 			database,ProbeSetID,CellID = traitInfos
 		else:
@@ -61,7 +61,7 @@ class ShowTraitPage(DataEditingPage):
 
 		if thisTrait.db.type == "ProbeSet":
 
-			self.cursor.execute('''SELECT Id, Name, FullName, confidentiality, AuthorisedUsers 
+			self.cursor.execute('''SELECT Id, Name, FullName, confidentiality, AuthorisedUsers
 						FROM ProbeSetFreeze WHERE Name = "%s"''' %  database)
 
 			indId, indName, indFullName, confidential, AuthorisedUsers = self.cursor.fetchall()[0]
@@ -86,7 +86,7 @@ class ShowTraitPage(DataEditingPage):
 					at this time, please go back and select other database." % indFullName]
 					self.error(heading=heading,detail=detail,error="Confidential Database")
 					return
-					
+
 		user_ip = fd.remote_ip
 		query = "SELECT count(id) FROM AccessLog WHERE ip_address = %s and \
 				UNIX_TIMESTAMP()-UNIX_TIMESTAMP(accesstime)<86400"
@@ -105,26 +105,26 @@ class ShowTraitPage(DataEditingPage):
 				pass
 		else:
 			pass
-		
+
 		if thisTrait.db.type != 'ProbeSet' and thisTrait.cellid:
 				heading = "Retrieve Data"
 				detail = ['The Record you requested doesn\'t exist!']
 				self.error(heading=heading,detail=detail)
 				return
 
-		#XZ: Aug 23, 2010: I commented out this block because this feature is not used anymore		
+		#XZ: Aug 23, 2010: I commented out this block because this feature is not used anymore
 		# check if animal information are available
 		"""
 		self.cursor.execute('''
-						SELECT 
-							SampleXRef.ProbeFreezeId 
-						FROM 
-							SampleXRef, ProbeSetFreeze 
-						WHERE 
+						SELECT
+							SampleXRef.ProbeFreezeId
+						FROM
+							SampleXRef, ProbeSetFreeze
+						WHERE
 							SampleXRef.ProbeFreezeId = ProbeSetFreeze.ProbeFreezeId AND
 							ProbeSetFreeze.Name = "%s"
-					 ''' % thisTrait.db.name)
-		
+						''' % thisTrait.db.name)
+
 		sampleId = self.cursor.fetchall()
 		if sampleId:
 			thisTrait.strainInfo = 1
@@ -136,12 +136,12 @@ class ShowTraitPage(DataEditingPage):
 		fd.identification = '%s : %s'%(thisTrait.db.shortname,ProbeSetID)
 		thisTrait.returnURL = webqtlConfig.CGIDIR + webqtlConfig.SCRIPTFILE + '?FormID=showDatabase&database=%s\
 			&ProbeSetID=%s&RISet=%s&parentsf1=on' %(database,ProbeSetID,fd.RISet)
-		
+
 		if CellID:
 			fd.identification = '%s/%s'%(fd.identification, CellID)
 			thisTrait.returnURL = '%s&CellID=%s' % (thisTrait.returnURL, CellID)
-		
-		#retrieve trait information		
+
+		#retrieve trait information
 		try:
 			thisTrait.retrieveInfo()
 			thisTrait.retrieveData()
@@ -153,18 +153,16 @@ class ShowTraitPage(DataEditingPage):
 			detail = ["The information you requested is not avaiable at this time."]
 			self.error(heading=heading,detail=detail)
 			return
-			
+
 		##read genotype file
 		fd.RISet = thisTrait.riset
 		fd.readGenotype()
-		
+
 		if webqtlUtil.ListNotNull(map(lambda x:x.var, thisTrait.data.values())):
 			fd.displayVariance = 1
 			fd.varianceDispName = 'SE'
 			fd.formID = 'varianceChoice'
-		
+
 		self.dict['body']= thisTrait
 		DataEditingPage.__init__(self, fd, thisTrait)
 		self.dict['title'] = '%s: Display Trait' % fd.identification
-
-

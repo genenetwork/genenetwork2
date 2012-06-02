@@ -5,6 +5,7 @@ from wqflask import app
 from flask import render_template, request
 
 from wqflask import search_results
+from wqflask.show_trait import show_trait_page
 
 from pprint import pformat as pf
 
@@ -20,4 +21,5 @@ def search():
 
 @app.route("/showDatabaseBXD")
 def showDatabaseBXD():
+    template_vars = show_trait_page.ShowTraitPage(request.args)
     return render_template("trait_data_and_analysis.html")
