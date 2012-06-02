@@ -1,0 +1,1259 @@
+{% extends "base.html" %}
+{% block title %}Trait Data and Analysis{% endblock %}
+{% block content %}
+<!-- Start of body -->
+
+<TR>
+		<TD  bgColor=#eeeeee class="solidBorder">
+		<Table width= "100%" cellSpacing=0 cellPadding=5>
+		<TR>
+		<TD valign="top" width="100%" bgcolor="#fafafa"><P>
+<FORM METHOD="POST" ACTION="/webqtl/main.py" NAME="dataInput">
+
+<INPUT TYPE="hidden" NAME="isSE" VALUE="yes">
+<INPUT TYPE="hidden" NAME="permCheck">
+<INPUT TYPE="hidden" NAME="otherStrainVals" VALUE="_">
+<INPUT TYPE="hidden" NAME="FormID" VALUE="dataEditing">
+<INPUT TYPE="hidden" NAME="normalPlotTitle" VALUE="Sall3: 1441186_at">
+<INPUT TYPE="hidden" NAME="strainVars" VALUE="_">
+<INPUT TYPE="hidden" NAME="additiveCheck" VALUE="ON">
+<INPUT TYPE="hidden" NAME="incparentsf1" VALUE="ON">
+<INPUT TYPE="hidden" NAME="strainNames" VALUE="_">
+<INPUT TYPE="hidden" NAME="submitID" VALUE="">
+<INPUT TYPE="hidden" NAME="scale" VALUE="physic">
+<INPUT TYPE="hidden" NAME="intervalAnalystCheck" VALUE="ON">
+<INPUT TYPE="hidden" NAME="topten" VALUE="">
+<INPUT TYPE="hidden" NAME="parentsf14regression" VALUE="OFF">
+<INPUT TYPE="hidden" NAME="identification" VALUE="Hippocampus M430v2 BXD 06/06 PDNN : 1441186_at">
+<INPUT TYPE="hidden" NAME="mappingMethodId" VALUE="1">
+<INPUT TYPE="hidden" NAME="criteria">
+<INPUT TYPE="hidden" NAME="other_extra_attributes" VALUE="_">
+<INPUT TYPE="hidden" NAME="otherStrainNames" VALUE="_">
+<INPUT TYPE="hidden" NAME="method">
+<INPUT TYPE="hidden" NAME="showGenes" VALUE="ON">
+<INPUT TYPE="hidden" NAME="attribute_names" VALUE="">
+<INPUT TYPE="hidden" NAME="chromosomes" VALUE="-1">
+<INPUT TYPE="hidden" NAME="allstrainlist" VALUE="B6D2F1 D2B6F1 C57BL/6J DBA/2J BXD1 BXD2 BXD5 BXD6 BXD8 BXD9 BXD11 BXD12 BXD13 BXD14 BXD15 BXD16 BXD18 BXD19 BXD20 BXD21 BXD22 BXD23 BXD24a BXD24 BXD25 BXD27 BXD28 BXD29 BXD30 BXD31 BXD32 BXD33 BXD34 BXD35 BXD36 BXD37 BXD38 BXD39 BXD40 BXD41 BXD42 BXD43 BXD44 BXD45 BXD48 BXD49 BXD50 BXD51 BXD52 BXD53 BXD54 BXD55 BXD56 BXD59 BXD60 BXD61 BXD62 BXD63 BXD64 BXD65 BXD66 BXD67 BXD68 BXD69 BXD70 BXD71 BXD72 BXD73 BXD74 BXD75 BXD76 BXD77 BXD78 BXD79 BXD80 BXD81 BXD83 BXD84 BXD85 BXD86 BXD87 BXD88 BXD89 BXD90 BXD91 BXD92 BXD93 BXD94 BXD95 BXD96 BXD97 BXD98 BXD99 BXD100 BXD101 BXD102 BXD103 BALB/cByJ PWK/PhJ A/J KK/HlJ LG/J 129S1/SvImJ NZO/HlLtJ CAST/EiJ PWD/PhJ AKR/J CXB13 CXB12 CXB11 CXB10 WSB/EiJ C3H/HeJ CXB7 CXB6 CXB5 CXB4 CXB3 CXB2 CXB1 CXB9 CXB8 NOD/ShiLtJ C57BL/6ByJ BALB/cJ">
+<INPUT TYPE="hidden" NAME="applyVarianceSE">
+<INPUT TYPE="hidden" NAME="MDPChoice">
+<INPUT TYPE="hidden" NAME="otherStrainVars" VALUE="_">
+<INPUT TYPE="hidden" NAME="strainVals" VALUE="_">
+<INPUT TYPE="hidden" NAME="showSNP" VALUE="ON">
+<INPUT TYPE="hidden" NAME="bootCheck">
+<INPUT TYPE="hidden" NAME="GeneId" VALUE="20689">
+<INPUT TYPE="hidden" NAME="extra_attributes" VALUE="_">
+<INPUT TYPE="hidden" NAME="stats_method" VALUE="1">
+<INPUT TYPE="hidden" NAME="heritability" VALUE="None">
+<INPUT TYPE="hidden" NAME="database" VALUE="">
+<INPUT TYPE="hidden" NAME="viewLegend" VALUE="ON">
+<INPUT TYPE="hidden" NAME="fromDataEditingPage" VALUE="1">
+<INPUT TYPE="hidden" NAME="trait_type" VALUE="ProbeSet">
+<INPUT TYPE="hidden" NAME="valsHidden" VALUE="OFF">
+<INPUT TYPE="hidden" NAME="fullname" VALUE="HC_M2_0606_P::1441186_at">
+<INPUT TYPE="hidden" NAME="RISet" VALUE="BXD"><DIV><DIV style="font-size:14px;"><STRONG style="font-size:16px;">Trait Data and Analysis&nbsp;</STRONG> for Record ID 1441186_at</DIV></DIV><P class="sectionheader" id="title1" style="border-radius: 5px;">&nbsp;&nbsp;Details and Links</P><P id="sectionbody1"><TABLE class="collap" id="target1" style="margin-left:20px;" cellpadding="2" width="840" valign="top"><TR><TD class="fwb fs13" nowrap="on" valign="top" width="90">Gene Symbol: </TD><TD valign="top" width="10"></TD><TD valign="top" width="740"><SPAN class="fs13 fsI">Sall3</SPAN></TD></TR><TR><TD class="fwb fs13" nowrap="on" valign="top">Aliases: </TD><TD valign="top" width="10"></TD><TD valign="top"><SPAN class="fs13 fsI">B130022O04Rik, Msal, Msal-1, Sal, Salt, Spalt</SPAN></TD></TR><TR><TD class="fwb fs13" nowrap="on" valign="top">Description: </TD><TD valign="top" width="10"></TD><TD valign="top"><SPAN class="fs13">sal-like 3 (Drosophila)</SPAN></TD></TR><TR><TD class="fwb fs13" nowrap="on" valign="top">Location: </TD><TD valign="top" width="10"></TD><TD valign="top"><SPAN class="fs13">Chr 18 @ 81.163175 Mb on the minus strand <BR></SPAN></TD></TR><TR><TD class="fwb fs13" nowrap="on" valign="top">Target Score: </TD><TD valign="top" width="10"></TD><TD valign="top"><SPAN class="fs13"><A HREF="/blatInfo.html" TARGET="_blank" class="non_bold" TITLE="Values higher than 2 for the specificity are good">BLAT specificity</A>: 12.0&nbsp;&nbsp;&nbsp;Score: 240&nbsp;&nbsp;</SPAN></TD></TR><TR><TD class="fwb fs13" nowrap="on" valign="top">Species and Group: </TD><TD valign="top" width="10"></TD><TD valign="top"><SPAN class="fs13">Mouse, BXD</SPAN></TD></TR><TR><TD class="fs13 fwb" nowrap="on" valign="top">Database: </TD><TD valign="top" width="10"></TD><TD valign="top"><A HREF="/dbdoc/HC_M2_0606_P.html" TARGET="_blank" class="fs13 fwn non_bold">Hippocampus Consortium M430v2 (Jun06) PDNN</A></TD></TR><TR><TD colspan="3" height="6"></TD></TR><TR><TD class="fwb fs13" nowrap="on" valign="top">Resource Links: </TD><TD valign="top" width="10"></TD><TD valign="top"><SPAN class="fs13"><SPAN style="background:#dddddd;padding:2"><A HREF="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=20689" TARGET="_blank" class="fs14 fwn" TITLE="Info from NCBI Entrez Gene">Gene</A></SPAN>&nbsp;&nbsp;<SPAN style="background:#dddddd;padding:2"><A HREF="http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Mm&CID=215917" TARGET="_blank" class="fs14 fwn" TITLE="UniGene ID">UniGene</A></SPAN>&nbsp;&nbsp;<SPAN style="background:#dddddd;padding:2"><A HREF="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=Nucleotide&cmd=search&doptcmdl=DocSum&term=BM119035" TARGET="_blank" class="fs14 fwn" TITLE="Find the original GenBank sequence used to design the probes">GenBank</A></SPAN>&nbsp;&nbsp;<SPAN style="background:#dddddd;padding:2"><A HREF="http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&Cmd=DetailsSearch&Term=18142" TARGET="_blank" class="fs14 fwn" TITLE="Find similar genes in other species">HomoloGene</A></SPAN>&nbsp;&nbsp;</SPAN></TD></TR><TR><TD colspan="3" height="6"></TD></TR><TR><TD> </TD><TD valign="top" width="10"></TD><TD valign="top"><SPAN style="font-family:verdana,serif;font-size:13px"><SPAN style="background:#dddddd;padding:2"><A HREF="http://genome.cse.ucsc.edu/cgi-bin/hgGene?db=mm9&hgg_gene=NM_178280&hgg_chrom=chr18&hgg_start=81163112&hgg_end=81183317" TARGET="mainFrame" class="fs14 fwn" TITLE="Info from UCSC Genome Browser">UCSC</A></SPAN>&nbsp;&nbsp;<SPAN style="background:#dddddd;padding:2"><A HREF="http://biogps.gnf.org/?org=mouse#goto=genereport&id=20689" TARGET="mainFrame" class="fs14 fwn" TITLE="Expression across many tissues and cell types">BioGPS</A></SPAN>&nbsp;&nbsp;<SPAN style="background:#dddddd;padding:2"><A HREF="http://string.embl.de/newstring_cgi/show_link_summary.pl?identifier=Sall3" TARGET="mainFrame" class="fs14 fwn" TITLE="Protein interactions: known and inferred">STRING</A></SPAN>&nbsp;&nbsp;<SPAN style="background:#dddddd;padding:2"><A HREF="http://www.pantherdb.org/genes/gene.do?acc=20689" TARGET="mainFrame" class="fs14 fwn" TITLE="Gene and protein data resources from Celera-ABI">PANTHER</A></SPAN>&nbsp;&nbsp;<SPAN style="background:#dddddd;padding:2"><A HREF="http://www.chibi.ubc.ca/Gemma/gene/showGene.html?ncbiid=20689" TARGET="mainFrame" class="fs14 fwn" TITLE="Meta-analysis of gene expression data">Gemma</A></SPAN>&nbsp;&nbsp;<SPAN style="background:#dddddd;padding:2"><A HREF="http://lily.uthsc.edu:8080/20091027_GNInterfaces/20091027_redirectSynDB.jsp?query=Sall3" TARGET="mainFrame" class="fs14 fwn" TITLE="Brain synapse database">SynDB</A></SPAN>&nbsp;&nbsp;<SPAN style="background:#dddddd;padding:2"><A HREF="http://mouse.brain-map.org/brain/Sall3.html" TARGET="mainFrame" class="fs14 fwn" TITLE="Allen Brain Atlas">ABA</A></SPAN>&nbsp;&nbsp;</SPAN></TD></TR></TABLE><BR><TABLE class="collap" id="target1" cellpadding="2" width="620"><TR style="vertical-align:bottom;"><TD align="center"><A HREF="#redirect" onClick="addRmvSelection('BXD', document.getElementsByName('dataInput')[0], 'addToSelection');"><IMG src="/images/add_icon.jpg" alt="Add To Collection" name="addselect" style="border:none;" title="Add To Collection"></A></TD><TD align="center"><A HREF="#redirect" onClick="openNewWin('/webqtl/main.py?cmd=sch&gene=Sall3&alias=1&species=mouse')"><IMG src="/images/find_icon.jpg" alt=" Find similar expression data " name="addselect" style="border:none;" title=" Find similar expression data "></A></TD><TD align="center"><A HREF="#redirect" onClick="openNewWin('http://genome.ucsc.edu/cgi-bin/hgBlat?org=mouse&db=mm9&type=0&sort=0&output=0&userSeq=%3E1441186_at%0AGAATTAGTTTTTTCAGTGCTGGGCAGGCCCTGTAAGTGCATGCCGGACAATGTTGCTTTACATCTGCCATGGAAGAGACTCTACAGCGTCCAAAGATGGCCACACCGGGTTTGCCTCACTGGGTGATCACAGTAGCGTTCAGGTCACTACAGCCAAGGGCTTCTCAGATCCATGTAGGAAAGAACAAGCGAGTGCTCACAGATACCACGCTCAGCAGACTTCATTAGCATTGTCTCACAGATAACAT%0A%3EProbe_522467%0AGAATTAGTTTTTTCAGTGCTGGGCA%0A%3EProbe_711755%0AGGCCCTGTAAGTGCATGCCGGACAA%0A%3EProbe_392797%0ATGTTGCTTTACATCTGCCATGGAAG%0A%3EProbe_246123%0AAGAGACTCTACAGCGTCCAAAGATG%0A%3EProbe_X80217%0AAAAGATGGCCACACCGGGTTTGCCT%0A%3EProbe_248315%0ACACTGGGTGATCACAGTAGCGTTCA%0A%3EProbe_349625%0AGTAGCGTTCAGGTCACTACAGCCAA%0A%3EProbe_288681%0AGGGCTTCTCAGATCCATGTAGGAAA%0A%3EProbe_801497%0AGAACAAGCGAGTGCTCACAGATACC%0A%3EProbe_139197%0AACAGATACCACGCTCAGCAGACTTC%0A%3EProbe_752Y13%0AATTAGCATTGTCTCACAGATAACAT%0A')"><IMG src="/images/verify_icon.jpg" alt=" Check probe locations at UCSC " name="addselect" style="border:none;" title=" Check probe locations at UCSC "></A></TD><TD align="center"><A HREF="#redirect" onClick="openNewWin('/webqtl/main.py?FormID=geneWiki&symbol=Sall3')"><IMG src="/images/genewiki_icon.jpg" alt=" Write or review comments about this gene " name="addselect" style="border:none;" title=" Write or review comments about this gene "></A></TD><TD align="center"><A HREF="#redirect" onClick="openNewWin('/webqtl/main.py?FormID=SnpBrowserResultPage&submitStatus=1&diffAlleles=True&customStrain=True&geneName=Sall3')"><IMG src="/images/snp_icon.jpg" alt=" View SNPs and Indels " name="addselect" style="border:none;" title=" View SNPs and Indels "></A></TD><TD align="center"><A HREF="#redirect" onClick="openNewWin('http://ucscbrowser.genenetwork.org/cgi-bin/hgBlat?org=mouse&db=mm9&type=0&sort=0&output=0&userSeq=%3E1441186_at%0AGAATTAGTTTTTTCAGTGCTGGGCAGGCCCTGTAAGTGCATGCCGGACAATGTTGCTTTACATCTGCCATGGAAGAGACTCTACAGCGTCCAAAGATGGCCACACCGGGTTTGCCTCACTGGGTGATCACAGTAGCGTTCAGGTCACTACAGCCAAGGGCTTCTCAGATCCATGTAGGAAAGAACAAGCGAGTGCTCACAGATACCACGCTCAGCAGACTTCATTAGCATTGTCTCACAGATAACAT%0A%3EProbe_522467%0AGAATTAGTTTTTTCAGTGCTGGGCA%0A%3EProbe_711755%0AGGCCCTGTAAGTGCATGCCGGACAA%0A%3EProbe_392797%0ATGTTGCTTTACATCTGCCATGGAAG%0A%3EProbe_246123%0AAGAGACTCTACAGCGTCCAAAGATG%0A%3EProbe_X80217%0AAAAGATGGCCACACCGGGTTTGCCT%0A%3EProbe_248315%0ACACTGGGTGATCACAGTAGCGTTCA%0A%3EProbe_349625%0AGTAGCGTTCAGGTCACTACAGCCAA%0A%3EProbe_288681%0AGGGCTTCTCAGATCCATGTAGGAAA%0A%3EProbe_801497%0AGAACAAGCGAGTGCTCACAGATACC%0A%3EProbe_139197%0AACAGATACCACGCTCAGCAGACTTC%0A%3EProbe_752Y13%0AATTAGCATTGTCTCACAGATAACAT%0A')"><IMG src="/images/rnaseq_icon.jpg" alt=" View probes, SNPs, and RNA-seq at UTHSC " name="addselect" style="border:none;" title=" View probes, SNPs, and RNA-seq at UTHSC "></A></TD><TD align="center"><A HREF="#redirect" onClick="openNewWin('/webqtl/main.py?FormID=showProbeInfo&database=HC_M2_0606_P&ProbeSetID=1441186_at&CellID=&RISet=BXD&incparentsf1=ON')"><IMG src="/images/probe_icon.jpg" alt=" Check sequence of probes " name="addselect" style="border:none;" title=" Check sequence of probes "></A></TD><TD align="center"></TD></TR><TR style="vertical-align:bottom;"><TD align="center">Add</TD><TD align="center">Find</TD><TD align="center">Verify</TD><TD align="center">GeneWiki</TD><TD align="center">SNPs</TD><TD align="center">RNA-seq</TD><TD align="center">Probes</TD><TD align="center"></TD></TR></TABLE></P><P class="sectionheader" id="title2" style="border-radius: 5px;">&nbsp;&nbsp;Basic Statistics</P><P id="sectionbody2"><TABLE class="target2" cellpadding="0" cellspacing="0" width="100%"><TR>Include: <SELECT NAME="stats_mdp" SIZE=1 class="stats_mdp">
+<OPTION Value="0">All Cases</OPTION>
+<OPTION Value="1">BXD Only</OPTION>
+<OPTION Value="2">Non-BXD Only</OPTION>
+</SELECT>
+<BR><BR>
+<INPUT TYPE="button" NAME="Default_Name" class="button update" VALUE=" Update Figures "><BR><BR><TD><DIV class="ui-tabs" id="stats_tabs0"><UL>
+<LI><A HREF="#statstabs-1" class="stats_tab">Basic Table</A>
+<LI><A HREF="#statstabs-5" class="stats_tab">Probability Plot</A>
+<LI><A HREF="#statstabs-3" class="stats_tab">Bar Graph (by name)</A>
+<LI><A HREF="#statstabs-4" class="stats_tab">Bar Graph (by rank)</A>
+<LI><A HREF="#statstabs-2" class="stats_tab">Box Plot</A>
+</UL>
+<DIV id="statstabs-1"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><TABLE cellpadding="20" cellspacing="0"><TR><TD class="fs14 fwb ffl b1 cw cbrb" align="left" width="180">Statistic</TD><TD class="fs14 fwb ffl b1 cw cbrb" align="right" width="60">Value</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" align="left">N of Samples</TD><TD class="fs13 b1 cbw c222" nowrap="yes">99</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Mean</TD><TD class="fs13 b1 cbw c222" nowrap="yes">6.129</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Median</TD><TD class="fs13 b1 cbw c222" nowrap="yes">6.105</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Error (SE)</TD><TD class="fs13 b1 cbw c222" nowrap="yes">0.018</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Deviation (SD)</TD><TD class="fs13 b1 cbw c222" nowrap="yes">0.182</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Minimum</TD><TD class="fs13 b1 cbw c222" nowrap="yes">5.782</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Maximum</TD><TD class="fs13 b1 cbw c222" nowrap="yes">6.579</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Range (log2)</TD><TD class="fs13 b1 cbw c222" nowrap="yes">0.797</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left"><SPAN>Range (fold)</SPAN></TD><TD class="fs13 b1 cbw c222" nowrap="yes">1.74</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left"><SPAN><A HREF="/glossary.html#Interquartile" TARGET="_blank" class="non_bold">Interquartile Range</A></SPAN></TD><TD class="fs13 b1 cbw c222" nowrap="yes">1.18</TD></TR></TABLE></TD></TR></TABLE></P></DIV><DIV id="statstabs-5"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><IMG src="/image/nP_OE9u7BSx.gif" alt="nP_OE9u7BSx.gif" border="0"></TD></TR><TR><TD><BR><BR>This plot evaluates whether data are 				normally distributed. Different symbols represent different groups.<BR><BR>More about <A HREF="http://en.wikipedia.org/wiki/Normal_probability_plot" TARGET="_blank">Normal Probability Plots</A> and more about interpreting these plots from the <A HREF="/glossary.html#normal_probability" TARGET="_blank">glossary</A></TD></TR></TABLE></P></DIV><DIV id="statstabs-2"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD align="left"><IMG src="/image/Box_gUFtEOVI.gif" alt="Box_gUFtEOVI.gif" border="0">
+<P>
+<SPAN>More about <A HREF="http://davidmlane.com/hyperstat/A37797.html" TARGET="_blank" class="fs13">Box Plots</A></SPAN></TD></TR></TABLE></P></DIV><DIV id="statstabs-3"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><IMG src="/image/Bar_y7L2rYlL.gif" alt="Bar_y7L2rYlL.gif" border="0"></TD></TR></TABLE></P></DIV><DIV id="statstabs-4"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><IMG src="/image/Bar_1Z4GjYFq.gif" alt="Bar_1Z4GjYFq.gif" border="0"></TD></TR></TABLE></P></DIV></DIV><DIV class="ui-tabs" id="stats_tabs1"><UL>
+<LI><A HREF="#statstabs-1" class="stats_tab">Basic Table</A>
+<LI><A HREF="#statstabs-5" class="stats_tab">Probability Plot</A>
+<LI><A HREF="#statstabs-3" class="stats_tab">Bar Graph (by name)</A>
+<LI><A HREF="#statstabs-4" class="stats_tab">Bar Graph (by rank)</A>
+<LI><A HREF="#statstabs-2" class="stats_tab">Box Plot</A>
+</UL>
+<DIV id="statstabs-1"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><TABLE cellpadding="20" cellspacing="0"><TR><TD class="fs14 fwb ffl b1 cw cbrb" align="left" width="180">Statistic</TD><TD class="fs14 fwb ffl b1 cw cbrb" align="right" width="60">Value</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" align="left">N of Samples</TD><TD class="fs13 b1 cbw c222" nowrap="yes">71</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Mean</TD><TD class="fs13 b1 cbw c222" nowrap="yes">6.109</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Median</TD><TD class="fs13 b1 cbw c222" nowrap="yes">6.084</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Error (SE)</TD><TD class="fs13 b1 cbw c222" nowrap="yes">0.022</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Deviation (SD)</TD><TD class="fs13 b1 cbw c222" nowrap="yes">0.187</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Minimum</TD><TD class="fs13 b1 cbw c222" nowrap="yes">5.782</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Maximum</TD><TD class="fs13 b1 cbw c222" nowrap="yes">6.579</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Range (log2)</TD><TD class="fs13 b1 cbw c222" nowrap="yes">0.797</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left"><SPAN>Range (fold)</SPAN></TD><TD class="fs13 b1 cbw c222" nowrap="yes">1.74</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left"><SPAN><A HREF="/glossary.html#Interquartile" TARGET="_blank" class="non_bold">Interquartile Range</A></SPAN></TD><TD class="fs13 b1 cbw c222" nowrap="yes">1.13</TD></TR></TABLE></TD></TR></TABLE></P></DIV><DIV id="statstabs-5"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><IMG src="/image/nP_eSYO7ZQg.gif" alt="nP_eSYO7ZQg.gif" border="0"></TD></TR><TR><TD><BR><BR>This plot evaluates whether data are 				normally distributed. Different symbols represent different groups.<BR><BR>More about <A HREF="http://en.wikipedia.org/wiki/Normal_probability_plot" TARGET="_blank">Normal Probability Plots</A> and more about interpreting these plots from the <A HREF="/glossary.html#normal_probability" TARGET="_blank">glossary</A></TD></TR></TABLE></P></DIV><DIV id="statstabs-2"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD align="left"><IMG src="/image/Box_PWNWQMfj.gif" alt="Box_PWNWQMfj.gif" border="0">
+<P>
+<SPAN>More about <A HREF="http://davidmlane.com/hyperstat/A37797.html" TARGET="_blank" class="fs13">Box Plots</A></SPAN></TD></TR></TABLE></P></DIV><DIV id="statstabs-3"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><IMG src="/image/Bar_VuPqYbR6.gif" alt="Bar_VuPqYbR6.gif" border="0"></TD></TR></TABLE></P></DIV><DIV id="statstabs-4"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><IMG src="/image/Bar_9PbdvXZ9.gif" alt="Bar_9PbdvXZ9.gif" border="0"></TD></TR></TABLE></P></DIV></DIV><DIV class="ui-tabs" id="stats_tabs2"><UL>
+<LI><A HREF="#statstabs-1" class="stats_tab">Basic Table</A>
+<LI><A HREF="#statstabs-5" class="stats_tab">Probability Plot</A>
+<LI><A HREF="#statstabs-3" class="stats_tab">Bar Graph (by name)</A>
+<LI><A HREF="#statstabs-4" class="stats_tab">Bar Graph (by rank)</A>
+<LI><A HREF="#statstabs-2" class="stats_tab">Box Plot</A>
+</UL>
+<DIV id="statstabs-1"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><TABLE cellpadding="20" cellspacing="0"><TR><TD class="fs14 fwb ffl b1 cw cbrb" align="left" width="180">Statistic</TD><TD class="fs14 fwb ffl b1 cw cbrb" align="right" width="60">Value</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" align="left">N of Samples</TD><TD class="fs13 b1 cbw c222" nowrap="yes">32</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Mean</TD><TD class="fs13 b1 cbw c222" nowrap="yes">6.176</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Median</TD><TD class="fs13 b1 cbw c222" nowrap="yes">6.170</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Error (SE)</TD><TD class="fs13 b1 cbw c222" nowrap="yes">0.027</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Deviation (SD)</TD><TD class="fs13 b1 cbw c222" nowrap="yes">0.150</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Minimum</TD><TD class="fs13 b1 cbw c222" nowrap="yes">5.906</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Maximum</TD><TD class="fs13 b1 cbw c222" nowrap="yes">6.485</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left">Range (log2)</TD><TD class="fs13 b1 cbw c222" nowrap="yes">0.579</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left"><SPAN>Range (fold)</SPAN></TD><TD class="fs13 b1 cbw c222" nowrap="yes">1.49</TD></TR><TR align="right"><TD class="fs13 b1 cbw c222" nowrap="yes" align="left"><SPAN><A HREF="/glossary.html#Interquartile" TARGET="_blank" class="non_bold">Interquartile Range</A></SPAN></TD><TD class="fs13 b1 cbw c222" nowrap="yes">1.15</TD></TR></TABLE></TD></TR></TABLE></P></DIV><DIV id="statstabs-5"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><IMG src="/image/nP_swDAFlJy.gif" alt="nP_swDAFlJy.gif" border="0"></TD></TR><TR><TD><BR><BR>This plot evaluates whether data are 				normally distributed. Different symbols represent different groups.<BR><BR>More about <A HREF="http://en.wikipedia.org/wiki/Normal_probability_plot" TARGET="_blank">Normal Probability Plots</A> and more about interpreting these plots from the <A HREF="/glossary.html#normal_probability" TARGET="_blank">glossary</A></TD></TR></TABLE></P></DIV><DIV id="statstabs-2"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD align="left"><IMG src="/image/Box_6sQJ8xhK.gif" alt="Box_6sQJ8xhK.gif" border="0">
+<P>
+<SPAN>More about <A HREF="http://davidmlane.com/hyperstat/A37797.html" TARGET="_blank" class="fs13">Box Plots</A></SPAN></TD></TR></TABLE></P></DIV><DIV id="statstabs-3"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><IMG src="/image/Bar_QMWE2VEp.gif" alt="Bar_QMWE2VEp.gif" border="0"></TD></TR></TABLE></P></DIV><DIV id="statstabs-4"><P><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD><IMG src="/image/Bar_X07QmgsX.gif" alt="Bar_X07QmgsX.gif" border="0"></TD></TR></TABLE></P></DIV></DIV></TD></TR><SCRIPT LANGUAGE="Javascript" ><!--
+
+$(function() { $("#stats_tabs0").tabs(); $("#stats_tabs1").tabs(); $("#stats_tabs2").tabs();});
+
+//-->
+</SCRIPT></TABLE></P><P class="sectionheader" id="title3" style="border-radius: 5px;">&nbsp;&nbsp;Calculate Correlations</P><P id="sectionbody3"><TABLE class="target4" cellpadding="0" cellspacing="0" width="100%"><TR><TD><DIV class="ui-tabs" id="corr_tabs"><UL>
+<LI><A HREF="#corrtabs-1">Sample r</A>
+<LI><A HREF="#corrtabs-2">Literature r</A>
+<LI><A HREF="#corrtabs-3">Tissue r</A>
+</UL>
+<DIV id="corrtabs-1"><SPAN><TABLE cellpadding="0" cellspacing="0" width="100%"><TD><TABLE cellpadding="2" cellspacing="0" width="619px"><TR><TD><SPAN class="ffl fwb fs12">Database:</SPAN></TD><TD colspan="3"><SELECT NAME="database1" SIZE=1>
+<OPTION Value="BXDPublish">BXD Published Phenotypes</OPTION>
+<OPTION Value="BXDGeno">BXD Genotypes</OPTION>
+<OPTGROUP LABEL="Amygdala ------">
+<OPTION Value="INIA_AmgCoh_0311">INIA Amygdala Cohort Affy MoGene 1.0 ST (Mar11) RMA
+<OPTION Value="INIA_Amg_BLA_RMA_1110">INIA Amygdala Affy MoGene 1.0 ST (Nov10) RMA
+<OPTION Value="INIA_Amg_BLA_RMA_M_1110">INIA Amygdala Affy MoGene 1.0 ST (Nov10) RMA Male
+<OPTION Value="INIA_Amg_BLA_RMA_F_1110">INIA Amygdala Affy MoGene 1.0 ST (Nov10) RMA Female
+</OPTGROUP>
+
+<OPTGROUP LABEL="Brain ------">
+<OPTION Value="BR_M2_1106_R">UCHSC BXD Whole Brain M430 2.0 (Nov06) RMA
+<OPTION Value="IBR_M_0606_R">INIA Brain mRNA M430 (Jun06) RMA
+<OPTION Value="IBR_M_0106_P">INIA Brain mRNA M430 (Jan06) PDNN
+<OPTION Value="IBR_M_0106_R">INIA Brain mRNA M430 (Jan06) RMA
+<OPTION Value="BR_U_1105_P">UTHSC Brain mRNA U74Av2 (Nov05) PDNN
+<OPTION Value="BR_U_0805_R">UTHSC Brain mRNA U74Av2 (Aug05) RMA
+<OPTION Value="BR_U_0805_P">UTHSC Brain mRNA U74Av2 (Aug05) PDNN
+<OPTION Value="BR_U_0805_M">UTHSC Brain mRNA U74Av2 (Aug05) MAS5
+<OPTION Value="CB_M_0204_P">INIA Brain mRNA M430 (Feb04) PDNN
+</OPTGROUP>
+
+<OPTGROUP LABEL="Cartilage ------">
+<OPTION Value="UCLA_BXDBXH_CARTILAGE_V2">UCLA BXD and BXH Cartilage v2
+<OPTION Value="UCLA_BXDBXH_CARTILAGE">UCLA BXD and BXH Cartilage
+<OPTION Value="UCLA_BXD_CARTILAGE">UCLA BXD Cartilage
+</OPTGROUP>
+
+<OPTGROUP LABEL="Cerebellum ------">
+<OPTION Value="GCB_M2_0505_M">GE-NIAAA Cerebellum mRNA M430v2 (May05) MAS5
+<OPTION Value="GCB_M2_0505_P">GE-NIAAA Cerebellum mRNA M430v2 (May05) PDNN
+<OPTION Value="GCB_M2_0505_R">GE-NIAAA Cerebellum mRNA M430v2 (May05) RMA
+<OPTION Value="CB_M_0305_M">SJUT Cerebellum mRNA M430 (Mar05) MAS5
+<OPTION Value="CB_M_0305_P">SJUT Cerebellum mRNA M430 (Mar05) PDNN
+<OPTION Value="CB_M_0305_R">SJUT Cerebellum mRNA M430 (Mar05) RMA
+<OPTION Value="CB_M_1004_M">SJUT Cerebellum mRNA M430 (Oct04) MAS5
+<OPTION Value="CB_M_1004_P">SJUT Cerebellum mRNA M430 (Oct04) PDNN
+<OPTION Value="CB_M_1004_R">SJUT Cerebellum mRNA M430 (Oct04) RMA
+<OPTION Value="CB_M_1003_M">SJUT Cerebellum mRNA M430 (Oct03) MAS5
+</OPTGROUP>
+
+<OPTGROUP LABEL="Eye ------">
+<OPTION Value="Eye_M2_0908_R">Eye M430v2 (Sep08) RMA
+<OPTION Value="Eye_M2_0908_R_NB">Eye M430v2 Mutant Gpnmb (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_R_ND">Eye M430v2 WT Gpnmb (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_R_MT">Eye M430v2 Mutant Tyrp1 (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_WTWT">Eye M430v2 WT WT (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_R_WT">Eye M430v2 WT Tyrp1 (Sep08) RMA **
+<OPTION Value="BXD_GLA_0911">BXD Glaucoma Affy M430 2.0 Trial (Sep11) RMA **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Hematopoietic Cells ------">
+<OPTION Value="UMCG_0907_HemaStem_ori">UMCG Stem Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_HemaStem">UMCG Stem Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="UMCG_0907_Pro_ori">UMCG Progenitor Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_Pro">UMCG Progenitor Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="UMCG_0907_Eryth_ori">UMCG Erythroid Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_Eryth">UMCG Erythroid Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="UMCG_0907_Myeloid_ori">UMCG Myeloid Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_Myeloid">UMCG Myeloid Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="HC_U_0304_R">GNF Stem Cells U74Av2 (Mar04) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="Hippocampus ------">
+<OPTION Value="HC_M2_0606_P" SELECTED>Hippocampus Consortium M430v2 (Jun06) PDNN
+<OPTION Value="HC_M2_0606_M">Hippocampus Consortium M430v2 (Jun06) MAS5
+<OPTION Value="HC_M2_0606_R">Hippocampus Consortium M430v2 (Jun06) RMA
+<OPTION Value="UMUTAffyExon_0209_RMA">UMUTAffy Hippocampus Exon (Feb09) RMA
+<OPTION Value="UT_ILM_BXD_hipp_NON_0909">UTHSC Hippocampus Illumina v6.1 NON (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_NOS_0909">UTHSC Hippocampus Illumina v6.1 NOS (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_NOE_0909">UTHSC Hippocampus Illumina v6.1 NOE (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_RSS_0909">UTHSC Hippocampus Illumina v6.1 RSS (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_RSE_0909">UTHSC Hippocampus Illumina v6.1 RSE (Sep09) RankInv
+</OPTGROUP>
+
+<OPTGROUP LABEL="Hypothalamus ------">
+<OPTION Value="INIA_Hyp_RMA_1110">INIA Hypothalamus Affy MoGene 1.0 ST (Nov10)
+<OPTION Value="INIA_Hyp_M_RMA_1110">INIA Hypothalamus Affy MoGene 1.0 ST (Nov10) Male
+<OPTION Value="INIA_Hyp_F_RMA_1110">INIA Hypothalamus Affy MoGene 1.0 ST (Nov10) Female
+</OPTGROUP>
+
+<OPTGROUP LABEL="Kidney ------">
+<OPTION Value="MA_M2F_0706_R">Mouse kidney M430v2 Female (Aug06) RMA
+<OPTION Value="MA_M2M_0706_R">Mouse kidney M430v2 Male (Aug06) RMA
+<OPTION Value="MA_M2_0806_R">Mouse kidney M430v2 Sex Balanced (Aug06) RMA
+<OPTION Value="MA_M2_0806_P">Mouse Kidney M430v2 Sex Balanced (Aug06) PDNN
+<OPTION Value="MA_M2_0706_P">Mouse Kidney M430v2 (Jul06) PDNN
+<OPTION Value="MA_M2_0706_R">Mouse Kidney M430v2 (Jul06) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="Leucocytes ------">
+<OPTION Value="Illum_BXD_PBL_1108">UWA Illumina PBL (Nov08) RSN **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Liver ------">
+<OPTION Value="GSE16780_UCLA_ML0911">GSE16780 UCLA Hybrid MDP Liver Affy HT M430A (Sep11) RMA
+<OPTION Value="LV_G_0106_F">UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Females
+<OPTION Value="LV_G_0106_M">UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Males
+<OPTION Value="LV_G_0106_B">UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Both Sexes
+<OPTION Value="GenEx_BXD_liverSal_RMA_F_0211">GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Females **
+<OPTION Value="GenEx_BXD_liverSal_RMA_M_0211">GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Males **
+<OPTION Value="GenEx_BXD_liverSal_RMA_0211">GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Both Sexes **
+<OPTION Value="GenEx_BXD_liverEt_RMA_F_0211">GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Females **
+<OPTION Value="GenEx_BXD_liverEt_RMA_M_0211">GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Males **
+<OPTION Value="GenEx_BXD_liverEt_RMA_0211">GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Both Sexes **
+<OPTION Value="SUH_Liv_RMA_0611">SUH BXD Liver Affy Mouse Gene 1.0 ST (Jun11) RMA **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Lung ------">
+<OPTION Value="HZI_0408_R">HZI Lung M430v2 (Apr08) RMA
+<OPTION Value="HZI_0408_M">HZI Lung M430v2 (Apr08) MAS5
+</OPTGROUP>
+
+<OPTGROUP LABEL="Midbrain ------">
+<OPTION Value="VUBXDMouseMidBrainQ0512">VU BXD Midbrain Agilent SurePrint G3 Mouse GE (May12) Quantile **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Muscle ------">
+<OPTION Value="EPFLMouseMuscleRMA1211">EPFL/LISP BXD Muscle Affy Mouse Gene 1.0 ST (Dec11) RMA **
+<OPTION Value="EPFLMouseMuscleHFDRMA1211">EPFL/LISP BXD HFD Muscle Affy Mouse Gene 1.0 ST (Dec11) RMA **
+<OPTION Value="EPFLMouseMuscleCDRMA1211">EPFL/LISP BXD CD Muscle Affy Mouse Gene 1.0 ST (Dec11) RMA **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Neocortex ------">
+<OPTION Value="DevNeocortex_ILM6.2P14RInv_1111">BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv
+<OPTION Value="DevNeocortex_ILM6.2P3RInv_1111">BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv
+<OPTION Value="HQFNeoc_1210v2_RankInv">HQF BXD Neocortex ILM6v1.1 (Dec10v2) RankInv
+<OPTION Value="HQFNeoc_1210_RankInv">HQF BXD Neocortex ILM6v1.1 (Dec10) RankInv
+<OPTION Value="HQFNeoc_0208_RankInv">HQF BXD Neocortex ILM6v1.1 (Feb08) RankInv
+<OPTION Value="DevNeocortex_ILM6.2P14RInv_1110">BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv
+<OPTION Value="DevNeocortex_ILM6.2P3RInv_1110">BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv
+</OPTGROUP>
+
+<OPTGROUP LABEL="Nucleus Accumbens ------">
+<OPTION Value="VCUSalo_1007_R">VCU BXD NA Sal M430 2.0 (Oct07) RMA
+<OPTION Value="VCUEtOH_1007_R">VCU BXD NA EtOH M430 2.0 (Oct07) RMA **
+<OPTION Value="VCUSal_1007_R">VCU BXD NA Et vs Sal M430 2.0 (Oct07) Sscore **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Prefrontal Cortex ------">
+<OPTION Value="VCUEtOH_1206_R">VCU BXD PFC EtOH M430 2.0 (Dec06) RMA
+<OPTION Value="VCUSal_1206_R">VCU BXD PFC Sal M430 2.0 (Dec06) RMA
+<OPTION Value="VCUSal_1006_R">VCU BXD PFC Et vs Sal M430 2.0 (Dec06) Sscore
+<OPTION Value="VCU_PF_Air_0111_R">VCU BXD PFC CIE Air M430 2.0 (Jan11) RMA **
+<OPTION Value="VCU_PF_Et_0111_R">VCU BXD PFC CIE EtOH M430 2.0 (Jan11) RMA **
+<OPTION Value="VCU_PF_AvE_0111_Ss">VCU BXD PFC EtOH vs CIE Air M430 2.0 (Jan11) Sscore **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Retina ------">
+<OPTION Value="G2NEI_ILM_Retina_BXD_RI0410">Normal HEI Retina (April 2010) RankInv
+<OPTION Value="Illum_Retina_BXD_RankInv0410">Full HEI Retina (April 2010) RankInv
+<OPTION Value="ONCRetILM6_0412">ONC HEI Retina (April 2012) RankInv
+<OPTION Value="B6D2ONCILM_0412">B6D2 ONC Retina (April 2012) RankInv **
+<OPTION Value="G2HEIONCRetILM6_0911">G2 HEI ONC Retina Illumina V6.2 (Sep11) RankInv **
+<OPTION Value="HEIONCvsCRetILM6_0911">HEI ONC vs Control Retina Illumina V6.2 (Sep11) RankInv **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Spleen ------">
+<OPTION Value="UTHSC_SPL_RMA_1210">UTHSC Affy MoGene 1.0 ST Spleen (Dec10) RMA
+<OPTION Value="UTHSC_SPL_RMA_1010">UTHSC Affy MoGene 1.0 ST Spleen (Oct10) RMA
+<OPTION Value="IoP_SPL_RMA_0509">IoP Affy MOE 430v2 Spleen (May09) RMA
+<OPTION Value="Illum_BXD_Spl_1108">UWA Illumina Spleen (Nov08) RSN **
+<OPTION Value="UTK_BXDSpl_VST_0110">UTK Spleen ILM6.1 (Jan10) VST
+</OPTGROUP>
+
+<OPTGROUP LABEL="Striatum ------">
+<OPTION Value="DevStriatum_ILM6.2P14RInv_1111">BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov11) RankInv **
+<OPTION Value="DevStriatum_ILM6.2P3RInv_1111">BIDMC/UTHSC Dev Striatum P3 ILMv6.2 (Nov11) RankInv **
+<OPTION Value="UTHSC_Striatum_RankInv_1210">HQF BXD Striatum ILM6.1 (Dec10v2) RankInv
+<OPTION Value="UTHSC_Str_RankInv_1210">HQF BXD Striatum ILM6.1 (Dec10) RankInv
+<OPTION Value="UTHSC_1107_RankInv">HQF BXD Striatum ILM6.1 (Nov07) RankInv
+<OPTION Value="SA_M2_0405_MC">HBP Rosen Striatum M430V2 (Apr05) MAS5 Clean
+<OPTION Value="SA_M2_0405_RC">HBP Rosen Striatum M430V2 (Apr05) RMA Clean
+<OPTION Value="SA_M2_0405_PC">HBP Rosen Striatum M430V2 (Apr05) PDNN Clean
+<OPTION Value="SA_M2_0405_SS">HBP Rosen Striatum M430V2 (Apr05) SScore
+<OPTION Value="SA_M2_0405_RR">HBP Rosen Striatum M430V2 (Apr05) RMA Orig
+<OPTION Value="Striatum_Exon_0209">HQF Striatum Exon (Feb09) RMA
+<OPTION Value="DevStriatum_ILM6.2P14RInv_1110">BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov10) RankInv **
+<OPTION Value="DevStriatum_ILM6.2P3RInv_1110">BIDMC/UTHSC Dev Striatum P3 ILMv6.2 (Nov10) RankInv **
+</OPTGROUP>
+
+<OPTGROUP LABEL="T Cell (helper) ------">
+<OPTION Value="RTHC_0211_R">HZI Thelp M430v2 (Feb11) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="T Cell (regulatory) ------">
+<OPTION Value="RTC_1106_R">HZI Treg M430v2 (Feb11) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="Thymus ------">
+<OPTION Value="Illum_BXD_Thy_1108">UWA Illumina Thymus (Nov08) RSN **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Ventral Tegmental Area ------">
+<OPTION Value="VCUEtOH_0609_R">VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **
+<OPTION Value="VCUSal_0609_R">VCU BXD VTA Sal M430 2.0 (Jun09) RMA **
+<OPTION Value="VCUEtvsSal_0609_R">VCU BXD VTA Et vs Sal M430 2.0 (Jun09) Sscore **
+</OPTGROUP>
+
+</SELECT>
+</TD></TR><TR><TD><SPAN class="ffl fwb fs12">Return:</SPAN></TD><TD><SELECT NAME="criteria1" SIZE=1 onMouseOver="if (NS4 || IE4) activateEl('criterias', event);">
+<OPTION Value="100">top 100</OPTION>
+<OPTION Value="200">top 200</OPTION>
+<OPTION Value="500" SELECTED>top 500</OPTION>
+<OPTION Value="1000">top 1000</OPTION>
+<OPTION Value="2000">top 2000</OPTION>
+<OPTION Value="5000">top 5000</OPTION>
+<OPTION Value="10000">top 10000</OPTION>
+<OPTION Value="15000">top 15000</OPTION>
+<OPTION Value="20000">top 20000</OPTION>
+</SELECT>
+</TD></TR><TR class="mdp1"><TD><SPAN class="ffl fwb fs12">Samples:</SPAN></TD><TD><SELECT NAME="MDPChoice1" SIZE=1>
+<OPTION Value="1">BXD Only</OPTION>
+<OPTION Value="2">Non-BXD Only</OPTION>
+<OPTION Value="0">All Cases</OPTION>
+</SELECT>
+</TD></TR>
+<INPUT TYPE="hidden" NAME="orderBy" VALUE="2"></TABLE><BR>Pearson
+<INPUT TYPE="radio" NAME="sample_method" VALUE="1" CHECKED>&nbsp;&nbsp;&nbsp;Spearman Rank
+<INPUT TYPE="radio" NAME="sample_method" VALUE="2"><BR><BR>
+<INPUT TYPE="button" NAME="sample_corr" class="button sample_corr" VALUE=" Compute "><BR><BR><SPAN class="fs12">The <A HREF="/correlationAnnotation.html#sample_r" TARGET="_blank">Sample Correlation</A> is computed between trait data and any <BR> other traits in the sample database selected above. Use <A HREF="/glossary.html#Correlations" TARGET="_blank">Spearman Rank</A><BR>when the sample size is small (&lt;20) or when there are influential 											outliers.<BR></SPAN></TD></TABLE></SPAN></DIV><DIV id="corrtabs-2"><SPAN><TABLE cellpadding="0" cellspacing="0" width="100%"><TD><TABLE cellpadding="2" cellspacing="0" width="619px"><TR><TD><SPAN class="ffl fwb fs12">Database:</SPAN></TD><TD colspan="3"><SELECT NAME="database2" SIZE=1>
+<OPTION Value="BXDPublish">BXD Published Phenotypes</OPTION>
+<OPTION Value="BXDGeno">BXD Genotypes</OPTION>
+<OPTGROUP LABEL="Amygdala ------">
+<OPTION Value="INIA_AmgCoh_0311">INIA Amygdala Cohort Affy MoGene 1.0 ST (Mar11) RMA
+<OPTION Value="INIA_Amg_BLA_RMA_1110">INIA Amygdala Affy MoGene 1.0 ST (Nov10) RMA
+<OPTION Value="INIA_Amg_BLA_RMA_M_1110">INIA Amygdala Affy MoGene 1.0 ST (Nov10) RMA Male
+<OPTION Value="INIA_Amg_BLA_RMA_F_1110">INIA Amygdala Affy MoGene 1.0 ST (Nov10) RMA Female
+</OPTGROUP>
+
+<OPTGROUP LABEL="Brain ------">
+<OPTION Value="BR_M2_1106_R">UCHSC BXD Whole Brain M430 2.0 (Nov06) RMA
+<OPTION Value="IBR_M_0606_R">INIA Brain mRNA M430 (Jun06) RMA
+<OPTION Value="IBR_M_0106_P">INIA Brain mRNA M430 (Jan06) PDNN
+<OPTION Value="IBR_M_0106_R">INIA Brain mRNA M430 (Jan06) RMA
+<OPTION Value="BR_U_1105_P">UTHSC Brain mRNA U74Av2 (Nov05) PDNN
+<OPTION Value="BR_U_0805_R">UTHSC Brain mRNA U74Av2 (Aug05) RMA
+<OPTION Value="BR_U_0805_P">UTHSC Brain mRNA U74Av2 (Aug05) PDNN
+<OPTION Value="BR_U_0805_M">UTHSC Brain mRNA U74Av2 (Aug05) MAS5
+<OPTION Value="CB_M_0204_P">INIA Brain mRNA M430 (Feb04) PDNN
+</OPTGROUP>
+
+<OPTGROUP LABEL="Cartilage ------">
+<OPTION Value="UCLA_BXDBXH_CARTILAGE_V2">UCLA BXD and BXH Cartilage v2
+<OPTION Value="UCLA_BXDBXH_CARTILAGE">UCLA BXD and BXH Cartilage
+<OPTION Value="UCLA_BXD_CARTILAGE">UCLA BXD Cartilage
+</OPTGROUP>
+
+<OPTGROUP LABEL="Cerebellum ------">
+<OPTION Value="GCB_M2_0505_M">GE-NIAAA Cerebellum mRNA M430v2 (May05) MAS5
+<OPTION Value="GCB_M2_0505_P">GE-NIAAA Cerebellum mRNA M430v2 (May05) PDNN
+<OPTION Value="GCB_M2_0505_R">GE-NIAAA Cerebellum mRNA M430v2 (May05) RMA
+<OPTION Value="CB_M_0305_M">SJUT Cerebellum mRNA M430 (Mar05) MAS5
+<OPTION Value="CB_M_0305_P">SJUT Cerebellum mRNA M430 (Mar05) PDNN
+<OPTION Value="CB_M_0305_R">SJUT Cerebellum mRNA M430 (Mar05) RMA
+<OPTION Value="CB_M_1004_M">SJUT Cerebellum mRNA M430 (Oct04) MAS5
+<OPTION Value="CB_M_1004_P">SJUT Cerebellum mRNA M430 (Oct04) PDNN
+<OPTION Value="CB_M_1004_R">SJUT Cerebellum mRNA M430 (Oct04) RMA
+<OPTION Value="CB_M_1003_M">SJUT Cerebellum mRNA M430 (Oct03) MAS5
+</OPTGROUP>
+
+<OPTGROUP LABEL="Eye ------">
+<OPTION Value="Eye_M2_0908_R">Eye M430v2 (Sep08) RMA
+<OPTION Value="Eye_M2_0908_R_NB">Eye M430v2 Mutant Gpnmb (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_R_ND">Eye M430v2 WT Gpnmb (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_R_MT">Eye M430v2 Mutant Tyrp1 (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_WTWT">Eye M430v2 WT WT (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_R_WT">Eye M430v2 WT Tyrp1 (Sep08) RMA **
+<OPTION Value="BXD_GLA_0911">BXD Glaucoma Affy M430 2.0 Trial (Sep11) RMA **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Hematopoietic Cells ------">
+<OPTION Value="UMCG_0907_HemaStem_ori">UMCG Stem Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_HemaStem">UMCG Stem Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="UMCG_0907_Pro_ori">UMCG Progenitor Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_Pro">UMCG Progenitor Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="UMCG_0907_Eryth_ori">UMCG Erythroid Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_Eryth">UMCG Erythroid Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="UMCG_0907_Myeloid_ori">UMCG Myeloid Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_Myeloid">UMCG Myeloid Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="HC_U_0304_R">GNF Stem Cells U74Av2 (Mar04) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="Hippocampus ------">
+<OPTION Value="HC_M2_0606_P" SELECTED>Hippocampus Consortium M430v2 (Jun06) PDNN
+<OPTION Value="HC_M2_0606_M">Hippocampus Consortium M430v2 (Jun06) MAS5
+<OPTION Value="HC_M2_0606_R">Hippocampus Consortium M430v2 (Jun06) RMA
+<OPTION Value="UMUTAffyExon_0209_RMA">UMUTAffy Hippocampus Exon (Feb09) RMA
+<OPTION Value="UT_ILM_BXD_hipp_NON_0909">UTHSC Hippocampus Illumina v6.1 NON (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_NOS_0909">UTHSC Hippocampus Illumina v6.1 NOS (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_NOE_0909">UTHSC Hippocampus Illumina v6.1 NOE (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_RSS_0909">UTHSC Hippocampus Illumina v6.1 RSS (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_RSE_0909">UTHSC Hippocampus Illumina v6.1 RSE (Sep09) RankInv
+</OPTGROUP>
+
+<OPTGROUP LABEL="Hypothalamus ------">
+<OPTION Value="INIA_Hyp_RMA_1110">INIA Hypothalamus Affy MoGene 1.0 ST (Nov10)
+<OPTION Value="INIA_Hyp_M_RMA_1110">INIA Hypothalamus Affy MoGene 1.0 ST (Nov10) Male
+<OPTION Value="INIA_Hyp_F_RMA_1110">INIA Hypothalamus Affy MoGene 1.0 ST (Nov10) Female
+</OPTGROUP>
+
+<OPTGROUP LABEL="Kidney ------">
+<OPTION Value="MA_M2F_0706_R">Mouse kidney M430v2 Female (Aug06) RMA
+<OPTION Value="MA_M2M_0706_R">Mouse kidney M430v2 Male (Aug06) RMA
+<OPTION Value="MA_M2_0806_R">Mouse kidney M430v2 Sex Balanced (Aug06) RMA
+<OPTION Value="MA_M2_0806_P">Mouse Kidney M430v2 Sex Balanced (Aug06) PDNN
+<OPTION Value="MA_M2_0706_P">Mouse Kidney M430v2 (Jul06) PDNN
+<OPTION Value="MA_M2_0706_R">Mouse Kidney M430v2 (Jul06) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="Leucocytes ------">
+<OPTION Value="Illum_BXD_PBL_1108">UWA Illumina PBL (Nov08) RSN **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Liver ------">
+<OPTION Value="GSE16780_UCLA_ML0911">GSE16780 UCLA Hybrid MDP Liver Affy HT M430A (Sep11) RMA
+<OPTION Value="LV_G_0106_F">UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Females
+<OPTION Value="LV_G_0106_M">UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Males
+<OPTION Value="LV_G_0106_B">UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Both Sexes
+<OPTION Value="GenEx_BXD_liverSal_RMA_F_0211">GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Females **
+<OPTION Value="GenEx_BXD_liverSal_RMA_M_0211">GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Males **
+<OPTION Value="GenEx_BXD_liverSal_RMA_0211">GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Both Sexes **
+<OPTION Value="GenEx_BXD_liverEt_RMA_F_0211">GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Females **
+<OPTION Value="GenEx_BXD_liverEt_RMA_M_0211">GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Males **
+<OPTION Value="GenEx_BXD_liverEt_RMA_0211">GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Both Sexes **
+<OPTION Value="SUH_Liv_RMA_0611">SUH BXD Liver Affy Mouse Gene 1.0 ST (Jun11) RMA **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Lung ------">
+<OPTION Value="HZI_0408_R">HZI Lung M430v2 (Apr08) RMA
+<OPTION Value="HZI_0408_M">HZI Lung M430v2 (Apr08) MAS5
+</OPTGROUP>
+
+<OPTGROUP LABEL="Midbrain ------">
+<OPTION Value="VUBXDMouseMidBrainQ0512">VU BXD Midbrain Agilent SurePrint G3 Mouse GE (May12) Quantile **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Muscle ------">
+<OPTION Value="EPFLMouseMuscleRMA1211">EPFL/LISP BXD Muscle Affy Mouse Gene 1.0 ST (Dec11) RMA **
+<OPTION Value="EPFLMouseMuscleHFDRMA1211">EPFL/LISP BXD HFD Muscle Affy Mouse Gene 1.0 ST (Dec11) RMA **
+<OPTION Value="EPFLMouseMuscleCDRMA1211">EPFL/LISP BXD CD Muscle Affy Mouse Gene 1.0 ST (Dec11) RMA **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Neocortex ------">
+<OPTION Value="DevNeocortex_ILM6.2P14RInv_1111">BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv
+<OPTION Value="DevNeocortex_ILM6.2P3RInv_1111">BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv
+<OPTION Value="HQFNeoc_1210v2_RankInv">HQF BXD Neocortex ILM6v1.1 (Dec10v2) RankInv
+<OPTION Value="HQFNeoc_1210_RankInv">HQF BXD Neocortex ILM6v1.1 (Dec10) RankInv
+<OPTION Value="HQFNeoc_0208_RankInv">HQF BXD Neocortex ILM6v1.1 (Feb08) RankInv
+<OPTION Value="DevNeocortex_ILM6.2P14RInv_1110">BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv
+<OPTION Value="DevNeocortex_ILM6.2P3RInv_1110">BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv
+</OPTGROUP>
+
+<OPTGROUP LABEL="Nucleus Accumbens ------">
+<OPTION Value="VCUSalo_1007_R">VCU BXD NA Sal M430 2.0 (Oct07) RMA
+<OPTION Value="VCUEtOH_1007_R">VCU BXD NA EtOH M430 2.0 (Oct07) RMA **
+<OPTION Value="VCUSal_1007_R">VCU BXD NA Et vs Sal M430 2.0 (Oct07) Sscore **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Prefrontal Cortex ------">
+<OPTION Value="VCUEtOH_1206_R">VCU BXD PFC EtOH M430 2.0 (Dec06) RMA
+<OPTION Value="VCUSal_1206_R">VCU BXD PFC Sal M430 2.0 (Dec06) RMA
+<OPTION Value="VCUSal_1006_R">VCU BXD PFC Et vs Sal M430 2.0 (Dec06) Sscore
+<OPTION Value="VCU_PF_Air_0111_R">VCU BXD PFC CIE Air M430 2.0 (Jan11) RMA **
+<OPTION Value="VCU_PF_Et_0111_R">VCU BXD PFC CIE EtOH M430 2.0 (Jan11) RMA **
+<OPTION Value="VCU_PF_AvE_0111_Ss">VCU BXD PFC EtOH vs CIE Air M430 2.0 (Jan11) Sscore **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Retina ------">
+<OPTION Value="G2NEI_ILM_Retina_BXD_RI0410">Normal HEI Retina (April 2010) RankInv
+<OPTION Value="Illum_Retina_BXD_RankInv0410">Full HEI Retina (April 2010) RankInv
+<OPTION Value="ONCRetILM6_0412">ONC HEI Retina (April 2012) RankInv
+<OPTION Value="B6D2ONCILM_0412">B6D2 ONC Retina (April 2012) RankInv **
+<OPTION Value="G2HEIONCRetILM6_0911">G2 HEI ONC Retina Illumina V6.2 (Sep11) RankInv **
+<OPTION Value="HEIONCvsCRetILM6_0911">HEI ONC vs Control Retina Illumina V6.2 (Sep11) RankInv **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Spleen ------">
+<OPTION Value="UTHSC_SPL_RMA_1210">UTHSC Affy MoGene 1.0 ST Spleen (Dec10) RMA
+<OPTION Value="UTHSC_SPL_RMA_1010">UTHSC Affy MoGene 1.0 ST Spleen (Oct10) RMA
+<OPTION Value="IoP_SPL_RMA_0509">IoP Affy MOE 430v2 Spleen (May09) RMA
+<OPTION Value="Illum_BXD_Spl_1108">UWA Illumina Spleen (Nov08) RSN **
+<OPTION Value="UTK_BXDSpl_VST_0110">UTK Spleen ILM6.1 (Jan10) VST
+</OPTGROUP>
+
+<OPTGROUP LABEL="Striatum ------">
+<OPTION Value="DevStriatum_ILM6.2P14RInv_1111">BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov11) RankInv **
+<OPTION Value="DevStriatum_ILM6.2P3RInv_1111">BIDMC/UTHSC Dev Striatum P3 ILMv6.2 (Nov11) RankInv **
+<OPTION Value="UTHSC_Striatum_RankInv_1210">HQF BXD Striatum ILM6.1 (Dec10v2) RankInv
+<OPTION Value="UTHSC_Str_RankInv_1210">HQF BXD Striatum ILM6.1 (Dec10) RankInv
+<OPTION Value="UTHSC_1107_RankInv">HQF BXD Striatum ILM6.1 (Nov07) RankInv
+<OPTION Value="SA_M2_0405_MC">HBP Rosen Striatum M430V2 (Apr05) MAS5 Clean
+<OPTION Value="SA_M2_0405_RC">HBP Rosen Striatum M430V2 (Apr05) RMA Clean
+<OPTION Value="SA_M2_0405_PC">HBP Rosen Striatum M430V2 (Apr05) PDNN Clean
+<OPTION Value="SA_M2_0405_SS">HBP Rosen Striatum M430V2 (Apr05) SScore
+<OPTION Value="SA_M2_0405_RR">HBP Rosen Striatum M430V2 (Apr05) RMA Orig
+<OPTION Value="Striatum_Exon_0209">HQF Striatum Exon (Feb09) RMA
+<OPTION Value="DevStriatum_ILM6.2P14RInv_1110">BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov10) RankInv **
+<OPTION Value="DevStriatum_ILM6.2P3RInv_1110">BIDMC/UTHSC Dev Striatum P3 ILMv6.2 (Nov10) RankInv **
+</OPTGROUP>
+
+<OPTGROUP LABEL="T Cell (helper) ------">
+<OPTION Value="RTHC_0211_R">HZI Thelp M430v2 (Feb11) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="T Cell (regulatory) ------">
+<OPTION Value="RTC_1106_R">HZI Treg M430v2 (Feb11) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="Thymus ------">
+<OPTION Value="Illum_BXD_Thy_1108">UWA Illumina Thymus (Nov08) RSN **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Ventral Tegmental Area ------">
+<OPTION Value="VCUEtOH_0609_R">VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **
+<OPTION Value="VCUSal_0609_R">VCU BXD VTA Sal M430 2.0 (Jun09) RMA **
+<OPTION Value="VCUEtvsSal_0609_R">VCU BXD VTA Et vs Sal M430 2.0 (Jun09) Sscore **
+</OPTGROUP>
+
+</SELECT>
+</TD></TR><TR><TD><SPAN class="ffl fwb fs12">Return:</SPAN></TD><TD><SELECT NAME="criteria2" SIZE=1 onMouseOver="if (NS4 || IE4) activateEl('criterias', event);">
+<OPTION Value="100">top 100</OPTION>
+<OPTION Value="200">top 200</OPTION>
+<OPTION Value="500" SELECTED>top 500</OPTION>
+<OPTION Value="1000">top 1000</OPTION>
+<OPTION Value="2000">top 2000</OPTION>
+<OPTION Value="5000">top 5000</OPTION>
+<OPTION Value="10000">top 10000</OPTION>
+<OPTION Value="15000">top 15000</OPTION>
+<OPTION Value="20000">top 20000</OPTION>
+</SELECT>
+</TD></TR><TR class="mdp2"><TD><SPAN class="ffl fwb fs12">Samples:</SPAN></TD><TD><SELECT NAME="MDPChoice2" SIZE=1>
+<OPTION Value="1">BXD Only</OPTION>
+<OPTION Value="2">Non-BXD Only</OPTION>
+<OPTION Value="0">All Cases</OPTION>
+</SELECT>
+</TD></TR>
+<INPUT TYPE="hidden" NAME="orderBy" VALUE="2"></TABLE><BR>
+<INPUT TYPE="button" NAME="lit_corr" class="button lit_corr" VALUE=" Compute "><BR><BR><SPAN class="fs12">The <A HREF="/correlationAnnotation.html" TARGET="_blank">Literature Correlation</A> (Lit r) between this gene and all other genes is computed<BR>using the <A HREF="https://grits.eecs.utk.edu/sgo/sgo.html" TARGET="_blank">Semantic Gene Organizer</A> and human, rat, and mouse data from PubMed. <BR>Values are ranked by Lit r, 			                            but Sample r and Tissue r are also displayed.<BR><BR><A HREF="/glossary.html#Literature" TARGET="_blank">More on using Lit r</A></SPAN></TD></TABLE></SPAN></DIV><DIV id="corrtabs-3"><SPAN><TABLE cellpadding="0" cellspacing="0" width="100%"><TD><TABLE cellpadding="2" cellspacing="0" width="619px"><TR><TD><SPAN class="ffl fwb fs12">Database:</SPAN></TD><TD colspan="3"><SELECT NAME="database3" SIZE=1>
+<OPTION Value="BXDPublish">BXD Published Phenotypes</OPTION>
+<OPTION Value="BXDGeno">BXD Genotypes</OPTION>
+<OPTGROUP LABEL="Amygdala ------">
+<OPTION Value="INIA_AmgCoh_0311">INIA Amygdala Cohort Affy MoGene 1.0 ST (Mar11) RMA
+<OPTION Value="INIA_Amg_BLA_RMA_1110">INIA Amygdala Affy MoGene 1.0 ST (Nov10) RMA
+<OPTION Value="INIA_Amg_BLA_RMA_M_1110">INIA Amygdala Affy MoGene 1.0 ST (Nov10) RMA Male
+<OPTION Value="INIA_Amg_BLA_RMA_F_1110">INIA Amygdala Affy MoGene 1.0 ST (Nov10) RMA Female
+</OPTGROUP>
+
+<OPTGROUP LABEL="Brain ------">
+<OPTION Value="BR_M2_1106_R">UCHSC BXD Whole Brain M430 2.0 (Nov06) RMA
+<OPTION Value="IBR_M_0606_R">INIA Brain mRNA M430 (Jun06) RMA
+<OPTION Value="IBR_M_0106_P">INIA Brain mRNA M430 (Jan06) PDNN
+<OPTION Value="IBR_M_0106_R">INIA Brain mRNA M430 (Jan06) RMA
+<OPTION Value="BR_U_1105_P">UTHSC Brain mRNA U74Av2 (Nov05) PDNN
+<OPTION Value="BR_U_0805_R">UTHSC Brain mRNA U74Av2 (Aug05) RMA
+<OPTION Value="BR_U_0805_P">UTHSC Brain mRNA U74Av2 (Aug05) PDNN
+<OPTION Value="BR_U_0805_M">UTHSC Brain mRNA U74Av2 (Aug05) MAS5
+<OPTION Value="CB_M_0204_P">INIA Brain mRNA M430 (Feb04) PDNN
+</OPTGROUP>
+
+<OPTGROUP LABEL="Cartilage ------">
+<OPTION Value="UCLA_BXDBXH_CARTILAGE_V2">UCLA BXD and BXH Cartilage v2
+<OPTION Value="UCLA_BXDBXH_CARTILAGE">UCLA BXD and BXH Cartilage
+<OPTION Value="UCLA_BXD_CARTILAGE">UCLA BXD Cartilage
+</OPTGROUP>
+
+<OPTGROUP LABEL="Cerebellum ------">
+<OPTION Value="GCB_M2_0505_M">GE-NIAAA Cerebellum mRNA M430v2 (May05) MAS5
+<OPTION Value="GCB_M2_0505_P">GE-NIAAA Cerebellum mRNA M430v2 (May05) PDNN
+<OPTION Value="GCB_M2_0505_R">GE-NIAAA Cerebellum mRNA M430v2 (May05) RMA
+<OPTION Value="CB_M_0305_M">SJUT Cerebellum mRNA M430 (Mar05) MAS5
+<OPTION Value="CB_M_0305_P">SJUT Cerebellum mRNA M430 (Mar05) PDNN
+<OPTION Value="CB_M_0305_R">SJUT Cerebellum mRNA M430 (Mar05) RMA
+<OPTION Value="CB_M_1004_M">SJUT Cerebellum mRNA M430 (Oct04) MAS5
+<OPTION Value="CB_M_1004_P">SJUT Cerebellum mRNA M430 (Oct04) PDNN
+<OPTION Value="CB_M_1004_R">SJUT Cerebellum mRNA M430 (Oct04) RMA
+<OPTION Value="CB_M_1003_M">SJUT Cerebellum mRNA M430 (Oct03) MAS5
+</OPTGROUP>
+
+<OPTGROUP LABEL="Eye ------">
+<OPTION Value="Eye_M2_0908_R">Eye M430v2 (Sep08) RMA
+<OPTION Value="Eye_M2_0908_R_NB">Eye M430v2 Mutant Gpnmb (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_R_ND">Eye M430v2 WT Gpnmb (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_R_MT">Eye M430v2 Mutant Tyrp1 (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_WTWT">Eye M430v2 WT WT (Sep08) RMA **
+<OPTION Value="Eye_M2_0908_R_WT">Eye M430v2 WT Tyrp1 (Sep08) RMA **
+<OPTION Value="BXD_GLA_0911">BXD Glaucoma Affy M430 2.0 Trial (Sep11) RMA **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Hematopoietic Cells ------">
+<OPTION Value="UMCG_0907_HemaStem_ori">UMCG Stem Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_HemaStem">UMCG Stem Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="UMCG_0907_Pro_ori">UMCG Progenitor Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_Pro">UMCG Progenitor Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="UMCG_0907_Eryth_ori">UMCG Erythroid Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_Eryth">UMCG Erythroid Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="UMCG_0907_Myeloid_ori">UMCG Myeloid Cells ILM6v1.1 (Apr09) original
+<OPTION Value="UMCG_0907_Myeloid">UMCG Myeloid Cells ILM6v1.1 (Apr09) transformed
+<OPTION Value="HC_U_0304_R">GNF Stem Cells U74Av2 (Mar04) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="Hippocampus ------">
+<OPTION Value="HC_M2_0606_P" SELECTED>Hippocampus Consortium M430v2 (Jun06) PDNN
+<OPTION Value="HC_M2_0606_M">Hippocampus Consortium M430v2 (Jun06) MAS5
+<OPTION Value="HC_M2_0606_R">Hippocampus Consortium M430v2 (Jun06) RMA
+<OPTION Value="UMUTAffyExon_0209_RMA">UMUTAffy Hippocampus Exon (Feb09) RMA
+<OPTION Value="UT_ILM_BXD_hipp_NON_0909">UTHSC Hippocampus Illumina v6.1 NON (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_NOS_0909">UTHSC Hippocampus Illumina v6.1 NOS (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_NOE_0909">UTHSC Hippocampus Illumina v6.1 NOE (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_RSS_0909">UTHSC Hippocampus Illumina v6.1 RSS (Sep09) RankInv
+<OPTION Value="UT_ILM_BXD_hipp_RSE_0909">UTHSC Hippocampus Illumina v6.1 RSE (Sep09) RankInv
+</OPTGROUP>
+
+<OPTGROUP LABEL="Hypothalamus ------">
+<OPTION Value="INIA_Hyp_RMA_1110">INIA Hypothalamus Affy MoGene 1.0 ST (Nov10)
+<OPTION Value="INIA_Hyp_M_RMA_1110">INIA Hypothalamus Affy MoGene 1.0 ST (Nov10) Male
+<OPTION Value="INIA_Hyp_F_RMA_1110">INIA Hypothalamus Affy MoGene 1.0 ST (Nov10) Female
+</OPTGROUP>
+
+<OPTGROUP LABEL="Kidney ------">
+<OPTION Value="MA_M2F_0706_R">Mouse kidney M430v2 Female (Aug06) RMA
+<OPTION Value="MA_M2M_0706_R">Mouse kidney M430v2 Male (Aug06) RMA
+<OPTION Value="MA_M2_0806_R">Mouse kidney M430v2 Sex Balanced (Aug06) RMA
+<OPTION Value="MA_M2_0806_P">Mouse Kidney M430v2 Sex Balanced (Aug06) PDNN
+<OPTION Value="MA_M2_0706_P">Mouse Kidney M430v2 (Jul06) PDNN
+<OPTION Value="MA_M2_0706_R">Mouse Kidney M430v2 (Jul06) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="Leucocytes ------">
+<OPTION Value="Illum_BXD_PBL_1108">UWA Illumina PBL (Nov08) RSN **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Liver ------">
+<OPTION Value="GSE16780_UCLA_ML0911">GSE16780 UCLA Hybrid MDP Liver Affy HT M430A (Sep11) RMA
+<OPTION Value="LV_G_0106_F">UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Females
+<OPTION Value="LV_G_0106_M">UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Males
+<OPTION Value="LV_G_0106_B">UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Both Sexes
+<OPTION Value="GenEx_BXD_liverSal_RMA_F_0211">GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Females **
+<OPTION Value="GenEx_BXD_liverSal_RMA_M_0211">GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Males **
+<OPTION Value="GenEx_BXD_liverSal_RMA_0211">GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Both Sexes **
+<OPTION Value="GenEx_BXD_liverEt_RMA_F_0211">GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Females **
+<OPTION Value="GenEx_BXD_liverEt_RMA_M_0211">GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Males **
+<OPTION Value="GenEx_BXD_liverEt_RMA_0211">GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Both Sexes **
+<OPTION Value="SUH_Liv_RMA_0611">SUH BXD Liver Affy Mouse Gene 1.0 ST (Jun11) RMA **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Lung ------">
+<OPTION Value="HZI_0408_R">HZI Lung M430v2 (Apr08) RMA
+<OPTION Value="HZI_0408_M">HZI Lung M430v2 (Apr08) MAS5
+</OPTGROUP>
+
+<OPTGROUP LABEL="Midbrain ------">
+<OPTION Value="VUBXDMouseMidBrainQ0512">VU BXD Midbrain Agilent SurePrint G3 Mouse GE (May12) Quantile **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Muscle ------">
+<OPTION Value="EPFLMouseMuscleRMA1211">EPFL/LISP BXD Muscle Affy Mouse Gene 1.0 ST (Dec11) RMA **
+<OPTION Value="EPFLMouseMuscleHFDRMA1211">EPFL/LISP BXD HFD Muscle Affy Mouse Gene 1.0 ST (Dec11) RMA **
+<OPTION Value="EPFLMouseMuscleCDRMA1211">EPFL/LISP BXD CD Muscle Affy Mouse Gene 1.0 ST (Dec11) RMA **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Neocortex ------">
+<OPTION Value="DevNeocortex_ILM6.2P14RInv_1111">BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv
+<OPTION Value="DevNeocortex_ILM6.2P3RInv_1111">BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv
+<OPTION Value="HQFNeoc_1210v2_RankInv">HQF BXD Neocortex ILM6v1.1 (Dec10v2) RankInv
+<OPTION Value="HQFNeoc_1210_RankInv">HQF BXD Neocortex ILM6v1.1 (Dec10) RankInv
+<OPTION Value="HQFNeoc_0208_RankInv">HQF BXD Neocortex ILM6v1.1 (Feb08) RankInv
+<OPTION Value="DevNeocortex_ILM6.2P14RInv_1110">BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv
+<OPTION Value="DevNeocortex_ILM6.2P3RInv_1110">BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv
+</OPTGROUP>
+
+<OPTGROUP LABEL="Nucleus Accumbens ------">
+<OPTION Value="VCUSalo_1007_R">VCU BXD NA Sal M430 2.0 (Oct07) RMA
+<OPTION Value="VCUEtOH_1007_R">VCU BXD NA EtOH M430 2.0 (Oct07) RMA **
+<OPTION Value="VCUSal_1007_R">VCU BXD NA Et vs Sal M430 2.0 (Oct07) Sscore **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Prefrontal Cortex ------">
+<OPTION Value="VCUEtOH_1206_R">VCU BXD PFC EtOH M430 2.0 (Dec06) RMA
+<OPTION Value="VCUSal_1206_R">VCU BXD PFC Sal M430 2.0 (Dec06) RMA
+<OPTION Value="VCUSal_1006_R">VCU BXD PFC Et vs Sal M430 2.0 (Dec06) Sscore
+<OPTION Value="VCU_PF_Air_0111_R">VCU BXD PFC CIE Air M430 2.0 (Jan11) RMA **
+<OPTION Value="VCU_PF_Et_0111_R">VCU BXD PFC CIE EtOH M430 2.0 (Jan11) RMA **
+<OPTION Value="VCU_PF_AvE_0111_Ss">VCU BXD PFC EtOH vs CIE Air M430 2.0 (Jan11) Sscore **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Retina ------">
+<OPTION Value="G2NEI_ILM_Retina_BXD_RI0410">Normal HEI Retina (April 2010) RankInv
+<OPTION Value="Illum_Retina_BXD_RankInv0410">Full HEI Retina (April 2010) RankInv
+<OPTION Value="ONCRetILM6_0412">ONC HEI Retina (April 2012) RankInv
+<OPTION Value="B6D2ONCILM_0412">B6D2 ONC Retina (April 2012) RankInv **
+<OPTION Value="G2HEIONCRetILM6_0911">G2 HEI ONC Retina Illumina V6.2 (Sep11) RankInv **
+<OPTION Value="HEIONCvsCRetILM6_0911">HEI ONC vs Control Retina Illumina V6.2 (Sep11) RankInv **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Spleen ------">
+<OPTION Value="UTHSC_SPL_RMA_1210">UTHSC Affy MoGene 1.0 ST Spleen (Dec10) RMA
+<OPTION Value="UTHSC_SPL_RMA_1010">UTHSC Affy MoGene 1.0 ST Spleen (Oct10) RMA
+<OPTION Value="IoP_SPL_RMA_0509">IoP Affy MOE 430v2 Spleen (May09) RMA
+<OPTION Value="Illum_BXD_Spl_1108">UWA Illumina Spleen (Nov08) RSN **
+<OPTION Value="UTK_BXDSpl_VST_0110">UTK Spleen ILM6.1 (Jan10) VST
+</OPTGROUP>
+
+<OPTGROUP LABEL="Striatum ------">
+<OPTION Value="DevStriatum_ILM6.2P14RInv_1111">BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov11) RankInv **
+<OPTION Value="DevStriatum_ILM6.2P3RInv_1111">BIDMC/UTHSC Dev Striatum P3 ILMv6.2 (Nov11) RankInv **
+<OPTION Value="UTHSC_Striatum_RankInv_1210">HQF BXD Striatum ILM6.1 (Dec10v2) RankInv
+<OPTION Value="UTHSC_Str_RankInv_1210">HQF BXD Striatum ILM6.1 (Dec10) RankInv
+<OPTION Value="UTHSC_1107_RankInv">HQF BXD Striatum ILM6.1 (Nov07) RankInv
+<OPTION Value="SA_M2_0405_MC">HBP Rosen Striatum M430V2 (Apr05) MAS5 Clean
+<OPTION Value="SA_M2_0405_RC">HBP Rosen Striatum M430V2 (Apr05) RMA Clean
+<OPTION Value="SA_M2_0405_PC">HBP Rosen Striatum M430V2 (Apr05) PDNN Clean
+<OPTION Value="SA_M2_0405_SS">HBP Rosen Striatum M430V2 (Apr05) SScore
+<OPTION Value="SA_M2_0405_RR">HBP Rosen Striatum M430V2 (Apr05) RMA Orig
+<OPTION Value="Striatum_Exon_0209">HQF Striatum Exon (Feb09) RMA
+<OPTION Value="DevStriatum_ILM6.2P14RInv_1110">BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov10) RankInv **
+<OPTION Value="DevStriatum_ILM6.2P3RInv_1110">BIDMC/UTHSC Dev Striatum P3 ILMv6.2 (Nov10) RankInv **
+</OPTGROUP>
+
+<OPTGROUP LABEL="T Cell (helper) ------">
+<OPTION Value="RTHC_0211_R">HZI Thelp M430v2 (Feb11) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="T Cell (regulatory) ------">
+<OPTION Value="RTC_1106_R">HZI Treg M430v2 (Feb11) RMA
+</OPTGROUP>
+
+<OPTGROUP LABEL="Thymus ------">
+<OPTION Value="Illum_BXD_Thy_1108">UWA Illumina Thymus (Nov08) RSN **
+</OPTGROUP>
+
+<OPTGROUP LABEL="Ventral Tegmental Area ------">
+<OPTION Value="VCUEtOH_0609_R">VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **
+<OPTION Value="VCUSal_0609_R">VCU BXD VTA Sal M430 2.0 (Jun09) RMA **
+<OPTION Value="VCUEtvsSal_0609_R">VCU BXD VTA Et vs Sal M430 2.0 (Jun09) Sscore **
+</OPTGROUP>
+
+</SELECT>
+</TD></TR><TR><TD><SPAN class="ffl fwb fs12">Return:</SPAN></TD><TD><SELECT NAME="criteria3" SIZE=1 onMouseOver="if (NS4 || IE4) activateEl('criterias', event);">
+<OPTION Value="100">top 100</OPTION>
+<OPTION Value="200">top 200</OPTION>
+<OPTION Value="500" SELECTED>top 500</OPTION>
+<OPTION Value="1000">top 1000</OPTION>
+<OPTION Value="2000">top 2000</OPTION>
+<OPTION Value="5000">top 5000</OPTION>
+<OPTION Value="10000">top 10000</OPTION>
+<OPTION Value="15000">top 15000</OPTION>
+<OPTION Value="20000">top 20000</OPTION>
+</SELECT>
+</TD></TR><TR class="mdp3"><TD><SPAN class="ffl fwb fs12">Samples:</SPAN></TD><TD><SELECT NAME="MDPChoice3" SIZE=1>
+<OPTION Value="1">BXD Only</OPTION>
+<OPTION Value="2">Non-BXD Only</OPTION>
+<OPTION Value="0">All Cases</OPTION>
+</SELECT>
+</TD></TR>
+<INPUT TYPE="hidden" NAME="orderBy" VALUE="2"></TABLE><BR>Pearson
+<INPUT TYPE="radio" NAME="tissue_method" VALUE="4" CHECKED>&nbsp;&nbsp;&nbsp;Spearman Rank
+<INPUT TYPE="radio" NAME="tissue_method" VALUE="5"><BR><BR>
+<INPUT TYPE="button" NAME="tiss_corr" class="button tiss_corr" VALUE=" Compute "><BR><BR><SPAN class="fs12">The <A HREF="/webqtl/main.py?FormID=tissueCorrelation" TARGET="_blank">Tissue Correlation</A> (Tissue r) estimates the similarity of expression of two genes<BR> or 			transcripts across different cells, tissues, or organs (<A HREF="/correlationAnnotation.html#tissue_r" TARGET="_blank">glossary</A>). 			Tissue correlations<BR> are generated by analyzing expression in multiple samples usually taken from 			single cases.<BR><STRONG>Pearson</STRONG> and <STRONG>Spearman Rank</STRONG> correlations have been computed for all pairs 			of genes<BR> using data from mouse samples.<BR></SPAN></TD></TABLE></SPAN></DIV></DIV></TD></TR><SCRIPT LANGUAGE="Javascript" ><!--
+
+$(function() { $("#corr_tabs").tabs(); });
+
+//-->
+</SCRIPT></TABLE></P><P class="sectionheader" id="title4" style="border-radius: 5px;">&nbsp;&nbsp;Mapping Tools</P><P id="sectionbody4"><TABLE class="target2" cellpadding="0" cellspacing="0" width="100%"><TR><TD><DIV class="ui-tabs" id="mapping_tabs"><UL>
+<LI><A HREF="#mappingtabs-1">Interval</A>
+<LI><A HREF="#mappingtabs-2">Marker Regression</A>
+<LI><A HREF="#mappingtabs-3">Composite</A>
+<LI><A HREF="#mappingtabs-4">Pair-Scan</A>
+</UL>
+<DIV id="mappingtabs-1"><SPAN><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD class="fs12 fwn" nowrap="ON" valign="top"><TABLE cellpadding="2" cellspacing="0" width="263px"><TR><TD><SPAN class="ffl fwb fs12">Chromosome:</SPAN></TD><TD colspan="3"><SELECT NAME="chromosomes1" SIZE=1>
+<OPTION Value="-1">All</OPTION>
+<OPTION Value="0">1</OPTION>
+<OPTION Value="1">2</OPTION>
+<OPTION Value="2">3</OPTION>
+<OPTION Value="3">4</OPTION>
+<OPTION Value="4">5</OPTION>
+<OPTION Value="5">6</OPTION>
+<OPTION Value="6">7</OPTION>
+<OPTION Value="7">8</OPTION>
+<OPTION Value="8">9</OPTION>
+<OPTION Value="9">10</OPTION>
+<OPTION Value="10">11</OPTION>
+<OPTION Value="11">12</OPTION>
+<OPTION Value="12">13</OPTION>
+<OPTION Value="13">14</OPTION>
+<OPTION Value="14">15</OPTION>
+<OPTION Value="15">16</OPTION>
+<OPTION Value="16">17</OPTION>
+<OPTION Value="17">18</OPTION>
+<OPTION Value="18">19</OPTION>
+<OPTION Value="19">X</OPTION>
+</SELECT>
+</TD></TR><TR><TD><SPAN class="ffl fwb fs12">Mapping Scale:</SPAN></TD><TD><SELECT NAME="scale1" SIZE=1 onChange="checkUncheck(window.document.dataInput.scale1.value, window.document.dataInput.permCheck1, window.document.dataInput.bootCheck1)">
+<OPTION Value="physic">Megabase</OPTION>
+<OPTION Value="morgan">Centimorgan</OPTION>
+</SELECT>
+</TD></TR></TABLE><BR>
+<INPUT TYPE="checkbox" NAME="permCheck1" class="checkbox" CHECKED>Permutation Test (n=2000)<BR>
+<INPUT TYPE="checkbox" NAME="bootCheck1" class="checkbox">Bootstrap Test (n=2000)<BR>
+<INPUT TYPE="checkbox" NAME="parentsf14regression1" class="checkbox">Use Parents<BR>
+<INPUT TYPE="checkbox" NAME="applyVarianceSE1" class="checkbox">Use Weighted<BR><BR>
+<INPUT TYPE="button" NAME="interval" class="button" VALUE=" Compute "><BR><BR></TD></TR><TR><TD valign="top"><SPAN class="fs12"><A HREF="/glossary.html#intmap" TARGET="_blank">Interval Mapping</A> computes linkage maps for the entire genome or single<BR> chromosomes. The <A HREF="/glossary.html#permutation" TARGET="_blank">Permutation Test</A> estimates suggestive and significant <BR> linkage scores. 			The <A HREF="/glossary.html#bootstrap" TARGET="_blank">Bootstrap Test</A> estimates the precision of the QTL location.</SPAN><BR></TD></TR></TABLE></SPAN></DIV><DIV id="mappingtabs-2"><SPAN><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD class="fs12 fwn" nowrap="ON" valign="top"><TABLE cellpadding="2" cellspacing="0" width="263px"><TR><TD><SPAN class="ffl fwb fs12"><STRONG>Display LRS greater than:</STRONG></SPAN></TD><TD>
+<INPUT TYPE="TEXT" NAME="suggestive" SIZE=5 MAXLENGTH=8></TD></TR><TR><TD>
+<INPUT TYPE="checkbox" NAME="displayAllLRS" class="checkbox"><SPAN class="ffl fs12"> Display all LRS </SPAN></TD></TR><TR><TD>
+<INPUT TYPE="checkbox" NAME="parentsf14regression2" class="checkbox"><SPAN class="ffl fs12"> Use Parents </SPAN></TD></TR><TR><TD>
+<INPUT TYPE="checkbox" NAME="applyVarianceSE2" class="checkbox"><SPAN class="ffl fs12"> Use Weighted </SPAN></TD></TR></TABLE><BR>
+<INPUT TYPE="button" NAME="marker" class="button" VALUE=" Compute "><BR><BR></TD></TR><TR><TD valign="top"><SPAN class="fs12"><A HREF="/glossary.html#" TARGET="_blank">Marker regression</A> computes and displays LRS values for individual markers.<BR>This function also lists additive effects (phenotype units per allele) and<BR>dominance deviations for some datasets.<BR></SPAN><BR></TD></TR></TABLE></SPAN></DIV><DIV id="mappingtabs-3"><SPAN><TABLE cellpadding="3" cellspacing="0" width="100%"><TR><TD class="fs12 fwn" nowrap="ON" valign="top"><TABLE cellpadding="2" cellspacing="0" width="325px"><TR><TD><SPAN class="ffl fwb fs12">Chromosome:</SPAN></TD><TD colspan="3"><SELECT NAME="chromosomes2" SIZE=1>
+<OPTION Value="-1">All</OPTION>
+<OPTION Value="0">1</OPTION>
+<OPTION Value="1">2</OPTION>
+<OPTION Value="2">3</OPTION>
+<OPTION Value="3">4</OPTION>
+<OPTION Value="4">5</OPTION>
+<OPTION Value="5">6</OPTION>
+<OPTION Value="6">7</OPTION>
+<OPTION Value="7">8</OPTION>
+<OPTION Value="8">9</OPTION>
+<OPTION Value="9">10</OPTION>
+<OPTION Value="10">11</OPTION>
+<OPTION Value="11">12</OPTION>
+<OPTION Value="12">13</OPTION>
+<OPTION Value="13">14</OPTION>
+<OPTION Value="14">15</OPTION>
+<OPTION Value="15">16</OPTION>
+<OPTION Value="16">17</OPTION>
+<OPTION Value="17">18</OPTION>
+<OPTION Value="18">19</OPTION>
+<OPTION Value="19">X</OPTION>
+</SELECT>
+</TD></TR><TR><TD><SPAN class="ffl fwb fs12">Mapping Scale:</SPAN></TD><TD><SELECT NAME="scale2" SIZE=1 onChange="checkUncheck(window.document.dataInput.scale2.value, window.document.dataInput.permCheck2, window.document.dataInput.bootCheck2)">
+<OPTION Value="physic">Megabase</OPTION>
+<OPTION Value="morgan">Centimorgan</OPTION>
+</SELECT>
+</TD></TR><TR><TD><SPAN class="ffl fwb fs12">Control Locus:</SPAN></TD><TD>
+<INPUT TYPE="text" NAME="controlLocus" class="controlLocus"></TD></TR></TABLE><BR>
+<INPUT TYPE="checkbox" NAME="permCheck2" class="checkbox" CHECKED>Permutation Test (n=2000)<BR>
+<INPUT TYPE="checkbox" NAME="bootCheck2" class="checkbox">Bootstrap Test (n=2000)<BR>
+<INPUT TYPE="checkbox" NAME="parentsf14regression3" class="checkbox">Use Parents<BR><BR>
+<INPUT TYPE="button" NAME="composite" class="button" VALUE=" Compute "><BR><BR></TD></TR><TR><TD valign="top"><SPAN><A HREF="/glossary.html#Composite" TARGET="_blank">Composite Interval Mapping</A> allows you to control for a single marker as<BR> a cofactor. To find a control marker, run the <STRONG>Marker Regression</STRONG> function.</SPAN><BR></TD></TR></TABLE></SPAN></DIV><DIV id="mappingtabs-4"><SPAN><TABLE cellpadding="0" cellspacing="0" width="100%"><TR><TD class="fs12 fwn" nowrap="ON"><TABLE cellpadding="2" cellspacing="0" width="232px"><TR><TD><SPAN class="ffl fwb fs12"><STRONG>Sort by: </STRONG></SPAN></TD><TD><SELECT NAME="graphSort" SIZE=1>
+<OPTION Value="0">LRS Full</OPTION>
+<OPTION Value="1">LRS Interact</OPTION>
+</SELECT>
+</TD></TR><TR><TD><SPAN class="ffl fwb fs12"><STRONG>Return: </STRONG></SPAN></TD><TD><SELECT NAME="pairScanReturn" SIZE=1>
+<OPTION Value="50">top 50</OPTION>
+<OPTION Value="100">top 100</OPTION>
+<OPTION Value="200">top 200</OPTION>
+<OPTION Value="500">top 500</OPTION>
+</SELECT>
+</TD></TR></TABLE><BR>
+<INPUT TYPE="checkbox" NAME="directPermuCheckbox" class="checkbox" CHECKED><SPAN class="ffl fs12">Permutation Test (n=500)</SPAN><BR><BR>
+<INPUT TYPE="button" class="button" VALUE=" Compute " onClick="dataEditingFunc(this.form,'directPlot');"><BR><BR></TD></TR><TR><TD valign="top"><SPAN><A HREF="/glossary.html#Pair_Scan" TARGET="_blank">Pair-Scan</A> searches for pairs of chromosomal regions that are<BR>involved in two-locus epistatic interactions.</SPAN><BR></TD></TR></TABLE></SPAN></DIV></DIV></TD></TR><SCRIPT LANGUAGE="Javascript" ><!--
+
+$(function() { $("#mapping_tabs").tabs(); });
+
+//-->
+</SCRIPT></TABLE></P><P class="sectionheader" id="title5" style="border-radius: 5px;">&nbsp;&nbsp;Review and Edit Data</P><P id="sectionbody5"><TABLE class="target5" cellpadding="0" cellspacing="0" width="100%"><TR><TD><DIV><P class="fs12" style="margin-left:20px;">Edit or delete values in the Trait Data boxes, and use the <STRONG>Reset</STRONG> option as needed.</P><DIV style="border: 3px solid #EEEEEE; -moz-border-radius: 10px; -webkit-border-radius: 10px; width: 625px; padding: 5px 5px 10px 8px; font-size: 12px; background: #DDDDDD;"><SPAN id="showHideOptions" style="line-height:225%;"><STRONG>&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;</STRONG>
+<INPUT TYPE="text" NAME="removeField" style="background-color:white;border: 1px solid black;font-size: 14px;">&nbsp;&nbsp;&nbsp;<SPAN id="blockMenuSpan"><SELECT NAME="block_method" SIZE=1>
+<OPTION Value="1">BXD Only</OPTION>
+<OPTION Value="0">Non-BXD Only</OPTION>
+</SELECT>
+</SPAN>&nbsp;&nbsp;&nbsp;
+<INPUT TYPE="button" NAME="blockSamples" class="button" VALUE=" Block "><BR><STRONG>&nbsp;&nbsp;Options:</STRONG>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<INPUT TYPE="button" NAME="showHideNoValue" class="button" VALUE=" Hide No Value ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<INPUT TYPE="button" NAME="showHideOutliers" class="button" VALUE=" Hide Outliers ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<INPUT TYPE="button" NAME="resetButton" class="button" VALUE=" Reset ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<INPUT TYPE="button" NAME="export" class="button" VALUE=" Export "></SPAN><BR><BR><SPAN>&nbsp;&nbsp;Outliers highlighted in <STRONG style="background-color:yellow;">&nbsp;yellow&nbsp;</STRONG> can be hidden using the <STRONG> Hide Outliers </STRONG> button,<BR>&nbsp;&nbsp;and samples with no value (x) can be hidden by clicking <STRONG> Hide No Value </STRONG>.</SPAN><BR></DIV><BR><DIV id="primary"><TABLE class="tablesorter" id="sortable1" cellpadding="0" cellspacing="0"><TR><TH class="fs13 fwb ff1 b1 cw cbrb" align="right" width="60">Index</TH><TH class="fs13 fwb ff1 b1 cw cbrb" align="right" width="100">Sample</TH><TH class="fs13 fwb ff1 b1 cw cbrb" align="right" width="70">Value</TH><TH class="fs13 fwb ff1 b1 cw cbrb" width="20">&nbsp;</TH><TH class="fs13 fwb ff1 b1 cw cbrb" align="right" width="80">SE</TH></TR><TR class=" " id="Primary_1"><TD class="fs13 b1 c222 " align="right" width="45">1
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="B6D2F1" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">B6D2F1</SPAN></TD><TD class="fs13 b1 c222 " id="value_0_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="B6D2F1" class="fs13 b1 c222 valueField 6.214" VALUE="6.214" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['_2nd_B6D2F1'].value=this.form['B6D2F1'].value;" style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_0_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VB6D2F1" class="fs13 b1 c222 valueField 0.269" VALUE="0.269" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['V_2nd_B6D2F1'].value=this.form['VB6D2F1'].value;" style="text-align:right"></TD></TR><TR class=" " id="Primary_2"><TD class="fs13 b1 c222 " align="right" width="45">2
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="D2B6F1" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">D2B6F1</SPAN></TD><TD class="fs13 b1 c222 " id="value_1_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="D2B6F1" class="fs13 b1 c222 valueField 6.124" VALUE="6.124" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['_2nd_D2B6F1'].value=this.form['D2B6F1'].value;" style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_1_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VD2B6F1" class="fs13 b1 c222 valueField 0.123" VALUE="0.123" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['V_2nd_D2B6F1'].value=this.form['VD2B6F1'].value;" style="text-align:right"></TD></TR><TR class=" " id="Primary_3"><TD class="fs13 b1 c222 " align="right" width="45">3
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="C57BL/6J" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">C57BL/6J</SPAN></TD><TD class="fs13 b1 c222 " id="value_2_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="C57BL/6J" class="fs13 b1 c222 valueField 6.16" VALUE="6.160" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['_2nd_C57BL6J'].value=this.form['C57BL6J'].value;" style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_2_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VC57BL/6J" class="fs13 b1 c222 valueField 0.298" VALUE="0.298" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['V_2nd_C57BL6J'].value=this.form['VC57BL6J'].value;" style="text-align:right"></TD></TR><TR class=" " id="Primary_4"><TD class="fs13 b1 c222 " align="right" width="45">4
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="DBA/2J" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">DBA/2J</SPAN></TD><TD class="fs13 b1 c222 " id="value_3_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="DBA/2J" class="fs13 b1 c222 valueField 6.126" VALUE="6.126" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['_2nd_DBA2J'].value=this.form['DBA2J'].value;" style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_3_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VDBA/2J" class="fs13 b1 c222 valueField 0.011" VALUE="0.011" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['V_2nd_DBA2J'].value=this.form['VDBA2J'].value;" style="text-align:right"></TD></TR><TR class=" " id="Primary_5"><TD class="fs13 b1 c222 " align="right" width="45">5
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD1" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD1</SPAN></TD><TD class="fs13 b1 c222 " id="value_4_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD1" class="fs13 b1 c222 valueField 5.814" VALUE="5.814" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_4_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD1" class="fs13 b1 c222 valueField 0.123" VALUE="0.123" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_6"><TD class="fs13 b1 c222 " align="right" width="45">6
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD2" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD2</SPAN></TD><TD class="fs13 b1 c222 " id="value_5_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD2" class="fs13 b1 c222 valueField 6.033" VALUE="6.033" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_5_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD2" class="fs13 b1 c222 valueField 0.187" VALUE="0.187" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_7"><TD class="fs13 b1 c222 " align="right" width="45">7
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD5" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD5</SPAN></TD><TD class="fs13 b1 c222 " id="value_6_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD5" class="fs13 b1 c222 valueField 6.017" VALUE="6.017" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_6_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD5" class="fs13 b1 c222 valueField 0.315" VALUE="0.315" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_8"><TD class="fs13 b1 c222 " align="right" width="45">8
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD6" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD6</SPAN></TD><TD class="fs13 b1 c222 " id="value_7_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD6" class="fs13 b1 c222 valueField 6.156" VALUE="6.156" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_7_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD6" class="fs13 b1 c222 valueField 0.008" VALUE="0.008" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_9"><TD class="fs13 b1 c222 " align="right" width="45">9
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD8" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD8</SPAN></TD><TD class="fs13 b1 c222 " id="value_8_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD8" class="fs13 b1 c222 valueField 6.084" VALUE="6.084" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_8_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD8" class="fs13 b1 c222 valueField 0.142" VALUE="0.142" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_10"><TD class="fs13 b1 c222 " align="right" width="45">10
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD9" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD9</SPAN></TD><TD class="fs13 b1 c222 " id="value_9_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD9" class="fs13 b1 c222 valueField 5.848" VALUE="5.848" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_9_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD9" class="fs13 b1 c222 valueField 0.28" VALUE="0.280" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_11"><TD class="fs13 b1 c222 " align="right" width="45">11
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD11" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD11</SPAN></TD><TD class="fs13 b1 c222 " id="value_10_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD11" class="fs13 b1 c222 valueField 5.8" VALUE="5.800" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_10_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD11" class="fs13 b1 c222 valueField 0.176" VALUE="0.176" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_12"><TD class="fs13 b1 c222 " align="right" width="45">12
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD12" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD12</SPAN></TD><TD class="fs13 b1 c222 " id="value_11_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD12" class="fs13 b1 c222 valueField 5.949" VALUE="5.949" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_11_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD12" class="fs13 b1 c222 valueField 0.052" VALUE="0.052" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="outlier" id="Primary_13"><TD class="fs13 b1 c222 outlier " align="right" width="45">13
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD13" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 outlier " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD13</SPAN></TD><TD class="fs13 b1 c222 outlier " id="value_12_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD13" class="fs13 b1 c222 valueField 6.531" VALUE="6.531" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 outlier " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 outlier " id="SE_12_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD13" class="fs13 b1 c222 valueField 0.566" VALUE="0.566" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_14"><TD class="fs13 b1 c222 " align="right" width="45">14
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD14" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD14</SPAN></TD><TD class="fs13 b1 c222 " id="value_13_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD14" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_13_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD14" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_15"><TD class="fs13 b1 c222 " align="right" width="45">15
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD15" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD15</SPAN></TD><TD class="fs13 b1 c222 " id="value_14_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD15" class="fs13 b1 c222 valueField 6.019" VALUE="6.019" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_14_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD15" class="fs13 b1 c222 valueField 0.103" VALUE="0.103" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_16"><TD class="fs13 b1 c222 " align="right" width="45">16
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD16" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD16</SPAN></TD><TD class="fs13 b1 c222 " id="value_15_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD16" class="fs13 b1 c222 valueField 6.048" VALUE="6.048" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_15_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD16" class="fs13 b1 c222 valueField 0.209" VALUE="0.209" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_17"><TD class="fs13 b1 c222 " align="right" width="45">17
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD18" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD18</SPAN></TD><TD class="fs13 b1 c222 " id="value_16_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD18" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_16_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD18" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_18"><TD class="fs13 b1 c222 " align="right" width="45">18
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD19" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD19</SPAN></TD><TD class="fs13 b1 c222 " id="value_17_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD19" class="fs13 b1 c222 valueField 6.052" VALUE="6.052" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_17_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD19" class="fs13 b1 c222 valueField 0.312" VALUE="0.312" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_19"><TD class="fs13 b1 c222 " align="right" width="45">19
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD20" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD20</SPAN></TD><TD class="fs13 b1 c222 " id="value_18_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD20" class="fs13 b1 c222 valueField 5.85" VALUE="5.850" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_18_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD20" class="fs13 b1 c222 valueField 0.226" VALUE="0.226" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_20"><TD class="fs13 b1 c222 " align="right" width="45">20
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD21" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD21</SPAN></TD><TD class="fs13 b1 c222 " id="value_19_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD21" class="fs13 b1 c222 valueField 6.108" VALUE="6.108" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_19_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD21" class="fs13 b1 c222 valueField 0.155" VALUE="0.155" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_21"><TD class="fs13 b1 c222 " align="right" width="45">21
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD22" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD22</SPAN></TD><TD class="fs13 b1 c222 " id="value_20_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD22" class="fs13 b1 c222 valueField 6.046" VALUE="6.046" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_20_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD22" class="fs13 b1 c222 valueField 0.151" VALUE="0.151" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_22"><TD class="fs13 b1 c222 " align="right" width="45">22
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD23" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD23</SPAN></TD><TD class="fs13 b1 c222 " id="value_21_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD23" class="fs13 b1 c222 valueField 6.168" VALUE="6.168" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_21_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD23" class="fs13 b1 c222 valueField 0.122" VALUE="0.122" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_23"><TD class="fs13 b1 c222 " align="right" width="45">23
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD24a" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD24a</SPAN></TD><TD class="fs13 b1 c222 " id="value_22_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD24a" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_22_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD24a" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_24"><TD class="fs13 b1 c222 " align="right" width="45">24
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD24" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD24</SPAN></TD><TD class="fs13 b1 c222 " id="value_23_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD24" class="fs13 b1 c222 valueField 6.046" VALUE="6.046" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_23_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD24" class="fs13 b1 c222 valueField 0.097" VALUE="0.097" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_25"><TD class="fs13 b1 c222 " align="right" width="45">25
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD25" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD25</SPAN></TD><TD class="fs13 b1 c222 " id="value_24_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD25" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_24_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD25" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_26"><TD class="fs13 b1 c222 " align="right" width="45">26
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD27" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD27</SPAN></TD><TD class="fs13 b1 c222 " id="value_25_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD27" class="fs13 b1 c222 valueField 6.372" VALUE="6.372" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_25_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD27" class="fs13 b1 c222 valueField 0.461" VALUE="0.461" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_27"><TD class="fs13 b1 c222 " align="right" width="45">27
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD28" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD28</SPAN></TD><TD class="fs13 b1 c222 " id="value_26_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD28" class="fs13 b1 c222 valueField 6.14" VALUE="6.140" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_26_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD28" class="fs13 b1 c222 valueField 0.021" VALUE="0.021" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_28"><TD class="fs13 b1 c222 " align="right" width="45">28
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD29" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD29</SPAN></TD><TD class="fs13 b1 c222 " id="value_27_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD29" class="fs13 b1 c222 valueField 6.212" VALUE="6.212" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_27_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD29" class="fs13 b1 c222 valueField 0.237" VALUE="0.237" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_29"><TD class="fs13 b1 c222 " align="right" width="45">29
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD30" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD30</SPAN></TD><TD class="fs13 b1 c222 " id="value_28_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD30" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_28_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD30" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_30"><TD class="fs13 b1 c222 " align="right" width="45">30
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD31" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD31</SPAN></TD><TD class="fs13 b1 c222 " id="value_29_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD31" class="fs13 b1 c222 valueField 6.332" VALUE="6.332" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_29_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD31" class="fs13 b1 c222 valueField 0.473" VALUE="0.473" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_31"><TD class="fs13 b1 c222 " align="right" width="45">31
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD32" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD32</SPAN></TD><TD class="fs13 b1 c222 " id="value_30_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD32" class="fs13 b1 c222 valueField 5.953" VALUE="5.953" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_30_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD32" class="fs13 b1 c222 valueField 0.297" VALUE="0.297" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_32"><TD class="fs13 b1 c222 " align="right" width="45">32
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD33" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD33</SPAN></TD><TD class="fs13 b1 c222 " id="value_31_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD33" class="fs13 b1 c222 valueField 6.022" VALUE="6.022" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_31_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD33" class="fs13 b1 c222 valueField 0.093" VALUE="0.093" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_33"><TD class="fs13 b1 c222 " align="right" width="45">33
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD34" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD34</SPAN></TD><TD class="fs13 b1 c222 " id="value_32_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD34" class="fs13 b1 c222 valueField 6.421" VALUE="6.421" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_32_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD34" class="fs13 b1 c222 valueField 0.567" VALUE="0.567" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_34"><TD class="fs13 b1 c222 " align="right" width="45">34
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD35" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD35</SPAN></TD><TD class="fs13 b1 c222 " id="value_33_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD35" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_33_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD35" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_35"><TD class="fs13 b1 c222 " align="right" width="45">35
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD36" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD36</SPAN></TD><TD class="fs13 b1 c222 " id="value_34_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD36" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_34_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD36" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_36"><TD class="fs13 b1 c222 " align="right" width="45">36
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD37" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD37</SPAN></TD><TD class="fs13 b1 c222 " id="value_35_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD37" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_35_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD37" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_37"><TD class="fs13 b1 c222 " align="right" width="45">37
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD38" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD38</SPAN></TD><TD class="fs13 b1 c222 " id="value_36_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD38" class="fs13 b1 c222 valueField 5.986" VALUE="5.986" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_36_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD38" class="fs13 b1 c222 valueField 0.044" VALUE="0.044" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_38"><TD class="fs13 b1 c222 " align="right" width="45">38
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD39" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD39</SPAN></TD><TD class="fs13 b1 c222 " id="value_37_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD39" class="fs13 b1 c222 valueField 5.928" VALUE="5.928" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_37_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD39" class="fs13 b1 c222 valueField 0.197" VALUE="0.197" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_39"><TD class="fs13 b1 c222 " align="right" width="45">39
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD40" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD40</SPAN></TD><TD class="fs13 b1 c222 " id="value_38_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD40" class="fs13 b1 c222 valueField 5.966" VALUE="5.966" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_38_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD40" class="fs13 b1 c222 valueField 0.008" VALUE="0.008" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_40"><TD class="fs13 b1 c222 " align="right" width="45">40
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD41" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD41</SPAN></TD><TD class="fs13 b1 c222 " id="value_39_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD41" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_39_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD41" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_41"><TD class="fs13 b1 c222 " align="right" width="45">41
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD42" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD42</SPAN></TD><TD class="fs13 b1 c222 " id="value_40_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD42" class="fs13 b1 c222 valueField 6.102" VALUE="6.102" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_40_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD42" class="fs13 b1 c222 valueField 0.392" VALUE="0.392" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_42"><TD class="fs13 b1 c222 " align="right" width="45">42
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD43" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD43</SPAN></TD><TD class="fs13 b1 c222 " id="value_41_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD43" class="fs13 b1 c222 valueField 5.956" VALUE="5.956" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_41_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD43" class="fs13 b1 c222 valueField 0.117" VALUE="0.117" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_43"><TD class="fs13 b1 c222 " align="right" width="45">43
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD44" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD44</SPAN></TD><TD class="fs13 b1 c222 " id="value_42_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD44" class="fs13 b1 c222 valueField 5.94" VALUE="5.940" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_42_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD44" class="fs13 b1 c222 valueField 0.223" VALUE="0.223" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_44"><TD class="fs13 b1 c222 " align="right" width="45">44
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD45" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD45</SPAN></TD><TD class="fs13 b1 c222 " id="value_43_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD45" class="fs13 b1 c222 valueField 6.121" VALUE="6.121" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_43_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD45" class="fs13 b1 c222 valueField 0.094" VALUE="0.094" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_45"><TD class="fs13 b1 c222 " align="right" width="45">45
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD48" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD48</SPAN></TD><TD class="fs13 b1 c222 " id="value_44_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD48" class="fs13 b1 c222 valueField 6.125" VALUE="6.125" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_44_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD48" class="fs13 b1 c222 valueField 0.304" VALUE="0.304" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_46"><TD class="fs13 b1 c222 " align="right" width="45">46
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD49" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD49</SPAN></TD><TD class="fs13 b1 c222 " id="value_45_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD49" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_45_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD49" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_47"><TD class="fs13 b1 c222 " align="right" width="45">47
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD50" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD50</SPAN></TD><TD class="fs13 b1 c222 " id="value_46_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD50" class="fs13 b1 c222 valueField 5.974" VALUE="5.974" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_46_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD50" class="fs13 b1 c222 valueField 0.249" VALUE="0.249" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_48"><TD class="fs13 b1 c222 " align="right" width="45">48
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD51" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD51</SPAN></TD><TD class="fs13 b1 c222 " id="value_47_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD51" class="fs13 b1 c222 valueField 6.158" VALUE="6.158" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_47_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD51" class="fs13 b1 c222 valueField 0.345" VALUE="0.345" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_49"><TD class="fs13 b1 c222 " align="right" width="45">49
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD52" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD52</SPAN></TD><TD class="fs13 b1 c222 " id="value_48_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD52" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_48_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD52" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_50"><TD class="fs13 b1 c222 " align="right" width="45">50
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD53" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD53</SPAN></TD><TD class="fs13 b1 c222 " id="value_49_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD53" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_49_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD53" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_51"><TD class="fs13 b1 c222 " align="right" width="45">51
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD54" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD54</SPAN></TD><TD class="fs13 b1 c222 " id="value_50_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD54" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_50_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD54" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_52"><TD class="fs13 b1 c222 " align="right" width="45">52
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD55" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD55</SPAN></TD><TD class="fs13 b1 c222 " id="value_51_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD55" class="fs13 b1 c222 valueField 5.824" VALUE="5.824" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_51_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD55" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_53"><TD class="fs13 b1 c222 " align="right" width="45">53
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD56" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD56</SPAN></TD><TD class="fs13 b1 c222 " id="value_52_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD56" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_52_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD56" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_54"><TD class="fs13 b1 c222 " align="right" width="45">54
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD59" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD59</SPAN></TD><TD class="fs13 b1 c222 " id="value_53_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD59" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_53_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD59" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_55"><TD class="fs13 b1 c222 " align="right" width="45">55
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD60" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD60</SPAN></TD><TD class="fs13 b1 c222 " id="value_54_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD60" class="fs13 b1 c222 valueField 5.782" VALUE="5.782" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_54_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD60" class="fs13 b1 c222 valueField 0.005" VALUE="0.005" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_56"><TD class="fs13 b1 c222 " align="right" width="45">56
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD61" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD61</SPAN></TD><TD class="fs13 b1 c222 " id="value_55_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD61" class="fs13 b1 c222 valueField 6.051" VALUE="6.051" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_55_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD61" class="fs13 b1 c222 valueField 0.052" VALUE="0.052" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_57"><TD class="fs13 b1 c222 " align="right" width="45">57
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD62" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD62</SPAN></TD><TD class="fs13 b1 c222 " id="value_56_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD62" class="fs13 b1 c222 valueField 6.021" VALUE="6.021" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_56_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD62" class="fs13 b1 c222 valueField 0.089" VALUE="0.089" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_58"><TD class="fs13 b1 c222 " align="right" width="45">58
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD63" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD63</SPAN></TD><TD class="fs13 b1 c222 " id="value_57_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD63" class="fs13 b1 c222 valueField 5.989" VALUE="5.989" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_57_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD63" class="fs13 b1 c222 valueField 0.188" VALUE="0.188" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_59"><TD class="fs13 b1 c222 " align="right" width="45">59
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD64" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD64</SPAN></TD><TD class="fs13 b1 c222 " id="value_58_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD64" class="fs13 b1 c222 valueField 6.006" VALUE="6.006" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_58_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD64" class="fs13 b1 c222 valueField 0.107" VALUE="0.107" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_60"><TD class="fs13 b1 c222 " align="right" width="45">60
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD65" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD65</SPAN></TD><TD class="fs13 b1 c222 " id="value_59_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD65" class="fs13 b1 c222 valueField 6.009" VALUE="6.009" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_59_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD65" class="fs13 b1 c222 valueField 0.119" VALUE="0.119" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_61"><TD class="fs13 b1 c222 " align="right" width="45">61
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD66" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD66</SPAN></TD><TD class="fs13 b1 c222 " id="value_60_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD66" class="fs13 b1 c222 valueField 6.062" VALUE="6.062" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_60_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD66" class="fs13 b1 c222 valueField 0.356" VALUE="0.356" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_62"><TD class="fs13 b1 c222 " align="right" width="45">62
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD67" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD67</SPAN></TD><TD class="fs13 b1 c222 " id="value_61_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD67" class="fs13 b1 c222 valueField 6.268" VALUE="6.268" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_61_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD67" class="fs13 b1 c222 valueField 0.115" VALUE="0.115" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_63"><TD class="fs13 b1 c222 " align="right" width="45">63
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD68" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD68</SPAN></TD><TD class="fs13 b1 c222 " id="value_62_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD68" class="fs13 b1 c222 valueField 6.401" VALUE="6.401" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_62_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD68" class="fs13 b1 c222 valueField 0.407" VALUE="0.407" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_64"><TD class="fs13 b1 c222 " align="right" width="45">64
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD69" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD69</SPAN></TD><TD class="fs13 b1 c222 " id="value_63_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD69" class="fs13 b1 c222 valueField 6.053" VALUE="6.053" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_63_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD69" class="fs13 b1 c222 valueField 0.086" VALUE="0.086" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_65"><TD class="fs13 b1 c222 " align="right" width="45">65
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD70" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD70</SPAN></TD><TD class="fs13 b1 c222 " id="value_64_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD70" class="fs13 b1 c222 valueField 6.348" VALUE="6.348" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_64_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD70" class="fs13 b1 c222 valueField 0.055" VALUE="0.055" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_66"><TD class="fs13 b1 c222 " align="right" width="45">66
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD71" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD71</SPAN></TD><TD class="fs13 b1 c222 " id="value_65_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD71" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_65_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD71" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_67"><TD class="fs13 b1 c222 " align="right" width="45">67
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD72" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD72</SPAN></TD><TD class="fs13 b1 c222 " id="value_66_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD72" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_66_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD72" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_68"><TD class="fs13 b1 c222 " align="right" width="45">68
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD73" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD73</SPAN></TD><TD class="fs13 b1 c222 " id="value_67_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD73" class="fs13 b1 c222 valueField 6.092" VALUE="6.092" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_67_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD73" class="fs13 b1 c222 valueField 0.178" VALUE="0.178" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_69"><TD class="fs13 b1 c222 " align="right" width="45">69
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD74" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD74</SPAN></TD><TD class="fs13 b1 c222 " id="value_68_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD74" class="fs13 b1 c222 valueField 6.123" VALUE="6.123" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_68_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD74" class="fs13 b1 c222 valueField 0.072" VALUE="0.072" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_70"><TD class="fs13 b1 c222 " align="right" width="45">70
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD75" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD75</SPAN></TD><TD class="fs13 b1 c222 " id="value_69_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD75" class="fs13 b1 c222 valueField 5.936" VALUE="5.936" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_69_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD75" class="fs13 b1 c222 valueField 0.093" VALUE="0.093" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_71"><TD class="fs13 b1 c222 " align="right" width="45">71
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD76" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD76</SPAN></TD><TD class="fs13 b1 c222 " id="value_70_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD76" class="fs13 b1 c222 valueField 6.416" VALUE="6.416" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_70_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD76" class="fs13 b1 c222 valueField 0.409" VALUE="0.409" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_72"><TD class="fs13 b1 c222 " align="right" width="45">72
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD77" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD77</SPAN></TD><TD class="fs13 b1 c222 " id="value_71_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD77" class="fs13 b1 c222 valueField 6.15" VALUE="6.150" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_71_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD77" class="fs13 b1 c222 valueField 0.016" VALUE="0.016" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_73"><TD class="fs13 b1 c222 " align="right" width="45">73
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD78" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD78</SPAN></TD><TD class="fs13 b1 c222 " id="value_72_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD78" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_72_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD78" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="outlier" id="Primary_74"><TD class="fs13 b1 c222 outlier " align="right" width="45">74
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD79" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 outlier " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD79</SPAN></TD><TD class="fs13 b1 c222 outlier " id="value_73_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD79" class="fs13 b1 c222 valueField 6.552" VALUE="6.552" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 outlier " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 outlier " id="SE_73_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD79" class="fs13 b1 c222 valueField 0.3" VALUE="0.300" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="outlier" id="Primary_75"><TD class="fs13 b1 c222 outlier " align="right" width="45">75
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD80" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 outlier " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD80</SPAN></TD><TD class="fs13 b1 c222 outlier " id="value_74_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD80" class="fs13 b1 c222 valueField 6.44" VALUE="6.440" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 outlier " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 outlier " id="SE_74_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD80" class="fs13 b1 c222 valueField 0.646" VALUE="0.646" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_76"><TD class="fs13 b1 c222 " align="right" width="45">76
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD81" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD81</SPAN></TD><TD class="fs13 b1 c222 " id="value_75_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD81" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_75_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD81" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_77"><TD class="fs13 b1 c222 " align="right" width="45">77
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD83" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD83</SPAN></TD><TD class="fs13 b1 c222 " id="value_76_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD83" class="fs13 b1 c222 valueField 6.068" VALUE="6.068" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_76_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD83" class="fs13 b1 c222 valueField 0.015" VALUE="0.015" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_78"><TD class="fs13 b1 c222 " align="right" width="45">78
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD84" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD84</SPAN></TD><TD class="fs13 b1 c222 " id="value_77_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD84" class="fs13 b1 c222 valueField 6.088" VALUE="6.088" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_77_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD84" class="fs13 b1 c222 valueField 0.023" VALUE="0.023" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_79"><TD class="fs13 b1 c222 " align="right" width="45">79
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD85" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD85</SPAN></TD><TD class="fs13 b1 c222 " id="value_78_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD85" class="fs13 b1 c222 valueField 6.019" VALUE="6.019" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_78_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD85" class="fs13 b1 c222 valueField 0.134" VALUE="0.134" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_80"><TD class="fs13 b1 c222 " align="right" width="45">80
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD86" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD86</SPAN></TD><TD class="fs13 b1 c222 " id="value_79_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD86" class="fs13 b1 c222 valueField 6.071" VALUE="6.071" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_79_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD86" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_81"><TD class="fs13 b1 c222 " align="right" width="45">81
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD87" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD87</SPAN></TD><TD class="fs13 b1 c222 " id="value_80_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD87" class="fs13 b1 c222 valueField 6.112" VALUE="6.112" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_80_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD87" class="fs13 b1 c222 valueField 0.025" VALUE="0.025" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_82"><TD class="fs13 b1 c222 " align="right" width="45">82
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD88" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD88</SPAN></TD><TD class="fs13 b1 c222 " id="value_81_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD88" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_81_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD88" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_83"><TD class="fs13 b1 c222 " align="right" width="45">83
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD89" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD89</SPAN></TD><TD class="fs13 b1 c222 " id="value_82_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD89" class="fs13 b1 c222 valueField 6.276" VALUE="6.276" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_82_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD89" class="fs13 b1 c222 valueField 0.296" VALUE="0.296" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_84"><TD class="fs13 b1 c222 " align="right" width="45">84
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD90" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD90</SPAN></TD><TD class="fs13 b1 c222 " id="value_83_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD90" class="fs13 b1 c222 valueField 6.193" VALUE="6.193" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_83_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD90" class="fs13 b1 c222 valueField 0.008" VALUE="0.008" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_85"><TD class="fs13 b1 c222 " align="right" width="45">85
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD91" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD91</SPAN></TD><TD class="fs13 b1 c222 " id="value_84_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD91" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_84_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD91" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_86"><TD class="fs13 b1 c222 " align="right" width="45">86
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD92" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD92</SPAN></TD><TD class="fs13 b1 c222 " id="value_85_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD92" class="fs13 b1 c222 valueField 6.108" VALUE="6.108" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_85_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD92" class="fs13 b1 c222 valueField 0.15" VALUE="0.150" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="outlier" id="Primary_87"><TD class="fs13 b1 c222 outlier " align="right" width="45">87
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD93" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 outlier " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD93</SPAN></TD><TD class="fs13 b1 c222 outlier " id="value_86_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD93" class="fs13 b1 c222 valueField 6.53" VALUE="6.530" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 outlier " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 outlier " id="SE_86_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD93" class="fs13 b1 c222 valueField 0.371" VALUE="0.371" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_88"><TD class="fs13 b1 c222 " align="right" width="45">88
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD94" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD94</SPAN></TD><TD class="fs13 b1 c222 " id="value_87_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD94" class="fs13 b1 c222 valueField 5.916" VALUE="5.916" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_87_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD94" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_89"><TD class="fs13 b1 c222 " align="right" width="45">89
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD95" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD95</SPAN></TD><TD class="fs13 b1 c222 " id="value_88_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD95" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_88_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD95" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_90"><TD class="fs13 b1 c222 " align="right" width="45">90
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD96" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD96</SPAN></TD><TD class="fs13 b1 c222 " id="value_89_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD96" class="fs13 b1 c222 valueField 6.1" VALUE="6.100" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_89_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD96" class="fs13 b1 c222 valueField 0.342" VALUE="0.342" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_91"><TD class="fs13 b1 c222 " align="right" width="45">91
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD97" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD97</SPAN></TD><TD class="fs13 b1 c222 " id="value_90_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD97" class="fs13 b1 c222 valueField 5.86" VALUE="5.860" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_90_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD97" class="fs13 b1 c222 valueField 0.001" VALUE="0.001" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Primary_92"><TD class="fs13 b1 c222 " align="right" width="45">92
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD98" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD98</SPAN></TD><TD class="fs13 b1 c222 " id="value_91_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD98" class="fs13 b1 c222 valueField 6.408" VALUE="6.408" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_91_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD98" class="fs13 b1 c222 valueField 0.235" VALUE="0.235" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="outlier" id="Primary_93"><TD class="fs13 b1 c222 outlier " align="right" width="45">93
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD99" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 outlier " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD99</SPAN></TD><TD class="fs13 b1 c222 outlier " id="value_92_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD99" class="fs13 b1 c222 valueField 6.579" VALUE="6.579" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 outlier " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 outlier " id="SE_92_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD99" class="fs13 b1 c222 valueField 0.477" VALUE="0.477" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_94"><TD class="fs13 b1 c222 " align="right" width="45">94
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD100" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD100</SPAN></TD><TD class="fs13 b1 c222 " id="value_93_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD100" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_93_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD100" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_95"><TD class="fs13 b1 c222 " align="right" width="45">95
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD101" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD101</SPAN></TD><TD class="fs13 b1 c222 " id="value_94_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD101" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_94_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD101" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_96"><TD class="fs13 b1 c222 " align="right" width="45">96
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD102" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD102</SPAN></TD><TD class="fs13 b1 c222 " id="value_95_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD102" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_95_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD102" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class="novalue " id="Primary_97"><TD class="fs13 b1 c222 " align="right" width="45">97
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BXD103" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BXD103</SPAN></TD><TD class="fs13 b1 c222 " id="value_96_primary" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BXD103" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_96_primary" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBXD103" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR></TABLE></DIV><DIV>&nbsp;</DIV><DIV id="other"><TABLE class="tablesorter" id="sortable2" cellpadding="0" cellspacing="0"><TR><TH class="fs13 fwb ff1 b1 cw cbrb" align="right" width="60">Index</TH><TH class="fs13 fwb ff1 b1 cw cbrb" align="right" width="100">Sample</TH><TH class="fs13 fwb ff1 b1 cw cbrb" align="right" width="70">Value</TH><TH class="fs13 fwb ff1 b1 cw cbrb" width="20">&nbsp;</TH><TH class="fs13 fwb ff1 b1 cw cbrb" align="right" width="80">SE</TH></TR><TR class=" " id="Other_1"><TD class="fs13 b1 c222 " align="right" width="45">1
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="_2nd_B6D2F1" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">B6D2F1</SPAN></TD><TD class="fs13 b1 c222 " id="value_0_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="_2nd_B6D2F1" class="fs13 b1 c222 valueField 6.214" VALUE="6.214" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['_2nd_B6D2F1'].value=this.form['_2nd_B6D2F1'].value;" style="text-align:right"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_0_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="V_2nd_B6D2F1" class="fs13 b1 c222 valueField 0.269" VALUE="0.269" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['V_2nd_B6D2F1'].value=this.form['V_2nd_B6D2F1'].value;" style="text-align:right"></TD></TR><TR class=" " id="Other_2"><TD class="fs13 b1 c222 " align="right" width="45">2
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="_2nd_D2B6F1" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">D2B6F1</SPAN></TD><TD class="fs13 b1 c222 " id="value_1_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="_2nd_D2B6F1" class="fs13 b1 c222 valueField 6.124" VALUE="6.124" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['_2nd_D2B6F1'].value=this.form['_2nd_D2B6F1'].value;" style="text-align:right"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_1_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="V_2nd_D2B6F1" class="fs13 b1 c222 valueField 0.123" VALUE="0.123" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['V_2nd_D2B6F1'].value=this.form['V_2nd_D2B6F1'].value;" style="text-align:right"></TD></TR><TR class=" " id="Other_3"><TD class="fs13 b1 c222 " align="right" width="45">3
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="_2nd_C57BL/6J" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">C57BL/6J</SPAN></TD><TD class="fs13 b1 c222 " id="value_2_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="_2nd_C57BL/6J" class="fs13 b1 c222 valueField 6.16" VALUE="6.160" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['_2nd_C57BL6J'].value=this.form['_2nd_C57BL6J'].value;" style="text-align:right"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_2_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="V_2nd_C57BL/6J" class="fs13 b1 c222 valueField 0.298" VALUE="0.298" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['V_2nd_C57BL6J'].value=this.form['V_2nd_C57BL6J'].value;" style="text-align:right"></TD></TR><TR class=" " id="Other_4"><TD class="fs13 b1 c222 " align="right" width="45">4
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="_2nd_DBA/2J" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">DBA/2J</SPAN></TD><TD class="fs13 b1 c222 " id="value_3_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="_2nd_DBA/2J" class="fs13 b1 c222 valueField 6.126" VALUE="6.126" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['_2nd_DBA2J'].value=this.form['_2nd_DBA2J'].value;" style="text-align:right"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_3_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="V_2nd_DBA/2J" class="fs13 b1 c222 valueField 0.011" VALUE="0.011" SIZE=8 MAXLENGTH=8 onChange="javascript:this.form['V_2nd_DBA2J'].value=this.form['V_2nd_DBA2J'].value;" style="text-align:right"></TD></TR><TR class=" " id="Other_5"><TD class="fs13 b1 c222 " align="right" width="45">5
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="129S1/SvImJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">129S1/SvImJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_4_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="129S1/SvImJ" class="fs13 b1 c222 valueField 6.353" VALUE="6.353" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_4_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="V129S1/SvImJ" class="fs13 b1 c222 valueField 0.402" VALUE="0.402" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_6"><TD class="fs13 b1 c222 " align="right" width="45">6
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="A/J" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">A/J</SPAN></TD><TD class="fs13 b1 c222 " id="value_5_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="A/J" class="fs13 b1 c222 valueField 6.279" VALUE="6.279" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_5_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VA/J" class="fs13 b1 c222 valueField 0.344" VALUE="0.344" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_7"><TD class="fs13 b1 c222 " align="right" width="45">7
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="AKR/J" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">AKR/J</SPAN></TD><TD class="fs13 b1 c222 " id="value_6_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="AKR/J" class="fs13 b1 c222 valueField 6.242" VALUE="6.242" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_6_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VAKR/J" class="fs13 b1 c222 valueField 0.08" VALUE="0.080" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_8"><TD class="fs13 b1 c222 " align="right" width="45">8
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BALB/cByJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BALB/cByJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_7_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BALB/cByJ" class="fs13 b1 c222 valueField 5.933" VALUE="5.933" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_7_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBALB/cByJ" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_9"><TD class="fs13 b1 c222 " align="right" width="45">9
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="BALB/cJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">BALB/cJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_8_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="BALB/cJ" class="fs13 b1 c222 valueField 6.243" VALUE="6.243" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_8_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VBALB/cJ" class="fs13 b1 c222 valueField 0.253" VALUE="0.253" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_10"><TD class="fs13 b1 c222 " align="right" width="45">10
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="C3H/HeJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">C3H/HeJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_9_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="C3H/HeJ" class="fs13 b1 c222 valueField 6.303" VALUE="6.303" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_9_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VC3H/HeJ" class="fs13 b1 c222 valueField 0.566" VALUE="0.566" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_11"><TD class="fs13 b1 c222 " align="right" width="45">11
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="C57BL/6ByJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">C57BL/6ByJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_10_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="C57BL/6ByJ" class="fs13 b1 c222 valueField 6.216" VALUE="6.216" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_10_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VC57BL/6ByJ" class="fs13 b1 c222 valueField 0.34" VALUE="0.340" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_12"><TD class="fs13 b1 c222 " align="right" width="45">12
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CAST/EiJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CAST/EiJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_11_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CAST/EiJ" class="fs13 b1 c222 valueField 6.485" VALUE="6.485" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_11_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCAST/EiJ" class="fs13 b1 c222 valueField " VALUE="x" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_13"><TD class="fs13 b1 c222 " align="right" width="45">13
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB1" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB1</SPAN></TD><TD class="fs13 b1 c222 " id="value_12_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB1" class="fs13 b1 c222 valueField 6.427" VALUE="6.427" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_12_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB1" class="fs13 b1 c222 valueField 0.101" VALUE="0.101" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_14"><TD class="fs13 b1 c222 " align="right" width="45">14
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB10" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB10</SPAN></TD><TD class="fs13 b1 c222 " id="value_13_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB10" class="fs13 b1 c222 valueField 6.044" VALUE="6.044" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_13_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB10" class="fs13 b1 c222 valueField 0.19" VALUE="0.190" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_15"><TD class="fs13 b1 c222 " align="right" width="45">15
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB11" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB11</SPAN></TD><TD class="fs13 b1 c222 " id="value_14_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB11" class="fs13 b1 c222 valueField 6.004" VALUE="6.004" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_14_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB11" class="fs13 b1 c222 valueField 0.122" VALUE="0.122" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_16"><TD class="fs13 b1 c222 " align="right" width="45">16
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB12" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB12</SPAN></TD><TD class="fs13 b1 c222 " id="value_15_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB12" class="fs13 b1 c222 valueField 6.18" VALUE="6.180" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_15_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB12" class="fs13 b1 c222 valueField 0.009" VALUE="0.009" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_17"><TD class="fs13 b1 c222 " align="right" width="45">17
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB13" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB13</SPAN></TD><TD class="fs13 b1 c222 " id="value_16_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB13" class="fs13 b1 c222 valueField 5.99" VALUE="5.990" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_16_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB13" class="fs13 b1 c222 valueField 0.013" VALUE="0.013" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_18"><TD class="fs13 b1 c222 " align="right" width="45">18
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB2" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB2</SPAN></TD><TD class="fs13 b1 c222 " id="value_17_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB2" class="fs13 b1 c222 valueField 6.257" VALUE="6.257" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_17_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB2" class="fs13 b1 c222 valueField 0.328" VALUE="0.328" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_19"><TD class="fs13 b1 c222 " align="right" width="45">19
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB3" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB3</SPAN></TD><TD class="fs13 b1 c222 " id="value_18_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB3" class="fs13 b1 c222 valueField 6.39" VALUE="6.390" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_18_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB3" class="fs13 b1 c222 valueField 0.156" VALUE="0.156" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_20"><TD class="fs13 b1 c222 " align="right" width="45">20
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB4" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB4</SPAN></TD><TD class="fs13 b1 c222 " id="value_19_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB4" class="fs13 b1 c222 valueField 6.11" VALUE="6.110" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_19_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB4" class="fs13 b1 c222 valueField 0.006" VALUE="0.006" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_21"><TD class="fs13 b1 c222 " align="right" width="45">21
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB5" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB5</SPAN></TD><TD class="fs13 b1 c222 " id="value_20_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB5" class="fs13 b1 c222 valueField 6.105" VALUE="6.105" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_20_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB5" class="fs13 b1 c222 valueField 0.381" VALUE="0.381" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_22"><TD class="fs13 b1 c222 " align="right" width="45">22
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB6" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB6</SPAN></TD><TD class="fs13 b1 c222 " id="value_21_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB6" class="fs13 b1 c222 valueField 5.906" VALUE="5.906" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_21_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB6" class="fs13 b1 c222 valueField 0.094" VALUE="0.094" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_23"><TD class="fs13 b1 c222 " align="right" width="45">23
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB7" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB7</SPAN></TD><TD class="fs13 b1 c222 " id="value_22_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB7" class="fs13 b1 c222 valueField 6.258" VALUE="6.258" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_22_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB7" class="fs13 b1 c222 valueField 0.077" VALUE="0.077" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_24"><TD class="fs13 b1 c222 " align="right" width="45">24
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB8" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB8</SPAN></TD><TD class="fs13 b1 c222 " id="value_23_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB8" class="fs13 b1 c222 valueField 6.14" VALUE="6.140" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_23_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB8" class="fs13 b1 c222 valueField 0.155" VALUE="0.155" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_25"><TD class="fs13 b1 c222 " align="right" width="45">25
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="CXB9" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">CXB9</SPAN></TD><TD class="fs13 b1 c222 " id="value_24_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="CXB9" class="fs13 b1 c222 valueField 6.184" VALUE="6.184" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_24_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VCXB9" class="fs13 b1 c222 valueField 0.083" VALUE="0.083" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_26"><TD class="fs13 b1 c222 " align="right" width="45">26
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="KK/HlJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">KK/HlJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_25_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="KK/HlJ" class="fs13 b1 c222 valueField 6.106" VALUE="6.106" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_25_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VKK/HlJ" class="fs13 b1 c222 valueField 0.43" VALUE="0.430" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_27"><TD class="fs13 b1 c222 " align="right" width="45">27
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="LG/J" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">LG/J</SPAN></TD><TD class="fs13 b1 c222 " id="value_26_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="LG/J" class="fs13 b1 c222 valueField 6.102" VALUE="6.102" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_26_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VLG/J" class="fs13 b1 c222 valueField 0.301" VALUE="0.301" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_28"><TD class="fs13 b1 c222 " align="right" width="45">28
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="NOD/ShiLtJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">NOD/ShiLtJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_27_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="NOD/ShiLtJ" class="fs13 b1 c222 valueField 6.444" VALUE="6.444" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_27_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VNOD/ShiLtJ" class="fs13 b1 c222 valueField 0.244" VALUE="0.244" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_29"><TD class="fs13 b1 c222 " align="right" width="45">29
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="NZO/HlLtJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">NZO/HlLtJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_28_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="NZO/HlLtJ" class="fs13 b1 c222 valueField 6.053" VALUE="6.053" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_28_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VNZO/HlLtJ" class="fs13 b1 c222 valueField 0.194" VALUE="0.194" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_30"><TD class="fs13 b1 c222 " align="right" width="45">30
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="PWD/PhJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">PWD/PhJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_29_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="PWD/PhJ" class="fs13 b1 c222 valueField 6.034" VALUE="6.034" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_29_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VPWD/PhJ" class="fs13 b1 c222 valueField 0.483" VALUE="0.483" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_31"><TD class="fs13 b1 c222 " align="right" width="45">31
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="PWK/PhJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">PWK/PhJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_30_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="PWK/PhJ" class="fs13 b1 c222 valueField 6.269" VALUE="6.269" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_30_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VPWK/PhJ" class="fs13 b1 c222 valueField 0.253" VALUE="0.253" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR><TR class=" " id="Other_32"><TD class="fs13 b1 c222 " align="right" width="45">32
+<INPUT TYPE="checkbox" NAME="selectCheck" class="checkbox" VALUE="WSB/EiJ" onClick="highlight(this)"></TD><TD class="fs13 b1 c222 " align="right" width="100"><SPAN class="fs14 fwn ffl">WSB/EiJ</SPAN></TD><TD class="fs13 b1 c222 " id="value_31_other" align="right" width="70">
+<INPUT TYPE="TEXT" NAME="WSB/EiJ" class="fs13 b1 c222 valueField 5.939" VALUE="5.939" SIZE=8 MAXLENGTH=8 style="text-align:right; background-color:#FFFFFF;"></TD><TD class="fs13 b1 c222 " align="center" width="20">&plusmn;</TD><TD class="fs13 b1 c222 " id="SE_31_other" align="right" width="80">
+<INPUT TYPE="TEXT" NAME="VWSB/EiJ" class="fs13 b1 c222 valueField 0.047" VALUE="0.047" SIZE=8 MAXLENGTH=8 style="text-align:right"></TD></TR></TABLE></DIV></DIV></TD></TR></TABLE></P>
+<INPUT TYPE="hidden" NAME="Default_Name">
+</FORM>
+</P></TD>
+		</TR>
+		</TABLE>
+		</TD>
+	</TR>
+
+<!-- End of body -->
+
+{% endblock %}
