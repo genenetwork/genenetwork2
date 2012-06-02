@@ -20,4 +20,4 @@ def search():
 
 @app.route("/showDatabaseBXD")
 def showDatabaseBXD():
-    return None
+    return render_template("trait_data_and_analysis.html")
