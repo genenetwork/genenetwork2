@@ -24,7 +24,7 @@
 #
 # Last updated by GeneNetwork Core Team 2010/10/20
 
-from mod_python import Cookie
+#from mod_python import Cookie
 import string
 import os
 
@@ -47,7 +47,9 @@ class webqtlFormData:
 
 	#XZ: Attention! All attribute values must be picklable!
 
-	def __init__(self, req = None, mod_python_session=None, FieldStorage_formdata=None):
+	def __init__(self, start_vars = None, req = None, mod_python_session=None, FieldStorage_formdata=None):
+
+		self.__dict__.update(start_vars)
 
 		for item in self.attrs:
 			setattr(self,item, None)
@@ -62,34 +64,35 @@ class webqtlFormData:
 		else:
 			self.refURL = None
 
+		# For now let's just comment all this out - Sam
 
-		self.cookies = cookieData.cookieData(Cookie.get_cookies(req)) #XZ: dictionary type. To hold values transfered from mod_python Cookie.
+		#self.cookies = cookieData.cookieData(Cookie.get_cookies(req)) #XZ: dictionary type. To hold values transfered from mod_python Cookie.
+		#
+		##XZ: dictionary type. To hold values transfered from mod_python Session object. We assume that it is always picklable.
+		#self.input_session_data = sessionData.sessionData( mod_python_session )
+		#
+		##XZ: FieldStorage_formdata may contain item that can't be pickled. Must convert to picklable data.
+		#self.formdata = cgiData( FieldStorage_formdata )
+		#
+		##get Form ID
+		#self.formID = self.formdata.getfirst('FormID')
+		#
+		##get rest of the attributes
+		#if self.formID:
+		#	for item in self.attrs:
+		#		value = self.formdata.getfirst(item)
+		#		if value != None:
+		#			setattr(self,item,string.strip(value))
 
-		#XZ: dictionary type. To hold values transfered from mod_python Session object. We assume that it is always picklable.
-		self.input_session_data = sessionData.sessionData( mod_python_session )
-
-		#XZ: FieldStorage_formdata may contain item that can't be pickled. Must convert to picklable data.
-		self.formdata = cgiData( FieldStorage_formdata )
-
-		#get Form ID
-		self.formID = self.formdata.getfirst('FormID')
-
-		#get rest of the attributes
-		if self.formID:
-			for item in self.attrs:
-				value = self.formdata.getfirst(item)
-				if value != None:
-					setattr(self,item,string.strip(value))
-		
 		self.ppolar = ""
 		self.mpolar	= ""
 		if self.RISet:
 			try:
-				# NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py; 
+				# NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
 				f1, f12, self.mpolar, self.ppolar = webqtlUtil.ParInfo[self.RISet]
 			except:
 				f1 = f12 = self.mpolar = self.ppolar = None
-		
+
 		try:
 			self.nperm = int(self.nperm)
 			self.nboot = int(self.nboot)
@@ -101,12 +104,21 @@ class webqtlFormData:
 			self.allstrainlist = map(string.strip, string.split(self.allstrainlist))
 		#self.readGenotype()
 		#self.readData()
-		
+
 		if self.RISet == 'BXD300':
 			self.RISet = 'BXD'
 		else:
 			pass
-	
+
+	def __getitem__(self, key):
+		return self.__dict__[key]
+
+	def get(self, key, default=None):
+		if key in self.__dict__:
+			return self.__dict__[key]
+		else:
+			return default
+
 	def __str__(self):
 		rstr = ''
 		for item in self.attrs:
@@ -114,7 +126,7 @@ class webqtlFormData:
 				rstr += '%s:%s\n' % (item,str(getattr(self,item)))
 		return rstr
 
-		
+
 	def readGenotype(self):
 		'read genotype from .geno file'
 		if self.RISet == 'BXD300':
@@ -127,15 +139,15 @@ class webqtlFormData:
 		self.genotype_1 = reaper.Dataset()
 		self.genotype_1.read(os.path.join(webqtlConfig.GENODIR, self.RISet + '.geno'))
 		try:
-			# NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py; 
+			# NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
 			_f1, _f12, _mat, _pat = webqtlUtil.ParInfo[self.RISet]
 		except:
 			_f1 = _f12 = _mat = _pat = None
-		
+
 		self.genotype_2 =self.genotype_1
 		if self.genotype_1.type == "riset" and _mat and _pat:
 			self.genotype_2 = self.genotype_1.add(Mat=_mat, Pat=_pat)	#, F1=_f1)
-			
+
 		#determine default genotype object
 		if self.incparentsf1 and self.genotype_1.type != "intercross":
 			self.genotype = self.genotype_2
@@ -148,7 +160,7 @@ class webqtlFormData:
 			self.f1list = [_f1, _f12]
 		if _mat and _pat:
 			self.parlist = [_mat, _pat]
-		
+
 	def readData(self, strainlst=[], incf1=[]):
 		'read user input data or from trait data and analysis form'
 
@@ -158,16 +170,16 @@ class webqtlFormData:
 			if incf1:
 				strainlst = self.f1list + self.strainlist
 			else:
-				strainlst = self.strainlist	
-	
-	
+				strainlst = self.strainlist
+
+
 		traitfiledata = self.formdata.getfirst('traitfile')
 		traitpastedata = self.formdata.getfirst('traitpaste')
 		variancefiledata = self.formdata.getfirst('variancefile')
 		variancepastedata = self.formdata.getfirst('variancepaste')
 		Nfiledata = self.formdata.getfirst('Nfile')
 
-	
+
 		if traitfiledata:
 			tt = string.split(traitfiledata)
 			vals = map(webqtlUtil.StringAsFloat, tt)
@@ -183,8 +195,8 @@ class webqtlFormData:
 				vals = vals[:len(strainlst)]
 		else:
 			pass
-		
-	
+
+
 		if variancefiledata:
 			tt = string.split(variancefiledata)
 			vars = map(webqtlUtil.StringAsFloat, tt)
@@ -200,7 +212,7 @@ class webqtlFormData:
 				vars = vars[:len(strainlst)]
 		else:
 			pass
-		
+
 		if Nfiledata:
 			tt = string.split(Nfiledata)
 			nstrains = map(webqtlUtil.IntAsFloat, tt)
@@ -208,14 +220,14 @@ class webqtlFormData:
 				nstrains += [None]*(len(strainlst) - len(nstrains))
 		else:
 			nstrains = map(self.FormNAsFloat, strainlst)
-		
+
 		##vals, vars, nstrains is obsolete
 		self.allTraitData = {}
 		for i, _strain in enumerate(strainlst):
 			if vals[i] != None:
 				self.allTraitData[_strain] = webqtlCaseData(vals[i], vars[i], nstrains[i])
 
-	
+
 
 	def informativeStrains(self, strainlst=[], incVars = 0):
 		'''if readData was called, use this to output the informative strains
@@ -241,26 +253,26 @@ class webqtlFormData:
 		return strains, vals, vars, len(strains)
 
 
-				
+
 	def FormDataAsFloat(self, key):
 		try:
 			return float(self.formdata.getfirst(key))
 		except:
 			return None
 
-	
+
 	def FormVarianceAsFloat(self, key):
 		try:
 			return float(self.formdata.getfirst('V' + key))
 		except:
 			return None
-	
+
 	def FormNAsFloat(self, key):
 		try:
 			return int(self.formdata.getfirst('N' + key))
 		except:
 			return None
-		
+
 	def Sample(self):
 		'Create some dummy data for testing'
 		self.RISet = 'BXD'
@@ -273,17 +285,16 @@ class webqtlFormData:
 		#self.genotype.ReadMM('AXBXAforQTL')
 		#self.strainlist = map((lambda x, y='': '%s%s' % (y,x)), self.genotype.prgy)
 		#self.strainlist.sort()
-		self.allTraitData = {'BXD29': webqtlCaseData(3), 'BXD28': webqtlCaseData(2), 
-		'BXD25': webqtlCaseData(2), 'BXD24': webqtlCaseData(2), 'BXD27': webqtlCaseData(2), 
-		'BXD21': webqtlCaseData(1), 'BXD20': webqtlCaseData(4), 'BXD23': webqtlCaseData(4), 
-		'BXD22': webqtlCaseData(3), 'BXD14': webqtlCaseData(4), 'BXD15': webqtlCaseData(2), 
-		'BXD16': webqtlCaseData(3), 'BXD11': webqtlCaseData(4), 'BXD12': webqtlCaseData(3), 
-		'BXD13': webqtlCaseData(2), 'BXD18': webqtlCaseData(3), 'BXD19': webqtlCaseData(3), 
-		'BXD38': webqtlCaseData(3), 'BXD39': webqtlCaseData(3), 'BXD36': webqtlCaseData(2), 
-		'BXD34': webqtlCaseData(4), 'BXD35': webqtlCaseData(4), 'BXD32': webqtlCaseData(4), 
-		'BXD33': webqtlCaseData(3), 'BXD30': webqtlCaseData(1), 'BXD31': webqtlCaseData(4), 
-		'DBA/2J': webqtlCaseData(1), 'BXD8': webqtlCaseData(3), 'BXD9': webqtlCaseData(1), 
-		'BXD6': webqtlCaseData(3), 'BXD5': webqtlCaseData(3), 'BXD2': webqtlCaseData(4), 
-		'BXD1': webqtlCaseData(1), 'C57BL/6J': webqtlCaseData(4), 'B6D2F1': webqtlCaseData(4), 
+		self.allTraitData = {'BXD29': webqtlCaseData(3), 'BXD28': webqtlCaseData(2),
+		'BXD25': webqtlCaseData(2), 'BXD24': webqtlCaseData(2), 'BXD27': webqtlCaseData(2),
+		'BXD21': webqtlCaseData(1), 'BXD20': webqtlCaseData(4), 'BXD23': webqtlCaseData(4),
+		'BXD22': webqtlCaseData(3), 'BXD14': webqtlCaseData(4), 'BXD15': webqtlCaseData(2),
+		'BXD16': webqtlCaseData(3), 'BXD11': webqtlCaseData(4), 'BXD12': webqtlCaseData(3),
+		'BXD13': webqtlCaseData(2), 'BXD18': webqtlCaseData(3), 'BXD19': webqtlCaseData(3),
+		'BXD38': webqtlCaseData(3), 'BXD39': webqtlCaseData(3), 'BXD36': webqtlCaseData(2),
+		'BXD34': webqtlCaseData(4), 'BXD35': webqtlCaseData(4), 'BXD32': webqtlCaseData(4),
+		'BXD33': webqtlCaseData(3), 'BXD30': webqtlCaseData(1), 'BXD31': webqtlCaseData(4),
+		'DBA/2J': webqtlCaseData(1), 'BXD8': webqtlCaseData(3), 'BXD9': webqtlCaseData(1),
+		'BXD6': webqtlCaseData(3), 'BXD5': webqtlCaseData(3), 'BXD2': webqtlCaseData(4),
+		'BXD1': webqtlCaseData(1), 'C57BL/6J': webqtlCaseData(4), 'B6D2F1': webqtlCaseData(4),
 		'BXD42': webqtlCaseData(4), 'BXD40': webqtlCaseData(3)}
-

@@ -7,6 +7,8 @@ from flask import render_template, request
 from wqflask import search_results
 from wqflask.show_trait import show_trait_page
 
+from base import webqtlFormData
+
 from pprint import pformat as pf
 
 @app.route("/")
@@ -21,5 +23,7 @@ def search():
 
 @app.route("/showDatabaseBXD")
 def showDatabaseBXD():
-    template_vars = show_trait_page.ShowTraitPage(request.args)
+    # Here it's currently too complicated not to use an fd that is a webqtlFormData
+    fd = webqtlFormData.webqtlFormData(request.args)
+    template_vars = show_trait_page.ShowTraitPage(fd)
     return render_template("trait_data_and_analysis.html")

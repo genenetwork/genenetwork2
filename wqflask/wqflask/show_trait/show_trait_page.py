@@ -56,8 +56,8 @@ class ShowTraitPage(DataEditingPage):
 		else:
 			print("j2.3")
 			print("fd is:", fd)
-			database = fd['database']
-			ProbeSetID = fd['ProbeSetID']
+			database = fd['database'][0]
+			ProbeSetID = fd['ProbeSetID'][0]
 			print("j2.4")
 			CellID = fd.get('CellID')
 			print("j2.6")
