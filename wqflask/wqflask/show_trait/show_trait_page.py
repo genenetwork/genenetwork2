@@ -36,29 +36,39 @@ from DataEditingPage import DataEditingPage
 
 class ShowTraitPage(DataEditingPage):
 
-	def __init__(self, fd, traitInfos = []):
+	def __init__(self, fd, traitInfos = None):
 
-		templatePage.__init__(self, fd)
+		#templatePage.__init__(self, fd)
 
 		if not self.openMysql():
 			return
 
-		TD_LR = HT.TD(height=200,width="100%",bgColor='#eeeeee')
-
+		#TD_LR = HT.TD(height=200,width="100%",bgColor='#eeeeee')
+		print("j2")
+		# When is traitInfos used?
 		if traitInfos:
-			database,ProbeSetID,CellID = traitInfos
+			print("j2.2")
+			database, ProbeSetID, CellID = traitInfos
 		else:
-			database = fd.formdata.getfirst('database')
-			ProbeSetID = fd.formdata.getfirst('ProbeSetID')
-			CellID = fd.formdata.getfirst('CellID')
-		try:
-			thisTrait = webqtlTrait(db=database, name=ProbeSetID, cellid= CellID, cursor=self.cursor)
-		except:
-			heading = "Trait Data and Analysis Form"
-			detail = ["The trait isn't available currently."]
-			self.error(heading=heading,detail=detail,error="Error")
-			return
+			print("j2.3")
+			print("fd is:", fd)
+			database = fd['database']
+			ProbeSetID = fd['ProbeSetID']
+			print("j2.4")
+			CellID = fd.get('CellID')
+			print("j2.6")
 
+		# We're no longer wrapping this in an exception. If we fail, let's fail hard
+		# Log it and fix it
+		#try:
+		print("j3")
+		thisTrait = webqtlTrait(db=database, name=ProbeSetID, cellid= CellID, cursor=self.cursor)
+		#except:
+		#	heading = "Trait Data and Analysis Form"
+		#	detail = ["The trait isn't available currently."]
+		#	self.error(heading=heading,detail=detail,error="Error")
+		#	return
+		print("j4")
 		if thisTrait.db.type == "ProbeSet":
 
 			self.cursor.execute('''SELECT Id, Name, FullName, confidentiality, AuthorisedUsers
