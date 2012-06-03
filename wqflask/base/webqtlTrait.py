@@ -92,12 +92,13 @@ class webqtlTrait:
 					WHERE
 						ProbeSet.Id=ProbeSetXRef.ProbeSetId and
 						ProbeSetFreeze.Id = ProbeSetXRef.ProbeSetFreezeId and
-						ProbeSet.Name = "%s" and
-						ProbeSetFreeze.Name = "%s"
-				''' % (self.name, self.db.name)
+						ProbeSet.Name = %s and
+						ProbeSetFreeze.Name = %s
+				''', (self.name, self.db.name)
 				print("query is:", query)
-				self.cursor.execute(query)
+				self.cursor.execute(*query)
 				self.sequence = self.cursor.fetchone()[0]
+				print("self.sequence is:", self.sequence)
 
 
 	def getName(self):
@@ -124,7 +125,7 @@ class webqtlTrait:
 		str = self.name
 		if self.db and self.name:
 			if self.db.type=='Temp':
-				self.cursor.execute('SELECT description FROM Temp WHERE Name=%s',self.name)
+				self.cursor.execute('SELECT description FROM Temp WHERE Name=%s', self.name)
 				desc = self.cursor.fetchone()[0]
 				if desc.__contains__('PCA'):
 					desc = desc[desc.rindex(':')+1:].strip()
@@ -206,7 +207,7 @@ class webqtlTrait:
 	def getSequence(self):
 		assert self.cursor
 		if self.db.type == 'ProbeSet':
-			query = '''
+			self.cursor.execute('''
 					SELECT
 						ProbeSet.BlatSeq
 					FROM
@@ -216,8 +217,8 @@ class webqtlTrait:
 						ProbeSetFreeze.Id = ProbeSetXRef.ProbSetFreezeId and
 						ProbeSet.Name = %s
 						ProbeSetFreeze.Name = %s
-				''' , (self.name, self.db.name)
-			self.cursor.execute(query)
+				''', self.name, self.db.name)
+			#self.cursor.execute(query)
 			results = self.fetchone()
 
 			return results[0]

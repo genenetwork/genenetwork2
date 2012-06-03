@@ -24,6 +24,10 @@
 #
 # Last updated by GeneNetwork Core Team 2010/10/20
 
+from __future__ import division, print_function
+
+from flask import request
+
 from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
@@ -96,8 +100,12 @@ class ShowTraitPage(DataEditingPage):
 					at this time, please go back and select other database." % indFullName]
 					self.error(heading=heading,detail=detail,error="Confidential Database")
 					return
+		print("environ:", request.environ)
 
-		user_ip = fd.remote_ip
+		# Becuase of proxying remote_addr is probably localhost, so we first try for
+		# HTTP_X_FORWARDED_FOR
+		user_ip = request.environ.get('HTTP_X_FORWARDED_FOR') or request.remote_addr   # in old app was fd.remote_ip
+		print("user_ip is:", user_ip)
 		query = "SELECT count(id) FROM AccessLog WHERE ip_address = %s and \
 				UNIX_TIMESTAMP()-UNIX_TIMESTAMP(accesstime)<86400"
 		self.cursor.execute(query,user_ip)
@@ -143,9 +151,9 @@ class ShowTraitPage(DataEditingPage):
 		"""
 
 		##identification, etc.
-		fd.identification = '%s : %s'%(thisTrait.db.shortname,ProbeSetID)
+		fd.identification = '%s : %s' % (thisTrait.db.shortname,ProbeSetID)
 		thisTrait.returnURL = webqtlConfig.CGIDIR + webqtlConfig.SCRIPTFILE + '?FormID=showDatabase&database=%s\
-			&ProbeSetID=%s&RISet=%s&parentsf1=on' %(database,ProbeSetID,fd.RISet)
+			&ProbeSetID=%s&RISet=%s&parentsf1=on' %(database, ProbeSetID, fd['RISet'])
 
 		if CellID:
 			fd.identification = '%s/%s'%(fd.identification, CellID)
@@ -156,12 +164,13 @@ class ShowTraitPage(DataEditingPage):
 			thisTrait.retrieveInfo()
 			thisTrait.retrieveData()
 			self.updMysql()
-			self.cursor.execute("insert into AccessLog(accesstime,ip_address) values(Now(),%s)" ,user_ip)
+			self.cursor.execute("insert into AccessLog(accesstime,ip_address) values(Now(),%s)", user_ip)
 			self.openMysql()
-		except:
+		except Exception as why:
+			print("Got an exception:", why)
 			heading = "Retrieve Data"
 			detail = ["The information you requested is not avaiable at this time."]
-			self.error(heading=heading,detail=detail)
+			self.error(heading=heading, detail=detail)
 			return
 
 		##read genotype file
