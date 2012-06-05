@@ -32,13 +32,11 @@
 
 
 class THCell:
-	def __init__(self, html="", text="", sort=1, idx=-1):
-		self.html = html	#html, for web page
-		self.text = text	#Column text value
-		self.sort = sort	#0: not sortable, 1: yes
-		self.idx = idx		#sort by value
-	
-	def __str__(self):
-		return self.text
-		
+    def __init__(self, html="", text="", sort=1, idx=-1):
+        self.html = html        #html, for web page
+        self.text = text        #Column text value
+        self.sort = sort        #0: not sortable, 1: yes
+        self.idx = idx          #sort by value
 
+    def __str__(self):
+        return self.text

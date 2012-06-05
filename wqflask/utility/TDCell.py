@@ -30,13 +30,12 @@
 #
 ##########################################################
 
-		
-class TDCell:
-	def __init__(self, html="", text="", val=0.0):
-		self.html = html	#html, for web page
-		self.text = text	#text value, for output to a text file
-		self.val = val		#sort by value
-	
-	def __str__(self):
-		return self.text
 
+class TDCell:
+    def __init__(self, html="", text="", val=0.0):
+        self.html = html        #html, for web page
+        self.text = text        #text value, for output to a text file
+        self.val = val          #sort by value
+
+    def __str__(self):
+        return self.text

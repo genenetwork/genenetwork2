@@ -74,7 +74,7 @@ by using easy to use classes and methods usualy you start by creating a drawing 
     d.setSVG(s)
     #and finaly you xmlify the drawing
     d.toXml()
-    
+
 
 this results in the svg source of the drawing, which consists of a circle
 on a white background. Its as easy as that;)
@@ -112,7 +112,7 @@ if sys.version_info[1]<2:
     True=1
     False=0
     file=open
-    
+
 sys.setrecursionlimit=50
 #The recursion limit is set conservative so mistakes like s=svg() s.addElement(s)
 #won't eat up too much processor time.
@@ -167,7 +167,7 @@ def _xypointlist(a):
 def _viewboxlist(a):
     """formats a tuple"""
     s=''
-    for e in a: 
+    for e in a:
         s+=str(e)+' '
     return s
 
@@ -178,7 +178,7 @@ def _pointlist(a):
 class pathdata:
     """class used to create a pathdata object which can be used for a path.
     although most methods are pretty straightforward it might be useful to look at the SVG specification."""
-    #I didn't test the methods below. 
+    #I didn't test the methods below.
     def __init__(self,x=None,y=None):
         self.path=[]
         if x is not None and y is not None:
@@ -242,10 +242,10 @@ class pathdata:
         self.path.append('a'+str(rx)+','+str(ry)+' '+str(xrot)+' '+str(laf)+' '+str(sf)+' '+str(x)+' '+str(y))
     def __repr__(self):
         return ' '.join(self.path)
-    
 
 
-      
+
+
 class SVGelement:
     """SVGelement(type,attributes,elements,text,namespace,**args)
     Creates a arbitrary svg element and is intended to be subclassed not used on its own.
@@ -296,7 +296,7 @@ class SVGelement:
         if self.cdata:
             f.write('\n'+'\t'*(level+1)+'<![CDATA[')
             for line in self.cdata.splitlines():
-               f.write('\n'+'\t'*(level+2)+line)
+                f.write('\n'+'\t'*(level+2)+line)
             f.write('\n'+'\t'*(level+1)+']]>\n')
         if self.text:
             if type(self.text)==type(''): #If the text is only text
@@ -305,13 +305,13 @@ class SVGelement:
                 f.write(str(self.text))
         if self.elements:
             f.write('\t'*level+'</'+self.type+'>\n')
-        elif self.text: 
+        elif self.text:
             f.write('</'+self.type+'>\n')
         elif self.cdata:
             f.write('\t'*level+'</'+self.type+'>\n')
         else:
             f.write('/>\n')
-            
+
 class tspan(SVGelement):
     """ts=tspan(text='',**args)
 
@@ -330,12 +330,12 @@ class tspan(SVGelement):
     def __repr__(self):
         s="<tspan"
         for key,value in self.attributes.items():
-         s+= ' %s="%s"' % (key,value)
+            s+= ' %s="%s"' % (key,value)
         s+='>'
         s+=self.text
         s+='</tspan>'
         return s
-    
+
 class tref(SVGelement):
     """tr=tref(link='',**args)
 
@@ -350,12 +350,12 @@ class tref(SVGelement):
         SVGelement.__init__(self,'tref',{'xlink:href':link},**args)
     def __repr__(self):
         s="<tref"
-        
+
         for key,value in self.attributes.items():
-         s+= ' %s="%s"' % (key,value)
+            s+= ' %s="%s"' % (key,value)
         s+='/>'
         return s
-    
+
 class spannedtext:
     """st=spannedtext(textlist=[])
 
@@ -363,7 +363,7 @@ class spannedtext:
     You can use it to add to a text element or path element. Don't add it directly
     to a svg or a group element.
     usage:
-    
+
     ts=tspan('this text is bold')
     ts.attributes['font-weight']='bold'
     tr=tref('#linktotext')
@@ -390,11 +390,11 @@ class spannedtext:
         for element in self.textlist:
             s+=str(element)
         return s
-    
+
 class rect(SVGelement):
     """r=rect(width,height,x,y,fill,stroke,stroke_width,**args)
-    
-    a rectangle is defined by a width and height and a xy pair 
+
+    a rectangle is defined by a width and height and a xy pair
     """
     def __init__(self,x=None,y=None,width=None,height=None,fill=None,stroke=None,stroke_width=None,**args):
         if width==None or height==None:
@@ -415,7 +415,7 @@ class rect(SVGelement):
             self.attributes['stroke']=stroke
         if stroke_width<>None:
             self.attributes['stroke-width']=stroke_width
-            
+
 class ellipse(SVGelement):
     """e=ellipse(rx,ry,x,y,fill,stroke,stroke_width,**args)
 
@@ -440,8 +440,8 @@ class ellipse(SVGelement):
             self.attributes['stroke']=stroke
         if stroke_width<>None:
             self.attributes['stroke-width']=stroke_width
-        
-   
+
+
 class circle(SVGelement):
     """c=circle(x,y,radius,fill,stroke,stroke_width,**args)
 
@@ -464,7 +464,7 @@ class circle(SVGelement):
 
 class point(circle):
     """p=point(x,y,color)
-    
+
     A point is defined as a circle with a size 1 radius. It may be more efficient to use a
     very small rectangle if you use many points because a circle is difficult to render.
     """
@@ -473,7 +473,7 @@ class point(circle):
 
 class line(SVGelement):
     """l=line(x1,y1,x2,y2,stroke,stroke_width,**args)
-    
+
     A line is defined by a begin x,y pair and an end x,y pair
     """
     def __init__(self,x1=None,y1=None,x2=None,y2=None,stroke=None,stroke_width=None,**args):
@@ -490,10 +490,10 @@ class line(SVGelement):
             self.attributes['stroke-width']=stroke_width
         if stroke<>None:
             self.attributes['stroke']=stroke
-            
+
 class polyline(SVGelement):
     """pl=polyline([[x1,y1],[x2,y2],...],fill,stroke,stroke_width,**args)
-    
+
     a polyline is defined by a list of xy pairs
     """
     def __init__(self,points,fill=None,stroke=None,stroke_width=None,**args):
@@ -507,7 +507,7 @@ class polyline(SVGelement):
 
 class polygon(SVGelement):
     """pl=polyline([[x1,y1],[x2,y2],...],fill,stroke,stroke_width,**args)
-    
+
     a polygon is defined by a list of xy pairs
     """
     def __init__(self,points,fill=None,stroke=None,stroke_width=None,**args):
@@ -534,11 +534,11 @@ class path(SVGelement):
             self.attributes['stroke-width']=stroke_width
         if id<>None:
             self.attributes['id']=id
-        
-        
+
+
 class text(SVGelement):
     """t=text(x,y,text,font_size,font_family,**args)
-    
+
     a text element can bge used for displaying text on the screen
     """
     def __init__(self,x=None,y=None,text=None,font_size=None,font_family=None,text_anchor=None,**args):
@@ -560,7 +560,7 @@ class text(SVGelement):
 class textpath(SVGelement):
     """tp=textpath(text,link,**args)
 
-    a textpath places a text on a path which is referenced by a link.   
+    a textpath places a text on a path which is referenced by a link.
     """
     def __init__(self,link,text=None,**args):
         SVGelement.__init__(self,'textPath',{'xlink:href':link},**args)
@@ -589,7 +589,7 @@ class pattern(SVGelement):
 
 class title(SVGelement):
     """t=title(text,**args)
-    
+
     a title is a text element. The text is displayed in the title bar
     add at least one to the root svg element
     """
@@ -600,7 +600,7 @@ class title(SVGelement):
 
 class description(SVGelement):
     """d=description(text,**args)
-    
+
     a description can be added to any element and is used for a tooltip
     Add this element before adding other elements.
     """
@@ -648,7 +648,7 @@ class radialgradient(SVGelement):
             self.attributes['fy']=fy
         if id<>None:
             self.attributes['id']=id
-            
+
 class stop(SVGelement):
     """st=stop(offset,stop_color,**args)
 
@@ -658,7 +658,7 @@ class stop(SVGelement):
         SVGelement.__init__(self,'stop',{'offset':offset},**args)
         if stop_color<>None:
             self.attributes['stop-color']=stop_color
-            
+
 class style(SVGelement):
     """st=style(type,cdata=None,**args)
 
@@ -666,8 +666,8 @@ class style(SVGelement):
     """
     def __init__(self,type,cdata=None,**args):
         SVGelement.__init__(self,'style',{'type':type},cdata=cdata, **args)
-        
-            
+
+
 class image(SVGelement):
     """im=image(url,width,height,x,y,**args)
 
@@ -686,7 +686,7 @@ class image(SVGelement):
             self.attributes['x']=x
         if y<>None:
             self.attributes['y']=y
- 
+
 class cursor(SVGelement):
     """c=cursor(url,**args)
 
@@ -695,10 +695,10 @@ class cursor(SVGelement):
     def __init__(self,url,**args):
         SVGelement.__init__(self,'cursor',{'xlink:href':url},**args)
 
-    
+
 class marker(SVGelement):
     """m=marker(id,viewbox,refX,refY,markerWidth,markerHeight,**args)
-    
+
     defines a marker which can be used as an endpoint for a line or other pathtypes
     add an element to it which should be used as a marker.
     """
@@ -716,10 +716,10 @@ class marker(SVGelement):
             self.attributes['markerWidth']=markerWidth
         if markerHeight<>None:
             self.attributes['markerHeight']=markerHeight
-        
+
 class group(SVGelement):
     """g=group(id,**args)
-    
+
     a group is defined by an id and is used to contain elements
     g.addElement(SVGelement)
     """
@@ -736,14 +736,14 @@ class symbol(SVGelement):
     display it by referencing its id.
     sy.addElement(SVGelement)
     """
-    
+
     def __init__(self,id=None,viewBox=None,**args):
         SVGelement.__init__(self,'symbol',**args)
         if id<>None:
             self.attributes['id']=id
         if viewBox<>None:
             self.attributes['viewBox']=_viewboxlist(viewBox)
-            
+
 class defs(SVGelement):
     """d=defs(**args)
 
@@ -762,10 +762,10 @@ class switch(SVGelement):
     def __init__(self,**args):
         SVGelement.__init__(self,'switch',**args)
 
-        
+
 class use(SVGelement):
     """u=use(link,x,y,width,height,**args)
-    
+
     references a symbol by linking to its id and its position, height and width
     """
     def __init__(self,link,x=None,y=None,width=None,height=None,**args):
@@ -779,8 +779,8 @@ class use(SVGelement):
             self.attributes['width']=width
         if height<>None:
             self.attributes['height']=height
-            
-            
+
+
 class link(SVGelement):
     """a=link(url,**args)
 
@@ -789,7 +789,7 @@ class link(SVGelement):
     """
     def __init__(self,link='',**args):
         SVGelement.__init__(self,'a',{'xlink:href':link},**args)
-        
+
 class view(SVGelement):
     """v=view(id,**args)
 
@@ -807,11 +807,11 @@ class script(SVGelement):
     """
     def __init__(self,type,cdata=None,**args):
         SVGelement.__init__(self,'script',{'type':type},cdata=cdata,**args)
-        
+
 class animate(SVGelement):
     """an=animate(attribute,from,to,during,**args)
 
-    animates an attribute.    
+    animates an attribute.
     """
     def __init__(self,attribute,fr=None,to=None,dur=None,**args):
         SVGelement.__init__(self,'animate',{'attributeName':attribute},**args)
@@ -821,7 +821,7 @@ class animate(SVGelement):
             self.attributes['to']=to
         if dur<>None:
             self.attributes['dur']=dur
-        
+
 class animateMotion(SVGelement):
     """an=animateMotion(pathdata,dur,**args)
 
@@ -836,7 +836,7 @@ class animateMotion(SVGelement):
 
 class animateTransform(SVGelement):
     """antr=animateTransform(type,from,to,dur,**args)
-    
+
     transform an element from and to a value.
     """
     def __init__(self,type=None,fr=None,to=None,dur=None,**args):
@@ -864,10 +864,10 @@ class animateColor(SVGelement):
         if to<>None:
             self.attributes['to']=to
         if dur<>None:
-            self.attributes['dur']=dur        
+            self.attributes['dur']=dur
 class set(SVGelement):
     """st=set(attribute,to,during,**args)
-    
+
     sets an attribute to a value for a
     """
     def __init__(self,attribute,to=None,dur=None,**args):
@@ -878,10 +878,10 @@ class set(SVGelement):
             self.attributes['dur']=dur
 
 
-            
+
 class svg(SVGelement):
     """s=svg(viewbox,width,height,**args)
-    
+
     a svg or element is the root of a drawing add all elements to a svg element.
     You can have different svg elements in one svg file
     s.addElement(SVGelement)
@@ -903,7 +903,7 @@ class svg(SVGelement):
         if height<>None:
             self.attributes['height']=height
         self.namespace="http://www.w3.org/2000/svg"
-        
+
 class drawing:
     """d=drawing()
 
@@ -921,17 +921,17 @@ class drawing:
     def setSVG(self,svg):
         self.svg=svg
         #Voeg een element toe aan de grafiek toe.
-    if use_dom_implementation==0:      
+    if use_dom_implementation==0:
         def toXml(self, filename='',compress=False):
             import cStringIO
             xml=cStringIO.StringIO()
             xml.write("<?xml version='1.0' encoding='UTF-8'?>\n")
             xml.write("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
             if self.entity:
-            	xml.write(" [\n")
-            	for item in self.entity.keys():
-            		xml.write("<!ENTITY %s \"%s\">\n" % (item, self.entity[item]))
-            	xml.write("]")
+                xml.write(" [\n")
+                for item in self.entity.keys():
+                    xml.write("<!ENTITY %s \"%s\">\n" % (item, self.entity[item]))
+                xml.write("]")
             xml.write(">\n")
             self.svg.toXml(0,xml)
             if not filename:
@@ -964,7 +964,7 @@ class drawing:
             compresses if filename ends with svgz or if compress is true
             """
             doctype = implementation.createDocumentType('svg',"-//W3C//DTD SVG 1.0//EN""",'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd ')
-        
+
             global root
             #root is defined global so it can be used by the appender. Its also possible to use it as an arugument but
             #that is a bit messy.
@@ -1034,12 +1034,12 @@ class drawing:
             print "SVG well formed"
 if __name__=='__main__':
 
-    
+
     d=drawing()
     s=svg((0,0,100,100))
     r=rect(-100,-100,300,300,'cyan')
     s.addElement(r)
-    
+
     t=title('SVGdraw Demo')
     s.addElement(t)
     g=group('animations')
@@ -1064,6 +1064,5 @@ if __name__=='__main__':
             c=circle(i,j,1,'red','black',.5)
             s.addElement(c)
     d.setSVG(s)
-     
-    print d.toXml()
 
+    print d.toXml()

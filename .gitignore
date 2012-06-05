@@ -1,4 +1,6 @@
 # gitignore
 *.pyc
 *.orig
+*.bak
 *~
+

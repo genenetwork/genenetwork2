@@ -30,41 +30,37 @@
 #########################################
 
 class cgiData(dict):
-	'''convert Field storage object to Dict object
-	   Filed storage object cannot be properly dumped	
-	'''
+    '''convert Field storage object to Dict object
+       Filed storage object cannot be properly dumped
+    '''
 
-	def __init__(self, field_storage=None):
+    def __init__(self, field_storage=None):
 
-		if not field_storage:
-			field_storage={}
-			
-		for key in field_storage.keys():
-			temp = field_storage.getlist(key)
-			if len(temp) > 1:
-				temp = map(self.toValue, temp)
-			elif len(temp) == 1:
-				temp = self.toValue(temp[0])
-			else:
-				temp = None
-			self[key]= temp
-	
-	def toValue(self, obj):
-		'''fieldstorge returns different type of objects, \
-			need to convert to string or None'''	
-		try:
-			return obj.value
-		except:
-			return ""
-	
-	def getvalue(self, k, default= None):
-		try:
-			return self[k]
-		except:
-			return default
+        if not field_storage:
+            field_storage={}
 
-	getfirst = getvalue
+        for key in field_storage.keys():
+            temp = field_storage.getlist(key)
+            if len(temp) > 1:
+                temp = map(self.toValue, temp)
+            elif len(temp) == 1:
+                temp = self.toValue(temp[0])
+            else:
+                temp = None
+            self[key]= temp
 
+    def toValue(self, obj):
+        '''fieldstorge returns different type of objects, \
+                need to convert to string or None'''
+        try:
+            return obj.value
+        except:
+            return ""
 
+    def getvalue(self, k, default= None):
+        try:
+            return self[k]
+        except:
+            return default
 
-
+    getfirst = getvalue

@@ -25,30 +25,27 @@
 # Last updated by GeneNetwork Core Team 2010/10/20
 
 class webqtlCaseData:
-	"""
-	one case data in one trait
-	"""
+    """
+    one case data in one trait
+    """
 
-	val = None		#Trait Value
-	var = None		#Trait Variance
-	N   = None		#Number of individuals
+    val = None              #Trait Value
+    var = None              #Trait Variance
+    N   = None              #Number of individuals
 
-	def __init__(self, val=val, var=var, N=N):
-		self.val = val
-		self.var = var
-		self.N = N
-	
-	def __str__(self):
-		str = ""
-		if self.val != None:
-			str += "value=%2.3f" % self.val
-		if self.var != None:
-			str += " variance=%2.3f" % self.var
-		if self.N != None:
-			str += " ndata=%d" % self.N
-		return str
-	
-	__repr__ = __str__
+    def __init__(self, val=val, var=var, N=N):
+        self.val = val
+        self.var = var
+        self.N = N
 
+    def __str__(self):
+        str = ""
+        if self.val != None:
+            str += "value=%2.3f" % self.val
+        if self.var != None:
+            str += " variance=%2.3f" % self.var
+        if self.N != None:
+            str += " ndata=%d" % self.N
+        return str
 
-
+    __repr__ = __str__

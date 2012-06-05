@@ -68,32 +68,32 @@ template = """
 <BODY  bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff %s>
 %s
 <TABLE cellSpacing=5 cellPadding=4 width="100%%" border=0>
-	<TBODY>
-	<!-- Start of header -->
-	<TR>
-		%s
-	</TR>
-	<!-- End of header -->
+        <TBODY>
+        <!-- Start of header -->
+        <TR>
+                %s
+        </TR>
+        <!-- End of header -->
 
-	<!-- Start of body -->
-	<TR>
-		<TD  bgColor=#eeeeee class="solidBorder">
-		<Table width= "100%%" cellSpacing=0 cellPadding=5>
-		<TR>
-		%s
-		</TR>
-		</TABLE>
-		</TD>
-	</TR>
-	<!-- End of body -->
+        <!-- Start of body -->
+        <TR>
+                <TD  bgColor=#eeeeee class="solidBorder">
+                <Table width= "100%%" cellSpacing=0 cellPadding=5>
+                <TR>
+                %s
+                </TR>
+                </TABLE>
+                </TD>
+        </TR>
+        <!-- End of body -->
 
         <!-- Start of footer -->
-	<TR>
-		<TD align=center bgColor=#ddddff class="solidBorder">
-			<TABLE width="90%%">%s</table>
-		</td>
-	</TR>
-	<!-- End of footer -->
+        <TR>
+                <TD align=center bgColor=#ddddff class="solidBorder">
+                        <TABLE width="90%%">%s</table>
+                </td>
+        </TR>
+        <!-- End of footer -->
 </TABLE>
 
 <!-- menu script itself. you should not modify this file -->
@@ -103,20 +103,20 @@ template = """
 <!-- files with geometry and styles structures -->
 <script language="JavaScript" src="/javascript/menu_tpl.js"></script>
 <script language="JavaScript">
-	<!--//
-	// Note where menu initialization block is located in HTML document.
-	// Don't try to position menu locating menu initialization block in
-	// some table cell or other HTML element. Always put it before </body>
-	// each menu gets two parameters (see demo files)
-	// 1. items structure
-	// 2. geometry structure
-	new menu (MENU_ITEMS, MENU_POS);
-	// make sure files containing definitions for these variables are linked to the document
-	// if you got some javascript error like "MENU_POS is not defined", then you've made syntax
-	// error in menu_tpl.js file or that file isn't linked properly.
-	
-	// also take a look at stylesheets loaded in header in order to set styles
-	//-->
+        <!--//
+        // Note where menu initialization block is located in HTML document.
+        // Don't try to position menu locating menu initialization block in
+        // some table cell or other HTML element. Always put it before </body>
+        // each menu gets two parameters (see demo files)
+        // 1. items structure
+        // 2. geometry structure
+        new menu (MENU_ITEMS, MENU_POS);
+        // make sure files containing definitions for these variables are linked to the document
+        // if you got some javascript error like "MENU_POS is not defined", then you've made syntax
+        // error in menu_tpl.js file or that file isn't linked properly.
+
+        // also take a look at stylesheets loaded in header in order to set styles
+        //-->
 </script>
 </BODY>
 </HTML>

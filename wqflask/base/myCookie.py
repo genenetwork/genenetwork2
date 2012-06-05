@@ -25,31 +25,27 @@
 # Last updated by GeneNetwork Core Team 2010/10/20
 
 #########################################
-## python cookie and mod python cookie are 
+## python cookie and mod python cookie are
 ## not compatible
 #########################################
 
 class myCookie(dict):
-	'define my own cookie'
+    'define my own cookie'
 
-	def __init__(self, name="", value="", expire = None, path="/"):
-		self['name']= name
-		self['value']= value
-		self['expire']= expire
-		self['path']= path
-	
-	def __getattr__(self, key):
-		if key in self.keys():
-			return self[key]
-		else:
-			return None
-	
-	def __nonzero__ (self):
-		if self['name']:
-			return 1
-		else:
-			return 0	
+    def __init__(self, name="", value="", expire = None, path="/"):
+        self['name']= name
+        self['value']= value
+        self['expire']= expire
+        self['path']= path
 
+    def __getattr__(self, key):
+        if key in self.keys():
+            return self[key]
+        else:
+            return None
 
-
-
+    def __nonzero__ (self):
+        if self['name']:
+            return 1
+        else:
+            return 0

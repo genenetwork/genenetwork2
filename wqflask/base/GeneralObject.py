@@ -25,47 +25,44 @@
 # Last updated by GeneNetwork Core Team 2010/10/20
 
 class GeneralObject:
-	"""
-	Base class to define an Object.
-	a = [Spam(1, 4), Spam(9, 3), Spam(4,6)]
-	a.sort(lambda x, y: cmp(x.eggs, y.eggs))
-	"""
+    """
+    Base class to define an Object.
+    a = [Spam(1, 4), Spam(9, 3), Spam(4,6)]
+    a.sort(lambda x, y: cmp(x.eggs, y.eggs))
+    """
 
-	def __init__(self, *args, **kw):
-		self.contents = list(args)
-		for name, value in kw.items():
-			setattr(self, name, value)
-			
-	def __setitem__(self, key, value):
-		setattr(self, key, value)
-		
-	def __getitem__(self, key):
-		return getattr(self, key)
-		
-	def __getattr__(self, key):
-		if key in self.__dict__.keys():
-			return self.__dict__[key]
-		else:
-			return eval("self.__dict__.%s" % key)
-			
-	def __len__(self):
-		return len(self.__dict__) - 1
-				
-	def __str__(self):
-		s = ''
-		for key in self.__dict__.keys():
-			if key != 'contents':
-				s += '%s = %s\n' % (key,self.__dict__[key])
-		return s
-	
-	def __repr__(self):
-		s = ''
-		for key in self.__dict__.keys():
-			s += '%s = %s\n' % (key,self.__dict__[key])
-		return s
-	
-	def __cmp__(self,other):
-		return len(self.__dict__.keys()).__cmp__(len(other.__dict__.keys()))
+    def __init__(self, *args, **kw):
+        self.contents = list(args)
+        for name, value in kw.items():
+            setattr(self, name, value)
 
+    def __setitem__(self, key, value):
+        setattr(self, key, value)
 
+    def __getitem__(self, key):
+        return getattr(self, key)
 
+    def __getattr__(self, key):
+        if key in self.__dict__.keys():
+            return self.__dict__[key]
+        else:
+            return eval("self.__dict__.%s" % key)
+
+    def __len__(self):
+        return len(self.__dict__) - 1
+
+    def __str__(self):
+        s = ''
+        for key in self.__dict__.keys():
+            if key != 'contents':
+                s += '%s = %s\n' % (key,self.__dict__[key])
+        return s
+
+    def __repr__(self):
+        s = ''
+        for key in self.__dict__.keys():
+            s += '%s = %s\n' % (key,self.__dict__[key])
+        return s
+
+    def __cmp__(self,other):
+        return len(self.__dict__.keys()).__cmp__(len(other.__dict__.keys()))

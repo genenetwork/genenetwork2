@@ -30,23 +30,20 @@
 #########################################
 
 class cookieData(dict):
-	'convert mod python Cookie object to Dict object'
+    'convert mod python Cookie object to Dict object'
 
-	def __init__(self, cookies=None):
+    def __init__(self, cookies=None):
 
-		if not cookies:
-			cookies={}
-			
-		for key in cookies.keys():
-			self[key.lower()]= cookies[key].value
-	
-	def getvalue(self, k, default= None):
-		try:
-			return self[k.lower()]
-		except:
-			return default
+        if not cookies:
+            cookies={}
 
-	getfirst = getvalue
+        for key in cookies.keys():
+            self[key.lower()]= cookies[key].value
 
+    def getvalue(self, k, default= None):
+        try:
+            return self[k.lower()]
+        except:
+            return default
 
-
+    getfirst = getvalue

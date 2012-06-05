@@ -35,18 +35,18 @@
 
 
 ADMIN_search_dbs = {
-                    'rat': {'PERITONEAL FAT': ['FT_2A_0605_Rz'], 
+                    'rat': {'PERITONEAL FAT': ['FT_2A_0605_Rz'],
                             'KIDNEY': ['KI_2A_0405_Rz'],
                             'ADRENAL GLAND': ['HXB_Adrenal_1208'],
                             'HEART': ['HXB_Heart_1208']
                            },
-                    'mouse': {'CEREBELLUM': ['CB_M_0305_R'], 
+                    'mouse': {'CEREBELLUM': ['CB_M_0305_R'],
                               'STRIATUM': ['SA_M2_0905_R', 'SA_M2_0405_RC', 'UTHSC_1107_RankInv', 'Striatum_Exon_0209'],
-                              'HIPPOCAMPUS': ['HC_M2_0606_R', 'UMUTAffyExon_0209_RMA'], 
-                              'WHOLE BRAIN': ['BR_M2_1106_R', 'IBR_M_0106_R', 'BRF2_M_0805_R', 'UCLA_BHF2_BRAIN_0605'], 
-                              'LIVER': ['LV_G_0106_B', 'UCLA_BHF2_LIVER_0605'], 
-                              'EYE': ['Eye_M2_0908_R'], 
-                              'HEMATOPOIETIC STEM CELLS': ['HC_U_0304_R'], 
+                              'HIPPOCAMPUS': ['HC_M2_0606_R', 'UMUTAffyExon_0209_RMA'],
+                              'WHOLE BRAIN': ['BR_M2_1106_R', 'IBR_M_0106_R', 'BRF2_M_0805_R', 'UCLA_BHF2_BRAIN_0605'],
+                              'LIVER': ['LV_G_0106_B', 'UCLA_BHF2_LIVER_0605'],
+                              'EYE': ['Eye_M2_0908_R'],
+                              'HEMATOPOIETIC STEM CELLS': ['HC_U_0304_R'],
                               'KIDNEY': ['MA_M2_0806_R'],
                               'MAMMARY TUMORS': ['MA_M_0704_R', 'NCI_Agil_Mam_Tum_RMA_0409'],
                               'PREFRONTAL CORTEX': ['VCUSal_1206_R'],
@@ -65,14 +65,14 @@ ADMIN_search_dbs = {
 
 ###LIST of tissue alias
 
-ADMIN_tissue_alias = {'CEREBELLUM': ['Cb'], 
-                      'STRIATUM': ['Str'], 
-                      'HIPPOCAMPUS': ['Hip'], 
-                      'WHOLE BRAIN': ['Brn'], 
-                      'LIVER': ['Liv'], 
-                      'EYE': ['Eye'], 
-                      'PERITONEAL FAT': ['Fat'], 
-                      'HEMATOPOIETIC STEM CELLS': ['Hsc'], 
+ADMIN_tissue_alias = {'CEREBELLUM': ['Cb'],
+                      'STRIATUM': ['Str'],
+                      'HIPPOCAMPUS': ['Hip'],
+                      'WHOLE BRAIN': ['Brn'],
+                      'LIVER': ['Liv'],
+                      'EYE': ['Eye'],
+                      'PERITONEAL FAT': ['Fat'],
+                      'HEMATOPOIETIC STEM CELLS': ['Hsc'],
                       'KIDNEY': ['Kid'],
                       'ADRENAL GLAND': ['Adr'],
                       'HEART': ['Hea'],
@@ -84,5 +84,3 @@ ADMIN_tissue_alias = {'CEREBELLUM': ['Cb'],
                       'ADIPOSE': ['Wfat'],
                       'RETINA': ['Ret']
                      }
-
-

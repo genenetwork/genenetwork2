@@ -30,24 +30,21 @@
 #########################################
 
 class sessionData(dict):
-	'convert mod python Session object to Dict object'
+    'convert mod python Session object to Dict object'
 
-	def __init__(self, mod_python_session=None):
-	
-		if not mod_python_session:
-			mod_python_session = {}
+    def __init__(self, mod_python_session=None):
 
-		for key in mod_python_session.keys():
-			self[key]= mod_python_session[key]
-		
-	
-	def getvalue(self, k, default= None):
-		try:
-			return self[k]
-		except:
-			return default
+        if not mod_python_session:
+            mod_python_session = {}
 
-	getfirst = getvalue
+        for key in mod_python_session.keys():
+            self[key]= mod_python_session[key]
 
 
+    def getvalue(self, k, default= None):
+        try:
+            return self[k]
+        except:
+            return default
 
+    getfirst = getvalue
