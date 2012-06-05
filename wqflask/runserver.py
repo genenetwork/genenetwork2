@@ -18,4 +18,6 @@ _log = logging.getLogger("search")
 _ch = logging.StreamHandler()
 _log.addHandler(_ch)
 
-app.run(host='0.0.0.0')
+app.run(host='0.0.0.0',
+        use_debugger=False,
+        use_reloader=True)

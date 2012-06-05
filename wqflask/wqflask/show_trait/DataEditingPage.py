@@ -22,8 +22,8 @@ class DataEditingPage(templatePage):
 
         templatePage.__init__(self, fd)
 
-        self.dict['title'] = 'Data Editing'
-        TD_LR = HT.TD(valign="top",width="100%",bgcolor="#fafafa")
+        #self.dict['title'] = 'Data Editing'
+        #TD_LR = HT.TD(valign="top",width="100%",bgcolor="#fafafa")
 
         if not self.openMysql():
             return
@@ -156,43 +156,49 @@ class DataEditingPage(templatePage):
         ##  Generate form and buttons
         #############################
 
-        mainForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE),
-            name='dataInput', submit=HT.Input(type='hidden'))
+        #mainForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE),
+        #    name='dataInput', submit=HT.Input(type='hidden'))
 
-        next=HT.Input(type='submit', name='submit',value='Next',Class="button")
-        reset=HT.Input(type='Reset',name='',value=' Reset ',Class="button")
-        correlationMenus = []
+        #next=HT.Input(type='submit', name='submit',value='Next',Class="button")
+        #reset=HT.Input(type='Reset',name='',value=' Reset ',Class="button")
+        #correlationMenus = []
 
         if thisTrait == None:
             thisTrait = webqtlTrait(data=fd.allTraitData, db=None)
 
         # Variance submit page only
         if fd.enablevariance and not varianceDataPage:
-            title2Body.append("Click the next button to go to the variance submission form.",
-                    HT.Center(next,reset))
+            pass
+            #title2Body.append("Click the next button to go to the variance submission form.",
+            #        HT.Center(next,reset))
         else:
-            self.dispBasicStatistics(fd, title2Body, thisTrait)
-            self.dispCorrelationTools(fd, title3Body, thisTrait)
-            self.dispMappingTools(fd, title4Body, thisTrait)
+            pass
+            # We'll get this part working later
+            #self.dispBasicStatistics(fd, title2Body, thisTrait)
+            #self.dispCorrelationTools(fd, title3Body, thisTrait)
+            #self.dispMappingTools(fd, title4Body, thisTrait)
 
         #############################
         ##  Trait Value Table
         #############################
+        #
+        #self.dispTraitValues(fd, title5Body, varianceDataPage, nCols, mainForm, thisTrait)
+        #
+        #if fd.allstrainlist:
+        #    hddn['allstrainlist'] = string.join(fd.allstrainlist, ' ')
+        #for key in hddn.keys():
+        #    mainForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
+        #
+        #if fd.enablevariance and not varianceDataPage:
+        #    #pre dataediting page, need to submit variance
+        #    mainForm.append(titleTop, title1,title1Body,title2,title2Body,title3,title3Body,title4,title4Body,title5,title5Body)
+        #else:
+        #    mainForm.append(titleTop, title1,title1Body,title2,title2Body,title3,title3Body,title4,title4Body,title5,title5Body)
+        #TD_LR.append(HT.Paragraph(mainForm))
+        #self.dict['body'] = str(TD_LR)
 
-        self.dispTraitValues(fd, title5Body, varianceDataPage, nCols, mainForm, thisTrait)
-
-        if fd.allstrainlist:
-            hddn['allstrainlist'] = string.join(fd.allstrainlist, ' ')
-        for key in hddn.keys():
-            mainForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
-
-        if fd.enablevariance and not varianceDataPage:
-            #pre dataediting page, need to submit variance
-            mainForm.append(titleTop, title1,title1Body,title2,title2Body,title3,title3Body,title4,title4Body,title5,title5Body)
-        else:
-            mainForm.append(titleTop, title1,title1Body,title2,title2Body,title3,title3Body,title4,title4Body,title5,title5Body)
-        TD_LR.append(HT.Paragraph(mainForm))
-        self.dict['body'] = str(TD_LR)
+        # We'll need access to thisTrait in the Jinja2 Template, so we put it inside self
+        self.thisTrait = thisTrait
 
     ##########################################
     ##  Function to display header
@@ -308,13 +314,13 @@ class DataEditingPage(templatePage):
                     if snpurl:
                         snpBrowserButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % snpurl)
                         snpBrowserButton_img = HT.Image("/images/snp_icon.jpg", name="snpbrowser", alt=" View SNPs and Indels ", title=" View SNPs and Indels ", style="border:none;")
-                        snpBrowserButton.append(snpBrowserButton_img)
+                        #snpBrowserButton.append(snpBrowserButton_img)
                         snpBrowserText = "SNPs"
 
                 #XZ: Show GeneWiki for all species
                 geneWikiButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE) + "?FormID=geneWiki&symbol=%s" % thisTrait.symbol))
                 geneWikiButton_img = HT.Image("/images/genewiki_icon.jpg", name="genewiki", alt=" Write or review comments about this gene ", title=" Write or review comments about this gene ", style="border:none;")
-                geneWikiButton.append(geneWikiButton_img)
+                #geneWikiButton.append(geneWikiButton_img)
                 geneWikiText = 'GeneWiki'
 
                 #XZ: display similar traits in other selected datasets
@@ -323,15 +329,15 @@ class DataEditingPage(templatePage):
                         similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), thisTrait.symbol, _Species)
                         similarButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % similarUrl)
                         similarButton_img = HT.Image("/images/find_icon.jpg", name="similar", alt=" Find similar expression data ", title=" Find similar expression data ", style="border:none;")
-                        similarButton.append(similarButton_img)
+                        #similarButton.append(similarButton_img)
                         similarText = "Find"
                 else:
                     pass
-                tbl.append(HT.TR(
-                        HT.TD('Gene Symbol: ', Class="fwb fs13", valign="top", nowrap="on", width=90),
-                        HT.TD(width=10, valign="top"),
-                        HT.TD(HT.Span('%s' % thisTrait.symbol, valign="top", Class="fs13 fsI"), valign="top", width=740)
-                        ))
+                #tbl.append(HT.TR(
+                        #HT.TD('Gene Symbol: ', Class="fwb fs13", valign="top", nowrap="on", width=90),
+                        #HT.TD(width=10, valign="top"),
+                        #HT.TD(HT.Span('%s' % thisTrait.symbol, valign="top", Class="fs13 fsI"), valign="top", width=740)
+                        #))
             else:
                 tbl.append(HT.TR(
                         HT.TD('Gene Symbol: ', Class="fwb fs13", valign="top", nowrap="on"),
@@ -343,24 +349,16 @@ class DataEditingPage(templatePage):
             if thisTrait.alias:
                 alias = string.replace(thisTrait.alias, ";", " ")
                 alias = string.join(string.split(alias), ", ")
-                tbl.append(HT.TR(
-                        HT.TD('Aliases: ', Class="fwb fs13", valign="top", nowrap="on"),
-                        HT.TD(width=10, valign="top"),
-                        HT.TD(HT.Span(alias, Class="fs13 fsI"), valign="top")
-                        ))
+                thisTrait.alias_fmt = alias
+     
 
             #XZ: Description
             if thisTrait.description:
-                tSpan = HT.Span(thisTrait.description, Class="fs13")
+                thisTrait.description_fmt = thisTrait.description
                 if thisTrait.probe_target_description:
-                    tSpan.append('; ', thisTrait.probe_target_description)
+                    thisTrait.description_fmt += "; " + this.trait.probe_target_description
             else:
-                tSpan = HT.Span('Not available', Class="fs13")
-            tbl.append(HT.TR(
-                    HT.TD('Description: ', Class="fwb fs13", valign="top", nowrap="on"),
-                    HT.TD(width=10, valign="top"),
-                    HT.TD(tSpan, valign="top")
-                    ))
+                thisTrait.description_fmt = "Not available"
 
             #XZ: Location
 
@@ -372,19 +370,19 @@ class DataEditingPage(templatePage):
             else:
                 tSpan = HT.Span('Not available', Class="fs13")
 
-            #XZ: deal with direction
-            if thisTrait.strand_probe == '+':
-                tSpan.append(' on the plus strand ')
-            elif thisTrait.strand_probe == '-':
-                tSpan.append(' on the minus strand ')
-            else:
-                pass
-
-            tbl.append(HT.TR(
-                    HT.TD('Location: ', Class="fwb fs13", valign="top", nowrap="on"),
-                    HT.TD(width=10, valign="top"),
-                    HT.TD(tSpan, valign="top")
-                    ))
+            ##XZ: deal with direction
+            #if thisTrait.strand_probe == '+':
+            #    tSpan.append(' on the plus strand ')
+            #elif thisTrait.strand_probe == '-':
+            #    tSpan.append(' on the minus strand ')
+            #else:
+            #    pass
+            #
+            #tbl.append(HT.TR(
+            #        HT.TD('Location: ', Class="fwb fs13", valign="top", nowrap="on"),
+            #        HT.TD(width=10, valign="top"),
+            #        HT.TD(tSpan, valign="top")
+            #        ))
 
             ##display Verify Location button
             try:
@@ -473,7 +471,7 @@ class DataEditingPage(templatePage):
                             % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), thisTrait.db, thisTrait.name, thisTrait.cellid, fd.RISet)
                     probeButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % probeurl)
                     probeButton_img = HT.Image("/images/probe_icon.jpg", name="probe", alt=" Check sequence of probes ", title=" Check sequence of probes ", style="border:none;")
-                    probeButton.append(probeButton_img)
+                    #probeButton.append(probeButton_img)
                     probeText = "Probes"
 
             tSpan = HT.Span(Class="fs13")
@@ -481,26 +479,28 @@ class DataEditingPage(templatePage):
             #XZ: deal with blat score and blat specificity.
             if thisTrait.probe_set_specificity or thisTrait.probe_set_blat_score:
                 if thisTrait.probe_set_specificity:
-                    tSpan.append(HT.Href(url="/blatInfo.html", target="_blank", title="Values higher than 2 for the specificity are good", text="BLAT specificity", Class="non_bold"),": %.1f" % float(thisTrait.probe_set_specificity), "&nbsp;"*3)
+                    pass
+                    #tSpan.append(HT.Href(url="/blatInfo.html", target="_blank", title="Values higher than 2 for the specificity are good", text="BLAT specificity", Class="non_bold"),": %.1f" % float(thisTrait.probe_set_specificity), "&nbsp;"*3)
                 if thisTrait.probe_set_blat_score:
-                    tSpan.append("Score: %s" % int(thisTrait.probe_set_blat_score), "&nbsp;"*2)
+                    pass
+                    #tSpan.append("Score: %s" % int(thisTrait.probe_set_blat_score), "&nbsp;"*2)
 
             onClick="openNewWin('/blatInfo.html')"
 
-            tbl.append(HT.TR(
-                    HT.TD('Target Score: ', Class="fwb fs13", valign="top", nowrap="on"),
-                    HT.TD(width=10, valign="top"),
-                    HT.TD(tSpan, valign="top")
-                    ))
+            #tbl.append(HT.TR(
+            #        HT.TD('Target Score: ', Class="fwb fs13", valign="top", nowrap="on"),
+            #        HT.TD(width=10, valign="top"),
+            #        HT.TD(tSpan, valign="top")
+            #        ))
 
-            tSpan = HT.Span(Class="fs13")
-            tSpan.append(str(_Species).capitalize(), ", ", fd.RISet)
-
-            tbl.append(HT.TR(
-                    HT.TD('Species and Group: ', Class="fwb fs13", valign="top", nowrap="on"),
-                    HT.TD(width=10, valign="top"),
-                    HT.TD(tSpan, valign="top")
-                    ))
+            #tSpan = HT.Span(Class="fs13")
+            #tSpan.append(str(_Species).capitalize(), ", ", fd.RISet)
+            #
+            #tbl.append(HT.TR(
+            #        HT.TD('Species and Group: ', Class="fwb fs13", valign="top", nowrap="on"),
+            #        HT.TD(width=10, valign="top"),
+            #        HT.TD(tSpan, valign="top")
+            #        ))
 
             if thisTrait.cellid:
                 self.cursor.execute("""
@@ -515,12 +515,13 @@ class DataEditingPage(templatePage):
                         HT.TD(HT.Span('%s' % probeDBName, Class="non_bold"), valign="top")
                         ))
             else:
-                tbl.append(HT.TR(
-                        HT.TD('Database: ', Class="fs13 fwb", valign="top", nowrap="on"),
-                        HT.TD(width=10, valign="top"),
-                        HT.TD(HT.Href(text=thisTrait.db.fullname, url = webqtlConfig.INFOPAGEHREF % thisTrait.db.name,
-                        target='_blank', Class="fs13 fwn non_bold"), valign="top")
-                        ))
+                #tbl.append(HT.TR(
+                #        HT.TD('Database: ', Class="fs13 fwb", valign="top", nowrap="on"),
+                #        HT.TD(width=10, valign="top"),
+                #        HT.TD(HT.Href(text=thisTrait.db.fullname, url = webqtlConfig.INFOPAGEHREF % thisTrait.db.name,
+                #        target='_blank', Class="fs13 fwn non_bold"), valign="top")
+                #        ))
+                pass
 
             #XZ: ID links
             if thisTrait.genbankid or thisTrait.geneid or thisTrait.unigeneid or thisTrait.omim or thisTrait.homologeneid:
@@ -529,7 +530,7 @@ class DataEditingPage(templatePage):
                 if thisTrait.geneid:
                     gurl = HT.Href(text= 'Gene', target='_blank',\
                             url=webqtlConfig.NCBI_LOCUSID % thisTrait.geneid, Class="fs14 fwn", title="Info from NCBI Entrez Gene")
-                    tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
+                    #tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
                 if thisTrait.omim:
                     gurl = HT.Href(text= 'OMIM', target='_blank', \
                             url= webqtlConfig.OMIM_ID % thisTrait.omim,Class="fs14 fwn", title="Summary from On Mendelian Inheritance in Man")
@@ -538,7 +539,7 @@ class DataEditingPage(templatePage):
                     try:
                         gurl = HT.Href(text= 'UniGene',target='_blank',\
                                 url= webqtlConfig.UNIGEN_ID % tuple(string.split(thisTrait.unigeneid,'.')[:2]),Class="fs14 fwn", title="UniGene ID")
-                        tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
+                        #tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
                     except:
                         pass
                 if thisTrait.genbankid:
@@ -547,19 +548,19 @@ class DataEditingPage(templatePage):
                         thisTrait.genbankid=thisTrait.genbankid[0:-1]
                     gurl = HT.Href(text= 'GenBank', target='_blank', \
                             url= webqtlConfig.GENBANK_ID % thisTrait.genbankid,Class="fs14 fwn", title="Find the original GenBank sequence used to design the probes")
-                    tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
+                    #tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
                 if thisTrait.homologeneid:
                     hurl = HT.Href(text= 'HomoloGene', target='_blank',\
                             url=webqtlConfig.HOMOLOGENE_ID % thisTrait.homologeneid, Class="fs14 fwn", title="Find similar genes in other species")
-                    tSpan.append(HT.Span(hurl, style=idStyle), "&nbsp;"*2)
+                    #tSpan.append(HT.Span(hurl, style=idStyle), "&nbsp;"*2)
 
-                tbl.append(
-                        HT.TR(HT.TD(colspan=3,height=6)),
-                        HT.TR(
-                        HT.TD('Resource Links: ', Class="fwb fs13", valign="top", nowrap="on"),
-                        HT.TD(width=10, valign="top"),
-                        HT.TD(tSpan, valign="top")
-                        ))
+                #tbl.append(
+                #        HT.TR(HT.TD(colspan=3,height=6)),
+                #        HT.TR(
+                #        HT.TD('Resource Links: ', Class="fwb fs13", valign="top", nowrap="on"),
+                #        HT.TD(width=10, valign="top"),
+                #        HT.TD(tSpan, valign="top")
+                #        ))
 
             #XZ: Resource Links:
             if thisTrait.symbol:
@@ -581,9 +582,9 @@ class DataEditingPage(templatePage):
                         if chr and txst and txen and kgId:
                             txst = int(txst*1000000)
                             txen = int(txen*1000000)
-                            tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
-                                    title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('rn3',kgId,chr,txst,txen),Class="fs14 fwn"), style=linkStyle)
-                                    , "&nbsp;"*2)
+                            #tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
+                            #        title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('rn3',kgId,chr,txst,txen),Class="fs14 fwn"), style=linkStyle)
+                            #        , "&nbsp;"*2)
                     except:
                         pass
                 if _Species == "mouse":
@@ -611,14 +612,15 @@ class DataEditingPage(templatePage):
                 #       % (thisTrait.symbol,symatlas_species),Class="fs14 fwn", \
                 #       title="Expression across many tissues and cell types"), style=linkStyle), "&nbsp;"*2)
                 if thisTrait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
-                    tSpan.append(HT.Span(HT.Href(text= 'BioGPS',target="mainFrame",\
-                            url="http://biogps.gnf.org/?org=%s#goto=genereport&id=%s" \
-                            % (_Species, thisTrait.geneid),Class="fs14 fwn", \
-                            title="Expression across many tissues and cell types"), style=linkStyle), "&nbsp;"*2)
-                tSpan.append(HT.Span(HT.Href(text= 'STRING',target="mainFrame",\
-                        url="http://string.embl.de/newstring_cgi/show_link_summary.pl?identifier=%s" \
-                        % thisTrait.symbol,Class="fs14 fwn", \
-                        title="Protein interactions: known and inferred"), style=linkStyle), "&nbsp;"*2)
+                    #tSpan.append(HT.Span(HT.Href(text= 'BioGPS',target="mainFrame",\
+                    #        url="http://biogps.gnf.org/?org=%s#goto=genereport&id=%s" \
+                    #        % (_Species, thisTrait.geneid),Class="fs14 fwn", \
+                    #        title="Expression across many tissues and cell types"), style=linkStyle), "&nbsp;"*2)
+                    pass
+                #tSpan.append(HT.Span(HT.Href(text= 'STRING',target="mainFrame",\
+                #        url="http://string.embl.de/newstring_cgi/show_link_summary.pl?identifier=%s" \
+                #        % thisTrait.symbol,Class="fs14 fwn", \
+                #        title="Protein interactions: known and inferred"), style=linkStyle), "&nbsp;"*2)
                 if thisTrait.symbol:
                     #ZS: The "species scientific" converts the plain English species names we're using to their scientific names, which are needed for PANTHER's input
                     #We should probably use the scientific name along with the English name (if not instead of) elsewhere as well, given potential non-English speaking users
@@ -634,30 +636,30 @@ class DataEditingPage(templatePage):
                         species_scientific = "all"
 
                     species_scientific
-                    tSpan.append(HT.Span(HT.Href(text= 'PANTHER',target="mainFrame", \
-                            url="http://www.pantherdb.org/genes/geneList.do?searchType=basic&fieldName=all&organism=%s&listType=1&fieldValue=%s"  \
-                            % (species_scientific, thisTrait.symbol),Class="fs14 fwn", \
-                    title="Gene and protein data resources from Celera-ABI"), style=linkStyle), "&nbsp;"*2)
+                    #tSpan.append(HT.Span(HT.Href(text= 'PANTHER',target="mainFrame", \
+                    #        url="http://www.pantherdb.org/genes/geneList.do?searchType=basic&fieldName=all&organism=%s&listType=1&fieldValue=%s"  \
+                    #        % (species_scientific, thisTrait.symbol),Class="fs14 fwn", \
+                    #        title="Gene and protein data resources from Celera-ABI"), style=linkStyle), "&nbsp;"*2)
                 else:
                     pass
                 #tSpan.append(HT.Span(HT.Href(text= 'BIND',target="mainFrame",\
                 #       url="http://bind.ca/?textquery=%s" \
                 #       % thisTrait.symbol,Class="fs14 fwn", \
                 #       title="Protein interactions"), style=linkStyle), "&nbsp;"*2)
-                if thisTrait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
-                    tSpan.append(HT.Span(HT.Href(text= 'Gemma',target="mainFrame",\
-                            url="http://www.chibi.ubc.ca/Gemma/gene/showGene.html?ncbiid=%s" \
-                            % thisTrait.geneid, Class="fs14 fwn", \
-                            title="Meta-analysis of gene expression data"), style=linkStyle), "&nbsp;"*2)
-                tSpan.append(HT.Span(HT.Href(text= 'SynDB',target="mainFrame",\
-                        url="http://lily.uthsc.edu:8080/20091027_GNInterfaces/20091027_redirectSynDB.jsp?query=%s" \
-                        % thisTrait.symbol, Class="fs14 fwn", \
-                        title="Brain synapse database"), style=linkStyle), "&nbsp;"*2)
-                if _Species == "mouse":
-                    tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
-                            url="http://mouse.brain-map.org/brain/%s.html" \
-                            % thisTrait.symbol, Class="fs14 fwn", \
-                            title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
+                #if thisTrait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
+                #    tSpan.append(HT.Span(HT.Href(text= 'Gemma',target="mainFrame",\
+                #            url="http://www.chibi.ubc.ca/Gemma/gene/showGene.html?ncbiid=%s" \
+                #            % thisTrait.geneid, Class="fs14 fwn", \
+                #            title="Meta-analysis of gene expression data"), style=linkStyle), "&nbsp;"*2)
+                #tSpan.append(HT.Span(HT.Href(text= 'SynDB',target="mainFrame",\
+                #        url="http://lily.uthsc.edu:8080/20091027_GNInterfaces/20091027_redirectSynDB.jsp?query=%s" \
+                #        % thisTrait.symbol, Class="fs14 fwn", \
+                #        title="Brain synapse database"), style=linkStyle), "&nbsp;"*2)
+                #if _Species == "mouse":
+                #    tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
+                #            url="http://mouse.brain-map.org/brain/%s.html" \
+                #            % thisTrait.symbol, Class="fs14 fwn", \
+                #            title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
 
                 if thisTrait.geneid:
                     #if _Species == "mouse":
@@ -666,20 +668,22 @@ class DataEditingPage(templatePage):
                     #               % thisTrait.geneid, Class="fs14 fwn", \
                     #               title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
                     if _Species == "human":
-                        tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
-                                url="http://humancortex.alleninstitute.org/has/human/imageseries/search/1.html?searchSym=t&searchAlt=t&searchName=t&gene_term=&entrez_term=%s" \
-                                % thisTrait.geneid, Class="fs14 fwn", \
-                                title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
-                tbl.append(
-                        HT.TR(HT.TD(colspan=3,height=6)),
-                        HT.TR(
-                        HT.TD(' '),
-                        HT.TD(width=10, valign="top"),
-                        HT.TD(tSpan, valign="top")))
+                        #tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
+                        #        url="http://humancortex.alleninstitute.org/has/human/imageseries/search/1.html?searchSym=t&searchAlt=t&searchName=t&gene_term=&entrez_term=%s" \
+                        #        % thisTrait.geneid, Class="fs14 fwn", \
+                        #        title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
+                        pass
 
-            menuTable = HT.TableLite(cellpadding=2, Class="collap", width="620", id="target1")
-            menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(similarButton, align="center"),HT.TD(verifyButton, align="center"),HT.TD(geneWikiButton, align="center"),HT.TD(snpBrowserButton, align="center"),HT.TD(rnaseqButton, align="center"),HT.TD(probeButton, align="center"),HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-            menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(similarText, align="center"),HT.TD(verifyText, align="center"),HT.TD(geneWikiText, align="center"),HT.TD(snpBrowserText, align="center"),HT.TD(rnaseqText, align="center"),HT.TD(probeText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
+                #tbl.append(
+                #        HT.TR(HT.TD(colspan=3,height=6)),
+                #        HT.TR(
+                #        HT.TD(' '),
+                #        HT.TD(width=10, valign="top"),
+                #        HT.TD(tSpan, valign="top")))
+
+            #menuTable = HT.TableLite(cellpadding=2, Class="collap", width="620", id="target1")
+            #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(similarButton, align="center"),HT.TD(verifyButton, align="center"),HT.TD(geneWikiButton, align="center"),HT.TD(snpBrowserButton, align="center"),HT.TD(rnaseqButton, align="center"),HT.TD(probeButton, align="center"),HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
+            #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(similarText, align="center"),HT.TD(verifyText, align="center"),HT.TD(geneWikiText, align="center"),HT.TD(snpBrowserText, align="center"),HT.TD(rnaseqText, align="center"),HT.TD(probeText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
 
 
             #for zhou mi's cliques, need to be removed
@@ -690,91 +694,95 @@ class DataEditingPage(templatePage):
 
             #linkTable.append(HT.TR(linkTD))
             #Info2Disp.append(linkTable)
-            title1Body.append(tbl, HT.BR(), menuTable)
+            #title1Body.append(tbl, HT.BR(), menuTable)
 
         elif thisTrait and thisTrait.db and thisTrait.db.type =='Publish': #Check if trait is phenotype
 
             if thisTrait.confidential:
-                tbl.append(HT.TR(
-                                HT.TD('Pre-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                                HT.TD(width=10, valign="top"),
-                                HT.TD(HT.Span(thisTrait.pre_publication_description, Class="fs13"), valign="top", width=740)
-                                ))
+                pass
+                #tbl.append(HT.TR(
+                #                HT.TD('Pre-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+                #                HT.TD(width=10, valign="top"),
+                #                HT.TD(HT.Span(thisTrait.pre_publication_description, Class="fs13"), valign="top", width=740)
+                #                ))
                 if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=thisTrait.authorized_users):
-                    tbl.append(HT.TR(
-                                    HT.TD('Post-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                                    HT.TD(width=10, valign="top"),
-                                    HT.TD(HT.Span(thisTrait.post_publication_description, Class="fs13"), valign="top", width=740)
-                                    ))
-                    tbl.append(HT.TR(
-                                    HT.TD('Pre-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                                    HT.TD(width=10, valign="top"),
-                                    HT.TD(HT.Span(thisTrait.pre_publication_abbreviation, Class="fs13"), valign="top", width=740)
-                                    ))
-                    tbl.append(HT.TR(
-                                    HT.TD('Post-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                                    HT.TD(width=10, valign="top"),
-                                    HT.TD(HT.Span(thisTrait.post_publication_abbreviation, Class="fs13"), valign="top", width=740)
-                                    ))
-                    tbl.append(HT.TR(
-                                    HT.TD('Lab code: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                                    HT.TD(width=10, valign="top"),
-                                    HT.TD(HT.Span(thisTrait.lab_code, Class="fs13"), valign="top", width=740)
-                                    ))
-                tbl.append(HT.TR(
-                                HT.TD('Owner: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                                HT.TD(width=10, valign="top"),
-                                HT.TD(HT.Span(thisTrait.owner, Class="fs13"), valign="top", width=740)
-                                ))
+                    #tbl.append(HT.TR(
+                    #                HT.TD('Post-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+                    #                HT.TD(width=10, valign="top"),
+                    #                HT.TD(HT.Span(thisTrait.post_publication_description, Class="fs13"), valign="top", width=740)
+                    #                ))
+                    #tbl.append(HT.TR(
+                    #                HT.TD('Pre-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+                    #                HT.TD(width=10, valign="top"),
+                    #                HT.TD(HT.Span(thisTrait.pre_publication_abbreviation, Class="fs13"), valign="top", width=740)
+                    #                ))
+                    #tbl.append(HT.TR(
+                    #                HT.TD('Post-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+                    #                HT.TD(width=10, valign="top"),
+                    #                HT.TD(HT.Span(thisTrait.post_publication_abbreviation, Class="fs13"), valign="top", width=740)
+                    #                ))
+                    #tbl.append(HT.TR(
+                    #                HT.TD('Lab code: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+                    #                HT.TD(width=10, valign="top"),
+                    #                HT.TD(HT.Span(thisTrait.lab_code, Class="fs13"), valign="top", width=740)
+                    #                ))
+                    pass
+                #tbl.append(HT.TR(
+                #                HT.TD('Owner: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+                #                HT.TD(width=10, valign="top"),
+                #                HT.TD(HT.Span(thisTrait.owner, Class="fs13"), valign="top", width=740)
+                #                ))
             else:
-                tbl.append(HT.TR(
-                                HT.TD('Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                                HT.TD(width=10, valign="top"),
-                                HT.TD(HT.Span(thisTrait.post_publication_description, Class="fs13"), valign="top", width=740)
-                                ))
-            tbl.append(HT.TR(
-                            HT.TD('Authors: ', Class="fs13 fwb",
-                                    valign="top", nowrap="on", width=90),
-                            HT.TD(width=10, valign="top"),
-                            HT.TD(HT.Span(thisTrait.authors, Class="fs13"),
-                                    valign="top", width=740)
-                            ))
-            tbl.append(HT.TR(
-                            HT.TD('Title: ', Class="fs13 fwb",
-                                    valign="top", nowrap="on", width=90),
-                            HT.TD(width=10, valign="top"),
-                            HT.TD(HT.Span(thisTrait.title, Class="fs13"),
-                                    valign="top", width=740)
-                            ))
+                pass
+                #tbl.append(HT.TR(
+                #                HT.TD('Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+                #                HT.TD(width=10, valign="top"),
+                #                HT.TD(HT.Span(thisTrait.post_publication_description, Class="fs13"), valign="top", width=740)
+                #                ))
+            #tbl.append(HT.TR(
+            #                HT.TD('Authors: ', Class="fs13 fwb",
+            #                        valign="top", nowrap="on", width=90),
+            #                HT.TD(width=10, valign="top"),
+            #                HT.TD(HT.Span(thisTrait.authors, Class="fs13"),
+            #                        valign="top", width=740)
+            #                ))
+            #tbl.append(HT.TR(
+            #                HT.TD('Title: ', Class="fs13 fwb",
+            #                        valign="top", nowrap="on", width=90),
+            #                HT.TD(width=10, valign="top"),
+            #                HT.TD(HT.Span(thisTrait.title, Class="fs13"),
+            #                        valign="top", width=740)
+            #                ))
             if thisTrait.journal:
                 journal = thisTrait.journal
                 if thisTrait.year:
                     journal = thisTrait.journal + " (%s)" % thisTrait.year
-
-                tbl.append(HT.TR(
-                        HT.TD('Journal: ', Class="fs13 fwb",
-                                valign="top", nowrap="on", width=90),
-                        HT.TD(width=10, valign="top"),
-                        HT.TD(HT.Span(journal, Class="fs13"),
-                                valign="top", width=740)
-                        ))
+                #
+                #tbl.append(HT.TR(
+                #        HT.TD('Journal: ', Class="fs13 fwb",
+                #                valign="top", nowrap="on", width=90),
+                #        HT.TD(width=10, valign="top"),
+                #        HT.TD(HT.Span(journal, Class="fs13"),
+                #                valign="top", width=740)
+                #        ))
             PubMedLink = ""
             if thisTrait.pubmed_id:
                 PubMedLink = webqtlConfig.PUBMEDLINK_URL % thisTrait.pubmed_id
             if PubMedLink:
-                tbl.append(HT.TR(
-                        HT.TD('Link: ', Class="fs13 fwb",
-                                valign="top", nowrap="on", width=90),
-                        HT.TD(width=10, valign="top"),
-                        HT.TD(HT.Span(HT.Href(url=PubMedLink, text="PubMed",target='_blank',Class="fs14 fwn"),
-                                style = "background:#cddcff;padding:2"), valign="top", width=740)
-                        ))
+                #tbl.append(HT.TR(
+                #        HT.TD('Link: ', Class="fs13 fwb",
+                #                valign="top", nowrap="on", width=90),
+                #        HT.TD(width=10, valign="top"),
+                #        HT.TD(HT.Span(HT.Href(url=PubMedLink, text="PubMed",target='_blank',Class="fs14 fwn"),
+                #                style = "background:#cddcff;padding:2"), valign="top", width=740)
+                #        ))
+                pass
 
             menuTable = HT.TableLite(cellpadding=2, Class="collap", width="150", id="target1")
-            menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-            menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
+            #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
+            #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
 
-            title1Body.append(tbl, HT.BR(), menuTable)
+            #title1Body.append(tbl, HT.BR(), menuTable)
 
         elif thisTrait and thisTrait.db and thisTrait.db.type == 'Geno': #Check if trait is genotype
 
@@ -808,32 +816,33 @@ class DataEditingPage(templatePage):
                     rnaseqButton.append(rnaseqButtonImg)
                     rnaseqText = "RNA-seq"
 
-            tbl.append(HT.TR(
-                            HT.TD('Location: ', Class="fs13 fwb",
-                                    valign="top", nowrap="on", width=90),
-                            HT.TD(width=10, valign="top"),
-                            HT.TD(HT.Span(location, Class="fs13"), valign="top", width=740)
-                            ),
-                    HT.TR(
-                            HT.TD('SNP Search: ', Class="fs13 fwb",
-                                    valign="top", nowrap="on", width=90),
-                            HT.TD(width=10, valign="top"),
-                            HT.TD(HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=snp&cmd=search&term=%s" % thisTrait.name, 'NCBI',Class="fs13"),
-                                    valign="top", width=740)
-                            ))
+            #tbl.append(HT.TR(
+            #                HT.TD('Location: ', Class="fs13 fwb",
+            #                        valign="top", nowrap="on", width=90),
+            #                HT.TD(width=10, valign="top"),
+            #                HT.TD(HT.Span(location, Class="fs13"), valign="top", width=740)
+            #                ),
+            #        HT.TR(
+            #                HT.TD('SNP Search: ', Class="fs13 fwb",
+            #                        valign="top", nowrap="on", width=90),
+            #                HT.TD(width=10, valign="top"),
+            #                HT.TD(HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=snp&cmd=search&term=%s" % thisTrait.name, 'NCBI',Class="fs13"),
+            #                        valign="top", width=740)
+            #                ))
 
             menuTable = HT.TableLite(cellpadding=2, Class="collap", width="275", id="target1")
-            menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(verifyButton, align="center"),HT.TD(rnaseqButton, align="center"), HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-            menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(verifyText, align="center"),HT.TD(rnaseqText, align="center"), HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
+            #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(verifyButton, align="center"),HT.TD(rnaseqButton, align="center"), HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
+            #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(verifyText, align="center"),HT.TD(rnaseqText, align="center"), HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
 
-            title1Body.append(tbl, HT.BR(), menuTable)
+            #title1Body.append(tbl, HT.BR(), menuTable)
 
         elif (thisTrait == None or thisTrait.db.type == 'Temp'): #if temporary trait (user-submitted trait or PCA trait)
 
-            TempInfo = HT.Paragraph()
+            #TempInfo = HT.Paragraph()
             if thisTrait != None:
                 if thisTrait.description:
-                    tbl.append(HT.TR(HT.TD(HT.Strong('Description: '),' %s ' % thisTrait.description,HT.BR()), colspan=3, height=15))
+                    pass
+                    #tbl.append(HT.TR(HT.TD(HT.Strong('Description: '),' %s ' % thisTrait.description,HT.BR()), colspan=3, height=15))
             else:
                 tbl.append(HT.TR(HT.TD(HT.Strong('Description: '),'not available',HT.BR(),HT.BR()), colspan=3, height=15))
 
@@ -842,10 +851,10 @@ class DataEditingPage(templatePage):
             else:
                 menuTable = HT.TableLite(cellpadding=2, Class="collap", width="80", id="target1")
 
-            menuTable.append(HT.TR(HT.TD(addSelectionButton, align="right"),HT.TD(updateButton, align="right"), colspan=3, height=50, style="vertical-align:bottom;")       )
-            menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-
-            title1Body.append(tbl, HT.BR(), menuTable)
+            #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="right"),HT.TD(updateButton, align="right"), colspan=3, height=50, style="vertical-align:bottom;")       )
+            #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
+            #
+            #title1Body.append(tbl, HT.BR(), menuTable)
 
         else:
             pass
