@@ -52,35 +52,62 @@ class DataEditingPage(templatePage):
 		##      titles, etc.
 		#############################
 
-		titleTop = HT.Div()
-
-		title1 = HT.Paragraph("&nbsp;&nbsp;Details and Links", style="border-radius: 5px;", Id="title1", Class="sectionheader")
-		title1Body = HT.Paragraph(Id="sectionbody1")
-
-		if fd.enablevariance and not varianceDataPage:
-			title2 = HT.Paragraph("&nbsp;&nbsp;Submit Variance", style="border-radius: 5px;", Id="title2", Class="sectionheader")
-		else:
-			title2 = HT.Paragraph("&nbsp;&nbsp;Basic Statistics", style="border-radius: 5px;", Id="title2", Class="sectionheader")
-		title2Body = HT.Paragraph(Id="sectionbody2")
-
-		title3 = HT.Paragraph("&nbsp;&nbsp;Calculate Correlations", style="border-radius: 5px;", Id="title3", Class="sectionheader")
-		title3Body = HT.Paragraph(Id="sectionbody3")
-
-		title4 = HT.Paragraph("&nbsp;&nbsp;Mapping Tools", style="border-radius: 5px;", Id="title4", Class="sectionheader")
-		title4Body = HT.Paragraph(Id="sectionbody4")
-
-		title5 = HT.Paragraph("&nbsp;&nbsp;Review and Edit Data", style="border-radius: 5px;", Id="title5", Class="sectionheader")
-		title5Body = HT.Paragraph(Id="sectionbody5")
+		#titleTop = HT.Div()
+		#
+		#title1 = HT.Paragraph("&nbsp;&nbsp;Details and Links", style="border-radius: 5px;", Id="title1", Class="sectionheader")
+		#title1Body = HT.Paragraph(Id="sectionbody1")
+		#
+		#if fd.enablevariance and not varianceDataPage:
+		#	title2 = HT.Paragraph("&nbsp;&nbsp;Submit Variance", style="border-radius: 5px;", Id="title2", Class="sectionheader")
+		#else:
+		#	title2 = HT.Paragraph("&nbsp;&nbsp;Basic Statistics", style="border-radius: 5px;", Id="title2", Class="sectionheader")
+		#title2Body = HT.Paragraph(Id="sectionbody2")
+		#
+		#title3 = HT.Paragraph("&nbsp;&nbsp;Calculate Correlations", style="border-radius: 5px;", Id="title3", Class="sectionheader")
+		#title3Body = HT.Paragraph(Id="sectionbody3")
+		#
+		#title4 = HT.Paragraph("&nbsp;&nbsp;Mapping Tools", style="border-radius: 5px;", Id="title4", Class="sectionheader")
+		#title4Body = HT.Paragraph(Id="sectionbody4")
+		#
+		#title5 = HT.Paragraph("&nbsp;&nbsp;Review and Edit Data", style="border-radius: 5px;", Id="title5", Class="sectionheader")
+		#title5Body = HT.Paragraph(Id="sectionbody5")
 
 		#############################
 		##     Hidden field
 		#############################
 
 		# Some fields, like method, are defaulted to None; otherwise in IE the field can't be changed using jquery
-		hddn = {'FormID':fmID, 'RISet':fd.RISet, 'submitID':'', 'scale':'physic', 'additiveCheck':'ON', 'showSNP':'ON', 'showGenes':'ON', 'method':None,\
-		'parentsf14regression':'OFF', 'stats_method':'1', 'chromosomes':'-1', 'topten':'', 'viewLegend':'ON', 'intervalAnalystCheck':'ON', 'valsHidden':'OFF',\
- 		'database':'', 'criteria':None, 'MDPChoice':None, 'bootCheck':None, 'permCheck':None, 'applyVarianceSE':None, 'strainNames':'_', 'strainVals':'_',\
-		'strainVars':'_', 'otherStrainNames':'_', 'otherStrainVals':'_', 'otherStrainVars':'_', 'extra_attributes':'_', 'other_extra_attributes':'_'}
+		hddn = {
+			'FormID':fmID,
+			'RISet':fd.RISet,
+			'submitID':'',
+			'scale':'physic',
+			'additiveCheck':'ON',
+			'showSNP':'ON',
+			'showGenes':'ON',
+			'method':None,
+			'parentsf14regression':'OFF',
+			'stats_method':'1',
+			'chromosomes':'-1',
+			'topten':'',
+			'viewLegend':'ON',
+			'intervalAnalystCheck':'ON',
+			'valsHidden':'OFF',
+			'database':'',
+			'criteria':None,
+			'MDPChoice':None,
+			'bootCheck':None,
+			'permCheck':None,
+			'applyVarianceSE':None,
+			'strainNames':'_',
+			'strainVals':'_',
+			'strainVars':'_',
+			'otherStrainNames':'_',
+			'otherStrainVals':'_',
+			'otherStrainVars':'_',
+			'extra_attributes':'_',
+			'other_extra_attributes':'_'
+			}
 
 		if fd.enablevariance:
 			hddn['enablevariance']='ON'

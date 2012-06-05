@@ -70,13 +70,13 @@ class templatePage:
 		self.starttime = time.time()
 		self.dict = {}
 		self.template = template
-		
+
 		for item in self.contents:
 			self.dict[item] = ""
-		
+
 		self.dict['basehref'] = "" #webqtlConfig.BASEHREF
 		self.cursor = None
-		
+
 		self.cookie = [] #XZ: list to hold cookies (myCookie object) being changed
 		self.content_type = 'text/html'
 		self.content_disposition = ''
@@ -89,11 +89,13 @@ class templatePage:
 
 		self.userName = 'Guest'
 		self.privilege = 'guest'
-		if fd.input_session_data.has_key('user'):
-			self.userName = fd.input_session_data['user']
-		if fd.input_session_data.has_key('privilege'):
-			self.privilege = fd.input_session_data['privilege']
-	
+
+		# Commenting this out for flask - we'll have to reimplement later - Sam
+		#if fd.input_session_data.has_key('user'):
+		#	self.userName = fd.input_session_data['user']
+		#if fd.input_session_data.has_key('privilege'):
+		#	self.privilege = fd.input_session_data['privilege']
+
 	def __str__(self):
 
 		#XZ: default setting
@@ -126,20 +128,20 @@ class templatePage:
 	def __del__(self):
 		if self.cursor:
 			self.cursor.close()
-			
+
 	def write(self):
 		'return string representation of this object'
 
 		if self.cursor:
 			self.cursor.close()
 
-		return str(self)	
-		
+		return str(self)
+
 	def writeFile(self, filename):
 		'save string representation of this object into a file'
 		if self.cursor:
 			self.cursor.close()
-			
+
 		try:
 			'it could take a long time to generate the file, save to .tmp first'
 			fp = open(os.path.join(webqtlConfig.TMPDIR, filename+'.tmp'), 'wb')
@@ -147,9 +149,9 @@ class templatePage:
 			fp.close()
                         path_tmp = os.path.join(webqtlConfig.TMPDIR, filename+'.tmp')
                         path_html = os.path.join(webqtlConfig.TMPDIR, filename)
-                        shutil.move(path_tmp,path_html)           
+                        shutil.move(path_tmp,path_html)
 		except:
-			pass	
+			pass
 
 	def openMysql(self):
 		try:
@@ -176,12 +178,12 @@ class templatePage:
 					The server may be down at this time "]
 			self.error(heading=heading,detail=detail,error="Error 2003")
 			return 0
-	
+
 	def error(self,heading="",intro=[],detail=[],title="Error",error="Error"):
 		'generating a WebQTL style error page'
 		Heading = HT.Paragraph(heading)
 		Heading.__setattr__("class","title")
-		
+
 		Intro = HT.Blockquote()
 		if intro:
 			for item in intro:
@@ -190,7 +192,7 @@ class templatePage:
 			Intro.append(HT.Strong('Sorry!'),' Error occurred while processing\
 				your request.', HT.P(),'The nature of the error generated is as\
 				follows:')
-		
+
 		Detail = HT.Blockquote()
 		Detail.append(HT.Span("%s : " % error,Class="fwb cr"))
 		if detail:
@@ -198,7 +200,7 @@ class templatePage:
 			for item in detail:
 				Detail2.append(item)
 			Detail.append(HT.Italic(Detail2))
-			
+
 		#Detail.__setattr__("class","subtitle")
 		TD_LR = HT.TD(height=200,width="100%",bgColor='#eeeeee',valign="top")
 		TD_LR.append(Heading,Intro,Detail)
@@ -210,13 +212,11 @@ class templatePage:
 		self.filename = webqtlUtil.generate_session()
 		self.dict['title'] = mytitle
 		self.dict['basehref'] = webqtlConfig.REFRESHSTR % (webqtlConfig.CGIDIR, self.filename) + "" #webqtlConfig.BASEHREF
-		
+
 		TD_LR = HT.TD(align="center", valign="middle", height=200,width="100%", bgColor='#eeeeee')
 		Heading = HT.Paragraph(myHeading, Class="fwb fs16 cr")
-		# NL, 07/27/2010. variable 'PROGRESSBAR' has been moved from templatePage.py to webqtlUtil.py;		
+		# NL, 07/27/2010. variable 'PROGRESSBAR' has been moved from templatePage.py to webqtlUtil.py;
 		TD_LR.append(Heading, HT.BR(), webqtlUtil.PROGRESSBAR)
 		self.dict['body'] = TD_LR
 		self.writeFile(self.filename + '.html')
 		return self.filename
-		
-		

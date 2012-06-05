@@ -182,6 +182,6 @@ class ShowTraitPage(DataEditingPage):
 			fd.varianceDispName = 'SE'
 			fd.formID = 'varianceChoice'
 
-		self.dict['body']= thisTrait
+		#self.dict['body']= thisTrait
 		DataEditingPage.__init__(self, fd, thisTrait)
-		self.dict['title'] = '%s: Display Trait' % fd.identification
+		#self.dict['title'] = '%s: Display Trait' % fd.identification
