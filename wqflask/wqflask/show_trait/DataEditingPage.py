@@ -140,9 +140,9 @@ class DataEditingPage(templatePage):
 		##  Display Trait Information
 		#############################
 
-		headSpan = self.dispHeader(fd,thisTrait) #Draw header
-
-		titleTop.append(headSpan)
+		#headSpan = self.dispHeader(fd,thisTrait) #Draw header
+		#
+		#titleTop.append(headSpan)
 
 		if fd.identification:
 			hddn['identification'] = fd.identification
@@ -150,7 +150,7 @@ class DataEditingPage(templatePage):
 		else:
 			hddn['identification'] = "Un-named trait"  #If no identification, set identification to un-named
 
-		self.dispTraitInformation(fd, title1Body, hddn, thisTrait) #Display trait information + function buttons
+		self.dispTraitInformation(fd, "", hddn, thisTrait) #Display trait information + function buttons
 
 		#############################
 		##  Generate form and buttons
@@ -221,9 +221,9 @@ class DataEditingPage(templatePage):
 
 		_Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
 
-		tbl = HT.TableLite(cellpadding=2, Class="collap", style="margin-left:20px;", width="840", valign="top", id="target1")
+		#tbl = HT.TableLite(cellpadding=2, Class="collap", style="margin-left:20px;", width="840", valign="top", id="target1")
 
-		reset=HT.Input(type='Reset',name='',value=' Reset ',Class="button")
+		#reset=HT.Input(type='Reset',name='',value=' Reset ',Class="button")
 
 		#XZ, August 02, 2011: The display of icons is decided by the trait type (if trait exists), along with user log-in status. Note that the new submitted trait might not be trait object.
 		addSelectionButton = ""
@@ -270,12 +270,12 @@ class DataEditingPage(templatePage):
 		if thisTrait:
 			addSelectionButton = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (fd.RISet, 'dataInput'))
 			addSelectionButton_img = HT.Image("/images/add_icon.jpg", name="addselect", alt="Add To Collection", title="Add To Collection", style="border:none;")
-			addSelectionButton.append(addSelectionButton_img)
+			#addSelectionButton.append(addSelectionButton_img)
 			addSelectionText = "Add"
 		elif self.cursor.fetchall():
 			addSelectionButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('%s')[0], 'addRecord');" % ('dataInput'))
 			addSelectionButton_img = HT.Image("/images/add_icon.jpg", name="", alt="Add To Collection", title="Add To Collection", style="border:none;")
-			addSelectionButton.append(addSelectionButton_img)
+			#addSelectionButton.append(addSelectionButton_img)
 			addSelectionText = "Add"
 		else:
 			pass
@@ -288,7 +288,7 @@ class DataEditingPage(templatePage):
 			except:
 				pass
 
-			Info2Disp = HT.Paragraph()
+			#Info2Disp = HT.Paragraph()
 
 			#XZ: Gene Symbol
 			if thisTrait.symbol:
@@ -319,14 +319,14 @@ class DataEditingPage(templatePage):
 
 				#XZ: display similar traits in other selected datasets
 				if thisTrait and thisTrait.db and thisTrait.db.type=="ProbeSet" and thisTrait.symbol:
-					 if _Species in ("mouse", "rat", "human"):
+					if _Species in ("mouse", "rat", "human"):
 						similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), thisTrait.symbol, _Species)
 						similarButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % similarUrl)
 						similarButton_img = HT.Image("/images/find_icon.jpg", name="similar", alt=" Find similar expression data ", title=" Find similar expression data ", style="border:none;")
 						similarButton.append(similarButton_img)
 						similarText = "Find"
 				else:
-				     pass
+				    pass
 				tbl.append(HT.TR(
 					HT.TD('Gene Symbol: ', Class="fwb fs13", valign="top", nowrap="on", width=90),
 					HT.TD(width=10, valign="top"),
