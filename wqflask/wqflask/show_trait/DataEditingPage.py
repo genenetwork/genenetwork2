@@ -350,7 +350,7 @@ class DataEditingPage(templatePage):
                 alias = string.replace(thisTrait.alias, ";", " ")
                 alias = string.join(string.split(alias), ", ")
                 thisTrait.alias_fmt = alias
-     
+
 
             #XZ: Description
             if thisTrait.description:
@@ -364,11 +364,11 @@ class DataEditingPage(templatePage):
 
             #XZ: deal with Chr and Mb
             if thisTrait.chr and thisTrait.mb:
-                tSpan = HT.Span('Chr %s @ %s Mb'  % (thisTrait.chr,thisTrait.mb),Class="fs13")
-            elif (thisTrait.chr):
-                tSpan = HT.Span('Chr %s @ Unknown position' % (thisTrait.chr), Class="fs13")
+                thisTrait.location = 'Chr %s @ %s Mb'  % (thisTrait.chr,thisTrait.mb)
+            elif thisTrait.chr:
+                thisTrait.location = 'Chr %s @ Unknown position' % (thisTrait.chr)
             else:
-                tSpan = HT.Span('Not available', Class="fs13")
+                thisTrait.location = 'Not available'
 
             ##XZ: deal with direction
             #if thisTrait.strand_probe == '+':
