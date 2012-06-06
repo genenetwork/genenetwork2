@@ -43,6 +43,7 @@ class ShowTraitPage(DataEditingPage):
     def __init__(self, fd, traitInfos = None):
 
         #templatePage.__init__(self, fd)
+        self.fd = fd
 
         if not self.openMysql():
             return

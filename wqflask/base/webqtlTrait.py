@@ -590,3 +590,69 @@ class webqtlTrait:
             setDescription.append( ' --- FROM : ')
             setDescription.append(self.db.genHTML(Class='cori'))
         return setDescription
+
+    @property
+    def description_fmt(self):
+        '''Return a text formated description'''
+        if self.description:
+            formatted = self.description
+            if self.probe_target_description:
+                formatted += "; " + self.probe_target_description
+        else:
+            formatted = "Not available"
+        return formatted
+
+    @property
+    def alias_fmt(self):
+        '''Return a text formatted alias'''
+        if self.alias:
+            alias = string.replace(self.alias, ";", " ")
+            alias = string.join(string.split(alias), ", ")
+        return alias
+
+
+    @property
+    def location_fmt(self):
+        '''Return a text formatted location
+
+        While we're at it we set self.location in case we need it later (do we?)
+
+        '''
+
+        if self.chr and self.mb:
+            self.location = 'Chr %s @ %s Mb'  % (self.chr,self.mb)
+        elif self.chr:
+            self.location = 'Chr %s @ Unknown position' % (self.chr)
+        else:
+            self.location = 'Not available'
+
+        fmt = self.location
+        ##XZ: deal with direction
+        if self.strand_probe == '+':
+            fmt += (' on the plus strand ')
+        elif self.strand_probe == '-':
+            fmt += (' on the minus strand ')
+
+        return fmt
+
+
+    def get_database(self):
+        """
+        Returns the database, and the url referring to the database if it exists
+
+        We're going to to return two values here, and we don't want to have to call this twice from
+        the template. So it's not a property called from the template, but instead is called from the view
+
+        """
+        if self.cellid:
+            self.cursor.execute("""
+                            select ProbeFreeze.Name from ProbeFreeze, ProbeSetFreeze
+                                    where
+                            ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
+                            ProbeSetFreeze.Id = %d""" % thisTrait.db.id)
+            probeDBName = self.cursor.fetchone()[0]
+            return dict(name = probeDBName,
+                        url = None)
+        else:
+            return dict(name = self.db.fullname,
+                        url = webqtlConfig.INFOPAGEHREF % self.db.name)

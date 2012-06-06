@@ -68,7 +68,7 @@
 
                     <td valign="top" width="10"></td>
 
-                    <td valign="top"><span class="fs13">{{ thisTrait.location }}<br></span></td>
+                    <td valign="top"><span class="fs13">{{ thisTrait.location_fmt }}<br></span></td>
                   </tr>
 
                   <tr>
@@ -76,8 +76,14 @@
 
                     <td valign="top" width="10"></td>
 
-                    <td valign="top"><span class="fs13"><a href="/blatInfo.html" target="_blank" class="non_bold" title=
-                    "Values higher than 2 for the specificity are good">BLAT specificity</a>: 12.0&nbsp;&nbsp;&nbsp;Score: 240&nbsp;&nbsp;</span></td>
+                    <td valign="top">
+						<span class="fs13">
+							<a href="/blatInfo.html" target="_blank" class="non_bold" title="Values higher than 2 for the specificity are good">
+								BLAT specificity
+							</a>: {{ "%.1f" % (thisTrait.probe_set_specificity) }}&nbsp;&nbsp;&nbsp;
+							Score: {{ "%i" % (thisTrait.probe_set_blat_score) }}&nbsp;&nbsp;
+						</span>
+					</td>
                   </tr>
 
                   <tr>
@@ -93,8 +99,9 @@
 
                     <td valign="top" width="10"></td>
 
-                    <td valign="top"><a href="/dbdoc/HC_M2_0606_P.html" target="_blank" class="fs13 fwn non_bold">Hippocampus Consortium M430v2 (Jun06)
-                    PDNN</a></td>
+                    <td valign="top">
+						<a href="{{ thisTrait.database.url }}" target="_blank" class="fs13 fwn non_bold">{{ thisTrait.database.name }}</a>
+					</td>
                   </tr>
 
                   <tr>

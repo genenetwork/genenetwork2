@@ -345,44 +345,7 @@ class DataEditingPage(templatePage):
                         HT.TD(HT.Span('Not available', Class="fs13 fsI"), valign="top")
                         ))
 
-            #XZ: Gene Alias
-            if thisTrait.alias:
-                alias = string.replace(thisTrait.alias, ";", " ")
-                alias = string.join(string.split(alias), ", ")
-                thisTrait.alias_fmt = alias
 
-
-            #XZ: Description
-            if thisTrait.description:
-                thisTrait.description_fmt = thisTrait.description
-                if thisTrait.probe_target_description:
-                    thisTrait.description_fmt += "; " + this.trait.probe_target_description
-            else:
-                thisTrait.description_fmt = "Not available"
-
-            #XZ: Location
-
-            #XZ: deal with Chr and Mb
-            if thisTrait.chr and thisTrait.mb:
-                thisTrait.location = 'Chr %s @ %s Mb'  % (thisTrait.chr,thisTrait.mb)
-            elif thisTrait.chr:
-                thisTrait.location = 'Chr %s @ Unknown position' % (thisTrait.chr)
-            else:
-                thisTrait.location = 'Not available'
-
-            ##XZ: deal with direction
-            #if thisTrait.strand_probe == '+':
-            #    tSpan.append(' on the plus strand ')
-            #elif thisTrait.strand_probe == '-':
-            #    tSpan.append(' on the minus strand ')
-            #else:
-            #    pass
-            #
-            #tbl.append(HT.TR(
-            #        HT.TD('Location: ', Class="fwb fs13", valign="top", nowrap="on"),
-            #        HT.TD(width=10, valign="top"),
-            #        HT.TD(tSpan, valign="top")
-            #        ))
 
             ##display Verify Location button
             try:
@@ -474,18 +437,18 @@ class DataEditingPage(templatePage):
                     #probeButton.append(probeButton_img)
                     probeText = "Probes"
 
-            tSpan = HT.Span(Class="fs13")
+            #tSpan = HT.Span(Class="fs13")
 
             #XZ: deal with blat score and blat specificity.
-            if thisTrait.probe_set_specificity or thisTrait.probe_set_blat_score:
-                if thisTrait.probe_set_specificity:
-                    pass
-                    #tSpan.append(HT.Href(url="/blatInfo.html", target="_blank", title="Values higher than 2 for the specificity are good", text="BLAT specificity", Class="non_bold"),": %.1f" % float(thisTrait.probe_set_specificity), "&nbsp;"*3)
-                if thisTrait.probe_set_blat_score:
-                    pass
-                    #tSpan.append("Score: %s" % int(thisTrait.probe_set_blat_score), "&nbsp;"*2)
+            #if thisTrait.probe_set_specificity or thisTrait.probe_set_blat_score:
+            #    if thisTrait.probe_set_specificity:
+            #        pass
+            #        #tSpan.append(HT.Href(url="/blatInfo.html", target="_blank", title="Values higher than 2 for the specificity are good", text="BLAT specificity", Class="non_bold"),": %.1f" % float(thisTrait.probe_set_specificity), "&nbsp;"*3)
+            #    if thisTrait.probe_set_blat_score:
+            #        pass
+            #        #tSpan.append("Score: %s" % int(thisTrait.probe_set_blat_score), "&nbsp;"*2)
 
-            onClick="openNewWin('/blatInfo.html')"
+            #onClick="openNewWin('/blatInfo.html')"
 
             #tbl.append(HT.TR(
             #        HT.TD('Target Score: ', Class="fwb fs13", valign="top", nowrap="on"),
@@ -502,26 +465,28 @@ class DataEditingPage(templatePage):
             #        HT.TD(tSpan, valign="top")
             #        ))
 
-            if thisTrait.cellid:
-                self.cursor.execute("""
-                                select ProbeFreeze.Name from ProbeFreeze, ProbeSetFreeze
-                                        where
-                                ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
-                                ProbeSetFreeze.Id = %d""" % thisTrait.db.id)
-                probeDBName = self.cursor.fetchone()[0]
-                tbl.append(HT.TR(
-                        HT.TD('Database: ', Class="fs13 fwb", valign="top", nowrap="on"),
-                        HT.TD(width=10, valign="top"),
-                        HT.TD(HT.Span('%s' % probeDBName, Class="non_bold"), valign="top")
-                        ))
-            else:
+            #if thisTrait.cellid:
+            #    self.cursor.execute("""
+            #                    select ProbeFreeze.Name from ProbeFreeze, ProbeSetFreeze
+            #                            where
+            #                    ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
+            #                    ProbeSetFreeze.Id = %d""" % thisTrait.db.id)
+            #    probeDBName = self.cursor.fetchone()[0]
+            #    tbl.append(HT.TR(
+            #            HT.TD('Database: ', Class="fs13 fwb", valign="top", nowrap="on"),
+            #            HT.TD(width=10, valign="top"),
+            #            HT.TD(HT.Span('%s' % probeDBName, Class="non_bold"), valign="top")
+            #            ))
+            #else:
                 #tbl.append(HT.TR(
                 #        HT.TD('Database: ', Class="fs13 fwb", valign="top", nowrap="on"),
                 #        HT.TD(width=10, valign="top"),
                 #        HT.TD(HT.Href(text=thisTrait.db.fullname, url = webqtlConfig.INFOPAGEHREF % thisTrait.db.name,
                 #        target='_blank', Class="fs13 fwn non_bold"), valign="top")
                 #        ))
-                pass
+                #pass
+
+            thisTrait.database = thisTrait.get_database()
 
             #XZ: ID links
             if thisTrait.genbankid or thisTrait.geneid or thisTrait.unigeneid or thisTrait.omim or thisTrait.homologeneid:
@@ -534,7 +499,7 @@ class DataEditingPage(templatePage):
                 if thisTrait.omim:
                     gurl = HT.Href(text= 'OMIM', target='_blank', \
                             url= webqtlConfig.OMIM_ID % thisTrait.omim,Class="fs14 fwn", title="Summary from On Mendelian Inheritance in Man")
-                    tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
+                    #tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
                 if thisTrait.unigeneid:
                     try:
                         gurl = HT.Href(text= 'UniGene',target='_blank',\
