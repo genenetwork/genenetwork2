@@ -1,6 +1,7 @@
 import string
 import os
 import cPickle
+from collections import OrderedDict
 #import pyXLWriter as xl
 
 from htmlgen import HTMLgen2 as HT
@@ -77,37 +78,37 @@ class DataEditingPage(templatePage):
         #############################
 
         # Some fields, like method, are defaulted to None; otherwise in IE the field can't be changed using jquery
-        hddn = {
-                'FormID':fmID,
-                'RISet':fd.RISet,
-                'submitID':'',
-                'scale':'physic',
-                'additiveCheck':'ON',
-                'showSNP':'ON',
-                'showGenes':'ON',
-                'method':None,
-                'parentsf14regression':'OFF',
-                'stats_method':'1',
-                'chromosomes':'-1',
-                'topten':'',
-                'viewLegend':'ON',
-                'intervalAnalystCheck':'ON',
-                'valsHidden':'OFF',
-                'database':'',
-                'criteria':None,
-                'MDPChoice':None,
-                'bootCheck':None,
-                'permCheck':None,
-                'applyVarianceSE':None,
-                'strainNames':'_',
-                'strainVals':'_',
-                'strainVars':'_',
-                'otherStrainNames':'_',
-                'otherStrainVals':'_',
-                'otherStrainVars':'_',
-                'extra_attributes':'_',
-                'other_extra_attributes':'_'
-                }
+        hddn = OrderedDict(
+                FormID = fmID,
+                RISet = fd.RISet,
+                submitID = '',
+                scale = 'physic',
+                additiveCheck = 'ON',
+                showSNP = 'ON',
+                showGenes = 'ON',
+                method = None,
+                parentsf14regression = 'OFF',
+                stats_method = '1',
+                chromosomes = '-1',
+                topten = '',
+                viewLegend = 'ON',
+                intervalAnalystCheck = 'ON',
+                valsHidden = 'OFF',
+                database = '',
+                criteria = None,
+                MDPChoice = None,
+                bootCheck = None,
+                permCheck = None,
+                applyVarianceSE = None,
+                strainNames = '_',
+                strainVals = '_',
+                strainVars = '_',
+                otherStrainNames = '_',
+                otherStrainVals = '_',
+                otherStrainVars = '_',
+                extra_attributes = '_',
+                other_extra_attributes = '_'
+                )
 
         if fd.enablevariance:
             hddn['enablevariance']='ON'
@@ -486,6 +487,7 @@ class DataEditingPage(templatePage):
                 #        ))
                 #pass
 
+            thisTrait.species = _Species  # We need this in the template, so we tuck it into thisTrait
             thisTrait.database = thisTrait.get_database()
 
             #XZ: ID links
@@ -1683,8 +1685,10 @@ class DataEditingPage(templatePage):
                 or (fd.f1list and thisTrait.data.has_key(fd.f1list[1])):
             fd.allstrainlist = allstrainlist_neworder
 
+        # Sam - is this correct?
         if nCols == 6 and fd.varianceDispName != 'Variance':
-            mainForm.append(HT.Input(name='isSE', value="yes", type='hidden'))
+            #mainForm.append(HT.Input(name='isSE', value="yes", type='hidden'))
+            hddn['isSE'] = "yes"
 
         primary_div = HT.Div(primary_table, Id="primary") #Container for table with primary (for example, BXD) strain values
         container.append(primary_div)
