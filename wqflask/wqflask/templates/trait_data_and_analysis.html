@@ -9,7 +9,7 @@
           <tr>
             <td valign="top" width="100%" bgcolor="#FAFAFA">
               <form method="post" action="/webqtl/main.py" name="dataInput">
-                <input type="hidden" name="isSE" value="yes">
+            {#    <input type="hidden" name="isSE" value="yes">
 				<input type="hidden" name="permCheck">
 				<input type="hidden" name="otherStrainVals" value="_">
                 <input type="hidden" name="FormID" value="dataEditing">
@@ -50,7 +50,10 @@
 				<input type="hidden" name="valsHidden" value="OFF">
 				<input type="hidden" name="fullname" value="HC_M2_0606_P::1441186_at">
                 <input type="hidden" name="RISet" value="BXD">
-
+			#}
+				{% for key in hddn %}
+					<input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
+				{% endfor %}
                 <div>
                   <div style="font-size:14px;">
                     <strong style="font-size:16px;">Trait Data and Analysis&nbsp;</strong> for Record ID 1441186_at

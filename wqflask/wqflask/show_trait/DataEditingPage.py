@@ -175,8 +175,7 @@ class DataEditingPage(templatePage):
         else:
             pass
             # We'll get this part working later
-            #self.dispBasicStatistics(fd, title2Body, thisTrait)
-            #self.dispCorrelationTools(fd, title3Body, thisTrait)
+            self.dispBasicStatistics(fd, thisTrait)
             #self.dispMappingTools(fd, title4Body, thisTrait)
 
         #############################
@@ -185,8 +184,13 @@ class DataEditingPage(templatePage):
         #
         #self.dispTraitValues(fd, title5Body, varianceDataPage, nCols, mainForm, thisTrait)
         #
-        #if fd.allstrainlist:
-        #    hddn['allstrainlist'] = string.join(fd.allstrainlist, ' ')
+        if fd.allstrainlist:
+            hddn['allstrainlist'] = string.join(fd.allstrainlist, ' ')
+
+        # We put isSE into hddn
+        if nCols == 6 and fd.varianceDispName != 'Variance':
+            hddn['isSE'] = "yes"
+
         #for key in hddn.keys():
         #    mainForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
         #
@@ -198,8 +202,9 @@ class DataEditingPage(templatePage):
         #TD_LR.append(HT.Paragraph(mainForm))
         #self.dict['body'] = str(TD_LR)
 
-        # We'll need access to thisTrait in the Jinja2 Template, so we put it inside self
+        # We'll need access to thisTrait and hddn uin the Jinja2 Template, so we put it inside self
         self.thisTrait = thisTrait
+        self.hddn = hddn
 
     ##########################################
     ##  Function to display header
@@ -830,11 +835,11 @@ class DataEditingPage(templatePage):
     ##########################################
     ##  Function to display analysis tools
     ##########################################
-    def dispBasicStatistics(self, fd, title2Body, thisTrait):
+    def dispBasicStatistics(self, fd, thisTrait):
 
         #XZ, June 22, 2011: The definition and usage of primary_strains, other_strains, specialStrains, all_strains are not clear and hard to understand. But since they are only used in this function for draw graph purpose, they will not hurt the business logic outside. As of June 21, 2011, this function seems work fine, so no hurry to clean up. These parameters and code in this function should be cleaned along with fd.f1list, fd.parlist, fd.strainlist later.
-        stats_row = HT.TR()
-        stats_cell = HT.TD()
+        #stats_row = HT.TR()
+        #stats_cell = HT.TD()
 
         if fd.genotype.type == "riset":
             strainlist = fd.f1list + fd.strainlist
@@ -846,7 +851,7 @@ class DataEditingPage(templatePage):
         all_strains = []
         primary_strains = [] #XZ: strain of primary group, e.g., BXD, LXS
 
-        MDP_menu = HT.Select(name='stats_mdp', Class='stats_mdp')
+        #MDP_menu = HT.Select(name='stats_mdp', Class='stats_mdp')
 
         for strain in thisTrait.data.keys():
             strainName = strain.replace("_2nd_", "")
@@ -866,16 +871,16 @@ class DataEditingPage(templatePage):
             primary_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + primary_strains #XZ: note that fd.f1list and fd.parlist are added.
             all_strains = primary_strains + other_strains
             other_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + other_strains #XZ: note that fd.f1list and fd.parlist are added.
-            MDP_menu.append(('All Cases','0'))
-            MDP_menu.append(('%s Only' % fd.RISet,'1'))
-            MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
-            stats_row.append("Include: ", MDP_menu, HT.BR(), HT.BR())
+            #MDP_menu.append(('All Cases','0'))
+            #MDP_menu.append(('%s Only' % fd.RISet,'1'))
+            #MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
+            #stats_row.append("Include: ", MDP_menu, HT.BR(), HT.BR())
         else:
             if (len(other_strains) > 0) and (len(primary_strains) + len(other_strains) > 3):
-                MDP_menu.append(('All Cases','0'))
-                MDP_menu.append(('%s Only' % fd.RISet,'1'))
-                MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
-                stats_row.append("Include: ", MDP_menu, "&nbsp;"*3)
+                #MDP_menu.append(('All Cases','0'))
+                #MDP_menu.append(('%s Only' % fd.RISet,'1'))
+                #MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
+                #stats_row.append("Include: ", MDP_menu, "&nbsp;"*3)
                 all_strains = primary_strains
                 all_strains.sort(key=webqtlUtil.natsort_key)
                 all_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + all_strains
@@ -887,8 +892,8 @@ class DataEditingPage(templatePage):
             all_strains = all_strains + other_strains
             pass
 
-        update_button = HT.Input(type='button',value=' Update Figures ', Class="button update") #This is used to reload the page and update the Basic Statistics figures with user-edited data
-        stats_row.append(update_button, HT.BR(), HT.BR())
+        #update_button = HT.Input(type='button',value=' Update Figures ', Class="button update") #This is used to reload the page and update the Basic Statistics figures with user-edited data
+        #stats_row.append(update_button, HT.BR(), HT.BR())
 
         if (len(other_strains)) > 0 and (len(primary_strains) + len(other_strains) > 4):
             #One set of vals for all, selected strain only, and non-selected only
@@ -903,7 +908,7 @@ class DataEditingPage(templatePage):
                 try:
                     thisval = thisTrait.data[strainName].val
                     thisvar = thisTrait.data[strainName].var
-                    thisValFull = [strainName,thisval,thisvar]
+                    thisValFull = [strainName, thisval, thisvar]
                 except:
                     continue
 
@@ -955,14 +960,14 @@ class DataEditingPage(templatePage):
 
             vals_set = [vals]
 
-        stats_script = HT.Script(language="Javascript") #script needed for tabs
+        #stats_script = HT.Script(language="Javascript") #script needed for tabs
 
         for i, vals in enumerate(vals_set):
             if i == 0 and len(vals) < 4:
                 stats_container = HT.Div(id="stats_tabs", style="padding:10px;", Class="ui-tabs") #Needed for tabs; notice the "stats_script_text" below referring to this element
                 stats_container.append(HT.Div(HT.Italic("Fewer than 4 case data were entered. No statistical analysis has been attempted.")))
                 stats_script_text = """$(function() { $("#stats_tabs").tabs();});"""
-                stats_cell.append(stats_container)
+                #stats_cell.append(stats_container)
                 break
             elif (i == 1 and len(primary_strains) < 4):
                 stats_container = HT.Div(id="stats_tabs%s" % i, Class="ui-tabs")
@@ -972,19 +977,19 @@ class DataEditingPage(templatePage):
                 stats_container.append(HT.Div(HT.Italic("Fewer than 4 non-" + fd.RISet + " case data were entered. No statistical analysis has been attempted.")))
                 stats_script_text = """$(function() { $("#stats_tabs0").tabs(); $("#stats_tabs1").tabs(); $("#stats_tabs2").tabs();});"""
             else:
-                stats_container = HT.Div(id="stats_tabs%s" % i, Class="ui-tabs")
+                #stats_container = HT.Div(id="stats_tabs%s" % i, Class="ui-tabs")
                 stats_script_text = """$(function() { $("#stats_tabs0").tabs(); $("#stats_tabs1").tabs(); $("#stats_tabs2").tabs();});"""
             if len(vals) > 4:
                 stats_tab_list = [HT.Href(text="Basic Table", url="#statstabs-1", Class="stats_tab"),HT.Href(text="Probability Plot", url="#statstabs-5", Class="stats_tab"),
                                                   HT.Href(text="Bar Graph (by name)", url="#statstabs-3", Class="stats_tab"), HT.Href(text="Bar Graph (by rank)", url="#statstabs-4", Class="stats_tab"),
                                                   HT.Href(text="Box Plot", url="#statstabs-2", Class="stats_tab")]
-                stats_tabs = HT.List(stats_tab_list)
-                stats_container.append(stats_tabs)
-
-                table_div = HT.Div(id="statstabs-1")
-                table_container = HT.Paragraph()
-
-                statsTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+                #stats_tabs = HT.List(stats_tab_list)
+                #stats_container.append(stats_tabs)
+                #
+                #table_div = HT.Div(id="statstabs-1")
+                #table_container = HT.Paragraph()
+                #
+                #statsTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
 
                 if thisTrait.db:
                     if thisTrait.cellid:
@@ -994,15 +999,15 @@ class DataEditingPage(templatePage):
                 else:
                     statsTableCell = BasicStatisticsFunctions.basicStatsTable(vals=vals)
 
-                statsTable.append(HT.TR(HT.TD(statsTableCell)))
+                #statsTable.append(HT.TR(HT.TD(statsTableCell)))
 
-                table_container.append(statsTable)
-                table_div.append(table_container)
-                stats_container.append(table_div)
-
-                normalplot_div = HT.Div(id="statstabs-5")
-                normalplot_container = HT.Paragraph()
-                normalplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+                #table_container.append(statsTable)
+                #table_div.append(table_container)
+                #stats_container.append(table_div)
+                #
+                #normalplot_div = HT.Div(id="statstabs-5")
+                #normalplot_container = HT.Paragraph()
+                #normalplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
 
                 try:
                     plotTitle = thisTrait.symbol
@@ -1011,55 +1016,55 @@ class DataEditingPage(templatePage):
                 except:
                     plotTitle = str(thisTrait.name)
 
-                normalplot_img = BasicStatisticsFunctions.plotNormalProbability(vals=vals, RISet=fd.RISet, title=plotTitle, specialStrains=specialStrains)
-                normalplot.append(HT.TR(HT.TD(normalplot_img)))
-                normalplot.append(HT.TR(HT.TD(HT.BR(),HT.BR(),"This plot evaluates whether data are \
-                normally distributed. Different symbols represent different groups.",HT.BR(),HT.BR(),
-                "More about ", HT.Href(url="http://en.wikipedia.org/wiki/Normal_probability_plot",
-                                 target="_blank", text="Normal Probability Plots"), " and more about interpreting these plots from the ", HT.Href(url="/glossary.html#normal_probability", target="_blank", text="glossary"))))
-                normalplot_container.append(normalplot)
-                normalplot_div.append(normalplot_container)
-                stats_container.append(normalplot_div)
+                #normalplot_img = BasicStatisticsFunctions.plotNormalProbability(vals=vals, RISet=fd.RISet, title=plotTitle, specialStrains=specialStrains)
+                #normalplot.append(HT.TR(HT.TD(normalplot_img)))
+                #normalplot.append(HT.TR(HT.TD(HT.BR(),HT.BR(),"This plot evaluates whether data are \
+                #normally distributed. Different symbols represent different groups.",HT.BR(),HT.BR(),
+                #"More about ", HT.Href(url="http://en.wikipedia.org/wiki/Normal_probability_plot",
+                #                 target="_blank", text="Normal Probability Plots"), " and more about interpreting these plots from the ", HT.Href(url="/glossary.html#normal_probability", target="_blank", text="glossary"))))
+                #normalplot_container.append(normalplot)
+                #normalplot_div.append(normalplot_container)
+                #stats_container.append(normalplot_div)
 
-                boxplot_div = HT.Div(id="statstabs-2")
-                boxplot_container = HT.Paragraph()
-                boxplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-                boxplot_img, boxplot_link = BasicStatisticsFunctions.plotBoxPlot(vals)
-                boxplot.append(HT.TR(HT.TD(boxplot_img, HT.P(), boxplot_link, align="left")))
-                boxplot_container.append(boxplot)
-                boxplot_div.append(boxplot_container)
-                stats_container.append(boxplot_div)
+                #boxplot_div = HT.Div(id="statstabs-2")
+                #boxplot_container = HT.Paragraph()
+                #boxplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+                #boxplot_img, boxplot_link = BasicStatisticsFunctions.plotBoxPlot(vals)
+                #boxplot.append(HT.TR(HT.TD(boxplot_img, HT.P(), boxplot_link, align="left")))
+                #boxplot_container.append(boxplot)
+                #boxplot_div.append(boxplot_container)
+                #stats_container.append(boxplot_div)
 
 
-                barName_div = HT.Div(id="statstabs-3")
-                barName_container = HT.Paragraph()
-                barName = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-                barName_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="name")
-                barName.append(HT.TR(HT.TD(barName_img)))
-                barName_container.append(barName)
-                barName_div.append(barName_container)
-                stats_container.append(barName_div)
+                #barName_div = HT.Div(id="statstabs-3")
+                #barName_container = HT.Paragraph()
+                #barName = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+                #barName_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="name")
+                #barName.append(HT.TR(HT.TD(barName_img)))
+                #barName_container.append(barName)
+                #barName_div.append(barName_container)
+                #stats_container.append(barName_div)
+                #
+                #barRank_div = HT.Div(id="statstabs-4")
+                #barRank_container = HT.Paragraph()
+                #barRank = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+                #barRank_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="rank")
+                #barRank.append(HT.TR(HT.TD(barRank_img)))
+                #barRank_container.append(barRank)
+                #barRank_div.append(barRank_container)
+                #stats_container.append(barRank_div)
 
-                barRank_div = HT.Div(id="statstabs-4")
-                barRank_container = HT.Paragraph()
-                barRank = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-                barRank_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="rank")
-                barRank.append(HT.TR(HT.TD(barRank_img)))
-                barRank_container.append(barRank)
-                barRank_div.append(barRank_container)
-                stats_container.append(barRank_div)
+        #    stats_cell.append(stats_container)
+        #
+        #stats_script.append(stats_script_text)
+        #
+        #submitTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target2")
+        #stats_row.append(stats_cell)
 
-            stats_cell.append(stats_container)
+        #submitTable.append(stats_row)
+        #submitTable.append(stats_script)
 
-        stats_script.append(stats_script_text)
-
-        submitTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target2")
-        stats_row.append(stats_cell)
-
-        submitTable.append(stats_row)
-        submitTable.append(stats_script)
-
-        title2Body.append(submitTable)
+        #title2Body.append(submitTable)
 
 
     def dispCorrelationTools(self, fd, title3Body, thisTrait):
@@ -1566,10 +1571,11 @@ class DataEditingPage(templatePage):
             dropdown_menus = [] #ZS: list of dropdown menus with the distinct values of each attribute (contained in DIVs so the style parameter can be edited and they can be hidden)
 
             for attribute in self.cursor.fetchall():
-                attribute_ids.append(attribute[0])
-                attribute_names.append(attribute[1])
+                #attribute_ids.append(attribute[0])
+                #attribute_names.append(attribute[1])
+                pass
             for this_attr_name in attribute_names:
-                exclude_menu.append((this_attr_name.capitalize(), this_attr_name))
+                #exclude_menu.append((this_attr_name.capitalize(), this_attr_name))
                 self.cursor.execute("""SELECT DISTINCT CaseAttributeXRef.Value
                                                 FROM CaseAttribute, CaseAttributeXRef
                                                 WHERE CaseAttribute.Name = '%s' AND
@@ -1578,11 +1584,12 @@ class DataEditingPage(templatePage):
                     distinct_values = self.cursor.fetchall()
                     attr_value_menu_div = HT.Div(style="display:none;", Class="attribute_values") #container used to show/hide dropdown menus
                     attr_value_menu = HT.Select(name=this_attr_name)
-                    attr_value_menu.append(("None", "show_all"))
+                    #attr_value_menu.append(("None", "show_all"))
                     for value in distinct_values:
-                        attr_value_menu.append((str(value[0]), value[0]))
-                    attr_value_menu_div.append(attr_value_menu)
-                    dropdown_menus.append(attr_value_menu_div)
+                        #attr_value_menu.append((str(value[0]), value[0]))
+                        pass
+                    #attr_value_menu_div.append(attr_value_menu)
+                    #dropdown_menus.append(attr_value_menu_div)
                 except:
                     pass
         except:
@@ -1591,46 +1598,51 @@ class DataEditingPage(templatePage):
         other_strains = []
         for strain in thisTrait.data.keys():
             if strain not in allstrainlist_neworder:
-                other_strains.append(strain)
+                pass
+                #other_strains.append(strain)
 
         if other_strains:
-            blockMenu.append(('%s Only' % fd.RISet,'1'))
-            blockMenu.append(('Non-%s Only' % fd.RISet,'0'))
-            blockMenuSpan.append(blockMenu)
+            #blockMenu.append(('%s Only' % fd.RISet,'1'))
+            #blockMenu.append(('Non-%s Only' % fd.RISet,'0'))
+            #blockMenuSpan.append(blockMenu)
+            pass
         else:
             pass
 
         showHideOutliers = HT.Input(type='button', name='showHideOutliers', value=' Hide Outliers ', Class='button')
         showHideMenuOptions = HT.Span(Id="showHideOptions", style="line-height:225%;")
         if other_strains:
-            showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;"), blockSamplesField, "&nbsp;&nbsp;&nbsp;", blockMenuSpan, "&nbsp;&nbsp;&nbsp;", blockSamplesButton, HT.BR())
+            pass
+            #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;"), blockSamplesField, "&nbsp;&nbsp;&nbsp;", blockMenuSpan, "&nbsp;&nbsp;&nbsp;", blockSamplesButton, HT.BR())
         else:
-            showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;"), blockSamplesField, "&nbsp;&nbsp;&nbsp;", blockSamplesButton, HT.BR())
+            pass
+            #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;"), blockSamplesField, "&nbsp;&nbsp;&nbsp;", blockSamplesButton, HT.BR())
 
         exportButton = HT.Input(type='button', name='export', value=' Export ', Class='button')
         if len(attribute_names) > 0:
             excludeButton = HT.Input(type='button', name='excludeGroup', value=' Block ', Class='button')
-            showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by group:"), "&nbsp;"*5, exclude_menu, "&nbsp;"*5)
+            #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by group:"), "&nbsp;"*5, exclude_menu, "&nbsp;"*5)
             for menu in dropdown_menus:
-                showHideMenuOptions.append(menu)
-            showHideMenuOptions.append("&nbsp;"*5, excludeButton, HT.BR())
-        showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Options:"), "&nbsp;"*5, showHideNoValue, "&nbsp;"*5, showHideOutliers, "&nbsp;"*5, resetButton, "&nbsp;"*5, exportButton)
+                pass
+                #showHideMenuOptions.append(menu)
+            #showHideMenuOptions.append("&nbsp;"*5, excludeButton, HT.BR())
+        #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Options:"), "&nbsp;"*5, showHideNoValue, "&nbsp;"*5, showHideOutliers, "&nbsp;"*5, resetButton, "&nbsp;"*5, exportButton)
 
-        traitTableOptions.append(showHideMenuOptions,HT.BR(),HT.BR())
-        traitTableOptions.append(HT.Span("&nbsp;&nbsp;Outliers highlighted in ", HT.Bold("&nbsp;yellow&nbsp;", style="background-color:yellow;"), " can be hidden using the ",
-                                                            HT.Strong(" Hide Outliers "), " button,",HT.BR(),"&nbsp;&nbsp;and samples with no value (x) can be hidden by clicking ",
-                                                            HT.Strong(" Hide No Value "), "."), HT.BR())
+        #traitTableOptions.append(showHideMenuOptions,HT.BR(),HT.BR())
+        #traitTableOptions.append(HT.Span("&nbsp;&nbsp;Outliers highlighted in ", HT.Bold("&nbsp;yellow&nbsp;", style="background-color:yellow;"), " can be hidden using the ",
+        #                                                    HT.Strong(" Hide Outliers "), " button,",HT.BR(),"&nbsp;&nbsp;and samples with no value (x) can be hidden by clicking ",
+        #                                                    HT.Strong(" Hide No Value "), "."), HT.BR())
 
 
-        dispintro = HT.Paragraph("Edit or delete values in the Trait Data boxes, and use the ", HT.Strong("Reset"), " option as needed.",Class="fs12", style="margin-left:20px;")
+        #dispintro = HT.Paragraph("Edit or delete values in the Trait Data boxes, and use the ", HT.Strong("Reset"), " option as needed.",Class="fs12", style="margin-left:20px;")
+        #
+        #table = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target5") #Everything needs to be inside this table object in order for the toggle to work
+        #container = HT.Div() #This will contain everything and be put into a cell of the table defined above
+        #
+        #container.append(dispintro, traitTableOptions, HT.BR())
 
-        table = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target5") #Everything needs to be inside this table object in order for the toggle to work
-        container = HT.Div() #This will contain everything and be put into a cell of the table defined above
-
-        container.append(dispintro, traitTableOptions, HT.BR())
-
-        primary_table = HT.TableLite(cellspacing=0, cellpadding=0, Id="sortable1", Class="tablesorter")
-        primary_header = self.getTableHeader(fd=fd, thisTrait=thisTrait, nCols=nCols, attribute_names=attribute_names) #Generate header for primary table object
+        #primary_table = HT.TableLite(cellspacing=0, cellpadding=0, Id="sortable1", Class="tablesorter")
+        #primary_header = self.getTableHeader(fd=fd, thisTrait=thisTrait, nCols=nCols, attribute_names=attribute_names) #Generate header for primary table object
 
         other_strainsExist = False
         for strain in thisTrait.data.keys():
@@ -1640,15 +1652,17 @@ class DataEditingPage(templatePage):
 
         primary_body = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=allstrainlist_neworder, mainForm=mainForm, thisTrait=thisTrait, other_strainsExist=other_strainsExist, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='primary')
 
-        primary_table.append(primary_header)
+        #primary_table.append(primary_header)
         for i in range(len(primary_body)):
-            primary_table.append(primary_body[i])
+            pass
+            #primary_table.append(primary_body[i])
 
         other_strains = []
         for strain in thisTrait.data.keys():
             if strain not in allstrainlist_neworder:
-                allstrainlist_neworder.append(strain)
-                other_strains.append(strain)
+                pass
+                #allstrainlist_neworder.append(strain)
+                #other_strains.append(strain)
 
         if other_strains:
             other_table = HT.TableLite(cellspacing=0, cellpadding=0, Id="sortable2", Class="tablesorter") #Table object with other (for example, non-BXD / MDP) traits
@@ -1660,24 +1674,25 @@ class DataEditingPage(templatePage):
             MDPMenu1 = HT.Select(name='MDPChoice1')
             MDPMenu2 = HT.Select(name='MDPChoice2')
             MDPMenu3 = HT.Select(name='MDPChoice3')
-            MDPMenu1.append(('%s Only' % fd.RISet,'1'))
-            MDPMenu2.append(('%s Only' % fd.RISet,'1'))
-            MDPMenu3.append(('%s Only' % fd.RISet,'1'))
-            MDPMenu1.append(('Non-%s Only' % fd.RISet,'2'))
-            MDPMenu2.append(('Non-%s Only' % fd.RISet,'2'))
-            MDPMenu3.append(('Non-%s Only' % fd.RISet,'2'))
-            MDPMenu1.append(('All Cases','0'))
-            MDPMenu2.append(('All Cases','0'))
-            MDPMenu3.append(('All Cases','0'))
-            self.MDPRow1.append(HT.TD(MDPText),HT.TD(MDPMenu1))
-            self.MDPRow2.append(HT.TD(MDPText),HT.TD(MDPMenu2))
-            self.MDPRow3.append(HT.TD(MDPText),HT.TD(MDPMenu3))
+            #MDPMenu1.append(('%s Only' % fd.RISet,'1'))
+            #MDPMenu2.append(('%s Only' % fd.RISet,'1'))
+            #MDPMenu3.append(('%s Only' % fd.RISet,'1'))
+            #MDPMenu1.append(('Non-%s Only' % fd.RISet,'2'))
+            #MDPMenu2.append(('Non-%s Only' % fd.RISet,'2'))
+            #MDPMenu3.append(('Non-%s Only' % fd.RISet,'2'))
+            #MDPMenu1.append(('All Cases','0'))
+            #MDPMenu2.append(('All Cases','0'))
+            #MDPMenu3.append(('All Cases','0'))
+            #self.MDPRow1.append(HT.TD(MDPText),HT.TD(MDPMenu1))
+            #self.MDPRow2.append(HT.TD(MDPText),HT.TD(MDPMenu2))
+            #self.MDPRow3.append(HT.TD(MDPText),HT.TD(MDPMenu3))
 
             other_body = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=other_strains, mainForm=mainForm, thisTrait=thisTrait, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='other')
 
-            other_table.append(other_header)
+            #other_table.append(other_header)
             for i in range(len(other_body)):
-                other_table.append(other_body[i])
+                pass
+                #other_table.append(other_body[i])
         else:
             pass
 
@@ -1685,21 +1700,21 @@ class DataEditingPage(templatePage):
                 or (fd.f1list and thisTrait.data.has_key(fd.f1list[1])):
             fd.allstrainlist = allstrainlist_neworder
 
-        # Sam - is this correct?
-        if nCols == 6 and fd.varianceDispName != 'Variance':
-            #mainForm.append(HT.Input(name='isSE', value="yes", type='hidden'))
-            hddn['isSE'] = "yes"
+        ## We put isSE into hddn
+        #if nCols == 6 and fd.varianceDispName != 'Variance':
+        #    #mainForm.append(HT.Input(name='isSE', value="yes", type='hidden'))
+        #    hddn['isSE'] = "yes"
 
         primary_div = HT.Div(primary_table, Id="primary") #Container for table with primary (for example, BXD) strain values
-        container.append(primary_div)
+        #container.append(primary_div)
 
         if other_strains:
             other_div = HT.Div(other_table, Id="other") #Container for table with other (for example, Non-BXD/MDP) strain values
-            container.append(HT.Div('&nbsp;', height=30))
-            container.append(other_div)
+            #container.append(HT.Div('&nbsp;', height=30))
+            #container.append(other_div)
 
         table.append(HT.TR(HT.TD(container)))
-        title5Body.append(table)
+        #title5Body.append(table)
 
     def addTrait2Table(self, fd, varianceDataPage, strainlist, mainForm, thisTrait, other_strainsExist=None, attribute_ids=[], attribute_names=[], strains='primary'):
         #XZ, Aug 23, 2010: I commented the code related to the display of animal case
