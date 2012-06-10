@@ -4,6 +4,7 @@ from __future__ import print_function
 from math import *
 #import piddle as pid
 #import os
+import traceback
 
 from pprint import pformat as pf
 
@@ -18,6 +19,7 @@ from base import webqtlConfig
 from dbFunction import webqtlDatabaseFunction
 
 def basicStatsTable(vals, trait_type=None, cellid=None, heritability=None):
+    print("basicStatsTable called - len of vals", len(vals))
     st = {}  # This is the dictionary where we'll put everything for the template
     valsOnly = []
     dataXZ = vals[:]
@@ -48,6 +50,8 @@ def basicStatsTable(vals, trait_type=None, cellid=None, heritability=None):
 
     at75 = stats.percentile(75)
     at25 = stats.percentile(25)
+    print("should get a stack")
+    traceback.print_stack()
     print("Interquartile:", at75 - at25)
 
     #tbl.append(HT.TR(HT.TD("Statistic",align="left", Class="fs14 fwb ffl b1 cw cbrb", width = 180),

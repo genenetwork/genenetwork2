@@ -175,6 +175,7 @@ class DataEditingPage(templatePage):
         else:
             pass
             # We'll get this part working later
+            print("Calling dispBasicStatistics")
             self.dispBasicStatistics(fd, thisTrait)
             #self.dispMappingTools(fd, title4Body, thisTrait)
 
