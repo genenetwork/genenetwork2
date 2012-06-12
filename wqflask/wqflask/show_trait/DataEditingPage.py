@@ -852,8 +852,8 @@ class DataEditingPage(templatePage):
         all_strains = []
         primary_strains = [] #XZ: strain of primary group, e.g., BXD, LXS
 
-        #MDP_menu = HT.Select(name='stats_mdp', Class='stats_mdp')
-        MDP_menu = [] # We're going to use the same named data structure as in the old version
+        #self.MDP_menu = HT.Select(name='stats_mdp', Class='stats_mdp')
+        self.MDP_menu = [] # We're going to use the same named data structure as in the old version
                       # but repurpose it for Jinja2 as an array
 
         for strain in thisTrait.data.keys():
@@ -875,17 +875,17 @@ class DataEditingPage(templatePage):
             all_strains = primary_strains + other_strains
             other_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + other_strains #XZ: note that fd.f1list and fd.parlist are added.
             print("ac1")   # This is the one used for first sall3
-            MDP_menu.append(('All Cases','0'))
-            MDP_menu.append(('%s Only' % fd.RISet, '1'))
-            MDP_menu.append(('Non-%s Only' % fd.RISet, '2'))
-            #stats_row.append("Include: ", MDP_menu, HT.BR(), HT.BR())
+            self.MDP_menu.append(('All Cases','0'))
+            self.MDP_menu.append(('%s Only' % fd.RISet, '1'))
+            self.MDP_menu.append(('Non-%s Only' % fd.RISet, '2'))
+            #stats_row.append("Include: ", self.MDP_menu, HT.BR(), HT.BR())
         else:
             if (len(other_strains) > 0) and (len(primary_strains) + len(other_strains) > 3):
                 print("ac2")
-                MDP_menu.append(('All Cases','0'))
-                MDP_menu.append(('%s Only' % fd.RISet,'1'))
-                MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
-                #stats_row.append("Include: ", MDP_menu, "&nbsp;"*3)
+                self.MDP_menu.append(('All Cases','0'))
+                self.MDP_menu.append(('%s Only' % fd.RISet,'1'))
+                self.MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
+                #stats_row.append("Include: ", self.MDP_menu, "&nbsp;"*3)
                 all_strains = primary_strains
                 all_strains.sort(key=webqtlUtil.natsort_key)
                 all_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + all_strains

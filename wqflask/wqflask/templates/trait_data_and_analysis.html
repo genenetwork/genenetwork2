@@ -241,17 +241,11 @@
                 <p class="sectionheader" id="title2" style="border-radius: 5px;">&nbsp;&nbsp;Basic Statistics</p>
 
                 <p id="sectionbody2"></p>Include: <select name="stats_mdp" size="1" class="stats_mdp">
-                  <option value="0">
-                    All Cases
+				  {% for mdp in MDP_menu %}
+                  <option value="{{ mdp[1] }}">
+                    {{ mdp[0] }}
                   </option>
-
-                  <option value="1">
-                    BXD Only
-                  </option>
-
-                  <option value="2">
-                    Non-BXD Only
-                  </option>
+				  {% endfor %}
                 </select><br>
                 <br>
                 <input type="button" name="Default_Name" class="button update" value=" Update Figures "><br>
