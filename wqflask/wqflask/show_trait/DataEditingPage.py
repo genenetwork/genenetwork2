@@ -853,6 +853,8 @@ class DataEditingPage(templatePage):
         primary_strains = [] #XZ: strain of primary group, e.g., BXD, LXS
 
         #MDP_menu = HT.Select(name='stats_mdp', Class='stats_mdp')
+        MDP_menu = [] # We're going to use the same named data structure as in the old version
+                      # but repurpose it for Jinja2 as an array
 
         for strain in thisTrait.data.keys():
             strainName = strain.replace("_2nd_", "")
@@ -872,21 +874,24 @@ class DataEditingPage(templatePage):
             primary_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + primary_strains #XZ: note that fd.f1list and fd.parlist are added.
             all_strains = primary_strains + other_strains
             other_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + other_strains #XZ: note that fd.f1list and fd.parlist are added.
-            #MDP_menu.append(('All Cases','0'))
-            #MDP_menu.append(('%s Only' % fd.RISet,'1'))
-            #MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
+            print("ac1")   # This is the one used for first sall3
+            MDP_menu.append(('All Cases','0'))
+            MDP_menu.append(('%s Only' % fd.RISet, '1'))
+            MDP_menu.append(('Non-%s Only' % fd.RISet, '2'))
             #stats_row.append("Include: ", MDP_menu, HT.BR(), HT.BR())
         else:
             if (len(other_strains) > 0) and (len(primary_strains) + len(other_strains) > 3):
-                #MDP_menu.append(('All Cases','0'))
-                #MDP_menu.append(('%s Only' % fd.RISet,'1'))
-                #MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
+                print("ac2")
+                MDP_menu.append(('All Cases','0'))
+                MDP_menu.append(('%s Only' % fd.RISet,'1'))
+                MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
                 #stats_row.append("Include: ", MDP_menu, "&nbsp;"*3)
                 all_strains = primary_strains
                 all_strains.sort(key=webqtlUtil.natsort_key)
                 all_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + all_strains
                 primary_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + primary_strains
             else:
+                print("ac3")
                 all_strains = strainlist
 
             other_strains.sort(key=webqtlUtil.natsort_key)
@@ -962,7 +967,7 @@ class DataEditingPage(templatePage):
             vals_set = [vals]
 
         #stats_script = HT.Script(language="Javascript") #script needed for tabs
-
+        self.stats_data = []
         for i, vals in enumerate(vals_set):
             if i == 0 and len(vals) < 4:
                 stats_container = HT.Div(id="stats_tabs", style="padding:10px;", Class="ui-tabs") #Needed for tabs; notice the "stats_script_text" below referring to this element
@@ -994,11 +999,11 @@ class DataEditingPage(templatePage):
 
                 if thisTrait.db:
                     if thisTrait.cellid:
-                        statsTableCell = BasicStatisticsFunctions.basicStatsTable(vals=vals, trait_type=thisTrait.db.type, cellid=thisTrait.cellid)
+                        self.stats_data.append(BasicStatisticsFunctions.basicStatsTable(vals=vals, trait_type=thisTrait.db.type, cellid=thisTrait.cellid))
                     else:
-                        statsTableCell = BasicStatisticsFunctions.basicStatsTable(vals=vals, trait_type=thisTrait.db.type)
+                        self.stats_data.append(BasicStatisticsFunctions.basicStatsTable(vals=vals, trait_type=thisTrait.db.type))
                 else:
-                    statsTableCell = BasicStatisticsFunctions.basicStatsTable(vals=vals)
+                    self.stats_data.append(BasicStatisticsFunctions.basicStatsTable(vals=vals))
 
                 #statsTable.append(HT.TR(HT.TD(statsTableCell)))
 

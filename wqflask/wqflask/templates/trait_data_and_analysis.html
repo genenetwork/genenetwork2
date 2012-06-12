@@ -267,7 +267,8 @@
                 <table class="target2" cellpadding="0" cellspacing="0" width="100%">
                   <tr>
                     <td>
-                      <div class="ui-tabs" id="stats_tabs0">
+					  {% for sd in stats_data %}
+                      <div class="ui-tabs" id="{{ 'stats_tabs%i' % loop.index0 }}">
                         <ul>
                           <li><a href="#statstabs-1" class="stats_tab">Basic Table</a></li>
 
@@ -294,62 +295,62 @@
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" align="left">N of Samples</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">99</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ sd.N }}</td>
                                   </tr>
 
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Mean</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">6.129</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.traitmean }}</td>
                                   </tr>
 
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Median</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">6.105</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.traitmedian }}</td>
                                   </tr>
 
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Error (SE)</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">0.018</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.traitsem }}</td>
                                   </tr>
 
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Deviation (SD)</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">0.182</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.traitstdev }}</td>
                                   </tr>
 
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Minimum</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">5.782</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.min }}</td>
                                   </tr>
 
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Maximum</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">6.579</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.max }}</td>
                                   </tr>
 
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Range (log2)</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">0.797</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.range_log2 }}</td>
                                   </tr>
 
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left"><span>Range (fold)</span></td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">1.74</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.range_fold }}</td>
                                   </tr>
 
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left"><span><a href="/glossary.html#Interquartile" target="_blank" class=
                                     "non_bold">Interquartile Range</a></span></td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">1.18</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.interquartile }} </td>
                                   </tr>
                                 </table>
                               </td>
@@ -402,7 +403,8 @@
                           </table>
                         </div>
                       </div>
-
+					  {% endfor %}
+					{# Not used now - Todo: Delete after we're sure this is right.
                       <div class="ui-tabs" id="stats_tabs1">
                         <ul>
                           <li><a href="#statstabs-1" class="stats_tab">Basic Table</a></li>
@@ -540,6 +542,8 @@
                       </div>
 
                       <div class="ui-tabs" id="stats_tabs2">
+
+					#}
                         <ul>
                           <li><a href="#statstabs-1" class="stats_tab">Basic Table</a></li>
 

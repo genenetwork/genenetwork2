@@ -26,4 +26,5 @@ def showDatabaseBXD():
     # Here it's currently too complicated not to use an fd that is a webqtlFormData
     fd = webqtlFormData.webqtlFormData(request.args)
     template_vars = show_trait_page.ShowTraitPage(fd)
+    print("showDatabaseBXD template_vars:", pf(template_vars.__dict__))
     return render_template("trait_data_and_analysis.html", **template_vars.__dict__)
