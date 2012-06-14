@@ -537,7 +537,7 @@
 
                       <div class="ui-tabs" id="stats_tabs2">
 
-					#}
+
                         <ul>
                           <li><a href="#statstabs-1" class="stats_tab">Basic Table</a></li>
 
@@ -675,6 +675,7 @@
                     </td>
                   </tr>
                 </table>
+				#}
 
                 <p class="sectionheader" id="title3" style="border-radius: 5px;">&nbsp;&nbsp;Calculate Correlations</p>
 
@@ -1266,7 +1267,7 @@
                                   <tr>
                                     <td><span class="ffl fwb fs12">Return:</span></td>
 
-                                    <td><select name="criteria1" size="1" onmouseover="if (NS4 || IE4) activateEl('criterias', event);">
+                                    <td><select name="criteria1" size="1">
                                       <option value="100">
                                         top 100
                                       </option>
@@ -1906,7 +1907,7 @@
                                   <tr>
                                     <td><span class="ffl fwb fs12">Return:</span></td>
 
-                                    <td><select name="criteria2" size="1" onmouseover="if (NS4 || IE4) activateEl('criterias', event);">
+                                    <td><select name="criteria2" size="1">
                                       <option value="100">
                                         top 100
                                       </option>
@@ -2545,7 +2546,7 @@
                                   <tr>
                                     <td><span class="ffl fwb fs12">Return:</span></td>
 
-                                    <td><select name="criteria3" size="1" onmouseover="if (NS4 || IE4) activateEl('criterias', event);">
+                                    <td><select name="criteria3" size="1">
                                       <option value="100">
                                         top 100
                                       </option>
@@ -5040,5 +5041,14 @@
           </tr>
         </table>
       </td>
-    </tr><!-- End of body -->
+    </tr>
+	<script>
+		console.log("test inline")
+	</script>
+	<script type="text/javascript" src="/static/new/javascript/trait_data_and_analysis.js"></script>
+	<script>
+		console.log("test inline - after")
+	</script>
+
+	<!-- End of body -->
 	{% endblock %}
