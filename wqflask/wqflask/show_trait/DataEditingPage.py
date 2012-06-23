@@ -7,7 +7,7 @@ from collections import OrderedDict
 from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
-from utility import webqtlUtil #, Plot
+from utility import webqtlUtil, Plot
 from base.webqtlTrait import webqtlTrait
 from dbFunction import webqtlDatabaseFunction
 from base.templatePage import templatePage
@@ -183,7 +183,7 @@ class DataEditingPage(templatePage):
         ##  Trait Value Table
         #############################
         #
-        #self.dispTraitValues(fd, title5Body, varianceDataPage, nCols, mainForm, thisTrait)
+        self.dispTraitValues(fd, varianceDataPage, nCols, thisTrait)
         #
         if fd.allstrainlist:
             hddn['allstrainlist'] = string.join(fd.allstrainlist, ' ')
@@ -1549,14 +1549,15 @@ class DataEditingPage(templatePage):
     ##########################################
     ##  Function to display trait tables
     ##########################################
-    def dispTraitValues(self, fd , title5Body, varianceDataPage, nCols, mainForm, thisTrait):
-        traitTableOptions = HT.Div(style="border: 3px solid #EEEEEE; -moz-border-radius: 10px; -webkit-border-radius: 10px; width: 625px; padding: 5px 5px 10px 8px; font-size: 12px; background: #DDDDDD;")
-        resetButton = HT.Input(type='button',name='resetButton',value=' Reset ',Class="button")
-        blockSamplesField = HT.Input(type="text",style="background-color:white;border: 1px solid black;font-size: 14px;", name="removeField")
-        blockSamplesButton = HT.Input(type='button',value=' Block ', name='blockSamples', Class="button")
-        showHideNoValue = HT.Input(type='button', name='showHideNoValue', value=' Hide No Value ',Class='button')
-        blockMenuSpan = HT.Span(Id="blockMenuSpan")
-        blockMenu = HT.Select(name='block_method')
+    def dispTraitValues(self, fd, varianceDataPage, nCols, thisTrait):
+        print("in dispTraitValues")
+        #traitTableOptions = HT.Div(style="border: 3px solid #EEEEEE; -moz-border-radius: 10px; -webkit-border-radius: 10px; width: 625px; padding: 5px 5px 10px 8px; font-size: 12px; background: #DDDDDD;")
+        #resetButton = HT.Input(type='button',name='resetButton',value=' Reset ',Class="button")
+        #blockSamplesField = HT.Input(type="text",style="background-color:white;border: 1px solid black;font-size: 14px;", name="removeField")
+        #blockSamplesButton = HT.Input(type='button',value=' Block ', name='blockSamples', Class="button")
+        #showHideNoValue = HT.Input(type='button', name='showHideNoValue', value=' Hide No Value ',Class='button')
+        #blockMenuSpan = HT.Span(Id="blockMenuSpan")
+        #blockMenu = HT.Select(name='block_method')
 
         if fd.genotype.type == "riset":
             allstrainlist_neworder = fd.f1list + fd.strainlist
@@ -1615,21 +1616,21 @@ class DataEditingPage(templatePage):
         else:
             pass
 
-        showHideOutliers = HT.Input(type='button', name='showHideOutliers', value=' Hide Outliers ', Class='button')
-        showHideMenuOptions = HT.Span(Id="showHideOptions", style="line-height:225%;")
-        if other_strains:
-            pass
+        #showHideOutliers = HT.Input(type='button', name='showHideOutliers', value=' Hide Outliers ', Class='button')
+        #showHideMenuOptions = HT.Span(Id="showHideOptions", style="line-height:225%;")
+        #if other_strains:
+        #    pass
             #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;"), blockSamplesField, "&nbsp;&nbsp;&nbsp;", blockMenuSpan, "&nbsp;&nbsp;&nbsp;", blockSamplesButton, HT.BR())
-        else:
-            pass
+        #else:
+        #    pass
             #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;"), blockSamplesField, "&nbsp;&nbsp;&nbsp;", blockSamplesButton, HT.BR())
 
-        exportButton = HT.Input(type='button', name='export', value=' Export ', Class='button')
+        #exportButton = HT.Input(type='button', name='export', value=' Export ', Class='button')
         if len(attribute_names) > 0:
             excludeButton = HT.Input(type='button', name='excludeGroup', value=' Block ', Class='button')
             #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by group:"), "&nbsp;"*5, exclude_menu, "&nbsp;"*5)
-            for menu in dropdown_menus:
-                pass
+            #for menu in dropdown_menus:
+            #    pass
                 #showHideMenuOptions.append(menu)
             #showHideMenuOptions.append("&nbsp;"*5, excludeButton, HT.BR())
         #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Options:"), "&nbsp;"*5, showHideNoValue, "&nbsp;"*5, showHideOutliers, "&nbsp;"*5, resetButton, "&nbsp;"*5, exportButton)
@@ -1652,19 +1653,23 @@ class DataEditingPage(templatePage):
 
         other_strainsExist = False
         for strain in thisTrait.data.keys():
+            print("hjl - strain is:", strain)
             if strain not in allstrainlist_neworder:
                 other_strainsExist = True
                 break
 
+        mainForm = None # Just trying to get things working
         primary_body = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=allstrainlist_neworder, mainForm=mainForm, thisTrait=thisTrait, other_strainsExist=other_strainsExist, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='primary')
 
         #primary_table.append(primary_header)
         for i in range(len(primary_body)):
+            print("hji")
             pass
             #primary_table.append(primary_body[i])
 
         other_strains = []
         for strain in thisTrait.data.keys():
+            print("hjk - strain is:", strain)
             if strain not in allstrainlist_neworder:
                 pass
                 #allstrainlist_neworder.append(strain)
@@ -1697,6 +1702,7 @@ class DataEditingPage(templatePage):
 
             #other_table.append(other_header)
             for i in range(len(other_body)):
+                print("hjn")
                 pass
                 #other_table.append(other_body[i])
         else:
@@ -1704,6 +1710,7 @@ class DataEditingPage(templatePage):
 
         if other_strains or (fd.f1list and thisTrait.data.has_key(fd.f1list[0])) \
                 or (fd.f1list and thisTrait.data.has_key(fd.f1list[1])):
+            print("hjs")
             fd.allstrainlist = allstrainlist_neworder
 
         ## We put isSE into hddn
@@ -1711,7 +1718,7 @@ class DataEditingPage(templatePage):
         #    #mainForm.append(HT.Input(name='isSE', value="yes", type='hidden'))
         #    hddn['isSE'] = "yes"
 
-        primary_div = HT.Div(primary_table, Id="primary") #Container for table with primary (for example, BXD) strain values
+        #primary_div = HT.Div(primary_table, Id="primary") #Container for table with primary (for example, BXD) strain values
         #container.append(primary_div)
 
         if other_strains:
@@ -1719,13 +1726,13 @@ class DataEditingPage(templatePage):
             #container.append(HT.Div('&nbsp;', height=30))
             #container.append(other_div)
 
-        table.append(HT.TR(HT.TD(container)))
+        #table.append(HT.TR(HT.TD(container)))
         #title5Body.append(table)
 
     def addTrait2Table(self, fd, varianceDataPage, strainlist, mainForm, thisTrait, other_strainsExist=None, attribute_ids=[], attribute_names=[], strains='primary'):
         #XZ, Aug 23, 2010: I commented the code related to the display of animal case
         #strainInfo = thisTrait.has_key('strainInfo') and thisTrait.strainInfo
-
+        print("in addTrait2Table")
         table_body = []
         vals = []
 
@@ -1744,9 +1751,10 @@ class DataEditingPage(templatePage):
         upperBound, lowerBound = Plot.findOutliers(vals) # ZS: Values greater than upperBound or less than lowerBound are considered outliers.
 
         for i, strainNameOrig in enumerate(strainlist):
-
+            strain = {}
+            print("zyt - strainNameOrig:", strainNameOrig)
             trId = strainNameOrig
-            selectCheck = HT.Input(type="checkbox", name="selectCheck", value=trId, Class="checkbox", onClick="highlight(this)")
+            #selectCheck = HT.Input(type="checkbox", name="selectCheck", value=trId, Class="checkbox", onClick="highlight(this)")
 
             strainName = strainNameOrig.replace("_2nd_", "")
             strainNameAdd = ''
@@ -1769,6 +1777,7 @@ class DataEditingPage(templatePage):
                 traitVal = ''
                 dispVal = 'x'
 
+            strain['strain_name'] = StrainName
             strainNameDisp = HT.Span(strainName, Class='fs14 fwn ffl')
 
             if varianceDataPage:
@@ -1806,38 +1815,46 @@ class DataEditingPage(templatePage):
                       # changes it. The updated value is then used when the table is sorted (tablesorter.js). This needs to be done because the "value" attribute is immutable.
                     #########################################################################################################################################################
 
-                    valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right; background-color:#FFFFFF;", value=dispVal,
-                            onChange= "javascript:this.form['_2nd_%s'].value=this.form['%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=valueClassName)
+                    #valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right; background-color:#FFFFFF;", value=dispVal,
+                    #        onChange= "javascript:this.form['_2nd_%s'].value=this.form['%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=valueClassName)
                     if varianceDataPage:
-                        seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar,
-                                onChange= "javascript:this.form['V_2nd_%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
+                        pass
+                        #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar,
+                        #        onChange= "javascript:this.form['V_2nd_%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
                 else:
-                    valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right; background-color:#FFFFFF;", value=dispVal, Class=valueClassName)
+                    pass
+                    #valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right; background-color:#FFFFFF;", value=dispVal, Class=valueClassName)
                     if varianceDataPage:
-                        seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar, Class=varClassName)
+                        pass
+                        #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar, Class=varClassName)
             else:
-                valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVal,
-                                      onChange= "javascript:this.form['%s'].value=this.form['%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=valueClassName)
+                pass
+                #valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVal,
+                                      #onChange= "javascript:this.form['%s'].value=this.form['%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=valueClassName)
                 if varianceDataPage:
-                    seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar,
-                            onChange= "javascript:this.form['V%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
+                    pass
+                    #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar,
+                    #        onChange= "javascript:this.form['V%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
 
             if (strains == 'primary'):
-                table_row = HT.TR(Id="Primary_"+str(i+1), Class=rowClassName)
+                strain[the_id] = "Primary_" + str(i+1)
+                #table_row = HT.TR(Id="Primary_"+str(i+1), Class=rowClassName)
             else:
-                table_row = HT.TR(Id="Other_"+str(i+1), Class=rowClassName)
+                strain[the_id] = "Other_" + str(i+1)
+                #table_row = HT.TR(Id="Other_"+str(i+1), Class=rowClassName)
 
             if varianceDataPage:
-                table_row.append(HT.TD(str(i+1), selectCheck, width=45, align='right', Class=className))
-                table_row.append(HT.TD(strainNameDisp, strainNameAdd, align='right', width=100, Class=className))
-                table_row.append(HT.TD(valueField, width=70, align='right', Id="value_"+str(i)+"_"+strains, Class=className))
-                table_row.append(HT.TD("&plusmn;", width=20, align='center', Class=className))
-                table_row.append(HT.TD(seField, width=80, align='right', Id="SE_"+str(i)+"_"+strains, Class=className))
+                #table_row.append(HT.TD(str(i+1), selectCheck, width=45, align='right', Class=className))
+                #table_row.append(HT.TD(strainNameDisp, strainNameAdd, align='right', width=100, Class=className))
+                #table_row.append(HT.TD(valueField, width=70, align='right', Id="value_"+str(i)+"_"+strains, Class=className))
+                #table_row.append(HT.TD("&plusmn;", width=20, align='center', Class=className))
+                #table_row.append(HT.TD(seField, width=80, align='right', Id="SE_"+str(i)+"_"+strains, Class=className))
+                pass
             else:
-                table_row.append(HT.TD(str(i+1), selectCheck, width=45, align='right', Class=className))
-                table_row.append(HT.TD(strainNameDisp, strainNameAdd, align='right', width=100, Class=className))
-                table_row.append(HT.TD(valueField, width=70, align='right', Id="value_"+str(i)+"_"+strains, Class=className))
-
+                #table_row.append(HT.TD(str(i+1), selectCheck, width=45, align='right', Class=className))
+                #table_row.append(HT.TD(strainNameDisp, strainNameAdd, align='right', width=100, Class=className))
+                #table_row.append(HT.TD(valueField, width=70, align='right', Id="value_"+str(i)+"_"+strains, Class=className))
+                pass
             if thisTrait and thisTrait.db and thisTrait.db.type =='ProbeSet':
                 if len(attribute_ids) > 0:
 
@@ -1876,7 +1893,7 @@ class DataEditingPage(templatePage):
                         table_row.append(HT.TD(attr_container, align='right', Class=attr_className))
                         attr_counter += 1
 
-            table_body.append(table_row)
+            #table_body.append(table_row)
         return table_body
 
     def getTableHeader(self, fd, thisTrait, nCols, attribute_names):

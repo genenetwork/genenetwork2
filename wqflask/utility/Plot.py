@@ -487,440 +487,440 @@ def plotSecurity(canvas, text="12345"):
 
 # parameter: data is either object returned by reaper permutation function (called by MarkerRegressionPage.py)
 # or the first object returned by direct (pair-scan) permu function (called by DirectPlotPage.py)
-def plotBar(canvas, data, barColor=pid.blue, axesColor=pid.black, labelColor=pid.black, XLabel=None, YLabel=None, title=None, offset= (60, 20, 40, 40), zoom = 1):
-
-    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
-
-    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
-    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
-    if plotHeight<=0 or plotWidth<=0:
-        return
-
-    if len(data) < 2:
-        return
-
-    max_D = max(data)
-    min_D = min(data)
-    #add by NL 06-20-2011: fix the error: when max_D is infinite, log function in detScale will go wrong
-    if max_D == float('inf') or max_D>webqtlConfig.MAXLRS:
-        max_D=webqtlConfig.MAXLRS #maximum LRS value
-
-    xLow, xTop, stepX = detScale(min_D, max_D)
-
-    #reduce data
-    step = ceil((xTop-xLow)/50.0)
-    j = xLow
-    dataXY = []
-    Count = []
-    while j <= xTop:
-        dataXY.append(j)
-        Count.append(0)
-        j += step
-
-    for i, item in enumerate(data):
-        if item == float('inf') or item>webqtlConfig.MAXLRS:
-            item = webqtlConfig.MAXLRS #maximum LRS value
-        j = int((item-xLow)/step)
-        Count[j] += 1
-
-    yLow, yTop, stepY=detScale(0,max(Count))
-
-    #draw data
-    xScale = plotWidth/(xTop-xLow)
-    yScale = plotHeight/(yTop-yLow)
-    barWidth = xScale*step
-
-    for i, count in enumerate(Count):
-        if count:
-            xc = (dataXY[i]-xLow)*xScale+xLeftOffset
-            yc =-(count-yLow)*yScale+yTopOffset+plotHeight
-            canvas.drawRect(xc+2,yc,xc+barWidth-2,yTopOffset+plotHeight,edgeColor=barColor,fillColor=barColor)
-
-    #draw drawing region
-    canvas.drawRect(xLeftOffset, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight)
-
-    #draw scale
-    scaleFont=pid.Font(ttf="cour",size=11,bold=1)
-    x=xLow
-    for i in range(stepX+1):
-        xc=xLeftOffset+(x-xLow)*xScale
-        canvas.drawLine(xc,yTopOffset+plotHeight,xc,yTopOffset+plotHeight+5, color=axesColor)
-        strX = cformat(d=x, rank=0)
-        canvas.drawString(strX,xc-canvas.stringWidth(strX,font=scaleFont)/2,yTopOffset+plotHeight+14,font=scaleFont)
-        x+= (xTop - xLow)/stepX
-
-    y=yLow
-    for i in range(stepY+1):
-        yc=yTopOffset+plotHeight-(y-yLow)*yScale
-        canvas.drawLine(xLeftOffset,yc,xLeftOffset-5,yc, color=axesColor)
-        strY = "%d" %y
-        canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)-6,yc+5,font=scaleFont)
-        y+= (yTop - yLow)/stepY
-
-    #draw label
-    labelFont=pid.Font(ttf="tahoma",size=17,bold=0)
-    if XLabel:
-        canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,
-                yTopOffset+plotHeight+yBottomOffset-10,font=labelFont,color=labelColor)
-
-    if YLabel:
-        canvas.drawString(YLabel, 19, yTopOffset+plotHeight-(plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,
-                font=labelFont,color=labelColor,angle=90)
-
-    labelFont=pid.Font(ttf="verdana",size=16,bold=0)
-    if title:
-        canvas.drawString(title,xLeftOffset+(plotWidth-canvas.stringWidth(title,font=labelFont))/2.0,
-                20,font=labelFont,color=labelColor)
-
-def plotBarText(canvas, data, label, variance=None, barColor=pid.blue, axesColor=pid.black, labelColor=pid.black, XLabel=None, YLabel=None, title=None, sLabel = None, offset= (80, 20, 40, 100), barSpace = 2, zoom = 1):
-    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
-    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
-    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
-    if plotHeight<=0 or plotWidth<=0:
-        return
-
-    NNN = len(data)
-    if NNN < 2 or NNN != len(label):
-        return
-    if variance and len(variance)!=NNN:
-        variance = []
-
-    Y2 = data[:]
-    if variance:
-        for i in range(NNN):
-            if variance[i]:
-                Y2 += [data[i]-variance[i]]
-
-    #Y axis
-    YLow, YTop, stepY = detScale(min(Y2), max(Y2))
-    YScale = plotHeight/(YTop - YLow)
-
-    if YLow < 0  and  YTop > 0:
-        drawZero = 1
-    else:
-        drawZero = 0
-
-    #X axis
-    X = range(NNN)
-    Xll= 0
-    Xur= NNN-1
-
-
-    if drawZero:
-        YZero = yTopOffset+plotHeight-YScale*(0-YLow)
-        canvas.drawLine(xLeftOffset, YZero, xLeftOffset+plotWidth, YZero)
-    else:
-        YZero = yTopOffset+plotHeight
-    #draw data
-    spaceWidth = barSpace
-    if spaceWidth < 1:
-        spaceWidth = 1
-    barWidth = int((plotWidth - (NNN-1.0)*spaceWidth)/NNN)
-
-    xc= xLeftOffset
-    scaleFont=pid.Font(ttf="verdana",size=11,bold=0)
-    for i in range(NNN):
-        yc = yTopOffset+plotHeight-(data[i]-YLow)*YScale
-        canvas.drawRect(xc,YZero,xc+barWidth-1, yc, edgeColor=barColor,fillColor=barColor)
-        if variance and variance[i]:
-            varlen = variance[i]*YScale
-            if yc-varlen < yTopOffset:
-                topYd = yTopOffset
-            else:
-                topYd = yc-varlen
-                canvas.drawLine(xc+barWidth/2-2,yc-varlen,xc+barWidth/2+2,yc-varlen,color=pid.red)
-            canvas.drawLine(xc+barWidth/2,yc+varlen,xc+barWidth/2,topYd,color=pid.red)
-            canvas.drawLine(xc+barWidth/2-2,yc+varlen,xc+barWidth/2+2,yc+varlen,color=pid.red)
-        strX = label[i]
-        canvas.drawString(strX,xc+barWidth/2.0+2,yTopOffset+plotHeight+2+canvas.stringWidth(strX,font=scaleFont),font=scaleFont,angle=90)
-        xc += barWidth + spaceWidth
-
-    #draw drawing region
-    canvas.drawRect(xLeftOffset, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight)
-
-    #draw Y scale
-    scaleFont=pid.Font(ttf="cour",size=16,bold=1)
-    y=YLow
-    for i in range(stepY+1):
-        yc=yTopOffset+plotHeight-(y-YLow)*YScale
-        canvas.drawLine(xLeftOffset,yc,xLeftOffset-5,yc, color=axesColor)
-        strY = cformat(d=y, rank=0)
-        canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)-6,yc+5,font=scaleFont)
-        y+= (YTop - YLow)/stepY
-
-    #draw label
-    labelFont=pid.Font(ttf="verdana",size=17,bold=0)
-    if XLabel:
-        canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,yTopOffset+plotHeight+65,font=labelFont,color=labelColor)
-
-    if YLabel:
-        canvas.drawString(YLabel,xLeftOffset-50, yTopOffset+plotHeight-(plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,font=labelFont,color=labelColor,angle=90)
-
-    labelFont=pid.Font(ttf="verdana",size=18,bold=0)
-    if title:
-        canvas.drawString(title,xLeftOffset,yTopOffset-15,font=labelFont,color=labelColor)
-
-    return
-
-def plotXY(canvas, dataX, dataY, rank=0, dataLabel=[], plotColor = pid.black, axesColor=pid.black, labelColor=pid.black, lineSize="thin", lineColor=pid.grey, idFont="arial", idColor=pid.blue, idSize="14", symbolColor=pid.black, symbolType="circle", filled="yes", symbolSize="tiny", XLabel=None, YLabel=None, title=None, fitcurve=None, connectdot=1, displayR=None, loadingPlot = 0, offset= (80, 20, 40, 60), zoom = 1, specialCases=[], showLabel = 1, bufferSpace = 15):
-    'displayR : correlation scatter plot, loadings : loading plot'
-
-    dataXRanked, dataYRanked = webqtlUtil.calRank(dataX, dataY, len(dataX))
-
-    #get ID font size
-    idFontSize = int(idSize)
-
-    #If filled is yes, set fill color
-    if filled == "yes":
-        fillColor = symbolColor
-    else:
-        fillColor = None
-
-    if symbolSize == "large":
-        sizeModifier = 7
-        fontModifier = 12
-    elif symbolSize == "medium":
-        sizeModifier = 5
-        fontModifier = 8
-    elif symbolSize == "small":
-        sizeModifier = 3
-        fontModifier = 3
-    else:
-        sizeModifier = 1
-        fontModifier = -1
-
-    if rank == 0:    # Pearson correlation
-        bufferSpace = 0
-        dataXPrimary = dataX
-        dataYPrimary = dataY
-        dataXAlt = dataXRanked    #Values used just for printing the other corr type to the graph image
-        dataYAlt = dataYRanked    #Values used just for printing the other corr type to the graph image
-    else:    # Spearman correlation: Switching Ranked and Unranked X and Y values
-        dataXPrimary = dataXRanked
-        dataYPrimary = dataYRanked
-        dataXAlt = dataX    #Values used just for printing the other corr type to the graph image
-        dataYAlt = dataY    #Values used just for printing the other corr type to the graph image
-
-    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
-    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
-    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
-    if plotHeight<=0 or plotWidth<=0:
-        return
-    if len(dataXPrimary) < 1 or  len(dataXPrimary) != len(dataYPrimary) or (dataLabel and len(dataXPrimary) != len(dataLabel)):
-        return
-
-    max_X=max(dataXPrimary)
-    min_X=min(dataXPrimary)
-    max_Y=max(dataYPrimary)
-    min_Y=min(dataYPrimary)
-
-    #for some reason I forgot why I need to do this
-    if loadingPlot:
-        min_X = min(-0.1,min_X)
-        max_X = max(0.1,max_X)
-        min_Y = min(-0.1,min_Y)
-        max_Y = max(0.1,max_Y)
-
-    xLow, xTop, stepX=detScale(min_X,max_X)
-    yLow, yTop, stepY=detScale(min_Y,max_Y)
-    xScale = plotWidth/(xTop-xLow)
-    yScale = plotHeight/(yTop-yLow)
-
-    #draw drawing region
-    canvas.drawRect(xLeftOffset-bufferSpace, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight+bufferSpace)
-    canvas.drawRect(xLeftOffset-bufferSpace+1, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight+bufferSpace-1)
-
-    #calculate data points
-    data = map(lambda X, Y: (X, Y), dataXPrimary, dataYPrimary)
-    xCoord = map(lambda X, Y: ((X-xLow)*xScale + xLeftOffset, yTopOffset+plotHeight-(Y-yLow)*yScale), dataXPrimary, dataYPrimary)
-
-    labelFont=pid.Font(ttf=idFont,size=idFontSize,bold=0)
-
-    if loadingPlot:
-        xZero = -xLow*xScale+xLeftOffset
-        yZero = yTopOffset+plotHeight+yLow*yScale
-        for point in xCoord:
-            canvas.drawLine(xZero,yZero,point[0],point[1],color=pid.red)
-    else:
-        if connectdot:
-            canvas.drawPolygon(xCoord,edgeColor=plotColor,closed=0)
-        else:
-            pass
-
-    symbolFont = pid.Font(ttf="fnt_bs", size=12+fontModifier,bold=0)
-
-    for i, item in enumerate(xCoord):
-        if dataLabel and dataLabel[i] in specialCases:
-            canvas.drawRect(item[0]-3, item[1]-3, item[0]+3, item[1]+3, edgeColor=pid.green)
-            #canvas.drawCross(item[0],item[1],color=pid.blue,size=5)
-        else:
-            if symbolType == "vertRect":
-                canvas.drawRect(x1=item[0]-sizeModifier+2,y1=item[1]-sizeModifier-2, x2=item[0]+sizeModifier-1,y2=item[1]+sizeModifier+2, edgeColor=symbolColor, edgeWidth=1, fillColor=fillColor)
-            elif (symbolType == "circle" and filled != "yes"):
-                canvas.drawString(":", item[0]-canvas.stringWidth(":",font=symbolFont)/2+1,item[1]+2,color=symbolColor, font=symbolFont)
-            elif (symbolType == "circle" and filled == "yes"):
-                canvas.drawString("5", item[0]-canvas.stringWidth("5",font=symbolFont)/2+1,item[1]+2,color=symbolColor, font=symbolFont)
-            elif symbolType == "horiRect":
-                canvas.drawRect(x1=item[0]-sizeModifier-1,y1=item[1]-sizeModifier+3, x2=item[0]+sizeModifier+3,y2=item[1]+sizeModifier-2, edgeColor=symbolColor, edgeWidth=1, fillColor=fillColor)
-            elif (symbolType == "square"):
-                canvas.drawRect(x1=item[0]-sizeModifier+1,y1=item[1]-sizeModifier-4, x2=item[0]+sizeModifier+2,y2=item[1]+sizeModifier-3, edgeColor=symbolColor, edgeWidth=1, fillColor=fillColor)
-            elif (symbolType == "diamond" and filled != "yes"):
-                canvas.drawString(",", item[0]-canvas.stringWidth(",",font=symbolFont)/2+2, item[1]+6, font=symbolFont, color=symbolColor)
-            elif (symbolType == "diamond" and filled == "yes"):
-                canvas.drawString("D", item[0]-canvas.stringWidth("D",font=symbolFont)/2+2, item[1]+6, font=symbolFont, color=symbolColor)
-            elif symbolType == "4-star":
-                canvas.drawString("l", item[0]-canvas.stringWidth("l",font=symbolFont)/2+1, item[1]+3, font=symbolFont, color=symbolColor)
-            elif symbolType == "3-star":
-                canvas.drawString("k", item[0]-canvas.stringWidth("k",font=symbolFont)/2+1, item[1]+3, font=symbolFont, color=symbolColor)
-            else:
-                canvas.drawCross(item[0],item[1]-2,color=symbolColor, size=sizeModifier+2)
-
-        if showLabel and dataLabel:
-            if (symbolType == "vertRect" or symbolType == "diamond"):
-                labelGap = 15
-            elif (symbolType == "4-star" or symbolType == "3-star"):
-                labelGap = 12
-            else:
-                labelGap = 11
-            canvas.drawString(dataLabel[i], item[0]- canvas.stringWidth(dataLabel[i],
-                    font=labelFont)/2 + 1, item[1]+(labelGap+sizeModifier+(idFontSize-12)), font=labelFont, color=idColor)
-
-    #draw scale
-    scaleFont=pid.Font(ttf="cour",size=16,bold=1)
-
-
-    x=xLow
-    for i in range(stepX+1):
-        xc=xLeftOffset+(x-xLow)*xScale
-        if ((x == 0) & (rank == 1)):
-            pass
-        else:
-            canvas.drawLine(xc,yTopOffset+plotHeight + bufferSpace,xc,yTopOffset+plotHeight+5 + bufferSpace, color=axesColor)
-        strX = cformat(d=x, rank=rank)
-        if ((strX == "0") & (rank == 1)):
-            pass
-        else:
-            canvas.drawString(strX,xc-canvas.stringWidth(strX,font=scaleFont)/2,yTopOffset+plotHeight+20 + bufferSpace,font=scaleFont)
-        x+= (xTop - xLow)/stepX
-
-    y=yLow
-    for i in range(stepY+1):
-        yc=yTopOffset+plotHeight-(y-yLow)*yScale
-        if ((y == 0) & (rank == 1)):
-            pass
-        else:
-            canvas.drawLine(xLeftOffset - bufferSpace,yc,xLeftOffset-5 - bufferSpace,yc, color=axesColor)
-        strY = cformat(d=y, rank=rank)
-        if ((strY == "0") & (rank == 1)):
-            pass
-        else:
-            canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)- 10 - bufferSpace,yc+4,font=scaleFont)
-        y+= (yTop - yLow)/stepY
-
-    #draw label
-
-    labelFont=pid.Font(ttf="verdana",size=canvas.size[0]/45,bold=0)
-    titleFont=pid.Font(ttf="verdana",size=canvas.size[0]/40,bold=0)
-
-    if (rank == 1 and not title):
-        canvas.drawString("Spearman Rank Correlation", xLeftOffset-canvas.size[0]*.025+(plotWidth-canvas.stringWidth("Spearman Rank Correlation",font=titleFont))/2.0,
-                                          25,font=titleFont,color=labelColor)
-    elif (rank == 0 and not title):
-        canvas.drawString("Pearson Correlation", xLeftOffset-canvas.size[0]*.025+(plotWidth-canvas.stringWidth("Pearson Correlation",font=titleFont))/2.0,
-                                          25,font=titleFont,color=labelColor)
-
-    if XLabel:
-        canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,
-                yTopOffset+plotHeight+yBottomOffset-25,font=labelFont,color=labelColor)
-
-    if YLabel:
-        canvas.drawString(YLabel, xLeftOffset-65, yTopOffset+plotHeight- (plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,
-                font=labelFont,color=labelColor,angle=90)
-
-    labelFont=pid.Font(ttf="verdana",size=20,bold=0)
-    if title:
-        canvas.drawString(title,xLeftOffset+(plotWidth-canvas.stringWidth(title,font=labelFont))/2.0,
-                20,font=labelFont,color=labelColor)
-
-    if fitcurve:
-        import sys
-        sys.argv = [ "mod_python" ]
-        #from numarray import linear_algebra as la
-        #from numarray import ones, array, dot, swapaxes
-        fitYY = array(dataYPrimary)
-        fitXX = array([ones(len(dataXPrimary)),dataXPrimary])
-        AA = dot(fitXX,swapaxes(fitXX,0,1))
-        BB = dot(fitXX,fitYY)
-        bb = la.linear_least_squares(AA,BB)[0]
-
-        xc1 = xLeftOffset
-        yc1 = yTopOffset+plotHeight-(bb[0]+bb[1]*xLow-yLow)*yScale
-        if yc1 > yTopOffset+plotHeight:
-            yc1 = yTopOffset+plotHeight
-            xc1 = (yLow-bb[0])/bb[1]
-            xc1=(xc1-xLow)*xScale+xLeftOffset
-        elif yc1 < yTopOffset:
-            yc1 = yTopOffset
-            xc1 = (yTop-bb[0])/bb[1]
-            xc1=(xc1-xLow)*xScale+xLeftOffset
-        else:
-            pass
-
-        xc2 = xLeftOffset + plotWidth
-        yc2 = yTopOffset+plotHeight-(bb[0]+bb[1]*xTop-yLow)*yScale
-        if yc2 > yTopOffset+plotHeight:
-            yc2 = yTopOffset+plotHeight
-            xc2 = (yLow-bb[0])/bb[1]
-            xc2=(xc2-xLow)*xScale+xLeftOffset
-        elif yc2 < yTopOffset:
-            yc2 = yTopOffset
-            xc2 = (yTop-bb[0])/bb[1]
-            xc2=(xc2-xLow)*xScale+xLeftOffset
-        else:
-            pass
-
-        canvas.drawLine(xc1 - bufferSpace,yc1 + bufferSpace,xc2,yc2,color=lineColor)
-        if lineSize == "medium":
-            canvas.drawLine(xc1 - bufferSpace,yc1 + bufferSpace+1,xc2,yc2+1,color=lineColor)
-        if lineSize == "thick":
-            canvas.drawLine(xc1 - bufferSpace,yc1 + bufferSpace+1,xc2,yc2+1,color=lineColor)
-            canvas.drawLine(xc1 - bufferSpace,yc1 + bufferSpace-1,xc2,yc2-1,color=lineColor)
-
-
-    if displayR:
-        labelFont=pid.Font(ttf="trebuc",size=canvas.size[0]/60,bold=0)
-        NNN = len(dataX)
-        corr = webqtlUtil.calCorrelation(dataXPrimary,dataYPrimary,NNN)[0]
-
-        if NNN < 3:
-            corrPValue = 1.0
-        else:
-            if abs(corr) >= 1.0:
-                corrPValue = 0.0
-            else:
-                ZValue = 0.5*log((1.0+corr)/(1.0-corr))
-                ZValue = ZValue*sqrt(NNN-3)
-                corrPValue = 2.0*(1.0 - reaper.normp(abs(ZValue)))
-
-        NStr = "N = %d" % NNN
-        strLenN = canvas.stringWidth(NStr,font=labelFont)
-
-        if rank == 1:
-            if corrPValue < 0.0000000000000001:
-                corrStr = "Rho = %1.3f P < 1.00 E-16" % (corr)
-            else:
-                corrStr = "Rho = %1.3f P = %3.2E" % (corr, corrPValue)
-        else:
-            if corrPValue < 0.0000000000000001:
-                corrStr = "r = %1.3f P < 1.00 E-16" % (corr)
-            else:
-                corrStr = "r = %1.3f P = %3.2E" % (corr, corrPValue)
-        strLen = canvas.stringWidth(corrStr,font=labelFont)
-
-        canvas.drawString(NStr,xLeftOffset,yTopOffset-10,font=labelFont,color=labelColor)
-        canvas.drawString(corrStr,xLeftOffset+plotWidth-strLen,yTopOffset-10,font=labelFont,color=labelColor)
-
-    return xCoord
+#def plotBar(canvas, data, barColor=pid.blue, axesColor=pid.black, labelColor=pid.black, XLabel=None, YLabel=None, title=None, offset= (60, 20, 40, 40), zoom = 1):
+#
+#    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
+#
+#    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
+#    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
+#    if plotHeight<=0 or plotWidth<=0:
+#        return
+#
+#    if len(data) < 2:
+#        return
+#
+#    max_D = max(data)
+#    min_D = min(data)
+#    #add by NL 06-20-2011: fix the error: when max_D is infinite, log function in detScale will go wrong
+#    if max_D == float('inf') or max_D>webqtlConfig.MAXLRS:
+#        max_D=webqtlConfig.MAXLRS #maximum LRS value
+#
+#    xLow, xTop, stepX = detScale(min_D, max_D)
+#
+#    #reduce data
+#    step = ceil((xTop-xLow)/50.0)
+#    j = xLow
+#    dataXY = []
+#    Count = []
+#    while j <= xTop:
+#        dataXY.append(j)
+#        Count.append(0)
+#        j += step
+#
+#    for i, item in enumerate(data):
+#        if item == float('inf') or item>webqtlConfig.MAXLRS:
+#            item = webqtlConfig.MAXLRS #maximum LRS value
+#        j = int((item-xLow)/step)
+#        Count[j] += 1
+#
+#    yLow, yTop, stepY=detScale(0,max(Count))
+#
+#    #draw data
+#    xScale = plotWidth/(xTop-xLow)
+#    yScale = plotHeight/(yTop-yLow)
+#    barWidth = xScale*step
+#
+#    for i, count in enumerate(Count):
+#        if count:
+#            xc = (dataXY[i]-xLow)*xScale+xLeftOffset
+#            yc =-(count-yLow)*yScale+yTopOffset+plotHeight
+#            canvas.drawRect(xc+2,yc,xc+barWidth-2,yTopOffset+plotHeight,edgeColor=barColor,fillColor=barColor)
+#
+#    #draw drawing region
+#    canvas.drawRect(xLeftOffset, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight)
+#
+#    #draw scale
+#    scaleFont=pid.Font(ttf="cour",size=11,bold=1)
+#    x=xLow
+#    for i in range(stepX+1):
+#        xc=xLeftOffset+(x-xLow)*xScale
+#        canvas.drawLine(xc,yTopOffset+plotHeight,xc,yTopOffset+plotHeight+5, color=axesColor)
+#        strX = cformat(d=x, rank=0)
+#        canvas.drawString(strX,xc-canvas.stringWidth(strX,font=scaleFont)/2,yTopOffset+plotHeight+14,font=scaleFont)
+#        x+= (xTop - xLow)/stepX
+#
+#    y=yLow
+#    for i in range(stepY+1):
+#        yc=yTopOffset+plotHeight-(y-yLow)*yScale
+#        canvas.drawLine(xLeftOffset,yc,xLeftOffset-5,yc, color=axesColor)
+#        strY = "%d" %y
+#        canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)-6,yc+5,font=scaleFont)
+#        y+= (yTop - yLow)/stepY
+#
+#    #draw label
+#    labelFont=pid.Font(ttf="tahoma",size=17,bold=0)
+#    if XLabel:
+#        canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,
+#                yTopOffset+plotHeight+yBottomOffset-10,font=labelFont,color=labelColor)
+#
+#    if YLabel:
+#        canvas.drawString(YLabel, 19, yTopOffset+plotHeight-(plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,
+#                font=labelFont,color=labelColor,angle=90)
+#
+#    labelFont=pid.Font(ttf="verdana",size=16,bold=0)
+#    if title:
+#        canvas.drawString(title,xLeftOffset+(plotWidth-canvas.stringWidth(title,font=labelFont))/2.0,
+#                20,font=labelFont,color=labelColor)
+#
+#def plotBarText(canvas, data, label, variance=None, barColor=pid.blue, axesColor=pid.black, labelColor=pid.black, XLabel=None, YLabel=None, title=None, sLabel = None, offset= (80, 20, 40, 100), barSpace = 2, zoom = 1):
+#    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
+#    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
+#    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
+#    if plotHeight<=0 or plotWidth<=0:
+#        return
+#
+#    NNN = len(data)
+#    if NNN < 2 or NNN != len(label):
+#        return
+#    if variance and len(variance)!=NNN:
+#        variance = []
+#
+#    Y2 = data[:]
+#    if variance:
+#        for i in range(NNN):
+#            if variance[i]:
+#                Y2 += [data[i]-variance[i]]
+#
+#    #Y axis
+#    YLow, YTop, stepY = detScale(min(Y2), max(Y2))
+#    YScale = plotHeight/(YTop - YLow)
+#
+#    if YLow < 0  and  YTop > 0:
+#        drawZero = 1
+#    else:
+#        drawZero = 0
+#
+#    #X axis
+#    X = range(NNN)
+#    Xll= 0
+#    Xur= NNN-1
+#
+#
+#    if drawZero:
+#        YZero = yTopOffset+plotHeight-YScale*(0-YLow)
+#        canvas.drawLine(xLeftOffset, YZero, xLeftOffset+plotWidth, YZero)
+#    else:
+#        YZero = yTopOffset+plotHeight
+#    #draw data
+#    spaceWidth = barSpace
+#    if spaceWidth < 1:
+#        spaceWidth = 1
+#    barWidth = int((plotWidth - (NNN-1.0)*spaceWidth)/NNN)
+#
+#    xc= xLeftOffset
+#    scaleFont=pid.Font(ttf="verdana",size=11,bold=0)
+#    for i in range(NNN):
+#        yc = yTopOffset+plotHeight-(data[i]-YLow)*YScale
+#        canvas.drawRect(xc,YZero,xc+barWidth-1, yc, edgeColor=barColor,fillColor=barColor)
+#        if variance and variance[i]:
+#            varlen = variance[i]*YScale
+#            if yc-varlen < yTopOffset:
+#                topYd = yTopOffset
+#            else:
+#                topYd = yc-varlen
+#                canvas.drawLine(xc+barWidth/2-2,yc-varlen,xc+barWidth/2+2,yc-varlen,color=pid.red)
+#            canvas.drawLine(xc+barWidth/2,yc+varlen,xc+barWidth/2,topYd,color=pid.red)
+#            canvas.drawLine(xc+barWidth/2-2,yc+varlen,xc+barWidth/2+2,yc+varlen,color=pid.red)
+#        strX = label[i]
+#        canvas.drawString(strX,xc+barWidth/2.0+2,yTopOffset+plotHeight+2+canvas.stringWidth(strX,font=scaleFont),font=scaleFont,angle=90)
+#        xc += barWidth + spaceWidth
+#
+#    #draw drawing region
+#    canvas.drawRect(xLeftOffset, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight)
+#
+#    #draw Y scale
+#    scaleFont=pid.Font(ttf="cour",size=16,bold=1)
+#    y=YLow
+#    for i in range(stepY+1):
+#        yc=yTopOffset+plotHeight-(y-YLow)*YScale
+#        canvas.drawLine(xLeftOffset,yc,xLeftOffset-5,yc, color=axesColor)
+#        strY = cformat(d=y, rank=0)
+#        canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)-6,yc+5,font=scaleFont)
+#        y+= (YTop - YLow)/stepY
+#
+#    #draw label
+#    labelFont=pid.Font(ttf="verdana",size=17,bold=0)
+#    if XLabel:
+#        canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,yTopOffset+plotHeight+65,font=labelFont,color=labelColor)
+#
+#    if YLabel:
+#        canvas.drawString(YLabel,xLeftOffset-50, yTopOffset+plotHeight-(plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,font=labelFont,color=labelColor,angle=90)
+#
+#    labelFont=pid.Font(ttf="verdana",size=18,bold=0)
+#    if title:
+#        canvas.drawString(title,xLeftOffset,yTopOffset-15,font=labelFont,color=labelColor)
+#
+#    return
+#
+#def plotXY(canvas, dataX, dataY, rank=0, dataLabel=[], plotColor = pid.black, axesColor=pid.black, labelColor=pid.black, lineSize="thin", lineColor=pid.grey, idFont="arial", idColor=pid.blue, idSize="14", symbolColor=pid.black, symbolType="circle", filled="yes", symbolSize="tiny", XLabel=None, YLabel=None, title=None, fitcurve=None, connectdot=1, displayR=None, loadingPlot = 0, offset= (80, 20, 40, 60), zoom = 1, specialCases=[], showLabel = 1, bufferSpace = 15):
+#    'displayR : correlation scatter plot, loadings : loading plot'
+#
+#    dataXRanked, dataYRanked = webqtlUtil.calRank(dataX, dataY, len(dataX))
+#
+#    #get ID font size
+#    idFontSize = int(idSize)
+#
+#    #If filled is yes, set fill color
+#    if filled == "yes":
+#        fillColor = symbolColor
+#    else:
+#        fillColor = None
+#
+#    if symbolSize == "large":
+#        sizeModifier = 7
+#        fontModifier = 12
+#    elif symbolSize == "medium":
+#        sizeModifier = 5
+#        fontModifier = 8
+#    elif symbolSize == "small":
+#        sizeModifier = 3
+#        fontModifier = 3
+#    else:
+#        sizeModifier = 1
+#        fontModifier = -1
+#
+#    if rank == 0:    # Pearson correlation
+#        bufferSpace = 0
+#        dataXPrimary = dataX
+#        dataYPrimary = dataY
+#        dataXAlt = dataXRanked    #Values used just for printing the other corr type to the graph image
+#        dataYAlt = dataYRanked    #Values used just for printing the other corr type to the graph image
+#    else:    # Spearman correlation: Switching Ranked and Unranked X and Y values
+#        dataXPrimary = dataXRanked
+#        dataYPrimary = dataYRanked
+#        dataXAlt = dataX    #Values used just for printing the other corr type to the graph image
+#        dataYAlt = dataY    #Values used just for printing the other corr type to the graph image
+#
+#    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
+#    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
+#    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
+#    if plotHeight<=0 or plotWidth<=0:
+#        return
+#    if len(dataXPrimary) < 1 or  len(dataXPrimary) != len(dataYPrimary) or (dataLabel and len(dataXPrimary) != len(dataLabel)):
+#        return
+#
+#    max_X=max(dataXPrimary)
+#    min_X=min(dataXPrimary)
+#    max_Y=max(dataYPrimary)
+#    min_Y=min(dataYPrimary)
+#
+#    #for some reason I forgot why I need to do this
+#    if loadingPlot:
+#        min_X = min(-0.1,min_X)
+#        max_X = max(0.1,max_X)
+#        min_Y = min(-0.1,min_Y)
+#        max_Y = max(0.1,max_Y)
+#
+#    xLow, xTop, stepX=detScale(min_X,max_X)
+#    yLow, yTop, stepY=detScale(min_Y,max_Y)
+#    xScale = plotWidth/(xTop-xLow)
+#    yScale = plotHeight/(yTop-yLow)
+#
+#    #draw drawing region
+#    canvas.drawRect(xLeftOffset-bufferSpace, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight+bufferSpace)
+#    canvas.drawRect(xLeftOffset-bufferSpace+1, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight+bufferSpace-1)
+#
+#    #calculate data points
+#    data = map(lambda X, Y: (X, Y), dataXPrimary, dataYPrimary)
+#    xCoord = map(lambda X, Y: ((X-xLow)*xScale + xLeftOffset, yTopOffset+plotHeight-(Y-yLow)*yScale), dataXPrimary, dataYPrimary)
+#
+#    labelFont=pid.Font(ttf=idFont,size=idFontSize,bold=0)
+#
+#    if loadingPlot:
+#        xZero = -xLow*xScale+xLeftOffset
+#        yZero = yTopOffset+plotHeight+yLow*yScale
+#        for point in xCoord:
+#            canvas.drawLine(xZero,yZero,point[0],point[1],color=pid.red)
+#    else:
+#        if connectdot:
+#            canvas.drawPolygon(xCoord,edgeColor=plotColor,closed=0)
+#        else:
+#            pass
+#
+#    symbolFont = pid.Font(ttf="fnt_bs", size=12+fontModifier,bold=0)
+#
+#    for i, item in enumerate(xCoord):
+#        if dataLabel and dataLabel[i] in specialCases:
+#            canvas.drawRect(item[0]-3, item[1]-3, item[0]+3, item[1]+3, edgeColor=pid.green)
+#            #canvas.drawCross(item[0],item[1],color=pid.blue,size=5)
+#        else:
+#            if symbolType == "vertRect":
+#                canvas.drawRect(x1=item[0]-sizeModifier+2,y1=item[1]-sizeModifier-2, x2=item[0]+sizeModifier-1,y2=item[1]+sizeModifier+2, edgeColor=symbolColor, edgeWidth=1, fillColor=fillColor)
+#            elif (symbolType == "circle" and filled != "yes"):
+#                canvas.drawString(":", item[0]-canvas.stringWidth(":",font=symbolFont)/2+1,item[1]+2,color=symbolColor, font=symbolFont)
+#            elif (symbolType == "circle" and filled == "yes"):
+#                canvas.drawString("5", item[0]-canvas.stringWidth("5",font=symbolFont)/2+1,item[1]+2,color=symbolColor, font=symbolFont)
+#            elif symbolType == "horiRect":
+#                canvas.drawRect(x1=item[0]-sizeModifier-1,y1=item[1]-sizeModifier+3, x2=item[0]+sizeModifier+3,y2=item[1]+sizeModifier-2, edgeColor=symbolColor, edgeWidth=1, fillColor=fillColor)
+#            elif (symbolType == "square"):
+#                canvas.drawRect(x1=item[0]-sizeModifier+1,y1=item[1]-sizeModifier-4, x2=item[0]+sizeModifier+2,y2=item[1]+sizeModifier-3, edgeColor=symbolColor, edgeWidth=1, fillColor=fillColor)
+#            elif (symbolType == "diamond" and filled != "yes"):
+#                canvas.drawString(",", item[0]-canvas.stringWidth(",",font=symbolFont)/2+2, item[1]+6, font=symbolFont, color=symbolColor)
+#            elif (symbolType == "diamond" and filled == "yes"):
+#                canvas.drawString("D", item[0]-canvas.stringWidth("D",font=symbolFont)/2+2, item[1]+6, font=symbolFont, color=symbolColor)
+#            elif symbolType == "4-star":
+#                canvas.drawString("l", item[0]-canvas.stringWidth("l",font=symbolFont)/2+1, item[1]+3, font=symbolFont, color=symbolColor)
+#            elif symbolType == "3-star":
+#                canvas.drawString("k", item[0]-canvas.stringWidth("k",font=symbolFont)/2+1, item[1]+3, font=symbolFont, color=symbolColor)
+#            else:
+#                canvas.drawCross(item[0],item[1]-2,color=symbolColor, size=sizeModifier+2)
+#
+#        if showLabel and dataLabel:
+#            if (symbolType == "vertRect" or symbolType == "diamond"):
+#                labelGap = 15
+#            elif (symbolType == "4-star" or symbolType == "3-star"):
+#                labelGap = 12
+#            else:
+#                labelGap = 11
+#            canvas.drawString(dataLabel[i], item[0]- canvas.stringWidth(dataLabel[i],
+#                    font=labelFont)/2 + 1, item[1]+(labelGap+sizeModifier+(idFontSize-12)), font=labelFont, color=idColor)
+#
+#    #draw scale
+#    scaleFont=pid.Font(ttf="cour",size=16,bold=1)
+#
+#
+#    x=xLow
+#    for i in range(stepX+1):
+#        xc=xLeftOffset+(x-xLow)*xScale
+#        if ((x == 0) & (rank == 1)):
+#            pass
+#        else:
+#            canvas.drawLine(xc,yTopOffset+plotHeight + bufferSpace,xc,yTopOffset+plotHeight+5 + bufferSpace, color=axesColor)
+#        strX = cformat(d=x, rank=rank)
+#        if ((strX == "0") & (rank == 1)):
+#            pass
+#        else:
+#            canvas.drawString(strX,xc-canvas.stringWidth(strX,font=scaleFont)/2,yTopOffset+plotHeight+20 + bufferSpace,font=scaleFont)
+#        x+= (xTop - xLow)/stepX
+#
+#    y=yLow
+#    for i in range(stepY+1):
+#        yc=yTopOffset+plotHeight-(y-yLow)*yScale
+#        if ((y == 0) & (rank == 1)):
+#            pass
+#        else:
+#            canvas.drawLine(xLeftOffset - bufferSpace,yc,xLeftOffset-5 - bufferSpace,yc, color=axesColor)
+#        strY = cformat(d=y, rank=rank)
+#        if ((strY == "0") & (rank == 1)):
+#            pass
+#        else:
+#            canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)- 10 - bufferSpace,yc+4,font=scaleFont)
+#        y+= (yTop - yLow)/stepY
+#
+#    #draw label
+#
+#    labelFont=pid.Font(ttf="verdana",size=canvas.size[0]/45,bold=0)
+#    titleFont=pid.Font(ttf="verdana",size=canvas.size[0]/40,bold=0)
+#
+#    if (rank == 1 and not title):
+#        canvas.drawString("Spearman Rank Correlation", xLeftOffset-canvas.size[0]*.025+(plotWidth-canvas.stringWidth("Spearman Rank Correlation",font=titleFont))/2.0,
+#                                          25,font=titleFont,color=labelColor)
+#    elif (rank == 0 and not title):
+#        canvas.drawString("Pearson Correlation", xLeftOffset-canvas.size[0]*.025+(plotWidth-canvas.stringWidth("Pearson Correlation",font=titleFont))/2.0,
+#                                          25,font=titleFont,color=labelColor)
+#
+#    if XLabel:
+#        canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,
+#                yTopOffset+plotHeight+yBottomOffset-25,font=labelFont,color=labelColor)
+#
+#    if YLabel:
+#        canvas.drawString(YLabel, xLeftOffset-65, yTopOffset+plotHeight- (plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,
+#                font=labelFont,color=labelColor,angle=90)
+#
+#    labelFont=pid.Font(ttf="verdana",size=20,bold=0)
+#    if title:
+#        canvas.drawString(title,xLeftOffset+(plotWidth-canvas.stringWidth(title,font=labelFont))/2.0,
+#                20,font=labelFont,color=labelColor)
+#
+#    if fitcurve:
+#        import sys
+#        sys.argv = [ "mod_python" ]
+#        #from numarray import linear_algebra as la
+#        #from numarray import ones, array, dot, swapaxes
+#        fitYY = array(dataYPrimary)
+#        fitXX = array([ones(len(dataXPrimary)),dataXPrimary])
+#        AA = dot(fitXX,swapaxes(fitXX,0,1))
+#        BB = dot(fitXX,fitYY)
+#        bb = la.linear_least_squares(AA,BB)[0]
+#
+#        xc1 = xLeftOffset
+#        yc1 = yTopOffset+plotHeight-(bb[0]+bb[1]*xLow-yLow)*yScale
+#        if yc1 > yTopOffset+plotHeight:
+#            yc1 = yTopOffset+plotHeight
+#            xc1 = (yLow-bb[0])/bb[1]
+#            xc1=(xc1-xLow)*xScale+xLeftOffset
+#        elif yc1 < yTopOffset:
+#            yc1 = yTopOffset
+#            xc1 = (yTop-bb[0])/bb[1]
+#            xc1=(xc1-xLow)*xScale+xLeftOffset
+#        else:
+#            pass
+#
+#        xc2 = xLeftOffset + plotWidth
+#        yc2 = yTopOffset+plotHeight-(bb[0]+bb[1]*xTop-yLow)*yScale
+#        if yc2 > yTopOffset+plotHeight:
+#            yc2 = yTopOffset+plotHeight
+#            xc2 = (yLow-bb[0])/bb[1]
+#            xc2=(xc2-xLow)*xScale+xLeftOffset
+#        elif yc2 < yTopOffset:
+#            yc2 = yTopOffset
+#            xc2 = (yTop-bb[0])/bb[1]
+#            xc2=(xc2-xLow)*xScale+xLeftOffset
+#        else:
+#            pass
+#
+#        canvas.drawLine(xc1 - bufferSpace,yc1 + bufferSpace,xc2,yc2,color=lineColor)
+#        if lineSize == "medium":
+#            canvas.drawLine(xc1 - bufferSpace,yc1 + bufferSpace+1,xc2,yc2+1,color=lineColor)
+#        if lineSize == "thick":
+#            canvas.drawLine(xc1 - bufferSpace,yc1 + bufferSpace+1,xc2,yc2+1,color=lineColor)
+#            canvas.drawLine(xc1 - bufferSpace,yc1 + bufferSpace-1,xc2,yc2-1,color=lineColor)
+#
+#
+#    if displayR:
+#        labelFont=pid.Font(ttf="trebuc",size=canvas.size[0]/60,bold=0)
+#        NNN = len(dataX)
+#        corr = webqtlUtil.calCorrelation(dataXPrimary,dataYPrimary,NNN)[0]
+#
+#        if NNN < 3:
+#            corrPValue = 1.0
+#        else:
+#            if abs(corr) >= 1.0:
+#                corrPValue = 0.0
+#            else:
+#                ZValue = 0.5*log((1.0+corr)/(1.0-corr))
+#                ZValue = ZValue*sqrt(NNN-3)
+#                corrPValue = 2.0*(1.0 - reaper.normp(abs(ZValue)))
+#
+#        NStr = "N = %d" % NNN
+#        strLenN = canvas.stringWidth(NStr,font=labelFont)
+#
+#        if rank == 1:
+#            if corrPValue < 0.0000000000000001:
+#                corrStr = "Rho = %1.3f P < 1.00 E-16" % (corr)
+#            else:
+#                corrStr = "Rho = %1.3f P = %3.2E" % (corr, corrPValue)
+#        else:
+#            if corrPValue < 0.0000000000000001:
+#                corrStr = "r = %1.3f P < 1.00 E-16" % (corr)
+#            else:
+#                corrStr = "r = %1.3f P = %3.2E" % (corr, corrPValue)
+#        strLen = canvas.stringWidth(corrStr,font=labelFont)
+#
+#        canvas.drawString(NStr,xLeftOffset,yTopOffset-10,font=labelFont,color=labelColor)
+#        canvas.drawString(corrStr,xLeftOffset+plotWidth-strLen,yTopOffset-10,font=labelFont,color=labelColor)
+#
+#    return xCoord
 
 def plotXYSVG(drawSpace, dataX, dataY, rank=0, dataLabel=[], plotColor = "black", axesColor="black", labelColor="black", symbolColor="red", XLabel=None, YLabel=None, title=None, fitcurve=None, connectdot=1, displayR=None, loadingPlot = 0, offset= (80, 20, 40, 60), zoom = 1, specialCases=[], showLabel = 1):
     'displayR : correlation scatter plot, loadings : loading plot'
