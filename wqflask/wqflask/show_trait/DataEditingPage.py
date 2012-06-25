@@ -1817,33 +1817,33 @@ class DataEditingPage(templatePage):
             #    varClassName = valueClassName + str(traitVar)
             #valueClassName += str(traitVal)
 
-            if strainNameOrig == strainName:
-                if other_strainsExist and strainNameOrig in (fd.parlist + fd.f1list):
-                    ########################################################################################################################################################
-                      # ZS: Append value and variance to the value and variance input fields' list of classes; this is so the javascript can update the value when the user
-                      # changes it. The updated value is then used when the table is sorted (tablesorter.js). This needs to be done because the "value" attribute is immutable.
-                    #########################################################################################################################################################
-
-                    #valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right; background-color:#FFFFFF;", value=dispVal,
-                    #        onChange= "javascript:this.form['_2nd_%s'].value=this.form['%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=valueClassName)
-                    if varianceDataPage:
-                        pass
-                        #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar,
-                        #        onChange= "javascript:this.form['V_2nd_%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
-                else:
-                    pass
-                    #valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right; background-color:#FFFFFF;", value=dispVal, Class=valueClassName)
-                    if varianceDataPage:
-                        pass
-                        #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar, Class=varClassName)
-            else:
-                pass
-                #valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVal,
-                                      #onChange= "javascript:this.form['%s'].value=this.form['%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=valueClassName)
-                if varianceDataPage:
-                    pass
-                    #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar,
-                    #        onChange= "javascript:this.form['V%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
+            #if strainNameOrig == strainName:
+            #    if other_strainsExist and strainNameOrig in (fd.parlist + fd.f1list):
+            #        ########################################################################################################################################################
+            #          # ZS: Append value and variance to the value and variance input fields' list of classes; this is so the javascript can update the value when the user
+            #          # changes it. The updated value is then used when the table is sorted (tablesorter.js). This needs to be done because the "value" attribute is immutable.
+            #        #########################################################################################################################################################
+            #
+            #        #valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right; background-color:#FFFFFF;", value=dispVal,
+            #        #        onChange= "javascript:this.form['_2nd_%s'].value=this.form['%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=valueClassName)
+            #        if varianceDataPage:
+            #            pass
+            #            #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar,
+            #            #        onChange= "javascript:this.form['V_2nd_%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
+            #    else:
+            #        pass
+            #        #valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right; background-color:#FFFFFF;", value=dispVal, Class=valueClassName)
+            #        if varianceDataPage:
+            #            pass
+            #            #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar, Class=varClassName)
+            #else:
+            #    pass
+            #    #valueField = HT.Input(name=strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVal,
+            #                          #onChange= "javascript:this.form['%s'].value=this.form['%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=valueClassName)
+            #    if varianceDataPage:
+            #        pass
+            #        #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar,
+            #        #        onChange= "javascript:this.form['V%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
 
             if strains == 'primary':
                 strain['the_id'] = "Primary_" + str(i+1)
