@@ -1,6 +1,6 @@
 @import url(import.css);
 
-body 
+body
 {
 	font-family : verdana, geneva, lucida, 'lucida grande', arial, helvetica;
 	font-weight : Normal;
@@ -78,23 +78,23 @@ Blockquote {
 /*Table Cell*/
 .collap {border-collapse : collapse;}
 
-TH.header { 
+TH.header {
     background-image: url(/images/bg.gif);
-    background-color: #4169E1;     
-    cursor: pointer; 
-    background-repeat: no-repeat; 
-    background-position: center left; 
-    padding-left: 20px; 
-    margin-left: -1px; 
-} 
-TH.headerSortUp { 
-    background-image: url(/images/desc.gif); 
-    background-color: #4169E1; 
-} 
-TH.headerSortDown { 
-    background-image: url(/images/asc.gif); 
-    background-color: #4169E1; 
-} 
+    background-color: #4169E1;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center left;
+    padding-left: 20px;
+    margin-left: -1px;
+}
+TH.headerSortUp {
+    background-image: url(/images/desc.gif);
+    background-color: #4169E1;
+}
+TH.headerSortDown {
+    background-image: url(/images/asc.gif);
+    background-color: #4169E1;
+}
 
 TD, P {color : #222222; font-size : 13px}
 TD.b1 {border : 1px solid #999999; padding : 3px;}
@@ -106,7 +106,7 @@ TD.bb1 {border-bottom : 1px solid #999999; padding : 3px;}
 
 .bd1 {border : 1px dashed #999999; padding : 6px;}
 
-TD.outlier {background-color : yellow;}
+TR.outlier, TD.outlier {background-color : yellow;}
 
 TR.alt td {
 		background: #e6e8fa;
@@ -126,7 +126,7 @@ A.font_black:active {color: #000000; text-decoration : None}
 A.font_black:hover {color: #000000; text-decoration : None}
 A.font_black:visited {color: #000000; text-decoration : None}
 
-A {font-family : lucida, 'lucida grande', verdana, helvetica, arial, geneva; 
+A {font-family : lucida, 'lucida grande', verdana, helvetica, arial, geneva;
 	font-weight : Bold; font-size : 13px; text-decoration : None}
 
 A:link, A:visited {color : #0000DD; text-decoration : None}
@@ -137,7 +137,7 @@ A:hover {color : #FF0000; text-decoration : None}
 
 A.background_grey {background:#dddddd;padding:2;}
 
-A.non_bold {font-weight : Normal; color : #0000DD;} 
+A.non_bold {font-weight : Normal; color : #0000DD;}
 
 /*Border Style*/
 .solidBorder {border : 1px solid #CCCCCC; padding : 2px;}
@@ -146,10 +146,10 @@ A.non_bold {font-weight : Normal; color : #0000DD;}
 /*Title style*/
 .title {font-weight:Bold; color:#222222; font-size:16px}
 
-.subtitle {font-family : lucida, verdana, 'lucida grande', helvetica, arial, geneva; 
+.subtitle {font-family : lucida, verdana, 'lucida grande', helvetica, arial, geneva;
 	font-weight:Bold; font-size:14px; color:#000082}
-	
-.sectionheader {font-family : arial, verdana, 'lucida grande', helvetica, lucida, geneva; 
+
+.sectionheader {font-family : arial, verdana, 'lucida grande', helvetica, lucida, geneva;
 	font-weight:Bold; font-size:14px; vertical-align: middle; display:block; color:#000000; background-color:#DDDDDD; line-height:24px; height:24px;}
 
 /*drop shadow*/
@@ -174,7 +174,7 @@ A.non_bold {font-weight : Normal; color : #0000DD;}
     padding-right:5px;
     padding-left:5px;
     padding-bottom:3px;
-  }  
+  }
 
 /*For making the Custom Strain box in snpBrowser.py a default width, instead of looking weird always*/
 .customBoxWidth {
@@ -186,7 +186,7 @@ A.non_bold {font-weight : Normal; color : #0000DD;}
     border-left:1px solid #676767;
     width:80;
     font-weight:bolder;
-    color:#3366cc; 
+    color:#3366cc;
     font-size:12px;
   }
   .unselectedBox {
@@ -198,16 +198,16 @@ A.non_bold {font-weight : Normal; color : #0000DD;}
     border-bottom:1px solid #676767;
     font-size:12px;
   }
-  
+
   .spacerTabBox {
     border-bottom:1px solid #676767;
     width:5px;
   }
-  
+
   .emptyTabBox {
     border-bottom:1px solid #676767;
   }
-  
+
 /*For font color of 'Get Any' and 'Combined' in the main page*/
 .searchtip
 {
