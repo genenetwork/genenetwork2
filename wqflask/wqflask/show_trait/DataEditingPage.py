@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function, division
+
 import string
 import os
 import cPickle
@@ -13,6 +15,7 @@ from dbFunction import webqtlDatabaseFunction
 from base.templatePage import templatePage
 from basicStatistics import BasicStatisticsFunctions
 
+from pprint import pformat as pf
 
 #########################################
 #      DataEditingPage
@@ -1659,32 +1662,32 @@ class DataEditingPage(templatePage):
                 break
 
         mainForm = None # Just trying to get things working
-        primary_body = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=allstrainlist_neworder, mainForm=mainForm, thisTrait=thisTrait, other_strainsExist=other_strainsExist, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='primary')
+        primary_strains = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=allstrainlist_neworder, mainForm=mainForm, thisTrait=thisTrait, other_strainsExist=other_strainsExist, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='primary')
 
         #primary_table.append(primary_header)
-        for i in range(len(primary_body)):
-            print("hji")
-            pass
+        #for i in range(len(primary_body)):
+        #    print("hji")
+        #    pass
             #primary_table.append(primary_body[i])
 
         other_strains = []
         for strain in thisTrait.data.keys():
             print("hjk - strain is:", strain)
             if strain not in allstrainlist_neworder:
-                pass
-                #allstrainlist_neworder.append(strain)
-                #other_strains.append(strain)
+                #pass
+                allstrainlist_neworder.append(strain)
+                other_strains.append(strain)
 
         if other_strains:
-            other_table = HT.TableLite(cellspacing=0, cellpadding=0, Id="sortable2", Class="tablesorter") #Table object with other (for example, non-BXD / MDP) traits
-            other_header = self.getTableHeader(fd=fd, thisTrait=thisTrait, nCols=nCols, attribute_names=attribute_names) #Generate header for other table object; same function is used as the one used for the primary table, since the header is the same
+            #other_table = HT.TableLite(cellspacing=0, cellpadding=0, Id="sortable2", Class="tablesorter") #Table object with other (for example, non-BXD / MDP) traits
+            #other_header = self.getTableHeader(fd=fd, thisTrait=thisTrait, nCols=nCols, attribute_names=attribute_names) #Generate header for other table object; same function is used as the one used for the primary table, since the header is the same
             other_strains.sort() #Sort other strains
             other_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + other_strains #Append F1 and parent strains to the beginning of the sorted list of other strains
 
-            MDPText = HT.Span("Samples:", Class="ffl fwb fs12")
-            MDPMenu1 = HT.Select(name='MDPChoice1')
-            MDPMenu2 = HT.Select(name='MDPChoice2')
-            MDPMenu3 = HT.Select(name='MDPChoice3')
+            #MDPText = HT.Span("Samples:", Class="ffl fwb fs12")
+            #MDPMenu1 = HT.Select(name='MDPChoice1')
+            #MDPMenu2 = HT.Select(name='MDPChoice2')
+            #MDPMenu3 = HT.Select(name='MDPChoice3')
             #MDPMenu1.append(('%s Only' % fd.RISet,'1'))
             #MDPMenu2.append(('%s Only' % fd.RISet,'1'))
             #MDPMenu3.append(('%s Only' % fd.RISet,'1'))
@@ -1698,12 +1701,12 @@ class DataEditingPage(templatePage):
             #self.MDPRow2.append(HT.TD(MDPText),HT.TD(MDPMenu2))
             #self.MDPRow3.append(HT.TD(MDPText),HT.TD(MDPMenu3))
 
-            other_body = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=other_strains, mainForm=mainForm, thisTrait=thisTrait, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='other')
+            other_strains = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=other_strains, mainForm=mainForm, thisTrait=thisTrait, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='other')
 
             #other_table.append(other_header)
-            for i in range(len(other_body)):
-                print("hjn")
-                pass
+            #for i in range(len(other_body)):
+            #    print("hjn")
+            #    pass
                 #other_table.append(other_body[i])
         else:
             pass
@@ -1721,11 +1724,13 @@ class DataEditingPage(templatePage):
         #primary_div = HT.Div(primary_table, Id="primary") #Container for table with primary (for example, BXD) strain values
         #container.append(primary_div)
 
-        if other_strains:
-            other_div = HT.Div(other_table, Id="other") #Container for table with other (for example, Non-BXD/MDP) strain values
+        #if other_strains:
+        #    other_div = HT.Div(other_table, Id="other") #Container for table with other (for example, Non-BXD/MDP) strain values
             #container.append(HT.Div('&nbsp;', height=30))
             #container.append(other_div)
 
+        self.primary_strains = primary_strains
+        self.other_strains = other_strains
         #table.append(HT.TR(HT.TD(container)))
         #title5Body.append(table)
 
@@ -1749,6 +1754,8 @@ class DataEditingPage(templatePage):
             vals.append(thisValFull)
 
         upperBound, lowerBound = Plot.findOutliers(vals) # ZS: Values greater than upperBound or less than lowerBound are considered outliers.
+
+        the_strains = []
 
         for i, strainNameOrig in enumerate(strainlist):
             strain = {}
@@ -1777,7 +1784,7 @@ class DataEditingPage(templatePage):
                 traitVal = ''
                 dispVal = 'x'
 
-            strain['strain_name'] = StrainName
+            strain['strain_name'] = strainName
             strainNameDisp = HT.Span(strainName, Class='fs14 fwn ffl')
 
             if varianceDataPage:
@@ -1836,25 +1843,28 @@ class DataEditingPage(templatePage):
                     #seField = HT.Input(name='V'+strainNameOrig, size=8, maxlength=8, style="text-align:right", value=dispVar,
                     #        onChange= "javascript:this.form['V%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
 
-            if (strains == 'primary'):
-                strain[the_id] = "Primary_" + str(i+1)
+            if strains == 'primary':
+                strain['the_id'] = "Primary_" + str(i+1)
                 #table_row = HT.TR(Id="Primary_"+str(i+1), Class=rowClassName)
             else:
-                strain[the_id] = "Other_" + str(i+1)
+                strain['the_id'] = "Other_" + str(i+1)
                 #table_row = HT.TR(Id="Other_"+str(i+1), Class=rowClassName)
 
-            if varianceDataPage:
+            strain['value'] = traitVal
+
+            strain['se'] = dispVar
+            #if varianceDataPage:
                 #table_row.append(HT.TD(str(i+1), selectCheck, width=45, align='right', Class=className))
                 #table_row.append(HT.TD(strainNameDisp, strainNameAdd, align='right', width=100, Class=className))
                 #table_row.append(HT.TD(valueField, width=70, align='right', Id="value_"+str(i)+"_"+strains, Class=className))
                 #table_row.append(HT.TD("&plusmn;", width=20, align='center', Class=className))
                 #table_row.append(HT.TD(seField, width=80, align='right', Id="SE_"+str(i)+"_"+strains, Class=className))
-                pass
-            else:
+                #pass
+            #else:
                 #table_row.append(HT.TD(str(i+1), selectCheck, width=45, align='right', Class=className))
                 #table_row.append(HT.TD(strainNameDisp, strainNameAdd, align='right', width=100, Class=className))
                 #table_row.append(HT.TD(valueField, width=70, align='right', Id="value_"+str(i)+"_"+strains, Class=className))
-                pass
+                #pass
             if thisTrait and thisTrait.db and thisTrait.db.type =='ProbeSet':
                 if len(attribute_ids) > 0:
 
@@ -1892,9 +1902,10 @@ class DataEditingPage(templatePage):
                         attr_className = str(attributeValue) + "&nbsp;" + className
                         table_row.append(HT.TD(attr_container, align='right', Class=attr_className))
                         attr_counter += 1
-
+                the_strains.append(strain)
             #table_body.append(table_row)
-        return table_body
+        print("*the_strains are [%i]: %s" % (len(the_strains), pf(the_strains)))
+        return the_strains
 
     def getTableHeader(self, fd, thisTrait, nCols, attribute_names):
 
