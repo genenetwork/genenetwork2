@@ -1803,12 +1803,12 @@ class DataEditingPage(templatePage):
                 #rowClassName = 'novalue '
             else:
                 if (thisval >= upperBound) or (thisval <= lowerBound):
-                    strain['outlier'] = True
+                    strain['outlier'] = "outlier"  # We're going to use this as a class, so we want it to be a word
                     #className = 'fs13 b1 c222 outlier '
                     #valueClassName = 'fs13 b1 c222 valueField '
                     #rowClassName = 'outlier'
                 else:
-                    strain['outlier'] = False
+                    strain['outlier'] = "not_outlier"
                     #className = 'fs13 b1 c222 '
                     #valueClassName = 'fs13 b1 c222 valueField '
                     #rowClassName = ' '
