@@ -1798,22 +1798,24 @@ class DataEditingPage(templatePage):
             if thisval == 'x':
                 traitVar = '' #ZS: Used to be 0, but it doesn't seem like a good idea for values of 0 to *always* be at the bottom when you sort; it makes more sense to put "nothing"
 
-                className = 'fs13 b1 c222 '
-                valueClassName = 'fs13 b1 c222 valueField '
-                rowClassName = 'novalue '
+                #className = 'fs13 b1 c222 '
+                #valueClassName = 'fs13 b1 c222 valueField '
+                #rowClassName = 'novalue '
             else:
                 if (thisval >= upperBound) or (thisval <= lowerBound):
-                    className = 'fs13 b1 c222 outlier '
-                    valueClassName = 'fs13 b1 c222 valueField '
-                    rowClassName = 'outlier'
+                    strain['outlier'] = True
+                    #className = 'fs13 b1 c222 outlier '
+                    #valueClassName = 'fs13 b1 c222 valueField '
+                    #rowClassName = 'outlier'
                 else:
-                    className = 'fs13 b1 c222 '
-                    valueClassName = 'fs13 b1 c222 valueField '
-                    rowClassName = ' '
-
-            if varianceDataPage:
-                varClassName = valueClassName + str(traitVar)
-            valueClassName += str(traitVal)
+                    strain['outlier'] = False
+                    #className = 'fs13 b1 c222 '
+                    #valueClassName = 'fs13 b1 c222 valueField '
+                    #rowClassName = ' '
+            #
+            #if varianceDataPage:
+            #    varClassName = valueClassName + str(traitVar)
+            #valueClassName += str(traitVal)
 
             if strainNameOrig == strainName:
                 if other_strainsExist and strainNameOrig in (fd.parlist + fd.f1list):
