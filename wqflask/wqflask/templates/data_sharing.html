@@ -1,0 +1,831 @@
+<?XML VERSION="1.0" ENCODING="UTF-8">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE></TITLE>
+
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<META NAME="keywords" CONTENT="genetics, bioinformatics, genome, phenome, gene expression, complex trait analysis, gene mapping, SNP, quantitative trait locus QTL, expression eQTL, WebQTL, Traitnet, Traitnetwork, personalized medicine">
+<META NAME="description" CONTENT ="GeneNetwork is a free scientific web resource used to study relationships between differences in genes, environmental factors, phenotypes, and disease risk." >
+<META NAME="author" CONTENT ="GeneNetwork developers" >
+<META NAME="geo.placename" CONTENT ="Memphis, TN" >
+<META NAME="geo.region" CONTENT="US-TN">
+
+<LINK REL="stylesheet" TYPE="text/css" HREF='/css/general.css'>
+<LINK REL="stylesheet" TYPE="text/css" HREF='/css/menu.css'>
+<link rel="stylesheet" media="all" type="text/css" href="/css/tabbed_pages.css" />
+<LINK REL="apple-touch-icon" href="/images/ipad_icon3.png" />
+<link type="text/css" href='/css/custom-theme/jquery-ui-1.8.12.custom.css' rel='Stylesheet' />
+<link type="text/css" href='/css/tab_style.css' rel='Stylesheet' />
+
+<script type="text/javascript" src="/javascript/jquery-1.5.2.min.js"></script>
+<SCRIPT SRC="/javascript/webqtl.js"></SCRIPT>
+<SCRIPT SRC="/javascript/dhtml.js"></SCRIPT>
+<SCRIPT SRC="/javascript/tablesorter.js"></SCRIPT>
+<SCRIPT SRC="/javascript/jqueryFunction.js"></SCRIPT>
+<script src="/javascript/tabbed_pages.js" type="text/javascript"></script>
+<script src="/javascript/jquery-ui-1.8.12.custom.min.js" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3782271-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</HEAD>
+<BODY  bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff >
+
+<TABLE cellSpacing=5 cellPadding=4 width="100%" border=0>
+	<TBODY>
+	<!-- Start of header -->
+	<TR>
+		<TD width=30 rowSpan=5>&nbsp;</TD>
+<TD bgColor=#ffffff NOWRAP="yes" width="100%" class="solidBorder">
+	<Table width= "100%" cellSpacing=0 cellPadding=0>
+		<TR>
+			<TD width= "100%" id="smallsize">
+				<a href="/">
+				<IMG src="/images/upload/GeneNet_Banner2009c.png" border="0">
+				</a>
+			</TD>
+			<TD valign="bottom">
+				<A HREF="http://www.touchgraph.com/TGGoogleBrowser.php?start=genenetwork.org&signed=false" target="_blank">
+					<IMG SRC="/images/upload/NetworkLogo.png" width="101" height="73" border="0">
+				</a>
+			</td>
+			<TD valign="bottom">
+				<IMG src="/images/webqtllogo2.gif" alt="WebQTL" border="0">
+			</TD>
+		</TR>
+	</Table>
+</TD>
+<TD width="30" rowSpan=5>&nbsp;</TD>
+</TR>
+<TR>
+<!--Home Help Search News Papers Policies Accounts Links-->
+<TD bgColor=#ddddff NOWRAP="yes" class="solidBorder">
+<table width="100%" cellSpacing=0 cellPadding=0 border=0>
+<tr>
+<td aligh=left NOWRAP="yes">
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp1" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp1'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp1'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Home</Strong></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp2" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp2'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp2'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Search</Strong></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp3" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp3'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp3'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Help</Strong></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp4" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp4'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp4'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<A Href="/whats_new.html"  style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>News</Strong></A></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp5" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp5'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp5'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<A Href="/reference.html"  style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>References</Strong></A></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp6" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp6'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp6'])" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Policies</Strong></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<Span Id= "menu_grp8" onmouseover="A_MENUS[0].onmouseover(grpObj['menu_grp8'])"  onmouseout="A_MENUS[0].onmouseout(grpObj['menu_grp8'])"  style="font-size:12px;font-family:verdana;color:#0000ae">
+<A Href="/links.html" style="font-size:12px;font-family:verdana;color:#0000ae">
+<Strong>Links</Strong></A></Span>
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+</td>
+<td align="right" NOWRAP="yes">
+Welcome! <a href=/account.html><U>Login</U></a>&nbsp;&nbsp;&nbsp;
+</td>
+</tr>
+</table>
+</TD>
+
+	</TR>
+	<!-- End of header -->
+
+	<!-- Start of body -->
+	<TR>
+		<TD  bgColor=#eeeeee class="solidBorder">
+		<Table width= "100%" cellSpacing=0 cellPadding=5>
+		<TR>
+		<td>
+<a href="/webqtl/main.py?FormID=sharingListDataset">List of DataSets</a><br>
+<H1 class="title" id="parent-fieldname-title">Hippocampus Consortium M430v2 (Jun06) PDNN
+<a href="/webqtl/main.py?FormID=sharinginfoedit&GN_AccessionId=112"><img src="/images/modify.gif" alt="modify this page" border="0" valign="middle"></a>
+<span style="color:red;"></span>
+</H1>
+<table border="0" width="100%">
+<tr>
+<td valign="top" width="50%">
+<TABLE cellSpacing=0 cellPadding=5 width=100% border=0>
+                      <TR><td><b>GN Accession:</b> GN112</TD></tr>
+                      <TR><TD><b>GEO Series:</b> No GEO series number</TD></TR>
+                      <TR><TD><b>Title:</b> Genetics of the hippocampal transcriptome in mouse: a systematic survey and online neurogenomics resource</TD></TR>
+                      <TR><TD><b>Organism:</b> <a href=http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=10090>Mus musculus</a></TD></tr>
+                      <tr><TD><b>Group:</b> BXD</TD></TR>
+                      <TR><TD><b>Tissue:</b> Hippocampus</TD></tr>
+                      <tr><TD><b>Dataset Status:</b> Public</TD></tr>
+                      <TR><TD><b>Platforms:</b> GEO: GPL1261 Affymetrix GeneChip Mouse Genome 430 2.0 Array</TD></TR>
+                      <TR><TD><b>Normalization:</b> PDNN</TD></TR>
+                      <TR><TD><!--Code below to Show hide Contact information -->
+                       <a href="#" onclick="colapse('answer1')">See Contact Information</a><br>
+                       <span id="answer1" style="display: none; return: false;">
+					   Robert W. Williams<br>
+                       University of Tennessee Health Science Center<br>
+                       Anatomy and Neurobiology<br>
+                       855 Monroe Avenue Room 501<br>
+                       Memphis, TN 38103 USA<br>
+                       Tel. 901-448-7018<br>
+                       rwilliams@uthsc.edu<br>
+                       <a href="http://www.genenetwork.org/dbdoc/HC_M2_0606_P.html">http://www.genenetwork.org/dbdoc/HC_M2_0606_P.html</a>
+                       </span><!--Code above to Show hide Contact information --></TD></TR>
+</TABLE>
+</td>
+<td valign="top" width="50%">
+<table border="0" width="100%">
+<tr>
+	<td bgcolor="#dce4e1"><b>Download datasets and supplementary data files</b></td>
+</tr>
+<tr>
+	<td><ul style="line-height:160%;">
+<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_HippoCampus_M430v2_PDNN.zip">GN112_HippoCampus_M430v2_PDNN.zip</a>&nbsp;&nbsp;&nbsp;[17 MB]</li>
+<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_HippoCampus_M430v2_PDNN_StdError.zip">GN112_HippoCampus_M430v2_PDNN_StdError.zip</a>&nbsp;&nbsp;&nbsp;[7 MB]</li>
+<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_HippoCampus_M430v2_PDNN_Z-Score.zip">GN112_HippoCampus_M430v2_PDNN_Z-Score.zip</a>&nbsp;&nbsp;&nbsp;[19 MB]</li>
+<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_HippoCampus_M430v2_PDNN_Z-Score_Average.zip">GN112_HippoCampus_M430v2_PDNN_Z-Score_Average.zip</a>&nbsp;&nbsp;&nbsp;[9 MB]</li>
+<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_Hippocampus_Consortium_M430v2_Jun06_PDNN_StdErr.txt">GN112_Hippocampus_Consortium_M430v2_Jun06_PDNN_StdErr.txt</a>&nbsp;&nbsp;&nbsp;[25 MB]</li>
+<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_Hippocampus_Consortium_M430v2_Jun06_PDNN_Z-Score_Avg.txt">GN112_Hippocampus_Consortium_M430v2_Jun06_PDNN_Z-Score_Avg.txt</a>&nbsp;&nbsp;&nbsp;[27 MB]</li>
+</ul></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<HR>
+<p>
+<table width="100%" border="0" cellpadding="5" cellspacing="0">
+<tr><td><span style="font-size:115%;font-weight:bold;">Summary:</span></td></tr>
+	<tr><td> MOST HIGHLY RECOMMENDED DATA SET (<A HREF="http://frontiersin.org/neurogenomics/paper/pending/0/815/">Overall et al., 2009</A>):  The Hippocampus Consortium data set provides estimates of mRNA expression in the adult hippocampus of 99 genetically diverse strains of mice including 67 BXD recombinant inbred strains, 13 CXB recombinant inbred strains, a diverse set of common inbred strains, and two reciprocal F1 hybrids.
+
+
+<P>The hippocampus is an important and intriguing part of the forebrain that is crucial in memory formation and retrieval, and that is often affected in epilepsy, Alzheimer's disease, and schizophrenia. Unlike most other parts of the brain, the hippocampus contains a remarkable population of stems cells that continue to generate neurons and glial cells even in adult mammals (Kempermann, <A HREF="http://www.oup.com/us/catalog/general/subject/Medicine/Neurology/~~/c2Y9Y29taW5nc29vbiZzcz1wdWJkYXRlLmFzYyZzZD1hc2MmcGY9MTAmdmlldz11c2EmcHI9MTAmYm9va0NvdmVycz15ZXMmY2k9MDE5NTE3OTcxNA==" target="_empty" class="normalsize">2005</A>). This genetic analysis of transcript expression in the hippocampus (dentate gyrus, CA1-CA3) is a joint effort of 14 investigators that is supported by numerous agencies described in the acknowledgments section.
+
+<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About the cases used to generate this set of data:</span></td></tr>
+	<tr><td> <P>The <A HREF="http://www.genenetwork.org/mouseCross.html#BXD" target="_empty" class="normalsize">BXD</A> genetic reference panel of recombinant inbred strains consists of just over 80 strains. The BXDs in this data set include 27 of the BXD strains made by Benjamin Taylor at the Jackson Laboratory in the 1970s and 1990s (BXD1 through BXD42). All of these strains are fully inbred, many well beyond the 100th filial (F) generation of inbreeding. We have also included 39 inbred (25 strains at F20+) and nearly inbred (14 strains between F14 and F20) BXD lines generated by Lu and Peirce. All of these strains, including those between F14 and F20, have been genotyped at 13,377 SNPs.
+
+<P><B>Mouse Diversity Panel (MDP)</B>. We have profiled a MDP consisting 16 inbred strains and a pair of reciprocal F1 hybrids; B6D2F1 and D2B6F1. These strains were selected for several reasons:
+<UL>
+<LI> genetic and phenotypic diversity, including use by the <A HREF="http://aretha.jax.org/pub-cgi/phenome/mpdcgi?rtn=strains%2Flist&listmode=pri&typemode=all&genaltmode=no&submit1=%A0%A0Go%A0%A0" target="_empty" class="normalsize">Phenome Project</A>
+<LI> their use in making genetic reference populations including recombinant inbred strains, cosomic strains, congenic and recombinant congenic strains
+<LI> their use by the <A HREF="http://www.complextrait.org" target="_empty" class="normalsize">Complex Trait Consortium</A> to make the Collaborative Cross (Nairobi/Wellcome, Oak Ridge/DOE, and Perth/UWA)
+<LI> genome sequence data from three sources (NHGRI, Celera, and Perlegen-NIEHS)
+<LI> availability from The Jackson Laboratory
+</UL>
+
+<P>All eight parents of the Collaborative Cross (129, A, C57BL/6J, CAST, NOD, NZO, PWK, and WSB) have been included in the MDP (noted below in the list). Twelve MDP strains have been sequenced, or are currently being resequenced by Perlegen for the NIEHS. This panel will be extremely helpful in systems genetic analysis of a wide variety of traits, and will be a powerful adjunct in fine mapping modulators using what is essentially an association analysis of sequence variants.
+
+<OL>
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/129.shtml" target="_empty" class="normalsize">129S1/SvImJ </A>
+<BR>    Collaborative Cross strain sequenced by NIEHS; background for many knockouts; Phenome Project A list
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/A.shtml" target="_empty" class="normalsize">A/J</A>
+<BR>    Collaborative Cross strain sequenced by Perlegen/NIEHS; parent of the AXB/BXA panel
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/AKR.shtml" target="_empty" class="normalsize">AKR/J</A>
+<BR>    Sequenced by NIEHS; Phenome Project B list
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/BALB.shtml" target="_empty" class="normalsize">BALB/cByJ</A>
+<BR>    Sequenced by NIEHS; maternal parent of the CXB panel; Phenome Project A list
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/BALB.shtml" target="_empty" class="normalsize">BALB/cJ</A>
+<BR>    Widely used strain with forebrain abnormalities (callosal defects); Phenome Project A list
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/C3H.shtml" target="_empty" class="normalsize">C3H/HeJ</A>      <BR>    Sequenced by Perlegen/NIEHS; paternal parent of the BXH panel; Phenome Project A list
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/C57BL.shtml" target="_empty" class="normalsize">C57BL/6J</A>
+<BR>    Sequenced by NHGRI; parental strain of AXB/BXA, BXD, and BXH; Phenome Project A list
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/C57BL.shtml" target="_empty" class="normalsize">C57BL/6ByJ</A>
+<BR>    Paternal substrain of B6 used to generate the CXB panel
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/CAST.shtml" target="_empty" class="normalsize">CAST/Ei</A>
+<BR>    Collaborative Cross strain sequenced by NIEHS; Phenome Project A list
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/DBA.shtml" target="_empty" class="normalsize">DBA/2J</A>
+<BR>    Sequenced by Perlegen/NIEHS and Celera; paternal parent of the BXD panel; Phenome Project A list
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/KK.shtml" target="_empty" class="normalsize">KK/HlJ</A>
+<BR>    Sequenced by Perlegen/NIEHS
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/LG.shtml" target="_empty" class="normalsize">LG/J</A>
+<BR>    Paternal parent of the LGXSM panel
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/NOD.shtml" target="_empty" class="normalsize">NOD/LtJ</A>
+<BR>    Collaborative Cross strain sequenced by NIEHS; Phenome Project B list; diabetic
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/NZO.shtml" target="_empty" class="normalsize">NZO/HlLtJ</A>
+<BR>    Collaborative Cross strain
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/PWD.shtml" target="_empty" class="normalsize">PWD/PhJ</A>
+<BR>    Sequenced by Perlegen/NIEHS; parental strain for a consomic set by Forjet and colleagues
+
+<LI><A HREF="http://www.informatics.jax.org/external/festing/mouse/docs/PWK.shtml" target="_empty" class="normalsize">PWK/PhJ</A>
+<BR>    Collaborative Cross strain; Phenome Project D list
+
+<LI><A HREF="   " target="_empty" class="normalsize">WSB/EiJ</A>   <BR>    Collaborative Cross strain sequenced by NIEHS; Phenome Project C list
+
+<LI>B6D2F1 and D2B6F1
+<BR>F1 hybrids generated by crossing C57BL/6J with DBA/2J
+</OL>
+
+<P>We have not combined data from reciprocal F1s because they have different Y chromosome and mitochondrial haplotypes. Parent-of-origin effects (imprinting, maternal environment) may also lead to interesting differences in hippocampal transcript levels.
+
+<P>These strains are available from The Jackson Laboratory. BXD43 through BXD100 strains are available from Lu Lu and colleagues at UTHSC.</P><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About the tissue used to generate this set of data:</span></td></tr>
+	<tr><td> <P>BXD animals were obtained from UTHSC, UAB, or directly from The Jackson Laboratory (see Table 1 below). Animals were housed at UTHSC, Beth Israel Deaconess, or the Jackson Laboratory before sacrifice. Virtually all CXB animals were obtained directly at the Jackson Laboratory by Lu Lu. We thank Muriel Davisson for making it possible to collect these cases on site. Standard inbred strain stock was from The Jackson Laboratory, but most animals were housed or reared at UTHSC. Mice were killed by cervical dislocation and brains were removed and placed in RNAlater prior to dissection. Cerebella and olfactory bulbs were removed; brains were hemisected, and both hippocampi were dissected whole by Hong Tao Zhang in the Lu lab. Hippocampal samples are very close to complete (see Lu et al., 2001) but probably include variable amounts of subiculum and fimbria.
+
+<P>A great majority of animals used in this study were between 45 and 90 days of age (average of 66 days, maximum range from 41 to 196 days; see Table 1 below). All animals were sacrifice between 9 AM and 5 PM during the light phase.
+
+
+<P>A pool of dissected tissue typically from six hippocampi and three naive adults of the same strain, sex, and age was collected in one session and used to generate cRNA samples. Two-hundred and one RNA samples were extracted at UTHSC by Zhiping Jia, four samples by Shuhua Qi (R2331H1, R2332H1, P2350H1, R2349H1), and one by Siming Shou (R0129H2).
+
+<P>RNA Extraction: In brief, we used the RNA STAT-60 <A HREF="http://www.tel-test.com/prod02.htm" target="_empty" class="normalsize">protocol</A> (TEL-TEST "B" Bulletin No. 1), steps 5.1A (homogenization of tissue), 5.2 (RNA extraction), 5.3 (RNA precipitation), and 5.4 (RNA wash). In Step 5.4 we stopped after adding 75% ethanol (1 ml per 1 ml RNA STAT-60) and stored the mix at -80°C until further use. Before RNA labeling we thawed samples and proceeded with the remainder of Step 5.4; pelleting, drying, and redissolving the pellet in RNase-free water.
+
+<P>We finally purify RNA by using Na4OAc before running arrays. Here is the detailed method:
+
+<P>Final RNA purification protocol
+
+<OL>
+<LI>Add 1/10th volume of 3M Na4OAc , pH 5.2. If the sample was eluted with 100 µl nuclease-free water as suggested, this will be 10 µl of 3M Na4OAc.
+<LI>Add 2.5 volumes of 100% ethanol (250 µl if the RNA was eluted in100 µl). Mix well and incubate at –20°C for 2 hrs.
+<LI>Centrifuge at speed of 13,000 rpm for 20 min at 4°C. Carefully remove and discard the supernatant.
+<LI>Wash the pellet with 800 µl 75% cold ethanol, centrifuge at speed of 8,600 rpm for 5 min, and remove the 75% ethanol. Wash again.
+<LI>To remove the last traces of ethanol, quickly respin the tube, and aspirate any residual fluid.
+<LI>Air dry the pellet.
+<LI>Resuspend pellet in nuclease-free water.
+</OL>
+</p>
+
+<!--FULL TEL-TEST text on RNA-60 Stat protocol
+
+
+<P>5. PROTOCOL:  RNA/mRNA isolation by the RNA STAT-60 method includes the
+following steps:
+
+<br>1. Homogenization RNA STAT-60TM (1 ml per 50-100 mg tissue, or 5-10 x 10-6 cells)
+<br>2. RNA Extraction 1 vol. of homogenate +0.2 vol. of chloroform
+<br>3. RNA Precipitation 0.5 vol. of isopropanol
+<br>4. RNA Wash 75% ethanol
+
+<P>Unless stated otherwise the procedure is carried out at room temperature.
+
+<P>5.1 HOMOGENIZATION
+
+<P>A. TISSUES: Homogenize tissues samples in the RNA STAT-60(1 ml/50-100mg tissue)</B> in a glass-Teflon or Polytron homogenizer. Sample volume should not  exceed 10% of the volume of the RNA STAT-60 used for homogenization.
+
+<P>B. CELLS: Cells grown in mono layer are lysed directly in a culture dish by adding the RNA STAT-60TM (1 ml/3.5 cm petri dish) and passing the cell lysate several times through a pipette. Cells grown in suspension are sediment then lysed in the RNA STAT-60TM (1 ml per 5-10 x 106 cells) by repetitive pipetting. Washing calls before addition of the RNA STAT-60TM should be avoided as this increases the possibility of mRNA degradation. <br>
+
+<P>5.2 RNA EXTRACTION: Following homogenization, store the homogenate for 5 min at room temp to permit the complete dissociation of nucleoprotein complexes. Next, add 0.2 ml of chloroform per 1 ml of the RNA STAT-60, cover the sample tightly, shake vigorously for 15 seconds and let it stay at room temperature for 2-3minutes. Centrifuge the homogenate at 12,000g (max) for 15 minutes at 4°C. Following centrifugation, the homogenate separates into two phases: a lower red phenol chloroform phase and the colorless upper aqueous phase. RNA remains exclusively in the aqueous phase whereas DNA and proteins are in the interferes and organic phase. The volume of the aqueous phase is about 60%  of the volume of RNA STAT-60 used for homogenization.
+
+<P>5.3 RNA PRECIPITATION: Transfer the aqueous phase to a fresh tube and mix with isopropanol. Add 0.5 ml of isopropanol per 1 ml of the RNA STAT-60 used for homogenization. Store samples at room temp for 5-10 minutes and centrifuge at 12,000g (max.) for 10 min at 4°C</B>. RNA precipitate (often visible before  centrifugation) forms a white pellet at the bottom of the tube.
+
+<P>5.4 RNA WASH: Remove supernatant and wash the RNA pellet once with 75% ethanol by vortexing and subsequent centrifugation at 7,500g (max.) for 5 min at 4°C. Add at least <B>1 ml of 75% ethanol per 1 ml of the RNA STAT-60 used  for the initial homogenization.
+
+<P>At the end of the procedure, dry the RNA pellet briefly by air-drying or in a vacuum (5-10 min.). It is important not to let the RNA pellet dry completely as it will greatly decrease its solubility. Do not use the Speed-Vac for drying. Dissolve the  RNA pellet in water or in 1 mm EDTA, pH 7, or 0.5% SDS solution. Vortex or pass the pellet a few times through a pipette  tip. An incubation for <B>10-15 minutes at  55-60<SUP>o</SUP>C</B> may be required to dissolve RNA samples. Diethylpyrocarbonate  (DEPC) treated RNase-free solutions<SUP>1</SUP> should be used for solubilization of RNA.
+
+END OF HIDDEN PROTOCOL TEXT-->
+<P><B>Sample Processing:</B> Samples were processed in the INIA Bioanalytical Core at the W. Harry Feinstone Center for Genomic Research, The University of Memphis, led by Thomas R. Sutter. All processing steps were performed by Shirlean Goodwin. In brief, RNA purity was evaluated using the 260/280 nm absorbance ratio, and values had to be greater than 1.8. The majority of samples were 1.9 to 2.1. RNA integrity was assessed using the Agilent Bioanalyzer 2100. We required an RNA integrity number (RIN) of greater than 8. This RIN value is based on the intensity ratio and amplitude of 18S and 28S rRNA signals. The standard Eberwine T7 polymerase method was used to catalyze the synthesis of cDNA template from polyA-tailed RNA using Superscript II reverse transcriptase (Invitrogen Inc.). The Enzo Life Sciences, Inc., BioArray High Yield RNA Transcript Labeling Kit (T7, Part No. 42655) was used to synthesize labeled cRNA. The cRNA was evaluated using both the 260/280 ratio (values of 2.0 or 2.1 are acceptable) and the Bioanalyzer output (a dark cRNA smear on the 2100 output centered roughly between 600 and 2000 nucleotides is required). Those samples that passed both QC steps (10% usually failed and new RNA samples had to be acquired and processed) were then sheared using a fragmentation buffer included in the Affymetrix GeneChip Sample Cleanup Module (Part No. 900371). Fragmented cRNA samples were either stored at -80°C until use or were immediately injected onto the array. The arrays were hybridized and washed following standard Affymetrix protocols.
+
+<P><B>Replication and Sample Balance:</B> Our goal was to obtain a male sample pool and female sample pool from each isogenic group. While almost all strains were orginally represented by matched male and female samples, not all data sets passed the final quality control steps. All but 5 of 99 strains (BXD55, BXD86, BXD94, BALB/cByJ, and CAST/EiJ) are represented by pairs or (rarely) trios of arrays. The first and last samples are technical replicates of a B6D2F1 hippocampal pool (aliquots R1291H3 and R1291H4).
+
+<!--ARTHUR, Please double check data table and error table-->
+<P><B>Sex Balance:</B> Based on the expression of <I>Xist</I>, probe set 1427262_at, DBA/2J and KK/HlJ are represented only by female samples, BXD55, and BALB/cByJ are only represented by a single male sample, BXD74 is represented by two male samples, and BXD86, BXD94, and CAST/EiJ are possibly mixed sex samples. One of the BXD9 samples, array R1523, may be a mixed sex sample pool because the expression of <I>Xist</I> is intermediate.
+
+<P><B>Experimental Design and Batch Structure:</B> This data set consists arrays processed in six groups over a three month period (May 2005 to August 2005). Each group consists of 32 to 34 arrays. Sex, strain, and strain type (BXD, CXB, and MDP) were interleaved among groups to ensure reasonable balance and to minimize group-by-strain statistical confounds in group normalization. The two independent samples from a single strain were always run in different groups. All arrays were processed using a single protocol by a single operator, Shirlean Goodwin.
+
+<P>All samples in a group were labeled on one day, except for a few cases that failed QC on their first pass. The hybridization station accommodates up to 20 samples, and for this reason each group was split into a large first set of 20 samples and a second set of 12 to 14 samples. Samples were washed in groups of four and then held in at 4°C until all 20 (or 12-14) arrays were ready to scan. The last four samples out of the wash stations were scanned directly. Samples were scanned in sets of four.
+
+
+<P><B>COMPARISON with December 2005 Data Set</B>: Both BXD14 arrays in the Dec05 data set were found to actually be from BXD23 cases. This error of strain identification has been corrected in the present data set. Four arrays in the Dec05 data set have been deleted because we judged them to be of poor quality (strain_sex_sample_firstreaction_group):
+<OL>
+<LI>BXD21_F_1_1_G1
+<LI>BXD23_M_1_1_G7
+<LI>BXD36_M_1_1_G2
+<LI>BXD36_F_1_1_G3
+</OL>
+
+<P>
+In the Dec05 data set there are a total of 1986 transcripts with QTLs that have LRS scores above 50, whereas in the corrected June06 data sets there are a total of 2074 transcripts with QTLs above 50.
+</P>
+<P class="subtitle">Data Table 1:</P>
+This table lists all arrays by file order (<B>Index</B>), tube/sample ID, age, sex, batch, and numbers of animals in each sample pool (<B>pool size</B>). The next columns (RMA outlier, scale factor, background average, present, absent, marginal, AFFY-b-ActinMur(3'/5'), AFFY-GapdhMur(3'/5')) are all Affymetrix QC data. Finally, <B>source</B> lists the source colony of the animals. (Final version, fully corrected, by Arthur Centeno, October 2008)
+<table border="0" cellpadding="0" cellspacing="0" bgcolor="#000000" width="100%" align="Center"><tr><td>
+
+<table width="100%" border="0" cellpadding="5" cellspacing="1">
+
+<tr bgcolor="royalblue">
+<td><font color=#FFFFFF>index</font></td>
+<td><font color=#FFFFFF>tube ID</font></td>
+<td><font color=#FFFFFF>strain</td>
+<td><font color=#FFFFFF>age</font></td>
+<td><font color=#FFFFFF>sex</font></td>
+<td><font color=#FFFFFF>batch ID</td>
+<td><font color=#FFFFFF>pool size</td>
+<td><font color=#FFFFFF>RMA outlier</font></td>
+<td><font color=#FFFFFF>scale factor</font></td>
+<td><font color=#FFFFFF>back ground average</font></td>
+<td><font color=#FFFFFF>present</td>
+<td><font color=#FFFFFF>absent</td>
+<td><font color=#FFFFFF>marginal</td>
+<td><font color=#FFFFFF>AFFX-b-ActinMur (3'/5')</font></td>
+<td><font color=#FFFFFF>AFFX-GapdhMur (3'/5')</font></td>
+<td><font color=#FFFFFF>source</font></td>
+</tr>
+
+<tr bgcolor="#eeeeee"><td>1</td><td>R1289H2</td><td>B6D2F1</td><td>64</td><td>F</td><td>6</td><td>3</td><td>0.02</td><td>2.406</td><td>53.84</td><td>0.492</td><td>0.489</td><td>0.019</td><td>1.61</td><td>0.96</td><td>UTM RW</td></tr>
+
+<tr bgcolor="#eeeeee"><td>2</td><td>R1291H3</td><td>B6D2F1</td><td>66</td><td>M
+</td><td>1</td><td>3</td><td>0.01</td><td>3.524</td><td>48.54</td><td>0.487</td><td>0.494</td><td>0.019</td><td>1.21</td><td>1.52</td><td>UTM RW</td></tr>
+
+<tr bgcolor="#eeeeee"><td>3</td><td>R1291H4</td><td>B6D2F1</td><td>66</td><td>M technical duplicate of above</td><td>6</td><td>3</td><td>0.08</td><td>3.891</td><td>46.69</td><td>0.512</td><td>0.469</td><td>0.019</td><td>1.9</td><td>0.89</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>4</td><td>R2045H2</td><td>D2B6F1</td><td>65</td><td>F</td><td>1</td><td>2</td><td>0.01</td><td>4.403</td><td>47.99</td><td>0.497</td><td>0.485</td><td>0.018</td><td>1.09</td><td>1.53</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>5</td><td>R1595H2</td><td>D2B6F1</td><td>63</td><td>F</td><td>5</td><td>3</td><td>0.06</td><td>2.579</td><td>58.49</td><td>0.506</td><td>0.475</td><td>0.019</td><td>2.49</td><td>1.21</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>6</td><td>R1551H1</td><td>D2B6F1</td><td>72</td><td>F</td><td>6</td><td>3</td><td>0.02</td><td>2.62</td><td>53.76</td><td>0.506</td><td>0.476</td><td>0.018</td><td>1.37</td><td>0.76</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>7</td><td>R1361H1</td><td>C57BL/6J</td><td>69</td><td>F</td><td>6</td><td>4</td><td>0.01</td><td>3.058</td><td>51.87</td><td>0.477</td><td>0.503</td><td>0.02</td><td>1.67</td><td>0.76</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>8</td><td>R2041H2</td><td>C57BL/6J</td><td>65</td><td>M</td><td>1</td><td>4</td><td>0.04</td><td>3.341</td><td>49.26</td><td>0.527</td><td>0.456</td><td>0.018</td><td>1.14</td><td>1.45</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>9</td><td>R1449H2</td><td>C57BL/6J</td><td>71</td><td>M</td><td>5</td><td>3</td><td>0.09</td><td>3.592</td><td>44.32</td><td>0.47</td><td>0.51</td><td>0.02</td><td>1.68</td><td>0.77</td><td>UTM DG</td></tr>
+<tr bgcolor="#eeeeee"><td>10</td><td>R1290H2</td><td>DBA/2J</td><td>63</td><td>F</td><td>7</td><td>2</td><td>0.04</td><td>2.576</td><td>59.6</td><td>0.513</td><td>0.468</td><td>0.018</td><td>1.3</td><td>0.78</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>11</td><td>R1468H1</td><td>DBA/2J</td><td>64</td><td>F</td><td>5</td><td>3</td><td>0.03</td><td>2.929</td><td>53.8</td><td>0.515</td><td>0.465</td><td>0.019</td><td>1.28</td><td>0.79</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>12</td><td>R1507H1</td><td>BXD1</td><td>58</td><td>M</td><td>3</td><td>3</td><td>0.02</td><td>4.056</td><td>60.17</td><td>0.478</td><td>0.503</td><td>0.019</td><td>1.15</td><td>0.76</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>13</td><td>R1542H1</td><td>BXD1</td><td>59</td><td>F</td><td>7</td><td>3</td><td>0.03</td><td>1.792</td><td>80.56</td><td>0.492</td><td>0.489</td><td>0.018</td><td>1.57</td><td>0.79</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>14</td><td>R1520H1</td><td>BXD2</td><td>56</td><td>F</td><td>4</td><td>4</td><td>0.09</td><td>1.715</td><td>71.62</td><td>0.515</td><td>0.467</td><td>0.018</td><td>2.36</td><td>1.6</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>15</td><td>R1516H1</td><td>BXD2</td><td>61</td><td>M</td><td>1</td><td>4</td><td>0.01</td><td>2.231</td><td>64.86</td><td>0.508</td><td>0.474</td><td>0.019</td><td>1.3</td><td>1.53</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>16</td><td>R1593H2</td><td>BXD5</td><td>60</td><td>F</td><td>1</td><td>4</td><td>0</td><td>1.913</td><td>59.96</td><td>0.487</td><td>0.493</td><td>0.02</td><td>0.98</td><td>1.44</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>17</td><td>R1692H1</td><td>BXD5</td><td>60</td><td>M</td><td>3</td><td>2</td><td>0.07</td><td>3.764</td><td>72.74</td><td>0.465</td><td>0.516</td><td>0.02</td><td>1.15</td><td>0.74</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>18</td><td>R1539H2</td><td>BXD6</td><td>59</td><td>F</td><td>1</td><td>4</td><td>0</td><td>2.488</td><td>54.97</td><td>0.518</td><td>0.463</td><td>0.018</td><td>1.08</td><td>1.33</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>19</td><td>R1538H1</td><td>BXD6</td><td>59</td><td>M</td><td>4</td><td>3</td><td>0.01</td><td>2.585</td><td>50.27</td><td>0.505</td><td>0.475</td><td>0.02</td><td>1.46</td><td>0.79</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>20</td><td>R1518H1</td><td>BXD8</td><td>56</td><td>F</td><td>1</td><td>3</td><td>0</td><td>2.92</td><td>54.84</td><td>0.515</td><td>0.465</td><td>0.02</td><td>1.32</td><td>1.24</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>21</td><td>R1548H1</td><td>BXD8</td><td>59</td><td>M</td><td>6</td><td>3</td><td>0.07</td><td>2.132</td><td>59.37</td><td>0.504</td><td>0.477</td><td>0.019</td><td>2.16</td><td>1.54</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>22</td><td>R1350H2</td><td>BXD9</td><td>86</td><td>F</td><td>1</td><td>3</td><td>0.05</td><td>2.771</td><td>60.62</td><td>0.5</td><td>0.482</td><td>0.018</td><td>1.01</td><td>1.28</td><td>UMemphis</td></tr>
+<tr bgcolor="#eeeeee"><td>23</td><td>R1523H3</td><td>BXD9</td><td>57</td><td>MF (mixed)</td><td>7</td><td>3</td><td>0.14</td><td>3.9</td><td>78.36</td><td>0.435</td><td>0.547</td><td>0.018</td><td>1.36</td><td>0.77</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>24</td><td>R1531H1</td><td>BXD11</td><td>56</td><td>F</td><td>6</td><td>3</td><td>0.06</td><td>2.229</td><td>56.36</td><td>0.505</td><td>0.475</td><td>0.02</td><td>2.23</td><td>1.02</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>25</td><td>R1367H1</td><td>BXD11</td><td>56</td><td>M</td><td>1</td><td>3</td><td>0.01</td><td>2.11</td><td>78.78</td><td>0.503</td><td>0.477</td><td>0.02</td><td>1.07</td><td>1.27</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>26</td><td>R1530H1</td><td>BXD12</td><td>58</td><td>F</td><td>1</td><td>3</td><td>0</td><td>3.227</td><td>53.77</td><td>0.505</td><td>0.477</td><td>0.018</td><td>0.95</td><td>1.4</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>27</td><td>R2674H1</td><td>BXD12</td><td>59</td><td>M</td><td>7</td><td>3</td><td>0.03</td><td>1.924</td><td>83.44</td><td>0.519</td><td>0.464</td><td>0.018</td><td>1.21</td><td>0.78</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>28</td><td>R1529H1</td><td>BXD13</td><td>58</td><td>F</td><td>6</td><td>3</td><td>0.05</td><td>2.55</td><td>59.05</td><td>0.497</td><td>0.485</td><td>0.018</td><td>2</td><td>1.54</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>29</td><td>R1662H2</td><td>BXD13</td><td>60</td><td>M</td><td>1</td><td>3</td><td>0.03</td><td>4.603</td><td>45.81</td><td>0.509</td><td>0.472</td><td>0.019</td><td>1.3</td><td>0.82</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>30</td><td>R1304H2</td><td>BXD14</td><td>72</td><td>F</td><td>7</td><td>3</td><td>0.03</td><td>3.946</td><td>61.87</td><td>0.484</td><td>0.498</td><td>0.018</td><td>1.22</td><td>0.77</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>31</td><td>R1278H2</td><td>BXD14</td><td>55</td><td>M</td><td>7</td><td>3</td><td>0.06</td><td>4.75</td><td>67.52</td><td>0.449</td><td>0.532</td><td>0.019</td><td>1.1</td><td>0.73</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>32</td><td>R1524H1</td><td>BXD15</td><td>60</td><td>F</td><td>6</td><td>4</td><td>0.02</td><td>2.961</td><td>50.93</td><td>0.497</td><td>0.484</td><td>0.019</td><td>1.74</td><td>0.91</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>33</td><td>R1515H1</td><td>BXD15</td><td>61</td><td>M</td><td>1</td><td>3</td><td>0.01</td><td>3.316</td><td>57.05</td><td>0.503</td><td>0.478</td><td>0.019</td><td>1.32</td><td>1.21</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>34</td><td>R1661H1</td><td>BXD16</td><td>61</td><td>F</td><td>1</td><td>3</td><td>0.01</td><td>2.778</td><td>59.81</td><td>0.516</td><td>0.466</td><td>0.019</td><td>1.39</td><td>1.2</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>35</td><td>R1594H1</td><td>BXD16</td><td>61</td><td>M</td><td>4</td><td>3</td><td>0.03</td><td>2.634</td><td>53.66</td><td>0.504</td><td>0.478</td><td>0.018</td><td>1.96</td><td>1.51</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>36</td><td>R2666H1</td><td>BXD19</td><td>60</td><td>F</td><td>7</td><td>3</td><td>0.02</td><td>2.498</td><td>76.2</td><td>0.495</td><td>0.486</td><td>0.019</td><td>1.41</td><td>0.77</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>37</td><td>R1471H1</td><td>BXD19</td><td>157</td><td>M</td><td>1</td><td>3</td><td>0.02</td><td>3.165</td><td>43.34</td><td>0.519</td><td>0.462</td><td>0.018</td><td>1.01</td><td>1.29</td><td>UTM JB</td></tr>
+<tr bgcolor="#eeeeee"><td>38</td><td>R1573H1</td><td>BXD20</td><td>59</td><td>F</td><td>1</td><td>3</td><td>0.02</td><td>3.749</td><td>52.7</td><td>0.513</td><td>0.469</td><td>0.018</td><td>1.01</td><td>1.27</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>39</td><td>R2507H1</td><td>BXD20</td><td>60</td><td>M</td><td>6</td><td>3</td><td>0.06</td><td>3.568</td><td>57</td><td>0.472</td><td>0.508</td><td>0.02</td><td>1.29</td><td>0.76</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>40</td><td>R2668H1</td><td>BXD21</td><td>60</td><td>M</td><td>7</td><td>4</td><td>0.07</td><td>2.605</td><td>44.9</td><td>0.535</td><td>0.449</td><td>0.017</td><td>1.54</td><td>0.76</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>41</td><td>R1337H2</td><td>BXD21</td><td>102</td><td>F</td><td>2</td><td>4</td><td>0</td><td>2.673</td><td>58.05</td><td>0.492</td><td>0.489</td><td>0.019</td><td>1.4</td><td>0.76</td><td>UAB</td></tr>
+<tr bgcolor="#eeeeee"><td>42</td><td>R1848H3</td><td>BXD22</td><td>196</td><td>F</td><td>6</td><td>4</td><td>0.02</td><td>2.943</td><td>51.7</td><td>0.494</td><td>0.485</td><td>0.021</td><td>2.2</td><td>0.78</td><td>UAB</td></tr>
+<tr bgcolor="#eeeeee"><td>43</td><td>R1525H1</td><td>BXD22</td><td>59</td><td>M</td><td>2</td><td>3</td><td>0.02</td><td>2.248</td><td>55.76</td><td>0.548</td><td>0.433</td><td>0.018</td><td>1.26</td><td>0.74</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>44</td><td>R1280H2</td><td>BXD23</td><td>56</td><td>F</td><td>1</td><td>3</td><td>0.01</td><td>3.187</td><td>54.63</td><td>0.458</td><td>0.523</td><td>0.019</td><td>0.96</td><td>1.2</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>45</td><td>R1537H1</td><td>BXD23</td><td>58</td><td>F</td><td>5</td><td>3</td><td>0.1</td><td>3.719</td><td>67.54</td><td>0.468</td><td>0.513</td><td>0.019</td><td>1.51</td><td>0.96</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>46</td><td>R1343H2</td><td>BXD24</td><td>71</td><td>F</td><td>2</td><td>3</td><td>0.01</td><td>2.083</td><td>65.07</td><td>0.506</td><td>0.474</td><td>0.019</td><td>1.46</td><td>0.75</td><td>UMemphis</td></tr>
+<tr bgcolor="#eeeeee"><td>47</td><td>R1517H1</td><td>BXD24</td><td>57</td><td>M</td><td>3</td><td>3</td><td>0.01</td><td>3.471</td><td>53.66</td><td>0.504</td><td>0.476</td><td>0.019</td><td>1.28</td><td>0.78</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>48</td><td>R1366H1</td><td>BXD27</td><td>60</td><td>F</td><td>2</td><td>4</td><td>0</td><td>2.26</td><td>48.46</td><td>0.518</td><td>0.463</td><td>0.019</td><td>1.29</td><td>0.77</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>49</td><td>R1849H1</td><td>BXD27</td><td>70</td><td>M</td><td>5</td><td>3</td><td>0.06</td><td>8.801</td><td>38.34</td><td>0.468</td><td>0.512</td><td>0.019</td><td>2.42</td><td>1.08</td><td>UAB</td></tr>
+<tr bgcolor="#eeeeee"><td>50</td><td>R1353H1</td><td>BXD28</td><td>79</td><td>F</td><td>3</td><td>4</td><td>0.01</td><td>3.22</td><td>76.22</td><td>0.48</td><td>0.5</td><td>0.02</td><td>1.33</td><td>0.78</td><td>UMemphis</td></tr>
+<tr bgcolor="#eeeeee"><td>51</td><td>R2332H1</td><td>BXD28</td><td>60</td><td>M</td><td>2</td><td>3</td><td>0.01</td><td>3.217</td><td>63.68</td><td>0.491</td><td>0.49</td><td>0.019</td><td>1.37</td><td>0.79</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>52</td><td>R1532H1</td><td>BXD29</td><td>57</td><td>F</td><td>2</td><td>3</td><td>0.01</td><td>2.122</td><td>59.18</td><td>0.524</td><td>0.456</td><td>0.019</td><td>1.17</td><td>0.76</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>53</td><td>R1356H1</td><td>BXD29</td><td>76</td><td>M</td><td>5</td><td>3</td><td>0.01</td><td>4.033</td><td>47.67</td><td>0.52</td><td>0.463</td><td>0.017</td><td>1.17</td><td>0.78</td><td>UMemphis</td></tr>
+<tr bgcolor="#eeeeee"><td>54</td><td>R1240H2</td><td>BXD31</td><td>61</td><td>M</td><td>2</td><td>3</td><td>0.02</td><td>2.335</td><td>65.17</td><td>0.507</td><td>0.474</td><td>0.019</td><td>1.31</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>55</td><td>R1526H2</td><td>BXD31</td><td>57</td><td>F</td><td>7</td><td>4</td><td>0.1</td><td>7.267</td><td>89.54</td><td>0.435</td><td>0.547</td><td>0.017</td><td>1.35</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>56</td><td>R2675H1</td><td>BXD32</td><td>57</td><td>F</td><td>7</td><td>3</td><td>0.03</td><td>2.268</td><td>78.01</td><td>0.502</td><td>0.478</td><td>0.02</td><td>1.22</td><td>0.78</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>57</td><td>R1508H2</td><td>BXD32</td><td>58</td><td>M</td><td>2</td><td>4</td><td>0.01</td><td>1.917</td><td>67.78</td><td>0.539</td><td>0.442</td><td>0.019</td><td>1.28</td><td>0.73</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>58</td><td>R1345H3</td><td>BXD33</td><td>65</td><td>F</td><td>2</td><td>2</td><td>0.01</td><td>2.098</td><td>63.14</td><td>0.522</td><td>0.459</td><td>0.019</td><td>1.27</td><td>0.73</td><td>UMemphis</td></tr>
+<tr bgcolor="#eeeeee"><td>59</td><td>R1581H1</td><td>BXD33</td><td>59</td><td>M</td><td>3</td><td>3</td><td>0.01</td><td>3.229</td><td>53.16</td><td>0.496</td><td>0.485</td><td>0.019</td><td>1.19</td><td>0.78</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>60</td><td>R1527H1</td><td>BXD34</td><td>59</td><td>F</td><td>2</td><td>3</td><td>0.01</td><td>2.3</td><td>58.92</td><td>0.51</td><td>0.471</td><td>0.019</td><td>1.24</td><td>0.76</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>61</td><td>R1339H3</td><td>BXD34</td><td>74</td><td>M</td><td>5</td><td>3</td><td>0.12</td><td>2.888</td><td>53.49</td><td>0.506</td><td>0.476</td><td>0.018</td><td>2.39</td><td>1.35</td><td>UMemphis</td></tr>
+<tr bgcolor="#eeeeee"><td>62</td><td>R1855H1</td><td>BXD38</td><td>55</td><td>F</td><td>3</td><td>4</td><td>0.01</td><td>3.536</td><td>54.54</td><td>0.49</td><td>0.492</td><td>0.018</td><td>1.39</td><td>0.75</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>63</td><td>R1510H1</td><td>BXD38</td><td>59</td><td>M</td><td>2</td><td>3</td><td>0.01</td><td>2.186</td><td>68.06</td><td>0.521</td><td>0.46</td><td>0.019</td><td>1.26</td><td>0.79</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>64</td><td>R1528H2</td><td>BXD39</td><td>59</td><td>F</td><td>2</td><td>3</td><td>0.03</td><td>4.717</td><td>38.3</td><td>0.511</td><td>0.47</td><td>0.02</td><td>1.12</td><td>0.75</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>65</td><td>R1514H1</td><td>BXD39</td><td>59</td><td>M</td><td>3</td><td>3</td><td>0.03</td><td>3.992</td><td>56.06</td><td>0.477</td><td>0.504</td><td>0.019</td><td>1.43</td><td>0.81</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>66</td><td>R1522H1</td><td>BXD40</td><td>59</td><td>F</td><td>4</td><td>4</td><td>0</td><td>2.631</td><td>67.16</td><td>0.49</td><td>0.491</td><td>0.018</td><td>1.56</td><td>0.77</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>67</td><td>R1359H1</td><td>BXD40</td><td>73</td><td>M</td><td>2</td><td>3</td><td>0.09</td><td>7.458</td><td>39.86</td><td>0.451</td><td>0.527</td><td>0.021</td><td>1.28</td><td>0.74</td><td>UMemphis</td></tr>
+<tr bgcolor="#eeeeee"><td>68</td><td>R1541H2</td><td>BXD42</td><td>58</td><td>F</td><td>7</td><td>3</td><td>0.07</td><td>6.784</td><td>52.12</td><td>0.483</td><td>0.499</td><td>0.017</td><td>1.13</td><td>0.66</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>69</td><td>R1540H1</td><td>BXD42</td><td>58</td><td>M</td><td>7</td><td>4</td><td>0.03</td><td>2.423</td><td>75.14</td><td>0.492</td><td>0.488</td><td>0.02</td><td>1.48</td><td>0.78</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>70</td><td>R1334H2</td><td>BXD43</td><td>59</td><td>F</td><td>1</td><td>3</td><td>0</td><td>2.672</td><td>54.36</td><td>0.492</td><td>0.491</td><td>0.017</td><td>1.2</td><td>2.06</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>71</td><td>R1303H1</td><td>BXD43</td><td>63</td><td>M</td><td>3</td><td>4</td><td>0.02</td><td>3.497</td><td>51.9</td><td>0.486</td><td>0.495</td><td>0.019</td><td>1.15</td><td>0.8</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>72</td><td>R1326H1</td><td>BXD44</td><td>65</td><td>F</td><td>3</td><td>4</td><td>0</td><td>3.412</td><td>53.96</td><td>0.496</td><td>0.485</td><td>0.018</td><td>1.35</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>73</td><td>R1577H2</td><td>BXD44</td><td>56</td><td>M</td><td>1</td><td>3</td><td>0.02</td><td>2.159</td><td>67.52</td><td>0.512</td><td>0.469</td><td>0.019</td><td>1.18</td><td>1.71</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>74</td><td>R1403H2</td><td>BXD45</td><td>63</td><td>F</td><td>7</td><td>2</td><td>0.03</td><td>3.146</td><td>44.5</td><td>0.524</td><td>0.457</td><td>0.018</td><td>1.41</td><td>0.78</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>75</td><td>R1472H1</td><td>BXD45</td><td>65</td><td>M</td><td>7</td><td>4</td><td>0.04</td><td>1.651</td><td>73.31</td><td>0.543</td><td>0.44</td><td>0.018</td><td>1.63</td><td>0.74</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>76</td><td>R1316H1</td><td>BXD48</td><td>58</td><td>F</td><td>4</td><td>3</td><td>0</td><td>2.445</td><td>68.59</td><td>0.515</td><td>0.467</td><td>0.019</td><td>1.16</td><td>0.73</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>77</td><td>R1575H3</td><td>BXD48</td><td>65</td><td>M</td><td>3</td><td>4</td><td>0.05</td><td>4.577</td><td>55.78</td><td>0.466</td><td>0.514</td><td>0.019</td><td>1.59</td><td>0.9</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>78</td><td>R2521H1</td><td>BXD50</td><td>63</td><td>F</td><td>6</td><td>4</td><td>0.01</td><td>3.109</td><td>57.28</td><td>0.495</td><td>0.485</td><td>0.02</td><td>1.23</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>79</td><td>R1944H2</td><td>BXD50</td><td>81</td><td>M</td><td>1</td><td>3</td><td>0.01</td><td>2.546</td><td>63.39</td><td>0.495</td><td>0.485</td><td>0.02</td><td>0.9</td><td>1.57</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>80</td><td>R2331H1</td><td>BXD51</td><td>66</td><td>F</td><td>3</td><td>3</td><td>0.03</td><td>3.534</td><td>44.42</td><td>0.501</td><td>0.481</td><td>0.017</td><td>1.2</td><td>0.9</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>81</td><td>R1582H1</td><td>BXD51</td><td>71</td><td>M</td><td>6</td><td>4</td><td>0.03</td><td>2.92</td><td>47.87</td><td>0.489</td><td>0.491</td><td>0.02</td><td>1.36</td><td>0.75</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>82</td><td>R2680H1</td><td>BXD55</td><td>65</td><td>M</td><td>7</td><td>3</td><td>0.07</td><td>1.707</td><td>79.75</td><td>0.503</td><td>0.48</td><td>0.017</td><td>1.91</td><td>1.05</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>83</td><td>R1331H1</td><td>BXD60</td><td>60</td><td>F</td><td>4</td><td>3</td><td>0.01</td><td>2.867</td><td>50.33</td><td>0.492</td><td>0.487</td><td>0.021</td><td>1.34</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>84</td><td>R1281H2</td><td>BXD60</td><td>59</td><td>M</td><td>1</td><td>3</td><td>0</td><td>2.39</td><td>58.44</td><td>0.511</td><td>0.469</td><td>0.02</td><td>0.94</td><td>1.2</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>85</td><td>R2667H1</td><td>BXD61</td><td>70</td><td>F</td><td>7</td><td>4</td><td>0.03</td><td>3.36</td><td>59.04</td><td>0.495</td><td>0.488</td><td>0.018</td><td>1.16</td><td>0.76</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>86</td><td>R1856H2</td><td>BXD61</td><td>94</td><td>M</td><td>1</td><td>2</td><td>0</td><td>3.502</td><td>49.6</td><td>0.501</td><td>0.48</td><td>0.019</td><td>0.96</td><td>1.3</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>87</td><td>R1246H1</td><td>BXD62</td><td>54</td><td>F</td><td>1</td><td>4</td><td>0.02</td><td>3.405</td><td>51.47</td><td>0.511</td><td>0.471</td><td>0.018</td><td>1.14</td><td>1.34</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>88</td><td>R1585H2</td><td>BXD62</td><td>64</td><td>M</td><td>6</td><td>4</td><td>0.01</td><td>3.156</td><td>55.77</td><td>0.518</td><td>0.464</td><td>0.018</td><td>1.43</td><td>0.82</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>89</td><td>R1945H1</td><td>BXD63</td><td>107</td><td>F</td><td>1</td><td>3</td><td>0.02</td><td>2.811</td><td>52.65</td><td>0.522</td><td>0.459</td><td>0.019</td><td>1.05</td><td>1.36</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>90</td><td>R2093H3</td><td>BXD63</td><td>70</td><td>M</td><td>6</td><td>3</td><td>0.02</td><td>3.894</td><td>42.85</td><td>0.503</td><td>0.477</td><td>0.019</td><td>1.29</td><td>1.01</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>91</td><td>R2062H2</td><td>BXD64</td><td>65</td><td>F</td><td>1</td><td>3</td><td>0.05</td><td>3.795</td><td>78.48</td><td>0.513</td><td>0.468</td><td>0.019</td><td>0.98</td><td>1.43</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>92</td><td>R2061H1</td><td>BXD64</td><td>87</td><td>M</td><td>3</td><td>4</td><td>0.01</td><td>3.536</td><td>61.57</td><td>0.477</td><td>0.504</td><td>0.019</td><td>1.31</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>93</td><td>R2054H2</td><td>BXD65</td><td>55</td><td>F</td><td>1</td><td>2</td><td>0.03</td><td>3.159</td><td>80.96</td><td>0.48</td><td>0.502</td><td>0.018</td><td>1.09</td><td>1.24</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>94</td><td>R2056H2</td><td>BXD65</td><td>89</td><td>M</td><td>6</td><td>2</td><td>0</td><td>2.836</td><td>59.6</td><td>0.504</td><td>0.477</td><td>0.019</td><td>1.3</td><td>0.75</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>95</td><td>R1941H2</td><td>BXD66</td><td>78</td><td>F</td><td>1</td><td>4</td><td>0.01</td><td>2.734</td><td>50.93</td><td>0.499</td><td>0.481</td><td>0.02</td><td>1.18</td><td>1.29</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>96</td><td>R1949H2</td><td>BXD66</td><td>96</td><td>M</td><td>4</td><td>2</td><td>0.04</td><td>2.828</td><td>51.27</td><td>0.474</td><td>0.508</td><td>0.019</td><td>2.05</td><td>1.12</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>97</td><td>R2060H1</td><td>BXD67</td><td>54</td><td>F</td><td>6</td><td>3</td><td>0.01</td><td>2.561</td><td>43.88</td><td>0.502</td><td>0.479</td><td>0.02</td><td>1.7</td><td>0.84</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>98</td><td>R2052H1</td><td>BXD67</td><td>61</td><td>M</td><td>1</td><td>4</td><td>0.01</td><td>3.161</td><td>43.23</td><td>0.521</td><td>0.46</td><td>0.018</td><td>1.09</td><td>1.31</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>99</td><td>R2074H1</td><td>BXD68</td><td>60</td><td>F</td><td>5</td><td>3</td><td>0.02</td><td>6.528</td><td>49.62</td><td>0.479</td><td>0.502</td><td>0.019</td><td>1.48</td><td>0.83</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>100</td><td>R1928H1</td><td>BXD68</td><td>72</td><td>M</td><td>2</td><td>2</td><td>0.01</td><td>2.404</td><td>48.28</td><td>0.521</td><td>0.459</td><td>0.02</td><td>1.3</td><td>0.74</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>101</td><td>R1439H3</td><td>BXD69</td><td>60</td><td>F</td><td>2</td><td>3</td><td>0.02</td><td>2.463</td><td>59.14</td><td>0.522</td><td>0.459</td><td>0.018</td><td>1.31</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>102</td><td>R1559H1</td><td>BXD69</td><td>64</td><td>M</td><td>3</td><td>3</td><td>0.03</td><td>2.987</td><td>67.74</td><td>0.486</td><td>0.496</td><td>0.017</td><td>1.38</td><td>0.8</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>103</td><td>R2134H1</td><td>BXD70</td><td>64</td><td>F</td><td>5</td><td>2</td><td>0.02</td><td>2.148</td><td>58.64</td><td>0.532</td><td>0.45</td><td>0.019</td><td>1.4</td><td>0.85</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>104</td><td>R2063H1</td><td>BXD70</td><td>55</td><td>M</td><td>2</td><td>3</td><td>0.02</td><td>3.481</td><td>55.32</td><td>0.513</td><td>0.469</td><td>0.018</td><td>1.28</td><td>0.71</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>105</td><td>R1277H1</td><td>BXD73</td><td>60</td><td>F</td><td>4</td><td>2</td><td>0.01</td><td>2.576</td><td>62.45</td><td>0.502</td><td>0.479</td><td>0.019</td><td>1.35</td><td>0.79</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>106</td><td>R1443H2</td><td>BXD73</td><td>76</td><td>M</td><td>2</td><td>3</td><td>0.01</td><td>2.312</td><td>64.34</td><td>0.499</td><td>0.481</td><td>0.02</td><td>1.48</td><td>0.77</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>107</td><td>R2055H2</td><td>BXD74</td><td>79</td><td>M</td><td>2</td><td>3</td><td>0.01</td><td>2.576</td><td>56.84</td><td>0.509</td><td>0.473</td><td>0.018</td><td>1.46</td><td>0.88</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>108</td><td>R2316H1</td><td>BXD74</td><td>193</td><td>M</td><td>5</td><td>2</td><td>0.01</td><td>3.457</td><td>55.35</td><td>0.508</td><td>0.471</td><td>0.02</td><td>1.17</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>109</td><td>R1871H1</td><td>BXD75</td><td>61</td><td>F</td><td>2</td><td>3</td><td>0.04</td><td>1.723</td><td>56.4</td><td>0.53</td><td>0.451</td><td>0.019</td><td>1.3</td><td>0.76</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>110</td><td>R1844H2</td><td>BXD75</td><td>90</td><td>M</td><td>3</td><td>4</td><td>0.01</td><td>1.934</td><td>56.23</td><td>0.52</td><td>0.461</td><td>0.019</td><td>1.62</td><td>0.86</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>111</td><td>R1948H2</td><td>BXD76</td><td>81</td><td>F</td><td>2</td><td>3</td><td>0.01</td><td>1.507</td><td>68.85</td><td>0.553</td><td>0.428</td><td>0.02</td><td>1.3</td><td>0.75</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>112</td><td>R2094H1</td><td>BXD76</td><td>61</td><td>M</td><td>5</td><td>4</td><td>0.01</td><td>3.299</td><td>42.69</td><td>0.519</td><td>0.462</td><td>0.019</td><td>1.39</td><td>0.88</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>113</td><td>R2262H1</td><td>BXD77</td><td>62</td><td>F</td><td>3</td><td>4</td><td>0.02</td><td>4.317</td><td>47.16</td><td>0.493</td><td>0.488</td><td>0.019</td><td>1.32</td><td>0.74</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>114</td><td>R1423H1</td><td>BXD77</td><td>62</td><td>M</td><td>2</td><td>3</td><td>0.02</td><td>3.071</td><td>54.15</td><td>0.51</td><td>0.471</td><td>0.019</td><td>1.26</td><td>0.74</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>115</td><td>R1947H1</td><td>BXD79</td><td>108</td><td>F</td><td>2</td><td>2</td><td>0.01</td><td>2.599</td><td>51.52</td><td>0.524</td><td>0.457</td><td>0.019</td><td>1.35</td><td>0.74</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>116</td><td>R2092H1</td><td>BXD79</td><td>86</td><td>M</td><td>5</td><td>4</td><td>0.06</td><td>3.735</td><td>42.25</td><td>0.514</td><td>0.468</td><td>0.018</td><td>2.94</td><td>1.06</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>117</td><td>R1880H1</td><td>BXD80</td><td>68</td><td>F</td><td>5</td><td>3</td><td>0.06</td><td>4.855</td><td>42.22</td><td>0.501</td><td>0.481</td><td>0.018</td><td>2.17</td><td>1.36</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>118</td><td>R1881H2</td><td>BXD80</td><td>68</td><td>M</td><td>2</td><td>3</td><td>0.02</td><td>2.073</td><td>48.93</td><td>0.524</td><td>0.458</td><td>0.019</td><td>1.34</td><td>0.83</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>119</td><td>R2075H1</td><td>BXD83</td><td>60</td><td>F</td><td>2</td><td>3</td><td>0.01</td><td>2.454</td><td>55.1</td><td>0.502</td><td>0.48</td><td>0.018</td><td>1.27</td><td>0.77</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>120</td><td>R2076H2</td><td>BXD83</td><td>60</td><td>M</td><td>6</td><td>3</td><td>0.03</td><td>2.624</td><td>55.65</td><td>0.495</td><td>0.488</td><td>0.018</td><td>2.21</td><td>0.94</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>121</td><td>R2077H2</td><td>BXD84</td><td>62</td><td>F</td><td>6</td><td>2</td><td>0</td><td>2.1</td><td>71.87</td><td>0.522</td><td>0.459</td><td>0.018</td><td>1.68</td><td>0.81</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>122</td><td>R2135H3</td><td>BXD84</td><td>75</td><td>M</td><td>2</td><td>2</td><td>0.01</td><td>2.467</td><td>64.46</td><td>0.505</td><td>0.476</td><td>0.019</td><td>1.2</td><td>0.74</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>123</td><td>R1473H1</td><td>BXD85</td><td>79</td><td>F</td><td>2</td><td>3</td><td>0.02</td><td>3.384</td><td>55.34</td><td>0.478</td><td>0.502</td><td>0.02</td><td>1.24</td><td>0.77</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>124</td><td>R1474H1</td><td>BXD85</td><td>57</td><td>M</td><td>1</td><td>3</td><td>0.01</td><td>2.831</td><td>55.24</td><td>0.522</td><td>0.461</td><td>0.018</td><td>1.04</td><td>1.29</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>125</td><td>R1597H1</td><td>BXD85</td><td>86</td><td>M</td><td>4</td><td>4</td><td>0.09</td><td>2.028</td><td>53.95</td><td>0.487</td><td>0.492</td><td>0.021</td><td>1.28</td><td>0.83</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>126</td><td>R1415H1</td><td>BXD86</td><td>77</td><td>F</td><td>4</td><td>3</td><td>0.02</td><td>2.525</td><td>53.16</td><td>0.495</td><td>0.485</td><td>0.02</td><td>1.66</td><td>0.91</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>127</td><td>R2669H2</td><td>BXD87</td><td>63</td><td>F</td><td>7</td><td>3</td><td>0.07</td><td>2.61</td><td>57.59</td><td>0.513</td><td>0.47</td><td>0.018</td><td>1.6</td><td>0.91</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>128</td><td>R1710H1</td><td>BXD87</td><td>84</td><td>M</td><td>2</td><td>4</td><td>0.01</td><td>2.697</td><td>56.4</td><td>0.512</td><td>0.469</td><td>0.019</td><td>1.28</td><td>0.79</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>129</td><td>R1872H2</td><td>BXD89</td><td>90</td><td>F</td><td>2</td><td>2</td><td>0.02</td><td>3.013</td><td>63.53</td><td>0.492</td><td>0.488</td><td>0.021</td><td>1.22</td><td>0.72</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>130</td><td>R1850H3</td><td>BXD89</td><td>82</td><td>M</td><td>4</td><td>4</td><td>0.03</td><td>2.736</td><td>44.89</td><td>0.498</td><td>0.483</td><td>0.019</td><td>1.5</td><td>0.83</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>131</td><td>R2058H1</td><td>BXD90</td><td>61</td><td>F</td><td>2</td><td>3</td><td>0.01</td><td>3.389</td><td>48.05</td><td>0.502</td><td>0.478</td><td>0.02</td><td>1.53</td><td>0.76</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>132</td><td>R1600H2</td><td>BXD90</td><td>74</td><td>M</td><td>7</td><td>4</td><td>0.03</td><td>3.261</td><td>51.31</td><td>0.517</td><td>0.465</td><td>0.018</td><td>1.16</td><td>0.75</td><td>Glenn</td></tr>
+<tr bgcolor="#eeeeee"><td>133</td><td>R1301H2</td><td>BXD92</td><td>58</td><td>F</td><td>2</td><td>3</td><td>0.02</td><td>3.543</td><td>41.97</td><td>0.522</td><td>0.46</td><td>0.018</td><td>1.5</td><td>0.79</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>134</td><td>R1309H1</td><td>BXD92</td><td>59</td><td>M</td><td>4</td><td>3</td><td>0.05</td><td>1.655</td><td>66.34</td><td>0.498</td><td>0.481</td><td>0.021</td><td>1.52</td><td>0.82</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>135</td><td>R2057H1</td><td>BXD93</td><td>92</td><td>F</td><td>5</td><td>3</td><td>0.02</td><td>4.033</td><td>44.41</td><td>0.509</td><td>0.471</td><td>0.02</td><td>1.22</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>136</td><td>R2059H1</td><td>BXD93</td><td>58</td><td>M</td><td>1</td><td>3</td><td>0</td><td>3.058</td><td>60.29</td><td>0.493</td><td>0.488</td><td>0.019</td><td>1.18</td><td>1.37</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>137</td><td>R2313H1</td><td>BXD94</td><td>59</td><td>F</td><td>3</td><td>3</td><td>0</td><td>3.091</td><td>59.45</td><td>0.487</td><td>0.495</td><td>0.018</td><td>1.34</td><td>0.73</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>138</td><td>R1915H1</td><td>BXD96</td><td>65</td><td>F</td><td>5</td><td>2</td><td>0.04</td><td>5.145</td><td>46.19</td><td>0.502</td><td>0.481</td><td>0.017</td><td>1.37</td><td>0.74</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>139</td><td>R1846H2</td><td>BXD96</td><td>63</td><td>M</td><td>1</td><td>3</td><td>0</td><td>3.159</td><td>55.85</td><td>0.487</td><td>0.493</td><td>0.02</td><td>0.92</td><td>1.26</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>140</td><td>R2648H1</td><td>BXD97</td><td>74</td><td>F</td><td>7</td><td>4</td><td>0.02</td><td>1.664</td><td>82.08</td><td>0.518</td><td>0.464</td><td>0.019</td><td>1.4</td><td>0.78</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>141</td><td>R1927H2</td><td>BXD97</td><td>67</td><td>M</td><td>1</td><td>3</td><td>0.04</td><td>2.622</td><td>57.81</td><td>0.539</td><td>0.444</td><td>0.017</td><td>1.45</td><td>1.32</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>142</td><td>R1942H1</td><td>BXD98</td><td>62</td><td>F</td><td>5</td><td>3</td><td>0.04</td><td>3.104</td><td>48.42</td><td>0.528</td><td>0.454</td><td>0.019</td><td>2.22</td><td>1.08</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>143</td><td>R1943H2</td><td>BXD98</td><td>62</td><td>M</td><td>3</td><td>3</td><td>0.02</td><td>4.04</td><td>56.85</td><td>0.484</td><td>0.497</td><td>0.019</td><td>1.18</td><td>0.76</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>144</td><td>R2197H1</td><td>BXD99</td><td>70</td><td>F</td><td>3</td><td>3</td><td>0.02</td><td>4.288</td><td>51.75</td><td>0.49</td><td>0.492</td><td>0.018</td><td>1.35</td><td>0.81</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>145</td><td>R2315H1</td><td>BXD99</td><td>84</td><td>M</td><td>5</td><td>2</td><td>0.03</td><td>6.036</td><td>43.05</td><td>0.484</td><td>0.497</td><td>0.018</td><td>1.7</td><td>0.96</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>146</td><td>R2028H2</td><td>129S1/SvImJ</td><td>66</td><td>F</td><td>5</td><td>3</td><td>0.1</td><td>4.362</td><td>64.49</td><td>0.497</td><td>0.484</td><td>0.019</td><td>2.78</td><td>1.13</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>147</td><td>R2029H2</td><td>129S1/SvImJ</td><td>66</td><td>M</td><td>6</td><td>3</td><td>0.04</td><td>5.208</td><td>41.21</td><td>0.49</td><td>0.49</td><td>0.02</td><td>1.62</td><td>0.95</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>148</td><td>R2670H1</td><td>A/J</td><td>65</td><td>F</td><td>7</td><td>3</td><td>0.04</td><td>3.951</td><td>46.8</td><td>0.498</td><td>0.485</td><td>0.017</td><td>1.32</td><td>0.75</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>149</td><td>R2030H1</td><td>A/J</td><td>57</td><td>M</td><td>5</td><td>2</td><td>0.06</td><td>3.307</td><td>45.16</td><td>0.527</td><td>0.454</td><td>0.018</td><td>1.63</td><td>0.99</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>150</td><td>R2032H3</td><td>AKR/J</td><td>66</td><td>F</td><td>5</td><td>3</td><td>0.04</td><td>3.054</td><td>61.03</td><td>0.51</td><td>0.471</td><td>0.018</td><td>1.46</td><td>0.79</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>151</td><td>R2454H1</td><td>AKR/J</td><td>66</td><td>M</td><td>6</td><td>4</td><td>0.11</td><td>2.892</td><td>58.55</td><td>0.474</td><td>0.507</td><td>0.019</td><td>1.99</td><td>0.78</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>152</td><td>R1675H1</td><td>BALB/cByJ</td><td>83</td><td>M</td><td>7</td><td>3</td><td>0.03</td><td>3.405</td><td>48.13</td><td>0.509</td><td>0.474</td><td>0.018</td><td>1.13</td><td>0.78</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>153</td><td>R2036H3</td><td>BALB/cJ</td><td>51</td><td>F</td><td>5</td><td>3</td><td>0.12</td><td>2.611</td><td>56.29</td><td>0.518</td><td>0.466</td><td>0.017</td><td>3.3</td><td>1.23</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>154</td><td>R2053H1</td><td>BALB/cJ</td><td>55</td><td>M</td><td>5</td><td>3</td><td>0.1</td><td>2.505</td><td>63.27</td><td>0.499</td><td>0.483</td><td>0.018</td><td>3.1</td><td>1.34</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>155</td><td>R2037H2</td><td>BALB/cJ</td><td>51</td><td>M</td><td>6</td><td>4</td><td>0.01</td><td>2.546</td><td>58.13</td><td>0.497</td><td>0.485</td><td>0.018</td><td>1.26</td><td>0.77</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>156</td><td>R2038H3</td><td>C3H/HeJ</td><td>63</td><td>F</td><td>6</td><td>3</td><td>0.02</td><td>2.671</td><td>66.74</td><td>0.476</td><td>0.504</td><td>0.02</td><td>1.41</td><td>0.77</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>157</td><td>R2039H1</td><td>C3H/HeJ</td><td>63</td><td>M</td><td>5</td><td>3</td><td>0.1</td><td>3.384</td><td>44.15</td><td>0.528</td><td>0.454</td><td>0.017</td><td>2.16</td><td>0.88</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>158</td><td>R2137H1</td><td>C57BL/6ByJ</td><td>55</td><td>F</td><td>5</td><td>3</td><td>0.02</td><td>4.746</td><td>47.01</td><td>0.488</td><td>0.493</td><td>0.018</td><td>1.23</td><td>0.79</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>159</td><td>R2673H1</td><td>C57BL/6ByJ</td><td>55</td><td>M</td><td>7</td><td>3</td><td>0.08</td><td>1.842</td><td>67.69</td><td>0.514</td><td>0.469</td><td>0.017</td><td>1.75</td><td>0.78</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>160</td><td>R2619H1</td><td>CAST/EiJ</td><td>64</td><td>F</td><td>5</td><td>3</td><td>0.14</td><td>4.077</td><td>51.87</td><td>0.455</td><td>0.528</td><td>0.018</td><td>2.74</td><td>1.2</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>161</td><td>R1683H1</td><td>KK/HIJ</td><td>72</td><td>F</td><td>6</td><td>3</td><td>0.02</td><td>3.919</td><td>54.23</td><td>0.491</td><td>0.489</td><td>0.02</td><td>1.31</td><td>0.83</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>162</td><td>R1687H3</td><td>KK/HIJ</td><td>72</td><td>F</td><td>5</td><td>3</td><td>0.04</td><td>3.888</td><td>40.86</td><td>0.499</td><td>0.483</td><td>0.019</td><td>1.86</td><td>0.88</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>163</td><td>R2046H1</td><td>LG/J</td><td>63</td><td>F</td><td>5</td><td>2</td><td>0.03</td><td>2.822</td><td>59.18</td><td>0.514</td><td>0.468</td><td>0.018</td><td>1.68</td><td>0.8</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>164</td><td>R2047H2</td><td>LG/J</td><td>63</td><td>M</td><td>6</td><td>3</td><td>0.07</td><td>2.038</td><td>60.34</td><td>0.509</td><td>0.471</td><td>0.02</td><td>2.16</td><td>0.95</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>165</td><td>R2048H1</td><td>NOD/LtJ</td><td>77</td><td>F</td><td>6</td><td>2</td><td>0.14</td><td>4.045</td><td>50.21</td><td>0.489</td><td>0.49</td><td>0.021</td><td>2.89</td><td>0.95</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>166</td><td>R2049H3</td><td>NOD/LtJ</td><td>76</td><td>M</td><td>5</td><td>3</td><td>0.1</td><td>2.328</td><td>52.78</td><td>0.519</td><td>0.462</td><td>0.019</td><td>3.09</td><td>1.35</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>167</td><td>R2200H1</td><td>NZO/HlLtJ</td><td>62</td><td>F</td><td>5</td><td>2</td><td>0.03</td><td>2.648</td><td>54.29</td><td>0.543</td><td>0.438</td><td>0.019</td><td>1.27</td><td>0.8</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>168</td><td>R2350H1</td><td>NZO/HlLtJ</td><td>96</td><td>M</td><td>6</td><td>2</td><td>0.19</td><td>2.391</td><td>50.52</td><td>0.518</td><td>0.463</td><td>0.02</td><td>3.71</td><td>2.21</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>169</td><td>R2677H1</td><td>PWD/PhJ</td><td>65</td><td>M</td><td>7</td><td>2</td><td>0.12</td><td>2.764</td><td>65.49</td><td>0.462</td><td>0.52</td><td>0.018</td><td>1.89</td><td>1.16</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>170</td><td>R2051H3</td><td>PWD/PhJ</td><td>64</td><td>M</td><td>5</td><td>3</td><td>0.07</td><td>3.266</td><td>51.5</td><td>0.475</td><td>0.506</td><td>0.019</td><td>2.8</td><td>1.01</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>171</td><td>R2322H1</td><td>PWK/PhJ</td><td>63</td><td>F</td><td>5</td><td>2</td><td>0.09</td><td>2.94</td><td>54.91</td><td>0.511</td><td>0.47</td><td>0.019</td><td>2.32</td><td>1.02</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>172</td><td>R2349H1</td><td>PWK/PhJ</td><td>83</td><td>M</td><td>6</td><td>2</td><td>0.15</td><td>3.306</td><td>54.93</td><td>0.459</td><td>0.522</td><td>0.019</td><td>4.65</td><td>1.45</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>173</td><td>R2198H2</td><td>WSB/EiJ</td><td>58</td><td>F</td><td>6</td><td>1</td><td>0.02</td><td>2.922</td><td>57.97</td><td>0.502</td><td>0.479</td><td>0.019</td><td>1.44</td><td>0.76</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>174</td><td>R2199H1</td><td>WSB/EiJ</td><td>58</td><td>M</td><td>5</td><td>3</td><td>0.04</td><td>3.171</td><td>54.95</td><td>0.475</td><td>0.505</td><td>0.02</td><td>1.32</td><td>0.81</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>175</td><td>R2116H1</td><td>CXB1</td><td>55</td><td>F</td><td>3</td><td>3</td><td>0.07</td><td>5.792</td><td>51.59</td><td>0.459</td><td>0.521</td><td>0.02</td><td>1.17</td><td>0.8</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>176</td><td>R2096H1</td><td>CXB1</td><td>55</td><td>M</td><td>4</td><td>2</td><td>0.01</td><td>3.435</td><td>53.78</td><td>0.495</td><td>0.485</td><td>0.02</td><td>1.22</td><td>0.79</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>177</td><td>R2117H2</td><td>CXB2</td><td>62</td><td>F</td><td>4</td><td>2</td><td>0.04</td><td>3.39</td><td>45.97</td><td>0.533</td><td>0.45</td><td>0.017</td><td>2.05</td><td>0.89</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>178</td><td>R2098H1</td><td>CXB2</td><td>68</td><td>M</td><td>3</td><td>3</td><td>0.02</td><td>2.572</td><td>54.22</td><td>0.496</td><td>0.485</td><td>0.019</td><td>1.38</td><td>0.86</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>179</td><td>R2118H1</td><td>CXB3</td><td>47</td><td>F</td><td>3</td><td>3</td><td>0.03</td><td>3.646</td><td>63.16</td><td>0.478</td><td>0.503</td><td>0.019</td><td>1.22</td><td>0.77</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>180</td><td>R2100H1</td><td>CXB3</td><td>47</td><td>M</td><td>4</td><td>3</td><td>0.02</td><td>5.76</td><td>51.38</td><td>0.48</td><td>0.503</td><td>0.017</td><td>1.24</td><td>0.81</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>181</td><td>R2119H1</td><td>CXB4</td><td>58</td><td>F</td><td>4</td><td>3</td><td>0.02</td><td>3.897</td><td>49.21</td><td>0.488</td><td>0.494</td><td>0.018</td><td>1.31</td><td>0.79</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>182</td><td>R2101H1</td><td>CXB4</td><td>58</td><td>M</td><td>3</td><td>3</td><td>0.13</td><td>7.372</td><td>53.77</td><td>0.433</td><td>0.548</td><td>0.019</td><td>1.2</td><td>0.97</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>183</td><td>R2505H1</td><td>CXB5</td><td>80</td><td>F</td><td>6</td><td>3</td><td>0.02</td><td>2.83</td><td>49.6</td><td>0.499</td><td>0.48</td><td>0.02</td><td>1.33</td><td>0.76</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>184</td><td>R2131H1</td><td>CXB5</td><td>42</td><td>M</td><td>4</td><td>3</td><td>0.1</td><td>5.577</td><td>51.15</td><td>0.434</td><td>0.547</td><td>0.019</td><td>1.7</td><td>0.89</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>185</td><td>R0129H2</td><td>CXB5</td><td>70</td><td>M</td><td>3</td><td>3</td><td>0.07</td><td>4.829</td><td>45.42</td><td>0.488</td><td>0.493</td><td>0.019</td><td>1.23</td><td>0.83</td><td>UTM RW</td></tr>
+<tr bgcolor="#eeeeee"><td>186</td><td>R2676H1</td><td>CXB6</td><td>47</td><td>F</td><td>7</td><td>2</td><td>0.05</td><td>2.146</td><td>62.51</td><td>0.507</td><td>0.475</td><td>0.018</td><td>1.52</td><td>0.78</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>187</td><td>R2102H1</td><td>CXB6</td><td>49</td><td>M</td><td>4</td><td>3</td><td>0.07</td><td>5.148</td><td>51.63</td><td>0.453</td><td>0.529</td><td>0.018</td><td>1.43</td><td>0.87</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>188</td><td>R2121H1</td><td>CXB7</td><td>63</td><td>F</td><td>4</td><td>2</td><td>0.06</td><td>4.904</td><td>48.71</td><td>0.464</td><td>0.517</td><td>0.019</td><td>1.19</td><td>0.92</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>189</td><td>R2104H2</td><td>CXB7</td><td>58</td><td>M</td><td>3</td><td>2</td><td>0.06</td><td>3.389</td><td>48.79</td><td>0.502</td><td>0.479</td><td>0.019</td><td>1.74</td><td>1.48</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>190</td><td>R2122H1</td><td>CXB8</td><td>54</td><td>F</td><td>3</td><td>3</td><td>0.04</td><td>4.128</td><td>59.77</td><td>0.451</td><td>0.529</td><td>0.02</td><td>1.12</td><td>0.76</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>191</td><td>R2105H1</td><td>CXB8</td><td>41</td><td>M</td><td>4</td><td>3</td><td>0.16</td><td>3.146</td><td>61.04</td><td>0.451</td><td>0.53</td><td>0.019</td><td>1.34</td><td>0.84</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>192</td><td>R2123H1</td><td>CXB9</td><td>54</td><td>F</td><td>3</td><td>3</td><td>0.08</td><td>5.708</td><td>55.94</td><td>0.438</td><td>0.543</td><td>0.019</td><td>1.32</td><td>0.78</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>193</td><td>R2106H1</td><td>CXB9</td><td>54</td><td>M</td><td>4</td><td>3</td><td>0.06</td><td>5.868</td><td>46.55</td><td>0.469</td><td>0.512</td><td>0.019</td><td>1.18</td><td>0.82</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>194</td><td>R2124H1</td><td>CXB10</td><td>53</td><td>F</td><td>4</td><td>2</td><td>0.11</td><td>4.867</td><td>39.88</td><td>0.451</td><td>0.528</td><td>0.02</td><td>1.55</td><td>0.8</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>195</td><td>R2671H1</td><td>CXB10</td><td>53</td><td>M</td><td>7</td><td>3</td><td>0.09</td><td>2.348</td><td>71.45</td><td>0.488</td><td>0.494</td><td>0.018</td><td>2.2</td><td>1.14</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>196</td><td>R2125H1</td><td>CXB11</td><td>58</td><td>F</td><td>3</td><td>3</td><td>0.03</td><td>3.256</td><td>54.95</td><td>0.461</td><td>0.519</td><td>0.02</td><td>1.46</td><td>0.77</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>197</td><td>R2128H1</td><td>CXB11</td><td>58</td><td>M</td><td>4</td><td>2</td><td>0.06</td><td>4.986</td><td>54.13</td><td>0.465</td><td>0.515</td><td>0.02</td><td>1.11</td><td>0.83</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>198</td><td>R2126H1</td><td>CXB12</td><td>47</td><td>F</td><td>4</td><td>3</td><td>0.11</td><td>3.935</td><td>54.11</td><td>0.469</td><td>0.511</td><td>0.021</td><td>1.5</td><td>0.79</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>199</td><td>R2109H1</td><td>CXB12</td><td>47</td><td>M</td><td>3</td><td>3</td><td>0.07</td><td>4.518</td><td>49.26</td><td>0.488</td><td>0.492</td><td>0.02</td><td>1.23</td><td>0.77</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>200</td><td>R2672H1</td><td>CXB13</td><td>49</td><td>F</td><td>7</td><td>3</td><td>0.03</td><td>1.722</td><td>79.52</td><td>0.516</td><td>0.465</td><td>0.019</td><td>1.64</td><td>0.75</td><td>JAX</td></tr>
+<tr bgcolor="#eeeeee"><td>201</td><td>R2110H1</td><td>CXB13</td><td>56</td><td>M</td><td>4</td><td>3</td><td>0.21</td><td>3.478</td><td>48.08</td><td>0.461</td><td>0.517</td><td>0.022</td><td>1.21</td><td>0.78</td><td>JAX</td></tr></table>
+</td>
+</tr>
+</table><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About downloading this data set:</span></td></tr>
+	<tr><td> <P>All data links (right-most column above) will be made active as sooon as the global analysis of these data by the Consortium has been accepted for publication. Please see text on <A HREF="http://www.genenetwork.org/dataSharing.html" target="_empty" class="normalsize">Data Sharing Policies</A>, and <A HREF="http://www.genenetwork.org/conditionsofUse.html" target="_empty" class="normalsize">Conditions and Limitations</A>, and <A HREF="http://www.genenetwork.org/statusandContact.html" target="_empty" class="normalsize">Contacts</A>. Following publication, download a summary text file or Excel file of the PDNN probe set data. Contact RW Williams regarding data access problems.
+</P><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About the array platform:</span></td></tr>
+	<tr><td> <P><B>Affymetrix Mouse Genome 430 2.0 array: </B>The <A HREF="http://www.affymetrix.com/support/technical/byproduct.affx?product=moe430-20" target="_blank" class="normalsize">430v2</A> array consists of 992936 useful 25-nucleotide probes that estimate the expression of approximately 39,000 transcripts and the majority of known genes and expressed sequence tags. The array sequences were selected late in 2002 using Unigene Build 107 by Affymetrix. The UTHSC group has recently reannotated all probe sets on this array, producing more accurate data on probe and probe set targets. All probes were aligned to the most recent assembly of the Mouse Genome (Build 34, mm6) using Jim Kent's BLAT program. Many of the probe sets have been manually curated by Jing Gu and Rob Williams. </P><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About data values and data processing:</span></td></tr>
+	<tr><td> <A HREF="http://www.biomedcentral.com/1471-2105/6/65" target="_empty" class="normalsize">Harshlight</A> was used to examine the image quality of the array (CEL files). Bad areas (bubbles, scratches, blemishes) of arrays were masked.
+
+<P>First pass data quality control:  Affymetrix GCOS provides useful array quality control data including:
+<OL>
+<LI>The scale factor used to normalize mean probe intensity. This averaged 3.3 for the 179 arrays that passed and 6.2 for arrays that were excluded. The scale factor is not a particular critical parameter.
+<LI>The average background level. Values averaged 54.8 units for the data sets that passed and 55.8 for data sets that were excluded. This factor is not important for quality control.
+<LI>The percentage of probe sets that are associated with good signal ("present" calls). This averaged 50% for the 179 data sets that passed and 42% for those that failed. Values for passing data sets extended from 43% to 55%. This is a particularly important criterion.
+<LI>The 3':5' signal ratios of actin and Gapdh. Values for passing data sets averaged 1.5 for actin and 1.0 for Gapdh. Values for excluded data sets averaged 12.9 for actin and 9.6 for Gapdh. This is a highly discriminative QC criterion, although one must keep in mind that only two transcripts are being tested. Sequence variation among strains (particularly wild derivative strains such as CAST/Ei) may affect these ratios.
+</OL>
+
+<P>The second step in our post-processing QC involves a count of the number of probe sets in each array that are more than 2 standard deviations (z score units) from the mean across the entire 206 array data sets. This was the most important criterion used to eliminate "bad" data sets. All 206 arrays were processed togther using standard RMA and PDNN methods. The count and percentage of probe sets in each array that were beyond the 2 z theshold was computed. Using the RMA transform the average percentage of probe sets beyond the 2 z threshold for the 179 arrays that finally passed of QC procedure was 1.76% (median of 1.18%). In contrast the 2 z percentage was more than 10-fold higher (mean of 22.4% and median 20.2%) for those arrays that were excluded. This method is not very sensitive to the transformation method that is used. Using the PDNN transform, the average percent of probe sets exceeding was 1.31% for good arrays and was 22.6% for those that were excluded. In our opinion, this 2 z criterion is the most useful criterion for the final decision of whether or not to include arrays, although again, allowances need to be made for wild strains that one expects to be different from the majority of conventional inbred strains. For example, if a data set has excellent characteristics on all of the Affymetrix GCOS metrics listed above, but generates a high 2 z percentage, then one would include the sample if one can verify that there are no problems in sample and data set identification.
+
+<P>The entire procedure can be reapplied once the initial outlier data sets have been eliminated to detect any remaining outlier data sets.
+
+
+<P><A HREF="http://www.datadesk.com/products/data_analysis/datadesk/" target="_empty" class="normalsize">DataDesk</A> was used to examine the statistical quality of the probe level (CEL) data after step 5 below. DataDesk allows the rapid detection of subsets of probes that are particularly sensitive to still unknown factors in array processing. Arrays can then be categorized at the probe level into "reaction classes." A reaction class is a group of arrays for which the expression of essentially all probes are colinear over the full range of log2 values. A single but large group of arrays (n = 32) processed in essentially the identical manner by a single operator can produce arrays belonging to as many as four different reaction classes. Reaction classes are NOT related to strain, age, sex, treatment, or any known biological parameter (technical replicates can belong to different reaction classes). We do not yet understand the technical origins of reaction classes. The number of probes that contribute to the definition of reaction classes is quite small (<10% of all probes). We have categorized all arrays in this data set into one of 5 reaction classes. These have then been treated as if they were separate batches. Probes in these data type "batches" have been aligned to a common mean as described below.
+
+<P><B>Probe (cell) level data from the CEL file: </B>These CEL values produced by <a href="http://www.affymetrix.com/support/technical/product_updates/gcos_download.affx" target="_blank" class="normalsize">GCOS</a> are 75% quantiles from a set of 91 pixel values per cell.
+<OL>
+
+<LI>We added an offset of 1.0 unit to each cell signal to ensure that all values could be logged without generating negative values. We then computed the log base 2 of each cell.
+
+<LI>We performed a quantile normalization of the log base 2 values for all arrays using the same initial steps used by the RMA transform.
+
+<LI>We computed the Z scores for each cell value.
+
+<LI>We multiplied all Z scores by 2.
+
+<LI>We added 8 to the value of all Z scores. The consequence of this simple set of transformations is to produce a set of Z scores that have a mean of 8, a variance of 4, and a standard deviation of 2. The advantage of this modified Z score is that a two-fold difference in expression level (probe brightness level) corresponds approximately to a 1 unit difference.
+
+<LI>Finally, we computed the arithmetic mean of the values for the set of microarrays for each strain. Technical replicates were averaged before computing the mean for independent biological samples. Note, that we have not (yet) corrected for variance introduced by differences in sex or any interaction terms. We have not corrected for background beyond the background correction implemented by Affymetrix in generating the CEL file. We eventually hope to add statistical controls and adjustments for some of these variables.
+</OL>
+<P><B>Probe set data from the CHP file: </B>The expression values were generated using PDNN. The same simple steps described above were also applied to these values. Every microarray data set therefore has a mean expression of 8 with a standard deviation of 2. A 1 unit difference represents roughly a two-fold difference in expression level. Expression levels below 5 are usually close to background noise levels. </Blockquote>
+
+
+<P>Probe level QC: Log2 probe data of all arrays were inspected in DataDesk before and after quantile normalization. Inspection involved examining scatterplots of pairs of arrays for signal homogeneity (i.e., high correlation and linearity of the bivariate plots) and looking at all pairs of correlation coefficients. XY plots of probe expression and signal variance were also examined. Probe level array data sets were organized into reaction groups. Arrays with probe data that were not homogeneous when compared to other arrays were flagged.
+
+<P>Probe set level QC: The final normalized individual array data were evaluated for outliers. This involved counting the number of times that the probe set value for a particular array was beyond two standard deviations of the mean. This outlier analysis was carried out using the PDNN, RMA and MAS5 transforms and outliers across different levels of expression.  Arrays that were associated with an average of more than 8% outlier probe sets across all transforms and at all expression levels were eliminated. In contrast, most other arrays generated fewer than 5% outliers.
+
+
+<P>Validation of strains and sex of each array data set: A subset of probes and probe sets with a Mendelian pattern of inheritance were used to construct a expression correlation matrix for all arrays and the ideal Mendelian expectation for each strain constructed from the genotypes. There should naturally be a very high correlation in the expression patterns of transcripts with Mendelian phenotypes within each strain, as well as with the genotype strain distribution pattern of markers for the strain.
+
+<P>Sex of the samples was validated using sex-specific probe sets such as <I>Xist</I> and <I>Dby</I>.<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Data source acknowledgment:</span></td></tr>
+	<tr><td> <P>Data were generated with funds provided by a variety of public and private source to members of the Consortium. All of us thank Muriel Davisson, Cathy Lutz, and colleagues at the Jackson Laboratory for making it possible for us to add all of the CXB strains, and one or more samples from KK/HIJ, WSB/Ei, NZO/HILtJ, LG/J, CAST/Ei, PWD/PhJ, and PWK/PhJ to this study. We thank Yan Cui at UTHSC for allowing us to use his Linux cluster to align all M430 2.0 probes and probe sets to the mouse genome. We thank Hui-Chen Hsu and John Mountz for providing us BXD tissue samples, as well as many strains of BXD stock. We thanks Douglas Matthews (UMem in Table 1) and John Boughter (JBo in Table 1) for sharing BXD stock with us. Members of the Hippocampus Consortium thank the following sources for financial support of this effort:
+
+<UL>
+<LI>David C. Airey, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: Vanderbilt Institute for Integratie Genomics
+<BR>Department of Pharmacology
+<BR>david.airey at vanderbilt.edu
+
+<LI>Lu Lu, M.D.  <!--Tissue acquisition, RNA processing, experimental design-->
+<BR>Grant Support: NIH U01AA13499, U24AA13513
+
+<LI><A HREF="http://www.salk.edu/faculty/faculty/details.php?id=23" target="_empty" class="normalsize">Fred H. Gage, Ph.D.</A>  <!--$10,000 contribution -->
+<BR>Grant Support: Lookout Foundation
+
+<LI>Dan Goldowitz, Ph.D. <!--$30,000 contribution -->
+<BR>Grant Support: NIAAA INIA AA013503
+<BR>University of Tennessee Health Science Center
+<BR>Dept. Anatomy and Neurobiology
+<BR>email: dgold@nb.utmem.edu
+
+<LI>Shirlean Goodwin, Ph.D.  <!--All array processing-->
+<BR>Grant Support: NIAAA INIA U01AA013515
+
+<LI><A HREF="http://www.bccn-berlin.de/ResearchGroups/Kempermann" target="_empty" class="normalsize">Gerd Kempermann, M.D.</A> <!--$30,000 contribution -->
+<BR>Grant Support: The <A HREF="http://www.volkswagen-stiftung.de/" target="_empty" class="normalsize">Volkswagen Foundation</A> Grant on Permissive and Persistent Factors in Neurogenesis in the Adult Central Nervous System
+<BR>Humboldt-Universitat Berlin
+<BR>Universitatsklinikum Charite
+<BR>email: gerd.kempermann at mdc-berlin.de
+
+<LI>Kenneth F. Manly, Ph.D.  <!--Data handling in The GeneNetwork-->
+<BR>Grant Support: NIH P20MH062009 and U01CA105417
+
+<LI>Richard S. Nowakowski, Ph.D. <!--$10,000 contribution-->
+<BR>Grant Support: R01 NS049445-01
+
+<LI>Glenn D. Rosen, Ph.D. <!--Tissue and dissections-->
+<BR>Grant Support: NIH P20
+
+<LI>Leonard C. Schalkwyk, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: MRC Career Establishment Grant G0000170
+<BR>Social, Genetic and Developmental Psychiatry
+<BR>Institute of Psychiatry,Kings College London
+<BR>PO82, De Crespigny Park London SE5 8AF
+<BR>L.Schalkwyk@iop.kcl.ac.uk
+
+<LI>Guus Smit, Ph.D. <!--$6,000 contribution -->
+<BR>Dutch NeuroBsik Mouse Phenomics Consortium
+<BR>Center for Neurogenomics & Cognitive Research
+<BR>Vrije Universiteit Amsterdam, The Netherlands
+<BR>e-mail: guus.smit at falw.vu.nl
+<BR>Grant Support: BSIK 03053
+
+<LI>Thomas Sutter, Ph.D.  <!--All array handling and ~$20,000 for array chemistry -->
+<BR>Grant Support: INIA U01 AA13515 and the W. Harry Feinstone Center for Genome Research
+
+<LI>Stephen Whatley, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: XXXX
+
+<LI>Robert W. Williams, Ph.D. <!--Consortium director, design, error checking, metadata, and GeneNetwork-->
+<BR>Grant Support: NIH U01AA013499, P20MH062009, U01AA013499, U01AA013513
+</UL>
+</P><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Experiment Type:</span></td></tr>
+	<tr><td> <P>Pooled RNA samples (usually one pool of male hippocampii and one pool of female hippocampii) were prepared using standard protocols. Samples were processed using a total of 206 Affymetrix GeneChip Mouse Expression 430 2.0 short oligomer arrays (MOE430 2.0 or M430v2; see GEO platform ID <A HREF="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL1261" target="_empty" class="normalsize">GPL1261</A>), of which 201 passed quality control and error checking. This particular data set was processed using the <a href="http://odin.mdacc.tmc.edu/~zhangli/PerfectMatch/" target="_blank" class="normalsize">PDNN</a> protocol. To simplify comparisons among transforms, PDNN values of each array were adjusted to an average of 8 units and a standard deviation of 2 units.
+<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Overall Design:</span></td></tr>
+	<tr><td> <P>Pooled RNA samples (usually one pool of male hippocampii and one pool of female hippocampii) were prepared using standard protocols. Samples were processed using a total of 206 Affymetrix GeneChip Mouse Expression 430 2.0 short oligomer arrays (MOE430 2.0 or M430v2; see GEO platform ID <A HREF="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL1261" target="_empty" class="normalsize">GPL1261</A>), of which 201 passed quality control and error checking. This particular data set was processed using the <a href="http://odin.mdacc.tmc.edu/~zhangli/PerfectMatch/" target="_blank" class="normalsize">PDNN</a> protocol. To simplify comparisons among transforms, PDNN values of each array were adjusted to an average of 8 units and a standard deviation of 2 units.
+<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Contributor:</span></td></tr>
+	<tr><td> <UL>
+<LI>David C. Airey, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: Vanderbilt Institute for Integratie Genomics
+<BR>Department of Pharmacology
+<BR>david.airey at vanderbilt.edu
+
+<LI>Lu Lu, M.D.  <!--Tissue acquisition, RNA processing, experimental design-->
+<BR>Grant Support: NIH U01AA13499, U24AA13513
+
+<LI><A HREF="http://www.salk.edu/faculty/faculty/details.php?id=23" target="_empty" class="normalsize">Fred H. Gage, Ph.D.</A>  <!--$10,000 contribution -->
+<BR>Grant Support: Lookout Foundation
+
+<LI>Dan Goldowitz, Ph.D. <!--$30,000 contribution -->
+<BR>Grant Support: NIAAA INIA AA013503
+<BR>University of Tennessee Health Science Center
+<BR>Dept. Anatomy and Neurobiology
+<BR>email: dgold@nb.utmem.edu
+
+<LI>Shirlean Goodwin, Ph.D.  <!--All array processing-->
+<BR>Grant Support: NIAAA INIA U01AA013515
+
+<LI><A HREF="http://www.bccn-berlin.de/ResearchGroups/Kempermann" target="_empty" class="normalsize">Gerd Kempermann, M.D.</A> <!--$30,000 contribution -->
+<BR>Grant Support: The <A HREF="http://www.volkswagen-stiftung.de/" target="_empty" class="normalsize">Volkswagen Foundation</A> Grant on Permissive and Persistent Factors in Neurogenesis in the Adult Central Nervous System
+<BR>Humboldt-Universitat Berlin
+<BR>Universitatsklinikum Charite
+<BR>email: gerd.kempermann at mdc-berlin.de
+
+<LI>Kenneth F. Manly, Ph.D.  <!--Data handling in The GeneNetwork-->
+<BR>Grant Support: NIH P20MH062009 and U01CA105417
+
+<LI>Richard S. Nowakowski, Ph.D. <!--$10,000 contribution-->
+<BR>Grant Support: R01 NS049445-01
+
+<LI>Glenn D. Rosen, Ph.D. <!--Tissue and dissections-->
+<BR>Grant Support: NIH P20
+
+<LI>Leonard C. Schalkwyk, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: MRC Career Establishment Grant G0000170
+<BR>Social, Genetic and Developmental Psychiatry
+<BR>Institute of Psychiatry,Kings College London
+<BR>PO82, De Crespigny Park London SE5 8AF
+<BR>L.Schalkwyk@iop.kcl.ac.uk
+
+<LI>Guus Smit, Ph.D. <!--$6,000 contribution -->
+<BR>Dutch NeuroBsik Mouse Phenomics Consortium
+<BR>Center for Neurogenomics & Cognitive Research
+<BR>Vrije Universiteit Amsterdam, The Netherlands
+<BR>e-mail: guus.smit at falw.vu.nl
+<BR>Grant Support: BSIK 03053
+
+<LI>Thomas Sutter, Ph.D.  <!--All array handling and ~$20,000 for array chemistry -->
+<BR>Grant Support: INIA U01 AA13515 and the W. Harry Feinstone Center for Genome Research
+
+<LI>Stephen Whatley, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: XXXX
+
+<LI>Robert W. Williams, Ph.D. <!--Consortium director, design, error checking, metadata, and GeneNetwork-->
+<BR>Grant Support: NIH U01AA013499, P20MH062009, U01AA013499, U01AA013513
+</UL><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Citation:</span></td></tr>
+	<tr><td>
+<P>Please cite: Overall RW, Kempermann G, Peirce J, Lu L, Goldowitz D, Gage FH, Goodwin S, Smit AB, Airey DC, Rosen GD, Schalkwyk LC, Sutter TR, Nowakowski RS, Whatley S, Williams RW (<a href="http://frontiersin.org/neurogenomics/paper/pending/0/815/"  target="_blank" class="normalsize">2009</a>) Genetics of the hippocampal transcriptome in mice: a systematic survey and online neurogenomic resource. Front. Neurogen. 1:3   <A href="http://frontiersin.org/neurogenomics/paper/pending/0/815/" target="_blank" class="smallsize"><I>Full Text HTML</I></A>  doi:10.3389/neuro.15.003.2009
+
+<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Submission Date:</span></td></tr>
+	<tr><td> 01 Jul. 2009<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Laboratory:</span></td></tr>
+	<tr><td> Williams and Lu Labs<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Samples:</span></td></tr>
+	<tr><td> None<br><br></td></tr>
+</table>
+</p>
+</td>
+
+		</TR>
+		</TABLE>
+		</TD>
+	</TR>
+	<!-- End of body -->
+
+        <!-- Start of footer -->
+	<TR>
+		<TD align=center bgColor=#ddddff class="solidBorder">
+			<TABLE width="90%"><TR>
+	<TD align="left">
+		<A HREF="http://citg.uthsc.edu/" target="_blank">
+		<IMG SRC="/images/upload/CITGLogo.png" alt="CITG" border="0"></A>
+	</TD>
+	<TD align="left" id="smallsize" style="font-size:11px;font-family:verdana;color:black">
+WWW service initiated January, 1994 as <A HREF="http://www.ncbi.nlm.nih.gov/pubmed?term=8043953">The Portable Dictionary of the Mouse Genome</A> and June 15, 2001 as WebQTL.
+
+This site is currently operated by
+		<A class="smallsize" HREF="mailto:rwilliams@uthsc.edu">Rob Williams</A>,
+		<A class="smallsize" HREF="mailto:lyan6@uthsc.edu">Lei Yan</A>,
+		<A class="smallsize" HREF="mailto:zachary.a.sloan@gmail.com">Zachary Sloan</A>,
+		<A class="smallsize" HREF="mailto:acenteno@uthsc.edu" target="_blank">Arthur Centeno</A>. Design and code by Sam Ockman, Xiaodong Zhou, Christian Fernandez, Ning Liu, Rudi Alberts, Elissa Chesler, Jintao Wang, Kenneth Manly, Robert W. Williams, and <A class="smallsize" HREF="/credit.html">colleagues</A>.
+
+
+	</TD>
+	<TD align="right">
+		<A HREF="http://www.python.org/" target="_blank">
+		<IMG src="/images/upload/PythonLogo.png" alt="Python Powered" border="0"></A>
+	</TD>
+	<TD align="right">
+		<A HREF="http://www.neuinfo.org"  target="_blank">
+		<img src="/images/upload/Nif.png" alt="Registered with Nif" border="0"></A>
+	</TD>
+</TR>
+<TR>
+
+<!--  GENENETWORK SUPPORTED BY  -->
+
+	<TD colspan=4  style="font-size:12px;font-family:verdana;color:black">
+		GeneNetwork support from:
+		<UL>
+		<LI><a class="smallsize" target="_blank" href="http://citg.uthsc.edu">The UT Center for Integrative and Translational Genomics</A>
+		<LI><a class="smallsize" target="_blank" href="http://www.iniastress.org">NIAAA</A> Integrative Neuroscience Initiative on Alcoholism (U01AA13499, U24AA13513, U01AA014425)
+		<LI><a class="smallsize" target="_blank" href="http://www.drugabuse.gov/about/organization/Genetics/geneexpression/index.html">NIDA</A>, <a class="smallsize" target="_blank" href="http://www.nimh.nih.gov/">NIMH</A>, and <a class="smallsize" target="_blank" href="http://www.niaaa.nih.gov/">NIAAA</A> (P20-DA 21131)
+		<LI>NCI <a class="smallsize" target="_blank" href="http://emice.nci.nih.gov/">MMHCC</A> (U01CA105417), <a class="smallsize" target="_blank" href="http://www.ncrr.nih.gov/">NCRR</A> <a class="smallsize" target="_blank" href="http://www.nbirn.net/TestBeds/Mouse/index.htm">BIRN</A>,  (U24 RR021760)
+		</UL>
+	</TD>
+</TR>
+<TR>
+	<TD colspan=4 id="smallsize" align="left">
+		&nbsp;&nbsp;&nbsp;&nbsp;It took 0.011 second(s) for spring211.uthsc.edu to generate this page
+	</TD>
+</TR></table>
+		</td>
+	</TR>
+	<!-- End of footer -->
+</TABLE>
+
+<!-- menu script itself. you should not modify this file -->
+<script language="JavaScript" src="/javascript/menu_new.js"></script>
+<!-- items structure. menu hierarchy and links are stored there -->
+<script language="JavaScript" src="/javascript/menu_items.js"></script>
+<!-- files with geometry and styles structures -->
+<script language="JavaScript" src="/javascript/menu_tpl.js"></script>
+<script language="JavaScript">
+	<!--//
+	// Note where menu initialization block is located in HTML document.
+	// Don't try to position menu locating menu initialization block in
+	// some table cell or other HTML element. Always put it before </body>
+	// each menu gets two parameters (see demo files)
+	// 1. items structure
+	// 2. geometry structure
+	new menu (MENU_ITEMS, MENU_POS);
+	// make sure files containing definitions for these variables are linked to the document
+	// if you got some javascript error like "MENU_POS is not defined", then you've made syntax
+	// error in menu_tpl.js file or that file isn't linked properly.
+
+	// also take a look at stylesheets loaded in header in order to set styles
+	//-->
+</script>
+</BODY>
+</HTML>
