@@ -9,34 +9,34 @@
 		<TR>
 		<td>
 <a href="/webqtl/main.py?FormID=sharingListDataset">List of DataSets</a><br>
-<H1 class="title" id="parent-fieldname-title">Hippocampus Consortium M430v2 (Jun06) PDNN
-<a href="/webqtl/main.py?FormID=sharinginfoedit&GN_AccessionId=112"><img src="/images/modify.gif" alt="modify this page" border="0" valign="middle"></a>
+<H1 class="title" id="parent-fieldname-title">{{ info.DB_Name }}
+<a href="/webqtl/main.py?FormID=sharinginfoedit&GN_AccessionId={{ info.GN_AccesionId }}"><img src="/images/modify.gif" alt="modify this page" border="0" valign="middle"></a>
 <span style="color:red;"></span>
 </H1>
 <table border="0" width="100%">
 <tr>
 <td valign="top" width="50%">
 <TABLE cellSpacing=0 cellPadding=5 width=100% border=0>
-                      <TR><td><b>GN Accession:</b> GN112</TD></tr>
-                      <TR><TD><b>GEO Series:</b> No GEO series number</TD></TR>
-                      <TR><TD><b>Title:</b> Genetics of the hippocampal transcriptome in mouse: a systematic survey and online neurogenomics resource</TD></TR>
-                      <TR><TD><b>Organism:</b> <a href=http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=10090>Mus musculus</a></TD></tr>
-                      <tr><TD><b>Group:</b> BXD</TD></TR>
-                      <TR><TD><b>Tissue:</b> Hippocampus</TD></tr>
-                      <tr><TD><b>Dataset Status:</b> Public</TD></tr>
-                      <TR><TD><b>Platforms:</b> GEO: GPL1261 Affymetrix GeneChip Mouse Genome 430 2.0 Array</TD></TR>
-                      <TR><TD><b>Normalization:</b> PDNN</TD></TR>
+                      <TR><td><b>GN Accession:</b> {{ info.GN_AccesionId }}</TD></tr>
+                      <TR><TD><b>GEO Series:</b> {{ info.GEO_Series }}</TD></TR>
+                      <TR><TD><b>Title:</b> {{ info.Title }}</TD></TR>
+                      <TR><TD><b>Organism:</b> <a href=http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id={{ info.Organism_Id }}>{{ info.Organism }}</a></TD></tr>
+                      <tr><TD><b>Group:</b> {{ info.InbredSet }}</TD></TR>
+                      <TR><TD><b>Tissue:</b> {{ info.Tissue }}</TD></tr>
+                      <tr><TD><b>Dataset Status:</b> {{ info.Status }}</TD></tr>;
+                      <TR><TD><b>Platforms:</b> {{ info.Platforms }}</TD></TR>
+                      <TR><TD><b>Normalization:</b> {{ info.Normalization }}</TD></TR>
                       <TR><TD><!--Code below to Show hide Contact information -->
                        <a href="#" onclick="colapse('answer1')">See Contact Information</a><br>
                        <span id="answer1" style="display: none; return: false;">
-					   Robert W. Williams<br>
-                       University of Tennessee Health Science Center<br>
-                       Anatomy and Neurobiology<br>
-                       855 Monroe Avenue Room 501<br>
-                       Memphis, TN 38103 USA<br>
-                       Tel. 901-448-7018<br>
-                       rwilliams@uthsc.edu<br>
-                       <a href="http://www.genenetwork.org/dbdoc/HC_M2_0606_P.html">http://www.genenetwork.org/dbdoc/HC_M2_0606_P.html</a>
+					   {{ info.Contact_Name }}<br>
+                       {{ info.Organization_Name }}<br>
+                       {{ info.Department }}<br>
+                       {{ info.Street }}<br>
+                       {{ info.City }}, {{ info.State }} {{ info.ZIP }} {{ info.Country }}<br>
+                       Tel. {{ info.Phone }}<br>
+                      {{ info.Emails }}<br>
+                       <a href="{{ info.URL }}">{{ info.URL }}</a>
                        </span><!--Code above to Show hide Contact information --></TD></TR>
 </TABLE>
 </td>
@@ -46,14 +46,7 @@
 	<td bgcolor="#dce4e1"><b>Download datasets and supplementary data files</b></td>
 </tr>
 <tr>
-	<td><ul style="line-height:160%;">
-<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_HippoCampus_M430v2_PDNN.zip">GN112_HippoCampus_M430v2_PDNN.zip</a>&nbsp;&nbsp;&nbsp;[17 MB]</li>
-<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_HippoCampus_M430v2_PDNN_StdError.zip">GN112_HippoCampus_M430v2_PDNN_StdError.zip</a>&nbsp;&nbsp;&nbsp;[7 MB]</li>
-<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_HippoCampus_M430v2_PDNN_Z-Score.zip">GN112_HippoCampus_M430v2_PDNN_Z-Score.zip</a>&nbsp;&nbsp;&nbsp;[19 MB]</li>
-<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_HippoCampus_M430v2_PDNN_Z-Score_Average.zip">GN112_HippoCampus_M430v2_PDNN_Z-Score_Average.zip</a>&nbsp;&nbsp;&nbsp;[9 MB]</li>
-<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_Hippocampus_Consortium_M430v2_Jun06_PDNN_StdErr.txt">GN112_Hippocampus_Consortium_M430v2_Jun06_PDNN_StdErr.txt</a>&nbsp;&nbsp;&nbsp;[25 MB]</li>
-<li><a href="ftp://atlas.uthsc.edu/users/shared/Genenetwork/GN112/GN112_Hippocampus_Consortium_M430v2_Jun06_PDNN_Z-Score_Avg.txt">GN112_Hippocampus_Consortium_M430v2_Jun06_PDNN_Z-Score_Avg.txt</a>&nbsp;&nbsp;&nbsp;[27 MB]</li>
-</ul></td>
+	<td></td>
 </tr>
 </table>
 </td>
