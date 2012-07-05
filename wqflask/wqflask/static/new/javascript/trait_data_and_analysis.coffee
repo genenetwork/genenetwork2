@@ -29,6 +29,14 @@ $ ->
         if the_mean != current_mean
             $("#mean_value").html(the_mean).effect("highlight")
 
+        n_of_samples = the_values.length
+        current_n_of_samples = $("#n_of_samples_value").html()
+        console.log("cnos:", current_n_of_samples)
+        console.log("n_of_samples:", n_of_samples)
+        if n_of_samples != current_n_of_samples
+            $("#n_of_samples_value").html(current_n_of_samples).effect("highlight")
+
+
 
     edit_data_change = ->
         the_values = []
@@ -36,10 +44,16 @@ $ ->
         #console.log("values are:", values)
         for value in values
             real_value = $(value).val()
-            console.log("parent is:", $(value).closest("tr"))
+            #console.log("parent is:", $(value).closest("tr"))
+            row = $(value).closest("tr")
+            checkbox = $(row).find(".edit_strain_checkbox")
+            checked = $(checkbox).attr('checked')
+            if not checked
+                console.log("Not checked")
+                continue
             if isNumber(real_value) and real_value != ""
                 the_values.push(parseFloat(real_value))
-        the_mean = mean(the_values)
+        mean(the_values)
 
 
     $('#primary').change(edit_data_change)

@@ -289,7 +289,7 @@
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" align="left">N of Samples</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ sd.N }}</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes" id="n_of_samples_value">{{ sd.N }}</td>
                                   </tr>
 
                                   <tr align="right">
@@ -301,7 +301,7 @@
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Median</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.traitmedian }}</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes" id="median_value">{{ "%2.3f" % sd.traitmedian }}</td>
                                   </tr>
 
                                   <tr align="right">
@@ -3066,7 +3066,7 @@
                             <tr class="{{ strain.outlier }} value_se" id="{{ strain.the_id }}">
                               <td class="fs13 b1 c222" align="right" width="45">
 								{{ loop.index }}
-								<input type="checkbox" name="selectCheck" class="checkbox edit_strain_checkbox" value="{{ strain.strain_name }}">
+								<input type="checkbox" name="selectCheck" class="checkbox edit_strain_checkbox" value="{{ strain.strain_name }}" checked="checked">
 							  </td>
 
                               <td class="fs13 b1 c222" align="right" width="100">

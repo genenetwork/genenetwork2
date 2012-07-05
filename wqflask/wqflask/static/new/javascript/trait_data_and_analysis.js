@@ -27,7 +27,7 @@
     };
     $(".stats_mdp").change(stats_mdp_change);
     mean = function(the_values) {
-      var current_mean, the_mean, total, value, _i, _len;
+      var current_mean, current_n_of_samples, n_of_samples, the_mean, total, value, _i, _len;
       total = 0;
       for (_i = 0, _len = the_values.length; _i < _len; _i++) {
         value = the_values[_i];
@@ -37,22 +37,35 @@
       the_mean = the_mean.toFixed(2);
       current_mean = parseFloat($("#mean_value").html).toFixed(2);
       if (the_mean !== current_mean) {
-        return $("#mean_value").html(the_mean).effect("highlight");
+        $("#mean_value").html(the_mean).effect("highlight");
+      }
+      n_of_samples = the_values.length;
+      current_n_of_samples = $("#n_of_samples_value").html();
+      console.log("cnos:", current_n_of_samples);
+      console.log("n_of_samples:", n_of_samples);
+      if (n_of_samples !== current_n_of_samples) {
+        return $("#n_of_samples_value").html(current_n_of_samples).effect("highlight");
       }
     };
     edit_data_change = function() {
-      var real_value, the_mean, the_values, value, values, _i, _len;
+      var checkbox, checked, real_value, row, the_values, value, values, _i, _len;
       the_values = [];
       values = $('#primary').find(".edit_strain_value");
       for (_i = 0, _len = values.length; _i < _len; _i++) {
         value = values[_i];
         real_value = $(value).val();
-        console.log("parent is:", $(value).closest("tr"));
+        row = $(value).closest("tr");
+        checkbox = $(row).find(".edit_strain_checkbox");
+        checked = $(checkbox).attr('checked');
+        if (!checked) {
+          console.log("Not checked");
+          continue;
+        }
         if (isNumber(real_value) && real_value !== "") {
           the_values.push(parseFloat(real_value));
         }
       }
-      return the_mean = mean(the_values);
+      return mean(the_values);
     };
     $('#primary').change(edit_data_change);
     return console.log("loaded");
