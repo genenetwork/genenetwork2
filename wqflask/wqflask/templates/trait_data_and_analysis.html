@@ -295,7 +295,7 @@
                                   <tr align="right">
                                     <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Mean</td>
 
-                                    <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.traitmean }}</td>
+                                    <td class="fs13 b1 cbw c222" nowrap="yes" id="mean_value">{{ "%2.3f" % sd.traitmean }}</td>
                                   </tr>
 
                                   <tr align="right">
@@ -3047,7 +3047,7 @@
 
 						{% for strain_type in (primary_strains, other_strains) %}
                         <div id="{{ strain_type[0]['the_id'].lower().partition('_')[0] }}">  {# Slightly tortuous, but best way to get the id we need #}
-                          <table class="tablesorter"
+                          <table class="not_tablesorter"  {# Todo: Turn tablesorter back on #}
 								 id="{{ 'sortable%i' % (loop.index) }}"
 								 cellpadding="0" cellspacing="0">
                             <tr>
@@ -3063,18 +3063,19 @@
                             </tr>
 
 							{% for strain in strain_type %}
-                            <tr class="{{ strain.outlier }}" id="{{ strain.the_id }}">
+                            <tr class="{{ strain.outlier }} value_se" id="{{ strain.the_id }}">
                               <td class="fs13 b1 c222" align="right" width="45">
 								{{ loop.index }}
-								<input type="checkbox" name="selectCheck" class="checkbox" value="{{ strain.strain_name }}">
+								<input type="checkbox" name="selectCheck" class="checkbox edit_strain_checkbox" value="{{ strain.strain_name }}">
 							  </td>
 
                               <td class="fs13 b1 c222" align="right" width="100">
-								<span class="fs14 fwn ffl">{{ strain.strain_name }}</span>
+								<span class="fs14 fwn ffl edit_strain_strain_name">{{ strain.strain_name }}</span>
 							  </td>
 
-                              <td class="fs13 b1 c222" id="value_0_primary" align="right" width="70">
-								<input type="text" name="{{ strain.strain_name }}" class="fs13 b1 c222 valueField"
+							  {# Todo: Add IDs #}
+                              <td class="fs13 b1 c222"  align="right" width="70">
+								<input type="text" name="{{ strain.strain_name }}" class="fs13 b1 c222 edit_strain_value valueField"
 									   value="{{ strain.value }}" size="8" maxlength="8"
 									   style="text-align:right; background-color:#FFFFFF;">
 							  </td>
@@ -3083,8 +3084,9 @@
 								±
 							  </td>
 
-                              <td class="fs13 b1 c222" id="SE_0_primary" align="right" width="80">
-								<input type="text" name=""{{ 'V' + strain.strain_name}}" class="fs13 b1 c222 valueField"
+							  {# Todo: Add IDs #}
+                              <td class="fs13 b1 c222" align="right" width="80">
+								<input type="text" name=""{{ 'V' + strain.strain_name}}" class="fs13 b1 c222 valueField edit_strain_se"
 									   value="{{ strain.se }}"
 									   size="8" maxlength="8" style="text-align:right"></td>
                             </tr>

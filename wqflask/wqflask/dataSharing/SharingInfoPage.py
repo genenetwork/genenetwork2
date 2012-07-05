@@ -28,6 +28,8 @@ from __future__ import print_function, division
 
 from pprint import pformat as pf
 
+import flask
+
 from base.templatePage import templatePage
 from base import webqtlConfig
 from dbFunction import webqtlDatabaseFunction
@@ -42,8 +44,9 @@ class SharingInfoPage(templatePage):
 
     def __init__(self, fd):
         templatePage.__init__(self, fd)
+        self.redirect_url = None   # Set if you want a redirect
         print("fd is:", pf(fd.__dict__))
-        # Todo: Need a [0] in line below????
+        # Todo: Need a [0] in line below????d
         GN_AccessionId = fd.get('GN_AccessionId')   # Used under search datasharing
         InfoPageName = fd['database'][0]
         cursor = webqtlDatabaseFunction.getCursor()
@@ -51,8 +54,12 @@ class SharingInfoPage(templatePage):
             sql = "select GN_AccesionId from InfoFiles where InfoPageName = %s"
             cursor.execute(sql, InfoPageName)
             GN_AccessionId = cursor.fetchone()
-            url = webqtlConfig.CGIDIR + "main.py?FormID=sharinginfo&GN_AccessionId=%s" % GN_AccessionId
-            self.redirection = url
+            self.redirect_url = "http://23.21.59.238:5001/data_sharing&GN_AccessionId=%s" % GN_AccessionId
+            #self.redirect_url = flask.url_for('data_sharing', GN_AccessionId=GN_AccessionId[0])
+            print("set self.redirect_url")
+            #print("before redirect")
+            #return flask.redirect(url)
+            #print("after redirect")
         else:
             sharingInfoObject = SharingInfo.SharingInfo(GN_AccessionId, InfoPageName)
             self.dict['body'] = sharingInfoObject.getBody(infoupdate="")

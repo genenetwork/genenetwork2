@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+import flask
+
 from wqflask import app
 
 from flask import render_template, request
@@ -13,6 +15,8 @@ from base import webqtlFormData
 
 from pprint import pformat as pf
 
+print("latest blue")
+
 @app.route("/")
 def index_page():
     return render_template("index_page.html")
@@ -21,11 +25,25 @@ def index_page():
 @app.route("/search")
 def search():
     if 'info_database' in request.args:
-        print("Going to data_sharing")
-        data_sharing()
+        print("Going to sharing_info_page")
+        template_vars = sharing_info_page()
+        if template_vars.redirect_url:
+            return flask.redirect(template_vars.redirect_url)
+        else:
+            return render_template("data_sharing.html", **template_vars.__dict__)
     else:
         the_search = search_results.SearchResultPage(request.args)
         return render_template("search_result_page.html", **the_search.__dict__)
+
+@app.route("/data_sharing")
+def data_sharing():
+    print("In data_sharing")
+    fd = webqtlFormData.webqtlFormData(request.args)
+    print("Have fd")
+    template_vars = SharingInfoPage.SharingInfoPage(fd)
+    print("Made it to rendering")
+    return template_vars
+
 
 @app.route("/showDatabaseBXD")
 def showDatabaseBXD():
@@ -35,11 +53,14 @@ def showDatabaseBXD():
     print("showDatabaseBXD template_vars:", pf(template_vars.__dict__))
     return render_template("trait_data_and_analysis.html", **template_vars.__dict__)
 
-#@app.route("/data_sharing")
-def data_sharing():
-    print("In data_sharing")
+
+
+# Todo: Can we simplify this? -Sam
+def sharing_info_page():
+    print("In sharing_info_page")
     fd = webqtlFormData.webqtlFormData(request.args)
     print("Have fd")
+    print("SharingInfoPage is:", SharingInfoPage)
     template_vars = SharingInfoPage.SharingInfoPage(fd)
     print("Made it to rendering")
-    return render_template("data_sharing.html", **template_vars.__dict__)
+    return template_vars
