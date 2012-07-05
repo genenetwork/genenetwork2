@@ -8,72 +8,51 @@
     return !isNaN((o - 0) && o !== null);
   };
 
-  console.log("isNumber 7:", isNumber(7));
-
-  console.log("isNumber 13.1:", isNumber(13.1));
-
-  console.log("isNumber x:", isNumber("x"));
-
-  console.log("isNumber '9':", isNumber('9'));
-
-  console.log("isNumber:", isNumber());
-
   $(function() {
     var edit_data_change, hide_tabs, mean, stats_mdp_change;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
       for (x = _i = start; start <= 10 ? _i <= 10 : _i >= 10; x = start <= 10 ? ++_i : --_i) {
-        $("#stats_tabs" + x).hide();
-        _results.push(console.log("hidden:", x));
+        _results.push($("#stats_tabs" + x).hide());
       }
       return _results;
     };
-    console.log("start_a");
     hide_tabs(1);
-    console.log("hidden?");
     stats_mdp_change = function() {
       var selected;
-      console.log("In stats_mdp_change");
       selected = $(this).val();
-      console.log("Change was:", selected);
       hide_tabs(0);
       return $("#stats_tabs" + selected).show();
     };
     $(".stats_mdp").change(stats_mdp_change);
-    console.log("tape");
     mean = function(the_values) {
-      var the_mean, total, value, _i, _len;
+      var current_mean, the_mean, total, value, _i, _len;
       total = 0;
       for (_i = 0, _len = the_values.length; _i < _len; _i++) {
         value = the_values[_i];
         total += value;
       }
-      console.log("yeap");
-      console.log(total);
       the_mean = total / the_values.length;
-      return the_mean.toFixed(2);
+      the_mean = the_mean.toFixed(2);
+      current_mean = parseFloat($("#mean_value").html).toFixed(2);
+      if (the_mean !== current_mean) {
+        return $("#mean_value").html(the_mean).effect("highlight");
+      }
     };
     edit_data_change = function() {
       var real_value, the_mean, the_values, value, values, _i, _len;
-      console.log("In edit_data_change");
       the_values = [];
-      console.log("foo");
       values = $('#primary').find(".edit_strain_value");
-      console.log("values are:", values);
       for (_i = 0, _len = values.length; _i < _len; _i++) {
         value = values[_i];
-        console.log(value);
         real_value = $(value).val();
-        console.log(real_value);
+        console.log("parent is:", $(value).closest("tr"));
         if (isNumber(real_value) && real_value !== "") {
           the_values.push(parseFloat(real_value));
         }
       }
-      console.log(the_values);
-      the_mean = mean(the_values);
-      console.log(the_mean);
-      return $("#mean_value").html(the_mean);
+      return the_mean = mean(the_values);
     };
     $('#primary').change(edit_data_change);
     return console.log("loaded");
