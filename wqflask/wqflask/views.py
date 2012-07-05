@@ -28,10 +28,12 @@ def data_sharing():
     fd = webqtlFormData.webqtlFormData(request.args)
     print("1Have fd")
     sharingInfoObject = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
-    self.dict['body'] = sharingInfoObject.getBody(infoupdate="")
-    template_vars = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
+    info, htmlfilelist = sharingInfoObject.getBody(infoupdate="")
+    #template_vars = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
     print("1 Made it to rendering")
-    return template_vars
+    return render_template("data_sharing.html",
+                            info=info,
+                            htmlfilelist=htmlfilelist)
 
 @app.route("/search")
 def search():

@@ -27,6 +27,7 @@
 from __future__ import print_function, division
 
 from pprint import pformat as pf
+from collections import namedtuple
 
 import httplib
 
@@ -48,7 +49,21 @@ class SharingInfo(object):
         cursor = webqtlDatabaseFunction.getCursor()
         if (not cursor):
             return
-        sql = "select Id, GEO_Series, Status, Title, Organism, Experiment_Type, Summary, Overall_Design, Contributor, Citation, Submission_Date, Contact_Name, Emails, Phone, URL, Organization_Name, Department, Laboratory, Street, City, State, ZIP, Country, Platforms, Samples, Species, Normalization, InbredSet, InfoPageName, DB_Name, Organism_Id, InfoPageTitle, GN_AccesionId, Tissue, AuthorizedUsers, About_Cases, About_Tissue, About_Download, About_Array_Platform, About_Data_Values_Processing, Data_Source_Acknowledge, Progreso from InfoFiles where "
+
+        field_names = """Id, GEO_Series, Status, Title, Organism, Experiment_Type,
+                Summary, Overall_Design, Contributor, Citation, Submission_Date,
+                Contact_Name, Emails, Phone, URL, Organization_Name, Department,
+                Laboratory, Street, City, State, ZIP, Country, Platforms,
+                Samples, Species, Normalization, InbredSet, InfoPageName,
+                DB_Name, Organism_Id, InfoPageTitle, GN_AccesionId, Tissue,
+                AuthorizedUsers, About_Cases, About_Tissue, About_Download,
+                About_Array_Platform, About_Data_Values_Processing,
+                Data_Source_Acknowledge, Progreso """
+
+        InfoRecord = namedtuple('InfoRecord', field_names)
+
+        # We can use string interpolation here cause we own the string
+        sql = """select %s from InfoFiles where """ % (field_names)
         if(self.GN_AccessionId):
             sql += "GN_AccesionId = %s"
             cursor.execute(sql, self.GN_AccessionId)
@@ -58,6 +73,12 @@ class SharingInfo(object):
         else:
             raise 'No correct parameter found'
         info = cursor.fetchone()
+        print("432 info:", info)
+        print("type(info):", type(info))
+        info = InfoRecord._make(info)
+
+        print("q888 info.Title:", info.Title)
+
         # fetch datasets file list
         try:
             conn = httplib.HTTPConnection("atlas.uthsc.edu")
@@ -102,4 +123,5 @@ class SharingInfo(object):
             htmlfilelist = "Data sets are not available or are not public yet."
         print("333 info is:", pf(info))
         print("333 keys:", pf(info))
-        return SharingBody.sharinginfo_body_string % (info[31], info[32], infoupdate, info[32], info[1], info[3], info[30], info[4], info[27], info[33], info[2], info[23], info[26], info[11], info[15], info[16], info[18], info[19], info[20], info[21], info[22], info[13], info[12], info[14], info[14], htmlfilelist, info[6], info[35], info[36], info[37], info[38], info[39], info[40], info[5], info[7], info[8], info[9], info[10], info[17], info[24])
+        return info, htmlfilelist
+        #return SharingBody.sharinginfo_body_string % (info[31], info[32], infoupdate, info[32], info[1], info[3], info[30], info[4], info[27], info[33], info[2], info[23], info[26], info[11], info[15], info[16], info[18], info[19], info[20], info[21], info[22], info[13], info[12], info[14], info[14], htmlfilelist, info[6], info[35], info[36], info[37], info[38], info[39], info[40], info[5], info[7], info[8], info[9], info[10], info[17], info[24])
