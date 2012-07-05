@@ -24,6 +24,10 @@
 #
 # Last updated by GeneNetwork Core Team 2010/10/20
 
+from __future__ import print_function, division
+
+from pprint import pformat as pf
+
 import httplib
 
 from dbFunction import webqtlDatabaseFunction
@@ -33,9 +37,10 @@ import SharingBody
 #########################################
 #      Sharing Info
 #########################################
-class SharingInfo:
+class SharingInfo(object):
 
     def __init__(self, GN_AccessionId, InfoPageName):
+        print("In SharingInfo")
         self.GN_AccessionId = GN_AccessionId
         self.InfoPageName = InfoPageName
 
@@ -95,4 +100,6 @@ class SharingInfo:
             htmlfilelist += "</ul>"
         else:
             htmlfilelist = "Data sets are not available or are not public yet."
+        print("333 info is:", pf(info))
+        print("333 keys:", pf(info))
         return SharingBody.sharinginfo_body_string % (info[31], info[32], infoupdate, info[32], info[1], info[3], info[30], info[4], info[27], info[33], info[2], info[23], info[26], info[11], info[15], info[16], info[18], info[19], info[20], info[21], info[22], info[13], info[12], info[14], info[14], htmlfilelist, info[6], info[35], info[36], info[37], info[38], info[39], info[40], info[5], info[7], info[8], info[9], info[10], info[17], info[24])

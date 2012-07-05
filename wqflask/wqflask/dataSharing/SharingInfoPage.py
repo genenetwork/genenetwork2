@@ -48,18 +48,17 @@ class SharingInfoPage(templatePage):
         print("fd is:", pf(fd.__dict__))
         # Todo: Need a [0] in line below????d
         GN_AccessionId = fd.get('GN_AccessionId')   # Used under search datasharing
-        InfoPageName = fd['database'][0]
+        InfoPageName = fd.get('database')  # Might need to add a [0]
         cursor = webqtlDatabaseFunction.getCursor()
         if InfoPageName and not GN_AccessionId:
             sql = "select GN_AccesionId from InfoFiles where InfoPageName = %s"
             cursor.execute(sql, InfoPageName)
             GN_AccessionId = cursor.fetchone()
-            self.redirect_url = "http://23.21.59.238:5001/data_sharing&GN_AccessionId=%s" % GN_AccessionId
+            self.redirect_url = "http://23.21.59.238:5001/data_sharing?GN_AccessionId=%s" % GN_AccessionId
             #self.redirect_url = flask.url_for('data_sharing', GN_AccessionId=GN_AccessionId[0])
             print("set self.redirect_url")
             #print("before redirect")
             #return flask.redirect(url)
             #print("after redirect")
         else:
-            sharingInfoObject = SharingInfo.SharingInfo(GN_AccessionId, InfoPageName)
-            self.dict['body'] = sharingInfoObject.getBody(infoupdate="")
+            CauseError
