@@ -6,6 +6,8 @@ import cPickle
 from collections import OrderedDict
 #import pyXLWriter as xl
 
+import yaml
+
 from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
@@ -209,6 +211,28 @@ class DataEditingPage(templatePage):
         # We'll need access to thisTrait and hddn uin the Jinja2 Template, so we put it inside self
         self.thisTrait = thisTrait
         self.hddn = hddn
+
+        self.basic_table = {}
+        self.basic_table['rows'] = yaml.load("""
+                                          - N of Samples
+                                          - Mean
+                                          - Median
+                                          - Standard Error (SE)
+                                          - Standard Deviation (SD)
+                                          - Minimum
+                                          - Maximum
+                                          - Range (log2)
+                                          - Range (fold)
+                                          - Interquartile Range
+                                          """)
+
+        self.basic_table['columns'] = yaml.load("""
+                                                - All Cases
+                                                - BXD Only
+                                                - Non-BXD Only
+                                                """)
+
+        print(pf(self.basic_table))
 
     ##########################################
     ##  Function to display header

@@ -22,12 +22,22 @@ def index_page():
     return render_template("index_page.html")
 
 
+@app.route("/data_sharing")
+def data_sharing():
+    print("In data_sharing")
+    fd = webqtlFormData.webqtlFormData(request.args)
+    print("1Have fd")
+    template_vars = SharingInfoPage.SharingInfoPage(fd)
+    print("1 Made it to rendering")
+    return template_vars
+
 @app.route("/search")
 def search():
     if 'info_database' in request.args:
         print("Going to sharing_info_page")
         template_vars = sharing_info_page()
         if template_vars.redirect_url:
+            print("Going to redirect")
             return flask.redirect(template_vars.redirect_url)
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
@@ -35,14 +45,7 @@ def search():
         the_search = search_results.SearchResultPage(request.args)
         return render_template("search_result_page.html", **the_search.__dict__)
 
-@app.route("/data_sharing")
-def data_sharing():
-    print("In data_sharing")
-    fd = webqtlFormData.webqtlFormData(request.args)
-    print("Have fd")
-    template_vars = SharingInfoPage.SharingInfoPage(fd)
-    print("Made it to rendering")
-    return template_vars
+
 
 
 @app.route("/showDatabaseBXD")
@@ -59,8 +62,7 @@ def showDatabaseBXD():
 def sharing_info_page():
     print("In sharing_info_page")
     fd = webqtlFormData.webqtlFormData(request.args)
-    print("Have fd")
-    print("SharingInfoPage is:", SharingInfoPage)
+    print("2Have fd")
     template_vars = SharingInfoPage.SharingInfoPage(fd)
-    print("Made it to rendering")
+    print("2 Made it to rendering")
     return template_vars
