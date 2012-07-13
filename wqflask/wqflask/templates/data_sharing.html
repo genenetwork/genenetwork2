@@ -56,11 +56,11 @@
 <p>
 <table width="100%" border="0" cellpadding="5" cellspacing="0">
 <tr><td><span style="font-size:115%;font-weight:bold;">Summary:</span></td></tr>
-	<tr><td>{{ info.Summary }}<br><br></td></tr>
+	<tr><td>{{ info.Summary | safe}}<br><br></td></tr>
 <tr><td><span style="font-size:115%;font-weight:bold;">About the cases used to generate this set of data:</span></td></tr>
-	<tr><td> {{ info.About_Cases | safe}}</td></tr>
+	<tr><td>{{ info.About_Cases | safe}}</td></tr>
 <tr><td><span style="font-size:115%;font-weight:bold;">About the tissue used to generate this set of data:</span></td></tr>
-	<tr><td> {{ info.About_Tissue }}</td></tr>
+	<tr><td>{{ info.About_Tissue | safe }}</td></tr>
 <tr><td><span style="font-size:115%;font-weight:bold;">About downloading this data set:</span></td></tr>
 	<tr><td> <P>All data links (right-most column above) will be made active as sooon as the global analysis of these data by the Consortium has been accepted for publication. Please see text on <A HREF="http://www.genenetwork.org/dataSharing.html" target="_empty" class="normalsize">Data Sharing Policies</A>, and <A HREF="http://www.genenetwork.org/conditionsofUse.html" target="_empty" class="normalsize">Conditions and Limitations</A>, and <A HREF="http://www.genenetwork.org/statusandContact.html" target="_empty" class="normalsize">Contacts</A>. Following publication, download a summary text file or Excel file of the PDNN probe set data. Contact RW Williams regarding data access problems.
 </P><br><br></td></tr>
