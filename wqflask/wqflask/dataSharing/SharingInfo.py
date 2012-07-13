@@ -79,6 +79,11 @@ class SharingInfo(object):
 
         print("q888 info.Title:", info.Title)
 
+        print("info type is:", type(info))
+        new_about_cases = unicode(info.About_Cases, "utf-8")
+        print("new_about_cases is:", new_about_cases)
+        info.About_Cases = new_about_cases
+
         # fetch datasets file list
         try:
             conn = httplib.HTTPConnection("atlas.uthsc.edu")

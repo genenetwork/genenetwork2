@@ -29,6 +29,8 @@ def data_sharing():
     print("1Have fd")
     sharingInfoObject = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
     info, htmlfilelist = sharingInfoObject.getBody(infoupdate="")
+    print("type(htmlfilelist):", type(htmlfilelist))
+    htmlfilelist = htmlfilelist.encode("utf-8")
     #template_vars = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
     print("1 Made it to rendering")
     return render_template("data_sharing.html",
