@@ -60,8 +60,6 @@ class SharingInfo(object):
                 About_Array_Platform, About_Data_Values_Processing,
                 Data_Source_Acknowledge, Progreso """
 
-        #InfoRecord = namedtuple('InfoRecord', field_names)
-
         # We can use string interpolation here cause we own the string
         sql = """select %s from InfoFiles where """ % (field_names)
         if(self.GN_AccessionId):
@@ -73,20 +71,8 @@ class SharingInfo(object):
         else:
             raise 'No correct parameter found'
         info = cursor.fetchone()
-        print("432 info:", info)
-        print("type(info):", type(info))
-        #info = InfoRecord._make(info)
+
         info = todict(field_names, info)
-        # We need to edit info so we convert it to a dict...
-        #info = info._asdict()
-        print("q888 info.Title:", info['Title'])
-
-        print("info type is:", type(info))
-        #new_about_cases = unicode(info.About_Cases, "utf-8")
-        #print("new_about_cases is:", new_about_cases)
-
-
-            #info['About_Cases'] = unicode(info['About_Cases'], "utf-8")
 
         # fetch datasets file list
         try:
@@ -130,8 +116,7 @@ class SharingInfo(object):
             htmlfilelist += "</ul>"
         else:
             htmlfilelist = "Data sets are not available or are not public yet."
-        print("333 info is:", pf(info))
-        print("333 keys:", pf(info))
+
         return info, htmlfilelist
         #return SharingBody.sharinginfo_body_string % (info[31], info[32], infoupdate, info[32], info[1], info[3], info[30], info[4], info[27], info[33], info[2], info[23], info[26], info[11], info[15], info[16], info[18], info[19], info[20], info[21], info[22], info[13], info[12], info[14], info[14], htmlfilelist, info[6], info[35], info[36], info[37], info[38], info[39], info[40], info[5], info[7], info[8], info[9], info[10], info[17], info[24])
 

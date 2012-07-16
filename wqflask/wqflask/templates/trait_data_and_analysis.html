@@ -3112,7 +3112,11 @@
       </td>
     </tr>
 
-	<script type="text/javascript" src="/static/new/packages/DataTables/js/trait_data_and_analysis.js"></script>
+	<script>
+		basic_table = {{ basic_table | safe }}
+	</script>
+
+	<script type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="/static/new/javascript/trait_data_and_analysis.js"></script>
 
 

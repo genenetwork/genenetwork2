@@ -55,6 +55,66 @@ $ ->
                 the_values.push(parseFloat(real_value))
         mean(the_values)
 
+    make_table = ->
+        header = "<thead><tr>"
+        for column in basic_table['columns']
+            the_id = process_id("column_" + column)
+            header += """<th id="#{ the_id }">#{ column }</th>"""
+        header += "</thead>"
+
+        rows = [
+                {
+                    vn: "n_of_samples"
+                    pretty: "N of Samples"
+                },
+                {
+                    vn: "mean"
+                    pretty: "Mean"
+                },
+                {
+                    vn: "median"
+                    pretty: "median"
+                },
+                {
+                    vn: "se"
+                    pretty: "Standard Error (SE)"
+                }
+        ]
+
+        console.log("rows are:", rows)
+        the_rows = "<tbody>"
+        console.log("length of rows:", rows.length)
+        for row in rows
+            console.log("rowing")
+            #row_line = key
+            row_line = """<tr><td id="#{ row.vn  }">#{ row.pretty }</td></tr>"""
+            console.log("row line:", row_line)
+            the_rows += row_line
+        the_rows += "</tbody>"
+
+
+        #                                  - N of Samples
+        #                                  - Mean
+        #                                  - Median
+        #                                  - Standard Error (SE)
+        #                                  - Standard Deviation (SD)
+        #                                  - Minimum
+        #                                  - Maximum
+        #                                  - Range (log2)
+        #                                  - Range (fold)
+        #                                  - Interquartile Range
+        #                                  """)
+
+        console.log("header:", header)
+        console.log("the_rows:", the_rows)
+
+    process_id = (value) ->
+        ### Make an id or a class valid javascript by, for example, eliminating spaces ###
+        value = value.replace(" ", "_")
+        return value
 
     $('#primary').change(edit_data_change)
     console.log("loaded")
+    console.log("basic_table is:", basic_table)
+    make_table()
+    console.log("end")

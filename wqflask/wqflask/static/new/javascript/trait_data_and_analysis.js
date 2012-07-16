@@ -9,7 +9,7 @@
   };
 
   $(function() {
-    var edit_data_change, hide_tabs, mean, stats_mdp_change;
+    var edit_data_change, hide_tabs, make_table, mean, process_id, stats_mdp_change;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -67,8 +67,56 @@
       }
       return mean(the_values);
     };
+    make_table = function() {
+      var column, header, row, row_line, rows, the_id, the_rows, _i, _j, _len, _len1, _ref;
+      header = "<thead><tr>";
+      _ref = basic_table['columns'];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        column = _ref[_i];
+        the_id = process_id("column_" + column);
+        header += "<th id=\"" + the_id + "\">" + column + "</th>";
+      }
+      header += "</thead>";
+      rows = [
+        {
+          vn: "n_of_samples",
+          pretty: "N of Samples"
+        }, {
+          vn: "mean",
+          pretty: "Mean"
+        }, {
+          vn: "median",
+          pretty: "median"
+        }, {
+          vn: "se",
+          pretty: "Standard Error (SE)"
+        }
+      ];
+      console.log("rows are:", rows);
+      the_rows = "<tbody>";
+      console.log("length of rows:", rows.length);
+      for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
+        row = rows[_j];
+        console.log("rowing");
+        row_line = "<tr><td id=\"" + row.vn + "\">" + row.pretty + "</td></tr>";
+        console.log("row line:", row_line);
+        the_rows += row_line;
+      }
+      the_rows += "</tbody>";
+      console.log("header:", header);
+      return console.log("the_rows:", the_rows);
+    };
+    process_id = function(value) {
+      /* Make an id or a class valid javascript by, for example, eliminating spaces
+      */
+      value = value.replace(" ", "_");
+      return value;
+    };
     $('#primary').change(edit_data_change);
-    return console.log("loaded");
+    console.log("loaded");
+    console.log("basic_table is:", basic_table);
+    make_table();
+    return console.log("end");
   });
 
 }).call(this);
