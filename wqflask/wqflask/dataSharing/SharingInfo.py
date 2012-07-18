@@ -29,10 +29,18 @@ from __future__ import print_function, division
 from pprint import pformat as pf
 from collections import namedtuple
 
-import httplib
+import requests
 
 from dbFunction import webqtlDatabaseFunction
 import SharingBody
+
+import logging
+logging.basicConfig(filename="/tmp/flask_gn_log", level=logging.INFO)
+
+_log = logging.getLogger("search")
+_ch = logging.StreamHandler()
+_log.addHandler(_ch)
+
 
 
 #########################################
@@ -62,29 +70,33 @@ class SharingInfo(object):
 
         # We can use string interpolation here cause we own the string
         sql = """select %s from InfoFiles where """ % (field_names)
-        if(self.GN_AccessionId):
+        if self.GN_AccessionId:
             sql += "GN_AccesionId = %s"
             cursor.execute(sql, self.GN_AccessionId)
-        elif (self.InfoPageName):
+        elif self.InfoPageName:
             sql += "InfoPageName = %s"
             cursor.execute(sql, self.InfoPageName)
         else:
-            raise 'No correct parameter found'
+            raise Exception('No correct parameter found')
         info = cursor.fetchone()
 
         info = todict(field_names, info)
 
         # fetch datasets file list
-        try:
-            conn = httplib.HTTPConnection("atlas.uthsc.edu")
-            conn.request("GET", "/scandatasets.php?GN_AccesionId=%s" % (info[32]))
-            response = conn.getresponse()
-            data = response.read()
-            filelist = data.split()
-            conn.close()
-        except Exception:
-            filelist = []
+        filelist = []
+        if info["GN_AccesionId"]:
+            url = "http://atlas.uthsc.edu/scandatasets.php?GN_AccesionId=%s" % (
+                info["GN_AccesionId"])
+            try:
+                response = requests.get(url)
+            except Exception as why:
+                log.exception("Problem conneting to:", url)
+            if response:
+                data = response.text
+                filelist = data.split()
+
         return info, filelist
+
 
     def getBody(self, infoupdate=""):
         info, filelist = self.getInfo()
@@ -99,16 +111,16 @@ class SharingInfo(object):
                     htmlfilelist += '&nbsp;&nbsp;&nbsp;'
                     #r=re.compile(r'(?<=\d)(?=(\d\d\d)+(?!\d))')
                     #htmlfilelist += '[%s&nbsp;B]' % r.sub(r',',filesize)
-                    if 12<len(filesize):
+                    if 12 < len(filesize):
                         filesize=filesize[0:-12]
                         filesize += ' T'
-                    elif 9<len(filesize):
+                    elif 9 < len(filesize):
                         filesize=filesize[0:-9]
                         filesize += ' G'
-                    elif 6<len(filesize):
+                    elif 6 < len(filesize):
                         filesize=filesize[0:-6]
                         filesize += ' M'
-                    elif 3<len(filesize):
+                    elif 3 < len(filesize):
                         filesize=filesize[0:-3]
                         filesize += ' K'
                     htmlfilelist += '[%sB]' % filesize

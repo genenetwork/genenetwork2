@@ -68,8 +68,8 @@
       return mean(the_values);
     };
     make_table = function() {
-      var column, header, row, row_line, rows, the_id, the_rows, _i, _j, _len, _len1, _ref;
-      header = "<thead><tr>";
+      var column, header, row, row_line, rows, table, the_id, the_rows, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+      header = "<thead><tr><th>&nbsp;</th>";
       _ref = basic_table['columns'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         column = _ref[_i];
@@ -86,7 +86,7 @@
           pretty: "Mean"
         }, {
           vn: "median",
-          pretty: "median"
+          pretty: "Median"
         }, {
           vn: "se",
           pretty: "Standard Error (SE)"
@@ -98,17 +98,29 @@
       for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
         row = rows[_j];
         console.log("rowing");
-        row_line = "<tr><td id=\"" + row.vn + "\">" + row.pretty + "</td></tr>";
+        row_line = "<tr>";
+        row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
+        _ref1 = basic_table['columns'];
+        for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+          column = _ref1[_k];
+          console.log("apple:", column);
+          the_id = process_id(column + "_" + row.vn);
+          console.log("the_id:", the_id);
+          row_line += "<td id=\"" + the_id + "\">&nbsp;</td>";
+        }
+        row_line += "</tr>";
         console.log("row line:", row_line);
         the_rows += row_line;
       }
       the_rows += "</tbody>";
-      console.log("header:", header);
-      return console.log("the_rows:", the_rows);
+      table = header + the_rows;
+      console.log("table is:", table);
+      return $("#stats_table").append(table);
     };
     process_id = function(value) {
       /* Make an id or a class valid javascript by, for example, eliminating spaces
       */
+      console.log("value:", value);
       value = value.replace(" ", "_");
       return value;
     };

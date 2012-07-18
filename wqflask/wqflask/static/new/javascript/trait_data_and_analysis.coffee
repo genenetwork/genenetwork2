@@ -56,7 +56,7 @@ $ ->
         mean(the_values)
 
     make_table = ->
-        header = "<thead><tr>"
+        header = "<thead><tr><th>&nbsp;</th>"
         for column in basic_table['columns']
             the_id = process_id("column_" + column)
             header += """<th id="#{ the_id }">#{ column }</th>"""
@@ -73,7 +73,7 @@ $ ->
                 },
                 {
                     vn: "median"
-                    pretty: "median"
+                    pretty: "Median"
                 },
                 {
                     vn: "se"
@@ -86,30 +86,26 @@ $ ->
         console.log("length of rows:", rows.length)
         for row in rows
             console.log("rowing")
-            #row_line = key
-            row_line = """<tr><td id="#{ row.vn  }">#{ row.pretty }</td></tr>"""
+            row_line = """<tr>"""
+            row_line += """<td id="#{ row.vn  }">#{ row.pretty }</td>"""
+            for column in basic_table['columns']
+                console.log("apple:", column)
+                the_id = process_id(column + "_" + row.vn)
+                console.log("the_id:", the_id)
+                row_line += """<td id="#{ the_id }">&nbsp;</td>"""
+            row_line += """</tr>"""
             console.log("row line:", row_line)
             the_rows += row_line
         the_rows += "</tbody>"
+        table = header + the_rows
+        console.log("table is:", table)
+        $("#stats_table").append(table)
 
 
-        #                                  - N of Samples
-        #                                  - Mean
-        #                                  - Median
-        #                                  - Standard Error (SE)
-        #                                  - Standard Deviation (SD)
-        #                                  - Minimum
-        #                                  - Maximum
-        #                                  - Range (log2)
-        #                                  - Range (fold)
-        #                                  - Interquartile Range
-        #                                  """)
-
-        console.log("header:", header)
-        console.log("the_rows:", the_rows)
 
     process_id = (value) ->
         ### Make an id or a class valid javascript by, for example, eliminating spaces ###
+        console.log("value:", value)
         value = value.replace(" ", "_")
         return value
 
