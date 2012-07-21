@@ -58,8 +58,9 @@ $ ->
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"
         for column in basic_table['columns']
-            the_id = process_id("column_" + column)
-            header += """<th id="#{ the_id }">#{ column }</th>"""
+            console.log("column:", column)
+            the_id = process_id("column", column.t)
+            header += """<th id="#{ the_id }">#{ column.n }</th>"""
         header += "</thead>"
 
         rows = [
@@ -90,7 +91,7 @@ $ ->
             row_line += """<td id="#{ row.vn  }">#{ row.pretty }</td>"""
             for column in basic_table['columns']
                 console.log("apple:", column)
-                the_id = process_id(column + "_" + row.vn)
+                the_id = process_id(column.t, row.vn)
                 console.log("the_id:", the_id)
                 row_line += """<td id="#{ the_id }">&nbsp;</td>"""
             row_line += """</tr>"""
@@ -103,11 +104,16 @@ $ ->
 
 
 
-    process_id = (value) ->
+    process_id = (values...) ->
         ### Make an id or a class valid javascript by, for example, eliminating spaces ###
-        console.log("value:", value)
-        value = value.replace(" ", "_")
-        return value
+        processed = ""
+        for value in values
+            console.log("value:", value)
+            value = value.replace(" ", "_")
+            if processed.length
+                processed += ":"
+            processed += value
+        return processed
 
     $('#primary').change(edit_data_change)
     console.log("loaded")

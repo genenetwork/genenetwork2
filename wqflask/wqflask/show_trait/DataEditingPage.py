@@ -227,9 +227,15 @@ class DataEditingPage(templatePage):
         #                                  """)
 
         self.basic_table['columns'] = yaml.load("""
-                                                - All Cases
-                                                - BXD Only
-                                                - Non-BXD Only
+                                                -
+                                                    n: All Cases
+                                                    t: all
+                                                -
+                                                    n: BXD Only
+                                                    t: primary
+                                                -
+                                                    n: Non-BXD Only
+                                                    t: other
                                                 """)
 
         print(pf(self.basic_table))
