@@ -52,18 +52,17 @@
         console.log("aab");
         if (the_mean !== current_mean) {
           console.log("setting mean");
-          $(id).html(the_mean);
+          $(id).html(the_mean).effect("highlight");
           console.log("should be set");
         }
-        if (current_mean && the_mean !== current_mean) {
-          $(id).effect("highlight");
-        }
         n_of_samples = the_values[category].length;
-        current_n_of_samples = $("#n_of_samples_value").html();
+        id = "#" + process_id(category, "n_of_samples");
+        console.log("n_of_samples id:", id);
+        current_n_of_samples = $(id).html();
         console.log("cnos:", current_n_of_samples);
         console.log("n_of_samples:", n_of_samples);
         if (n_of_samples !== current_n_of_samples) {
-          _results.push($("#n_of_samples_value").html(current_n_of_samples).effect("highlight"));
+          _results.push($(id).html(n_of_samples).effect("highlight"));
         } else {
           _results.push(void 0);
         }
