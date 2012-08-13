@@ -21,7 +21,7 @@ $ ->
     $(".stats_mdp").change(stats_mdp_change)
 
 
-    mean = (the_values)->
+    update_stat_values = (the_values)->
         for category in ['primary', 'other', 'all']
             id = "#" + process_id(category, "mean")
             console.log("id:", id)
@@ -80,7 +80,7 @@ $ ->
                     the_values.other.push(real_value)
                 the_values.all.push(real_value)
         console.log("torwads end:", the_values)
-        mean(the_values)
+        update_stat_values(the_values)
 
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"

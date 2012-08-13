@@ -10,7 +10,7 @@
   };
 
   $(function() {
-    var edit_data_change, hide_tabs, make_table, mean, process_id, stats_mdp_change;
+    var edit_data_change, hide_tabs, make_table, process_id, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -27,7 +27,7 @@
       return $("#stats_tabs" + selected).show();
     };
     $(".stats_mdp").change(stats_mdp_change);
-    mean = function(the_values) {
+    update_stat_values = function(the_values) {
       var category, current_mean, current_n_of_samples, id, in_box, n_of_samples, the_mean, total, value, _i, _j, _len, _len1, _ref, _ref1, _results;
       _ref = ['primary', 'other', 'all'];
       _results = [];
@@ -102,7 +102,7 @@
         }
       }
       console.log("torwads end:", the_values);
-      return mean(the_values);
+      return update_stat_values(the_values);
     };
     make_table = function() {
       var column, header, row, row_line, rows, table, the_id, the_rows, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
