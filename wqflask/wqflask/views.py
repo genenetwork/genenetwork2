@@ -52,7 +52,10 @@ def search():
         return render_template("search_result_page.html", **the_search.__dict__)
 
 
-
+@app.route("/whats_new")
+def whats_new():
+    #variables = whats_new.whats_new()
+    return render_template("whats_new.html")
 
 @app.route("/showDatabaseBXD")
 def showDatabaseBXD():
