@@ -12,7 +12,11 @@
                 <P class="title">Latest Updates and News from Genenetwork  <A HREF="/webqtl/main.py?FormID=editHtml"><img src="/images/modify.gif" alt="modify this page" border= 0 valign="middle"></A></P>
 
 
-            This is where we will keep what's new
+                {% for news_item in news_items %}
+                    <h4>{{ news_item.title }} ({{ news_item.date }})</h4>
+                    {{ news_item.details | safe }}
+                    <br /><br />
+                {% endfor %}
 
             <p />
 
