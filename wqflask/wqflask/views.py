@@ -19,6 +19,7 @@ print("latest blue")
 
 @app.route("/")
 def index_page():
+    print("Sending index_page")
     return render_template("index_page.html")
 
 

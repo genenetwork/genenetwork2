@@ -28,6 +28,8 @@ from __future__ import print_function, division
 
 from pprint import pformat as pf
 
+import urlparse
+
 import flask
 
 from base.templatePage import templatePage
@@ -54,7 +56,7 @@ class SharingInfoPage(templatePage):
             sql = "select GN_AccesionId from InfoFiles where InfoPageName = %s"
             cursor.execute(sql, InfoPageName)
             GN_AccessionId = cursor.fetchone()
-            self.redirect_url = "http://23.21.59.238:5001/data_sharing?GN_AccessionId=%s" % GN_AccessionId
+            self.redirect_url = urlparse.urljoin(webqtlConfig.ROOT_URL, "/data_sharing?GN_AccessionId=%s" % GN_AccessionId)
             #self.redirect_url = flask.url_for('data_sharing', GN_AccessionId=GN_AccessionId[0])
             print("set self.redirect_url")
             #print("before redirect")
