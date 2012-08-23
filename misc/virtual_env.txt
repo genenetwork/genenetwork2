@@ -1,0 +1,1 @@
+source ~/ve27/bin/activate

@@ -1,0 +1,6 @@
+byobu -RD
+control-a then :multiuser on
+control-a then :acladd sam
+
+type: screen -list for sessions
+screen -r sam/27189.byobu
