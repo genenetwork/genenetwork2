@@ -9,6 +9,10 @@ from utility import formatting
 
 app = Flask(__name__)
 
+# See http://flask.pocoo.org/docs/config/#configuring-from-files
+app.config.from_object('cfg.default_settings')
+app.config.from_envvar('WQFLASK_SETTINGS')
+
 app.jinja_env.globals.update(
     numify = formatting.numify
 )
