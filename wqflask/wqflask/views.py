@@ -15,6 +15,8 @@ from base import webqtlFormData
 
 from pprint import pformat as pf
 
+import yaml
+
 print("latest blue")
 
 @app.route("/")
@@ -53,7 +55,16 @@ def search():
         return render_template("search_result_page.html", **the_search.__dict__)
 
 
-
+@app.route("/whats_new")
+def whats_new():
+    #variables = whats_new.whats_new()
+    with open("/home/sam/gene/wqflask/wqflask/yaml_data/whats_new.yaml") as fh:
+        contents = fh.read()
+        yamilized = yaml.safe_load(contents)
+        news_items = yamilized['news']
+    for news_item in news_items:
+        print("\nnews_item is: %s\n" % (news_item))
+    return render_template("whats_new.html", news_items=news_items)
 
 @app.route("/showDatabaseBXD")
 def showDatabaseBXD():

@@ -36,7 +36,7 @@ from utility import webqtlUtil
 from dbFunction import webqtlDatabaseFunction
 
 import logging
-logging.basicConfig(filename="/tmp/flask_gn_log", level=logging.INFO)
+logging.basicConfig(filename=app.config['LOGFILE'], level=logging.INFO)
 
 _log = logging.getLogger("search")
 _ch = logging.StreamHandler()
