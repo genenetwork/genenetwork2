@@ -141,6 +141,22 @@ $ ->
                 processed += "-"
             processed += value
         return processed
+    
+    
+    show_hide_outliers = ->
+        console.log("FOOBAR in beginning of show_hide_outliers")
+        label = $('#show_hide_outliers').val()
+        console.log("lable is:", label)
+        if label == "Hide Outliers"
+            $('#show_hide_outliers').val("Show Outliers")
+        else if label == "Show Outliers"
+            console.log("Found Show Outliers")
+            $('#show_hide_outliers').val("Hide Outliers")
+            console.log("Should be now Hide Outliers")
+        
+    console.log("before registering show_hide_outliers")
+    $('#show_hide_outliers').click(show_hide_outliers)
+    console.log("after registering show_hide_outliers")
 
     _.mixin(_.str.exports());  # Add string fuctions directly to underscore
     $('#value_table').change(edit_data_change)

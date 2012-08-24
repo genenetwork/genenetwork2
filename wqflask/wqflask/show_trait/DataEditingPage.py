@@ -1694,75 +1694,38 @@ class DataEditingPage(templatePage):
         mainForm = None # Just trying to get things working
         primary_strains = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=allstrainlist_neworder, mainForm=mainForm, thisTrait=thisTrait, other_strainsExist=other_strainsExist, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='primary')
 
-        #primary_table.append(primary_header)
-        #for i in range(len(primary_body)):
-        #    print("hji")
-        #    pass
-            #primary_table.append(primary_body[i])
-
         other_strains = []
         for strain in thisTrait.data.keys():
             print("hjk - strain is:", strain)
-            if strain not in allstrainlist_neworder:
-                #pass
+            if strain not in allstrainlist_neworder + fd.f1list + fd.parlist:
                 allstrainlist_neworder.append(strain)
                 other_strains.append(strain)
 
         if other_strains:
-            #other_table = HT.TableLite(cellspacing=0, cellpadding=0, Id="sortable2", Class="tablesorter") #Table object with other (for example, non-BXD / MDP) traits
-            #other_header = self.getTableHeader(fd=fd, thisTrait=thisTrait, nCols=nCols, attribute_names=attribute_names) #Generate header for other table object; same function is used as the one used for the primary table, since the header is the same
+            unappended_par_f1 = fd.f1list + fd.parlist
+            par_f1_strains = ["_2nd_" + strain for strain in unappended_par_f1]
+            
             other_strains.sort() #Sort other strains
-            other_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + other_strains #Append F1 and parent strains to the beginning of the sorted list of other strains
+            other_strains = par_f1_strains + other_strains
 
-            #MDPText = HT.Span("Samples:", Class="ffl fwb fs12")
-            #MDPMenu1 = HT.Select(name='MDPChoice1')
-            #MDPMenu2 = HT.Select(name='MDPChoice2')
-            #MDPMenu3 = HT.Select(name='MDPChoice3')
-            #MDPMenu1.append(('%s Only' % fd.RISet,'1'))
-            #MDPMenu2.append(('%s Only' % fd.RISet,'1'))
-            #MDPMenu3.append(('%s Only' % fd.RISet,'1'))
-            #MDPMenu1.append(('Non-%s Only' % fd.RISet,'2'))
-            #MDPMenu2.append(('Non-%s Only' % fd.RISet,'2'))
-            #MDPMenu3.append(('Non-%s Only' % fd.RISet,'2'))
-            #MDPMenu1.append(('All Cases','0'))
-            #MDPMenu2.append(('All Cases','0'))
-            #MDPMenu3.append(('All Cases','0'))
-            #self.MDPRow1.append(HT.TD(MDPText),HT.TD(MDPMenu1))
-            #self.MDPRow2.append(HT.TD(MDPText),HT.TD(MDPMenu2))
-            #self.MDPRow3.append(HT.TD(MDPText),HT.TD(MDPMenu3))
-
-            other_strains = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=other_strains, mainForm=mainForm, thisTrait=thisTrait, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='other')
-
-            #other_table.append(other_header)
-            #for i in range(len(other_body)):
-            #    print("hjn")
-            #    pass
-                #other_table.append(other_body[i])
-        else:
-            pass
+            other_strains = self.addTrait2Table(fd=fd,
+                                                varianceDataPage=varianceDataPage,
+                                                strainlist=other_strains,
+                                                mainForm=mainForm,
+                                                thisTrait=thisTrait,
+                                                attribute_ids=attribute_ids,
+                                                attribute_names=attribute_names,
+                                                strains='other')
 
         if other_strains or (fd.f1list and thisTrait.data.has_key(fd.f1list[0])) \
                 or (fd.f1list and thisTrait.data.has_key(fd.f1list[1])):
             print("hjs")
             fd.allstrainlist = allstrainlist_neworder
 
-        ## We put isSE into hddn
-        #if nCols == 6 and fd.varianceDispName != 'Variance':
-        #    #mainForm.append(HT.Input(name='isSE', value="yes", type='hidden'))
-        #    hddn['isSE'] = "yes"
-
-        #primary_div = HT.Div(primary_table, Id="primary") #Container for table with primary (for example, BXD) strain values
-        #container.append(primary_div)
-
-        #if other_strains:
-        #    other_div = HT.Div(other_table, Id="other") #Container for table with other (for example, Non-BXD/MDP) strain values
-            #container.append(HT.Div('&nbsp;', height=30))
-            #container.append(other_div)
 
         self.primary_strains = primary_strains
         self.other_strains = other_strains
-        #table.append(HT.TR(HT.TD(container)))
-        #title5Body.append(table)
+
 
     def addTrait2Table(self, fd, varianceDataPage, strainlist, mainForm, thisTrait, other_strainsExist=None, attribute_ids=[], attribute_names=[], strains='primary'):
         #XZ, Aug 23, 2010: I commented the code related to the display of animal case

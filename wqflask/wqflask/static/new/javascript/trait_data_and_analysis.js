@@ -10,7 +10,7 @@
   };
 
   $(function() {
-    var edit_data_change, hide_tabs, make_table, process_id, stats_mdp_change, update_stat_values;
+    var edit_data_change, hide_tabs, make_table, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -173,6 +173,22 @@
       }
       return processed;
     };
+    show_hide_outliers = function() {
+      var label;
+      console.log("FOOBAR in beginning of show_hide_outliers");
+      label = $('#show_hide_outliers').val();
+      console.log("lable is:", label);
+      if (label === "Hide Outliers") {
+        return $('#show_hide_outliers').val("Show Outliers");
+      } else if (label === "Show Outliers") {
+        console.log("Found Show Outliers");
+        $('#show_hide_outliers').val("Hide Outliers");
+        return console.log("Should be now Hide Outliers");
+      }
+    };
+    console.log("before registering show_hide_outliers");
+    $('#show_hide_outliers').click(show_hide_outliers);
+    console.log("after registering show_hide_outliers");
     _.mixin(_.str.exports());
     $('#value_table').change(edit_data_change);
     console.log("loaded");
