@@ -1584,13 +1584,6 @@ class DataEditingPage(templatePage):
     ##########################################
     def dispTraitValues(self, fd, varianceDataPage, nCols, thisTrait):
         print("in dispTraitValues")
-        #traitTableOptions = HT.Div(style="border: 3px solid #EEEEEE; -moz-border-radius: 10px; -webkit-border-radius: 10px; width: 625px; padding: 5px 5px 10px 8px; font-size: 12px; background: #DDDDDD;")
-        #resetButton = HT.Input(type='button',name='resetButton',value=' Reset ',Class="button")
-        #blockSamplesField = HT.Input(type="text",style="background-color:white;border: 1px solid black;font-size: 14px;", name="removeField")
-        #blockSamplesButton = HT.Input(type='button',value=' Block ', name='blockSamples', Class="button")
-        #showHideNoValue = HT.Input(type='button', name='showHideNoValue', value=' Hide No Value ',Class='button')
-        #blockMenuSpan = HT.Span(Id="blockMenuSpan")
-        #blockMenu = HT.Select(name='block_method')
 
         if fd.genotype.type == "riset":
             allstrainlist_neworder = fd.f1list + fd.strainlist
@@ -1599,55 +1592,57 @@ class DataEditingPage(templatePage):
 
         attribute_ids = []
         attribute_names = []
-        try:
-            #ZS: Id values for this trait's extra attributes; used to create "Exclude" dropdown and query for attribute values and create
-            self.cursor.execute("""SELECT CaseAttribute.Id, CaseAttribute.Name
+        #try:
+        #ZS: Id values for this trait's extra attributes; used to create "Exclude" dropdown and query for attribute values and create
+        self.cursor.execute("""SELECT CaseAttribute.Id, CaseAttribute.Name
+                                        FROM CaseAttribute, CaseAttributeXRef
+                                WHERE CaseAttributeXRef.ProbeSetFreezeId = %s AND
+                                        CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
+                                        group by CaseAttributeXRef.CaseAttributeId""",
+                                        (str(thisTrait.db.id),))
+
+        #exclude_menu = HT.Select(name="exclude_menu")
+        #dropdown_menus = [] #ZS: list of dropdown menus with the distinct values of each attribute (contained in DIVs so the style parameter can be edited and they can be hidden)
+
+        #for attribute in self.cursor.fetchall():
+        #    #attribute_ids.append(attribute[0])
+        #    #attribute_names.append(attribute[1])
+        #    pass
+        for this_attr_name in attribute_names:
+            #exclude_menu.append((this_attr_name.capitalize(), this_attr_name))
+            # Todo: Needs testing still!
+            self.cursor.execute("""SELECT DISTINCT CaseAttributeXRef.Value
                                             FROM CaseAttribute, CaseAttributeXRef
-                                    WHERE CaseAttributeXRef.ProbeSetFreezeId = '%s' AND
-                                            CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
-                                            group by CaseAttributeXRef.CaseAttributeId""" % (str(thisTrait.db.id)))
+                                            WHERE CaseAttribute.Name = %s AND
+                                    CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id""",
+                                    (this_attr_name,))
+            #try:
+            distinct_values = self.cursor.fetchall()
+            #attr_value_menu_div = HT.Div(style="display:none;", Class="attribute_values") #container used to show/hide dropdown menus
+            #attr_value_menu = HT.Select(name=this_attr_name)
+            #attr_value_menu.append(("None", "show_all"))
+            #for value in distinct_values:
+            #    #attr_value_menu.append((str(value[0]), value[0]))
+            #    pass
+            #attr_value_menu_div.append(attr_value_menu)
+            #dropdown_menus.append(attr_value_menu_div)
+            #except:
+            #    pass
+        #except:
+        #    pass
 
-            exclude_menu = HT.Select(name="exclude_menu")
-            dropdown_menus = [] #ZS: list of dropdown menus with the distinct values of each attribute (contained in DIVs so the style parameter can be edited and they can be hidden)
-
-            for attribute in self.cursor.fetchall():
-                #attribute_ids.append(attribute[0])
-                #attribute_names.append(attribute[1])
-                pass
-            for this_attr_name in attribute_names:
-                #exclude_menu.append((this_attr_name.capitalize(), this_attr_name))
-                self.cursor.execute("""SELECT DISTINCT CaseAttributeXRef.Value
-                                                FROM CaseAttribute, CaseAttributeXRef
-                                                WHERE CaseAttribute.Name = '%s' AND
-                                                        CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id""" % (this_attr_name))
-                try:
-                    distinct_values = self.cursor.fetchall()
-                    attr_value_menu_div = HT.Div(style="display:none;", Class="attribute_values") #container used to show/hide dropdown menus
-                    attr_value_menu = HT.Select(name=this_attr_name)
-                    #attr_value_menu.append(("None", "show_all"))
-                    for value in distinct_values:
-                        #attr_value_menu.append((str(value[0]), value[0]))
-                        pass
-                    #attr_value_menu_div.append(attr_value_menu)
-                    #dropdown_menus.append(attr_value_menu_div)
-                except:
-                    pass
-        except:
-            pass
-
-        other_strains = []
-        for strain in thisTrait.data.keys():
-            if strain not in allstrainlist_neworder:
-                pass
-                #other_strains.append(strain)
-
-        if other_strains:
-            #blockMenu.append(('%s Only' % fd.RISet,'1'))
-            #blockMenu.append(('Non-%s Only' % fd.RISet,'0'))
-            #blockMenuSpan.append(blockMenu)
-            pass
-        else:
-            pass
+        #for strain in thisTrait.data.keys():
+        #    if strain not in allstrainlist_neworder:
+        #        pass
+        #        #other_strains.append(strain)
+        #
+        #if other_strains:
+        #    #blockMenu.append(('%s Only' % fd.RISet,'1'))
+        #    #blockMenu.append(('Non-%s Only' % fd.RISet,'0'))
+        #    #blockMenuSpan.append(blockMenu)
+        #    pass
+        #else:
+        #    pass
 
         #showHideOutliers = HT.Input(type='button', name='showHideOutliers', value=' Hide Outliers ', Class='button')
         #showHideMenuOptions = HT.Span(Id="showHideOptions", style="line-height:225%;")
@@ -1659,8 +1654,8 @@ class DataEditingPage(templatePage):
             #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;"), blockSamplesField, "&nbsp;&nbsp;&nbsp;", blockSamplesButton, HT.BR())
 
         #exportButton = HT.Input(type='button', name='export', value=' Export ', Class='button')
-        if len(attribute_names) > 0:
-            excludeButton = HT.Input(type='button', name='excludeGroup', value=' Block ', Class='button')
+        #if len(attribute_names) > 0:
+        #    excludeButton = HT.Input(type='button', name='excludeGroup', value=' Block ', Class='button')
             #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by group:"), "&nbsp;"*5, exclude_menu, "&nbsp;"*5)
             #for menu in dropdown_menus:
             #    pass
@@ -1684,15 +1679,30 @@ class DataEditingPage(templatePage):
         #primary_table = HT.TableLite(cellspacing=0, cellpadding=0, Id="sortable1", Class="tablesorter")
         #primary_header = self.getTableHeader(fd=fd, thisTrait=thisTrait, nCols=nCols, attribute_names=attribute_names) #Generate header for primary table object
 
-        other_strainsExist = False
-        for strain in thisTrait.data.keys():
-            print("hjl - strain is:", strain)
-            if strain not in allstrainlist_neworder:
-                other_strainsExist = True
-                break
+        #other_strainsExist = False
+        this_trait_strains = set(thisTrait.data.keys())
+        #ZS - Checks if there are any strains in this_trait_strains that aren't in allstrainlist_neworder
+        other_strainsExist = this_trait_strains - set(allstrainlist_neworder)
+        
+        #for strain in thisTrait.data.keys():
+        #    print("hjl - strain is:", strain)
+        #    if strain not in allstrainlist_neworder:
+        #        other_strainsExist = True
+        #        break
 
         mainForm = None # Just trying to get things working
-        primary_strains = self.addTrait2Table(fd=fd, varianceDataPage=varianceDataPage, strainlist=allstrainlist_neworder, mainForm=mainForm, thisTrait=thisTrait, other_strainsExist=other_strainsExist, attribute_ids=attribute_ids, attribute_names=attribute_names, strains='primary')
+
+        primary_strainlist = fd.parlist + allstrainlist_neworder
+
+        primary_strains = self.addTrait2Table(fd=fd,
+                                              varianceDataPage=varianceDataPage,
+                                              strainlist=primary_strainlist,
+                                              mainForm=mainForm,
+                                              thisTrait=thisTrait,
+                                              other_strainsExist=other_strainsExist,
+                                              attribute_ids=attribute_ids,
+                                              attribute_names=attribute_names,
+                                              strains='primary')
 
         other_strains = []
         for strain in thisTrait.data.keys():
@@ -1727,7 +1737,9 @@ class DataEditingPage(templatePage):
         self.other_strains = other_strains
 
 
-    def addTrait2Table(self, fd, varianceDataPage, strainlist, mainForm, thisTrait, other_strainsExist=None, attribute_ids=[], attribute_names=[], strains='primary'):
+    def addTrait2Table(self, fd, varianceDataPage, strainlist, mainForm, thisTrait,
+                       other_strainsExist=None, attribute_ids=[],
+                       attribute_names=[], strains='primary'):
         #XZ, Aug 23, 2010: I commented the code related to the display of animal case
         #strainInfo = thisTrait.has_key('strainInfo') and thisTrait.strainInfo
         print("in addTrait2Table")
