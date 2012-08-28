@@ -24,28 +24,59 @@
 #
 # Last updated by GeneNetwork Core Team 2010/10/20
 
-class webqtlCaseData:
+print("Mr. Mojo Risin 2")
+
+class webqtlCaseData(object):
+    """one case data in one trait
+    
     """
-    one case data in one trait
-    """
 
-    val = None              #Trait Value
-    var = None              #Trait Variance
-    N   = None              #Number of individuals
+    def __init__(self, name, value=None, variance=None, num_cases=None):
+        self.name = name
+        self.value = value                  # Trait Value
+        self.variance = variance            # Trait Variance
+        self.num_cases = num_cases          # Number of individuals/cases
+        self.this_id = None   # Set a sane default (can't be just "id" cause that's a reserved word)
 
-    def __init__(self, val=val, var=var, N=N):
-        self.val = val
-        self.var = var
-        self.N = N
-
-    def __str__(self):
+    def __repr__(self):
         str = ""
-        if self.val != None:
-            str += "value=%2.3f" % self.val
-        if self.var != None:
-            str += " variance=%2.3f" % self.var
-        if self.N != None:
-            str += " ndata=%d" % self.N
+        if self.value != None:
+            str += "value=%2.3f" % self.value
+        if self.variance != None:
+            str += " variance=%2.3f" % self.variance
+        if self.num_cases != None:
+            str += " ndata=%d" % self.num_cases
         return str
+    
+    @property
+    def display_value(self):
+        if self.value:
+            return "%2.3f" % self.value
+        else:
+            return "x"
+        
+    @property
+    def display_variance(self):
+        if self.variance:
+            return "%2.3f" % self.variance
+        else:
+            return "x"
+        
+        
+              #try:
+                #    traitVar = thisvar
+                #    dispVar = "%2.3f" % thisvar
+                #except:
+                #    traitVar = ''
+                #    dispVar = 'x'
+        
+        #try:
+        #    traitVal = thisval
+        #    dispVal = "%2.3f" % thisval
+        #except:
+        #    traitVal = ''
+        #    dispVal = 'x'
 
-    __repr__ = __str__
+
+    #def this_val_full(self):
+    #    strain_name = 

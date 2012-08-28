@@ -225,7 +225,10 @@ class webqtlTrait:
 
 
 
-    def retrieveData(self, strainlist=[]):
+    def retrieveData(self, strainlist=None):
+        
+        if strainlist == None:
+            strainlist = []
         assert self.db and self.cursor
 
         if self.db.type == 'Temp':
@@ -328,32 +331,33 @@ class webqtlTrait:
         self.cursor.execute(query)
         results = self.cursor.fetchall()
         self.data.clear()
+        
         if results:
             self.mysqlid = results[0][-1]
-            if strainlist:
-                for item in results:
-                    if item[0] in strainlist:
-                        val = item[1]
-                        if val != None:
-                            var = item[2]
-                            ndata = None
-                            if self.db.type in ('Publish', 'Temp'):
-                                ndata = item[3]
-                            self.data[item[0]] = webqtlCaseData(val, var, ndata)
+            #if strainlist:
+            for item in results:
+                #name, value, variance, num_cases = item
+                if not strainlist or (strainlist and name in strainlist):
+                    #if value != None:
+                    #    num_cases = None
+                    #    if self.db.type in ('Publish', 'Temp'):
+                    #        ndata = item[3]
+                    name = item[0]
+                    self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
                 #end for
-            else:
-                for item in results:
-                    val = item[1]
-                    if val != None:
-                        var = item[2]
-                        ndata = None
-                        if self.db.type in ('Publish', 'Temp'):
-                            ndata = item[3]
-                        self.data[item[0]] = webqtlCaseData(val, var, ndata)
-                #end for
-            #end if
-        else:
-            pass
+        #    else:   
+        #        for item in results:
+        #            val = item[1]
+        #            if val != None:
+        #                var = item[2]
+        #                ndata = None
+        #                if self.db.type in ('Publish', 'Temp'):
+        #                    ndata = item[3]
+        #                self.data[item[0]] = webqtlCaseData(val, var, ndata)
+        #        #end for
+        #    #end if
+        #else:
+        #    pass
 
     def keys(self):
         return self.__dict__.keys()

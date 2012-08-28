@@ -161,24 +161,25 @@ class ShowTraitPage(DataEditingPage):
             thisTrait.returnURL = '%s&CellID=%s' % (thisTrait.returnURL, CellID)
 
         #retrieve trait information
-        try:
-            thisTrait.retrieveInfo()
-            thisTrait.retrieveData()
-            self.updMysql()
-            self.cursor.execute("insert into AccessLog(accesstime,ip_address) values(Now(),%s)", user_ip)
-            self.openMysql()
-        except Exception as why:
-            print("Got an exception:", why)
-            heading = "Retrieve Data"
-            detail = ["The information you requested is not avaiable at this time."]
-            self.error(heading=heading, detail=detail)
-            return
+        #try:
+        thisTrait.retrieveInfo()
+        thisTrait.retrieveData()
+        self.updMysql()
+        self.cursor.execute("insert into AccessLog(accesstime,ip_address) values(Now(),%s)", user_ip)
+        self.openMysql()
+        #except Exception as why:
+        #    print("Got an exception:", why)
+        #    heading = "Retrieve Data"
+        #    detail = ["The information you requested is not avaiable at this time."]
+        #    self.error(heading=heading, detail=detail)
+        #    return
 
         ##read genotype file
         fd.RISet = thisTrait.riset
         fd.readGenotype()
 
-        if webqtlUtil.ListNotNull(map(lambda x:x.var, thisTrait.data.values())):
+        #if webqtlUtil.ListNotNull(map(lambda x:x.var, thisTrait.data.values())):
+        if any([x.variance for x in thisTrait.data.values()]):
             fd.displayVariance = 1
             fd.varianceDispName = 'SE'
             fd.formID = 'varianceChoice'

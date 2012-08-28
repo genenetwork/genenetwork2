@@ -252,7 +252,12 @@ def FloatList2String(lst):
         return ""
 
 def ListNotNull(lst):
-    'Determine if the elements in a list are all null'
+    '''Obsolete - Use built in function any (or all or whatever)
+    
+    
+    Determine if the elements in a list are all null
+    
+    '''
     for item in lst:
         if item is not None:
             return 1

@@ -11,6 +11,7 @@ import yaml
 from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
+from base import webqtlCaseData
 from utility import webqtlUtil, Plot
 from base.webqtlTrait import webqtlTrait
 from dbFunction import webqtlDatabaseFunction
@@ -172,17 +173,17 @@ class DataEditingPage(templatePage):
         if thisTrait == None:
             thisTrait = webqtlTrait(data=fd.allTraitData, db=None)
 
-        # Variance submit page only
-        if fd.enablevariance and not varianceDataPage:
-            pass
-            #title2Body.append("Click the next button to go to the variance submission form.",
-            #        HT.Center(next,reset))
-        else:
-            pass
-            # We'll get this part working later
-            print("Calling dispBasicStatistics")
-            self.dispBasicStatistics(fd, thisTrait)
-            #self.dispMappingTools(fd, title4Body, thisTrait)
+        ## Variance submit page only
+        #if fd.enablevariance and not varianceDataPage:
+        #    pass
+        #    #title2Body.append("Click the next button to go to the variance submission form.",
+        #    #        HT.Center(next,reset))
+        #else:
+        #    pass
+        #    # We'll get this part working later
+        #    print("Calling dispBasicStatistics")
+        #    self.dispBasicStatistics(fd, thisTrait)
+        #    #self.dispMappingTools(fd, title4Body, thisTrait)
 
         #############################
         ##  Trait Value Table
@@ -892,13 +893,13 @@ class DataEditingPage(templatePage):
         for strain in thisTrait.data.keys():
             strainName = strain.replace("_2nd_", "")
             if strain not in strainlist:
-                if (thisTrait.data[strainName].val != None):
+                if thisTrait.data[strainName].value != None:
                     if strain.find('F1') < 0:
                         specialStrains.append(strain)
-                    if (thisTrait.data[strainName].val != None) and (strain not in (fd.f1list + fd.parlist)):
+                    if (thisTrait.data[strainName].value != None) and (strain not in (fd.f1list + fd.parlist)):
                         other_strains.append(strain) #XZ: at current stage, other_strains doesn't include parent strains and F1 strains of primary group
             else:
-                if (thisTrait.data[strainName].val != None) and (strain not in (fd.f1list + fd.parlist)):
+                if (thisTrait.data[strainName].value != None) and (strain not in (fd.f1list + fd.parlist)):
                     primary_strains.append(strain) #XZ: at current stage, the primary_strains is the same as fd.strainlist / ZS: I tried defining primary_strains as fd.strainlist instead, but in some cases it ended up including the parent strains (1436869_at BXD)
 
         if len(other_strains) > 3:
@@ -941,41 +942,58 @@ class DataEditingPage(templatePage):
             vals3 = []
 
             #Using all strains/cases for values
-            for i, strainNameOrig in enumerate(all_strains):
+            #for strain_type in (all_strains, primary_strains, other_strains):
+            for strainNameOrig in all_strains:
                 strainName = strainNameOrig.replace("_2nd_", "")
 
-                try:
-                    thisval = thisTrait.data[strainName].val
-                    thisvar = thisTrait.data[strainName].var
-                    thisValFull = [strainName, thisval, thisvar]
-                except:
-                    continue
+                #try:
+                print("* type of thisTrait:", type(thisTrait))
+                print("  name:", thisTrait.__class__.__name__)
+                print("  thisTrait:", thisTrait)
+                print("  type of thisTrait.data[strainName]:", type(thisTrait.data[strainName]))
+                print("  name:", thisTrait.data[strainName].__class__.__name__)
+                print("  thisTrait.data[strainName]:", thisTrait.data[strainName])
+                thisval = thisTrait.data[strainName].value
+                print("  thisval:", thisval)
+                thisvar = thisTrait.data[strainName].variance
+                print("  thisvar:", thisvar)
+                thisValFull = [strainName, thisval, thisvar]
+                print("  thisValFull:", thisValFull)
+                #except:
+                #    continue
 
                 vals1.append(thisValFull)
+                
+                
+            #vals1 = [[strainNameOrig.replace("_2nd_", ""),
+            #  thisTrait.data[strainName].val,
+            #  thisTrait.data[strainName].var]
+            #    for strainNameOrig in all_strains]]
+            #    
 
             #Using just the RISet strain
-            for i, strainNameOrig in enumerate(primary_strains):
+            for strainNameOrig in primary_strains:
                 strainName = strainNameOrig.replace("_2nd_", "")
 
-                try:
-                    thisval = thisTrait.data[strainName].val
-                    thisvar = thisTrait.data[strainName].var
-                    thisValFull = [strainName,thisval,thisvar]
-                except:
-                    continue
+                #try:
+                thisval = thisTrait.data[strainName].value
+                thisvar = thisTrait.data[strainName].variance
+                thisValFull = [strainName,thisval,thisvar]
+                #except:
+                #    continue
 
                 vals2.append(thisValFull)
 
             #Using all non-RISet strains only
-            for i, strainNameOrig in enumerate(other_strains):
+            for strainNameOrig in other_strains:
                 strainName = strainNameOrig.replace("_2nd_", "")
 
-                try:
-                    thisval = thisTrait.data[strainName].val
-                    thisvar = thisTrait.data[strainName].var
-                    thisValFull = [strainName,thisval,thisvar]
-                except:
-                    continue
+                #try:
+                thisval = thisTrait.data[strainName].value
+                thisvar = thisTrait.data[strainName].variance
+                thisValFull = [strainName,thisval,thisvar]
+                #except:
+                #    continue
 
                 vals3.append(thisValFull)
 
@@ -985,15 +1003,15 @@ class DataEditingPage(templatePage):
             vals = []
 
             #Using all strains/cases for values
-            for i, strainNameOrig in enumerate(all_strains):
+            for strainNameOrig in all_strains:
                 strainName = strainNameOrig.replace("_2nd_", "")
 
-                try:
-                    thisval = thisTrait.data[strainName].val
-                    thisvar = thisTrait.data[strainName].var
-                    thisValFull = [strainName,thisval,thisvar]
-                except:
-                    continue
+                #try:
+                thisval = thisTrait.data[strainName].value
+                thisvar = thisTrait.data[strainName].variance
+                thisValFull = [strainName,thisval,thisvar]
+                #except:
+                #    continue
 
                 vals.append(thisValFull)
 
@@ -1344,24 +1362,26 @@ class DataEditingPage(templatePage):
         # updated by NL 5-28-2010
         # Interval Mapping
         chrMenu = HT.Select(name='chromosomes1')
-        chrMenu.append(tuple(["All",-1]))
+        chrMenu.append(("All",-1))
         for i in range(len(fd.genotype)):
-            if  len(fd.genotype[i]) > 1:
-                chrMenu.append(tuple([fd.genotype[i].name,i]))
+            if len(fd.genotype[i]) > 1:
+                chrMenu.append((fd.genotype[i].name, i))
 
         #Menu for Composite Interval Mapping
         chrMenu2 = HT.Select(name='chromosomes2')
-        chrMenu2.append(tuple(["All",-1]))
+        chrMenu2.append(("All",-1))
         for i in range(len(fd.genotype)):
-            if  len(fd.genotype[i]) > 1:
-                chrMenu2.append(tuple([fd.genotype[i].name,i]))
+            if len(fd.genotype[i]) > 1:
+                chrMenu2.append((fd.genotype[i].name, i))
 
         if fd.genotype.Mbmap:
             scaleText = HT.Span("Mapping Scale:", Class="ffl fwb fs12")
-            scaleMenu1 = HT.Select(name='scale1', onChange="checkUncheck(window.document.dataInput.scale1.value, window.document.dataInput.permCheck1, window.document.dataInput.bootCheck1)")
+            scaleMenu1 = HT.Select(name='scale1',
+                                   onChange="checkUncheck(window.document.dataInput.scale1.value, window.document.dataInput.permCheck1, window.document.dataInput.bootCheck1)")
             scaleMenu1.append(("Megabase",'physic'))
             scaleMenu1.append(("Centimorgan",'morgan'))
-            scaleMenu2 = HT.Select(name='scale2', onChange="checkUncheck(window.document.dataInput.scale2.value, window.document.dataInput.permCheck2, window.document.dataInput.bootCheck2)")
+            scaleMenu2 = HT.Select(name='scale2',
+                                   onChange="checkUncheck(window.document.dataInput.scale2.value, window.document.dataInput.permCheck2, window.document.dataInput.bootCheck2)")
             scaleMenu2.append(("Megabase",'physic'))
             scaleMenu2.append(("Centimorgan",'morgan'))
 
@@ -1521,7 +1541,7 @@ class DataEditingPage(templatePage):
 
         submitTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target2")
 
-        if mappingMethodId != None:
+        if not mappingMethodId:
             if int(mappingMethodId) == 1:
                 submitTable.append(mapping_row)
                 submitTable.append(mapping_script)
@@ -1567,17 +1587,6 @@ class DataEditingPage(templatePage):
         title4Body.append(submitTable)
 
 
-    def natural_sort(strain_list):
-
-        sorted = []
-        for strain in strain_list:
-            try:
-                strain = int(strain)
-                try: sorted[-1] = sorted[-1] * 10 + strain
-                except: sorted.append(strain)
-            except:
-                sorted.append(strain)
-        return sorted
 
     ##########################################
     ##  Function to display trait tables
@@ -1727,8 +1736,9 @@ class DataEditingPage(templatePage):
                                                 attribute_names=attribute_names,
                                                 strains='other')
 
-        if other_strains or (fd.f1list and thisTrait.data.has_key(fd.f1list[0])) \
-                or (fd.f1list and thisTrait.data.has_key(fd.f1list[1])):
+        #TODO: Figure out why this if statement is written this way - Zach
+        if (other_strains or (fd.f1list and thisTrait.data.has_key(fd.f1list[0])) 
+                or (fd.f1list and thisTrait.data.has_key(fd.f1list[1]))):
             print("hjs")
             fd.allstrainlist = allstrainlist_neworder
 
@@ -1738,85 +1748,93 @@ class DataEditingPage(templatePage):
 
 
     def addTrait2Table(self, fd, varianceDataPage, strainlist, mainForm, thisTrait,
-                       other_strainsExist=None, attribute_ids=[],
-                       attribute_names=[], strains='primary'):
+                       other_strainsExist=None, attribute_ids=None,
+                       attribute_names=None, strains='primary'):
+
+        if attribute_ids == None:
+            attribute_ids = []
+            
+        if attribute_names == None:
+            attribute_names = []
+
         #XZ, Aug 23, 2010: I commented the code related to the display of animal case
         #strainInfo = thisTrait.has_key('strainInfo') and thisTrait.strainInfo
         print("in addTrait2Table")
         table_body = []
         vals = []
 
-        for i, strainNameOrig in enumerate(strainlist):
-            strainName = strainNameOrig.replace("_2nd_", "")
 
-            try:
-                thisval = thisTrait.data[strainName].val
-                thisvar = thisTrait.data[strainName].var
-                thisValFull = [strainName,thisval,thisvar]
-            except:
-                continue
-
-            vals.append(thisValFull)
-
-        upperBound, lowerBound = Plot.findOutliers(vals) # ZS: Values greater than upperBound or less than lowerBound are considered outliers.
+        #################### Only used to find upperBound and lowerBound
+        #for strainNameOrig in strainlist:
+        #    strainName = strainNameOrig.replace("_2nd_", "")
+        #    print("pen: %s - %s" % (strainNameOrig, strainName))
+        #    thisval = thisTrait.data[strainName].value
+        #    thisvar = thisTrait.data[strainName].variance
+        #    thisValFull = [strainName, thisval, thisvar]
+        #
+        #    vals.append(thisValFull)
+        #
+        #upperBound, lowerBound = Plot.findOutliers(vals) # ZS: Values greater than upperBound or less than lowerBound are considered outliers.
 
         the_strains = []
 
-        for i, strainNameOrig in enumerate(strainlist):
-            strain = {}
-            print("zyt - strainNameOrig:", strainNameOrig)
-            trId = strainNameOrig
-            #selectCheck = HT.Input(type="checkbox", name="selectCheck", value=trId, Class="checkbox", onClick="highlight(this)")
-
+        for counter, strainNameOrig in enumerate(strainlist, 1):
             strainName = strainNameOrig.replace("_2nd_", "")
             strainNameAdd = ''
             if fd.RISet == 'AXBXA' and strainName in ('AXB18/19/20','AXB13/14','BXA8/17'):
                 strainNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
-
+    
             try:
-                thisval, thisvar, thisNP = thisTrait.data[strainName].val, thisTrait.data[strainName].var, thisTrait.data[strainName].N
-                if thisNP:
-                    mainForm.append(HT.Input(name='N'+strainName, value=thisNP, type='hidden'))
-                else:
-                    pass
-            except:
-                thisval = thisvar = 'x'
+                strain = thisTrait.data[strainName]
+            except KeyError:
+                print("No strain %s, let's create it now" % strainName)
+                strain = webqtlCaseData.webqtlCaseData(strainName)
+            print("zyt - strainNameOrig:", strainNameOrig)
+            #trId = strainNameOrig
+            #selectCheck = HT.Input(type="checkbox", name="selectCheck", value=trId, Class="checkbox", onClick="highlight(this)")
 
-            try:
-                traitVal = thisval
-                dispVal = "%2.3f" % thisval
-            except:
-                traitVal = ''
-                dispVal = 'x'
+            
+            #try:
+            #    thisval, thisvar, thisNP = thisTrait.data[strainName].value, thisTrait.data[strainName].var, thisTrait.data[strainName].N
+            #    if thisNP:
+            #        mainForm.append(HT.Input(name='N'+strainName, value=thisNP, type='hidden'))
+            #    else:
+            #        pass
+            #except:
+            #    thisval = thisvar = 'x'
 
-            strain['strain_name'] = strainName
-            strainNameDisp = HT.Span(strainName, Class='fs14 fwn ffl')
+            #thisval = thisTrait.data[strainName].value
+            #thisvar = thisTrait.data[strainName].variance
+            #thisTrait.data[strainName].num_cases
 
-            if varianceDataPage:
-                try:
-                    traitVar = thisvar
-                    dispVar = "%2.3f" % thisvar
-                except:
-                    traitVar = ''
-                    dispVar = 'x'
+            #strain['strain_name'] = strainName
+            #strainNameDisp = HT.Span(strainName, Class='fs14 fwn ffl')
 
-            if thisval == 'x':
-                traitVar = '' #ZS: Used to be 0, but it doesn't seem like a good idea for values of 0 to *always* be at the bottom when you sort; it makes more sense to put "nothing"
+            #if varianceDataPage:
+                #try:
+                #    traitVar = thisvar
+                #    dispVar = "%2.3f" % thisvar
+                #except:
+                #    traitVar = ''
+                #    dispVar = 'x'
 
-                #className = 'fs13 b1 c222 '
-                #valueClassName = 'fs13 b1 c222 valueField '
-                #rowClassName = 'novalue '
-            else:
-                if (thisval >= upperBound) or (thisval <= lowerBound):
-                    strain['outlier'] = "outlier"  # We're going to use this as a class, so we want it to be a word
-                    #className = 'fs13 b1 c222 outlier '
-                    #valueClassName = 'fs13 b1 c222 valueField '
-                    #rowClassName = 'outlier'
-                else:
-                    strain['outlier'] = "not_outlier"
-                    #className = 'fs13 b1 c222 '
-                    #valueClassName = 'fs13 b1 c222 valueField '
-                    #rowClassName = ' '
+            #if thisval == 'x':
+            #    traitVar = '' #ZS: Used to be 0, but it doesn't seem like a good idea for values of 0 to *always* be at the bottom when you sort; it makes more sense to put "nothing"
+            #
+            #    #className = 'fs13 b1 c222 '
+            #    #valueClassName = 'fs13 b1 c222 valueField '
+            #    #rowClassName = 'novalue '
+            #else:
+            #    if (thisval >= upperBound) or (thisval <= lowerBound):
+            #        strain['outlier'] = "outlier"  # We're going to use this as a class, so we want it to be a word
+            #        #className = 'fs13 b1 c222 outlier '
+            #        #valueClassName = 'fs13 b1 c222 valueField '
+            #        #rowClassName = 'outlier'
+            #    else:
+            #        strain['outlier'] = "not_outlier"
+            #        #className = 'fs13 b1 c222 '
+            #        #valueClassName = 'fs13 b1 c222 valueField '
+            #        #rowClassName = ' '
             #
             #if varianceDataPage:
             #    varClassName = valueClassName + str(traitVar)
@@ -1851,15 +1869,15 @@ class DataEditingPage(templatePage):
             #        #        onChange= "javascript:this.form['V%s'].value=this.form['V%s'].value;" % (strainNameOrig.replace("/", ""), strainNameOrig.replace("/", "")), Class=varClassName)
 
             if strains == 'primary':
-                strain['the_id'] = "Primary_" + str(i+1)
+                strain.this_id = "Primary_" + str(counter)
                 #table_row = HT.TR(Id="Primary_"+str(i+1), Class=rowClassName)
             else:
-                strain['the_id'] = "Other_" + str(i+1)
+                strain.this_id = "Other_" + str(counter)
                 #table_row = HT.TR(Id="Other_"+str(i+1), Class=rowClassName)
 
-            strain['value'] = traitVal
-
-            strain['se'] = dispVar
+            #strain['value'] = traitVal
+            #
+            #strain['se'] = dispVar
             #if varianceDataPage:
                 #table_row.append(HT.TD(str(i+1), selectCheck, width=45, align='right', Class=className))
                 #table_row.append(HT.TD(strainNameDisp, strainNameAdd, align='right', width=100, Class=className))
