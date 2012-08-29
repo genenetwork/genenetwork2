@@ -25,6 +25,13 @@
 # Last updated by GeneNetwork Core Team 2010/10/20
 
 #import piddle as pid
+
+from __future__ import print_function
+
+from pprint import pformat as pf
+
+print("Lysol")
+
 from math import *
 import random
 import sys, os
@@ -32,6 +39,9 @@ from numarray import linear_algebra as la
 from numarray import ones, array, dot, swapaxes
 
 import reaper
+sys.path.append("..")
+print(sys.path)
+from basicStatistics import corestats
 
 import svg
 import webqtlUtil
@@ -254,6 +264,7 @@ def gmedian(lst2):
             return lst[(N-1)/2]
 
 def gpercentile(lst2, np):
+    """Obsolete - use percentile in corestats instead"""
     lst = lst2[:]
     N = len(lst)
     if N == 0 or np > 100 or np < 0:
@@ -270,61 +281,41 @@ def gpercentile(lst2, np):
         else:
             return lst[k-1] + d*(lst[k] - lst[k-1])
 
-def findOutliers(vals):
+def find_outliers(vals):
+    """Calculates the upper and lower bounds of a set of sample/case values
+    
+    
+    >>> find_outliers([3.504, 5.234, 6.123, 7.234, 3.542, 5.341, 7.852, 4.555, 12.537])
+    (11.252500000000001, 0.5364999999999993)
+    
+    >>> >>> find_outliers([9,12,15,17,31,50,7,5,6,8])
+    (32.0, -8.0)
 
-    valsOnly = []
-    dataXZ = vals[:]
-    for i in range(len(dataXZ)):
-        valsOnly.append(dataXZ[i][1])
+    If there are no vals, returns None for the upper and lower bounds,
+    which code that calls it will have to deal with.
+    >>> find_outliers([])
+    (None, None)
+    
+    """
 
-    data = [('', valsOnly[:])]
+    print("xerxes vals is:", pf(vals))
 
-    for item in data:
-        itemvalue = item[1]
-        nValue = len(itemvalue)
-        catValue = []
+    if vals:
+        #print("vals is:", pf(vals))
+        stats = corestats.Stats(vals)
+        low_hinge = stats.percentile(25)
+        up_hinge = stats.percentile(75)
+        hstep = 1.5 * (up_hinge - low_hinge)
 
-        for item2 in itemvalue:
-            try:
-                tstrain, tvalue = item2
-            except:
-                tvalue = item2
-            if nValue <= 4:
-                continue
-            else:
-                catValue.append(tvalue)
+        upper_bound = up_hinge + hstep
+        lower_bound = low_hinge - hstep
 
-        if catValue != []:
-            lowHinge = gpercentile(catValue, 25)
-            upHinge = gpercentile(catValue, 75)
-            Hstep = 1.5*(upHinge - lowHinge)
+    else:
+        upper_bound = None
+        lower_bound = None
 
-            outlier = []
-            extreme = []
-
-            upperBound = upHinge + Hstep
-            lowerBound = lowHinge - Hstep
-
-            for item in catValue:
-                if item >= upHinge + 2*Hstep:
-                    extreme.append(item)
-                elif item >= upHinge + Hstep:
-                    outlier.append(item)
-                else:
-                    pass
-
-            for item in catValue:
-                if item <= lowHinge - 2*Hstep:
-                    extreme.append(item)
-                elif item <= lowHinge - Hstep:
-                    outlier.append(item)
-                else:
-                    pass
-        else:
-            upperBound = 1000
-            lowerBound = -1000
-
-    return upperBound, lowerBound
+    print(pf(locals()))
+    return upper_bound, lower_bound
 
 
 def plotBoxPlot(canvas, data, offset= (40, 40, 40, 40), XLabel="Category", YLabel="Value"):
@@ -1281,3 +1272,12 @@ def BWSpectrum(n=100):
         out.append(pid.Color(x,x,x));
         x += step
     return out
+
+
+def _test():
+    import doctest
+    doctest.testmod()
+
+
+if __name__=="__main__":
+    _test()

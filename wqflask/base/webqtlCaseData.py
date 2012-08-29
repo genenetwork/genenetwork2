@@ -37,6 +37,7 @@ class webqtlCaseData(object):
         self.variance = variance            # Trait Variance
         self.num_cases = num_cases          # Number of individuals/cases
         self.this_id = None   # Set a sane default (can't be just "id" cause that's a reserved word)
+        self.outlier = None   # Not set to True/False until later
 
     def __repr__(self):
         str = ""
@@ -47,6 +48,14 @@ class webqtlCaseData(object):
         if self.num_cases != None:
             str += " ndata=%d" % self.num_cases
         return str
+    
+    @property
+    def class_outlier(self):
+        """Template helper"""
+        if self.outlier:
+            return "outlier"
+        else:
+            return ""
     
     @property
     def display_value(self):
@@ -63,20 +72,3 @@ class webqtlCaseData(object):
             return "x"
         
         
-              #try:
-                #    traitVar = thisvar
-                #    dispVar = "%2.3f" % thisvar
-                #except:
-                #    traitVar = ''
-                #    dispVar = 'x'
-        
-        #try:
-        #    traitVal = thisval
-        #    dispVal = "%2.3f" % thisval
-        #except:
-        #    traitVal = ''
-        #    dispVal = 'x'
-
-
-    #def this_val_full(self):
-    #    strain_name = 

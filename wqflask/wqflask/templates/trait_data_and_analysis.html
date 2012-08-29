@@ -3076,7 +3076,7 @@
                             </tr>
 
 							{% for strain in strain_type %}
-                            <tr class="{{ strain.outlier }} value_se" id="{{ strain.this_id }}">
+                            <tr class="{{ strain.class_outlier }} value_se" id="{{ strain.this_id }}">
                               <td class="fs13 b1 c222" align="right" width="45">
 								{{ loop.index }}
 								<input type="checkbox" name="selectCheck" class="checkbox edit_strain_checkbox" value="{{ strain.name }}" checked="checked">
