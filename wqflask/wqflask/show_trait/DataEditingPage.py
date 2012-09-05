@@ -185,7 +185,10 @@ class DataEditingPage(templatePage):
         #    # We'll get this part working later
         #    print("Calling dispBasicStatistics")
         #    self.dispBasicStatistics(fd, thisTrait)
-        #    #self.dispMappingTools(fd, title4Body, thisTrait)
+        
+        self.build_correlation_tools(fd, thisTrait)
+        
+        #    self.dispMappingTools(fd, title4Body, thisTrait)
 
         #############################
         ##  Trait Value Table
@@ -1126,214 +1129,214 @@ class DataEditingPage(templatePage):
         #title2Body.append(submitTable)
 
 
-    def dispCorrelationTools(self, fd, title3Body, thisTrait):
+    def build_correlation_tools(self, fd, thisTrait):
 
-        _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
+        #species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
 
         RISetgp = fd.RISet
+        
+        # We're checking a string here!
+        assert isinstance(RISetgp, basestring), "We need a string type thing here"
         if RISetgp[:3] == 'BXD':
             RISetgp = 'BXD'
 
         if RISetgp:
-            sample_correlation = HT.Input(type='button',name='sample_corr', value=' Compute ', Class="button sample_corr")
-            lit_correlation = HT.Input(type='button',name='lit_corr', value=' Compute ', Class="button lit_corr")
-            tissue_correlation = HT.Input(type='button',name='tiss_corr', value=' Compute ', Class="button tiss_corr")
-            methodText = HT.Span("Calculate:", Class="ffl fwb fs12")
+            #sample_correlation = HT.Input(type='button',name='sample_corr', value=' Compute ', Class="button sample_corr")
+            #lit_correlation = HT.Input(type='button',name='lit_corr', value=' Compute ', Class="button lit_corr")
+            #tissue_correlation = HT.Input(type='button',name='tiss_corr', value=' Compute ', Class="button tiss_corr")
+            #methodText = HT.Span("Calculate:", Class="ffl fwb fs12")
+            #
+            #databaseText = HT.Span("Database:", Class="ffl fwb fs12")
+            #databaseMenu1 = HT.Select(name='database1')
+            #databaseMenu2 = HT.Select(name='database2')
+            #databaseMenu3 = HT.Select(name='database3')
 
-            databaseText = HT.Span("Database:", Class="ffl fwb fs12")
-            databaseMenu1 = HT.Select(name='database1')
-            databaseMenu2 = HT.Select(name='database2')
-            databaseMenu3 = HT.Select(name='database3')
+            dataset_menu = []
+            print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
+            print("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
+            self.cursor.execute('''SELECT PublishFreeze.FullName,PublishFreeze.Name FROM 
+                    PublishFreeze,InbredSet WHERE PublishFreeze.InbredSetId = InbredSet.Id 
+                    and InbredSet.Name = %s and PublishFreeze.public > %s''', 
+                    (RISetgp, webqtlConfig.PUBLICTHRESH))
+            for item in self.cursor.fetchall():
+                dataset_menu.append(dict(tissue=None,
+                                         datasets=item))
 
-            nmenu = 0
-            self.cursor.execute('SELECT PublishFreeze.FullName,PublishFreeze.Name FROM \
-                    PublishFreeze,InbredSet WHERE PublishFreeze.InbredSetId = InbredSet.Id \
-                    and InbredSet.Name = "%s" and PublishFreeze.public > %d' % \
-                    (RISetgp,webqtlConfig.PUBLICTHRESH))
+            self.cursor.execute('''SELECT GenoFreeze.FullName,GenoFreeze.Name FROM GenoFreeze,
+                    InbredSet WHERE GenoFreeze.InbredSetId = InbredSet.Id and InbredSet.Name = 
+                    %s and GenoFreeze.public > %s''', 
+                    (RISetgp, webqtlConfig.PUBLICTHRESH))
             for item in self.cursor.fetchall():
-                databaseMenu1.append(item)
-                databaseMenu2.append(item)
-                databaseMenu3.append(item)
-                nmenu += 1
-            self.cursor.execute('SELECT GenoFreeze.FullName,GenoFreeze.Name FROM GenoFreeze,\
-                    InbredSet WHERE GenoFreeze.InbredSetId = InbredSet.Id and InbredSet.Name = \
-                    "%s" and GenoFreeze.public > %d' % (RISetgp,webqtlConfig.PUBLICTHRESH))
-            for item in self.cursor.fetchall():
-                databaseMenu1.append(item)
-                databaseMenu2.append(item)
-                databaseMenu3.append(item)
-                nmenu += 1
+                dataset_menu.append(dict(tissue=None,
+                                    datasets=item))
+
             #03/09/2009: Xiaodong changed the SQL query to order by Name as requested by Rob.
             self.cursor.execute('SELECT Id, Name FROM Tissue order by Name')
             for item in self.cursor.fetchall():
-                TId, TName = item
-                databaseMenuSub = HT.Optgroup(label = '%s ------' % TName)
-                self.cursor.execute('SELECT ProbeSetFreeze.FullName,ProbeSetFreeze.Name FROM ProbeSetFreeze, ProbeFreeze, \
-                InbredSet WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeFreeze.TissueId = %d and \
-                ProbeSetFreeze.public > %d and ProbeFreeze.InbredSetId = InbredSet.Id and InbredSet.Name like "%s%%" \
-                order by ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId '  % (TId,webqtlConfig.PUBLICTHRESH, RISetgp))
-                for item2 in self.cursor.fetchall():
-                    databaseMenuSub.append(item2)
-                    nmenu += 1
-                databaseMenu1.append(databaseMenuSub)
-                databaseMenu2.append(databaseMenuSub)
-                databaseMenu3.append(databaseMenuSub)
-            if nmenu:
-                if thisTrait and thisTrait.db != None:
-                    databaseMenu1.selected.append(thisTrait.db.fullname)
-                    databaseMenu2.selected.append(thisTrait.db.fullname)
-                    databaseMenu3.selected.append(thisTrait.db.fullname)
+                tissue_id, tissue_name = item
+                #databaseMenuSub = HT.Optgroup(label = '%s ------' % tissue_name)
+                #dataset_sub_menu = []
+                print("phun9")
+                self.cursor.execute('''SELECT ProbeSetFreeze.FullName,ProbeSetFreeze.Name FROM ProbeSetFreeze, ProbeFreeze,
+                InbredSet WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeFreeze.TissueId = %s and
+                ProbeSetFreeze.public > %s and ProbeFreeze.InbredSetId = InbredSet.Id and InbredSet.Name like %s
+                order by ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId ''',
+                (tissue_id, webqtlConfig.PUBLICTHRESH, "%" + RISetgp + "%"))
+                print("phun8")
+                dataset_sub_menu = [item for item in self.cursor.fetchall() if item]
+                #for item2 in self.cursor.fetchall():
+                #    dataset_sub_menu.append(item2)
+                if dataset_sub_menu:
+                    dataset_menu.append(dict(tissue=tissue_name,
+                                        datasets=dataset_sub_menu))
+                    #    ("**heading**", tissue_name))
+                    #dataset_menu.append(dataset_sub_menu)
+            
+            dataset_menu_selected = None
+            if len(dataset_menu):
+                if thisTrait and thisTrait.db:
+                    dataset_menu_selected = thisTrait.db.fullname
 
-                criteriaText = HT.Span("Return:", Class="ffl fwb fs12")
+                #criteriaText = HT.Span("Return:", Class="ffl fwb fs12")
 
-                criteriaMenu1 = HT.Select(name='criteria1', selected='500', onMouseOver="if (NS4 || IE4) activateEl('criterias', event);")
-                criteriaMenu1.append(('top 100','100'))
-                criteriaMenu1.append(('top 200','200'))
-                criteriaMenu1.append(('top 500','500'))
-                criteriaMenu1.append(('top 1000','1000'))
-                criteriaMenu1.append(('top 2000','2000'))
-                criteriaMenu1.append(('top 5000','5000'))
-                criteriaMenu1.append(('top 10000','10000'))
-                criteriaMenu1.append(('top 15000','15000'))
-                criteriaMenu1.append(('top 20000','20000'))
+                #criteriaMenu1 = HT.Select(name='criteria1', selected='500', onMouseOver="if (NS4 || IE4) activateEl('criterias', event);")
+                
+                return_results_menu = []
+                
+                for counter in (100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000):
+                    return_results_menu.append(('top %s' % (counter,), str(counter)))
+                
+                #criteriaMenu1.append(('top 100','100'))
+                #criteriaMenu1.append(('top 200','200'))
+                #criteriaMenu1.append(('top 500','500'))
+                #criteriaMenu1.append(('top 1000','1000'))
+                #criteriaMenu1.append(('top 2000','2000'))
+                #criteriaMenu1.append(('top 5000','5000'))
+                #criteriaMenu1.append(('top 10000','10000'))
+                #criteriaMenu1.append(('top 15000','15000'))
+                #criteriaMenu1.append(('top 20000','20000'))
 
-                criteriaMenu2 = HT.Select(name='criteria2', selected='500', onMouseOver="if (NS4 || IE4) activateEl('criterias', event);")
-                criteriaMenu2.append(('top 100','100'))
-                criteriaMenu2.append(('top 200','200'))
-                criteriaMenu2.append(('top 500','500'))
-                criteriaMenu2.append(('top 1000','1000'))
-                criteriaMenu2.append(('top 2000','2000'))
-                criteriaMenu2.append(('top 5000','5000'))
-                criteriaMenu2.append(('top 10000','10000'))
-                criteriaMenu2.append(('top 15000','15000'))
-                criteriaMenu2.append(('top 20000','20000'))
+                #self.MDPRow1 = HT.TR(Class='mdp1')
+                #self.MDPRow2 = HT.TR(Class='mdp2')
+                #self.MDPRow3 = HT.TR(Class='mdp3')
 
-                criteriaMenu3 = HT.Select(name='criteria3', selected='500', onMouseOver="if (NS4 || IE4) activateEl('criterias', event);")
-                criteriaMenu3.append(('top 100','100'))
-                criteriaMenu3.append(('top 200','200'))
-                criteriaMenu3.append(('top 500','500'))
-                criteriaMenu3.append(('top 1000','1000'))
-                criteriaMenu3.append(('top 2000','2000'))
-                criteriaMenu3.append(('top 5000','5000'))
-                criteriaMenu3.append(('top 10000','10000'))
-                criteriaMenu3.append(('top 15000','15000'))
-                criteriaMenu3.append(('top 20000','20000'))
-
-
-                self.MDPRow1 = HT.TR(Class='mdp1')
-                self.MDPRow2 = HT.TR(Class='mdp2')
-                self.MDPRow3 = HT.TR(Class='mdp3')
-
-                correlationMenus1 = HT.TableLite(
-                        HT.TR(HT.TD(databaseText), HT.TD(databaseMenu1, colspan="3")),
-                        HT.TR(HT.TD(criteriaText), HT.TD(criteriaMenu1)),
-                    self.MDPRow1, cellspacing=0, width="619px", cellpadding=2)
-                correlationMenus1.append(HT.Input(name='orderBy', value='2', type='hidden'))    # to replace the orderBy menu
-                correlationMenus2 = HT.TableLite(
-                        HT.TR(HT.TD(databaseText), HT.TD(databaseMenu2, colspan="3")),
-                        HT.TR(HT.TD(criteriaText), HT.TD(criteriaMenu2)),
-                    self.MDPRow2, cellspacing=0, width="619px", cellpadding=2)
-                correlationMenus2.append(HT.Input(name='orderBy', value='2', type='hidden'))
-                correlationMenus3 = HT.TableLite(
-                        HT.TR(HT.TD(databaseText), HT.TD(databaseMenu3, colspan="3")),
-                        HT.TR(HT.TD(criteriaText), HT.TD(criteriaMenu3)),
-                    self.MDPRow3, cellspacing=0, width="619px", cellpadding=2)
-                correlationMenus3.append(HT.Input(name='orderBy', value='2', type='hidden'))
-
-            else:
-                correlationMenus = ""
+            #    correlationMenus1 = HT.TableLite(
+            #            HT.TR(HT.TD(databaseText), HT.TD(databaseMenu1, colspan="3")),
+            #            HT.TR(HT.TD(criteriaText), HT.TD(criteriaMenu1)),
+            #        self.MDPRow1, cellspacing=0, width="619px", cellpadding=2)
+            #    correlationMenus1.append(HT.Input(name='orderBy', value='2', type='hidden'))    # to replace the orderBy menu
+            #    correlationMenus2 = HT.TableLite(
+            #            HT.TR(HT.TD(databaseText), HT.TD(databaseMenu2, colspan="3")),
+            #            HT.TR(HT.TD(criteriaText), HT.TD(criteriaMenu2)),
+            #        self.MDPRow2, cellspacing=0, width="619px", cellpadding=2)
+            #    correlationMenus2.append(HT.Input(name='orderBy', value='2', type='hidden'))
+            #    correlationMenus3 = HT.TableLite(
+            #            HT.TR(HT.TD(databaseText), HT.TD(databaseMenu3, colspan="3")),
+            #            HT.TR(HT.TD(criteriaText), HT.TD(criteriaMenu3)),
+            #        self.MDPRow3, cellspacing=0, width="619px", cellpadding=2)
+            #    correlationMenus3.append(HT.Input(name='orderBy', value='2', type='hidden'))
+            #
+            #else:
+            #    correlationMenus = ""
 
 
-        corr_row = HT.TR()
-        corr_container = HT.Div(id="corr_tabs", Class="ui-tabs")
+        #corr_row = HT.TR()
+        #corr_container = HT.Div(id="corr_tabs", Class="ui-tabs")
+        #
+        #if (thisTrait.db != None and thisTrait.db.type =='ProbeSet'):
+        #    corr_tab_list = [HT.Href(text='Sample r', url="#corrtabs-1"),
+        #                     HT.Href(text='Literature r',  url="#corrtabs-2"),
+        #                     HT.Href(text='Tissue r', url="#corrtabs-3")]
+        #else:
+        #    corr_tab_list = [HT.Href(text='Sample r', url="#corrtabs-1")]
+        #
+        #corr_tabs = HT.List(corr_tab_list)
+        #corr_container.append(corr_tabs)
 
-        if (thisTrait.db != None and thisTrait.db.type =='ProbeSet'):
-            corr_tab_list = [HT.Href(text='Sample r', url="#corrtabs-1"), HT.Href(text='Literature r',  url="#corrtabs-2"), HT.Href(text='Tissue r', url="#corrtabs-3")]
-        else:
-            corr_tab_list = [HT.Href(text='Sample r', url="#corrtabs-1")]
+        #if correlationMenus1 or correlationMenus2 or correlationMenus3:
+            #sample_div = HT.Div(id="corrtabs-1")
+            #sample_container = HT.Span()
+            #
+            #sample_type = HT.Input(type="radio", name="sample_method", value="1", checked="checked")
+            #sample_type2 = HT.Input(type="radio", name="sample_method", value="2")
+            #
+            #sampleTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+            #sampleTD = HT.TD(correlationMenus1, HT.BR(),
+            #                           "Pearson", sample_type, "&nbsp;"*3, "Spearman Rank", sample_type2, HT.BR(), HT.BR(),
+            #                           sample_correlation, HT.BR(), HT.BR())
+            #
+            #sampleTD.append(HT.Span("The ",
+            #                        HT.Href(url="/correlationAnnotation.html#sample_r", target="_blank",
+            #                                text="Sample Correlation")," is computed between trait data and",
+            #                            " any ",HT.BR()," other traits in the sample database selected above. Use ",
+            #                            HT.Href(url="/glossary.html#Correlations", target="_blank", text="Spearman Rank"),
+            #                            HT.BR(),"when the sample size is small (<20) or when there are influential \
+            #                            outliers.", HT.BR(),Class="fs12"))
 
-        corr_tabs = HT.List(corr_tab_list)
-        corr_container.append(corr_tabs)
+            #sampleTable.append(sampleTD)
 
-        if correlationMenus1 or correlationMenus2 or correlationMenus3:
-            sample_div = HT.Div(id="corrtabs-1")
-            sample_container = HT.Span()
+            #sample_container.append(sampleTable)
+            #sample_div.append(sample_container)
+            #corr_container.append(sample_div)
+            #
+            #literature_div = HT.Div(id="corrtabs-2")
+            #literature_container = HT.Span()
 
-            sample_type = HT.Input(type="radio", name="sample_method", value="1", checked="checked")
-            sample_type2 = HT.Input(type="radio", name="sample_method", value="2")
-
-            sampleTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-            sampleTD = HT.TD(correlationMenus1, HT.BR(),
-                                       "Pearson", sample_type, "&nbsp;"*3, "Spearman Rank", sample_type2, HT.BR(), HT.BR(),
-                                       sample_correlation, HT.BR(), HT.BR())
-
-            sampleTD.append(HT.Span("The ",HT.Href(url="/correlationAnnotation.html#sample_r", target="_blank", text="Sample Correlation")," is computed between trait data and",
-                                                                            " any ",HT.BR()," other traits in the sample database selected above. Use ",
-                                                                            HT.Href(url="/glossary.html#Correlations", target="_blank", text="Spearman Rank"),
-                                                                            HT.BR(),"when the sample size is small (<20) or when there are influential \
-                                                                            outliers.", HT.BR(),Class="fs12"))
-
-            sampleTable.append(sampleTD)
-
-            sample_container.append(sampleTable)
-            sample_div.append(sample_container)
-            corr_container.append(sample_div)
-
-            literature_div = HT.Div(id="corrtabs-2")
-            literature_container = HT.Span()
-
-            literatureTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-            literatureTD = HT.TD(correlationMenus2,HT.BR(),lit_correlation, HT.BR(), HT.BR())
-            literatureTD.append(HT.Span("The ", HT.Href(url="/correlationAnnotation.html", target="_blank",text="Literature Correlation"), " (Lit r) between this gene and all other genes is computed",HT.BR(),
-                                        "using the ", HT.Href(url="https://grits.eecs.utk.edu/sgo/sgo.html", target="_blank", text="Semantic Gene Organizer"),
-                                        " and human, rat, and mouse data from PubMed. ", HT.BR(),"Values are ranked by Lit r, \
-                                        but Sample r and Tissue r are also displayed.", HT.BR(), HT.BR(),
-                                        HT.Href(url="/glossary.html#Literature", target="_blank", text="More on using Lit r"), Class="fs12"))
-            literatureTable.append(literatureTD)
-
-            literature_container.append(literatureTable)
-            literature_div.append(literature_container)
-
-            if thisTrait.db != None:
-                if (thisTrait.db.type =='ProbeSet'):
-                    corr_container.append(literature_div)
-
-            tissue_div = HT.Div(id="corrtabs-3")
-            tissue_container = HT.Span()
-
-            tissue_type = HT.Input(type="radio", name="tissue_method", value="4", checked="checked")
-            tissue_type2 = HT.Input(type="radio", name="tissue_method", value="5")
-
-            tissueTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-            tissueTD = HT.TD(correlationMenus3,HT.BR(),
-                                       "Pearson", tissue_type, "&nbsp;"*3, "Spearman Rank", tissue_type2, HT.BR(), HT.BR(),
-                                       tissue_correlation, HT.BR(), HT.BR())
-            tissueTD.append(HT.Span("The ", HT.Href(url="/webqtl/main.py?FormID=tissueCorrelation", target="_blank", text="Tissue Correlation"),
-            " (Tissue r) estimates the similarity of expression of two genes",HT.BR()," or \
-            transcripts across different cells, tissues, or organs (",HT.Href(url="/correlationAnnotation.html#tissue_r", target="_blank", text="glossary"),"). \
-            Tissue correlations",HT.BR()," are generated by analyzing expression in multiple samples usually taken from \
-            single cases.",HT.BR(),HT.Bold("Pearson")," and ",HT.Bold("Spearman Rank")," correlations have been computed for all pairs \
-            of genes",HT.BR()," using data from mouse samples.",
-            HT.BR(), Class="fs12"))
-            tissueTable.append(tissueTD)
-
-            tissue_container.append(tissueTable)
-            tissue_div.append(tissue_container)
-            if thisTrait.db != None:
-                if (thisTrait.db.type =='ProbeSet'):
-                    corr_container.append(tissue_div)
-
-            corr_row.append(HT.TD(corr_container))
-
-            corr_script = HT.Script(language="Javascript")
-            corr_script_text = """$(function() { $("#corr_tabs").tabs(); });"""
-            corr_script.append(corr_script_text)
-
-            submitTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target4")
-            submitTable.append(corr_row)
-            submitTable.append(corr_script)
-
-            title3Body.append(submitTable)
+            #literatureTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+            #literatureTD = HT.TD(correlationMenus2,HT.BR(),lit_correlation, HT.BR(), HT.BR())
+            #literatureTD.append(HT.Span("The ", HT.Href(url="/correlationAnnotation.html", target="_blank",text="Literature Correlation"), " (Lit r) between this gene and all other genes is computed",HT.BR(),
+            #                            "using the ", HT.Href(url="https://grits.eecs.utk.edu/sgo/sgo.html", target="_blank", text="Semantic Gene Organizer"),
+            #                            " and human, rat, and mouse data from PubMed. ", HT.BR(),"Values are ranked by Lit r, \
+            #                            but Sample r and Tissue r are also displayed.", HT.BR(), HT.BR(),
+            #                            HT.Href(url="/glossary.html#Literature", target="_blank", text="More on using Lit r"), Class="fs12"))
+            #literatureTable.append(literatureTD)
+            #
+            #literature_container.append(literatureTable)
+            #literature_div.append(literature_container)
+            #
+            #if thisTrait.db != None:
+            #    if (thisTrait.db.type =='ProbeSet'):
+            #        corr_container.append(literature_div)
+            #
+            #tissue_div = HT.Div(id="corrtabs-3")
+            #tissue_container = HT.Span()
+            #
+            #tissue_type = HT.Input(type="radio", name="tissue_method", value="4", checked="checked")
+            #tissue_type2 = HT.Input(type="radio", name="tissue_method", value="5")
+            #
+            #tissueTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+            #tissueTD = HT.TD(correlationMenus3,HT.BR(),
+            #                           "Pearson", tissue_type, "&nbsp;"*3, "Spearman Rank", tissue_type2, HT.BR(), HT.BR(),
+            #                           tissue_correlation, HT.BR(), HT.BR())
+            #tissueTD.append(HT.Span("The ", HT.Href(url="/webqtl/main.py?FormID=tissueCorrelation", target="_blank", text="Tissue Correlation"),
+            #" (Tissue r) estimates the similarity of expression of two genes",HT.BR()," or \
+            #transcripts across different cells, tissues, or organs (",HT.Href(url="/correlationAnnotation.html#tissue_r", target="_blank", text="glossary"),"). \
+            #Tissue correlations",HT.BR()," are generated by analyzing expression in multiple samples usually taken from \
+            #single cases.",HT.BR(),HT.Bold("Pearson")," and ",HT.Bold("Spearman Rank")," correlations have been computed for all pairs \
+            #of genes",HT.BR()," using data from mouse samples.",
+            #HT.BR(), Class="fs12"))
+            #tissueTable.append(tissueTD)
+            #
+            #tissue_container.append(tissueTable)
+            #tissue_div.append(tissue_container)
+            #if thisTrait.db != None:
+            #    if (thisTrait.db.type =='ProbeSet'):
+            #        corr_container.append(tissue_div)
+            #
+            #corr_row.append(HT.TD(corr_container))
+            #
+            #corr_script = HT.Script(language="Javascript")
+            #corr_script_text = """$(function() { $("#corr_tabs").tabs(); });"""
+            #corr_script.append(corr_script_text)
+            #
+            #submitTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target4")
+            #submitTable.append(corr_row)
+            #submitTable.append(corr_script)
+            #
+            #title3Body.append(submitTable)
+            self.correlation_tools = dict(dataset_menu = dataset_menu,
+                                          dataset_menu_selected = dataset_menu_selected,
+                                          return_results_menu = return_results_menu)
 
 
     def dispMappingTools(self, fd, title4Body, thisTrait):
