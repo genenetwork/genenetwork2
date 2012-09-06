@@ -232,17 +232,31 @@ class DataEditingPage(templatePage):
         #                                  - Interquartile Range
         #                                  """)
 
-        self.basic_table['columns'] = yaml.load("""
-                                                -
-                                                    n: All Cases
-                                                    t: all
-                                                -
-                                                    n: BXD Only
-                                                    t: primary
-                                                -
-                                                    n: Non-BXD Only
-                                                    t: other
-                                                """)
+        #self.sample_groups = []
+        #self.sample_groups.append(dict(label=fd.RISet + " Only",
+        #                                   value="primary_only"))
+        #self.sample_groups.append(dict(label="Non-"+fd.RISet,
+        #                                   value="other_only"))        
+        #self.sample_groups.append(dict(label="All Cases",
+        #                                   value="all_cases"))
+        
+        self.sample_groups = OrderedDict()
+        self.sample_groups['primary_only'] = fd.RISet + " Only"
+        self.sample_groups['other_only'] = "Non-" + fd.RISet
+        self.sample_groups['all_cases'] = "All Cases"
+        
+        
+        #self.basic_table['columns'] = yaml.load("""
+        #                                        -
+        #                                            n: All Cases
+        #                                            t: all
+        #                                        -
+        #                                            n: BXD Only
+        #                                            t: primary
+        #                                        -
+        #                                            n: Non-BXD Only
+        #                                            t: other
+        #                                        """)
 
         print(pf(self.basic_table))
 
@@ -1160,7 +1174,7 @@ class DataEditingPage(templatePage):
                     (RISetgp, webqtlConfig.PUBLICTHRESH))
             for item in self.cursor.fetchall():
                 dataset_menu.append(dict(tissue=None,
-                                         datasets=item))
+                                         datasets=[item]))
 
             self.cursor.execute('''SELECT GenoFreeze.FullName,GenoFreeze.Name FROM GenoFreeze,
                     InbredSet WHERE GenoFreeze.InbredSetId = InbredSet.Id and InbredSet.Name = 
@@ -1168,7 +1182,7 @@ class DataEditingPage(templatePage):
                     (RISetgp, webqtlConfig.PUBLICTHRESH))
             for item in self.cursor.fetchall():
                 dataset_menu.append(dict(tissue=None,
-                                    datasets=item))
+                                    datasets=[item]))
 
             #03/09/2009: Xiaodong changed the SQL query to order by Name as requested by Rob.
             self.cursor.execute('SELECT Id, Name FROM Tissue order by Name')
@@ -1195,16 +1209,14 @@ class DataEditingPage(templatePage):
             dataset_menu_selected = None
             if len(dataset_menu):
                 if thisTrait and thisTrait.db:
-                    dataset_menu_selected = thisTrait.db.fullname
+                    dataset_menu_selected = thisTrait.db.name
 
                 #criteriaText = HT.Span("Return:", Class="ffl fwb fs12")
 
                 #criteriaMenu1 = HT.Select(name='criteria1', selected='500', onMouseOver="if (NS4 || IE4) activateEl('criterias', event);")
                 
-                return_results_menu = []
-                
-                for counter in (100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000):
-                    return_results_menu.append(('top %s' % (counter,), str(counter)))
+                return_results_menu = (100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000)
+                return_results_menu_selected = 500
                 
                 #criteriaMenu1.append(('top 100','100'))
                 #criteriaMenu1.append(('top 200','200'))
@@ -1334,9 +1346,10 @@ class DataEditingPage(templatePage):
             #submitTable.append(corr_script)
             #
             #title3Body.append(submitTable)
-            self.correlation_tools = dict(dataset_menu = dataset_menu,
+            self.corr_tools = dict(dataset_menu = dataset_menu,
                                           dataset_menu_selected = dataset_menu_selected,
-                                          return_results_menu = return_results_menu)
+                                          return_results_menu = return_results_menu,
+                                          return_results_menu_selected = return_results_menu_selected,)
 
 
     def dispMappingTools(self, fd, title4Body, thisTrait):

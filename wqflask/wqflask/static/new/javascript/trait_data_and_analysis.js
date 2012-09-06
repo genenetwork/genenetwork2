@@ -10,7 +10,7 @@
   };
 
   $(function() {
-    var edit_data_change, hide_tabs, make_table, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var edit_data_change, hide_tabs, make_table, on_corr_method_change, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -186,6 +186,23 @@
         return console.log("Should be now Hide Outliers");
       }
     };
+    /*
+        Calculate Correlations Code
+    */
+
+    on_corr_method_change = function() {
+      var corr_method;
+      console.log("in beginning of on_corr_method_change");
+      corr_method = $('select[name=corr_method]').val();
+      console.log("corr_method is:", corr_method);
+      $('.correlation_desc').hide();
+      return $('#' + corr_method + "_r_desc").show().effect("highlight");
+    };
+    $('select[name=corr_method]').change(on_corr_method_change);
+    /*
+        End Calculate Correlations Code
+    */
+
     console.log("before registering show_hide_outliers");
     $('#show_hide_outliers').click(show_hide_outliers);
     console.log("after registering show_hide_outliers");

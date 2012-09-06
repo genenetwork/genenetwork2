@@ -11,7 +11,6 @@ $ ->
 
     hide_tabs(1)
 
-
     # Changes stats table between all, bxd only and non-bxd, etc.
     stats_mdp_change = ->
         selected = $(this).val()
@@ -19,7 +18,6 @@ $ ->
         $("#stats_tabs" + selected).show()
 
     $(".stats_mdp").change(stats_mdp_change)
-
 
     update_stat_values = (the_values)->
         for category in ['primary', 'other', 'all']
@@ -153,7 +151,25 @@ $ ->
             console.log("Found Show Outliers")
             $('#show_hide_outliers').val("Hide Outliers")
             console.log("Should be now Hide Outliers")
-        
+         
+    ###
+    Calculate Correlations Code
+    ###
+    
+    on_corr_method_change = ->
+        console.log("in beginning of on_corr_method_change")
+        corr_method = $('select[name=corr_method]').val()
+        console.log("corr_method is:", corr_method)
+        $('.correlation_desc').hide()
+        $('#' + corr_method + "_r_desc").show().effect("highlight")
+
+    $('select[name=corr_method]').change(on_corr_method_change)
+    
+    ###
+    End Calculate Correlations Code
+    ###
+
+
     console.log("before registering show_hide_outliers")
     $('#show_hide_outliers').click(show_hide_outliers)
     console.log("after registering show_hide_outliers")
