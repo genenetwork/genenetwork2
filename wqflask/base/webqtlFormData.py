@@ -25,6 +25,10 @@
 # Last updated by GeneNetwork Core Team 2010/10/20
 
 #from mod_python import Cookie
+
+from __future__ import print_function
+from pprint import pformat as pf
+
 import string
 import os
 
@@ -47,12 +51,25 @@ class webqtlFormData:
 
     #XZ: Attention! All attribute values must be picklable!
 
-    def __init__(self, start_vars = None, req = None, mod_python_session=None, FieldStorage_formdata=None):
-
-        self.__dict__.update(start_vars)
-
-        for item in self.attrs:
-            setattr(self,item, None)
+    def __init__(self,
+                 start_vars = None,
+                 req = None,
+                 mod_python_session=None,
+                 FieldStorage_formdata=None):
+        # Todo: rework this whole thing
+        print("in webqtlFormData start_vars are:", pf(start_vars))
+        for item in webqtlFormData.attrs:
+            self.__dict__[item] = None
+        #self.__dict__.update(start_vars)
+        for item in start_vars:
+            self.__dict__[item] = start_vars[item]
+        print("  Now self.dict is:", pf(self.__dict__))
+        #for item in self.attrs:
+        #    if getattr(self, item, None):
+        #        print("Setting item %s to None" % (item,))
+        #        self.attrs[item] = None
+        #    else:
+        #        self.attrs[item] = self.attrs[item].strip()
 
         try:
             self.remote_ip = req.connection.remote_ip
@@ -84,31 +101,37 @@ class webqtlFormData:
         #               if value != None:
         #                       setattr(self,item,string.strip(value))
 
-        self.ppolar = ""
-        self.mpolar     = ""
+        self.ppolar = None
+        self.mpolar = None
+        
+        print("[yellow] self.RISet is:", self.RISet)
         if self.RISet:
-            try:
-                # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
-                f1, f12, self.mpolar, self.ppolar = webqtlUtil.ParInfo[self.RISet]
-            except:
-                f1 = f12 = self.mpolar = self.ppolar = None
+            #try:
+            #    # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
+            _f1, _f12, self.mpolar, self.ppolar = webqtlUtil.ParInfo[self.RISet]
+            #except:
+            #    f1 = f12 = self.mpolar = self.ppolar = None
 
-        try:
-            self.nperm = int(self.nperm)
-            self.nboot = int(self.nboot)
-        except:
-            self.nperm = 2000 #XZ: Rob asked to change the default value to 2000
-            self.nboot = 2000 #XZ: Rob asked to change the default value to 2000
+        
+        def set_number(stringy):
+            return int(stringy) if stringy else 2000 # Rob asked to change the default value to 2000
 
+        self.nperm = set_number(self.nperm)
+        self.nboot = set_number(self.nboot)
+           
+
+        #if self.allstrainlist:
+        #    self.allstrainlist = map(string.strip, string.split(self.allstrainlist))
+        print("self.allstrainlist is:", self.allstrainlist)
         if self.allstrainlist:
-            self.allstrainlist = map(string.strip, string.split(self.allstrainlist))
+            self.allstrainlist = self.allstrainlist.split()
+        print("now self.allstrainlist is:", self.allstrainlist)
         #self.readGenotype()
         #self.readData()
 
         if self.RISet == 'BXD300':
             self.RISet = 'BXD'
-        else:
-            pass
+
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -133,7 +156,7 @@ class webqtlFormData:
             self.RISet = 'BXD'
         else:
             pass
-        assert  self.RISet
+        assert self.RISet
         #genotype_1 is Dataset Object without parents and f1
         #genotype_2 is Dataset Object with parents and f1 (not for intercross)
         self.genotype_1 = reaper.Dataset()

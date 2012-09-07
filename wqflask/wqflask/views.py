@@ -8,6 +8,7 @@ from flask import render_template, request
 
 from wqflask import search_results
 from wqflask.show_trait import show_trait_page
+from wqflask.correlation import CorrelationPage
 
 from wqflask.dataSharing import SharingInfo, SharingInfoPage
 
@@ -74,7 +75,14 @@ def showDatabaseBXD():
     print("showDatabaseBXD template_vars:", pf(template_vars.__dict__))
     return render_template("trait_data_and_analysis.html", **template_vars.__dict__)
 
-
+@app.route("/corr_compute")
+def corr_compute():
+    print("In corr_compute")
+    fd = webqtlFormData.webqtlFormData(request.args)
+    print("Have fd")
+    template_vars = CorrelationPage.CorrelationPage(fd)
+    print("Made it to  rendering")
+    return render_template("corr_compute.html", **template_vars.__dict__)
 
 # Todo: Can we simplify this? -Sam
 def sharing_info_page():

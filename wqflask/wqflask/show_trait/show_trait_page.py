@@ -57,8 +57,8 @@ class ShowTraitPage(DataEditingPage):
         else:
             print("j2.3")
             print("fd is:", fd)
-            database = fd['database'][0]
-            ProbeSetID = fd['ProbeSetID'][0]
+            database = fd['database']
+            ProbeSetID = fd['ProbeSetID']
             print("j2.4")
             CellID = fd.get('CellID')
             print("j2.6")
@@ -67,7 +67,7 @@ class ShowTraitPage(DataEditingPage):
         # Log it and fix it
         #try:
         print("j3")
-        thisTrait = webqtlTrait(db=database, name=ProbeSetID, cellid= CellID, cursor=self.cursor)
+        thisTrait = webqtlTrait(db=database, name=ProbeSetID, cellid=CellID, cursor=self.cursor)
         #except:
         #       heading = "Trait Data and Analysis Form"
         #       detail = ["The trait isn't available currently."]

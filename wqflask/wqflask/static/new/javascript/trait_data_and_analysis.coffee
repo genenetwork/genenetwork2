@@ -151,7 +151,8 @@ $ ->
             console.log("Found Show Outliers")
             $('#show_hide_outliers').val("Hide Outliers")
             console.log("Should be now Hide Outliers")
-         
+
+
     ###
     Calculate Correlations Code
     ###
@@ -165,6 +166,17 @@ $ ->
 
     $('select[name=corr_method]').change(on_corr_method_change)
     
+    on_corr_submit = ->
+        console.log("in beginning of on_corr_submit")
+        values = $('#trait_data_form').serialize()
+        console.log("in on_corr_submit, values are:", values)
+        $.ajax "/corr_compute",
+            type: 'GET'
+            dataType: 'html'
+            data: values
+            
+    $('#corr_compute').click(on_corr_submit)
+
     ###
     End Calculate Correlations Code
     ###
@@ -177,8 +189,9 @@ $ ->
     _.mixin(_.str.exports());  # Add string fuctions directly to underscore
     $('#value_table').change(edit_data_change)
     console.log("loaded")
-    console.log("basic_table is:", basic_table)
-    make_table()
-    edit_data_change()   # Set the values at the beginning
+    #console.log("basic_table is:", basic_table)
+    # Add back following two lines later
+    #make_table()
+    #edit_data_change()   # Set the values at the beginning
     #$("#all-mean").html('foobar8')
     console.log("end")

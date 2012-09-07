@@ -218,7 +218,7 @@ class DataEditingPage(templatePage):
         self.thisTrait = thisTrait
         self.hddn = hddn
 
-        self.basic_table = {}
+        #self.basic_table = {}
         #self.basic_table['rows'] = yaml.load("""
         #                                  - N of Samples
         #                                  - Mean
@@ -258,7 +258,7 @@ class DataEditingPage(templatePage):
         #                                            t: other
         #                                        """)
 
-        print(pf(self.basic_table))
+        #print(pf(self.basic_table))
 
     ##########################################
     ##  Function to display header
