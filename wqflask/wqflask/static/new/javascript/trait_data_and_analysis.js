@@ -200,15 +200,12 @@
     };
     $('select[name=corr_method]').change(on_corr_method_change);
     on_corr_submit = function() {
-      var values;
+      var params, values;
       console.log("in beginning of on_corr_submit");
       values = $('#trait_data_form').serialize();
       console.log("in on_corr_submit, values are:", values);
-      return $.ajax("/corr_compute", {
-        type: 'GET',
-        dataType: 'html',
-        data: values
-      });
+      params = $.param(values);
+      return window.location.href = "/corr_compute?" + params;
     };
     $('#corr_compute').click(on_corr_submit);
     /*

@@ -170,10 +170,14 @@ $ ->
         console.log("in beginning of on_corr_submit")
         values = $('#trait_data_form').serialize()
         console.log("in on_corr_submit, values are:", values)
-        $.ajax "/corr_compute",
-            type: 'GET'
-            dataType: 'html'
-            data: values
+        
+        params = $.param(values)
+        window.location.href = "/corr_compute?" + params
+        
+        #$.ajax "/corr_compute",
+        #    type: 'GET'
+        #    dataType: 'html'
+        #    data: values
             
     $('#corr_compute').click(on_corr_submit)
 

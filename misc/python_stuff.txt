@@ -1,1 +1,0 @@
-Classes should always inherit "object"

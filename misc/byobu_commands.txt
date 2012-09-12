@@ -1,6 +1,0 @@
-byobu -RD
-control-a then :multiuser on
-control-a then :acladd sam
-
-type: screen -list for sessions
-screen -r zas1024/25679.byobu

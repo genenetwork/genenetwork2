@@ -177,41 +177,36 @@ def get_custom_trait(form_data, cursor):
 
 
 #XZ, 09/18/2008: get the information such as value, variance of the input strain names from the form.
-def get_sample_data(form_data):
-    if form_data.allstrainlist:
-        mdpchoice = form_data.formdata.getvalue('MDPChoice')
-        #XZ, in HTML source code, it is "BXD Only" or "BXH only", and so on
+def get_sample_data(fd):
+    print("fd is:", pf(fd.__dict__))
+    if fd.allstrainlist:
+        mdpchoice = fd.MDPChoice
+        #XZ, in HTML source code, it is "BXD Only", "BXH Only", and so on
         if mdpchoice == "1":
-            strainlist = form_data.f1list + form_data.strainlist
-        #XZ, in HTML source code, it is "MDP Only"
+            strainlist = fd.f1list + fd.strainlist
+        #XZ, in HTML source code, it is "Non-BXD Only", "Non-BXD Only", etc
         elif mdpchoice == "2":
             strainlist = []
-            strainlist2 = form_data.f1list + form_data.strainlist
-            for strain in form_data.allstrainlist:
+            strainlist2 = fd.f1list + fd.strainlist
+            for strain in fd.allstrainlist:
                 if strain not in strainlist2:
                     strainlist.append(strain)
             #So called MDP Panel
             if strainlist:
-                strainlist = form_data.f1list+form_data.parlist+strainlist
+                strainlist = fd.f1list + fd.parlist+strainlist
         #XZ, in HTML source code, it is "All Cases"
         else:
-            strainlist = form_data.allstrainlist
-        #XZ, 09/18/2008: put the trait data into dictionary form_data.allTraitData
-        form_data.readData(form_data.allstrainlist)
+            strainlist = fd.allstrainlist
+        #XZ, 09/18/2008: put the trait data into dictionary fd.allTraitData
+        fd.readData(fd.allstrainlist)
     else:
         mdpchoice = None
-        strainlist = form_data.strainlist
-        #XZ, 09/18/2008: put the trait data into dictionary form_data.allTraitData
-        form_data.readData()
+        strainlist = fd.strainlist
+        #XZ, 09/18/2008: put the trait data into dictionary fd.allTraitData
+        fd.readData()
 
     return strainlist
 
-
-def get_mdp_choice(form_data):
-    if form_data.allstrainlist:
-        return form_data.formdata.getvalue("MDPChoice")
-    else:
-        return None
 
 
 def get_species(fd, cursor):
@@ -277,7 +272,7 @@ class CorrelationPage(templatePage):
     RANK_ORDERS = {"1": 0, "2": 1, "3": 0, "4": 0, "5": 1}
 
 
-    def error(self, message, error="Error", heading = None):
+    def error(self, message, *args, **kw):
         heading = heading or self.PAGE_HEADING
         return templatePage.error(heading = heading, detail = [message], error=error)
 
@@ -295,23 +290,30 @@ class CorrelationPage(templatePage):
             fd.readGenotype()
 
         sample_list = get_sample_data(fd)
-        mdp_choice = get_mdp_choice(fd) # No idea what this is yet
+        
+        # Whether the user chose BXD Only, Non-BXD Only, or All Strains
+        # (replace BXD with whatever the group/inbredset name is)
+        # "mdp" stands for "mouse diversity panel" This is outdated; it now represents any
+        # cases/strains from the non-primary group
+        mdp_choice = fd.MDPChoice if fd.allstrainlist else None 
+        
         self.species = get_species(fd, self.cursor)
 
         #XZ, 09/18/2008: get all information about the user selected database.
-        target_db_name = fd.formdata.getvalue('database')
-        self.target_db_name = target_db_name
+        #target_db_name = fd.corr_dataset
+        self.target_db_name = fd.corr_dataset
 
-        try:
-            self.db = webqtlDataset(target_db_name, self.cursor)
-        except:
-            detail = ["The database you just requested has not been established yet."]
-            self.error(detail)
-            return
+        #try:
+        #print("target_db_name is:", target_db_name)
+        self.db = webqtlDataset(self.target_db_name, self.cursor)
+        #except:
+        #    detail = ["The database you just requested has not been established yet."]
+        #    self.error(detail)
+        #    return
 
          # Auth if needed
         try:
-            auth_user_for_db(self.db, self.cursor, target_db_name, self.privilege, self.userName)
+            auth_user_for_db(self.db, self.cursor, self.target_db_name, self.privilege, self.userName)
         except AuthException, e:
             detail = [e.message]
             return self.error(detail)
@@ -322,7 +324,7 @@ class CorrelationPage(templatePage):
          #CF - If less than a minimum number of strains/cases in common, don't calculate anything
         if len(self.sample_names) < self.corrMinInformative:
             detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corrMinInformative, fd.RISet)]
-            self.error(heading=PAGE_HEADING,detail=detail)
+            self.error(heading=None, detail=detail)
 
 
         self.method = get_correlation_method_key(fd)
@@ -330,15 +332,16 @@ class CorrelationPage(templatePage):
         rankOrder = self.RANK_ORDERS[self.method]
 
          # CF - Number of results returned
-        self.returnNumber = int(fd.formdata.getvalue('criteria'))
+        self.returnNumber = int(fd.criteria)
 
         self.record_count = 0
 
         myTrait = get_custom_trait(fd, self.cursor)
 
 
-        # We will not get Literature Correlations if there is no GeneId because there is nothing to look against
-        self.gene_id = int(fd.formdata.getvalue('GeneId') or 0)
+        # We will not get Literature Correlations if there is no GeneId because there is nothing
+        # to look against
+        self.gene_id = int(fd.GeneId)
 
         # We will not get Tissue Correlations if there is no gene symbol because there is nothing to look against
         self.trait_symbol = myTrait.symbol
@@ -359,7 +362,8 @@ class CorrelationPage(templatePage):
         TD_LR = HT.TD(height=200,width="100%",bgColor='#eeeeee')
 
         mainfmName = webqtlUtil.genRandStr("fm_")
-        form = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name= mainfmName, submit=HT.Input(type='hidden'))
+        form = HT.Form(cgi = os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE),
+                       enctype='multipart/form-data', name= mainfmName, submit=HT.Input(type='hidden'))
         hddn = {'FormID': 'showDatabase',
                 'ProbeSetID': '_',
                 'database': self.target_db_name,
@@ -369,9 +373,9 @@ class CorrelationPage(templatePage):
                 'identification': fd.identification}
 
         if myTrait:
-            hddn['fullname']=fd.formdata.getvalue('fullname')
+            hddn['fullname'] = fd.fullname
         if mdp_choice:
-            hddn['MDPChoice']=mdp_choice
+            hddn['MDPChoice']= mdp_choice
 
 
         #XZ, 09/18/2008: pass the trait data to next page by hidden parameters.

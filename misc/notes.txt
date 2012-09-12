@@ -1,0 +1,41 @@
+To get server running:
+
+Start up virtual environment:
+source ~/ve27/bin/activate
+
+To set WQFLASK_SETTINGS environment variable:
+export WQFLASK_SETTINGS=~/gene/wqflask/cfg/zach_settings.py (or wherever file is located)
+
+To search for commands in history if necessary:
+history | grep "(whatever is being searched for)"
+
+Run server:
+python runserver.py
+
+===========================================
+
+Start screen session 
+byobu -RD (to start)
+control-a then :multiuser on
+control-a then :acladd sam
+
+type: screen -list for sessions
+screen -r zas1024/25679.byobu
+
+or if only one:
+
+screen -r zas1024/
+
+===========================================
+
+Coffeescript Stuff:
+
+coffee -c (filename)
+coffee -c -w (to watch for changes and recompile)
+coffee --help (for information about setting options)
+
+===========================================
+
+Python stuff:
+
+Classes should always inherit "object"

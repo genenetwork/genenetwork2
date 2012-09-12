@@ -60,17 +60,12 @@ class webqtlFormData:
         print("in webqtlFormData start_vars are:", pf(start_vars))
         for item in webqtlFormData.attrs:
             self.__dict__[item] = None
-        #self.__dict__.update(start_vars)
+
         for item in start_vars:
             self.__dict__[item] = start_vars[item]
-        print("  Now self.dict is:", pf(self.__dict__))
-        #for item in self.attrs:
-        #    if getattr(self, item, None):
-        #        print("Setting item %s to None" % (item,))
-        #        self.attrs[item] = None
-        #    else:
-        #        self.attrs[item] = self.attrs[item].strip()
+        #print("  Now self.dict is:", pf(self.__dict__))
 
+        #Todo: This can't be good below...rework
         try:
             self.remote_ip = req.connection.remote_ip
         except:
@@ -151,23 +146,32 @@ class webqtlFormData:
 
 
     def readGenotype(self):
-        'read genotype from .geno file'
+        '''read genotype from .geno file'''
         if self.RISet == 'BXD300':
             self.RISet = 'BXD'
-        else:
-            pass
-        assert self.RISet
+    
+        assert self.RISet, "self.RISet needs to be set"
+        
         #genotype_1 is Dataset Object without parents and f1
         #genotype_2 is Dataset Object with parents and f1 (not for intercross)
+        
         self.genotype_1 = reaper.Dataset()
-        self.genotype_1.read(os.path.join(webqtlConfig.GENODIR, self.RISet + '.geno'))
+        
+        full_filename = os.path.join(webqtlConfig.GENODIR, self.RISet + '.geno')
+        
+        # reaper barfs on unicode filenames, so here we ensure it's a string
+        full_filename = str(full_filename)
+        self.genotype_1.read(full_filename)
+        
+        print("Got to after read")
+        
         try:
             # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
             _f1, _f12, _mat, _pat = webqtlUtil.ParInfo[self.RISet]
-        except:
+        except KeyError:
             _f1 = _f12 = _mat = _pat = None
 
-        self.genotype_2 =self.genotype_1
+        self.genotype_2 = self.genotype_1
         if self.genotype_1.type == "riset" and _mat and _pat:
             self.genotype_2 = self.genotype_1.add(Mat=_mat, Pat=_pat)       #, F1=_f1)
 
@@ -177,78 +181,83 @@ class webqtlFormData:
         else:
             self.incparentsf1 = 0
             self.genotype = self.genotype_1
+            
         self.strainlist = list(self.genotype.prgy)
-        self.f1list = self.parlist = []
+        self.f1list = []
+        self.parlist = []
+        
         if _f1 and _f12:
             self.f1list = [_f1, _f12]
         if _mat and _pat:
             self.parlist = [_mat, _pat]
+            
 
-    def readData(self, strainlst=[], incf1=[]):
-        'read user input data or from trait data and analysis form'
+    def readData(self, strainlist, incf1=None):
+        '''read user input data or from trait data and analysis form'''
+
+        if incf1 == None:
+            incf1 = []
 
         if not self.genotype:
             self.readGenotype()
-        if not strainlst:
+        if not strainlist:
             if incf1:
-                strainlst = self.f1list + self.strainlist
+                strainlist = self.f1list + self.strainlist
             else:
-                strainlst = self.strainlist
+                strainlist = self.strainlist
 
+        #print("before traitfiledata self.traitfile is:", pf(self.traitfile))
 
-        traitfiledata = self.formdata.getfirst('traitfile')
-        traitpastedata = self.formdata.getfirst('traitpaste')
-        variancefiledata = self.formdata.getfirst('variancefile')
-        variancepastedata = self.formdata.getfirst('variancepaste')
-        Nfiledata = self.formdata.getfirst('Nfile')
+        traitfiledata = getattr(self, "traitfile", None) 
+        traitpastedata = getattr(self, "traitpaste", None) 
+        variancefiledata = getattr(self, "variancefile", None) 
+        variancepastedata = getattr(self, "variancepaste", None) 
+        Nfiledata = getattr(self, "Nfile", None) 
 
+        #### Todo: Rewrite below when we get to someone submitting their own trait #####
 
         if traitfiledata:
-            tt = string.split(traitfiledata)
-            vals = map(webqtlUtil.StringAsFloat, tt)
+            tt = traitfiledata.split()
+            values = map(webqtlUtil.StringAsFloat, tt)
         elif traitpastedata:
-            tt = string.split(traitpastedata)
-            vals = map(webqtlUtil.StringAsFloat, tt)
+            tt = traitpastedata.split()
+            values = map(webqtlUtil.StringAsFloat, tt)
         else:
-            vals = map(self.FormDataAsFloat, strainlst)
+            values = map(self.FormDataAsFloat, strainlist)
 
-        if len(vals) < len(strainlst):
-            vals += [None]*(len(strainlst) - len(vals))
-        elif len(vals) > len(strainlst):
-            vals = vals[:len(strainlst)]
-        else:
-            pass
-
+        if len(values) < len(strainlist):
+            values += [None] * (len(strainlist) - len(values))
+        elif len(values) > len(strainlist):
+            values = values[:len(strainlist)]
+            
 
         if variancefiledata:
-            tt = string.split(variancefiledata)
-            vars = map(webqtlUtil.StringAsFloat, tt)
+            tt = variancefiledata.split()
+            variances = map(webqtlUtil.StringAsFloat, tt)
         elif variancepastedata:
-            tt = string.split(variancepastedata)
-            vars = map(webqtlUtil.StringAsFloat, tt)
+            tt = variancepastedata.split()
+            variances = map(webqtlUtil.StringAsFloat, tt)
         else:
-            vars = map(self.FormVarianceAsFloat, strainlst)
+            variances = map(self.FormVarianceAsFloat, strainlist)
 
-        if len(vars) < len(strainlst):
-            vars += [None]*(len(strainlst) - len(vars))
-        elif len(vars) > len(strainlst):
-            vars = vars[:len(strainlst)]
-        else:
-            pass
+        if len(variances) < len(strainlist):
+            variances += [None]*(len(strainlist) - len(variances))
+        elif len(variances) > len(strainlist):
+            variances = variances[:len(strainlist)]
 
         if Nfiledata:
             tt = string.split(Nfiledata)
             nstrains = map(webqtlUtil.IntAsFloat, tt)
-            if len(nstrains) < len(strainlst):
-                nstrains += [None]*(len(strainlst) - len(nstrains))
+            if len(nstrains) < len(strainlist):
+                nstrains += [None]*(len(strainlist) - len(nstrains))
         else:
-            nstrains = map(self.FormNAsFloat, strainlst)
+            nstrains = map(self.FormNAsFloat, strainlist)
 
-        ##vals, vars, nstrains is obsolete
+        ##values, variances, nstrains is obsolete
         self.allTraitData = {}
-        for i, _strain in enumerate(strainlst):
-            if vals[i] != None:
-                self.allTraitData[_strain] = webqtlCaseData(vals[i], vars[i], nstrains[i])
+        for i, _strain in enumerate(strainlist):
+            if values[i] != None:
+                self.allTraitData[_strain] = webqtlCaseData(values[i], variances[i], nstrains[i])
 
 
 
