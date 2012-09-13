@@ -157,7 +157,7 @@ def get_correlation_method_key(form_data):
     #XZ, 09/28/2008: if user select "4", then display 1, 3 and 4.
     #XZ, 09/28/2008: if user select "5", then display 2, 3 and 5.
 
-    method = form_data.formdata.getvalue("method")
+    method = form_data.method
     if method not in ["1", "2", "3" ,"4", "5"]:
         return "1"
 
@@ -166,7 +166,7 @@ def get_correlation_method_key(form_data):
 
 def get_custom_trait(form_data, cursor):
     """Pulls the custom trait, if it exists, out of the form data"""
-    trait_name = form_data.formdata.getvalue('fullname')
+    trait_name = form_data.fullname
 
     if trait_name:
         trait = webqtlTrait(fullname=trait_name, cursor=cursor)
@@ -178,7 +178,7 @@ def get_custom_trait(form_data, cursor):
 
 #XZ, 09/18/2008: get the information such as value, variance of the input strain names from the form.
 def get_sample_data(fd):
-    print("fd is:", pf(fd.__dict__))
+    #print("fd is:", pf(fd.__dict__))
     if fd.allstrainlist:
         mdpchoice = fd.MDPChoice
         #XZ, in HTML source code, it is "BXD Only", "BXH Only", and so on
@@ -277,10 +277,10 @@ class CorrelationPage(templatePage):
         return templatePage.error(heading = heading, detail = [message], error=error)
 
     def __init__(self, fd):
-        print("in CorrelationPage __init__ fd is:", pf(fd.__dict__))
+        #print("in CorrelationPage __init__ fd is:", pf(fd.__dict__))
         # Call the superclass constructor
         templatePage.__init__(self, fd)
-        print("in CorrelationPage __init__ now fd is:", pf(fd.__dict__))
+        #print("in CorrelationPage __init__ now fd is:", pf(fd.__dict__))
         # Connect to the database
         if not self.openMysql():
             return
@@ -290,6 +290,7 @@ class CorrelationPage(templatePage):
             fd.readGenotype()
 
         sample_list = get_sample_data(fd)
+        print("sample_list is", pf(sample_list))
         
         # Whether the user chose BXD Only, Non-BXD Only, or All Strains
         # (replace BXD with whatever the group/inbredset name is)
@@ -321,17 +322,18 @@ class CorrelationPage(templatePage):
         #XZ, 09/18/2008: filter out the strains that have no value.
         self.sample_names, vals, vars, N = fd.informativeStrains(sample_list)
 
-         #CF - If less than a minimum number of strains/cases in common, don't calculate anything
+        print("samplenames is:", pf(self.sample_names))
+        #CF - If less than a minimum number of strains/cases in common, don't calculate anything
         if len(self.sample_names) < self.corrMinInformative:
             detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corrMinInformative, fd.RISet)]
             self.error(heading=None, detail=detail)
 
 
-        self.method = get_correlation_method_key(fd)
+        self.method = fd.method
         correlation_method = self.CORRELATION_METHODS[self.method]
         rankOrder = self.RANK_ORDERS[self.method]
 
-         # CF - Number of results returned
+        # CF - Number of results returned
         self.returnNumber = int(fd.criteria)
 
         self.record_count = 0

@@ -75,10 +75,10 @@ def showDatabaseBXD():
     print("showDatabaseBXD template_vars:", pf(template_vars.__dict__))
     return render_template("trait_data_and_analysis.html", **template_vars.__dict__)
 
-@app.route("/corr_compute")
+@app.route("/corr_compute", methods=('POST',))
 def corr_compute():
-    print("In corr_compute")
-    fd = webqtlFormData.webqtlFormData(request.args)
+    #print("In corr_compute, request.args is:", pf(request.form))
+    fd = webqtlFormData.webqtlFormData(request.form)
     print("Have fd")
     template_vars = CorrelationPage.CorrelationPage(fd)
     print("Made it to  rendering")

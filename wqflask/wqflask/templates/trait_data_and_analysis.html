@@ -8,7 +8,7 @@
         <table width="100%" cellspacing="0" cellpadding="5">
           <tr>
             <td valign="top" width="100%" bgcolor="#FAFAFA">
-              <form method="post" action="/webqtl/main.py" name="dataInput" id="trait_data_form">
+              <form method="post" action="/corr_compute" name="dataInput" id="trait_data_form">
             {#    <input type="hidden" name="isSE" value="yes">
                 <input type="hidden" name="permCheck">
                 <input type="hidden" name="otherStrainVals" value="_">
@@ -683,13 +683,7 @@
 
                 <p class="sectionheader" id="title3" style="border-radius: 5px;">&nbsp;&nbsp;Calculate Correlations</p>
 
-                <p id="sectionbody3"></p><script language="Javascript" type="text/javascript">
-<!--
-
-                $(function() { $("#corr_tabs").tabs(); });
-
-                //-->
-                </script>
+                <p id="sectionbody3"></p>
 
                 <table class="target4" cellpadding="0" cellspacing="0" width="100%">
                   <tr>
@@ -771,7 +765,7 @@
                                 "sample_method" value="spearman"><br>
                                 <br>
                                     
-                                <input type="button" name="corr_compute" id="corr_compute" class="button" value="Compute"><br><br>
+                                <input type="submit" name="corr_compute" id="corr_compute" class="button" value="Compute"><br><br>
                                 
                                 <span id="sample_r_desc" class="correlation_desc fs12">
                                     The <a href="/correlationAnnotation.html#sample_r" target="_blank">Sample Correlation</a>

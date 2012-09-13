@@ -36,6 +36,12 @@ coffee --help (for information about setting options)
 
 ===========================================
 
+Unset ASKPASS when trying to git push
+
+unset SSH_ASKPASS
+
+===========================================
+
 Python stuff:
 
 Classes should always inherit "object"

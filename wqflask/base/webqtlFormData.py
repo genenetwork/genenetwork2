@@ -63,7 +63,7 @@ class webqtlFormData:
 
         for item in start_vars:
             self.__dict__[item] = start_vars[item]
-        #print("  Now self.dict is:", pf(self.__dict__))
+        print("  Now self.dict is:", pf(self.__dict__))
 
         #Todo: This can't be good below...rework
         try:
@@ -216,6 +216,13 @@ class webqtlFormData:
 
         #### Todo: Rewrite below when we get to someone submitting their own trait #####
 
+        def to_float(item):
+            try:
+                return float(item)
+            except ValueError:
+                return None
+
+        print("bottle strainlist is:", strainlist)
         if traitfiledata:
             tt = traitfiledata.split()
             values = map(webqtlUtil.StringAsFloat, tt)
@@ -223,12 +230,17 @@ class webqtlFormData:
             tt = traitpastedata.split()
             values = map(webqtlUtil.StringAsFloat, tt)
         else:
-            values = map(self.FormDataAsFloat, strainlist)
+            print("mapping formdataasfloat")
+            #values = map(self.FormDataAsFloat, strainlist)
+            values = [to_float(getattr(self, key)) for key in strainlist]
+        print("rocket values is:", values)
+
 
         if len(values) < len(strainlist):
             values += [None] * (len(strainlist) - len(values))
         elif len(values) > len(strainlist):
             values = values[:len(strainlist)]
+        print("now values is:", values)
             
 
         if variancefiledata:
@@ -257,40 +269,48 @@ class webqtlFormData:
         self.allTraitData = {}
         for i, _strain in enumerate(strainlist):
             if values[i] != None:
-                self.allTraitData[_strain] = webqtlCaseData(values[i], variances[i], nstrains[i])
+                self.allTraitData[_strain] = webqtlCaseData(
+                    _strain, values[i], variances[i], nstrains[i])
+        print("allTraitData is:", pf(self.allTraitData))
 
 
 
-    def informativeStrains(self, strainlst=[], incVars = 0):
-        '''if readData was called, use this to output the informative strains
-           (strain with values)'''
-        if not strainlst:
-            strainlst = self.strainlist
+    def informativeStrains(self, strainlist=None, include_variances = None):
+        '''if readData was called, use this to output informative strains (strain with values)'''
+        
+        if not strainlist:
+            strainlist = self.strainlist
+            
         strains = []
-        vals = []
-        vars = []
-        for _strain in strainlst:
-            if self.allTraitData.has_key(_strain):
-                _val, _var = self.allTraitData[_strain].val, self.allTraitData[_strain].var
+        values = []
+        variances = []
+        
+        #print("self.allTraitData is:", pf(self.allTraitData))
+        
+        for strain in strainlist:
+            if strain in self.allTraitData:
+                _val, _var = self.allTraitData[strain].value, self.allTraitData[strain].variance
                 if _val != None:
-                    if incVars:
+                    if include_variances:
                         if _var != None:
-                            strains.append(_strain)
-                            vals.append(_val)
-                            vars.append(_var)
+                            strains.append(strain)
+                            values.append(_val)
+                            variances.append(_var)
                     else:
-                        strains.append(_strain)
-                        vals.append(_val)
-                        vars.append(None)
-        return strains, vals, vars, len(strains)
+                        strains.append(strain)
+                        values.append(_val)
+                        variances.append(None)
+                        
+        return strains, values, variances, len(strains)
 
 
 
-    def FormDataAsFloat(self, key):
-        try:
-            return float(self.formdata.getfirst(key))
-        except:
-            return None
+    #def FormDataAsFloat(self, key):
+    #    
+    #    #try:
+    #    #    return float(self.key)
+    #    #except:
+    #    #    return None
 
 
     def FormVarianceAsFloat(self, key):

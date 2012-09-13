@@ -166,20 +166,20 @@ $ ->
 
     $('select[name=corr_method]').change(on_corr_method_change)
     
-    on_corr_submit = ->
-        console.log("in beginning of on_corr_submit")
-        values = $('#trait_data_form').serialize()
-        console.log("in on_corr_submit, values are:", values)
-        
-        params = $.param(values)
-        window.location.href = "/corr_compute?" + params
-        
-        #$.ajax "/corr_compute",
-        #    type: 'GET'
-        #    dataType: 'html'
-        #    data: values
-            
-    $('#corr_compute').click(on_corr_submit)
+    #on_corr_submit = ->
+    #    console.log("in beginning of on_corr_submit")
+    #    values = $('#trait_data_form').serialize()
+    #    console.log("in on_corr_submit, values are:", values)
+    #    
+    #    params = $.param(values)
+    #    window.location.href = "/corr_compute?" + params
+    #    
+    #    #$.ajax "/corr_compute",
+    #    #    type: 'GET'
+    #    #    dataType: 'html'
+    #    #    data: values
+    #        
+    #$('#corr_compute').click(on_corr_submit)
 
     ###
     End Calculate Correlations Code

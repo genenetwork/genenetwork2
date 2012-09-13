@@ -10,7 +10,7 @@
   };
 
   $(function() {
-    var edit_data_change, hide_tabs, make_table, on_corr_method_change, on_corr_submit, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var edit_data_change, hide_tabs, make_table, on_corr_method_change, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -199,15 +199,6 @@
       return $('#' + corr_method + "_r_desc").show().effect("highlight");
     };
     $('select[name=corr_method]').change(on_corr_method_change);
-    on_corr_submit = function() {
-      var params, values;
-      console.log("in beginning of on_corr_submit");
-      values = $('#trait_data_form').serialize();
-      console.log("in on_corr_submit, values are:", values);
-      params = $.param(values);
-      return window.location.href = "/corr_compute?" + params;
-    };
-    $('#corr_compute').click(on_corr_submit);
     /*
         End Calculate Correlations Code
     */
