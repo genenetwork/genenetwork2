@@ -47,7 +47,30 @@ $ ->
             console.log("n_of_samples:", n_of_samples)
             if n_of_samples != current_n_of_samples
                 $(id).html(n_of_samples).effect("highlight")
-
+                
+            id = "#" + process_id(category, "median")
+            console.log("median id:", id)
+            is_odd = the_values[category].length % 2
+            median_position = Math.floor(the_values[category].length / 2)
+            console.log("median_position:", median_position)
+            
+            the_values_sorted = the_values[category].sort(sort_numbers)
+            
+            the_median = the_values_sorted[median_position]
+            #if is_odd
+            #    the_median = the_values_sorted[category][median_position]
+            #else
+            #    the_median = (the_values_sorted[category][median_position] +
+            #                  the_values_sorted[category][median_position + 1]) / 2
+            current_median = $(id).html()
+            console.log("the_median:", the_median)
+            if the_median != current_median
+                $(id).html(the_median).effect("highlight")
+         
+            
+    sort_numbers = (a, b) ->
+        return a - b
+        
 
 
     edit_data_change = ->

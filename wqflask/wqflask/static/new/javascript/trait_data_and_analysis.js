@@ -10,7 +10,7 @@
   };
 
   $(function() {
-    var edit_data_change, hide_tabs, make_table, on_corr_method_change, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var edit_data_change, hide_tabs, make_table, on_corr_method_change, process_id, show_hide_outliers, sort_numbers, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -28,7 +28,7 @@
     };
     $(".stats_mdp").change(stats_mdp_change);
     update_stat_values = function(the_values) {
-      var category, current_mean, current_n_of_samples, id, in_box, n_of_samples, the_mean, total, value, _i, _j, _len, _len1, _ref, _ref1, _results;
+      var category, current_mean, current_median, current_n_of_samples, id, in_box, is_odd, median_position, n_of_samples, the_mean, the_median, the_values_sorted, total, value, _i, _j, _len, _len1, _ref, _ref1, _results;
       _ref = ['primary_only', 'other_only', 'all_cases'];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -62,12 +62,27 @@
         console.log("cnos:", current_n_of_samples);
         console.log("n_of_samples:", n_of_samples);
         if (n_of_samples !== current_n_of_samples) {
-          _results.push($(id).html(n_of_samples).effect("highlight"));
+          $(id).html(n_of_samples).effect("highlight");
+        }
+        id = "#" + process_id(category, "median");
+        console.log("median id:", id);
+        is_odd = the_values[category].length % 2;
+        median_position = Math.floor(the_values[category].length / 2);
+        console.log("median_position:", median_position);
+        the_values_sorted = the_values[category].sort(sort_numbers);
+        the_median = the_values_sorted[median_position];
+        current_median = $(id).html();
+        console.log("the_median:", the_median);
+        if (the_median !== current_median) {
+          _results.push($(id).html(the_median).effect("highlight"));
         } else {
           _results.push(void 0);
         }
       }
       return _results;
+    };
+    sort_numbers = function(a, b) {
+      return a - b;
     };
     edit_data_change = function() {
       var category, checkbox, checked, real_value, row, the_values, value, values, _i, _len;
