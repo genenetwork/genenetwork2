@@ -21,57 +21,60 @@ $ ->
 
     update_stat_values = (the_values)->
         for category in ['primary_only', 'other_only', 'all_cases']
+            # Mean
             id = "#" + process_id(category, "mean")
-            console.log("id:", id)
             total = 0
             total += value for value in the_values[category]
             the_mean = total / the_values[category].length
             the_mean = the_mean.toFixed(2)
-            console.log("aaa")
             in_box = $(id).html
-            console.log("in_box:", in_box)
+            
             current_mean = parseFloat($(in_box)).toFixed(2)
-            console.log("the_mean:", the_mean)
-            console.log("current_mean:", current_mean)
-            console.log("aab")
-            if the_mean != current_mean
-                console.log("setting mean")
-                $(id).html(the_mean).effect("highlight")
-                console.log("should be set")
 
+            if the_mean != current_mean
+                $(id).html(the_mean).effect("highlight")
+
+
+            # Number of samples
             n_of_samples = the_values[category].length
             id = "#" + process_id(category, "n_of_samples")
-            console.log("n_of_samples id:", id)
             current_n_of_samples = $(id).html()
-            console.log("cnos:", current_n_of_samples)
-            console.log("n_of_samples:", n_of_samples)
             if n_of_samples != current_n_of_samples
                 $(id).html(n_of_samples).effect("highlight")
-                
+            
+            
+            # Median
             id = "#" + process_id(category, "median")
-            console.log("median id:", id)
+
             is_odd = the_values[category].length % 2
             median_position = Math.floor(the_values[category].length / 2)
-            console.log("median_position:", median_position)
             
-            the_values_sorted = the_values[category].sort(sort_numbers)
-            
-            the_median = the_values_sorted[median_position]
-            #if is_odd
-            #    the_median = the_values_sorted[category][median_position]
-            #else
-            #    the_median = (the_values_sorted[category][median_position] +
-            #                  the_values_sorted[category][median_position + 1]) / 2
+            # sort numerically
+            the_values_sorted = the_values[category].sort((a, b) -> return a - b)
+            if is_odd
+                the_median = the_values_sorted[median_position]
+            else
+                the_median = (the_values_sorted[median_position] +
+                              the_values_sorted[median_position + 1]) / 2
             current_median = $(id).html()
-            console.log("the_median:", the_median)
             if the_median != current_median
                 $(id).html(the_median).effect("highlight")
-         
-            
-    sort_numbers = (a, b) ->
-        return a - b
-        
 
+            # Todo: Compare stat values to genenetwork.org current code / sample vs. population
+            # Standard deviation
+            sum = 0
+            for value in the_values[category]
+                step_a = Math.pow(value - the_mean, 2)
+                sum += step_a
+            step_b = sum / the_values[category].length
+            sd = Math.sqrt(step_b)
+            sd = sd.toFixed(2)
+            
+            id = "#" + process_id(category, "sd")
+            current_sd = $(id).html()
+            if sd != current_sd
+                $(id).html(sd).effect("highlight")
+            
 
     edit_data_change = ->
         the_values =
@@ -130,6 +133,10 @@ $ ->
                 {
                     vn: "se"
                     pretty: "Standard Error (SE)"
+                },
+                {
+                    vn: "sd"
+                    pretty: "Standard Deviation (SD)"
                 }
         ]
 

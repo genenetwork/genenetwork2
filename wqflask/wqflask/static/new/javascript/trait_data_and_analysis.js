@@ -10,7 +10,7 @@
   };
 
   $(function() {
-    var edit_data_change, hide_tabs, make_table, on_corr_method_change, process_id, show_hide_outliers, sort_numbers, stats_mdp_change, update_stat_values;
+    var edit_data_change, hide_tabs, make_table, on_corr_method_change, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -28,13 +28,12 @@
     };
     $(".stats_mdp").change(stats_mdp_change);
     update_stat_values = function(the_values) {
-      var category, current_mean, current_median, current_n_of_samples, id, in_box, is_odd, median_position, n_of_samples, the_mean, the_median, the_values_sorted, total, value, _i, _j, _len, _len1, _ref, _ref1, _results;
+      var category, current_mean, current_median, current_n_of_samples, current_sd, id, in_box, is_odd, median_position, n_of_samples, sd, step_a, step_b, sum, the_mean, the_median, the_values_sorted, total, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _results;
       _ref = ['primary_only', 'other_only', 'all_cases'];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         category = _ref[_i];
         id = "#" + process_id(category, "mean");
-        console.log("id:", id);
         total = 0;
         _ref1 = the_values[category];
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
@@ -43,46 +42,51 @@
         }
         the_mean = total / the_values[category].length;
         the_mean = the_mean.toFixed(2);
-        console.log("aaa");
         in_box = $(id).html;
-        console.log("in_box:", in_box);
         current_mean = parseFloat($(in_box)).toFixed(2);
-        console.log("the_mean:", the_mean);
-        console.log("current_mean:", current_mean);
-        console.log("aab");
         if (the_mean !== current_mean) {
-          console.log("setting mean");
           $(id).html(the_mean).effect("highlight");
-          console.log("should be set");
         }
         n_of_samples = the_values[category].length;
         id = "#" + process_id(category, "n_of_samples");
-        console.log("n_of_samples id:", id);
         current_n_of_samples = $(id).html();
-        console.log("cnos:", current_n_of_samples);
-        console.log("n_of_samples:", n_of_samples);
         if (n_of_samples !== current_n_of_samples) {
           $(id).html(n_of_samples).effect("highlight");
         }
         id = "#" + process_id(category, "median");
-        console.log("median id:", id);
         is_odd = the_values[category].length % 2;
         median_position = Math.floor(the_values[category].length / 2);
-        console.log("median_position:", median_position);
-        the_values_sorted = the_values[category].sort(sort_numbers);
-        the_median = the_values_sorted[median_position];
+        the_values_sorted = the_values[category].sort(function(a, b) {
+          return a - b;
+        });
+        if (is_odd) {
+          the_median = the_values_sorted[median_position];
+        } else {
+          the_median = (the_values_sorted[median_position] + the_values_sorted[median_position + 1]) / 2;
+        }
         current_median = $(id).html();
-        console.log("the_median:", the_median);
         if (the_median !== current_median) {
-          _results.push($(id).html(the_median).effect("highlight"));
+          $(id).html(the_median).effect("highlight");
+        }
+        sum = 0;
+        _ref2 = the_values[category];
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          value = _ref2[_k];
+          step_a = Math.pow(value - the_mean, 2);
+          sum += step_a;
+        }
+        step_b = sum / the_values[category].length;
+        sd = Math.sqrt(step_b);
+        sd = sd.toFixed(2);
+        id = "#" + process_id(category, "sd");
+        current_sd = $(id).html();
+        if (sd !== current_sd) {
+          _results.push($(id).html(sd).effect("highlight"));
         } else {
           _results.push(void 0);
         }
       }
       return _results;
-    };
-    sort_numbers = function(a, b) {
-      return a - b;
     };
     edit_data_change = function() {
       var category, checkbox, checked, real_value, row, the_values, value, values, _i, _len;
@@ -146,6 +150,9 @@
         }, {
           vn: "se",
           pretty: "Standard Error (SE)"
+        }, {
+          vn: "sd",
+          pretty: "Standard Deviation (SD)"
         }
       ];
       console.log("rows are:", rows);
