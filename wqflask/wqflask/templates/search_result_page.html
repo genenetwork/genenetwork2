@@ -39,7 +39,7 @@
 
                             <P>To add one or more records to your Selection window, use the checkbox and then click the <STRONG>Add to Collection</STRONG> button.</P>
                         </BLOCKQUOTE>
-                        <FORM METHOD="GET" ACTION="/search" ENCTYPE="multipart/form-data" NAME="showDatabaseBXD">
+                        <FORM METHOD="GET" ACTION="/search" ENCTYPE="multipart/form-data" NAME="show_trait">
 
                         <INPUT TYPE="hidden" NAME="database" VALUE="_">
                         <INPUT TYPE="hidden" NAME="incparentsf1" VALUE="ON">
@@ -54,16 +54,16 @@
                                     <TABLE border="0" cellpadding="0" cellspacing="2" width="20%">
                                         <TR>
                                             <TD width="25%">
-                                                <A HREF="#" onClick="checkAll(document.getElementsByName('showDatabaseBXD')[0]);">
+                                                <A HREF="#" onClick="checkAll(document.getElementsByName('show_trait')[0]);">
                                                 <IMG src="/images/select_all2_final.jpg" alt="Select All" name="selectall" style="border:none;" title="Select All"></A>
                                             </TD>
                                             <TD width="25%">
-                                                <A HREF="#" onClick="checkNone(document.getElementsByName('showDatabaseBXD')[0]);">
+                                                <A HREF="#" onClick="checkNone(document.getElementsByName('show_trait')[0]);">
                                                     <IMG src="/images/select_none2_final.jpg" alt="Select None" style="border:none;" title="Select None">
                                                 </A>
                                             </TD>
                                             <TD width="25%">
-                                                <A HREF="#" onClick="checkInvert(document.getElementsByName('showDatabaseBXD')[0]);">
+                                                <A HREF="#" onClick="checkInvert(document.getElementsByName('show_trait')[0]);">
                                                     <IMG src="/images/invert_selection2_final.jpg" alt="Invert Selection" name="selectinvert" style="border:none;" title="Invert Selection">
                                                 </A>
                                             </TD>
@@ -173,7 +173,7 @@
                                                 </TD>
                                                 <TD class="fs12 fwn b1 c222">
 													{# <A HREF="javascript:showDatabase3('{{ thisFormName }}','{{thisTrait.db.name}}','{{ thisTrait.name }}','{{ thisTrait.cellid }}')" class="fs12 fwn"> - </a> #}
-													<a href="{{ url_for('showDatabaseBXD', database=thisTrait.db.name, ProbeSetID=thisTrait.name, incparentsf1='ON', RISet='BXD')}}" class="fs12 fwn">
+													<a href="{{ url_for('show_trait', database=thisTrait.db.name, ProbeSetID=thisTrait.name, incparentsf1='ON', RISet='BXD')}}" class="fs12 fwn">
 														{{ thisTrait.name.upper() }}
 													</a>
                                                 </TD>

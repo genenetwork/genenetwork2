@@ -1,5 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
+import json
+import yaml
+
 import flask
 
 from wqflask import app
@@ -16,9 +19,8 @@ from base import webqtlFormData
 
 from pprint import pformat as pf
 
-import yaml
-
 print("latest blue")
+
 
 @app.route("/")
 def index_page():
@@ -40,6 +42,7 @@ def data_sharing():
     return render_template("data_sharing.html",
                             info=info,
                             htmlfilelist=htmlfilelist)
+
 
 @app.route("/search")
 def search():
@@ -67,13 +70,18 @@ def whats_new():
         print("\nnews_item is: %s\n" % (news_item))
     return render_template("whats_new.html", news_items=news_items)
 
-@app.route("/showDatabaseBXD")
-def showDatabaseBXD():
+
+@app.route("/show_trait")
+def show_trait():
     # Here it's currently too complicated not to use an fd that is a webqtlFormData
     fd = webqtlFormData.webqtlFormData(request.args)
     template_vars = show_trait_page.ShowTraitPage(fd)
-    print("showDatabaseBXD template_vars:", pf(template_vars.__dict__))
+    
+    template_vars.js_data = json.dumps(template_vars.js_data)
+    
+    print("show_trait template_vars:", pf(template_vars.__dict__))
     return render_template("trait_data_and_analysis.html", **template_vars.__dict__)
+
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute():
@@ -83,6 +91,7 @@ def corr_compute():
     template_vars = CorrelationPage.CorrelationPage(fd)
     print("Made it to  rendering")
     return render_template("corr_compute.html", **template_vars.__dict__)
+
 
 # Todo: Can we simplify this? -Sam
 def sharing_info_page():

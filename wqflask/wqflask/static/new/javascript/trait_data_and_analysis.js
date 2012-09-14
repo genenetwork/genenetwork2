@@ -29,7 +29,7 @@
     $(".stats_mdp").change(stats_mdp_change);
     update_stat_values = function(the_values) {
       var category, current_mean, current_n_of_samples, id, in_box, n_of_samples, the_mean, total, value, _i, _j, _len, _len1, _ref, _ref1, _results;
-      _ref = ['primary', 'other', 'all'];
+      _ref = ['primary_only', 'other_only', 'all_cases'];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         category = _ref[_i];
@@ -72,9 +72,9 @@
     edit_data_change = function() {
       var category, checkbox, checked, real_value, row, the_values, value, values, _i, _len;
       the_values = {
-        primary: [],
-        other: [],
-        all: []
+        primary_only: [],
+        other_only: [],
+        all_cases: []
       };
       console.log("at beginning:", the_values);
       values = $('#value_table').find(".edit_strain_value");
@@ -94,27 +94,30 @@
         if (is_number(real_value) && real_value !== "") {
           real_value = parseFloat(real_value);
           if (_(category).startsWith("Primary")) {
-            the_values.primary.push(real_value);
+            the_values.primary_only.push(real_value);
           } else if (_(category).startsWith("Other")) {
-            the_values.other.push(real_value);
+            the_values.other_only.push(real_value);
           }
-          the_values.all.push(real_value);
+          the_values.all_cases.push(real_value);
         }
       }
-      console.log("torwads end:", the_values);
+      console.log("towards end:", the_values);
       return update_stat_values(the_values);
     };
     make_table = function() {
-      var column, header, row, row_line, rows, table, the_id, the_rows, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+      var header, key, row, row_line, rows, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
       header = "<thead><tr><th>&nbsp;</th>";
-      _ref = basic_table['columns'];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        column = _ref[_i];
-        console.log("column:", column);
-        the_id = process_id("column", column.t);
-        header += "<th id=\"" + the_id + "\">" + column.n + "</th>";
+      console.log("js_data.sample_groups:", js_data.sample_groups);
+      _ref = js_data.sample_groups;
+      for (key in _ref) {
+        value = _ref[key];
+        console.log("aa key:", key);
+        console.log("aa value:", value);
+        the_id = process_id("column", key);
+        header += "<th id=\"" + the_id + "\">" + value + "</th>";
       }
       header += "</thead>";
+      console.log("windex header is:", header);
       rows = [
         {
           vn: "n_of_samples",
@@ -133,16 +136,17 @@
       console.log("rows are:", rows);
       the_rows = "<tbody>";
       console.log("length of rows:", rows.length);
-      for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
-        row = rows[_j];
+      for (_i = 0, _len = rows.length; _i < _len; _i++) {
+        row = rows[_i];
         console.log("rowing");
         row_line = "<tr>";
         row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
-        _ref1 = basic_table['columns'];
-        for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-          column = _ref1[_k];
-          console.log("apple:", column);
-          the_id = process_id(column.t, row.vn);
+        console.log("box - js_data.sample_groups:", js_data.sample_groups);
+        _ref1 = js_data.sample_groups;
+        for (key in _ref1) {
+          value = _ref1[key];
+          console.log("apple key:", key);
+          the_id = process_id(key, row.vn);
           console.log("the_id:", the_id);
           row_line += "<td id=\"" + the_id + "\">foo</td>";
         }
@@ -186,10 +190,6 @@
         return console.log("Should be now Hide Outliers");
       }
     };
-    /*
-        Calculate Correlations Code
-    */
-
     on_corr_method_change = function() {
       var corr_method;
       console.log("in beginning of on_corr_method_change");
@@ -199,16 +199,14 @@
       return $('#' + corr_method + "_r_desc").show().effect("highlight");
     };
     $('select[name=corr_method]').change(on_corr_method_change);
-    /*
-        End Calculate Correlations Code
-    */
-
     console.log("before registering show_hide_outliers");
     $('#show_hide_outliers').click(show_hide_outliers);
     console.log("after registering show_hide_outliers");
     _.mixin(_.str.exports());
     $('#value_table').change(edit_data_change);
     console.log("loaded");
+    make_table();
+    edit_data_change();
     return console.log("end");
   });
 

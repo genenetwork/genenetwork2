@@ -244,6 +244,7 @@ class DataEditingPage(templatePage):
         self.sample_groups['primary_only'] = fd.RISet + " Only"
         self.sample_groups['other_only'] = "Non-" + fd.RISet
         self.sample_groups['all_cases'] = "All Cases"
+        self.js_data = dict(sample_groups = self.sample_groups)
         
         
         #self.basic_table['columns'] = yaml.load("""

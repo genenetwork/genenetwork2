@@ -45,6 +45,7 @@ from utility import webqtlUtil
 
 class webqtlFormData:
     'Represents data from a WebQTL form page, needed to generate the next page'
+    
     attrs = ('formID','RISet','genotype','strainlist','allstrainlist',
     'suggestive','significance','submitID','identification', 'enablevariance',
     'nperm','nboot','email','incparentsf1','genotype_1','genotype_2','traitInfo')

@@ -20,7 +20,7 @@ $ ->
     $(".stats_mdp").change(stats_mdp_change)
 
     update_stat_values = (the_values)->
-        for category in ['primary', 'other', 'all']
+        for category in ['primary_only', 'other_only', 'all_cases']
             id = "#" + process_id(category, "mean")
             console.log("id:", id)
             total = 0
@@ -52,9 +52,9 @@ $ ->
 
     edit_data_change = ->
         the_values =
-            primary: []
-            other: []
-            all: []
+            primary_only: []
+            other_only: []
+            all_cases: []
         console.log("at beginning:", the_values)
         values = $('#value_table').find(".edit_strain_value")
         #console.log("values are:", values)
@@ -73,20 +73,23 @@ $ ->
             if is_number(real_value) and real_value != ""
                 real_value = parseFloat(real_value)
                 if _(category).startsWith("Primary")
-                    the_values.primary.push(real_value)
+                    the_values.primary_only.push(real_value)
                 else if _(category).startsWith("Other")
-                    the_values.other.push(real_value)
-                the_values.all.push(real_value)
-        console.log("torwads end:", the_values)
+                    the_values.other_only.push(real_value)
+                the_values.all_cases.push(real_value)
+        console.log("towards end:", the_values)
         update_stat_values(the_values)
 
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"
-        for column in basic_table['columns']
-            console.log("column:", column)
-            the_id = process_id("column", column.t)
-            header += """<th id="#{ the_id }">#{ column.n }</th>"""
+        console.log("js_data.sample_groups:", js_data.sample_groups)
+        for key, value of js_data.sample_groups
+            console.log("aa key:", key)
+            console.log("aa value:", value)
+            the_id = process_id("column", key)
+            header += """<th id="#{ the_id }">#{ value }</th>"""
         header += "</thead>"
+        console.log("windex header is:", header)
 
         rows = [
                 {
@@ -114,9 +117,10 @@ $ ->
             console.log("rowing")
             row_line = """<tr>"""
             row_line += """<td id="#{ row.vn  }">#{ row.pretty }</td>"""
-            for column in basic_table['columns']
-                console.log("apple:", column)
-                the_id = process_id(column.t, row.vn)
+            console.log("box - js_data.sample_groups:", js_data.sample_groups)
+            for key, value of js_data.sample_groups
+                console.log("apple key:", key)
+                the_id = process_id(key, row.vn)
                 console.log("the_id:", the_id)
                 row_line += """<td id="#{ the_id }">foo</td>"""
             row_line += """</tr>"""
@@ -152,10 +156,9 @@ $ ->
             $('#show_hide_outliers').val("Hide Outliers")
             console.log("Should be now Hide Outliers")
 
-
-    ###
-    Calculate Correlations Code
-    ###
+    
+    #Calculate Correlations Code
+    
     
     on_corr_method_change = ->
         console.log("in beginning of on_corr_method_change")
@@ -181,9 +184,9 @@ $ ->
     #        
     #$('#corr_compute').click(on_corr_submit)
 
-    ###
-    End Calculate Correlations Code
-    ###
+    
+    #End Calculate Correlations Code
+    
 
 
     console.log("before registering show_hide_outliers")
@@ -195,7 +198,7 @@ $ ->
     console.log("loaded")
     #console.log("basic_table is:", basic_table)
     # Add back following two lines later
-    #make_table()
-    #edit_data_change()   # Set the values at the beginning
+    make_table()
+    edit_data_change()   # Set the values at the beginning
     #$("#all-mean").html('foobar8')
     console.log("end")
