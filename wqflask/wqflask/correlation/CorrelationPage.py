@@ -279,11 +279,16 @@ class CorrelationPage(templatePage):
     def __init__(self, fd):
         #print("in CorrelationPage __init__ fd is:", pf(fd.__dict__))
         # Call the superclass constructor
+        
+        # Put everything in fd into self
+        self.__dict__.update(fd.__dict__)
+        
         templatePage.__init__(self, fd)
+        
         #print("in CorrelationPage __init__ now fd is:", pf(fd.__dict__))
         # Connect to the database
         if not self.openMysql():
-            return
+            returnt
 
         # Read the genotype from a file
         if not fd.genotype:
@@ -315,7 +320,7 @@ class CorrelationPage(templatePage):
          # Auth if needed
         try:
             auth_user_for_db(self.db, self.cursor, self.target_db_name, self.privilege, self.userName)
-        except AuthException, e:
+        except AuthException as e:
             detail = [e.message]
             return self.error(detail)
 
@@ -327,9 +332,11 @@ class CorrelationPage(templatePage):
         if len(self.sample_names) < self.corrMinInformative:
             detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corrMinInformative, fd.RISet)]
             self.error(heading=None, detail=detail)
-
-
-        self.method = fd.method
+        
+        for key, value in self.__dict__.items():
+            if key.startswith("corr"):
+                print("[red] %s - %s" % (key, value))
+        
         correlation_method = self.CORRELATION_METHODS[self.method]
         rankOrder = self.RANK_ORDERS[self.method]
 

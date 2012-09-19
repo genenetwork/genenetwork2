@@ -1,0 +1,2 @@
+- Fix issue with parents appearing twice in primary samples table
+- Check standard deviation value against GeneNetwork's standard deviation value
