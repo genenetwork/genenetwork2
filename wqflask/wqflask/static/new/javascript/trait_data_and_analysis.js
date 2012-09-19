@@ -218,7 +218,12 @@
       corr_method = $('select[name=corr_method]').val();
       console.log("corr_method is:", corr_method);
       $('.correlation_desc').hide();
-      return $('#' + corr_method + "_r_desc").show().effect("highlight");
+      $('#' + corr_method + "_r_desc").show().effect("highlight");
+      if (corr_method === "lit") {
+        return $("#corr_sample_method_options").hide();
+      } else {
+        return $("#corr_sample_method_options").show();
+      }
     };
     $('select[name=corr_method]').change(on_corr_method_change);
     console.log("before registering show_hide_outliers");

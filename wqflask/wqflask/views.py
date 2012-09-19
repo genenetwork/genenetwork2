@@ -90,7 +90,7 @@ def corr_compute():
     print("Have fd")
     template_vars = CorrelationPage.CorrelationPage(fd)
     print("Made it to  rendering")
-    return render_template("corr_compute.html", **template_vars.__dict__)
+    return render_template("correlation_page.html", **template_vars.__dict__)
 
 
 # Todo: Can we simplify this? -Sam

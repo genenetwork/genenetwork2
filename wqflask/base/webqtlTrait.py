@@ -660,3 +660,37 @@ class webqtlTrait:
         else:
             return dict(name = self.db.fullname,
                         url = webqtlConfig.INFOPAGEHREF % self.db.name)
+        
+    def calculate_correlation(self, values, method):
+        """Calculate the correlation value and p value according to the method specified"""
+
+        #ZS: This takes the list of values of the trait our selected trait is being correlated against and removes the values of the samples our trait has no value for
+        #There's probably a better way of dealing with this, but I'll have to ask Christian
+        updated_raw_values = []
+        updated_values = []
+        for i in range(len(values)):
+            if values[i] != "None":
+                updated_raw_values.append(self.raw_values[i])
+                updated_values.append(values[i])
+
+        self.raw_values = updated_raw_values
+        values = updated_values
+
+        if method == METHOD_SAMPLE_PEARSON or method == METHOD_LIT or method == METHOD_TISSUE_PEARSON:
+            corr, nOverlap = webqtlUtil.calCorrelation(self.raw_values, values, len(values))
+        else:
+            corr, nOverlap = webqtlUtil.calCorrelationRank(self.raw_values, values, len(values))
+
+        self.correlation = corr
+        self.overlap = nOverlap
+
+        if self.overlap < 3:
+            self.p_value = 1.0
+        else:
+            #ZS - This is probably the wrong way to deal with this. Correlation values of 1.0 definitely exist (the trait correlated against itself), so zero division needs to br prevented.
+            if abs(self.correlation) >= 1.0:
+                self.p_value = 0.0
+            else:
+                ZValue = 0.5*log((1.0+self.correlation)/(1.0-self.correlation))
+                ZValue = ZValue*sqrt(self.overlap-3)
+                self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))        

@@ -72,7 +72,9 @@ class AuthException(Exception): pass
 
 
 class Trait(object):
-    def __init__(self, name, raw_values = None, lit_corr = None, tissue_corr = None, p_tissue = None):
+    
+    
+    def __init__(self, name, raw_values = None, lit_corr = None, tissue_corr = None, p_tissue = None):    
         self.name = name
         self.raw_values = raw_values
         self.lit_corr = lit_corr
@@ -260,16 +262,16 @@ def auth_user_for_db(db, cursor, target_db_name, privilege, username):
 
 class CorrelationPage(templatePage):
 
-    corrMinInformative = 4
+    corr_min_informative = 4
 
     PAGE_HEADING = "Correlation Table"
-    CORRELATION_METHODS = {"1" : "Genetic Correlation (Pearson's r)",
-                           "2" : "Genetic Correlation (Spearman's rho)",
-                           "3" : "SGO Literature Correlation",
-                           "4" : "Tissue Correlation (Pearson's r)",
-                           "5" : "Tissue Correlation (Spearman's rho)"}
-
-    RANK_ORDERS = {"1": 0, "2": 1, "3": 0, "4": 0, "5": 1}
+    #CORRELATION_METHODS = {"1" : "Genetic Correlation (Pearson's r)",
+    #                       "2" : "Genetic Correlation (Spearman's rho)",
+    #                       "3" : "SGO Literature Correlation",
+    #                       "4" : "Tissue Correlation (Pearson's r)",
+    #                       "5" : "Tissue Correlation (Spearman's rho)"}
+    #
+    #RANK_ORDERS = {"1": 0, "2": 1, "3": 0, "4": 0, "5": 1}
 
 
     def error(self, message, *args, **kw):
@@ -288,7 +290,7 @@ class CorrelationPage(templatePage):
         #print("in CorrelationPage __init__ now fd is:", pf(fd.__dict__))
         # Connect to the database
         if not self.openMysql():
-            returnt
+            return
 
         # Read the genotype from a file
         if not fd.genotype:
@@ -329,19 +331,20 @@ class CorrelationPage(templatePage):
 
         print("samplenames is:", pf(self.sample_names))
         #CF - If less than a minimum number of strains/cases in common, don't calculate anything
-        if len(self.sample_names) < self.corrMinInformative:
-            detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corrMinInformative, fd.RISet)]
+        if len(self.sample_names) < self.corr_min_informative:
+            detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corr_min_informative, fd.RISet)]
             self.error(heading=None, detail=detail)
         
         for key, value in self.__dict__.items():
             if key.startswith("corr"):
                 print("[red] %s - %s" % (key, value))
         
-        correlation_method = self.CORRELATION_METHODS[self.method]
-        rankOrder = self.RANK_ORDERS[self.method]
+        #correlation_method = self.CORRELATION_METHODS[self.method]
+        #rankOrder = self.RANK_ORDERS[self.method]
 
         # CF - Number of results returned
-        self.returnNumber = int(fd.criteria)
+        # Todo: Get rid of self.returnNumber
+        self.returnNumber = self.corr_return_results
 
         self.record_count = 0
 
