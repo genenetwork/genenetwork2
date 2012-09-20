@@ -932,14 +932,13 @@ class DataEditingPage(templatePage):
             self.MDP_menu.append(('All Cases','0'))
             self.MDP_menu.append(('%s Only' % fd.RISet, '1'))
             self.MDP_menu.append(('Non-%s Only' % fd.RISet, '2'))
-            #stats_row.append("Include: ", self.MDP_menu, HT.BR(), HT.BR())
+
         else:
             if (len(other_strains) > 0) and (len(primary_strains) + len(other_strains) > 3):
                 print("ac2")
                 self.MDP_menu.append(('All Cases','0'))
                 self.MDP_menu.append(('%s Only' % fd.RISet,'1'))
                 self.MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
-                #stats_row.append("Include: ", self.MDP_menu, "&nbsp;"*3)
                 all_strains = primary_strains
                 all_strains.sort(key=webqtlUtil.natsort_key)
                 all_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + all_strains
@@ -950,10 +949,6 @@ class DataEditingPage(templatePage):
 
             other_strains.sort(key=webqtlUtil.natsort_key)
             all_strains = all_strains + other_strains
-            pass
-
-        #update_button = HT.Input(type='button',value=' Update Figures ', Class="button update") #This is used to reload the page and update the Basic Statistics figures with user-edited data
-        #stats_row.append(update_button, HT.BR(), HT.BR())
 
         if (len(other_strains)) > 0 and (len(primary_strains) + len(other_strains) > 4):
             #One set of vals for all, selected strain only, and non-selected only
@@ -1764,9 +1759,11 @@ class DataEditingPage(templatePage):
             fd.allstrainlist = allstrainlist_neworder
 
 
-        self.primary_strains = primary_strains
-        self.other_strains = other_strains
-
+        self.primary_strains = dict(header = "%s Only" % (fd.RISet),
+                                    strains = primary_strains,)
+                                    
+        self.other_strains = dict(header = "Non-%s" % (fd.RISet),
+                                    strains = other_strains,)
 
     def create_strain_objects(self, fd, varianceDataPage, strainlist, mainForm, thisTrait,
                        other_strainsExist=None, attribute_ids=None,
