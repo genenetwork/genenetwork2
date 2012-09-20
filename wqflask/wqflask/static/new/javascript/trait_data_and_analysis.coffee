@@ -19,45 +19,25 @@ $ ->
 
     $(".stats_mdp").change(stats_mdp_change)
 
-    change_stats_value = (category, value_type, the_value)->
+    change_stats_value = (sample_sets, category, value_type, decimal_places)->
         id = "#" + process_id(category, value_type)
         console.log("the_id:", id)
         in_box = $(id).html
         
-        current_value = parseFloat($(in_box)).toFixed(2)
+        current_value = parseFloat($(in_box)).toFixed(decimal_places)
+        
+        the_value = sample_sets[category][value_type]()
+        if decimal_places > 0
+            the_value = the_value.toFixed(decimal_places)
         
         if the_value != current_value
             $(id).html(the_value).effect("highlight")
 
     update_stat_values = (sample_sets)->
         for category in ['primary_only', 'other_only', 'all_cases']
-
-            # Number of samples
-            n_of_samples = sample_sets[category].n_of_samples()
-            change_stats_value(category, "n_of_samples", n_of_samples)
-
-            # Mean
-            the_mean = sample_sets[category].mean()
-            the_mean = the_mean.toFixed(2)
-            change_stats_value(category, "mean", the_mean)
-            
-            # Median
-            #id = "#" + process_id(category, "median")
-            the_median = sample_sets[category].median()
-            the_median = the_median.toFixed(2)
-            change_stats_value(category, "median", the_median)
-
-            # Todo: Compare stat values to genenetwork.org current code / sample vs. population
-            # Standard deviation
-            the_std_dev = sample_sets[category].std_dev()
-            the_std_dev = the_std_dev.toFixed(2)
-            change_stats_value(category, "std_dev", the_std_dev)
-            
-            # Standard Error
-            the_std_error = sample_sets[category].std_error()
-            the_std_error = the_std_error.toFixed(2)
-            change_stats_value(category, "std_error", the_std_error)
-
+            change_stats_value(sample_sets, category, "n_of_samples", 0)
+            for stat in ["mean", "median", "std_dev", "std_error"]
+                change_stats_value(sample_sets, category, stat, 2)
 
     edit_data_change = ->                
         sample_sets =
@@ -183,25 +163,9 @@ $ ->
 
     $('select[name=corr_method]').change(on_corr_method_change)
     
-    #on_corr_submit = ->
-    #    console.log("in beginning of on_corr_submit")
-    #    values = $('#trait_data_form').serialize()
-    #    console.log("in on_corr_submit, values are:", values)
-    #    
-    #    params = $.param(values)
-    #    window.location.href = "/corr_compute?" + params
-    #    
-    #    #$.ajax "/corr_compute",
-    #    #    type: 'GET'
-    #    #    dataType: 'html'
-    #    #    data: values
-    #        
-    #$('#corr_compute').click(on_corr_submit)
-
     
     #End Calculate Correlations Code
     
-
 
     console.log("before registering show_hide_outliers")
     $('#show_hide_outliers').click(show_hide_outliers)

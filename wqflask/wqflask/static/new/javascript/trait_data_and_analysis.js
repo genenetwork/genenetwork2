@@ -27,36 +27,37 @@
       return $("#stats_tabs" + selected).show();
     };
     $(".stats_mdp").change(stats_mdp_change);
-    change_stats_value = function(category, value_type, the_value) {
-      var current_value, id, in_box;
+    change_stats_value = function(sample_sets, category, value_type, decimal_places) {
+      var current_value, id, in_box, the_value;
       id = "#" + process_id(category, value_type);
       console.log("the_id:", id);
       in_box = $(id).html;
-      current_value = parseFloat($(in_box)).toFixed(2);
+      current_value = parseFloat($(in_box)).toFixed(decimal_places);
+      the_value = sample_sets[category][value_type]();
+      if (decimal_places > 0) {
+        the_value = the_value.toFixed(decimal_places);
+      }
       if (the_value !== current_value) {
         return $(id).html(the_value).effect("highlight");
       }
     };
     update_stat_values = function(sample_sets) {
-      var category, n_of_samples, the_mean, the_median, the_std_dev, the_std_error, _i, _len, _ref, _results;
+      var category, stat, _i, _len, _ref, _results;
       _ref = ['primary_only', 'other_only', 'all_cases'];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         category = _ref[_i];
-        n_of_samples = sample_sets[category].n_of_samples();
-        change_stats_value(category, "n_of_samples", n_of_samples);
-        the_mean = sample_sets[category].mean();
-        the_mean = the_mean.toFixed(2);
-        change_stats_value(category, "mean", the_mean);
-        the_median = sample_sets[category].median();
-        the_median = the_median.toFixed(2);
-        change_stats_value(category, "median", the_median);
-        the_std_dev = sample_sets[category].std_dev();
-        the_std_dev = the_std_dev.toFixed(2);
-        change_stats_value(category, "std_dev", the_std_dev);
-        the_std_error = sample_sets[category].std_error();
-        the_std_error = the_std_error.toFixed(2);
-        _results.push(change_stats_value(category, "std_error", the_std_error));
+        change_stats_value(sample_sets, category, "n_of_samples", 0);
+        _results.push((function() {
+          var _j, _len1, _ref1, _results1;
+          _ref1 = ["mean", "median", "std_dev", "std_error"];
+          _results1 = [];
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            stat = _ref1[_j];
+            _results1.push(change_stats_value(sample_sets, category, stat, 2));
+          }
+          return _results1;
+        })());
       }
       return _results;
     };
