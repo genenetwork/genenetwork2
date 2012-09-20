@@ -1243,9 +1243,10 @@
                           the <strong>Hide Outliers</strong> button,<br>
                           &nbsp;&nbsp;and samples with no value (x) can be hidden by clicking <strong>Hide No Value</strong> .</span><br>
                         </div><br>
-
+                        
+                        <div style="width:80%;margin:0;padding:0;border:none;">
 						{% for strain_type in (primary_strains, other_strains) %}
-                        <div id="{{ strain_type[0]['this_id'].lower().partition('_')[0] }}">  {# Slightly tortuous, but best way to get the id we need #}
+                        <div id="{{ strain_type[0]['this_id'].lower().partition('_')[0] }}" style="float:left;width:50%;">  {# Slightly tortuous, but best way to get the id we need #}
                           <table class="not_tablesorter"  {# Todo: Turn tablesorter back on #}
 								 id="{{ 'sortable%i' % (loop.index) }}"
 								 cellpadding="0" cellspacing="0">
@@ -1293,10 +1294,8 @@
 
                           </table>
                         </div>
-                        <div>
-                          &nbsp;
-                        </div>
 						{% endfor %}
+                        </div>
                       </div>
                     </td>
                   </tr>
