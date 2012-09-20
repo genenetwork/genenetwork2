@@ -21,6 +21,7 @@ $ ->
 
     change_stats_value = (category, value_type, the_value)->
         id = "#" + process_id(category, value_type)
+        console.log("the_id:", id)
         in_box = $(id).html
         
         current_value = parseFloat($(in_box)).toFixed(2)
@@ -33,50 +34,30 @@ $ ->
 
             # Number of samples
             n_of_samples = sample_sets[category].n_of_samples()
-            id = "#" + process_id(category, "n_of_samples")
-            current_n_of_samples = $(id).html()
-            if n_of_samples != current_n_of_samples
-                $(id).html(n_of_samples).effect("highlight")
+            change_stats_value(category, "n_of_samples", n_of_samples)
 
             # Mean
-            #id = "#" + process_id(category, "mean")
-
             the_mean = sample_sets[category].mean()
             the_mean = the_mean.toFixed(2)
             change_stats_value(category, "mean", the_mean)
-            #in_box = $(id).html
-            
-            #current_mean = parseFloat($(in_box)).toFixed(2)
-
-            #if the_mean != current_mean
-            #    $(id).html(the_mean).effect("highlight")            
             
             # Median
-            id = "#" + process_id(category, "median")
+            #id = "#" + process_id(category, "median")
             the_median = sample_sets[category].median()
             the_median = the_median.toFixed(2)
-            in_box = $(id).html
-
-            current_median = parseFloat($(in_box)).toFixed(2)
-
-            if the_median != current_median
-                $(id).html(the_median).effect("highlight")
+            change_stats_value(category, "median", the_median)
 
             # Todo: Compare stat values to genenetwork.org current code / sample vs. population
             # Standard deviation
-            sum = 0
-            for value in sample_sets[category]
-                step_a = Math.pow(value - the_mean, 2)
-                sum += step_a
-            step_b = sum / sample_sets[category].length
-            sd = Math.sqrt(step_b)
-            sd = sd.toFixed(2)
+            the_std_dev = sample_sets[category].std_dev()
+            the_std_dev = the_std_dev.toFixed(2)
+            change_stats_value(category, "std_dev", the_std_dev)
             
-            id = "#" + process_id(category, "sd")
-            current_sd = $(id).html()
-            if sd != current_sd
-                $(id).html(sd).effect("highlight")
-            
+            # Standard Error
+            the_std_error = sample_sets[category].std_error()
+            the_std_error = the_std_error.toFixed(2)
+            change_stats_value(category, "std_error", the_std_error)
+
 
     edit_data_change = ->                
         sample_sets =
@@ -130,11 +111,11 @@ $ ->
                     pretty: "Median"
                 },
                 {
-                    vn: "se"
+                    vn: "std_error"
                     pretty: "Standard Error (SE)"
                 },
                 {
-                    vn: "sd"
+                    vn: "std_dev"
                     pretty: "Standard Deviation (SD)"
                 }
         ]

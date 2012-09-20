@@ -30,6 +30,7 @@
     change_stats_value = function(category, value_type, the_value) {
       var current_value, id, in_box;
       id = "#" + process_id(category, value_type);
+      console.log("the_id:", id);
       in_box = $(id).html;
       current_value = parseFloat($(in_box)).toFixed(2);
       if (the_value !== current_value) {
@@ -37,45 +38,25 @@
       }
     };
     update_stat_values = function(sample_sets) {
-      var category, current_median, current_n_of_samples, current_sd, id, in_box, n_of_samples, sd, step_a, step_b, sum, the_mean, the_median, value, _i, _j, _len, _len1, _ref, _ref1, _results;
+      var category, n_of_samples, the_mean, the_median, the_std_dev, the_std_error, _i, _len, _ref, _results;
       _ref = ['primary_only', 'other_only', 'all_cases'];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         category = _ref[_i];
         n_of_samples = sample_sets[category].n_of_samples();
-        id = "#" + process_id(category, "n_of_samples");
-        current_n_of_samples = $(id).html();
-        if (n_of_samples !== current_n_of_samples) {
-          $(id).html(n_of_samples).effect("highlight");
-        }
+        change_stats_value(category, "n_of_samples", n_of_samples);
         the_mean = sample_sets[category].mean();
         the_mean = the_mean.toFixed(2);
         change_stats_value(category, "mean", the_mean);
-        id = "#" + process_id(category, "median");
         the_median = sample_sets[category].median();
         the_median = the_median.toFixed(2);
-        in_box = $(id).html;
-        current_median = parseFloat($(in_box)).toFixed(2);
-        if (the_median !== current_median) {
-          $(id).html(the_median).effect("highlight");
-        }
-        sum = 0;
-        _ref1 = sample_sets[category];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          value = _ref1[_j];
-          step_a = Math.pow(value - the_mean, 2);
-          sum += step_a;
-        }
-        step_b = sum / sample_sets[category].length;
-        sd = Math.sqrt(step_b);
-        sd = sd.toFixed(2);
-        id = "#" + process_id(category, "sd");
-        current_sd = $(id).html();
-        if (sd !== current_sd) {
-          _results.push($(id).html(sd).effect("highlight"));
-        } else {
-          _results.push(void 0);
-        }
+        change_stats_value(category, "median", the_median);
+        the_std_dev = sample_sets[category].std_dev();
+        the_std_dev = the_std_dev.toFixed(2);
+        change_stats_value(category, "std_dev", the_std_dev);
+        the_std_error = sample_sets[category].std_error();
+        the_std_error = the_std_error.toFixed(2);
+        _results.push(change_stats_value(category, "std_error", the_std_error));
       }
       return _results;
     };
@@ -133,10 +114,10 @@
           vn: "median",
           pretty: "Median"
         }, {
-          vn: "se",
+          vn: "std_error",
           pretty: "Standard Error (SE)"
         }, {
-          vn: "sd",
+          vn: "std_dev",
           pretty: "Standard Deviation (SD)"
         }
       ];
