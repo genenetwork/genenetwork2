@@ -1814,7 +1814,7 @@ class DataEditingPage(templatePage):
                 print("No strain %s, let's create it now" % strainName)
                 strain = webqtlCaseData.webqtlCaseData(strainName)
             print("zyt - strainNameOrig:", strainNameOrig)
-          
+
 
             if strains == 'primary':
                 strain.this_id = "Primary_" + str(counter)

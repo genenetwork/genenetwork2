@@ -10,7 +10,7 @@
   };
 
   $(function() {
-    var edit_data_change, hide_tabs, make_table, on_corr_method_change, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var change_stats_value, edit_data_change, hide_tabs, make_table, on_corr_method_change, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -27,55 +27,46 @@
       return $("#stats_tabs" + selected).show();
     };
     $(".stats_mdp").change(stats_mdp_change);
-    update_stat_values = function(the_values) {
-      var category, current_mean, current_median, current_n_of_samples, current_sd, id, in_box, is_odd, median_position, n_of_samples, sd, step_a, step_b, sum, the_mean, the_median, the_values_sorted, total, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _results;
+    change_stats_value = function(category, value_type, the_value) {
+      var current_value, id, in_box;
+      id = "#" + process_id(category, value_type);
+      in_box = $(id).html;
+      current_value = parseFloat($(in_box)).toFixed(2);
+      if (the_value !== current_value) {
+        return $(id).html(the_value).effect("highlight");
+      }
+    };
+    update_stat_values = function(sample_sets) {
+      var category, current_median, current_n_of_samples, current_sd, id, in_box, n_of_samples, sd, step_a, step_b, sum, the_mean, the_median, value, _i, _j, _len, _len1, _ref, _ref1, _results;
       _ref = ['primary_only', 'other_only', 'all_cases'];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         category = _ref[_i];
-        id = "#" + process_id(category, "mean");
-        total = 0;
-        _ref1 = the_values[category];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          value = _ref1[_j];
-          total += value;
-        }
-        the_mean = total / the_values[category].length;
-        the_mean = the_mean.toFixed(2);
-        in_box = $(id).html;
-        current_mean = parseFloat($(in_box)).toFixed(2);
-        if (the_mean !== current_mean) {
-          $(id).html(the_mean).effect("highlight");
-        }
-        n_of_samples = the_values[category].length;
+        n_of_samples = sample_sets[category].n_of_samples();
         id = "#" + process_id(category, "n_of_samples");
         current_n_of_samples = $(id).html();
         if (n_of_samples !== current_n_of_samples) {
           $(id).html(n_of_samples).effect("highlight");
         }
+        the_mean = sample_sets[category].mean();
+        the_mean = the_mean.toFixed(2);
+        change_stats_value(category, "mean", the_mean);
         id = "#" + process_id(category, "median");
-        is_odd = the_values[category].length % 2;
-        median_position = Math.floor(the_values[category].length / 2);
-        the_values_sorted = the_values[category].sort(function(a, b) {
-          return a - b;
-        });
-        if (is_odd) {
-          the_median = the_values_sorted[median_position];
-        } else {
-          the_median = (the_values_sorted[median_position] + the_values_sorted[median_position + 1]) / 2;
-        }
-        current_median = $(id).html();
+        the_median = sample_sets[category].median();
+        the_median = the_median.toFixed(2);
+        in_box = $(id).html;
+        current_median = parseFloat($(in_box)).toFixed(2);
         if (the_median !== current_median) {
           $(id).html(the_median).effect("highlight");
         }
         sum = 0;
-        _ref2 = the_values[category];
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          value = _ref2[_k];
+        _ref1 = sample_sets[category];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          value = _ref1[_j];
           step_a = Math.pow(value - the_mean, 2);
           sum += step_a;
         }
-        step_b = sum / the_values[category].length;
+        step_b = sum / sample_sets[category].length;
         sd = Math.sqrt(step_b);
         sd = sd.toFixed(2);
         id = "#" + process_id(category, "sd");
@@ -89,39 +80,33 @@
       return _results;
     };
     edit_data_change = function() {
-      var category, checkbox, checked, real_value, row, the_values, value, values, _i, _len;
-      the_values = {
-        primary_only: [],
-        other_only: [],
-        all_cases: []
+      var category, checkbox, checked, real_value, row, sample_sets, value, values, _i, _len;
+      sample_sets = {
+        primary_only: new Stats([]),
+        other_only: new Stats([]),
+        all_cases: new Stats([])
       };
-      console.log("at beginning:", the_values);
+      console.log("at beginning:", sample_sets);
       values = $('#value_table').find(".edit_strain_value");
       for (_i = 0, _len = values.length; _i < _len; _i++) {
         value = values[_i];
         real_value = $(value).val();
         row = $(value).closest("tr");
-        console.log("row is:", row);
-        console.log("row[0].id is:", row[0].id);
         category = row[0].id;
         checkbox = $(row).find(".edit_strain_checkbox");
         checked = $(checkbox).attr('checked');
-        if (!checked) {
-          console.log("Not checked");
-          continue;
-        }
-        if (is_number(real_value) && real_value !== "") {
+        if (checked && is_number(real_value) && real_value !== "") {
           real_value = parseFloat(real_value);
           if (_(category).startsWith("Primary")) {
-            the_values.primary_only.push(real_value);
+            sample_sets.primary_only.add_value(real_value);
           } else if (_(category).startsWith("Other")) {
-            the_values.other_only.push(real_value);
+            sample_sets.other_only.add_value(real_value);
           }
-          the_values.all_cases.push(real_value);
+          sample_sets.all_cases.add_value(real_value);
         }
       }
-      console.log("towards end:", the_values);
-      return update_stat_values(the_values);
+      console.log("towards end:", sample_sets);
+      return update_stat_values(sample_sets);
     };
     make_table = function() {
       var header, key, row, row_line, rows, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
