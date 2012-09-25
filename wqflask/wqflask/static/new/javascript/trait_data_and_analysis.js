@@ -69,13 +69,13 @@
         all_cases: new Stats([])
       };
       console.log("at beginning:", sample_sets);
-      values = $('#value_table').find(".edit_strain_value");
+      values = $('#value_table').find(".edit_sample_value");
       for (_i = 0, _len = values.length; _i < _len; _i++) {
         value = values[_i];
         real_value = $(value).val();
         row = $(value).closest("tr");
         category = row[0].id;
-        checkbox = $(row).find(".edit_strain_checkbox");
+        checkbox = $(row).find(".edit_sample_checkbox");
         checked = $(checkbox).attr('checked');
         if (checked && is_number(real_value) && real_value !== "") {
           real_value = parseFloat(real_value);

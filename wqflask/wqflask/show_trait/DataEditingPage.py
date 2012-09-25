@@ -108,9 +108,9 @@ class DataEditingPage(templatePage):
                 bootCheck = None,
                 permCheck = None,
                 applyVarianceSE = None,
-                strainNames = '_',
-                strainVals = '_',
-                strainVars = '_',
+                sampleNames = '_',
+                sampleVals = '_',
+                sampleVars = '_',
                 otherStrainNames = '_',
                 otherStrainVals = '_',
                 otherStrainVars = '_',
@@ -196,8 +196,8 @@ class DataEditingPage(templatePage):
         #
         self.dispTraitValues(fd, varianceDataPage, nCols, thisTrait)
         #
-        if fd.allstrainlist:
-            hddn['allstrainlist'] = string.join(fd.allstrainlist, ' ')
+        if fd.allsamplelist:
+            hddn['allsamplelist'] = string.join(fd.allsamplelist, ' ')
 
         # We put isSE into hddn
         if nCols == 6 and fd.varianceDispName != 'Variance':
@@ -892,87 +892,87 @@ class DataEditingPage(templatePage):
     ##########################################
     def dispBasicStatistics(self, fd, thisTrait):
 
-        #XZ, June 22, 2011: The definition and usage of primary_strains, other_strains, specialStrains, all_strains are not clear and hard to understand. But since they are only used in this function for draw graph purpose, they will not hurt the business logic outside. As of June 21, 2011, this function seems work fine, so no hurry to clean up. These parameters and code in this function should be cleaned along with fd.f1list, fd.parlist, fd.strainlist later.
+        #XZ, June 22, 2011: The definition and usage of primary_samples, other_samples, specialStrains, all_samples are not clear and hard to understand. But since they are only used in this function for draw graph purpose, they will not hurt the business logic outside. As of June 21, 2011, this function seems work fine, so no hurry to clean up. These parameters and code in this function should be cleaned along with fd.f1list, fd.parlist, fd.samplelist later.
         #stats_row = HT.TR()
         #stats_cell = HT.TD()
 
         if fd.genotype.type == "riset":
-            strainlist = fd.f1list + fd.strainlist
+            samplelist = fd.f1list + fd.samplelist
         else:
-            strainlist = fd.f1list + fd.parlist + fd.strainlist
+            samplelist = fd.f1list + fd.parlist + fd.samplelist
 
-        other_strains = [] #XZ: strain that is not of primary group
-        specialStrains = [] #XZ: This might be replaced by other_strains / ZS: It is just other strains without parent/f1 strains.
-        all_strains = []
-        primary_strains = [] #XZ: strain of primary group, e.g., BXD, LXS
+        other_samples = [] #XZ: sample that is not of primary group
+        specialStrains = [] #XZ: This might be replaced by other_samples / ZS: It is just other samples without parent/f1 samples.
+        all_samples = []
+        primary_samples = [] #XZ: sample of primary group, e.g., BXD, LXS
 
         #self.MDP_menu = HT.Select(name='stats_mdp', Class='stats_mdp')
         self.MDP_menu = [] # We're going to use the same named data structure as in the old version
                       # but repurpose it for Jinja2 as an array
 
-        for strain in thisTrait.data.keys():
-            strainName = strain.replace("_2nd_", "")
-            if strain not in strainlist:
-                if thisTrait.data[strainName].value != None:
-                    if strain.find('F1') < 0:
-                        specialStrains.append(strain)
-                    if (thisTrait.data[strainName].value != None) and (strain not in (fd.f1list + fd.parlist)):
-                        other_strains.append(strain) #XZ: at current stage, other_strains doesn't include parent strains and F1 strains of primary group
+        for sample in thisTrait.data.keys():
+            sampleName = sample.replace("_2nd_", "")
+            if sample not in samplelist:
+                if thisTrait.data[sampleName].value != None:
+                    if sample.find('F1') < 0:
+                        specialStrains.append(sample)
+                    if (thisTrait.data[sampleName].value != None) and (sample not in (fd.f1list + fd.parlist)):
+                        other_samples.append(sample) #XZ: at current stage, other_samples doesn't include parent samples and F1 samples of primary group
             else:
-                if (thisTrait.data[strainName].value != None) and (strain not in (fd.f1list + fd.parlist)):
-                    primary_strains.append(strain) #XZ: at current stage, the primary_strains is the same as fd.strainlist / ZS: I tried defining primary_strains as fd.strainlist instead, but in some cases it ended up including the parent strains (1436869_at BXD)
+                if (thisTrait.data[sampleName].value != None) and (sample not in (fd.f1list + fd.parlist)):
+                    primary_samples.append(sample) #XZ: at current stage, the primary_samples is the same as fd.samplelist / ZS: I tried defining primary_samples as fd.samplelist instead, but in some cases it ended up including the parent samples (1436869_at BXD)
 
-        if len(other_strains) > 3:
-            other_strains.sort(key=webqtlUtil.natsort_key)
-            primary_strains.sort(key=webqtlUtil.natsort_key)
-            primary_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + primary_strains #XZ: note that fd.f1list and fd.parlist are added.
-            all_strains = primary_strains + other_strains
-            other_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + other_strains #XZ: note that fd.f1list and fd.parlist are added.
+        if len(other_samples) > 3:
+            other_samples.sort(key=webqtlUtil.natsort_key)
+            primary_samples.sort(key=webqtlUtil.natsort_key)
+            primary_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + primary_samples #XZ: note that fd.f1list and fd.parlist are added.
+            all_samples = primary_samples + other_samples
+            other_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + other_samples #XZ: note that fd.f1list and fd.parlist are added.
             print("ac1")   # This is the one used for first sall3
             self.MDP_menu.append(('All Cases','0'))
             self.MDP_menu.append(('%s Only' % fd.RISet, '1'))
             self.MDP_menu.append(('Non-%s Only' % fd.RISet, '2'))
 
         else:
-            if (len(other_strains) > 0) and (len(primary_strains) + len(other_strains) > 3):
+            if (len(other_samples) > 0) and (len(primary_samples) + len(other_samples) > 3):
                 print("ac2")
                 self.MDP_menu.append(('All Cases','0'))
                 self.MDP_menu.append(('%s Only' % fd.RISet,'1'))
                 self.MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
-                all_strains = primary_strains
-                all_strains.sort(key=webqtlUtil.natsort_key)
-                all_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + all_strains
-                primary_strains = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + primary_strains
+                all_samples = primary_samples
+                all_samples.sort(key=webqtlUtil.natsort_key)
+                all_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + all_samples
+                primary_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + primary_samples
             else:
                 print("ac3")
-                all_strains = strainlist
+                all_samples = samplelist
 
-            other_strains.sort(key=webqtlUtil.natsort_key)
-            all_strains = all_strains + other_strains
+            other_samples.sort(key=webqtlUtil.natsort_key)
+            all_samples = all_samples + other_samples
 
-        if (len(other_strains)) > 0 and (len(primary_strains) + len(other_strains) > 4):
-            #One set of vals for all, selected strain only, and non-selected only
+        if (len(other_samples)) > 0 and (len(primary_samples) + len(other_samples) > 4):
+            #One set of vals for all, selected sample only, and non-selected only
             vals1 = []
             vals2 = []
             vals3 = []
 
-            #Using all strains/cases for values
-            #for strain_type in (all_strains, primary_strains, other_strains):
-            for strainNameOrig in all_strains:
-                strainName = strainNameOrig.replace("_2nd_", "")
+            #Using all samples/cases for values
+            #for sample_type in (all_samples, primary_samples, other_samples):
+            for sampleNameOrig in all_samples:
+                sampleName = sampleNameOrig.replace("_2nd_", "")
 
                 #try:
                 print("* type of thisTrait:", type(thisTrait))
                 print("  name:", thisTrait.__class__.__name__)
                 print("  thisTrait:", thisTrait)
-                print("  type of thisTrait.data[strainName]:", type(thisTrait.data[strainName]))
-                print("  name:", thisTrait.data[strainName].__class__.__name__)
-                print("  thisTrait.data[strainName]:", thisTrait.data[strainName])
-                thisval = thisTrait.data[strainName].value
+                print("  type of thisTrait.data[sampleName]:", type(thisTrait.data[sampleName]))
+                print("  name:", thisTrait.data[sampleName].__class__.__name__)
+                print("  thisTrait.data[sampleName]:", thisTrait.data[sampleName])
+                thisval = thisTrait.data[sampleName].value
                 print("  thisval:", thisval)
-                thisvar = thisTrait.data[strainName].variance
+                thisvar = thisTrait.data[sampleName].variance
                 print("  thisvar:", thisvar)
-                thisValFull = [strainName, thisval, thisvar]
+                thisValFull = [sampleName, thisval, thisvar]
                 print("  thisValFull:", thisValFull)
                 #except:
                 #    continue
@@ -980,33 +980,33 @@ class DataEditingPage(templatePage):
                 vals1.append(thisValFull)
                 
                 
-            #vals1 = [[strainNameOrig.replace("_2nd_", ""),
-            #  thisTrait.data[strainName].val,
-            #  thisTrait.data[strainName].var]
-            #    for strainNameOrig in all_strains]]
+            #vals1 = [[sampleNameOrig.replace("_2nd_", ""),
+            #  thisTrait.data[sampleName].val,
+            #  thisTrait.data[sampleName].var]
+            #    for sampleNameOrig in all_samples]]
             #    
 
-            #Using just the RISet strain
-            for strainNameOrig in primary_strains:
-                strainName = strainNameOrig.replace("_2nd_", "")
+            #Using just the RISet sample
+            for sampleNameOrig in primary_samples:
+                sampleName = sampleNameOrig.replace("_2nd_", "")
 
                 #try:
-                thisval = thisTrait.data[strainName].value
-                thisvar = thisTrait.data[strainName].variance
-                thisValFull = [strainName,thisval,thisvar]
+                thisval = thisTrait.data[sampleName].value
+                thisvar = thisTrait.data[sampleName].variance
+                thisValFull = [sampleName,thisval,thisvar]
                 #except:
                 #    continue
 
                 vals2.append(thisValFull)
 
-            #Using all non-RISet strains only
-            for strainNameOrig in other_strains:
-                strainName = strainNameOrig.replace("_2nd_", "")
+            #Using all non-RISet samples only
+            for sampleNameOrig in other_samples:
+                sampleName = sampleNameOrig.replace("_2nd_", "")
 
                 #try:
-                thisval = thisTrait.data[strainName].value
-                thisvar = thisTrait.data[strainName].variance
-                thisValFull = [strainName,thisval,thisvar]
+                thisval = thisTrait.data[sampleName].value
+                thisvar = thisTrait.data[sampleName].variance
+                thisValFull = [sampleName,thisval,thisvar]
                 #except:
                 #    continue
 
@@ -1017,14 +1017,14 @@ class DataEditingPage(templatePage):
         else:
             vals = []
 
-            #Using all strains/cases for values
-            for strainNameOrig in all_strains:
-                strainName = strainNameOrig.replace("_2nd_", "")
+            #Using all samples/cases for values
+            for sampleNameOrig in all_samples:
+                sampleName = sampleNameOrig.replace("_2nd_", "")
 
                 #try:
-                thisval = thisTrait.data[strainName].value
-                thisvar = thisTrait.data[strainName].variance
-                thisValFull = [strainName,thisval,thisvar]
+                thisval = thisTrait.data[sampleName].value
+                thisvar = thisTrait.data[sampleName].variance
+                thisValFull = [sampleName,thisval,thisvar]
                 #except:
                 #    continue
 
@@ -1041,10 +1041,10 @@ class DataEditingPage(templatePage):
                 stats_script_text = """$(function() { $("#stats_tabs").tabs();});"""
                 #stats_cell.append(stats_container)
                 break
-            elif (i == 1 and len(primary_strains) < 4):
+            elif (i == 1 and len(primary_samples) < 4):
                 stats_container = HT.Div(id="stats_tabs%s" % i, Class="ui-tabs")
                 stats_container.append(HT.Div(HT.Italic("Fewer than 4 " + fd.RISet + " case data were entered. No statistical analysis has been attempted.")))
-            elif (i == 2 and len(other_strains) < 4):
+            elif (i == 2 and len(other_samples) < 4):
                 stats_container = HT.Div(id="stats_tabs%s" % i, Class="ui-tabs")
                 stats_container.append(HT.Div(HT.Italic("Fewer than 4 non-" + fd.RISet + " case data were entered. No statistical analysis has been attempted.")))
                 stats_script_text = """$(function() { $("#stats_tabs0").tabs(); $("#stats_tabs1").tabs(); $("#stats_tabs2").tabs();});"""
@@ -1609,14 +1609,15 @@ class DataEditingPage(templatePage):
         print("in dispTraitValues")
 
         if fd.genotype.type == "riset":
-            allstrainlist_neworder = fd.f1list + fd.strainlist
+            allsamplelist_neworder = fd.f1list + fd.samplelist
         else:
-            allstrainlist_neworder = fd.f1list + fd.parlist + fd.strainlist
+            allsamplelist_neworder = fd.f1list + fd.parlist + fd.samplelist
 
         attribute_ids = []
         attribute_names = []
         #try:
-        #ZS: Id values for this trait's extra attributes; used to create "Exclude" dropdown and query for attribute values and create
+        #ZS: Id values for this trait's extra attributes;
+        #used to create "Exclude" dropdown and query for attribute values and create
         self.cursor.execute("""SELECT CaseAttribute.Id, CaseAttribute.Name
                                         FROM CaseAttribute, CaseAttributeXRef
                                 WHERE CaseAttributeXRef.ProbeSetFreezeId = %s AND
@@ -1624,150 +1625,78 @@ class DataEditingPage(templatePage):
                                         group by CaseAttributeXRef.CaseAttributeId""",
                                         (str(thisTrait.db.id),))
 
-        #exclude_menu = HT.Select(name="exclude_menu")
-        #dropdown_menus = [] #ZS: list of dropdown menus with the distinct values of each attribute (contained in DIVs so the style parameter can be edited and they can be hidden)
-
-        #for attribute in self.cursor.fetchall():
-        #    #attribute_ids.append(attribute[0])
-        #    #attribute_names.append(attribute[1])
-        #    pass
         for this_attr_name in attribute_names:
-            #exclude_menu.append((this_attr_name.capitalize(), this_attr_name))
             # Todo: Needs testing still!
             self.cursor.execute("""SELECT DISTINCT CaseAttributeXRef.Value
                                             FROM CaseAttribute, CaseAttributeXRef
                                             WHERE CaseAttribute.Name = %s AND
                                     CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id""",
                                     (this_attr_name,))
-            #try:
+            
             distinct_values = self.cursor.fetchall()
-            #attr_value_menu_div = HT.Div(style="display:none;", Class="attribute_values") #container used to show/hide dropdown menus
-            #attr_value_menu = HT.Select(name=this_attr_name)
-            #attr_value_menu.append(("None", "show_all"))
-            #for value in distinct_values:
-            #    #attr_value_menu.append((str(value[0]), value[0]))
-            #    pass
-            #attr_value_menu_div.append(attr_value_menu)
-            #dropdown_menus.append(attr_value_menu_div)
-            #except:
-            #    pass
-        #except:
-        #    pass
 
-        #for strain in thisTrait.data.keys():
-        #    if strain not in allstrainlist_neworder:
-        #        pass
-        #        #other_strains.append(strain)
-        #
-        #if other_strains:
-        #    #blockMenu.append(('%s Only' % fd.RISet,'1'))
-        #    #blockMenu.append(('Non-%s Only' % fd.RISet,'0'))
-        #    #blockMenuSpan.append(blockMenu)
-        #    pass
-        #else:
-        #    pass
-
-        #showHideOutliers = HT.Input(type='button', name='showHideOutliers', value=' Hide Outliers ', Class='button')
-        #showHideMenuOptions = HT.Span(Id="showHideOptions", style="line-height:225%;")
-        #if other_strains:
-        #    pass
-            #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;"), blockSamplesField, "&nbsp;&nbsp;&nbsp;", blockMenuSpan, "&nbsp;&nbsp;&nbsp;", blockSamplesButton, HT.BR())
-        #else:
-        #    pass
-            #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;"), blockSamplesField, "&nbsp;&nbsp;&nbsp;", blockSamplesButton, HT.BR())
-
-        #exportButton = HT.Input(type='button', name='export', value=' Export ', Class='button')
-        #if len(attribute_names) > 0:
-        #    excludeButton = HT.Input(type='button', name='excludeGroup', value=' Block ', Class='button')
-            #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Block samples by group:"), "&nbsp;"*5, exclude_menu, "&nbsp;"*5)
-            #for menu in dropdown_menus:
-            #    pass
-                #showHideMenuOptions.append(menu)
-            #showHideMenuOptions.append("&nbsp;"*5, excludeButton, HT.BR())
-        #showHideMenuOptions.append(HT.Bold("&nbsp;&nbsp;Options:"), "&nbsp;"*5, showHideNoValue, "&nbsp;"*5, showHideOutliers, "&nbsp;"*5, resetButton, "&nbsp;"*5, exportButton)
-
-        #traitTableOptions.append(showHideMenuOptions,HT.BR(),HT.BR())
-        #traitTableOptions.append(HT.Span("&nbsp;&nbsp;Outliers highlighted in ", HT.Bold("&nbsp;red&nbsp;", style="background-color:red;"), " can be hidden using the ",
-        #                                                    HT.Strong(" Hide Outliers "), " button,",HT.BR(),"&nbsp;&nbsp;and samples with no value (x) can be hidden by clicking ",
-        #                                                    HT.Strong(" Hide No Value "), "."), HT.BR())
-
-
-        #dispintro = HT.Paragraph("Edit or delete values in the Trait Data boxes, and use the ", HT.Strong("Reset"), " option as needed.",Class="fs12", style="margin-left:20px;")
-        #
-        #table = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target5") #Everything needs to be inside this table object in order for the toggle to work
-        #container = HT.Div() #This will contain everything and be put into a cell of the table defined above
-        #
-        #container.append(dispintro, traitTableOptions, HT.BR())
-
-        #primary_table = HT.TableLite(cellspacing=0, cellpadding=0, Id="sortable1", Class="tablesorter")
-        #primary_header = self.getTableHeader(fd=fd, thisTrait=thisTrait, nCols=nCols, attribute_names=attribute_names) #Generate header for primary table object
-
-        #other_strainsExist = False
-        this_trait_strains = set(thisTrait.data.keys())
-        #ZS - Checks if there are any strains in this_trait_strains that aren't in allstrainlist_neworder
-        other_strainsExist = this_trait_strains - set(allstrainlist_neworder)
-        
-        #for strain in thisTrait.data.keys():
-        #    print("hjl - strain is:", strain)
-        #    if strain not in allstrainlist_neworder:
-        #        other_strainsExist = True
-        #        break
+        this_trait_samples = set(thisTrait.data.keys())
+        #ZS - Checks if there are any samples in this_trait_samples that aren't in allsamplelist_neworder
+        other_samplesExist = this_trait_samples - set(allsamplelist_neworder)
 
         mainForm = None # Just trying to get things working
 
-        primary_strainlist = fd.parlist + allstrainlist_neworder
+        primary_samplelist = allsamplelist_neworder
 
-        primary_strains = self.create_strain_objects(fd=fd,
+        print("primary_samplelist is:", pf(primary_samplelist))
+
+        primary_samples = self.create_sample_objects(fd=fd,
                                               varianceDataPage=varianceDataPage,
-                                              strainlist=primary_strainlist,
+                                              samplelist=primary_samplelist,
                                               mainForm=mainForm,
                                               thisTrait=thisTrait,
-                                              other_strainsExist=other_strainsExist,
+                                              other_samplesExist=other_samplesExist,
                                               attribute_ids=attribute_ids,
                                               attribute_names=attribute_names,
-                                              strains='primary')
-        
+                                              samples='primary')
 
-        other_strains = []
-        for strain in thisTrait.data.keys():
-            print("hjk - strain is:", strain)
-            if strain not in allstrainlist_neworder + fd.f1list + fd.parlist:
-                allstrainlist_neworder.append(strain)
-                other_strains.append(strain)
 
-        if other_strains:
+        other_samples = []
+        for sample in thisTrait.data.keys():
+            print("hjk - sample is:", sample)
+            if sample not in allsamplelist_neworder:
+                allsamplelist_neworder.append(sample)
+                other_samples.append(sample)
+
+        if other_samples:
             unappended_par_f1 = fd.f1list + fd.parlist
-            par_f1_strains = ["_2nd_" + strain for strain in unappended_par_f1]
+            par_f1_samples = ["_2nd_" + sample for sample in unappended_par_f1]
             
-            other_strains.sort() #Sort other strains
-            other_strains = par_f1_strains + other_strains
+            other_samples.sort() #Sort other samples
+            other_samples = par_f1_samples + other_samples
 
-            other_strains = self.create_strain_objects(fd=fd,
+            other_samples = self.create_sample_objects(fd=fd,
                                                 varianceDataPage=varianceDataPage,
-                                                strainlist=other_strains,
+                                                samplelist=other_samples,
                                                 mainForm=mainForm,
                                                 thisTrait=thisTrait,
                                                 attribute_ids=attribute_ids,
                                                 attribute_names=attribute_names,
-                                                strains='other')
+                                                samples='other')
 
 
         #TODO: Figure out why this if statement is written this way - Zach
-        if (other_strains or (fd.f1list and thisTrait.data.has_key(fd.f1list[0])) 
+        if (other_samples or (fd.f1list and thisTrait.data.has_key(fd.f1list[0])) 
                 or (fd.f1list and thisTrait.data.has_key(fd.f1list[1]))):
             print("hjs")
-            fd.allstrainlist = allstrainlist_neworder
+            fd.allsamplelist = allsamplelist_neworder
 
 
-        self.primary_strains = dict(header = "%s Only" % (fd.RISet),
-                                    strains = primary_strains,)
+        self.primary_samples = dict(header = "%s Only" % (fd.RISet),
+                                    samples = primary_samples,)
                                     
-        self.other_strains = dict(header = "Non-%s" % (fd.RISet),
-                                    strains = other_strains,)
+        self.other_samples = dict(header = "Non-%s" % (fd.RISet),
+                                    samples = other_samples,)
+        
 
-    def create_strain_objects(self, fd, varianceDataPage, strainlist, mainForm, thisTrait,
-                       other_strainsExist=None, attribute_ids=None,
-                       attribute_names=None, strains='primary'):
+    def create_sample_objects(self, fd, varianceDataPage, samplelist, mainForm, thisTrait,
+                       other_samplesExist=None, attribute_ids=None,
+                       attribute_names=None, samples='primary'):
 
         if attribute_ids == None:
             attribute_ids = []
@@ -1776,47 +1705,47 @@ class DataEditingPage(templatePage):
             attribute_names = []
 
         #XZ, Aug 23, 2010: I commented the code related to the display of animal case
-        #strainInfo = thisTrait.has_key('strainInfo') and thisTrait.strainInfo
-        print("in create_strain_objects")
+        #sampleInfo = thisTrait.has_key('sampleInfo') and thisTrait.sampleInfo
+        print("in create_sample_objects")
         #table_body = []
         
         ################### Only used to find upperBound and lowerBound
         #vals = []
-        #for strainNameOrig in strainlist:
-        #    strainName = strainNameOrig.replace("_2nd_", "")
-        #    print("pen: %s - %s" % (strainNameOrig, strainName))
+        #for sampleNameOrig in samplelist:
+        #    sampleName = sampleNameOrig.replace("_2nd_", "")
+        #    print("pen: %s - %s" % (sampleNameOrig, sampleName))
         #    try:
-        #        thisval = thisTrait.data[strainName].value
-        #        thisvar = thisTrait.data[strainName].variance
-        #        thisValFull = [strainName, thisval, thisvar]
+        #        thisval = thisTrait.data[sampleName].value
+        #        thisvar = thisTrait.data[sampleName].variance
+        #        thisValFull = [sampleName, thisval, thisvar]
         #    
         #        vals.append(thisValFull)
         #    except KeyError:
-        #        print("**x** Skipping:", strainName)
+        #        print("**x** Skipping:", sampleName)
         #
         #upperBound, lowerBound = Plot.findOutliers(vals) # ZS: Values greater than upperBound or less than lowerBound are considered outliers.
 
 
-        the_strains = []
+        the_samples = []
 
-        for counter, strainNameOrig in enumerate(strainlist, 1):
-            strainName = strainNameOrig.replace("_2nd_", "")
-            strainNameAdd = ''
-            if fd.RISet == 'AXBXA' and strainName in ('AXB18/19/20','AXB13/14','BXA8/17'):
-                strainNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
+        for counter, sampleNameOrig in enumerate(samplelist, 1):
+            sampleName = sampleNameOrig.replace("_2nd_", "")
+            sampleNameAdd = ''
+            if fd.RISet == 'AXBXA' and sampleName in ('AXB18/19/20','AXB13/14','BXA8/17'):
+                sampleNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
     
             try:
-                strain = thisTrait.data[strainName]
+                sample = thisTrait.data[sampleName]
             except KeyError:
-                print("No strain %s, let's create it now" % strainName)
-                strain = webqtlCaseData.webqtlCaseData(strainName)
-            print("zyt - strainNameOrig:", strainNameOrig)
+                print("No sample %s, let's create it now" % sampleName)
+                sample = webqtlCaseData.webqtlCaseData(sampleName)
+            print("zyt - sampleNameOrig:", sampleNameOrig)
 
 
-            if strains == 'primary':
-                strain.this_id = "Primary_" + str(counter)
+            if samples == 'primary':
+                sample.this_id = "Primary_" + str(counter)
             else:
-                strain.this_id = "Other_" + str(counter)
+                sample.this_id = "Other_" + str(counter)
                 
             #### For extra attribute columns; currently only used by two human datasets - Zach
             if thisTrait and thisTrait.db and thisTrait.db.type == 'ProbeSet':
@@ -1828,9 +1757,9 @@ class DataEditingPage(templatePage):
                                                     WHERE Strain.Name = '%s' and
                                                             StrainXRef.StrainId = Strain.Id and
                                                             InbredSet.Id = StrainXRef.InbredSetId and
-                                                            InbredSet.Name = '%s'""" % (strainName, fd.RISet))
+                                                            InbredSet.Name = '%s'""" % (sampleName, fd.RISet))
 
-                    strain_id = self.cursor.fetchone()[0]
+                    sample_id = self.cursor.fetchone()[0]
 
                     attr_counter = 1 # This is needed so the javascript can know which attribute type to associate this value with for the exported excel sheet (each attribute type being a column).
                     for attribute_id in attribute_ids:
@@ -1841,7 +1770,7 @@ class DataEditingPage(templatePage):
                                                 WHERE ProbeSetFreezeId = '%s' AND
                                                         StrainId = '%s' AND
                                                         CaseAttributeId = '%s'
-                                                                group by CaseAttributeXRef.CaseAttributeId""" % (thisTrait.db.id, strain_id, str(attribute_id)))
+                                                                group by CaseAttributeXRef.CaseAttributeId""" % (thisTrait.db.id, sample_id, str(attribute_id)))
 
                         attributeValue = self.cursor.fetchone()[0] #Trait-specific attributes, if any
 
@@ -1851,17 +1780,17 @@ class DataEditingPage(templatePage):
                         except:
                             pass
 
-                        span_Id = strains+"_attribute"+str(attr_counter)+"_sample"+str(i+1)
+                        span_Id = samples+"_attribute"+str(attr_counter)+"_sample"+str(i+1)
                         attr_container = HT.Span(attributeValue, Id=span_Id)
                         attr_className = str(attributeValue) + "&nbsp;" + className
                         table_row.append(HT.TD(attr_container, align='right', Class=attr_className))
                         attr_counter += 1
-                the_strains.append(strain)
+                the_samples.append(sample)
             #table_body.append(table_row)
         
-        do_outliers(the_strains)
-        print("*the_strains are [%i]: %s" % (len(the_strains), pf(the_strains)))
-        return the_strains
+        do_outliers(the_samples)
+        print("*the_samples are [%i]: %s" % (len(the_samples), pf(the_samples)))
+        return the_samples
 
     def getTableHeader(self, fd, thisTrait, nCols, attribute_names):
 
@@ -1909,15 +1838,15 @@ class DataEditingPage(templatePage):
     
     
     
-def do_outliers(strain_objects):
-    values = [strain.value for strain in strain_objects if strain.value != None]
+def do_outliers(sample_objects):
+    values = [sample.value for sample in sample_objects if sample.value != None]
     upper_bound, lower_bound = Plot.find_outliers(values)
     
-    for strain in strain_objects:
-        if strain.value:
-            if upper_bound and strain.value > upper_bound:
-                strain.outlier = True
-            elif lower_bound and strain.value < lower_bound:
-                strain.outlier = True
+    for sample in sample_objects:
+        if sample.value:
+            if upper_bound and sample.value > upper_bound:
+                sample.outlier = True
+            elif lower_bound and sample.value < lower_bound:
+                sample.outlier = True
             else:
-                strain.outlier = False
+                sample.outlier = False

@@ -46,7 +46,7 @@ from utility import webqtlUtil
 class webqtlFormData:
     'Represents data from a WebQTL form page, needed to generate the next page'
     
-    attrs = ('formID','RISet','genotype','strainlist','allstrainlist',
+    attrs = ('formID','RISet','genotype','samplelist','allsamplelist',
     'suggestive','significance','submitID','identification', 'enablevariance',
     'nperm','nboot','email','incparentsf1','genotype_1','genotype_2','traitInfo')
 
@@ -116,12 +116,12 @@ class webqtlFormData:
         self.nboot = set_number(self.nboot)
            
 
-        #if self.allstrainlist:
-        #    self.allstrainlist = map(string.strip, string.split(self.allstrainlist))
-        print("self.allstrainlist is:", self.allstrainlist)
-        if self.allstrainlist:
-            self.allstrainlist = self.allstrainlist.split()
-        print("now self.allstrainlist is:", self.allstrainlist)
+        #if self.allsamplelist:
+        #    self.allsamplelist = map(string.strip, string.split(self.allsamplelist))
+        print("self.allsamplelist is:", self.allsamplelist)
+        if self.allsamplelist:
+            self.allsamplelist = self.allsamplelist.split()
+        print("now self.allsamplelist is:", self.allsamplelist)
         #self.readGenotype()
         #self.readData()
 
@@ -183,7 +183,7 @@ class webqtlFormData:
             self.incparentsf1 = 0
             self.genotype = self.genotype_1
             
-        self.strainlist = list(self.genotype.prgy)
+        self.samplelist = list(self.genotype.prgy)
         self.f1list = []
         self.parlist = []
         
@@ -193,7 +193,7 @@ class webqtlFormData:
             self.parlist = [_mat, _pat]
             
 
-    def readData(self, strainlist, incf1=None):
+    def readData(self, samplelist, incf1=None):
         '''read user input data or from trait data and analysis form'''
 
         if incf1 == None:
@@ -201,11 +201,11 @@ class webqtlFormData:
 
         if not self.genotype:
             self.readGenotype()
-        if not strainlist:
+        if not samplelist:
             if incf1:
-                strainlist = self.f1list + self.strainlist
+                samplelist = self.f1list + self.samplelist
             else:
-                strainlist = self.strainlist
+                samplelist = self.samplelist
 
         #print("before traitfiledata self.traitfile is:", pf(self.traitfile))
 
@@ -223,7 +223,7 @@ class webqtlFormData:
             except ValueError:
                 return None
 
-        print("bottle strainlist is:", strainlist)
+        print("bottle samplelist is:", samplelist)
         if traitfiledata:
             tt = traitfiledata.split()
             values = map(webqtlUtil.StringAsFloat, tt)
@@ -232,15 +232,15 @@ class webqtlFormData:
             values = map(webqtlUtil.StringAsFloat, tt)
         else:
             print("mapping formdataasfloat")
-            #values = map(self.FormDataAsFloat, strainlist)
-            values = [to_float(getattr(self, key)) for key in strainlist]
+            #values = map(self.FormDataAsFloat, samplelist)
+            values = [to_float(getattr(self, key)) for key in samplelist]
         print("rocket values is:", values)
 
 
-        if len(values) < len(strainlist):
-            values += [None] * (len(strainlist) - len(values))
-        elif len(values) > len(strainlist):
-            values = values[:len(strainlist)]
+        if len(values) < len(samplelist):
+            values += [None] * (len(samplelist) - len(values))
+        elif len(values) > len(samplelist):
+            values = values[:len(samplelist)]
         print("now values is:", values)
             
 
@@ -251,58 +251,58 @@ class webqtlFormData:
             tt = variancepastedata.split()
             variances = map(webqtlUtil.StringAsFloat, tt)
         else:
-            variances = map(self.FormVarianceAsFloat, strainlist)
+            variances = map(self.FormVarianceAsFloat, samplelist)
 
-        if len(variances) < len(strainlist):
-            variances += [None]*(len(strainlist) - len(variances))
-        elif len(variances) > len(strainlist):
-            variances = variances[:len(strainlist)]
+        if len(variances) < len(samplelist):
+            variances += [None]*(len(samplelist) - len(variances))
+        elif len(variances) > len(samplelist):
+            variances = variances[:len(samplelist)]
 
         if Nfiledata:
             tt = string.split(Nfiledata)
-            nstrains = map(webqtlUtil.IntAsFloat, tt)
-            if len(nstrains) < len(strainlist):
-                nstrains += [None]*(len(strainlist) - len(nstrains))
+            nsamples = map(webqtlUtil.IntAsFloat, tt)
+            if len(nsamples) < len(samplelist):
+                nsamples += [None]*(len(samplelist) - len(nsamples))
         else:
-            nstrains = map(self.FormNAsFloat, strainlist)
+            nsamples = map(self.FormNAsFloat, samplelist)
 
-        ##values, variances, nstrains is obsolete
+        ##values, variances, nsamples is obsolete
         self.allTraitData = {}
-        for i, _strain in enumerate(strainlist):
+        for i, _sample in enumerate(samplelist):
             if values[i] != None:
-                self.allTraitData[_strain] = webqtlCaseData(
-                    _strain, values[i], variances[i], nstrains[i])
+                self.allTraitData[_sample] = webqtlCaseData(
+                    _sample, values[i], variances[i], nsamples[i])
         print("allTraitData is:", pf(self.allTraitData))
 
 
 
-    def informativeStrains(self, strainlist=None, include_variances = None):
-        '''if readData was called, use this to output informative strains (strain with values)'''
+    def informativeStrains(self, samplelist=None, include_variances = None):
+        '''if readData was called, use this to output informative samples (sample with values)'''
         
-        if not strainlist:
-            strainlist = self.strainlist
+        if not samplelist:
+            samplelist = self.samplelist
             
-        strains = []
+        samples = []
         values = []
         variances = []
         
         #print("self.allTraitData is:", pf(self.allTraitData))
         
-        for strain in strainlist:
-            if strain in self.allTraitData:
-                _val, _var = self.allTraitData[strain].value, self.allTraitData[strain].variance
+        for sample in samplelist:
+            if sample in self.allTraitData:
+                _val, _var = self.allTraitData[sample].value, self.allTraitData[sample].variance
                 if _val != None:
                     if include_variances:
                         if _var != None:
-                            strains.append(strain)
+                            samples.append(sample)
                             values.append(_val)
                             variances.append(_var)
                     else:
-                        strains.append(strain)
+                        samples.append(sample)
                         values.append(_val)
                         variances.append(None)
                         
-        return strains, values, variances, len(strains)
+        return samples, values, variances, len(samples)
 
 
 
@@ -336,8 +336,8 @@ class webqtlFormData:
         self.identification = 'BXD : Coat color example by Lu Lu, et al'
         #self.readGenotype()
         #self.genotype.ReadMM('AXBXAforQTL')
-        #self.strainlist = map((lambda x, y='': '%s%s' % (y,x)), self.genotype.prgy)
-        #self.strainlist.sort()
+        #self.samplelist = map((lambda x, y='': '%s%s' % (y,x)), self.genotype.prgy)
+        #self.samplelist.sort()
         self.allTraitData = {'BXD29': webqtlCaseData(3), 'BXD28': webqtlCaseData(2),
         'BXD25': webqtlCaseData(2), 'BXD24': webqtlCaseData(2), 'BXD27': webqtlCaseData(2),
         'BXD21': webqtlCaseData(1), 'BXD20': webqtlCaseData(4), 'BXD23': webqtlCaseData(4),

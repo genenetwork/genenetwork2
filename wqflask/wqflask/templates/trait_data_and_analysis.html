@@ -14,10 +14,10 @@
                 <input type="hidden" name="otherStrainVals" value="_">
                 <input type="hidden" name="FormID" value="dataEditing">
                 <input type="hidden" name="normalPlotTitle" value="Sall3: 1441186_at">
-                <input type="hidden" name="strainVars" value="_">
+                <input type="hidden" name="sampleVars" value="_">
                 <input type="hidden" name="additiveCheck" value="ON">
                 <input type="hidden" name="incparentsf1" value="ON">
-                <input type="hidden" name="strainNames" value="_">
+                <input type="hidden" name="sampleNames" value="_">
                 <input type="hidden" name="submitID" value="">
                 <input type="hidden" name="scale" value="physic">
                 <input type="hidden" name="intervalAnalystCheck" value="ON">
@@ -32,11 +32,11 @@
                 <input type="hidden" name="showGenes" value="ON">
                 <input type="hidden" name="attribute_names" value="">
                 <input type="hidden" name="chromosomes" value="-1">
-                <input type="hidden" name="allstrainlist" value="B6D2F1 D2B6F1 C57BL/6J DBA/2J BXD1 BXD2 BXD5 BXD6 BXD8 BXD9 BXD11 BXD12 BXD13 BXD14 BXD15 BXD16 BXD18 BXD19 BXD20 BXD21 BXD22 BXD23 BXD24a BXD24 BXD25 BXD27 BXD28 BXD29 BXD30 BXD31 BXD32 BXD33 BXD34 BXD35 BXD36 BXD37 BXD38 BXD39 BXD40 BXD41 BXD42 BXD43 BXD44 BXD45 BXD48 BXD49 BXD50 BXD51 BXD52 BXD53 BXD54 BXD55 BXD56 BXD59 BXD60 BXD61 BXD62 BXD63 BXD64 BXD65 BXD66 BXD67 BXD68 BXD69 BXD70 BXD71 BXD72 BXD73 BXD74 BXD75 BXD76 BXD77 BXD78 BXD79 BXD80 BXD81 BXD83 BXD84 BXD85 BXD86 BXD87 BXD88 BXD89 BXD90 BXD91 BXD92 BXD93 BXD94 BXD95 BXD96 BXD97 BXD98 BXD99 BXD100 BXD101 BXD102 BXD103 BALB/cByJ PWK/PhJ A/J KK/HlJ LG/J 129S1/SvImJ NZO/HlLtJ CAST/EiJ PWD/PhJ AKR/J CXB13 CXB12 CXB11 CXB10 WSB/EiJ C3H/HeJ CXB7 CXB6 CXB5 CXB4 CXB3 CXB2 CXB1 CXB9 CXB8 NOD/ShiLtJ C57BL/6ByJ BALB/cJ">
+                <input type="hidden" name="allsamplelist" value="B6D2F1 D2B6F1 C57BL/6J DBA/2J BXD1 BXD2 BXD5 BXD6 BXD8 BXD9 BXD11 BXD12 BXD13 BXD14 BXD15 BXD16 BXD18 BXD19 BXD20 BXD21 BXD22 BXD23 BXD24a BXD24 BXD25 BXD27 BXD28 BXD29 BXD30 BXD31 BXD32 BXD33 BXD34 BXD35 BXD36 BXD37 BXD38 BXD39 BXD40 BXD41 BXD42 BXD43 BXD44 BXD45 BXD48 BXD49 BXD50 BXD51 BXD52 BXD53 BXD54 BXD55 BXD56 BXD59 BXD60 BXD61 BXD62 BXD63 BXD64 BXD65 BXD66 BXD67 BXD68 BXD69 BXD70 BXD71 BXD72 BXD73 BXD74 BXD75 BXD76 BXD77 BXD78 BXD79 BXD80 BXD81 BXD83 BXD84 BXD85 BXD86 BXD87 BXD88 BXD89 BXD90 BXD91 BXD92 BXD93 BXD94 BXD95 BXD96 BXD97 BXD98 BXD99 BXD100 BXD101 BXD102 BXD103 BALB/cByJ PWK/PhJ A/J KK/HlJ LG/J 129S1/SvImJ NZO/HlLtJ CAST/EiJ PWD/PhJ AKR/J CXB13 CXB12 CXB11 CXB10 WSB/EiJ C3H/HeJ CXB7 CXB6 CXB5 CXB4 CXB3 CXB2 CXB1 CXB9 CXB8 NOD/ShiLtJ C57BL/6ByJ BALB/cJ">
                 <input type="hidden" name="applyVarianceSE">
                 <input type="hidden" name="MDPChoice">
                 <input type="hidden" name="otherStrainVars" value="_">
-                <input type="hidden" name="strainVals" value="_">
+                <input type="hidden" name="sampleVals" value="_">
                 <input type="hidden" name="showSNP" value="ON">
                 <input type="hidden" name="bootCheck">
                 <input type="hidden" name="GeneId" value="20689">
@@ -1245,12 +1245,12 @@
                         </div><br>
                         
                         <div style="width:80%;margin:0;padding:0;border:none;">
-                        {% for strain_type in (primary_strains, other_strains) %}
+                        {% for sample_type in (primary_samples, other_samples) %}
                         
                         <div style="float:left;width:50%;">
-                        <h2>{{ strain_type.header }}</h2>
+                        <h2>{{ sample_type.header }}</h2>
                             
-                        <div id="{{ strain_type.strains[0]['this_id'].lower().partition('_')[0] }}">  {# Slightly tortuous, but best way to get the id we need #}
+                        <div id="{{ sample_type.samples[0]['this_id'].lower().partition('_')[0] }}">  {# Slightly tortuous, but best way to get the id we need #}
                           <table class="not_tablesorter"  {# Todo: Turn tablesorter back on #}
                                  id="{{ 'sortable%i' % (loop.index) }}"
                                  cellpadding="0" cellspacing="0">
@@ -1266,21 +1266,21 @@
                               <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="80">SE</th>
                             </tr>
 
-                            {% for strain in strain_type.strains %}
-                            <tr class="{{ strain.class_outlier }} value_se" id="{{ strain.this_id }}">
+                            {% for sample in sample_type.samples %}
+                            <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
                               <td class="fs13 b1 c222" align="right" width="45">
                                 {{ loop.index }}
-                                <input type="checkbox" name="selectCheck" class="checkbox edit_strain_checkbox" value="{{ strain.name }}" checked="checked">
+                                <input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" value="{{ sample.name }}" checked="checked">
                               </td>
 
                               <td class="fs13 b1 c222" align="right" width="100">
-                                <span class="fs14 fwn ffl edit_strain_strain_name">{{ strain.name }}</span>
+                                <span class="fs14 fwn ffl edit_sample_sample_name">{{ sample.name }}</span>
                               </td>
 
                               {# Todo: Add IDs #}
                               <td class="fs13 b1 c222"  align="right" width="70">
-                                <input type="text" name="{{ strain.name }}" class="fs13 b1 c222 edit_strain_value valueField"
-                                       value="{{ strain.display_value }}" size="8" maxlength="8"
+                                <input type="text" name="{{ sample.name }}" class="fs13 b1 c222 edit_sample_value valueField"
+                                       value="{{ sample.display_value }}" size="8" maxlength="8"
                                        style="text-align:right; background-color:#FFFFFF;">
                               </td>
 
@@ -1290,8 +1290,8 @@
 
                               {# Todo: Add IDs #}
                               <td class="fs13 b1 c222" align="right" width="80">
-                                <input type="text" name=""{{ 'V' + strain.name}}" class="fs13 b1 c222 valueField edit_strain_se"
-                                       value="{{ strain.display_variance }}"
+                                <input type="text" name=""{{ 'V' + sample.name}}" class="fs13 b1 c222 valueField edit_sample_se"
+                                       value="{{ sample.display_variance }}"
                                        size="8" maxlength="8" style="text-align:right"></td>
                             </tr>
                             {% endfor %}

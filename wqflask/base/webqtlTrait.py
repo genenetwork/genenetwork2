@@ -160,20 +160,20 @@ class webqtlTrait:
     __str__ = getName
     __repr__ = __str__
 
-    def exportData(self, strainlist, type="val"):
+    def exportData(self, samplelist, type="val"):
         """
-                export data according to strainlist
+                export data according to samplelist
                 mostly used in calculating correlation
         """
         result = []
-        for strain in strainlist:
-            if self.data.has_key(strain):
+        for sample in samplelist:
+            if self.data.has_key(sample):
                 if type=='val':
-                    result.append(self.data[strain].val)
+                    result.append(self.data[sample].val)
                 elif type=='var':
-                    result.append(self.data[strain].var)
+                    result.append(self.data[sample].var)
                 elif type=='N':
-                    result.append(self.data[strain].N)
+                    result.append(self.data[sample].N)
                 else:
                     raise KeyError, `type`+' type is incorrect.'
             else:
@@ -182,19 +182,19 @@ class webqtlTrait:
 
     def exportInformative(self, incVar=0):
         """
-                export informative strain
+                export informative sample
                 mostly used in qtl regression
         """
-        strains = []
+        samples = []
         vals = []
         vars = []
-        for strain, value in self.data.items():
+        for sample, value in self.data.items():
             if value.val != None:
                 if not incVar or value.var != None:
-                    strains.append(strain)
+                    samples.append(sample)
                     vals.append(value.val)
                     vars.append(value.var)
-        return  strains, vals, vars
+        return  samples, vals, vars
 
 
     #
@@ -225,10 +225,10 @@ class webqtlTrait:
 
 
 
-    def retrieveData(self, strainlist=None):
+    def retrieveData(self, samplelist=None):
         
-        if strainlist == None:
-            strainlist = []
+        if samplelist == None:
+            samplelist = []
         assert self.db and self.cursor
 
         if self.db.type == 'Temp':
@@ -334,10 +334,10 @@ class webqtlTrait:
         
         if results:
             self.mysqlid = results[0][-1]
-            #if strainlist:
+            #if samplelist:
             for item in results:
                 #name, value, variance, num_cases = item
-                if not strainlist or (strainlist and name in strainlist):
+                if not samplelist or (samplelist and name in samplelist):
                     #if value != None:
                     #    num_cases = None
                     #    if self.db.type in ('Publish', 'Temp'):
