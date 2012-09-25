@@ -1,7 +1,5 @@
 from __future__ import absolute_import, print_function, division
 
-print("Google")
-
 import string
 import os
 import cPickle
@@ -22,26 +20,17 @@ from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf
 
-#########################################
-#      DataEditingPage
-#########################################
 class DataEditingPage(templatePage):
 
     def __init__(self, fd, this_trait=None):
 
         templatePage.__init__(self, fd)
-
-        #self.dict['title'] = 'Data Editing'
-        #TD_LR = HT.TD(valign="top",width="100%",bgcolor="#fafafa")
-
-        if not self.openMysql():
-            return
+        assert self.openMysql(), "No datbase!"
+        
         if not fd.genotype:
             fd.readData(incf1=1)
 
-        #############################
         # determine data editing page format
-        #############################
         variance_data_page = 0
         if fd.formID == 'varianceChoice':
             variance_data_page = 1
@@ -54,33 +43,6 @@ class DataEditingPage(templatePage):
             else:
                 fmID='dataEditing'
 
-        #############################
-        ##      titles, etc.
-        #############################
-
-        #titleTop = HT.Div()
-        #
-        #title1 = HT.Paragraph("&nbsp;&nbsp;Details and Links", style="border-radius: 5px;", Id="title1", Class="sectionheader")
-        #title1Body = HT.Paragraph(Id="sectionbody1")
-        #
-        #if fd.enablevariance and not variance_data_page:
-        #       title2 = HT.Paragraph("&nbsp;&nbsp;Submit Variance", style="border-radius: 5px;", Id="title2", Class="sectionheader")
-        #else:
-        #       title2 = HT.Paragraph("&nbsp;&nbsp;Basic Statistics", style="border-radius: 5px;", Id="title2", Class="sectionheader")
-        #title2Body = HT.Paragraph(Id="sectionbody2")
-        #
-        #title3 = HT.Paragraph("&nbsp;&nbsp;Calculate Correlations", style="border-radius: 5px;", Id="title3", Class="sectionheader")
-        #title3Body = HT.Paragraph(Id="sectionbody3")
-        #
-        #title4 = HT.Paragraph("&nbsp;&nbsp;Mapping Tools", style="border-radius: 5px;", Id="title4", Class="sectionheader")
-        #title4Body = HT.Paragraph(Id="sectionbody4")
-        #
-        #title5 = HT.Paragraph("&nbsp;&nbsp;Review and Edit Data", style="border-radius: 5px;", Id="title5", Class="sectionheader")
-        #title5Body = HT.Paragraph(Id="sectionbody5")
-
-        #############################
-        ##     Hidden field
-        #############################
 
         # Some fields, like method, are defaulted to None; otherwise in IE the field can't be changed using jquery
         hddn = OrderedDict(
@@ -134,40 +96,22 @@ class DataEditingPage(templatePage):
                 if this_trait.cellid:
                     hddn['cellid'] = this_trait.cellid
                 else:
-                    self.cursor.execute("SELECT h2 from ProbeSetXRef WHERE DataId = %d" % this_trait.mysqlid)
+                    self.cursor.execute("SELECT h2 from ProbeSetXRef WHERE DataId = %d" %
+                                        this_trait.mysqlid)
                     heritability = self.cursor.fetchone()
                     hddn['heritability'] = heritability
 
                 hddn['attribute_names'] = ""
 
-        hddn['mappingMethodId'] = webqtlDatabaseFunction.getMappingMethod (cursor=self.cursor, groupName=fd.RISet)
-
-        #############################
-        ##  Display Trait Information
-        #############################
-
-        #headSpan = self.dispHeader(fd,this_trait) #Draw header
-        #
-        #titleTop.append(headSpan)
+        hddn['mappingMethodId'] = webqtlDatabaseFunction.getMappingMethod (cursor=self.cursor,
+                                                                           groupName=fd.RISet)
 
         if fd.identification:
             hddn['identification'] = fd.identification
-
         else:
             hddn['identification'] = "Un-named trait"  #If no identification, set identification to un-named
 
         self.dispTraitInformation(fd, "", hddn, this_trait) #Display trait information + function buttons
-
-        #############################
-        ##  Generate form and buttons
-        #############################
-
-        #mainForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE),
-        #    name='dataInput', submit=HT.Input(type='hidden'))
-
-        #next=HT.Input(type='submit', name='submit',value='Next',Class="button")
-        #reset=HT.Input(type='Reset',name='',value=' Reset ',Class="button")
-        #correlationMenus = []
 
         if this_trait == None:
             this_trait = webqtlTrait(data=fd.allTraitData, db=None)
@@ -182,105 +126,29 @@ class DataEditingPage(templatePage):
         #    # We'll get this part working later
         #    print("Calling dispBasicStatistics")
         #    self.dispBasicStatistics(fd, this_trait)
-        
-        self.build_correlation_tools(fd, this_trait)
-        
-        #    self.dispMappingTools(fd, title4Body, this_trait)
 
-        #############################
-        ##  Trait Value Table
-        #############################
-        #
+        self.build_correlation_tools(fd, this_trait)
+
+
         self.make_sample_lists(fd, variance_data_page, this_trait)
-        #
+        
         if fd.allsamplelist:
             hddn['allsamplelist'] = string.join(fd.allsamplelist, ' ')
 
-        # We put isSE into hddn
         if fd.varianceDispName != 'Variance':
             hddn['isSE'] = "yes"
 
-        #for key in hddn.keys():
-        #    mainForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
-        #
-        #if fd.enablevariance and not variance_data_page:
-        #    #pre dataediting page, need to submit variance
-        #    mainForm.append(titleTop, title1,title1Body,title2,title2Body,title3,title3Body,title4,title4Body,title5,title5Body)
-        #else:
-        #    mainForm.append(titleTop, title1,title1Body,title2,title2Body,title3,title3Body,title4,title4Body,title5,title5Body)
-        #TD_LR.append(HT.Paragraph(mainForm))
-        #self.dict['body'] = str(TD_LR)
-
-        # We'll need access to this_trait and hddn uin the Jinja2 Template, so we put it inside self
+        # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.this_trait = this_trait
         self.hddn = hddn
 
-        #self.basic_table = {}
-        #self.basic_table['rows'] = yaml.load("""
-        #                                  - N of Samples
-        #                                  - Mean
-        #                                  - Median
-        #                                  - Standard Error (SE)
-        #                                  - Standard Deviation (SD)
-        #                                  - Minimum
-        #                                  - Maximum
-        #                                  - Range (log2)
-        #                                  - Range (fold)
-        #                                  - Interquartile Range
-        #                                  """)
+        self.sample_group_types = OrderedDict()
+        self.sample_group_types['primary_only'] = fd.RISet + " Only"
+        self.sample_group_types['other_only'] = "Non-" + fd.RISet
+        self.sample_group_types['all_cases'] = "All Cases"
+        self.js_data = dict(sample_groups = self.sample_group_types)
 
-        #self.sample_groups = []
-        #self.sample_groups.append(dict(label=fd.RISet + " Only",
-        #                                   value="primary_only"))
-        #self.sample_groups.append(dict(label="Non-"+fd.RISet,
-        #                                   value="other_only"))        
-        #self.sample_groups.append(dict(label="All Cases",
-        #                                   value="all_cases"))
-        
-        self.sample_groups = OrderedDict()
-        self.sample_groups['primary_only'] = fd.RISet + " Only"
-        self.sample_groups['other_only'] = "Non-" + fd.RISet
-        self.sample_groups['all_cases'] = "All Cases"
-        self.js_data = dict(sample_groups = self.sample_groups)
-        
-        
-        #self.basic_table['columns'] = yaml.load("""
-        #                                        -
-        #                                            n: All Cases
-        #                                            t: all
-        #                                        -
-        #                                            n: BXD Only
-        #                                            t: primary
-        #                                        -
-        #                                            n: Non-BXD Only
-        #                                            t: other
-        #                                        """)
 
-        #print(pf(self.basic_table))
-
-    ##########################################
-    ##  Function to display header
-    ##########################################
-    def dispHeader(self, fd, this_trait):
-        headSpan = HT.Div(style="font-size:14px;")
-
-        #If trait, use trait name; otherwise, use identification value
-        if this_trait:
-            if this_trait.cellid:
-                headSpan.append(HT.Strong('Trait Data and Analysis&nbsp;', style='font-size:16px;'),' for Probe ID ', this_trait.cellid)
-            else:
-                headSpan.append(HT.Strong('Trait Data and Analysis&nbsp;', style='font-size:16px;'),' for Record ID ', this_trait.name)
-        else:
-            if fd.identification:
-                headSpan.append(HT.Strong('Trait ID ', style='font-size:16px;'),fd.identification)
-            else:
-                headSpan.append(HT.Strong('Un-named Trait', style='font-size:16px;'))
-
-        return headSpan
-
-    ##########################################
-    ##  Function to display trait infos
-    ##########################################
     def dispTraitInformation(self, fd, title1Body, hddn, this_trait):
 
         _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
@@ -884,9 +752,6 @@ class DataEditingPage(templatePage):
             pass
 
 
-    ##########################################
-    ##  Function to display analysis tools
-    ##########################################
     def dispBasicStatistics(self, fd, this_trait):
 
         #XZ, June 22, 2011: The definition and usage of primary_samples, other_samples, specialStrains, all_samples are not clear and hard to understand. But since they are only used in this function for draw graph purpose, they will not hurt the business logic outside. As of June 21, 2011, this function seems work fine, so no hurry to clean up. These parameters and code in this function should be cleaned along with fd.f1list, fd.parlist, fd.samplelist later.
@@ -1029,7 +894,6 @@ class DataEditingPage(templatePage):
 
             vals_set = [vals]
 
-        #stats_script = HT.Script(language="Javascript") #script needed for tabs
         self.stats_data = []
         for i, vals in enumerate(vals_set):
             if i == 0 and len(vals) < 4:
@@ -1628,7 +1492,8 @@ class DataEditingPage(templatePage):
 
         this_trait_samples = set(this_trait.data.keys())
         #ZS - Checks if there are any samples in this_trait_samples that aren't in all_samples_ordered
-        other_samplesExist = this_trait_samples - set(all_samples_ordered)
+        #Will need to be used in the future to determine whether to create one or two tables are created (probably)
+        #other_samples_exist = this_trait_samples - set(all_samples_ordered)
 
         #mainForm = None # Just trying to get things working
 
@@ -1636,15 +1501,16 @@ class DataEditingPage(templatePage):
 
         print("primary_samplelist is:", pf(primary_samplelist))
 
-        primary_samples = self.create_sample_objects(fd=fd,
+        primary_samples = SampleList(self.cursor,
+                                                fd=fd,
                                               variance_data_page=variance_data_page,
                                               samplelist=primary_samplelist,
                                               #mainForm=mainForm,
                                               this_trait=this_trait,
-                                              other_samplesExist=other_samplesExist,
                                               attribute_ids=attribute_ids,
                                               attribute_names=attribute_names,
-                                              samples='primary')
+                                              samples='primary',
+                                              header="%s Only" % (fd.RISet))
 
 
         other_samples = []
@@ -1661,14 +1527,16 @@ class DataEditingPage(templatePage):
             other_samples.sort() #Sort other samples
             other_samples = par_f1_samples + other_samples
 
-            other_samples = self.create_sample_objects(fd=fd,
+            other_samples = SampleList(self.cursor,
+                                                  fd=fd,
                                                 variance_data_page=variance_data_page,
                                                 samplelist=other_samples,
                                                 #mainForm=mainForm,
                                                 this_trait=this_trait,
                                                 attribute_ids=attribute_ids,
                                                 attribute_names=attribute_names,
-                                                samples='other')
+                                                samples='other',
+                                                header="Non-%s" % (fd.RISet))
 
 
         #TODO: Figure out why this if statement is written this way - Zach
@@ -1678,16 +1546,28 @@ class DataEditingPage(templatePage):
             fd.allsamplelist = all_samples_ordered
 
 
-        self.primary_samples = dict(header = "%s Only" % (fd.RISet),
-                                    samples = primary_samples,)
-                                    
-        self.other_samples = dict(header = "Non-%s" % (fd.RISet),
-                                    samples = other_samples,)
+        #self.primary_samples = dict(header = "%s Only" % (fd.RISet),
+        #                            samples = primary_samples,)
+        #                            
+        #self.other_samples = dict(header = "Non-%s" % (fd.RISet),
+        #                            samples = other_samples,)
         
+        self.sample_groups = (primary_samples, other_samples)
 
-    def create_sample_objects(self, fd, variance_data_page, samplelist, this_trait,
-                       other_samplesExist=None, attribute_ids=None,
-                       attribute_names=None, samples='primary'):
+
+class SampleList(list):
+    def __init__(self,
+                 cursor,
+                 fd,
+                 variance_data_page,
+                 samplelist,
+                 this_trait,
+                 attribute_ids,
+                 attribute_names,
+                 samples,
+                 header):
+        
+        self.header = header
 
         if attribute_ids == None:
             attribute_ids = []
@@ -1717,7 +1597,7 @@ class DataEditingPage(templatePage):
         #upperBound, lowerBound = Plot.findOutliers(vals) # ZS: Values greater than upperBound or less than lowerBound are considered outliers.
 
 
-        the_samples = []
+        #the_samples = []
 
         for counter, sampleNameOrig in enumerate(samplelist, 1):
             sampleName = sampleNameOrig.replace("_2nd_", "")
@@ -1731,7 +1611,7 @@ class DataEditingPage(templatePage):
                 print("No sample %s, let's create it now" % sampleName)
                 sample = webqtlCaseData.webqtlCaseData(sampleName)
             print("zyt - sampleNameOrig:", sampleNameOrig)
-
+            print("  type of sample:", type(sample))
 
             if samples == 'primary':
                 sample.this_id = "Primary_" + str(counter)
@@ -1743,27 +1623,27 @@ class DataEditingPage(templatePage):
                 if len(attribute_ids) > 0:
 
                     #ZS: Get StrainId value for the next query
-                    self.cursor.execute("""SELECT Strain.Id
-                                                    FROM Strain, StrainXRef, InbredSet
+                    cursor.execute("""SELECT Strain.Id
+                                                    FROM Strain, StrainXRef, InbredSetd
                                                     WHERE Strain.Name = '%s' and
                                                             StrainXRef.StrainId = Strain.Id and
                                                             InbredSet.Id = StrainXRef.InbredSetId and
                                                             InbredSet.Name = '%s'""" % (sampleName, fd.RISet))
 
-                    sample_id = self.cursor.fetchone()[0]
+                    sample_id = cursor.fetchone()[0]
 
                     attr_counter = 1 # This is needed so the javascript can know which attribute type to associate this value with for the exported excel sheet (each attribute type being a column).
                     for attribute_id in attribute_ids:
 
                         #ZS: Add extra case attribute values (if any)
-                        self.cursor.execute("""SELECT Value
+                        cursor.execute("""SELECT Value
                                                         FROM CaseAttributeXRef
                                                 WHERE ProbeSetFreezeId = '%s' AND
                                                         StrainId = '%s' AND
                                                         CaseAttributeId = '%s'
                                                                 group by CaseAttributeXRef.CaseAttributeId""" % (this_trait.db.id, sample_id, str(attribute_id)))
 
-                        attributeValue = self.cursor.fetchone()[0] #Trait-specific attributes, if any
+                        attributeValue = cursor.fetchone()[0] #Trait-specific attributes, if any
 
                         #ZS: If it's an int, turn it into one for sorting (for example, 101 would be lower than 80 if they're strings instead of ints)
                         try:
@@ -1776,23 +1656,26 @@ class DataEditingPage(templatePage):
                         attr_className = str(attributeValue) + "&nbsp;" + className
                         table_row.append(HT.TD(attr_container, align='right', Class=attr_className))
                         attr_counter += 1
-                the_samples.append(sample)
+                self.append(sample)
             #table_body.append(table_row)
 
-        do_outliers(the_samples)
-        print("*the_samples are [%i]: %s" % (len(the_samples), pf(the_samples)))
-        return the_samples
+        self.do_outliers()
+        #do_outliers(the_samples)
+        print("*the_samples are [%i]: %s" % (len(self), pf(self)))
+        for sample in self:
+            print("apple:", type(sample), sample)
+        #return the_samples
 
 
-def do_outliers(sample_objects):
-    values = [sample.value for sample in sample_objects if sample.value != None]
-    upper_bound, lower_bound = Plot.find_outliers(values)
-    
-    for sample in sample_objects:
-        if sample.value:
-            if upper_bound and sample.value > upper_bound:
-                sample.outlier = True
-            elif lower_bound and sample.value < lower_bound:
-                sample.outlier = True
-            else:
-                sample.outlier = False
+    def do_outliers(self):
+        values = [sample.value for sample in self if sample.value != None]
+        upper_bound, lower_bound = Plot.find_outliers(values)
+        
+        for sample in self:
+            if sample.value:
+                if upper_bound and sample.value > upper_bound:
+                    sample.outlier = True
+                elif lower_bound and sample.value < lower_bound:
+                    sample.outlier = True
+                else:
+                    sample.outlier = False

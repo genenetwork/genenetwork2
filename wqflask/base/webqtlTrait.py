@@ -157,8 +157,8 @@ class webqtlTrait:
     #def __str__(self):
     #       #return "%s %s" % (self.getName(), self.riset)
     #       return self.getName()
-    __str__ = getName
-    __repr__ = __str__
+    #__str__ = getName
+    #__repr__ = __str__
 
     def exportData(self, samplelist, type="val"):
         """

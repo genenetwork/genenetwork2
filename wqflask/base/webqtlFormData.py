@@ -46,9 +46,9 @@ from utility import webqtlUtil
 class webqtlFormData:
     'Represents data from a WebQTL form page, needed to generate the next page'
     
-    attrs = ('formID','RISet','genotype','samplelist','allsamplelist',
-    'suggestive','significance','submitID','identification', 'enablevariance',
-    'nperm','nboot','email','incparentsf1','genotype_1','genotype_2','traitInfo')
+    attrs = ('formID','RISet','genotype','samplelist','allsamplelist', 'display_variance'
+                'suggestive','significance','submitID','identification', 'enablevariance',
+                'nperm','nboot','email','incparentsf1','genotype_1','genotype_2','traitInfo')
 
     #XZ: Attention! All attribute values must be picklable!
 
@@ -61,6 +61,9 @@ class webqtlFormData:
         print("in webqtlFormData start_vars are:", pf(start_vars))
         for item in webqtlFormData.attrs:
             self.__dict__[item] = None
+        
+        #ZS: This is only used in DataEditingPage.py (as far as I know)
+        self.varianceDispName = None
 
         for item in start_vars:
             self.__dict__[item] = start_vars[item]

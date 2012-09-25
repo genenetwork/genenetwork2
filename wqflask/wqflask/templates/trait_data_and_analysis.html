@@ -243,7 +243,7 @@
                 
                 <p id="sectionbody2"></p>Include:
                                         <select name="corr_samples_group" size="1">
-                                        {% for group, pretty_group in sample_groups.items() %}
+                                        {% for group, pretty_group in sample_group_types.items() %}
                                             <option value="{{ group }}">
                                                 {{ pretty_group }}
                                             </option>
@@ -751,7 +751,7 @@
                                     <td><span class="ffl fwb fs12">Samples:</span></td>
                                     <td>
                                         <select name="corr_samples_group" size="1">
-                                        {% for group, pretty_group in sample_groups.items() %}
+                                        {% for group, pretty_group in sample_group_types.items() %}
                                             <option value="{{ group }}">
                                                 {{ pretty_group }}
                                             </option>
@@ -1245,12 +1245,11 @@
                         </div><br>
                         
                         <div style="width:80%;margin:0;padding:0;border:none;">
-                        {% for sample_type in (primary_samples, other_samples) %}
-                        
+                        {% for sample_type in sample_groups %}
                         <div style="float:left;width:50%;">
                         <h2>{{ sample_type.header }}</h2>
                             
-                        <div id="{{ sample_type.samples[0]['this_id'].lower().partition('_')[0] }}">  {# Slightly tortuous, but best way to get the id we need #}
+                        <div id="{{ sample_type.samples }}">  
                           <table class="not_tablesorter"  {# Todo: Turn tablesorter back on #}
                                  id="{{ 'sortable%i' % (loop.index) }}"
                                  cellpadding="0" cellspacing="0">
@@ -1266,7 +1265,7 @@
                               <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="80">SE</th>
                             </tr>
 
-                            {% for sample in sample_type.samples %}
+                            {% for sample in sample_type %}
                             <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
                               <td class="fs13 b1 c222" align="right" width="45">
                                 {{ loop.index }}

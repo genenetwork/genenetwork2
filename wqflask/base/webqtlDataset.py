@@ -32,8 +32,8 @@ import webqtlConfig
 
 class webqtlDataset:
     """
-    Database class defines a database in webqtl, can be either Microarray,
-    Published phenotype, genotype, or user input database(temp)
+    Dataset class defines a dataset in webqtl, can be either Microarray,
+    Published phenotype, genotype, or user input dataset(temp)
     """
 
     def __init__(self, dbName, cursor=None):

@@ -40,7 +40,7 @@ class webqtlCaseData(object):
         self.outlier = None   # Not set to True/False until later
 
     def __repr__(self):
-        str = ""
+        str = "<webqtlCaseData> "
         if self.value != None:
             str += "value=%2.3f" % self.value
         if self.variance != None:
