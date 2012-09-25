@@ -27,7 +27,7 @@ from pprint import pformat as pf
 #########################################
 class DataEditingPage(templatePage):
 
-    def __init__(self, fd, thisTrait=None):
+    def __init__(self, fd, this_trait=None):
 
         templatePage.__init__(self, fd)
 
@@ -42,20 +42,17 @@ class DataEditingPage(templatePage):
         #############################
         # determine data editing page format
         #############################
-        varianceDataPage = 0
+        variance_data_page = 0
         if fd.formID == 'varianceChoice':
-            varianceDataPage = 1
+            variance_data_page = 1
 
-        if varianceDataPage:
+        if variance_data_page:
             fmID='dataEditing'
-            nCols = 6
         else:
             if fd.enablevariance:
                 fmID='pre_dataEditing'
-                nCols = 4
             else:
                 fmID='dataEditing'
-                nCols = 4
 
         #############################
         ##      titles, etc.
@@ -66,7 +63,7 @@ class DataEditingPage(templatePage):
         #title1 = HT.Paragraph("&nbsp;&nbsp;Details and Links", style="border-radius: 5px;", Id="title1", Class="sectionheader")
         #title1Body = HT.Paragraph(Id="sectionbody1")
         #
-        #if fd.enablevariance and not varianceDataPage:
+        #if fd.enablevariance and not variance_data_page:
         #       title2 = HT.Paragraph("&nbsp;&nbsp;Submit Variance", style="border-radius: 5px;", Id="title2", Class="sectionheader")
         #else:
         #       title2 = HT.Paragraph("&nbsp;&nbsp;Basic Statistics", style="border-radius: 5px;", Id="title2", Class="sectionheader")
@@ -123,21 +120,21 @@ class DataEditingPage(templatePage):
         if fd.incparentsf1:
             hddn['incparentsf1']='ON'
 
-        if thisTrait:
-            hddn['fullname'] = str(thisTrait)
+        if this_trait:
+            hddn['fullname'] = str(this_trait)
             try:
-                hddn['normalPlotTitle'] = thisTrait.symbol
+                hddn['normalPlotTitle'] = this_trait.symbol
                 hddn['normalPlotTitle'] += ": "
-                hddn['normalPlotTitle'] += thisTrait.name
+                hddn['normalPlotTitle'] += this_trait.name
             except:
-                hddn['normalPlotTitle'] = str(thisTrait.name)
+                hddn['normalPlotTitle'] = str(this_trait.name)
             hddn['fromDataEditingPage'] = 1
-            if thisTrait.db and thisTrait.db.type and thisTrait.db.type == 'ProbeSet':
-                hddn['trait_type'] = thisTrait.db.type
-                if thisTrait.cellid:
-                    hddn['cellid'] = thisTrait.cellid
+            if this_trait.db and this_trait.db.type and this_trait.db.type == 'ProbeSet':
+                hddn['trait_type'] = this_trait.db.type
+                if this_trait.cellid:
+                    hddn['cellid'] = this_trait.cellid
                 else:
-                    self.cursor.execute("SELECT h2 from ProbeSetXRef WHERE DataId = %d" % thisTrait.mysqlid)
+                    self.cursor.execute("SELECT h2 from ProbeSetXRef WHERE DataId = %d" % this_trait.mysqlid)
                     heritability = self.cursor.fetchone()
                     hddn['heritability'] = heritability
 
@@ -149,7 +146,7 @@ class DataEditingPage(templatePage):
         ##  Display Trait Information
         #############################
 
-        #headSpan = self.dispHeader(fd,thisTrait) #Draw header
+        #headSpan = self.dispHeader(fd,this_trait) #Draw header
         #
         #titleTop.append(headSpan)
 
@@ -159,7 +156,7 @@ class DataEditingPage(templatePage):
         else:
             hddn['identification'] = "Un-named trait"  #If no identification, set identification to un-named
 
-        self.dispTraitInformation(fd, "", hddn, thisTrait) #Display trait information + function buttons
+        self.dispTraitInformation(fd, "", hddn, this_trait) #Display trait information + function buttons
 
         #############################
         ##  Generate form and buttons
@@ -172,11 +169,11 @@ class DataEditingPage(templatePage):
         #reset=HT.Input(type='Reset',name='',value=' Reset ',Class="button")
         #correlationMenus = []
 
-        if thisTrait == None:
-            thisTrait = webqtlTrait(data=fd.allTraitData, db=None)
+        if this_trait == None:
+            this_trait = webqtlTrait(data=fd.allTraitData, db=None)
 
         ## Variance submit page only
-        #if fd.enablevariance and not varianceDataPage:
+        #if fd.enablevariance and not variance_data_page:
         #    pass
         #    #title2Body.append("Click the next button to go to the variance submission form.",
         #    #        HT.Center(next,reset))
@@ -184,29 +181,29 @@ class DataEditingPage(templatePage):
         #    pass
         #    # We'll get this part working later
         #    print("Calling dispBasicStatistics")
-        #    self.dispBasicStatistics(fd, thisTrait)
+        #    self.dispBasicStatistics(fd, this_trait)
         
-        self.build_correlation_tools(fd, thisTrait)
+        self.build_correlation_tools(fd, this_trait)
         
-        #    self.dispMappingTools(fd, title4Body, thisTrait)
+        #    self.dispMappingTools(fd, title4Body, this_trait)
 
         #############################
         ##  Trait Value Table
         #############################
         #
-        self.dispTraitValues(fd, varianceDataPage, nCols, thisTrait)
+        self.make_sample_lists(fd, variance_data_page, this_trait)
         #
         if fd.allsamplelist:
             hddn['allsamplelist'] = string.join(fd.allsamplelist, ' ')
 
         # We put isSE into hddn
-        if nCols == 6 and fd.varianceDispName != 'Variance':
+        if fd.varianceDispName != 'Variance':
             hddn['isSE'] = "yes"
 
         #for key in hddn.keys():
         #    mainForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
         #
-        #if fd.enablevariance and not varianceDataPage:
+        #if fd.enablevariance and not variance_data_page:
         #    #pre dataediting page, need to submit variance
         #    mainForm.append(titleTop, title1,title1Body,title2,title2Body,title3,title3Body,title4,title4Body,title5,title5Body)
         #else:
@@ -214,8 +211,8 @@ class DataEditingPage(templatePage):
         #TD_LR.append(HT.Paragraph(mainForm))
         #self.dict['body'] = str(TD_LR)
 
-        # We'll need access to thisTrait and hddn uin the Jinja2 Template, so we put it inside self
-        self.thisTrait = thisTrait
+        # We'll need access to this_trait and hddn uin the Jinja2 Template, so we put it inside self
+        self.this_trait = this_trait
         self.hddn = hddn
 
         #self.basic_table = {}
@@ -264,15 +261,15 @@ class DataEditingPage(templatePage):
     ##########################################
     ##  Function to display header
     ##########################################
-    def dispHeader(self, fd, thisTrait):
+    def dispHeader(self, fd, this_trait):
         headSpan = HT.Div(style="font-size:14px;")
 
         #If trait, use trait name; otherwise, use identification value
-        if thisTrait:
-            if thisTrait.cellid:
-                headSpan.append(HT.Strong('Trait Data and Analysis&nbsp;', style='font-size:16px;'),' for Probe ID ', thisTrait.cellid)
+        if this_trait:
+            if this_trait.cellid:
+                headSpan.append(HT.Strong('Trait Data and Analysis&nbsp;', style='font-size:16px;'),' for Probe ID ', this_trait.cellid)
             else:
-                headSpan.append(HT.Strong('Trait Data and Analysis&nbsp;', style='font-size:16px;'),' for Record ID ', thisTrait.name)
+                headSpan.append(HT.Strong('Trait Data and Analysis&nbsp;', style='font-size:16px;'),' for Record ID ', this_trait.name)
         else:
             if fd.identification:
                 headSpan.append(HT.Strong('Trait ID ', style='font-size:16px;'),fd.identification)
@@ -284,7 +281,7 @@ class DataEditingPage(templatePage):
     ##########################################
     ##  Function to display trait infos
     ##########################################
-    def dispTraitInformation(self, fd, title1Body, hddn, thisTrait):
+    def dispTraitInformation(self, fd, title1Body, hddn, this_trait):
 
         _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
 
@@ -313,14 +310,14 @@ class DataEditingPage(templatePage):
 
         if webqtlConfig.USERDICT[self.privilege] >= webqtlConfig.USERDICT['user']:
 
-            if thisTrait==None or thisTrait.db.type=='Temp':
+            if this_trait==None or this_trait.db.type=='Temp':
                 updateButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('dataInput')[0],'addPublish');")
                 updateButton_img = HT.Image("/images/edit_icon.jpg", name="addnew", alt="Add To Publish", title="Add To Publish", style="border:none;")
                 updateButton.append(updateButton_img)
                 updateText = "Edit"
-            elif thisTrait.db.type != 'Temp':
-                if thisTrait.db.type == 'Publish' and thisTrait.confidential: #XZ: confidential phenotype trait
-                    if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=thisTrait.authorized_users):
+            elif this_trait.db.type != 'Temp':
+                if this_trait.db.type == 'Publish' and this_trait.confidential: #XZ: confidential phenotype trait
+                    if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
                         updateButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('dataInput')[0],'updateRecord');")
                         updateButton_img = HT.Image("/images/edit_icon.jpg", name="update", alt="Edit", title="Edit", style="border:none;")
                         updateButton.append(updateButton_img)
@@ -334,7 +331,7 @@ class DataEditingPage(templatePage):
                 pass
 
         self.cursor.execute('SELECT Name FROM InbredSet WHERE Name="%s"' % fd.RISet)
-        if thisTrait:
+        if this_trait:
             addSelectionButton = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (fd.RISet, 'dataInput'))
             addSelectionButton_img = HT.Image("/images/add_icon.jpg", name="addselect", alt="Add To Collection", title="Add To Collection", style="border:none;")
             #addSelectionButton.append(addSelectionButton_img)
@@ -349,26 +346,26 @@ class DataEditingPage(templatePage):
 
 
         # Microarray database information to display
-        if thisTrait and thisTrait.db and thisTrait.db.type == 'ProbeSet': #before, this line was only reached if thisTrait != 0, but now we need to check
+        if this_trait and this_trait.db and this_trait.db.type == 'ProbeSet': #before, this line was only reached if this_trait != 0, but now we need to check
             try:
-                hddn['GeneId'] = int(string.strip(thisTrait.geneid))
+                hddn['GeneId'] = int(string.strip(this_trait.geneid))
             except:
                 pass
 
             #Info2Disp = HT.Paragraph()
 
             #XZ: Gene Symbol
-            if thisTrait.symbol:
+            if this_trait.symbol:
                 #XZ: Show SNP Browser only for mouse
                 if _Species == 'mouse':
-                    self.cursor.execute("select geneSymbol from GeneList where geneSymbol = %s", thisTrait.symbol)
+                    self.cursor.execute("select geneSymbol from GeneList where geneSymbol = %s", this_trait.symbol)
                     geneName = self.cursor.fetchone()
                     if geneName:
                         snpurl = os.path.join(webqtlConfig.CGIDIR, "main.py?FormID=SnpBrowserResultPage&submitStatus=1&diffAlleles=True&customStrain=True") + "&geneName=%s" % geneName[0]
                     else:
-                        if thisTrait.chr and thisTrait.mb:
+                        if this_trait.chr and this_trait.mb:
                             snpurl = os.path.join(webqtlConfig.CGIDIR, "main.py?FormID=SnpBrowserResultPage&submitStatus=1&diffAlleles=True&customStrain=True") + \
-                                    "&chr=%s&start=%2.6f&end=%2.6f" % (thisTrait.chr, thisTrait.mb-0.002, thisTrait.mb+0.002)
+                                    "&chr=%s&start=%2.6f&end=%2.6f" % (this_trait.chr, this_trait.mb-0.002, this_trait.mb+0.002)
                         else:
                             snpurl = ""
 
@@ -379,15 +376,15 @@ class DataEditingPage(templatePage):
                         snpBrowserText = "SNPs"
 
                 #XZ: Show GeneWiki for all species
-                geneWikiButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE) + "?FormID=geneWiki&symbol=%s" % thisTrait.symbol))
+                geneWikiButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE) + "?FormID=geneWiki&symbol=%s" % this_trait.symbol))
                 geneWikiButton_img = HT.Image("/images/genewiki_icon.jpg", name="genewiki", alt=" Write or review comments about this gene ", title=" Write or review comments about this gene ", style="border:none;")
                 #geneWikiButton.append(geneWikiButton_img)
                 geneWikiText = 'GeneWiki'
 
                 #XZ: display similar traits in other selected datasets
-                if thisTrait and thisTrait.db and thisTrait.db.type=="ProbeSet" and thisTrait.symbol:
+                if this_trait and this_trait.db and this_trait.db.type=="ProbeSet" and this_trait.symbol:
                     if _Species in ("mouse", "rat", "human"):
-                        similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), thisTrait.symbol, _Species)
+                        similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.symbol, _Species)
                         similarButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % similarUrl)
                         similarButton_img = HT.Image("/images/find_icon.jpg", name="similar", alt=" Find similar expression data ", title=" Find similar expression data ", style="border:none;")
                         #similarButton.append(similarButton_img)
@@ -397,7 +394,7 @@ class DataEditingPage(templatePage):
                 #tbl.append(HT.TR(
                         #HT.TD('Gene Symbol: ', Class="fwb fs13", valign="top", nowrap="on", width=90),
                         #HT.TD(width=10, valign="top"),
-                        #HT.TD(HT.Span('%s' % thisTrait.symbol, valign="top", Class="fs13 fsI"), valign="top", width=740)
+                        #HT.TD(HT.Span('%s' % this_trait.symbol, valign="top", Class="fs13 fsI"), valign="top", width=740)
                         #))
             else:
                 tbl.append(HT.TR(
@@ -410,7 +407,7 @@ class DataEditingPage(templatePage):
 
             ##display Verify Location button
             try:
-                blatsequence = thisTrait.blatseq
+                blatsequence = this_trait.blatseq
                 if not blatsequence:
                     #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
                     self.cursor.execute("""SELECT Probe.Sequence, Probe.Name
@@ -419,7 +416,7 @@ class DataEditingPage(templatePage):
                                                  ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
                                                  ProbeSetFreeze.Name = '%s' AND
                                                  ProbeSet.Name = '%s' AND
-                                                 Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (thisTrait.db.name, thisTrait.name) )
+                                                 Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (this_trait.db.name, this_trait.name) )
                     seqs = self.cursor.fetchall()
                     if not seqs:
                         raise ValueError
@@ -430,7 +427,7 @@ class DataEditingPage(templatePage):
                                 blatsequence += string.strip(seqt[0])
 
                 #--------Hongqiang add this part in order to not only blat ProbeSet, but also blat Probe
-                blatsequence = '%3E'+thisTrait.name+'%0A'+blatsequence+'%0A'
+                blatsequence = '%3E'+this_trait.name+'%0A'+blatsequence+'%0A'
                 #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
                 self.cursor.execute("""SELECT Probe.Sequence, Probe.Name
                                        FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
@@ -438,7 +435,7 @@ class DataEditingPage(templatePage):
                                              ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
                                              ProbeSetFreeze.Name = '%s' AND
                                              ProbeSet.Name = '%s' AND
-                                             Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (thisTrait.db.name, thisTrait.name) )
+                                             Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (this_trait.db.name, this_trait.name) )
 
                 seqs = self.cursor.fetchall()
                 for seqt in seqs:
@@ -446,7 +443,7 @@ class DataEditingPage(templatePage):
                         blatsequence += '%3EProbe_'+string.strip(seqt[1])+'%0A'+string.strip(seqt[0])+'%0A'
                 #--------
                 #XZ, 07/16/2009: targetsequence is not used, so I comment out this block
-                #targetsequence = thisTrait.targetseq
+                #targetsequence = this_trait.targetseq
                 #if targetsequence==None:
                 #       targetsequence = ""
 
@@ -481,18 +478,18 @@ class DataEditingPage(templatePage):
                 pass
 
             #Display probe information (if any)
-            if thisTrait.db.name.find('Liver') >= 0 and thisTrait.db.name.find('F2') < 0:
+            if this_trait.db.name.find('Liver') >= 0 and this_trait.db.name.find('F2') < 0:
                 pass
             else:
                 #query database for number of probes associated with trait; if count > 0, set probe tool button and text
                 self.cursor.execute("""SELECT count(*)
                                            FROM Probe, ProbeSet
-                                           WHERE ProbeSet.Name = '%s' AND Probe.ProbeSetId = ProbeSet.Id""" % (thisTrait.name))
+                                           WHERE ProbeSet.Name = '%s' AND Probe.ProbeSetId = ProbeSet.Id""" % (this_trait.name))
 
                 probeResult = self.cursor.fetchone()
                 if probeResult[0] > 0:
                     probeurl = "%s?FormID=showProbeInfo&database=%s&ProbeSetID=%s&CellID=%s&RISet=%s&incparentsf1=ON" \
-                            % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), thisTrait.db, thisTrait.name, thisTrait.cellid, fd.RISet)
+                            % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.db, this_trait.name, this_trait.cellid, fd.RISet)
                     probeButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % probeurl)
                     probeButton_img = HT.Image("/images/probe_icon.jpg", name="probe", alt=" Check sequence of probes ", title=" Check sequence of probes ", style="border:none;")
                     #probeButton.append(probeButton_img)
@@ -501,13 +498,13 @@ class DataEditingPage(templatePage):
             #tSpan = HT.Span(Class="fs13")
 
             #XZ: deal with blat score and blat specificity.
-            #if thisTrait.probe_set_specificity or thisTrait.probe_set_blat_score:
-            #    if thisTrait.probe_set_specificity:
+            #if this_trait.probe_set_specificity or this_trait.probe_set_blat_score:
+            #    if this_trait.probe_set_specificity:
             #        pass
-            #        #tSpan.append(HT.Href(url="/blatInfo.html", target="_blank", title="Values higher than 2 for the specificity are good", text="BLAT specificity", Class="non_bold"),": %.1f" % float(thisTrait.probe_set_specificity), "&nbsp;"*3)
-            #    if thisTrait.probe_set_blat_score:
+            #        #tSpan.append(HT.Href(url="/blatInfo.html", target="_blank", title="Values higher than 2 for the specificity are good", text="BLAT specificity", Class="non_bold"),": %.1f" % float(this_trait.probe_set_specificity), "&nbsp;"*3)
+            #    if this_trait.probe_set_blat_score:
             #        pass
-            #        #tSpan.append("Score: %s" % int(thisTrait.probe_set_blat_score), "&nbsp;"*2)
+            #        #tSpan.append("Score: %s" % int(this_trait.probe_set_blat_score), "&nbsp;"*2)
 
             #onClick="openNewWin('/blatInfo.html')"
 
@@ -526,12 +523,12 @@ class DataEditingPage(templatePage):
             #        HT.TD(tSpan, valign="top")
             #        ))
 
-            #if thisTrait.cellid:
+            #if this_trait.cellid:
             #    self.cursor.execute("""
             #                    select ProbeFreeze.Name from ProbeFreeze, ProbeSetFreeze
             #                            where
             #                    ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
-            #                    ProbeSetFreeze.Id = %d""" % thisTrait.db.id)
+            #                    ProbeSetFreeze.Id = %d""" % this_trait.db.id)
             #    probeDBName = self.cursor.fetchone()[0]
             #    tbl.append(HT.TR(
             #            HT.TD('Database: ', Class="fs13 fwb", valign="top", nowrap="on"),
@@ -542,43 +539,43 @@ class DataEditingPage(templatePage):
                 #tbl.append(HT.TR(
                 #        HT.TD('Database: ', Class="fs13 fwb", valign="top", nowrap="on"),
                 #        HT.TD(width=10, valign="top"),
-                #        HT.TD(HT.Href(text=thisTrait.db.fullname, url = webqtlConfig.INFOPAGEHREF % thisTrait.db.name,
+                #        HT.TD(HT.Href(text=this_trait.db.fullname, url = webqtlConfig.INFOPAGEHREF % this_trait.db.name,
                 #        target='_blank', Class="fs13 fwn non_bold"), valign="top")
                 #        ))
                 #pass
 
-            thisTrait.species = _Species  # We need this in the template, so we tuck it into thisTrait
-            thisTrait.database = thisTrait.get_database()
+            this_trait.species = _Species  # We need this in the template, so we tuck it into this_trait
+            this_trait.database = this_trait.get_database()
 
             #XZ: ID links
-            if thisTrait.genbankid or thisTrait.geneid or thisTrait.unigeneid or thisTrait.omim or thisTrait.homologeneid:
+            if this_trait.genbankid or this_trait.geneid or this_trait.unigeneid or this_trait.omim or this_trait.homologeneid:
                 idStyle = "background:#dddddd;padding:2"
                 tSpan = HT.Span(Class="fs13")
-                if thisTrait.geneid:
+                if this_trait.geneid:
                     gurl = HT.Href(text= 'Gene', target='_blank',\
-                            url=webqtlConfig.NCBI_LOCUSID % thisTrait.geneid, Class="fs14 fwn", title="Info from NCBI Entrez Gene")
+                            url=webqtlConfig.NCBI_LOCUSID % this_trait.geneid, Class="fs14 fwn", title="Info from NCBI Entrez Gene")
                     #tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
-                if thisTrait.omim:
+                if this_trait.omim:
                     gurl = HT.Href(text= 'OMIM', target='_blank', \
-                            url= webqtlConfig.OMIM_ID % thisTrait.omim,Class="fs14 fwn", title="Summary from On Mendelian Inheritance in Man")
+                            url= webqtlConfig.OMIM_ID % this_trait.omim,Class="fs14 fwn", title="Summary from On Mendelian Inheritance in Man")
                     #tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
-                if thisTrait.unigeneid:
+                if this_trait.unigeneid:
                     try:
                         gurl = HT.Href(text= 'UniGene',target='_blank',\
-                                url= webqtlConfig.UNIGEN_ID % tuple(string.split(thisTrait.unigeneid,'.')[:2]),Class="fs14 fwn", title="UniGene ID")
+                                url= webqtlConfig.UNIGEN_ID % tuple(string.split(this_trait.unigeneid,'.')[:2]),Class="fs14 fwn", title="UniGene ID")
                         #tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
                     except:
                         pass
-                if thisTrait.genbankid:
-                    thisTrait.genbankid = '|'.join(thisTrait.genbankid.split('|')[0:10])
-                    if thisTrait.genbankid[-1]=='|':
-                        thisTrait.genbankid=thisTrait.genbankid[0:-1]
+                if this_trait.genbankid:
+                    this_trait.genbankid = '|'.join(this_trait.genbankid.split('|')[0:10])
+                    if this_trait.genbankid[-1]=='|':
+                        this_trait.genbankid=this_trait.genbankid[0:-1]
                     gurl = HT.Href(text= 'GenBank', target='_blank', \
-                            url= webqtlConfig.GENBANK_ID % thisTrait.genbankid,Class="fs14 fwn", title="Find the original GenBank sequence used to design the probes")
+                            url= webqtlConfig.GENBANK_ID % this_trait.genbankid,Class="fs14 fwn", title="Find the original GenBank sequence used to design the probes")
                     #tSpan.append(HT.Span(gurl, style=idStyle), "&nbsp;"*2)
-                if thisTrait.homologeneid:
+                if this_trait.homologeneid:
                     hurl = HT.Href(text= 'HomoloGene', target='_blank',\
-                            url=webqtlConfig.HOMOLOGENE_ID % thisTrait.homologeneid, Class="fs14 fwn", title="Find similar genes in other species")
+                            url=webqtlConfig.HOMOLOGENE_ID % this_trait.homologeneid, Class="fs14 fwn", title="Find similar genes in other species")
                     #tSpan.append(HT.Span(hurl, style=idStyle), "&nbsp;"*2)
 
                 #tbl.append(
@@ -590,7 +587,7 @@ class DataEditingPage(templatePage):
                 #        ))
 
             #XZ: Resource Links:
-            if thisTrait.symbol:
+            if this_trait.symbol:
                 linkStyle = "background:#dddddd;padding:2"
                 tSpan = HT.Span(style="font-family:verdana,serif;font-size:13px")
 
@@ -602,8 +599,8 @@ class DataEditingPage(templatePage):
                     #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
                     #symatlas_species = "Rattus norvegicus"
 
-                    #self.cursor.execute("SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = '%s'" % thisTrait.symbol)
-                    self.cursor.execute('SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = "%s"' % thisTrait.symbol)
+                    #self.cursor.execute("SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = '%s'" % this_trait.symbol)
+                    self.cursor.execute('SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = "%s"' % this_trait.symbol)
                     try:
                         kgId, chr, txst, txen = self.cursor.fetchall()[0]
                         if chr and txst and txen and kgId:
@@ -619,15 +616,15 @@ class DataEditingPage(templatePage):
                     #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
                     #symatlas_species = "Mus musculus"
 
-                    #self.cursor.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = '%s'" % thisTrait.symbol)
-                    self.cursor.execute('SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = "%s"' % thisTrait.symbol)
+                    #self.cursor.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = '%s'" % this_trait.symbol)
+                    self.cursor.execute('SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = "%s"' % this_trait.symbol)
                     try:
                         chr, txst, txen = self.cursor.fetchall()[0]
-                        if chr and txst and txen and thisTrait.refseq_transcriptid :
+                        if chr and txst and txen and this_trait.refseq_transcriptid :
                             txst = int(txst*1000000)
                             txen = int(txen*1000000)
                             tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
-                                    title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('mm9',thisTrait.refseq_transcriptid,chr,txst,txen),
+                                    title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('mm9',this_trait.refseq_transcriptid,chr,txst,txen),
                                     Class="fs14 fwn"), style=linkStyle)
                                     , "&nbsp;"*2)
                     except:
@@ -636,19 +633,19 @@ class DataEditingPage(templatePage):
                 #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
                 #tSpan.append(HT.Span(HT.Href(text= 'SymAtlas',target="mainFrame",\
                 #       url="http://symatlas.gnf.org/SymAtlas/bioentry?querytext=%s&query=14&species=%s&type=Expression" \
-                #       % (thisTrait.symbol,symatlas_species),Class="fs14 fwn", \
+                #       % (this_trait.symbol,symatlas_species),Class="fs14 fwn", \
                 #       title="Expression across many tissues and cell types"), style=linkStyle), "&nbsp;"*2)
-                if thisTrait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
+                if this_trait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
                     #tSpan.append(HT.Span(HT.Href(text= 'BioGPS',target="mainFrame",\
                     #        url="http://biogps.gnf.org/?org=%s#goto=genereport&id=%s" \
-                    #        % (_Species, thisTrait.geneid),Class="fs14 fwn", \
+                    #        % (_Species, this_trait.geneid),Class="fs14 fwn", \
                     #        title="Expression across many tissues and cell types"), style=linkStyle), "&nbsp;"*2)
                     pass
                 #tSpan.append(HT.Span(HT.Href(text= 'STRING',target="mainFrame",\
                 #        url="http://string.embl.de/newstring_cgi/show_link_summary.pl?identifier=%s" \
-                #        % thisTrait.symbol,Class="fs14 fwn", \
+                #        % this_trait.symbol,Class="fs14 fwn", \
                 #        title="Protein interactions: known and inferred"), style=linkStyle), "&nbsp;"*2)
-                if thisTrait.symbol:
+                if this_trait.symbol:
                     #ZS: The "species scientific" converts the plain English species names we're using to their scientific names, which are needed for PANTHER's input
                     #We should probably use the scientific name along with the English name (if not instead of) elsewhere as well, given potential non-English speaking users
                     if _Species == "mouse":
@@ -665,39 +662,39 @@ class DataEditingPage(templatePage):
                     species_scientific
                     #tSpan.append(HT.Span(HT.Href(text= 'PANTHER',target="mainFrame", \
                     #        url="http://www.pantherdb.org/genes/geneList.do?searchType=basic&fieldName=all&organism=%s&listType=1&fieldValue=%s"  \
-                    #        % (species_scientific, thisTrait.symbol),Class="fs14 fwn", \
+                    #        % (species_scientific, this_trait.symbol),Class="fs14 fwn", \
                     #        title="Gene and protein data resources from Celera-ABI"), style=linkStyle), "&nbsp;"*2)
                 else:
                     pass
                 #tSpan.append(HT.Span(HT.Href(text= 'BIND',target="mainFrame",\
                 #       url="http://bind.ca/?textquery=%s" \
-                #       % thisTrait.symbol,Class="fs14 fwn", \
+                #       % this_trait.symbol,Class="fs14 fwn", \
                 #       title="Protein interactions"), style=linkStyle), "&nbsp;"*2)
-                #if thisTrait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
+                #if this_trait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
                 #    tSpan.append(HT.Span(HT.Href(text= 'Gemma',target="mainFrame",\
                 #            url="http://www.chibi.ubc.ca/Gemma/gene/showGene.html?ncbiid=%s" \
-                #            % thisTrait.geneid, Class="fs14 fwn", \
+                #            % this_trait.geneid, Class="fs14 fwn", \
                 #            title="Meta-analysis of gene expression data"), style=linkStyle), "&nbsp;"*2)
                 #tSpan.append(HT.Span(HT.Href(text= 'SynDB',target="mainFrame",\
                 #        url="http://lily.uthsc.edu:8080/20091027_GNInterfaces/20091027_redirectSynDB.jsp?query=%s" \
-                #        % thisTrait.symbol, Class="fs14 fwn", \
+                #        % this_trait.symbol, Class="fs14 fwn", \
                 #        title="Brain synapse database"), style=linkStyle), "&nbsp;"*2)
                 #if _Species == "mouse":
                 #    tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
                 #            url="http://mouse.brain-map.org/brain/%s.html" \
-                #            % thisTrait.symbol, Class="fs14 fwn", \
+                #            % this_trait.symbol, Class="fs14 fwn", \
                 #            title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
 
-                if thisTrait.geneid:
+                if this_trait.geneid:
                     #if _Species == "mouse":
                     #       tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
                     #               url="http://www.brain-map.org/search.do?queryText=egeneid=%s" \
-                    #               % thisTrait.geneid, Class="fs14 fwn", \
+                    #               % this_trait.geneid, Class="fs14 fwn", \
                     #               title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
                     if _Species == "human":
                         #tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
                         #        url="http://humancortex.alleninstitute.org/has/human/imageseries/search/1.html?searchSym=t&searchAlt=t&searchName=t&gene_term=&entrez_term=%s" \
-                        #        % thisTrait.geneid, Class="fs14 fwn", \
+                        #        % this_trait.geneid, Class="fs14 fwn", \
                         #        title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
                         pass
 
@@ -723,67 +720,67 @@ class DataEditingPage(templatePage):
             #Info2Disp.append(linkTable)
             #title1Body.append(tbl, HT.BR(), menuTable)
 
-        elif thisTrait and thisTrait.db and thisTrait.db.type =='Publish': #Check if trait is phenotype
+        elif this_trait and this_trait.db and this_trait.db.type =='Publish': #Check if trait is phenotype
 
-            if thisTrait.confidential:
+            if this_trait.confidential:
                 pass
                 #tbl.append(HT.TR(
                 #                HT.TD('Pre-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
                 #                HT.TD(width=10, valign="top"),
-                #                HT.TD(HT.Span(thisTrait.pre_publication_description, Class="fs13"), valign="top", width=740)
+                #                HT.TD(HT.Span(this_trait.pre_publication_description, Class="fs13"), valign="top", width=740)
                 #                ))
-                if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=thisTrait.authorized_users):
+                if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
                     #tbl.append(HT.TR(
                     #                HT.TD('Post-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
                     #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(thisTrait.post_publication_description, Class="fs13"), valign="top", width=740)
+                    #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
                     #                ))
                     #tbl.append(HT.TR(
                     #                HT.TD('Pre-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
                     #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(thisTrait.pre_publication_abbreviation, Class="fs13"), valign="top", width=740)
+                    #                HT.TD(HT.Span(this_trait.pre_publication_abbreviation, Class="fs13"), valign="top", width=740)
                     #                ))
                     #tbl.append(HT.TR(
                     #                HT.TD('Post-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
                     #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(thisTrait.post_publication_abbreviation, Class="fs13"), valign="top", width=740)
+                    #                HT.TD(HT.Span(this_trait.post_publication_abbreviation, Class="fs13"), valign="top", width=740)
                     #                ))
                     #tbl.append(HT.TR(
                     #                HT.TD('Lab code: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
                     #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(thisTrait.lab_code, Class="fs13"), valign="top", width=740)
+                    #                HT.TD(HT.Span(this_trait.lab_code, Class="fs13"), valign="top", width=740)
                     #                ))
                     pass
                 #tbl.append(HT.TR(
                 #                HT.TD('Owner: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
                 #                HT.TD(width=10, valign="top"),
-                #                HT.TD(HT.Span(thisTrait.owner, Class="fs13"), valign="top", width=740)
+                #                HT.TD(HT.Span(this_trait.owner, Class="fs13"), valign="top", width=740)
                 #                ))
             else:
                 pass
                 #tbl.append(HT.TR(
                 #                HT.TD('Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
                 #                HT.TD(width=10, valign="top"),
-                #                HT.TD(HT.Span(thisTrait.post_publication_description, Class="fs13"), valign="top", width=740)
+                #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
                 #                ))
             #tbl.append(HT.TR(
             #                HT.TD('Authors: ', Class="fs13 fwb",
             #                        valign="top", nowrap="on", width=90),
             #                HT.TD(width=10, valign="top"),
-            #                HT.TD(HT.Span(thisTrait.authors, Class="fs13"),
+            #                HT.TD(HT.Span(this_trait.authors, Class="fs13"),
             #                        valign="top", width=740)
             #                ))
             #tbl.append(HT.TR(
             #                HT.TD('Title: ', Class="fs13 fwb",
             #                        valign="top", nowrap="on", width=90),
             #                HT.TD(width=10, valign="top"),
-            #                HT.TD(HT.Span(thisTrait.title, Class="fs13"),
+            #                HT.TD(HT.Span(this_trait.title, Class="fs13"),
             #                        valign="top", width=740)
             #                ))
-            if thisTrait.journal:
-                journal = thisTrait.journal
-                if thisTrait.year:
-                    journal = thisTrait.journal + " (%s)" % thisTrait.year
+            if this_trait.journal:
+                journal = this_trait.journal
+                if this_trait.year:
+                    journal = this_trait.journal + " (%s)" % this_trait.year
                 #
                 #tbl.append(HT.TR(
                 #        HT.TD('Journal: ', Class="fs13 fwb",
@@ -793,8 +790,8 @@ class DataEditingPage(templatePage):
                 #                valign="top", width=740)
                 #        ))
             PubMedLink = ""
-            if thisTrait.pubmed_id:
-                PubMedLink = webqtlConfig.PUBMEDLINK_URL % thisTrait.pubmed_id
+            if this_trait.pubmed_id:
+                PubMedLink = webqtlConfig.PUBMEDLINK_URL % this_trait.pubmed_id
             if PubMedLink:
                 #tbl.append(HT.TR(
                 #        HT.TD('Link: ', Class="fs13 fwb",
@@ -811,24 +808,24 @@ class DataEditingPage(templatePage):
 
             #title1Body.append(tbl, HT.BR(), menuTable)
 
-        elif thisTrait and thisTrait.db and thisTrait.db.type == 'Geno': #Check if trait is genotype
+        elif this_trait and this_trait.db and this_trait.db.type == 'Geno': #Check if trait is genotype
 
             GenoInfo = HT.Paragraph()
-            if thisTrait.chr and thisTrait.mb:
-                location = ' Chr %s @ %s Mb' % (thisTrait.chr,thisTrait.mb)
+            if this_trait.chr and this_trait.mb:
+                location = ' Chr %s @ %s Mb' % (this_trait.chr,this_trait.mb)
             else:
                 location = "not available"
 
-            if thisTrait.sequence and len(thisTrait.sequence) > 100:
+            if this_trait.sequence and len(this_trait.sequence) > 100:
                 if _Species == "rat":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', thisTrait.sequence)
-                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('rat', 'rn3', thisTrait.sequence)
+                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', this_trait.sequence)
+                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('rat', 'rn3', this_trait.sequence)
                 elif _Species == "mouse":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', thisTrait.sequence)
-                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', thisTrait.sequence)
+                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
+                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
                 elif _Species == "human":
                     UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
-                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('human', 'hg19', thisTrait.sequence)
+                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('human', 'hg19', this_trait.sequence)
                 else:
                     UCSC_BLAT_URL = ""
                     UTHSC_BLAT_URL = ""
@@ -853,7 +850,7 @@ class DataEditingPage(templatePage):
             #                HT.TD('SNP Search: ', Class="fs13 fwb",
             #                        valign="top", nowrap="on", width=90),
             #                HT.TD(width=10, valign="top"),
-            #                HT.TD(HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=snp&cmd=search&term=%s" % thisTrait.name, 'NCBI',Class="fs13"),
+            #                HT.TD(HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=snp&cmd=search&term=%s" % this_trait.name, 'NCBI',Class="fs13"),
             #                        valign="top", width=740)
             #                ))
 
@@ -863,13 +860,13 @@ class DataEditingPage(templatePage):
 
             #title1Body.append(tbl, HT.BR(), menuTable)
 
-        elif (thisTrait == None or thisTrait.db.type == 'Temp'): #if temporary trait (user-submitted trait or PCA trait)
+        elif (this_trait == None or this_trait.db.type == 'Temp'): #if temporary trait (user-submitted trait or PCA trait)
 
             #TempInfo = HT.Paragraph()
-            if thisTrait != None:
-                if thisTrait.description:
+            if this_trait != None:
+                if this_trait.description:
                     pass
-                    #tbl.append(HT.TR(HT.TD(HT.Strong('Description: '),' %s ' % thisTrait.description,HT.BR()), colspan=3, height=15))
+                    #tbl.append(HT.TR(HT.TD(HT.Strong('Description: '),' %s ' % this_trait.description,HT.BR()), colspan=3, height=15))
             else:
                 tbl.append(HT.TR(HT.TD(HT.Strong('Description: '),'not available',HT.BR(),HT.BR()), colspan=3, height=15))
 
@@ -890,7 +887,7 @@ class DataEditingPage(templatePage):
     ##########################################
     ##  Function to display analysis tools
     ##########################################
-    def dispBasicStatistics(self, fd, thisTrait):
+    def dispBasicStatistics(self, fd, this_trait):
 
         #XZ, June 22, 2011: The definition and usage of primary_samples, other_samples, specialStrains, all_samples are not clear and hard to understand. But since they are only used in this function for draw graph purpose, they will not hurt the business logic outside. As of June 21, 2011, this function seems work fine, so no hurry to clean up. These parameters and code in this function should be cleaned along with fd.f1list, fd.parlist, fd.samplelist later.
         #stats_row = HT.TR()
@@ -910,16 +907,16 @@ class DataEditingPage(templatePage):
         self.MDP_menu = [] # We're going to use the same named data structure as in the old version
                       # but repurpose it for Jinja2 as an array
 
-        for sample in thisTrait.data.keys():
+        for sample in this_trait.data.keys():
             sampleName = sample.replace("_2nd_", "")
             if sample not in samplelist:
-                if thisTrait.data[sampleName].value != None:
+                if this_trait.data[sampleName].value != None:
                     if sample.find('F1') < 0:
                         specialStrains.append(sample)
-                    if (thisTrait.data[sampleName].value != None) and (sample not in (fd.f1list + fd.parlist)):
+                    if (this_trait.data[sampleName].value != None) and (sample not in (fd.f1list + fd.parlist)):
                         other_samples.append(sample) #XZ: at current stage, other_samples doesn't include parent samples and F1 samples of primary group
             else:
-                if (thisTrait.data[sampleName].value != None) and (sample not in (fd.f1list + fd.parlist)):
+                if (this_trait.data[sampleName].value != None) and (sample not in (fd.f1list + fd.parlist)):
                     primary_samples.append(sample) #XZ: at current stage, the primary_samples is the same as fd.samplelist / ZS: I tried defining primary_samples as fd.samplelist instead, but in some cases it ended up including the parent samples (1436869_at BXD)
 
         if len(other_samples) > 3:
@@ -962,15 +959,15 @@ class DataEditingPage(templatePage):
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
                 #try:
-                print("* type of thisTrait:", type(thisTrait))
-                print("  name:", thisTrait.__class__.__name__)
-                print("  thisTrait:", thisTrait)
-                print("  type of thisTrait.data[sampleName]:", type(thisTrait.data[sampleName]))
-                print("  name:", thisTrait.data[sampleName].__class__.__name__)
-                print("  thisTrait.data[sampleName]:", thisTrait.data[sampleName])
-                thisval = thisTrait.data[sampleName].value
+                print("* type of this_trait:", type(this_trait))
+                print("  name:", this_trait.__class__.__name__)
+                print("  this_trait:", this_trait)
+                print("  type of this_trait.data[sampleName]:", type(this_trait.data[sampleName]))
+                print("  name:", this_trait.data[sampleName].__class__.__name__)
+                print("  this_trait.data[sampleName]:", this_trait.data[sampleName])
+                thisval = this_trait.data[sampleName].value
                 print("  thisval:", thisval)
-                thisvar = thisTrait.data[sampleName].variance
+                thisvar = this_trait.data[sampleName].variance
                 print("  thisvar:", thisvar)
                 thisValFull = [sampleName, thisval, thisvar]
                 print("  thisValFull:", thisValFull)
@@ -981,8 +978,8 @@ class DataEditingPage(templatePage):
                 
                 
             #vals1 = [[sampleNameOrig.replace("_2nd_", ""),
-            #  thisTrait.data[sampleName].val,
-            #  thisTrait.data[sampleName].var]
+            #  this_trait.data[sampleName].val,
+            #  this_trait.data[sampleName].var]
             #    for sampleNameOrig in all_samples]]
             #    
 
@@ -991,8 +988,8 @@ class DataEditingPage(templatePage):
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
                 #try:
-                thisval = thisTrait.data[sampleName].value
-                thisvar = thisTrait.data[sampleName].variance
+                thisval = this_trait.data[sampleName].value
+                thisvar = this_trait.data[sampleName].variance
                 thisValFull = [sampleName,thisval,thisvar]
                 #except:
                 #    continue
@@ -1004,8 +1001,8 @@ class DataEditingPage(templatePage):
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
                 #try:
-                thisval = thisTrait.data[sampleName].value
-                thisvar = thisTrait.data[sampleName].variance
+                thisval = this_trait.data[sampleName].value
+                thisvar = this_trait.data[sampleName].variance
                 thisValFull = [sampleName,thisval,thisvar]
                 #except:
                 #    continue
@@ -1022,8 +1019,8 @@ class DataEditingPage(templatePage):
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
                 #try:
-                thisval = thisTrait.data[sampleName].value
-                thisvar = thisTrait.data[sampleName].variance
+                thisval = this_trait.data[sampleName].value
+                thisvar = this_trait.data[sampleName].variance
                 thisValFull = [sampleName,thisval,thisvar]
                 #except:
                 #    continue
@@ -1063,11 +1060,11 @@ class DataEditingPage(templatePage):
                 #
                 #statsTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
 
-                if thisTrait.db:
-                    if thisTrait.cellid:
-                        self.stats_data.append(BasicStatisticsFunctions.basicStatsTable(vals=vals, trait_type=thisTrait.db.type, cellid=thisTrait.cellid))
+                if this_trait.db:
+                    if this_trait.cellid:
+                        self.stats_data.append(BasicStatisticsFunctions.basicStatsTable(vals=vals, trait_type=this_trait.db.type, cellid=this_trait.cellid))
                     else:
-                        self.stats_data.append(BasicStatisticsFunctions.basicStatsTable(vals=vals, trait_type=thisTrait.db.type))
+                        self.stats_data.append(BasicStatisticsFunctions.basicStatsTable(vals=vals, trait_type=this_trait.db.type))
                 else:
                     self.stats_data.append(BasicStatisticsFunctions.basicStatsTable(vals=vals))
 
@@ -1082,11 +1079,11 @@ class DataEditingPage(templatePage):
                 #normalplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
 
                 try:
-                    plotTitle = thisTrait.symbol
+                    plotTitle = this_trait.symbol
                     plotTitle += ": "
-                    plotTitle += thisTrait.name
+                    plotTitle += this_trait.name
                 except:
-                    plotTitle = str(thisTrait.name)
+                    plotTitle = str(this_trait.name)
 
                 #normalplot_img = BasicStatisticsFunctions.plotNormalProbability(vals=vals, RISet=fd.RISet, title=plotTitle, specialStrains=specialStrains)
                 #normalplot.append(HT.TR(HT.TD(normalplot_img)))
@@ -1139,7 +1136,7 @@ class DataEditingPage(templatePage):
         #title2Body.append(submitTable)
 
 
-    def build_correlation_tools(self, fd, thisTrait):
+    def build_correlation_tools(self, fd, this_trait):
 
         #species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
 
@@ -1204,8 +1201,8 @@ class DataEditingPage(templatePage):
             
             dataset_menu_selected = None
             if len(dataset_menu):
-                if thisTrait and thisTrait.db:
-                    dataset_menu_selected = thisTrait.db.name
+                if this_trait and this_trait.db:
+                    dataset_menu_selected = this_trait.db.name
 
                 #criteriaText = HT.Span("Return:", Class="ffl fwb fs12")
 
@@ -1251,7 +1248,7 @@ class DataEditingPage(templatePage):
         #corr_row = HT.TR()
         #corr_container = HT.Div(id="corr_tabs", Class="ui-tabs")
         #
-        #if (thisTrait.db != None and thisTrait.db.type =='ProbeSet'):
+        #if (this_trait.db != None and this_trait.db.type =='ProbeSet'):
         #    corr_tab_list = [HT.Href(text='Sample r', url="#corrtabs-1"),
         #                     HT.Href(text='Literature r',  url="#corrtabs-2"),
         #                     HT.Href(text='Tissue r', url="#corrtabs-3")]
@@ -1302,8 +1299,8 @@ class DataEditingPage(templatePage):
             #literature_container.append(literatureTable)
             #literature_div.append(literature_container)
             #
-            #if thisTrait.db != None:
-            #    if (thisTrait.db.type =='ProbeSet'):
+            #if this_trait.db != None:
+            #    if (this_trait.db.type =='ProbeSet'):
             #        corr_container.append(literature_div)
             #
             #tissue_div = HT.Div(id="corrtabs-3")
@@ -1327,8 +1324,8 @@ class DataEditingPage(templatePage):
             #
             #tissue_container.append(tissueTable)
             #tissue_div.append(tissue_container)
-            #if thisTrait.db != None:
-            #    if (thisTrait.db.type =='ProbeSet'):
+            #if this_trait.db != None:
+            #    if (this_trait.db.type =='ProbeSet'):
             #        corr_container.append(tissue_div)
             #
             #corr_row.append(HT.TD(corr_container))
@@ -1348,7 +1345,7 @@ class DataEditingPage(templatePage):
                                           return_results_menu_selected = return_results_menu_selected,)
 
 
-    def dispMappingTools(self, fd, title4Body, thisTrait):
+    def dispMappingTools(self, fd, title4Body, this_trait):
 
         _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
 
@@ -1601,21 +1598,15 @@ class DataEditingPage(templatePage):
         title4Body.append(submitTable)
 
 
-
-    ##########################################
-    ##  Function to display trait tables
-    ##########################################
-    def dispTraitValues(self, fd, varianceDataPage, nCols, thisTrait):
-        print("in dispTraitValues")
-
+    def make_sample_lists(self, fd, variance_data_page, this_trait):
         if fd.genotype.type == "riset":
-            allsamplelist_neworder = fd.f1list + fd.samplelist
+            all_samples_ordered = fd.f1list + fd.samplelist
         else:
-            allsamplelist_neworder = fd.f1list + fd.parlist + fd.samplelist
+            all_samples_ordered = fd.f1list + fd.parlist + fd.samplelist
 
         attribute_ids = []
         attribute_names = []
-        #try:
+        
         #ZS: Id values for this trait's extra attributes;
         #used to create "Exclude" dropdown and query for attribute values and create
         self.cursor.execute("""SELECT CaseAttribute.Id, CaseAttribute.Name
@@ -1623,7 +1614,7 @@ class DataEditingPage(templatePage):
                                 WHERE CaseAttributeXRef.ProbeSetFreezeId = %s AND
                                         CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
                                         group by CaseAttributeXRef.CaseAttributeId""",
-                                        (str(thisTrait.db.id),))
+                                        (str(this_trait.db.id),))
 
         for this_attr_name in attribute_names:
             # Todo: Needs testing still!
@@ -1635,21 +1626,21 @@ class DataEditingPage(templatePage):
             
             distinct_values = self.cursor.fetchall()
 
-        this_trait_samples = set(thisTrait.data.keys())
-        #ZS - Checks if there are any samples in this_trait_samples that aren't in allsamplelist_neworder
-        other_samplesExist = this_trait_samples - set(allsamplelist_neworder)
+        this_trait_samples = set(this_trait.data.keys())
+        #ZS - Checks if there are any samples in this_trait_samples that aren't in all_samples_ordered
+        other_samplesExist = this_trait_samples - set(all_samples_ordered)
 
-        mainForm = None # Just trying to get things working
+        #mainForm = None # Just trying to get things working
 
-        primary_samplelist = allsamplelist_neworder
+        primary_samplelist = all_samples_ordered
 
         print("primary_samplelist is:", pf(primary_samplelist))
 
         primary_samples = self.create_sample_objects(fd=fd,
-                                              varianceDataPage=varianceDataPage,
+                                              variance_data_page=variance_data_page,
                                               samplelist=primary_samplelist,
-                                              mainForm=mainForm,
-                                              thisTrait=thisTrait,
+                                              #mainForm=mainForm,
+                                              this_trait=this_trait,
                                               other_samplesExist=other_samplesExist,
                                               attribute_ids=attribute_ids,
                                               attribute_names=attribute_names,
@@ -1657,10 +1648,10 @@ class DataEditingPage(templatePage):
 
 
         other_samples = []
-        for sample in thisTrait.data.keys():
+        for sample in this_trait.data.keys():
             print("hjk - sample is:", sample)
-            if sample not in allsamplelist_neworder:
-                allsamplelist_neworder.append(sample)
+            if sample not in all_samples_ordered:
+                all_samples_ordered.append(sample)
                 other_samples.append(sample)
 
         if other_samples:
@@ -1671,20 +1662,20 @@ class DataEditingPage(templatePage):
             other_samples = par_f1_samples + other_samples
 
             other_samples = self.create_sample_objects(fd=fd,
-                                                varianceDataPage=varianceDataPage,
+                                                variance_data_page=variance_data_page,
                                                 samplelist=other_samples,
-                                                mainForm=mainForm,
-                                                thisTrait=thisTrait,
+                                                #mainForm=mainForm,
+                                                this_trait=this_trait,
                                                 attribute_ids=attribute_ids,
                                                 attribute_names=attribute_names,
                                                 samples='other')
 
 
         #TODO: Figure out why this if statement is written this way - Zach
-        if (other_samples or (fd.f1list and thisTrait.data.has_key(fd.f1list[0])) 
-                or (fd.f1list and thisTrait.data.has_key(fd.f1list[1]))):
+        if (other_samples or (fd.f1list and this_trait.data.has_key(fd.f1list[0])) 
+                or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
             print("hjs")
-            fd.allsamplelist = allsamplelist_neworder
+            fd.allsamplelist = all_samples_ordered
 
 
         self.primary_samples = dict(header = "%s Only" % (fd.RISet),
@@ -1694,7 +1685,7 @@ class DataEditingPage(templatePage):
                                     samples = other_samples,)
         
 
-    def create_sample_objects(self, fd, varianceDataPage, samplelist, mainForm, thisTrait,
+    def create_sample_objects(self, fd, variance_data_page, samplelist, this_trait,
                        other_samplesExist=None, attribute_ids=None,
                        attribute_names=None, samples='primary'):
 
@@ -1705,7 +1696,7 @@ class DataEditingPage(templatePage):
             attribute_names = []
 
         #XZ, Aug 23, 2010: I commented the code related to the display of animal case
-        #sampleInfo = thisTrait.has_key('sampleInfo') and thisTrait.sampleInfo
+        #sampleInfo = this_trait.has_key('sampleInfo') and this_trait.sampleInfo
         print("in create_sample_objects")
         #table_body = []
         
@@ -1715,8 +1706,8 @@ class DataEditingPage(templatePage):
         #    sampleName = sampleNameOrig.replace("_2nd_", "")
         #    print("pen: %s - %s" % (sampleNameOrig, sampleName))
         #    try:
-        #        thisval = thisTrait.data[sampleName].value
-        #        thisvar = thisTrait.data[sampleName].variance
+        #        thisval = this_trait.data[sampleName].value
+        #        thisvar = this_trait.data[sampleName].variance
         #        thisValFull = [sampleName, thisval, thisvar]
         #    
         #        vals.append(thisValFull)
@@ -1735,7 +1726,7 @@ class DataEditingPage(templatePage):
                 sampleNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
     
             try:
-                sample = thisTrait.data[sampleName]
+                sample = this_trait.data[sampleName]
             except KeyError:
                 print("No sample %s, let's create it now" % sampleName)
                 sample = webqtlCaseData.webqtlCaseData(sampleName)
@@ -1746,9 +1737,9 @@ class DataEditingPage(templatePage):
                 sample.this_id = "Primary_" + str(counter)
             else:
                 sample.this_id = "Other_" + str(counter)
-                
+
             #### For extra attribute columns; currently only used by two human datasets - Zach
-            if thisTrait and thisTrait.db and thisTrait.db.type == 'ProbeSet':
+            if this_trait and this_trait.db and this_trait.db.type == 'ProbeSet':
                 if len(attribute_ids) > 0:
 
                     #ZS: Get StrainId value for the next query
@@ -1770,7 +1761,7 @@ class DataEditingPage(templatePage):
                                                 WHERE ProbeSetFreezeId = '%s' AND
                                                         StrainId = '%s' AND
                                                         CaseAttributeId = '%s'
-                                                                group by CaseAttributeXRef.CaseAttributeId""" % (thisTrait.db.id, sample_id, str(attribute_id)))
+                                                                group by CaseAttributeXRef.CaseAttributeId""" % (this_trait.db.id, sample_id, str(attribute_id)))
 
                         attributeValue = self.cursor.fetchone()[0] #Trait-specific attributes, if any
 
@@ -1787,57 +1778,12 @@ class DataEditingPage(templatePage):
                         attr_counter += 1
                 the_samples.append(sample)
             #table_body.append(table_row)
-        
+
         do_outliers(the_samples)
         print("*the_samples are [%i]: %s" % (len(the_samples), pf(the_samples)))
         return the_samples
 
-    def getTableHeader(self, fd, thisTrait, nCols, attribute_names):
 
-        table_header = HT.TR()
-
-        col_class = "fs13 fwb ff1 b1 cw cbrb"
-
-        if nCols == 6:
-            try:
-                if fd.varianceDispName:
-                    pass
-            except:
-                fd.varianceDispName = 'Variance'
-
-            table_header.append(HT.TH('Index', align='right', width=60, Class=col_class),
-                    HT.TH('Sample', align='right', width=100, Class=col_class),
-                    HT.TH('Value', align='right', width=70, Class=col_class),
-                    HT.TH('&nbsp;', width=20, Class=col_class),
-                    HT.TH(fd.varianceDispName, align='right', width=80, Class=col_class))
-
-        elif nCols == 4:
-            table_header.append(HT.TH('Index', align='right', width=60, Class=col_class),
-                    HT.TH('Sample', align='right', width=100, Class=col_class),
-                    HT.TH('Value', align='right', width=70, Class=col_class))
-
-        else:
-            pass
-
-        if len(attribute_names) > 0:
-            i=0
-            for attribute in attribute_names:
-                char_count = len(attribute)
-                cell_width = char_count * 14
-                table_header.append(HT.TH(attribute, align='right', width=cell_width, Class="attribute_name " + col_class))
-                i+=1
-
-        return table_header
-
-
-    def getSortByValue(self):
-
-        sortby = ("", "")
-
-        return sortby
-    
-    
-    
 def do_outliers(sample_objects):
     values = [sample.value for sample in sample_objects if sample.value != None]
     upper_bound, lower_bound = Plot.find_outliers(values)

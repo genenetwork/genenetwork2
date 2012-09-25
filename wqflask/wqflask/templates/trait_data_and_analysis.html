@@ -70,7 +70,7 @@
 
                     <td valign="top" width="10"></td>
 
-                    <td valign="top" width="740"><span class="fs13 fsI">{{ thisTrait.symbol }}</span></td>
+                    <td valign="top" width="740"><span class="fs13 fsI">{{ this_trait.symbol }}</span></td>
                   </tr>
 
                   <tr>
@@ -78,7 +78,7 @@
 
                     <td valign="top" width="10"></td>
 
-                    <td valign="top"><span class="fs13 fsI">{{ thisTrait.alias_fmt }}</span></td>
+                    <td valign="top"><span class="fs13 fsI">{{ this_trait.alias_fmt }}</span></td>
                   </tr>
 
                   <tr>
@@ -86,7 +86,7 @@
 
                     <td valign="top" width="10"></td>
 
-                    <td valign="top"><span class="fs13">{{ thisTrait.description_fmt }}</span></td>
+                    <td valign="top"><span class="fs13">{{ this_trait.description_fmt }}</span></td>
                   </tr>
 
                   <tr>
@@ -94,7 +94,7 @@
 
                     <td valign="top" width="10"></td>
 
-                    <td valign="top"><span class="fs13">{{ thisTrait.location_fmt }}<br></span></td>
+                    <td valign="top"><span class="fs13">{{ this_trait.location_fmt }}<br></span></td>
                   </tr>
 
                   <tr>
@@ -106,8 +106,8 @@
                         <span class="fs13">
                             <a href="/blatInfo.html" target="_blank" class="non_bold" title="Values higher than 2 for the specificity are good">
                                 BLAT specificity
-                            </a>: {{ "%.1f" % (thisTrait.probe_set_specificity) }}&nbsp;&nbsp;&nbsp;
-                            Score: {{ "%i" % (thisTrait.probe_set_blat_score) }}&nbsp;&nbsp;
+                            </a>: {{ "%.1f" % (this_trait.probe_set_specificity) }}&nbsp;&nbsp;&nbsp;
+                            Score: {{ "%i" % (this_trait.probe_set_blat_score) }}&nbsp;&nbsp;
                         </span>
                     </td>
                   </tr>
@@ -117,7 +117,7 @@
 
                     <td valign="top" width="10"></td>
 
-                    <td valign="top"><span class="fs13">{{ thisTrait.species.capitalize() }}, {{fd.RISet}}</span></td>
+                    <td valign="top"><span class="fs13">{{ this_trait.species.capitalize() }}, {{fd.RISet}}</span></td>
                   </tr>
 
                   <tr>
@@ -126,7 +126,7 @@
                     <td valign="top" width="10"></td>
 
                     <td valign="top">
-                        <a href="{{ thisTrait.database.url }}" target="_blank" class="fs13 fwn non_bold">{{ thisTrait.database.name }}</a>
+                        <a href="{{ this_trait.database.url }}" target="_blank" class="fs13 fwn non_bold">{{ this_trait.database.name }}</a>
                     </td>
                   </tr>
 
