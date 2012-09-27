@@ -1466,43 +1466,23 @@ class DataEditingPage(templatePage):
         if fd.genotype.type == "riset":
             all_samples_ordered = fd.f1list + fd.samplelist
         else:
-            all_samples_ordered = fd.f1list + fd.parlist + fd.samplelist
-        
-        #ZS: Id values for this trait's extra attributes;
-        #used to create "Exclude" dropdown and query for attribute values and create
-        self.cursor.execute("""SELECT CaseAttribute.Id, CaseAttribute.Name
-                                        FROM CaseAttribute, CaseAttributeXRef
-                                WHERE CaseAttributeXRef.ProbeSetFreezeId = %s AND
-                                        CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
-                                        group by CaseAttributeXRef.CaseAttributeId""",
-                                        (str(this_trait.db.id),))
-        
-        
-
-        for this_attr_name in attribute_names:
-            # Todo: Needs testing still!
-            self.cursor.execute("""SELECT DISTINCT CaseAttributeXRef.Value
-                                            FROM CaseAttribute, CaseAttributeXRef
-                                            WHERE CaseAttribute.Name = %s AND
-                                    CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id""",
-                                    (this_attr_name,))
-            
-            distinct_values = self.cursor.fetchall()
+            all_samples_ordered = fd.parlist + fd.f1list + fd.samplelist
 
         this_trait_samples = set(this_trait.data.keys())
 
         primary_sample_names = all_samples_ordered
 
-        print("primary_samplelist is:", pf(primary_sample_names))
+        print("-*- primary_samplelist is:", pf(primary_sample_names))
 
         primary_samples = SampleList(self.cursor,
                                         fd=fd,
                                         variance_data_page=variance_data_page,
                                         sample_names=primary_sample_names,
                                         this_trait=this_trait,
-                                        samples='primary',
+                                        sample_group_type='primary',
                                         header="%s Only" % (fd.RISet))
-
+        
+        print("primary_samples.attributes:", pf(primary_samples.attributes))
 
         other_sample_names = []
         for sample in this_trait.data.keys():
@@ -1515,15 +1495,15 @@ class DataEditingPage(templatePage):
             unappended_par_f1 = fd.f1list + fd.parlist
             par_f1_samples = ["_2nd_" + sample for sample in unappended_par_f1]
             
-            other_samples.sort() #Sort other samples
-            other_samples = par_f1_samples + other_samples
+            other_sample_names.sort() #Sort other samples
+            other_sample_names = par_f1_samples + other_sample_names
 
             other_samples = SampleList(self.cursor,
                                             fd=fd,
                                             variance_data_page=variance_data_page,
                                             sample_names=other_sample_names,
                                             this_trait=this_trait,
-                                            samples='other',
+                                            sample_group_type='other',
                                             header="Non-%s" % (fd.RISet))
             
             self.sample_groups = (primary_samples, other_samples)
@@ -1531,36 +1511,39 @@ class DataEditingPage(templatePage):
             self.sample_groups = (primary_samples,)
 
         #TODO: Figure out why this if statement is written this way - Zach
-        if (other_sample_names or (fd.f1list and this_trait.data.has_key(fd.f1list[0])) 
-                or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
-            print("hjs")
-            fd.allsamplelist = all_samples_ordered
-        
-        
+        #if (other_sample_names or (fd.f1list and this_trait.data.has_key(fd.f1list[0])) 
+        #        or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
+        #    print("hjs")
+        fd.allsamplelist = all_samples_ordered
 
-
-class SampleList(list):
+class SampleList(object):
     def __init__(self,
                  cursor,
                  fd,
                  variance_data_page,
                  sample_names,
                  this_trait,
-                 samples,
+                 sample_group_type,
                  header):
         
+        self.cursor = cursor
+        self.fd = fd
+        self.this_trait = this_trait
+        self.sample_group_type = sample_group_type    # primary or other
         self.header = header
-        
-        
+
+        self.sample_list = [] # The actual list
         
         self.calc_attributes()
+        
+        print("camera: attributes are:", pf(self.attributes))
 
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
             #ZS - If there's no value for the sample/strain, create the sample object (so samples with no value are still displayed in the table)
             try:
-                sample = this_trait.data[sample_name]
+                sample = self.this_trait.data[sample_name]
             except KeyError:
                 print("No sample %s, let's create it now" % sample_name)
                 sample = webqtlCaseData.webqtlCaseData(sample_name)
@@ -1569,37 +1552,37 @@ class SampleList(list):
             #if fd.RISet == 'AXBXA' and sampleName in ('AXB18/19/20','AXB13/14','BXA8/17'):
             #    sampleNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
             sample.extra_info = {}
-            if fd.RISet == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):   
+            if self.fd.RISet == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):   
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12" 
-                
-            print("zyt - sampleNameOrig:", sampleNameOrig)
+
             print("  type of sample:", type(sample))
 
-            if samples == 'primary':
+            if sample_group_type == 'primary':
                 sample.this_id = "Primary_" + str(counter)
             else:
                 sample.this_id = "Other_" + str(counter)
 
             #### For extra attribute columns; currently only used by two human datasets - Zach
-            if this_trait and this_trait.db and this_trait.db.type == 'ProbeSet':
-                self.get_extra_attribute_values(attribute_ids, this_trait, sample_name)
-                self.append(sample)
-            #table_body.append(table_row)
+            if self.this_trait and self.this_trait.db and self.this_trait.db.type == 'ProbeSet':
+                self.get_extra_attribute_values(sample_name)
+                self.sample_list.append(sample)
 
         self.do_outliers()
         #do_outliers(the_samples)
-        print("*the_samples are [%i]: %s" % (len(self), pf(self)))
-        for sample in self:
+        print("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
+        for sample in self.sample_list:
             print("apple:", type(sample), sample)
         #return the_samples
 
+    def __repr__(self):
+        return "<SampleList> --> %s" % (pf(self.__dict__))
 
     def do_outliers(self):
-        values = [sample.value for sample in self if sample.value != None]
+        values = [sample.value for sample in self.sample_list if sample.value != None]
         upper_bound, lower_bound = Plot.find_outliers(values)
         
-        for sample in self:
+        for sample in self.sample_list:
             if sample.value:
                 if upper_bound and sample.value > upper_bound:
                     sample.outlier = True
@@ -1608,9 +1591,9 @@ class SampleList(list):
                 else:
                     sample.outlier = False
                     
+                    
     def calc_attributes(self):
         """Finds which extra attributes apply to this dataset"""
-        
         
         #ZS: Id and name values for this trait's extra attributes  
         self.cursor.execute('''SELECT CaseAttribute.Id, CaseAttribute.Name
@@ -1618,13 +1601,14 @@ class SampleList(list):
                                         WHERE CaseAttributeXRef.ProbeSetFreezeId = %s AND
                                             CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
                                                 group by CaseAttributeXRef.CaseAttributeId''',
-                                                (str(this_trait.db.id),))
+                                                (str(self.this_trait.db.id),))
 
         #self.attributes = {key, value in self.cursor.fetchall()}
         #self.attributes = OrderedDict(self.attributes.iteritems())
         
         self.attributes = {}
         for key, value in self.cursor.fetchall():
+            print("radish: %s - %s" % (key, value))
             self.attributes[key] = Bunch()
             self.attributes[key].name = value
 
@@ -1633,64 +1617,65 @@ class SampleList(list):
                             WHERE CaseAttribute.Name = %s AND
                                 CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id''', (value,))            
 
-            self.attributes[key].distinct_values = self.cursor.fetchall()
+            self.attributes[key].distinct_values = [item[0] for item in self.cursor.fetchall()]
+            self.attributes[key].distinct_values.sort(key=natural_sort_key)
 
 
-		try:
-
-			exclude_menu = HT.Select(name="exclude_menu")
-			dropdown_menus = [] #ZS: list of dropdown menus with the distinct values of each attribute (contained in DIVs so the style parameter can be edited and they can be hidden) 
-
-			for attribute in self.cursor.fetchall():
-				attribute_ids.append(attribute[0])
-				attribute_names.append(attribute[1])
-			for this_attr_name in attribute_names:
-				exclude_menu.append((this_attr_name.capitalize(), this_attr_name))
-				self.cursor.execute("""SELECT DISTINCT CaseAttributeXRef.Value
-								FROM CaseAttribute, CaseAttributeXRef
-								WHERE CaseAttribute.Name = '%s' AND
-									CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id""" % (this_attr_name))
-				try:
-					distinct_values = self.cursor.fetchall()
-					attr_value_menu_div = HT.Div(style="display:none;", Class="attribute_values") #container used to show/hide dropdown menus
-					attr_value_menu = HT.Select(name=this_attr_name)
-                    			attr_value_menu.append(("None", "show_all"))
-					for value in distinct_values:
-						attr_value_menu.append((str(value[0]), value[0]))
-					attr_value_menu_div.append(attr_value_menu)
-					dropdown_menus.append(attr_value_menu_div)
-				except:
-					pass
-		except:
-			pass
+        #try:
+        #
+        #    exclude_menu = HT.Select(name="exclude_menu")
+        #    dropdown_menus = [] #ZS: list of dropdown menus with the distinct values of each attribute (contained in DIVs so the style parameter can be edited and they can be hidden) 
+        #
+        #    for attribute in self.cursor.fetchall():
+        #        attribute_ids.append(attribute[0])
+        #        attribute_names.append(attribute[1])
+        #    for this_attr_name in attribute_names:
+        #        exclude_menu.append((this_attr_name.capitalize(), this_attr_name))
+        #        self.cursor.execute("""SELECT DISTINCT CaseAttributeXRef.Value
+        #                        FROM CaseAttribute, CaseAttributeXRef
+        #                        WHERE CaseAttribute.Name = '%s' AND
+        #                            CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id""" % (this_attr_name))
+        #        try:
+        #            distinct_values = self.cursor.fetchall()
+        #            attr_value_menu_div = HT.Div(style="display:none;", Class="attribute_values") #container used to show/hide dropdown menus
+        #            attr_value_menu = HT.Select(name=this_attr_name)
+        #                        attr_value_menu.append(("None", "show_all"))
+        #            for value in distinct_values:
+        #                attr_value_menu.append((str(value[0]), value[0]))
+        #            attr_value_menu_div.append(attr_value_menu)
+        #            dropdown_menus.append(attr_value_menu_div)
+        #        except:
+        #            pass
+        #except:
+        #    pass
 
                     
-    def get_extra_attribute_values(self):
+    def get_extra_attribute_values(self, sample_name):
         
-        if len(attribute_ids) > 0:
+        if len(self.attributes) > 0:
 
             #ZS: Get StrainId value for the next query
-            cursor.execute("""SELECT Strain.Id
-                                            FROM Strain, StrainXRef, InbredSetd
-                                            WHERE Strain.Name = '%s' and
+            self.cursor.execute("""SELECT Strain.Id
+                                            FROM Strain, StrainXRef, InbredSet
+                                            WHERE Strain.Name = %s and
                                                     StrainXRef.StrainId = Strain.Id and
                                                     InbredSet.Id = StrainXRef.InbredSetId and
-                                                    InbredSet.Name = '%s'""" % (sampleName, fd.RISet))
+                                                    InbredSet.Name = %s""", (sample_name, self.fd.RISet))
 
-            sample_id = cursor.fetchone()[0]
+            sample_id = self.cursor.fetchone()[0]
 
             attr_counter = 1 # This is needed so the javascript can know which attribute type to associate this value with for the exported excel sheet (each attribute type being a column).
-            for attribute_id in attribute_ids:
+            for attribute_id in self.attributes.keys():
 
                 #ZS: Add extra case attribute values (if any)
-                cursor.execute("""SELECT Value
+                self.cursor.execute("""SELECT Value
                                                 FROM CaseAttributeXRef
                                         WHERE ProbeSetFreezeId = '%s' AND
                                                 StrainId = '%s' AND
                                                 CaseAttributeId = '%s'
-                                                        group by CaseAttributeXRef.CaseAttributeId""" % (this_trait.db.id, sample_id, str(attribute_id)))
+                                                        group by CaseAttributeXRef.CaseAttributeId""" % (self.this_trait.db.id, sample_id, str(attribute_id)))
 
-                attributeValue = cursor.fetchone()[0] #Trait-specific attributes, if any
+                attributeValue = self.cursor.fetchone()[0] #Trait-specific attributes, if any
 
                 #ZS: If it's an int, turn it into one for sorting (for example, 101 would be lower than 80 if they're strings instead of ints)
                 try:
@@ -1698,8 +1683,17 @@ class SampleList(list):
                 except ValueError:
                     pass
 
-                span_Id = samples+"_attribute"+str(attr_counter)+"_sample"+str(i+1)
-                attr_container = HT.Span(attributeValue, Id=span_Id)
-                attr_className = str(attributeValue) + "&nbsp;" + className
-                table_row.append(HT.TD(attr_container, align='right', Class=attr_className))
+                #span_Id = samples+"_attribute"+str(attr_counter)+"_sample"+str(i+1)
+                #attr_container = HT.Span(attributeValue, Id=span_Id)
+                #attr_className = str(attributeValue) + "&nbsp;" + className
+                #table_row.append(HT.TD(attr_container, align='right', Class=attr_className))
                 attr_counter += 1                    
+
+
+def natural_sort_key(x):
+    """Get expected results when using as a key for sort - ints or strings are sorted properly"""
+    try:
+        x = int(x)
+    except ValueError:
+        pass
+    return x

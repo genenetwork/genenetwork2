@@ -1249,7 +1249,7 @@
                         <div style="float:left;width:50%;">
                         <h2>{{ sample_type.header }}</h2>
                             
-                        <div id="{{ sample_type.samples }}">  
+                        <div id="{{ sample_type.sample_group_type }}">  
                           <table class="not_tablesorter"  {# Todo: Turn tablesorter back on #}
                                  id="{{ 'sortable%i' % (loop.index) }}"
                                  cellpadding="0" cellspacing="0">
@@ -1265,7 +1265,7 @@
                               <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="80">SE</th>
                             </tr>
 
-                            {% for sample in sample_type %}
+                            {% for sample in sample_type.sample_list %}
                             <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
                               <td class="fs13 b1 c222" align="right" width="45">
                                 {{ loop.index }}

@@ -1,12 +1,12 @@
+from pprint import pformat as pf
+
+
 class Bunch(object):
-    """Make the configuration a little cleaner"""
-    def __init__(self, config_string = "", **kw):
-        if config_string:
-            td = yaml.load(config_string)
-            self.__dict__.update(td)
-        else:
+    """Like a dictionary but using object notation"""
+    def __init__(self,  **kw):
             self.__dict__ = kw
 
     def __repr__(self):
-        return yaml.dump(self.__dict__, default_flow_style=False)
+        return pf(self.__dict__)
+
 

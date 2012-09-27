@@ -359,14 +359,14 @@ class webqtlTrait:
         #else:
         #    pass
 
-    def keys(self):
-        return self.__dict__.keys()
-
-    def has_key(self, key):
-        return self.__dict__.has_key(key)
-
-    def items(self):
-        return self.__dict__.items()
+    #def keys(self):
+    #    return self.__dict__.keys()
+    #
+    #def has_key(self, key):
+    #    return self.__dict__.has_key(key)
+    #
+    #def items(self):
+    #    return self.__dict__.items()
 
     def retrieveInfo(self, QTL = None):
         assert self.db and self.cursor
