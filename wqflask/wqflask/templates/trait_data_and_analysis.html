@@ -1259,10 +1259,11 @@
                               <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="100">Sample</th>
 
                               <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="70">Value</th>
-
+                              {% if sample_type.se_exists() %}
                               <th class="fs13 fwb ff1 b1 cw cbrb" width="20">&nbsp;</th>
 
                               <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="80">SE</th>
+                              {% endif %}
                               
                               {% for attribute in sample_type.attributes|sort() %}
                                 <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="60">{{ sample_type.attributes[attribute].name }}</th>
@@ -1287,6 +1288,7 @@
                                        style="text-align:right; background-color:#FFFFFF;">
                               </td>
 
+                              {% if sample_type.se_exists() %}
                               <td class="fs13 b1 c222" align="center" width="20">
                                 ±
                               </td>
@@ -1297,6 +1299,7 @@
                                        value="{{ sample.display_variance }}"
                                        size="8" maxlength="8" style="text-align:right">
                               </td>
+                              {% endif %}
                               
                               {# Loop through each attribute type and input value #}
                               {% for attribute in sample_type.attributes|sort() %}
