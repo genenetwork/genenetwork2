@@ -20,12 +20,28 @@ from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf
 
+###############################################
+#
+# Todo: Put in security to ensure that user has permission to access confidential data sets
+# And add i.p.limiting as necessary
+#
+##############################################
+
+
+
 class DataEditingPage(templatePage):
 
-    def __init__(self, fd, this_trait=None):
+    def __init__(self, fd):
+        self.fd = fd
 
         templatePage.__init__(self, fd)
         assert self.openMysql(), "No datbase!"
+        
+        this_trait = self.get_this_trait()
+        
+        ##read genotype file
+        fd.RISet = this_trait.riset
+        fd.readGenotype()        
         
         if not fd.genotype:
             fd.readData(incf1=1)
@@ -42,7 +58,6 @@ class DataEditingPage(templatePage):
                 fmID='pre_dataEditing'
             else:
                 fmID='dataEditing'
-
 
         # Some fields, like method, are defaulted to None; otherwise in IE the field can't be changed using jquery
         hddn = OrderedDict(
@@ -148,6 +163,31 @@ class DataEditingPage(templatePage):
         self.sample_group_types['all_cases'] = "All Cases"
         self.js_data = dict(sample_groups = self.sample_group_types)
 
+
+    def get_this_trait(self):
+        # When is traitInfos used?
+        #if traitInfos:
+        #    database, ProbeSetID, CellID = traitInfos
+        #else:
+        database = self.fd['database']
+        probe_set_id = self.fd['ProbeSetID']
+        cell_id = self.fd.get('CellID')        
+
+        this_trait =  webqtlTrait(db=database, name=probe_set_id, cellid=cell_id, cursor=self.cursor)
+    
+        ##identification, etc.
+        self.fd.identification = '%s : %s' % (this_trait.db.shortname, probe_set_id)
+        this_trait.returnURL = webqtlConfig.CGIDIR + webqtlConfig.SCRIPTFILE + '?FormID=showDatabase&database=%s\
+                &ProbeSetID=%s&RISet=%s&parentsf1=on' %(database, probe_set_id, self.fd['RISet'])
+
+        if cell_id:
+            self.fd.identification = '%s/%s'%(self.fd.identification, cell_id)
+            this_trait.returnURL = '%s&CellID=%s' % (this_trait.returnURL, cell_id)
+
+        this_trait.retrieveInfo()
+        this_trait.retrieveData()
+        return this_trait
+    
 
     def dispTraitInformation(self, fd, title1Body, hddn, this_trait):
 

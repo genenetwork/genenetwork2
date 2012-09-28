@@ -10,7 +10,7 @@ from wqflask import app
 from flask import render_template, request
 
 from wqflask import search_results
-from wqflask.show_trait import show_trait_page
+from wqflask.show_trait import DataEditingPage
 from wqflask.correlation import CorrelationPage
 
 from wqflask.dataSharing import SharingInfo, SharingInfoPage
@@ -75,8 +75,8 @@ def whats_new():
 def show_trait():
     # Here it's currently too complicated not to use an fd that is a webqtlFormData
     fd = webqtlFormData.webqtlFormData(request.args)
-    template_vars = show_trait_page.ShowTraitPage(fd)
-    
+    #template_vars = show_trait_page.ShowTraitPage(fd)
+    template_vars = DataEditingPage.DataEditingPage(fd)
     template_vars.js_data = json.dumps(template_vars.js_data)
     
     print("show_trait template_vars:", pf(template_vars.__dict__))

@@ -43,6 +43,7 @@ from utility import webqtlUtil
 
 
 
+
 class webqtlFormData:
     'Represents data from a WebQTL form page, needed to generate the next page'
     
