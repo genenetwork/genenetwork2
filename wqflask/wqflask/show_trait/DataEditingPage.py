@@ -3,7 +3,6 @@ from __future__ import absolute_import, print_function, division
 import string
 import os
 import cPickle
-from collections import OrderedDict
 #import pyXLWriter as xl
 
 import yaml
@@ -1563,10 +1562,13 @@ class SampleList(object):
             else:
                 sample.this_id = "Other_" + str(counter)
 
-            #### For extra attribute columns; currently only used by two human datasets - Zach
+            #### For extra attribute columns; currently only used by several datasets - Zach
             if self.this_trait and self.this_trait.db and self.this_trait.db.type == 'ProbeSet':
-                self.get_extra_attribute_values(sample_name)
+                sample.extra_attributes = self.get_extra_attribute_values(sample_name)
+                print("sample.extra_attributes is", pf(sample.extra_attributes))
                 self.sample_list.append(sample)
+
+        print("self.attributes is", pf(self.attributes))
 
         self.do_outliers()
         #do_outliers(the_samples)
@@ -1603,8 +1605,6 @@ class SampleList(object):
                                                 group by CaseAttributeXRef.CaseAttributeId''',
                                                 (str(self.this_trait.db.id),))
 
-        #self.attributes = {key, value in self.cursor.fetchall()}
-        #self.attributes = OrderedDict(self.attributes.iteritems())
         
         self.attributes = {}
         for key, value in self.cursor.fetchall():
@@ -1621,51 +1621,36 @@ class SampleList(object):
             self.attributes[key].distinct_values.sort(key=natural_sort_key)
 
 
-        #try:
-        #
         #    exclude_menu = HT.Select(name="exclude_menu")
         #    dropdown_menus = [] #ZS: list of dropdown menus with the distinct values of each attribute (contained in DIVs so the style parameter can be edited and they can be hidden) 
-        #
-        #    for attribute in self.cursor.fetchall():
-        #        attribute_ids.append(attribute[0])
-        #        attribute_names.append(attribute[1])
         #    for this_attr_name in attribute_names:
         #        exclude_menu.append((this_attr_name.capitalize(), this_attr_name))
-        #        self.cursor.execute("""SELECT DISTINCT CaseAttributeXRef.Value
-        #                        FROM CaseAttribute, CaseAttributeXRef
-        #                        WHERE CaseAttribute.Name = '%s' AND
-        #                            CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id""" % (this_attr_name))
-        #        try:
-        #            distinct_values = self.cursor.fetchall()
-        #            attr_value_menu_div = HT.Div(style="display:none;", Class="attribute_values") #container used to show/hide dropdown menus
-        #            attr_value_menu = HT.Select(name=this_attr_name)
-        #                        attr_value_menu.append(("None", "show_all"))
-        #            for value in distinct_values:
-        #                attr_value_menu.append((str(value[0]), value[0]))
-        #            attr_value_menu_div.append(attr_value_menu)
-        #            dropdown_menus.append(attr_value_menu_div)
-        #        except:
-        #            pass
-        #except:
-        #    pass
+        #        attr_value_menu_div = HT.Div(style="display:none;", Class="attribute_values") #container used to show/hide dropdown menus
+        #        attr_value_menu = HT.Select(name=this_attr_name)
+        #                    attr_value_menu.append(("None", "show_all"))
+        #        for value in distinct_values:
+        #            attr_value_menu.append((str(value[0]), value[0]))
+        #        attr_value_menu_div.append(attr_value_menu)
+        #        dropdown_menus.append(attr_value_menu_div)
 
                     
     def get_extra_attribute_values(self, sample_name):
         
-        if len(self.attributes) > 0:
+        attribute_values = {}
+        
+        if self.attributes:
 
             #ZS: Get StrainId value for the next query
             self.cursor.execute("""SELECT Strain.Id
-                                            FROM Strain, StrainXRef, InbredSet
-                                            WHERE Strain.Name = %s and
-                                                    StrainXRef.StrainId = Strain.Id and
-                                                    InbredSet.Id = StrainXRef.InbredSetId and
-                                                    InbredSet.Name = %s""", (sample_name, self.fd.RISet))
+                                        FROM Strain, StrainXRef, InbredSet
+                                        WHERE Strain.Name = %s and
+                                            StrainXRef.StrainId = Strain.Id and
+                                            InbredSet.Id = StrainXRef.InbredSetId and
+                                            InbredSet.Name = %s""", (sample_name, self.fd.RISet))
 
             sample_id = self.cursor.fetchone()[0]
 
-            attr_counter = 1 # This is needed so the javascript can know which attribute type to associate this value with for the exported excel sheet (each attribute type being a column).
-            for attribute_id in self.attributes.keys():
+            for attribute in self.attributes:
 
                 #ZS: Add extra case attribute values (if any)
                 self.cursor.execute("""SELECT Value
@@ -1673,21 +1658,21 @@ class SampleList(object):
                                         WHERE ProbeSetFreezeId = '%s' AND
                                                 StrainId = '%s' AND
                                                 CaseAttributeId = '%s'
-                                                        group by CaseAttributeXRef.CaseAttributeId""" % (self.this_trait.db.id, sample_id, str(attribute_id)))
+                                        group by CaseAttributeXRef.CaseAttributeId""" % (
+                                            self.this_trait.db.id, sample_id, str(attribute)))
 
-                attributeValue = self.cursor.fetchone()[0] #Trait-specific attributes, if any
+                attribute_value = self.cursor.fetchone()[0] #Trait-specific attributes, if any
 
-                #ZS: If it's an int, turn it into one for sorting (for example, 101 would be lower than 80 if they're strings instead of ints)
+                #ZS: If it's an int, turn it into one for sorting
+                #(for example, 101 would be lower than 80 if they're strings instead of ints)
                 try:
-                    attributeValue = int(attributeValue)
+                    attribute_value = int(attribute_value)
                 except ValueError:
                     pass
-
-                #span_Id = samples+"_attribute"+str(attr_counter)+"_sample"+str(i+1)
-                #attr_container = HT.Span(attributeValue, Id=span_Id)
-                #attr_className = str(attributeValue) + "&nbsp;" + className
-                #table_row.append(HT.TD(attr_container, align='right', Class=attr_className))
-                attr_counter += 1                    
+                
+                attribute_values[self.attributes[attribute].name] = attribute_value
+               
+        return attribute_values
 
 
 def natural_sort_key(x):

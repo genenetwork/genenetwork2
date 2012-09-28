@@ -1263,6 +1263,10 @@
                               <th class="fs13 fwb ff1 b1 cw cbrb" width="20">&nbsp;</th>
 
                               <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="80">SE</th>
+                              
+                              {% for attribute in sample_type.attributes|sort() %}
+                                <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="60">{{ sample_type.attributes[attribute].name }}</th>
+                              {% endfor %}  
                             </tr>
 
                             {% for sample in sample_type.sample_list %}
@@ -1291,7 +1295,15 @@
                               <td class="fs13 b1 c222" align="right" width="80">
                                 <input type="text" name=""{{ 'V' + sample.name}}" class="fs13 b1 c222 valueField edit_sample_se"
                                        value="{{ sample.display_variance }}"
-                                       size="8" maxlength="8" style="text-align:right"></td>
+                                       size="8" maxlength="8" style="text-align:right">
+                              </td>
+                              
+                              {# Loop through each attribute type and input value #}
+                              {% for attribute in sample_type.attributes|sort() %}
+                              <td class="fd13 b1 c222" align="right" width="80">
+                                {{ sample.extra_attributes[sample_type.attributes[attribute].name] }}
+                              </td>
+                              {% endfor %}
                             </tr>
                             {% endfor %}
 

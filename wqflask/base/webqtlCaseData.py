@@ -36,6 +36,7 @@ class webqtlCaseData(object):
         self.value = value                  # Trait Value
         self.variance = variance            # Trait Variance
         self.num_cases = num_cases          # Number of individuals/cases
+        self.extra_attributes = None
         self.this_id = None   # Set a sane default (can't be just "id" cause that's a reserved word)
         self.outlier = None   # Not set to True/False until later
 
@@ -70,5 +71,4 @@ class webqtlCaseData(object):
             return "%2.3f" % self.variance
         else:
             return "x"
-        
-        
+
