@@ -29,7 +29,7 @@ from pprint import pformat as pf
 
 
 
-class DataEditingPage(templatePage):
+class ShowTrait(templatePage):
 
     def __init__(self, fd):
         self.fd = fd

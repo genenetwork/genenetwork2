@@ -76,7 +76,7 @@ def show_trait():
     # Here it's currently too complicated not to use an fd that is a webqtlFormData
     fd = webqtlFormData.webqtlFormData(request.args)
     #template_vars = show_trait_page.ShowTraitPage(fd)
-    template_vars = DataEditingPage.DataEditingPage(fd)
+    template_vars = show_trait.show_trait(fd)
     template_vars.js_data = json.dumps(template_vars.js_data)
     
     print("show_trait template_vars:", pf(template_vars.__dict__))

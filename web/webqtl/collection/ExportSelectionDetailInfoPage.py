@@ -128,7 +128,10 @@ class ExportSelectionDetailInfoPage(templatePage):
 							count = count + 1
 						except:
 							pass
-					mean = sum/count
+					if count = 0:
+						mean = 0
+					else:
+						mean = sum/count
 				text[-1].append(mean)
 				text[-1] += testval
 			if len(text[0]) < 255 or len(text) < 255:
