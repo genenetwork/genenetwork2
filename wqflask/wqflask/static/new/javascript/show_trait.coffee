@@ -69,7 +69,7 @@ $ ->
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"
         console.log("js_data.sample_groups:", js_data.sample_groups)
-        for key, value of js_data.sample_groups
+        for own key, value of js_data.sample_groups
             console.log("aa key:", key)
             console.log("aa value:", value)
             the_id = process_id("column", key)
@@ -108,7 +108,7 @@ $ ->
             row_line = """<tr>"""
             row_line += """<td id="#{ row.vn  }">#{ row.pretty }</td>"""
             console.log("box - js_data.sample_groups:", js_data.sample_groups)
-            for key, value of js_data.sample_groups
+            for own key, value of js_data.sample_groups
                 console.log("apple key:", key)
                 the_id = process_id(key, row.vn)
                 console.log("the_id:", the_id)
@@ -166,6 +166,30 @@ $ ->
     
     #End Calculate Correlations Code
     
+    #Populate Samples Attribute Values Code
+    
+    create_value_dropdown = (value) ->
+        return """<option val=#{value}>#{value}</option>"""
+    
+    populate_sample_attributes_values_dropdown = ->
+        console.log("in beginning of psavd")
+        $('#attribute_values').empty()
+        sample_attributes = {}
+        for own key, attribute_info of js_data.attribute_names
+            sample_attributes[attribute_info.name] = attribute_info.distinct_values
+        console.log("[visa] attributes is:", sample_attributes)
+        selected_attribute = $('#exclude_menu').val()
+        for value in sample_attributes[selected_attribute]
+            $(create_value_dropdown(value))
+                .appendTo($('#attribute_values'))
+
+    # Must run once at beginning
+    populate_sample_attributes_values_dropdown()
+    $('#exclude_menu').change(populate_sample_attributes_values_dropdown)
+    
+    
+    
+    #End Populate Samples Attribute Values Code
 
     console.log("before registering show_hide_outliers")
     $('#show_hide_outliers').click(show_hide_outliers)

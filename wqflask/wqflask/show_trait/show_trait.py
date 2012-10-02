@@ -161,7 +161,10 @@ class ShowTrait(templatePage):
         self.sample_group_types['primary_only'] = fd.RISet + " Only"
         self.sample_group_types['other_only'] = "Non-" + fd.RISet
         self.sample_group_types['all_cases'] = "All Cases"
-        self.js_data = dict(sample_groups = self.sample_group_types)
+        js_data = dict(sample_groups = self.sample_group_types,
+                        attribute_names = self.sample_groups[0].attributes)
+        print("js_data:", pf(js_data))
+        self.js_data = js_data
 
 
     def get_this_trait(self):
@@ -989,55 +992,55 @@ class ShowTrait(templatePage):
                 except:
                     plotTitle = str(this_trait.name)
 
-                #normalplot_img = BasicStatisticsFunctions.plotNormalProbability(vals=vals, RISet=fd.RISet, title=plotTitle, specialStrains=specialStrains)
-                #normalplot.append(HT.TR(HT.TD(normalplot_img)))
-                #normalplot.append(HT.TR(HT.TD(HT.BR(),HT.BR(),"This plot evaluates whether data are \
-                #normally distributed. Different symbols represent different groups.",HT.BR(),HT.BR(),
-                #"More about ", HT.Href(url="http://en.wikipedia.org/wiki/Normal_probability_plot",
-                #                 target="_blank", text="Normal Probability Plots"), " and more about interpreting these plots from the ", HT.Href(url="/glossary.html#normal_probability", target="_blank", text="glossary"))))
-                #normalplot_container.append(normalplot)
-                #normalplot_div.append(normalplot_container)
-                #stats_container.append(normalplot_div)
-
-                #boxplot_div = HT.Div(id="statstabs-2")
-                #boxplot_container = HT.Paragraph()
-                #boxplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-                #boxplot_img, boxplot_link = BasicStatisticsFunctions.plotBoxPlot(vals)
-                #boxplot.append(HT.TR(HT.TD(boxplot_img, HT.P(), boxplot_link, align="left")))
-                #boxplot_container.append(boxplot)
-                #boxplot_div.append(boxplot_container)
-                #stats_container.append(boxplot_div)
-
-
-                #barName_div = HT.Div(id="statstabs-3")
-                #barName_container = HT.Paragraph()
-                #barName = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-                #barName_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="name")
-                #barName.append(HT.TR(HT.TD(barName_img)))
-                #barName_container.append(barName)
-                #barName_div.append(barName_container)
-                #stats_container.append(barName_div)
-                #
-                #barRank_div = HT.Div(id="statstabs-4")
-                #barRank_container = HT.Paragraph()
-                #barRank = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-                #barRank_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="rank")
-                #barRank.append(HT.TR(HT.TD(barRank_img)))
-                #barRank_container.append(barRank)
-                #barRank_div.append(barRank_container)
-                #stats_container.append(barRank_div)
-
-        #    stats_cell.append(stats_container)
-        #
-        #stats_script.append(stats_script_text)
-        #
-        #submitTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target2")
-        #stats_row.append(stats_cell)
-
-        #submitTable.append(stats_row)
-        #submitTable.append(stats_script)
-
-        #title2Body.append(submitTable)
+                    #normalplot_img = BasicStatisticsFunctions.plotNormalProbability(vals=vals, RISet=fd.RISet, title=plotTitle, specialStrains=specialStrains)
+                    #normalplot.append(HT.TR(HT.TD(normalplot_img)))
+                    #normalplot.append(HT.TR(HT.TD(HT.BR(),HT.BR(),"This plot evaluates whether data are \
+                    #normally distributed. Different symbols represent different groups.",HT.BR(),HT.BR(),
+                    #"More about ", HT.Href(url="http://en.wikipedia.org/wiki/Normal_probability_plot",
+                    #                 target="_blank", text="Normal Probability Plots"), " and more about interpreting these plots from the ", HT.Href(url="/glossary.html#normal_probability", target="_blank", text="glossary"))))
+                    #normalplot_container.append(normalplot)
+                    #normalplot_div.append(normalplot_container)
+                    #stats_container.append(normalplot_div)
+    
+                    #boxplot_div = HT.Div(id="statstabs-2")
+                    #boxplot_container = HT.Paragraph()
+                    #boxplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+                    #boxplot_img, boxplot_link = BasicStatisticsFunctions.plotBoxPlot(vals)
+                    #boxplot.append(HT.TR(HT.TD(boxplot_img, HT.P(), boxplot_link, align="left")))
+                    #boxplot_container.append(boxplot)
+                    #boxplot_div.append(boxplot_container)
+                    #stats_container.append(boxplot_div)
+    
+    
+                    #barName_div = HT.Div(id="statstabs-3")
+                    #barName_container = HT.Paragraph()
+                    #barName = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+                    #barName_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="name")
+                    #barName.append(HT.TR(HT.TD(barName_img)))
+                    #barName_container.append(barName)
+                    #barName_div.append(barName_container)
+                    #stats_container.append(barName_div)
+                    #
+                    #barRank_div = HT.Div(id="statstabs-4")
+                    #barRank_container = HT.Paragraph()
+                    #barRank = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+                    #barRank_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="rank")
+                    #barRank.append(HT.TR(HT.TD(barRank_img)))
+                    #barRank_container.append(barRank)
+                    #barRank_div.append(barRank_container)
+                    #stats_container.append(barRank_div)
+    
+            #    stats_cell.append(stats_container)
+            #
+            #stats_script.append(stats_script_text)
+            #
+            #submitTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target2")
+            #stats_row.append(stats_cell)
+    
+            #submitTable.append(stats_row)
+            #submitTable.append(stats_script)
+    
+            #title2Body.append(submitTable)
 
 
     def build_correlation_tools(self, fd, this_trait):

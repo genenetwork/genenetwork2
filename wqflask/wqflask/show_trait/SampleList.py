@@ -24,7 +24,7 @@ class SampleList(object):
 
         self.sample_list = [] # The actual list
         
-        self.calc_attributes()
+        self.get_attributes()
         
         print("camera: attributes are:", pf(self.attributes))
 
@@ -85,7 +85,7 @@ class SampleList(object):
                     sample.outlier = False
                     
                     
-    def calc_attributes(self):
+    def get_attributes(self):
         """Finds which extra attributes apply to this dataset"""
         
         #ZS: Id and name values for this trait's extra attributes  

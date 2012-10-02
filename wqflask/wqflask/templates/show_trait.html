@@ -1227,6 +1227,20 @@
                           </select></span> &nbsp;&nbsp;&nbsp;
                           <input type="button" name="blockSamples" class="button" value=" Block ">
                           <br>
+
+                          {% if sample_groups[0].attributes %}
+                          <strong>&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+                          <select id="exclude_menu" size=1>
+                            {% for attribute in sample_groups[0].attributes %}
+                            <option value="{{ sample_groups[0].attributes[attribute].name }}">{{ sample_groups[0].attributes[attribute].name }}</option>
+                            {% endfor %}
+                          </select>
+                          <select id="attribute_values" size=1>
+                          </select>                         
+                          {% endif %}
+                          <input type="button" name="exclude_group" class="button" value=" Block ">
+                          <br>
+
                           <strong>&nbsp;&nbsp;Options:</strong>
                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                           <input type="button" id="show_hide_no_value" class="button" value="Hide No Value">
@@ -1335,7 +1349,7 @@
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
     
     <script type="text/javascript" src="/static/new/javascript/stats.js"></script>
-    <script type="text/javascript" src="/static/new/javascript/trait_data_and_analysis.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>
     
 
     <!-- End of body -->
