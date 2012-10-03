@@ -128,7 +128,7 @@ class ExportSelectionDetailInfoPage(templatePage):
 							count = count + 1
 						except:
 							pass
-					if count = 0:
+					if count == 0:
 						mean = 0
 					else:
 						mean = sum/count

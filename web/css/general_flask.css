@@ -10,6 +10,8 @@ Blockquote {
 	margin : 14px 18px 14px 18px;
 }
 
+/********** All this font size stuff, etc. needs to be replaced/removed ********** /
+
 /*Font size*/
 .fs10 {font-size : 10px}
 .fs11 {font-size : 11px}
@@ -218,27 +220,47 @@ color: #999999;
 /*For font style and color of commands and keywords in the scriptable interface page*/
 .keywords
 {
-font-family : "CourierNew", Courier, mono;
-font-size : 15px;
-color : #0000FF;
-font-weight : Normal
+    font-family : "CourierNew", Courier, mono;
+    font-size : 15px;
+    color : #0000FF;
+    font-weight : Normal
 }
+
 /*For RIsample.html page*/
 .strains
 {
-border:1px solid #999999;
-border-top:1px solid #940;
-border-bottom:1px solid #940;
-padding:5;
-background-color:#ddf;
-font-family:verdana;
+    border:1px solid #999999;
+    border-top:1px solid #940;
+    border-bottom:1px solid #940;
+    padding:5;
+    background-color:#ddf;
+    font-family:verdana;
 }
+
 .values
 {
-border:1px solid #999999;
-border-top:1px solid #940;
-border-bottom:1px solid #940;
-padding:5;
-background-color:#eee;
-font-family:courier;
+    border:1px solid #999999;
+    border-top:1px solid #940;
+    border-bottom:1px solid #940;
+    padding:5;
+    background-color:#eee;
+    font-family:courier;
 }
+
+/*****************************************/
+
+/* Standard table cell */
+.std_cell
+{
+    border : 1px solid #999999;
+    color : #222;
+    font-size : 13px;
+    padding : 3px;
+}
+
+/*Input field used to enter sample values, SE, etc.*/
+.trait_value_input
+{
+    font-style : Italic
+}
+

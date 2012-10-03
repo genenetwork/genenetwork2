@@ -11,7 +11,7 @@
   };
 
   $(function() {
-    var change_stats_value, create_value_dropdown, edit_data_change, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var block_by_attribute_value, change_stats_value, create_value_dropdown, edit_data_change, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -94,8 +94,8 @@
     make_table = function() {
       var header, key, row, row_line, rows, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
       header = "<thead><tr><th>&nbsp;</th>";
-      console.log("js_data.sample_groups:", js_data.sample_groups);
-      _ref = js_data.sample_groups;
+      console.log("js_data.sample_group_types:", js_data.sample_group_types);
+      _ref = js_data.sample_group_types;
       for (key in _ref) {
         if (!__hasProp.call(_ref, key)) continue;
         value = _ref[key];
@@ -132,8 +132,8 @@
         console.log("rowing");
         row_line = "<tr>";
         row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
-        console.log("box - js_data.sample_groups:", js_data.sample_groups);
-        _ref1 = js_data.sample_groups;
+        console.log("box - js_data.sample_group_types:", js_data.sample_group_types);
+        _ref1 = js_data.sample_group_types;
         for (key in _ref1) {
           if (!__hasProp.call(_ref1, key)) continue;
           value = _ref1[key];
@@ -222,6 +222,37 @@
     };
     populate_sample_attributes_values_dropdown();
     $('#exclude_menu').change(populate_sample_attributes_values_dropdown);
+    block_by_attribute_value = function() {
+      var attribute_name, exclude_by_value, sample, sample_list, sample_lists, sample_row, _i, _len, _results;
+      console.log("in beginning of bbav code");
+      attribute_name = $('#exclude_menu').val();
+      console.log("attribute_name is:", attribute_name);
+      exclude_by_value = $('#attribute_values').val();
+      console.log("exclude_by_value is:", exclude_by_value);
+      sample_lists = js_data['sample_lists'];
+      console.log("sample_lists is:", sample_lists);
+      _results = [];
+      for (_i = 0, _len = sample_lists.length; _i < _len; _i++) {
+        sample_list = sample_lists[_i];
+        _results.push((function() {
+          var _j, _len1, _results1;
+          _results1 = [];
+          for (_j = 0, _len1 = sample_list.length; _j < _len1; _j++) {
+            sample = sample_list[_j];
+            console.log("sample is:", sample);
+            if (sample.extra_attributes[attribute_name] === exclude_by_value) {
+              console.log("is exclude_by_value");
+              _results1.push(sample_row = $(''));
+            } else {
+              _results1.push(void 0);
+            }
+          }
+          return _results1;
+        })());
+      }
+      return _results;
+    };
+    $('#exclude_group').click(block_by_attribute_value);
     console.log("before registering show_hide_outliers");
     $('#show_hide_outliers').click(show_hide_outliers);
     console.log("after registering show_hide_outliers");

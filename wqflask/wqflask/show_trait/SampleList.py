@@ -112,19 +112,6 @@ class SampleList(object):
             self.attributes[key].distinct_values.sort(key=natural_sort_key)
 
 
-        #    exclude_menu = HT.Select(name="exclude_menu")
-        #    dropdown_menus = [] #ZS: list of dropdown menus with the distinct values of each attribute (contained in DIVs so the style parameter can be edited and they can be hidden) 
-        #    for this_attr_name in attribute_names:
-        #        exclude_menu.append((this_attr_name.capitalize(), this_attr_name))
-        #        attr_value_menu_div = HT.Div(style="display:none;", Class="attribute_values") #container used to show/hide dropdown menus
-        #        attr_value_menu = HT.Select(name=this_attr_name)
-        #                    attr_value_menu.append(("None", "show_all"))
-        #        for value in distinct_values:
-        #            attr_value_menu.append((str(value[0]), value[0]))
-        #        attr_value_menu_div.append(attr_value_menu)
-        #        dropdown_menus.append(attr_value_menu_div)
-
-                    
     def get_extra_attribute_values(self, sample_name):
 
         attribute_values = {}

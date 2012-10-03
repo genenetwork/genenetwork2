@@ -1238,7 +1238,7 @@
                           <select id="attribute_values" size=1>
                           </select>                         
                           {% endif %}
-                          <input type="button" name="exclude_group" class="button" value=" Block ">
+                          <input type="button" id="exclude_group" class="button" value=" Block ">
                           <br>
 
                           <strong>&nbsp;&nbsp;Options:</strong>
@@ -1253,9 +1253,14 @@
                         </span>
                         <br>
                           <br>
-                          <span>&nbsp;&nbsp;Outliers highlighted in <strong style="background-color:yellow;">&nbsp;yellow&nbsp;</strong> can be hidden using
-                          the <strong>Hide Outliers</strong> button,<br>
-                          &nbsp;&nbsp;and samples with no value (x) can be hidden by clicking <strong>Hide No Value</strong> .</span><br>
+                          <span>&nbsp;&nbsp;Outliers highlighted in
+                          <strong style="background-color:yellow;">&nbsp;yellow&nbsp;</strong>
+                          can be hidden using
+                          the <strong>Hide Outliers</strong> button,
+                          <br>
+                          &nbsp;&nbsp;and samples with no value (x) can be hidden by clicking
+                          <strong>Hide No Value</strong>t.
+                          </span><br>
                         </div><br>
                         
                         <div style="width:80%;margin:0;padding:0;border:none;">
@@ -1280,36 +1285,44 @@
                               {% endif %}
                               
                               {% for attribute in sample_type.attributes|sort() %}
-                                <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="60">{{ sample_type.attributes[attribute].name }}</th>
+                                <th class="fs13 fwb ff1 b1 cw cbrb" align="right" width="60">
+                                    {{ sample_type.attributes[attribute].name }}
+                                </th>
                               {% endfor %}  
                             </tr>
 
                             {% for sample in sample_type.sample_list %}
                             <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
-                              <td class="fs13 b1 c222" align="right" width="45">
+                              <td class="std_cell" data-column_name="Index" align="right" width="45">
                                 {{ loop.index }}
-                                <input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" value="{{ sample.name }}" checked="checked">
+                                <input type="checkbox" name="selectCheck"
+                                       class="checkbox edit_sample_checkbox"
+                                       value="{{ sample.name }}" checked="checked">
                               </td>
 
-                              <td class="fs13 b1 c222" align="right" width="100">
-                                <span class="fs14 fwn ffl edit_sample_sample_name">{{ sample.name }}</span>
+                              <td class="std_cell" data-column_name="Sample" align="right" width="100">
+                                <span class="fs14 fwn ffl edit_sample_sample_name">
+                                    {{ sample.name }}
+                                </span>
                               </td>
 
                               {# Todo: Add IDs #}
-                              <td class="fs13 b1 c222"  align="right" width="70">
-                                <input type="text" name="{{ sample.name }}" class="fs13 b1 c222 edit_sample_value valueField"
+                              <td class="std_cell" data-column_name="Value" align="right" width="70">
+                                <input type="text" name="{{ sample.name }}"
+                                       class="trait_value_input edit_sample_value"
                                        value="{{ sample.display_value }}" size="8" maxlength="8"
                                        style="text-align:right; background-color:#FFFFFF;">
                               </td>
 
                               {% if sample_type.se_exists() %}
-                              <td class="fs13 b1 c222" align="center" width="20">
+                              <td class="std_cell" align="center" width="20">
                                 ±
                               </td>
 
                               {# Todo: Add IDs #}
-                              <td class="fs13 b1 c222" align="right" width="80">
-                                <input type="text" name=""{{ 'V' + sample.name}}" class="fs13 b1 c222 valueField edit_sample_se"
+                              <td class="std_cell" data-column_name="SE" align="right" width="80">
+                                <input type="text" name=""{{ 'V' + sample.name}}"
+                                       class="trait_value_input edit_sample_se"
                                        value="{{ sample.display_variance }}"
                                        size="8" maxlength="8" style="text-align:right">
                               </td>
@@ -1317,7 +1330,7 @@
                               
                               {# Loop through each attribute type and input value #}
                               {% for attribute in sample_type.attributes|sort() %}
-                              <td class="fd13 b1 c222" align="right" width="80">
+                              <td class="std_cell" data-column_name="{{ sample_type.attributes[attribute].name }}" align="right" width="80">
                                 {{ sample.extra_attributes[sample_type.attributes[attribute].name] }}
                               </td>
                               {% endfor %}

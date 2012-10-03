@@ -94,6 +94,7 @@ def corr_compute_page():
 
 # Todo: Can we simplify this? -Sam
 def sharing_info_page():
+    """Info page displayed when the user clicks the "Info" button next to the dataset selection"""
     print("In sharing_info_page")
     fd = webqtlFormData.webqtlFormData(request.args)
     print("2Have fd")

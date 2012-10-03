@@ -68,8 +68,8 @@ $ ->
 
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"
-        console.log("js_data.sample_groups:", js_data.sample_groups)
-        for own key, value of js_data.sample_groups
+        console.log("js_data.sample_group_types:", js_data.sample_group_types)
+        for own key, value of js_data.sample_group_types
             console.log("aa key:", key)
             console.log("aa value:", value)
             the_id = process_id("column", key)
@@ -107,8 +107,8 @@ $ ->
             console.log("rowing")
             row_line = """<tr>"""
             row_line += """<td id="#{ row.vn  }">#{ row.pretty }</td>"""
-            console.log("box - js_data.sample_groups:", js_data.sample_groups)
-            for own key, value of js_data.sample_groups
+            console.log("box - js_data.sample_group_types:", js_data.sample_group_types)
+            for own key, value of js_data.sample_group_types
                 console.log("apple key:", key)
                 the_id = process_id(key, row.vn)
                 console.log("the_id:", the_id)
@@ -147,7 +147,7 @@ $ ->
             console.log("Should be now Hide Outliers")
 
     
-    #Calculate Correlations Code
+    ##Calculate Correlations Code
     
     
     on_corr_method_change = ->
@@ -164,9 +164,9 @@ $ ->
     $('select[name=corr_method]').change(on_corr_method_change)
     
     
-    #End Calculate Correlations Code
+    ##End Calculate Correlations Code
     
-    #Populate Samples Attribute Values Code
+    ##Populate Samples Attribute Values Code
     
     create_value_dropdown = (value) ->
         return """<option val=#{value}>#{value}</option>"""
@@ -187,9 +187,29 @@ $ ->
     populate_sample_attributes_values_dropdown()
     $('#exclude_menu').change(populate_sample_attributes_values_dropdown)
     
+    ##End Populate Samples Attribute Values Codess
+
+    ##Block Samples By Attribute Value Code
+    block_by_attribute_value = ->
+        console.log("in beginning of bbav code")
+        attribute_name = $('#exclude_menu').val()
+        console.log("attribute_name is:", attribute_name)
+        exclude_by_value = $('#attribute_values').val()
+        console.log("exclude_by_value is:", exclude_by_value)
+        sample_lists = js_data['sample_lists']
+        console.log("sample_lists is:", sample_lists)
+        for sample_list in sample_lists
+            for sample in sample_list
+                console.log("sample is:", sample)
+                if sample.extra_attributes[attribute_name] == exclude_by_value
+                    console.log("is exclude_by_value")
+                    sample_row = $('')
+
+
+
+    $('#exclude_group').click(block_by_attribute_value)
     
-    
-    #End Populate Samples Attribute Values Code
+    ##End Block Samples By Attribute Value Code
 
     console.log("before registering show_hide_outliers")
     $('#show_hide_outliers').click(show_hide_outliers)

@@ -161,7 +161,12 @@ class ShowTrait(templatePage):
         self.sample_group_types['primary_only'] = fd.RISet + " Only"
         self.sample_group_types['other_only'] = "Non-" + fd.RISet
         self.sample_group_types['all_cases'] = "All Cases"
-        js_data = dict(sample_groups = self.sample_group_types,
+        sample_lists = []
+        for group in self.sample_groups:
+            sample_lists.append(group.sample_list)
+        print("sample_lists is:", pf(sample_lists))
+        js_data = dict(sample_group_types = self.sample_group_types,
+                        sample_lists = sample_lists,
                         attribute_names = self.sample_groups[0].attributes)
         print("js_data:", pf(js_data))
         self.js_data = js_data
