@@ -1229,10 +1229,11 @@
                           <br>
 
                           {% if sample_groups[0].attributes %}
-                          <strong>&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+                          <strong>&nbsp;&nbsp;Block samples by group:&nbsp;&nbsp;&nbsp;&nbsp;</strong>
                           <select id="exclude_menu" size=1>
                             {% for attribute in sample_groups[0].attributes %}
-                            <option value="{{ sample_groups[0].attributes[attribute].name }}">{{ sample_groups[0].attributes[attribute].name }}</option>
+                            <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
+                                {{ sample_groups[0].attributes[attribute].name }}</option>
                             {% endfor %}
                           </select>
                           <select id="attribute_values" size=1>
@@ -1293,21 +1294,21 @@
 
                             {% for sample in sample_type.sample_list %}
                             <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
-                              <td class="std_cell" data-column_name="Index" align="right" width="45">
+                              <td class="std_cell column_name-Index" align="right" width="45">
                                 {{ loop.index }}
                                 <input type="checkbox" name="selectCheck"
                                        class="checkbox edit_sample_checkbox"
                                        value="{{ sample.name }}" checked="checked">
                               </td>
 
-                              <td class="std_cell" data-column_name="Sample" align="right" width="100">
+                              <td class="std_cell column_name-Sample" align="right" width="100">
                                 <span class="fs14 fwn ffl edit_sample_sample_name">
                                     {{ sample.name }}
                                 </span>
                               </td>
 
                               {# Todo: Add IDs #}
-                              <td class="std_cell" data-column_name="Value" align="right" width="70">
+                              <td class="std_cell column_name-Value" align="right" width="70">
                                 <input type="text" name="{{ sample.name }}"
                                        class="trait_value_input edit_sample_value"
                                        value="{{ sample.display_value }}" size="8" maxlength="8"
@@ -1320,7 +1321,7 @@
                               </td>
 
                               {# Todo: Add IDs #}
-                              <td class="std_cell" data-column_name="SE" align="right" width="80">
+                              <td class="std_cell column_name-SE" align="right" width="80">
                                 <input type="text" name=""{{ 'V' + sample.name}}"
                                        class="trait_value_input edit_sample_se"
                                        value="{{ sample.display_variance }}"
@@ -1330,7 +1331,8 @@
                               
                               {# Loop through each attribute type and input value #}
                               {% for attribute in sample_type.attributes|sort() %}
-                              <td class="std_cell" data-column_name="{{ sample_type.attributes[attribute].name }}" align="right" width="80">
+                              <td class="std_cell column_name-{{ sample_type.attributes[attribute].name.replace(' ', '_') }}"
+                                  align="right" width="80">
                                 {{ sample.extra_attributes[sample_type.attributes[attribute].name] }}
                               </td>
                               {% endfor %}

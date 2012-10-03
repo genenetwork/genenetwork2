@@ -178,7 +178,8 @@ $ ->
         for own key, attribute_info of js_data.attribute_names
             sample_attributes[attribute_info.name] = attribute_info.distinct_values
         console.log("[visa] attributes is:", sample_attributes)
-        selected_attribute = $('#exclude_menu').val()
+        selected_attribute = $('#exclude_menu').val().replace("_", " ")
+        console.log("selected_attribute is:", selected_attribute)
         for value in sample_attributes[selected_attribute]
             $(create_value_dropdown(value))
                 .appendTo($('#attribute_values'))
@@ -191,20 +192,27 @@ $ ->
 
     ##Block Samples By Attribute Value Code
     block_by_attribute_value = ->
-        console.log("in beginning of bbav code")
         attribute_name = $('#exclude_menu').val()
-        console.log("attribute_name is:", attribute_name)
         exclude_by_value = $('#attribute_values').val()
-        console.log("exclude_by_value is:", exclude_by_value)
-        sample_lists = js_data['sample_lists']
-        console.log("sample_lists is:", sample_lists)
-        for sample_list in sample_lists
-            for sample in sample_list
-                console.log("sample is:", sample)
-                if sample.extra_attributes[attribute_name] == exclude_by_value
-                    console.log("is exclude_by_value")
-                    sample_row = $('')
-
+        
+        cell_class = ".column_name-#{attribute_name}"
+        $(cell_class).each (index, element)=>
+            if $.trim($(element).text()) == exclude_by_value
+                row = $(element).parent('tr')
+                $(row).find(".trait_value_input").val("x")
+        
+        #sample_lists = js_data['sample_lists']
+        #console.log("sample_lists is:", sample_lists)
+        #for sample_list in sample_lists
+        #    for sample in sample_list
+        #        console.log("sample is:", sample)
+        #        if sample.extra_attributes[attribute_name] == exclude_by_value
+        #            console.log("is exclude_by_value")
+        #            console.log("sample.name is:", sample.name)
+        #            attr_cell = $('td:contains('+sample.name+')').parent().find('td.column_name-'+ attribute_name)
+        #            console.log("attr_cell is:", attr_cell)
+        #            value_cell = attr_cell.parent().find('td.column_name-Value')
+        #            value_cell.children('input').val("x")
 
 
     $('#exclude_group').click(block_by_attribute_value)

@@ -211,7 +211,8 @@
         sample_attributes[attribute_info.name] = attribute_info.distinct_values;
       }
       console.log("[visa] attributes is:", sample_attributes);
-      selected_attribute = $('#exclude_menu').val();
+      selected_attribute = $('#exclude_menu').val().replace("_", " ");
+      console.log("selected_attribute is:", selected_attribute);
       _ref1 = sample_attributes[selected_attribute];
       _results = [];
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
@@ -223,34 +224,18 @@
     populate_sample_attributes_values_dropdown();
     $('#exclude_menu').change(populate_sample_attributes_values_dropdown);
     block_by_attribute_value = function() {
-      var attribute_name, exclude_by_value, sample, sample_list, sample_lists, sample_row, _i, _len, _results;
-      console.log("in beginning of bbav code");
+      var attribute_name, cell_class, exclude_by_value,
+        _this = this;
       attribute_name = $('#exclude_menu').val();
-      console.log("attribute_name is:", attribute_name);
       exclude_by_value = $('#attribute_values').val();
-      console.log("exclude_by_value is:", exclude_by_value);
-      sample_lists = js_data['sample_lists'];
-      console.log("sample_lists is:", sample_lists);
-      _results = [];
-      for (_i = 0, _len = sample_lists.length; _i < _len; _i++) {
-        sample_list = sample_lists[_i];
-        _results.push((function() {
-          var _j, _len1, _results1;
-          _results1 = [];
-          for (_j = 0, _len1 = sample_list.length; _j < _len1; _j++) {
-            sample = sample_list[_j];
-            console.log("sample is:", sample);
-            if (sample.extra_attributes[attribute_name] === exclude_by_value) {
-              console.log("is exclude_by_value");
-              _results1.push(sample_row = $(''));
-            } else {
-              _results1.push(void 0);
-            }
-          }
-          return _results1;
-        })());
-      }
-      return _results;
+      cell_class = ".column_name-" + attribute_name;
+      return $(cell_class).each(function(index, element) {
+        var row;
+        if ($.trim($(element).text()) === exclude_by_value) {
+          row = $(element).parent('tr');
+          return $(row).find(".trait_value_input").val("x");
+        }
+      });
     };
     $('#exclude_group').click(block_by_attribute_value);
     console.log("before registering show_hide_outliers");
