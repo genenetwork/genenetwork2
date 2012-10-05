@@ -825,8 +825,7 @@ class SearchResultPage(templatePage):
                     
                     if lower_limit > upper_limit:
                         lower_limit, upper_limit = upper_limit, lower_limit
-                    
-                    
+
                     
                     clauseItem = " %s.Chr = '%s' and %s.Mb > %2.7f and %s.Mb < %2.7f " % (
                             self.dbType, chr_number, self.dbType, lower_limit, self.dbType, upper_limit)
