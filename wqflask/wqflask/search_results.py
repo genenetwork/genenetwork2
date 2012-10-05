@@ -771,37 +771,40 @@ class SearchResultPage(templatePage):
                         DescriptionText = self.ORDescriptionText
 
                     itemCmd = item[0]
-                    lowerLimit = float(item[1])
-                    upperLimit = float(item[2])
+                    lower_limit = float(item[1])
+                    upper_limit = float(item[2])
 
                     if itemCmd.upper() in ("TRANSLRS", "CISLRS"):
                         if item[3]:
                             mthresh = float(item[3])
                             clauseItem = " %sXRef.LRS > %2.7f and %sXRef.LRS < %2.7f " % \
-                                (self.dbType, min(lowerLimit, upperLimit), self.dbType, max(lowerLimit, upperLimit))
+                                (self.dbType, min(lower_limit, upper_limit), self.dbType, max(lower_limit, upper_limit))
                             if itemCmd.upper() == "CISLRS":
                                 clauseItem += """ and  %sXRef.Locus = Geno.name and Geno.SpeciesId = %s and %s.Chr = Geno.Chr and ABS(%s.Mb-Geno.Mb) < %2.7f """ % (self.dbType, self.speciesId, self.dbType, self.dbType, mthresh)
-                                DescriptionText.append(HT.Span(' with a ', HT.U('cis-QTL'), ' having an LRS between %g and %g using a %g Mb exclusion buffer'  % (min(lowerLimit, upperLimit), max(lowerLimit, upperLimit),  mthresh)))
+                                DescriptionText.append(HT.Span(' with a ', HT.U('cis-QTL'), ' having an LRS between %g and %g using a %g Mb exclusion buffer'  % (min(lower_limit, upper_limit), max(lower_limit, upper_limit),  mthresh)))
                             else:
                                 clauseItem += """ and  %sXRef.Locus = Geno.name and Geno.SpeciesId = %s and (%s.Chr != Geno.Chr or (%s.Chr != Geno.Chr and ABS(%s.Mb-Geno.Mb) > %2.7f)) """ % (self.dbType, self.speciesId, self.dbType, self.dbType, self.dbType, mthresh)
-                                DescriptionText.append(HT.Span(' with a ', HT.U('trans-QTL'), ' having an LRS between %g and %g using a %g Mb exclusion buffer'  % (min(lowerLimit, upperLimit), max(lowerLimit, upperLimit),  mthresh)))
+                                DescriptionText.append(HT.Span(' with a ', HT.U('trans-QTL'), ' having an LRS between %g and %g using a %g Mb exclusion buffer'  % (min(lower_limit, upper_limit), max(lower_limit, upper_limit),  mthresh)))
                             query.append(" (%s) " % clauseItem)
                             self.orderByDefalut = "LRS"
                         else:
                             pass
                     elif itemCmd.upper() in ("RANGE"):
                         #XZ, 03/05/2009: Xiaodong changed Data to ProbeSetData
-                        clauseItem = " (select Pow(2, max(value) -min(value)) from ProbeSetData where Id = ProbeSetXRef.dataId) > %2.7f and (select Pow(2, max(value) -min(value)) from ProbeSetData where Id = ProbeSetXRef.dataId) < %2.7f " % (min(lowerLimit, upperLimit), max(lowerLimit, upperLimit))
+                        clauseItem = " (select Pow(2, max(value) -min(value)) from ProbeSetData where Id = ProbeSetXRef.dataId) > %2.7f and (select Pow(2, max(value) -min(value)) from ProbeSetData where Id = ProbeSetXRef.dataId) < %2.7f " % (min(lower_limit, upper_limit), max(lower_limit, upper_limit))
                         query.append(" (%s) " % clauseItem)
-                        DescriptionText.append(HT.Span(' with a range of expression that varied between %g and %g' % (min(lowerLimit, upperLimit),  max(lowerLimit, upperLimit)), "  (fold difference)"))
+                        DescriptionText.append(HT.Span(' with a range of expression that varied between %g and %g' % (min(lower_limit, upper_limit),  max(lower_limit, upper_limit)), "  (fold difference)"))
                     else:
                         clauseItem = " %sXRef.%s > %2.7f and %sXRef.%s < %2.7f " % \
-                            (self.dbType, itemCmd, min(lowerLimit, upperLimit), self.dbType, itemCmd, max(lowerLimit, upperLimit))
+                            (self.dbType, itemCmd, min(lower_limit, upper_limit), self.dbType, itemCmd, max(lower_limit, upper_limit))
                         query.append(" (%s) " % clauseItem)
                         self.orderByDefalut = itemCmd
-                        DescriptionText.append(HT.Span(' with ', HT.U(itemCmd), ' between %g and %g' % (min(lowerLimit, upperLimit),  max(lowerLimit, upperLimit))))
+                        DescriptionText.append(HT.Span(' with ', HT.U(itemCmd), ' between %g and %g' % (min(lower_limit, upper_limit),  max(lower_limit, upper_limit))))
 
                 for k, item in enumerate(m3_OR+m3_AND):
+                    print("enumerating m3_OR+m3_AND with k: %s - item %s" % (k, item))
+                    if self.dbType not in ("ProbeSet", "Geno"):
+                        continue
                     if k >=len(m3_OR):
                         query = self.ANDQuery
                         DescriptionText = self.ANDDescriptionText
@@ -809,23 +812,32 @@ class SearchResultPage(templatePage):
                         query = self.ORQuery
                         DescriptionText = self.ORDescriptionText
                     itemCmd = item[0]
-                    chrsch = item[1]
-                    lowerLimit = float(item[2])
-                    upperLimit = float(item[3])
-                    fname = 'target genes'
+                    
+        
+                    chr_number = item[1]     # chromosome number
+                    lower_limit = float(item[2])
+                    upper_limit = float(item[3])
+                    
                     if self.dbType == "ProbeSet":
-                        clauseItem = " %s.Chr = '%s' and %s.Mb > %2.7f and %s.Mb < %2.7f " % \
-                            (self.dbType, chrsch, self.dbType, min(lowerLimit, upperLimit), self.dbType, max(lowerLimit, upperLimit))
+                        fname = 'target genes'
                     elif self.dbType == "Geno":
                         fname = 'loci'
-                        clauseItem = " %s.Chr = '%s' and %s.Mb > %2.7f and %s.Mb < %2.7f " % \
-                            (self.dbType, chrsch, self.dbType, min(lowerLimit, upperLimit), self.dbType, max(lowerLimit, upperLimit))
-                    else:
-                        continue
+                    
+                    if lower_limit > upper_limit:
+                        lower_limit, upper_limit = upper_limit, lower_limit
+                    
+                    
+                    
+                    clauseItem = " %s.Chr = '%s' and %s.Mb > %2.7f and %s.Mb < %2.7f " % (
+                            self.dbType, chr_number, self.dbType, lower_limit, self.dbType, upper_limit)
+                    
+               
                     query.append(" (%s) " % clauseItem)
                     self.orderByDefalut = itemCmd
-                    DescriptionText.append(HT.Span(' with ', HT.U('target genes'), ' on chromosome %s between %g and %g Mb' % \
-                        (chrsch, min(lowerLimit, upperLimit), max(lowerLimit, upperLimit))))
+                    
+                    self.results_desc = dict() 
+                    #DescriptionText.append(HT.Span(' with ', HT.U('target genes'), ' on chromosome %s between %g and %g Mb' % \
+                    #    (chr_number, min(lower_limit, upper_limit), max(lower_limit, upper_limit))))
 
                 for k, item in enumerate(m5_OR+m5_AND):
                     if k >=len(m5_OR):
@@ -835,22 +847,22 @@ class SearchResultPage(templatePage):
                         query = self.ORQuery
                         DescriptionText = self.ORDescriptionText
                     itemCmd = item[0]
-                    lowerLimit = float(item[1])
-                    upperLimit = float(item[2])
-                    chrsch = item[3]
-                    MblowerLimit = float(item[4])
-                    MbupperLimit = float(item[5])
+                    lower_limit = float(item[1])
+                    upper_limit = float(item[2])
+                    chr_number = item[3]
+                    mb_lower_limit = float(item[4])
+                    mb_upper_limit = float(item[5])
                     if self.dbType == "ProbeSet" or self.dbType == "Publish":
                         clauseItem = " %sXRef.LRS > %2.7f and %sXRef.LRS < %2.7f " % \
-                            (self.dbType, min(lowerLimit, upperLimit), self.dbType, max(lowerLimit, upperLimit))
+                            (self.dbType, min(lower_limit, upper_limit), self.dbType, max(lower_limit, upper_limit))
                         clauseItem += " and  %sXRef.Locus = Geno.name and Geno.SpeciesId = %s and Geno.Chr = '%s' and Geno.Mb > %2.7f and Geno.Mb < %2.7f" \
-                            % (self.dbType, self.speciesId, chrsch, min(MblowerLimit, MbupperLimit),  max(MblowerLimit, MbupperLimit))
+                            % (self.dbType, self.speciesId, chr_number, min(mb_lower_limit, mb_upper_limit),  max(mb_lower_limit, mb_upper_limit))
                         query.append(" (%s) " % clauseItem)
                         self.orderByDefalut = "MB"
                         DescriptionText.append(HT.Span(' with ', HT.U('LRS'), ' between %g and %g' % \
-                            (min(lowerLimit, upperLimit),  max(lowerLimit, upperLimit)), \
+                            (min(lower_limit, upper_limit),  max(lower_limit, upper_limit)), \
                             ' on chromosome %s between %g and %g Mb' % \
-                            (chrsch, min(MblowerLimit, MbupperLimit),  max(MblowerLimit, MbupperLimit))))
+                            (chr_number, min(mb_lower_limit, mb_upper_limit),  max(mb_lower_limit, mb_upper_limit))))
             pass
 
         return 1

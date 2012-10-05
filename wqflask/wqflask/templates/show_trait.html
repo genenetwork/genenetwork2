@@ -1214,18 +1214,19 @@
                         <div style=
                         "border: 3px solid #EEEEEE; -moz-border-radius: 10px; -webkit-border-radius: 10px; width: 625px; padding: 5px 5px 10px 8px; font-size: 12px; background: #DDDDDD;">
                         <span id="showHideOptions" style="line-height:225%;"><strong>&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;</strong>
-                        <input type="text" name="removeField" style=
-                        "background-color:white;border: 1px solid black;font-size: 14px;">&nbsp;&nbsp;&nbsp;<span id="blockMenuSpan"><select name=
-                        "block_method" size="1">
-                            <option value="1">
-                              BXD Only
+                        <input type="text" id="remove_samples_field" style=
+                        "background-color:white;border: 1px solid black;font-size: 14px;">&nbsp;&nbsp;&nbsp;
+                        <span id="blockMenuSpan">
+                          <select id="block_group" size="1">
+                            <option value="primary">
+                              {{ sample_group_types['primary_only'] }}
                             </option>
-
-                            <option value="0">
-                              Non-BXD Only
+                            <option value="other">
+                              {{ sample_group_types['other_only'] }}
                             </option>
-                          </select></span> &nbsp;&nbsp;&nbsp;
-                          <input type="button" name="blockSamples" class="button" value=" Block ">
+                          </select>
+                        </span> &nbsp;&nbsp;&nbsp;
+                          <input type="button" id="block_by_index" class="button" value=" Block ">
                           <br>
 
                           {% if sample_groups[0].attributes %}
@@ -1362,6 +1363,7 @@
 
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>-->
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
+    <script type="text/javascript" src="/static/new/packages/ValidationPlugin/dist/jquery.validate.min.js"></script>
     
     <script type="text/javascript" src="/static/new/javascript/stats.js"></script>
     <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>

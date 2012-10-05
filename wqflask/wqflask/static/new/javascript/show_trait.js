@@ -11,7 +11,7 @@
   };
 
   $(function() {
-    var block_by_attribute_value, change_stats_value, create_value_dropdown, edit_data_change, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var block_by_attribute_value, block_by_index, change_stats_value, create_value_dropdown, edit_data_change, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -238,6 +238,57 @@
       });
     };
     $('#exclude_group').click(block_by_attribute_value);
+    block_by_index = function() {
+      var end_index, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref, _results;
+      index_string = $('#remove_samples_field').val();
+      console.log("index_string is:", index_string);
+      index_list = [];
+      _ref = index_string.split(",");
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        index_set = _ref[_i];
+        if (index_set.indexOf('-') !== -1) {
+          try {
+            start_index = parseInt(index_set.split("-")[0]);
+            console.log("start_index:", start_index);
+            end_index = parseInt(index_set.split("-")[1]);
+            console.log("end_index:", end_index);
+            for (index = _j = start_index; start_index <= end_index ? _j <= end_index : _j >= end_index; index = start_index <= end_index ? ++_j : --_j) {
+              index_list.push(index);
+            }
+          } catch (error) {
+            alert("Syntax error");
+          }
+        } else {
+          index = parseInt(index_set);
+          console.log("index:", index);
+          index_list.push(index);
+        }
+      }
+      console.log("index_list:", index_list);
+      _results = [];
+      for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
+        index = index_list[_k];
+        if ($('#block_group').val() === "primary") {
+          console.log("block_group:", $('#block_group').val());
+          console.log("row:", $('#Primary_' + index.toString()));
+          _results.push($('#Primary_' + index.toString()).find('.trait_value_input').val("x"));
+        } else if ($('#block_group').val() === "other") {
+          _results.push($('#Other_' + index.toString()).find('.trait_value_input').val("x"));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+    $('#remove_samples_field').validate({
+      rules: {
+        field: {
+          required: true,
+          number: true
+        }
+      }
+    });
+    $('#block_by_index').click(block_by_index);
     console.log("before registering show_hide_outliers");
     $('#show_hide_outliers').click(show_hide_outliers);
     console.log("after registering show_hide_outliers");

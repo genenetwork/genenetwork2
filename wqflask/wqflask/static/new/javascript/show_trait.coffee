@@ -196,28 +196,56 @@ $ ->
         exclude_by_value = $('#attribute_values').val()
         
         cell_class = ".column_name-#{attribute_name}"
-        $(cell_class).each (index, element)=>
+        $(cell_class).each (index, element) =>
             if $.trim($(element).text()) == exclude_by_value
                 row = $(element).parent('tr')
                 $(row).find(".trait_value_input").val("x")
-        
-        #sample_lists = js_data['sample_lists']
-        #console.log("sample_lists is:", sample_lists)
-        #for sample_list in sample_lists
-        #    for sample in sample_list
-        #        console.log("sample is:", sample)
-        #        if sample.extra_attributes[attribute_name] == exclude_by_value
-        #            console.log("is exclude_by_value")
-        #            console.log("sample.name is:", sample.name)
-        #            attr_cell = $('td:contains('+sample.name+')').parent().find('td.column_name-'+ attribute_name)
-        #            console.log("attr_cell is:", attr_cell)
-        #            value_cell = attr_cell.parent().find('td.column_name-Value')
-        #            value_cell.children('input').val("x")
-
 
     $('#exclude_group').click(block_by_attribute_value)
     
     ##End Block Samples By Attribute Value Code
+    
+    ##Block Samples By Index Code
+    block_by_index = ->
+        index_string = $('#remove_samples_field').val()
+        console.log("index_string is:", index_string)
+        index_list = []
+        for index_set in index_string.split(",")
+            if index_set.indexOf('-') != -1
+                try
+                    start_index = parseInt(index_set.split("-")[0])
+                    console.log("start_index:", start_index)
+                    end_index = parseInt(index_set.split("-")[1])
+                    console.log("end_index:", end_index)
+                    index_list.push(index) for index in [start_index..end_index]
+                catch error
+                    alert("Syntax error")
+            else
+                #try
+                    index = parseInt(index_set)
+                    console.log("index:", index)
+                    index_list.push(index)
+                #catch(erro) 
+                #    alert("Syntax error")
+        console.log("index_list:", index_list)
+        for index in index_list
+            if $('#block_group').val() == "primary"
+                console.log("block_group:", $('#block_group').val())
+                console.log("row:", $('#Primary_'+index.toString()))
+                $('#Primary_'+index.toString()).find('.trait_value_input').val("x")
+            else if $('#block_group').val() == "other"
+                $('#Other_'+index.toString()).find('.trait_value_input').val("x")
+    
+    $('#remove_samples_field').validate(
+        rules: 
+            field: 
+                required: true
+                number: true
+    )
+    
+    $('#block_by_index').click(block_by_index)
+
+    ##End Block Samples By Index Code
 
     console.log("before registering show_hide_outliers")
     $('#show_hide_outliers').click(show_hide_outliers)
