@@ -339,7 +339,7 @@ class SearchResultPage(templatePage):
         #self.dict['layer'] = self.generateWarningLayer()
         
     def start_search(self):
-        
+        pass
 
     def genSearchResultTable(self):
 
