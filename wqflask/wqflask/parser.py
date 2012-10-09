@@ -5,7 +5,7 @@ import re
 from pprint import pformat as pf
 
 def parse(pstring):
-    pstring = re.split(r"""(?:(\w+\s*=\s*\([^)]*\))|(\w+\s*[=:]\w+))""", pstring)
+    pstring = re.split(r"""(?:(\w+\s*=\s*\([^)]*\))|(\w+\s*[=:]\w+)|(\w+))""", pstring)
     pstring = [item.strip() for item in pstring if item and item.strip()]
     print(pstring)
     
@@ -33,7 +33,7 @@ def parse(pstring):
             term = dict(search_term = item)
             
         items.append(term)
-    #print(pf(items))
+    print(pf(items))
     return(items)
     
 parse("foo=(3 2 1)")

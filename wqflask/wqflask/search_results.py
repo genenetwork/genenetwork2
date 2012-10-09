@@ -72,20 +72,13 @@ class SearchResultPage(templatePage):
                 go back and SELECT at least one database.''']
             self.error(heading=heading,detail=detail,error="No Database Selected")
             return
-        elif type(self.database) == type(""):
-            #convert database into a database list
-            #was used for multiple databases search, this
-            #feature has been abandoned,
-            self.database = string.split(self.database,',')
-        else:
-            pass
-
 
         ###########################################
         #   Names and IDs of RISet / F2 set
         ###########################################
         if self.database == ['_allPublish']:
-            self.cursor.execute("""select PublishFreeze.Name, InbredSet.Name, InbredSet.Id from PublishFreeze,
+            self.cursor.execute("""
+                select PublishFreeze.Name, InbredSet.Name, InbredSet.Id from PublishFreeze,
                 InbredSet where PublishFreeze.Name not like 'BXD300%' and InbredSet.Id =
                 PublishFreeze.InbredSetId""")
             results = self.cursor.fetchall()
@@ -95,7 +88,7 @@ class SearchResultPage(templatePage):
             self.singleCross = False
         else:
             self.database = map(lambda x: webqtlDataset(x, self.cursor), self.database)
-            #currently, webqtl wouldn't allow multiple crosses
+            #currently, webqtl won't allow multiple crosses
             #for other than multiple publish db search
             #so we can use the first database as example
             if self.database[0].type=="Publish":
@@ -105,10 +98,16 @@ class SearchResultPage(templatePage):
                 #userExist = None
 
                 for individualDB in self.database:
-                    self.cursor.execute('SELECT Id, Name, FullName, confidentiality, AuthorisedUsers FROM %sFreeze WHERE Name = "%s"' %  (self.database[0].type, individualDB))
-                    indId, indName, indFullName, confidential, AuthorisedUsers = self.cursor.fetchall()[0]
+                    self.cursor.execute('''SELECT Id, Name, FullName, confidentiality,
+                                        AuthorisedUsers FROM %sFreeze WHERE Name = %s''', (
+                                        self.database[0].type, individualDB))
+                    (indId,
+                     indName,
+                     indFullName,
+                     confidential,
+                     AuthorisedUsers) = self.cursor.fetchall()[0]
 
-                    if confidential == 1:
+                    if confidential:
                         access_to_confidential_dataset = 0
 
                         #for the dataset that confidentiality is 1
@@ -144,7 +143,8 @@ class SearchResultPage(templatePage):
         ###########################################
         #    make sure search from same type of databases
         ###########################################
-        dbTypes = map(lambda X: X.type, self.database)
+        #dbTypes = map(lambda X: X.type, self.database)
+        dbTypes = [table.type for table in self.database]
         self.dbType = dbTypes[0]
         for item in dbTypes:
             if item != self.dbType:
@@ -153,89 +153,107 @@ class SearchResultPage(templatePage):
                 self.error(heading=heading,detail=detail,error="Error")
                 return
         if self.dbType == "Publish":
-            self.searchField = ['Phenotype.Post_publication_description', 'Phenotype.Pre_publication_description', 'Phenotype.Pre_publication_abbreviation', 'Phenotype.Post_publication_abbreviation', 'Phenotype.Lab_code', 'Publication.PubMed_ID', 'Publication.Abstract', 'Publication.Title', 'Publication.Authors', 'PublishXRef.Id']
+            self.searchField = ['Phenotype.Post_publication_description',
+                                'Phenotype.Pre_publication_description',
+                                'Phenotype.Pre_publication_abbreviation',
+                                'Phenotype.Post_publication_abbreviation',
+                                'Phenotype.Lab_code',
+                                'Publication.PubMed_ID',
+                                'Publication.Abstract',
+                                'Publication.Title',
+                                'Publication.Authors',
+                                'PublishXRef.Id']
 
         elif self.dbType == "ProbeSet":
-            self.searchField = ['Name','Description','Probe_Target_Description','Symbol','Alias','GenbankId', 'UniGeneId','RefSeq_TranscriptId']
+            self.searchField = ['Name',
+                                'Description',
+                                'Probe_Target_Description',
+                                'Symbol',
+                                'Alias',
+                                'GenbankId',
+                                'UniGeneId',
+                                'RefSeq_TranscriptId']
         elif self.dbType == "Geno":
             self.searchField = ['Name','Chr']
 
         ###########################################
         #       Search Options
         ###########################################
-        self.matchwhole = fd['matchwhole']
+        #self.matchwhole = fd['matchwhole']
         #split result into pages
-        self.pageNumber = fd.get('pageno', 0)
-
-        try:
-            self.pageNumber = int(self.pageNumber)
-        except Exception as why:
-            print(why)
-            self.pageNumber = 0
+        #self.pageNumber = fd.get('pageno', 0)
+        #
+        #try:
+        #    self.pageNumber = int(self.pageNumber)
+        #except Exception as why:
+        #    print(why)
+        #    self.pageNumber = 0
 
 
         ###########################################
         #       Generate Mysql Query
         ###########################################
-        geneIdListQuery = fd.get('geneId', '')
-        if geneIdListQuery:
-            geneIdListQuery = string.replace(geneIdListQuery, ",", " ")
-            geneIdListQuery = " geneId=%s" % string.join(string.split(geneIdListQuery), "-")
+        
+        # Sam: We presume lines below aren't used...
+        #geneIdListQuery = fd.get('geneId', '')
+        #if geneIdListQuery:
+        #    geneIdListQuery = string.replace(geneIdListQuery, ",", " ")
+        #    geneIdListQuery = " geneId=%s" % string.join(string.split(geneIdListQuery), "-")
 
-        self.ANDkeyword = fd.get('ANDkeyword', "")
-        self.ORkeyword = fd.get('ORkeyword', "")
+        #self.ANDkeyword = fd.get('ANDkeyword', "")
+        #self.ORkeyword = fd.get('ORkeyword', "")
 
-        self.ORkeyword += geneIdListQuery
+        #self.ORkeyword += geneIdListQuery
 
-        self.ANDkeyword = self.ANDkeyword.replace("\\", "").strip()
-        self.ORkeyword = self.ORkeyword.replace("\\", "").strip()
+        #self.ANDkeyword = self.ANDkeyword.replace("\\", "").strip()
+        #self.ORkeyword = self.ORkeyword.replace("\\", "").strip()
         #user defined sort option
-        self.orderByUserInput = fd.get('orderByUserInput', "").strip()
+        #self.orderByUserInput = fd.get('orderByUserInput', "").strip()
         #default sort option if user have not defined
-        self.orderByDefalut = ""
+        #self.orderByDefalut = ""
 
         #XZ, Dec/16/2010: I add examples to help understand this block of code. See details in function pattersearch.
-
-        #XZ: self._1mPattern examples: WIKI=xxx, RIF=xxx, GO:0045202
-        self._1mPattern = re.compile('\s*(\S+)\s*[:=]\s*([a-zA-Z-\+\d\.]+)\s*')
-
-        #XZ: self._2mPattern examples: Mean=(15.0 16.0), Range=(10 100), LRS=(Low_LRS_limit, High_LRS_limit), pvalue=(Low_limit, High_limit), Range=(10 100)
-        self._2mPattern = re.compile('\s*(\S+)\s*[=in]{1,2}\s*\(\s*([-\d\.]+)[, \t]+([-\d\.]+)[, \t]*([-\d\.]*)\s*\)')
-
-        #XZ: self._3mPattern examples: Position=(Chr1 98 104), Pos=(Chr1 98 104), Mb=(Chr1 98 104), CisLRS=(Low_LRS_limit, High_LRS_limit, Mb_buffer), TransLRS=(Low_LRS_limit, High_LRS_limit, Mb_buffer)
-        self._3mPattern = re.compile('\s*(\S+)\s*[=in]{1,2}\s*\(\s*[Cc][Hh][Rr]([^, \t]+)[, \t]+([-\d\.]+)[, \t]+([-\d\.]+)\s*\)')
-
-        #XZ: self._5mPattern examples: LRS=(Low_LRS_limit, High_LRS_limit, ChrNN, Mb_Low_Limit, Mb_High_Limit)
-        self._5mPattern = re.compile('\s*(\S+)\s*[=in]{1,2}\s*\(\s*([-\d\.]+)[, \t]+([-\d\.]+)[, \t]+[Cc][Hh][Rr]([^, \t]+)[, \t]+([-\d\.]+)[, \t]+([-\d\.]+)\s*\)')
+        #
+        ##XZ: self._1mPattern examples: WIKI=xxx, RIF=xxx, GO:0045202
+        #self._1mPattern = re.compile('\s*(\S+)\s*[:=]\s*([a-zA-Z-\+\d\.]+)\s*')
+        #
+        ##XZ: self._2mPattern examples: Mean=(15.0 16.0), Range=(10 100), LRS=(Low_LRS_limit, High_LRS_limit), pvalue=(Low_limit, High_limit), Range=(10 100)
+        #self._2mPattern = re.compile('\s*(\S+)\s*[=in]{1,2}\s*\(\s*([-\d\.]+)[, \t]+([-\d\.]+)[, \t]*([-\d\.]*)\s*\)')
+        #
+        ##XZ: self._3mPattern examples: Position=(Chr1 98 104), Pos=(Chr1 98 104), Mb=(Chr1 98 104), CisLRS=(Low_LRS_limit, High_LRS_limit, Mb_buffer), TransLRS=(Low_LRS_limit, High_LRS_limit, Mb_buffer)
+        #self._3mPattern = re.compile('\s*(\S+)\s*[=in]{1,2}\s*\(\s*[Cc][Hh][Rr]([^, \t]+)[, \t]+([-\d\.]+)[, \t]+([-\d\.]+)\s*\)')
+        #
+        ##XZ: self._5mPattern examples: LRS=(Low_LRS_limit, High_LRS_limit, ChrNN, Mb_Low_Limit, Mb_High_Limit)
+        #self._5mPattern = re.compile('\s*(\S+)\s*[=in]{1,2}\s*\(\s*([-\d\.]+)[, \t]+([-\d\.]+)[, \t]+[Cc][Hh][Rr]([^, \t]+)[, \t]+([-\d\.]+)[, \t]+([-\d\.]+)\s*\)')
 
         #Error, No keyword input
-        if not (self.ORkeyword or self.ANDkeyword):
-            heading = "Search Result"
-            detail = ["Please make sure to enter either your search terms (genes, traits, markers), or advanced search commands."]
-            self.error(heading=heading,detail=detail,error="No search terms were entered")
-            return
+        #if not (self.ORkeyword or self.ANDkeyword):
+        #    heading = "Search Result"
+        #    detail = ["Please make sure to enter either your search terms (genes, traits, markers), or advanced search commands."]
+        #    self.error(heading=heading,detail=detail,error="No search terms were entered")
+        #    return
 
         #query clauses
-        self.ANDQuery = []
-        self.ORQuery = []
-        #descriptions, one for OR search, one for AND search
-        self.ANDDescriptionText = []
-        self.ORDescriptionText = []
+        #self.ANDQuery = []
+        #self.ORQuery = []
+        ##descriptions, one for OR search, one for AND search
+        #self.ANDDescriptionText = []
+        #self.ORDescriptionText = []
 
-        if not self.normalSearch():
-            return
-        if not self.patternSearch():
-            return
-        if not self.assembleQuery():
-            return
-        self.nresults = self.executeQuery()
-
-        if len(self.database) > 1:
-            dbUrl =  "Multiple phenotype databases"
-            dbUrlLink = " were"
-        else:
-            dbUrl =  self.database[0].genHTML()
-            dbUrlLink = " was"
+        #if not self.normalSearch():
+        #    return
+        #if not self.patternSearch():
+        #    return
+        #if not self.assembleQuery():
+        #    return
+        #self.nresults = self.executeQuery()
+        #
+        #if len(self.database) > 1:
+        #    dbUrl =  "Multiple phenotype databases"
+        #    dbUrlLink = " were"
+        #else:
+        #    dbUrl =  self.database[0].genHTML()
+        #    dbUrlLink = " was"
 
         #SearchText = HT.Blockquote('GeneNetwork searched the ', dbUrl, ' for all records ')
         #if self.ORkeyword2:
@@ -313,11 +331,15 @@ class SearchResultPage(templatePage):
 
         #TD_LR.append(HT.Paragraph('Search Results', Class="title"), SearchText)
 
+        self.start_search()
         self.genSearchResultTable()
         #self.dict['body'] = str(TD_LR)
         #self.dict['js1'] = ''
         #self.dict['js2'] = 'onLoad="pageOffset()"'
         #self.dict['layer'] = self.generateWarningLayer()
+        
+    def start_search(self):
+        
 
     def genSearchResultTable(self):
 
@@ -556,12 +578,23 @@ class SearchResultPage(templatePage):
                             incGenoTbl = ""
                         else:
                             incGenoTbl = " Geno, "
-                        newclause.append("SELECT %d, PublishXRef.Id, PublishFreeze.createtime as thistable, Publication.PubMed_ID as Publication_PubMed_ID, Phenotype.Post_publication_description as Phenotype_Name FROM %s PublishFreeze, Publication, PublishXRef, Phenotype WHERE PublishXRef.InbredSetId = %d and %s and PublishXRef.PhenotypeId = Phenotype.Id and PublishXRef.PublicationId = Publication.Id and PublishFreeze.Id = %d" % (j, incGenoTbl, self.databaseCrossIds[j], item, database.id))
+                        newclause.append("""SELECT %d, PublishXRef.Id,
+                                         PublishFreeze.createtime as thistable,
+                                         Publication.PubMed_ID as Publication_PubMed_ID,
+                                         Phenotype.Post_publication_description as Phenotype_Name
+                                         FROM %s PublishFreeze, Publication, PublishXRef,
+                                         Phenotype WHERE PublishXRef.InbredSetId = %d and %s and
+                                         PublishXRef.PhenotypeId = Phenotype.Id and
+                                         PublishXRef.PublicationId = Publication.Id and
+                                         PublishFreeze.Id = %d""" % (j, incGenoTbl,
+                                         self.databaseCrossIds[j], item, database.id))
                     elif self.dbType == "ProbeSet":
                         if item.find("GOgene") < 0:
                             incGoTbl = ""
                         else:
-                            incGoTbl = " ,db_GeneOntology.term as GOterm, db_GeneOntology.association as GOassociation, db_GeneOntology.gene_product as GOgene_product "
+                            incGoTbl = """ ,db_GeneOntology.term as GOterm,
+                            db_GeneOntology.association as GOassociation,
+                            db_GeneOntology.gene_product as GOgene_product """
                         if item.find("Geno.name") < 0:
                             incGenoTbl = ""
                         else:
@@ -581,7 +614,13 @@ class SearchResultPage(templatePage):
                         WHERE %s and ProbeSet.Id = ProbeSetXRef.ProbeSetId and ProbeSetXRef.ProbeSetFreezeId = %d
                         """ % (j, incGeneRIFTbl, incGenoTbl, incGoTbl, item, database.id))
                     elif self.dbType == "Geno":
-                        newclause.append("SELECT %d, Geno.Name, GenoFreeze.createtime as thistable, Geno.Name as Geno_Name, Geno.Source2 as Geno_Source2, Geno.chr_num as Geno_chr_num, Geno.Mb as Geno_Mb FROM GenoXRef, GenoFreeze, Geno WHERE %s and Geno.Id = GenoXRef.GenoId and GenoXRef.GenoFreezeId = GenoFreeze.Id and GenoFreeze.Id = %d"% (j, item, database.id))
+                        newclause.append("""SELECT %d, Geno.Name, GenoFreeze.createtime as thistable,
+                                         Geno.Name as Geno_Name, Geno.Source2 as Geno_Source2,
+                                         Geno.chr_num as Geno_chr_num, Geno.Mb as Geno_Mb FROM
+                                         GenoXRef, GenoFreeze, Geno WHERE %s and Geno.Id
+                                         = GenoXRef.GenoId and GenoXRef.GenoFreezeId =
+                                         GenoFreeze.Id and GenoFreeze.Id = %d""" % (
+                                            j, item, database.id))
                     else:
                         pass
 
@@ -651,10 +690,14 @@ class SearchResultPage(templatePage):
                     clauseItem = "(%s)" % string.join(clause2, clausejoin)
                     query.append(" (%s) " % clauseItem)
             if ANDFulltext:
-                clauseItem = " MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('+%s' IN BOOLEAN MODE) " % string.join(ANDFulltext, " +")
+                clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,
+                alias,GenbankId, UniGeneId, Probe_Target_Description)
+                AGAINST ('+%s' IN BOOLEAN MODE) """ % string.join(ANDFulltext, " +")
                 self.ANDQuery.append(" (%s) " % clauseItem)
             if ORFulltext:
-                clauseItem = " MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE) " % string.join(ORFulltext, " ")
+                clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,
+                GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE)
+                """ % string.join(ORFulltext, " ")
                 self.ORQuery.append(" (%s) " % clauseItem)
         else:
             pass
@@ -711,16 +754,21 @@ class SearchResultPage(templatePage):
                 detail = ["Pattern search is not available for phenotype databases at this time."]
                 self.error(heading=heading,detail=detail,error="Error")
                 return 0
-            elif self.dbType == "ProbeSet" and \
-                ((_2Cmds and reduce(lambda x, y: (y not in ["MEAN", "LRS", "PVALUE", "TRANSLRS", "CISLRS", "RANGE", "H2"]) or x, _2Cmds, False))\
+            elif (self.dbType == "ProbeSet" and 
+                ((_2Cmds and reduce(lambda x, y: (y not in [
+                    "MEAN", "LRS", "PVALUE", "TRANSLRS", "CISLRS", "RANGE", "H2"
+                    ]) or x, _2Cmds, False))\
                 or (_3Cmds and reduce(lambda x, y: (y not in ["POS", "POSITION", "MB"]) or x, _3Cmds, False))\
                 or (_5Cmds and reduce(lambda x, y: (y not in ["LRS"]) or x, _5Cmds, False))\
-                or (_1Cmds and reduce(lambda x, y: (y not in ["FLAG", "STRAND_PROBE", "STRAND_GENE", "GO", "WIKI", "RIF", "GENEID"]) or x, _1Cmds, False))):
+                or (_1Cmds and reduce(lambda x, y: (
+                    y not in ["FLAG", "STRAND_PROBE", "STRAND_GENE", "GO", "WIKI", "RIF", "GENEID"]
+                    ) or x, _1Cmds, False)))):
                 heading = "Search Result"
                 detail = ["You entered at least one incorrect search command."]
                 self.error(heading=heading,detail=detail,error="Error")
                 return 0
-            elif self.dbType == "Geno" and (_1Cmds or _2Cmds or _5Cmds or (_3Cmds and reduce(lambda x, y: (y not in ["POS", "POSITION", "MB"]) or x, _3Cmds, False)) ):
+            elif self.dbType == "Geno" and (_1Cmds or _2Cmds or _5Cmds or (_3Cmds and reduce(
+                lambda x, y: (y not in ["POS", "POSITION", "MB"]) or x, _3Cmds, False)) ):
                 heading = "Search Result"
                 detail = ["You entered at least one incorrect search command."]
                 self.error(heading=heading,detail=detail,error="Error")

@@ -206,6 +206,7 @@ $ ->
     ##End Block Samples By Attribute Value Code
     
     ##Block Samples By Index Code
+    
     block_by_index = ->
         index_string = $('#remove_samples_field').val()
         console.log("index_string is:", index_string)
@@ -253,13 +254,8 @@ $ ->
         $('.value_se').each (index, element) =>
             if $(element).find('.trait_value_input').val() == 'x'
                 $(element).hide()
-    
-    show_no_value = ->
-        $('.value_se').each (index, element) =>
-            if $(element).find('.trait_value_input').val() == 'x'
-                $(element).show()
                 
-    $('#show_hide_no_value').click(hide_no_value)
+    $('#hide_no_value').click(hide_no_value)
 
     ##End Hide Sample Rows With No Value Code
     
@@ -284,9 +280,9 @@ $ ->
 
     ##End Reset Table Values Code
 
-    console.log("before registering show_hide_outliers")
-    $('#show_hide_outliers').click(show_hide_outliers)
-    console.log("after registering show_hide_outliers")
+    console.log("before registering block_outliers")
+    $('#block_outliers').click(block_outliers)
+    console.log("after registering block_outliers")
 
     _.mixin(_.str.exports());  # Add string fuctions directly to underscore
     $('#value_table').change(edit_data_change)
