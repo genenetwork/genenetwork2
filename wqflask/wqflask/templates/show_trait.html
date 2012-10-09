@@ -1310,7 +1310,7 @@
 
                               {# Todo: Add IDs #}
                               <td class="std_cell column_name-Value" align="right" width="70">
-                                <input type="text" name="{{ sample.name }}"
+                                <input type="text" data-value="{{ sample.display_value }}" name="{{ sample.name }}"
                                        class="trait_value_input edit_sample_value"
                                        value="{{ sample.display_value }}" size="8" maxlength="8"
                                        style="text-align:right; background-color:#FFFFFF;">
@@ -1323,7 +1323,7 @@
 
                               {# Todo: Add IDs #}
                               <td class="std_cell column_name-SE" align="right" width="80">
-                                <input type="text" name=""{{ 'V' + sample.name}}"
+                                <input type="text" data-value="{{ sample.display_variance }}" name=""{{ 'V' + sample.name}}"
                                        class="trait_value_input edit_sample_se"
                                        value="{{ sample.display_variance }}"
                                        size="8" maxlength="8" style="text-align:right">

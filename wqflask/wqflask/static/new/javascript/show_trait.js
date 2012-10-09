@@ -11,7 +11,7 @@
   };
 
   $(function() {
-    var block_by_attribute_value, block_by_index, change_stats_value, create_value_dropdown, edit_data_change, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, hide_no_value, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, reset_samples_table, show_hide_outliers, show_no_value, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -289,6 +289,40 @@
       }
     });
     $('#block_by_index').click(block_by_index);
+    hide_no_value = function() {
+      var _this = this;
+      return $('.value_se').each(function(index, element) {
+        if ($(element).find('.trait_value_input').val() === 'x') {
+          return $(element).hide();
+        }
+      });
+    };
+    show_no_value = function() {
+      var _this = this;
+      return $('.value_se').each(function(index, element) {
+        if ($(element).find('.trait_value_input').val() === 'x') {
+          return $(element).show();
+        }
+      });
+    };
+    $('#show_hide_no_value').click(hide_no_value);
+    block_outliers = function() {
+      var _this = this;
+      return $('.outlier').each(function(index, element) {
+        return $(element).find('.trait_value_input').val('x');
+      });
+    };
+    $('#block_outliers').click(block_outliers);
+    reset_samples_table = function() {
+      var _this = this;
+      return $('.trait_value_input').each(function(index, element) {
+        console.log("value is:", $(element).val());
+        $(element).val($(element).data('value'));
+        console.log("data-value is:", $(element).data('value'));
+        return $(element).parents('.value_se').show();
+      });
+    };
+    $('#reset').click(reset_samples_table);
     console.log("before registering show_hide_outliers");
     $('#show_hide_outliers').click(show_hide_outliers);
     console.log("after registering show_hide_outliers");

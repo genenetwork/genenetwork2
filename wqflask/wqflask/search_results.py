@@ -32,6 +32,7 @@ from utility.TDCell import TDCell
 from base.webqtlDataset import webqtlDataset
 from base.webqtlTrait import webqtlTrait
 from base.templatePage import templatePage
+from wqflask import parser
 from utility import webqtlUtil
 from dbFunction import webqtlDatabaseFunction
 
@@ -597,28 +598,35 @@ class SearchResultPage(templatePage):
 
 
     def normalSearch(self):
-        self.ANDkeyword2 = re.sub(self._1mPattern, '', self.ANDkeyword)
-        self.ANDkeyword2 = re.sub(self._2mPattern, '', self.ANDkeyword2)
-        self.ANDkeyword2 = re.sub(self._3mPattern, '', self.ANDkeyword2)
-        self.ANDkeyword2 = re.sub(self._5mPattern, '', self.ANDkeyword2)
-        ##remove remain parethesis, could be input with  syntax error
-        self.ANDkeyword2 = re.sub(re.compile('\s*\([\s\S]*\)'), '', self.ANDkeyword2)
-        self.ANDkeyword2 = self.encregexp(self.ANDkeyword2)
-
-        self.ORkeyword2 = re.sub(self._1mPattern, '', self.ORkeyword)
-        self.ORkeyword2 = re.sub(self._2mPattern, '', self.ORkeyword2)
-        self.ORkeyword2 = re.sub(self._3mPattern, '', self.ORkeyword2)
-        self.ORkeyword2 = re.sub(self._5mPattern, '', self.ORkeyword2)
-        ##remove remain parethesis, could be input with  syntax error
-        self.ORkeyword2 = re.sub(re.compile('\s*\([\s\S]*\)'), '', self.ORkeyword2)
-        self.ORkeyword2 = self.encregexp(self.ORkeyword2)
+        print("ORkeyword is:", pf(self.ORkeyword))
+        self.ANDkeyword2 = parser.parse(self.ANDkeyword)
+        self.ORkeyword2 = parser.parse(self.ORkeyword)
+        print("ORkeyword2 is:", pf(parser.parse(self.ORkeyword)))
+        
+        #self.ANDkeyword2 = re.sub(self._1mPattern, '', self.ANDkeyword)
+        #self.ANDkeyword2 = re.sub(self._2mPattern, '', self.ANDkeyword2)
+        #self.ANDkeyword2 = re.sub(self._3mPattern, '', self.ANDkeyword2)
+        #self.ANDkeyword2 = re.sub(self._5mPattern, '', self.ANDkeyword2)
+        ###remove remain parethesis, could be input with  syntax error
+        #self.ANDkeyword2 = re.sub(re.compile('\s*\([\s\S]*\)'), '', self.ANDkeyword2)
+        #self.ANDkeyword2 = self.encregexp(self.ANDkeyword2)
+        #
+        #self.ORkeyword2 = re.sub(self._1mPattern, '', self.ORkeyword)
+        #self.ORkeyword2 = re.sub(self._2mPattern, '', self.ORkeyword2)
+        #self.ORkeyword2 = re.sub(self._3mPattern, '', self.ORkeyword2)
+        #self.ORkeyword2 = re.sub(self._5mPattern, '', self.ORkeyword2)
+        ###remove remain parethesis, could be input with  syntax error
+        #self.ORkeyword2 = re.sub(re.compile('\s*\([\s\S]*\)'), '', self.ORkeyword2)
+        #self.ORkeyword2 = self.encregexp(self.ORkeyword2)
 
         if self.ORkeyword2 or self.ANDkeyword2:
             ANDFulltext = []
             ORFulltext = []
             for k, item in enumerate(self.ORkeyword2 + self.ANDkeyword2):
+                item = item['search_term']
                 self.nkeywords += 1
-                if k >=len(self.ORkeyword2):
+                #ZS: If there are both AND and OR keywords, just use the OR keywords
+                if k >=len(self.ORkeyword2): 
                     query = self.ANDQuery
                     DescriptionText = self.ANDDescriptionText
                     clausejoin = ' OR '

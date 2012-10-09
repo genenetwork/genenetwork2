@@ -246,6 +246,43 @@ $ ->
     $('#block_by_index').click(block_by_index)
 
     ##End Block Samples By Index Code
+    
+    ##Hide Sample Rows With No Value (value of 'x') Code
+    
+    hide_no_value = ->
+        $('.value_se').each (index, element) =>
+            if $(element).find('.trait_value_input').val() == 'x'
+                $(element).hide()
+    
+    show_no_value = ->
+        $('.value_se').each (index, element) =>
+            if $(element).find('.trait_value_input').val() == 'x'
+                $(element).show()
+                
+    $('#show_hide_no_value').click(hide_no_value)
+
+    ##End Hide Sample Rows With No Value Code
+    
+    ##Block Outliers Code
+    block_outliers = ->
+        $('.outlier').each (index, element) =>
+            $(element).find('.trait_value_input').val('x')
+            
+    $('#block_outliers').click(block_outliers)
+    
+    ##End Block Outliers Code
+    
+    ##Reset Table Values Code
+    reset_samples_table = ->
+        $('.trait_value_input').each (index, element) =>
+            console.log("value is:", $(element).val())
+            $(element).val($(element).data('value'))
+            console.log("data-value is:", $(element).data('value'))
+            $(element).parents('.value_se').show()
+
+    $('#reset').click(reset_samples_table)
+
+    ##End Reset Table Values Code
 
     console.log("before registering show_hide_outliers")
     $('#show_hide_outliers').click(show_hide_outliers)

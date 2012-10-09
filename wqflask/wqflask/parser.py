@@ -25,7 +25,7 @@ def parse(pstring):
                 assert value.endswith(")"), "Invalid token"
                 value = value[1:-1] # Get rid of the parenthesis
                 values = re.split(r"""\s+|,""", value)
-                value = [value.strip() for value in values]
+                value = [value.strip() for value in values if value.strip()]
             term = dict(key=key,
                         seperator=seperator,
                         value=value)
@@ -33,9 +33,13 @@ def parse(pstring):
             term = dict(search_term = item)
             
         items.append(term)
-    print(pf(items))
+    #print(pf(items))
+    return(items)
     
 parse("foo=(3 2 1)")
+parse("shh")
+parse("shh grep")
 parse("LRS=(9 99 Chr4 122 155) cisLRS=(9 999 10)")
 parse("sal1 LRS=(9 99 Chr4 122 155) sal2 cisLRS=(9 999 10)")
-parse("sal1 LRS=(9 99 Chr4 122 155) wiki=bar sal2 go:foobar cisLRS=(9 999 10)")
+parse("sal1 sal3 LRS=(9 99 Chr4 122 155) wiki=bar sal2 go:foobar cisLRS=(9 999 10)")
+parse("sal1 LRS=(9 99 Chr4 122 155) wiki=bar sal2 go:foobar cisLRS=(9, 999, 10)")
