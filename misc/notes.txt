@@ -55,5 +55,10 @@ htop: Gives information on processes, cpu/memory load, etc
 dstat: Also gives various system information, resource usage, etc
 df: Reports file system disk space usage
 
+===========================================
+
+tidyp - Improves/beautifies html code
+tidyp -m -i -w 100 index_page.html
+
 
 
