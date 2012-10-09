@@ -9,7 +9,9 @@
 
 <TD vAlign=top width="40%" align="left" height=10 bgColor=#eeeeee>
 							<p style="font-size:18px;font-family:verdana;color:black"><B> Select and Search</B>
-							<Form METHOD="GET" ACTION="/search" ENCTYPE="multipart/form-data" NAME="SEARCHFORM">
+							<Form METHOD="GET" ACTION="/search" 
+                                  class="form-search"
+                                  NAME="SEARCHFORM">
 
 								<TABLE width="100%">
 
@@ -46,7 +48,7 @@
 
 												<Select NAME="cross" size=1 id="cross" onchange="fillOptions('cross');">
 												</Select>
-											<input type="button" class="button" value=" Info " onCLick="javascript:crossinfo();">
+											<input type="button" class="btn" value="Info" onCLick="javascript:crossinfo();">
 											</DIV>
 										</TD>
 									</TR>
@@ -85,7 +87,7 @@
 											<DIV Id="menu3">
 												<Select NAME="database" size=1 id="database">
 												</Select>
-												<input type="submit" class="button" value=" Info " name="info_database">
+												<input type="submit" class="btn" value="Info" name="info_database">
 											</DIV>
 										</TD>
 									</TR>
@@ -107,7 +109,7 @@
 <!--  GET ANY  SEARCH -->
 									<TR>
 										<TD align=right height=35 NOWRAP="on" style="font-size:14px;font-family:verdana;color:black" width="10%">
-											<B>Get Any:</B>
+											<B>Search:</B>
 										</TD>
 
 										<TD width="3%">
@@ -115,7 +117,9 @@
 
 										<TD NOWRAP width="85%" align="left">
 
-											<input id="tfor" name="ORkeyword" style="width:420px; background-color:white; font-family:verdana; font-size:14px" type="text" maxlength="500">
+											<input class="input-medium search-query" id="tfor" name="ORkeyword"
+                                                   style="width:420px; background-color:white; font-family:verdana; font-size:14px"
+                                                   type="text" maxlength="500">
 										</TD>
 									</TR>
 
@@ -129,30 +133,16 @@
 
 										</TD>
 										<TD width="85%" align="left">
-											<P class="fs12">&nbsp;&nbsp;&nbsp;&nbsp;Enter terms, genes, ID numbers in the <B>Get Any</B> field.
+											<P class="fs12">&nbsp;&nbsp;&nbsp;&nbsp;Enter terms, genes, ID numbers in the <B>Search</B> field.
 											<BR>&nbsp;&nbsp;&nbsp;&nbsp;Use <B>*</B> or <B>?</B> wildcards (Cyp*a?, synap*).
-											<BR>&nbsp;&nbsp;&nbsp;&nbsp;Use <B>Combined</B> for terms such as <I>tyrosine kinase</I>.</P>
+											<BR>&nbsp;&nbsp;&nbsp;&nbsp;Use <B>quotes</B> for terms such as <I>"tyrosine kinase"</I>.</P>
 
 										</TD>
 									</TR>
 
 
 
-<!--  COMBINED SEARCH  -->
 
-									<TR>
-										<TD align=right height=35 NOWRAP="on" STYLE="font-size:14px;font-family:verdana;color:black" width="10%">
-											<B>Combined:</B>
-										</TD>
-
-										<TD width="3%">
-										</TD>
-
-										<TD NOWRAP width="85%" align="left">
-											<input id="tfand" NAME="ANDkeyword"  STYLE="width:420px; background-color:white; font-family:verdana; font-size:14px" type="text" maxlength="500">
-											<input name="matchwhole" type="hidden" value="ON">
-										</TD>
-									</TR>
 
 
 
@@ -164,9 +154,9 @@
 										<TD width="3%">
 										</TD>
 										<TD ALIGN="left" HEIGHT="40" COLSPAN=3>
-											<INPUT id="btsearch" TYPE="Submit" CLASS="button" STYLE="font-size:12px" VALUE="  Search  ">&nbsp;&nbsp;&nbsp;&nbsp;
-										       <INPUT TYPE="button" CLASS="button" STYLE="font-size:12px" VALUE="  Make Default  " onClick = "setDefault(this.form);">&nbsp;&nbsp;&nbsp;&nbsp;
-											<INPUT TYPE="button" CLASS="button" STYLE="font-size:12px" VALUE="  Advanced Search  " onClick="javascript:window.open('/index3.html', '_self');">
+											<INPUT id="btsearch" TYPE="Submit" CLASS="btn btn-primary" VALUE="Search">&nbsp;&nbsp;&nbsp;&nbsp;
+										       <INPUT TYPE="button" CLASS="btn" VALUE="Make Default" onClick = "setDefault(this.form);">&nbsp;&nbsp;&nbsp;&nbsp;
+											<INPUT TYPE="button" CLASS="btn" VALUE="Advanced Search" onClick="javascript:window.open('/index3.html', '_self');">
 
 										</TD>
 									</TR>
