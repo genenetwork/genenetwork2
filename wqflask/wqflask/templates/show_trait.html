@@ -255,7 +255,7 @@
                 <script language="Javascript" type="text/javascript">
 <!--
 
-                $(function() { $("#stats_tabs0").tabs(); $("#stats_tabs1").tabs(); $("#stats_tabs2").tabs();});
+                //$(function() { $("#stats_tabs0").tabs(); $("#stats_tabs1").tabs(); $("#stats_tabs2").tabs();});
 
                 //-->
                 </script>
@@ -817,7 +817,7 @@
                 <p id="sectionbody4"></p><script language="Javascript" type="text/javascript">
 <!--
 
-                $(function() { $("#mapping_tabs").tabs(); });
+                //$(function() { $("#mapping_tabs").tabs(); });
 
                 //-->
                 </script>
@@ -1214,8 +1214,12 @@
                         <div style=
                         "border: 3px solid #EEEEEE; -moz-border-radius: 10px; -webkit-border-radius: 10px; width: 625px; padding: 5px 5px 10px 8px; font-size: 12px; background: #DDDDDD;">
                         <span id="showHideOptions" style="line-height:225%;"><strong>&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;</strong>
-                        <input type="text" id="remove_samples_field" style=
-                        "background-color:white;border: 1px solid black;font-size: 14px;">&nbsp;&nbsp;&nbsp;
+                        <input type="text" id="remove_samples_field"
+                        style="background-color:white;border: 1px solid black;font-size: 14px;">
+                        <div id="remove_samples_invalid" style="display:none;">
+                          Please check that your input is formatted correctly
+                        </div>
+                        &nbsp;&nbsp;&nbsp;
                         <span id="blockMenuSpan">
                           <select id="block_group" size="1">
                             <option value="primary">
@@ -1367,6 +1371,7 @@
     
     <script type="text/javascript" src="/static/new/javascript/stats.js"></script>
     <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/validation.js"></script>
     
 
     <!-- End of body -->

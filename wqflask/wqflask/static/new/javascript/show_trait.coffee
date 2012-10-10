@@ -9,7 +9,7 @@ $ ->
         for x in [start..10]
             $("#stats_tabs" + x).hide()
 
-    hide_tabs(1)
+    #hide_tabs(1)
 
     # Changes stats table between all, bxd only and non-bxd, etc.
     stats_mdp_change = ->
@@ -17,7 +17,7 @@ $ ->
         hide_tabs(0)
         $("#stats_tabs" + selected).show()
 
-    $(".stats_mdp").change(stats_mdp_change)
+    #$(".stats_mdp").change(stats_mdp_change)
 
     change_stats_value = (sample_sets, category, value_type, decimal_places)->
         id = "#" + process_id(category, value_type)
@@ -238,33 +238,6 @@ $ ->
                 $('#Other_'+index.toString()).find('.trait_value_input').val("x")
     
     $('#block_by_index').click(block_by_index)
-    
-    #validate_block_index = ->
-    #    $('#remove_samples_field').valid(
-    #        rules: 
-    #            field: 
-    #                required: true
-    #                number: true
-    #        messages:
-    #            field:
-    #                "Please check that your input is valid."
-    #    )
-        
-    $('#trait_data_form').validate()
-    
-    $('#remove_samples_field').valid(
-        rules: 
-            field: 
-                required: true
-                number: true
-        messages:
-            field:
-                "Please check that your input is valid."
-    )    
-        
-    #$('#remove_samples_field').change(validate_block_index)
-    
-    
 
     ##End Block Samples By Index Code
     

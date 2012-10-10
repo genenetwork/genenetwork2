@@ -20,14 +20,12 @@
       }
       return _results;
     };
-    hide_tabs(1);
     stats_mdp_change = function() {
       var selected;
       selected = $(this).val();
       hide_tabs(0);
       return $("#stats_tabs" + selected).show();
     };
-    $(".stats_mdp").change(stats_mdp_change);
     change_stats_value = function(sample_sets, category, value_type, decimal_places) {
       var current_value, id, in_box, the_value;
       id = "#" + process_id(category, value_type);
@@ -281,18 +279,6 @@
       return _results;
     };
     $('#block_by_index').click(block_by_index);
-    $('#trait_data_form').validate();
-    $('#remove_samples_field').valid({
-      rules: {
-        field: {
-          required: true,
-          number: true
-        }
-      },
-      messages: {
-        field: "Please check that your input is valid."
-      }
-    });
     hide_no_value = function() {
       var _this = this;
       return $('.value_se').each(function(index, element) {
