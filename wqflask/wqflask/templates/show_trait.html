@@ -250,7 +250,7 @@
                                         {% endfor %}
                                         </select><br>
                 <br>
-                <input type="button" name="Default_Name" class="button update" value=" Update Figures "><br>
+                <input type="button" name="Default_Name" class="btn update" value=" Update Figures "><br>
                 <br>
                 <script language="Javascript" type="text/javascript">
 <!--
@@ -769,7 +769,7 @@
                                 </div>
                                 <br>
                                     
-                                <input type="submit" name="corr_compute" id="corr_compute" class="button" value="Compute"><br><br>
+                                <input type="submit" name="corr_compute" id="corr_compute" class="btn" value="Compute"><br><br>
                                 
                                 <span id="sample_r_desc" class="correlation_desc fs12">
                                     The <a href="/correlationAnnotation.html#sample_r" target="_blank">Sample Correlation</a>
@@ -951,7 +951,7 @@
                                 <input type="checkbox" name="parentsf14regression1" class="checkbox">Use Parents<br>
                                 <input type="checkbox" name="applyVarianceSE1" class="checkbox">Use Weighted<br>
                                 <br>
-                                <input type="button" name="interval" class="button" value=" Compute "><br>
+                                <input type="button" name="interval" class="btn" value=" Compute "><br>
                                 <br>
                               </td>
                             </tr>
@@ -990,7 +990,7 @@
                                     <td><input type="checkbox" name="applyVarianceSE2" class="checkbox"> <span class="ffl fs12">Use Weighted</span></td>
                                   </tr>
                                 </table><br>
-                                <input type="button" name="marker" class="button" value=" Compute "><br>
+                                <input type="button" name="marker" class="btn" value=" Compute "><br>
                                 <br>
                               </td>
                             </tr>
@@ -1124,7 +1124,7 @@
                                 <input type="checkbox" name="bootCheck2" class="checkbox">Bootstrap Test (n=2000)<br>
                                 <input type="checkbox" name="parentsf14regression3" class="checkbox">Use Parents<br>
                                 <br>
-                                <input type="button" name="composite" class="button" value=" Compute "><br>
+                                <input type="button" name="composite" class="btn" value=" Compute "><br>
                                 <br>
                               </td>
                             </tr>
@@ -1181,7 +1181,7 @@
                                 <input type="checkbox" name="directPermuCheckbox" class="checkbox" checked><span class="ffl fs12">Permutation Test
                                 (n=500)</span><br>
                                 <br>
-                                <input type="button" class="button" value=" Compute " onclick="dataEditingFunc(this.form,'directPlot');"><br>
+                                <input type="button" class="btn" value=" Compute " onclick="dataEditingFunc(this.form,'directPlot');"><br>
                                 <br>
                               </td>
                             </tr>
@@ -1208,66 +1208,73 @@
                   <tr>
                     <td>
                       <div>
-                        <p class="fs12" style="margin-left:20px;">Edit or delete values in the Trait Data boxes, and use the <strong>Reset</strong> option as
-                        needed.</p>
+                        <div class="well">
+                        <fieldset id="showHideOptions">
+                            <legend>Block samples</legend>
+                            <p>Edit or delete values in the Trait Data boxes, and use the
+                                <strong>Reset</strong> option as
+                                needed.
+                            </p>
 
-                        <div style=
-                        "border: 3px solid #EEEEEE; -moz-border-radius: 10px; -webkit-border-radius: 10px; width: 625px; padding: 5px 5px 10px 8px; font-size: 12px; background: #DDDDDD;">
-                        <span id="showHideOptions" style="line-height:225%;"><strong>&nbsp;&nbsp;Block samples by index:&nbsp;&nbsp;&nbsp;&nbsp;</strong>
-                        <input type="text" id="remove_samples_field"
-                        style="background-color:white;border: 1px solid black;font-size: 14px;">
-                        <div id="remove_samples_invalid" style="display:none;">
-                          Please check that your input is formatted correctly
-                        </div>
-                        &nbsp;&nbsp;&nbsp;
-                        <span id="blockMenuSpan">
-                          <select id="block_group" size="1">
-                            <option value="primary">
-                              {{ sample_group_types['primary_only'] }}
-                            </option>
-                            <option value="other">
-                              {{ sample_group_types['other_only'] }}
-                            </option>
-                          </select>
-                        </span> &nbsp;&nbsp;&nbsp;
-                          <input type="button" id="block_by_index" class="button" value=" Block ">
-                          <br>
+                       
+                            <div id="blockMenuSpan" class="input-append">
+                                <label for="remove_samples_field">Block samples by index:</label>
+                            
+                                
+                                <input type="text" id="remove_samples_field">
+                                <select id="block_group" size="1">
+                                  <option value="primary">
+                                    {{ sample_group_types['primary_only'] }}
+                                  </option>
+                                  <option value="other">
+                                    {{ sample_group_types['other_only'] }}
+                                  </option>
+                                </select>
+                                <input type="button" id="block_by_index" class="btn" value="Block">
+                            </div>
+                            <div id="remove_samples_invalid" style="display:none;">
+                                  Please check that your input is formatted correctly
+                                </div>
+                            
+                            <br>
 
-                          {% if sample_groups[0].attributes %}
-                          <strong>&nbsp;&nbsp;Block samples by group:&nbsp;&nbsp;&nbsp;&nbsp;</strong>
-                          <select id="exclude_menu" size=1>
-                            {% for attribute in sample_groups[0].attributes %}
-                            <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
-                                {{ sample_groups[0].attributes[attribute].name }}</option>
-                            {% endfor %}
-                          </select>
-                          <select id="attribute_values" size=1>
-                          </select>                         
-                          {% endif %}
-                          <input type="button" id="exclude_group" class="button" value=" Block ">
-                          <br>
-
-                          <strong>&nbsp;&nbsp;Options:</strong>
-                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                          <input type="button" id="hide_no_value" class="button" value="Hide No Value">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input type="button" id="block_outliers" class="button" value="Block Outliers">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input type="button" id="reset" class="button" value="Reset">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input type="button" id="export" class="button" value="Export">
-                        </span>
+                            {% if sample_groups[0].attributes %}
+                            <div class="input-append">
+                                <label for="exclude_menu">Block samples by group:</label>
+                                <select id="exclude_menu" size=1>
+                                  {% for attribute in sample_groups[0].attributes %}
+                                  <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
+                                      {{ sample_groups[0].attributes[attribute].name }}</option>
+                                  {% endfor %}
+                                </select>
+                                <select id="attribute_values" size=1>
+                                </select>
+                                <input type="button" id="exclude_group" class="btn" value="Block">
+                            </div>
+                            {% endif %}
+                            <br>
+                            <input type="button" id="hide_no_value" class="btn" value="Hide No Value">
+                            <input type="button" id="block_outliers" class="btn" value="Block Outliers">
+                            <input type="button" id="reset" class="btn btn-inverse" value="Reset">
+                            <input type="button" id="export" class="btn" value="Export">
+                        </fieldset>
                         <br>
-                          <br>
-                          <span>&nbsp;&nbsp;Outliers highlighted in
-                          <strong style="background-color:yellow;">&nbsp;yellow&nbsp;</strong>
-                          can be hidden using
-                          the <strong>Hide Outliers</strong> button,
-                          <br>
-                          &nbsp;&nbsp;and samples with no value (x) can be hidden by clicking
-                          <strong>Hide No Value</strong>t.
-                          </span><br>
-                        </div><br>
+                        <div>
+                            <p>Outliers highlighted in
+                                    <strong style="background-color:yellow;">yellow</strong>
+                                    can be hidden using
+                                    the <strong>Hide Outliers</strong> button.
+                            </p>
+
+                            <p>Samples with no value (x) can be hidden by clicking
+                                    <strong>Hide No Value</strong> button.
+                            </p>
+                        </div>
+                        </div>
+                        <br>
+                        
+                  
+                        
                         
                         <div style="width:80%;margin:0;padding:0;border:none;">
                         {% for sample_type in sample_groups %}
