@@ -237,14 +237,34 @@ $ ->
             else if $('#block_group').val() == "other"
                 $('#Other_'+index.toString()).find('.trait_value_input').val("x")
     
-    $('#remove_samples_field').validate(
+    $('#block_by_index').click(block_by_index)
+    
+    #validate_block_index = ->
+    #    $('#remove_samples_field').valid(
+    #        rules: 
+    #            field: 
+    #                required: true
+    #                number: true
+    #        messages:
+    #            field:
+    #                "Please check that your input is valid."
+    #    )
+        
+    $('#trait_data_form').validate()
+    
+    $('#remove_samples_field').valid(
         rules: 
             field: 
                 required: true
                 number: true
-    )
+        messages:
+            field:
+                "Please check that your input is valid."
+    )    
+        
+    #$('#remove_samples_field').change(validate_block_index)
     
-    $('#block_by_index').click(block_by_index)
+    
 
     ##End Block Samples By Index Code
     

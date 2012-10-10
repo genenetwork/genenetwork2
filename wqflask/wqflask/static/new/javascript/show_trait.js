@@ -280,15 +280,19 @@
       }
       return _results;
     };
-    $('#remove_samples_field').validate({
+    $('#block_by_index').click(block_by_index);
+    $('#trait_data_form').validate();
+    $('#remove_samples_field').valid({
       rules: {
         field: {
           required: true,
           number: true
         }
+      },
+      messages: {
+        field: "Please check that your input is valid."
       }
     });
-    $('#block_by_index').click(block_by_index);
     hide_no_value = function() {
       var _this = this;
       return $('.value_se').each(function(index, element) {
