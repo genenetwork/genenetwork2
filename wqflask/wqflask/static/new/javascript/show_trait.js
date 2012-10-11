@@ -11,7 +11,7 @@
   };
 
   $(function() {
-    var block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, hide_no_value, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, reset_samples_table, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, reset_samples_table, show_hide_outliers, stats_mdp_change, update_stat_values;
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -281,7 +281,7 @@
     $('#block_by_index').click(block_by_index);
     hide_no_value = function() {
       var _this = this;
-      return $('.value_se').each(function(index, element) {
+      return $('.value_se').each(function(_index, element) {
         if ($(element).find('.trait_value_input').val() === 'x') {
           return $(element).hide();
         }
@@ -290,14 +290,14 @@
     $('#hide_no_value').click(hide_no_value);
     block_outliers = function() {
       var _this = this;
-      return $('.outlier').each(function(index, element) {
+      return $('.outlier').each(function(_index, element) {
         return $(element).find('.trait_value_input').val('x');
       });
     };
     $('#block_outliers').click(block_outliers);
     reset_samples_table = function() {
       var _this = this;
-      return $('.trait_value_input').each(function(index, element) {
+      return $('.trait_value_input').each(function(_index, element) {
         console.log("value is:", $(element).val());
         $(element).val($(element).data('value'));
         console.log("data-value is:", $(element).data('value'));
@@ -305,6 +305,47 @@
       });
     };
     $('#reset').click(reset_samples_table);
+    get_sample_table_data = function() {
+      var other_samples, primary_samples, samples,
+        _this = this;
+      samples = {};
+      primary_samples = [];
+      other_samples = [];
+      $('#sortable1').find('.value_se').each(function(_index, element) {
+        var attribute_info, key, row_data, _ref;
+        row_data = {};
+        row_data.name = $.trim($(element).find('.column_name-Sample').text());
+        row_data.value = $(element).find('.edit_sample_value').val();
+        if ($(element).find('.edit_sample_se').length !== -1) {
+          row_data.se = $(element).find('.edit_sample_se').val();
+        }
+        _ref = js_data.attribute_names;
+        for (key in _ref) {
+          if (!__hasProp.call(_ref, key)) continue;
+          attribute_info = _ref[key];
+          row_data[attribute_info.name] = $.trim($(element).find('.column_name-' + attribute_info.name.replace(" ", "_")).text());
+        }
+        console.log("row_data is:", row_data);
+        return primary_samples.push(row_data);
+      });
+      console.log("primary_samples is:", primary_samples);
+      samples.primary_samples = primary_samples;
+      samples.other_samples = other_samples;
+      return samples;
+    };
+    export_sample_table_data = function() {
+      var json_sample_data, sample_data;
+      sample_data = get_sample_table_data();
+      console.log("sample_data is:", sample_data);
+      json_sample_data = JSON.stringify(sample_data);
+      console.log("json_sample_data is:", json_sample_data);
+      return $.ajax({
+        url: '/export_trait_data',
+        type: 'POST',
+        data: "json_data=" + json_sample_data
+      });
+    };
+    $('#export').click(export_sample_table_data);
     console.log("before registering block_outliers");
     $('#block_outliers').click(block_outliers);
     console.log("after registering block_outliers");

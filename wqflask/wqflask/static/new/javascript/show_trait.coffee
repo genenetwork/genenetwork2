@@ -244,7 +244,7 @@ $ ->
     ##Hide Sample Rows With No Value (value of 'x') Code
     
     hide_no_value = ->
-        $('.value_se').each (index, element) =>
+        $('.value_se').each (_index, element) =>
             if $(element).find('.trait_value_input').val() == 'x'
                 $(element).hide()
                 
@@ -254,7 +254,7 @@ $ ->
     
     ##Block Outliers Code
     block_outliers = ->
-        $('.outlier').each (index, element) =>
+        $('.outlier').each (_index, element) =>
             $(element).find('.trait_value_input').val('x')
             
     $('#block_outliers').click(block_outliers)
@@ -263,7 +263,7 @@ $ ->
     
     ##Reset Table Values Code
     reset_samples_table = ->
-        $('.trait_value_input').each (index, element) =>
+        $('.trait_value_input').each (_index, element) =>
             console.log("value is:", $(element).val())
             $(element).val($(element).data('value'))
             console.log("data-value is:", $(element).data('value'))
@@ -272,6 +272,51 @@ $ ->
     $('#reset').click(reset_samples_table)
 
     ##End Reset Table Values Code
+    
+    ##Get Sample Data From Table Code
+    
+    get_sample_table_data = ->
+        samples = {}
+        primary_samples = []
+        other_samples = []
+        $('#sortable1').find('.value_se').each (_index, element) =>
+            row_data = {}
+            row_data.name = $.trim($(element).find('.column_name-Sample').text())
+            row_data.value = $(element).find('.edit_sample_value').val()
+            if $(element).find('.edit_sample_se').length != -1
+                row_data.se = $(element).find('.edit_sample_se').val()
+            for own key, attribute_info of js_data.attribute_names
+                row_data[attribute_info.name] = $.trim($(element).find(
+                    '.column_name-'+attribute_info.name.replace(" ", "_")).text())
+            console.log("row_data is:", row_data)
+            primary_samples.push(row_data)
+        console.log("primary_samples is:", primary_samples)
+        samples.primary_samples = primary_samples
+        samples.other_samples = other_samples
+        return samples
+
+
+    export_sample_table_data = ->
+        sample_data = get_sample_table_data()
+        console.log("sample_data is:", sample_data)
+        json_sample_data = JSON.stringify(sample_data)
+        console.log("json_sample_data is:", json_sample_data)
+        $.ajax(
+            url: '/export_trait_data'
+            type: 'POST'
+            data: "json_data=" + json_sample_data
+        )
+
+    $('#export').click(export_sample_table_data)
+    
+    
+
+    ##End Get Sample Data from Table Code
+
+    ##Export Sample Table Data Code
+    
+    ##End Export Sample Table Data Code
+
 
     console.log("before registering block_outliers")
     $('#block_outliers').click(block_outliers)

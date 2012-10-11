@@ -11,6 +11,7 @@ from flask import render_template, request
 
 from wqflask import search_results
 from wqflask.show_trait import show_trait
+from wqflask.show_trait import export_trait_data
 from wqflask.correlation import CorrelationPage
 
 from wqflask.dataSharing import SharingInfo, SharingInfoPage
@@ -25,6 +26,11 @@ def index_page():
     print("Sending index_page")
     return render_template("index_page.html")
 
+
+@app.route("/new")
+def new_index_page():
+    print("Sending index_page")
+    return render_template("new_index_page.html")
 
 @app.route("/data_sharing")
 def data_sharing_page():
@@ -80,6 +86,14 @@ def show_trait_page():
                                        sort_keys=True)
     print("show_trait template_vars:", pf(template_vars.__dict__))
     return render_template("show_trait.html", **template_vars.__dict__)
+
+@app.route("/export_trait_data", methods=('POST',))
+def export_sample_table():
+    """CSV file consisting of the sample data from the trait data and analysis page"""
+    print("In export_sample_table")
+    print("request.args:", request.args)
+    print("request.form:", request.form)
+    template_vars = export_trait_data.export_sample_table(request.form)
 
 
 @app.route("/corr_compute", methods=('POST',))
