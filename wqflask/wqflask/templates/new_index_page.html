@@ -1,85 +1,91 @@
 <head>
 
     <title>GeneNetwork</title>
-
-    <LINK REL="stylesheet" TYPE="text/css" HREF='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css'>
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
     <script src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
 </head>
 
 <body>
     <div class="container">
-        <h2>Select and Search</h2>
-    
-            <form method="get" action="/search" class="form-search" name="SEARCHFORM">
+
+        <div class="hero-unit">
+            <h1>Gene Network</h1>
+        </div>
+        <div>
+            <form method="get" action="/search"  name="SEARCHFORM">
                 <fieldset>
+                    <legend>Select and Search</legend>
                     <label for="species">Species:</label>
                         <select name="species" size="1" id="species" onchange="fillOptions('species');">
                         </select>
-                              
-        
-                    <label for="cross">Group:</label>
-                        <select name="cross" id="cross" onchange="fillOptions('cross');">
-                          </select> <input type="button" class="btn" value="Info" onclick=
-                          "javascript:crossinfo();">
-                    
+
+                    <div class="input-append">
+                        <label for="cross">Group: </label>
+                            <select name="cross" id="cross" onchange="fillOptions('cross');">
+                              </select>
+                            <i class="icon-question-sign"></i>
+                            <!--<input type="button" class="btn" value="Info" onclick=-->
+                            <!--  "javascript:crossinfo();" />-->
+                    </div>
+
+
                     <label for="type">Type:</label>
                         <select name="tissue"  id="tissue" onchange=
-                        "fillOptions('tissue');">
-                    
-                    <label for"database">Database:</label>
-                        <select name="database"  id="database">
-                          </select>
-                        
-                        <input type="submit" class="btn" value="Info" name="info_database">
-                    
+                        "fillOptions('tissue');"></select>
+
+
+                    <div class="input-append">
+                        <label for="database">Database:</label>
+                            <select name="database"  id="database">
+                              </select> <input type="button" class="btn" value="Info" name="info_database" />
+                    </div>
                     <!--  USER HELP   -->
-        
-                        
-                        <p class="fs12">Databases marked with <b>**</b>
-                              suffix are not public yet.<br>
-                             Access requires <a href="/account.html" target=
-                              "_blank" class="fs14">user login</a>.</p>
-                        
+
+
+                        <!--<p >Databases marked with <b>**</b>-->
+                        <!--      suffix are not public yet.<br>-->
+                        <!--     Access requires <a href="/account.html" target=-->
+                        <!--      "_blank" class="fs14">user login</a>.</p>-->
+
                         <!--  GET ANY  SEARCH -->
-        
+
                     <label for="tfor">Search:</label>
-                    
-                        <input class="search-query"
-                            id="tfor" name="ORkeyword" 
-                            type="text" maxlength="500">
-                            
-                        <!--  GET ANY HELP   -->
-        
-                          Enter terms, genes, ID numbers in the
-                              <b>Search</b> field.<br>
-                              Use <b>*</b> or <b>?</b> wildcards (Cyp*a?,
-                              synap*).<br>
-                              Use <b>quotes</b> for terms such as <i>"tyrosine
-                              kinase"</i>.</p>
-                            
-                            <!--  SEARCH, MAKE DEFAULT, ADVANCED SEARCH -->
-        
-        
-                           <input id="btsearch" type="submit"
-                            class="btn btn-primary" value="Search">
-                            
-                            <input type=
-                            "button" class="btn" value="Make Default" onclick=
-                            "setDefault(this.form);">
-                                
+
+                    <input class="search-query"
+                        id="tfor" name="ORkeyword"
+                        type="text" maxlength="500">
+
+                    <!--  GET ANY HELP   -->
+
+                    </p>Enter terms, genes, ID numbers in the
+                          <b>Search</b> field.<br>
+                          Use <b>*</b> or <b>?</b> wildcards (Cyp*a?,
+                          synap*).<br>
+                          Use <b>quotes</b> for terms such as <i>"tyrosine
+                          kinase"</i>.</p>
+
+                        <!--  SEARCH, MAKE DEFAULT, ADVANCED SEARCH -->
+
+
+                       <input id="btsearch" type="submit"
+                        class="btn btn-primary" value="Search">
+
+                        <input type=
+                        "button" class="btn" value="Make Default" onclick=
+                        "setDefault(this.form);">
+
                         <input type="button" class=
                             "btn" value="Advanced Search" onclick=
                             "javascript:window.open('/index3.html', '_self');">
-                            
+
                         <input type="hidden" name="FormID" value="searchResult"> <input type=
                         "hidden" name="RISet" value="BXD">
                 </fieldset>
             </form>
+        </div>
     </div>
-                <script src="/javascript/selectDatasetMenu.js"
-                type="text/javascript">
-                </script>
-</body>            
+                <!--<script src="/javascript/selectDatasetMenu.js"-->
+                <!--type="text/javascript">-->
+                <!--</script>-->
+</body>
