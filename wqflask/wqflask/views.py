@@ -1,5 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
+import csv
+import StringIO  # Todo: Use cStringIO?
+
 import simplejson as json
 import yaml
 
@@ -97,29 +100,24 @@ def export_trait_csv():
     
     print("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
-    def generate(sample_data):
-        for row in sample_data:
-            print(','.join(row) + '\n')
-            yield ','.join(row) + '\n'
-
-    print("generated data:", pf(generate(sample_data)))
-     
-    #print(pf(Response(generate(sample_data),
-    #                mimetype='text/plain',
-    #                headers={"Content-Disposition":
-    #                             "attachment;filename=test.csv"}))) 
+    buff = StringIO.StringIO()
+    writer = csv.writer(buff)
+    for row in sample_data:
+        writer.writerow(row)
+    csv_data = buff.getvalue()
+    buff.close()
                     
-    return Response(generate(sample_data),
+    return Response(csv_data,
                     mimetype='text/csv',
                     headers={"Content-Disposition":"attachment;filename=test.csv"})
 
 
-@app.route("/export_trait_data", methods=('POST',))
-def export_sample_table():
-    """CSV file consisting of the sample data from the trait data and analysis page"""
-    print("In export_sample_table")
-    print("request.form:", request.form)
-    template_vars = export_trait_data.export_sample_table(request.form)
+#@app.route("/export_trait_data", methods=('POST',))
+#def export_sample_table():
+#    """CSV file consisting of the sample data from the trait data and analysis page"""
+#    print("In export_sample_table")
+#    print("request.form:", request.form)
+#    template_vars = export_trait_data.export_sample_table(request.form)
 
 
 @app.route("/corr_compute", methods=('POST',))
