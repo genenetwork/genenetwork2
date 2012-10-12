@@ -89,7 +89,8 @@ class ShowTrait(templatePage):
                 otherStrainVals = '_',
                 otherStrainVars = '_',
                 extra_attributes = '_',
-                other_extra_attributes = '_'
+                other_extra_attributes = '_',
+                export_data = None
                 )
 
         if fd.enablevariance:

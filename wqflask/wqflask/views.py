@@ -7,7 +7,7 @@ import flask
 
 from wqflask import app
 
-from flask import render_template, request
+from flask import render_template, request, make_response, Response
 
 from wqflask import search_results
 from wqflask.show_trait import show_trait
@@ -87,11 +87,37 @@ def show_trait_page():
     print("show_trait template_vars:", pf(template_vars.__dict__))
     return render_template("show_trait.html", **template_vars.__dict__)
 
+
+@app.route('/export_trait_csv', methods=('POST',))
+def export_trait_csv():
+    """CSV file consisting of the sample data from the trait data and analysis page"""
+    print("In export_trait_csv")
+    print("request.form:", request.form)
+    sample_data = export_trait_data.export_sample_table(request.form)
+    
+    print("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
+
+    def generate(sample_data):
+        for row in sample_data:
+            print(','.join(row) + '\n')
+            yield ','.join(row) + '\n'
+
+    print("generated data:", pf(generate(sample_data)))
+     
+    #print(pf(Response(generate(sample_data),
+    #                mimetype='text/plain',
+    #                headers={"Content-Disposition":
+    #                             "attachment;filename=test.csv"}))) 
+                    
+    return Response(generate(sample_data),
+                    mimetype='text/csv',
+                    headers={"Content-Disposition":"attachment;filename=test.csv"})
+
+
 @app.route("/export_trait_data", methods=('POST',))
 def export_sample_table():
     """CSV file consisting of the sample data from the trait data and analysis page"""
     print("In export_sample_table")
-    print("request.args:", request.args)
     print("request.form:", request.form)
     template_vars = export_trait_data.export_sample_table(request.form)
 
