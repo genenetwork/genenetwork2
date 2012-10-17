@@ -36,10 +36,11 @@ def parse(pstring):
     print(pf(items))
     return(items)
     
-parse("foo=(3 2 1)")
-parse("shh")
-parse("shh grep")
-parse("LRS=(9 99 Chr4 122 155) cisLRS=(9 999 10)")
-parse("sal1 LRS=(9 99 Chr4 122 155) sal2 cisLRS=(9 999 10)")
-parse("sal1 sal3 LRS=(9 99 Chr4 122 155) wiki=bar sal2 go:foobar cisLRS=(9 999 10)")
-parse("sal1 LRS=(9 99 Chr4 122 155) wiki=bar sal2 go:foobar cisLRS=(9, 999, 10)")
+if __name__ == '__main__':
+    parse("foo=(3 2 1)")
+    parse("shh")
+    parse("shh grep")
+    parse("LRS=(9 99 Chr4 122 155) cisLRS=(9 999 10)")
+    parse("sal1 LRS=(9 99 Chr4 122 155) sal2 cisLRS=(9 999 10)")
+    parse("sal1 sal3 LRS=(9 99 Chr4 122 155) wiki=bar sal2 go:foobar cisLRS=(9 999 10)")
+    parse("sal1 LRS=(9 99 Chr4 122 155) wiki=bar sal2 go:foobar cisLRS=(9, 999, 10)")

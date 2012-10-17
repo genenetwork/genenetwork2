@@ -60,6 +60,7 @@ class SearchResultPage(templatePage):
     nkeywords = 0
 
     def __init__(self, fd):
+        self.fd = fd
         if not self.openMysql():
             return
 
@@ -98,9 +99,15 @@ class SearchResultPage(templatePage):
                 #userExist = None
 
                 for individualDB in self.database:
-                    self.cursor.execute('''SELECT Id, Name, FullName, confidentiality,
-                                        AuthorisedUsers FROM %sFreeze WHERE Name = %s''', (
-                                        self.database[0].type, individualDB))
+                    # Can't use paramater substitution for table names apparently
+                    db_type = self.database[0].type + "Freeze"
+                    print("db_type [%s]: %s" % (type(db_type), db_type))
+                    
+                    query = '''SELECT Id, Name, FullName, confidentiality,
+                                        AuthorisedUsers FROM %s WHERE Name = %%s''' % (db_type)
+                    
+                    self.cursor.execute(query, (individualDB,))
+                    
                     (indId,
                      indName,
                      indFullName,
@@ -175,6 +182,8 @@ class SearchResultPage(templatePage):
                                 'RefSeq_TranscriptId']
         elif self.dbType == "Geno":
             self.searchField = ['Name','Chr']
+            
+        self.do_search()
 
         ###########################################
         #       Search Options
@@ -545,7 +554,6 @@ class SearchResultPage(templatePage):
 
         _log.info("Done executing queries")
 
-
         #searchCountQuery retrieve all the results, for counting use only
         if searchCountQuery != searchQuery:
             for item in searchQuery:
@@ -556,7 +564,6 @@ class SearchResultPage(templatePage):
 
         nresults = reduce(lambda Y,X:len(X)+Y, allResults, 0)
         return nresults
-
 
 
     def assembleQuery(self):
@@ -635,13 +642,15 @@ class SearchResultPage(templatePage):
             return 0
 
 
+    def do_search(self):
+        print("fd.search_terms:", self.fd['search_terms'])
+        self.search_terms = parser.parse(self.fd['search_terms'])
+        print("After parsing:", self.search_terms)
+        #print("ORkeyword is:", pf(self.ORkeyword))
+        #self.ANDkeyword2 = parser.parse(self.ANDkeyword)
+        #self.ORkeyword2 = parser.parse(self.ORkeyword)
+        #print("ORkeyword2 is:", pf(parser.parse(self.ORkeyword)))
 
-    def normalSearch(self):
-        print("ORkeyword is:", pf(self.ORkeyword))
-        self.ANDkeyword2 = parser.parse(self.ANDkeyword)
-        self.ORkeyword2 = parser.parse(self.ORkeyword)
-        print("ORkeyword2 is:", pf(parser.parse(self.ORkeyword)))
-        
         #self.ANDkeyword2 = re.sub(self._1mPattern, '', self.ANDkeyword)
         #self.ANDkeyword2 = re.sub(self._2mPattern, '', self.ANDkeyword2)
         #self.ANDkeyword2 = re.sub(self._3mPattern, '', self.ANDkeyword2)
@@ -649,7 +658,7 @@ class SearchResultPage(templatePage):
         ###remove remain parethesis, could be input with  syntax error
         #self.ANDkeyword2 = re.sub(re.compile('\s*\([\s\S]*\)'), '', self.ANDkeyword2)
         #self.ANDkeyword2 = self.encregexp(self.ANDkeyword2)
-        #
+
         #self.ORkeyword2 = re.sub(self._1mPattern, '', self.ORkeyword)
         #self.ORkeyword2 = re.sub(self._2mPattern, '', self.ORkeyword2)
         #self.ORkeyword2 = re.sub(self._3mPattern, '', self.ORkeyword2)

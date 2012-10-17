@@ -90,14 +90,13 @@ def show_trait_page():
     print("show_trait template_vars:", pf(template_vars.__dict__))
     return render_template("show_trait.html", **template_vars.__dict__)
 
-
 @app.route('/export_trait_csv', methods=('POST',))
-def export_trait_csv():
-    """CSV file consisting of the sample data from the trait data and analysis page"""
-    print("In export_trait_csv")
+def export_trait_excel():
+    """Excel file consisting of the sample data from the trait data and analysis page"""
+    print("In export_trait_excel")
     print("request.form:", request.form)
     sample_data = export_trait_data.export_sample_table(request.form)
-    
+
     print("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
     buff = StringIO.StringIO()
@@ -106,18 +105,30 @@ def export_trait_csv():
         writer.writerow(row)
     csv_data = buff.getvalue()
     buff.close()
-                    
+
     return Response(csv_data,
                     mimetype='text/csv',
                     headers={"Content-Disposition":"attachment;filename=test.csv"})
 
+@app.route('/export_trait_csv', methods=('POST',))
+def export_trait_csv():
+    """CSV file consisting of the sample data from the trait data and analysis page"""
+    print("In export_trait_csv")
+    print("request.form:", request.form)
+    sample_data = export_trait_data.export_sample_table(request.form)
 
-#@app.route("/export_trait_data", methods=('POST',))
-#def export_sample_table():
-#    """CSV file consisting of the sample data from the trait data and analysis page"""
-#    print("In export_sample_table")
-#    print("request.form:", request.form)
-#    template_vars = export_trait_data.export_sample_table(request.form)
+    print("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
+
+    buff = StringIO.StringIO()
+    writer = csv.writer(buff)
+    for row in sample_data:
+        writer.writerow(row)
+    csv_data = buff.getvalue()
+    buff.close()
+
+    return Response(csv_data,
+                    mimetype='text/csv',
+                    headers={"Content-Disposition":"attachment;filename=test.csv"})
 
 
 @app.route("/corr_compute", methods=('POST',))

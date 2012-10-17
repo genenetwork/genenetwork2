@@ -295,6 +295,10 @@ $ ->
         samples.other_samples = other_samples
         return samples
 
+    ##End Get Sample Data from Table Code
+
+    ##Export Sample Table Data Code
+    
     export_sample_table_data = ->
         sample_data = get_sample_table_data()
         console.log("sample_data is:", sample_data)
@@ -302,26 +306,18 @@ $ ->
         console.log("json_sample_data is:", json_sample_data)
         
         $('input[name=export_data]').val(json_sample_data)
-        
         console.log("export_data is", $('input[name=export_data]').val())
         
-        $('#trait_data_form').attr('action', '/export_trait_csv')
+        format = $('#export_format').val()
+        if format == "excel"
+            $('#trait_data_form').attr('action', '/export_trait_excel')
+        else
+            $('#trait_data_form').attr('action', '/export_trait_csv')
         console.log("action is:", $('#trait_data_form').attr('action'))
+        
         $('#trait_data_form').submit()
-         
-        #$.ajax(
-        #    url: '/export_trait_csv'
-        #    type: 'POST'
-        #    data: "json_data=" + json_sample_data
-        #)
 
     $('#export').click(export_sample_table_data)
-    
-    
-
-    ##End Get Sample Data from Table Code
-
-    ##Export Sample Table Data Code
     
     ##End Export Sample Table Data Code
 
