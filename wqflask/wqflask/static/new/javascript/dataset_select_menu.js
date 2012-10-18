@@ -2,7 +2,14 @@
 (function() {
 
   $(function() {
-    var Contains, fillOptions, fillOptionsForIE, getDefaultValue, getIndexByValue, initialDatasetSelection, removeOptions, setChoice, setDefault, updateChocie;
+    var Contains, dArr, fillOptions, fillOptionsForIE, gArr, getDefaultValue, getIndexByValue, initialDatasetSelection, lArr, removeOptions, sArr, setChoice, setDefault, tArr, updateChoice;
+    sArr = window.sArr;
+    gArr = window.gArr;
+    tArr = window.tArr;
+    dArr = window.dArr;
+    lArr = window.lArr;
+    console.log("sArr is now [jersey]:", sArr);
+    console.log("gArr is now [jersey]:", gArr);
     initialDatasetSelection = function() {
       var dOptions, defaultDB, defaultSet, defaultSpecies, defaultType, gOptions, menu0, menu1, menu2, menu3, sOptions, tOptions;
       defaultSpecies = getDefaultValue("species");
@@ -120,25 +127,31 @@
       return options;
     };
     fillOptions = function(selectObjId) {
-      var arr, databaseObj, groupObj, i, idx, len, speciesObj, typeObj;
+      var arr, databaseObj, groupObj, i, idx, index_value, len, speciesObj, typeObj;
+      console.log("[vacuum] selectObjId:", selectObjId);
       if (selectObjId == null) {
         speciesObj = document.getElementById("species");
+        console.log("speciesObj:", speciesObj);
         len = sArr.length;
         i = 1;
         while (i < len) {
           speciesObj.options[i - 1] = new Option(sArr[i].txt, sArr[i].val);
+          console.log("speciesObj.options:", speciesObj.options[i - 1]);
           i++;
         }
-        return updateChocie("species");
+        return updateChoice("species");
       } else if (selectObjId === "species") {
         speciesObj = document.getElementById("species");
+        console.log("speciesObj:", speciesObj);
         groupObj = document.getElementById("cross");
+        console.log("groupObj:", groupObj);
         len = lArr.length;
         arr = [];
         idx = 0;
         i = 1;
         while (i < len) {
-          if (lArr[i][0] === (getIndexByValue("species", speciesObj.value)).toString() && !Contains(arr, lArr[i][1])) {
+          index_value = getIndexByValue("species", speciesObj.value).toString();
+          if (lArr[i][0] === (index_value && !Contains(arr, lArr[i][1]))) {
             arr[idx++] = lArr[i][1];
           }
           i++;
@@ -151,7 +164,7 @@
           groupObj.options[idx++] = new Option(gArr[arr[i]].txt, gArr[arr[i]].val);
           i++;
         }
-        return updateChocie("cross");
+        return updateChoice("cross");
       } else if (selectObjId === "cross") {
         speciesObj = document.getElementById("species");
         groupObj = document.getElementById("cross");
@@ -174,7 +187,7 @@
           typeObj.options[idx++] = new Option(tArr[arr[i]].txt, tArr[arr[i]].val);
           i++;
         }
-        return updateChocie("tissue");
+        return updateChoice("tissue");
       } else if (selectObjId === "tissue") {
         speciesObj = document.getElementById("species");
         groupObj = document.getElementById("cross");
@@ -198,7 +211,7 @@
           databaseObj.options[idx++] = new Option(dArr[arr[i]].txt, dArr[arr[i]].val);
           i++;
         }
-        return updateChocie("database");
+        return updateChoice("database");
       }
     };
     Contains = function(arr, obj) {
@@ -262,7 +275,10 @@
     };
     setChoice = function(objId, val) {
       var Obj, i, idx;
+      console.log("objId:", objId);
+      console.log("val:", val);
       Obj = document.getElementById(objId);
+      console.log("Obj:", Obj);
       idx = -1;
       i = 0;
       while (i < Obj.options.length) {
@@ -280,7 +296,7 @@
         return fillOptions(objId);
       }
     };
-    updateChocie = function(selectObjId) {
+    updateChoice = function(selectObjId) {
       var defaultDB, defaultSet, defaultSpecies, defaultType;
       if (selectObjId === "species") {
         defaultSpecies = getDefaultValue("species");
@@ -342,10 +358,10 @@
         setCookie("defaultType", defaultType, 10);
         defaultDB = thisform.database.value;
         setCookie("defaultDB", defaultDB, 10);
-        updateChocie("species");
-        updateChocie("cross");
-        updateChocie("tissue");
-        updateChocie("database");
+        updateChoice("species");
+        updateChoice("cross");
+        updateChoice("tissue");
+        updateChoice("database");
         return alert("The current settings are now your default");
       } else {
         return alert("You need to enable Cookies in your browser.");

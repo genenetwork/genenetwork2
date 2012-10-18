@@ -1,4 +1,4 @@
-var sArr = [
+window.sArr = [
 {txt:'',val:''},
 {txt:'Human',val:'human'},
 {txt:'Macaque monkey',val:'macaque monkey'},
@@ -11,7 +11,7 @@ var sArr = [
 {txt:'Tomato',val:'tomato'},
 {txt:'All Species',val:'All Species'}];
 
-var gArr = [
+window.gArr = [
 {txt:'',val:''},
 {txt:'AD Cases & Controls (Liang)',val:'AD-cases-controls'},
 {txt:'AD Cases & Controls (Myers)',val:'AD-cases-controls-Myers'},
@@ -51,7 +51,7 @@ var gArr = [
 {txt:'SXM',val:'SXM'},
 {txt:'All Groups',val:'all groups'}];
 
-var tArr = [
+window.tArr = [
 {txt:'',val:''},
 {txt:'Adipose mRNA',val:'Adipose'},
 {txt:'Adrenal Gland mRNA',val:'Adrenal Gland'},
@@ -114,7 +114,7 @@ var tArr = [
 {txt:'Phenotypes',val:'Phenotypes'},
 {txt:'Genotypes',val:'Genotypes'}];
 
-var dArr = [
+window.dArr = [
 {txt:'',val:''},
 {txt:'GSE15222 Human Brain Alzheimer Myers (Apr09) RankInv',val:'GSE15222_F_A_RI_0409'},
 {txt:'GSE15222 Human Brain Normal Myers (Apr09) RankInv',val:'GSE15222_F_N_RI_0409'},
@@ -442,7 +442,7 @@ var dArr = [
 {txt:'LXP Published Phenotypes',val:'LXPPublish'},
 {txt:'All Phenotypes',val:'_allPublish'}];
 
-var lArr = [
+window.lArr = [
  null,
 [1,1,4,79],
 [1,1,4,80],

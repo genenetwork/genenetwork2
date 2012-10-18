@@ -4,6 +4,15 @@
 #
 
 $ ->
+    sArr = window.sArr   # species
+    gArr = window.gArr   # group
+    tArr = window.tArr
+    dArr = window.dArr
+    lArr = window.lArr
+    
+    console.log("sArr is now [jersey]:", sArr)
+    console.log("gArr is now [jersey]:", gArr)
+    
     initialDatasetSelection = ->
         defaultSpecies = getDefaultValue("species")
         defaultSet = getDefaultValue("cross")
@@ -133,8 +142,10 @@ $ ->
     #*  output: null
     #
     fillOptions = (selectObjId) ->
+        console.log("[vacuum] selectObjId:", selectObjId)
         unless selectObjId?
             speciesObj = document.getElementById("species")
+            console.log("speciesObj:", speciesObj)
             len = sArr.length
             i = 1
     
@@ -142,20 +153,24 @@ $ ->
                 
                 # setting Species' option
                 speciesObj.options[i - 1] = new Option(sArr[i].txt, sArr[i].val)
+                console.log("speciesObj.options:", speciesObj.options[i - 1])
                 i++
-            updateChocie "species"
+            updateChoice "species"
         else if selectObjId is "species"
             speciesObj = document.getElementById("species")
+            console.log("speciesObj:", speciesObj)
             groupObj = document.getElementById("cross")
+            console.log("groupObj:", groupObj)
             len = lArr.length
             arr = []
             idx = 0
             i = 1
-    
+
             while i < len
-                
                 #get group(cross) info from lArr
-                arr[idx++] = lArr[i][1]  if lArr[i][0] is (getIndexByValue("species", speciesObj.value)).toString() and not Contains(arr, lArr[i][1])
+                index_value = getIndexByValue("species", speciesObj.value).toString()
+                if lArr[i][0] is (index_value and not Contains(arr, lArr[i][1]))
+                    arr[idx++] = lArr[i][1] 
                 i++
             idx = 0
             len = arr.length
@@ -163,11 +178,10 @@ $ ->
             i = 0
     
             while i < len
-                
                 # setting Group's option
                 groupObj.options[idx++] = new Option(gArr[arr[i]].txt, gArr[arr[i]].val)
                 i++
-            updateChocie "cross"
+            updateChoice "cross"
         else if selectObjId is "cross"
             speciesObj = document.getElementById("species")
             groupObj = document.getElementById("cross")
@@ -192,7 +206,7 @@ $ ->
                 # setting Type's option
                 typeObj.options[idx++] = new Option(tArr[arr[i]].txt, tArr[arr[i]].val)
                 i++
-            updateChocie "tissue"
+            updateChoice "tissue"
         else if selectObjId is "tissue"
             speciesObj = document.getElementById("species")
             groupObj = document.getElementById("cross")
@@ -218,7 +232,7 @@ $ ->
                 # setting Database's option
                 databaseObj.options[idx++] = new Option(dArr[arr[i]].txt, dArr[arr[i]].val)
                 i++
-            updateChocie "database"
+            updateChoice "database"
     
     # 
     #*  input: arr (targeted array); obj (targeted value)
@@ -281,7 +295,10 @@ $ ->
     #*  output: return true if selected status has been set, otherwise return false.
     #
     setChoice = (objId, val) ->
+        console.log("objId:", objId)
+        console.log("val:", val)
         Obj = document.getElementById(objId)
+        console.log("Obj:", Obj)
         idx = -1
         i = 0
         while i < Obj.options.length
@@ -290,7 +307,7 @@ $ ->
                 break
             i++
         if idx >= 0
-            
+
             #setting option's selected status 
             Obj.options[idx].selected = true
             
@@ -301,7 +318,7 @@ $ ->
             fillOptions objId
     
     # setting option's selected status based on default setting or cookie setting for Species, Group, Type and Database select menu in the main search page http://www.genenetwork.org/
-    updateChocie = (selectObjId) ->
+    updateChoice = (selectObjId) ->
         if selectObjId is "species"
             defaultSpecies = getDefaultValue("species")
             
@@ -364,10 +381,10 @@ $ ->
             setCookie "defaultType", defaultType, 10
             defaultDB = thisform.database.value
             setCookie "defaultDB", defaultDB, 10
-            updateChocie "species"
-            updateChocie "cross"
-            updateChocie "tissue"
-            updateChocie "database"
+            updateChoice "species"
+            updateChoice "cross"
+            updateChoice "tissue"
+            updateChoice "database"
             alert "The current settings are now your default"
         else
             alert "You need to enable Cookies in your browser."
