@@ -33,6 +33,7 @@ def index_page():
 @app.route("/new")
 def new_index_page():
     print("Sending index_page")
+    
     return render_template("new_index_page.html")
 
 @app.route("/data_sharing")

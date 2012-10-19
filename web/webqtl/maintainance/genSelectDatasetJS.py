@@ -27,6 +27,9 @@
 # created by Ning Liu 07/01/2010
 # This script is to generate selectDatasetMenu.js file for cascade menu in the main search page http://www.genenetwork.org/.
 # This script will be run automatically every one hour or manually when database has been changed .
+
+from __future__ import print_function, division
+
 import sys, os
 
 current_file_name = __file__
