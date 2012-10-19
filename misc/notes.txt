@@ -17,10 +17,12 @@ python runserver.py
 
 ===========================================
 
-Start screen session 
+Start screen session:
 byobu -RD (to start)
 control-a then :multiuser on
 control-a then :acladd sam
+
+control-a c to create channel
 
 type: screen -list for sessions
 screen -r zas1024/25679.byobu
@@ -30,6 +32,9 @@ or if only one:
 screen -r zas1024/
 
 ===========================================
+
+Start up log:
+Go to /tmp and tail -f flask_gn_log
 
 Coffeescript Stuff:
 
