@@ -89,13 +89,12 @@
                         <fieldset>
                             <!--<legend>Select and Search</legend>-->
                             <label for="species">Species:</label>
-                                <select name="species" size="1" id="species" onchange="fillOptions('species');">
+                                <select name="species" id="species" class="input-xlarge ds_selector">
                                 </select>
 
                             <div class="input-append">
-                                <label for="cross">Group: </label>
-                                    <select name="cross" id="cross" onchange="fillOptions('cross');">
-                                      </select>
+                                <label for="group">Group: </label>
+                                    <select name="group" id="group" class="input-xlarge ds_selector"></select>
                                     <!--<i class="icon-question-sign"></i>-->
                                     <input type="button" class="btn" value="Info" onclick=
                                       "javascript:crossinfo();" />
@@ -103,14 +102,12 @@
 
 
                             <label for="tissue">Type:</label>
-                                <select name="tissue"  id="tissue" onchange=
-                                "fillOptions('tissue');"></select>
-
+                                <select name="type" id="type" class="input-xlarge ds_selector"></select>
 
                             <div class="input-append">
-                                <label for="database">Database:</label>
-                                    <select name="database"  id="database">
-                                      </select> <input type="button" class="btn" value="Info" name="info_database" />
+                                <label for="dataset">Dataset:</label>
+                                    <select name="dataset" id="dataset" class="input-xlarge"></select>
+                                    <input type="button" class="btn" value="Info" name="info_dataset ds_selector" />
                             </div>
                             <!--  USER HELP   -->
 
@@ -124,7 +121,7 @@
 
                             <label for="tfor">Search:</label>
 
-                            <input class="search-query"
+                            <input class="search-query input-xlarge"
                                 id="tfor" name="search_terms"
                                 type="text" maxlength="500">
 
@@ -409,8 +406,9 @@
               }
             })
     </script>
-    <SCRIPT SRC="/javascript/webqtl.js"></SCRIPT>
-    <script src="/static/new/javascript/dataset_select_items.js"></script>
+    <!--<SCRIPT SRC="/javascript/webqtl.js"></SCRIPT>-->
+    <!--<script src="/static/new/javascript/dataset_menu_structure.json"></script>-->
+    <!--<script src="/static/new/javascript/dataset_select_items.js"></script>-->
     <script src="/static/new/javascript/dataset_select_menu.js"></script>
 </body>
 </html>

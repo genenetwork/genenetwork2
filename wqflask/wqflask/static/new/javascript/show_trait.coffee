@@ -185,7 +185,8 @@ $ ->
                 .appendTo($('#attribute_values'))
 
     # Must run once at beginning
-    populate_sample_attributes_values_dropdown()
+    if js_data.attribute_names.length > 0
+        populate_sample_attributes_values_dropdown()
     $('#exclude_menu').change(populate_sample_attributes_values_dropdown)
     
     ##End Populate Samples Attribute Values Codess
@@ -209,15 +210,12 @@ $ ->
     
     block_by_index = ->
         index_string = $('#remove_samples_field').val()
-        console.log("index_string is:", index_string)
         index_list = []
         for index_set in index_string.split(",")
             if index_set.indexOf('-') != -1
                 try
                     start_index = parseInt(index_set.split("-")[0])
-                    console.log("start_index:", start_index)
                     end_index = parseInt(index_set.split("-")[1])
-                    console.log("end_index:", end_index)
                     index_list.push(index) for index in [start_index..end_index]
                 catch error
                     alert("Syntax error")
@@ -235,6 +233,8 @@ $ ->
                 console.log("row:", $('#Primary_'+index.toString()))
                 $('#Primary_'+index.toString()).find('.trait_value_input').val("x")
             else if $('#block_group').val() == "other"
+                console.log("block_group:", $('#block_group').val())
+                console.log("row:", $('#Other_'+index.toString()))                
                 $('#Other_'+index.toString()).find('.trait_value_input').val("x")
     
     $('#block_by_index').click(block_by_index)

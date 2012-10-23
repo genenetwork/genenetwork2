@@ -36,6 +36,8 @@ screen -r zas1024/
 Start up log:
 Go to /tmp and tail -f flask_gn_log
 
+===========================================
+
 Coffeescript Stuff:
 
 coffee -c (filename)

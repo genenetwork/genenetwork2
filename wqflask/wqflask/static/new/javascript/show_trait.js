@@ -219,7 +219,9 @@
       }
       return _results;
     };
-    populate_sample_attributes_values_dropdown();
+    if (js_data.attribute_names.length > 0) {
+      populate_sample_attributes_values_dropdown();
+    }
     $('#exclude_menu').change(populate_sample_attributes_values_dropdown);
     block_by_attribute_value = function() {
       var attribute_name, cell_class, exclude_by_value,
@@ -239,7 +241,6 @@
     block_by_index = function() {
       var end_index, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref, _results;
       index_string = $('#remove_samples_field').val();
-      console.log("index_string is:", index_string);
       index_list = [];
       _ref = index_string.split(",");
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -247,9 +248,7 @@
         if (index_set.indexOf('-') !== -1) {
           try {
             start_index = parseInt(index_set.split("-")[0]);
-            console.log("start_index:", start_index);
             end_index = parseInt(index_set.split("-")[1]);
-            console.log("end_index:", end_index);
             for (index = _j = start_index; start_index <= end_index ? _j <= end_index : _j >= end_index; index = start_index <= end_index ? ++_j : --_j) {
               index_list.push(index);
             }
@@ -271,6 +270,8 @@
           console.log("row:", $('#Primary_' + index.toString()));
           _results.push($('#Primary_' + index.toString()).find('.trait_value_input').val("x"));
         } else if ($('#block_group').val() === "other") {
+          console.log("block_group:", $('#block_group').val());
+          console.log("row:", $('#Other_' + index.toString()));
           _results.push($('#Other_' + index.toString()).find('.trait_value_input').val("x"));
         } else {
           _results.push(void 0);
