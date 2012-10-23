@@ -96,8 +96,7 @@
                                 <label for="group">Group: </label>
                                     <select name="group" id="group" class="input-xlarge ds_selector"></select>
                                     <!--<i class="icon-question-sign"></i>-->
-                                    <input type="button" class="btn" value="Info" onclick=
-                                      "javascript:crossinfo();" />
+                                    <input type="button" class="btn" value="Info" id="group_info" />
                             </div>
 
 
@@ -107,7 +106,7 @@
                             <div class="input-append">
                                 <label for="dataset">Dataset:</label>
                                     <select name="dataset" id="dataset" class="input-xlarge"></select>
-                                    <input type="button" class="btn" value="Info" name="info_dataset ds_selector" />
+                                    <input type="button" class="btn" value="Info" id="dataset_info" />
                             </div>
                             <!--  USER HELP   -->
 
@@ -140,9 +139,8 @@
                                <input id="btsearch" type="submit"
                                 class="btn btn-primary" value="Search">
 
-                                <input type=
-                                "button" class="btn" value="Make Default" onclick=
-                                "setDefault(this.form);">
+                                <input type="button" class="btn" value="Make Default"
+                                       id="make_default">
 
                                 <input type="button" class=
                                     "btn" value="Advanced Search" onclick=
@@ -348,7 +346,8 @@
             <A HREF="mailto:acenteno@uthsc.edu" target="_blank">Arthur Centeno</A>.
         </p>
         <p>
-            Designed and coded by Sam Ockman, Xiaodong Zhou, Christian Fernandez,
+            Designed and coded by <a href="http://penguinpython.com">Sam Ockman</a>, Xiaodong Zhou,
+            Christian Fernandez,
             Ning Liu, Rudi Alberts, Elissa Chesler, Jintao Wang, Kenneth Manly, Robert W. Williams,
             and <A HREF="/credit.html">colleagues</A>.
         </p>
@@ -409,6 +408,8 @@
     <!--<SCRIPT SRC="/javascript/webqtl.js"></SCRIPT>-->
     <!--<script src="/static/new/javascript/dataset_menu_structure.json"></script>-->
     <!--<script src="/static/new/javascript/dataset_select_items.js"></script>-->
+    <script src="/static/new/js_external/jquery.cookie.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/json2.js"></script>
     <script src="/static/new/javascript/dataset_select_menu.js"></script>
 </body>
 </html>

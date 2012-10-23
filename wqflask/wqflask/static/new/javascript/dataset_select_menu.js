@@ -2,11 +2,12 @@
 (function() {
 
   $(function() {
-    var populate_datasets, populate_groups, populate_species, populate_types, process_json, redo_dropdown,
+    var apply_default, dataset_info, group_info, make_default, open_window, populate_dataset, populate_group, populate_species, populate_type, process_json, redo_dropdown,
       _this = this;
     process_json = function(data) {
       window.jdata = data;
-      return populate_species();
+      populate_species();
+      return apply_default();
     };
     $.ajax('/static/new/javascript/dataset_menu_structure', {
       dataType: 'json',
@@ -16,33 +17,37 @@
       var species_list;
       species_list = this.jdata.species;
       redo_dropdown($('#species'), species_list);
-      return populate_groups();
+      return populate_group();
     };
-    populate_groups = function() {
+    populate_group = function() {
       var group_list, species;
+      console.log("in populate group");
       species = $('#species').val();
       group_list = this.jdata.groups[species];
       redo_dropdown($('#group'), group_list);
-      return populate_types();
+      return populate_type();
     };
-    populate_types = function() {
+    populate_type = function() {
       var group, species, type_list;
       species = $('#species').val();
       group = $('#group').val();
       type_list = this.jdata.types[species][group];
       redo_dropdown($('#type'), type_list);
-      return populate_datasets();
+      return populate_dataset();
     };
-    populate_datasets = function() {
+    populate_dataset = function() {
       var dataset_list, group, species, type;
       species = $('#species').val();
       group = $('#group').val();
       type = $('#type').val();
+      console.log("sgt:", species, group, type);
       dataset_list = this.jdata.datasets[species][group][type];
+      console.log("pop_dataset:", dataset_list);
       return redo_dropdown($('#dataset'), dataset_list);
     };
     redo_dropdown = function(dropdown, items) {
       var item, _i, _len, _results;
+      console.log("in redo:", dropdown, items);
       dropdown.empty();
       _results = [];
       for (_i = 0, _len = items.length; _i < _len; _i++) {
@@ -52,14 +57,68 @@
       return _results;
     };
     $('#species').change(function() {
-      return populate_groups();
+      return populate_group();
     });
     $('#group').change(function() {
-      return populate_types();
+      return populate_type();
     });
-    return $('#type').change(function() {
-      return populate_datasets();
+    $('#type').change(function() {
+      return populate_dataset();
     });
+    open_window = function(url, name) {
+      var options;
+      options = "menubar=1,toolbar=1,location=1,resizable=1,status=1,scrollbars=1,directories=1,width=900";
+      return open(url, name, options).focus();
+    };
+    group_info = function() {
+      var group, species, url;
+      species = $('#species').val();
+      group = $('#group').val();
+      url = "/" + species + "Cross.html#" + group;
+      return open_window(url, "Group Info");
+    };
+    $('#group_info').click(group_info);
+    dataset_info = function() {
+      var dataset, url;
+      dataset = $('#dataset').val();
+      url = "/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + dataset;
+      return open_window(url, "Dataset Info");
+    };
+    $('#dataset_info').click(dataset_info);
+    make_default = function() {
+      var holder, item, jholder, _i, _len, _ref;
+      holder = {};
+      _ref = ['species', 'group', 'type', 'dataset'];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
+        holder[item] = $("#" + item).val();
+      }
+      jholder = JSON.stringify(holder);
+      return $.cookie('search_defaults', jholder, {
+        expires: 365
+      });
+    };
+    apply_default = function() {
+      var defaults, item, _i, _len, _ref, _results;
+      defaults = $.cookie('search_defaults');
+      if (!defaults) {
+        return;
+      }
+      defaults = $.parseJSON(defaults);
+      _ref = [['species', 'group'], ['group', 'type'], ['type', 'dataset'], ['dataset', null]];
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
+        $("#" + item[0]).val(defaults[item[0]]);
+        if (item[1]) {
+          _results.push(window["populate_" + item[1]]);
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+    return $("#make_default").click(make_default);
   });
 
 }).call(this);
