@@ -23,6 +23,10 @@ from base import webqtlFormData
 
 from pprint import pformat as pf
 
+#import logging
+#logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
+#_log = logging.getLogger("correlation")
+
 
 @app.route("/")
 def index_page():
@@ -33,7 +37,7 @@ def index_page():
 @app.route("/new")
 def new_index_page():
     print("Sending index_page")
-    
+
     return render_template("new_index_page.html")
 
 @app.route("/data_sharing")
@@ -54,6 +58,7 @@ def data_sharing_page():
 
 @app.route("/search")
 def search_page():
+    print("in search_page")
     if 'info_database' in request.args:
         print("Going to sharing_info_page")
         template_vars = sharing_info_page()
@@ -63,7 +68,9 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
+        print("calling search_results.SearchResultPage")
         the_search = search_results.SearchResultPage(request.args)
+        print("done calling")
         return render_template("search_result_page.html", **the_search.__dict__)
 
 

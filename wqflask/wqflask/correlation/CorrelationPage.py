@@ -54,9 +54,6 @@ from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 import correlationFunction
 
-import logging
-logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
-_log = logging.getLogger("correlation")
 
 METHOD_SAMPLE_PEARSON = "1"
 METHOD_SAMPLE_RANK = "2"
@@ -72,9 +69,9 @@ class AuthException(Exception): pass
 
 
 class Trait(object):
-    
-    
-    def __init__(self, name, raw_values = None, lit_corr = None, tissue_corr = None, p_tissue = None):    
+
+
+    def __init__(self, name, raw_values = None, lit_corr = None, tissue_corr = None, p_tissue = None):
         self.name = name
         self.raw_values = raw_values
         self.lit_corr = lit_corr
@@ -281,12 +278,12 @@ class CorrelationPage(templatePage):
     def __init__(self, fd):
         #print("in CorrelationPage __init__ fd is:", pf(fd.__dict__))
         # Call the superclass constructor
-        
+
         # Put everything in fd into self
         self.__dict__.update(fd.__dict__)
-        
+
         templatePage.__init__(self, fd)
-        
+
         #print("in CorrelationPage __init__ now fd is:", pf(fd.__dict__))
         # Connect to the database
         if not self.openMysql():
@@ -298,13 +295,13 @@ class CorrelationPage(templatePage):
 
         sample_list = get_sample_data(fd)
         print("sample_list is", pf(sample_list))
-        
+
         # Whether the user chose BXD Only, Non-BXD Only, or All Strains
         # (replace BXD with whatever the group/inbredset name is)
         # "mdp" stands for "mouse diversity panel" This is outdated; it now represents any
         # cases/strains from the non-primary group
-        mdp_choice = fd.MDPChoice if fd.allstrainlist else None 
-        
+        mdp_choice = fd.MDPChoice if fd.allstrainlist else None
+
         self.species = get_species(fd, self.cursor)
 
         #XZ, 09/18/2008: get all information about the user selected database.
@@ -334,11 +331,11 @@ class CorrelationPage(templatePage):
         if len(self.sample_names) < self.corr_min_informative:
             detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corr_min_informative, fd.RISet)]
             self.error(heading=None, detail=detail)
-        
+
         for key, value in self.__dict__.items():
             if key.startswith("corr"):
                 print("[red] %s - %s" % (key, value))
-        
+
         #correlation_method = self.CORRELATION_METHODS[self.method]
         #rankOrder = self.RANK_ORDERS[self.method]
 

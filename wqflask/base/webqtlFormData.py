@@ -44,9 +44,9 @@ from utility import webqtlUtil
 
 
 
-class webqtlFormData:
+class webqtlFormData(object):
     'Represents data from a WebQTL form page, needed to generate the next page'
-    
+
     attrs = ('formID','RISet','genotype','samplelist','allsamplelist', 'display_variance'
                 'suggestive','significance','submitID','identification', 'enablevariance',
                 'nperm','nboot','email','incparentsf1','genotype_1','genotype_2','traitInfo')
@@ -62,7 +62,7 @@ class webqtlFormData:
         print("in webqtlFormData start_vars are:", pf(start_vars))
         for item in webqtlFormData.attrs:
             self.__dict__[item] = None
-        
+
         #ZS: This is only used in DataEditingPage.py (as far as I know)
         self.varianceDispName = None
 
@@ -103,7 +103,7 @@ class webqtlFormData:
 
         self.ppolar = None
         self.mpolar = None
-        
+
         print("[yellow] self.RISet is:", self.RISet)
         if self.RISet:
             #try:
@@ -112,13 +112,13 @@ class webqtlFormData:
             #except:
             #    f1 = f12 = self.mpolar = self.ppolar = None
 
-        
+
         def set_number(stringy):
             return int(stringy) if stringy else 2000 # Rob asked to change the default value to 2000
 
         self.nperm = set_number(self.nperm)
         self.nboot = set_number(self.nboot)
-           
+
 
         #if self.allsamplelist:
         #    self.allsamplelist = map(string.strip, string.split(self.allsamplelist))
@@ -134,6 +134,7 @@ class webqtlFormData:
 
 
     def __getitem__(self, key):
+        print("in __getitem__")
         return self.__dict__[key]
 
     def get(self, key, default=None):
@@ -154,22 +155,22 @@ class webqtlFormData:
         '''read genotype from .geno file'''
         if self.RISet == 'BXD300':
             self.RISet = 'BXD'
-    
+
         assert self.RISet, "self.RISet needs to be set"
-        
+
         #genotype_1 is Dataset Object without parents and f1
         #genotype_2 is Dataset Object with parents and f1 (not for intercross)
-        
+
         self.genotype_1 = reaper.Dataset()
-        
+
         full_filename = os.path.join(webqtlConfig.GENODIR, self.RISet + '.geno')
-        
+
         # reaper barfs on unicode filenames, so here we ensure it's a string
         full_filename = str(full_filename)
         self.genotype_1.read(full_filename)
-        
+
         print("Got to after read")
-        
+
         try:
             # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
             _f1, _f12, _mat, _pat = webqtlUtil.ParInfo[self.RISet]
@@ -186,16 +187,16 @@ class webqtlFormData:
         else:
             self.incparentsf1 = 0
             self.genotype = self.genotype_1
-            
+
         self.samplelist = list(self.genotype.prgy)
         self.f1list = []
         self.parlist = []
-        
+
         if _f1 and _f12:
             self.f1list = [_f1, _f12]
         if _mat and _pat:
             self.parlist = [_mat, _pat]
-            
+
 
     def readData(self, samplelist, incf1=None):
         '''read user input data or from trait data and analysis form'''
@@ -213,11 +214,11 @@ class webqtlFormData:
 
         #print("before traitfiledata self.traitfile is:", pf(self.traitfile))
 
-        traitfiledata = getattr(self, "traitfile", None) 
-        traitpastedata = getattr(self, "traitpaste", None) 
-        variancefiledata = getattr(self, "variancefile", None) 
-        variancepastedata = getattr(self, "variancepaste", None) 
-        Nfiledata = getattr(self, "Nfile", None) 
+        traitfiledata = getattr(self, "traitfile", None)
+        traitpastedata = getattr(self, "traitpaste", None)
+        variancefiledata = getattr(self, "variancefile", None)
+        variancepastedata = getattr(self, "variancepaste", None)
+        Nfiledata = getattr(self, "Nfile", None)
 
         #### Todo: Rewrite below when we get to someone submitting their own trait #####
 
@@ -246,7 +247,7 @@ class webqtlFormData:
         elif len(values) > len(samplelist):
             values = values[:len(samplelist)]
         print("now values is:", values)
-            
+
 
         if variancefiledata:
             tt = variancefiledata.split()
@@ -282,16 +283,16 @@ class webqtlFormData:
 
     def informativeStrains(self, samplelist=None, include_variances = None):
         '''if readData was called, use this to output informative samples (sample with values)'''
-        
+
         if not samplelist:
             samplelist = self.samplelist
-            
+
         samples = []
         values = []
         variances = []
-        
+
         #print("self.allTraitData is:", pf(self.allTraitData))
-        
+
         for sample in samplelist:
             if sample in self.allTraitData:
                 _val, _var = self.allTraitData[sample].value, self.allTraitData[sample].variance
@@ -305,13 +306,13 @@ class webqtlFormData:
                         samples.append(sample)
                         values.append(_val)
                         variances.append(None)
-                        
+
         return samples, values, variances, len(samples)
 
 
 
     #def FormDataAsFloat(self, key):
-    #    
+    #
     #    #try:
     #    #    return float(self.key)
     #    #except:

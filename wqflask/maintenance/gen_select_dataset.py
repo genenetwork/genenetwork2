@@ -76,17 +76,22 @@ def get_types(groups):
         types[species] = {}
         for group_name, _group_full_name in group_dict:
             # make group an alias to shorten the code
-            group = types[species][group_name] = [("Phenotypes", "Phenotypes"),
-                                                  ("Genotypes", "Genotypes")]           
-            Cursor.execute("""select distinct Tissue.Name, concat(Tissue.Name, ' mRNA') from
-                       ProbeFreeze,
-                       ProbeSetFreeze, InbredSet, Tissue where ProbeFreeze.TissueId = Tissue.Id and
-                       ProbeFreeze.InbredSetId = InbredSet.Id and
-                       InbredSet.Name = %s and ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                       ProbeSetFreeze.public > %s
-                       order by Tissue.Name""", (group_name, webqtlConfig.PUBLICTHRESH))
-            group += Cursor.fetchall()
+            types[species][group_name] = [("Phenotypes", "Phenotypes"), ("Genotypes", "Genotypes")]
+            types[species][group_name] += build_types(species, group_name)
     return types
+
+
+def build_types(species, group):
+    Cursor.execute("""select distinct Tissue.Name, concat(Tissue.Name, ' mRNA')
+                       from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
+                       where Species.Name = %s and Species.Id = InbredSet.SpeciesId and
+                       InbredSet.Name = %s and
+                       ProbeFreeze.TissueId = Tissue.Id and
+                       ProbeFreeze.InbredSetId = InbredSet.Id and
+                       ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+                       ProbeSetFreeze.public > %s
+                       order by Tissue.Name""", (species, group, webqtlConfig.PUBLICTHRESH))
+    return Cursor.fetchall()
 
 
 def get_datasets(types):
@@ -97,31 +102,36 @@ def get_datasets(types):
         for group, type_list in group_dict.iteritems():
             datasets[species][group] = {}
             for type_name, type_full_name in type_list:
-                dataset_text = dataset_value = None
-                if type_name == "Phenotypes":
-                    dataset_value = "%sPublish" % group
-                    if group == 'MDP':
-                        dataset_text = "Mouse Phenome Database"
-                    else:
-                        dataset_text = "%s Published Phenotypes" % group
-
-                elif type_name == "Genotypes":
-                    dataset_value = "%sGeno" % group
-                    dataset_text = "%s Genotypes" % group
-                    
-                if dataset_value:
-                    datasets[species][group][type_name] = [(dataset_value, dataset_text)]
-                else:
-                    Cursor.execute("""select ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
-                                ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue where
-                                ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = %s
-                                and ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId =
-                                InbredSet.Id and ProbeSetFreeze.public > %s order by
-                                ProbeSetFreeze.CreateTime desc""", (type_name,
-                                                                    webqtlConfig.PUBLICTHRESH))
-                    datasets[species][group][type_name] = Cursor.fetchall()
-            
+                datasets[species][group][type_name] = build_datasets(species, group, type_name)
     return datasets
+
+
+def build_datasets(species, group, type_name):
+    dataset_text = dataset_value = None
+    if type_name == "Phenotypes":
+        dataset_value = "%sPublish" % group
+        if group == 'MDP':
+            dataset_text = "Mouse Phenome Database"
+        else:
+            dataset_text = "%s Published Phenotypes" % group
+
+    elif type_name == "Genotypes":
+        dataset_value = "%sGeno" % group
+        dataset_text = "%s Genotypes" % group
+
+    if dataset_value:
+        return [(dataset_value, dataset_text)]
+    else:
+        Cursor.execute("""select ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
+                    ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
+                    Species.Name = %s and Species.Id = InbredSet.SpeciesId and
+                    InbredSet.Name = %s and
+                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = %s
+                    and ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId =
+                    InbredSet.Id and ProbeSetFreeze.public > %s order by
+                    ProbeSetFreeze.CreateTime desc""", (
+                        species, group, type_name, webqtlConfig.PUBLICTHRESH))
+        return Cursor.fetchall()
 
 
 def main():
@@ -129,7 +139,7 @@ def main():
     groups = get_groups(species)
     types = get_types(groups)
     datasets = get_datasets(types)
-    
+
     species.append(('All Species', 'All Species'))
     groups['All Species'] = [('All Groups', 'All Groups')]
     types['All Species'] = {}
@@ -137,18 +147,25 @@ def main():
     datasets['All Species'] = {}
     datasets['All Species']['All Groups'] = {}
     datasets['All Species']['All Groups']['Phenotypes'] = [('All Phenotypes','All Phenotypes')]
-    
+
     data = dict(species=species,
                 groups=groups,
                 types=types,
                 datasets=datasets,
                 )
-    
-    output_file = """../wqflask/static/new/javascript/dataset_menu_structure.json"""
-    
+
+    output_file = """../wqflask/static/new/javascript/dataset_menu_structure"""
+
     with open(output_file, 'w') as fh:
         json.dump(data, fh, indent="   ", sort_keys=True)
-    
+
+    print("\nWrote file to:", output_file)
+
+def test_it():
+    types = build_types("Mouse", "BXD")
+    print("build_types:", pf(types))
+    datasets = build_datasets("Mouse", "BXD", "Hippocampus")
+    print("build_datasets:", pf(datasets))
 
 if __name__ == '__main__':
     main()

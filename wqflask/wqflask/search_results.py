@@ -36,17 +36,17 @@ from wqflask import parser
 from utility import webqtlUtil
 from dbFunction import webqtlDatabaseFunction
 
-import logging
-logging.basicConfig(filename=app.config['LOGFILE'], level=logging.INFO)
-
-_log = logging.getLogger("search")
-_ch = logging.StreamHandler()
-_log.addHandler(_ch)
+#import logging
+#logging.basicConfig(filename=app.config['LOGFILE'], level=logging.INFO)
+#
+#_log = logging.getLogger("search")
+#_ch = logging.StreamHandler()
+#_log.addHandler(_ch)
 
 from utility import formatting
 
 import sys
-_log.info("sys.path  is: %s" % (sys.path))
+#_log.info("sys.path  is: %s" % (sys.path))
 
 
 #from base.JinjaPage import JinjaEnv, JinjaPage
@@ -60,20 +60,29 @@ class SearchResultPage(templatePage):
     nkeywords = 0
 
     def __init__(self, fd):
+        print("initing SearchResultPage")
+        import logging_tree
+        logging_tree.printout()
         self.fd = fd
         if not self.openMysql():
-            return
+            print("ge0")
+            #return
 
+        print("ge0.5")
+        #causeerror
+        print("type of fd:", type(fd))
         self.database = [fd['database']]
-
+        print("ge0.55")
         if not self.database or self.database == 'spacer':
             #Error, No database selected
             heading = "Search Result"
             detail = ['''No database was selected for this search, please
                 go back and SELECT at least one database.''']
+            print("ge0.6")
             self.error(heading=heading,detail=detail,error="No Database Selected")
-            return
+            #return
 
+        print("ge1")
         ###########################################
         #   Names and IDs of RISet / F2 set
         ###########################################
@@ -102,12 +111,12 @@ class SearchResultPage(templatePage):
                     # Can't use paramater substitution for table names apparently
                     db_type = self.database[0].type + "Freeze"
                     print("db_type [%s]: %s" % (type(db_type), db_type))
-                    
+
                     query = '''SELECT Id, Name, FullName, confidentiality,
                                         AuthorisedUsers FROM %s WHERE Name = %%s''' % (db_type)
-                    
+
                     self.cursor.execute(query, (individualDB,))
-                    
+
                     (indId,
                      indName,
                      indFullName,
@@ -140,6 +149,7 @@ class SearchResultPage(templatePage):
                 self.error(heading=heading,detail=detail,error="No Database Selected")
                 return
 
+            print("ge2")
             self.database[0].getRISet()
             self.databaseCrosses = [self.database[0].riset]
             self.databaseCrossIds = [self.database[0].risetid]
@@ -159,6 +169,8 @@ class SearchResultPage(templatePage):
                 detail = ["Search can only be performed among the same type of databases"]
                 self.error(heading=heading,detail=detail,error="Error")
                 return
+
+        print("ge3")
         if self.dbType == "Publish":
             self.searchField = ['Phenotype.Post_publication_description',
                                 'Phenotype.Pre_publication_description',
@@ -182,7 +194,8 @@ class SearchResultPage(templatePage):
                                 'RefSeq_TranscriptId']
         elif self.dbType == "Geno":
             self.searchField = ['Name','Chr']
-            
+
+        print("ge4")
         self.do_search()
 
         ###########################################
@@ -202,7 +215,7 @@ class SearchResultPage(templatePage):
         ###########################################
         #       Generate Mysql Query
         ###########################################
-        
+
         # Sam: We presume lines below aren't used...
         #geneIdListQuery = fd.get('geneId', '')
         #if geneIdListQuery:
@@ -346,7 +359,7 @@ class SearchResultPage(templatePage):
         #self.dict['js1'] = ''
         #self.dict['js2'] = 'onLoad="pageOffset()"'
         #self.dict['layer'] = self.generateWarningLayer()
-        
+
     def start_search(self):
         pass
 
@@ -674,7 +687,7 @@ class SearchResultPage(templatePage):
                 item = item['search_term']
                 self.nkeywords += 1
                 #ZS: If there are both AND and OR keywords, just use the OR keywords
-                if k >=len(self.ORkeyword2): 
+                if k >=len(self.ORkeyword2):
                     query = self.ANDQuery
                     DescriptionText = self.ANDDescriptionText
                     clausejoin = ' OR '
@@ -763,7 +776,7 @@ class SearchResultPage(templatePage):
                 detail = ["Pattern search is not available for phenotype databases at this time."]
                 self.error(heading=heading,detail=detail,error="Error")
                 return 0
-            elif (self.dbType == "ProbeSet" and 
+            elif (self.dbType == "ProbeSet" and
                 ((_2Cmds and reduce(lambda x, y: (y not in [
                     "MEAN", "LRS", "PVALUE", "TRANSLRS", "CISLRS", "RANGE", "H2"
                     ]) or x, _2Cmds, False))\
@@ -877,29 +890,29 @@ class SearchResultPage(templatePage):
                         query = self.ORQuery
                         DescriptionText = self.ORDescriptionText
                     itemCmd = item[0]
-                    
-        
+
+
                     chr_number = item[1]     # chromosome number
                     lower_limit = float(item[2])
                     upper_limit = float(item[3])
-                    
+
                     if self.dbType == "ProbeSet":
                         fname = 'target genes'
                     elif self.dbType == "Geno":
                         fname = 'loci'
-                    
+
                     if lower_limit > upper_limit:
                         lower_limit, upper_limit = upper_limit, lower_limit
 
-                    
+
                     clauseItem = " %s.Chr = '%s' and %s.Mb > %2.7f and %s.Mb < %2.7f " % (
                             self.dbType, chr_number, self.dbType, lower_limit, self.dbType, upper_limit)
-                    
-               
+
+
                     query.append(" (%s) " % clauseItem)
                     self.orderByDefalut = itemCmd
-                    
-                    self.results_desc = dict() 
+
+                    self.results_desc = dict()
                     #DescriptionText.append(HT.Span(' with ', HT.U('target genes'), ' on chromosome %s between %g and %g Mb' % \
                     #    (chr_number, min(lower_limit, upper_limit), max(lower_limit, upper_limit))))
 
