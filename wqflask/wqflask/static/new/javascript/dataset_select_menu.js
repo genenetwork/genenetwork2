@@ -9,7 +9,7 @@
       populate_species();
       return apply_default();
     };
-    $.ajax('/static/new/javascript/dataset_menu_structure', {
+    $.ajax('/static/new/javascript/dataset_menu_structure.json', {
       dataType: 'json',
       success: process_json
     });
@@ -19,6 +19,7 @@
       redo_dropdown($('#species'), species_list);
       return populate_group();
     };
+    window.populate_species = populate_species;
     populate_group = function() {
       var group_list, species;
       console.log("in populate group");
@@ -27,6 +28,7 @@
       redo_dropdown($('#group'), group_list);
       return populate_type();
     };
+    window.populate_group = populate_group;
     populate_type = function() {
       var group, species, type_list;
       species = $('#species').val();
@@ -35,6 +37,7 @@
       redo_dropdown($('#type'), type_list);
       return populate_dataset();
     };
+    window.populate_type = populate_type;
     populate_dataset = function() {
       var dataset_list, group, species, type;
       species = $('#species').val();
@@ -45,6 +48,7 @@
       console.log("pop_dataset:", dataset_list);
       return redo_dropdown($('#dataset'), dataset_list);
     };
+    window.populate_dataset = populate_dataset;
     redo_dropdown = function(dropdown, items) {
       var item, _i, _len, _results;
       console.log("in redo:", dropdown, items);
@@ -99,7 +103,7 @@
       });
     };
     apply_default = function() {
-      var defaults, item, _i, _len, _ref, _results;
+      var defaults, item, populate_function, _i, _len, _ref, _results;
       defaults = $.cookie('search_defaults');
       if (!defaults) {
         return;
@@ -111,7 +115,9 @@
         item = _ref[_i];
         $("#" + item[0]).val(defaults[item[0]]);
         if (item[1]) {
-          _results.push(window["populate_" + item[1]]);
+          populate_function = "populate_" + item[1];
+          console.log("Calling:", populate_function);
+          _results.push(window[populate_function]());
         } else {
           _results.push(void 0);
         }

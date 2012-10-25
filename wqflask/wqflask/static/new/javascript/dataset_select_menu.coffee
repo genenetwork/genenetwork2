@@ -7,7 +7,7 @@ $ ->
         populate_species()
         apply_default()
 
-    $.ajax '/static/new/javascript/dataset_menu_structure',
+    $.ajax '/static/new/javascript/dataset_menu_structure.json',
         dataType: 'json'
         success: process_json
 
@@ -15,6 +15,7 @@ $ ->
         species_list = @jdata.species
         redo_dropdown($('#species'), species_list)
         populate_group()
+    window.populate_species = populate_species
 
     populate_group = ->
         console.log("in populate group")
@@ -22,6 +23,7 @@ $ ->
         group_list = @jdata.groups[species]
         redo_dropdown($('#group'), group_list)
         populate_type()
+    window.populate_group = populate_group
         
     populate_type = ->
         species = $('#species').val()
@@ -29,6 +31,7 @@ $ ->
         type_list = @jdata.types[species][group]
         redo_dropdown($('#type'), type_list)
         populate_dataset()
+    window.populate_type = populate_type
         
     populate_dataset = ->
         species = $('#species').val()
@@ -38,6 +41,7 @@ $ ->
         dataset_list = @jdata.datasets[species][group][type]
         console.log("pop_dataset:", dataset_list)
         redo_dropdown($('#dataset'), dataset_list)
+    window.populate_dataset = populate_dataset
 
     redo_dropdown = (dropdown, items) ->
         console.log("in redo:", dropdown, items)
@@ -99,7 +103,9 @@ $ ->
     
             $("##{item[0]}").val(defaults[item[0]])
             if item[1]
-                window["populate_" + item[1]]
+                populate_function = "populate_" + item[1]
+                console.log("Calling:", populate_function)
+                window[populate_function]()
     
         
         

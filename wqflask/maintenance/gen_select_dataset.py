@@ -1,3 +1,10 @@
+"""Script that generates the data for the main dropdown menus on the home page
+
+Writes out data as /static/new/javascript/dataset_menu_structure.json
+It needs to be run manually when database has been changed.
+
+"""
+
 # Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
@@ -13,15 +20,12 @@
 # This program is available from Source Forge: at GeneNetwork Project
 # (sourceforge.net/projects/genenetwork/).
 #
-# Contact Drs. Robert W. Williams and Xiaodong Zhou (2010)
-# at rwilliams@uthsc.edu and xzhou15@uthsc.edu
+# Contact Drs. Robert W. Williams
+# at rwilliams@uthsc.edu 
 #
 #
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
-
-# This script is to generate the data for the main menus on the home page
-# It needs to be run manually when database has been changed .
 
 from __future__ import print_function, division
 
@@ -39,7 +43,8 @@ from base import webqtlConfig
 
 
 # build MySql database connection
-Con = MySQLdb.Connect(db=webqtlConfig.DB_NAME,host=webqtlConfig.MYSQL_SERVER,
+Con = MySQLdb.Connect(db=webqtlConfig.DB_NAME,
+                      host=webqtlConfig.MYSQL_SERVER,
                       user=webqtlConfig.DB_USER,
                       passwd=webqtlConfig.DB_PASSWD)
 Cursor = Con.cursor()
@@ -82,6 +87,12 @@ def get_types(groups):
 
 
 def build_types(species, group):
+    """Fetches tissues
+    
+    Gets the tissues with data for this species/group
+    (all types except phenotype/genotype are tissues)
+     
+    """
     Cursor.execute("""select distinct Tissue.Name, concat(Tissue.Name, ' mRNA')
                        from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
                        where Species.Name = %s and Species.Id = InbredSet.SpeciesId and
@@ -101,12 +112,13 @@ def get_datasets(types):
         datasets[species] = {}
         for group, type_list in group_dict.iteritems():
             datasets[species][group] = {}
-            for type_name, type_full_name in type_list:
+            for type_name, _type_full_name in type_list:
                 datasets[species][group][type_name] = build_datasets(species, group, type_name)
     return datasets
 
 
 def build_datasets(species, group, type_name):
+    """Gets dataset names from database"""
     dataset_text = dataset_value = None
     if type_name == "Phenotypes":
         dataset_value = "%sPublish" % group
@@ -135,6 +147,7 @@ def build_datasets(species, group, type_name):
 
 
 def main():
+    """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
     species = get_species()
     groups = get_groups(species)
     types = get_types(groups)
@@ -154,14 +167,16 @@ def main():
                 datasets=datasets,
                 )
 
-    output_file = """../wqflask/static/new/javascript/dataset_menu_structure"""
+    output_file = """../wqflask/static/new/javascript/dataset_menu_structure.json"""
 
     with open(output_file, 'w') as fh:
         json.dump(data, fh, indent="   ", sort_keys=True)
 
     print("\nWrote file to:", output_file)
 
-def test_it():
+
+def _test_it():
+    """Used for internal testing only"""
     types = build_types("Mouse", "BXD")
     print("build_types:", pf(types))
     datasets = build_datasets("Mouse", "BXD", "Hippocampus")
