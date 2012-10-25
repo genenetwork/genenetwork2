@@ -105,10 +105,16 @@
     apply_default = function() {
       var defaults, item, populate_function, _i, _len, _ref, _results;
       defaults = $.cookie('search_defaults');
-      if (!defaults) {
-        return;
+      if (defaults) {
+        defaults = $.parseJSON(defaults);
+      } else {
+        defaults = {
+          species: "mouse",
+          group: "BXD",
+          type: "Hippocampus",
+          dataset: "HC_M2_0606_P"
+        };
       }
-      defaults = $.parseJSON(defaults);
       _ref = [['species', 'group'], ['group', 'type'], ['type', 'dataset'], ['dataset', null]];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
