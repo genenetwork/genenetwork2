@@ -34,6 +34,7 @@ class webqtlDataset:
     """
     Dataset class defines a dataset in webqtl, can be either Microarray,
     Published phenotype, genotype, or user input dataset(temp)
+
     """
 
     def __init__(self, dbName, cursor=None):
@@ -42,7 +43,7 @@ class webqtlDataset:
         self.id = 0
         self.name = ''
         self.type = ''
-        self.riset = ''
+        self.group = ''
         self.cursor = cursor
 
         #temporary storage
@@ -81,14 +82,15 @@ class webqtlDataset:
         self.name = dbName
         if self.cursor and self.id == 0:
             self.retrieveName()
+            
+    
+    # Delete this eventually
+    @property
+    def riset():
+        Weve_Renamed_This_As_Group
 
-    def __str__(self):
-        return self.name
 
-    __repr__ = __str__
-
-
-    def getRISet(self):
+    def get_group(self):
         assert self.cursor
         if self.type == 'Publish':
             query = '''
@@ -124,12 +126,12 @@ class webqtlDataset:
         else:
             return ""
         self.cursor.execute(query)
-        RISet, RIID = self.cursor.fetchone()
-        if RISet == 'BXD300':
-            RISet = "BXD"
-        self.riset = RISet
-        self.risetid = RIID
-        return RISet
+        group, RIID = self.cursor.fetchone()
+        if group == 'BXD300':
+            group = "BXD"
+        self.group = group
+        self.group_id = RIID
+        return group
 
 
     def retrieveName(self):

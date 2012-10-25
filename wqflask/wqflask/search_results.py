@@ -36,17 +36,9 @@ from wqflask import parser
 from utility import webqtlUtil
 from dbFunction import webqtlDatabaseFunction
 
-#import logging
-#logging.basicConfig(filename=app.config['LOGFILE'], level=logging.INFO)
-#
-#_log = logging.getLogger("search")
-#_ch = logging.StreamHandler()
-#_log.addHandler(_ch)
-
 from utility import formatting
 
 import sys
-#_log.info("sys.path  is: %s" % (sys.path))
 
 
 #from base.JinjaPage import JinjaEnv, JinjaPage
@@ -64,116 +56,112 @@ class SearchResultPage(templatePage):
         import logging_tree
         logging_tree.printout()
         self.fd = fd
-        if not self.openMysql():
-            print("ge0")
-            #return
+        templatePage.__init__(self, fd)
+        assert self.openMysql(), "Couldn't open MySQL"
 
-        print("Start...")
-        print("Type of fd:", type(fd))
-        print("Value of fd:", pf(fd))
-        database = [fd['database']]
-        print("End...")
+        print("fd is:", pf(fd))
+        self.dataset = fd['dataset']
 
-        # change back to self.database
-        if not self.database or self.database == 'spacer':
-            #Error, No database selected
+        # change back to self.dataset
+        if not self.dataset or self.dataset == 'spacer':
+            #Error, No dataset selected
             heading = "Search Result"
-            detail = ['''No database was selected for this search, please
-                go back and SELECT at least one database.''']
-            print("ge0.6")
-            self.error(heading=heading,detail=detail,error="No Database Selected")
-            #return
+            detail = ['''No dataset was selected for this search, please
+                go back and SELECT at least one dataset.''']
+            self.error(heading=heading,detail=detail,error="No dataset Selected")
+            return
 
-        print("ge1")
         ###########################################
         #   Names and IDs of RISet / F2 set
         ###########################################
-        if self.database == ['_allPublish']:
+        if self.dataset == "All Phenotypes":
             self.cursor.execute("""
                 select PublishFreeze.Name, InbredSet.Name, InbredSet.Id from PublishFreeze,
                 InbredSet where PublishFreeze.Name not like 'BXD300%' and InbredSet.Id =
                 PublishFreeze.InbredSetId""")
             results = self.cursor.fetchall()
-            self.database = map(lambda x: webqtlDataset(x[0], self.cursor), results)
-            self.databaseCrosses = map(lambda x: x[1], results)
-            self.databaseCrossIds = map(lambda x: x[2], results)
-            self.singleCross = False
+            self.dataset = map(lambda x: webqtlDataset(x[0], self.cursor), results)
+            self.datasetGroups = map(lambda x: x[1], results)
+            self.datasetGroupIds = map(lambda x: x[2], results)
+            self.single_group = False
         else:
-            self.database = map(lambda x: webqtlDataset(x, self.cursor), self.database)
+            print("self.dataset is:", pf(self.dataset))
+            self.dataset = webqtlDataset(self.dataset, self.cursor)
+            print("self.dataset is now:", pf(self.dataset))
+            #self.dataset = map(lambda x: webqtlDataset(x, self.cursor), self.dataset)
             #currently, webqtl won't allow multiple crosses
             #for other than multiple publish db search
-            #so we can use the first database as example
-            if self.database[0].type=="Publish":
-                pass
-            elif self.database[0].type in ("Geno", "ProbeSet"):
+            #so we can use the first dataset as example
+            #if self.dataset.type=="Publish":
+            #    pass
+            if self.dataset.type in ("Geno", "ProbeSet"):
 
                 #userExist = None
+                # Can't use paramater substitution for table names apparently
+                db_type = self.dataset.type + "Freeze"
+                print("db_type [%s]: %s" % (type(db_type), db_type))
 
-                for individualDB in self.database:
-                    # Can't use paramater substitution for table names apparently
-                    db_type = self.database[0].type + "Freeze"
-                    print("db_type [%s]: %s" % (type(db_type), db_type))
+                query = '''SELECT Id, Name, FullName, confidentiality,
+                                    AuthorisedUsers FROM %s WHERE Name = %%s''' % (db_type)
 
-                    query = '''SELECT Id, Name, FullName, confidentiality,
-                                        AuthorisedUsers FROM %s WHERE Name = %%s''' % (db_type)
+                self.cursor.execute(query, self.dataset.name)
 
-                    self.cursor.execute(query, (individualDB,))
+                (indId,
+                 indName,
+                 indFullName,
+                 confidential,
+                 AuthorisedUsers) = self.cursor.fetchall()[0]
 
-                    (indId,
-                     indName,
-                     indFullName,
-                     confidential,
-                     AuthorisedUsers) = self.cursor.fetchall()[0]
+                if confidential:
+                    # Allow confidential data later
+                    NoConfindetialDataForYouTodaySorry
+                    #access_to_confidential_dataset = 0
+                    #
+                    ##for the dataset that confidentiality is 1
+                    ##1. 'admin' and 'root' can see all of the dataset
+                    ##2. 'user' can see the dataset that AuthorisedUsers contains his id(stored in the Id field of User table)
+                    #if webqtlConfig.USERDICT[self.privilege] > webqtlConfig.USERDICT['user']:
+                    #    access_to_confidential_dataset = 1
+                    #else:
+                    #    AuthorisedUsersList=AuthorisedUsers.split(',')
+                    #    if AuthorisedUsersList.__contains__(self.userName):
+                    #        access_to_confidential_dataset = 1
+                    #
+                    #if not access_to_confidential_dataset:
+                    #    #Error, No dataset selected
+                    #    heading = "Search Result"
+                    #    detail = ["The %s dataset you selected is not open to the public at this time, please go back and SELECT other dataset." % indFullName]
+                    #    self.error(heading=heading,detail=detail,error="Confidential dataset")
+                    #    return
+            #else:
+            #    heading = "Search Result"
+            #    detail = ['''The dataset has not been established yet, please
+            #        go back and SELECT at least one dataset.''']
+            #    self.error(heading=heading,detail=detail,error="No dataset Selected")
+            #    return
 
-                    if confidential:
-                        access_to_confidential_dataset = 0
-
-                        #for the dataset that confidentiality is 1
-                        #1. 'admin' and 'root' can see all of the dataset
-                        #2. 'user' can see the dataset that AuthorisedUsers contains his id(stored in the Id field of User table)
-                        if webqtlConfig.USERDICT[self.privilege] > webqtlConfig.USERDICT['user']:
-                            access_to_confidential_dataset = 1
-                        else:
-                            AuthorisedUsersList=AuthorisedUsers.split(',')
-                            if AuthorisedUsersList.__contains__(self.userName):
-                                access_to_confidential_dataset = 1
-
-                        if not access_to_confidential_dataset:
-                            #Error, No database selected
-                            heading = "Search Result"
-                            detail = ["The %s database you selected is not open to the public at this time, please go back and SELECT other database." % indFullName]
-                            self.error(heading=heading,detail=detail,error="Confidential Database")
-                            return
-            else:
-                heading = "Search Result"
-                detail = ['''The database has not been established yet, please
-                    go back and SELECT at least one database.''']
-                self.error(heading=heading,detail=detail,error="No Database Selected")
-                return
-
-            print("ge2")
-            self.database[0].getRISet()
-            self.databaseCrosses = [self.database[0].riset]
-            self.databaseCrossIds = [self.database[0].risetid]
-            self.singleCross = True
-            #XZ, August 24,2010: Since self.singleCross = True, it's safe to assign one species Id.
-            self.speciesId = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.database[0].riset)
+            self.dataset.get_group()
+            self.single_group = True
+            #XZ, August 24,2010: Since self.single_group = True, it's safe to assign one species Id.
+            self.species_id = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor,
+                                                                       self.dataset.group)
 
         ###########################################
-        #    make sure search from same type of databases
+        #    make sure search from same type of datasets
         ###########################################
-        #dbTypes = map(lambda X: X.type, self.database)
-        dbTypes = [table.type for table in self.database]
-        self.dbType = dbTypes[0]
-        for item in dbTypes:
-            if item != self.dbType:
-                heading = "Search Result"
-                detail = ["Search can only be performed among the same type of databases"]
-                self.error(heading=heading,detail=detail,error="Error")
-                return
+        #dbTypes = map(lambda X: X.type, self.dataset)
+        #db_types = [table.type for table in self.dataset]
+        #self.db_type = db_types[0]
+        #for item in dbTypes:
+        #    if item != self.dbType:
+        #        heading = "Search Result"
+        #        detail = ["Search can only be performed among the same type of datasets"]
+        #        self.error(heading=heading,detail=detail,error="Error")
+        #        return
 
-        print("ge3")
-        if self.dbType == "Publish":
+
+        #self.db_type = self.dataset.type
+        if self.dataset.type == "Publish":
             self.searchField = ['Phenotype.Post_publication_description',
                                 'Phenotype.Pre_publication_description',
                                 'Phenotype.Pre_publication_abbreviation',
@@ -185,7 +173,7 @@ class SearchResultPage(templatePage):
                                 'Publication.Authors',
                                 'PublishXRef.Id']
 
-        elif self.dbType == "ProbeSet":
+        elif self.dataset.type == "ProbeSet":
             self.searchField = ['Name',
                                 'Description',
                                 'Probe_Target_Description',
@@ -194,11 +182,12 @@ class SearchResultPage(templatePage):
                                 'GenbankId',
                                 'UniGeneId',
                                 'RefSeq_TranscriptId']
-        elif self.dbType == "Geno":
+        elif self.dataset.type == "Geno":
             self.searchField = ['Name','Chr']
 
-        print("ge4")
+
         self.do_search()
+        self.gen_search_result()
 
         ###########################################
         #       Search Options
@@ -272,11 +261,11 @@ class SearchResultPage(templatePage):
         #    return
         #self.nresults = self.executeQuery()
         #
-        #if len(self.database) > 1:
-        #    dbUrl =  "Multiple phenotype databases"
+        #if len(self.dataset) > 1:
+        #    dbUrl =  "Multiple phenotype datasets"
         #    dbUrlLink = " were"
         #else:
-        #    dbUrl =  self.database[0].genHTML()
+        #    dbUrl =  self.dataset[0].genHTML()
         #    dbUrlLink = " was"
 
         #SearchText = HT.Blockquote('GeneNetwork searched the ', dbUrl, ' for all records ')
@@ -355,17 +344,13 @@ class SearchResultPage(templatePage):
 
         #TD_LR.append(HT.Paragraph('Search Results', Class="title"), SearchText)
 
-        self.start_search()
-        self.genSearchResultTable()
         #self.dict['body'] = str(TD_LR)
         #self.dict['js1'] = ''
         #self.dict['js2'] = 'onLoad="pageOffset()"'
         #self.dict['layer'] = self.generateWarningLayer()
 
-    def start_search(self):
-        pass
 
-    def genSearchResultTable(self):
+    def gen_search_result(self):
 
         #pageTable = HT.TableLite(cellSpacing=2,cellPadding=0,width="100%",border=0)
 
@@ -399,8 +384,8 @@ class SearchResultPage(templatePage):
             #tbl = HT.TableLite(cellSpacing=2,cellPadding=0,width="90%",border=0)
             #seq = self.pageNumber*self.NPerPage+1  //Edited out because we show all results in one page now - Zach 2/22/11
             seq = 1
-            RISet = self.databaseCrosses[i]
-            self.thisFormName = thisFormName = 'showDatabase'+RISet
+            group = self.databaseCrosses[i]
+            self.thisFormName = thisFormName = 'showDatabase'+group
             #selectall = HT.Href(url="#", onClick="checkAll(document.getElementsByName('%s')[0]);" % thisFormName)
             #selectall_img = HT.Image("/images/select_all2_final.jpg", name="selectall", alt="Select All", title="Select All", style="border:none;")
             #selectall.append(selectall_img)
@@ -423,7 +408,7 @@ class SearchResultPage(templatePage):
 
             tblobj = {}
             mainfmName = thisFormName
-            species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=RISet)
+            species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=group)
 
             if thisTrait.db.type=="Geno":
                 tblobj['header'] = self.getTableHeaderForGeno(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
@@ -480,7 +465,7 @@ class SearchResultPage(templatePage):
 
 
             #traitForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=thisFormName, submit=HT.Input(type='hidden'))
-            hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':'_','CellID':'_','RISet':RISet}
+            hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':'_','CellID':'_','group':group}
             hddn['incparentsf1']='ON'
         #    for key in hddn.keys():
         #        traitForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
