@@ -68,11 +68,13 @@ class SearchResultPage(templatePage):
             print("ge0")
             #return
 
-        print("ge0.5")
-        #causeerror
-        print("type of fd:", type(fd))
-        self.database = [fd['database']]
-        print("ge0.55")
+        print("Start...")
+        print("Type of fd:", type(fd))
+        print("Value of fd:", pf(fd))
+        database = [fd['database']]
+        print("End...")
+
+        # change back to self.database
         if not self.database or self.database == 'spacer':
             #Error, No database selected
             heading = "Search Result"
