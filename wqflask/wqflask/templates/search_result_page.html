@@ -8,32 +8,22 @@
                 <TR>
                     <TD valign="top" height="200" width="100%" bgcolor="#eeeeee">
                         <P class="title">Search Results</P>
-                        <BLOCKQUOTE>GeneNetwork searched the following databases:
-                            <ul>
-                                {% for db in database %}
-                                    <li><a href="/dbdoc/{{db.fullname}}">{{ db.fullname }}</a></li>
-                                {% endfor %}
-                            </ul>
-
+                        <BLOCKQUOTE>GeneNetwork searched:
+                            <a href="/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a>
+                            <br />
+                            
                             For all records  that match:
                             <ul>
-                                {% if ORkeyword2 %}
+                                {% if search_terms %}
                                     <li>
-                                        {% for word in ORkeyword2 %}
-                                            <strong>{{word}}</strong> {% if not loop.last %} or {% endif %}
-                                        {% endfor %}
-                                    </li>
-                                {% endif %}
-                                {% if ANDkeyword2 %}
-                                    <li>
-                                        {% for word in ANDkeyword2 %}
-                                            <strong>{{word}}</strong> {% if not loop.last %} and {% endif %}
+                                        {% for word in search_terms %}
+                                            <strong>{{word.search_term}}</strong> {% if not loop.last %} or {% endif %}
                                         {% endfor %}
                                     </li>
                                 {% endif %}
                             </ul>
 
-                            <P>GeneNetwork found <strong>{{ numify(nresults, "record", "records") }}</strong>.</P>
+                            <P>GeneNetwork found <strong>{{ numify(results|count, "record", "records") }}</strong>.</P>
 
                             <P>To study a record, click on its ID below.</P>
 
@@ -166,27 +156,27 @@
                                                     </DIV>
                                                 </TD>
                                             </TR>
-                                            {% for thisTrait in traitList %}
-                                            <TR id="{{ thisTrait }}">
+                                            {% for this_trait in trait_list %}
+                                            <TR id="{{ this_trait }}">
                                                 <TD class="fs12 fwn ffl b1 c222" nowrap="on">{{ loop.index }}
-                                                    <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox" VALUE="{{ thisTrait }}" onClick="highlight(this)">
+                                                    <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox" VALUE="{{ this_trait }}" onClick="highlight(this)">
                                                 </TD>
                                                 <TD class="stdcell">
-                                                    {# <A HREF="javascript:showDatabase3('{{ thisFormName }}','{{thisTrait.db.name}}','{{ thisTrait.name }}','{{ thisTrait.cellid }}')" class="fs12 fwn"> - </a> #}
-                                                    <a href="{{ url_for('show_trait_page', database=thisTrait.db.name, ProbeSetID=thisTrait.name, incparentsf1='ON', RISet='BXD')}}" class="fs12 fwn">
-                                                        {{ thisTrait.name.upper() }}
+                                                    {# <A HREF="javascript:showDatabase3('{{ thisFormName }}','{{this_trait.db.name}}','{{ this_trait.name }}','{{ this_trait.cellid }}')" class="fs12 fwn"> - </a> #}
+                                                    <a href="{{ url_for('show_trait_page', database=this_trait.db.name, ProbeSetID=this_trait.name, incparentsf1='ON', RISet='BXD')}}" class="fs12 fwn">
+                                                        {{ this_trait.name.upper() }}
                                                     </a>
                                                 </TD>
                                                 <TD class="fs12 fwn b1 c222 fsI">
-                                                    <A HREF="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{thisTrait.geneid}}" TARGET="_blank" class="font_black fs12 fwn">
-                                                        {{ thisTrait.symbol }}
+                                                    <A HREF="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{this_trait.geneid}}" TARGET="_blank" class="font_black fs12 fwn">
+                                                        {{ this_trait.symbol }}
                                                     </A>
                                                 </TD>
-                                                <TD class="stdcell">{{ thisTrait.description_display }}</TD>
-                                                <TD class="stdcell" nowrap="on">{{ thisTrait.trait_location_repr }}</TD>
-                                                <TD class="stdcell" nowrap="ON" align="right">{{ thisTrait.mean }}</TD>
-                                                <TD class="stdcell" nowrap="on" align="right">{{ thisTrait.LRS_score_repr }}</TD>
-                                                <TD class="stdcell" nowrap="on">{{ thisTrait.LRS_location_repr }}</TD>
+                                                <TD class="stdcell">{{ this_trait.description_display }}</TD>
+                                                <TD class="stdcell" nowrap="on">{{ this_trait.trait_location_repr }}</TD>
+                                                <TD class="stdcell" nowrap="ON" align="right">{{ this_trait.mean }}</TD>
+                                                <TD class="stdcell" nowrap="on" align="right">{{ this_trait.LRS_score_repr }}</TD>
+                                                <TD class="stdcell" nowrap="on">{{ this_trait.LRS_location_repr }}</TD>
                                             </TR>
                                             {% endfor %}
                                         </TABLE>

@@ -67,7 +67,7 @@ class webqtlTrait:
                 ''', self.name)
                 self.riset = self.cursor.fetchone()[0]
             else:
-                self.riset = self.db.getRISet()
+                self.riset = self.db.get_group()
 
         #
         # In ProbeSet, there are maybe several annotations match one sequence

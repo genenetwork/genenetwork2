@@ -81,8 +81,8 @@ class SearchResultPage(templatePage):
                 PublishFreeze.InbredSetId""")
             results = self.cursor.fetchall()
             self.dataset = map(lambda x: webqtlDataset(x[0], self.cursor), results)
-            self.datasetGroups = map(lambda x: x[1], results)
-            self.datasetGroupIds = map(lambda x: x[2], results)
+            self.dataset_groups = map(lambda x: x[1], results)
+            self.dataset_group_ids = map(lambda x: x[2], results)
             self.single_group = False
         else:
             print("self.dataset is:", pf(self.dataset))
@@ -162,7 +162,7 @@ class SearchResultPage(templatePage):
 
         #self.db_type = self.dataset.type
         if self.dataset.type == "Publish":
-            self.searchField = ['Phenotype.Post_publication_description',
+            self.search_fields = ['Phenotype.Post_publication_description',
                                 'Phenotype.Pre_publication_description',
                                 'Phenotype.Pre_publication_abbreviation',
                                 'Phenotype.Post_publication_abbreviation',
@@ -174,7 +174,7 @@ class SearchResultPage(templatePage):
                                 'PublishXRef.Id']
 
         elif self.dataset.type == "ProbeSet":
-            self.searchField = ['Name',
+            self.search_fields = ['Name',
                                 'Description',
                                 'Probe_Target_Description',
                                 'Symbol',
@@ -183,7 +183,7 @@ class SearchResultPage(templatePage):
                                 'UniGeneId',
                                 'RefSeq_TranscriptId']
         elif self.dataset.type == "Geno":
-            self.searchField = ['Name','Chr']
+            self.search_fields = ['Name','Chr']
 
 
         self.do_search()
@@ -354,17 +354,23 @@ class SearchResultPage(templatePage):
 
         #pageTable = HT.TableLite(cellSpacing=2,cellPadding=0,width="100%",border=0)
 
-        lastone = False
-        for i, item in enumerate(self.results):
-            if not item:
-                continue
-            lastone = False
+        #last_result = False
 
-            self.traitList = []
-            for k, item2 in enumerate(item):
-                j, ProbeSetID = item2[:2]
-                thisTrait = webqtlTrait(db=self.database[j], name=ProbeSetID, cursor=self.cursor)
-                self.traitList.append(thisTrait)
+        self.trait_list = []
+        for result in self.results:
+            if not result:
+                continue
+            #last_result = False
+
+            #for item in result:
+            print("foo locals are:", locals())
+            probe_set_id = result[1]
+            print("probe_set_id is:", pf(probe_set_id))
+            this_trait = webqtlTrait(db=self.dataset, name=probe_set_id, cursor=self.cursor)
+            this_trait.retrieveInfo(QTL=True)
+            print("this_trait is:", pf(this_trait))
+            self.trait_list.append(this_trait)
+            print("self.trait_list is:", pf(self.trait_list))
 
             ##############
             # Excel file #
@@ -378,63 +384,45 @@ class SearchResultPage(templatePage):
             #headingStyle = workbook.add_format(align = 'center', bold = 1, border = 1, size=13, fg_color = 0x1E, color="white")
 
             #XZ, 3/18/2010: pay attention to the line number of header in this file. As of today, there are 7 lines.
-            #worksheet = self.createExcelFileWithTitleAndFooter(workbook=workbook, db=thisTrait.db, returnNumber=len(self.traitList))
+            #worksheet = self.createExcelFileWithTitleAndFooter(workbook=workbook, db=this_trait.db, returnNumber=len(self.trait_list))
             newrow = 7
+            
+            #### Excel file stuff stops
 
             #tbl = HT.TableLite(cellSpacing=2,cellPadding=0,width="90%",border=0)
             #seq = self.pageNumber*self.NPerPage+1  //Edited out because we show all results in one page now - Zach 2/22/11
             seq = 1
-            group = self.databaseCrosses[i]
-            self.thisFormName = thisFormName = 'showDatabase'+group
-            #selectall = HT.Href(url="#", onClick="checkAll(document.getElementsByName('%s')[0]);" % thisFormName)
-            #selectall_img = HT.Image("/images/select_all2_final.jpg", name="selectall", alt="Select All", title="Select All", style="border:none;")
-            #selectall.append(selectall_img)
-            #reset = HT.Href(url="#", onClick="checkNone(document.getElementsByName('%s')[0]);" % thisFormName)
-            #reset_img = HT.Image("/images/select_none2_final.jpg", alt="Select None", title="Select None", style="border:none;")
-            #reset.append(reset_img)
-            #selectinvert = HT.Href(url="#", onClick="checkInvert(document.getElementsByName('%s')[0]);" % thisFormName)
-            #selectinvert_img = HT.Image("/images/invert_selection2_final.jpg", name="selectinvert", alt="Invert Selection", title="Invert Selection", style="border:none;")
-            #selectinvert.append(selectinvert_img)
-            #addselect = HT.Href(url="#")
-            #addselect_img = HT.Image("/images/add_collection1_final.jpg", name="addselect", alt="Add To Collection", title="Add To Collection", style="border:none;")
-            #addselect.append(addselect_img)
-
-            #optionsTable = HT.TableLite(cellSpacing=2,cellPadding=0,width="20%",border=0)
-            #optionsRow = HT.TR(HT.TD(selectall, width="25%"), HT.TD(reset, width="25%"), HT.TD(selectinvert, width="25%"), HT.TD(addselect, width="25%"))
-            #labelsRow = HT.TR(HT.TD("&nbsp;"*2,"Select", width="25%"), HT.TD("&nbsp;","Deselect", width="255"), HT.TD("&nbsp;"*3,"Invert", width="25%"), HT.TD("&nbsp;"*4,"Add", width="25%"))
-            #optionsTable.append(optionsRow, labelsRow)
-
-            #pageTable.append(HT.TR(HT.TD(optionsTable)), HT.TR(HT.TD(xlsUrl, height=40)))
+            group = self.dataset.group
+            self.form_name = form_name = 'show_dataset_'+group
 
             tblobj = {}
-            mainfmName = thisFormName
             species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=group)
 
-            if thisTrait.db.type=="Geno":
+            if this_trait.db.type=="Geno":
                 tblobj['header'] = self.getTableHeaderForGeno(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
 
                 newrow += 1
                 sortby = self.getSortByValue(datasetType="Geno")
 
-                tblobj['body'] = self.getTableBodyForGeno(traitList=self.traitList, formName=mainfmName, worksheet=worksheet, newrow=newrow)
+                #tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet, newrow=newrow)
 
                 #workbook.close()
-                objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-                cPickle.dump(tblobj, objfile)
-                objfile.close()
+                #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
+                #cPickle.dump(tblobj, objfile)
+                #objfile.close()
 
-                div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
+                #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
+                #
+                #pageTable.append(HT.TR(HT.TD(div)))
 
-                pageTable.append(HT.TR(HT.TD(div)))
-
-            elif thisTrait.db.type=="Publish":
+            elif this_trait.db.type=="Publish":
                 #tblobj['header'] = self.getTableHeaderForPublish(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
 
-                newrow += 1
+                #newrow += 1
 
                 sortby = self.getSortByValue(datasetType="Publish")
 
-                #tblobj['body'] = self.getTableBodyForPublish(traitList=self.traitList, formName=mainfmName, worksheet=worksheet, newrow=newrow, species=species)
+                #tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, newrow=newrow, species=species)
 
                 #workbook.close()
                 #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
@@ -445,19 +433,19 @@ class SearchResultPage(templatePage):
 
                 #pageTable.append(HT.TR(HT.TD(div)))
 
-            elif thisTrait.db.type=="ProbeSet":
+            elif this_trait.db.type=="ProbeSet":
                 #tblobj['header'] = self.getTableHeaderForProbeSet(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
 
-                newrow += 1
+                #newrow += 1
 
                 sortby = self.getSortByValue(datasetType="ProbeSet")
 
-                tblobj['body'] = self.getTableBodyForProbeSet(traitList=self.traitList, formName=mainfmName, newrow=newrow, species=species)
-
+                tblobj['body'] = self.getTableBodyForProbeSet(trait_list=self.trait_list, formName=self.form_name, newrow=newrow, species=species)
+                #
                 #workbook.close()
-                objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-                cPickle.dump(tblobj, objfile)
-                objfile.close()
+                #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
+                #cPickle.dump(tblobj, objfile)
+                #objfile.close()
 
                 #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
 
@@ -474,8 +462,8 @@ class SearchResultPage(templatePage):
         #
         #    TD_LR.append(traitForm)
         #    if len(self.results) > 1 and i < len(self.results) - 1:
-        #        lastone = True
-        #if lastone:
+        #        last_result = True
+        #if last_result:
         #    TD_LR.contents.pop()
 
     def executeQuery(self):
@@ -571,7 +559,7 @@ class SearchResultPage(templatePage):
         if self.ANDQuery or self.ORQuery:
             clause = self.ORQuery[:]
 
-            for j, database in enumerate(self.database):
+            for j, database in enumerate(self.dataset):
                 if self.ANDQuery:
                     clause.append(" (%s) " % string.join(self.ANDQuery, " AND "))
 
@@ -594,7 +582,7 @@ class SearchResultPage(templatePage):
                                          PublishXRef.PhenotypeId = Phenotype.Id and
                                          PublishXRef.PublicationId = Publication.Id and
                                          PublishFreeze.Id = %d""" % (j, incGenoTbl,
-                                         self.databaseCrossIds[j], item, database.id))
+                                         self.dataset_group_ids[j], item, database.id))
                     elif self.dbType == "ProbeSet":
                         if item.find("GOgene") < 0:
                             incGoTbl = ""
@@ -667,51 +655,87 @@ class SearchResultPage(templatePage):
         #self.ORkeyword2 = re.sub(re.compile('\s*\([\s\S]*\)'), '', self.ORkeyword2)
         #self.ORkeyword2 = self.encregexp(self.ORkeyword2)
 
-        if self.ORkeyword2 or self.ANDkeyword2:
-            ANDFulltext = []
-            ORFulltext = []
-            for k, item in enumerate(self.ORkeyword2 + self.ANDkeyword2):
-                item = item['search_term']
-                self.nkeywords += 1
-                #ZS: If there are both AND and OR keywords, just use the OR keywords
-                if k >=len(self.ORkeyword2):
-                    query = self.ANDQuery
-                    DescriptionText = self.ANDDescriptionText
-                    clausejoin = ' OR '
-                    fulltext = ANDFulltext
-                else:
-                    query = self.ORQuery
-                    DescriptionText = self.ORDescriptionText
-                    clausejoin = ' OR '
-                    fulltext = ORFulltext
+        #if self.search_terms:
+            #full_text = []
+            #ANDFulltext = []
+            #ORFulltext = []
+        for item in self.search_terms:
+            search_term = item['search_term']
+        #    self.nkeywords += 1
+        #    #ZS: If there are both AND and OR keywords, just use the OR keywords
+        #    if k >=len(self.ORkeyword2):
+        #        query = self.ANDQuery
+        #        DescriptionText = self.ANDDescriptionText
+        #        clausejoin = ' OR '
+        #        fulltext = ANDFulltext
+        #    else:
+        #        query = self.ORQuery
+        #        DescriptionText = self.ORDescriptionText
+        #        clausejoin = ' OR '
+        #        fulltext = ORFulltext
 
-                if self.dbType == "ProbeSet" and item.find('.') < 0 and item.find('\'') < 0:
-                    fulltext.append(item)
-                else:
-                    if self.matchwhole and item.find("'") < 0:
-                        item = "[[:<:]]"+ item+"[[:>:]]"
-                    clause2 = []
-                    for field in self.searchField:
-                        if self.dbType == "Publish":
-                            clause2.append("%s REGEXP \"%s\"" % (field,item))
-                        else:
-                            clause2.append("%s REGEXP \"%s\"" % ("%s.%s" % (self.dbType,field),item))
-                    clauseItem = "(%s)" % string.join(clause2, clausejoin)
-                    query.append(" (%s) " % clauseItem)
-            if ANDFulltext:
-                clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,
-                alias,GenbankId, UniGeneId, Probe_Target_Description)
-                AGAINST ('+%s' IN BOOLEAN MODE) """ % string.join(ANDFulltext, " +")
-                self.ANDQuery.append(" (%s) " % clauseItem)
-            if ORFulltext:
-                clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,
-                GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE)
-                """ % string.join(ORFulltext, " ")
-                self.ORQuery.append(" (%s) " % clauseItem)
-        else:
-            pass
-        return 1
+            print("item is:", pf(search_term))
 
+            if self.dataset.type == "ProbeSet":
+                query = (
+"""SELECT distinct 0, ProbeSet.Name as TNAME, 0 as thistable,
+    ProbeSetXRef.Mean as TMEAN,
+    ProbeSetXRef.LRS as TLRS,
+    ProbeSetXRef.PVALUE as TPVALUE,
+    ProbeSet.Chr_num as TCHR_NUM,
+    ProbeSet.Mb as TMB,
+    ProbeSet.Symbol as TSYMBOL,
+    ProbeSet.name_num as TNAME_NUM FROM ProbeSetXRef,
+    ProbeSet WHERE (MATCH (ProbeSet.Name, ProbeSet.description, ProbeSet.symbol,
+                                        alias, GenbankId, UniGeneId, Probe_Target_Description)
+                                    AGAINST ('%s' IN BOOLEAN MODE))
+    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
+    and ProbeSetXRef.ProbeSetFreezeId = %s  
+                """ % (self.db_conn.escape_string(search_term),
+                self.db_conn.escape_string(str(self.dataset.id))))
+            
+            print("query is:", query)
+            self.cursor.execute(query)
+            #print("query is:", pf(self.query))
+
+            #self.cursor.execute(self.query)
+            self.results = self.cursor.fetchall()
+
+            print("self.results is:", pf(self.results))
+
+
+#["(SELECT distinct 0, ProbeSet.Name as TNAME, 0 as thistable,\n\t\t\t\t\t\tProbeSetXRef.Mean as TMEAN,
+# ProbeSetXRef.LRS as TLRS, ProbeSetXRef.PVALUE as TPVALUE,\n\t\t\t\t\t\tProbeSet.Chr_num as TCHR_NUM,
+# Pr beSet.Mb as TMB,  ProbeSet.Symbol as TSYMBOL,\n\t\t\t\t\t\tProbeSet.name_num as TNAME_NUM  FROM
+# ProbeSetXRef, ProbeSet \n\t\t\t\t\t\tWHERE  ( MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,
+#                                                      alias GenbankId, UniGeneId, Probe_Target_Description)
+#                                               AGAINST ('shh' IN BOOLEAN MODE) )
+# and ProbeSet.Id = ProbeSetXRef.ProbeSetId and ProbeSetXRef.ProbeSetFreezeId = 112\n\t\t\t\t\t\t)"]
+
+
+            #if self.dataset.type == "ProbeSet" and search_term.find('.') < 0 and search_term.find('\'') < 0:
+            #    full_text.append(search_term)
+            #else:
+            #    if self.matchwhole and search_term.find("'") < 0:
+            #        search_term = "[[:<:]]"+ search_term+"[[:>:]]"
+            #    clause2 = []
+            #    for field in self.search_fields:
+            #        if self.dataset.type == "Publish":
+            #            clause2.append("%s REGEXP \"%s\"" % (field,search_term))
+            #        else:
+            #            clause2.append("%s REGEXP \"%s\"" % ("%s.%s" % (self.dataset.type,field),search_term))
+            #    clause_item = "(%s)" % string.join(clause2, clausejoin)
+            #    query.append(" (%s) " % clause_item)
+        #if ANDFulltext:
+        #    clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,
+        #    alias,GenbankId, UniGeneId, Probe_Target_Description)
+        #    AGAINST ('+%s' IN BOOLEAN MODE) """ % string.join(ANDFulltext, " +")
+        #    self.ANDQuery.append(" (%s) " % clauseItem)
+        #if ORFulltext:
+        #clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,
+        #GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE)
+        #""" % string.join(full_text, " ")
+        #self.query.append(" (%s) " % clauseItem)
 
 
     def encregexp(self,str):
@@ -981,44 +1005,44 @@ class SearchResultPage(templatePage):
         return tblobj_header
 
 
-    def getTableBodyForGeno(self, traitList, formName=None, worksheet=None, newrow=None):
+    def getTableBodyForGeno(self, trait_list, formName=None, worksheet=None, newrow=None):
 
         tblobj_body = []
 
         className = "fs12 fwn ffl b1 c222"
 
-        for thisTrait in traitList:
+        for this_trait in trait_list:
             tr = []
 
-            if not thisTrait.haveinfo:
-                thisTrait.retrieveInfo()
+            if not this_trait.haveinfo:
+                this_trait.retrieveInfo()
 
-            trId = str(thisTrait)
+            trId = str(this_trait)
 
             tr.append(TDCell(HT.TD(HT.Input(type="checkbox", Class="checkbox", name="searchResult",value=trId, onClick="highlight(this)"), nowrap="on", Class=className), text=trId))
 
-            tr.append(TDCell(HT.TD(HT.Href(text=thisTrait.name,url="javascript:showDatabase3('%s','%s','%s','')" % (formName, thisTrait.db.name, thisTrait.name), Class="fs12 fwn ffl"),align="left", Class=className), text=thisTrait.name, val=thisTrait.name.upper()))
+            tr.append(TDCell(HT.TD(HT.Href(text=this_trait.name,url="javascript:showDatabase3('%s','%s','%s','')" % (formName, this_trait.db.name, this_trait.name), Class="fs12 fwn ffl"),align="left", Class=className), text=this_trait.name, val=this_trait.name.upper()))
 
             #XZ: trait_location_value is used for sorting
             trait_location_repr = 'N/A'
             trait_location_value = 1000000
 
-            if thisTrait.chr and thisTrait.mb:
+            if this_trait.chr and this_trait.mb:
                 try:
-                    trait_location_value = int(thisTrait.chr)*1000 + thisTrait.mb
+                    trait_location_value = int(this_trait.chr)*1000 + this_trait.mb
                 except:
-                    if thisTrait.chr.upper() == 'X':
-                        trait_location_value = 20*1000 + thisTrait.mb
+                    if this_trait.chr.upper() == 'X':
+                        trait_location_value = 20*1000 + this_trait.mb
                     else:
-                        trait_location_value = ord(str(thisTrait.chr).upper()[0])*1000 + thisTrait.mb
+                        trait_location_value = ord(str(this_trait.chr).upper()[0])*1000 + this_trait.mb
 
-                trait_location_repr = 'Chr%s: %.6f' % (thisTrait.chr, float(thisTrait.mb) )
+                trait_location_repr = 'Chr%s: %.6f' % (this_trait.chr, float(this_trait.mb) )
 
             tr.append(TDCell(HT.TD(trait_location_repr, Class="fs12 fwn b1 c222", nowrap="on"), trait_location_repr, trait_location_value))
 
             tblobj_body.append(tr)
 
-            for ncol, item in enumerate([thisTrait.name, trait_location_repr]):
+            for ncol, item in enumerate([this_trait.name, trait_location_repr]):
                 worksheet.write([newrow, ncol], item)
 
             newrow += 1
@@ -1045,40 +1069,40 @@ class SearchResultPage(templatePage):
 
         return tblobj_header
 
-    def getTableBodyForPublish(self, traitList, formName=None, worksheet=None, newrow=None, species=''):
+    def getTableBodyForPublish(self, trait_list, formName=None, worksheet=None, newrow=None, species=''):
 
         tblobj_body = []
 
         className = "fs12 fwn b1 c222"
 
-        for thisTrait in traitList:
+        for this_trait in trait_list:
             tr = []
 
-            if not thisTrait.haveinfo:
-                thisTrait.retrieveInfo(QTL=1)
+            if not this_trait.haveinfo:
+                this_trait.retrieveInfo(QTL=1)
 
-            trId = str(thisTrait)
+            trId = str(this_trait)
 
             tr.append(TDCell(HT.TD(HT.Input(type="checkbox", Class="checkbox", name="searchResult",value=trId, onClick="highlight(this)"), nowrap="on", Class=className), text=trId))
 
-            tr.append(TDCell(HT.TD(HT.Href(text=thisTrait.name,url="javascript:showDatabase3('%s','%s','%s','')" % (formName, thisTrait.db.name, thisTrait.name), Class="fs12 fwn"), nowrap="yes",align="center", Class=className),str(thisTrait.name), thisTrait.name))
+            tr.append(TDCell(HT.TD(HT.Href(text=this_trait.name,url="javascript:showDatabase3('%s','%s','%s','')" % (formName, this_trait.db.name, this_trait.name), Class="fs12 fwn"), nowrap="yes",align="center", Class=className),str(this_trait.name), this_trait.name))
 
-            PhenotypeString = thisTrait.post_publication_description
-            if thisTrait.confidential:
-                if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=thisTrait.authorized_users):
-                    PhenotypeString = thisTrait.pre_publication_description
+            PhenotypeString = this_trait.post_publication_description
+            if this_trait.confidential:
+                if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
+                    PhenotypeString = this_trait.pre_publication_description
             tr.append(TDCell(HT.TD(PhenotypeString, Class=className), PhenotypeString, PhenotypeString.upper()))
 
-            tr.append(TDCell(HT.TD(thisTrait.authors, Class="fs12 fwn b1 c222 fsI"),thisTrait.authors, thisTrait.authors.strip().upper()))
+            tr.append(TDCell(HT.TD(this_trait.authors, Class="fs12 fwn b1 c222 fsI"),this_trait.authors, this_trait.authors.strip().upper()))
 
             try:
-                PubMedLinkText = myear = repr = int(thisTrait.year)
+                PubMedLinkText = myear = repr = int(this_trait.year)
             except:
                 PubMedLinkText = repr = "N/A"
                 myear = 0
 
-            if thisTrait.pubmed_id:
-                PubMedLink = HT.Href(text= repr,url= webqtlConfig.PUBMEDLINK_URL % thisTrait.pubmed_id,target='_blank', Class="fs12 fwn")
+            if this_trait.pubmed_id:
+                PubMedLink = HT.Href(text= repr,url= webqtlConfig.PUBMEDLINK_URL % this_trait.pubmed_id,target='_blank', Class="fs12 fwn")
             else:
                 PubMedLink = repr
 
@@ -1092,9 +1116,9 @@ class SearchResultPage(templatePage):
             LRS_flag = 1
 
 
-            if thisTrait.lrs:
-                LRS_score_repr = '%3.1f' % thisTrait.lrs
-                LRS_score_value = thisTrait.lrs
+            if this_trait.lrs:
+                LRS_score_repr = '%3.1f' % this_trait.lrs
+                LRS_score_value = this_trait.lrs
                 tr.append(TDCell(HT.TD(LRS_score_repr, Class=className), LRS_score_repr, LRS_score_value))
 
                 self.cursor.execute("""
@@ -1102,7 +1126,7 @@ class SearchResultPage(templatePage):
                     where Species.Name = '%s' and
                         Geno.Name = '%s' and
                         Geno.SpeciesId = Species.Id
-                """ % (species, thisTrait.locus))
+                """ % (species, this_trait.locus))
                 result = self.cursor.fetchone()
 
                 if result:
@@ -1130,7 +1154,7 @@ class SearchResultPage(templatePage):
 
             tblobj_body.append(tr)
 
-            for ncol, item in enumerate([thisTrait.name, PhenotypeString, thisTrait.authors, thisTrait.year, thisTrait.pubmed_id, LRS_score_repr, LRS_location_repr]):
+            for ncol, item in enumerate([this_trait.name, PhenotypeString, this_trait.authors, this_trait.year, this_trait.pubmed_id, LRS_score_repr, LRS_location_repr]):
                 worksheet.write([newrow, ncol], item)
 
             newrow += 1
@@ -1158,54 +1182,54 @@ class SearchResultPage(templatePage):
 
         return tblobj_header
 
-    def getTableBodyForProbeSet(self, traitList=[], primaryTrait=None, formName=None, worksheet=None, newrow=None, species=''):
-        #  Note: setting traitList to [] is probably not a great idea.
+    def getTableBodyForProbeSet(self, trait_list=[], primaryTrait=None, formName=None, worksheet=None, newrow=None, species=''):
+        #  Note: setting trait_list to [] is probably not a great idea.
         tblobj_body = []
 
         className = "fs12 fwn b1 c222"
 
-        for thisTrait in traitList:
+        for this_trait in trait_list:
 
-            if not thisTrait.haveinfo:
-                thisTrait.retrieveInfo(QTL=1)
+            if not this_trait.haveinfo:
+                this_trait.retrieveInfo(QTL=1)
 
-            if thisTrait.symbol:
+            if this_trait.symbol:
                 pass
             else:
-                thisTrait.symbol = "N/A"
+                this_trait.symbol = "N/A"
 
             tr = []
 
-            trId = str(thisTrait)
+            trId = str(this_trait)
 
             #XZ, 12/08/2008: checkbox
             #tr.append(TDCell(HT.TD(HT.Input(type="checkbox", Class="checkbox", name="searchResult",value=trId, onClick="highlight(this)"), nowrap="on", Class="fs12 fwn ffl b1 c222"), text=trId))
 
             #XZ, 12/08/2008: probeset name
-            #if thisTrait.cellid:
-            #    tr.append(TDCell(HT.TD(HT.Href(text=thisTrait.name, url="javascript:showDatabase3('%s','%s','%s','%s')" % (formName, thisTrait.db.name,thisTrait.name,thisTrait.cellid), Class="fs12 fwn"), Class=className), thisTrait.name, thisTrait.name.upper()))
+            #if this_trait.cellid:
+            #    tr.append(TDCell(HT.TD(HT.Href(text=this_trait.name, url="javascript:showDatabase3('%s','%s','%s','%s')" % (formName, this_trait.db.name,this_trait.name,this_trait.cellid), Class="fs12 fwn"), Class=className), this_trait.name, this_trait.name.upper()))
             #else:
-            #    tr.append(TDCell(HT.TD(HT.Href(text=thisTrait.name, url="javascript:showDatabase3('%s','%s','%s','')" % (formName, thisTrait.db.name,thisTrait.name), Class="fs12 fwn"), Class=className), thisTrait.name, thisTrait.name.upper()))
+            #    tr.append(TDCell(HT.TD(HT.Href(text=this_trait.name, url="javascript:showDatabase3('%s','%s','%s','')" % (formName, this_trait.db.name,this_trait.name), Class="fs12 fwn"), Class=className), this_trait.name, this_trait.name.upper()))
             #
-            #if thisTrait.geneid:
-            #    symbolurl = HT.Href(text=thisTrait.symbol,target='_blank',url="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % thisTrait.geneid, Class="font_black fs12 fwn")
+            #if this_trait.geneid:
+            #    symbolurl = HT.Href(text=this_trait.symbol,target='_blank',url="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % this_trait.geneid, Class="font_black fs12 fwn")
             #else:
-            #    symbolurl = HT.Href(text=thisTrait.symbol,target='_blank',url="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=gene&term=%s" % thisTrait.symbol, Class="font_black fs12 fwn")
+            #    symbolurl = HT.Href(text=this_trait.symbol,target='_blank',url="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=gene&term=%s" % this_trait.symbol, Class="font_black fs12 fwn")
             #
             ##XZ, 12/08/2008: gene symbol
-            #tr.append(TDCell(HT.TD(symbolurl, Class="fs12 fwn b1 c222 fsI"),thisTrait.symbol, thisTrait.symbol.upper()))
+            #tr.append(TDCell(HT.TD(symbolurl, Class="fs12 fwn b1 c222 fsI"),this_trait.symbol, this_trait.symbol.upper()))
 
             #XZ, 12/08/2008: description
             #XZ, 06/05/2009: Rob asked to add probe target description
-            description_string = str(thisTrait.description).strip()
-            target_string = str(thisTrait.probe_target_description).strip()
+            description_string = str(this_trait.description).strip()
+            target_string = str(this_trait.probe_target_description).strip()
 
             description_display = ''
 
             if len(description_string) > 1 and description_string != 'None':
                 description_display = description_string
             else:
-                description_display = thisTrait.symbol
+                description_display = this_trait.symbol
 
             if len(description_display) > 1 and description_display != 'N/A' and len(target_string) > 1 and target_string != 'None':
                 description_display = description_display + '; ' + target_string.strip()
@@ -1213,24 +1237,24 @@ class SearchResultPage(templatePage):
             #tr.append(TDCell(HT.TD(description_display, Class=className), description_display, description_display))
 
             # Save it for the jinja2 tablet
-            thisTrait.description_display = description_display
+            this_trait.description_display = description_display
 
             #XZ: trait_location_value is used for sorting
             trait_location_repr = 'N/A'
             trait_location_value = 1000000
 
-            if thisTrait.chr and thisTrait.mb:
+            if this_trait.chr and this_trait.mb:
                 try:
-                    trait_location_value = int(thisTrait.chr)*1000 + thisTrait.mb
+                    trait_location_value = int(this_trait.chr)*1000 + this_trait.mb
                 except:
-                    if thisTrait.chr.upper() == 'X':
-                        trait_location_value = 20*1000 + thisTrait.mb
+                    if this_trait.chr.upper() == 'X':
+                        trait_location_value = 20*1000 + this_trait.mb
                     else:
-                        trait_location_value = ord(str(thisTrait.chr).upper()[0])*1000 + thisTrait.mb
+                        trait_location_value = ord(str(this_trait.chr).upper()[0])*1000 + this_trait.mb
 
-                trait_location_repr = 'Chr%s: %.6f' % (thisTrait.chr, float(thisTrait.mb) )
-                thisTrait.trait_location_repr = trait_location_repr
-                #thisTrait.trait_location_value = trait_location_value
+                trait_location_repr = 'Chr%s: %.6f' % (this_trait.chr, float(this_trait.mb) )
+                this_trait.trait_location_repr = trait_location_repr
+                #this_trait.trait_location_value = trait_location_value
             tr.append(TDCell(HT.TD(trait_location_repr, Class=className, nowrap="on"), trait_location_repr, trait_location_value))
 
             #XZ, 01/12/08: This SQL query is much faster.
@@ -1239,7 +1263,7 @@ class SearchResultPage(templatePage):
                 where ProbeSetXRef.ProbeSetFreezeId = %d and
                     ProbeSet.Id = ProbeSetXRef.ProbeSetId and
                     ProbeSet.Name = '%s'
-            """ % (thisTrait.db.id, thisTrait.name))
+            """ % (this_trait.db.id, this_trait.name))
             result = self.cursor.fetchone()
             if result:
                 if result[0]:
@@ -1250,7 +1274,7 @@ class SearchResultPage(templatePage):
                 mean = 0
 
             #XZ, 06/05/2009: It is neccessary to turn on nowrap
-            thisTrait.mean = repr = "%2.3f" % mean
+            this_trait.mean = repr = "%2.3f" % mean
             tr.append(TDCell(HT.TD(repr, Class=className, align='right', nowrap='ON'),repr, mean))
 
             #LRS and its location
@@ -1261,13 +1285,13 @@ class SearchResultPage(templatePage):
             LRS_flag = 1
 
             #Max LRS and its Locus location
-            if thisTrait.lrs and thisTrait.locus:
+            if this_trait.lrs and this_trait.locus:
                 self.cursor.execute("""
                     select Geno.Chr, Geno.Mb from Geno, Species
                     where Species.Name = '%s' and
                         Geno.Name = '%s' and
                         Geno.SpeciesId = Species.Id
-                """ % (species, thisTrait.locus))
+                """ % (species, this_trait.locus))
                 result = self.cursor.fetchone()
 
                 if result:
@@ -1284,12 +1308,12 @@ class SearchResultPage(templatePage):
                             else:
                                 LRS_location_value = ord(str(LRS_chr).upper()[0])*1000 + float(LRS_Mb)
 
-                        thisTrait.LRS_score_repr = LRS_score_repr = '%3.1f' % thisTrait.lrs
-                        thisTrait.LRS_score_value = LRS_score_value = thisTrait.lrs
-                        thisTrait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (LRS_Chr, float(LRS_Mb) )
+                        this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
+                        this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
+                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (LRS_Chr, float(LRS_Mb) )
                         LRS_flag = 0
 
-                        #tr.append(TDCell(HT.TD(HT.Href(text=LRS_score_repr,url="javascript:showIntervalMapping('%s', '%s : %s')" % (formName, thisTrait.db.shortname, thisTrait.name), Class="fs12 fwn"), Class=className, align='right', nowrap="on"),LRS_score_repr, LRS_score_value))
+                        #tr.append(TDCell(HT.TD(HT.Href(text=LRS_score_repr,url="javascript:showIntervalMapping('%s', '%s : %s')" % (formName, this_trait.db.shortname, this_trait.name), Class="fs12 fwn"), Class=className, align='right', nowrap="on"),LRS_score_repr, LRS_score_value))
                         tr.append(TDCell(HT.TD(LRS_score_repr, Class=className, align='right', nowrap="on"), LRS_score_repr, LRS_score_value))
                         tr.append(TDCell(HT.TD(LRS_location_repr, Class=className, nowrap="on"), LRS_location_repr, LRS_location_value))
 
@@ -1303,7 +1327,7 @@ class SearchResultPage(templatePage):
 
             tblobj_body.append(tr)
 
-            #for ncol, item in enumerate([thisTrait.name, thisTrait.geneid, thisTrait.homologeneid, thisTrait.symbol, description_display, trait_location_repr, mean, LRS_score_repr, LRS_location_repr]):
+            #for ncol, item in enumerate([this_trait.name, this_trait.geneid, this_trait.homologeneid, this_trait.symbol, description_display, trait_location_repr, mean, LRS_score_repr, LRS_location_repr]):
             #    worksheet.write([newrow, ncol], item)
 
 

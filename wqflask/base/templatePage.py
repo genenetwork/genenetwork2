@@ -155,29 +155,29 @@ class templatePage:
 
     def openMysql(self):
         try:
-            self.con = MySQLdb.Connect(db=webqtlConfig.DB_NAME,host=webqtlConfig.MYSQL_SERVER, \
+            self.db_conn = MySQLdb.Connect(db=webqtlConfig.DB_NAME,host=webqtlConfig.MYSQL_SERVER, \
                                     user=webqtlConfig.DB_USER,passwd=webqtlConfig.DB_PASSWD)
-            self.cursor = self.con.cursor()
-            return 1
-        except:
+            self.cursor = self.db_conn.cursor()
+            return True
+        except Exception:
             heading = "Connect MySQL Server"
             detail = ["Can't connect to MySQL server on '"+ webqtlConfig.MYSQL_SERVER+"':100061. \
                             The server may be down at this time"]
             self.error(heading=heading,detail=detail,error="Error 2003")
-            return 0
+            return False
 
     def updMysql(self):
         try:
-            self.con = MySQLdb.Connect(db=webqtlConfig.DB_UPDNAME,host=webqtlConfig.MYSQL_UPDSERVER, \
+            self.db_conn = MySQLdb.Connect(db=webqtlConfig.DB_UPDNAME,host=webqtlConfig.MYSQL_UPDSERVER, \
                                     user=webqtlConfig.DB_UPDUSER,passwd=webqtlConfig.DB_UPDPASSWD)
-            self.cursor = self.con.cursor()
-            return 1
-        except:
+            self.cursor = self.db_conn.cursor()
+            return True
+        except Exception:
             heading = "Connect MySQL Server"
             detail = ["update: Can't connect to MySQL server on '"+ webqtlConfig.MYSQL_UPDSERVER+"':100061. \
                             The server may be down at this time "]
             self.error(heading=heading,detail=detail,error="Error 2003")
-            return 0
+            return False
 
     def error(self,heading="",intro=[],detail=[],title="Error",error="Error"):
         'generating a WebQTL style error page'

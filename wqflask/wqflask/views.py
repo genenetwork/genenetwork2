@@ -63,7 +63,8 @@ def search_page():
     else:
         print("calling search_results.SearchResultPage")
         the_search = search_results.SearchResultPage(request.args)
-        print("done calling")
+        print("template_vars is:", pf(the_search.__dict__))
+        print("trait_list is:", pf(the_search.__dict__['trait_list'][0].__dict__))
         return render_template("search_result_page.html", **the_search.__dict__)
 
 
