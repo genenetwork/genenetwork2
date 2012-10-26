@@ -2,195 +2,88 @@
 {% block title %}Search Results{% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <TR>
-        <TD  bgColor=#eeeeee class="solidBorder">
-            <Table width= "100%" cellSpacing=0 cellPadding=5>
-                <TR>
-                    <TD valign="top" height="200" width="100%" bgcolor="#eeeeee">
-                        <P class="title">Search Results</P>
-                        <BLOCKQUOTE>GeneNetwork searched:
-                            <a href="/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a>
-                            <br />
-                            
-                            For all records  that match:
-                            <ul>
-                                {% if search_terms %}
-                                    <li>
-                                        {% for word in search_terms %}
-                                            <strong>{{word.search_term}}</strong> {% if not loop.last %} or {% endif %}
-                                        {% endfor %}
-                                    </li>
-                                {% endif %}
-                            </ul>
+    <header class="jumbotron subhead" id="overview">
+        <div class="container">
+            <h1>Search Results</h1>
+            <p class="lead">
+                GeneNetwork found {{ numify(results|count, "record", "records") }}.
+            </p>
+        </div>
+    </header>
 
-                            <P>GeneNetwork found <strong>{{ numify(results|count, "record", "records") }}</strong>.</P>
-
-                            <P>To study a record, click on its ID below.</P>
-
-                            <P>To add one or more records to your Selection window, use the checkbox and then click the <STRONG>Add to Collection</STRONG> button.</P>
-                        </BLOCKQUOTE>
-                        <FORM METHOD="GET" ACTION="/search" ENCTYPE="multipart/form-data" NAME="show_trait">
-
-                        <INPUT TYPE="hidden" NAME="database" VALUE="_">
-                        <INPUT TYPE="hidden" NAME="incparentsf1" VALUE="ON">
-                        <INPUT TYPE="hidden" NAME="FormID" VALUE="showDatabase">
-                        <INPUT TYPE="hidden" NAME="ProbeSetID" VALUE="_">
-                        <INPUT TYPE="hidden" NAME="RISet" VALUE="BXD">
-                        <INPUT TYPE="hidden" NAME="CellID" VALUE="_">
-                        <P>
-                        <TABLE border="0" cellpadding="0" cellspacing="2" width="100%">
-                            <TR>
-                                <TD>
-                                    <TABLE border="0" cellpadding="0" cellspacing="2" width="20%">
-                                        <TR>
-                                            <TD width="25%">
-                                                <A HREF="#" onClick="checkAll(document.getElementsByName('show_trait')[0]);">
-                                                <IMG src="/images/select_all2_final.jpg" alt="Select All" name="selectall" style="border:none;" title="Select All"></A>
-                                            </TD>
-                                            <TD width="25%">
-                                                <A HREF="#" onClick="checkNone(document.getElementsByName('show_trait')[0]);">
-                                                    <IMG src="/images/select_none2_final.jpg" alt="Select None" style="border:none;" title="Select None">
-                                                </A>
-                                            </TD>
-                                            <TD width="25%">
-                                                <A HREF="#" onClick="checkInvert(document.getElementsByName('show_trait')[0]);">
-                                                    <IMG src="/images/invert_selection2_final.jpg" alt="Invert Selection" name="selectinvert" style="border:none;" title="Invert Selection">
-                                                </A>
-                                            </TD>
-                                            <TD width="25%">
-                                                <A HREF="#">
-                                                    <IMG src="/images/add_collection1_final.jpg" alt="Add To Collection" name="addselect" style="border:none;" title="Add To Collection">
-                                                </A>
-                                            </TD>
-                                        </TR>
-                                        <TR>
-                                            <TD width="25%">&nbsp;&nbsp;Select</TD>
-                                            <TD width="255">&nbsp;Deselect</TD>
-                                            <TD width="25%">&nbsp;&nbsp;&nbsp;Invert</TD>
-                                            <TD width="25%">&nbsp;&nbsp;&nbsp;&nbsp;Add</TD>
-                                        </TR></TABLE>
-                                </TD>
-                            </TR>
-                            <TR>
-                                <TD height="40">
-                                    <INPUT TYPE="button" NAME="Default_Name" class="button" VALUE="Download Table" onClick="location.href='/tmp/Search_fYr7h2Hn.xls'">
-                                </TD>
-                            </TR>
-                            <TR>
-                                <TD>
-                                    <DIV id="sortable">
-                                        <TABLE class="collap b2" cellpadding="5" cellspacing="1">
-                                            <TR>
-                                                <TD class="fs13 fwb ffl b1 cw cbrb" nowrap="ON">
-                                                </TD>
-                                                <TD class="fs13 fwb ffl b1 cw cbrb">
-                                                    Record
-                                                    <BR>ID<BR>
-                                                    <DIV style="float: bottom;">
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=record_id&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
-                                                        </A>
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=record_id&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
-                                                        </A>
-                                                    </DIV>
-                                                </TD>
-                                                <TD class="fs13 fwb ffl b1 cw cbrb">
-                                                    Symbol<BR><BR>
-                                                    <DIV style="float: bottom;">
-                                                        <IMG src="/images/sortupon.gif" alt="sortupon.gif" border="0">
-                                                            <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=symbol&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                                <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
-                                                            </A>
-                                                    </DIV>
-                                                </TD>
-                                                <TD class="fs13 fwb ffl b1 cw cbrb">
-                                                    Description<BR><BR>
-                                                    <DIV style="float: bottom;">
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=desc&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
-                                                        </A>
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=desc&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
-                                                        </A>
-                                                    </DIV>
-                                                </TD>
-                                                <TD class="fs13 fwb ffl b1 cw cbrb">Location<BR>Chr and Mb<BR>
-                                                    <DIV style="float: bottom;">
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=location&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
-                                                        </A>
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=location&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
-                                                        </A>
-                                                    </DIV>
-                                                </TD>
-                                                <TD class="fs13 fwb ffl b1 cw cbrb">Mean<BR>Expr<BR>
-                                                <DIV style="float: bottom;">
-                                                    <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=mean&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                        <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
-                                                    </A>
-                                                    <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=mean&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                        <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
-                                                    </A>
-                                                </DIV>
-                                                </TD>
-                                                <TD class="fs13 fwb ffl b1 cw cbrb" nowrap="ON">Max<BR>LRS<BR>
-                                                    <DIV style="float: bottom;">
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=lrs&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
-                                                        </A>
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=lrs&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
-                                                        </A>
-                                                    </DIV>
-                                                </TD>
-                                                <TD class="fs13 fwb ffl b1 cw cbrb" nowrap="ON">Max LRS Location<BR>Chr and Mb<BR>
-                                                    <DIV style="float: bottom;">
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=lrs_location&order=up&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortup.gif" alt="sortup.gif" border="0">
-                                                        </A>
-                                                        <A HREF="javascript:xmlhttpPost('/webqtl/main.py?FormID=AJAX_table', 'sortable', 'sort=lrs_location&order=down&file=Search_fYr7h2Hn&tableID=sortable&addIndex=1&hiddenColumns=')">
-                                                            <IMG src="/images/sortdown.gif" alt="sortdown.gif" border="0">
-                                                        </A>
-                                                    </DIV>
-                                                </TD>
-                                            </TR>
-                                            {% for this_trait in trait_list %}
-                                            <TR id="{{ this_trait }}">
-                                                <TD class="fs12 fwn ffl b1 c222" nowrap="on">{{ loop.index }}
-                                                    <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox" VALUE="{{ this_trait }}" onClick="highlight(this)">
-                                                </TD>
-                                                <TD class="stdcell">
-                                                    {# <A HREF="javascript:showDatabase3('{{ thisFormName }}','{{this_trait.db.name}}','{{ this_trait.name }}','{{ this_trait.cellid }}')" class="fs12 fwn"> - </a> #}
-                                                    <a href="{{ url_for('show_trait_page', database=this_trait.db.name, ProbeSetID=this_trait.name, incparentsf1='ON', RISet='BXD')}}" class="fs12 fwn">
-                                                        {{ this_trait.name.upper() }}
-                                                    </a>
-                                                </TD>
-                                                <TD class="fs12 fwn b1 c222 fsI">
-                                                    <A HREF="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{this_trait.geneid}}" TARGET="_blank" class="font_black fs12 fwn">
-                                                        {{ this_trait.symbol }}
-                                                    </A>
-                                                </TD>
-                                                <TD class="stdcell">{{ this_trait.description_display }}</TD>
-                                                <TD class="stdcell" nowrap="on">{{ this_trait.trait_location_repr }}</TD>
-                                                <TD class="stdcell" nowrap="ON" align="right">{{ this_trait.mean }}</TD>
-                                                <TD class="stdcell" nowrap="on" align="right">{{ this_trait.LRS_score_repr }}</TD>
-                                                <TD class="stdcell" nowrap="on">{{ this_trait.LRS_location_repr }}</TD>
-                                            </TR>
-                                            {% endfor %}
-                                        </TABLE>
-                                    </DIV>
-                                </TD>
-                            </TR>
-                        </TABLE>
-                        <INPUT TYPE="hidden" NAME="Default_Name">
-                        </FORM>
-                    </TD>
-                </TR>
-            </TABLE>
-        </TD>
-    </TR>
+    <div class="container">
+        <div class="page-header">
+            <h1>Your Search</h1>
+        </div>
+        
+        <p>We searched <a href="/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a><//>
+        
+        <p>To find all records that match:</p>
+        <ul>
+            {% if search_terms %}
+            <li>
+                {% for word in search_terms %}
+                    <strong>{{word.search_term}}</strong> {% if not loop.last %} or {% endif %}
+                {% endfor %}
+            </li>
+            {% endif %}
+        </ul>
+        
+        <p>To study a record, click on its ID below.<br />
+        Check records below and click Add button to add to selection.</p>
+        
+        <div class="bs-docs-example">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                    {% for header in header_fields %}
+                        <th>{{header}}</th>
+                    {% endfor %}
+                </thead>
+                
+                <tbody>
+                    {% for this_trait in trait_list %}
+                    <TR id="{{ this_trait }}">
+                        <TD>
+                            <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox"
+                                   VALUE="{{ this_trait }}">
+                        </TD>
+                        <TD>
+                            <a href="{{ url_for('show_trait_page',
+                                    database=this_trait.db.name,
+                                    ProbeSetID=this_trait.name, incparentsf1='ON',
+                                    RISet='BXD')}}">
+                                {{ this_trait.name.upper() }}
+                            </a>
+                        </TD>
+                        <TD>
+                            <A HREF=
+                                "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{this_trait.geneid}}" TARGET="_blank">
+                                {{ this_trait.symbol }}
+                            </A>
+                        </TD>
+                        <TD>{{ this_trait.description_display }}</TD>
+                        <TD>{{ this_trait.trait_location_repr }}</TD>
+                        <TD>{{ this_trait.mean }}</TD>
+                        <TD>{{ this_trait.LRS_score_repr }}</TD>
+                        <TD>{{ this_trait.LRS_location_repr }}</TD>
+                    </TR>
+                {% endfor %}
+                </tbody>
+                
+            </table>
+            
+            <br />
+            
+            <button class="btn"><i class="icon-ok"></i> Select</button>
+            <button class="btn"><i class="icon-remove"></i> Deselect</button>
+            <button class="btn"><i class="icon-resize-vertical"></i> Invert</button>
+            <button class="btn"><i class="icon-plus-sign"></i> Add</button>
+            <button class="btn btn-primary pull-right"><i class="icon-download icon-white"></i> Download Table</button>
+        </div>
+        
+    </div>
+    
 <!-- End of body -->
 
 {% endblock %}

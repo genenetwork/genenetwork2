@@ -182,6 +182,14 @@ class SearchResultPage(templatePage):
                                 'GenbankId',
                                 'UniGeneId',
                                 'RefSeq_TranscriptId']
+            self.header_fields = ['',
+                                'ID',
+                                'Symbol',
+                                'Description',
+                                'Location',
+                                'Mean Expr',
+                                'Max LRS',
+                                'Max LRS Location']
         elif self.dataset.type == "Geno":
             self.search_fields = ['Name','Chr']
 
@@ -693,8 +701,7 @@ class SearchResultPage(templatePage):
     and ProbeSetXRef.ProbeSetFreezeId = %s  
                 """ % (self.db_conn.escape_string(search_term),
                 self.db_conn.escape_string(str(self.dataset.id))))
-            
-            print("query is:", query)
+
             self.cursor.execute(query)
             #print("query is:", pf(self.query))
 
@@ -1252,19 +1259,25 @@ class SearchResultPage(templatePage):
                     else:
                         trait_location_value = ord(str(this_trait.chr).upper()[0])*1000 + this_trait.mb
 
-                trait_location_repr = 'Chr%s: %.6f' % (this_trait.chr, float(this_trait.mb) )
+                trait_location_repr = 'Chr %s: %.4f Mb' % (this_trait.chr, float(this_trait.mb) )
                 this_trait.trait_location_repr = trait_location_repr
                 #this_trait.trait_location_value = trait_location_value
             tr.append(TDCell(HT.TD(trait_location_repr, Class=className, nowrap="on"), trait_location_repr, trait_location_value))
 
             #XZ, 01/12/08: This SQL query is much faster.
-            self.cursor.execute("""
-                select ProbeSetXRef.mean from ProbeSetXRef, ProbeSet
-                where ProbeSetXRef.ProbeSetFreezeId = %d and
-                    ProbeSet.Id = ProbeSetXRef.ProbeSetId and
-                    ProbeSet.Name = '%s'
-            """ % (this_trait.db.id, this_trait.name))
+            query = (
+"""select ProbeSetXRef.mean from ProbeSetXRef, ProbeSet
+    where ProbeSetXRef.ProbeSetFreezeId = %s and
+    ProbeSet.Id = ProbeSetXRef.ProbeSetId and
+    ProbeSet.Name = '%s'
+            """ % (self.db_conn.escape_string(str(this_trait.db.id)),
+                   self.db_conn.escape_string(this_trait.name)))
+            
+            print("query is:", pf(query))
+            
+            self.cursor.execute(query)
             result = self.cursor.fetchone()
+
             if result:
                 if result[0]:
                     mean = result[0]
@@ -1310,7 +1323,7 @@ class SearchResultPage(templatePage):
 
                         this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
                         this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
-                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (LRS_Chr, float(LRS_Mb) )
+                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )
                         LRS_flag = 0
 
                         #tr.append(TDCell(HT.TD(HT.Href(text=LRS_score_repr,url="javascript:showIntervalMapping('%s', '%s : %s')" % (formName, this_trait.db.shortname, this_trait.name), Class="fs12 fwn"), Class=className, align='right', nowrap="on"),LRS_score_repr, LRS_score_value))
