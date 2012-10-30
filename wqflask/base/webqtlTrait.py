@@ -226,7 +226,7 @@ class webqtlTrait:
 
 
     def retrieveData(self, samplelist=None):
-        
+
         if samplelist == None:
             samplelist = []
         assert self.db and self.cursor
@@ -331,7 +331,7 @@ class webqtlTrait:
         self.cursor.execute(query)
         results = self.cursor.fetchall()
         self.data.clear()
-        
+
         if results:
             self.mysqlid = results[0][-1]
             #if samplelist:
@@ -345,7 +345,7 @@ class webqtlTrait:
                     name = item[0]
                     self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
                 #end for
-        #    else:   
+        #    else:
         #        for item in results:
         #            val = item[1]
         #            if val != None:
@@ -604,7 +604,7 @@ class webqtlTrait:
                 formatted += "; " + self.probe_target_description
         else:
             formatted = "Not available"
-        return formatted
+        return formatted.capitalize()
 
     @property
     def alias_fmt(self):
@@ -660,7 +660,7 @@ class webqtlTrait:
         else:
             return dict(name = self.db.fullname,
                         url = webqtlConfig.INFOPAGEHREF % self.db.name)
-        
+
     def calculate_correlation(self, values, method):
         """Calculate the correlation value and p value according to the method specified"""
 
@@ -693,4 +693,4 @@ class webqtlTrait:
             else:
                 ZValue = 0.5*log((1.0+self.correlation)/(1.0-self.correlation))
                 ZValue = ZValue*sqrt(self.overlap-3)
-                self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))        
+                self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))

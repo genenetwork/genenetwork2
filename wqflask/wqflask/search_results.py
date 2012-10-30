@@ -365,114 +365,111 @@ class SearchResultPage(templatePage):
         #last_result = False
 
         self.trait_list = []
-        for result in self.results:
-            if not result:
-                continue
-            #last_result = False
+        # result_set represents the results for each search term; a search of 
+        # "shh grin2b" would have two sets of results, one for each term
+        for result_set in self.results:
+            for result in result_set:
+                if not result:
+                    continue
+                #last_result = False
 
-            #for item in result:
-            print("foo locals are:", locals())
-            probe_set_id = result[1]
-            print("probe_set_id is:", pf(probe_set_id))
-            this_trait = webqtlTrait(db=self.dataset, name=probe_set_id, cursor=self.cursor)
-            this_trait.retrieveInfo(QTL=True)
-            print("this_trait is:", pf(this_trait))
-            self.trait_list.append(this_trait)
-            print("self.trait_list is:", pf(self.trait_list))
+                seq = 1
+                group = self.dataset.group
+                self.form_name = form_name = 'show_dataset_'+group
 
-            ##############
-            # Excel file #
-            ##############
+                tblobj = {}
+                species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=group)
 
-            # Todo: Replace this with official Python temp file naming functions?
-            filename= webqtlUtil.genRandStr("Search_")
-            #xlsUrl = HT.Input(type='button', value = 'Download Table', onClick= "location.href='/tmp/%s.xls'" % filename, Class='button')
-            # Create a new Excel workbook
-            #workbook = xl.Writer('%s.xls' % (webqtlConfig.TMPDIR+filename))
-            #headingStyle = workbook.add_format(align = 'center', bold = 1, border = 1, size=13, fg_color = 0x1E, color="white")
+                #### Excel file 
 
-            #XZ, 3/18/2010: pay attention to the line number of header in this file. As of today, there are 7 lines.
-            #worksheet = self.createExcelFileWithTitleAndFooter(workbook=workbook, db=this_trait.db, returnNumber=len(self.trait_list))
-            newrow = 7
-            
-            #### Excel file stuff stops
+                # Todo: Replace this with official Python temp file naming functions?
+                filename= webqtlUtil.genRandStr("Search_")
+                #xlsUrl = HT.Input(type='button', value = 'Download Table', onClick= "location.href='/tmp/%s.xls'" % filename, Class='button')
+                # Create a new Excel workbook
+                #workbook = xl.Writer('%s.xls' % (webqtlConfig.TMPDIR+filename))
+                #headingStyle = workbook.add_format(align = 'center', bold = 1, border = 1, size=13, fg_color = 0x1E, color="white")
 
-            #tbl = HT.TableLite(cellSpacing=2,cellPadding=0,width="90%",border=0)
-            #seq = self.pageNumber*self.NPerPage+1  //Edited out because we show all results in one page now - Zach 2/22/11
-            seq = 1
-            group = self.dataset.group
-            self.form_name = form_name = 'show_dataset_'+group
+                #XZ, 3/18/2010: pay attention to the line number of header in this file. As of today, there are 7 lines.
+                #worksheet = self.createExcelFileWithTitleAndFooter(workbook=workbook, db=this_trait.db, returnNumber=len(self.trait_list))
+                newrow = 7
 
-            tblobj = {}
-            species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=group)
+                #### Excel file stuff stops
 
-            if this_trait.db.type=="Geno":
-                tblobj['header'] = self.getTableHeaderForGeno(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
+                if self.dataset.type == "ProbeSet":
+                    #for item in result:
+                    print("foo locals are:", locals())
+                    probe_set_id = result[1]
+                    print("probe_set_id is:", pf(probe_set_id))
+                    this_trait = webqtlTrait(db=self.dataset, name=probe_set_id, cursor=self.cursor)
+                    this_trait.retrieveInfo(QTL=True)
+                    print("this_trait is:", pf(this_trait))
+                    self.trait_list.append(this_trait)
+                    print("self.trait_list is:", pf(self.trait_list))
 
-                newrow += 1
-                sortby = self.getSortByValue(datasetType="Geno")
+                    #tblobj['header'] = self.getTableHeaderForProbeSet(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
 
-                #tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet, newrow=newrow)
+                    #newrow += 1
 
-                #workbook.close()
-                #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-                #cPickle.dump(tblobj, objfile)
-                #objfile.close()
+                    sortby = self.getSortByValue(datasetType="ProbeSet")
 
-                #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
-                #
-                #pageTable.append(HT.TR(HT.TD(div)))
+                    tblobj['body'] = self.getTableBodyForProbeSet(trait_list=self.trait_list, formName=self.form_name, newrow=newrow, species=species)
 
-            elif this_trait.db.type=="Publish":
-                #tblobj['header'] = self.getTableHeaderForPublish(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
+                    #workbook.close()
+                    #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
+                    #cPickle.dump(tblobj, objfile)
+                    #objfile.close()
 
-                #newrow += 1
+                    #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
 
-                sortby = self.getSortByValue(datasetType="Publish")
+                    #pageTable.append(HT.TR(HT.TD(div)))
+                elif self.dataset.type == "Publish":
+                    #tblobj['header'] = self.getTableHeaderForPublish(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
 
-                #tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, newrow=newrow, species=species)
+                    #newrow += 1
 
-                #workbook.close()
-                #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-                #cPickle.dump(tblobj, objfile)
-                #objfile.close()
+                    sortby = self.getSortByValue(datasetType="Publish")
 
-                #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
+                    #tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, newrow=newrow, species=species)
 
-                #pageTable.append(HT.TR(HT.TD(div)))
+                    #workbook.close()
+                    #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
+                    #cPickle.dump(tblobj, objfile)
+                    #objfile.close()
 
-            elif this_trait.db.type=="ProbeSet":
-                #tblobj['header'] = self.getTableHeaderForProbeSet(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
+                    #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
 
-                #newrow += 1
+                    #pageTable.append(HT.TR(HT.TD(div)))                    
+                elif self.dataset.type == "Geno":
+                    tblobj['header'] = self.getTableHeaderForGeno(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
 
-                sortby = self.getSortByValue(datasetType="ProbeSet")
+                    newrow += 1
+                    sortby = self.getSortByValue(datasetType="Geno")
 
-                tblobj['body'] = self.getTableBodyForProbeSet(trait_list=self.trait_list, formName=self.form_name, newrow=newrow, species=species)
-                #
-                #workbook.close()
-                #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-                #cPickle.dump(tblobj, objfile)
-                #objfile.close()
+                    #tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet, newrow=newrow)
 
-                #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
+                    #workbook.close()
+                    #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
+                    #cPickle.dump(tblobj, objfile)
+                    #objfile.close()
 
-                #pageTable.append(HT.TR(HT.TD(div)))
+                    #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
+                    #
+                    #pageTable.append(HT.TR(HT.TD(div)))                    
 
 
-            #traitForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=thisFormName, submit=HT.Input(type='hidden'))
-            hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':'_','CellID':'_','group':group}
-            hddn['incparentsf1']='ON'
-        #    for key in hddn.keys():
-        #        traitForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
-        #
-        #    traitForm.append(HT.P(),pageTable)
-        #
-        #    TD_LR.append(traitForm)
-        #    if len(self.results) > 1 and i < len(self.results) - 1:
-        #        last_result = True
-        #if last_result:
-        #    TD_LR.contents.pop()
+                #traitForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=thisFormName, submit=HT.Input(type='hidden'))
+                hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':'_','CellID':'_','group':group}
+                hddn['incparentsf1']='ON'
+            #    for key in hddn.keys():
+            #        traitForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
+            #
+            #    traitForm.append(HT.P(),pageTable)
+            #
+            #    TD_LR.append(traitForm)
+            #    if len(self.results) > 1 and i < len(self.results) - 1:
+            #        last_result = True
+            #if last_result:
+            #    TD_LR.contents.pop()
 
     def executeQuery(self):
 
@@ -642,6 +639,8 @@ class SearchResultPage(templatePage):
         print("fd.search_terms:", self.fd['search_terms'])
         self.search_terms = parser.parse(self.fd['search_terms'])
         print("After parsing:", self.search_terms)
+        
+        
         #print("ORkeyword is:", pf(self.ORkeyword))
         #self.ANDkeyword2 = parser.parse(self.ANDkeyword)
         #self.ORkeyword2 = parser.parse(self.ORkeyword)
@@ -662,11 +661,8 @@ class SearchResultPage(templatePage):
         ###remove remain parethesis, could be input with  syntax error
         #self.ORkeyword2 = re.sub(re.compile('\s*\([\s\S]*\)'), '', self.ORkeyword2)
         #self.ORkeyword2 = self.encregexp(self.ORkeyword2)
-
-        #if self.search_terms:
-            #full_text = []
-            #ANDFulltext = []
-            #ORFulltext = []
+                
+        self.results = []
         for item in self.search_terms:
             search_term = item['search_term']
         #    self.nkeywords += 1
@@ -683,8 +679,19 @@ class SearchResultPage(templatePage):
         #        fulltext = ORFulltext
 
             print("item is:", pf(search_term))
-
+            
+            
+            clause_item = (
+""" MATCH (ProbeSet.Name,
+        ProbeSet.description,
+        ProbeSet.symbol,
+        alias,
+        GenbankId,
+        UniGeneId,
+        Probe_Target_Description)
+        AGAINST ('%s' IN BOOLEAN MODE) """ % self.db_conn.escape_string(search_term))
             if self.dataset.type == "ProbeSet":
+                
                 query = (
 """SELECT distinct 0, ProbeSet.Name as TNAME, 0 as thistable,
     ProbeSetXRef.Mean as TMEAN,
@@ -693,31 +700,55 @@ class SearchResultPage(templatePage):
     ProbeSet.Chr_num as TCHR_NUM,
     ProbeSet.Mb as TMB,
     ProbeSet.Symbol as TSYMBOL,
-    ProbeSet.name_num as TNAME_NUM FROM ProbeSetXRef,
-    ProbeSet WHERE (MATCH (ProbeSet.Name, ProbeSet.description, ProbeSet.symbol,
-                                        alias, GenbankId, UniGeneId, Probe_Target_Description)
-                                    AGAINST ('%s' IN BOOLEAN MODE))
-    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
-    and ProbeSetXRef.ProbeSetFreezeId = %s  
+    ProbeSet.name_num as TNAME_NUM
+    FROM ProbeSetXRef, ProbeSet
+    WHERE %s
+        and ProbeSet.Id = ProbeSetXRef.ProbeSetId
+        and ProbeSetXRef.ProbeSetFreezeId = %s  
                 """ % (self.db_conn.escape_string(search_term),
+                       self.db_conn.escape_string(clause_item),
                 self.db_conn.escape_string(str(self.dataset.id))))
+                
+            elif self.dataset.type == "Publish":
+                include_geno = ""
+                if search_term.find("Geno.name") >= 0:
+                    include_geno = " Geno, "
+                    
+                query = (
+"""SELECT 0, PublishXRef.Id, PublishFreeze.createtime as thistable,
+    Publication.PubMed_ID as Publication_PubMed_ID,
+    Phenotype.Post_publication_description as Phenotype_Name
+    FROM %s PublishFreeze, Publication, PublishXRef, Phenotype
+    WHERE PublishXRef.InbredSetId = %s and %s and
+        PublishXRef.PhenotypeId = Phenotype.Id and
+        PublishXRef.PublicationId = Publication.Id and
+        PublishFreeze.Id = %s
+                """ % (include_geno,
+                       self.db_conn.escape_string(str(self.dataset.group_id)),
+                       self.db_conn.escape_string(clause_item),
+                       self.db_conn.escape_string(str(self.dataset.id))))
+
+            elif self.dataset.type == "Geno":
+                query = (
+"""SELECT 0, Geno.Name, GenoFreeze.createtime as thistable,
+    Geno.Name as Geno_Name,
+    Geno.Source2 as Geno_Source2,
+    Geno.chr_num as Geno_chr_num,
+    Geno.Mb as Geno_Mb
+    FROM GenoXRef, GenoFreeze, Geno
+    WHERE %s and Geno.Id = GenoXRef.GenoId and
+        GenoXRef.GenoFreezeId = GenoFreeze.Id and
+        GenoFreeze.Id = %d
+                """% (self.db_conn.escape_string(clause_item),
+                      self.db_conn.escape_string(str(self.dataset.id))))
+
 
             self.cursor.execute(query)
-            #print("query is:", pf(self.query))
-
-            #self.cursor.execute(self.query)
-            self.results = self.cursor.fetchall()
+            self.results.append(self.cursor.fetchall())
 
             print("self.results is:", pf(self.results))
 
 
-#["(SELECT distinct 0, ProbeSet.Name as TNAME, 0 as thistable,\n\t\t\t\t\t\tProbeSetXRef.Mean as TMEAN,
-# ProbeSetXRef.LRS as TLRS, ProbeSetXRef.PVALUE as TPVALUE,\n\t\t\t\t\t\tProbeSet.Chr_num as TCHR_NUM,
-# Pr beSet.Mb as TMB,  ProbeSet.Symbol as TSYMBOL,\n\t\t\t\t\t\tProbeSet.name_num as TNAME_NUM  FROM
-# ProbeSetXRef, ProbeSet \n\t\t\t\t\t\tWHERE  ( MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,
-#                                                      alias GenbankId, UniGeneId, Probe_Target_Description)
-#                                               AGAINST ('shh' IN BOOLEAN MODE) )
-# and ProbeSet.Id = ProbeSetXRef.ProbeSetId and ProbeSetXRef.ProbeSetFreezeId = 112\n\t\t\t\t\t\t)"]
 
 
             #if self.dataset.type == "ProbeSet" and search_term.find('.') < 0 and search_term.find('\'') < 0:

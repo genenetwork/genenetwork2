@@ -48,240 +48,49 @@
             <dd>{{ "%i" % (this_trait.probe_set_blat_score) }}</dd>
         </dl>
 
-        <tr>
-          <td bgcolor="#EEEEEE" class="solidBorder">
-            <table width="100%" cellspacing="0" cellpadding="5">
-              <tr>
-                <td valign="top" width="100%" bgcolor="#FAFAFA">
-                  <form method="post" action="/corr_compute" name="dataInput" id="trait_data_form">
-                {#    <input type="hidden" name="isSE" value="yes">
-                    <input type="hidden" name="permCheck">
-                    <input type="hidden" name="otherStrainVals" value="_">
-                    <input type="hidden" name="FormID" value="dataEditing">
-                    <input type="hidden" name="normalPlotTitle" value="Sall3: 1441186_at">
-                    <input type="hidden" name="sampleVars" value="_">
-                    <input type="hidden" name="additiveCheck" value="ON">
-                    <input type="hidden" name="incparentsf1" value="ON">
-                    <input type="hidden" name="sampleNames" value="_">
-                    <input type="hidden" name="submitID" value="">
-                    <input type="hidden" name="scale" value="physic">
-                    <input type="hidden" name="intervalAnalystCheck" value="ON">
-                    <input type="hidden" name="topten" value="">
-                    <input type="hidden" name="parentsf14regression" value="OFF">
-                    <input type="hidden" name="identification" value="Hippocampus M430v2 BXD 06/06 PDNN : 1441186_at">
-                    <input type="hidden" name="mappingMethodId" value="1">
-                    <input type="hidden" name="criteria">
-                    <input type="hidden" name="other_extra_attributes" is it value="_">
-                    <input type="hidden" name="otherStrainNames" value="_">
-                    <input type="hidden" name="method">
-                    <input type="hidden" name="showGenes" value="ON">
-                    <input type="hidden" name="attribute_names" value="">
-                    <input type="hidden" name="chromosomes" value="-1">
-                    <input type="hidden" name="allsamplelist" value="B6D2F1 D2B6F1 C57BL/6J DBA/2J BXD1 BXD2 BXD5 BXD6 BXD8 BXD9 BXD11 BXD12 BXD13 BXD14 BXD15 BXD16 BXD18 BXD19 BXD20 BXD21 BXD22 BXD23 BXD24a BXD24 BXD25 BXD27 BXD28 BXD29 BXD30 BXD31 BXD32 BXD33 BXD34 BXD35 BXD36 BXD37 BXD38 BXD39 BXD40 BXD41 BXD42 BXD43 BXD44 BXD45 BXD48 BXD49 BXD50 BXD51 BXD52 BXD53 BXD54 BXD55 BXD56 BXD59 BXD60 BXD61 BXD62 BXD63 BXD64 BXD65 BXD66 BXD67 BXD68 BXD69 BXD70 BXD71 BXD72 BXD73 BXD74 BXD75 BXD76 BXD77 BXD78 BXD79 BXD80 BXD81 BXD83 BXD84 BXD85 BXD86 BXD87 BXD88 BXD89 BXD90 BXD91 BXD92 BXD93 BXD94 BXD95 BXD96 BXD97 BXD98 BXD99 BXD100 BXD101 BXD102 BXD103 BALB/cByJ PWK/PhJ A/J KK/HlJ LG/J 129S1/SvImJ NZO/HlLtJ CAST/EiJ PWD/PhJ AKR/J CXB13 CXB12 CXB11 CXB10 WSB/EiJ C3H/HeJ CXB7 CXB6 CXB5 CXB4 CXB3 CXB2 CXB1 CXB9 CXB8 NOD/ShiLtJ C57BL/6ByJ BALB/cJ">
-                    <input type="hidden" name="applyVarianceSE">
-                    <input type="hidden" name="MDPChoice">
-                    <input type="hidden" name="otherStrainVars" value="_">
-                    <input type="hidden" name="sampleVals" value="_">
-                    <input type="hidden" name="showSNP" value="ON">
-                    <input type="hidden" name="bootCheck">
-                    <input type="hidden" name="GeneId" value="20689">
-                    <input type="hidden" name="extra_attributes" value="_">
-                    <input type="hidden" name="stats_method" value="1">
-                    <input type="hidden" name="heritability" value="None">
-                    <input type="hidden" name="database" value="">
-                    <input type="hidden" name="viewLegend" value="ON">
-                    <input type="hidden" name="fromDataEditingPage" value="1">
-                    <input type="hidden" name="trait_type" value="ProbeSet">
-                    <input type="hidden" name="valsHidden" value="OFF">
-                    <input type="hidden" name="fullname" value="HC_M2_0606_P::1441186_at">
-                    <input type="hidden" name="RISet" value="BXD">
-                #}
-                    {% for key in hddn %}
-                        <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
-                    {% endfor %}
-                    <div>
-                      <div style="font-size:14px;">
-                        <strong style="font-size:16px;">Trait Data and Analysis&nbsp;</strong> for Record ID 1441186_at
-                      </div>
-                    </div>
+        <form method="post" action="/corr_compute" name="dataInput" id="trait_data_form">
+        {% for key in hddn %}
+            <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
+        {% endfor %}
 
-                    <p class="sectionheader" id="title1" style="border-radius: 5px;">&nbsp;&nbsp;Details and Links</p>
+        <div class="btn-toolbar">
+            <div class="btn-group">
+                <button class="btn btn-primary" title="Add to collection">
+                    <i class="icon-plus-sign icon-white"></i> Add
+                </button>
 
-                    <p id="sectionbody1"></p>
+                <button class="btn" title="Find similar expression data">
+                    <i class="icon-search"></i> Find
+                </button>
 
-                    <table class="collap" id="target1" style="margin-left:20px;" cellpadding="2" width="840" valign="top">
-                      <tr>
-                        <td class="fwb fs13" nowrap="on" valign="top" width="90">Gene Symbol:</td>
+                <button class="btn" title="Check probe locations at UCSC">
+                    <i class="icon-ok"></i> Verify
+                </button>
+            </div>
 
-                        <td valign="top" width="10"></td>
+            <div class="btn-group">
 
-                        <td valign="top" width="740"><span class="fs13 fsI">{{ this_trait.symbol }}</span></td>
-                      </tr>
+                <button class="btn" title="Write or review comments about this gene">
+                    <i class="icon-edit"></i> GeneWiki
+                </button>
 
-                      <tr>
-                        <td class="fwb fs13" nowrap="on" valign="top">Aliases:</td>
+                <button class="btn" title="View SNPs and Indels">
+                    <i class="icon-road"></i> SNPs
+                </button>
 
-                        <td valign="top" width="10"></td>
+                <button class="btn" title="View probes, SNPs, and RNA-seq at UTHSC">
+                    <i class="icon-eye-close"></i> RNA-seq
+                </button>
 
-                        <td valign="top"><span class="fs13 fsI">{{ this_trait.alias_fmt }}</span></td>
-                      </tr>
+                <button class="btn" title="Check sequence of probes">
+                    <i class="icon-list"></i> Probes
+                </button>
 
-                      <tr>
-                        <td class="fwb fs13" nowrap="on" valign="top">Description:</td>
+            </div>
 
-                        <td valign="top" width="10"></td>
+        </div>
 
-                        <td valign="top"><span class="fs13">{{ this_trait.description_fmt }}</span></td>
-                      </tr>
 
-                      <tr>
-                        <td class="fwb fs13" nowrap="on" valign="top">Location:</td>
-
-                        <td valign="top" width="10"></td>
-
-                        <td valign="top"><span class="fs13">{{ this_trait.location_fmt }}<br></span></td>
-                      </tr>
-
-                      <tr>
-                        <td class="fwb fs13" nowrap="on" valign="top">Target Score:</td>
-
-                        <td valign="top" width="10"></td>
-
-                        <td valign="top">
-                            <span class="fs13">
-                                <a href="/blatInfo.html" target="_blank" class="non_bold" title="Values higher than 2 for the specificity are good">
-                                    BLAT specificity
-                                </a>: {{ "%.1f" % (this_trait.probe_set_specificity) }}&nbsp;&nbsp;&nbsp;
-                                Score: {{ "%i" % (this_trait.probe_set_blat_score) }}&nbsp;&nbsp;
-                            </span>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td class="fwb fs13" nowrap="on" valign="top">Species and Group:</td>
-
-                        <td valign="top" width="10"></td>
-
-                        <td valign="top"><span class="fs13">{{ this_trait.species.capitalize() }}, {{fd.RISet}}</span></td>
-                      </tr>
-
-                      <tr>
-                        <td class="fs13 fwb" nowrap="on" valign="top">Database:</td>
-
-                        <td valign="top" width="10"></td>
-
-                        <td valign="top">
-                            <a href="{{ this_trait.database.url }}" target="_blank" class="fs13 fwn non_bold">{{ this_trait.database.name }}</a>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td colspan="3" height="6"></td>
-                      </tr>
-
-                      <tr>
-                        <td class="fwb fs13" nowrap="on" valign="top">Resource Links:</td>
-
-                        <td valign="top" width="10"></td>
-
-                        <td valign="top">
-                            <span class="fs13">
-                                <span style="background:#dddddd;padding:2">
-                                    <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&amp;cmd=Retrieve&amp;dopt=Graphics&amp;list_uids=20689" target="_blank" class=
-                        "fs14 fwn" title="Info from NCBI Entrez Gene">
-                                        Gene
-                                    </a>
-                                </span>
-                                &nbsp;&nbsp;<span style="background:#dddddd;padding:2"><a href=
-                        "http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Mm&amp;CID=215917" target="_blank" class="fs14 fwn" title=
-                        "UniGene ID">UniGene</a></span>&nbsp;&nbsp;<span style="background:#dddddd;padding:2"><a href=
-                        "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=Nucleotide&amp;cmd=search&amp;doptcmdl=DocSum&amp;term=BM119035" target="_blank" class=
-                        "fs14 fwn" title="Find the original GenBank sequence used to design the probes">GenBank</a></span>&nbsp;&nbsp;<span style=
-                        "background:#dddddd;padding:2"><a href="http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&amp;Cmd=DetailsSearch&amp;Term=18142"
-                        target="_blank" class="fs14 fwn" title="Find similar genes in other species">HomoloGene</a></span>&nbsp;&nbsp;</span></td>
-                      </tr>
-
-                      <tr>
-                        <td colspan="3" height="6"></td>
-                      </tr>
-
-                      <tr>
-                        <td></td>
-
-                        <td valign="top" width="10"></td>
-
-                        <td valign="top"><span style="font-family:verdana,serif;font-size:13px"><span style="background:#dddddd;padding:2"><a href=
-                        "http://genome.cse.ucsc.edu/cgi-bin/hgGene?db=mm9&amp;hgg_gene=NM_178280&amp;hgg_chrom=chr18&amp;hgg_start=81163112&amp;hgg_end=81183317"
-                        target="mainFrame" class="fs14 fwn" title="Info from UCSC Genome Browser">UCSC</a></span>&nbsp;&nbsp;<span style=
-                        "background:#dddddd;padding:2"><a href="http://biogps.gnf.org/?org=mouse#goto=genereport&amp;id=20689" target="mainFrame" class="fs14 fwn"
-                        title="Expression across many tissues and cell types">BioGPS</a></span>&nbsp;&nbsp;<span style="background:#dddddd;padding:2"><a href=
-                        "http://string.embl.de/newstring_cgi/show_link_summary.pl?identifier=Sall3" target="mainFrame" class="fs14 fwn" title=
-                        "Protein interactions: known and inferred">STRING</a></span>&nbsp;&nbsp;<span style="background:#dddddd;padding:2"><a href=
-                        "http://www.pantherdb.org/genes/gene.do?acc=20689" target="mainFrame" class="fs14 fwn" title=
-                        "Gene and protein data resources from Celera-ABI">PANTHER</a></span>&nbsp;&nbsp;<span style="background:#dddddd;padding:2"><a href=
-                        "http://www.chibi.ubc.ca/Gemma/gene/showGene.html?ncbiid=20689" target="mainFrame" class="fs14 fwn" title=
-                        "Meta-analysis of gene expression data">Gemma</a></span>&nbsp;&nbsp;<span style="background:#dddddd;padding:2"><a href=
-                        "http://lily.uthsc.edu:8080/20091027_GNInterfaces/20091027_redirectSynDB.jsp?query=Sall3" target="mainFrame" class="fs14 fwn" title=
-                        "Brain synapse database">SynDB</a></span>&nbsp;&nbsp;<span style="background:#dddddd;padding:2"><a href=
-                        "http://mouse.brain-map.org/brain/Sall3.html" target="mainFrame" class="fs14 fwn" title=
-                        "Allen Brain Atlas">ABA</a></span>&nbsp;&nbsp;</span></td>
-                      </tr>
-                    </table><br>
-
-                    <table class="collap" id="target1" cellpadding="2" width="620">
-                      <tr style="vertical-align:bottom;">
-                        <td align="center"><a href="#redirect" onclick=
-                        "addRmvSelection('BXD', document.getElementsByName('dataInput')[0], 'addToSelection');"><img src="/images/add_icon.jpg" alt=
-                        "Add To Collection" name="addselect" style="border:none;" title="Add To Collection"></a></td>
-
-                        <td align="center"><a href="#redirect" onclick=
-                        "openNewWin('/webqtl/main.py?cmd=sch&amp;gene=Sall3&amp;alias=1&amp;species=mouse')"><img src="/images/find_icon.jpg" alt=
-                        " Find similar expression data " name="addselect" style="border:none;" title=" Find similar expression data "></a></td>
-
-                        <td align="center"><a href="#redirect" onclick=
-                        "openNewWin('http://genome.ucsc.edu/cgi-bin/hgBlat?org=mouse&amp;db=mm9&amp;type=0&amp;sort=0&amp;output=0&amp;userSeq=%3E1441186_at%0AGAATTAGTTTTTTCAGTGCTGGGCAGGCCCTGTAAGTGCATGCCGGACAATGTTGCTTTACATCTGCCATGGAAGAGACTCTACAGCGTCCAAAGATGGCCACACCGGGTTTGCCTCACTGGGTGATCACAGTAGCGTTCAGGTCACTACAGCCAAGGGCTTCTCAGATCCATGTAGGAAAGAACAAGCGAGTGCTCACAGATACCACGCTCAGCAGACTTCATTAGCATTGTCTCACAGATAACAT%0A%3EProbe_522467%0AGAATTAGTTTTTTCAGTGCTGGGCA%0A%3EProbe_711755%0AGGCCCTGTAAGTGCATGCCGGACAA%0A%3EProbe_392797%0ATGTTGCTTTACATCTGCCATGGAAG%0A%3EProbe_246123%0AAGAGACTCTACAGCGTCCAAAGATG%0A%3EProbe_X80217%0AAAAGATGGCCACACCGGGTTTGCCT%0A%3EProbe_248315%0ACACTGGGTGATCACAGTAGCGTTCA%0A%3EProbe_349625%0AGTAGCGTTCAGGTCACTACAGCCAA%0A%3EProbe_288681%0AGGGCTTCTCAGATCCATGTAGGAAA%0A%3EProbe_801497%0AGAACAAGCGAGTGCTCACAGATACC%0A%3EProbe_139197%0AACAGATACCACGCTCAGCAGACTTC%0A%3EProbe_752Y13%0AATTAGCATTGTCTCACAGATAACAT%0A')">
-                        <img src="/images/verify_icon.jpg" alt=" Check probe locations at UCSC " name="addselect" style="border:none;" title=
-                        " Check probe locations at UCSC "></a></td>
-
-                        <td align="center"><a href="#redirect" onclick="openNewWin('/webqtl/main.py?FormID=geneWiki&amp;symbol=Sall3')"><img src=
-                        "/images/genewiki_icon.jpg" alt=" Write or review comments about this gene " name="addselect" style="border:none;" title=
-                        " Write or review comments about this gene "></a></td>
-
-                        <td align="center"><a href="#redirect" onclick=
-                        "openNewWin('/webqtl/main.py?FormID=SnpBrowserResultPage&amp;submitStatus=1&amp;diffAlleles=True&amp;customStrain=True&amp;geneName=Sall3')">
-                        <img src="/images/snp_icon.jpg" alt=" View SNPs and Indels " name="addselect" style="border:none;" title=" View SNPs and Indels "></a></td>
-
-                        <td align="center"><a href="#redirect" onclick=
-                        "openNewWin('http://ucscbrowser.genenetwork.org/cgi-bin/hgBlat?org=mouse&amp;db=mm9&amp;type=0&amp;sort=0&amp;output=0&amp;userSeq=%3E1441186_at%0AGAATTAGTTTTTTCAGTGCTGGGCAGGCCCTGTAAGTGCATGCCGGACAATGTTGCTTTACATCTGCCATGGAAGAGACTCTACAGCGTCCAAAGATGGCCACACCGGGTTTGCCTCACTGGGTGATCACAGTAGCGTTCAGGTCACTACAGCCAAGGGCTTCTCAGATCCATGTAGGAAAGAACAAGCGAGTGCTCACAGATACCACGCTCAGCAGACTTCATTAGCATTGTCTCACAGATAACAT%0A%3EProbe_522467%0AGAATTAGTTTTTTCAGTGCTGGGCA%0A%3EProbe_711755%0AGGCCCTGTAAGTGCATGCCGGACAA%0A%3EProbe_392797%0ATGTTGCTTTACATCTGCCATGGAAG%0A%3EProbe_246123%0AAGAGACTCTACAGCGTCCAAAGATG%0A%3EProbe_X80217%0AAAAGATGGCCACACCGGGTTTGCCT%0A%3EProbe_248315%0ACACTGGGTGATCACAGTAGCGTTCA%0A%3EProbe_349625%0AGTAGCGTTCAGGTCACTACAGCCAA%0A%3EProbe_288681%0AGGGCTTCTCAGATCCATGTAGGAAA%0A%3EProbe_801497%0AGAACAAGCGAGTGCTCACAGATACC%0A%3EProbe_139197%0AACAGATACCACGCTCAGCAGACTTC%0A%3EProbe_752Y13%0AATTAGCATTGTCTCACAGATAACAT%0A')">
-                        <img src="/images/rnaseq_icon.jpg" alt=" View probes, SNPs, and RNA-seq at UTHSC " name="addselect" style="border:none;" title=
-                        " View probes, SNPs, and RNA-seq at UTHSC "></a></td>
-
-                        <td align="center"><a href="#redirect" onclick=
-                        "openNewWin('/webqtl/main.py?FormID=showProbeInfo&amp;database=HC_M2_0606_P&amp;ProbeSetID=1441186_at&amp;CellID=&amp;RISet=BXD&amp;incparentsf1=ON')">
-                        <img src="/images/probe_icon.jpg" alt=" Check sequence of probes " name="addselect" style="border:none;" title=
-                        " Check sequence of probes "></a></td>
-
-                        <td align="center"></td>
-                      </tr>
-
-                      <tr style="vertical-align:bottom;">
-                        <td align="center">Add</td>
-
-                        <td align="center">Find</td>
-
-                        <td align="center">Verify</td>
-
-                        <td align="center">GeneWiki</td>
-
-                        <td align="center">SNPs</td>
-
-                        <td align="center">RNA-seq</td>
-
-                        <td align="center">Probes</td>
-
-                        <td align="center"></td>
-                      </tr>
-                    </table>
 
                     <p class="sectionheader" id="title2" style="border-radius: 5px;">&nbsp;&nbsp;Basic Statistics</p>
 
