@@ -681,15 +681,15 @@ class SearchResultPage(templatePage):
             print("item is:", pf(search_term))
             
             
-            clause_item = (
-""" MATCH (ProbeSet.Name,
-        ProbeSet.description,
-        ProbeSet.symbol,
-        alias,
-        GenbankId,
-        UniGeneId,
-        Probe_Target_Description)
-        AGAINST ('%s' IN BOOLEAN MODE) """ % self.db_conn.escape_string(search_term))
+#            clause_item = (
+#""" MATCH (ProbeSet.Name,
+#        ProbeSet.description,
+#        ProbeSet.symbol,
+#        alias,
+#        GenbankId,
+#        UniGeneId,
+#        Probe_Target_Description)
+#        AGAINST ('%s' IN BOOLEAN MODE) """ % self.db_conn.escape_string(search_term))
             if self.dataset.type == "ProbeSet":
                 
                 query = (
@@ -702,11 +702,17 @@ class SearchResultPage(templatePage):
     ProbeSet.Symbol as TSYMBOL,
     ProbeSet.name_num as TNAME_NUM
     FROM ProbeSetXRef, ProbeSet
-    WHERE %s
+    WHERE (MATCH (ProbeSet.Name,
+        ProbeSet.description,
+        ProbeSet.symbol,
+        alias,
+        GenbankId,
+        UniGeneId,
+        Probe_Target_Description)
+        AGAINST ('%s' IN BOOLEAN MODE)) 
         and ProbeSet.Id = ProbeSetXRef.ProbeSetId
         and ProbeSetXRef.ProbeSetFreezeId = %s  
                 """ % (self.db_conn.escape_string(search_term),
-                       self.db_conn.escape_string(clause_item),
                 self.db_conn.escape_string(str(self.dataset.id))))
                 
             elif self.dataset.type == "Publish":
@@ -719,13 +725,21 @@ class SearchResultPage(templatePage):
     Publication.PubMed_ID as Publication_PubMed_ID,
     Phenotype.Post_publication_description as Phenotype_Name
     FROM %s PublishFreeze, Publication, PublishXRef, Phenotype
-    WHERE PublishXRef.InbredSetId = %s and %s and
+    WHERE (MATCH (ProbeSet.Name,
+        ProbeSet.description,
+        ProbeSet.symbol,
+        alias,
+        GenbankId,
+        UniGeneId,
+        Probe_Target_Description)
+        AGAINST ('%s' IN BOOLEAN MODE)) and
+        PublishXRef.InbredSetId = %s and
         PublishXRef.PhenotypeId = Phenotype.Id and
         PublishXRef.PublicationId = Publication.Id and
         PublishFreeze.Id = %s
                 """ % (include_geno,
+                       self.db_conn.escape_string(search_term),
                        self.db_conn.escape_string(str(self.dataset.group_id)),
-                       self.db_conn.escape_string(clause_item),
                        self.db_conn.escape_string(str(self.dataset.id))))
 
             elif self.dataset.type == "Geno":
@@ -736,10 +750,18 @@ class SearchResultPage(templatePage):
     Geno.chr_num as Geno_chr_num,
     Geno.Mb as Geno_Mb
     FROM GenoXRef, GenoFreeze, Geno
-    WHERE %s and Geno.Id = GenoXRef.GenoId and
+    WHERE (MATCH (ProbeSet.Name,
+        ProbeSet.description,
+        ProbeSet.symbol,
+        alias,
+        GenbankId,
+        UniGeneId,
+        Probe_Target_Description)
+        AGAINST ('%s' IN BOOLEAN MODE)) and
+        and Geno.Id = GenoXRef.GenoId and
         GenoXRef.GenoFreezeId = GenoFreeze.Id and
         GenoFreeze.Id = %d
-                """% (self.db_conn.escape_string(clause_item),
+                """% (self.db_conn.escape_string(search_term),
                       self.db_conn.escape_string(str(self.dataset.id))))
 
 
