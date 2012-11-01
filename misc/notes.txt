@@ -41,7 +41,7 @@ Go to /tmp and tail -f flask_gn_log
 Coffeescript Stuff:
 
 coffee -c (filename)
-coffee -c -w (to watch for changes and recompile)
+coffee -c -w . (to watch for changes and recompile in current directory; the "." is for current directory)
 coffee --help (for information about setting options)
 
 ===========================================

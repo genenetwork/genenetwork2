@@ -33,13 +33,11 @@ from base.webqtlDataset import webqtlDataset
 from base.webqtlTrait import webqtlTrait
 from base.templatePage import templatePage
 from wqflask import parser
+from wqflask import do_search
 from utility import webqtlUtil
 from dbFunction import webqtlDatabaseFunction
 
 from utility import formatting
-
-import sys
-
 
 #from base.JinjaPage import JinjaEnv, JinjaPage
 
@@ -194,7 +192,7 @@ class SearchResultPage(templatePage):
             self.search_fields = ['Name','Chr']
 
 
-        self.do_search()
+        self.search()
         self.gen_search_result()
 
         ###########################################
@@ -635,167 +633,167 @@ class SearchResultPage(templatePage):
             return 0
 
 
-    def do_search(self):
+    def search(self):
         print("fd.search_terms:", self.fd['search_terms'])
         self.search_terms = parser.parse(self.fd['search_terms'])
         print("After parsing:", self.search_terms)
-        
-        
-        #print("ORkeyword is:", pf(self.ORkeyword))
-        #self.ANDkeyword2 = parser.parse(self.ANDkeyword)
-        #self.ORkeyword2 = parser.parse(self.ORkeyword)
-        #print("ORkeyword2 is:", pf(parser.parse(self.ORkeyword)))
-
-        #self.ANDkeyword2 = re.sub(self._1mPattern, '', self.ANDkeyword)
-        #self.ANDkeyword2 = re.sub(self._2mPattern, '', self.ANDkeyword2)
-        #self.ANDkeyword2 = re.sub(self._3mPattern, '', self.ANDkeyword2)
-        #self.ANDkeyword2 = re.sub(self._5mPattern, '', self.ANDkeyword2)
-        ###remove remain parethesis, could be input with  syntax error
-        #self.ANDkeyword2 = re.sub(re.compile('\s*\([\s\S]*\)'), '', self.ANDkeyword2)
-        #self.ANDkeyword2 = self.encregexp(self.ANDkeyword2)
-
-        #self.ORkeyword2 = re.sub(self._1mPattern, '', self.ORkeyword)
-        #self.ORkeyword2 = re.sub(self._2mPattern, '', self.ORkeyword2)
-        #self.ORkeyword2 = re.sub(self._3mPattern, '', self.ORkeyword2)
-        #self.ORkeyword2 = re.sub(self._5mPattern, '', self.ORkeyword2)
-        ###remove remain parethesis, could be input with  syntax error
-        #self.ORkeyword2 = re.sub(re.compile('\s*\([\s\S]*\)'), '', self.ORkeyword2)
-        #self.ORkeyword2 = self.encregexp(self.ORkeyword2)
                 
         self.results = []
-        for item in self.search_terms:
-            search_term = item['search_term']
-        #    self.nkeywords += 1
-        #    #ZS: If there are both AND and OR keywords, just use the OR keywords
-        #    if k >=len(self.ORkeyword2):
-        #        query = self.ANDQuery
-        #        DescriptionText = self.ANDDescriptionText
-        #        clausejoin = ' OR '
-        #        fulltext = ANDFulltext
-        #    else:
-        #        query = self.ORQuery
-        #        DescriptionText = self.ORDescriptionText
-        #        clausejoin = ' OR '
-        #        fulltext = ORFulltext
-
-            print("item is:", pf(search_term))
-            
-            
-#            clause_item = (
-#""" MATCH (ProbeSet.Name,
+        for a_search in self.search_terms:
+            print("[kodak] item is:", pf(a_search))
+            search_term = None
+            search_type = None
+            if "search_term" in a_search:
+                search_term = a_search['search_term']
+            elif key in a_search:
+                search_type = a_search['key']
+                
+                
+            if search_term:
+                if self.dataset.type == "ProbeSet":
+                    search_ob = "ProbeSetSearch"
+                elif self.dataset.type == "Publish":
+                    search_ob = "PhenotypeSearch"
+                elif self.dataset.type == "Geno":
+                    search_ob = "GenotypeSearch"
+                else:
+                    SearchTermNeedsToBeDefined # Cause an error on purpose
+                search_class = getattr(do_search, search_ob)
+                results = search_class(search_term,
+                                        self.dataset,
+                                        self.cursor,
+                                        self.db_conn).run()
+                
+            print("in the search results are:", results)
+#            
+#            
+##            clause_item = (
+##""" MATCH (ProbeSet.Name,
+##        ProbeSet.description,
+##        ProbeSet.symbol,
+##        alias,
+##        GenbankId,
+##        UniGeneId,
+##        Probe_Target_Description)
+##        AGAINST ('%s' IN BOOLEAN MODE) """ % self.db_conn.escape_string(search_term))
+#            if self.dataset.type == "ProbeSet":
+#                
+#                query = (
+#"""SELECT distinct 0,
+#    ProbeSet.Name as TNAME,
+#    0 as thistable,
+#    ProbeSetXRef.Mean as TMEAN,
+#    ProbeSetXRef.LRS as TLRS,
+#    ProbeSetXRef.PVALUE as TPVALUE,
+#    ProbeSet.Chr_num as TCHR_NUM,
+#    ProbeSet.Mb as TMB,
+#    ProbeSet.Symbol as TSYMBOL,
+#    ProbeSet.name_num as TNAME_NUM
+#    FROM ProbeSetXRef, ProbeSet
+#    WHERE (MATCH (ProbeSet.Name,
 #        ProbeSet.description,
 #        ProbeSet.symbol,
 #        alias,
 #        GenbankId,
 #        UniGeneId,
 #        Probe_Target_Description)
-#        AGAINST ('%s' IN BOOLEAN MODE) """ % self.db_conn.escape_string(search_term))
-            if self.dataset.type == "ProbeSet":
-                
-                query = (
-"""SELECT distinct 0, ProbeSet.Name as TNAME, 0 as thistable,
-    ProbeSetXRef.Mean as TMEAN,
-    ProbeSetXRef.LRS as TLRS,
-    ProbeSetXRef.PVALUE as TPVALUE,
-    ProbeSet.Chr_num as TCHR_NUM,
-    ProbeSet.Mb as TMB,
-    ProbeSet.Symbol as TSYMBOL,
-    ProbeSet.name_num as TNAME_NUM
-    FROM ProbeSetXRef, ProbeSet
-    WHERE (MATCH (ProbeSet.Name,
-        ProbeSet.description,
-        ProbeSet.symbol,
-        alias,
-        GenbankId,
-        UniGeneId,
-        Probe_Target_Description)
-        AGAINST ('%s' IN BOOLEAN MODE)) 
-        and ProbeSet.Id = ProbeSetXRef.ProbeSetId
-        and ProbeSetXRef.ProbeSetFreezeId = %s  
-                """ % (self.db_conn.escape_string(search_term),
-                self.db_conn.escape_string(str(self.dataset.id))))
-                
-            elif self.dataset.type == "Publish":
-                include_geno = ""
-                if search_term.find("Geno.name") >= 0:
-                    include_geno = " Geno, "
-                    
-                query = (
-"""SELECT 0, PublishXRef.Id, PublishFreeze.createtime as thistable,
-    Publication.PubMed_ID as Publication_PubMed_ID,
-    Phenotype.Post_publication_description as Phenotype_Name
-    FROM %s PublishFreeze, Publication, PublishXRef, Phenotype
-    WHERE (MATCH (ProbeSet.Name,
-        ProbeSet.description,
-        ProbeSet.symbol,
-        alias,
-        GenbankId,
-        UniGeneId,
-        Probe_Target_Description)
-        AGAINST ('%s' IN BOOLEAN MODE)) and
-        PublishXRef.InbredSetId = %s and
-        PublishXRef.PhenotypeId = Phenotype.Id and
-        PublishXRef.PublicationId = Publication.Id and
-        PublishFreeze.Id = %s
-                """ % (include_geno,
-                       self.db_conn.escape_string(search_term),
-                       self.db_conn.escape_string(str(self.dataset.group_id)),
-                       self.db_conn.escape_string(str(self.dataset.id))))
-
-            elif self.dataset.type == "Geno":
-                query = (
-"""SELECT 0, Geno.Name, GenoFreeze.createtime as thistable,
-    Geno.Name as Geno_Name,
-    Geno.Source2 as Geno_Source2,
-    Geno.chr_num as Geno_chr_num,
-    Geno.Mb as Geno_Mb
-    FROM GenoXRef, GenoFreeze, Geno
-    WHERE (MATCH (ProbeSet.Name,
-        ProbeSet.description,
-        ProbeSet.symbol,
-        alias,
-        GenbankId,
-        UniGeneId,
-        Probe_Target_Description)
-        AGAINST ('%s' IN BOOLEAN MODE)) and
-        and Geno.Id = GenoXRef.GenoId and
-        GenoXRef.GenoFreezeId = GenoFreeze.Id and
-        GenoFreeze.Id = %d
-                """% (self.db_conn.escape_string(search_term),
-                      self.db_conn.escape_string(str(self.dataset.id))))
-
-
-            self.cursor.execute(query)
-            self.results.append(self.cursor.fetchall())
-
-            print("self.results is:", pf(self.results))
-
-
-
-
-            #if self.dataset.type == "ProbeSet" and search_term.find('.') < 0 and search_term.find('\'') < 0:
-            #    full_text.append(search_term)
-            #else:
-            #    if self.matchwhole and search_term.find("'") < 0:
-            #        search_term = "[[:<:]]"+ search_term+"[[:>:]]"
-            #    clause2 = []
-            #    for field in self.search_fields:
-            #        if self.dataset.type == "Publish":
-            #            clause2.append("%s REGEXP \"%s\"" % (field,search_term))
-            #        else:
-            #            clause2.append("%s REGEXP \"%s\"" % ("%s.%s" % (self.dataset.type,field),search_term))
-            #    clause_item = "(%s)" % string.join(clause2, clausejoin)
-            #    query.append(" (%s) " % clause_item)
-        #if ANDFulltext:
-        #    clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,
-        #    alias,GenbankId, UniGeneId, Probe_Target_Description)
-        #    AGAINST ('+%s' IN BOOLEAN MODE) """ % string.join(ANDFulltext, " +")
-        #    self.ANDQuery.append(" (%s) " % clauseItem)
-        #if ORFulltext:
-        #clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,
-        #GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE)
-        #""" % string.join(full_text, " ")
-        #self.query.append(" (%s) " % clauseItem)
+#        AGAINST ('%s' IN BOOLEAN MODE)) 
+#        and ProbeSet.Id = ProbeSetXRef.ProbeSetId
+#        and ProbeSetXRef.ProbeSetFreezeId = %s  
+#                """ % (self.db_conn.escape_string(search_term),
+#                self.db_conn.escape_string(str(self.dataset.id))))
+#                
+#            elif self.dataset.type == "Publish":
+#                include_geno = ""
+#                if search_term.find("Geno.name") >= 0:
+#                    include_geno = " Geno, "
+#                    
+#                if self.matchwhole and item.find("'") < 0:
+#                    item = "[[:<:]]"+ item+"[[:>:]]"
+#                clause2 = []
+#                for field in self.searchField:
+#                    if self.dbType == "Publish":
+#                        clause2.append("%s REGEXP \"%s\"" % (field,item))
+#                    else:
+#                        clause2.append("%s REGEXP \"%s\"" % ("%s.%s" % (self.dbType,field),item))                    
+#                    
+#                    
+#                query = (
+#"""SELECT 0, PublishXRef.Id, PublishFreeze.createtime as thistable,
+#    Publication.PubMed_ID as Publication_PubMed_ID,
+#    Phenotype.Post_publication_description as Phenotype_Name
+#    FROM %s PublishFreeze, Publication, PublishXRef, Phenotype
+#    WHERE (MATCH (ProbeSet.Name,
+#        ProbeSet.description,
+#        ProbeSet.symbol,
+#        alias,
+#        GenbankId,
+#        UniGeneId,
+#        Probe_Target_Description)
+#        AGAINST ('%s' IN BOOLEAN MODE)) and
+#        PublishXRef.InbredSetId = %s and
+#        PublishXRef.PhenotypeId = Phenotype.Id and
+#        PublishXRef.PublicationId = Publication.Id and
+#        PublishFreeze.Id = %s
+#                """ % (include_geno,
+#                       self.db_conn.escape_string(search_term),
+#                       self.db_conn.escape_string(str(self.dataset.group_id)),
+#                       self.db_conn.escape_string(str(self.dataset.id))))
+#
+#            elif self.dataset.type == "Geno":
+#                query = (
+#"""SELECT 0, Geno.Name, GenoFreeze.createtime as thistable,
+#    Geno.Name as Geno_Name,
+#    Geno.Source2 as Geno_Source2,
+#    Geno.chr_num as Geno_chr_num,
+#    Geno.Mb as Geno_Mb
+#    FROM GenoXRef, GenoFreeze, Geno
+#    WHERE (MATCH (ProbeSet.Name,
+#        ProbeSet.description,
+#        ProbeSet.symbol,
+#        alias,
+#        GenbankId,
+#        UniGeneId,
+#        Probe_Target_Description)
+#        AGAINST ('%s' IN BOOLEAN MODE)) and
+#        and Geno.Id = GenoXRef.GenoId and
+#        GenoXRef.GenoFreezeId = GenoFreeze.Id and
+#        GenoFreeze.Id = %d
+#                """% (self.db_conn.escape_string(search_term),
+#                      self.db_conn.escape_string(str(self.dataset.id))))
+#
+#
+#            self.cursor.execute(query)
+#            self.results.append(self.cursor.fetchall())
+#
+#            print("self.results is:", pf(self.results))
+#
+#
+#
+#
+#            #if self.dataset.type == "ProbeSet" and search_term.find('.') < 0 and search_term.find('\'') < 0:
+#            #    full_text.append(search_term)
+#            #else:
+#            #    if self.matchwhole and search_term.find("'") < 0:
+#            #        search_term = "[[:<:]]"+ search_term+"[[:>:]]"
+#            #    clause2 = []
+#            #    for field in self.search_fields:
+#            #        if self.dataset.type == "Publish":
+#            #            clause2.append("%s REGEXP \"%s\"" % (field,search_term))
+#            #        else:
+#            #            clause2.append("%s REGEXP \"%s\"" % ("%s.%s" % (self.dataset.type,field),search_term))
+#            #    clause_item = "(%s)" % string.join(clause2, clausejoin)
+#            #    query.append(" (%s) " % clause_item)
+#        #if ANDFulltext:
+#        #    clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,
+#        #    alias,GenbankId, UniGeneId, Probe_Target_Description)
+#        #    AGAINST ('+%s' IN BOOLEAN MODE) """ % string.join(ANDFulltext, " +")
+#        #    self.ANDQuery.append(" (%s) " % clauseItem)
+#        #if ORFulltext:
+#        #clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,
+#        #GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE)
+#        #""" % string.join(full_text, " ")
+#        #self.query.append(" (%s) " % clauseItem)
 
 
     def encregexp(self,str):

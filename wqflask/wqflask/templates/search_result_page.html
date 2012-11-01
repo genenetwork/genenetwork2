@@ -15,9 +15,9 @@
         <div class="page-header">
             <h1>Your Search</h1>
         </div>
-        
+
         <p>We searched <a href="/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a><//>
-        
+
         <p>To find all records that match:</p>
         <ul>
             {% if search_terms %}
@@ -28,10 +28,10 @@
             </li>
             {% endif %}
         </ul>
-        
+
         <p>To study a record, click on its ID below.<br />
         Check records below and click Add button to add to selection.</p>
-        
+
         <div class="bs-docs-example">
             <table class="table table-hover">
                 <thead>
@@ -40,7 +40,7 @@
                         <th>{{header}}</th>
                     {% endfor %}
                 </thead>
-                
+
                 <tbody>
                     {% for this_trait in trait_list %}
                     <TR id="{{ this_trait }}">
@@ -56,12 +56,7 @@
                                 {{ this_trait.name.upper() }}
                             </a>
                         </TD>
-                        <TD>
-                            <A HREF=
-                                "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{this_trait.geneid}}" TARGET="_blank">
-                                {{ this_trait.symbol }}
-                            </A>
-                        </TD>
+                        <TD>{{ this_trait.symbol }}</TD>
                         <TD>{{ this_trait.description_display }}</TD>
                         <TD>{{ this_trait.trait_location_repr }}</TD>
                         <TD>{{ this_trait.mean }}</TD>
@@ -70,20 +65,20 @@
                     </TR>
                 {% endfor %}
                 </tbody>
-                
+
             </table>
-            
+
             <br />
-            
+
             <button class="btn"><i class="icon-ok"></i> Select</button>
             <button class="btn"><i class="icon-remove"></i> Deselect</button>
             <button class="btn"><i class="icon-resize-vertical"></i> Invert</button>
             <button class="btn"><i class="icon-plus-sign"></i> Add</button>
             <button class="btn btn-primary pull-right"><i class="icon-download icon-white"></i> Download Table</button>
         </div>
-        
+
     </div>
-    
+
 <!-- End of body -->
 
 {% endblock %}
