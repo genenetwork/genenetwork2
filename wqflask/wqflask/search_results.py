@@ -650,12 +650,19 @@ class SearchResultPage(templatePage):
                 
                 
             if search_term:
-                if self.dataset.type == "ProbeSet":
-                    search_ob = "ProbeSetSearch"
-                elif self.dataset.type == "Publish":
-                    search_ob = "PhenotypeSearch"
-                elif self.dataset.type == "Geno":
-                    search_ob = "GenotypeSearch"
+                searches = dict(
+                    ProbeSet = "ProbeSetSearch",
+                    Publish = "PhenotypeSearch",
+                    Geno = "GenotypeSearch",
+                )
+                if self.dataset.type in searches:
+                    search_ob = searches[self.dataset.type]
+                #if self.dataset.type == "ProbeSet":
+                #    search_ob = "ProbeSetSearch"
+                #elif self.dataset.type == "Publish":
+                #    search_ob = "PhenotypeSearch"
+                #elif self.dataset.type == "Geno":
+                #    search_ob = "GenotypeSearch"
                 else:
                     SearchTermNeedsToBeDefined # Cause an error on purpose
                 search_class = getattr(do_search, search_ob)
@@ -665,8 +672,7 @@ class SearchResultPage(templatePage):
                                         self.db_conn).run()
                 
             print("in the search results are:", results)
-#            
-#            
+
 ##            clause_item = (
 ##""" MATCH (ProbeSet.Name,
 ##        ProbeSet.description,
