@@ -1,0 +1,163 @@
+<div>
+    <h2>Review and Edit Data</h2>
+
+    <div class="well form-horizontal">
+        <fieldset id="showHideOptions">
+            <legend>Block samples</legend>
+            <p>Edit or delete values in the Trait Data boxes, and use the
+                <strong>Reset</strong> option as
+                needed.
+            </p>
+
+            <div id="blockMenuSpan" class="input-append">
+                <label for="remove_samples_field">Block samples by index:</label>
+                <input type="text" id="remove_samples_field">
+                <select id="block_group" size="1">
+                  <option value="primary">
+                    {{ sample_group_types['primary_only'] }}
+                  </option>
+                  <option value="other">
+                    {{ sample_group_types['other_only'] }}
+                  </option>
+                </select>
+                <input type="button" id="block_by_index" class="btn" value="Block">
+            </div>
+            <div id="remove_samples_invalid" class="alert alert-error" style="display:none;">
+                  Please check that your input is formatted correctly, e.g. <strong>3, 5-10, 12</strong>
+            </div>
+
+            <br>
+
+            {% if sample_groups[0].attributes %}
+            <div class="input-append">
+                <label for="exclude_menu">Block samples by group:</label>
+                <select id="exclude_menu" size=1>
+                  {% for attribute in sample_groups[0].attributes %}
+                  <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
+                      {{ sample_groups[0].attributes[attribute].name }}</option>
+                  {% endfor %}
+                </select>
+                <select id="attribute_values" size=1>
+                </select>
+                <input type="button" id="exclude_group" class="btn" value="Block">
+            </div>
+            {% endif %}
+            <br>
+            <div>
+              <input type="button" id="hide_no_value" class="btn" value="Hide No Value">
+              <input type="button" id="block_outliers" class="btn" value="Block Outliers">
+              <input type="button" id="reset" class="btn btn-inverse" value="Reset">
+              <span class="input-append">
+                <input type="button" id="export" class="btn" value="Export">
+                <select id="export_format" class="select optional span2">
+                  <option value="excel">Excel</option>
+                  <option value="csv">CSV</option>
+                </select>
+              </span>
+            </div>
+        </fieldset>
+        <br>
+
+        <div>
+            <p>Outliers highlighted in
+                    <strong style="background-color:yellow;">yellow</strong>
+                    can be hidden using
+                    the <strong>Hide Outliers</strong> button.
+            </p>
+
+            <p>Samples with no value (x) can be hidden by clicking
+                    <strong>Hide No Value</strong> button.
+            </p>
+        </div>
+    </div>
+    <br>
+
+    <div class="well">
+        <h3>Stats</h3>
+        <table id="stats_table" class="table table-hover"></table>
+    </div>
+
+    <div>
+    {% for sample_type in sample_groups %}
+        <div>
+            <h3>{{ sample_type.header }}</h3>
+
+            <div id="{{ sample_type.sample_group_type }}">
+                <table class="table table-hover table-striped"  {# Todo: Turn tablesorter back on #}
+                       id="{{ 'sortable%i' % (loop.index) }}">
+                    <tr>
+                        <th>Index</th>
+
+                        <th>Sample</th>
+
+                        <th>Value</th>
+                        {% if sample_type.se_exists() %}
+                        <th>&nbsp;</th>
+
+                        <th>SE</th>
+                        {% endif %}
+
+                        {% for attribute in sample_type.attributes|sort() %}
+                        <th>
+                            {{ sample_type.attributes[attribute].name }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+
+                    {% for sample in sample_type.sample_list %}
+                    <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
+                    <td class="column_name-Index">
+                        {{ loop.index }}
+                        <input type="checkbox" name="selectCheck"
+                               class="checkbox edit_sample_checkbox"
+                               value="{{ sample.name }}" checked="checked">
+                    </td>
+
+                    <td class="column_name-Sample">
+                        <span class="edit_sample_sample_name">
+                            {{ sample.name }}
+                         </span>
+                    </td>
+
+                    {# Todo: Add IDs #}
+                    <td class="column_name-Value">
+                      <input type="text" data-value="{{ sample.display_value }}" name="{{ sample.name }}"
+                             class="trait_value_input edit_sample_value"
+                             value="{{ sample.display_value }}"
+                             size=8 maxlength=8
+                      >
+                    </td>
+
+                    {% if sample_type.se_exists() %}
+                    <td>
+                      ±
+                    </td>
+
+                    {# Todo: Add IDs #}
+                    <td class="column_name-SE">
+                      <input type="text" data-value="{{ sample.display_variance }}" name=""{{ 'V' + sample.name}}"
+                             class="trait_value_input edit_sample_se"
+                             value="{{ sample.display_variance }}"
+                             size=8 maxlength=8
+                      >
+                    </td>
+                    {% endif %}
+
+                    {# Loop through each attribute type and input value #}
+                    {% for attribute in sample_type.attributes|sort() %}
+                    <td class="std_cell column_name-{{ sample_type.attributes[attribute].name.replace(' ', '_') }}">
+                      {{ sample.extra_attributes[sample_type.attributes[attribute].name] }}
+                    </td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+    <input type="hidden" name="Default_Name">
+</div>

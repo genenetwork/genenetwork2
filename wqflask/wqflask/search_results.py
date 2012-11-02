@@ -42,7 +42,6 @@ from utility import formatting
 #from base.JinjaPage import JinjaEnv, JinjaPage
 
 
-
 class SearchResultPage(templatePage):
 
     maxReturn = 3000
@@ -144,20 +143,6 @@ class SearchResultPage(templatePage):
             self.species_id = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor,
                                                                        self.dataset.group)
 
-        ###########################################
-        #    make sure search from same type of datasets
-        ###########################################
-        #dbTypes = map(lambda X: X.type, self.dataset)
-        #db_types = [table.type for table in self.dataset]
-        #self.db_type = db_types[0]
-        #for item in dbTypes:
-        #    if item != self.dbType:
-        #        heading = "Search Result"
-        #        detail = ["Search can only be performed among the same type of datasets"]
-        #        self.error(heading=heading,detail=detail,error="Error")
-        #        return
-
-
         #self.db_type = self.dataset.type
         if self.dataset.type == "Publish":
             self.search_fields = ['Phenotype.Post_publication_description',
@@ -191,273 +176,61 @@ class SearchResultPage(templatePage):
         elif self.dataset.type == "Geno":
             self.search_fields = ['Name','Chr']
 
-
         self.search()
         self.gen_search_result()
-
-        ###########################################
-        #       Search Options
-        ###########################################
-        #self.matchwhole = fd['matchwhole']
-        #split result into pages
-        #self.pageNumber = fd.get('pageno', 0)
-        #
-        #try:
-        #    self.pageNumber = int(self.pageNumber)
-        #except Exception as why:
-        #    print(why)
-        #    self.pageNumber = 0
-
-
-        ###########################################
-        #       Generate Mysql Query
-        ###########################################
-
-        # Sam: We presume lines below aren't used...
-        #geneIdListQuery = fd.get('geneId', '')
-        #if geneIdListQuery:
-        #    geneIdListQuery = string.replace(geneIdListQuery, ",", " ")
-        #    geneIdListQuery = " geneId=%s" % string.join(string.split(geneIdListQuery), "-")
-
-        #self.ANDkeyword = fd.get('ANDkeyword', "")
-        #self.ORkeyword = fd.get('ORkeyword', "")
-
-        #self.ORkeyword += geneIdListQuery
-
-        #self.ANDkeyword = self.ANDkeyword.replace("\\", "").strip()
-        #self.ORkeyword = self.ORkeyword.replace("\\", "").strip()
-        #user defined sort option
-        #self.orderByUserInput = fd.get('orderByUserInput', "").strip()
-        #default sort option if user have not defined
-        #self.orderByDefalut = ""
-
-        #XZ, Dec/16/2010: I add examples to help understand this block of code. See details in function pattersearch.
-        #
-        ##XZ: self._1mPattern examples: WIKI=xxx, RIF=xxx, GO:0045202
-        #self._1mPattern = re.compile('\s*(\S+)\s*[:=]\s*([a-zA-Z-\+\d\.]+)\s*')
-        #
-        ##XZ: self._2mPattern examples: Mean=(15.0 16.0), Range=(10 100), LRS=(Low_LRS_limit, High_LRS_limit), pvalue=(Low_limit, High_limit), Range=(10 100)
-        #self._2mPattern = re.compile('\s*(\S+)\s*[=in]{1,2}\s*\(\s*([-\d\.]+)[, \t]+([-\d\.]+)[, \t]*([-\d\.]*)\s*\)')
-        #
-        ##XZ: self._3mPattern examples: Position=(Chr1 98 104), Pos=(Chr1 98 104), Mb=(Chr1 98 104), CisLRS=(Low_LRS_limit, High_LRS_limit, Mb_buffer), TransLRS=(Low_LRS_limit, High_LRS_limit, Mb_buffer)
-        #self._3mPattern = re.compile('\s*(\S+)\s*[=in]{1,2}\s*\(\s*[Cc][Hh][Rr]([^, \t]+)[, \t]+([-\d\.]+)[, \t]+([-\d\.]+)\s*\)')
-        #
-        ##XZ: self._5mPattern examples: LRS=(Low_LRS_limit, High_LRS_limit, ChrNN, Mb_Low_Limit, Mb_High_Limit)
-        #self._5mPattern = re.compile('\s*(\S+)\s*[=in]{1,2}\s*\(\s*([-\d\.]+)[, \t]+([-\d\.]+)[, \t]+[Cc][Hh][Rr]([^, \t]+)[, \t]+([-\d\.]+)[, \t]+([-\d\.]+)\s*\)')
-
-        #Error, No keyword input
-        #if not (self.ORkeyword or self.ANDkeyword):
-        #    heading = "Search Result"
-        #    detail = ["Please make sure to enter either your search terms (genes, traits, markers), or advanced search commands."]
-        #    self.error(heading=heading,detail=detail,error="No search terms were entered")
-        #    return
-
-        #query clauses
-        #self.ANDQuery = []
-        #self.ORQuery = []
-        ##descriptions, one for OR search, one for AND search
-        #self.ANDDescriptionText = []
-        #self.ORDescriptionText = []
-
-        #if not self.normalSearch():
-        #    return
-        #if not self.patternSearch():
-        #    return
-        #if not self.assembleQuery():
-        #    return
-        #self.nresults = self.executeQuery()
-        #
-        #if len(self.dataset) > 1:
-        #    dbUrl =  "Multiple phenotype datasets"
-        #    dbUrlLink = " were"
-        #else:
-        #    dbUrl =  self.dataset[0].genHTML()
-        #    dbUrlLink = " was"
-
-        #SearchText = HT.Blockquote('GeneNetwork searched the ', dbUrl, ' for all records ')
-        #if self.ORkeyword2:
-        #    NNN = len(self.ORkeyword2)
-        #    if NNN > 1:
-        #        SearchText.append(' that match the terms ')
-        #    else:
-        #        SearchText.append(' that match the term ')
-        #    for j, term in enumerate(self.ORkeyword2):
-        #        SearchText.append(HT.U(term))
-        #        if NNN > 1 and j < NNN-2:
-        #            SearchText.append(", ")
-        #        elif j == NNN-2:
-        #            SearchText.append(", or ")
-        #        else:
-        #            pass
-        #if self.ORDescriptionText:
-        #    if self.ORkeyword2:
-        #        SearchText.append("; ")
-        #    else:
-        #        SearchText.append(" ")
-        #    for j, item in enumerate(self.ORDescriptionText):
-        #        SearchText.append(item)
-        #        if j < len(self.ORDescriptionText) -1:
-        #            SearchText.append(";")
-        #
-        #if (self.ORkeyword2 or self.ORDescriptionText) and (self.ANDkeyword2 or self.ANDDescriptionText):
-        #    SearchText.append("; ")
-        #if self.ANDkeyword2:
-        #    if (self.ORkeyword2 or self.ORDescriptionText):
-        #        SearchText.append(' records')
-        #    NNN = len(self.ANDkeyword2)
-        #    if NNN > 1:
-        #        SearchText.append(' that match the terms ')
-        #    else:
-        #        SearchText.append(' that match the term ')
-        #    for j, term in enumerate(self.ANDkeyword2):
-        #        SearchText.append(HT.U(term))
-        #        if NNN > 1 and j < NNN-2:
-        #            SearchText.append(", ")
-        #        elif j == NNN-2:
-        #            SearchText.append(", and ")
-        #        else:
-        #            pass
-        #if self.ANDDescriptionText:
-        #    if self.ANDkeyword2:
-        #        SearchText.append(" and ")
-        #    else:
-        #        SearchText.append(" ")
-        #    for j, item in enumerate(self.ANDDescriptionText):
-        #        SearchText.append(item)
-        #        if j < len(self.ANDDescriptionText) -1:
-        #            SearchText.append(" and ")
-        #
-        #SearchText.append(". ")
-        #if self.nresults == 0:
-        #    heading = "Search Result"
-        #    detail = ["Sorry, GeneNetwork did not find any records matching your request. Please check the syntax or try the ANY rather than the ALL field."]
-        #    self.error(heading=heading,intro = SearchText.contents,detail=detail,error="Not Found")
-        #    return
-        #elif self.nresults == 1:
-        #    SearchText.append(HT.P(), 'GeneNetwork found one record that matches your request. To study this record, click on its text below. To add this record to your Selection window, use the checkbox and then click the ', HT.Strong('Add to Collection'),' button. ')
-        #elif self.nresults >= 1 and self.nresults <= self.maxReturn:
-        #    SearchText.append(HT.P(), 'GeneNetwork found a total of ', HT.Span(self.nresults, Class='fwb cr'), ' records. To study any one of these records, click on its ID below. To add one or more records to your Selection window, use the checkbox and then click the ' , HT.Strong('Add to Collection'),' button. ')
-        #else:
-        #    SearchText.append(' A total of ',HT.Span(self.nresults, Class='fwb cr'), ' records were found.')
-        #    heading = "Search Result"
-        #    # Modified by Hongqiang Li
-        #    # detail = ["The terms you entered match %d records. Please modify your search to generate %d or fewer matches, or review  " % (self.nresults, self.maxReturn), HT.Href(text='Search Help', target='_blank',  url='http://web2qtl.utmem.edu/searchHelp.html', Class='fs14'), " to learn more about syntax and the use of wildcard characters."]
-        #    detail = ["The terms you entered match %d records. Please modify your search to generate %d or fewer matches, or review  " % (self.nresults, self.maxReturn), HT.Href(text='Search Help', target='_blank',  url='%s/searchHelp.html' % webqtlConfig.PORTADDR, Class='fs14'), " to learn more about syntax and the use of wildcard characters."]
-        #    #
-        #    self.error(heading=heading,intro = SearchText.contents,detail=detail,error="Over %d" % self.maxReturn)
-        #    return
-
-
-        #TD_LR.append(HT.Paragraph('Search Results', Class="title"), SearchText)
-
-        #self.dict['body'] = str(TD_LR)
-        #self.dict['js1'] = ''
-        #self.dict['js2'] = 'onLoad="pageOffset()"'
-        #self.dict['layer'] = self.generateWarningLayer()
 
 
     def gen_search_result(self):
 
-        #pageTable = HT.TableLite(cellSpacing=2,cellPadding=0,width="100%",border=0)
-
-        #last_result = False
-
         self.trait_list = []
         # result_set represents the results for each search term; a search of 
         # "shh grin2b" would have two sets of results, one for each term
-        for result_set in self.results:
-            for result in result_set:
-                if not result:
-                    continue
-                #last_result = False
+        print("self.results is:", pf(self.results))
+        for result in self.results:
+            if not result:
+                continue
 
-                seq = 1
-                group = self.dataset.group
-                self.form_name = form_name = 'show_dataset_'+group
+            seq = 1
+            group = self.dataset.group
+            self.form_name = form_name = 'show_dataset_'+group
 
-                tblobj = {}
-                species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=group)
+            tblobj = {}
+            species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=group)
 
-                #### Excel file 
+            #### Excel file 
 
-                # Todo: Replace this with official Python temp file naming functions?
-                filename= webqtlUtil.genRandStr("Search_")
-                #xlsUrl = HT.Input(type='button', value = 'Download Table', onClick= "location.href='/tmp/%s.xls'" % filename, Class='button')
-                # Create a new Excel workbook
-                #workbook = xl.Writer('%s.xls' % (webqtlConfig.TMPDIR+filename))
-                #headingStyle = workbook.add_format(align = 'center', bold = 1, border = 1, size=13, fg_color = 0x1E, color="white")
+            # Todo: Replace this with official Python temp file naming functions?
+            filename= webqtlUtil.genRandStr("Search_")
+            #xlsUrl = HT.Input(type='button', value = 'Download Table', onClick= "location.href='/tmp/%s.xls'" % filename, Class='button')
+            # Create a new Excel workbook
+            #workbook = xl.Writer('%s.xls' % (webqtlConfig.TMPDIR+filename))
+            #headingStyle = workbook.add_format(align = 'center', bold = 1, border = 1, size=13, fg_color = 0x1E, color="white")
 
-                #XZ, 3/18/2010: pay attention to the line number of header in this file. As of today, there are 7 lines.
-                #worksheet = self.createExcelFileWithTitleAndFooter(workbook=workbook, db=this_trait.db, returnNumber=len(self.trait_list))
-                newrow = 7
+            #XZ, 3/18/2010: pay attention to the line number of header in this file. As of today, there are 7 lines.
+            #worksheet = self.createExcelFileWithTitleAndFooter(workbook=workbook, db=this_trait.db, returnNumber=len(self.trait_list))
+            newrow = 7
 
-                #### Excel file stuff stops
+            #### Excel file stuff stops
 
-                if self.dataset.type == "ProbeSet":
-                    #for item in result:
-                    print("foo locals are:", locals())
-                    probe_set_id = result[1]
-                    print("probe_set_id is:", pf(probe_set_id))
-                    this_trait = webqtlTrait(db=self.dataset, name=probe_set_id, cursor=self.cursor)
-                    this_trait.retrieveInfo(QTL=True)
-                    print("this_trait is:", pf(this_trait))
-                    self.trait_list.append(this_trait)
-                    print("self.trait_list is:", pf(self.trait_list))
+            if self.dataset.type == "ProbeSet":
+                #for item in result:
+                print("foo locals are:", locals())
+                probe_set_id = result[0]
+                print("probe_set_id is:", pf(probe_set_id))
+                this_trait = webqtlTrait(db=self.dataset, name=probe_set_id, cursor=self.cursor)
+                this_trait.retrieveInfo(QTL=True)
+                print("this_trait is:", pf(this_trait))
+                self.trait_list.append(this_trait)
+            elif self.dataset.type == "Publish":
+                newrow += 1
+                tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, newrow=newrow, species=species)
+            elif self.dataset.type == "Geno":
+                newrow += 1
+                tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet, newrow=newrow)
 
-                    #tblobj['header'] = self.getTableHeaderForProbeSet(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
-
-                    #newrow += 1
-
-                    sortby = self.getSortByValue(datasetType="ProbeSet")
-
-                    tblobj['body'] = self.getTableBodyForProbeSet(trait_list=self.trait_list, formName=self.form_name, newrow=newrow, species=species)
-
-                    #workbook.close()
-                    #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-                    #cPickle.dump(tblobj, objfile)
-                    #objfile.close()
-
-                    #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
-
-                    #pageTable.append(HT.TR(HT.TD(div)))
-                elif self.dataset.type == "Publish":
-                    #tblobj['header'] = self.getTableHeaderForPublish(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
-
-                    #newrow += 1
-
-                    sortby = self.getSortByValue(datasetType="Publish")
-
-                    #tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, newrow=newrow, species=species)
-
-                    #workbook.close()
-                    #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-                    #cPickle.dump(tblobj, objfile)
-                    #objfile.close()
-
-                    #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
-
-                    #pageTable.append(HT.TR(HT.TD(div)))                    
-                elif self.dataset.type == "Geno":
-                    tblobj['header'] = self.getTableHeaderForGeno(worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
-
-                    newrow += 1
-                    sortby = self.getSortByValue(datasetType="Geno")
-
-                    #tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet, newrow=newrow)
-
-                    #workbook.close()
-                    #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-                    #cPickle.dump(tblobj, objfile)
-                    #objfile.close()
-
-                    #div = HT.Div(webqtlUtil.genTableObj(tblobj, filename, sortby), Id="sortable")
-                    #
-                    #pageTable.append(HT.TR(HT.TD(div)))                    
-
-
-                #traitForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=thisFormName, submit=HT.Input(type='hidden'))
-                hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':'_','CellID':'_','group':group}
-                hddn['incparentsf1']='ON'
+            #traitForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=thisFormName, submit=HT.Input(type='hidden'))
+            hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':'_','CellID':'_','group':group}
+            hddn['incparentsf1']='ON'
             #    for key in hddn.keys():
             #        traitForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
             #
@@ -468,169 +241,13 @@ class SearchResultPage(templatePage):
             #        last_result = True
             #if last_result:
             #    TD_LR.contents.pop()
-
-    def executeQuery(self):
-
-        ##construct sorting
-        if self.dbType == "Publish":
-            sortQuery = " order by Publication_PubMed_ID desc, Phenotype_Name, thistable"
-        elif self.dbType == "Geno":
-            if not self.orderByUserInput:
-                if self.orderByDefalut:
-                    self.orderByUserInput = self.orderByDefalut
-                else:
-                    self.orderByUserInput = "POSITION"
-                if self.orderByUserInput.upper() in ["POS", "POSITION", "MB"]:
-                    self.orderByUserInput = "POSITION"
-                else:
-                    pass
-            self.orderByUserInput = self.orderByUserInput.upper()
-            self.orderByUserInputOrig = self.orderByUserInput[:]
-            if self.orderByUserInput == "NAME":
-                sortQuery = " order by Geno_Name, Geno_chr_num, Geno_Mb"
-            elif self.orderByUserInput == "SOURCE":
-                sortQuery = " order by Geno_Source2, Geno_chr_num, Geno_Mb"
-            else:
-                sortQuery = " order by Geno_chr_num, Geno_Mb"
-        #ProbeSet
-        else:
-            if not self.orderByUserInput:
-                if self.orderByDefalut:
-                    self.orderByUserInput = self.orderByDefalut
-                else:
-                    self.orderByUserInput = "POSITION"
-
-            self.orderByUserInput = self.orderByUserInput.upper()
-            self.orderByUserInputOrig = self.orderByUserInput[:]
-            #XZ: 8/18/2009: "POSITION-"
-            if self.orderByUserInput[-1] == '-':
-                self.orderByUserInput = self.orderByUserInput[:-1]
-                sortDesc = 'desc'
-            else:
-                sortDesc = ''
-
-            if self.orderByUserInput in  ["MEAN", "LRS", "PVALUE"]:
-                #sortQuery = " order by T%s %s, TNAME, thistable desc" % (self.orderByUserInput, sortDesc)
-                sortQuery = " order by T%s desc, TNAME, thistable desc" % self.orderByUserInput
-            elif self.orderByUserInput in ["POS", "POSITION", "MB"]:
-                sortQuery = " order by TCHR_NUM %s, TMB %s, TNAME, thistable desc" % (sortDesc, sortDesc)
-            elif self.orderByUserInput == 'SYMBOL':
-                sortQuery = " order by TSYMBOL, thistable desc"
-            else:
-                sortQuery = " order by TNAME_NUM, thistable desc"
-
-        if self.singleCross:
-            if len(self.query) > 1:
-                searchQuery = map(lambda X:'(%s)' % X, self.query)
-                searchQuery = string.join(searchQuery, '  UNION ALL ')
-            else:
-                searchQuery = self.query[0]
-            searchQuery += sortQuery
-            #searchCountQuery retrieve all the results
-            searchCountQuery = [searchQuery]
-            #searchQuery = searchQuery + " limit %d,%d" % (self.pageNumber*self.NPerPage, self.NPerPage) // We removed the page limit - Zach 2/22/11
-            searchQuery = [searchQuery]
-        else:
-            searchCountQuery = searchQuery = map(lambda X: X+sortQuery, self.query)
-
-        allResults = []
-        self.results = []
-        for item in searchCountQuery:
-            start_time = datetime.datetime.now()
-            _log.info("Executing query: %s"%(item))
-            self.cursor.execute(item)
-            allResults.append(self.cursor.fetchall())
-            end_time = datetime.datetime.now()
-            _log.info("Total time: %s"%(end_time-start_time))
-
-        _log.info("Done executing queries")
-
-        #searchCountQuery retrieve all the results, for counting use only
-        if searchCountQuery != searchQuery:
-            for item in searchQuery:
-                self.cursor.execute(item)
-                self.results.append(self.cursor.fetchall())
-        else:
-            self.results = allResults
-
-        nresults = reduce(lambda Y,X:len(X)+Y, allResults, 0)
-        return nresults
-
-
-    def assembleQuery(self):
-        self.query = []
-        if self.ANDQuery or self.ORQuery:
-            clause = self.ORQuery[:]
-
-            for j, database in enumerate(self.dataset):
-                if self.ANDQuery:
-                    clause.append(" (%s) " % string.join(self.ANDQuery, " AND "))
-
-                newclause = []
-
-                for item in clause:
-                    ##need to retrieve additional field which won't be used
-                    ##in the future, for sorting purpose only
-                    if self.dbType == "Publish":
-                        if item.find("Geno.name") < 0:
-                            incGenoTbl = ""
-                        else:
-                            incGenoTbl = " Geno, "
-                        newclause.append("""SELECT %d, PublishXRef.Id,
-                                         PublishFreeze.createtime as thistable,
-                                         Publication.PubMed_ID as Publication_PubMed_ID,
-                                         Phenotype.Post_publication_description as Phenotype_Name
-                                         FROM %s PublishFreeze, Publication, PublishXRef,
-                                         Phenotype WHERE PublishXRef.InbredSetId = %d and %s and
-                                         PublishXRef.PhenotypeId = Phenotype.Id and
-                                         PublishXRef.PublicationId = Publication.Id and
-                                         PublishFreeze.Id = %d""" % (j, incGenoTbl,
-                                         self.dataset_group_ids[j], item, database.id))
-                    elif self.dbType == "ProbeSet":
-                        if item.find("GOgene") < 0:
-                            incGoTbl = ""
-                        else:
-                            incGoTbl = """ ,db_GeneOntology.term as GOterm,
-                            db_GeneOntology.association as GOassociation,
-                            db_GeneOntology.gene_product as GOgene_product """
-                        if item.find("Geno.name") < 0:
-                            incGenoTbl = ""
-                        else:
-                            incGenoTbl = " Geno, "
-                        if item.find("GeneRIF_BASIC.") < 0:
-                            incGeneRIFTbl = ""
-                        else:
-                            incGeneRIFTbl = " GeneRIF_BASIC, "
-                        if item.find("GeneRIF.") < 0:
-                            incGeneRIFTbl += ""
-                        else:
-                            incGeneRIFTbl += " GeneRIF, "
-                        newclause.append("""SELECT distinct %d, ProbeSet.Name as TNAME, 0 as thistable,
-                        ProbeSetXRef.Mean as TMEAN, ProbeSetXRef.LRS as TLRS, ProbeSetXRef.PVALUE as TPVALUE,
-                        ProbeSet.Chr_num as TCHR_NUM, ProbeSet.Mb as TMB,  ProbeSet.Symbol as TSYMBOL,
-                        ProbeSet.name_num as TNAME_NUM  FROM %s%s ProbeSetXRef, ProbeSet %s
-                        WHERE %s and ProbeSet.Id = ProbeSetXRef.ProbeSetId and ProbeSetXRef.ProbeSetFreezeId = %d
-                        """ % (j, incGeneRIFTbl, incGenoTbl, incGoTbl, item, database.id))
-                    elif self.dbType == "Geno":
-                        newclause.append("""SELECT %d, Geno.Name, GenoFreeze.createtime as thistable,
-                                         Geno.Name as Geno_Name, Geno.Source2 as Geno_Source2,
-                                         Geno.chr_num as Geno_chr_num, Geno.Mb as Geno_Mb FROM
-                                         GenoXRef, GenoFreeze, Geno WHERE %s and Geno.Id
-                                         = GenoXRef.GenoId and GenoXRef.GenoFreezeId =
-                                         GenoFreeze.Id and GenoFreeze.Id = %d""" % (
-                                            j, item, database.id))
-                    else:
-                        pass
-
-                searchQuery = map(lambda X:'(%s)' % X, newclause)
-                searchQuery = string.join(searchQuery, '  UNION ')
-                self.query.append(searchQuery)
-            return 1
-        else:
-            heading = "Search Result"
-            detail = ["No keyword was entered for this search, please go back and enter your keyword."]
-            self.error(heading=heading,detail=detail,error="No Keyword")
-            return 0
+            
+        if self.dataset.type == "ProbeSet":
+            tblobj['body'] = self.getTableBodyForProbeSet(trait_list=self.trait_list, formName=self.form_name, newrow=newrow, species=species)            
+        elif self.dataset.type == "Publish":
+            tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, newrow=newrow, species=species)
+        elif self.dataset.type == "Geno":
+            tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet, newrow=newrow)
 
 
     def search(self):
@@ -641,165 +258,20 @@ class SearchResultPage(templatePage):
         self.results = []
         for a_search in self.search_terms:
             print("[kodak] item is:", pf(a_search))
-            search_term = None
-            search_type = None
-            if "search_term" in a_search:
-                search_term = a_search['search_term']
-            elif key in a_search:
-                search_type = a_search['key']
-                
-                
-            if search_term:
-                searches = dict(
-                    ProbeSet = "ProbeSetSearch",
-                    Publish = "PhenotypeSearch",
-                    Geno = "GenotypeSearch",
-                )
-                if self.dataset.type in searches:
-                    search_ob = searches[self.dataset.type]
-                #if self.dataset.type == "ProbeSet":
-                #    search_ob = "ProbeSetSearch"
-                #elif self.dataset.type == "Publish":
-                #    search_ob = "PhenotypeSearch"
-                #elif self.dataset.type == "Geno":
-                #    search_ob = "GenotypeSearch"
-                else:
-                    SearchTermNeedsToBeDefined # Cause an error on purpose
-                search_class = getattr(do_search, search_ob)
-                results = search_class(search_term,
-                                        self.dataset,
-                                        self.cursor,
-                                        self.db_conn).run()
-                
-            print("in the search results are:", results)
+            search_term = a_search['search_term']
+            search_type = a_search['key']
+            if not search_type:
+                # We fall back to the dataset type as the key to get the right object
+                search_type = self.dataset.type                
 
-##            clause_item = (
-##""" MATCH (ProbeSet.Name,
-##        ProbeSet.description,
-##        ProbeSet.symbol,
-##        alias,
-##        GenbankId,
-##        UniGeneId,
-##        Probe_Target_Description)
-##        AGAINST ('%s' IN BOOLEAN MODE) """ % self.db_conn.escape_string(search_term))
-#            if self.dataset.type == "ProbeSet":
-#                
-#                query = (
-#"""SELECT distinct 0,
-#    ProbeSet.Name as TNAME,
-#    0 as thistable,
-#    ProbeSetXRef.Mean as TMEAN,
-#    ProbeSetXRef.LRS as TLRS,
-#    ProbeSetXRef.PVALUE as TPVALUE,
-#    ProbeSet.Chr_num as TCHR_NUM,
-#    ProbeSet.Mb as TMB,
-#    ProbeSet.Symbol as TSYMBOL,
-#    ProbeSet.name_num as TNAME_NUM
-#    FROM ProbeSetXRef, ProbeSet
-#    WHERE (MATCH (ProbeSet.Name,
-#        ProbeSet.description,
-#        ProbeSet.symbol,
-#        alias,
-#        GenbankId,
-#        UniGeneId,
-#        Probe_Target_Description)
-#        AGAINST ('%s' IN BOOLEAN MODE)) 
-#        and ProbeSet.Id = ProbeSetXRef.ProbeSetId
-#        and ProbeSetXRef.ProbeSetFreezeId = %s  
-#                """ % (self.db_conn.escape_string(search_term),
-#                self.db_conn.escape_string(str(self.dataset.id))))
-#                
-#            elif self.dataset.type == "Publish":
-#                include_geno = ""
-#                if search_term.find("Geno.name") >= 0:
-#                    include_geno = " Geno, "
-#                    
-#                if self.matchwhole and item.find("'") < 0:
-#                    item = "[[:<:]]"+ item+"[[:>:]]"
-#                clause2 = []
-#                for field in self.searchField:
-#                    if self.dbType == "Publish":
-#                        clause2.append("%s REGEXP \"%s\"" % (field,item))
-#                    else:
-#                        clause2.append("%s REGEXP \"%s\"" % ("%s.%s" % (self.dbType,field),item))                    
-#                    
-#                    
-#                query = (
-#"""SELECT 0, PublishXRef.Id, PublishFreeze.createtime as thistable,
-#    Publication.PubMed_ID as Publication_PubMed_ID,
-#    Phenotype.Post_publication_description as Phenotype_Name
-#    FROM %s PublishFreeze, Publication, PublishXRef, Phenotype
-#    WHERE (MATCH (ProbeSet.Name,
-#        ProbeSet.description,
-#        ProbeSet.symbol,
-#        alias,
-#        GenbankId,
-#        UniGeneId,
-#        Probe_Target_Description)
-#        AGAINST ('%s' IN BOOLEAN MODE)) and
-#        PublishXRef.InbredSetId = %s and
-#        PublishXRef.PhenotypeId = Phenotype.Id and
-#        PublishXRef.PublicationId = Publication.Id and
-#        PublishFreeze.Id = %s
-#                """ % (include_geno,
-#                       self.db_conn.escape_string(search_term),
-#                       self.db_conn.escape_string(str(self.dataset.group_id)),
-#                       self.db_conn.escape_string(str(self.dataset.id))))
-#
-#            elif self.dataset.type == "Geno":
-#                query = (
-#"""SELECT 0, Geno.Name, GenoFreeze.createtime as thistable,
-#    Geno.Name as Geno_Name,
-#    Geno.Source2 as Geno_Source2,
-#    Geno.chr_num as Geno_chr_num,
-#    Geno.Mb as Geno_Mb
-#    FROM GenoXRef, GenoFreeze, Geno
-#    WHERE (MATCH (ProbeSet.Name,
-#        ProbeSet.description,
-#        ProbeSet.symbol,
-#        alias,
-#        GenbankId,
-#        UniGeneId,
-#        Probe_Target_Description)
-#        AGAINST ('%s' IN BOOLEAN MODE)) and
-#        and Geno.Id = GenoXRef.GenoId and
-#        GenoXRef.GenoFreezeId = GenoFreeze.Id and
-#        GenoFreeze.Id = %d
-#                """% (self.db_conn.escape_string(search_term),
-#                      self.db_conn.escape_string(str(self.dataset.id))))
-#
-#
-#            self.cursor.execute(query)
-#            self.results.append(self.cursor.fetchall())
-#
-#            print("self.results is:", pf(self.results))
-#
-#
-#
-#
-#            #if self.dataset.type == "ProbeSet" and search_term.find('.') < 0 and search_term.find('\'') < 0:
-#            #    full_text.append(search_term)
-#            #else:
-#            #    if self.matchwhole and search_term.find("'") < 0:
-#            #        search_term = "[[:<:]]"+ search_term+"[[:>:]]"
-#            #    clause2 = []
-#            #    for field in self.search_fields:
-#            #        if self.dataset.type == "Publish":
-#            #            clause2.append("%s REGEXP \"%s\"" % (field,search_term))
-#            #        else:
-#            #            clause2.append("%s REGEXP \"%s\"" % ("%s.%s" % (self.dataset.type,field),search_term))
-#            #    clause_item = "(%s)" % string.join(clause2, clausejoin)
-#            #    query.append(" (%s) " % clause_item)
-#        #if ANDFulltext:
-#        #    clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,
-#        #    alias,GenbankId, UniGeneId, Probe_Target_Description)
-#        #    AGAINST ('+%s' IN BOOLEAN MODE) """ % string.join(ANDFulltext, " +")
-#        #    self.ANDQuery.append(" (%s) " % clauseItem)
-#        #if ORFulltext:
-#        #clauseItem = """ MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,
-#        #GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE)
-#        #""" % string.join(full_text, " ")
-#        #self.query.append(" (%s) " % clauseItem)
+            search_ob = do_search.DoSearch.get_search(search_type)
+            search_class = getattr(do_search, search_ob)
+            self.results.extend(search_class(search_term,
+                                    self.dataset,
+                                    self.cursor,
+                                    self.db_conn).run())
+                
+            print("in the search results are:", self.results)
 
 
     def encregexp(self,str):
@@ -818,239 +290,6 @@ class SearchResultPage(templatePage):
             wildcardkeyword[i] = keyword#'[[:<:]]'+ keyword+'[[:>:]]'
         return wildcardkeyword
 
-
-
-    def patternSearch(self):
-        # Lei Yan
-        ##Process Inputs
-        m1_AND = self._1mPattern.findall(self.ANDkeyword)
-        m2_AND = self._2mPattern.findall(self.ANDkeyword)
-        m3_AND = self._3mPattern.findall(self.ANDkeyword)
-        m5_AND = self._5mPattern.findall(self.ANDkeyword)
-        m1_OR = self._1mPattern.findall(self.ORkeyword)
-        m2_OR = self._2mPattern.findall(self.ORkeyword)
-        m3_OR = self._3mPattern.findall(self.ORkeyword)
-        m5_OR = self._5mPattern.findall(self.ORkeyword)
-
-        #pattern search
-        if m1_AND or m1_OR or m2_AND or m2_OR or m3_AND or m3_OR or m5_AND or m5_OR:
-
-            self.orderByDefalut = 'PROBESETID'
-
-            _1Cmds = map(string.upper, map(lambda x:x[0], m1_AND + m1_OR))
-            _2Cmds = map(string.upper, map(lambda x:x[0], m2_AND + m2_OR))
-            _3Cmds = map(string.upper, map(lambda x:x[0], m3_AND + m3_OR))
-            _5Cmds = map(string.upper, map(lambda x:x[0], m5_AND + m5_OR))
-
-            self.nkeywords += len(_1Cmds) + len(_2Cmds) + len(_3Cmds)
-
-            if self.dbType == "Publish" and \
-                ( (_2Cmds and reduce(lambda x, y: (y not in ["LRS"]) or x, _2Cmds, False))\
-                or (_5Cmds and reduce(lambda x, y: (y not in ["LRS"]) or x, _5Cmds, False)) ):
-                heading = "Search Result"
-                detail = ["Pattern search is not available for phenotype databases at this time."]
-                self.error(heading=heading,detail=detail,error="Error")
-                return 0
-            elif (self.dbType == "ProbeSet" and
-                ((_2Cmds and reduce(lambda x, y: (y not in [
-                    "MEAN", "LRS", "PVALUE", "TRANSLRS", "CISLRS", "RANGE", "H2"
-                    ]) or x, _2Cmds, False))\
-                or (_3Cmds and reduce(lambda x, y: (y not in ["POS", "POSITION", "MB"]) or x, _3Cmds, False))\
-                or (_5Cmds and reduce(lambda x, y: (y not in ["LRS"]) or x, _5Cmds, False))\
-                or (_1Cmds and reduce(lambda x, y: (
-                    y not in ["FLAG", "STRAND_PROBE", "STRAND_GENE", "GO", "WIKI", "RIF", "GENEID"]
-                    ) or x, _1Cmds, False)))):
-                heading = "Search Result"
-                detail = ["You entered at least one incorrect search command."]
-                self.error(heading=heading,detail=detail,error="Error")
-                return 0
-            elif self.dbType == "Geno" and (_1Cmds or _2Cmds or _5Cmds or (_3Cmds and reduce(
-                lambda x, y: (y not in ["POS", "POSITION", "MB"]) or x, _3Cmds, False)) ):
-                heading = "Search Result"
-                detail = ["You entered at least one incorrect search command."]
-                self.error(heading=heading,detail=detail,error="Error")
-                return 0
-            else:
-                for k, item in enumerate(m1_OR+m1_AND):
-                    if k >=len(m1_OR):
-                        query = self.ANDQuery
-                        DescriptionText = self.ANDDescriptionText
-                    else:
-                        query = self.ORQuery
-                        DescriptionText = self.ORDescriptionText
-
-                    if item[1] == '-':
-                        strandName = 'minus'
-                    elif item[1] == '+':
-                        strandName = 'plus'
-                    else:
-                        strandName = item[1]
-
-                    if item[0].upper() in ("FLAG"):
-                        clauseItem = " %s.%s = %s " % (self.dbType, item[0], item[1])
-                        DescriptionText.append(HT.Span(' with ', HT.U('FLAG'), ' equal to ', item[1]))
-                    elif item[0].upper() in ("WIKI"):
-                        clauseItem = " %s.symbol = GeneRIF.symbol and GeneRIF.versionId=0 and GeneRIF.display>0 and (GeneRIF.comment REGEXP \"%s\" or GeneRIF.initial = \"%s\") " % (self.dbType, "[[:<:]]"+ item[1]+"[[:>:]]", item[1])
-                        DescriptionText.append(HT.Span(' with GeneWiki contains ', HT.U(item[1])))
-                    elif item[0].upper() in ("RIF"):
-                        clauseItem = " %s.symbol = GeneRIF_BASIC.symbol and MATCH (GeneRIF_BASIC.comment) AGAINST ('+%s' IN BOOLEAN MODE) " % (self.dbType, item[1])
-                        DescriptionText.append(HT.Span(' with GeneRIF contains ', HT.U(item[1])))
-                    elif item[0].upper() in ("GENEID"):
-                        clauseItem = " %s.GeneId in ( %s ) " % (self.dbType, string.replace(item[1], '-', ', '))
-                        DescriptionText.append(HT.Span(' with Entrez Gene ID in  ', HT.U(string.replace(item[1], '-', ', '))))
-                    elif item[0].upper() in ("GO"):
-                        Field = 'GOterm.acc'
-                        Id = 'GO:'+('0000000'+item[1])[-7:]
-                        Statements = '%s.symbol=GOgene_product.symbol and GOassociation.gene_product_id=GOgene_product.id and GOterm.id=GOassociation.term_id' % (self.dbType);
-                        clauseItem = " %s = '%s' and %s " % (Field, Id, Statements)
-                        #self.incGoTbl = " ,db_GeneOntology.term as GOterm, db_GeneOntology.association as GOassociation, db_GeneOntology.gene_product as GOgene_product "
-                        DescriptionText.append(HT.Span(' with ', HT.U('GO'), ' ID equal to ', Id))
-                    else:
-                        clauseItem = " %s.%s = '%s' " % (self.dbType, item[0], item[1])
-                        if item[0].upper() in ["STRAND_PROBE"]:
-                            DescriptionText.append(' with probe on the %s strand' % strandName)
-                        elif item[0].upper() in ["STRAND_GENE"]:
-                            DescriptionText.append(' with gene on the %s strand' % strandName)
-                        else:
-                            pass
-                    query.append(" (%s) " % clauseItem)
-
-                for k, item in enumerate(m2_OR+m2_AND):
-                    if k >=len(m2_OR):
-                        query = self.ANDQuery
-                        DescriptionText = self.ANDDescriptionText
-                    else:
-                        query = self.ORQuery
-                        DescriptionText = self.ORDescriptionText
-
-                    itemCmd = item[0]
-                    lower_limit = float(item[1])
-                    upper_limit = float(item[2])
-
-                    if itemCmd.upper() in ("TRANSLRS", "CISLRS"):
-                        if item[3]:
-                            mthresh = float(item[3])
-                            clauseItem = " %sXRef.LRS > %2.7f and %sXRef.LRS < %2.7f " % \
-                                (self.dbType, min(lower_limit, upper_limit), self.dbType, max(lower_limit, upper_limit))
-                            if itemCmd.upper() == "CISLRS":
-                                clauseItem += """ and  %sXRef.Locus = Geno.name and Geno.SpeciesId = %s and %s.Chr = Geno.Chr and ABS(%s.Mb-Geno.Mb) < %2.7f """ % (self.dbType, self.speciesId, self.dbType, self.dbType, mthresh)
-                                DescriptionText.append(HT.Span(' with a ', HT.U('cis-QTL'), ' having an LRS between %g and %g using a %g Mb exclusion buffer'  % (min(lower_limit, upper_limit), max(lower_limit, upper_limit),  mthresh)))
-                            else:
-                                clauseItem += """ and  %sXRef.Locus = Geno.name and Geno.SpeciesId = %s and (%s.Chr != Geno.Chr or (%s.Chr != Geno.Chr and ABS(%s.Mb-Geno.Mb) > %2.7f)) """ % (self.dbType, self.speciesId, self.dbType, self.dbType, self.dbType, mthresh)
-                                DescriptionText.append(HT.Span(' with a ', HT.U('trans-QTL'), ' having an LRS between %g and %g using a %g Mb exclusion buffer'  % (min(lower_limit, upper_limit), max(lower_limit, upper_limit),  mthresh)))
-                            query.append(" (%s) " % clauseItem)
-                            self.orderByDefalut = "LRS"
-                        else:
-                            pass
-                    elif itemCmd.upper() in ("RANGE"):
-                        #XZ, 03/05/2009: Xiaodong changed Data to ProbeSetData
-                        clauseItem = " (select Pow(2, max(value) -min(value)) from ProbeSetData where Id = ProbeSetXRef.dataId) > %2.7f and (select Pow(2, max(value) -min(value)) from ProbeSetData where Id = ProbeSetXRef.dataId) < %2.7f " % (min(lower_limit, upper_limit), max(lower_limit, upper_limit))
-                        query.append(" (%s) " % clauseItem)
-                        DescriptionText.append(HT.Span(' with a range of expression that varied between %g and %g' % (min(lower_limit, upper_limit),  max(lower_limit, upper_limit)), "  (fold difference)"))
-                    else:
-                        clauseItem = " %sXRef.%s > %2.7f and %sXRef.%s < %2.7f " % \
-                            (self.dbType, itemCmd, min(lower_limit, upper_limit), self.dbType, itemCmd, max(lower_limit, upper_limit))
-                        query.append(" (%s) " % clauseItem)
-                        self.orderByDefalut = itemCmd
-                        DescriptionText.append(HT.Span(' with ', HT.U(itemCmd), ' between %g and %g' % (min(lower_limit, upper_limit),  max(lower_limit, upper_limit))))
-
-                for k, item in enumerate(m3_OR+m3_AND):
-                    print("enumerating m3_OR+m3_AND with k: %s - item %s" % (k, item))
-                    if self.dbType not in ("ProbeSet", "Geno"):
-                        continue
-                    if k >=len(m3_OR):
-                        query = self.ANDQuery
-                        DescriptionText = self.ANDDescriptionText
-                    else:
-                        query = self.ORQuery
-                        DescriptionText = self.ORDescriptionText
-                    itemCmd = item[0]
-
-
-                    chr_number = item[1]     # chromosome number
-                    lower_limit = float(item[2])
-                    upper_limit = float(item[3])
-
-                    if self.dbType == "ProbeSet":
-                        fname = 'target genes'
-                    elif self.dbType == "Geno":
-                        fname = 'loci'
-
-                    if lower_limit > upper_limit:
-                        lower_limit, upper_limit = upper_limit, lower_limit
-
-
-                    clauseItem = " %s.Chr = '%s' and %s.Mb > %2.7f and %s.Mb < %2.7f " % (
-                            self.dbType, chr_number, self.dbType, lower_limit, self.dbType, upper_limit)
-
-
-                    query.append(" (%s) " % clauseItem)
-                    self.orderByDefalut = itemCmd
-
-                    self.results_desc = dict()
-                    #DescriptionText.append(HT.Span(' with ', HT.U('target genes'), ' on chromosome %s between %g and %g Mb' % \
-                    #    (chr_number, min(lower_limit, upper_limit), max(lower_limit, upper_limit))))
-
-                for k, item in enumerate(m5_OR+m5_AND):
-                    if k >=len(m5_OR):
-                        query = self.ANDQuery
-                        DescriptionText = self.ANDDescriptionText
-                    else:
-                        query = self.ORQuery
-                        DescriptionText = self.ORDescriptionText
-                    itemCmd = item[0]
-                    lower_limit = float(item[1])
-                    upper_limit = float(item[2])
-                    chr_number = item[3]
-                    mb_lower_limit = float(item[4])
-                    mb_upper_limit = float(item[5])
-                    if self.dbType == "ProbeSet" or self.dbType == "Publish":
-                        clauseItem = " %sXRef.LRS > %2.7f and %sXRef.LRS < %2.7f " % \
-                            (self.dbType, min(lower_limit, upper_limit), self.dbType, max(lower_limit, upper_limit))
-                        clauseItem += " and  %sXRef.Locus = Geno.name and Geno.SpeciesId = %s and Geno.Chr = '%s' and Geno.Mb > %2.7f and Geno.Mb < %2.7f" \
-                            % (self.dbType, self.speciesId, chr_number, min(mb_lower_limit, mb_upper_limit),  max(mb_lower_limit, mb_upper_limit))
-                        query.append(" (%s) " % clauseItem)
-                        self.orderByDefalut = "MB"
-                        DescriptionText.append(HT.Span(' with ', HT.U('LRS'), ' between %g and %g' % \
-                            (min(lower_limit, upper_limit),  max(lower_limit, upper_limit)), \
-                            ' on chromosome %s between %g and %g Mb' % \
-                            (chr_number, min(mb_lower_limit, mb_upper_limit),  max(mb_lower_limit, mb_upper_limit))))
-            pass
-
-        return 1
-
-    def generateWarningLayer(self):
-
-        layerString = """
-        <!-- BEGIN FLOATING LAYER CODE //-->
-        <div id="warningLayer" style="padding:3px; border: 1px solid #222;
-        background-color: #fff; position:absolute;width:250px;left:100;top:100;visibility:hidden">
-            <table border="0" width="250" class="cbrb" cellspacing="0" cellpadding="5">
-                <tr>
-                    <td width="100%">
-                        <table border="0" width="100%" cellspacing="0" cellpadding="0" height="36">
-                            <tr>
-                                <td class="cbrb cw ff15 fwb" align="Center" width="100%" style="padding:4px">
-                                    Sort Table
-                                </td>
-                            </tr>
-                            <tr>
-                                <td width="100%" bgcolor="#eeeeee" align="Center" style="padding:4px">
-                                    <!-- PLACE YOUR CONTENT HERE //-->
-                                    Resorting this table <br>
-                                    <!-- END OF CONTENT AREA //-->
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <!-- END FLOATING LAYER CODE //-->
-
-        """
-
-        return layerString
 
     def getTableHeaderForGeno(self, worksheet=None, newrow=None, headingStyle=None):
 
@@ -1112,26 +351,7 @@ class SearchResultPage(templatePage):
             newrow += 1
 
         return tblobj_body
-
-    def getTableHeaderForPublish(self, worksheet=None, newrow=None, headingStyle=None):
-
-        tblobj_header = []
-
-        className = "fs13 fwb ffl b1 cw cbrb"
-
-        tblobj_header = [[THCell(HT.TD(' ', Class=className, nowrap="on"), sort=0),
-            THCell(HT.TD('Record',HT.BR(), 'ID',HT.BR(), Class=className, nowrap="on"), text="recond_id", idx=1),
-            THCell(HT.TD('Phenotype',HT.BR(),HT.BR(), Class=className, nowrap="on"), text="pheno", idx=2),
-            THCell(HT.TD('Authors',HT.BR(),HT.BR(), Class=className, nowrap="on"), text="auth", idx=3),
-            THCell(HT.TD('Year',HT.BR(),HT.BR(), Class=className, nowrap="on"), text="year", idx=4),
-            THCell(HT.TD('Max',HT.BR(), 'LRS', HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), text="lrs", idx=5),
-            THCell(HT.TD('Max LRS Location',HT.BR(),'Chr and Mb',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), text="lrs_location", idx=6)]]
-
-        for ncol, item in enumerate(["Record", "Phenotype", "Authors", "Year", "Pubmed Id", "Max LRS", "Max LRS Location (Chr: Mb)"]):
-            worksheet.write([newrow, ncol], item, headingStyle)
-            worksheet.set_column([ncol, ncol], 2*len(item))
-
-        return tblobj_header
+    
 
     def getTableBodyForPublish(self, trait_list, formName=None, worksheet=None, newrow=None, species=''):
 
@@ -1225,32 +445,13 @@ class SearchResultPage(templatePage):
 
         return tblobj_body
 
-    def getTableHeaderForProbeSet(self, worksheet=None, newrow=None, headingStyle=None):
 
-        tblobj_header = []
-
-        className = "fs13 fwb ffl b1 cw cbrb"
-
-        #tblobj_header = [[THCell(HT.TD(' ', Class="fs13 fwb ffl b1 cw cbrb",nowrap='ON'), sort=0),
-        #                 THCell(HT.TD('Record',HT.BR(), 'ID',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="record_id", idx=1),
-        #                 THCell(HT.TD('Symbol',HT.BR(),HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="symbol", idx=2),
-        #                 THCell(HT.TD('Description',HT.BR(),HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="desc", idx=3),
-        #                 THCell(HT.TD('Location',HT.BR(), 'Chr and Mb', HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="location", idx=4),
-        #                 THCell(HT.TD('Mean',HT.BR(),'Expr',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="mean", idx=5),
-        #                 THCell(HT.TD('Max',HT.BR(),'LRS',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="lrs", idx=6),
-        #                THCell(HT.TD('Max LRS Location',HT.BR(),'Chr and Mb',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="lrs_location", idx=7)]]
-        #
-        #for ncol, item in enumerate(['Record', 'Gene ID', 'Homologene ID', 'Symbol', 'Description', 'Location (Chr, Mb)', 'Mean Expr', 'Max LRS', 'Max LRS Location (Chr: Mb)']):
-        #    worksheet.write([newrow, ncol], item, headingStyle)
-        #    worksheet.set_column([ncol, ncol], 2*len(item))
-
-        return tblobj_header
-
-    def getTableBodyForProbeSet(self, trait_list=[], primaryTrait=None, formName=None, worksheet=None, newrow=None, species=''):
+    def getTableBodyForProbeSet(self, trait_list=None, primaryTrait=None, formName=None, worksheet=None, newrow=None, species=''):
         #  Note: setting trait_list to [] is probably not a great idea.
         tblobj_body = []
 
-        className = "fs12 fwn b1 c222"
+        if not trait_list:
+            trait_list = []
 
         for this_trait in trait_list:
 
@@ -1298,8 +499,6 @@ class SearchResultPage(templatePage):
             if len(description_display) > 1 and description_display != 'N/A' and len(target_string) > 1 and target_string != 'None':
                 description_display = description_display + '; ' + target_string.strip()
 
-            #tr.append(TDCell(HT.TD(description_display, Class=className), description_display, description_display))
-
             # Save it for the jinja2 tablet
             this_trait.description_display = description_display
 
@@ -1319,7 +518,6 @@ class SearchResultPage(templatePage):
                 trait_location_repr = 'Chr %s: %.4f Mb' % (this_trait.chr, float(this_trait.mb) )
                 this_trait.trait_location_repr = trait_location_repr
                 #this_trait.trait_location_value = trait_location_value
-            tr.append(TDCell(HT.TD(trait_location_repr, Class=className, nowrap="on"), trait_location_repr, trait_location_value))
 
             #XZ, 01/12/08: This SQL query is much faster.
             query = (
@@ -1397,34 +595,10 @@ class SearchResultPage(templatePage):
 
             tblobj_body.append(tr)
 
-            #for ncol, item in enumerate([this_trait.name, this_trait.geneid, this_trait.homologeneid, this_trait.symbol, description_display, trait_location_repr, mean, LRS_score_repr, LRS_location_repr]):
-            #    worksheet.write([newrow, ncol], item)
-
-
             newrow += 1
 
         return tblobj_body
 
-    def createExcelFileWithTitleAndFooter(self, workbook=None, identification=None, db=None, returnNumber=None):
-
-        worksheet = workbook.add_worksheet()
-
-        titleStyle = workbook.add_format(align = 'left', bold = 0, size=14, border = 1, border_color="gray")
-
-        ##Write title Info
-        # Modified by Hongqiang Li
-        worksheet.write([1, 0], "Citations: Please see %s/reference.html" % webqtlConfig.PORTADDR, titleStyle)
-        worksheet.write([1, 0], "Citations: Please see %s/reference.html" % webqtlConfig.PORTADDR, titleStyle)
-        worksheet.write([2, 0], "Trait : %s" % identification, titleStyle)
-        worksheet.write([3, 0], "Database : %s" % db.fullname, titleStyle)
-        worksheet.write([4, 0], "Date : %s" % time.strftime("%B %d, %Y", time.gmtime()), titleStyle)
-        worksheet.write([5, 0], "Time : %s GMT" % time.strftime("%H:%M ", time.gmtime()), titleStyle)
-        worksheet.write([6, 0], "Status of data ownership: Possibly unpublished data; please see %s/statusandContact.html for details on sources, ownership, and usage of these data." % webqtlConfig.PORTADDR, titleStyle)
-        #Write footer info
-        worksheet.write([9 + returnNumber, 0], "Funding for The GeneNetwork: NIAAA (U01AA13499, U24AA13513), NIDA, NIMH, and NIAAA (P20-DA21131), NCI MMHCC (U01CA105417), and NCRR (U01NR 105417)", titleStyle)
-        worksheet.write([10 + returnNumber, 0], "PLEASE RETAIN DATA SOURCE INFORMATION WHENEVER POSSIBLE", titleStyle)
-
-        return worksheet
 
     def getSortByValue(self, datasetType=''):
 

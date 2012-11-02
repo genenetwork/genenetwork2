@@ -9,6 +9,9 @@ from pprint import pformat as pf
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""
     
+    # Used to translate search phrases into classes
+    search_types = dict()
+    
     def __init__(self, search_term, dataset, cursor, db_conn):
         self.search_term = search_term
         self.dataset = dataset
@@ -28,13 +31,19 @@ class DoSearch(object):
         return self.db_conn.escape_string(str(stringy))
 
     def normalize_spaces(self, stringy):
-        """Strips out newlines extra spaces and replaces them with just spaces"""
+        """Strips out newlines/extra spaces and replaces them with just spaces"""
         step_one = " ".join(stringy.split())
         return step_one
+        
+    @classmethod
+    def get_search(cls, search_type):
+        return cls.search_types[search_type]
 
 
 class ProbeSetSearch(DoSearch):
     """A search within an mRNA expression dataset"""
+    
+    DoSearch.search_types['ProbeSet'] = "ProbeSetSearch"
     
     base_query = """SELECT ProbeSet.Name as TNAME,
                 0 as thistable,
@@ -46,6 +55,24 @@ class ProbeSetSearch(DoSearch):
                 ProbeSet.Symbol as TSYMBOL,
                 ProbeSet.name_num as TNAME_NUM
                 FROM ProbeSetXRef, ProbeSet """
+
+    def compile_final_query(self, from_clause, where_clause):
+        """Generates the final query string"""
+        
+        from_clause = self.normalize_spaces(from_clause)
+
+        query = (self.base_query +
+            """%s
+                WHERE %s
+                    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
+                    and ProbeSetXRef.ProbeSetFreezeId = %s
+                            """ % (self.escape(from_clause),
+                                    where_clause,
+                                    self.escape(self.dataset.id)))        
+
+        print("query is:", pf(query))
+        
+        return query
 
     def run(self):
         """Generates and runs a simple search of an mRNA expression dataset"""
@@ -72,6 +99,8 @@ class ProbeSetSearch(DoSearch):
 
 class PhenotypeSearch(DoSearch):
     """A search within a phenotype dataset"""
+    
+    DoSearch.search_types['Publish'] = "PhenotypeSearch"
     
     base_query = """SELECT PublishXRef.Id,
                 PublishFreeze.createtime as thistable,
@@ -128,6 +157,8 @@ class PhenotypeSearch(DoSearch):
 
 class GenotypeSearch(DoSearch):
     """A search within a genotype dataset"""
+    
+    DoSearch.search_types['Geno'] = "GenotypeSearch"
 
     base_query = """SELECT Geno.Name,
                 GenoFreeze.createtime as thistable,
@@ -169,8 +200,41 @@ class GenotypeSearch(DoSearch):
 
         return self.execute(query)
 
+class RifSearch(ProbeSetSearch):
+    """Searches for traits with a Gene RIF entry including the search term."""
+    
+    DoSearch.search_types['RIF'] = "RifSearch"
+
+    def run(self):
+        where_clause = """( %s.symbol = GeneRIF_BASIC.symbol and
+            MATCH (GeneRIF_BASIC.comment)
+            AGAINST ('+%s' IN BOOLEAN MODE)) """ % (self.dataset.type, self.search_term)
+
+        from_clause = ", GeneRIF_BASIC "
+        query = self.compile_final_query(from_clause, where_clause)
+
+        return self.execute(query)
+
+class WikiSearch(ProbeSetSearch):
+    """Searches GeneWiki for traits other people have annotated"""
+    
+    DoSearch.search_types['WIKI'] =  "WikiSearch"
+    
+    def run(self):
+        where_clause = """%s.symbol = GeneRIF.symbol
+            and GeneRIF.versionId=0 and GeneRIF.display>0
+            and (GeneRIF.comment REGEXP '%s' or GeneRIF.initial = '%s')
+                """ % (self.dataset.type, "[[:<:]]"+self.search_term+"[[:>:]]", self.search_term)
+
+        from_clause = ", GeneRIF "
+        query = self.compile_final_query(from_clause, where_clause)
+
+        return self.execute(query)
+
 class GoSearch(ProbeSetSearch):
     """Searches for synapse-associated genes listed in the Gene Ontology."""
+
+    DoSearch.search_types['GO'] =  "GoSearch"
 
     def run(self):
         field = 'GOterm.acc'
@@ -181,23 +245,13 @@ class GoSearch(ProbeSetSearch):
            GOterm.id=GOassociation.term_id""" % (
             self.db_conn.escape_string(self.dataset.type)))
 
-        clause_item = " %s = '%s' and %s " % (field, go_id, statements)
+        where_clause = " %s = '%s' and %s " % (field, go_id, statements)
 
-        # 
-        gene_ontology_from_table = """ , db_GeneOntology.term as GOterm,
+        from_clause = """ , db_GeneOntology.term as GOterm,
             db_GeneOntology.association as GOassociation,
             db_GeneOntology.gene_product as GOgene_product """
-
-        gene_ontology_from_table = self.normalize_spaces(gene_ontology_from_table)
-
-        query = (self.base_query + 
-            """%s
-                WHERE %s 
-                    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
-                    and ProbeSetXRef.ProbeSetFreezeId = %s  
-                            """ % (self.db_conn.escape_string(gene_ontology_from_table),
-                                    clause_item,
-                                    self.db_conn.escape_string(str(self.dataset.id))))
+            
+        query = self.compile_final_query(from_clause, where_clause)
 
         return self.execute(query)
 
@@ -227,8 +281,11 @@ if __name__ == "__main__":
     dataset_name = "HC_M2_0606_P"
     dataset = webqtlDataset(dataset_name, cursor)
 
-    results = ProbeSetSearch("salt", dataset, cursor, db_conn).run()
+    #results = ProbeSetSearch("salt", dataset, cursor, db_conn).run()
+    #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
+    results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
     #results = PhenotypeSearch("brain", dataset, cursor, db_conn).run()
     #results = GenotypeSearch("rs13475699", dataset, cursor, db_conn).run()
     #results = GoSearch("0045202", dataset, cursor, db_conn).run()
+    
     print("results are:", pf(results))

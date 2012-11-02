@@ -4,6 +4,7 @@ import re
 
 from pprint import pformat as pf
 
+
 def parse(pstring):
     pstring = re.split(r"""(?:(\w+\s*=\s*\([^)]*\))|(\w+\s*[=:]\w+)|(\w+))""", pstring)
     pstring = [item.strip() for item in pstring if item and item.strip()]
@@ -28,9 +29,11 @@ def parse(pstring):
                 value = [value.strip() for value in values if value.strip()]
             term = dict(key=key,
                         seperator=seperator,
-                        value=value)
+                        search_term=value)
         else:
-            term = dict(search_term = item)
+            term = dict(key=None,
+                        seperator=None,
+                        search_term = item)
             
         items.append(term)
     print(pf(items))
