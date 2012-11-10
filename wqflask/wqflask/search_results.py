@@ -259,7 +259,7 @@ class SearchResultPage(templatePage):
         for a_search in self.search_terms:
             print("[kodak] item is:", pf(a_search))
             search_term = a_search['search_term']
-            search_type = a_search['key']
+            search_type = string.upper(a_search['key'])
             if not search_type:
                 # We fall back to the dataset type as the key to get the right object
                 search_type = self.dataset.type                
@@ -543,7 +543,6 @@ class SearchResultPage(templatePage):
 
             #XZ, 06/05/2009: It is neccessary to turn on nowrap
             this_trait.mean = repr = "%2.3f" % mean
-            tr.append(TDCell(HT.TD(repr, Class=className, align='right', nowrap='ON'),repr, mean))
 
             #LRS and its location
             LRS_score_repr = 'N/A'
@@ -581,17 +580,13 @@ class SearchResultPage(templatePage):
                         this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )
                         LRS_flag = 0
 
-                        #tr.append(TDCell(HT.TD(HT.Href(text=LRS_score_repr,url="javascript:showIntervalMapping('%s', '%s : %s')" % (formName, this_trait.db.shortname, this_trait.name), Class="fs12 fwn"), Class=className, align='right', nowrap="on"),LRS_score_repr, LRS_score_value))
-                        tr.append(TDCell(HT.TD(LRS_score_repr, Class=className, align='right', nowrap="on"), LRS_score_repr, LRS_score_value))
-                        tr.append(TDCell(HT.TD(LRS_location_repr, Class=className, nowrap="on"), LRS_location_repr, LRS_location_value))
+                #if LRS_flag:
+                    #tr.append(TDCell(HT.TD(LRS_score_repr, Class=className), LRS_score_repr, LRS_score_value))
+                    #tr.append(TDCell(HT.TD(LRS_location_repr, Class=className), LRS_location_repr, LRS_location_value))
 
-                if LRS_flag:
-                    tr.append(TDCell(HT.TD(LRS_score_repr, Class=className), LRS_score_repr, LRS_score_value))
-                    tr.append(TDCell(HT.TD(LRS_location_repr, Class=className), LRS_location_repr, LRS_location_value))
-
-            else:
-                tr.append(TDCell(HT.TD("N/A", Class=className), "N/A", "N/A"))
-                tr.append(TDCell(HT.TD("N/A", Class=className), "N/A", "N/A"))
+            #else:
+                #tr.append(TDCell(HT.TD("N/A", Class=className), "N/A", "N/A"))
+                #tr.append(TDCell(HT.TD("N/A", Class=className), "N/A", "N/A"))
 
             tblobj_body.append(tr)
 

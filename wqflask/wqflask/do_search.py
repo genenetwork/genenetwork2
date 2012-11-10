@@ -5,6 +5,8 @@ from __future__ import print_function, division
 
 from pprint import pformat as pf
 
+from dbFunction import webqtlDatabaseFunction
+
 
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""
@@ -44,6 +46,10 @@ class ProbeSetSearch(DoSearch):
     """A search within an mRNA expression dataset"""
     
     DoSearch.search_types['ProbeSet'] = "ProbeSetSearch"
+    
+    #Get group information for dataset and the species id
+    self.dataset.get_group()
+    self.species_id = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.dataset.group)
     
     base_query = """SELECT ProbeSet.Name as TNAME,
                 0 as thistable,
@@ -224,7 +230,9 @@ class WikiSearch(ProbeSetSearch):
         where_clause = """%s.symbol = GeneRIF.symbol
             and GeneRIF.versionId=0 and GeneRIF.display>0
             and (GeneRIF.comment REGEXP '%s' or GeneRIF.initial = '%s')
-                """ % (self.dataset.type, "[[:<:]]"+self.search_term+"[[:>:]]", self.search_term)
+                """ % (self.dataset.type,
+                       "[[:<:]]"+self.search_term+"[[:>:]]",
+                       self.search_term)
 
         from_clause = ", GeneRIF "
         query = self.compile_final_query(from_clause, where_clause)
@@ -255,6 +263,107 @@ class GoSearch(ProbeSetSearch):
 
         return self.execute(query)
 
+class LrsSearch(ProbeSetSearch):
+    """Searches for genes with a QTL within the given LRS values
+    
+    LRS searches can take 2 different forms:
+    - LRS=(min_LRS max_LRS)
+    - LRS=(mine_LRS max_LRS chromosome start_Mb end_Mb)
+    where min/max_LRS represent the range of LRS scores and start/end_Mb represent
+    the range in megabases on the given chromosome
+    
+    """
+    
+    DoSearch.search_types['LRS'] = 'LrsSearch'
+    
+    self.species_id = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor,
+                                                               self.dataset.group)
+    
+class CisLrsSearch(LrsSearch):
+    """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
+    
+    A cisLRS search can take 2 forms:
+    - cisLRS=(min_LRS max_LRS)
+    - cisLRS=(min_LRS max_LRS mb_buffer)
+    where min/max_LRS represent the range of LRS scores and the mb_buffer is the range around
+    a particular QTL where its eQTL would be considered "cis". If there is no third parameter,
+    mb_buffer will default to 5 megabases.
+    
+    A QTL is a cis-eQTL if a gene's expression is regulated by a QTL in roughly the same area
+    (where the area is determined by the mb_buffer that the user can choose.
+    """
+    # This is tentatively a child of LrsSearch; I'll need to check what code, if any, overlaps
+    # between this and the LrsSearch code. In the original code, commands are divided by
+    # the number of inputs they take, so these commands are completely separate
+    
+    DoSearch.search_types['CISLRS'] = "CisLrsSearch"
+
+    def run(self):
+        if len(self.search_term) == 3:
+            lower_limit, upper_limit, min_threshold = int(value) for value in self.search_term
+            
+            where_clause = """ %sXRef.LRS > %s and
+                %sXRef.LRS < %s  and
+                %sXRef.Locus = Geno.name and
+                Geno.SpeciesId = %s and
+                %s.Chr = Geno.Chr and
+                ABS(%s.Mb-Geno.Mb) < %s """ % (
+                    self.dataset.type,
+                    min(lower_limit, upper_limit)
+                    self.dataset.type,
+                    max(lower_limit, upper_limit,
+                    self.dataset.type,
+                    
+                    )
+
+        else:
+            NeedSomeErrorHere
+        
+
+        return None
+    
+    
+#itemCmd = item[0]
+#lowerLimit = float(item[1])
+#upperLimit = float(item[2])
+#
+#if itemCmd.upper() in ("TRANSLRS", "CISLRS"):
+#    if item[3]:
+#        mthresh = float(item[3])
+#        clauseItem = " %sXRef.LRS > %2.7f and %sXRef.LRS < %2.7f " % \
+#            (self.dbType, min(lowerLimit, upperLimit), self.dbType, max(lowerLimit, upperLimit))
+#        if itemCmd.upper() == "CISLRS":
+#            clauseItem += """ and  %sXRef.Locus = Geno.name and Geno.SpeciesId = %s and %s.Chr = Geno.Chr and ABS(%s.Mb-Geno.Mb) < %2.7f """ % (self.dbType, self.speciesId, self.dbType, self.dbType, mthresh)
+#            DescriptionText.append(HT.Span(' with a ', HT.U('cis-QTL'), ' having an LRS between %g and %g using a %g Mb exclusion buffer'  % (min(lowerLimit, upperLimit), max(lowerLimit, upperLimit),  mthresh)))
+#        else:
+#            clauseItem += """ and  %sXRef.Locus = Geno.name and Geno.SpeciesId = %s and (%s.Chr != Geno.Chr or (%s.Chr != Geno.Chr and ABS(%s.Mb-Geno.Mb) > %2.7f)) """ % (self.dbType, self.speciesId, self.dbType, self.dbType, self.dbType, mthresh)
+#            DescriptionText.append(HT.Span(' with a ', HT.U('trans-QTL'), ' having an LRS between %g and %g using a %g Mb exclusion buffer'  % (min(lowerLimit, upperLimit), max(lowerLimit, upperLimit),  mthresh)))
+#        query.append(" (%s) " % clauseItem)
+#        self.orderByDefalut = "LRS"
+#    else:
+#        pass
+#elif itemCmd.upper() in ("RANGE"):
+#    #XZ, 03/05/2009: Xiaodong changed Data to ProbeSetData
+#    clauseItem = " (select Pow(2, max(value) -min(value)) from ProbeSetData where Id = ProbeSetXRef.dataId) > %2.7f and (select Pow(2, max(value) -min(value)) from ProbeSetData where Id = ProbeSetXRef.dataId) < %2.7f " % (min(lowerLimit, upperLimit), max(lowerLimit, upperLimit))
+#    query.append(" (%s) " % clauseItem)
+#    DescriptionText.append(HT.Span(' with a range of expression that varied between %g and %g' % (min(lowerLimit, upperLimit),  max(lowerLimit, upperLimit)), "  (fold difference)"))
+#else:
+#    clauseItem = " %sXRef.%s > %2.7f and %sXRef.%s < %2.7f " % \
+#        (self.dbType, itemCmd, min(lowerLimit, upperLimit), self.dbType, itemCmd, max(lowerLimit, upperLimit))
+#    query.append(" (%s) " % clauseItem)
+#    self.orderByDefalut = itemCmd
+#    DescriptionText.append(HT.Span(' with ', HT.U(itemCmd), ' between %g and %g' % (min(lowerLimit, upperLimit),  max(lowerLimit, upperLimit))))    
+    
+    
+class MeanSearch(ProbeSetSearch):
+    """Searches for genes expressed within an interval (log2 units) determined by the user"""
+    
+    DoSearch.search_types['MEAN'] = "MeanSearch"
+    
+    def run(self):
+        
+        return None
+
 
 if __name__ == "__main__":
     ### Usually this will be used as a library, but call it from the command line for testing
@@ -283,7 +392,8 @@ if __name__ == "__main__":
 
     #results = ProbeSetSearch("salt", dataset, cursor, db_conn).run()
     #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
-    results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
+    #results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
+    results = CisLrsSearch(['9','99','10'], dataset, cursor, db_conn).run()
     #results = PhenotypeSearch("brain", dataset, cursor, db_conn).run()
     #results = GenotypeSearch("rs13475699", dataset, cursor, db_conn).run()
     #results = GoSearch("0045202", dataset, cursor, db_conn).run()
