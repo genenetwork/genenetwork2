@@ -19,6 +19,10 @@ class DoSearch(object):
         self.dataset = dataset
         self.db_conn = db_conn
         self.cursor = cursor
+        
+        #Get group information for dataset and the species id
+        self.dataset.get_group()
+        self.species_id = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.dataset.group)           
 
     def execute(self, query):
         """Executes query and returns results"""
@@ -47,10 +51,6 @@ class ProbeSetSearch(DoSearch):
     
     DoSearch.search_types['ProbeSet'] = "ProbeSetSearch"
     
-    #Get group information for dataset and the species id
-    self.dataset.get_group()
-    self.species_id = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.dataset.group)
-    
     base_query = """SELECT ProbeSet.Name as TNAME,
                 0 as thistable,
                 ProbeSetXRef.Mean as TMEAN,
@@ -61,6 +61,7 @@ class ProbeSetSearch(DoSearch):
                 ProbeSet.Symbol as TSYMBOL,
                 ProbeSet.name_num as TNAME_NUM
                 FROM ProbeSetXRef, ProbeSet """
+
 
     def compile_final_query(self, from_clause, where_clause):
         """Generates the final query string"""
@@ -268,16 +269,13 @@ class LrsSearch(ProbeSetSearch):
     
     LRS searches can take 2 different forms:
     - LRS=(min_LRS max_LRS)
-    - LRS=(mine_LRS max_LRS chromosome start_Mb end_Mb)
+    - LRS=(min_LRS max_LRS chromosome start_Mb end_Mb)
     where min/max_LRS represent the range of LRS scores and start/end_Mb represent
     the range in megabases on the given chromosome
     
     """
     
     DoSearch.search_types['LRS'] = 'LrsSearch'
-    
-    self.species_id = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor,
-                                                               self.dataset.group)
     
 class CisLrsSearch(LrsSearch):
     """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
@@ -290,8 +288,10 @@ class CisLrsSearch(LrsSearch):
     mb_buffer will default to 5 megabases.
     
     A QTL is a cis-eQTL if a gene's expression is regulated by a QTL in roughly the same area
-    (where the area is determined by the mb_buffer that the user can choose.
+    (where the area is determined by the mb_buffer that the user can choose).
+    
     """
+    
     # This is tentatively a child of LrsSearch; I'll need to check what code, if any, overlaps
     # between this and the LrsSearch code. In the original code, commands are divided by
     # the number of inputs they take, so these commands are completely separate
@@ -300,7 +300,7 @@ class CisLrsSearch(LrsSearch):
 
     def run(self):
         if len(self.search_term) == 3:
-            lower_limit, upper_limit, min_threshold = int(value) for value in self.search_term
+            lower_limit, upper_limit, min_threshold = [int(value) for value in self.search_term]
             
             where_clause = """ %sXRef.LRS > %s and
                 %sXRef.LRS < %s  and
@@ -309,16 +309,65 @@ class CisLrsSearch(LrsSearch):
                 %s.Chr = Geno.Chr and
                 ABS(%s.Mb-Geno.Mb) < %s """ % (
                     self.dataset.type,
-                    min(lower_limit, upper_limit)
+                    min(lower_limit, upper_limit),
                     self.dataset.type,
-                    max(lower_limit, upper_limit,
+                    max(lower_limit, upper_limit),
                     self.dataset.type,
-                    
+                    self.species_id,
+                    self.dataset.type,
+                    self.dataset.type,
+                    min_threshold
                     )
 
         else:
-            NeedSomeErrorHere
-        
+            NeedSomeErrorHere            
+
+        return None
+    
+class TransLrsSearch(LrsSearch):
+    """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
+    
+    A transLRS search can take 2 forms:
+    - transLRS=(min_LRS max_LRS)
+    - transLRS=(min_LRS max_LRS mb_buffer)
+    where min/max_LRS represent the range of LRS scores and the mb_buffer is the range around
+    a particular QTL where its eQTL would be considered "cis". If there is no third parameter,
+    mb_buffer will default to 5 megabases.
+    
+    A QTL is a trans-eQTL if a gene's expression is regulated by a QTL in a different location/area
+    (where the area is determined by the mb_buffer that the user can choose). Opposite of cis-eQTL.
+    
+    """
+    
+    # This is tentatively a child of LrsSearch; I'll need to check what code, if any, overlaps
+    # between this and the LrsSearch code. In the original code, commands are divided by
+    # the number of inputs they take, so these commands are completely separate
+    
+    DoSearch.search_types['TRANSLRS'] = "TransLrsSearch"
+
+    def run(self):
+        if len(self.search_term) == 3:
+            lower_limit, upper_limit, min_threshold = [int(value) for value in self.search_term]
+            
+            where_clause = """ %sXRef.LRS > %s and
+                %sXRef.LRS < %s  and
+                %sXRef.Locus = Geno.name and
+                Geno.SpeciesId = %s and
+                (%s.Chr != Geno.Chr or
+                ABS(%s.Mb-Geno.Mb) > %s) """ % (
+                    self.dataset.type,
+                    min(lower_limit, upper_limit),
+                    self.dataset.type,
+                    max(lower_limit, upper_limit),
+                    self.dataset.type,
+                    self.species_id,
+                    self.dataset.type,
+                    self.dataset.type,
+                    min_threshold
+                    )
+
+        else:
+            NeedSomeErrorHere            
 
         return None
     

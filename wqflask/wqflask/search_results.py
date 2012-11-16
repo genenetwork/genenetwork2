@@ -213,56 +213,49 @@ class SearchResultPage(templatePage):
             #### Excel file stuff stops
 
             if self.dataset.type == "ProbeSet":
-                #for item in result:
                 print("foo locals are:", locals())
                 probe_set_id = result[0]
-                print("probe_set_id is:", pf(probe_set_id))
                 this_trait = webqtlTrait(db=self.dataset, name=probe_set_id, cursor=self.cursor)
                 this_trait.retrieveInfo(QTL=True)
                 print("this_trait is:", pf(this_trait))
                 self.trait_list.append(this_trait)
-            elif self.dataset.type == "Publish":
-                newrow += 1
-                tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, newrow=newrow, species=species)
-            elif self.dataset.type == "Geno":
-                newrow += 1
-                tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet, newrow=newrow)
+            #elif self.dataset.type == "Publish":
+            #    tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, species=species)
+            #elif self.dataset.type == "Geno":
+            #    tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet)
 
             #traitForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=thisFormName, submit=HT.Input(type='hidden'))
             hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':'_','CellID':'_','group':group}
             hddn['incparentsf1']='ON'
-            #    for key in hddn.keys():
-            #        traitForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
-            #
-            #    traitForm.append(HT.P(),pageTable)
-            #
-            #    TD_LR.append(traitForm)
-            #    if len(self.results) > 1 and i < len(self.results) - 1:
-            #        last_result = True
-            #if last_result:
-            #    TD_LR.contents.pop()
-            
+
         if self.dataset.type == "ProbeSet":
-            tblobj['body'] = self.getTableBodyForProbeSet(trait_list=self.trait_list, formName=self.form_name, newrow=newrow, species=species)            
+            tblobj['body'] = self.getTableBodyForProbeSet(trait_list=self.trait_list, formName=self.form_name, species=species)            
         elif self.dataset.type == "Publish":
-            tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, newrow=newrow, species=species)
+            tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=self.form_name, species=species)
         elif self.dataset.type == "Geno":
-            tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet, newrow=newrow)
+            tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=self.form_name)
 
 
     def search(self):
         print("fd.search_terms:", self.fd['search_terms'])
         self.search_terms = parser.parse(self.fd['search_terms'])
         print("After parsing:", self.search_terms)
-                
+
         self.results = []
         for a_search in self.search_terms:
             print("[kodak] item is:", pf(a_search))
             search_term = a_search['search_term']
-            search_type = string.upper(a_search['key'])
-            if not search_type:
+            if a_search['key']:
+                search_type = string.upper(a_search['key'])
+            else:
                 # We fall back to the dataset type as the key to get the right object
-                search_type = self.dataset.type                
+                search_type = self.dataset.type
+                
+            # This is throwing an error when a_search['key'] is None, so I changed above    
+            #search_type = string.upper(a_search['key'])
+            #if not search_type:
+            #    # We fall back to the dataset type as the key to get the right object
+            #    search_type = self.dataset.type
 
             search_ob = do_search.DoSearch.get_search(search_type)
             search_class = getattr(do_search, search_ob)
@@ -289,26 +282,9 @@ class SearchResultPage(templatePage):
             keyword = string.replace(keyword,"?",".")
             wildcardkeyword[i] = keyword#'[[:<:]]'+ keyword+'[[:>:]]'
         return wildcardkeyword
+    
 
-
-    def getTableHeaderForGeno(self, worksheet=None, newrow=None, headingStyle=None):
-
-        tblobj_header = []
-
-        className = "fs13 fwb ffl b1 cw cbrb"
-
-        tblobj_header = [[THCell(HT.TD(' ', Class=className), sort=0),
-            THCell(HT.TD('Record', HT.BR(), 'ID', HT.BR(), Class=className), text='record_id', idx=1),
-            THCell(HT.TD('Location', HT.BR(), 'Chr and Mb', HT.BR(), Class=className), text='location', idx=2)]]
-
-        for ncol, item in enumerate(['Record ID', 'Location (Chr, Mb)']):
-            worksheet.write([newrow, ncol], item, headingStyle)
-            worksheet.set_column([ncol, ncol], 2*len(item))
-
-        return tblobj_header
-
-
-    def getTableBodyForGeno(self, trait_list, formName=None, worksheet=None, newrow=None):
+    def getTableBodyForGeno(self, trait_list, formName=None):
 
         tblobj_body = []
 
@@ -345,15 +321,13 @@ class SearchResultPage(templatePage):
 
             tblobj_body.append(tr)
 
-            for ncol, item in enumerate([this_trait.name, trait_location_repr]):
-                worksheet.write([newrow, ncol], item)
-
-            newrow += 1
+            #for ncol, item in enumerate([this_trait.name, trait_location_repr]):
+            #    worksheet.write([newrow, ncol], item)
 
         return tblobj_body
-    
 
-    def getTableBodyForPublish(self, trait_list, formName=None, worksheet=None, newrow=None, species=''):
+
+    def getTableBodyForPublish(self, trait_list, formName=None, species=''):
 
         tblobj_body = []
 
@@ -438,15 +412,13 @@ class SearchResultPage(templatePage):
 
             tblobj_body.append(tr)
 
-            for ncol, item in enumerate([this_trait.name, PhenotypeString, this_trait.authors, this_trait.year, this_trait.pubmed_id, LRS_score_repr, LRS_location_repr]):
-                worksheet.write([newrow, ncol], item)
-
-            newrow += 1
+            #for ncol, item in enumerate([this_trait.name, PhenotypeString, this_trait.authors, this_trait.year, this_trait.pubmed_id, LRS_score_repr, LRS_location_repr]):
+            #    worksheet.write([newrow, ncol], item)
 
         return tblobj_body
 
 
-    def getTableBodyForProbeSet(self, trait_list=None, primaryTrait=None, formName=None, worksheet=None, newrow=None, species=''):
+    def getTableBodyForProbeSet(self, trait_list=None, primaryTrait=None, formName=None, species=''):
         #  Note: setting trait_list to [] is probably not a great idea.
         tblobj_body = []
 
@@ -589,8 +561,6 @@ class SearchResultPage(templatePage):
                 #tr.append(TDCell(HT.TD("N/A", Class=className), "N/A", "N/A"))
 
             tblobj_body.append(tr)
-
-            newrow += 1
 
         return tblobj_body
 

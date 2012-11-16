@@ -27,6 +27,13 @@ def parse(pstring):
                 value = value[1:-1] # Get rid of the parenthesis
                 values = re.split(r"""\s+|,""", value)
                 value = [value.strip() for value in values if value.strip()]
+            # Brackets can also be used to encapsulate values
+            elif '[' in value:
+                assert value.startswith("["), "Invalid token"
+                assert value.endswith("]"), "Invalid token"
+                value = value[1:-1] # Get rid of the brackets
+                values = re.split(r"""\s+|,""", value)
+                value = [value.strip() for value in values if value.strip()]                
             term = dict(key=key,
                         seperator=seperator,
                         search_term=value)
