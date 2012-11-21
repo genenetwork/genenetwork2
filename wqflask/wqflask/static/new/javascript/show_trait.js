@@ -32,17 +32,21 @@
       console.log("the_id:", id);
       in_box = $(id).html;
       current_value = parseFloat($(in_box)).toFixed(decimal_places);
+      console.log("urgh:", category, value_type);
       the_value = sample_sets[category][value_type]();
+      console.log("After running sample_sets, the_value is:", the_value);
       if (decimal_places > 0) {
         the_value = the_value.toFixed(decimal_places);
       }
+      console.log("*-* the_value:", the_value);
+      console.log("*-* current_value:", current_value);
       if (the_value !== current_value) {
         return $(id).html(the_value).effect("highlight");
       }
     };
     update_stat_values = function(sample_sets) {
       var category, stat, _i, _len, _ref, _results;
-      _ref = ['primary_only', 'other_only', 'all_cases'];
+      _ref = ['samples_primary', 'samples_other', 'samples_all'];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         category = _ref[_i];
@@ -53,6 +57,7 @@
           _results1 = [];
           for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
             stat = _ref1[_j];
+            console.log("Calling change_stats_value");
             _results1.push(change_stats_value(sample_sets, category, stat, 2));
           }
           return _results1;
@@ -61,29 +66,30 @@
       return _results;
     };
     edit_data_change = function() {
-      var category, checkbox, checked, real_value, row, sample_sets, value, values, _i, _len;
+      var checkbox, checked, real_value, row, rows, sample_sets, table, tables, _i, _j, _len, _len1;
       sample_sets = {
-        primary_only: new Stats([]),
-        other_only: new Stats([]),
-        all_cases: new Stats([])
+        samples_primary: new Stats([]),
+        samples_other: new Stats([]),
+        samples_all: new Stats([])
       };
       console.log("at beginning:", sample_sets);
-      values = $('#value_table').find(".edit_sample_value");
-      for (_i = 0, _len = values.length; _i < _len; _i++) {
-        value = values[_i];
-        real_value = $(value).val();
-        row = $(value).closest("tr");
-        category = row[0].id;
-        checkbox = $(row).find(".edit_sample_checkbox");
-        checked = $(checkbox).attr('checked');
-        if (checked && is_number(real_value) && real_value !== "") {
-          real_value = parseFloat(real_value);
-          if (_(category).startsWith("Primary")) {
-            sample_sets.primary_only.add_value(real_value);
-          } else if (_(category).startsWith("Other")) {
-            sample_sets.other_only.add_value(real_value);
+      tables = ['samples_primary', 'samples_other'];
+      for (_i = 0, _len = tables.length; _i < _len; _i++) {
+        table = tables[_i];
+        rows = $("#" + table).find('tr');
+        console.log("[fuji3] rows:", rows);
+        for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
+          row = rows[_j];
+          real_value = $(row).find('.edit_sample_value').val();
+          console.log("real_value:", real_value);
+          checkbox = $(row).find(".edit_sample_checkbox");
+          checked = $(checkbox).attr('checked');
+          if (checked && is_number(real_value) && real_value !== "") {
+            console.log("in the iffy if");
+            real_value = parseFloat(real_value);
+            sample_sets[table].add_value(real_value);
+            sample_sets['samples_all'].add_value(real_value);
           }
-          sample_sets.all_cases.add_value(real_value);
         }
       }
       console.log("towards end:", sample_sets);

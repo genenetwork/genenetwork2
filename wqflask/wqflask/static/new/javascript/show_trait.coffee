@@ -26,45 +26,62 @@ $ ->
         
         current_value = parseFloat($(in_box)).toFixed(decimal_places)
         
+        console.log("urgh:", category, value_type)
         the_value = sample_sets[category][value_type]()
+        console.log("After running sample_sets, the_value is:", the_value)
         if decimal_places > 0
             the_value = the_value.toFixed(decimal_places)
         
+        console.log("*-* the_value:", the_value)
+        console.log("*-* current_value:", current_value)
         if the_value != current_value
             $(id).html(the_value).effect("highlight")
 
     update_stat_values = (sample_sets)->
-        for category in ['primary_only', 'other_only', 'all_cases']
+        for category in ['samples_primary', 'samples_other', 'samples_all']
             change_stats_value(sample_sets, category, "n_of_samples", 0)
             for stat in ["mean", "median", "std_dev", "std_error"]
+                console.log("Calling change_stats_value")
                 change_stats_value(sample_sets, category, stat, 2)
 
     edit_data_change = ->                
         sample_sets =
-            primary_only: new Stats([])
-            other_only: new Stats([])
-            all_cases: new Stats([])
+            samples_primary: new Stats([])
+            samples_other: new Stats([])
+            samples_all: new Stats([])
                 
         console.log("at beginning:", sample_sets)
-        values = $('#value_table').find(".edit_sample_value")
 
-        for value in values
-            real_value = $(value).val()
-            row = $(value).closest("tr")
-            category = row[0].id
-            checkbox = $(row).find(".edit_sample_checkbox")
-            checked = $(checkbox).attr('checked')
+        # ##########
+        # Bug here #value_table doesn't exist and why is it a class?
+        # ##########
 
-            if checked and is_number(real_value) and real_value != ""
-                real_value = parseFloat(real_value)
-                if _(category).startsWith("Primary")
-                    sample_sets.primary_only.add_value(real_value)
-                else if _(category).startsWith("Other")
-                    sample_sets.other_only.add_value(real_value)
-                sample_sets.all_cases.add_value(real_value)
+        #values = $('.value_table').find(".edit_sample_value")
+
+
+        tables = ['samples_primary', 'samples_other']
+        for table in tables
+            rows = $("#" + table).find('tr')
+            console.log("[fuji3] rows:", rows)
+            for row in rows
+                real_value = $(row).find('.edit_sample_value').val()
+                #row = $(value).closest("tr")
+                #category = row[0].id
+                console.log("real_value:", real_value)
+                checkbox = $(row).find(".edit_sample_checkbox")
+                checked = $(checkbox).attr('checked')
+
+                if checked and is_number(real_value) and real_value != ""
+                    console.log("in the iffy if")
+                    real_value = parseFloat(real_value)
+                    #if _(category).startsWith("Primary")
+                    sample_sets[table].add_value(real_value)
+                    #else if _(category).startsWith("Other")
+                    #    sample_sets.other_only.add_value(real_value)
+                    sample_sets['samples_all'].add_value(real_value)
         console.log("towards end:", sample_sets)
         update_stat_values(sample_sets)
-        
+
 
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"

@@ -5,7 +5,11 @@ from __future__ import print_function, division
 
 from pprint import pformat as pf
 
+import sys
+sys.path.append("..")
+
 from dbFunction import webqtlDatabaseFunction
+
 
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""
@@ -423,8 +427,6 @@ if __name__ == "__main__":
 
     import MySQLdb
     import sys
-    sys.path.append("/home/zas1024/gene/wqflask")
-    print("Path is:", sys.path)
 
 
     from base import webqtlConfig

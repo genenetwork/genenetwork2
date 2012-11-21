@@ -1,5 +1,7 @@
 To get server running:
 
+!If having seemingly inexplicable problems with imports, make sure I've started the environment!
+
 Start up virtual environment:
 source ~/ve27/bin/activate
 

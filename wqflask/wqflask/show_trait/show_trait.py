@@ -159,9 +159,9 @@ class ShowTrait(templatePage):
         self.hddn = hddn
 
         self.sample_group_types = OrderedDict()
-        self.sample_group_types['primary_only'] = fd.RISet + " Only"
-        self.sample_group_types['other_only'] = "Non-" + fd.RISet
-        self.sample_group_types['all_cases'] = "All Cases"
+        self.sample_group_types['samples_primary'] = fd.RISet + " Only"
+        self.sample_group_types['samples_other'] = "Non-" + fd.RISet
+        self.sample_group_types['samples_all'] = "All Cases"
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
         js_data = dict(sample_group_types = self.sample_group_types,
@@ -176,16 +176,16 @@ class ShowTrait(templatePage):
         #if traitInfos:
         #    database, ProbeSetID, CellID = traitInfos
         #else:
-        database = self.fd['database']
-        probe_set_id = self.fd['ProbeSetID']
+        dataset = self.fd['dataset']
+        trait_id = self.fd['trait_id']
         cell_id = self.fd.get('CellID')        
 
-        this_trait =  webqtlTrait(db=database, name=probe_set_id, cellid=cell_id, cursor=self.cursor)
+        this_trait =  webqtlTrait(db=dataset, name=trait_id, cellid=cell_id, cursor=self.cursor)
     
         ##identification, etc.
-        self.fd.identification = '%s : %s' % (this_trait.db.shortname, probe_set_id)
+        self.fd.identification = '%s : %s' % (this_trait.db.shortname, trait_id)
         this_trait.returnURL = webqtlConfig.CGIDIR + webqtlConfig.SCRIPTFILE + '?FormID=showDatabase&database=%s\
-                &ProbeSetID=%s&RISet=%s&parentsf1=on' %(database, probe_set_id, self.fd['RISet'])
+                &ProbeSetID=%s&RISet=%s&parentsf1=on' %(dataset, trait_id, self.fd['RISet'])
 
         if cell_id:
             self.fd.identification = '%s/%s'%(self.fd.identification, cell_id)
