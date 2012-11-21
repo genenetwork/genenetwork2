@@ -7,19 +7,18 @@ from pprint import pformat as pf
 
 from dbFunction import webqtlDatabaseFunction
 
-
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""
-    
+
     # Used to translate search phrases into classes
     search_types = dict()
-    
+
     def __init__(self, search_term, dataset, cursor, db_conn):
         self.search_term = search_term
         self.dataset = dataset
         self.db_conn = db_conn
         self.cursor = cursor
-        
+
         #Get group information for dataset and the species id
         self.dataset.get_group()
         self.species_id = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.dataset.group)           
@@ -40,7 +39,7 @@ class DoSearch(object):
         """Strips out newlines/extra spaces and replaces them with just spaces"""
         step_one = " ".join(stringy.split())
         return step_one
-        
+
     @classmethod
     def get_search(cls, search_type):
         return cls.search_types[search_type]
@@ -48,9 +47,9 @@ class DoSearch(object):
 
 class ProbeSetSearch(DoSearch):
     """A search within an mRNA expression dataset"""
-    
+
     DoSearch.search_types['ProbeSet'] = "ProbeSetSearch"
-    
+
     base_query = """SELECT ProbeSet.Name as TNAME,
                 0 as thistable,
                 ProbeSetXRef.Mean as TMEAN,
@@ -63,9 +62,10 @@ class ProbeSetSearch(DoSearch):
                 FROM ProbeSetXRef, ProbeSet """
 
 
-    def compile_final_query(self, from_clause, where_clause):
+    def compile_final_query(self, from_clause = '', where_clause = ''):
         """Generates the final query string"""
         
+        from_clause = ''
         from_clause = self.normalize_spaces(from_clause)
 
         query = (self.base_query +
@@ -78,12 +78,12 @@ class ProbeSetSearch(DoSearch):
                                     self.escape(self.dataset.id)))        
 
         print("query is:", pf(query))
-        
+
         return query
 
     def run(self):
         """Generates and runs a simple search of an mRNA expression dataset"""
-        
+
         print("Running ProbeSetSearch")
         query = (self.base_query +
                 """WHERE (MATCH (ProbeSet.Name,
@@ -106,9 +106,9 @@ class ProbeSetSearch(DoSearch):
 
 class PhenotypeSearch(DoSearch):
     """A search within a phenotype dataset"""
-    
+
     DoSearch.search_types['Publish'] = "PhenotypeSearch"
-    
+
     base_query = """SELECT PublishXRef.Id,
                 PublishFreeze.createtime as thistable,
                 Publication.PubMed_ID as Publication_PubMed_ID,
@@ -125,7 +125,7 @@ class PhenotypeSearch(DoSearch):
                     'Publication.Title',
                     'Publication.Authors',
                     'PublishXRef.Id')
-    
+
     def get_where_clause(self):
         """Generate clause for WHERE portion of query"""
 
@@ -140,7 +140,7 @@ class PhenotypeSearch(DoSearch):
         for field in self.search_fields:
             where_clause.append('''%s REGEXP "%s"''' % (field, search_term))
         where_clause = "(%s)" % ' OR '.join(where_clause)
-        
+
         return where_clause
 
     def run(self):
@@ -164,7 +164,7 @@ class PhenotypeSearch(DoSearch):
 
 class GenotypeSearch(DoSearch):
     """A search within a genotype dataset"""
-    
+
     DoSearch.search_types['Geno'] = "GenotypeSearch"
 
     base_query = """SELECT Geno.Name,
@@ -185,7 +185,8 @@ class GenotypeSearch(DoSearch):
         where_clause = []
         for field in self.search_fields:
             where_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % (self.dataset.type, field),
-                                                                self.search_term))
+                                                                self.escape(self.search_term)))
+        print("where_clause is:", pf(where_clause))
         where_clause = "(%s)" % ' OR '.join(where_clause)
 
         return where_clause
@@ -209,7 +210,7 @@ class GenotypeSearch(DoSearch):
 
 class RifSearch(ProbeSetSearch):
     """Searches for traits with a Gene RIF entry including the search term."""
-    
+
     DoSearch.search_types['RIF'] = "RifSearch"
 
     def run(self):
@@ -224,9 +225,9 @@ class RifSearch(ProbeSetSearch):
 
 class WikiSearch(ProbeSetSearch):
     """Searches GeneWiki for traits other people have annotated"""
-    
+
     DoSearch.search_types['WIKI'] =  "WikiSearch"
-    
+
     def run(self):
         where_clause = """%s.symbol = GeneRIF.symbol
             and GeneRIF.versionId=0 and GeneRIF.display>0
@@ -259,43 +260,44 @@ class GoSearch(ProbeSetSearch):
         from_clause = """ , db_GeneOntology.term as GOterm,
             db_GeneOntology.association as GOassociation,
             db_GeneOntology.gene_product as GOgene_product """
-            
+
         query = self.compile_final_query(from_clause, where_clause)
 
         return self.execute(query)
 
+#ZS: Not sure what the best way to deal with LRS searches is
 class LrsSearch(ProbeSetSearch):
     """Searches for genes with a QTL within the given LRS values
-    
+
     LRS searches can take 2 different forms:
     - LRS=(min_LRS max_LRS)
     - LRS=(min_LRS max_LRS chromosome start_Mb end_Mb)
     where min/max_LRS represent the range of LRS scores and start/end_Mb represent
     the range in megabases on the given chromosome
-    
+
     """
-    
+
     DoSearch.search_types['LRS'] = 'LrsSearch'
     
 class CisLrsSearch(LrsSearch):
     """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
-    
+
     A cisLRS search can take 2 forms:
     - cisLRS=(min_LRS max_LRS)
     - cisLRS=(min_LRS max_LRS mb_buffer)
     where min/max_LRS represent the range of LRS scores and the mb_buffer is the range around
     a particular QTL where its eQTL would be considered "cis". If there is no third parameter,
     mb_buffer will default to 5 megabases.
-    
+
     A QTL is a cis-eQTL if a gene's expression is regulated by a QTL in roughly the same area
     (where the area is determined by the mb_buffer that the user can choose).
-    
+
     """
-    
+
     # This is tentatively a child of LrsSearch; I'll need to check what code, if any, overlaps
     # between this and the LrsSearch code. In the original code, commands are divided by
     # the number of inputs they take, so these commands are completely separate
-    
+
     DoSearch.search_types['CISLRS'] = "CisLrsSearch"
 
     def run(self):
@@ -318,27 +320,28 @@ class CisLrsSearch(LrsSearch):
                     self.dataset.type,
                     min_threshold
                     )
-
         else:
-            NeedSomeErrorHere            
+            NeedSomeErrorHere     
 
-        return None
+        query = self.compile_final_query(where_clause)
+
+        return self.execute(query)
     
 class TransLrsSearch(LrsSearch):
     """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
-    
+
     A transLRS search can take 2 forms:
     - transLRS=(min_LRS max_LRS)
     - transLRS=(min_LRS max_LRS mb_buffer)
     where min/max_LRS represent the range of LRS scores and the mb_buffer is the range around
     a particular QTL where its eQTL would be considered "cis". If there is no third parameter,
     mb_buffer will default to 5 megabases.
-    
+
     A QTL is a trans-eQTL if a gene's expression is regulated by a QTL in a different location/area
     (where the area is determined by the mb_buffer that the user can choose). Opposite of cis-eQTL.
-    
+
     """
-    
+
     # This is tentatively a child of LrsSearch; I'll need to check what code, if any, overlaps
     # between this and the LrsSearch code. In the original code, commands are divided by
     # the number of inputs they take, so these commands are completely separate
@@ -370,8 +373,8 @@ class TransLrsSearch(LrsSearch):
             NeedSomeErrorHere            
 
         return None
-    
-    
+
+
 #itemCmd = item[0]
 #lowerLimit = float(item[1])
 #upperLimit = float(item[2])
@@ -402,15 +405,15 @@ class TransLrsSearch(LrsSearch):
 #    query.append(" (%s) " % clauseItem)
 #    self.orderByDefalut = itemCmd
 #    DescriptionText.append(HT.Span(' with ', HT.U(itemCmd), ' between %g and %g' % (min(lowerLimit, upperLimit),  max(lowerLimit, upperLimit))))    
-    
-    
+
+
 class MeanSearch(ProbeSetSearch):
     """Searches for genes expressed within an interval (log2 units) determined by the user"""
-    
+
     DoSearch.search_types['MEAN'] = "MeanSearch"
-    
+
     def run(self):
-        
+
         return None
 
 
@@ -443,8 +446,9 @@ if __name__ == "__main__":
     #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
     #results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
     results = CisLrsSearch(['9','99','10'], dataset, cursor, db_conn).run()
+    #results = TransLrsSearch(['9', '999', '10'], dataset, cursor, db_conn).run()
     #results = PhenotypeSearch("brain", dataset, cursor, db_conn).run()
     #results = GenotypeSearch("rs13475699", dataset, cursor, db_conn).run()
     #results = GoSearch("0045202", dataset, cursor, db_conn).run()
-    
+
     print("results are:", pf(results))

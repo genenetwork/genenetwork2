@@ -9,9 +9,9 @@ def parse(pstring):
     pstring = re.split(r"""(?:(\w+\s*=\s*\([^)]*\))|(\w+\s*[=:]\w+)|(\w+))""", pstring)
     pstring = [item.strip() for item in pstring if item and item.strip()]
     print(pstring)
-    
+
     items = []
-    
+
     for item in pstring:
         if ":" in item:
             key, seperator, value = item.partition(':')
@@ -19,7 +19,7 @@ def parse(pstring):
             key, seperator, value = item.partition('=')
         else:
             seperator = None
-        
+
         if seperator:
             if '(' in value:
                 assert value.startswith("("), "Invalid token"
@@ -41,11 +41,11 @@ def parse(pstring):
             term = dict(key=None,
                         seperator=None,
                         search_term = item)
-            
+
         items.append(term)
     print(pf(items))
     return(items)
-    
+
 if __name__ == '__main__':
     parse("foo=(3 2 1)")
     parse("shh")

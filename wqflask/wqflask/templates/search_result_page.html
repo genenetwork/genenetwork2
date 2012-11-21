@@ -50,18 +50,32 @@
                         </TD>
                         <TD>
                             <a href="{{ url_for('show_trait_page',
-                                    database=this_trait.db.name,
-                                    ProbeSetID=this_trait.name, incparentsf1='ON',
-                                    RISet='BXD')}}">
-                                {{ this_trait.name.upper() }}
+                                    dataset = dataset.name,
+                                    trait_id = this_trait.name,
+                                    group = dataset.group)}}">
+                                {{ this_trait.name }}
                             </a>
                         </TD>
-                        <TD>{{ this_trait.symbol }}</TD>
-                        <TD>{{ this_trait.description_display }}</TD>
-                        <TD>{{ this_trait.trait_location_repr }}</TD>
-                        <TD>{{ this_trait.mean }}</TD>
-                        <TD>{{ this_trait.LRS_score_repr }}</TD>
-                        <TD>{{ this_trait.LRS_location_repr }}</TD>
+                        {% if dataset.type == 'ProbeSet' %}
+                            <TD>{{ this_trait.symbol }}</TD>
+                            <TD>{{ this_trait.description_display }}</TD>
+                            <TD>{{ this_trait.location_repr }}</TD>
+                            <TD>{{ this_trait.mean }}</TD>
+                            <TD>{{ this_trait.LRS_score_repr }}</TD>
+                            <TD>{{ this_trait.LRS_location_repr }}</TD>
+                        {% elif dataset.type == 'Publish' %}
+                            <TD>{{ this_trait.description_display }}</TD>
+                            <TD>{{ this_trait.authors }}</TD>
+                            <TD>
+                                <a href="{{ this_trait.pubmed_link }}">
+                                    {{ this_trait.pubmed_text }}
+                                </a>
+                            </TD>
+                            <TD>{{ this_trait.LRS_score_repr }}</TD>
+                            <TD>{{ this_trait.LRS_location_repr }}</TD>
+                        {% elif dataset.type == 'Geno' %}
+                            <TD>{{ this_trait.location_repr }}</TD>
+                        {% endif %}
                     </TR>
                 {% endfor %}
                 </tbody>

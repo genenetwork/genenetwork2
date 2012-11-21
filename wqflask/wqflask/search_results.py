@@ -45,7 +45,6 @@ from utility import formatting
 class SearchResultPage(templatePage):
 
     maxReturn = 3000
-    #NPerPage = 100
     nkeywords = 0
 
     def __init__(self, fd):
@@ -155,6 +154,13 @@ class SearchResultPage(templatePage):
                                 'Publication.Title',
                                 'Publication.Authors',
                                 'PublishXRef.Id']
+            self.header_fields = ['',
+                                'ID',
+                                'Description',
+                                'Authors',
+                                'Year',
+                                'Max LRS',
+                                'Max LRS Location']            
 
         elif self.dataset.type == "ProbeSet":
             self.search_fields = ['Name',
@@ -175,13 +181,19 @@ class SearchResultPage(templatePage):
                                 'Max LRS Location']
         elif self.dataset.type == "Geno":
             self.search_fields = ['Name','Chr']
+            self.header_fields = ['',
+                                'ID',
+                                'Location']
 
         self.search()
         self.gen_search_result()
 
 
     def gen_search_result(self):
-
+        """Get the info displayed in the search result table from the set of results computed in
+        the "search" function
+        
+        """
         self.trait_list = []
         # result_set represents the results for each search term; a search of 
         # "shh grin2b" would have two sets of results, one for each term
@@ -192,52 +204,27 @@ class SearchResultPage(templatePage):
 
             seq = 1
             group = self.dataset.group
-            self.form_name = form_name = 'show_dataset_'+group
 
-            tblobj = {}
             species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=group)
 
-            #### Excel file 
+            #### Excel file needs to be generated ####
 
-            # Todo: Replace this with official Python temp file naming functions?
-            filename= webqtlUtil.genRandStr("Search_")
-            #xlsUrl = HT.Input(type='button', value = 'Download Table', onClick= "location.href='/tmp/%s.xls'" % filename, Class='button')
-            # Create a new Excel workbook
-            #workbook = xl.Writer('%s.xls' % (webqtlConfig.TMPDIR+filename))
-            #headingStyle = workbook.add_format(align = 'center', bold = 1, border = 1, size=13, fg_color = 0x1E, color="white")
-
-            #XZ, 3/18/2010: pay attention to the line number of header in this file. As of today, there are 7 lines.
-            #worksheet = self.createExcelFileWithTitleAndFooter(workbook=workbook, db=this_trait.db, returnNumber=len(self.trait_list))
-            newrow = 7
-
-            #### Excel file stuff stops
-
-            if self.dataset.type == "ProbeSet":
-                print("foo locals are:", locals())
-                probe_set_id = result[0]
-                this_trait = webqtlTrait(db=self.dataset, name=probe_set_id, cursor=self.cursor)
-                this_trait.retrieveInfo(QTL=True)
-                print("this_trait is:", pf(this_trait))
-                self.trait_list.append(this_trait)
-            #elif self.dataset.type == "Publish":
-            #    tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=mainfmName, worksheet=worksheet, species=species)
-            #elif self.dataset.type == "Geno":
-            #    tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=form_name, worksheet=worksheet)
-
-            #traitForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=thisFormName, submit=HT.Input(type='hidden'))
-            hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':'_','CellID':'_','group':group}
-            hddn['incparentsf1']='ON'
+            print("foo locals are:", locals())
+            trait_id = result[0]
+            this_trait = webqtlTrait(db=self.dataset, name=trait_id, cursor=self.cursor)
+            this_trait.retrieveInfo(QTL=True)
+            print("this_trait is:", pf(this_trait))
+            self.trait_list.append(this_trait)
 
         if self.dataset.type == "ProbeSet":
-            tblobj['body'] = self.getTableBodyForProbeSet(trait_list=self.trait_list, formName=self.form_name, species=species)            
+            self.getTraitInfoForProbeSet(trait_list=self.trait_list, species=species)            
         elif self.dataset.type == "Publish":
-            tblobj['body'] = self.getTableBodyForPublish(trait_list=self.trait_list, formName=self.form_name, species=species)
+            self.getTraitInfoForPublish(trait_list=self.trait_list, species=species)
         elif self.dataset.type == "Geno":
-            tblobj['body'] = self.getTableBodyForGeno(trait_list=self.trait_list, form_name=self.form_name)
+            self.getTraitInfoForGeno(trait_list=self.trait_list)
 
 
     def search(self):
-        print("fd.search_terms:", self.fd['search_terms'])
         self.search_terms = parser.parse(self.fd['search_terms'])
         print("After parsing:", self.search_terms)
 
@@ -267,6 +254,7 @@ class SearchResultPage(templatePage):
             print("in the search results are:", self.results)
 
 
+    #ZS: This should be handled in the parser
     def encregexp(self,str):
         if not str:
             return []
@@ -284,23 +272,11 @@ class SearchResultPage(templatePage):
         return wildcardkeyword
     
 
-    def getTableBodyForGeno(self, trait_list, formName=None):
-
-        tblobj_body = []
-
-        className = "fs12 fwn ffl b1 c222"
+    def getTraitInfoForGeno(self, trait_list):
 
         for this_trait in trait_list:
-            tr = []
-
             if not this_trait.haveinfo:
                 this_trait.retrieveInfo()
-
-            trId = str(this_trait)
-
-            tr.append(TDCell(HT.TD(HT.Input(type="checkbox", Class="checkbox", name="searchResult",value=trId, onClick="highlight(this)"), nowrap="on", Class=className), text=trId))
-
-            tr.append(TDCell(HT.TD(HT.Href(text=this_trait.name,url="javascript:showDatabase3('%s','%s','%s','')" % (formName, this_trait.db.name, this_trait.name), Class="fs12 fwn ffl"),align="left", Class=className), text=this_trait.name, val=this_trait.name.upper()))
 
             #XZ: trait_location_value is used for sorting
             trait_location_repr = 'N/A'
@@ -315,70 +291,37 @@ class SearchResultPage(templatePage):
                     else:
                         trait_location_value = ord(str(this_trait.chr).upper()[0])*1000 + this_trait.mb
 
-                trait_location_repr = 'Chr%s: %.6f' % (this_trait.chr, float(this_trait.mb) )
-
-            tr.append(TDCell(HT.TD(trait_location_repr, Class="fs12 fwn b1 c222", nowrap="on"), trait_location_repr, trait_location_value))
-
-            tblobj_body.append(tr)
-
-            #for ncol, item in enumerate([this_trait.name, trait_location_repr]):
-            #    worksheet.write([newrow, ncol], item)
-
-        return tblobj_body
+                this_trait.location_repr = 'Chr%s: %.4f' % (this_trait.chr, float(this_trait.mb) )
+                this_trait.location_value = trait_location_value
 
 
-    def getTableBodyForPublish(self, trait_list, formName=None, species=''):
-
-        tblobj_body = []
-
-        className = "fs12 fwn b1 c222"
+    def getTraitInfoForPublish(self, trait_list, species=''):
 
         for this_trait in trait_list:
-            tr = []
-
             if not this_trait.haveinfo:
                 this_trait.retrieveInfo(QTL=1)
 
-            trId = str(this_trait)
-
-            tr.append(TDCell(HT.TD(HT.Input(type="checkbox", Class="checkbox", name="searchResult",value=trId, onClick="highlight(this)"), nowrap="on", Class=className), text=trId))
-
-            tr.append(TDCell(HT.TD(HT.Href(text=this_trait.name,url="javascript:showDatabase3('%s','%s','%s','')" % (formName, this_trait.db.name, this_trait.name), Class="fs12 fwn"), nowrap="yes",align="center", Class=className),str(this_trait.name), this_trait.name))
-
-            PhenotypeString = this_trait.post_publication_description
+            description = this_trait.post_publication_description
             if this_trait.confidential:
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
-                    PhenotypeString = this_trait.pre_publication_description
-            tr.append(TDCell(HT.TD(PhenotypeString, Class=className), PhenotypeString, PhenotypeString.upper()))
-
-            tr.append(TDCell(HT.TD(this_trait.authors, Class="fs12 fwn b1 c222 fsI"),this_trait.authors, this_trait.authors.strip().upper()))
+                    description = this_trait.pre_publication_description
+            this_trait.description_display = description
 
             try:
-                PubMedLinkText = myear = repr = int(this_trait.year)
+                this_trait.pubmed_text =  int(this_trait.year)
             except:
-                PubMedLinkText = repr = "N/A"
-                myear = 0
+                this_trait.pubmed_text = "N/A"
 
             if this_trait.pubmed_id:
-                PubMedLink = HT.Href(text= repr,url= webqtlConfig.PUBMEDLINK_URL % this_trait.pubmed_id,target='_blank', Class="fs12 fwn")
-            else:
-                PubMedLink = repr
-
-            tr.append(TDCell(HT.TD(PubMedLink, Class=className, align='center'), repr, myear))
+                this_trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % this_trait.pubmed_id
 
             #LRS and its location
-            LRS_score_repr = 'N/A'
-            LRS_score_value = 0
-            LRS_location_repr = 'N/A'
-            LRS_location_value = 1000000
-            LRS_flag = 1
-
+            this_trait.LRS_score_repr = 'N/A'
+            this_trait.LRS_score_value = 0
+            this_trait.LRS_location_repr = 'N/A'
+            this_trait.LRS_location_value = 1000000
 
             if this_trait.lrs:
-                LRS_score_repr = '%3.1f' % this_trait.lrs
-                LRS_score_value = this_trait.lrs
-                tr.append(TDCell(HT.TD(LRS_score_repr, Class=className), LRS_score_repr, LRS_score_value))
-
                 self.cursor.execute("""
                     select Geno.Chr, Geno.Mb from Geno, Species
                     where Species.Name = '%s' and
@@ -401,27 +344,14 @@ class SearchResultPage(templatePage):
                             else:
                                 LRS_location_value = ord(str(LRS_chr).upper()[0])*1000 + float(LRS_Mb)
 
-                        LRS_location_repr = 'Chr%s: %.6f' % (LRS_Chr, float(LRS_Mb) )
-                        LRS_flag = 0
-
-                tr.append(TDCell(HT.TD(LRS_location_repr, Class=className, nowrap="on"), LRS_location_repr, LRS_location_value))
-
-            else:
-                tr.append(TDCell(HT.TD("N/A", Class=className), "N/A", "N/A"))
-                tr.append(TDCell(HT.TD("N/A", Class=className), "N/A", "N/A"))
-
-            tblobj_body.append(tr)
-
-            #for ncol, item in enumerate([this_trait.name, PhenotypeString, this_trait.authors, this_trait.year, this_trait.pubmed_id, LRS_score_repr, LRS_location_repr]):
-            #    worksheet.write([newrow, ncol], item)
-
-        return tblobj_body
+                        this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
+                        this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
+                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )
 
 
-    def getTableBodyForProbeSet(self, trait_list=None, primaryTrait=None, formName=None, species=''):
+    def getTraitInfoForProbeSet(self, trait_list=None, species=''):
+
         #  Note: setting trait_list to [] is probably not a great idea.
-        tblobj_body = []
-
         if not trait_list:
             trait_list = []
 
@@ -434,27 +364,6 @@ class SearchResultPage(templatePage):
                 pass
             else:
                 this_trait.symbol = "N/A"
-
-            tr = []
-
-            trId = str(this_trait)
-
-            #XZ, 12/08/2008: checkbox
-            #tr.append(TDCell(HT.TD(HT.Input(type="checkbox", Class="checkbox", name="searchResult",value=trId, onClick="highlight(this)"), nowrap="on", Class="fs12 fwn ffl b1 c222"), text=trId))
-
-            #XZ, 12/08/2008: probeset name
-            #if this_trait.cellid:
-            #    tr.append(TDCell(HT.TD(HT.Href(text=this_trait.name, url="javascript:showDatabase3('%s','%s','%s','%s')" % (formName, this_trait.db.name,this_trait.name,this_trait.cellid), Class="fs12 fwn"), Class=className), this_trait.name, this_trait.name.upper()))
-            #else:
-            #    tr.append(TDCell(HT.TD(HT.Href(text=this_trait.name, url="javascript:showDatabase3('%s','%s','%s','')" % (formName, this_trait.db.name,this_trait.name), Class="fs12 fwn"), Class=className), this_trait.name, this_trait.name.upper()))
-            #
-            #if this_trait.geneid:
-            #    symbolurl = HT.Href(text=this_trait.symbol,target='_blank',url="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % this_trait.geneid, Class="font_black fs12 fwn")
-            #else:
-            #    symbolurl = HT.Href(text=this_trait.symbol,target='_blank',url="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=gene&term=%s" % this_trait.symbol, Class="font_black fs12 fwn")
-            #
-            ##XZ, 12/08/2008: gene symbol
-            #tr.append(TDCell(HT.TD(symbolurl, Class="fs12 fwn b1 c222 fsI"),this_trait.symbol, this_trait.symbol.upper()))
 
             #XZ, 12/08/2008: description
             #XZ, 06/05/2009: Rob asked to add probe target description
@@ -487,8 +396,8 @@ class SearchResultPage(templatePage):
                     else:
                         trait_location_value = ord(str(this_trait.chr).upper()[0])*1000 + this_trait.mb
 
-                trait_location_repr = 'Chr %s: %.4f Mb' % (this_trait.chr, float(this_trait.mb) )
-                this_trait.trait_location_repr = trait_location_repr
+                this_trait.location_repr = 'Chr %s: %.4f Mb' % (this_trait.chr, float(this_trait.mb) )
+                this_trait.location_value = trait_location_value
                 #this_trait.trait_location_value = trait_location_value
 
             #XZ, 01/12/08: This SQL query is much faster.
@@ -517,11 +426,10 @@ class SearchResultPage(templatePage):
             this_trait.mean = repr = "%2.3f" % mean
 
             #LRS and its location
-            LRS_score_repr = 'N/A'
-            LRS_score_value = 0
-            LRS_location_repr = 'N/A'
-            LRS_location_value = 1000000
-            LRS_flag = 1
+            this_trait.LRS_score_repr = 'N/A'
+            this_trait.LRS_score_value = 0
+            this_trait.LRS_location_repr = 'N/A'
+            this_trait.LRS_location_value = 1000000
 
             #Max LRS and its Locus location
             if this_trait.lrs and this_trait.locus:
@@ -550,28 +458,3 @@ class SearchResultPage(templatePage):
                         this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
                         this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
                         this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )
-                        LRS_flag = 0
-
-                #if LRS_flag:
-                    #tr.append(TDCell(HT.TD(LRS_score_repr, Class=className), LRS_score_repr, LRS_score_value))
-                    #tr.append(TDCell(HT.TD(LRS_location_repr, Class=className), LRS_location_repr, LRS_location_value))
-
-            #else:
-                #tr.append(TDCell(HT.TD("N/A", Class=className), "N/A", "N/A"))
-                #tr.append(TDCell(HT.TD("N/A", Class=className), "N/A", "N/A"))
-
-            tblobj_body.append(tr)
-
-        return tblobj_body
-
-
-    def getSortByValue(self, datasetType=''):
-
-        if datasetType == 'Geno':
-            sortby = ("location", "up")
-        elif datasetType == 'ProbeSet':
-            sortby = ("symbol", "up")
-        else: #Phenotype
-            sortby = ("record_id", "down")
-
-        return sortby
