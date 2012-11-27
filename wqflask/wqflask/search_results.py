@@ -84,16 +84,7 @@ class SearchResultPage(templatePage):
             print("self.dataset is:", pf(self.dataset))
             self.dataset = webqtlDataset(self.dataset, self.cursor)
             print("self.dataset is now:", pf(self.dataset))
-            #self.dataset = map(lambda x: webqtlDataset(x, self.cursor), self.dataset)
-            #currently, webqtl won't allow multiple crosses
-            #for other than multiple publish db search
-            #so we can use the first dataset as example
-            #if self.dataset.type=="Publish":
-            #    pass
             if self.dataset.type in ("Geno", "ProbeSet"):
-
-                #userExist = None
-                # Can't use paramater substitution for table names apparently
                 db_type = self.dataset.type + "Freeze"
                 print("db_type [%s]: %s" % (type(db_type), db_type))
 
@@ -124,11 +115,8 @@ class SearchResultPage(templatePage):
                     #        access_to_confidential_dataset = 1
                     #
                     #if not access_to_confidential_dataset:
-                    #    #Error, No dataset selected
-                    #    heading = "Search Result"
-                    #    detail = ["The %s dataset you selected is not open to the public at this time, please go back and SELECT other dataset." % indFullName]
-                    #    self.error(heading=heading,detail=detail,error="Confidential dataset")
-                    #    return
+                    #    Some error
+
             #else:
             #    heading = "Search Result"
             #    detail = ['''The dataset has not been established yet, please
@@ -180,7 +168,8 @@ class SearchResultPage(templatePage):
                                 'Max LRS',
                                 'Max LRS Location']
         elif self.dataset.type == "Geno":
-            self.search_fields = ['Name','Chr']
+            self.search_fields = ['Name',
+                                  'Chr']
             self.header_fields = ['',
                                 'ID',
                                 'Location']
@@ -241,7 +230,6 @@ class SearchResultPage(templatePage):
             # This is throwing an error when a_search['key'] is None, so I changed above    
             #search_type = string.upper(a_search['key'])
             #if not search_type:
-            #    # We fall back to the dataset type as the key to get the right object
             #    search_type = self.dataset.type
 
             search_ob = do_search.DoSearch.get_search(search_type)
@@ -273,7 +261,6 @@ class SearchResultPage(templatePage):
     
 
     def getTraitInfoForGeno(self, trait_list):
-
         for this_trait in trait_list:
             if not this_trait.haveinfo:
                 this_trait.retrieveInfo()
@@ -295,8 +282,7 @@ class SearchResultPage(templatePage):
                 this_trait.location_value = trait_location_value
 
 
-    def getTraitInfoForPublish(self, trait_list, species=''):
-
+    def getTraitInfoForPublish(self, trait_list, species = ''):
         for this_trait in trait_list:
             if not this_trait.haveinfo:
                 this_trait.retrieveInfo(QTL=1)
@@ -307,18 +293,16 @@ class SearchResultPage(templatePage):
                     description = this_trait.pre_publication_description
             this_trait.description_display = description
 
-            try:
-                this_trait.pubmed_text =  int(this_trait.year)
-            except:
+            if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
 
             if this_trait.pubmed_id:
                 this_trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % this_trait.pubmed_id
 
             #LRS and its location
-            this_trait.LRS_score_repr = 'N/A'
+            this_trait.LRS_score_repr = "N/A"
             this_trait.LRS_score_value = 0
-            this_trait.LRS_location_repr = 'N/A'
+            this_trait.LRS_location_repr = "N/A"
             this_trait.LRS_location_value = 1000000
 
             if this_trait.lrs:
@@ -408,7 +392,7 @@ class SearchResultPage(templatePage):
     ProbeSet.Name = '%s'
             """ % (self.db_conn.escape_string(str(this_trait.db.id)),
                    self.db_conn.escape_string(this_trait.name)))
-            
+
             print("query is:", pf(query))
             
             self.cursor.execute(query)

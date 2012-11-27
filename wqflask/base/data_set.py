@@ -30,7 +30,7 @@ import webqtlConfig
 
 
 
-class webqtlDataset:
+class DataSet(object):
     """
     Dataset class defines a dataset in webqtl, can be either Microarray,
     Published phenotype, genotype, or user input dataset(temp)
@@ -55,14 +55,7 @@ class webqtlDataset:
             self.fullname = 'Temporary Storage'
             self.shortname = 'Temp'
         elif dbName.find('Publish') >= 0:
-            self.searchfield = ['name','post_publication_description','abstract','title','authors']
-            self.disfield = ['name','pubmed_id',
-                            'pre_publication_description', 'post_publication_description', 'original_description',
-                            'pre_publication_abbreviation', 'post_publication_abbreviation',
-                            'lab_code', 'submitter', 'owner', 'authorized_users',
-                            'authors','title','abstract', 'journal','volume','pages','month',
-                            'year','sequence', 'units', 'comments']
-            self.type = 'Publish'
+            pass
         elif dbName.find('Geno') >= 0:
             self.searchfield = ['name','chr']
             self.disfield = ['name','chr','mb', 'source2', 'sequence']
@@ -155,3 +148,15 @@ class webqtlDataset:
     def genHTML(self, Class='c0dd'):
         return  HT.Href(text = HT.Span('%s Database' % self.fullname, Class= "fwb " + Class),
                 url= webqtlConfig.INFOPAGEHREF % self.name,target="_blank")
+
+class PhenotypeDataSet(DataSet):
+    
+    def __init__(self):
+        self.searchfield = ['name','post_publication_description','abstract','title','authors']
+        self.disfield = ['name','pubmed_id',
+                            'pre_publication_description', 'post_publication_description', 'original_description',
+                            'pre_publication_abbreviation', 'post_publication_abbreviation',
+                            'lab_code', 'submitter', 'owner', 'authorized_users',
+                            'authors','title','abstract', 'journal','volume','pages','month',
+                            'year','sequence', 'units', 'comments']
+        self.type = 'Publish'

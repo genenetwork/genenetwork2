@@ -1509,10 +1509,10 @@ class ShowTrait(templatePage):
 
 
     def make_sample_lists(self, fd, variance_data_page, this_trait):
-        if fd.genotype.type == "riset":
-            all_samples_ordered = fd.f1list + fd.samplelist
-        else:
+        if fd.parlist:
             all_samples_ordered = fd.parlist + fd.f1list + fd.samplelist
+        else:
+            all_samples_ordered = fd.f1list + fd.samplelist
 
         this_trait_samples = set(this_trait.data.keys())
 
@@ -1527,8 +1527,6 @@ class ShowTrait(templatePage):
                                         this_trait=this_trait,
                                         sample_group_type='primary',
                                         header="%s Only" % (fd.RISet))
-        
-        print("primary_samples.attributes:", pf(primary_samples.attributes))
 
         other_sample_names = []
         for sample in this_trait.data.keys():
@@ -1538,8 +1536,7 @@ class ShowTrait(templatePage):
                 other_sample_names.append(sample)
 
         if other_sample_names:
-            unappended_par_f1 = fd.f1list + fd.parlist
-            par_f1_samples = ["_2nd_" + sample for sample in unappended_par_f1]
+            par_f1_samples = fd.parlist + fd.f1list
             
             other_sample_names.sort() #Sort other samples
             other_sample_names = par_f1_samples + other_sample_names
