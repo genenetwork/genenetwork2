@@ -14,7 +14,7 @@ from htmlgen import HTMLgen2 as HT
 from base import webqtlConfig
 from utility.THCell import THCell
 from utility.TDCell import TDCell
-from base.webqtlDataset import webqtlDataset
+from base.data_set import DataSet
 from base.webqtlTrait import webqtlTrait
 from base.templatePage import templatePage
 from utility import webqtlUtil
@@ -65,12 +65,12 @@ class SearchResultPage(templatePage):
 				InbredSet where PublishFreeze.Name not like 'BXD300%' and InbredSet.Id =
 				PublishFreeze.InbredSetId""")
 			results = self.cursor.fetchall()
-			self.database = map(lambda x: webqtlDataset(x[0], self.cursor), results)
+			self.database = map(lambda x: DataSet(x[0], self.cursor), results)
 			self.databaseCrosses = map(lambda x: x[1], results)
 			self.databaseCrossIds = map(lambda x: x[2], results)
 			self.singleCross = False
 		else:
-			self.database = map(lambda x: webqtlDataset(x, self.cursor), self.database)
+			self.database = map(lambda x: DataSet(x, self.cursor), self.database)
 			#currently, webqtl wouldn't allow multiple crosses
 			#for other than multiple publish db search
 			#so we can use the first database as example

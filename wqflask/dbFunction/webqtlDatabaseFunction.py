@@ -19,14 +19,7 @@
 #
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
-#
-# Created by GeneNetwork Core Team 2010/08/10
-#
-# Last updated by Xiaodong Zhou 2011/Jan/20
 
-#webqtlDatabaseFunction.py
-#
-#This file consists of various database related functions; the names are generally self-explanatory.
 
 import MySQLdb
 import string
@@ -206,21 +199,21 @@ def getTissueCountByTissueProbeSetFreezeId(cursor=None, TissueProbeSetFreezeId=N
 
 ###########################################################################
 # input: cursor, TissueProbeSetFreezeId (int)
-# output: DatasetName(string),DatasetFullName(string)
-# function: retrieve DatasetName, DatasetFullName based on TissueProbeSetFreezeId
+# output: DataSetName(string),DataSetFullName(string)
+# function: retrieve DataSetName, DataSetFullName based on TissueProbeSetFreezeId
 ###########################################################################
-def getDatasetNamesByTissueProbeSetFreezeId(cursor=None, TissueProbeSetFreezeId=None):
+def getDataSetNamesByTissueProbeSetFreezeId(cursor=None, TissueProbeSetFreezeId=None):
     query ="select Name, FullName from TissueProbeSetFreeze where Id=%s" % TissueProbeSetFreezeId
     try:
         cursor.execute(query)
         result = cursor.fetchone()
-        DatasetName = result[0]
-        DatasetFullName =result[1]
+        DataSetName = result[0]
+        DataSetFullName =result[1]
     except:
-        DatasetName =None
-        DatasetFullName =None
+        DataSetName =None
+        DataSetFullName =None
 
-    return DatasetName, DatasetFullName
+    return DataSetName, DataSetFullName
 
 ###########################################################################
 # input: cursor, geneIdLst (list)

@@ -147,7 +147,7 @@ class GenotypeSearch(DoSearch):
                 """WHERE %s and
                     Geno.Id = GenoXRef.GenoId and
                     GenoXRef.GenoFreezeId = GenoFreeze.Id and
-                    GenoFreeze.Id = %s"""% (
+                    GenoFreeze.Id = %s""" % (
                         self.get_where_clause(),
                         self.escape(self.dataset.id)))
 
@@ -257,7 +257,7 @@ class GoSearch(ProbeSetSearch):
         statements = ("""%s.symbol=GOgene_product.symbol and
            GOassociation.gene_product_id=GOgene_product.id and
            GOterm.id=GOassociation.term_id""" % (
-            self.db_conn.escape_string(self.dataset.type)))
+            self.escape(self.dataset.type)))
 
         where_clause = " %s = '%s' and %s " % (field, go_id, statements)
 
@@ -317,14 +317,14 @@ class CisLrsSearch(ProbeSetSearch):
                 Geno.SpeciesId = %s and
                 %s.Chr = Geno.Chr and
                 ABS(%s.Mb-Geno.Mb) < %s """ % (
-                    self.dataset.type,
+                    self.escape(self.dataset.type),
                     min(lower_limit, upper_limit),
-                    self.dataset.type,
+                    self.escape(self.dataset.type),
                     max(lower_limit, upper_limit),
-                    self.dataset.type,
+                    self.escape(self.dataset.type),
                     self.species_id,
-                    self.dataset.type,
-                    self.dataset.type,
+                    self.escape(self.dataset.type),
+                    self.escape(self.dataset.type),
                     min_threshold
                     )
         else:
@@ -437,7 +437,7 @@ if __name__ == "__main__":
 
 
     from base import webqtlConfig
-    from base.webqtlDataset import webqtlDataset
+    from base.data_set import create_dataset
     from base.templatePage import templatePage
     from utility import webqtlUtil
     from dbFunction import webqtlDatabaseFunction
@@ -449,13 +449,13 @@ if __name__ == "__main__":
     cursor = db_conn.cursor()
 
     dataset_name = "HC_M2_0606_P"
-    dataset = webqtlDataset(dataset_name, cursor)
+    dataset = create_dataset(db_conn, dataset_name)
 
     #results = ProbeSetSearch("salt", dataset, cursor, db_conn).run()
     #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
     #results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
-    results = TransLrsSearch(['25','99','10'], dataset, cursor, db_conn).run()
-    #results = TransLrsSearch(['9', '999', '10'], dataset, cursor, db_conn).run()
+    results = CisLrsSearch(['25','99','10'], dataset, cursor, db_conn).run()
+    #results = TransLrsSearch(['25', '999', '10'], dataset, cursor, db_conn).run()
     #results = PhenotypeSearch("brain", dataset, cursor, db_conn).run()
     #results = GenotypeSearch("rs13475699", dataset, cursor, db_conn).run()
     #results = GoSearch("0045202", dataset, cursor, db_conn).run()

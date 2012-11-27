@@ -47,7 +47,7 @@ from base import webqtlConfig
 from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.webqtlTrait import webqtlTrait
-from base.webqtlDataset import webqtlDataset
+from base.data_set import create_dataset
 from base.templatePage import templatePage
 from utility import webqtlUtil
 from dbFunction import webqtlDatabaseFunction
@@ -310,7 +310,7 @@ class CorrelationPage(templatePage):
 
         #try:
         #print("target_db_name is:", target_db_name)
-        self.db = webqtlDataset(self.target_db_name, self.cursor)
+        self.db = create_dataset(self.db_conn, self.target_db_name)
         #except:
         #    detail = ["The database you just requested has not been established yet."]
         #    self.error(detail)

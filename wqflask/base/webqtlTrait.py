@@ -6,7 +6,7 @@ from htmlgen import HTMLgen2 as HT
 
 import webqtlConfig
 from webqtlCaseData import webqtlCaseData
-from webqtlDataset import webqtlDataset
+from data_set import create_dataset
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 
@@ -20,9 +20,10 @@ class webqtlTrait:
 
     """
 
-    def __init__(self, cursor = None, **kw):
+    def __init__(self, db_conn, **kw):
         print("in webqtlTrait")
-        self.cursor = cursor
+        self.db_conn = db_conn
+        self.cursor = self.db_conn.cursor()
         self.db = None                  # database object
         self.name = ''                  # Trait ID, ProbeSet ID, Published ID, etc.
         self.cellid = ''
@@ -50,7 +51,7 @@ class webqtlTrait:
 
         if self.db and isinstance(self.db, basestring):
             assert self.cursor, "Don't have a cursor"
-            self.db = webqtlDataset(self.db, self.cursor)
+            self.db = create_dataset(self.db_conn, self.db)
 
         #if self.db == None, not from a database
         print("self.db is:", self.db, type(self.db))
@@ -396,8 +397,8 @@ class webqtlTrait:
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
         #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
         elif self.db.type == 'ProbeSet':
-            disfieldString = string.join(self.db.disfield,',ProbeSet.')
-            disfieldString = 'ProbeSet.' + disfieldString
+            display_fields_string = ',ProbeSet.'.join(self.db.display_fields)
+            display_fields_string = 'ProbeSet.' + display_fields_string
             query = """
                     SELECT %s
                     FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
@@ -406,12 +407,12 @@ class webqtlTrait:
                             ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
                             ProbeSetFreeze.Name = '%s' AND
                             ProbeSet.Name = '%s'
-                    """ % (disfieldString, self.db.name, self.name)
+                    """ % (display_fields_string, self.db.name, self.name)
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif self.db.type == 'Geno':
-            disfieldString = string.join(self.db.disfield,',Geno.')
-            disfieldString = 'Geno.' + disfieldString
+            display_fields_string = string.join(self.db.display_fields,',Geno.')
+            display_fields_string = 'Geno.' + display_fields_string
             query = """
                     SELECT %s
                     FROM Geno, GenoFreeze, GenoXRef
@@ -420,10 +421,10 @@ class webqtlTrait:
                             GenoXRef.GenoId = Geno.Id AND
                             GenoFreeze.Name = '%s' AND
                             Geno.Name = '%s'
-                    """ % (disfieldString, self.db.name, self.name)
+                    """ % (display_fields_string, self.db.name, self.name)
         else: #Temp type
             query = 'SELECT %s FROM %s WHERE Name = "%s"' % \
-                    (string.join(self.db.disfield,','), self.db.type, self.name)
+                    (string.join(self.db.display_fields,','), self.db.type, self.name)
 
 
         self.cursor.execute(query)
@@ -432,7 +433,7 @@ class webqtlTrait:
             self.haveinfo = 1
 
             #XZ: assign SQL query result to trait attributes.
-            for i, field in enumerate(self.db.disfield):
+            for i, field in enumerate(self.db.display_fields):
                 setattr(self, field, traitInfo[i])
 
             if self.db.type == 'Publish':
