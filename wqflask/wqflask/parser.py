@@ -35,8 +35,8 @@ def parse(pstring):
 
     items = []
 
-    separators = [re.escape(x) for x in (":", "=", "<", ">")]
-    separators = '([%s])' % ("".join(separators))
+    separators = [re.escape(x) for x in ("<=", ">=", ":", "=", "<", ">")]
+    separators = '(%s)' % ("|".join(separators))
     
     print("separators:", separators)
 
@@ -69,6 +69,9 @@ if __name__ == '__main__':
     parse("foo=[3 2 1]")
     parse("WIKI=ho*")
     parse("LRS>9")
+    parse("LRS>=18")
+    parse("foo <= 2")
+    parse("cisLRS<20")
     parse("foo=[3 2 1)")
     parse("foo=(3 2 1)")
     parse("shh")
