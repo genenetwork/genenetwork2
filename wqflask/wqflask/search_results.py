@@ -55,6 +55,7 @@ class SearchResultPage(templatePage):
         assert self.openMysql(), "Couldn't open MySQL"
 
         print("fd is:", pf(fd))
+        print("fd.dict is:", pf(fd['dataset']))
         self.dataset = fd['dataset']
 
         # change back to self.dataset
@@ -93,7 +94,7 @@ class SearchResultPage(templatePage):
         """
         Get the info displayed in the search result table from the set of results computed in
         the "search" function
-        
+
         """
         self.trait_list = []
         # result_set represents the results for each search term; a search of 
@@ -114,7 +115,7 @@ class SearchResultPage(templatePage):
             this_trait.retrieveInfo(QTL=True)
             print("this_trait is:", pf(this_trait))
             self.trait_list.append(this_trait)
-            
+
         self.dataset.get_trait_info(self.trait_list, species)    
 
 

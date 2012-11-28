@@ -258,7 +258,7 @@ class GenotypeDataSet(DataSet):
         # Todo: Obsolete or rename this field
         self.type = 'Geno'
         
-        query = '''
+        self.query = '''
                 SELECT
                         InbredSet.Name, InbredSet.Id
                 FROM

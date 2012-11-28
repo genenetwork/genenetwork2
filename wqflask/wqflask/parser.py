@@ -15,6 +15,8 @@ Both square brackets and parentheses can be used interchangeably. Both can also 
 encapsulate a single value; "cisLRS=[9 999 10)" would
 be acceptable.]
 
+NEED TO DEAL WITH WILDCARD CHARACTER '*'
+
 """
 
 from __future__ import print_function, division
