@@ -127,6 +127,7 @@ class SearchResultPage(templatePage):
         for a_search in self.search_terms:
             print("[kodak] item is:", pf(a_search))
             search_term = a_search['search_term']
+            search_operator = a_search['separator']
             if a_search['key']:
                 search_type = a_search['key'].upper()
             else:
@@ -141,6 +142,7 @@ class SearchResultPage(templatePage):
             search_ob = do_search.DoSearch.get_search(search_type)
             search_class = getattr(do_search, search_ob)
             self.results.extend(search_class(search_term,
+                                    search_operator,
                                     self.dataset,
                                     self.cursor,
                                     self.db_conn).run())

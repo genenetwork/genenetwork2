@@ -15,8 +15,6 @@ Both square brackets and parentheses can be used interchangeably. Both can also 
 encapsulate a single value; "cisLRS=[9 999 10)" would
 be acceptable.]
 
-NEED TO DEAL WITH WILDCARD CHARACTER '*'
-
 """
 
 from __future__ import print_function, division
@@ -26,6 +24,10 @@ import re
 from pprint import pformat as pf
 
 def parse(pstring):
+    """
+    
+    returned item serach_term is always a list, even if only one element
+    """
     pstring = re.split(r"""(?:(\w+\s*=\s*[\(\[][^)]*[\)\]])  |  # LRS=(1 2 3), cisLRS=[4 5 6], etc
                        (\w+\s*[=:\>\<][\w\*]+)  |  # wiki=bar, GO:foobar, etc
                        ([\w\*]+))  # shh, brain, etc """, pstring,
@@ -53,16 +55,22 @@ def parse(pstring):
                 value = value[1:-1] # Get rid of the parenthesis
                 values = re.split(r"""\s+|,""", value)
                 value = [value.strip() for value in values if value.strip()]
+            else:
+                value = [value]
+            # : is a synonym for = 
+            if separator == ":":
+                separator = "="
+                
             term = dict(key=key,
                         separator=separator,
                         search_term=value)
         else:
             term = dict(key=None,
                         separator=None,
-                        search_term = item)
+                        search_term=[item])
 
         items.append(term)
-    print(pf(items) + "\n")
+    print("* items are:", pf(items) + "\n")
     return(items)
 
 if __name__ == '__main__':

@@ -17,8 +17,11 @@ class DoSearch(object):
     # Used to translate search phrases into classes
     search_types = dict()
 
-    def __init__(self, search_term, dataset, cursor, db_conn):
+    def __init__(self, search_term, search_operator, dataset, cursor, db_conn):
         self.search_term = search_term
+        # Make sure search_operator is something we expect
+        assert search_operator in ("=", "<", ">", "<=", ">="), "Bad search operator"
+        self.search_operator = search_operator
         self.dataset = dataset
         self.db_conn = db_conn
         self.cursor = cursor
@@ -47,6 +50,64 @@ class DoSearch(object):
     @classmethod
     def get_search(cls, search_type):
         return cls.search_types[search_type]
+
+
+class ProbeSetSearch(DoSearch):
+    """A search within an mRNA expression dataset"""
+
+    DoSearch.search_types['ProbeSet'] = "ProbeSetSearch"
+
+    base_query = """SELECT ProbeSet.Name as TNAME,
+                0 as thistable,
+                ProbeSetXRef.Mean as TMEAN,
+                ProbeSetXRef.LRS as TLRS,
+                ProbeSetXRef.PVALUE as TPVALUE,
+                ProbeSet.Chr_num as TCHR_NUM,
+                ProbeSet.Mb as TMB,
+                ProbeSet.Symbol as TSYMBOL,
+                ProbeSet.name_num as TNAME_NUM
+                FROM ProbeSetXRef, ProbeSet """
+
+
+    def compile_final_query(self, from_clause = '', where_clause = ''):
+        """Generates the final query string"""
+        
+        from_clause = self.normalize_spaces(from_clause)
+
+        query = (self.base_query +
+            """%s
+                WHERE %s
+                    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
+                    and ProbeSetXRef.ProbeSetFreezeId = %s
+                            """ % (self.escape(from_clause),
+                                    where_clause,
+                                    self.escape(self.dataset.id)))        
+
+        print("query is:", pf(query))
+
+        return query
+
+    def run(self):
+        """Generates and runs a simple search of an mRNA expression dataset"""
+
+        print("Running ProbeSetSearch")
+        query = (self.base_query +
+                """WHERE (MATCH (ProbeSet.Name,
+                    ProbeSet.description,
+                    ProbeSet.symbol,
+                    alias,
+                    GenbankId,
+                    UniGeneId,
+                    Probe_Target_Description)
+                    AGAINST ('%s' IN BOOLEAN MODE)) 
+                    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
+                    and ProbeSetXRef.ProbeSetFreezeId = %s  
+                            """ % (self.escape(self.search_term),
+                            self.escape(self.dataset.id)))
+
+        print("final query is:", pf(query))
+
+        return self.execute(query)
 
 
 class PhenotypeSearch(DoSearch):
@@ -147,70 +208,11 @@ class GenotypeSearch(DoSearch):
                 """WHERE %s and
                     Geno.Id = GenoXRef.GenoId and
                     GenoXRef.GenoFreezeId = GenoFreeze.Id and
-                    GenoFreeze.Id = %s""" % (
+                    GenoFreeze.Id = %s"""% (
                         self.get_where_clause(),
                         self.escape(self.dataset.id)))
 
         return self.execute(query)
-
-
-class ProbeSetSearch(DoSearch):
-    """A search within an mRNA expression dataset"""
-
-    DoSearch.search_types['ProbeSet'] = "ProbeSetSearch"
-
-    base_query = """SELECT ProbeSet.Name as TNAME,
-                0 as thistable,
-                ProbeSetXRef.Mean as TMEAN,
-                ProbeSetXRef.LRS as TLRS,
-                ProbeSetXRef.PVALUE as TPVALUE,
-                ProbeSet.Chr_num as TCHR_NUM,
-                ProbeSet.Mb as TMB,
-                ProbeSet.Symbol as TSYMBOL,
-                ProbeSet.name_num as TNAME_NUM
-                FROM ProbeSetXRef, ProbeSet """
-
-
-    def compile_final_query(self, from_clause, where_clause):
-        """Generates the final query string"""
-
-        from_clause = self.normalize_spaces(from_clause)
-
-        query = (self.normalize_spaces(self.base_query) +
-            """%s
-                WHERE %s
-                    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
-                    and ProbeSetXRef.ProbeSetFreezeId = %s
-                            """ % (self.escape(from_clause),
-                                    where_clause,
-                                    self.escape(self.dataset.id)))        
-
-        print("query is:", pf(query))
-
-        return query
-
-    def run(self):
-        """Generates and runs a simple search of an mRNA expression dataset"""
-
-        print("Running ProbeSetSearch")
-        query = (self.base_query +
-                """WHERE (MATCH (ProbeSet.Name,
-                    ProbeSet.description,
-                    ProbeSet.symbol,
-                    alias,
-                    GenbankId,
-                    UniGeneId,
-                    Probe_Target_Description)
-                    AGAINST ('%s' IN BOOLEAN MODE)) 
-                    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
-                    and ProbeSetXRef.ProbeSetFreezeId = %s  
-                            """ % (self.escape(self.search_term),
-                            self.escape(self.dataset.id)))
-
-        print("final query is:", pf(query))
-
-        return self.execute(query)
-    
 
 class RifSearch(ProbeSetSearch):
     """Searches for traits with a Gene RIF entry including the search term."""
@@ -257,7 +259,7 @@ class GoSearch(ProbeSetSearch):
         statements = ("""%s.symbol=GOgene_product.symbol and
            GOassociation.gene_product_id=GOgene_product.id and
            GOterm.id=GOassociation.term_id""" % (
-            self.escape(self.dataset.type)))
+            self.db_conn.escape_string(self.dataset.type)))
 
         where_clause = " %s = '%s' and %s " % (field, go_id, statements)
 
@@ -283,12 +285,13 @@ class LrsSearch(ProbeSetSearch):
 
     DoSearch.search_types['LRS'] = 'LrsSearch'
     
-class CisLrsSearch(ProbeSetSearch):
+class CisLrsSearch(LrsSearch):
     """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
 
-    A cisLRS search can take 2 forms:
+    A cisLRS search can take 3 forms:
     - cisLRS=(min_LRS max_LRS)
     - cisLRS=(min_LRS max_LRS mb_buffer)
+    - cisLRS>min_LRS
     where min/max_LRS represent the range of LRS scores and the mb_buffer is the range around
     a particular QTL where its eQTL would be considered "cis". If there is no third parameter,
     mb_buffer will default to 5 megabases.
@@ -305,30 +308,56 @@ class CisLrsSearch(ProbeSetSearch):
     DoSearch.search_types['CISLRS'] = "CisLrsSearch"
 
     def run(self):
+        #if isinstance(self.search_term, basestring):
+        #    self.search_term = [self.search_term]
+        print("self.search_term is:", self.search_term)
+        self.search_term = [float(value) for value in self.search_term]
+        mb_buffer = 5  # default
         
         from_clause = ", Geno "
         
-        if len(self.search_term) == 3:
-            lower_limit, upper_limit, min_threshold = [int(value) for value in self.search_term]
-
-            where_clause = """ %sXRef.LRS > %s and
+        
+        if self.search_operator == "=":
+            if len(self.search_term) == 2:
+                lower_limit, upper_limit = self.search_term
+                #[int(value) for value in self.search_term]
+            
+            elif len(self.search_term) == 3:
+                lower_limit, upper_limit, mb_buffer = self.search_term
+              
+            sub_clause = """ %sXRef.LRS > %s and
                 %sXRef.LRS < %s  and
-                %sXRef.Locus = Geno.name and
-                Geno.SpeciesId = %s and
-                %s.Chr = Geno.Chr and
-                ABS(%s.Mb-Geno.Mb) < %s """ % (
+                ABS(%s.Mb-Geno.Mb) < %s """  % (
                     self.escape(self.dataset.type),
-                    min(lower_limit, upper_limit),
+                    self.escape(min(lower_limit, upper_limit)),
                     self.escape(self.dataset.type),
-                    max(lower_limit, upper_limit),
+                    self.escape(max(lower_limit, upper_limit)),
                     self.escape(self.dataset.type),
-                    self.species_id,
-                    self.escape(self.dataset.type),
-                    self.escape(self.dataset.type),
-                    min_threshold
-                    )
+                    self.escape(mb_buffer)
+                )
+                
+            
+            
         else:
-            NeedSomeErrorHere     
+            # Deal with >, <, >=, and <=
+            sub_clause = """ %sXRef.LRS %s %s and
+                ABS(%s.Mb-Geno.Mb) < %s and """  % (
+                    self.escape(self.dataset.type),
+                    self.escape(self.search_operator),
+                    self.escape(self.search_term[0]),
+                    self.escape(self.dataset.type),
+                    self.escape(mb_buffer)
+                )
+            
+        where_clause = sub_clause + """%sXRef.Locus = Geno.name and
+                Geno.SpeciesId = %s and
+                %s.Chr = Geno.Chr""" % (
+                    self.escape(self.dataset.type),
+                    self.escape(self.species_id),
+                    self.escape(self.dataset.type)
+                    )
+                
+        print("where_clause is:", pf(where_clause))
 
         query = self.compile_final_query(from_clause, where_clause)
 
@@ -356,8 +385,6 @@ class TransLrsSearch(LrsSearch):
     DoSearch.search_types['TRANSLRS'] = "TransLrsSearch"
 
     def run(self):
-        from_clause = ", Geno "
-        
         if len(self.search_term) == 3:
             lower_limit, upper_limit, min_threshold = [int(value) for value in self.search_term]
             
@@ -379,11 +406,9 @@ class TransLrsSearch(LrsSearch):
                     )
 
         else:
-            NeedSomeErrorHere     
+            NeedSomeErrorHere            
 
-        query = self.compile_final_query(from_clause, where_clause)
-
-        return self.execute(query)
+        return None
 
 
 #itemCmd = item[0]
@@ -450,14 +475,30 @@ if __name__ == "__main__":
 
     dataset_name = "HC_M2_0606_P"
     dataset = create_dataset(db_conn, dataset_name)
+    
+    cursor.execute("""
+                SELECT ProbeSet.Name as TNAME, 0 as thistable,
+                ProbeSetXRef.Mean as TMEAN, ProbeSetXRef.LRS as TLRS,
+                ProbeSetXRef.PVALUE as TPVALUE, ProbeSet.Chr_num as TCHR_NUM,
+                ProbeSet.Mb as TMB, ProbeSet.Symbol as TSYMBOL,
+                ProbeSet.name_num as TNAME_NUM
+                FROM ProbeSetXRef, ProbeSet, Geno
+                WHERE ProbeSetXRef.LRS > 99.0 and
+                ABS(ProbeSet.Mb-Geno.Mb) < 5 and
+                ProbeSetXRef.Locus = Geno.name and
+                Geno.SpeciesId = 1 and
+                ProbeSet.Chr = Geno.Chr and
+                ProbeSet.Id = ProbeSetXRef.ProbeSetId and
+                ProbeSetXRef.ProbeSetFreezeId = 112""")
 
+    #print(pf(cursor.fetchall()))
     #results = ProbeSetSearch("salt", dataset, cursor, db_conn).run()
     #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
     #results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
-    results = CisLrsSearch(['25','99','10'], dataset, cursor, db_conn).run()
-    #results = TransLrsSearch(['25', '999', '10'], dataset, cursor, db_conn).run()
+    results = CisLrsSearch('99', '>', dataset, cursor, db_conn).run() # cisLRS > 99
+    #results = TransLrsSearch(['9', '999', '10'], dataset, cursor, db_conn).run()
     #results = PhenotypeSearch("brain", dataset, cursor, db_conn).run()
     #results = GenotypeSearch("rs13475699", dataset, cursor, db_conn).run()
     #results = GoSearch("0045202", dataset, cursor, db_conn).run()
 
-    print("results are:", pf(results))
+    #print("results are:", pf(results))
