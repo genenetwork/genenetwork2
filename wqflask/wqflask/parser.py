@@ -27,23 +27,26 @@ from pprint import pformat as pf
 
 def parse(pstring):
     pstring = re.split(r"""(?:(\w+\s*=\s*[\(\[][^)]*[\)\]])  |  # LRS=(1 2 3), cisLRS=[4 5 6], etc
-                       (\w+\s*[=:]\w+)  |  # wiki=bar, GO:foobar, etc
-                       (\w+))  # shh, brain, etc """, pstring,
+                       (\w+\s*[=:\>\<][\w\*]+)  |  # wiki=bar, GO:foobar, etc
+                       ([\w\*]+))  # shh, brain, etc """, pstring,
                                                     flags=re.VERBOSE)
     pstring = [item.strip() for item in pstring if item and item.strip()]
     print(pstring)
 
     items = []
 
-    for item in pstring:
-        if ":" in item:
-            key, seperator, value = item.partition(':')
-        elif "=" in item:
-            key, seperator, value = item.partition('=')
-        else:
-            seperator = None
+    separators = [re.escape(x) for x in (":", "=", "<", ">")]
+    separators = '([%s])' % ("".join(separators))
+    
+    print("separators:", separators)
 
-        if seperator:
+    for item in pstring:
+        splat = re.split(separators, item)
+        print("splat is:", splat)
+
+        # splat is an array of 1 if no match, otherwise more than 1
+        if len(splat) > 1:
+            key, separator, value = splat
             if '(' in value or '[' in value:
                 assert value.startswith(("(", "[")), "Invalid token"
                 assert value.endswith((")", "]")), "Invalid token"
@@ -51,19 +54,21 @@ def parse(pstring):
                 values = re.split(r"""\s+|,""", value)
                 value = [value.strip() for value in values if value.strip()]
             term = dict(key=key,
-                        seperator=seperator,
+                        separator=separator,
                         search_term=value)
         else:
             term = dict(key=None,
-                        seperator=None,
+                        separator=None,
                         search_term = item)
 
         items.append(term)
-    print(pf(items))
+    print(pf(items) + "\n")
     return(items)
 
 if __name__ == '__main__':
     parse("foo=[3 2 1]")
+    parse("WIKI=ho*")
+    parse("LRS>9")
     parse("foo=[3 2 1)")
     parse("foo=(3 2 1)")
     parse("shh")
