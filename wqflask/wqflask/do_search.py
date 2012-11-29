@@ -285,6 +285,53 @@ class LrsSearch(ProbeSetSearch):
 
     DoSearch.search_types['LRS'] = 'LrsSearch'
     
+    def run(self):
+        
+        self.search_term = [float(value) for value in self.search_term]
+        
+        from_clause = ", Geno"
+        
+        if self.search_operator == "=":
+            if len(self.search_term) >= 2:
+                if len(self.search_term) == 2:
+                    lrs_min, lrs_max = self.search_term
+                elif len(self.search_term) == 5:
+                    lrs_min, lrs_max, chr_num, mb_low, mb_high = self.search_term
+                else:
+                    SomeError
+                    
+                sub_clause = """ %sXRef.LRS > %s and
+                                 %sXRef.LRS < %s and """ % (self.escape(self.dataset.type),
+                                                        self.escape(min(lrs_min, lrs_max)),
+                                                        self.escape(self.dataset.type),
+                                                        self.escape(max(lrs_min, lrs_max)))
+                
+                if len(self.search_term) == 5:
+                    sub_clause = sub_clause + """ Geno.Mb > %s and
+                                                  Geno.Mb < %s and
+                                                  Geno.Chr = %s and
+                                                  """ % (self.escape(min(mb_low, mb_high)),
+                                                         self.escape(max(mb_low, mb_high)),
+                                                         self.escape(chr_num))
+        else:
+            # Deal with >, <, >=, and <=
+            sub_clause = """ %sXRef.LRS %s %s and """ % (self.escape(self.dataset.type),
+                                                     self.escape(self.search_operator),
+                                                     self.escape(self.search_term[0]))
+
+        where_clause = sub_clause + """ %sXRef.Locus = Geno.name and
+                                        Geno.SpeciesId = %s  and
+                                        %s.Chr = Geno.Chr
+                                        """ % (self.escape(self.dataset.type),
+                                               self.escape(self.species_id),
+                                               self.escape(self.dataset.type))
+
+        print("where_clause is:", pf(where_clause))
+
+        query = self.compile_final_query(from_clause, where_clause)
+
+        return self.execute(query)
+
 class CisLrsSearch(LrsSearch):
     """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
 
@@ -324,10 +371,13 @@ class CisLrsSearch(LrsSearch):
             
             elif len(self.search_term) == 3:
                 lower_limit, upper_limit, mb_buffer = self.search_term
+                
+            else:
+                SomeError
               
             sub_clause = """ %sXRef.LRS > %s and
                 %sXRef.LRS < %s  and
-                ABS(%s.Mb-Geno.Mb) < %s """  % (
+                ABS(%s.Mb-Geno.Mb) < %s and """  % (
                     self.escape(self.dataset.type),
                     self.escape(min(lower_limit, upper_limit)),
                     self.escape(self.dataset.type),
@@ -335,8 +385,6 @@ class CisLrsSearch(LrsSearch):
                     self.escape(self.dataset.type),
                     self.escape(mb_buffer)
                 )
-                
-            
             
         else:
             # Deal with >, <, >=, and <=
@@ -495,10 +543,11 @@ if __name__ == "__main__":
     #results = ProbeSetSearch("salt", dataset, cursor, db_conn).run()
     #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
     #results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
-    results = CisLrsSearch('99', '>', dataset, cursor, db_conn).run() # cisLRS > 99
+    results = CisLrsSearch(['99'], '>', dataset, cursor, db_conn).run() # cisLRS > 99
+    #results = LrsSearch('9', '99', '1', '50', '150', '=', dataset, cursor, db_conn).run()
     #results = TransLrsSearch(['9', '999', '10'], dataset, cursor, db_conn).run()
     #results = PhenotypeSearch("brain", dataset, cursor, db_conn).run()
     #results = GenotypeSearch("rs13475699", dataset, cursor, db_conn).run()
     #results = GoSearch("0045202", dataset, cursor, db_conn).run()
 
-    #print("results are:", pf(results))
+    print("results are:", pf(results))
