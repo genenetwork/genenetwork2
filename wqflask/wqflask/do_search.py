@@ -74,6 +74,14 @@ class ProbeSetSearch(DoSearch):
                 ProbeSet.name_num as TNAME_NUM
                 FROM ProbeSetXRef, ProbeSet """
 
+    header_fields = ['',
+                     'Record ID',
+                     'Symbol',
+                     'Description',
+                     'Location',
+                     'Mean',
+                     'Max LRS',
+                     'Max LRS Location']
 
     def compile_final_query(self, from_clause = '', where_clause = ''):
         """Generates the final query string"""
@@ -188,36 +196,49 @@ class GenotypeSearch(DoSearch):
 
     search_fields = ('Name', 'Chr')
 
-    def get_where_clause(self):
-        """Generate clause for WHERE portion of query"""
+    def get_fields_clause(self):
+        """Generate clause for part of the WHERE portion of query"""
 
         # This adds a clause to the query that matches the search term
         # against each field in search_fields (above)
-        where_clause = []
-        for field in self.search_fields:
-            where_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % (self.dataset.type, field),
-                                                                self.escape(self.search_term)))
-        print("where_clause is:", pf(where_clause))
-        where_clause = "(%s)" % ' OR '.join(where_clause)
-
-        return where_clause
-
-    def run(self):
-        """Generates and runs a simple search of a genotype dataset"""
-        #Todo: Zach will figure out exactly what both these lines mean
-        #and comment here
+        fields_clause = []
+        
         if "'" not in self.search_term:
-            search_term = "[[:<:]]" + self.search_term + "[[:>:]]"
+            self.search_term = "[[:<:]]" + self.search_term + "[[:>:]]"
+
+        for field in self.search_fields:
+            fields_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
+                                                                               field,
+                                                                               self.search_term)))
+        print("hello ;where_clause is:", pf(fields_clause))
+        fields_clause = "(%s)" % ' OR '.join(fields_clause)
+
+        return fields_clause
+
+    def compile_final_query(self, from_clause = '', where_clause = ''):
+        """Generates the final query string"""
+
+        from_clause = self.normalize_spaces(from_clause)
 
         query = (self.base_query +
                 """WHERE %s and
                     Geno.Id = GenoXRef.GenoId and
                     GenoXRef.GenoFreezeId = GenoFreeze.Id and
-                    GenoFreeze.Id = %s"""% (
-                        self.get_where_clause(),
-                        self.escape(self.dataset.id)))
+                    GenoFreeze.Id = %s"""% (where_clause,
+                                            self.escape(self.dataset.id)))
 
-        return self.execute(query)
+        print("query is:", pf(query))
+
+        return query
+
+    def run(self):
+        """Generates and runs a simple search of a genotype dataset"""
+        #Todo: Zach will figure out exactly what both these lines mean
+        #and comment here
+
+        self.query = self.compile_final_query(where_clause = self.get_fields_clause())
+
+        return self.execute(self.query)
 
 class RifSearch(ProbeSetSearch):
     """Searches for traits with a Gene RIF entry including the search term."""
@@ -497,8 +518,83 @@ class RangeSearch(ProbeSetSearch):
 
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
-        return self.execute(self.query)    
+        return self.execute(self.query)
+
+class PositionSearch(DoSearch):
+    """Searches for genes/markers located within a specified range on a specified chromosome"""
     
+    for search_key in ('POSITION', 'POS', 'MB'):
+        DoSearch.search_types[search_key] = "PositionSearch" 
+    
+    def setup(self):
+        self.search_term = [float(value) for value in self.search_term]
+        self.chr, self.mb_min, self.mb_max = self.search_term[:3]
+        self.where_clause = """ %s.Chr = '%s' and
+                                %s.Mb > %s and
+                                %s.Mb < %s """ % self.mescape(self.dataset.type,
+                                                              self.chr,
+                                                              self.dataset.type,
+                                                              min(self.mb_min, self.mb_max),
+                                                              self.dataset.type,
+                                                              max(self.mb_min, self.mb_max))    
+    
+    def real_run(self):
+
+        self.query = self.compile_final_query(where_clause = self.where_clause)
+
+        return self.execute(self.query)        
+
+class MrnaPositionSearch(ProbeSetSearch, PositionSearch):
+    """Searches for genes located within a specified range on a specified chromosome"""
+    
+    def run(self):
+
+        self.setup()
+        self.query = self.compile_final_query(where_clause = self.where_clause)
+
+        return self.execute(self.query)
+    
+class GenotypePositionSearch(GenotypeSearch, PositionSearch):
+    """Searches for genes located within a specified range on a specified chromosome"""
+
+    def run(self):
+
+        self.setup()
+        self.query = self.compile_final_query(where_clause = self.where_clause)
+
+        return self.execute(self.query)
+    
+class PvalueSearch(ProbeSetSearch):
+    """Searches for traits with a permutationed p-value between low and high"""
+    
+    def run(self):
+        
+        self.search_term = [float(value) for value in self.search_term]
+
+        if self.search_operator == "=":
+            assert isinstance(self.search_term, (list, tuple))
+            self.pvalue_min, self.pvalue_max = self.search_term[:2]
+            self.where_clause = """ %sXRef.pValue > %s and %sXRef.pValue < %s
+                                    """ % self.mescape(
+                                        self.dataset.type,
+                                        min(self.pvalue_min, self.pvalue_max),
+                                        self.dataset.type,
+                                        max(self.pvalue_min, self.pvalue_max))
+        else:
+            # Deal with >, <, >=, and <=
+            self.where_clause = """ %sXRef.pValue %s %s
+                                    """ % self.mescape(
+                                        self.dataset.type,
+                                        self.search_operator,
+                                        self.search_term[0])
+
+        print("where_clause is:", pf(self.where_clause))
+
+        self.query = self.compile_final_query(where_clause = self.where_clause)
+
+        return self.execute(self.query)
+    
+
 
 if __name__ == "__main__":
     ### Usually this will be used as a library, but call it from the command line for testing
@@ -538,7 +634,8 @@ if __name__ == "__main__":
                 ProbeSetXRef.ProbeSetFreezeId = 112""")
 
     #print(pf(cursor.fetchall()))
-    results = ProbeSetSearch("shh", None, dataset, cursor, db_conn).run()
+    #results = ProbeSetSearch("shh", None, dataset, cursor, db_conn).run()
+    results = PvalueSearch(['0.005'], '<', dataset, cursor, db_conn).run()
     #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
     #results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
     #results = CisLrsSearch(['99'], '>', dataset, cursor, db_conn).run() # cisLRS > 99

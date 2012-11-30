@@ -67,7 +67,7 @@ def search_page():
         #print("trait_list is:", pf(the_search.__dict__['trait_list'][0].__dict__))
         #for trait in the_search.trait_list:
         #    print(" -", trait.description_display)
-        
+
         return render_template("search_result_page.html", **the_search.__dict__)
 
 
@@ -87,6 +87,7 @@ def whats_new_page():
 def show_trait_page():
     # Here it's currently too complicated not to use an fd that is a webqtlFormData
     fd = webqtlFormData.webqtlFormData(request.args)
+    print("stp y1:", pf(vars(fd)))
     template_vars = show_trait.ShowTrait(fd)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,

@@ -143,13 +143,15 @@ class SearchResultPage(templatePage):
 
             search_ob = do_search.DoSearch.get_search(search_type)
             search_class = getattr(do_search, search_ob)
-            self.results.extend(search_class(search_term,
+            the_search = search_class(search_term,
                                     search_operator,
                                     self.dataset,
                                     self.cursor,
-                                    self.db_conn).run())
-
+                                    self.db_conn)
+            self.results.extend(the_search.run())
             print("in the search results are:", self.results)
+
+        self.header_fields = the_search.header_fields
 
 
     #ZS: This should be handled in the parser
