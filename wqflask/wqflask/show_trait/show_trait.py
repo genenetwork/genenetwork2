@@ -35,12 +35,12 @@ class ShowTrait(templatePage):
         self.fd = fd
 
         templatePage.__init__(self, fd)
-        assert self.openMysql(), "No datbase!"
+        assert self.openMysql(), "No database!"
         
         this_trait = self.get_this_trait()
         
         ##read genotype file
-        fd.RISet = this_trait.riset
+        fd.group = this_trait.group
         fd.readGenotype()        
         
         if not fd.genotype:
@@ -62,7 +62,7 @@ class ShowTrait(templatePage):
         # Some fields, like method, are defaulted to None; otherwise in IE the field can't be changed using jquery
         hddn = OrderedDict(
                 FormID = fmID,
-                RISet = fd.RISet,
+                group = fd.group,
                 submitID = '',
                 scale = 'physic',
                 additiveCheck = 'ON',
@@ -120,7 +120,7 @@ class ShowTrait(templatePage):
                 hddn['attribute_names'] = ""
 
         hddn['mappingMethodId'] = webqtlDatabaseFunction.getMappingMethod (cursor=self.cursor,
-                                                                           groupName=fd.RISet)
+                                                                           groupName=fd.group)
 
         if fd.identification:
             hddn['identification'] = fd.identification
@@ -159,8 +159,8 @@ class ShowTrait(templatePage):
         self.hddn = hddn
 
         self.sample_group_types = OrderedDict()
-        self.sample_group_types['samples_primary'] = fd.RISet + " Only"
-        self.sample_group_types['samples_other'] = "Non-" + fd.RISet
+        self.sample_group_types['samples_primary'] = fd.group + " Only"
+        self.sample_group_types['samples_other'] = "Non-" + fd.group
         self.sample_group_types['samples_all'] = "All Cases"
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
@@ -180,12 +180,12 @@ class ShowTrait(templatePage):
         trait_id = self.fd['trait_id']
         cell_id = self.fd.get('CellID')        
 
-        this_trait =  webqtlTrait(db=dataset, name=trait_id, cellid=cell_id, cursor=self.cursor)
+        this_trait =  webqtlTrait(self.db_conn, db=dataset, name=trait_id, cellid=cell_id)
     
         ##identification, etc.
         self.fd.identification = '%s : %s' % (this_trait.db.shortname, trait_id)
         this_trait.returnURL = webqtlConfig.CGIDIR + webqtlConfig.SCRIPTFILE + '?FormID=showDatabase&database=%s\
-                &ProbeSetID=%s&RISet=%s&parentsf1=on' %(dataset, trait_id, self.fd['RISet'])
+                &ProbeSetID=%s&group=%s&parentsf1=on' %(dataset, trait_id, self.fd['group'])
 
         if cell_id:
             self.fd.identification = '%s/%s'%(self.fd.identification, cell_id)
@@ -198,7 +198,7 @@ class ShowTrait(templatePage):
 
     def dispTraitInformation(self, fd, title1Body, hddn, this_trait):
 
-        _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
+        _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
 
         #tbl = HT.TableLite(cellpadding=2, Class="collap", style="margin-left:20px;", width="840", valign="top", id="target1")
 
@@ -245,9 +245,9 @@ class ShowTrait(templatePage):
             else:
                 pass
 
-        self.cursor.execute('SELECT Name FROM InbredSet WHERE Name="%s"' % fd.RISet)
+        self.cursor.execute('SELECT Name FROM InbredSet WHERE Name="%s"' % fd.group)
         if this_trait:
-            addSelectionButton = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (fd.RISet, 'dataInput'))
+            addSelectionButton = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (fd.group, 'dataInput'))
             addSelectionButton_img = HT.Image("/images/add_icon.jpg", name="addselect", alt="Add To Collection", title="Add To Collection", style="border:none;")
             #addSelectionButton.append(addSelectionButton_img)
             addSelectionText = "Add"
@@ -403,8 +403,8 @@ class ShowTrait(templatePage):
 
                 probeResult = self.cursor.fetchone()
                 if probeResult[0] > 0:
-                    probeurl = "%s?FormID=showProbeInfo&database=%s&ProbeSetID=%s&CellID=%s&RISet=%s&incparentsf1=ON" \
-                            % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.db, this_trait.name, this_trait.cellid, fd.RISet)
+                    probeurl = "%s?FormID=showProbeInfo&database=%s&ProbeSetID=%s&CellID=%s&group=%s&incparentsf1=ON" \
+                            % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.db, this_trait.name, this_trait.cellid, fd.group)
                     probeButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % probeurl)
                     probeButton_img = HT.Image("/images/probe_icon.jpg", name="probe", alt=" Check sequence of probes ", title=" Check sequence of probes ", style="border:none;")
                     #probeButton.append(probeButton_img)
@@ -430,7 +430,7 @@ class ShowTrait(templatePage):
             #        ))
 
             #tSpan = HT.Span(Class="fs13")
-            #tSpan.append(str(_Species).capitalize(), ", ", fd.RISet)
+            #tSpan.append(str(_Species).capitalize(), ", ", fd.group)
             #
             #tbl.append(HT.TR(
             #        HT.TD('Species and Group: ', Class="fwb fs13", valign="top", nowrap="on"),
@@ -805,6 +805,7 @@ class ShowTrait(templatePage):
         #stats_row = HT.TR()
         #stats_cell = HT.TD()
 
+        # This should still be riset here - Sam - Nov. 2012
         if fd.genotype.type == "riset":
             samplelist = fd.f1list + fd.samplelist
         else:
@@ -839,15 +840,15 @@ class ShowTrait(templatePage):
             other_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + other_samples #XZ: note that fd.f1list and fd.parlist are added.
             print("ac1")   # This is the one used for first sall3
             self.MDP_menu.append(('All Cases','0'))
-            self.MDP_menu.append(('%s Only' % fd.RISet, '1'))
-            self.MDP_menu.append(('Non-%s Only' % fd.RISet, '2'))
+            self.MDP_menu.append(('%s Only' % fd.group, '1'))
+            self.MDP_menu.append(('Non-%s Only' % fd.group, '2'))
 
         else:
             if (len(other_samples) > 0) and (len(primary_samples) + len(other_samples) > 3):
                 print("ac2")
                 self.MDP_menu.append(('All Cases','0'))
-                self.MDP_menu.append(('%s Only' % fd.RISet,'1'))
-                self.MDP_menu.append(('Non-%s Only' % fd.RISet,'2'))
+                self.MDP_menu.append(('%s Only' % fd.group,'1'))
+                self.MDP_menu.append(('Non-%s Only' % fd.group,'2'))
                 all_samples = primary_samples
                 all_samples.sort(key=webqtlUtil.natsort_key)
                 all_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + all_samples
@@ -895,7 +896,7 @@ class ShowTrait(templatePage):
             #    for sampleNameOrig in all_samples]]
             #    
 
-            #Using just the RISet sample
+            #Using just the group sample
             for sampleNameOrig in primary_samples:
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
@@ -908,7 +909,7 @@ class ShowTrait(templatePage):
 
                 vals2.append(thisValFull)
 
-            #Using all non-RISet samples only
+            #Using all non-group samples only
             for sampleNameOrig in other_samples:
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
@@ -951,10 +952,10 @@ class ShowTrait(templatePage):
                 break
             elif (i == 1 and len(primary_samples) < 4):
                 stats_container = HT.Div(id="stats_tabs%s" % i, Class="ui-tabs")
-                #stats_container.append(HT.Div(HT.Italic("Fewer than 4 " + fd.RISet + " case data were entered. No statistical analysis has been attempted.")))
+                #stats_container.append(HT.Div(HT.Italic("Fewer than 4 " + fd.group + " case data were entered. No statistical analysis has been attempted.")))
             elif (i == 2 and len(other_samples) < 4):
                 stats_container = HT.Div(id="stats_tabs%s" % i, Class="ui-tabs")
-                stats_container.append(HT.Div(HT.Italic("Fewer than 4 non-" + fd.RISet + " case data were entered. No statistical analysis has been attempted.")))
+                stats_container.append(HT.Div(HT.Italic("Fewer than 4 non-" + fd.group + " case data were entered. No statistical analysis has been attempted.")))
                 #stats_script_text = """$(function() { $("#stats_tabs0").tabs(); $("#stats_tabs1").tabs(); $("#stats_tabs2").tabs();});"""
             else:
                 continue
@@ -995,7 +996,7 @@ class ShowTrait(templatePage):
                 except:
                     plotTitle = str(this_trait.name)
 
-                    #normalplot_img = BasicStatisticsFunctions.plotNormalProbability(vals=vals, RISet=fd.RISet, title=plotTitle, specialStrains=specialStrains)
+                    #normalplot_img = BasicStatisticsFunctions.plotNormalProbability(vals=vals, group=fd.group, title=plotTitle, specialStrains=specialStrains)
                     #normalplot.append(HT.TR(HT.TD(normalplot_img)))
                     #normalplot.append(HT.TR(HT.TD(HT.BR(),HT.BR(),"This plot evaluates whether data are \
                     #normally distributed. Different symbols represent different groups.",HT.BR(),HT.BR(),
@@ -1018,7 +1019,7 @@ class ShowTrait(templatePage):
                     #barName_div = HT.Div(id="statstabs-3")
                     #barName_container = HT.Paragraph()
                     #barName = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-                    #barName_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="name")
+                    #barName_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, group=fd.group, vals=vals, type="name")
                     #barName.append(HT.TR(HT.TD(barName_img)))
                     #barName_container.append(barName)
                     #barName_div.append(barName_container)
@@ -1027,7 +1028,7 @@ class ShowTrait(templatePage):
                     #barRank_div = HT.Div(id="statstabs-4")
                     #barRank_container = HT.Paragraph()
                     #barRank = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-                    #barRank_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="rank")
+                    #barRank_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, group=fd.group, vals=vals, type="rank")
                     #barRank.append(HT.TR(HT.TD(barRank_img)))
                     #barRank_container.append(barRank)
                     #barRank_div.append(barRank_container)
@@ -1048,16 +1049,16 @@ class ShowTrait(templatePage):
 
     def build_correlation_tools(self, fd, this_trait):
 
-        #species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
+        #species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
 
-        RISetgp = fd.RISet
+        this_group = fd.group
         
         # We're checking a string here!
-        assert isinstance(RISetgp, basestring), "We need a string type thing here"
-        if RISetgp[:3] == 'BXD':
-            RISetgp = 'BXD'
+        assert isinstance(this_group, basestring), "We need a string type thing here"
+        if this_group[:3] == 'BXD':
+            this_group = 'BXD'
 
-        if RISetgp:
+        if this_group:
             #sample_correlation = HT.Input(type='button',name='sample_corr', value=' Compute ', Class="button sample_corr")
             #lit_correlation = HT.Input(type='button',name='lit_corr', value=' Compute ', Class="button lit_corr")
             #tissue_correlation = HT.Input(type='button',name='tiss_corr', value=' Compute ', Class="button tiss_corr")
@@ -1074,7 +1075,7 @@ class ShowTrait(templatePage):
             self.cursor.execute('''SELECT PublishFreeze.FullName,PublishFreeze.Name FROM 
                     PublishFreeze,InbredSet WHERE PublishFreeze.InbredSetId = InbredSet.Id 
                     and InbredSet.Name = %s and PublishFreeze.public > %s''', 
-                    (RISetgp, webqtlConfig.PUBLICTHRESH))
+                    (this_group, webqtlConfig.PUBLICTHRESH))
             for item in self.cursor.fetchall():
                 dataset_menu.append(dict(tissue=None,
                                          datasets=[item]))
@@ -1082,7 +1083,7 @@ class ShowTrait(templatePage):
             self.cursor.execute('''SELECT GenoFreeze.FullName,GenoFreeze.Name FROM GenoFreeze,
                     InbredSet WHERE GenoFreeze.InbredSetId = InbredSet.Id and InbredSet.Name = 
                     %s and GenoFreeze.public > %s''', 
-                    (RISetgp, webqtlConfig.PUBLICTHRESH))
+                    (this_group, webqtlConfig.PUBLICTHRESH))
             for item in self.cursor.fetchall():
                 dataset_menu.append(dict(tissue=None,
                                     datasets=[item]))
@@ -1098,7 +1099,7 @@ class ShowTrait(templatePage):
                 InbredSet WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeFreeze.TissueId = %s and
                 ProbeSetFreeze.public > %s and ProbeFreeze.InbredSetId = InbredSet.Id and InbredSet.Name like %s
                 order by ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId ''',
-                (tissue_id, webqtlConfig.PUBLICTHRESH, "%" + RISetgp + "%"))
+                (tissue_id, webqtlConfig.PUBLICTHRESH, "%" + this_group + "%"))
                 print("phun8")
                 dataset_sub_menu = [item for item in self.cursor.fetchall() if item]
                 #for item2 in self.cursor.fetchall():
@@ -1257,11 +1258,11 @@ class ShowTrait(templatePage):
 
     def dispMappingTools(self, fd, title4Body, this_trait):
 
-        _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
+        _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
 
-        RISetgp = fd.RISet
-        if RISetgp[:3] == 'BXD':
-            RISetgp = 'BXD'
+        this_group = fd.group
+        if this_group[:3] == 'BXD':
+            this_group = 'BXD'
 
         #check boxes - one for regular interval mapping, the other for composite
         permCheck1= HT.Input(type='checkbox', Class='checkbox', name='permCheck1',checked="on")
@@ -1454,7 +1455,7 @@ class ShowTrait(templatePage):
 
         # Treat Interval Mapping and Marker Regression and Pair Scan as a group for displaying
         #disable Interval Mapping and Marker Regression and Pair Scan for human and the dataset doesn't have genotype file
-        mappingMethodId = webqtlDatabaseFunction.getMappingMethod(cursor=self.cursor, groupName=RISetgp)
+        mappingMethodId = webqtlDatabaseFunction.getMappingMethod(cursor=self.cursor, groupName=this_group)
 
         mapping_script = HT.Script(language="Javascript")
         mapping_script_text = """$(function() { $("#mapping_tabs").tabs(); });"""
@@ -1526,7 +1527,7 @@ class ShowTrait(templatePage):
                                         sample_names=primary_sample_names,
                                         this_trait=this_trait,
                                         sample_group_type='primary',
-                                        header="%s Only" % (fd.RISet))
+                                        header="%s Only" % (fd.group))
 
         other_sample_names = []
         for sample in this_trait.data.keys():
@@ -1547,7 +1548,7 @@ class ShowTrait(templatePage):
                                             sample_names=other_sample_names,
                                             this_trait=this_trait,
                                             sample_group_type='other',
-                                            header="Non-%s" % (fd.RISet))
+                                            header="Non-%s" % (fd.group))
             
             self.sample_groups = (primary_samples, other_samples)
         else:

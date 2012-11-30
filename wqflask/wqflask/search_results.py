@@ -68,7 +68,7 @@ class SearchResultPage(templatePage):
         #    return
 
         ###########################################
-        #   Names and IDs of RISet / F2 set
+        #   Names and IDs of group / F2 set
         ###########################################
         
         # All Phenotypes is a special case we'll deal with later
@@ -97,23 +97,23 @@ class SearchResultPage(templatePage):
 
         """
         self.trait_list = []
+        
+        group = self.dataset.group
+        species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=group)        
+        
         # result_set represents the results for each search term; a search of 
         # "shh grin2b" would have two sets of results, one for each term
         print("self.results is:", pf(self.results))
         for result in self.results:
             if not result:
                 continue
-
-            group = self.dataset.group
-            species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=group)
-
+            
             #### Excel file needs to be generated ####
 
             print("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = webqtlTrait(self.db_conn, db=self.dataset, name=trait_id)
+            this_trait = webqtlTrait(self.db_conn, dataset=self.dataset, name=trait_id)
             this_trait.retrieveInfo(QTL=True)
-            print("this_trait is:", pf(this_trait))
             self.trait_list.append(this_trait)
 
         self.dataset.get_trait_info(self.trait_list, species)    
@@ -134,6 +134,8 @@ class SearchResultPage(templatePage):
                 # We fall back to the dataset type as the key to get the right object
                 search_type = self.dataset.type
                 
+            print("search_type is:", pf(search_type))
+
             # This is throwing an error when a_search['key'] is None, so I changed above    
             #search_type = string.upper(a_search['key'])
             #if not search_type:
@@ -146,7 +148,7 @@ class SearchResultPage(templatePage):
                                     self.dataset,
                                     self.cursor,
                                     self.db_conn).run())
-                
+
             print("in the search results are:", self.results)
 
 

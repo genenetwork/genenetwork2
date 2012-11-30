@@ -47,7 +47,7 @@ from utility import webqtlUtil
 class webqtlFormData(object):
     'Represents data from a WebQTL form page, needed to generate the next page'
 
-    attrs = ('formID','RISet','genotype','samplelist','allsamplelist', 'display_variance'
+    attrs = ('formID','group','genotype','samplelist','allsamplelist', 'display_variance'
                 'suggestive','significance','submitID','identification', 'enablevariance',
                 'nperm','nboot','email','incparentsf1','genotype_1','genotype_2','traitInfo')
 
@@ -104,11 +104,11 @@ class webqtlFormData(object):
         self.ppolar = None
         self.mpolar = None
 
-        print("[yellow] self.RISet is:", self.RISet)
-        if self.RISet:
+        print("[yellow] self.group is:", self.group)
+        if self.group:
             #try:
             #    # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
-            _f1, _f12, self.mpolar, self.ppolar = webqtlUtil.ParInfo[self.RISet]
+            _f1, _f12, self.mpolar, self.ppolar = webqtlUtil.ParInfo[self.group]
             #except:
             #    f1 = f12 = self.mpolar = self.ppolar = None
 
@@ -129,8 +129,8 @@ class webqtlFormData(object):
         #self.readGenotype()
         #self.readData()
 
-        if self.RISet == 'BXD300':
-            self.RISet = 'BXD'
+        if self.group == 'BXD300':
+            self.group = 'BXD'
 
 
     def __getitem__(self, key):
@@ -153,17 +153,17 @@ class webqtlFormData(object):
 
     def readGenotype(self):
         '''read genotype from .geno file'''
-        if self.RISet == 'BXD300':
-            self.RISet = 'BXD'
+        if self.group == 'BXD300':
+            self.group = 'BXD'
 
-        assert self.RISet, "self.RISet needs to be set"
+        assert self.group, "self.group needs to be set"
 
         #genotype_1 is Dataset Object without parents and f1
         #genotype_2 is Dataset Object with parents and f1 (not for intercross)
 
         self.genotype_1 = reaper.Dataset()
 
-        full_filename = os.path.join(webqtlConfig.GENODIR, self.RISet + '.geno')
+        full_filename = os.path.join(webqtlConfig.GENODIR, self.group + '.geno')
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         full_filename = str(full_filename)
@@ -173,12 +173,12 @@ class webqtlFormData(object):
 
         try:
             # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
-            _f1, _f12, _mat, _pat = webqtlUtil.ParInfo[self.RISet]
+            _f1, _f12, _mat, _pat = webqtlUtil.ParInfo[self.group]
         except KeyError:
             _f1 = _f12 = _mat = _pat = None
 
         self.genotype_2 = self.genotype_1
-        if self.genotype_1.type == "riset" and _mat and _pat:
+        if self.genotype_1.type == "group" and _mat and _pat:
             self.genotype_2 = self.genotype_1.add(Mat=_mat, Pat=_pat)       #, F1=_f1)
 
         #determine default genotype object
@@ -333,7 +333,7 @@ class webqtlFormData(object):
 
     def Sample(self):
         'Create some dummy data for testing'
-        self.RISet = 'BXD'
+        self.group = 'BXD'
         self.incparentsf1 = 'on'
         #self.display = 9.2
         #self.significance = 16.1

@@ -80,9 +80,9 @@ def getAllSpecies(cursor=None):
 #function: retrieve specie's name info based on RISet
 ###########################################################################
 
-def retrieveSpecies(cursor=None, RISet=None):
+def retrieveSpecies(cursor=None, group=None):
     try:
-        cursor.execute("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % RISet)
+        cursor.execute("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % group)
         return cursor.fetchone()[0]
     except:
         return None

@@ -392,8 +392,9 @@ class MrnaAssayDataSet(DataSet):
             if len(description_display) > 1 and description_display != 'N/A' and len(target_string) > 1 and target_string != 'None':
                 description_display = description_display + '; ' + target_string.strip()
 
-            # Save it for the jinja2 tablet
+            # Save it for the jinja2 template
             this_trait.description_display = description_display
+            #print("  xxxxdd [%s]: %s" % (type(this_trait.description_display), description_display))
 
             #XZ: trait_location_value is used for sorting
             trait_location_repr = 'N/A'
@@ -418,7 +419,7 @@ class MrnaAssayDataSet(DataSet):
     where ProbeSetXRef.ProbeSetFreezeId = %s and
     ProbeSet.Id = ProbeSetXRef.ProbeSetId and
     ProbeSet.Name = '%s'
-            """ % (self.db_conn.escape_string(str(this_trait.db.id)),
+            """ % (self.db_conn.escape_string(str(this_trait.dataset.id)),
                    self.db_conn.escape_string(this_trait.name)))
 
             print("query is:", pf(query))

@@ -23,7 +23,7 @@
             {% if search_terms %}
             <li>
                 {% for word in search_terms %}
-                    <strong>{{word.search_term}}</strong> {% if not loop.last %} or {% endif %}
+                    <strong>{{word.search_term[0]}}</strong> {% if not loop.last %} or {% endif %}
                 {% endfor %}
             </li>
             {% endif %}

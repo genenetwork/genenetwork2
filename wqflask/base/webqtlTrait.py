@@ -24,11 +24,11 @@ class webqtlTrait:
         print("in webqtlTrait")
         self.db_conn = db_conn
         self.cursor = self.db_conn.cursor()
-        self.db = None                  # database object
+        self.dataset = None                  # database object
         self.name = ''                  # Trait ID, ProbeSet ID, Published ID, etc.
         self.cellid = ''
         self.identification = 'un-named trait'
-        self.riset = ''
+        self.group = ''
         self.haveinfo = 0
         self.sequence = ''              # Blat sequence, available for ProbeSet
         self.data = {}
@@ -41,22 +41,22 @@ class webqtlTrait:
             elif name == 'fullname':
                 name2 = value.split("::")
                 if len(name2) == 2:
-                    self.db, self.name = name2
+                    self.dataset, self.name = name2
                 elif len(name2) == 3:
-                    self.db, self.name, self.cellid = name2
+                    self.dataset, self.name, self.cellid = name2
                 else:
                     raise KeyError, repr(value) + ' parameter format error.'
             else:
                 raise KeyError, repr(name) + ' not a valid parameter for this class.'
 
-        if self.db and isinstance(self.db, basestring):
+        if self.dataset and isinstance(self.dataset, basestring):
             assert self.cursor, "Don't have a cursor"
-            self.db = create_dataset(self.db_conn, self.db)
+            self.dataset = create_dataset(self.db_conn, self.dataset)
 
-        #if self.db == None, not from a database
-        print("self.db is:", self.db, type(self.db))
-        if self.db:
-            if self.db.type == "Temp":
+        #if self.dataset == None, not from a database
+        print("self.dataset is:", self.dataset, type(self.dataset))
+        if self.dataset:
+            if self.dataset.type == "Temp":
                 self.cursor.execute('''
                         SELECT
                                 InbredSet.Name
@@ -66,9 +66,11 @@ class webqtlTrait:
                                 Temp.InbredSetId = InbredSet.Id AND
                                 Temp.Name = "%s"
                 ''', self.name)
-                self.riset = self.cursor.fetchone()[0]
+                self.group = self.cursor.fetchone()[0]
             else:
-                self.riset = self.db.get_group()
+                self.group = self.dataset.get_group()
+
+            print("trinity, self.group is:", self.group)
 
         #
         # In ProbeSet, there are maybe several annotations match one sequence
@@ -82,8 +84,8 @@ class webqtlTrait:
         # The variable self.sequence should be changed to self.BlatSeq
         # It also should be changed in other places where it are used.
 
-        if self.db:
-            if self.db.type == 'ProbeSet':
+        if self.dataset:
+            if self.dataset.type == 'ProbeSet':
                 print("Doing ProbeSet Query")
                 query = '''
                         SELECT
@@ -95,7 +97,7 @@ class webqtlTrait:
                                 ProbeSetFreeze.Id = ProbeSetXRef.ProbeSetFreezeId and
                                 ProbeSet.Name = %s and
                                 ProbeSetFreeze.Name = %s
-                ''', (self.name, self.db.name)
+                ''', (self.name, self.dataset.name)
                 print("query is:", query)
                 self.cursor.execute(*query)
                 self.sequence = self.cursor.fetchone()[0]
@@ -104,8 +106,8 @@ class webqtlTrait:
 
     def getName(self):
         str = ""
-        if self.db and self.name:
-            str = "%s::%s" % (self.db, self.name)
+        if self.dataset and self.name:
+            str = "%s::%s" % (self.dataset, self.name)
             if self.cellid:
                 str += "::" + self.cellid
         else:
@@ -124,8 +126,8 @@ class webqtlTrait:
     #
     def getGivenName(self):
         str = self.name
-        if self.db and self.name:
-            if self.db.type=='Temp':
+        if self.dataset and self.name:
+            if self.dataset.type=='Temp':
                 self.cursor.execute('SELECT description FROM Temp WHERE Name=%s', self.name)
                 desc = self.cursor.fetchone()[0]
                 if desc.__contains__('PCA'):
@@ -137,16 +139,16 @@ class webqtlTrait:
 
     def displayName(self):
         str = ""
-        if self.db and self.name:
-            if self.db.type=='Temp':
+        if self.dataset and self.name:
+            if self.dataset.type=='Temp':
                 desc = self.description
                 if desc.__contains__('PCA'):
                     desc = desc[desc.rindex(':')+1:].strip()
                 else:
                     desc = desc[:desc.index('entered')].strip()
-                str = "%s::%s" % (self.db, desc)
+                str = "%s::%s" % (self.dataset, desc)
             else:
-                str = "%s::%s" % (self.db, self.name)
+                str = "%s::%s" % (self.dataset, self.name)
                 if self.cellid:
                     str += "::" + self.cellid
         else:
@@ -156,7 +158,7 @@ class webqtlTrait:
 
 
     #def __str__(self):
-    #       #return "%s %s" % (self.getName(), self.riset)
+    #       #return "%s %s" % (self.getName(), self.group)
     #       return self.getName()
     #__str__ = getName
     #__repr__ = __str__
@@ -207,7 +209,7 @@ class webqtlTrait:
     #
     def getSequence(self):
         assert self.cursor
-        if self.db.type == 'ProbeSet':
+        if self.dataset.type == 'ProbeSet':
             self.cursor.execute('''
                             SELECT
                                     ProbeSet.BlatSeq
@@ -218,7 +220,7 @@ class webqtlTrait:
                                     ProbeSetFreeze.Id = ProbeSetXRef.ProbSetFreezeId and
                                     ProbeSet.Name = %s
                                     ProbeSetFreeze.Name = %s
-                    ''', self.name, self.db.name)
+                    ''', self.name, self.dataset.name)
             #self.cursor.execute(query)
             results = self.fetchone()
 
@@ -230,9 +232,9 @@ class webqtlTrait:
 
         if samplelist == None:
             samplelist = []
-        assert self.db and self.cursor
+        assert self.dataset and self.cursor
 
-        if self.db.type == 'Temp':
+        if self.dataset.type == 'Temp':
             query = '''
                     SELECT
                             Strain.Name, TempData.value, TempData.SE, TempData.NStrain, TempData.Id
@@ -246,7 +248,7 @@ class webqtlTrait:
                             Strain.Name
                     ''' % self.name
         #XZ, 03/02/2009: Xiaodong changed Data to PublishData, SE to PublishSE
-        elif self.db.type == 'Publish':
+        elif self.dataset.type == 'Publish':
             query = '''
                     SELECT
                             Strain.Name, PublishData.value, PublishSE.error, NStrain.count, PublishData.Id
@@ -263,7 +265,7 @@ class webqtlTrait:
                             PublishFreeze.Id = %d AND PublishData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    ''' % (self.name, self.db.id)
+                    ''' % (self.name, self.dataset.id)
 
         #XZ, 03/02/2009: Xiaodong changed Data to ProbeData, SE to ProbeSE
         elif self.cellid:
@@ -287,9 +289,9 @@ class webqtlTrait:
                             ProbeData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    ''' % (self.cellid, self.name, self.db.name)
+                    ''' % (self.cellid, self.name, self.dataset.name)
         #XZ, 03/02/2009: Xiaodong added this block for ProbeSetData and ProbeSetSE
-        elif self.db.type == 'ProbeSet':
+        elif self.dataset.type == 'ProbeSet':
             #ProbeSet Data
             query = '''
                     SELECT
@@ -306,7 +308,7 @@ class webqtlTrait:
                             ProbeSetData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    ''' % (self.name, self.db.name)
+                    ''' % (self.name, self.dataset.name)
         #XZ, 03/02/2009: Xiaodong changeded Data to GenoData, SE to GenoSE
         else:
             #Geno Data
@@ -326,7 +328,7 @@ class webqtlTrait:
                             GenoData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    ''' % (webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.db.riset), self.name, self.db.name)
+                    ''' % (webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.dataset.group), self.name, self.dataset.name)
 
 
         self.cursor.execute(query)
@@ -341,7 +343,7 @@ class webqtlTrait:
                 if not samplelist or (samplelist and name in samplelist):
                     #if value != None:
                     #    num_cases = None
-                    #    if self.db.type in ('Publish', 'Temp'):
+                    #    if self.dataset.type in ('Publish', 'Temp'):
                     #        ndata = item[3]
                     name = item[0]
                     self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
@@ -352,7 +354,7 @@ class webqtlTrait:
         #            if val != None:
         #                var = item[2]
         #                ndata = None
-        #                if self.db.type in ('Publish', 'Temp'):
+        #                if self.dataset.type in ('Publish', 'Temp'):
         #                    ndata = item[3]
         #                self.data[item[0]] = webqtlCaseData(val, var, ndata)
         #        #end for
@@ -370,9 +372,9 @@ class webqtlTrait:
     #    return self.__dict__.items()
 
     def retrieveInfo(self, QTL = None):
-        assert self.db and self.cursor
-        if self.db.type == 'Publish':
-            #self.db.DisField = ['Name','PubMed_ID','Phenotype','Abbreviation','Authors','Title',\
+        assert self.dataset and self.cursor
+        if self.dataset.type == 'Publish':
+            #self.dataset.DisField = ['Name','PubMed_ID','Phenotype','Abbreviation','Authors','Title',\
             #       'Abstract', 'Journal','Volume','Pages','Month','Year','Sequence',\
             #       'Units', 'comments']
             query = '''
@@ -393,11 +395,11 @@ class webqtlTrait:
                             Publication.Id = PublishXRef.PublicationId AND
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                             PublishFreeze.Id =%s
-                    ''' % (self.name, self.db.id)
+                    ''' % (self.name, self.dataset.id)
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
         #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
-        elif self.db.type == 'ProbeSet':
-            display_fields_string = ',ProbeSet.'.join(self.db.display_fields)
+        elif self.dataset.type == 'ProbeSet':
+            display_fields_string = ',ProbeSet.'.join(self.dataset.display_fields)
             display_fields_string = 'ProbeSet.' + display_fields_string
             query = """
                     SELECT %s
@@ -407,11 +409,11 @@ class webqtlTrait:
                             ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
                             ProbeSetFreeze.Name = '%s' AND
                             ProbeSet.Name = '%s'
-                    """ % (display_fields_string, self.db.name, self.name)
+                    """ % (display_fields_string, self.dataset.name, self.name)
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
-        elif self.db.type == 'Geno':
-            display_fields_string = string.join(self.db.display_fields,',Geno.')
+        elif self.dataset.type == 'Geno':
+            display_fields_string = string.join(self.dataset.display_fields,',Geno.')
             display_fields_string = 'Geno.' + display_fields_string
             query = """
                     SELECT %s
@@ -421,10 +423,10 @@ class webqtlTrait:
                             GenoXRef.GenoId = Geno.Id AND
                             GenoFreeze.Name = '%s' AND
                             Geno.Name = '%s'
-                    """ % (display_fields_string, self.db.name, self.name)
+                    """ % (display_fields_string, self.dataset.name, self.name)
         else: #Temp type
             query = 'SELECT %s FROM %s WHERE Name = "%s"' % \
-                    (string.join(self.db.display_fields,','), self.db.type, self.name)
+                    (string.join(self.dataset.display_fields,','), self.dataset.type, self.name)
 
 
         self.cursor.execute(query)
@@ -433,16 +435,16 @@ class webqtlTrait:
             self.haveinfo = 1
 
             #XZ: assign SQL query result to trait attributes.
-            for i, field in enumerate(self.db.display_fields):
+            for i, field in enumerate(self.dataset.display_fields):
                 setattr(self, field, traitInfo[i])
 
-            if self.db.type == 'Publish':
+            if self.dataset.type == 'Publish':
                 self.confidential = 0
                 if self.pre_publication_description and not self.pubmed_id:
                     self.confidential = 1
 
             self.homologeneid = None
-            if self.db.type == 'ProbeSet' and self.riset and self.geneid:
+            if self.dataset.type == 'ProbeSet' and self.group and self.geneid:
                 #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
                 #XZ: So I have to test if geneid is number before execute the query.
                 #XZ: The geneid values in database should be cleaned up.
@@ -463,7 +465,7 @@ class webqtlTrait:
                                     InbredSet.Name = '%s' AND
                                     InbredSet.SpeciesId = Species.Id AND
                                     Species.TaxonomyId = Homologene.TaxonomyId
-                            """ % (self.geneid, self.riset)
+                            """ % (self.geneid, self.group)
                     self.cursor.execute(query)
                     result = self.cursor.fetchone()
                 else:
@@ -473,7 +475,7 @@ class webqtlTrait:
                     self.homologeneid = result[0]
 
             if QTL:
-                if self.db.type == 'ProbeSet' and not self.cellid:
+                if self.dataset.type == 'ProbeSet' and not self.cellid:
                     query = '''
                             SELECT
                                     ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean
@@ -483,14 +485,14 @@ class webqtlTrait:
                                     ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
                                     ProbeSet.Name = "%s" AND
                                     ProbeSetXRef.ProbeSetFreezeId =%s
-                            ''' % (self.name, self.db.id)
+                            ''' % (self.name, self.dataset.id)
                     self.cursor.execute(query)
                     traitQTL = self.cursor.fetchone()
                     if traitQTL:
                         self.locus, self.lrs, self.pvalue, self.mean = traitQTL
                     else:
                         self.locus = self.lrs = self.pvalue = self.mean = ""
-                if self.db.type == 'Publish':
+                if self.dataset.type == 'Publish':
                     query = '''
                             SELECT
                                     PublishXRef.Locus, PublishXRef.LRS
@@ -500,7 +502,7 @@ class webqtlTrait:
                                     PublishXRef.Id = %s AND
                                     PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                                     PublishFreeze.Id =%s
-                            ''' % (self.name, self.db.id)
+                            ''' % (self.name, self.dataset.id)
                     self.cursor.execute(query)
                     traitQTL = self.cursor.fetchone()
                     if traitQTL:
@@ -514,7 +516,7 @@ class webqtlTrait:
         if not self.haveinfo:
             self.retrieveInfo()
 
-        if self.db.type == 'Publish':
+        if self.dataset.type == 'Publish':
             PubMedLink = ""
             if self.pubmed_id:
                 PubMedLink = HT.Href(text="PubMed %d : " % self.pubmed_id,
@@ -524,10 +526,10 @@ class webqtlTrait:
 
             if formName:
                 setDescription2 = HT.Href(url="javascript:showDatabase3('%s','%s','%s','')" %
-                (formName, self.db.name, self.name), Class = "fs14")
+                (formName, self.dataset.name, self.name), Class = "fs14")
             else:
                 setDescription2 = HT.Href(url="javascript:showDatabase2('%s','%s','')" %
-                (self.db.name,self.name), Class = "fs14")
+                (self.dataset.name,self.name), Class = "fs14")
 
             if self.confidential and not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=privilege, userName=userName, authorized_users=authorized_users):
                 setDescription2.append('RecordID/%s - %s' % (self.name, self.pre_publication_description))
@@ -545,20 +547,20 @@ class webqtlTrait:
                 setDescription2.append(HT.Italic('%s, and colleagues' % a1))
             setDescription = HT.Span(PubMedLink, setDescription2)
 
-        elif self.db.type == 'Temp':
+        elif self.dataset.type == 'Temp':
             setDescription = HT.Href(text="%s" % (self.description),url="javascript:showDatabase2\
-            ('%s','%s','')" % (self.db.name,self.name), Class = "fs14")
+            ('%s','%s','')" % (self.dataset.name,self.name), Class = "fs14")
             setDescription = HT.Span(setDescription)
 
-        elif self.db.type == 'Geno': # Genome DB only available for single search
+        elif self.dataset.type == 'Geno': # Genome DB only available for single search
             if formName:
                 setDescription = HT.Href(text="Locus %s [Chr %s @ %s Mb]" % (self.name,self.chr,\
         '%2.3f' % self.mb),url="javascript:showDatabase3('%s','%s','%s','')" % \
-        (formName, self.db.name, self.name), Class = "fs14")
+        (formName, self.dataset.name, self.name), Class = "fs14")
             else:
                 setDescription = HT.Href(text="Locus %s [Chr %s @ %s Mb]" % (self.name,self.chr,\
         '%2.3f' % self.mb),url="javascript:showDatabase2('%s','%s','')" % \
-        (self.db.name,self.name), Class = "fs14")
+        (self.dataset.name,self.name), Class = "fs14")
 
             setDescription = HT.Span(setDescription)
 
@@ -566,20 +568,20 @@ class webqtlTrait:
             if self.cellid:
                 if formName:
                     setDescription = HT.Href(text="ProbeSet/%s/%s" % (self.name, self.cellid),url=\
-            "javascript:showDatabase3('%s','%s','%s','%s')" % (formName, self.db.name,self.name,self.cellid), \
+            "javascript:showDatabase3('%s','%s','%s','%s')" % (formName, self.dataset.name,self.name,self.cellid), \
             Class = "fs14")
                 else:
                     setDescription = HT.Href(text="ProbeSet/%s/%s" % (self.name,self.cellid),url=\
-            "javascript:showDatabase2('%s','%s','%s')" % (self.db.name,self.name,self.cellid), \
+            "javascript:showDatabase2('%s','%s','%s')" % (self.dataset.name,self.name,self.cellid), \
             Class = "fs14")
             else:
                 if formName:
                     setDescription = HT.Href(text="ProbeSet/%s" % self.name, url=\
-            "javascript:showDatabase3('%s','%s','%s','')" % (formName, self.db.name,self.name), \
+            "javascript:showDatabase3('%s','%s','%s','')" % (formName, self.dataset.name,self.name), \
             Class = "fs14")
                 else:
                     setDescription = HT.Href(text="ProbeSet/%s" % self.name, url=\
-            "javascript:showDatabase2('%s','%s','')" % (self.db.name,self.name), \
+            "javascript:showDatabase2('%s','%s','')" % (self.dataset.name,self.name), \
             Class = "fs14")
             if self.symbol and self.chr and self.mb:
                 setDescription.append(' [')
@@ -591,9 +593,9 @@ class webqtlTrait:
                 setDescription.append('; %s' % self.probe_target_description)
             setDescription = HT.Span(setDescription)
 
-        if self.db.type != 'Temp' and dispFromDatabase:
+        if self.dataset.type != 'Temp' and dispFromDatabase:
             setDescription.append( ' --- FROM : ')
-            setDescription.append(self.db.genHTML(Class='cori'))
+            setDescription.append(self.dataset.genHTML(Class='cori'))
         return setDescription
 
     @property
@@ -654,13 +656,13 @@ class webqtlTrait:
                             select ProbeFreeze.Name from ProbeFreeze, ProbeSetFreeze
                                     where
                             ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
-                            ProbeSetFreeze.Id = %d""" % thisTrait.db.id)
+                            ProbeSetFreeze.Id = %d""" % thisTrait.dataset.id)
             probeDBName = self.cursor.fetchone()[0]
             return dict(name = probeDBName,
                         url = None)
         else:
-            return dict(name = self.db.fullname,
-                        url = webqtlConfig.INFOPAGEHREF % self.db.name)
+            return dict(name = self.dataset.fullname,
+                        url = webqtlConfig.INFOPAGEHREF % self.dataset.name)
 
     def calculate_correlation(self, values, method):
         """Calculate the correlation value and p value according to the method specified"""
