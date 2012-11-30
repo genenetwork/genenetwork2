@@ -414,8 +414,7 @@ class CisLrsSearch(CisTransLrsSearch):
 
     def run(self):
         return self.real_run("<")
-    
-    
+
 class TransLrsSearch(CisTransLrsSearch):
     """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
 
@@ -443,9 +442,63 @@ class MeanSearch(ProbeSetSearch):
     DoSearch.search_types['MEAN'] = "MeanSearch"
 
     def run(self):
+        
+        self.search_term = [float(value) for value in self.search_term]
 
-        return None
+        if self.search_operator == "=":
+            assert isinstance(self.search_term, (list, tuple))
+            self.mean_min, self.mean_max = self.search_term[:2]
 
+            self.where_clause = """ %sXRef.mean > %s and
+                             %sXRef.mean < %s """ % self.mescape(self.dataset.type,
+                                                                min(self.mean_min, self.mean_max),
+                                                                self.dataset.type,
+                                                                max(self.mean_min, self.mean_max))
+        else:
+            # Deal with >, <, >=, and <=
+            self.where_clause = """ %sXRef.mean %s %s """ % self.mescape(self.dataset.type,
+                                                                        self.search_operator,
+                                                                        self.search_term[0])
+
+        print("where_clause is:", pf(self.where_clause))
+
+        self.query = self.compile_final_query(where_clause = self.where_clause)
+
+        return self.execute(self.query)
+
+class RangeSearch(ProbeSetSearch):
+    """Searches for genes with a range of expression varying between two values"""
+    
+    DoSearch.search_types['RANGE'] = "RangeSearch"
+    
+    def run(self):
+        
+        self.search_term = [float(value) for value in self.search_term]
+
+        if self.search_operator == "=":
+            assert isinstance(self.search_term, (list, tuple))
+            self.range_min, self.range_max = self.search_term[:2]
+            self.where_clause = """ (SELECT Pow(2, max(value) -min(value))
+                                     FROM ProbeSetData
+                                     WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s AND
+                                    (SELECT Pow(2, max(value) -min(value))
+                                     FROM ProbeSetData
+                                     WHERE ProbeSetData.Id = ProbeSetXRef.dataId) < %s
+                                    """ % self.mescape(min(self.range_min, self.range_max),
+                                                       max(self.range_min, self.range_max))
+        else:
+            # Deal with >, <, >=, and <=
+            self.where_clause = """ (SELECT Pow(2, max(value) -min(value))
+                                     FROM ProbeSetData
+                                     WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s
+                                    """ % (self.escape(self.search_term[0]))
+
+        print("where_clause is:", pf(self.where_clause))
+
+        self.query = self.compile_final_query(where_clause = self.where_clause)
+
+        return self.execute(self.query)    
+    
 
 if __name__ == "__main__":
     ### Usually this will be used as a library, but call it from the command line for testing
