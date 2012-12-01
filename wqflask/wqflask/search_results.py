@@ -83,7 +83,8 @@ class SearchResultPage(templatePage):
             self.dataset_group_ids = map(lambda x: x[2], results)
         else:
             print("self.dataset is:", pf(self.dataset))
-            self.dataset = create_dataset(self.db_conn, self.dataset)
+            # Replaces a string with an object
+            self.dataset = create_dataset(self.dataset)
             print("self.dataset is now:", pf(self.dataset))
  
         self.search()

@@ -7,10 +7,12 @@ import simplejson as json
 import yaml
 
 import flask
+import sqlalchemy
+#import config
 
 from wqflask import app
 
-from flask import render_template, request, make_response, Response
+from flask import render_template, request, make_response, Response, Flask, g, config
 
 from wqflask import search_results
 from wqflask.show_trait import show_trait
@@ -27,6 +29,10 @@ from pprint import pformat as pf
 #logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
 #_log = logging.getLogger("correlation")
 
+@app.before_request
+def connect_db():
+    print("blue app.config:", app.config, pf(vars(app.config)))
+    g.db = sqlalchemy.create_engine(app.config['DB_URI'])
 
 @app.route("/")
 def index_page():
@@ -86,9 +92,9 @@ def whats_new_page():
 @app.route("/show_trait")
 def show_trait_page():
     # Here it's currently too complicated not to use an fd that is a webqtlFormData
-    fd = webqtlFormData.webqtlFormData(request.args)
-    print("stp y1:", pf(vars(fd)))
-    template_vars = show_trait.ShowTrait(fd)
+    #fd = webqtlFormData.webqtlFormData(request.args)
+    #print("stp y1:", pf(vars(fd)))
+    template_vars = show_trait.ShowTrait(request.args)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ",

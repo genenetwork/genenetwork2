@@ -31,16 +31,15 @@ from pprint import pformat as pf
 
 class ShowTrait(templatePage):
 
-    def __init__(self, fd):
-        self.fd = fd
+    def __init__(self, args):
+        print("in ShowTrait, args are:", args)
+        self.group = args.group
+        self.trait_id = trait_id
+        self.dataset = dataset
 
-        print("red1 fd.group:", fd.group)
-        templatePage.__init__(self, fd)
+        #assert self.openMysql(), "No database!"
 
-        print("red2 fd.group:", fd.group)
-        assert self.openMysql(), "No database!"
-
-        print("red3 fd.group:", fd.group)
+        #print("red3 fd.group:", fd.group)
         this_trait = self.get_this_trait()
 
         print("red4 fd.group:", fd.group)
@@ -183,11 +182,13 @@ class ShowTrait(templatePage):
         #if traitInfos:
         #    database, ProbeSetID, CellID = traitInfos
         #else:
-        dataset = self.fd['dataset']
-        trait_id = self.fd['trait_id']
-        cell_id = self.fd.get('CellID')
+        #dataset = self.fd['dataset']
+        #trait_id = self.fd['trait_id']
+        #cell_id = self.fd.get('CellID')
 
-        this_trait =  webqtlTrait(self.db_conn, dataset=dataset, name=trait_id, cellid=cell_id)
+        this_trait = webqtlTrait(dataset=dataset,
+                                 name=trait_id,
+                                 cellid=cell_id)
 
         ##identification, etc.
         self.fd.identification = '%s : %s' % (this_trait.dataset.shortname, trait_id)

@@ -144,14 +144,22 @@ class PhenotypeSearch(DoSearch):
                     'Publication.Title',
                     'Publication.Authors',
                     'PublishXRef.Id')
+    
+    header_fields = ['',
+                     'Record ID',
+                     'Description',
+                     'Authors',
+                     'Year',
+                     'Max LRS',
+                     'Max LRS Location']
 
     def get_where_clause(self):
         """Generate clause for WHERE portion of query"""
 
         #Todo: Zach will figure out exactly what both these lines mean
         #and comment here
-        if "'" not in self.search_term:
-            search_term = "[[:<:]]" + self.search_term + "[[:>:]]"
+        if "'" not in self.search_term[0]:
+            search_term = "[[:<:]]" + self.search_term[0] + "[[:>:]]"
 
         # This adds a clause to the query that matches the search term
         # against each field in the search_fields tuple
@@ -195,6 +203,10 @@ class GenotypeSearch(DoSearch):
                 FROM GenoXRef, GenoFreeze, Geno """
 
     search_fields = ('Name', 'Chr')
+    
+    header_fields = ['',
+                     'Record ID',
+                     'Location']    
 
     def get_fields_clause(self):
         """Generate clause for part of the WHERE portion of query"""
@@ -203,13 +215,13 @@ class GenotypeSearch(DoSearch):
         # against each field in search_fields (above)
         fields_clause = []
         
-        if "'" not in self.search_term:
-            self.search_term = "[[:<:]]" + self.search_term + "[[:>:]]"
+        if "'" not in self.search_term[0]:
+            self.search_term = "[[:<:]]" + self.search_term[0] + "[[:>:]]"
 
         for field in self.search_fields:
             fields_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
-                                                                               field,
-                                                                               self.search_term)))
+                                                                               field),
+                                                                               self.search_term))
         print("hello ;where_clause is:", pf(fields_clause))
         fields_clause = "(%s)" % ' OR '.join(fields_clause)
 

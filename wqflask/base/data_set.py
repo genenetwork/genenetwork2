@@ -22,6 +22,8 @@
 
 from __future__ import print_function, division
 
+from flask import Flask, g
+
 from htmlgen import HTMLgen2 as HT
 
 import webqtlConfig
@@ -31,25 +33,28 @@ from pprint import pformat as pf
 # Used by create_database to instantiate objects
 DS_NAME_MAP = {}
 
-def create_dataset(db_conn, dataset_name):
-    cursor = db_conn.cursor()
-    cursor.execute("""
+def create_dataset(dataset_name):
+    #cursor = db_conn.cursor()
+    print("dataset_name:", dataset_name)
+    
+    dataset_type = g.db.execute("""
         SELECT DBType.Name
         FROM DBList, DBType
         WHERE DBList.Name = %s and
               DBType.Id = DBList.DBTypeId
-        """, (dataset_name))
-    print("dataset_name:", dataset_name)
-    dataset_type = cursor.fetchone()[0]
-    print("dataset_type:", pf(dataset_type))
+        """, (dataset_name)).fetchone().Name
+   
+    #dataset_type = cursor.fetchone()[0]
+    print("[blubber] dataset_type:", pf(dataset_type))
     
     dataset_ob = DS_NAME_MAP[dataset_type]
     #dataset_class = getattr(data_set, dataset_ob)
-    
+    print("dataset_ob:", dataset_ob)
     print("DS_NAME_MAP:", pf(DS_NAME_MAP))
     
     dataset_class = globals()[dataset_ob]
-    return dataset_class(dataset_name, db_conn)
+    return dataset_class(dataset_name)
+
 
 class DataSet(object):
     """
@@ -58,12 +63,12 @@ class DataSet(object):
 
     """
 
-    def __init__(self, name, db_conn):
+    def __init__(self, name):
 
         assert name
         self.name = name
-        self.db_conn = db_conn
-        self.cursor = self.db_conn.cursor()
+        #self.db_conn = db_conn
+        #self.cursor = self.db_conn.cursor()
         self.id = None
         self.type = None
         self.group = None
@@ -271,7 +276,7 @@ class GenotypeDataSet(DataSet):
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
     
-    def get_trait_info(self, trait_list):
+    def get_trait_info(self, trait_list, species=None):
         for this_trait in trait_list:
             if not this_trait.haveinfo:
                 this_trait.retrieveInfo()
@@ -355,7 +360,7 @@ class MrnaAssayDataSet(DataSet):
                                 ProbeFreeze.InbredSetId = InbredSet.Id AND
                                 ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
                                 ProbeSetFreeze.Name = "%s"
-                ''' % self.db_conn.escape_string(self.name)
+                ''' % g.db.escape_string(self.name)
 
 
     def check_confidentiality(self):

@@ -12,6 +12,7 @@ from utility import webqtlUtil
 
 from pprint import pformat as pf
 
+from flask import Flask, g
 
 class webqtlTrait:
     """
@@ -20,38 +21,46 @@ class webqtlTrait:
 
     """
 
-    def __init__(self, db_conn, **kw):
+    def __init__(self, **kw):
         print("in webqtlTrait")
-        self.db_conn = db_conn
-        self.cursor = self.db_conn.cursor()
-        self.dataset = None                  # database object
-        self.name = ''                  # Trait ID, ProbeSet ID, Published ID, etc.
-        self.cellid = ''
-        self.identification = 'un-named trait'
-        self.group = ''
-        self.haveinfo = 0
-        self.sequence = ''              # Blat sequence, available for ProbeSet
-        self.data = {}
-        print("foo")
-        print("kw in webqtlTrait are:", pf(kw))
-        print("printed\n\n")
-        for name, value in kw.items():
-            if self.__dict__.has_key(name):
-                setattr(self, name, value)
-            elif name == 'fullname':
-                name2 = value.split("::")
-                if len(name2) == 2:
-                    self.dataset, self.name = name2
-                elif len(name2) == 3:
-                    self.dataset, self.name, self.cellid = name2
-                else:
-                    raise KeyError, repr(value) + ' parameter format error.'
-            else:
-                raise KeyError, repr(name) + ' not a valid parameter for this class.'
+        #self.db_conn = db_conn
+        #self.cursor = self.db_conn.cursor()
+        self.dataset = kw.get('dataset', None)                  # database object
+        self.name = kw.get('name', None)                 # Trait ID, ProbeSet ID, Published ID, etc.
+        self.cellid = kw.get('cellid', None)
+        self.identification = kw.get('identification', 'un-named trait')
+        self.group = kw.get('group', None)
+        self.haveinfo = kw.get(haveinfo, False)
+        self.sequence = kw.get(sequence, None)              # Blat sequence, available for ProbeSet
+        self.data = kw.get(data, {})
+        
+        if kw.get('fullname'):
+            name2 = value.split("::")
+            if len(name2) == 2:
+                self.dataset, self.name = name2
+            elif len(name2) == 3:
+                self.dataset, self.name, self.cellid = name2
+                
+        #print("foo")
+        #print("kw in webqtlTrait are:", pf(kw))
+        #print("printed\n\n")
+        #for name, value in kw.items():
+        #    if self.__dict__.has_key(name):
+        #        setattr(self, name, value)
+        #    elif name == 'fullname':
+        #        name2 = value.split("::")
+        #        if len(name2) == 2:
+        #            self.dataset, self.name = name2
+        #        elif len(name2) == 3:
+        #            self.dataset, self.name, self.cellid = name2
+        #        else:
+        #            raise KeyError, repr(value) + ' parameter format error.'
+        #    else:
+        #        raise KeyError, repr(name) + ' not a valid parameter for this class.'
 
         if self.dataset and isinstance(self.dataset, basestring):
-            assert self.cursor, "Don't have a cursor"
-            self.dataset = create_dataset(self.db_conn, self.dataset)
+            #assert self.cursor, "Don't have a cursor"
+            self.dataset = create_dataset(self.dataset)
 
         #if self.dataset == None, not from a database
         print("self.dataset is:", self.dataset, type(self.dataset))
@@ -432,7 +441,7 @@ class webqtlTrait:
         self.cursor.execute(query)
         traitInfo = self.cursor.fetchone()
         if traitInfo:
-            self.haveinfo = 1
+            self.haveinfo = True
 
             #XZ: assign SQL query result to trait attributes.
             for i, field in enumerate(self.dataset.display_fields):
