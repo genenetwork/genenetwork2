@@ -28,6 +28,7 @@ from htmlgen import HTMLgen2 as HT
 
 import webqtlConfig
 
+from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
 # Used by create_database to instantiate objects
@@ -36,22 +37,22 @@ DS_NAME_MAP = {}
 def create_dataset(dataset_name):
     #cursor = db_conn.cursor()
     print("dataset_name:", dataset_name)
-    
+
     dataset_type = g.db.execute("""
         SELECT DBType.Name
         FROM DBList, DBType
         WHERE DBList.Name = %s and
               DBType.Id = DBList.DBTypeId
         """, (dataset_name)).fetchone().Name
-   
+
     #dataset_type = cursor.fetchone()[0]
     print("[blubber] dataset_type:", pf(dataset_type))
-    
+
     dataset_ob = DS_NAME_MAP[dataset_type]
     #dataset_class = getattr(data_set, dataset_ob)
     print("dataset_ob:", dataset_ob)
     print("DS_NAME_MAP:", pf(DS_NAME_MAP))
-    
+
     dataset_class = globals()[dataset_ob]
     return dataset_class(dataset_name)
 
@@ -75,12 +76,12 @@ class DataSet(object):
 
         #if self.cursor and self.id == 0:
         self.setup()
-        
+
         self.check_confidentiality()
-        
+
         self.retrieve_name()
         self.get_group()
-        
+
 
     # Delete this eventually
     @property
@@ -101,9 +102,9 @@ class DataSet(object):
         """
         If the data set name parameter is not found in the 'Name' field of the data set table,
         check if it is actually the FullName or ShortName instead.
-        
+
         This is not meant to retrieve the data set info if no name at all is passed.
-        
+
         """
 
         query_args = tuple(self.db_conn.escape_string(x) for x in (
@@ -113,7 +114,7 @@ class DataSet(object):
             self.name,
             self.name))
         print("query_args are:", query_args)
-        
+
         query = '''
                 SELECT
                         Id, Name, FullName, ShortName
@@ -123,7 +124,7 @@ class DataSet(object):
                         public > %s AND
                         (Name = "%s" OR FullName = "%s" OR ShortName = "%s")
           ''' % (query_args)
-            
+
         self.cursor.execute(query)
         self.id, self.name, self.fullname, self.shortname = self.cursor.fetchone()
 
@@ -147,7 +148,7 @@ class PhenotypeDataSet(DataSet):
                             'Publication.Title',
                             'Publication.Authors',
                             'PublishXRef.Id']
-        
+
         # Figure out what display_fields is
         self.display_fields = ['name',
                                'pubmed_id',
@@ -172,10 +173,10 @@ class PhenotypeDataSet(DataSet):
                             'Authors',
                             'Year',
                             'Max LRS',
-                            'Max LRS Location']        
+                            'Max LRS Location']
 
         self.type = 'Publish'
-        
+
         self.query = '''
                             SELECT
                                     InbredSet.Name, InbredSet.Id
@@ -185,11 +186,11 @@ class PhenotypeDataSet(DataSet):
                                     PublishFreeze.InbredSetId = InbredSet.Id AND
                                     PublishFreeze.Name = "%s"
                     ''' % self.db_conn.escape_string(self.name)
-                    
+
     def check_confidentiality(self):
         # (Urgently?) Need to write this
         pass
-    
+
     def get_trait_info(self, trait_list, species = ''):
         for this_trait in trait_list:
             if not this_trait.haveinfo:
@@ -238,31 +239,31 @@ class PhenotypeDataSet(DataSet):
 
                         this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
                         this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
-                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )    
-        
+                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )
+
 class GenotypeDataSet(DataSet):
     DS_NAME_MAP['Geno'] = 'GenotypeDataSet'
-    
+
     def setup(self):
         # Fields in the database table
         self.search_fields = ['Name',
                               'Chr']
-        
+
         # Find out what display_fields is
         self.display_fields = ['name',
                                'chr',
                                'mb',
                                'source2',
                                'sequence']
-        
+
         # Fields displayed in the search results table header
         self.header_fields = ['',
                               'ID',
-                              'Location']        
-        
+                              'Location']
+
         # Todo: Obsolete or rename this field
         self.type = 'Geno'
-        
+
         self.query = '''
                 SELECT
                         InbredSet.Name, InbredSet.Id
@@ -272,10 +273,10 @@ class GenotypeDataSet(DataSet):
                         GenoFreeze.InbredSetId = InbredSet.Id AND
                         GenoFreeze.Name = "%s"
                 ''' % self.db_conn.escape_string(self.name)
-                
+
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
-    
+
     def get_trait_info(self, trait_list, species=None):
         for this_trait in trait_list:
             if not this_trait.haveinfo:
@@ -295,16 +296,16 @@ class GenotypeDataSet(DataSet):
                         trait_location_value = ord(str(this_trait.chr).upper()[0])*1000 + this_trait.mb
 
                 this_trait.location_repr = 'Chr%s: %.4f' % (this_trait.chr, float(this_trait.mb) )
-                this_trait.location_value = trait_location_value    
-    
-                
+                this_trait.location_value = trait_location_value
+
+
 class MrnaAssayDataSet(DataSet):
     '''
     An mRNA Assay is a quantitative assessment (assay) associated with an mRNA trait
-    
+
     This used to be called ProbeSet, but that term only refers specifically to the Affymetrix
     platform and is far too specific.
-    
+
     '''
     DS_NAME_MAP['ProbeSet'] = 'MrnaAssayDataSet'
 
@@ -346,7 +347,7 @@ class MrnaAssayDataSet(DataSet):
                              'Location',
                              'Mean Expr',
                              'Max LRS',
-                             'Max LRS Location']       
+                             'Max LRS Location']
 
         # Todo: Obsolete or rename this field
         self.type = 'ProbeSet'
@@ -360,12 +361,12 @@ class MrnaAssayDataSet(DataSet):
                                 ProbeFreeze.InbredSetId = InbredSet.Id AND
                                 ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
                                 ProbeSetFreeze.Name = "%s"
-                ''' % g.db.escape_string(self.name)
+                ''' % escape(self.name)
 
 
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
-    
+
     def get_trait_info(self, trait_list=None, species=''):
 
         #  Note: setting trait_list to [] is probably not a great idea.
@@ -428,7 +429,7 @@ class MrnaAssayDataSet(DataSet):
                    self.db_conn.escape_string(this_trait.name)))
 
             print("query is:", pf(query))
-            
+
             self.cursor.execute(query)
             result = self.cursor.fetchone()
 
@@ -475,30 +476,30 @@ class MrnaAssayDataSet(DataSet):
 
                         this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
                         this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
-                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )    
+                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )
 
 
 class TempDataSet(DataSet):
     '''Temporary user-generated data set'''
-    
+
     def setup(self):
         self.search_fields = ['name',
                               'description']
-        
+
         self.display_fields = ['name',
                                'description']
-        
+
         self.header_fields = ['Name',
                               'Description']
-        
+
         self.type = 'Temp'
-        
+
         # Need to double check later how these are used
         self.id = 1
         self.fullname = 'Temporary Storage'
         self.shortname = 'Temp'
-        
-        
+
+
 def geno_mrna_confidentiality(ob):
     dataset_table = ob.type + "Freeze"
     print("dataset_table [%s]: %s" % (type(dataset_table), dataset_table))
@@ -517,4 +518,3 @@ def geno_mrna_confidentiality(ob):
     if confidential:
         # Allow confidential data later
         NoConfindetialDataForYouTodaySorry
-    
