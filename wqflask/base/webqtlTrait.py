@@ -30,9 +30,9 @@ class webqtlTrait:
         self.cellid = kw.get('cellid', None)
         self.identification = kw.get('identification', 'un-named trait')
         self.group = kw.get('group', None)
-        self.haveinfo = kw.get(haveinfo, False)
-        self.sequence = kw.get(sequence, None)              # Blat sequence, available for ProbeSet
-        self.data = kw.get(data, {})
+        self.haveinfo = kw.get('haveinfo', False)
+        self.sequence = kw.get('sequence', None)              # Blat sequence, available for ProbeSet
+        self.data = kw.get('data', {})
         
         if kw.get('fullname'):
             name2 = value.split("::")
@@ -381,7 +381,7 @@ class webqtlTrait:
     #    return self.__dict__.items()
 
     def retrieveInfo(self, QTL = None):
-        assert self.dataset and self.cursor
+        assert self.dataset
         if self.dataset.type == 'Publish':
             #self.dataset.DisField = ['Name','PubMed_ID','Phenotype','Abbreviation','Authors','Title',\
             #       'Abstract', 'Journal','Volume','Pages','Month','Year','Sequence',\
@@ -434,10 +434,11 @@ class webqtlTrait:
                             Geno.Name = '%s'
                     """ % (display_fields_string, self.dataset.name, self.name)
         else: #Temp type
-            query = 'SELECT %s FROM %s WHERE Name = "%s"' % \
-                    (string.join(self.dataset.display_fields,','), self.dataset.type, self.name)
+            traitInfo = g.db.execute("""SELECT %s FROM %s WHERE Name = '%s'
+                                     """, (string.join(self.dataset.display_fields,','),
+                                             self.dataset.type, self.name)).fetchone()
 
-
+        
         self.cursor.execute(query)
         traitInfo = self.cursor.fetchone()
         if traitInfo:

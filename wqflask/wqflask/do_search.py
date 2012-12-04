@@ -3,6 +3,9 @@
 
 from __future__ import print_function, division
 
+from flask import Flask, g
+
+from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
 import sys
@@ -34,13 +37,13 @@ class DoSearch(object):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
         print("in do_search query is:", pf(query))
-        self.cursor.execute(query)
+        g.db.execute(query)
         results = self.cursor.fetchall()
         return results
 
     def escape(self, stringy):
         """Shorter name than self.db_conn.escape_string"""
-        return self.db_conn.escape_string(str(stringy))
+        return escape(str(stringy))
     
     def mescape(self, *items):
         """Multiple escape"""
@@ -153,7 +156,7 @@ class PhenotypeSearch(DoSearch):
                      'Max LRS',
                      'Max LRS Location']
 
-    def get_where_clause(self):
+    def get_fields_clause(self):
         """Generate clause for WHERE portion of query"""
 
         #Todo: Zach will figure out exactly what both these lines mean
@@ -163,15 +166,17 @@ class PhenotypeSearch(DoSearch):
 
         # This adds a clause to the query that matches the search term
         # against each field in the search_fields tuple
-        where_clause = []
+        fields_clause = []
         for field in self.search_fields:
-            where_clause.append('''%s REGEXP "%s"''' % (field, search_term))
-        where_clause = "(%s)" % ' OR '.join(where_clause)
+            fields_clause.append('''%s REGEXP "%s"''' % (field, search_term))
+        fields_clause = "(%s)" % ' OR '.join(fields_clause)
 
-        return where_clause
+        return fields_clause
 
-    def run(self):
-        """Generates and runs a simple search of a phenotype dataset"""
+    def compile_final_query(self, from_clause = '', where_clause = ''):
+        """Generates the final query string"""
+
+        from_clause = self.normalize_spaces(from_clause)
 
         #Get group information for dataset
         self.dataset.get_group()
@@ -182,12 +187,42 @@ class PhenotypeSearch(DoSearch):
                     PublishXRef.PhenotypeId = Phenotype.Id and
                     PublishXRef.PublicationId = Publication.Id and
                     PublishFreeze.Id = %s""" % (
-                        self.get_where_clause(),
+                        self.get_fields_clause(),
                         self.escape(self.dataset.group_id),
                         self.escape(self.dataset.id)))
 
-        return self.execute(query)
+        print("query is:", pf(query))
 
+        return query
+
+    def run(self):
+        """Generates and runs a simple search of a phenotype dataset"""
+
+        self.query = self.compile_final_query(where_clause = self.get_fields_clause())
+
+#        self.query = """SELECT PublishXRef.Id,
+#PublishFreeze.createtime as thistable,
+#Publication.PubMed_ID as Publication_PubMed_ID,
+#Phenotype.Post_publication_description as Phenotype_Name FROM Phenotype,
+#PublishFreeze, Publication, PublishXRef WHERE (Phenotype.Post_publication_description
+#REGEXP "[[:<:]]brain[[:>:]]" OR Phenotype.Pre_publication_description REGEXP "[[:<:]]brain[[:>:]]"
+#OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]brain[[:>:]]"
+#OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]brain[[:>:]]"
+#OR Phenotype.Lab_code REGEXP "[[:<:]]brain[[:>:]]"
+#OR Publication.PubMed_ID REGEXP "[[:<:]]brain[[:>:]]"
+#OR Publication.Abstract REGEXP "[[:<:]]brain[[:>:]]"
+#OR Publication.Title REGEXP "[[:<:]]brain[[:>:]]"
+#OR Publication.Authors REGEXP "[[:<:]]brain[[:>:]]"
+#OR PublishXRef.Id REGEXP "[[:<:]]brain[[:>:]]")
+#and PublishXRef.InbredSetId = 1
+#and PublishXRef.PhenotypeId = Phenotype.Id
+#and PublishXRef.PublicationId = Publication.Id
+#and PublishFreeze.Id = 1;"""
+
+
+        results = g.db.execute(self.query, no_parameters=True).fetchall()
+        print("in [df] run results are:", results)
+        return results
 
 class GenotypeSearch(DoSearch):
     """A search within a genotype dataset"""
@@ -606,6 +641,22 @@ class PvalueSearch(ProbeSetSearch):
 
         return self.execute(self.query)
     
+class AuthorSearch(PhenotypeSearch):
+    """Searches for phenotype traits with specified author(s)"""
+    
+    DoSearch.search_types["NAME"] = "AuthorSearch" 
+    
+    def run(self):
+        
+        self.search_term = [float(value) for value in self.search_term]
+        
+        self.where_clause = """ Publication.Authors LIKE %s and
+                                """ % (self.escape(self.search_term[0]))
+        
+        self.query = self.compile_final_query(where_clause = self.where_clause)
+        
+        return self.execute(self.query)
+    
 
 
 if __name__ == "__main__":
@@ -630,20 +681,20 @@ if __name__ == "__main__":
     dataset_name = "HC_M2_0606_P"
     dataset = create_dataset(db_conn, dataset_name)
     
-    cursor.execute("""
-                SELECT ProbeSet.Name as TNAME, 0 as thistable,
-                ProbeSetXRef.Mean as TMEAN, ProbeSetXRef.LRS as TLRS,
-                ProbeSetXRef.PVALUE as TPVALUE, ProbeSet.Chr_num as TCHR_NUM,
-                ProbeSet.Mb as TMB, ProbeSet.Symbol as TSYMBOL,
-                ProbeSet.name_num as TNAME_NUM
-                FROM ProbeSetXRef, ProbeSet, Geno
-                WHERE ProbeSetXRef.LRS > 99.0 and
-                ABS(ProbeSet.Mb-Geno.Mb) < 5 and
-                ProbeSetXRef.Locus = Geno.name and
-                Geno.SpeciesId = 1 and
-                ProbeSet.Chr = Geno.Chr and
-                ProbeSet.Id = ProbeSetXRef.ProbeSetId and
-                ProbeSetXRef.ProbeSetFreezeId = 112""")
+    #cursor.execute("""
+    #            SELECT ProbeSet.Name as TNAME, 0 as thistable,
+    #            ProbeSetXRef.Mean as TMEAN, ProbeSetXRef.LRS as TLRS,
+    #            ProbeSetXRef.PVALUE as TPVALUE, ProbeSet.Chr_num as TCHR_NUM,
+    #            ProbeSet.Mb as TMB, ProbeSet.Symbol as TSYMBOL,
+    #            ProbeSet.name_num as TNAME_NUM
+    #            FROM ProbeSetXRef, ProbeSet, Geno
+    #            WHERE ProbeSetXRef.LRS > 99.0 and
+    #            ABS(ProbeSet.Mb-Geno.Mb) < 5 and
+    #            ProbeSetXRef.Locus = Geno.name and
+    #            Geno.SpeciesId = 1 and
+    #            ProbeSet.Chr = Geno.Chr and
+    #            ProbeSet.Id = ProbeSetXRef.ProbeSetId and
+    #            ProbeSetXRef.ProbeSetFreezeId = 112""")
 
     #print(pf(cursor.fetchall()))
     #results = ProbeSetSearch("shh", None, dataset, cursor, db_conn).run()

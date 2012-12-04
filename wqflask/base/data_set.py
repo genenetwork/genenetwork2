@@ -90,9 +90,7 @@ class DataSet(object):
 
 
     def get_group(self):
-        assert self.cursor
-        self.cursor.execute(self.query)
-        self.group, self.group_id = self.cursor.fetchone()
+        self.group, self.group_id = g.db.execute(self.query).fetchone()
         if self.group == 'BXD300':
             self.group = "BXD"
         #return group
@@ -107,7 +105,7 @@ class DataSet(object):
 
         """
 
-        query_args = tuple(self.db_conn.escape_string(x) for x in (
+        query_args = tuple(escape(x) for x in (
             (self.type + "Freeze"),
             str(webqtlConfig.PUBLICTHRESH),
             self.name,
@@ -115,18 +113,22 @@ class DataSet(object):
             self.name))
         print("query_args are:", query_args)
 
-        query = '''
-                SELECT
-                        Id, Name, FullName, ShortName
-                FROM
-                        %s
-                WHERE
-                        public > %s AND
-                        (Name = "%s" OR FullName = "%s" OR ShortName = "%s")
-          ''' % (query_args)
+        print("""
+                SELECT Id, Name, FullName, ShortName
+                FROM %s
+                WHERE public > %s AND
+                     (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
+          """ % (query_args))
 
-        self.cursor.execute(query)
-        self.id, self.name, self.fullname, self.shortname = self.cursor.fetchone()
+        self.id, self.name, self.fullname, self.shortname = g.db.execute("""
+                SELECT Id, Name, FullName, ShortName
+                FROM %s
+                WHERE public > %s AND
+                     (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
+          """ % (query_args)).fetchone()
+
+        #self.cursor.execute(query)
+        #self.id, self.name, self.fullname, self.shortname = self.cursor.fetchone()
 
 
     #def genHTML(self, Class='c0dd'):
@@ -185,7 +187,7 @@ class PhenotypeDataSet(DataSet):
                             WHERE
                                     PublishFreeze.InbredSetId = InbredSet.Id AND
                                     PublishFreeze.Name = "%s"
-                    ''' % self.db_conn.escape_string(self.name)
+                    ''' % escape(self.name)
 
     def check_confidentiality(self):
         # (Urgently?) Need to write this

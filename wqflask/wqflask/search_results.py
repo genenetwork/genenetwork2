@@ -113,7 +113,7 @@ class SearchResultPage(templatePage):
 
             print("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = webqtlTrait(self.db_conn, dataset=self.dataset, name=trait_id)
+            this_trait = webqtlTrait(dataset=self.dataset, name=trait_id)
             this_trait.retrieveInfo(QTL=True)
             self.trait_list.append(this_trait)
 
