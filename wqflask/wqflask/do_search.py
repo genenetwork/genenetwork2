@@ -20,34 +20,32 @@ class DoSearch(object):
     # Used to translate search phrases into classes
     search_types = dict()
 
-    def __init__(self, search_term, search_operator, dataset, cursor, db_conn):
+    def __init__(self, search_term, search_operator, dataset):
         self.search_term = search_term
         # Make sure search_operator is something we expect
         assert search_operator in (None, "=", "<", ">", "<=", ">="), "Bad search operator"
         self.search_operator = search_operator
         self.dataset = dataset
-        self.db_conn = db_conn
-        self.cursor = cursor
 
         #Get group information for dataset and the species id
         self.dataset.get_group()
-        self.species_id = webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.dataset.group)           
+        self.species_id = webqtlDatabaseFunction.retrieve_species_id(self.dataset.group)           
 
     def execute(self, query):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
         print("in do_search query is:", pf(query))
-        g.db.execute(query)
-        results = self.cursor.fetchall()
+        results = g.db.execute(query).fetchall()
+        #results = self.cursor.fetchall()
         return results
 
-    def escape(self, stringy):
-        """Shorter name than self.db_conn.escape_string"""
-        return escape(str(stringy))
+    #def escape(self, stringy):
+    #    """Shorter name than self.db_conn.escape_string"""
+    #    return escape(str(stringy))
     
     def mescape(self, *items):
         """Multiple escape"""
-        escaped = [self.escape(item) for item in items]
+        escaped = [escape(item) for item in items]
         print("escaped is:", escaped)
         return tuple(escaped)
 
@@ -96,9 +94,9 @@ class ProbeSetSearch(DoSearch):
                 WHERE %s
                     and ProbeSet.Id = ProbeSetXRef.ProbeSetId
                     and ProbeSetXRef.ProbeSetFreezeId = %s
-                            """ % (self.escape(from_clause),
+                            """ % (escape(from_clause),
                                     where_clause,
-                                    self.escape(self.dataset.id)))        
+                                    escape(self.dataset.id)))        
 
         print("query is:", pf(query))
 
@@ -118,8 +116,8 @@ class ProbeSetSearch(DoSearch):
                     AGAINST ('%s' IN BOOLEAN MODE)) 
                     and ProbeSet.Id = ProbeSetXRef.ProbeSetId
                     and ProbeSetXRef.ProbeSetFreezeId = %s  
-                            """ % (self.escape(self.search_term[0]),
-                            self.escape(self.dataset.id))
+                            """ % (escape(self.search_term[0]),
+                            escape(str(self.dataset.id)))
 
         print("final query is:", pf(query))
 
@@ -182,14 +180,16 @@ class PhenotypeSearch(DoSearch):
         self.dataset.get_group()
 
         query = (self.base_query +
-                """WHERE %s and
+                """%s
+                    WHERE %s
                     PublishXRef.InbredSetId = %s and
                     PublishXRef.PhenotypeId = Phenotype.Id and
                     PublishXRef.PublicationId = Publication.Id and
                     PublishFreeze.Id = %s""" % (
-                        self.get_fields_clause(),
-                        self.escape(self.dataset.group_id),
-                        self.escape(self.dataset.id)))
+                        from_clause,
+                        where_clause,
+                        escape(str(self.dataset.group_id)),
+                        escape(str(self.dataset.id))))
 
         print("query is:", pf(query))
 
@@ -272,7 +272,7 @@ class GenotypeSearch(DoSearch):
                     Geno.Id = GenoXRef.GenoId and
                     GenoXRef.GenoFreezeId = GenoFreeze.Id and
                     GenoFreeze.Id = %s"""% (where_clause,
-                                            self.escape(self.dataset.id)))
+                                            escape(self.dataset.id)))
 
         print("query is:", pf(query))
 
@@ -332,7 +332,7 @@ class GoSearch(ProbeSetSearch):
         statements = ("""%s.symbol=GOgene_product.symbol and
            GOassociation.gene_product_id=GOgene_product.id and
            GOterm.id=GOassociation.term_id""" % (
-            self.db_conn.escape_string(self.dataset.type)))
+            escape(self.dataset.type)))
 
         where_clause = " %s = '%s' and %s " % (field, go_id, statements)
 
@@ -377,7 +377,7 @@ class LrsSearch(ProbeSetSearch):
 
             if len(self.search_term) > 2:
                 self.chr_num = self.search_term[2]
-                self.sub_clause += """ Geno.Chr = %s and """ % (self.escape(self.chr_num))
+                self.sub_clause += """ Geno.Chr = %s and """ % (escape(self.chr_num))
                 if len(self.search_term) == 5:
                     self.mb_low, self.mb_high = self.search_term[3:]
                     self.sub_clause += """ Geno.Mb > %s and
@@ -429,17 +429,17 @@ class CisTransLrsSearch(LrsSearch):
               
             self.sub_clause = """ %sXRef.LRS > %s and
                 %sXRef.LRS < %s  and """  % (
-                    self.escape(self.dataset.type),
-                    self.escape(min(self.lrs_min, self.lrs_max)),
-                    self.escape(self.dataset.type),
-                    self.escape(max(self.lrs_min, self.lrs_max))
+                    escape(self.dataset.type),
+                    escape(min(self.lrs_min, self.lrs_max)),
+                    escape(self.dataset.type),
+                    escape(max(self.lrs_min, self.lrs_max))
                 )
         else:
             # Deal with >, <, >=, and <=
             self.sub_clause = """ %sXRef.LRS %s %s and """  % (
-                    self.escape(self.dataset.type),
-                    self.escape(self.search_operator),
-                    self.escape(self.search_term[0])
+                    escape(self.dataset.type),
+                    escape(self.search_operator),
+                    escape(self.search_term[0])
                 )
 
         self.where_clause = self.sub_clause + """
@@ -447,12 +447,12 @@ class CisTransLrsSearch(LrsSearch):
                 %sXRef.Locus = Geno.name and
                 Geno.SpeciesId = %s and
                 %s.Chr = Geno.Chr""" % (
-                    self.escape(self.dataset.type),
+                    escape(self.dataset.type),
                     the_operator,
-                    self.escape(self.mb_buffer),                    
-                    self.escape(self.dataset.type),
-                    self.escape(self.species_id),
-                    self.escape(self.dataset.type)
+                    escape(self.mb_buffer),                    
+                    escape(self.dataset.type),
+                    escape(self.species_id),
+                    escape(self.dataset.type)
                     )
                 
         print("where_clause is:", pf(self.where_clause))
@@ -559,7 +559,7 @@ class RangeSearch(ProbeSetSearch):
             self.where_clause = """ (SELECT Pow(2, max(value) -min(value))
                                      FROM ProbeSetData
                                      WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s
-                                    """ % (self.escape(self.search_term[0]))
+                                    """ % (escape(self.search_term[0]))
 
         print("where_clause is:", pf(self.where_clause))
 
@@ -647,16 +647,14 @@ class AuthorSearch(PhenotypeSearch):
     DoSearch.search_types["NAME"] = "AuthorSearch" 
     
     def run(self):
-        
-        self.search_term = [float(value) for value in self.search_term]
-        
-        self.where_clause = """ Publication.Authors LIKE %s and
-                                """ % (self.escape(self.search_term[0]))
+
+        self.where_clause = """ Publication.Authors REGEXP "[[:<:]]%s[[:>:]]" and
+                                """ % (self.search_term[0])
         
         self.query = self.compile_final_query(where_clause = self.where_clause)
         
         return self.execute(self.query)
-    
+
 
 
 if __name__ == "__main__":

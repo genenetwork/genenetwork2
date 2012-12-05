@@ -100,7 +100,7 @@ class SearchResultPage(templatePage):
         self.trait_list = []
         
         group = self.dataset.group
-        species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=group)        
+        species = webqtlDatabaseFunction.retrieve_species(group=group)        
         
         # result_set represents the results for each search term; a search of 
         # "shh grin2b" would have two sets of results, one for each term
@@ -114,7 +114,7 @@ class SearchResultPage(templatePage):
             print("foo locals are:", locals())
             trait_id = result[0]
             this_trait = webqtlTrait(dataset=self.dataset, name=trait_id)
-            this_trait.retrieveInfo(QTL=True)
+            this_trait.retrieve_info(QTL=True)
             self.trait_list.append(this_trait)
 
         self.dataset.get_trait_info(self.trait_list, species)    
@@ -147,8 +147,7 @@ class SearchResultPage(templatePage):
             the_search = search_class(search_term,
                                     search_operator,
                                     self.dataset,
-                                    self.cursor,
-                                    self.db_conn)
+                                    )
             self.results.extend(the_search.run())
             print("in the search results are:", self.results)
 

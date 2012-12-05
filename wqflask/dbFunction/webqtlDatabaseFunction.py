@@ -21,6 +21,8 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 
+from flask import Flask, g
+
 import MySQLdb
 import string
 from base import webqtlConfig
@@ -80,25 +82,15 @@ def getAllSpecies(cursor=None):
 #function: retrieve specie's name info based on RISet
 ###########################################################################
 
-def retrieveSpecies(cursor=None, group=None):
-    try:
-        cursor.execute("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % group)
-        return cursor.fetchone()[0]
-    except:
-        return None
+def retrieve_species(group):
+    return g.db.execute("""select Species.Name
+                           from Species, InbredSet
+                           where InbredSet.Name = %s and
+                           InbredSet.SpeciesId = Species.Id""", (group)).fetchone()[0]
 
-###########################################################################
-#input: cursor, RISet (string)
-#output: specie's Id (string), value will be None or else
-#function: retrieve specie's Id info based on RISet
-###########################################################################
+def retrieve_species_id(group):
+    return g.db.execute("select SpeciesId from InbredSet where Name = %s", (group)).fetchone()[0]
 
-def retrieveSpeciesId(cursor=None, RISet=None):
-    try:
-        cursor.execute("select SpeciesId from InbredSet where Name = '%s'" % RISet)
-        return cursor.fetchone()[0]
-    except:
-        return None
 
 ###########################################################################
 # input: cursor

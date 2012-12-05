@@ -68,13 +68,10 @@ class DataSet(object):
 
         assert name
         self.name = name
-        #self.db_conn = db_conn
-        #self.cursor = self.db_conn.cursor()
         self.id = None
         self.type = None
         self.group = None
 
-        #if self.cursor and self.id == 0:
         self.setup()
 
         self.check_confidentiality()
@@ -200,6 +197,7 @@ class PhenotypeDataSet(DataSet):
 
             description = this_trait.post_publication_description
             if this_trait.confidential:
+                continue   # for now
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
                     description = this_trait.pre_publication_description
             this_trait.description_display = description
@@ -217,13 +215,13 @@ class PhenotypeDataSet(DataSet):
             this_trait.LRS_location_value = 1000000
 
             if this_trait.lrs:
-                self.cursor.execute("""
+                result = g.db.execute("""
                     select Geno.Chr, Geno.Mb from Geno, Species
-                    where Species.Name = '%s' and
-                        Geno.Name = '%s' and
+                    where Species.Name = %s and
+                        Geno.Name = %s and
                         Geno.SpeciesId = Species.Id
-                """ % (species, this_trait.locus))
-                result = self.cursor.fetchone()
+                """, (species, this_trait.locus)).fetchone()
+                #result = self.cursor.fetchone()
 
                 if result:
                     if result[0] and result[1]:
@@ -509,13 +507,13 @@ def geno_mrna_confidentiality(ob):
     query = '''SELECT Id, Name, FullName, confidentiality,
                         AuthorisedUsers FROM %s WHERE Name = %%s''' % (dataset_table)
 
-    ob.cursor.execute(query, ob.name)
+    result = g.db.execute(query, ob.name)
 
     (dataset_id,
      name,
      full_name,
      confidential,
-     authorized_users) = ob.cursor.fetchall()[0]
+     authorized_users) = result.fetchall()[0]
 
     if confidential:
         # Allow confidential data later

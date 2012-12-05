@@ -28,7 +28,7 @@ def parse(pstring):
     
     returned item serach_term is always a list, even if only one element
     """
-    pstring = re.split(r"""(?:(\w+\s*=\s*[\(\[][^)]*[\)\]])  |  # LRS=(1 2 3), cisLRS=[4 5 6], etc
+    pstring = re.split(r"""(?:(\w+\s*=\s*[\('"\[][^)'"]*[\)\]'"])  |  # LRS=(1 2 3), cisLRS=[4 5 6], etc
                        (\w+\s*[=:\>\<][\w\*]+)  |  # wiki=bar, GO:foobar, etc
                        ([\w\*]+))  # shh, brain, etc """, pstring,
                                                     flags=re.VERBOSE)
@@ -78,6 +78,8 @@ if __name__ == '__main__':
     parse("WIKI=ho*")
     parse("LRS>9")
     parse("LRS>=18")
+    parse("NAME='rw williams'")
+    parse('NAME="rw williams"')
     parse("foo <= 2")
     parse("cisLRS<20")
     parse("foo=[3 2 1)")
