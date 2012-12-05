@@ -13,7 +13,7 @@ from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
 from utility import webqtlUtil, Plot, Bunch
-from base.webqtlTrait import webqtlTrait
+from base.webqtlTrait import GeneralTrait
 from dbFunction import webqtlDatabaseFunction
 from base.templatePage import templatePage
 from basicStatistics import BasicStatisticsFunctions

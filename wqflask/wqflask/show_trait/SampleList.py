@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function, division
 
 from base import webqtlCaseData
 from utility import webqtlUtil, Plot, Bunch
-from base.webqtlTrait import webqtlTrait
+from base.webqtlTrait import GeneralTrait
 
 from pprint import pformat as pf
 

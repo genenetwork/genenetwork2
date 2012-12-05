@@ -35,7 +35,7 @@ class DoSearch(object):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
         print("in do_search query is:", pf(query))
-        results = g.db.execute(query).fetchall()
+        results = g.db.execute(query, no_parameters=True).fetchall()
         #results = self.cursor.fetchall()
         return results
 
@@ -167,7 +167,7 @@ class PhenotypeSearch(DoSearch):
         fields_clause = []
         for field in self.search_fields:
             fields_clause.append('''%s REGEXP "%s"''' % (field, search_term))
-        fields_clause = "(%s)" % ' OR '.join(fields_clause)
+        fields_clause = "(%s) and " % ' OR '.join(fields_clause)
 
         return fields_clause
 
@@ -198,7 +198,7 @@ class PhenotypeSearch(DoSearch):
     def run(self):
         """Generates and runs a simple search of a phenotype dataset"""
 
-        self.query = self.compile_final_query(where_clause = self.get_fields_clause())
+        query = self.compile_final_query(where_clause = self.get_fields_clause())
 
 #        self.query = """SELECT PublishXRef.Id,
 #PublishFreeze.createtime as thistable,
@@ -220,7 +220,7 @@ class PhenotypeSearch(DoSearch):
 #and PublishFreeze.Id = 1;"""
 
 
-        results = g.db.execute(self.query, no_parameters=True).fetchall()
+        results = self.execute(query)
         print("in [df] run results are:", results)
         return results
 
@@ -272,7 +272,7 @@ class GenotypeSearch(DoSearch):
                     Geno.Id = GenoXRef.GenoId and
                     GenoXRef.GenoFreezeId = GenoFreeze.Id and
                     GenoFreeze.Id = %s"""% (where_clause,
-                                            escape(self.dataset.id)))
+                                            escape(str(self.dataset.id))))
 
         print("query is:", pf(query))
 

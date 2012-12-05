@@ -10,6 +10,7 @@ from data_set import create_dataset
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 
+from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
 from flask import Flask, g
@@ -40,9 +41,7 @@ class GeneralTrait:
                 self.dataset, self.name, self.cellid = name2
                 
         #if self.dataset and isinstance(self.dataset, basestring):
-        self.dataset = create_dataset(self.dataset)
-        
-        
+        self.dataset = create_dataset(self.dataset.name)
 
         print("self.dataset is:", self.dataset, type(self.dataset))
         #if self.dataset:
@@ -367,7 +366,7 @@ class GeneralTrait:
     def retrieve_info(self, QTL=False):
         assert self.dataset, "Dataset doesn't exist"
         if self.dataset.type == 'Publish':
-            traitInfo = g.db.execute("""
+            query = """
                     SELECT
                             PublishXRef.Id, Publication.PubMed_ID,
                             Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
@@ -384,47 +383,46 @@ class GeneralTrait:
                             Phenotype.Id = PublishXRef.PhenotypeId AND
                             Publication.Id = PublishXRef.PublicationId AND
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
-                            PublishFreeze.Id =%s
-                    """, (self.name, self.dataset.id)).fetchone()
+                            PublishFreeze.Id = %s
+                    """ % (self.name, self.dataset.id)
+            traitInfo = g.db.execute(query).fetchone()
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
         #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
         elif self.dataset.type == 'ProbeSet':
-            display_fields_string = ',ProbeSet.'.join(self.dataset.display_fields)
+            display_fields_string = ', ProbeSet.'.join(self.dataset.display_fields)
             display_fields_string = 'ProbeSet.' + display_fields_string
-            traitInfo = g.db.execute("""
+            query = """
                     SELECT %s
                     FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
                     WHERE
                             ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
                             ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                            ProbeSetFreeze.Name = %s AND
-                            ProbeSet.Name = %s
-                    """, (display_fields_string, self.dataset.name, self.name)).fetchone()
+                            ProbeSetFreeze.Name = '%s' AND
+                            ProbeSet.Name = '%s'
+                    """ % (display_fields_string, self.dataset.name, self.name)
+            traitInfo = g.db.execute(query).fetchone()
+            print("traitInfo is: ", pf(traitInfo))
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif self.dataset.type == 'Geno':
             display_fields_string = string.join(self.dataset.display_fields,',Geno.')
             display_fields_string = 'Geno.' + display_fields_string
-            traitInfo = g.db.execute("""
+            query = """
                     SELECT %s
                     FROM Geno, GenoFreeze, GenoXRef
                     WHERE
                             GenoXRef.GenoFreezeId = GenoFreeze.Id AND
                             GenoXRef.GenoId = Geno.Id AND
-                            GenoFreeze.Name = %s AND
-                            Geno.Name = %s
-                    """, (display_fields_string, self.dataset.name, self.name)).fetchone()
+                            GenoFreeze.Name = '%s' AND
+                            Geno.Name = '%s'
+                    """ % (display_fields_string, self.dataset.name, self.name)
+            traitInfo = g.db.execute(query).fetchone()
+            print("traitInfo is: ", pf(traitInfo))
         else: #Temp type
-            traitInfo = g.db.execute("""SELECT %s FROM %s WHERE Name = %s
-                                     """, (string.join(self.dataset.display_fields,','),
-                                             self.dataset.type, self.name)).fetchone()
-            
-        query = """SELECT %s FROM %s WHERE Name = %s
+            query = """SELECT %s FROM %s WHERE Name = %s
                                      """ % (string.join(self.dataset.display_fields,','),
-                                             self.dataset.type, self.name)
-            
-        print("query is:", pf(query))
-        print("traitInfo is: ", pf(traitInfo))
+                                            self.dataset.type, self.name)
+            traitInfo = g.db.execute(query).fetchone()
 
 
         #self.cursor.execute(query)

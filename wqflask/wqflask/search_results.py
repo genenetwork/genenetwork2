@@ -30,7 +30,7 @@ from base import webqtlConfig
 from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.data_set import create_dataset
-from base.webqtlTrait import webqtlTrait
+from base.webqtlTrait import GeneralTrait
 from base.templatePage import templatePage
 from wqflask import parser
 from wqflask import do_search
@@ -113,7 +113,7 @@ class SearchResultPage(templatePage):
 
             print("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = webqtlTrait(dataset=self.dataset, name=trait_id)
+            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id)
             this_trait.retrieve_info(QTL=True)
             self.trait_list.append(this_trait)
 

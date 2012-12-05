@@ -272,7 +272,7 @@ class GenotypeDataSet(DataSet):
                 WHERE
                         GenoFreeze.InbredSetId = InbredSet.Id AND
                         GenoFreeze.Name = "%s"
-                ''' % self.db_conn.escape_string(self.name)
+                ''' % escape(self.name)
 
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
@@ -425,13 +425,12 @@ class MrnaAssayDataSet(DataSet):
     where ProbeSetXRef.ProbeSetFreezeId = %s and
     ProbeSet.Id = ProbeSetXRef.ProbeSetId and
     ProbeSet.Name = '%s'
-            """ % (self.db_conn.escape_string(str(this_trait.dataset.id)),
-                   self.db_conn.escape_string(this_trait.name)))
+            """ % (escape(str(this_trait.dataset.id)),
+                   escape(this_trait.name)))
 
             print("query is:", pf(query))
 
-            self.cursor.execute(query)
-            result = self.cursor.fetchone()
+            result = g.db.execute(query).fetchone()
 
             if result:
                 if result[0]:

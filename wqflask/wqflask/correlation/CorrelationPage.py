@@ -46,7 +46,7 @@ import reaper
 from base import webqtlConfig
 from utility.THCell import THCell
 from utility.TDCell import TDCell
-from base.webqtlTrait import webqtlTrait
+from base.webqtlTrait import GeneralTrait
 from base.data_set import create_dataset
 from base.templatePage import templatePage
 from utility import webqtlUtil
