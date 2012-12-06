@@ -30,7 +30,7 @@ from base import webqtlConfig
 from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.data_set import create_dataset
-from base.webqtlTrait import GeneralTrait
+from base.trait import GeneralTrait
 from base.templatePage import templatePage
 from wqflask import parser
 from wqflask import do_search
@@ -99,8 +99,7 @@ class SearchResultPage(templatePage):
         """
         self.trait_list = []
         
-        group = self.dataset.group
-        species = webqtlDatabaseFunction.retrieve_species(group=group)        
+        species = webqtlDatabaseFunction.retrieve_species(self.dataset.group.name)        
         
         # result_set represents the results for each search term; a search of 
         # "shh grin2b" would have two sets of results, one for each term

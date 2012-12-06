@@ -13,7 +13,8 @@ from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
 from utility import webqtlUtil, Plot, Bunch
-from base.webqtlTrait import GeneralTrait
+from base.trait import GeneralTrait
+from base.data_set import create_dataset
 from dbFunction import webqtlDatabaseFunction
 from base.templatePage import templatePage
 from basicStatistics import BasicStatisticsFunctions
@@ -33,105 +34,111 @@ class ShowTrait(templatePage):
 
     def __init__(self, args):
         print("in ShowTrait, args are:", args)
-        self.group = args.group
-        self.trait_id = trait_id
-        self.dataset = dataset
+        #self.group = args.group
+        self.trait_id = args['trait_id']
+        self.dataset = create_dataset(args['dataset'])
+        self.cell_id = None
 
         #assert self.openMysql(), "No database!"
 
         #print("red3 fd.group:", fd.group)
         this_trait = self.get_this_trait()
 
-        print("red4 fd.group:", fd.group)
+        #print("red4 fd.group:", fd.group)
         ##read genotype file
-        fd.group = this_trait.group
+        #fd.group = this_trait.group
 
-        print("[red5] fd.group is:", fd.group)
-        fd.readGenotype()
+        #print("[red5] fd.group is:", fd.group)
+        self.dataset.group.read_genotype_file()
+        #fd.readGenotype()
 
-        if not fd.genotype:
-            fd.readData(incf1=1)
+        if not self.dataset.group.genotype:
+            self.read_data(incf1=1)
 
-        # determine data editing page format
-        variance_data_page = 0
-        if fd.formID == 'varianceChoice':
-            variance_data_page = 1
+        ## determine data editing page format
+        #variance_data_page = 0
+        #if fd.formID == 'varianceChoice':
+        #    variance_data_page = 1
+        #
+        #if variance_data_page:
+        #    fmID='dataEditing'
+        #else:
+        #    if fd.enablevariance:
+        #        fmID='pre_dataEditing'
+        #    else:
+        #        fmID='dataEditing'
+        
+        # Todo: Add back in the ones we actually need from below, as we discover we need them
+        hddn = OrderedDict()
 
-        if variance_data_page:
-            fmID='dataEditing'
-        else:
-            if fd.enablevariance:
-                fmID='pre_dataEditing'
-            else:
-                fmID='dataEditing'
+    
+        ## Some fields, like method, are defaulted to None; otherwise in IE the field can't be changed using jquery
+        #hddn = OrderedDict(
+        #        FormID = fmID,
+        #        group = fd.group,
+        #        submitID = '',
+        #        scale = 'physic',
+        #        additiveCheck = 'ON',
+        #        showSNP = 'ON',
+        #        showGenes = 'ON',
+        #        method = None,
+        #        parentsf14regression = 'OFF',
+        #        stats_method = '1',
+        #        chromosomes = '-1',
+        #        topten = '',
+        #        viewLegend = 'ON',
+        #        intervalAnalystCheck = 'ON',
+        #        valsHidden = 'OFF',
+        #        database = '',
+        #        criteria = None,
+        #        MDPChoice = None,
+        #        bootCheck = None,
+        #        permCheck = None,
+        #        applyVarianceSE = None,
+        #        sampleNames = '_',
+        #        sampleVals = '_',
+        #        sampleVars = '_',
+        #        otherStrainNames = '_',
+        #        otherStrainVals = '_',
+        #        otherStrainVars = '_',
+        #        extra_attributes = '_',
+        #        other_extra_attributes = '_',
+        #        export_data = None
+        #        )
 
-        # Some fields, like method, are defaulted to None; otherwise in IE the field can't be changed using jquery
-        hddn = OrderedDict(
-                FormID = fmID,
-                group = fd.group,
-                submitID = '',
-                scale = 'physic',
-                additiveCheck = 'ON',
-                showSNP = 'ON',
-                showGenes = 'ON',
-                method = None,
-                parentsf14regression = 'OFF',
-                stats_method = '1',
-                chromosomes = '-1',
-                topten = '',
-                viewLegend = 'ON',
-                intervalAnalystCheck = 'ON',
-                valsHidden = 'OFF',
-                database = '',
-                criteria = None,
-                MDPChoice = None,
-                bootCheck = None,
-                permCheck = None,
-                applyVarianceSE = None,
-                sampleNames = '_',
-                sampleVals = '_',
-                sampleVars = '_',
-                otherStrainNames = '_',
-                otherStrainVals = '_',
-                otherStrainVars = '_',
-                extra_attributes = '_',
-                other_extra_attributes = '_',
-                export_data = None
-                )
+        #if fd.enablevariance:
+        #    hddn['enablevariance']='ON'
+        #if fd.incparentsf1:
+        #    hddn['incparentsf1']='ON'
 
-        if fd.enablevariance:
-            hddn['enablevariance']='ON'
-        if fd.incparentsf1:
-            hddn['incparentsf1']='ON'
-
-        if this_trait:
-            hddn['fullname'] = str(this_trait)
-            try:
-                hddn['normalPlotTitle'] = this_trait.symbol
-                hddn['normalPlotTitle'] += ": "
-                hddn['normalPlotTitle'] += this_trait.name
-            except:
-                hddn['normalPlotTitle'] = str(this_trait.name)
-            hddn['fromDataEditingPage'] = 1
-            if this_trait.dataset and this_trait.dataset.type and this_trait.dataset.type == 'ProbeSet':
-                hddn['trait_type'] = this_trait.dataset.type
-                if this_trait.cellid:
-                    hddn['cellid'] = this_trait.cellid
-                else:
-                    self.cursor.execute("SELECT h2 from ProbeSetXRef WHERE DataId = %d" %
-                                        this_trait.mysqlid)
-                    heritability = self.cursor.fetchone()
-                    hddn['heritability'] = heritability
-
-                hddn['attribute_names'] = ""
-
-        hddn['mappingMethodId'] = webqtlDatabaseFunction.getMappingMethod (cursor=self.cursor,
-                                                                           groupName=fd.group)
-
-        if fd.identification:
-            hddn['identification'] = fd.identification
-        else:
-            hddn['identification'] = "Un-named trait"  #If no identification, set identification to un-named
+        #if this_trait:
+        #    hddn['fullname'] = str(this_trait)
+        #    try:
+        #        hddn['normalPlotTitle'] = this_trait.symbol
+        #        hddn['normalPlotTitle'] += ": "
+        #        hddn['normalPlotTitle'] += this_trait.name
+        #    except:
+        #        hddn['normalPlotTitle'] = str(this_trait.name)
+        #    hddn['fromDataEditingPage'] = 1
+        #    if this_trait.dataset and this_trait.dataset.type and this_trait.dataset.type == 'ProbeSet':
+        #        hddn['trait_type'] = this_trait.dataset.type
+        #        if this_trait.cellid:
+        #            hddn['cellid'] = this_trait.cellid
+        #        else:
+        #            self.cursor.execute("SELECT h2 from ProbeSetXRef WHERE DataId = %d" %
+        #                                this_trait.mysqlid)
+        #            heritability = self.cursor.fetchone()
+        #            hddn['heritability'] = heritability
+        #
+        #        hddn['attribute_names'] = ""
+        #
+        #hddn['mappingMethodId'] = webqtlDatabaseFunction.getMappingMethod (cursor=self.cursor,
+        #                                                                   groupName=fd.group)
+        #
+        #if fd.identification:
+        #    hddn['identification'] = fd.identification
+        #else:
+        #    hddn['identification'] = "Un-named trait"  #If no identification, set identification to un-named
 
         self.dispTraitInformation(fd, "", hddn, this_trait) #Display trait information + function buttons
 
@@ -186,26 +193,108 @@ class ShowTrait(templatePage):
         #trait_id = self.fd['trait_id']
         #cell_id = self.fd.get('CellID')
 
-        this_trait = webqtlTrait(dataset=dataset,
-                                 name=trait_id,
-                                 cellid=cell_id)
+        this_trait = GeneralTrait(dataset=self.dataset.name,
+                                 name=self.trait_id,
+                                 cellid=self.cell_id)
 
         ##identification, etc.
-        self.fd.identification = '%s : %s' % (this_trait.dataset.shortname, trait_id)
+        self.identification = '%s : %s' % (self.dataset.shortname, self.trait_id)
         this_trait.returnURL = webqtlConfig.CGIDIR + webqtlConfig.SCRIPTFILE + '?FormID=showDatabase&database=%s\
-                &ProbeSetID=%s&group=%s&parentsf1=on' %(dataset, trait_id, self.fd['group'])
+                &ProbeSetID=%s&group=%s&parentsf1=on' %(self.dataset, self.trait_id, self.dataset.group.name)
 
-        if cell_id:
-            self.fd.identification = '%s/%s'%(self.fd.identification, cell_id)
-            this_trait.returnURL = '%s&CellID=%s' % (this_trait.returnURL, cell_id)
+        if self.cell_id:
+            self.identification = '%s/%s'%(self.identification, self.cell_id)
+            this_trait.returnURL = '%s&CellID=%s' % (this_trait.returnURL, self.cell_id)
 
-        print("yellow1:", self.group)
-        this_trait.retrieveInfo()
-        print("yellow2:", self.group)
-        this_trait.retrieveData()
-        print("yellow3:", self.group)
+        print("yellow1:", self.dataset.group)
+        this_trait.retrieve_info()
+        print("yellow2:", self.dataset.group)
+        this_trait.retrieve_sample_data()
+        print("yellow3:", self.dataset.group)
         return this_trait
 
+
+    def read_data(self):
+        '''read user input data or from trait data and analysis form'''
+
+        if incf1 == None:
+            incf1 = []
+
+        if not self.genotype:
+            self.readGenotype()
+        if not samplelist:
+            if incf1:
+                samplelist = self.f1list + self.samplelist
+            else:
+                samplelist = self.samplelist
+
+        #print("before traitfiledata self.traitfile is:", pf(self.traitfile))
+
+        traitfiledata = getattr(self, "traitfile", None)
+        traitpastedata = getattr(self, "traitpaste", None)
+        variancefiledata = getattr(self, "variancefile", None)
+        variancepastedata = getattr(self, "variancepaste", None)
+        Nfiledata = getattr(self, "Nfile", None)
+
+        #### Todo: Rewrite below when we get to someone submitting their own trait #####
+
+        def to_float(item):
+            try:
+                return float(item)
+            except ValueError:
+                return None
+
+        print("bottle samplelist is:", samplelist)
+        if traitfiledata:
+            tt = traitfiledata.split()
+            values = map(webqtlUtil.StringAsFloat, tt)
+        elif traitpastedata:
+            tt = traitpastedata.split()
+            values = map(webqtlUtil.StringAsFloat, tt)
+        else:
+            print("mapping formdataasfloat")
+            #values = map(self.FormDataAsFloat, samplelist)
+            values = [to_float(getattr(self, key)) for key in samplelist]
+        print("rocket values is:", values)
+
+
+        if len(values) < len(samplelist):
+            values += [None] * (len(samplelist) - len(values))
+        elif len(values) > len(samplelist):
+            values = values[:len(samplelist)]
+        print("now values is:", values)
+
+
+        if variancefiledata:
+            tt = variancefiledata.split()
+            variances = map(webqtlUtil.StringAsFloat, tt)
+        elif variancepastedata:
+            tt = variancepastedata.split()
+            variances = map(webqtlUtil.StringAsFloat, tt)
+        else:
+            variances = map(self.FormVarianceAsFloat, samplelist)
+
+        if len(variances) < len(samplelist):
+            variances += [None]*(len(samplelist) - len(variances))
+        elif len(variances) > len(samplelist):
+            variances = variances[:len(samplelist)]
+
+        if Nfiledata:
+            tt = string.split(Nfiledata)
+            nsamples = map(webqtlUtil.IntAsFloat, tt)
+            if len(nsamples) < len(samplelist):
+                nsamples += [None]*(len(samplelist) - len(nsamples))
+        else:
+            nsamples = map(self.FormNAsFloat, samplelist)
+
+        ##values, variances, nsamples is obsolete
+        self.allTraitData = {}
+        for i, _sample in enumerate(samplelist):
+            if values[i] != None:
+                self.allTraitData[_sample] = webqtlCaseData(
+                    _sample, values[i], variances[i], nsamples[i])
+        print("allTraitData is:", pf(self.allTraitData))
+        
 
     def dispTraitInformation(self, fd, title1Body, hddn, this_trait):
 

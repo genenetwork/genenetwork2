@@ -21,12 +21,16 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 from __future__ import print_function, division
+import os
 
 from flask import Flask, g
 
 from htmlgen import HTMLgen2 as HT
 
+import reaper
+
 import webqtlConfig
+from utility import webqtlUtil
 
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
@@ -57,6 +61,74 @@ def create_dataset(dataset_name):
     return dataset_class(dataset_name)
 
 
+class DatasetGroup(object):
+    """
+    Each group has multiple datasets; each species has multiple groups.
+    
+    For example, Mouse has multiple groups (BXD, BXA, etc), and each group
+    has multiple datasets associated with it.
+    
+    """
+    def __init__(self, dataset):
+        """This sets self.group and self.group_id"""
+        self.name, self.group_id = g.db.execute(dataset.query).fetchone()
+        if self.name == 'BXD300':
+            self.name = "BXD"
+        
+        self.incparentsf1 = False
+            
+            
+    #def read_genotype(self):
+    #    self.read_genotype_file()
+    #
+    #    if not self.genotype:   # Didn'd succeed, so we try method 2
+    #        self.read_genotype_data()
+            
+    def read_genotype_file(self):
+        '''read genotype from .geno file instead of database'''
+        #if self.group == 'BXD300':
+        #    self.group = 'BXD'
+        #
+        #assert self.group, "self.group needs to be set"
+
+        #genotype_1 is Dataset Object without parents and f1
+        #genotype_2 is Dataset Object with parents and f1 (not for intercross)
+
+        self.genotype_1 = reaper.Dataset()
+        
+        # reaper barfs on unicode filenames, so here we ensure it's a string
+        full_filename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
+        self.genotype_1.read(full_filename)
+
+        print("Got to after read")
+
+        try:
+            # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
+            _f1, _f12, _mat, _pat = webqtlUtil.ParInfo[self.name]
+        except KeyError:
+            _f1 = _f12 = _mat = _pat = None
+
+        self.genotype_2 = self.genotype_1
+        if self.genotype_1.type == "group" and _mat and _pat:
+            self.genotype_2 = self.genotype_1.add(Mat=_mat, Pat=_pat)       #, F1=_f1)
+
+        #determine default genotype object
+        if self.incparentsf1 and self.genotype_1.type != "intercross":
+            self.genotype = self.genotype_2
+        else:
+            self.incparentsf1 = 0
+            self.genotype = self.genotype_1
+
+        self.samplelist = list(self.genotype.prgy)
+        self.f1list = []
+        self.parlist = []
+
+        if _f1 and _f12:
+            self.f1list = [_f1, _f12]
+        if _mat and _pat:
+            self.parlist = [_mat, _pat]
+
+
 class DataSet(object):
     """
     DataSet class defines a dataset in webqtl, can be either Microarray,
@@ -70,27 +142,35 @@ class DataSet(object):
         self.name = name
         self.id = None
         self.type = None
-        self.group = None
 
         self.setup()
 
         self.check_confidentiality()
 
         self.retrieve_name()
-        self.get_group()
+        self.group = DatasetGroup(self)   # sets self.group and self.group_id
+       
+        
+    def get_desc(self):
+        """Gets overridden later, at least for Temp...used by trait's get_given_name"""
+        return None
 
 
     # Delete this eventually
     @property
     def riset():
         Weve_Renamed_This_As_Group
+        
+        
+    #@property
+    #def group(self):
+    #    if not self._group:
+    #        self.get_group()
+    #        
+    #    return self._group
+    
 
 
-    def get_group(self):
-        self.group, self.group_id = g.db.execute(self.query).fetchone()
-        if self.group == 'BXD300':
-            self.group = "BXD"
-        #return group
 
 
     def retrieve_name(self):
@@ -176,7 +256,7 @@ class PhenotypeDataSet(DataSet):
 
         self.type = 'Publish'
 
-        self.query = '''
+        self.query_for_group = '''
                             SELECT
                                     InbredSet.Name, InbredSet.Id
                             FROM
@@ -239,7 +319,29 @@ class PhenotypeDataSet(DataSet):
 
                         this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
                         this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
-                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )
+                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb))
+                        
+    def retrieve_sample_data(self, trait):
+        query = """
+                    SELECT
+                            Strain.Name, PublishData.value, PublishSE.error, NStrain.count, PublishData.Id
+                    FROM
+                            (PublishData, Strain, PublishXRef, PublishFreeze)
+                    left join PublishSE on
+                            (PublishSE.DataId = PublishData.Id AND PublishSE.StrainId = PublishData.StrainId)
+                    left join NStrain on
+                            (NStrain.DataId = PublishData.Id AND
+                            NStrain.StrainId = PublishData.StrainId)
+                    WHERE
+                            PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                            PublishData.Id = PublishXRef.DataId AND PublishXRef.Id = %s AND
+                            PublishFreeze.Id = %d AND PublishData.StrainId = Strain.Id
+                    Order BY
+                            Strain.Name
+                    """ % (self.trait.name, self.id)
+        results = g.db.execute(query).fetchall()
+        return results
+
 
 class GenotypeDataSet(DataSet):
     DS_NAME_MAP['Geno'] = 'GenotypeDataSet'
@@ -297,6 +399,26 @@ class GenotypeDataSet(DataSet):
 
                 this_trait.location_repr = 'Chr%s: %.4f' % (this_trait.chr, float(this_trait.mb) )
                 this_trait.location_value = trait_location_value
+                
+    def retrieve_sample_data(self, trait):
+        query = """
+                    SELECT
+                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id
+                    FROM
+                            (GenoData, GenoFreeze, Strain, Geno, GenoXRef)
+                    left join GenoSE on
+                            (GenoSE.DataId = GenoData.Id AND GenoSE.StrainId = GenoData.StrainId)
+                    WHERE
+                            Geno.SpeciesId = %s AND Geno.Name = '%s' AND GenoXRef.GenoId = Geno.Id AND
+                            GenoXRef.GenoFreezeId = GenoFreeze.Id AND
+                            GenoFreeze.Name = '%s' AND
+                            GenoXRef.DataId = GenoData.Id AND
+                            GenoData.StrainId = Strain.Id
+                    Order BY
+                            Strain.Name
+                    """ % (webqtlDatabaseFunction.retrieve_species_id(self.group), trait.name, self.name)
+        results = g.db.execute(query).fetchall()
+        return results
 
 
 class MrnaAssayDataSet(DataSet):
@@ -476,6 +598,42 @@ class MrnaAssayDataSet(DataSet):
                         this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
                         this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
                         this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )
+                        
+    def get_sequence(self):
+        query = """
+                    SELECT
+                            ProbeSet.BlatSeq
+                    FROM
+                            ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                    WHERE
+                            ProbeSet.Id=ProbeSetXRef.ProbeSetId and
+                            ProbeSetFreeze.Id = ProbeSetXRef.ProbSetFreezeId and
+                            ProbeSet.Name = %s
+                            ProbeSetFreeze.Name = %s
+                """ % (escape(self.name), escape(self.dataset.name))
+        results = g.db.execute(query).fetchone()
+
+        return results[0]
+    
+    def retrieve_sample_data(self, trait):
+        query = """
+                    SELECT
+                            Strain.Name, ProbeSetData.value, ProbeSetSE.error, ProbeSetData.Id
+                    FROM
+                            (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
+                    left join ProbeSetSE on
+                            (ProbeSetSE.DataId = ProbeSetData.Id AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
+                    WHERE
+                            ProbeSet.Name = '%s' AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                            ProbeSetFreeze.Name = '%s' AND
+                            ProbeSetXRef.DataId = ProbeSetData.Id AND
+                            ProbeSetData.StrainId = Strain.Id
+                    Order BY
+                            Strain.Name
+                    """ % (escape(trait.name), escape(self.name))
+        results = g.db.execute(query).fetchall()
+        return results
 
 
 class TempDataSet(DataSet):
@@ -497,6 +655,51 @@ class TempDataSet(DataSet):
         self.id = 1
         self.fullname = 'Temporary Storage'
         self.shortname = 'Temp'
+        
+       
+    @staticmethod
+    def handle_pca(desc):
+        if 'PCA' in desc:
+            # Todo: Modernize below lines
+            desc = desc[desc.rindex(':')+1:].strip()
+        else:
+            desc = desc[:desc.index('entered')].strip()
+        return desc
+        
+    def get_desc(self):
+        g.db.execute('SELECT description FROM Temp WHERE Name=%s', self.name)
+        desc = g.db.fetchone()[0]
+        desc = self.handle_pca(desc)
+        return desc    
+        
+    def get_group(self):
+        self.cursor.execute("""
+                    SELECT
+                            InbredSet.Name, InbredSet.Id
+                    FROM
+                            InbredSet, Temp
+                    WHERE
+                            Temp.InbredSetId = InbredSet.Id AND
+                            Temp.Name = "%s"
+            """, self.name)
+        self.group, self.group_id = self.cursor.fetchone()
+        #return self.group
+        
+    def retrieve_sample_data(self, trait):
+        query = """
+                SELECT
+                        Strain.Name, TempData.value, TempData.SE, TempData.NStrain, TempData.Id
+                FROM
+                        TempData, Temp, Strain
+                WHERE
+                        TempData.StrainId = Strain.Id AND
+                        TempData.Id = Temp.DataId AND
+                        Temp.name = '%s'
+                Order BY
+                        Strain.Name
+                """ % escape(trait.name)
+                
+        results = g.db.execute(query).fetchall()
 
 
 def geno_mrna_confidentiality(ob):

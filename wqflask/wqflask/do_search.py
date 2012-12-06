@@ -26,10 +26,11 @@ class DoSearch(object):
         assert search_operator in (None, "=", "<", ">", "<=", ">="), "Bad search operator"
         self.search_operator = search_operator
         self.dataset = dataset
+        print("self.dataset is boo: ", type(self.dataset), pf(self.dataset))
+        print("self.dataset.group is: ", pf(self.dataset.group))
 
         #Get group information for dataset and the species id
-        self.dataset.get_group()
-        self.species_id = webqtlDatabaseFunction.retrieve_species_id(self.dataset.group)           
+        self.species_id = webqtlDatabaseFunction.retrieve_species_id(self.dataset.group.name)           
 
     def execute(self, query):
         """Executes query and returns results"""

@@ -1,1 +1,3 @@
-- Read about grep/locate/find
+- Check about using trait id instead of trait name in queries in data_set.py
+
+- Ask Rob about Probe/cellid traits
