@@ -77,6 +77,9 @@ class DatasetGroup(object):
             self.name = "BXD"
         
         self.incparentsf1 = False
+        self.f1list = None
+        self.parlist = None
+        self.allsamples = None
             
             
     #def read_genotype(self):
@@ -95,39 +98,39 @@ class DatasetGroup(object):
         #genotype_1 is Dataset Object without parents and f1
         #genotype_2 is Dataset Object with parents and f1 (not for intercross)
 
-        self.genotype_1 = reaper.Dataset()
+        genotype_1 = reaper.Dataset()
         
         # reaper barfs on unicode filenames, so here we ensure it's a string
         full_filename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
-        self.genotype_1.read(full_filename)
+        genotype_1.read(full_filename)
 
         print("Got to after read")
 
         try:
             # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
-            _f1, _f12, _mat, _pat = webqtlUtil.ParInfo[self.name]
+            f1, f12, maternal, paternal = webqtlUtil.ParInfo[self.name]
         except KeyError:
-            _f1 = _f12 = _mat = _pat = None
+            f1 = f12 = maternal = paternal = None
 
-        self.genotype_2 = self.genotype_1
-        if self.genotype_1.type == "group" and _mat and _pat:
-            self.genotype_2 = self.genotype_1.add(Mat=_mat, Pat=_pat)       #, F1=_f1)
+
+        if genotype_1.type == "group" and maternal and paternal:
+            genotype_2 = genotype_1.add(Mat=maternal, Pat=paternal)       #, F1=_f1)
+        else:
+            genotype_2 = genotype_1
 
         #determine default genotype object
-        if self.incparentsf1 and self.genotype_1.type != "intercross":
-            self.genotype = self.genotype_2
+        if self.incparentsf1 and genotype_1.type != "intercross":
+            self.genotype = genotype_2
         else:
             self.incparentsf1 = 0
-            self.genotype = self.genotype_1
+            self.genotype = genotype_1
 
         self.samplelist = list(self.genotype.prgy)
-        self.f1list = []
-        self.parlist = []
 
-        if _f1 and _f12:
-            self.f1list = [_f1, _f12]
-        if _mat and _pat:
-            self.parlist = [_mat, _pat]
+        if f1 and f12:
+            self.f1list = [f1, f12]
+        if maternal and paternal:
+            self.parlist = [maternal, paternal]
 
 
 class DataSet(object):
@@ -169,8 +172,6 @@ class DataSet(object):
     #        self.get_group()
     #        
     #    return self._group
-    
-
 
 
 

@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function, division
 
+from flask import Flask, g
+
 from base import webqtlCaseData
 from utility import webqtlUtil, Plot, Bunch
 from base.webqtlTrait import GeneralTrait
@@ -8,22 +10,19 @@ from pprint import pformat as pf
 
 class SampleList(object):
     def __init__(self,
-                 cursor,
                  dataset,
-                 variance_data_page,
                  sample_names,
                  this_trait,
                  sample_group_type,
                  header):
-        
-        self.cursor = cursor
+
         self.dataset = dataset
         self.this_trait = this_trait
         self.sample_group_type = sample_group_type    # primary or other
         self.header = header
 
         self.sample_list = [] # The actual list
-        
+
         self.get_attributes()
         
         print("camera: attributes are:", pf(self.attributes))
@@ -54,7 +53,7 @@ class SampleList(object):
                 sample.this_id = "Other_" + str(counter)
 
             #### For extra attribute columns; currently only used by several datasets - Zach
-            if self.this_trait and self.this_trait.db and self.this_trait.db.type == 'ProbeSet':
+            if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
                 sample.extra_attributes = self.get_extra_attribute_values(sample_name)
                 print("sample.extra_attributes is", pf(sample.extra_attributes))
                 self.sample_list.append(sample)
@@ -88,27 +87,27 @@ class SampleList(object):
     def get_attributes(self):
         """Finds which extra attributes apply to this dataset"""
         
-        #ZS: Id and name values for this trait's extra attributes  
-        self.cursor.execute('''SELECT CaseAttribute.Id, CaseAttribute.Name
+        #ZS: Id and name values for this trait's extra attributes
+        case_attributes = g.db.execute('''SELECT CaseAttribute.Id, CaseAttribute.Name
                                         FROM CaseAttribute, CaseAttributeXRef
                                         WHERE CaseAttributeXRef.ProbeSetFreezeId = %s AND
                                             CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
                                                 group by CaseAttributeXRef.CaseAttributeId''',
-                                                (str(self.this_trait.db.id),))
+                                                (str(self.dataset.id),))
 
 
         self.attributes = {}
-        for key, value in self.cursor.fetchall():
+        for key, value in case_attributes.fetchall():
             print("radish: %s - %s" % (key, value))
             self.attributes[key] = Bunch()
             self.attributes[key].name = value
 
-            self.cursor.execute('''SELECT DISTINCT CaseAttributeXRef.Value
-                            FROM CaseAttribute, CaseAttributeXRef
-                            WHERE CaseAttribute.Name = %s AND
-                                CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id''', (value,))            
+            attribute_values = g.db.execute('''SELECT DISTINCT CaseAttributeXRef.Value
+                                               FROM CaseAttribute, CaseAttributeXRef
+                                               WHERE CaseAttribute.Name = %s AND
+                                CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id''', (value,))
 
-            self.attributes[key].distinct_values = [item[0] for item in self.cursor.fetchall()]
+            self.attributes[key].distinct_values = [item[0] for item in attribute_values.fetchall()]
             self.attributes[key].distinct_values.sort(key=natural_sort_key)
 
 
@@ -119,27 +118,28 @@ class SampleList(object):
         if self.attributes:
 
             #ZS: Get StrainId value for the next query
-            self.cursor.execute("""SELECT Strain.Id
+            result = g.db.execute("""SELECT Strain.Id
                                         FROM Strain, StrainXRef, InbredSet
                                         WHERE Strain.Name = %s and
                                             StrainXRef.StrainId = Strain.Id and
                                             InbredSet.Id = StrainXRef.InbredSetId and
-                                            InbredSet.Name = %s""", (sample_name, self.dataset.group.name))
+                                            InbredSet.Name = %s""", (sample_name,
+                                                                     self.dataset.group.name))
 
-            sample_id = self.cursor.fetchone()[0]
+            sample_id = result.fetchone().Id
 
             for attribute in self.attributes:
 
                 #ZS: Add extra case attribute values (if any)
-                self.cursor.execute("""SELECT Value
+                result = g.db.execute("""SELECT Value
                                                 FROM CaseAttributeXRef
-                                        WHERE ProbeSetFreezeId = '%s' AND
-                                                StrainId = '%s' AND
-                                                CaseAttributeId = '%s'
-                                        group by CaseAttributeXRef.CaseAttributeId""" % (
+                                        WHERE ProbeSetFreezeId = %s AND
+                                                StrainId = %s AND
+                                                CaseAttributeId = %s
+                                        group by CaseAttributeXRef.CaseAttributeId""", (
                                             self.this_trait.db.id, sample_id, str(attribute)))
 
-                attribute_value = self.cursor.fetchone()[0] #Trait-specific attributes, if any
+                attribute_value = result.fetchone().Value #Trait-specific attributes, if any
 
                 #ZS: If it's an int, turn it into one for sorting
                 #(for example, 101 would be lower than 80 if they're strings instead of ints)

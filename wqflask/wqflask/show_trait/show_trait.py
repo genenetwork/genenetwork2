@@ -55,7 +55,7 @@ class ShowTrait(templatePage):
         #fd.readGenotype()
 
         if not self.dataset.group.genotype:
-            self.read_data(incf1=1)
+            self.read_data(include_f1=True)  #incf1=1)
 
         ## determine data editing page format
         #variance_data_page = 0
@@ -158,15 +158,15 @@ class ShowTrait(templatePage):
         #    print("Calling dispBasicStatistics")
         #    self.dispBasicStatistics(fd, this_trait)
 
-        self.build_correlation_tools(args, this_trait)
+        self.build_correlation_tools(this_trait)
 
-        self.make_sample_lists(args, variance_data_page, this_trait)
+        self.make_sample_lists(this_trait)
 
-        if args['allsamplelist']:
-            hddn['allsamplelist'] = string.join(args['allsamplelist'], ' ')
+        if self.dataset.group.allsamples:
+            hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
 
-        if args['varianceDispName'] != 'Variance':
-            hddn['isSE'] = "yes"
+        #if args['varianceDispName'] != 'Variance':
+        #    hddn['isSE'] = "yes"
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.this_trait = this_trait
@@ -215,21 +215,19 @@ class ShowTrait(templatePage):
         return this_trait
 
 
-    def read_data(self):
+    def read_data(self, include_f1=False):
         '''read user input data or from trait data and analysis form'''
 
-        if incf1 == None:
-            incf1 = []
+        #if incf1 == None:
+        #    incf1 = []
 
         if not self.genotype:
             self.dataset.read_genotype_file()
         if not samplelist:
-            if incf1:
+            if include_f1:
                 samplelist = self.f1list + self.samplelist
             else:
                 samplelist = self.samplelist
-
-        #print("before traitfiledata self.traitfile is:", pf(self.traitfile))
 
         traitfiledata = getattr(self, "traitfile", None)
         traitpastedata = getattr(self, "traitpaste", None)
@@ -1174,39 +1172,34 @@ class ShowTrait(templatePage):
             dataset_menu = []
             print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
             print("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
-            query = 
-            self.cursor.execute('''SELECT PublishFreeze.FullName,PublishFreeze.Name FROM
+            results = g.db.execute("""SELECT PublishFreeze.FullName,PublishFreeze.Name FROM
                     PublishFreeze,InbredSet WHERE PublishFreeze.InbredSetId = InbredSet.Id
-                    and InbredSet.Name = %s and PublishFreeze.public > %s''',
+                    and InbredSet.Name = %s and PublishFreeze.public > %s""",
                     (this_group, webqtlConfig.PUBLICTHRESH))
-            for item in self.cursor.fetchall():
+            for item in results.fetchall():
                 dataset_menu.append(dict(tissue=None,
                                          datasets=[item]))
 
-            self.cursor.execute('''SELECT GenoFreeze.FullName,GenoFreeze.Name FROM GenoFreeze,
+            results = g.db.execute("""SELECT GenoFreeze.FullName,GenoFreeze.Name FROM GenoFreeze,
                     InbredSet WHERE GenoFreeze.InbredSetId = InbredSet.Id and InbredSet.Name =
-                    %s and GenoFreeze.public > %s''',
+                    %s and GenoFreeze.public > %s""",
                     (this_group, webqtlConfig.PUBLICTHRESH))
-            for item in self.cursor.fetchall():
+            for item in results.fetchall():
                 dataset_menu.append(dict(tissue=None,
                                     datasets=[item]))
 
             #03/09/2009: Xiaodong changed the SQL query to order by Name as requested by Rob.
-            self.cursor.execute('SELECT Id, Name FROM Tissue order by Name')
-            for item in self.cursor.fetchall():
+            tissues = g.db.execute("SELECT Id, Name FROM Tissue order by Name")
+            for item in tissues.fetchall():
                 tissue_id, tissue_name = item
                 #databaseMenuSub = HT.Optgroup(label = '%s ------' % tissue_name)
                 #dataset_sub_menu = []
-                print("phun9")
-                self.cursor.execute('''SELECT ProbeSetFreeze.FullName,ProbeSetFreeze.Name FROM ProbeSetFreeze, ProbeFreeze,
+                data_sets = g.db.execute('''SELECT ProbeSetFreeze.FullName,ProbeSetFreeze.Name FROM ProbeSetFreeze, ProbeFreeze,
                 InbredSet WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeFreeze.TissueId = %s and
                 ProbeSetFreeze.public > %s and ProbeFreeze.InbredSetId = InbredSet.Id and InbredSet.Name like %s
                 order by ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId ''',
                 (tissue_id, webqtlConfig.PUBLICTHRESH, "%" + this_group + "%"))
-                print("phun8")
-                dataset_sub_menu = [item for item in self.cursor.fetchall() if item]
-                #for item2 in self.cursor.fetchall():
-                #    dataset_sub_menu.append(item2)
+                dataset_sub_menu = [item for item in data_sets.fetchall() if item]
                 if dataset_sub_menu:
                     dataset_menu.append(dict(tissue=tissue_name,
                                         datasets=dataset_sub_menu))
@@ -1612,11 +1605,13 @@ class ShowTrait(templatePage):
         title4Body.append(submitTable)
 
 
-    def make_sample_lists(self, fd, variance_data_page, this_trait):
-        if args['parlist']:
-            all_samples_ordered = args['parlist'] + args['f1list'] + args['samplelist']
+    def make_sample_lists(self, this_trait):
+        if self.dataset.group.parlist:
+            all_samples_ordered = (self.dataset.group.parlist +
+                                   self.dataset.group.f1list +
+                                   self.dataset.group.samplelist)
         else:
-            all_samples_ordered = args['f1list'] + args['samplelist']
+            all_samples_ordered = self.dataset.group.f1list + self.dataset.group.samplelist
 
         this_trait_samples = set(this_trait.data.keys())
 
@@ -1624,9 +1619,7 @@ class ShowTrait(templatePage):
 
         print("-*- primary_samplelist is:", pf(primary_sample_names))
 
-        primary_samples = SampleList(self.cursor,
-                                        args=args,
-                                        variance_data_page=variance_data_page,
+        primary_samples = SampleList(dataset = self.dataset,
                                         sample_names=primary_sample_names,
                                         this_trait=this_trait,
                                         sample_group_type='primary',
@@ -1640,18 +1633,16 @@ class ShowTrait(templatePage):
                 other_sample_names.append(sample)
 
         if other_sample_names:
-            par_f1_samples = fd.parlist + fd.f1list
+            parent_f1_samples = self.dataset.group.parlist + self.dataset.group.f1list
 
             other_sample_names.sort() #Sort other samples
-            other_sample_names = par_f1_samples + other_sample_names
+            other_sample_names = parent_f1_samples + other_sample_names
 
-            other_samples = SampleList(self.cursor,
-                                            fd=fd,
-                                            variance_data_page=variance_data_page,
-                                            sample_names=other_sample_names,
-                                            this_trait=this_trait,
-                                            sample_group_type='other',
-                                            header="Non-%s" % (fd.group))
+            other_samples = SampleList(dataset=self.dataset,
+                                        sample_names=other_sample_names,
+                                        this_trait=this_trait,
+                                        sample_group_type='other',
+                                        header="Non-%s" % (self.dataset.group.name))
 
             self.sample_groups = (primary_samples, other_samples)
         else:
@@ -1661,4 +1652,4 @@ class ShowTrait(templatePage):
         #if (other_sample_names or (fd.f1list and this_trait.data.has_key(fd.f1list[0]))
         #        or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
         #    print("hjs")
-        fd.allsamplelist = all_samples_ordered
+        self.dataset.group.allsamples = all_samples_ordered
