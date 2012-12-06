@@ -53,7 +53,7 @@
         change_stats_value(sample_sets, category, "n_of_samples", 0);
         _results.push((function() {
           var _j, _len1, _ref1, _results1;
-          _ref1 = ["mean", "median", "std_dev", "std_error"];
+          _ref1 = ["mean", "median", "std_dev", "std_error", "min", "max"];
           _results1 = [];
           for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
             stat = _ref1[_j];
@@ -126,6 +126,12 @@
         }, {
           vn: "std_dev",
           pretty: "Standard Deviation (SD)"
+        }, {
+          vn: "min",
+          pretty: "Minimum"
+        }, {
+          vn: "max",
+          pretty: "Maximum"
         }
       ];
       console.log("rows are:", rows);
@@ -362,7 +368,7 @@
     $('#block_outliers').click(block_outliers);
     console.log("after registering block_outliers");
     _.mixin(_.str.exports());
-    $('#value_table').change(edit_data_change);
+    $('#edit_sample_lists').change(edit_data_change);
     console.log("loaded");
     make_table();
     edit_data_change();

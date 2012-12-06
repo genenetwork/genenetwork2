@@ -30,6 +30,7 @@ from htmlgen import HTMLgen2 as HT
 import reaper
 
 import webqtlConfig
+from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 
 from MySQLdb import escape_string as escape
@@ -72,9 +73,11 @@ class DatasetGroup(object):
     """
     def __init__(self, dataset):
         """This sets self.group and self.group_id"""
-        self.name, self.group_id = g.db.execute(dataset.query).fetchone()
+        self.name, self.id = g.db.execute(dataset.query_for_group).fetchone()
         if self.name == 'BXD300':
             self.name = "BXD"
+        
+        self.species = webqtlDatabaseFunction.retrieve_species(self.name)
         
         self.incparentsf1 = False
         self.f1list = None
@@ -151,14 +154,25 @@ class DataSet(object):
 
         self.check_confidentiality()
 
-        self.retrieve_name()
+        self.retrieve_other_names()
         self.group = DatasetGroup(self)   # sets self.group and self.group_id
        
         
     def get_desc(self):
         """Gets overridden later, at least for Temp...used by trait's get_given_name"""
         return None
-
+    
+    #@staticmethod
+    #def get_by_trait_id(trait_id):
+    #    """Gets the dataset object given the trait id"""
+    #    
+    #    
+    #
+    #    name = g.db.execute(""" SELECT 
+    #                        
+    #                        """)
+    #    
+    #    return DataSet(name)
 
     # Delete this eventually
     @property
@@ -175,7 +189,7 @@ class DataSet(object):
 
 
 
-    def retrieve_name(self):
+    def retrieve_other_names(self):
         """
         If the data set name parameter is not found in the 'Name' field of the data set table,
         check if it is actually the FullName or ShortName instead.
@@ -326,7 +340,7 @@ class PhenotypeDataSet(DataSet):
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
-                            Strain.Name, PublishData.value, PublishSE.error, NStrain.count, PublishData.Id
+                            Strain.Name, PublishData.value, PublishSE.error, NStrain.count
                     FROM
                             (PublishData, Strain, PublishXRef, PublishFreeze)
                     left join PublishSE on
@@ -340,7 +354,7 @@ class PhenotypeDataSet(DataSet):
                             PublishFreeze.Id = %d AND PublishData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    """ % (self.trait.name, self.id)
+                    """ % (trait.name, self.id)
         results = g.db.execute(query).fetchall()
         return results
 
@@ -368,7 +382,7 @@ class GenotypeDataSet(DataSet):
         # Todo: Obsolete or rename this field
         self.type = 'Geno'
 
-        self.query = '''
+        self.query_for_group = '''
                 SELECT
                         InbredSet.Name, InbredSet.Id
                 FROM
@@ -418,7 +432,7 @@ class GenotypeDataSet(DataSet):
                             GenoData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    """ % (webqtlDatabaseFunction.retrieve_species_id(self.group), trait.name, self.name)
+                    """ % (webqtlDatabaseFunction.retrieve_species_id(self.group.name), trait.name, self.name)
         results = g.db.execute(query).fetchall()
         return results
 
@@ -476,7 +490,7 @@ class MrnaAssayDataSet(DataSet):
         # Todo: Obsolete or rename this field
         self.type = 'ProbeSet'
 
-        self.query = '''
+        self.query_for_group = '''
                         SELECT
                                 InbredSet.Name, InbredSet.Id
                         FROM

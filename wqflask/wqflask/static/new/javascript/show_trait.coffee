@@ -23,15 +23,15 @@ $ ->
         id = "#" + process_id(category, value_type)
         console.log("the_id:", id)
         in_box = $(id).html
-        
+
         current_value = parseFloat($(in_box)).toFixed(decimal_places)
-        
+
         console.log("urgh:", category, value_type)
         the_value = sample_sets[category][value_type]()
         console.log("After running sample_sets, the_value is:", the_value)
         if decimal_places > 0
             the_value = the_value.toFixed(decimal_places)
-        
+
         console.log("*-* the_value:", the_value)
         console.log("*-* current_value:", current_value)
         if the_value != current_value
@@ -40,16 +40,16 @@ $ ->
     update_stat_values = (sample_sets)->
         for category in ['samples_primary', 'samples_other', 'samples_all']
             change_stats_value(sample_sets, category, "n_of_samples", 0)
-            for stat in ["mean", "median", "std_dev", "std_error"]
+            for stat in ["mean", "median", "std_dev", "std_error", "min", "max"]
                 console.log("Calling change_stats_value")
                 change_stats_value(sample_sets, category, stat, 2)
 
-    edit_data_change = ->                
+    edit_data_change = ->
         sample_sets =
             samples_primary: new Stats([])
             samples_other: new Stats([])
             samples_all: new Stats([])
-                
+
         console.log("at beginning:", sample_sets)
 
         # ##########
@@ -114,6 +114,14 @@ $ ->
                 {
                     vn: "std_dev"
                     pretty: "Standard Deviation (SD)"
+                },
+                {
+                    vn: "min"
+                    pretty: "Minimum"
+                },
+                {
+                    vn: "max"
+                    pretty: "Maximum"
                 }
         ]
 
@@ -150,8 +158,8 @@ $ ->
                 processed += "-"
             processed += value
         return processed
-    
-    
+
+
     show_hide_outliers = ->
         console.log("FOOBAR in beginning of show_hide_outliers")
         label = $('#show_hide_outliers').val()
@@ -163,10 +171,10 @@ $ ->
             $('#show_hide_outliers').val("Hide Outliers")
             console.log("Should be now Hide Outliers")
 
-    
+
     ##Calculate Correlations Code
-    
-    
+
+
     on_corr_method_change = ->
         console.log("in beginning of on_corr_method_change")
         corr_method = $('select[name=corr_method]').val()
@@ -179,15 +187,15 @@ $ ->
             $("#corr_sample_method_options").show()
 
     $('select[name=corr_method]').change(on_corr_method_change)
-    
-    
+
+
     ##End Calculate Correlations Code
-    
+
     ##Populate Samples Attribute Values Code
-    
+
     create_value_dropdown = (value) ->
         return """<option val=#{value}>#{value}</option>"""
-    
+
     populate_sample_attributes_values_dropdown = ->
         console.log("in beginning of psavd")
         $('#attribute_values').empty()
@@ -205,14 +213,14 @@ $ ->
     if js_data.attribute_names.length > 0
         populate_sample_attributes_values_dropdown()
     $('#exclude_menu').change(populate_sample_attributes_values_dropdown)
-    
+
     ##End Populate Samples Attribute Values Codess
 
     ##Block Samples By Attribute Value Code
     block_by_attribute_value = ->
         attribute_name = $('#exclude_menu').val()
         exclude_by_value = $('#attribute_values').val()
-        
+
         cell_class = ".column_name-#{attribute_name}"
         $(cell_class).each (index, element) =>
             if $.trim($(element).text()) == exclude_by_value
@@ -220,11 +228,11 @@ $ ->
                 $(row).find(".trait_value_input").val("x")
 
     $('#exclude_group').click(block_by_attribute_value)
-    
+
     ##End Block Samples By Attribute Value Code
-    
+
     ##Block Samples By Index Code
-    
+
     block_by_index = ->
         index_string = $('#remove_samples_field').val()
         index_list = []
@@ -241,7 +249,7 @@ $ ->
                     index = parseInt(index_set)
                     console.log("index:", index)
                     index_list.push(index)
-                #catch(erro) 
+                #catch(erro)
                 #    alert("Syntax error")
         console.log("index_list:", index_list)
         for index in index_list
@@ -251,33 +259,33 @@ $ ->
                 $('#Primary_'+index.toString()).find('.trait_value_input').val("x")
             else if $('#block_group').val() == "other"
                 console.log("block_group:", $('#block_group').val())
-                console.log("row:", $('#Other_'+index.toString()))                
+                console.log("row:", $('#Other_'+index.toString()))
                 $('#Other_'+index.toString()).find('.trait_value_input').val("x")
-    
+
     $('#block_by_index').click(block_by_index)
 
     ##End Block Samples By Index Code
-    
+
     ##Hide Sample Rows With No Value (value of 'x') Code
-    
+
     hide_no_value = ->
         $('.value_se').each (_index, element) =>
             if $(element).find('.trait_value_input').val() == 'x'
                 $(element).hide()
-                
+
     $('#hide_no_value').click(hide_no_value)
 
     ##End Hide Sample Rows With No Value Code
-    
+
     ##Block Outliers Code
     block_outliers = ->
         $('.outlier').each (_index, element) =>
             $(element).find('.trait_value_input').val('x')
-            
+
     $('#block_outliers').click(block_outliers)
-    
+
     ##End Block Outliers Code
-    
+
     ##Reset Table Values Code
     reset_samples_table = ->
         $('.trait_value_input').each (_index, element) =>
@@ -289,9 +297,9 @@ $ ->
     $('#reset').click(reset_samples_table)
 
     ##End Reset Table Values Code
-    
+
     ##Get Sample Data From Table Code
-    
+
     get_sample_table_data = ->
         samples = {}
         primary_samples = []
@@ -315,27 +323,27 @@ $ ->
     ##End Get Sample Data from Table Code
 
     ##Export Sample Table Data Code
-    
+
     export_sample_table_data = ->
         sample_data = get_sample_table_data()
         console.log("sample_data is:", sample_data)
         json_sample_data = JSON.stringify(sample_data)
         console.log("json_sample_data is:", json_sample_data)
-        
+
         $('input[name=export_data]').val(json_sample_data)
         console.log("export_data is", $('input[name=export_data]').val())
-        
+
         format = $('#export_format').val()
         if format == "excel"
             $('#trait_data_form').attr('action', '/export_trait_excel')
         else
             $('#trait_data_form').attr('action', '/export_trait_csv')
         console.log("action is:", $('#trait_data_form').attr('action'))
-        
+
         $('#trait_data_form').submit()
 
     $('#export').click(export_sample_table_data)
-    
+
     ##End Export Sample Table Data Code
 
 
@@ -344,7 +352,7 @@ $ ->
     console.log("after registering block_outliers")
 
     _.mixin(_.str.exports());  # Add string fuctions directly to underscore
-    $('#value_table').change(edit_data_change)
+    $('#edit_sample_lists').change(edit_data_change)
     console.log("loaded")
     #console.log("basic_table is:", basic_table)
     # Add back following two lines later

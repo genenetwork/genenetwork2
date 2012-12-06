@@ -32,13 +32,16 @@ from pprint import pformat as pf
 
 
 
-class ShowTrait(templatePage):
+class ShowTrait(object):
 
     def __init__(self, args):
         print("in ShowTrait, args are:", args)
         #self.group = args.group
         self.trait_id = args['trait_id']
+        
         self.dataset = create_dataset(args['dataset'])
+        
+        #self.dataset = create_dataset(args['dataset'])
         self.cell_id = None
 
         #assert self.openMysql(), "No database!"
@@ -817,7 +820,7 @@ class ShowTrait(templatePage):
                 #        ))
                 pass
 
-            menuTable = HT.TableLite(cellpadding=2, Class="collap", width="150", id="target1")
+            #menuTable = HT.TableLite(cellpadding=2, Class="collap", width="150", id="target1")
             #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
             #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
 

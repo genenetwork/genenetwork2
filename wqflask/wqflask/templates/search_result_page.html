@@ -51,9 +51,9 @@
                         </TD>
                         <TD>
                             <a href="{{ url_for('show_trait_page',
-                                    dataset = dataset.name,
                                     trait_id = this_trait.name,
-                                    group = dataset.group)}}">
+                                    dataset = dataset.name
+                                    )}}">
                                 {{ this_trait.name }}
                             </a>
                         </TD>

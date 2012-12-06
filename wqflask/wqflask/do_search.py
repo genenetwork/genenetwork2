@@ -177,9 +177,6 @@ class PhenotypeSearch(DoSearch):
 
         from_clause = self.normalize_spaces(from_clause)
 
-        #Get group information for dataset
-        self.dataset.get_group()
-
         query = (self.base_query +
                 """%s
                     WHERE %s
@@ -189,7 +186,7 @@ class PhenotypeSearch(DoSearch):
                     PublishFreeze.Id = %s""" % (
                         from_clause,
                         where_clause,
-                        escape(str(self.dataset.group_id)),
+                        escape(str(self.dataset.group.id)),
                         escape(str(self.dataset.id))))
 
         print("query is:", pf(query))

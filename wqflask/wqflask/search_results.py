@@ -4,13 +4,6 @@ from wqflask import app
 
 from flask import render_template
 
-###################################################
-#                                                 #
-# This file uses only spaces for indentation      #
-#                                                 #
-###################################################
-
-#import string
 import os
 import cPickle
 import re

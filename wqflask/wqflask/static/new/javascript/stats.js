@@ -62,19 +62,29 @@
       return this.std_dev() / Math.sqrt(this.n_of_samples());
     };
 
+    Stats.prototype.min = function() {
+      return Math.min.apply(Math, this.the_values);
+    };
+
+    Stats.prototype.max = function() {
+      return Math.max.apply(Math, this.the_values);
+    };
+
     return Stats;
 
   })();
 
   bxd_only = new Stats([3, 5, 7, 8]);
 
-  console.log("[red] bxd_only mean:", bxd_only.mean());
+  console.log("[xred] bxd_only mean:", bxd_only.mean());
 
-  console.log("[green] bxd_only median:", bxd_only.median());
+  console.log("[xgreen] bxd_only median:", bxd_only.median());
 
-  console.log("[purple] bxd_only std_dev:", bxd_only.std_dev());
+  console.log("[xpurple] bxd_only std_dev:", bxd_only.std_dev());
 
-  console.log("[magenta] bxd_only std_error:", bxd_only.std_error());
+  console.log("[xmagenta] bxd_only std_error:", bxd_only.std_error());
+
+  console.log("[xyellow] bxd_only min:", bxd_only.min());
 
   window.Stats = Stats;
 
