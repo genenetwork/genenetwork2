@@ -7,6 +7,8 @@ import cPickle
 
 from collections import OrderedDict
 
+from flask import Flask, g
+
 from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
@@ -140,10 +142,10 @@ class ShowTrait(templatePage):
         #else:
         #    hddn['identification'] = "Un-named trait"  #If no identification, set identification to un-named
 
-        self.dispTraitInformation(fd, "", hddn, this_trait) #Display trait information + function buttons
+        self.dispTraitInformation(args, "", hddn, this_trait) #Display trait information + function buttons
 
         if this_trait == None:
-            this_trait = webqtlTrait(data=fd.allTraitData, dataset=None)
+            this_trait = webqtlTrait(data=args['allTraitData'], dataset=None)
 
         ## Variance submit page only
         #if fd.enablevariance and not variance_data_page:
@@ -156,15 +158,14 @@ class ShowTrait(templatePage):
         #    print("Calling dispBasicStatistics")
         #    self.dispBasicStatistics(fd, this_trait)
 
-        self.build_correlation_tools(fd, this_trait)
+        self.build_correlation_tools(args, this_trait)
 
+        self.make_sample_lists(args, variance_data_page, this_trait)
 
-        self.make_sample_lists(fd, variance_data_page, this_trait)
+        if args['allsamplelist']:
+            hddn['allsamplelist'] = string.join(args['allsamplelist'], ' ')
 
-        if fd.allsamplelist:
-            hddn['allsamplelist'] = string.join(fd.allsamplelist, ' ')
-
-        if fd.varianceDispName != 'Variance':
+        if args['varianceDispName'] != 'Variance':
             hddn['isSE'] = "yes"
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
@@ -172,8 +173,8 @@ class ShowTrait(templatePage):
         self.hddn = hddn
 
         self.sample_group_types = OrderedDict()
-        self.sample_group_types['samples_primary'] = fd.group + " Only"
-        self.sample_group_types['samples_other'] = "Non-" + fd.group
+        self.sample_group_types['samples_primary'] = self.dataset.group.name + " Only"
+        self.sample_group_types['samples_other'] = "Non-" + self.dataset.group.name
         self.sample_group_types['samples_all'] = "All Cases"
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
@@ -221,7 +222,7 @@ class ShowTrait(templatePage):
             incf1 = []
 
         if not self.genotype:
-            self.readGenotype()
+            self.dataset.read_genotype_file()
         if not samplelist:
             if incf1:
                 samplelist = self.f1list + self.samplelist
@@ -296,9 +297,9 @@ class ShowTrait(templatePage):
         print("allTraitData is:", pf(self.allTraitData))
         
 
-    def dispTraitInformation(self, fd, title1Body, hddn, this_trait):
+    def dispTraitInformation(self, args, title1Body, hddn, this_trait):
 
-        _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
+        _Species = webqtlDatabaseFunction.retrieve_species(group=self.dataset.group.name)
 
         #tbl = HT.TableLite(cellpadding=2, Class="collap", style="margin-left:20px;", width="840", valign="top", id="target1")
 
@@ -323,31 +324,31 @@ class ShowTrait(templatePage):
         snpBrowserText = ""
         updateText = ""
 
-        if webqtlConfig.USERDICT[self.privilege] >= webqtlConfig.USERDICT['user']:
+        #if webqtlConfig.USERDICT[self.privilege] >= webqtlConfig.USERDICT['user']:
+        #
+        #    if this_trait==None or this_trait.dataset.type=='Temp':
+        #        updateButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('dataInput')[0],'addPublish');")
+        #        updateButton_img = HT.Image("/images/edit_icon.jpg", name="addnew", alt="Add To Publish", title="Add To Publish", style="border:none;")
+        #        updateButton.append(updateButton_img)
+        #        updateText = "Edit"
+        #    elif this_trait.dataset.type != 'Temp':
+        #        if this_trait.dataset.type == 'Publish' and this_trait.confidential: #XZ: confidential phenotype trait
+        #            if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
+        #                updateButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('dataInput')[0],'updateRecord');")
+        #                updateButton_img = HT.Image("/images/edit_icon.jpg", name="update", alt="Edit", title="Edit", style="border:none;")
+        #                updateButton.append(updateButton_img)
+        #                updateText = "Edit"
+        #        else:
+        #            updateButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('dataInput')[0],'updateRecord');")
+        #            updateButton_img = HT.Image("/images/edit_icon.jpg", name="update", alt="Edit", title="Edit", style="border:none;")
+        #            updateButton.append(updateButton_img)
+        #            updateText = "Edit"
+        #    else:
+        #        pass
 
-            if this_trait==None or this_trait.dataset.type=='Temp':
-                updateButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('dataInput')[0],'addPublish');")
-                updateButton_img = HT.Image("/images/edit_icon.jpg", name="addnew", alt="Add To Publish", title="Add To Publish", style="border:none;")
-                updateButton.append(updateButton_img)
-                updateText = "Edit"
-            elif this_trait.dataset.type != 'Temp':
-                if this_trait.dataset.type == 'Publish' and this_trait.confidential: #XZ: confidential phenotype trait
-                    if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
-                        updateButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('dataInput')[0],'updateRecord');")
-                        updateButton_img = HT.Image("/images/edit_icon.jpg", name="update", alt="Edit", title="Edit", style="border:none;")
-                        updateButton.append(updateButton_img)
-                        updateText = "Edit"
-                else:
-                    updateButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('dataInput')[0],'updateRecord');")
-                    updateButton_img = HT.Image("/images/edit_icon.jpg", name="update", alt="Edit", title="Edit", style="border:none;")
-                    updateButton.append(updateButton_img)
-                    updateText = "Edit"
-            else:
-                pass
-
-        self.cursor.execute('SELECT Name FROM InbredSet WHERE Name="%s"' % fd.group)
+        g.db.execute("SELECT Name FROM InbredSet WHERE Name=%s", self.dataset.group.name)
         if this_trait:
-            addSelectionButton = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (fd.group, 'dataInput'))
+            addSelectionButton = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (self.dataset.group.name, 'dataInput'))
             addSelectionButton_img = HT.Image("/images/add_icon.jpg", name="addselect", alt="Add To Collection", title="Add To Collection", style="border:none;")
             #addSelectionButton.append(addSelectionButton_img)
             addSelectionText = "Add"
@@ -373,8 +374,7 @@ class ShowTrait(templatePage):
             if this_trait.symbol:
                 #XZ: Show SNP Browser only for mouse
                 if _Species == 'mouse':
-                    self.cursor.execute("select geneSymbol from GeneList where geneSymbol = %s", this_trait.symbol)
-                    geneName = self.cursor.fetchone()
+                    geneName = g.db.execute("SELECT geneSymbol FROM GeneList WHERE geneSymbol = %s", this_trait.symbol).fetchone()
                     if geneName:
                         snpurl = os.path.join(webqtlConfig.CGIDIR, "main.py?FormID=SnpBrowserResultPage&submitStatus=1&diffAlleles=True&customStrain=True") + "&geneName=%s" % geneName[0]
                     else:
@@ -496,15 +496,14 @@ class ShowTrait(templatePage):
             if this_trait.dataset.name.find('Liver') >= 0 and this_trait.dataset.name.find('F2') < 0:
                 pass
             else:
+                query = """SELECT count(*)
+                           FROM Probe, ProbeSet
+                           WHERE ProbeSet.Name = '%s' AND Probe.ProbeSetId = ProbeSet.Id""" % (this_trait.name)
                 #query database for number of probes associated with trait; if count > 0, set probe tool button and text
-                self.cursor.execute("""SELECT count(*)
-                                           FROM Probe, ProbeSet
-                                           WHERE ProbeSet.Name = '%s' AND Probe.ProbeSetId = ProbeSet.Id""" % (this_trait.name))
-
-                probeResult = self.cursor.fetchone()
+                probeResult = g.db.execute(query).fetchone()
                 if probeResult[0] > 0:
                     probeurl = "%s?FormID=showProbeInfo&database=%s&ProbeSetID=%s&CellID=%s&group=%s&incparentsf1=ON" \
-                            % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.dataset, this_trait.name, this_trait.cellid, fd.group)
+                            % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.dataset, this_trait.name, this_trait.cellid, self.dataset.group.name)
                     probeButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % probeurl)
                     probeButton_img = HT.Image("/images/probe_icon.jpg", name="probe", alt=" Check sequence of probes ", title=" Check sequence of probes ", style="border:none;")
                     #probeButton.append(probeButton_img)
@@ -632,18 +631,21 @@ class ShowTrait(templatePage):
                     #symatlas_species = "Mus musculus"
 
                     #self.cursor.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = '%s'" % this_trait.symbol)
-                    self.cursor.execute('SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = "%s"' % this_trait.symbol)
-                    try:
-                        chr, txst, txen = self.cursor.fetchall()[0]
-                        if chr and txst and txen and this_trait.refseq_transcriptid :
-                            txst = int(txst*1000000)
-                            txen = int(txen*1000000)
-                            tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
-                                    title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('mm9',this_trait.refseq_transcriptid,chr,txst,txen),
-                                    Class="fs14 fwn"), style=linkStyle)
-                                    , "&nbsp;"*2)
-                    except:
-                        pass
+                    #try:
+                    this_chr, txst, txen = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
+                    if this_chr and txst and txen and this_trait.refseq_transcriptid :
+                        txst = int(txst*1000000)
+                        txen = int(txen*1000000)
+                        #tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
+                        #        title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('mm9',
+                        #                                                                                  this_trait.refseq_transcriptid,
+                        #                                                                                  this_chr,
+                        #                                                                                  txst,
+                        #                                                                                  txen),
+                        #        Class="fs14 fwn"), style=linkStyle)
+                        #        , "&nbsp;"*2)
+                    #except:
+                    #    pass
 
                 #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
                 #tSpan.append(HT.Span(HT.Href(text= 'SymAtlas',target="mainFrame",\
@@ -1147,11 +1149,11 @@ class ShowTrait(templatePage):
             #title2Body.append(submitTable)
 
 
-    def build_correlation_tools(self, fd, this_trait):
+    def build_correlation_tools(self, this_trait):
 
         #species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
 
-        this_group = fd.group
+        this_group = self.dataset.group.name
 
         # We're checking a string here!
         assert isinstance(this_group, basestring), "We need a string type thing here"
@@ -1172,6 +1174,7 @@ class ShowTrait(templatePage):
             dataset_menu = []
             print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
             print("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
+            query = 
             self.cursor.execute('''SELECT PublishFreeze.FullName,PublishFreeze.Name FROM
                     PublishFreeze,InbredSet WHERE PublishFreeze.InbredSetId = InbredSet.Id
                     and InbredSet.Name = %s and PublishFreeze.public > %s''',
@@ -1610,10 +1613,10 @@ class ShowTrait(templatePage):
 
 
     def make_sample_lists(self, fd, variance_data_page, this_trait):
-        if fd.parlist:
-            all_samples_ordered = fd.parlist + fd.f1list + fd.samplelist
+        if args['parlist']:
+            all_samples_ordered = args['parlist'] + args['f1list'] + args['samplelist']
         else:
-            all_samples_ordered = fd.f1list + fd.samplelist
+            all_samples_ordered = args['f1list'] + args['samplelist']
 
         this_trait_samples = set(this_trait.data.keys())
 
@@ -1622,12 +1625,12 @@ class ShowTrait(templatePage):
         print("-*- primary_samplelist is:", pf(primary_sample_names))
 
         primary_samples = SampleList(self.cursor,
-                                        fd=fd,
+                                        args=args,
                                         variance_data_page=variance_data_page,
                                         sample_names=primary_sample_names,
                                         this_trait=this_trait,
                                         sample_group_type='primary',
-                                        header="%s Only" % (fd.group))
+                                        header="%s Only" % (self.dataset.group.name))
 
         other_sample_names = []
         for sample in this_trait.data.keys():

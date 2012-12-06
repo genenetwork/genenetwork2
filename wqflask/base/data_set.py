@@ -42,12 +42,13 @@ def create_dataset(dataset_name):
     #cursor = db_conn.cursor()
     print("dataset_name:", dataset_name)
 
-    dataset_type = g.db.execute("""
+    query = """
         SELECT DBType.Name
         FROM DBList, DBType
-        WHERE DBList.Name = %s and
+        WHERE DBList.Name = '%s' and
               DBType.Id = DBList.DBTypeId
-        """, (dataset_name)).fetchone().Name
+        """ % (escape(dataset_name))
+    dataset_type = g.db.execute(query).fetchone().Name
 
     #dataset_type = cursor.fetchone()[0]
     print("[blubber] dataset_type:", pf(dataset_type))

@@ -9,7 +9,7 @@ from pprint import pformat as pf
 class SampleList(object):
     def __init__(self,
                  cursor,
-                 fd,
+                 dataset,
                  variance_data_page,
                  sample_names,
                  this_trait,
@@ -17,7 +17,7 @@ class SampleList(object):
                  header):
         
         self.cursor = cursor
-        self.fd = fd
+        self.dataset = dataset
         self.this_trait = this_trait
         self.sample_group_type = sample_group_type    # primary or other
         self.header = header
@@ -42,7 +42,7 @@ class SampleList(object):
             #if fd.RISet == 'AXBXA' and sampleName in ('AXB18/19/20','AXB13/14','BXA8/17'):
             #    sampleNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
             sample.extra_info = {}
-            if self.fd.RISet == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):   
+            if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):   
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12" 
 
@@ -124,7 +124,7 @@ class SampleList(object):
                                         WHERE Strain.Name = %s and
                                             StrainXRef.StrainId = Strain.Id and
                                             InbredSet.Id = StrainXRef.InbredSetId and
-                                            InbredSet.Name = %s""", (sample_name, self.fd.RISet))
+                                            InbredSet.Name = %s""", (sample_name, self.dataset.group.name))
 
             sample_id = self.cursor.fetchone()[0]
 

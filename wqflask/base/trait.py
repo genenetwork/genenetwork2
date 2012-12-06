@@ -24,7 +24,7 @@ class GeneralTrait:
 
     def __init__(self, **kw):
         print("in GeneralTrait")
-        self.dataset = kw.get('dataset', None)                  # database object
+        self.dataset = kw.get('dataset', None)                  # database name
         self.name = kw.get('name', None)                 # Trait ID, ProbeSet ID, Published ID, etc.
         self.cellid = kw.get('cellid', None)
         self.identification = kw.get('identification', 'un-named trait')
@@ -230,7 +230,7 @@ class GeneralTrait:
         if samplelist == None:
             samplelist = []
             
-        assert self.dataset
+        #assert self.dataset
         
         #if self.cellid:
         #     #Probe Data

@@ -112,11 +112,11 @@ class SearchResultPage(templatePage):
 
             print("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id)
+            this_trait = GeneralTrait(dataset=self.dataset.name, name=trait_id)
             this_trait.retrieve_info(QTL=True)
             self.trait_list.append(this_trait)
 
-        self.dataset.get_trait_info(self.trait_list, species)    
+        self.dataset.get_trait_info(self.trait_list, species)
 
 
     def search(self):
