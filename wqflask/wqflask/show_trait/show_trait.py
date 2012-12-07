@@ -1627,10 +1627,11 @@ class ShowTrait(object):
                                         this_trait=this_trait,
                                         sample_group_type='primary',
                                         header="%s Only" % (self.dataset.group.name))
+        print("primary_samples is: ", pf(primary_samples))
+
 
         other_sample_names = []
         for sample in this_trait.data.keys():
-            print("hjk - sample is:", sample)
             if sample not in all_samples_ordered:
                 all_samples_ordered.append(sample)
                 other_sample_names.append(sample)

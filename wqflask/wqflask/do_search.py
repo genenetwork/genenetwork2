@@ -198,26 +198,6 @@ class PhenotypeSearch(DoSearch):
 
         query = self.compile_final_query(where_clause = self.get_fields_clause())
 
-#        self.query = """SELECT PublishXRef.Id,
-#PublishFreeze.createtime as thistable,
-#Publication.PubMed_ID as Publication_PubMed_ID,
-#Phenotype.Post_publication_description as Phenotype_Name FROM Phenotype,
-#PublishFreeze, Publication, PublishXRef WHERE (Phenotype.Post_publication_description
-#REGEXP "[[:<:]]brain[[:>:]]" OR Phenotype.Pre_publication_description REGEXP "[[:<:]]brain[[:>:]]"
-#OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]brain[[:>:]]"
-#OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]brain[[:>:]]"
-#OR Phenotype.Lab_code REGEXP "[[:<:]]brain[[:>:]]"
-#OR Publication.PubMed_ID REGEXP "[[:<:]]brain[[:>:]]"
-#OR Publication.Abstract REGEXP "[[:<:]]brain[[:>:]]"
-#OR Publication.Title REGEXP "[[:<:]]brain[[:>:]]"
-#OR Publication.Authors REGEXP "[[:<:]]brain[[:>:]]"
-#OR PublishXRef.Id REGEXP "[[:<:]]brain[[:>:]]")
-#and PublishXRef.InbredSetId = 1
-#and PublishXRef.PhenotypeId = Phenotype.Id
-#and PublishXRef.PublicationId = Publication.Id
-#and PublishFreeze.Id = 1;"""
-
-
         results = self.execute(query)
         print("in [df] run results are:", results)
         return results
@@ -461,7 +441,8 @@ class CisTransLrsSearch(LrsSearch):
 
 
 class CisLrsSearch(CisTransLrsSearch):
-    """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
+    """
+    Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
 
     A cisLRS search can take 3 forms:
     - cisLRS=(min_LRS max_LRS)
@@ -484,9 +465,10 @@ class CisLrsSearch(CisTransLrsSearch):
 class TransLrsSearch(CisTransLrsSearch):
     """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
 
-    A transLRS search can take 2 forms:
+    A transLRS search can take 3 forms:
     - transLRS=(min_LRS max_LRS)
     - transLRS=(min_LRS max_LRS mb_buffer)
+    - transLRS>min_LRS
     where min/max_LRS represent the range of LRS scores and the mb_buffer is the range around
     a particular QTL where its eQTL would be considered "cis". If there is no third parameter,
     mb_buffer will default to 5 megabases.

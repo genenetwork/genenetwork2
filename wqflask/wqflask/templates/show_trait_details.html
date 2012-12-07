@@ -12,6 +12,7 @@
         </a>
     </dd>
 
+    {% if this_trait.probe_set_specificity %}
     <dt>
         <a href="/blatInfo.html" target="_blank"
            title="Values higher than 2 for the specificity are good">
@@ -19,9 +20,11 @@
         </a>
     </dt>
     <dd>{{ "%.1f" % (this_trait.probe_set_specificity) }}</dd>
-
+    {% endif %}
+    {% if this_trait.probe_set_blat_score %}
     <dt>BLAT Score</dt>
     <dd>{{ "%i" % (this_trait.probe_set_blat_score) }}</dd>
+    {% endif %}
 </dl>
 
 

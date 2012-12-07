@@ -56,7 +56,8 @@ class SampleList(object):
             if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
                 sample.extra_attributes = self.get_extra_attribute_values(sample_name)
                 print("sample.extra_attributes is", pf(sample.extra_attributes))
-                self.sample_list.append(sample)
+            
+            self.sample_list.append(sample)
 
         print("self.attributes is", pf(self.attributes))
 
