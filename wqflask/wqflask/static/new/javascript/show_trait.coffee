@@ -161,7 +161,10 @@ $ ->
         for row in Stat_Table_Rows
             console.log("rowing")
             row_line = """<tr>"""
-            row_line += """<td id="#{ row.vn  }">#{ row.pretty }</td>"""
+            if row.url?
+                row_line += """<td id="#{ row.vn  }"><a href="#{row.url }">#{ row.pretty }</a></td>"""
+            else
+                row_line += """<td id="#{ row.vn  }">#{ row.pretty }</td>"""
             console.log("box - js_data.sample_group_types:", js_data.sample_group_types)
             for own key, value of js_data.sample_group_types
                 console.log("apple key:", key)

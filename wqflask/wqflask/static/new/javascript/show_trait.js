@@ -172,7 +172,11 @@
         row = Stat_Table_Rows[_i];
         console.log("rowing");
         row_line = "<tr>";
-        row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
+        if (row.url != null) {
+          row_line += "<td id=\"" + row.vn + "\"><a href=\"" + row.url + "\">" + row.pretty + "</a></td>";
+        } else {
+          row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
+        }
         console.log("box - js_data.sample_group_types:", js_data.sample_group_types);
         _ref1 = js_data.sample_group_types;
         for (key in _ref1) {
