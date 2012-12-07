@@ -36,6 +36,8 @@ class Stats
     std_error: ->
         return @std_dev() / Math.sqrt(@n_of_samples())
 
+    # We could also just use the first value here (and last in max) because we assume the
+    # lists are sorted for things like interquartile (and in fact they are)
     min: ->
         return Math.min(@the_values...)
 
@@ -51,8 +53,10 @@ class Stats
     interquartile: ->
         length = @the_values.length
         # Todo: Consider averaging q1 and a3 when the length is odd
-        q1 = @the_values[Math.round(length * .25)]
-        q3 = @the_values[Math.round(length * .75)]
+        console.log("in interquartile the_values are:", @the_values)
+        console.log("length is:", length)
+        q1 = @the_values[Math.floor(length * .25)]
+        q3 = @the_values[Math.floor(length * .75)]
         iq = q3 - q1
         return Math.pow(2, iq)
 

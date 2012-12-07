@@ -81,8 +81,10 @@
     Stats.prototype.interquartile = function() {
       var iq, length, q1, q3;
       length = this.the_values.length;
-      q1 = this.the_values[Math.round(length * .25)];
-      q3 = this.the_values[Math.round(length * .75)];
+      console.log("in interquartile the_values are:", this.the_values);
+      console.log("length is:", length);
+      q1 = this.the_values[Math.floor(length * .25)];
+      q3 = this.the_values[Math.floor(length * .75)];
       iq = q3 - q1;
       return Math.pow(2, iq);
     };
