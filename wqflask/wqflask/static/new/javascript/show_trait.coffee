@@ -4,6 +4,61 @@ console.log("start_b")
 is_number = (o) ->
     return ! isNaN (o-0) && o != null
 
+Stat_Table_Rows = [
+                {
+                    vn: "n_of_samples"
+                    pretty: "N of Samples"
+                    digits: 0
+                },
+                {
+                    vn: "mean"
+                    pretty: "Mean"
+                    digits: 2
+                },
+                {
+                    vn: "median"
+                    pretty: "Median"
+                    digits: 2
+                },
+                {
+                    vn: "std_error"
+                    pretty: "Standard Error (SE)"
+                    digits: 2
+                },
+                {
+                    vn: "std_dev"
+                    pretty: "Standard Deviation (SD)"
+                    digits: 2
+                },
+                {
+                    vn: "min"
+                    pretty: "Minimum"
+                    digits: 2
+                },
+                {
+                    vn: "max"
+                    pretty: "Maximum"
+                    digits: 2
+                },
+                {
+                    vn: "range"
+                    pretty: "Range (log2)"
+                    digits: 2
+                },
+                {
+                    vn: "range_fold"
+                    pretty: "Range (fold)"
+                    digits: 2
+                },
+                {
+                    vn: "interquartile"
+                    pretty: "Interquartile Range"
+                    url: "/glossary.html#Interquartile"
+                    digits: 2
+                }
+
+        ]
+
 $ ->
     hide_tabs = (start) ->
         for x in [start..10]
@@ -30,19 +85,29 @@ $ ->
         the_value = sample_sets[category][value_type]()
         console.log("After running sample_sets, the_value is:", the_value)
         if decimal_places > 0
+            title_value = the_value.toFixed(decimal_places * 2)
             the_value = the_value.toFixed(decimal_places)
+        else
+            title_value = null
 
         console.log("*-* the_value:", the_value)
         console.log("*-* current_value:", current_value)
         if the_value != current_value
             $(id).html(the_value).effect("highlight")
 
+        # We go ahead and always change the title value if we have it
+        if title_value
+            $(id).attr('title', title_value)
+
     update_stat_values = (sample_sets)->
         for category in ['samples_primary', 'samples_other', 'samples_all']
-            change_stats_value(sample_sets, category, "n_of_samples", 0)
-            for stat in ["mean", "median", "std_dev", "std_error", "min", "max"]
+            #change_stats_value(sample_sets, category, "n_of_samples", 0)
+
+            #for stat in ["mean", "median", "std_dev", "std_error", "min", "max"]
+            #for stat in (row.vn for row in Stat_Table_Rows)
+            for row in Stat_Table_Rows
                 console.log("Calling change_stats_value")
-                change_stats_value(sample_sets, category, stat, 2)
+                change_stats_value(sample_sets, category, row.vn, row.digits)
 
     edit_data_change = ->
         sample_sets =
@@ -94,41 +159,10 @@ $ ->
         header += "</thead>"
         console.log("windex header is:", header)
 
-        rows = [
-                {
-                    vn: "n_of_samples"
-                    pretty: "N of Samples"
-                },
-                {
-                    vn: "mean"
-                    pretty: "Mean"
-                },
-                {
-                    vn: "median"
-                    pretty: "Median"
-                },
-                {
-                    vn: "std_error"
-                    pretty: "Standard Error (SE)"
-                },
-                {
-                    vn: "std_dev"
-                    pretty: "Standard Deviation (SD)"
-                },
-                {
-                    vn: "min"
-                    pretty: "Minimum"
-                },
-                {
-                    vn: "max"
-                    pretty: "Maximum"
-                }
-        ]
-
-        console.log("rows are:", rows)
+        #console.log("rows are:", rows)
         the_rows = "<tbody>"
-        console.log("length of rows:", rows.length)
-        for row in rows
+        #console.log("length of rows:", rows.length)
+        for row in Stat_Table_Rows
             console.log("rowing")
             row_line = """<tr>"""
             row_line += """<td id="#{ row.vn  }">#{ row.pretty }</td>"""

@@ -7,7 +7,7 @@
 
     <dt>Database</dt>
     <dd>
-        <a href="{{ this_trait.database.url }}" target="_blank">
+        <a href="{{ url_for('static', filename='/dbdoc/' + dataset.fullname + '.html') }}" target="_blank">
             {{ dataset.name }}
         </a>
     </dd>

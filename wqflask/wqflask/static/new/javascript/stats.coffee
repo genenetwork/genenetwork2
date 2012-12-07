@@ -42,6 +42,20 @@ class Stats
     max: ->
         return Math.max(@the_values...)
 
+    range: ->
+        return @max() - @min()
+
+    range_fold: ->
+        return Math.pow(2, @range())
+
+    interquartile: ->
+        length = @the_values.length
+        # Todo: Consider averaging q1 and a3 when the length is odd
+        q1 = @the_values[Math.round(length * .25)]
+        q3 = @the_values[Math.round(length * .75)]
+        iq = q3 - q1
+        return Math.pow(2, iq)
+
 
 bxd_only = new Stats([3, 5, 7, 8])
 console.log("[xred] bxd_only mean:", bxd_only.mean())

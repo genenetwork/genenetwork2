@@ -70,6 +70,23 @@
       return Math.max.apply(Math, this.the_values);
     };
 
+    Stats.prototype.range = function() {
+      return this.max() - this.min();
+    };
+
+    Stats.prototype.range_fold = function() {
+      return Math.pow(2, this.range());
+    };
+
+    Stats.prototype.interquartile = function() {
+      var iq, length, q1, q3;
+      length = this.the_values.length;
+      q1 = this.the_values[Math.round(length * .25)];
+      q3 = this.the_values[Math.round(length * .75)];
+      iq = q3 - q1;
+      return Math.pow(2, iq);
+    };
+
     return Stats;
 
   })();
