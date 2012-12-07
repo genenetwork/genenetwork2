@@ -110,6 +110,7 @@ $ ->
                 change_stats_value(sample_sets, category, row.vn, row.digits)
 
     edit_data_change = ->
+        already_seen = {}
         sample_sets =
             samples_primary: new Stats([])
             samples_other: new Stats([])
@@ -117,21 +118,14 @@ $ ->
 
         console.log("at beginning:", sample_sets)
 
-        # ##########
-        # Bug here #value_table doesn't exist and why is it a class?
-        # ##########
-
-        #values = $('.value_table').find(".edit_sample_value")
-
-
         tables = ['samples_primary', 'samples_other']
         for table in tables
             rows = $("#" + table).find('tr')
             console.log("[fuji3] rows:", rows)
             for row in rows
+                name = $(row).find('.edit_sample_sample_name').html()
+                name = $.trim(name)
                 real_value = $(row).find('.edit_sample_value').val()
-                #row = $(value).closest("tr")
-                #category = row[0].id
                 console.log("real_value:", real_value)
                 checkbox = $(row).find(".edit_sample_checkbox")
                 checked = $(checkbox).attr('checked')
@@ -139,11 +133,13 @@ $ ->
                 if checked and is_number(real_value) and real_value != ""
                     console.log("in the iffy if")
                     real_value = parseFloat(real_value)
-                    #if _(category).startsWith("Primary")
+
                     sample_sets[table].add_value(real_value)
-                    #else if _(category).startsWith("Other")
-                    #    sample_sets.other_only.add_value(real_value)
-                    sample_sets['samples_all'].add_value(real_value)
+                    console.log("checking name of:", name)
+                    if not (name of already_seen)
+                        console.log("haven't seen")
+                        sample_sets['samples_all'].add_value(real_value)
+                        already_seen[name] = true
         console.log("towards end:", sample_sets)
         update_stat_values(sample_sets)
 

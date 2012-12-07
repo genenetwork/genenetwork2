@@ -828,35 +828,34 @@ class ShowTrait(object):
 
         elif this_trait and this_trait.dataset and this_trait.dataset.type == 'Geno': #Check if trait is genotype
 
-            GenoInfo = HT.Paragraph()
             if this_trait.chr and this_trait.mb:
                 location = ' Chr %s @ %s Mb' % (this_trait.chr,this_trait.mb)
             else:
                 location = "not available"
 
-            if this_trait.sequence and len(this_trait.sequence) > 100:
-                if _Species == "rat":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', this_trait.sequence)
-                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('rat', 'rn3', this_trait.sequence)
-                elif _Species == "mouse":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
-                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
-                elif _Species == "human":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
-                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('human', 'hg19', this_trait.sequence)
-                else:
-                    UCSC_BLAT_URL = ""
-                    UTHSC_BLAT_URL = ""
-                if UCSC_BLAT_URL:
-                    #verifyButton = HT.Href(url="#", onClick="openNewWin('%s')" % UCSC_BLAT_URL)
-                    verifyButton = HT.Href(url="#")
-                    verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="verify", alt=" Check probe locations at UCSC ", title=" Check probe locations at UCSC ", style="border:none;")
-                    verifyButton.append(verifyButtonImg)
-                    verifyText = "Verify"
-                    rnaseqButton = HT.Href(url="#", onClick="openNewWin('%s')" % UTHSC_BLAT_URL)
-                    rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="rnaseq", alt=" View probes, SNPs, and RNA-seq at UTHSC ", title=" View probes, SNPs, and RNA-seq at UTHSC ", style="border:none;")
-                    rnaseqButton.append(rnaseqButtonImg)
-                    rnaseqText = "RNA-seq"
+            #if this_trait.sequence and len(this_trait.sequence) > 100:
+            #    if _Species == "rat":
+            #        UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', this_trait.sequence)
+            #        UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('rat', 'rn3', this_trait.sequence)
+            #    elif _Species == "mouse":
+            #        UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
+            #        UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
+            #    elif _Species == "human":
+            #        UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
+            #        UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('human', 'hg19', this_trait.sequence)
+            #    else:
+            #        UCSC_BLAT_URL = ""
+            #        UTHSC_BLAT_URL = ""
+            #    if UCSC_BLAT_URL:
+            #        #verifyButton = HT.Href(url="#", onClick="openNewWin('%s')" % UCSC_BLAT_URL)
+            #        verifyButton = HT.Href(url="#")
+            #        verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="verify", alt=" Check probe locations at UCSC ", title=" Check probe locations at UCSC ", style="border:none;")
+            #        verifyButton.append(verifyButtonImg)
+            #        verifyText = "Verify"
+            #        rnaseqButton = HT.Href(url="#", onClick="openNewWin('%s')" % UTHSC_BLAT_URL)
+            #        rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="rnaseq", alt=" View probes, SNPs, and RNA-seq at UTHSC ", title=" View probes, SNPs, and RNA-seq at UTHSC ", style="border:none;")
+            #        rnaseqButton.append(rnaseqButtonImg)
+            #        rnaseqText = "RNA-seq"
 
             #tbl.append(HT.TR(
             #                HT.TD('Location: ', Class="fs13 fwb",
@@ -872,7 +871,7 @@ class ShowTrait(object):
             #                        valign="top", width=740)
             #                ))
 
-            menuTable = HT.TableLite(cellpadding=2, Class="collap", width="275", id="target1")
+            #menuTable = HT.TableLite(cellpadding=2, Class="collap", width="275", id="target1")
             #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(verifyButton, align="center"),HT.TD(rnaseqButton, align="center"), HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
             #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(verifyText, align="center"),HT.TD(rnaseqText, align="center"), HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
 
@@ -1628,7 +1627,6 @@ class ShowTrait(object):
                                         sample_group_type='primary',
                                         header="%s Only" % (self.dataset.group.name))
         print("primary_samples is: ", pf(primary_samples))
-
 
         other_sample_names = []
         for sample in this_trait.data.keys():

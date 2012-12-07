@@ -60,7 +60,7 @@ class DoSearch(object):
         return cls.search_types[search_type]
 
 
-class ProbeSetSearch(DoSearch):
+class MrnaAssaySearch(DoSearch):
     """A search within an mRNA expression dataset"""
 
     DoSearch.search_types['ProbeSet'] = "ProbeSetSearch"
@@ -265,7 +265,7 @@ class GenotypeSearch(DoSearch):
 
         return self.execute(self.query)
 
-class RifSearch(ProbeSetSearch):
+class RifSearch(MrnaAssaySearch):
     """Searches for traits with a Gene RIF entry including the search term."""
 
     DoSearch.search_types['RIF'] = "RifSearch"
@@ -280,7 +280,7 @@ class RifSearch(ProbeSetSearch):
 
         return self.execute(query)
 
-class WikiSearch(ProbeSetSearch):
+class WikiSearch(MrnaAssaySearch):
     """Searches GeneWiki for traits other people have annotated"""
 
     DoSearch.search_types['WIKI'] =  "WikiSearch"
@@ -298,7 +298,7 @@ class WikiSearch(ProbeSetSearch):
 
         return self.execute(query)
 
-class GoSearch(ProbeSetSearch):
+class GoSearch(MrnaAssaySearch):
     """Searches for synapse-associated genes listed in the Gene Ontology."""
 
     DoSearch.search_types['GO'] =  "GoSearch"
@@ -323,7 +323,7 @@ class GoSearch(ProbeSetSearch):
         return self.execute(query)
 
 #ZS: Not sure what the best way to deal with LRS searches is
-class LrsSearch(ProbeSetSearch):
+class LrsSearch(MrnaAssaySearch):
     """Searches for genes with a QTL within the given LRS values
 
     LRS searches can take 3 different forms:
@@ -484,7 +484,7 @@ class TransLrsSearch(CisTransLrsSearch):
         return self.real_run(">")
 
 
-class MeanSearch(ProbeSetSearch):
+class MeanSearch(MrnaAssaySearch):
     """Searches for genes expressed within an interval (log2 units) determined by the user"""
 
     DoSearch.search_types['MEAN'] = "MeanSearch"
@@ -514,7 +514,7 @@ class MeanSearch(ProbeSetSearch):
 
         return self.execute(self.query)
 
-class RangeSearch(ProbeSetSearch):
+class RangeSearch(MrnaAssaySearch):
     """Searches for genes with a range of expression varying between two values"""
     
     DoSearch.search_types['RANGE'] = "RangeSearch"
@@ -571,7 +571,7 @@ class PositionSearch(DoSearch):
 
         return self.execute(self.query)        
 
-class MrnaPositionSearch(ProbeSetSearch, PositionSearch):
+class MrnaPositionSearch(MrnaAssaySearch, PositionSearch):
     """Searches for genes located within a specified range on a specified chromosome"""
     
     def run(self):
@@ -591,7 +591,7 @@ class GenotypePositionSearch(GenotypeSearch, PositionSearch):
 
         return self.execute(self.query)
     
-class PvalueSearch(ProbeSetSearch):
+class PvalueSearch(MrnaAssaySearch):
     """Searches for traits with a permutationed p-value between low and high"""
     
     def run(self):

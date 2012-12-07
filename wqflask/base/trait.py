@@ -258,113 +258,15 @@ class GeneralTrait:
         #else:
         results = self.dataset.retrieve_sample_data(self)
 
-        #if self.dataset.type == 'Temp':
-        #    query = '''
-        #            SELECT
-        #                    Strain.Name, TempData.value, TempData.SE, TempData.NStrain, TempData.Id
-        #            FROM
-        #                    TempData, Temp, Strain
-        #            WHERE
-        #                    TempData.StrainId = Strain.Id AND
-        #                    TempData.Id = Temp.DataId AND
-        #                    Temp.name = '%s'
-        #            Order BY
-        #                    Strain.Name
-        #            ''' % self.name
-        ##XZ, 03/02/2009: Xiaodong changed Data to PublishData, SE to PublishSE
-        #elif self.dataset.type == 'Publish':
-        #    query = '''
-        #            SELECT
-        #                    Strain.Name, PublishData.value, PublishSE.error, NStrain.count, PublishData.Id
-        #            FROM
-        #                    (PublishData, Strain, PublishXRef, PublishFreeze)
-        #            left join PublishSE on
-        #                    (PublishSE.DataId = PublishData.Id AND PublishSE.StrainId = PublishData.StrainId)
-        #            left join NStrain on
-        #                    (NStrain.DataId = PublishData.Id AND
-        #                    NStrain.StrainId = PublishData.StrainId)
-        #            WHERE
-        #                    PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
-        #                    PublishData.Id = PublishXRef.DataId AND PublishXRef.Id = %s AND
-        #                    PublishFreeze.Id = %d AND PublishData.StrainId = Strain.Id
-        #            Order BY
-        #                    Strain.Name
-        #            ''' % (self.name, self.dataset.id)
-
-        #XZ, 03/02/2009: Xiaodong changed Data to ProbeData, SE to ProbeSE
-        #elif self.cellid:
-           
-        #XZ, 03/02/2009: Xiaodong added this block for ProbeSetData and ProbeSetSE
-        #elif self.dataset.type == 'ProbeSet':
-        #    #ProbeSet Data
-        #    query = '''
-        #            SELECT
-        #                    Strain.Name, ProbeSetData.value, ProbeSetSE.error, ProbeSetData.Id
-        #            FROM
-        #                    (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
-        #            left join ProbeSetSE on
-        #                    (ProbeSetSE.DataId = ProbeSetData.Id AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
-        #            WHERE
-        #                    ProbeSet.Name = '%s' AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-        #                    ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-        #                    ProbeSetFreeze.Name = '%s' AND
-        #                    ProbeSetXRef.DataId = ProbeSetData.Id AND
-        #                    ProbeSetData.StrainId = Strain.Id
-        #            Order BY
-        #                    Strain.Name
-        #            ''' % (self.name, self.dataset.name)
-        ##XZ, 03/02/2009: Xiaodong changeded Data to GenoData, SE to GenoSE
-        #else:
-        #    #Geno Data
-        #    #XZ: The SpeciesId is not necessary, but it's nice to keep it to speed up database search.
-        #    query = '''
-        #            SELECT
-        #                    Strain.Name, GenoData.value, GenoSE.error, GenoData.Id
-        #            FROM
-        #                    (GenoData, GenoFreeze, Strain, Geno, GenoXRef)
-        #            left join GenoSE on
-        #                    (GenoSE.DataId = GenoData.Id AND GenoSE.StrainId = GenoData.StrainId)
-        #            WHERE
-        #                    Geno.SpeciesId = %s AND Geno.Name = '%s' AND GenoXRef.GenoId = Geno.Id AND
-        #                    GenoXRef.GenoFreezeId = GenoFreeze.Id AND
-        #                    GenoFreeze.Name = '%s' AND
-        #                    GenoXRef.DataId = GenoData.Id AND
-        #                    GenoData.StrainId = Strain.Id
-        #            Order BY
-        #                    Strain.Name
-        #            ''' % (webqtlDatabaseFunction.retrieveSpeciesId(self.cursor, self.dataset.group), self.name, self.dataset.name)
-
-
-        #self.cursor.execute(query)
-        #results = self.cursor.fetchall()
-        
         # Todo: is this necessary? If not remove
         self.data.clear()
 
         if results:
-            #self.mysqlid = results[0][-1]
-            #if samplelist:
             for item in results:
                 #name, value, variance, num_cases = item
                 if not samplelist or (samplelist and name in samplelist):
-                    #if value != None:
-                    #    num_cases = None
-                    #    if self.dataset.type in ('Publish', 'Temp'):
-                    #        ndata = item[3]
                     name = item[0]
                     self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
-                #end for
-        #    else:
-        #        for item in results:
-        #            val = item[1]
-        #            if val != None:
-        #                var = item[2]
-        #                ndata = None
-        #                if self.dataset.type in ('Publish', 'Temp'):
-        #                    ndata = item[3]
-        #                self.data[item[0]] = webqtlCaseData(val, var, ndata)
-        #        #end for
-        #    #end if
 
     #def keys(self):
     #    return self.__dict__.keys()
@@ -429,7 +331,9 @@ class GeneralTrait:
                             GenoXRef.GenoId = Geno.Id AND
                             GenoFreeze.Name = '%s' AND
                             Geno.Name = '%s'
-                    """ % (escape(display_fields_string), escape(self.dataset.name), escape(self.name))
+                    """ % (escape(display_fields_string),
+                           escape(self.dataset.name),
+                           escape(self.name))
             traitInfo = g.db.execute(query).fetchone()
             print("traitInfo is: ", pf(traitInfo))
         else: #Temp type

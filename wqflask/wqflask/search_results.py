@@ -54,11 +54,6 @@ class SearchResultPage(templatePage):
         # change back to self.dataset
         #if not self.dataset or self.dataset == 'spacer':
         #    #Error, No dataset selected
-        #    heading = "Search Result"
-        #    detail = ['''No dataset was selected for this search, please
-        #        go back and SELECT at least one dataset.''']
-        #    self.error(heading=heading,detail=detail,error="No dataset Selected")
-        #    return
 
         ###########################################
         #   Names and IDs of group / F2 set
@@ -144,21 +139,3 @@ class SearchResultPage(templatePage):
             print("in the search results are:", self.results)
 
         self.header_fields = the_search.header_fields
-
-
-    #ZS: This should be handled in the parser
-    def encregexp(self,str):
-        if not str:
-            return []
-        else:
-            wildcardkeyword = str.strip()
-            wildcardkeyword = string.replace(wildcardkeyword,',',' ')
-            wildcardkeyword = string.replace(wildcardkeyword,';',' ')
-            wildcardkeyword = wildcardkeyword.split()
-        NNN = len(wildcardkeyword)
-        for i in range(NNN):
-            keyword = wildcardkeyword[i]
-            keyword = string.replace(keyword,"*",".*")
-            keyword = string.replace(keyword,"?",".")
-            wildcardkeyword[i] = keyword#'[[:<:]]'+ keyword+'[[:>:]]'
-        return wildcardkeyword
