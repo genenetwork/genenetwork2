@@ -30,6 +30,7 @@ from htmlgen import HTMLgen2 as HT
 import reaper
 
 import webqtlConfig
+from base import species
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 
@@ -145,7 +146,7 @@ class DataSet(object):
 
     def __init__(self, name):
 
-        assert name
+        assert name, "Need a name"
         self.name = name
         self.id = None
         self.type = None
@@ -155,7 +156,10 @@ class DataSet(object):
         self.check_confidentiality()
 
         self.retrieve_other_names()
-        self.group = DatasetGroup(self)   # sets self.group and self.group_id
+        
+        self.species = species.TheSpecies(self)
+        self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
+    
        
         
     def get_desc(self):

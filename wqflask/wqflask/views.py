@@ -160,6 +160,14 @@ def corr_compute_page():
     print("Made it to  rendering")
     return render_template("correlation_page.html", **template_vars.__dict__)
 
+@app.route("/int_mapping", methods=('POST',))
+def interval_mapping_page():
+    fd = webqtlFormData.webqtlFormData(request.form)
+    print("Have fd")
+    template_vars = CorrelationPage.CorrelationPage(fd)
+    print("Made it to  rendering")
+    return render_template("correlation_page.html", **template_vars.__dict__)
+
 
 # Todo: Can we simplify this? -Sam
 def sharing_info_page():

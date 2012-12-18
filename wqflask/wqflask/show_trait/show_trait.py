@@ -1354,7 +1354,8 @@ class ShowTrait(object):
                                           return_results_menu_selected = return_results_menu_selected,)
 
 
-    def dispMappingTools(self, fd, title4Body, this_trait):
+    def build_mapping_tools(self, this_trait):
+
 
         _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
 

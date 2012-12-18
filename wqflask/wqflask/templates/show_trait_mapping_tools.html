@@ -1,382 +1,203 @@
-                        <p class="sectionheader" id="title4" style="border-radius: 5px;">&nbsp;&nbsp;Mapping Tools</p>
+<div>
+    <h2>Mapping Tools</h2>
+    
+    <div class="tabbable"> <!-- Only required for left/right tabs -->
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
+            </li>
+            <li>
+                <a href="#marker_regression" data-toggle="tab">Marker Regression</a>
+            </li>
+            <li>
+                <a href="#pair_scan" data-toggle="tab">Pair Scan</a>
+            </li>
+        </ul>
 
-                        <p id="sectionbody4"></p>
+        <div class="tab-content" style="padding-bottom: 9px; border-bottom: 1px solid #ddd;">
+            <div class="tab-pane active" id="interval_mapping">
+                <label for="chromosome">Chromosome: </label>
+                <select name="chromosome">
+                    {% for name, value in dataset.species.chromosomes %}
+                    <option value="{{ value }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                {% if dataset.group.genotype.Mbmap %}
+                <label for="scale">Scale: </label>
+                <select name="scale">
+                    <option value="megabase">Megabase</option>
+                    <option value="centimorgan">Centimorgan</option>
+                </select>
+                {% endif %}
+                <br>
+                  
+                <label for="use_permutations" class="checkbox">Permutation Test n=
+                    <input type="checkbox" name="use_permutations" />
+                    <input name="num_permutations" value="2000" />
+                </label>
+                <label for="use_bootstraps" class="checkbox">Bootstrap Test n=
+                    <input type="checkbox" name="use_bootstraps" />
+                    <input name="num_bootstraps" value="2000" />
+                </label>                 
 
-                        <table class="target2" cellpadding="0" cellspacing="0" width="100%">
-                          <tr>
-                            <td>
-                              <div class="ui-tabs" id="mapping_tabs">
-                                <ul>
-                                  <li><a href="#mappingtabs-1">Interval</a></li>
+                <br>
+                <label class="checkbox">
+                    <input type="checkbox" name="use_parents" /> Use Parents
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" name="use_weighted" /> Use Weighted
+                </label>
+                <br>
+                <input type="button" id="interval_mapping" class="btn" value="Compute">
+            </div>
+            <div class="tab-pane" id="marker_regression">
+                <table cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                    <td class="fs12 fwn" nowrap="on" valign="top">
+                      <table cellpadding="2" cellspacing="0" width="263px">
+                        <tr>
+                          <td><span class="ffl fwb fs12"><strong>Display LRS greater than:</strong></span></td>
 
-                                  <li><a href="#mappingtabs-2">Marker Regression</a></li>
+                          <td><input type="text" name="suggestive" size="5" maxlength="8"></td>
+                        </tr>
 
-                                  <li><a href="#mappingtabs-3">Composite</a></li>
+                        <tr>
+                          <td><input type="checkbox" name="displayAllLRS" class="checkbox"> <span class="ffl fs12">Display all LRS</span></td>
+                        </tr>
 
-                                  <li><a href="#mappingtabs-4">Pair-Scan</a></li>
-                                </ul>
+                        <tr>
+                          <td><input type="checkbox" name="parentsf14regression2" class="checkbox"> <span class="ffl fs12">Use Parents</span></td>
+                        </tr>
 
-                                <div id="mappingtabs-1">
-                                  <table cellpadding="0" cellspacing="0" width="100%">
-                                    <tr>
-                                      <td class="fs12 fwn" nowrap="on" valign="top">
-                                        <table cellpadding="2" cellspacing="0" width="263px">
-                                          <tr>
-                                            <td><span class="ffl fwb fs12">Chromosome:</span></td>
+                        <tr>
+                          <td><input type="checkbox" name="applyVarianceSE2" class="checkbox"> <span class="ffl fs12">Use Weighted</span></td>
+                        </tr>
+                      </table><br>
+                      <input type="button" name="marker" class="btn" value=" Compute "><br>
+                      <br>
+                    </td>
+                  </tr>
 
-                                            <td colspan="3"><select name="chromosomes1" size="1">
-                                              <option value="-1">
-                                                All
-                                              </option>
+                  <tr>
+                    <td valign="top"><span class="fs12"><a href="/glossary.html#" target="_blank">Marker regression</a> computes and displays LRS
+                    values for individual markers.<br>
+                    This function also lists additive effects (phenotype units per allele) and<br>
+                    dominance deviations for some datasets.<br></span><br></td>
+                  </tr>
+                </table>
+            </div>
+            
+            <div class="tab-pane" id="pair_scan">
+              <table cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td class="fs12 fwn" nowrap="on">
+                    <table cellpadding="2" cellspacing="0" width="232px">
+                      <tr>
+                        <td><span class="ffl fwb fs12"><strong>Sort by:</strong></span></td>
 
-                                              <option value="0">
-                                                1
-                                              </option>
+                        <td><select name="graphSort" size="1">
+                          <option value="0">
+                            LRS Full
+                          </option>
 
-                                              <option value="1">
-                                                2
-                                              </option>
+                          <option value="1">
+                            LRS Interact
+                          </option>
+                        </select></td>
+                      </tr>
 
-                                              <option value="2">
-                                                3
-                                              </option>
+                      <tr>
+                        <td><span class="ffl fwb fs12"><strong>Return:</strong></span></td>
 
-                                              <option value="3">
-                                                4
-                                              </option>
+                        <td><select name="pairScanReturn" size="1">
+                          <option value="50">
+                            top 50
+                          </option>
 
-                                              <option value="4">
-                                                5
-                                              </option>
+                          <option value="100">
+                            top 100
+                          </option>
 
-                                              <option value="5">
-                                                6
-                                              </option>
+                          <option value="200">
+                            top 200
+                          </option>
 
-                                              <option value="6">
-                                                7
-                                              </option>
+                          <option value="500">
+                            top 500
+                          </option>
+                        </select></td>
+                      </tr>
+                    </table><br>
+                    <input type="checkbox" name="directPermuCheckbox" class="checkbox" checked><span class="ffl fs12">Permutation Test
+                    (n=500)</span><br>
+                    <br>
+                    <input type="button" class="btn" value=" Compute " onclick="dataEditingFunc(this.form,'directPlot');"><br>
+                    <br>
+                  </td>
+                </tr>
 
-                                              <option value="7">
-                                                8
-                                              </option>
+                <tr>
+                  <td valign="top"><span><a href="/glossary.html#Pair_Scan" target="_blank">Pair-Scan</a> searches for pairs of chromosomal regions
+                  that are<br>
+                  involved in two-locus epistatic interactions.</span><br></td>
+                </tr>
+              </table>
+            </div>            
+        </div>
+    </div>
+</div>
 
-                                              <option value="8">
-                                                9
-                                              </option>
-
-                                              <option value="9">
-                                                10
-                                              </option>
-
-                                              <option value="10">
-                                                11
-                                              </option>
-
-                                              <option value="11">
-                                                12
-                                              </option>
-
-                                              <option value="12">
-                                                13
-                                              </option>
-
-                                              <option value="13">
-                                                14
-                                              </option>
-
-                                              <option value="14">
-                                                15
-                                              </option>
-
-                                              <option value="15">
-                                                16
-                                              </option>
-
-                                              <option value="16">
-                                                17
-                                              </option>
-
-                                              <option value="17">
-                                                18
-                                              </option>
-
-                                              <option value="18">
-                                                19
-                                              </option>
-
-                                              <option value="19">
-                                                X
-                                              </option>
-                                            </select></td>
-                                          </tr>
-
-                                          <tr>
-                                            <td><span class="ffl fwb fs12">Mapping Scale:</span></td>
-
-                                            <td><select name="scale1" size="1" onchange=
-                                            "checkUncheck(window.document.dataInput.scale1.value, window.document.dataInput.permCheck1, window.document.dataInput.bootCheck1)">
-                                            <option value="physic">
-                                                Megabase
-                                              </option>
-
-                                              <option value="morgan">
-                                                Centimorgan
-                                              </option>
-                                            </select></td>
-                                          </tr>
-                                        </table><br>
-                                        <input type="checkbox" name="permCheck1" class="checkbox" checked>Permutation Test (n=2000)<br>
-                                        <input type="checkbox" name="bootCheck1" class="checkbox">Bootstrap Test (n=2000)<br>
-                                        <input type="checkbox" name="parentsf14regression1" class="checkbox">Use Parents<br>
-                                        <input type="checkbox" name="applyVarianceSE1" class="checkbox">Use Weighted<br>
-                                        <br>
-                                        <input type="button" name="interval" class="btn" value=" Compute "><br>
-                                        <br>
-                                      </td>
-                                    </tr>
-
-                                    <tr>
+<!--                                <tr>
                                       <td valign="top"><span class="fs12"><a href="/glossary.html#intmap" target="_blank">Interval Mapping</a> computes linkage maps
                                       for the entire genome or single<br>
                                       chromosomes. The <a href="/glossary.html#permutation" target="_blank">Permutation Test</a> estimates suggestive and
                                       significant<br>
                                       linkage scores. The <a href="/glossary.html#bootstrap" target="_blank">Bootstrap Test</a> estimates the precision of the QTL
                                       location.</span><br></td>
-                                    </tr>
-                                  </table>
-                                </div>
+                                </tr>
 
-                                <div id="mappingtabs-2">
-                                  <table cellpadding="0" cellspacing="0" width="100%">
-                                    <tr>
-                                      <td class="fs12 fwn" nowrap="on" valign="top">
-                                        <table cellpadding="2" cellspacing="0" width="263px">
-                                          <tr>
-                                            <td><span class="ffl fwb fs12"><strong>Display LRS greater than:</strong></span></td>
 
-                                            <td><input type="text" name="suggestive" size="5" maxlength="8"></td>
-                                          </tr>
 
-                                          <tr>
-                                            <td><input type="checkbox" name="displayAllLRS" class="checkbox"> <span class="ffl fs12">Display all LRS</span></td>
-                                          </tr>
+                                <tr>
+                                  <td><span class="ffl fwb fs12">Mapping Scale:</span></td>
 
-                                          <tr>
-                                            <td><input type="checkbox" name="parentsf14regression2" class="checkbox"> <span class="ffl fs12">Use Parents</span></td>
-                                          </tr>
+                                  <td><select name="scale2" size="1" onchange=
+                                  "checkUncheck(window.document.dataInput.scale2.value, window.document.dataInput.permCheck2, window.document.dataInput.bootCheck2)">
+                                  <option value="physic">
+                                      Megabase
+                                    </option>
 
-                                          <tr>
-                                            <td><input type="checkbox" name="applyVarianceSE2" class="checkbox"> <span class="ffl fs12">Use Weighted</span></td>
-                                          </tr>
-                                        </table><br>
-                                        <input type="button" name="marker" class="btn" value=" Compute "><br>
-                                        <br>
-                                      </td>
-                                    </tr>
+                                    <option value="morgan">
+                                      Centimorgan
+                                    </option>
+                                  </select></td>
+                                </tr>
 
-                                    <tr>
-                                      <td valign="top"><span class="fs12"><a href="/glossary.html#" target="_blank">Marker regression</a> computes and displays LRS
-                                      values for individual markers.<br>
-                                      This function also lists additive effects (phenotype units per allele) and<br>
-                                      dominance deviations for some datasets.<br></span><br></td>
-                                    </tr>
-                                  </table>
-                                </div>
+                                <tr>
+                                  <td><span class="ffl fwb fs12">Control Locus:</span></td>
 
-                                <div id="mappingtabs-3">
-                                  <table cellpadding="3" cellspacing="0" width="100%">
-                                    <tr>
-                                      <td class="fs12 fwn" nowrap="on" valign="top">
-                                        <table cellpadding="2" cellspacing="0" width="325px">
-                                          <tr>
-                                            <td><span class="ffl fwb fs12">Chromosome:</span></td>
-
-                                            <td colspan="3"><select name="chromosomes2" size="1">
-                                              <option value="-1">
-                                                All
-                                              </option>
-
-                                              <option value="0">
-                                                1
-                                              </option>
-
-                                              <option value="1">
-                                                2
-                                              </option>
-
-                                              <option value="2">
-                                                3
-                                              </option>
-
-                                              <option value="3">
-                                                4
-                                              </option>
-
-                                              <option value="4">
-                                                5
-                                              </option>
-
-                                              <option value="5">
-                                                6
-                                              </option>
-
-                                              <option value="6">
-                                                7
-                                              </option>
-
-                                              <option value="7">
-                                                8
-                                              </option>
-
-                                              <option value="8">
-                                                9
-                                              </option>
-
-                                              <option value="9">
-                                                10
-                                              </option>
-
-                                              <option value="10">
-                                                11
-                                              </option>
-
-                                              <option value="11">
-                                                12
-                                              </option>
-
-                                              <option value="12">
-                                                13
-                                              </option>
-
-                                              <option value="13">
-                                                14
-                                              </option>
-
-                                              <option value="14">
-                                                15
-                                              </option>
-
-                                              <option value="15">
-                                                16
-                                              </option>
-
-                                              <option value="16">
-                                                17
-                                              </option>
-
-                                              <option value="17">
-                                                18
-                                              </option>
-
-                                              <option value="18">
-                                                19
-                                              </option>
-
-                                              <option value="19">
-                                                X
-                                              </option>
-                                            </select></td>
-                                          </tr>
-
-                                          <tr>
-                                            <td><span class="ffl fwb fs12">Mapping Scale:</span></td>
-
-                                            <td><select name="scale2" size="1" onchange=
-                                            "checkUncheck(window.document.dataInput.scale2.value, window.document.dataInput.permCheck2, window.document.dataInput.bootCheck2)">
-                                            <option value="physic">
-                                                Megabase
-                                              </option>
-
-                                              <option value="morgan">
-                                                Centimorgan
-                                              </option>
-                                            </select></td>
-                                          </tr>
-
-                                          <tr>
-                                            <td><span class="ffl fwb fs12">Control Locus:</span></td>
-
-                                            <td><input type="text" name="controlLocus" class="controlLocus"></td>
-                                          </tr>
-                                        </table><br>
-                                        <input type="checkbox" name="permCheck2" class="checkbox" checked>Permutation Test (n=2000)<br>
-                                        <input type="checkbox" name="bootCheck2" class="checkbox">Bootstrap Test (n=2000)<br>
-                                        <input type="checkbox" name="parentsf14regression3" class="checkbox">Use Parents<br>
-                                        <br>
-                                        <input type="button" name="composite" class="btn" value=" Compute "><br>
-                                        <br>
-                                      </td>
-                                    </tr>
-
-                                    <tr>
-                                      <td valign="top"><span><a href="/glossary.html#Composite" target="_blank">Composite Interval Mapping</a> allows you to control
-                                      for a single marker as<br>
-                                      a cofactor. To find a control marker, run the <strong>Marker Regression</strong> function.</span><br></td>
-                                    </tr>
-                                  </table>
-                                </div>
-
-                                <div id="mappingtabs-4">
-                                  <table cellpadding="0" cellspacing="0" width="100%">
-                                    <tr>
-                                      <td class="fs12 fwn" nowrap="on">
-                                        <table cellpadding="2" cellspacing="0" width="232px">
-                                          <tr>
-                                            <td><span class="ffl fwb fs12"><strong>Sort by:</strong></span></td>
-
-                                            <td><select name="graphSort" size="1">
-                                              <option value="0">
-                                                LRS Full
-                                              </option>
-
-                                              <option value="1">
-                                                LRS Interact
-                                              </option>
-                                            </select></td>
-                                          </tr>
-
-                                          <tr>
-                                            <td><span class="ffl fwb fs12"><strong>Return:</strong></span></td>
-
-                                            <td><select name="pairScanReturn" size="1">
-                                              <option value="50">
-                                                top 50
-                                              </option>
-
-                                              <option value="100">
-                                                top 100
-                                              </option>
-
-                                              <option value="200">
-                                                top 200
-                                              </option>
-
-                                              <option value="500">
-                                                top 500
-                                              </option>
-                                            </select></td>
-                                          </tr>
-                                        </table><br>
-                                        <input type="checkbox" name="directPermuCheckbox" class="checkbox" checked><span class="ffl fs12">Permutation Test
-                                        (n=500)</span><br>
-                                        <br>
-                                        <input type="button" class="btn" value=" Compute " onclick="dataEditingFunc(this.form,'directPlot');"><br>
-                                        <br>
-                                      </td>
-                                    </tr>
-
-                                    <tr>
-                                      <td valign="top"><span><a href="/glossary.html#Pair_Scan" target="_blank">Pair-Scan</a> searches for pairs of chromosomal regions
-                                      that are<br>
-                                      involved in two-locus epistatic interactions.</span><br></td>
-                                    </tr>
-                                  </table>
-                                </div>
-                              </div>
+                                  <td><input type="text" name="controlLocus" class="controlLocus"></td>
+                                </tr>
+                              </table><br>
+                              <input type="checkbox" name="permCheck2" class="checkbox" checked>Permutation Test (n=2000)<br>
+                              <input type="checkbox" name="bootCheck2" class="checkbox">Bootstrap Test (n=2000)<br>
+                              <input type="checkbox" name="parentsf14regression3" class="checkbox">Use Parents<br>
+                              <br>
+                              <input type="button" name="composite" class="btn" value=" Compute "><br>
+                              <br>
                             </td>
                           </tr>
-                        </table>
+
+                          <tr>
+                            <td valign="top"><span><a href="/glossary.html#Composite" target="_blank">Composite Interval Mapping</a> allows you to control
+                            for a single marker as<br>
+                            a cofactor. To find a control marker, run the <strong>Marker Regression</strong> function.</span><br></td>
+                          </tr>
 
 
-            </div>
+                          <tr>
+                            <td valign="top"><span><a href="/glossary.html#Pair_Scan" target="_blank">Pair-Scan</a> searches for pairs of chromosomal regions
+                            that are<br>
+                            involved in two-locus epistatic interactions.</span><br></td>
+                          </tr>-->
