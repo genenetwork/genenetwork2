@@ -49,43 +49,36 @@
                     <input type="checkbox" name="use_weighted" /> Use Weighted
                 </label>
                 <br>
-                <input type="button" id="interval_mapping" class="btn" value="Compute">
+                    
+                <div class="well well-small">
+                    <strong>Composite Mapping</strong>
+                    - Control for a marker as a co-factor (e.g.: rs12345):
+                    <!--Prefer a <strong>composite</strong>? Tell us the control locus (e.g.: rs12345):-->
+                    <INPUT TYPE="text" NAME="control_locus" default="" />
+                </div>
+                <input type="button" name="interval_mapping_btn" class="btn" value="Compute">
             </div>
+            
             <div class="tab-pane" id="marker_regression">
-                <table cellpadding="0" cellspacing="0" width="100%">
-                  <tr>
-                    <td class="fs12 fwn" nowrap="on" valign="top">
-                      <table cellpadding="2" cellspacing="0" width="263px">
-                        <tr>
-                          <td><span class="ffl fwb fs12"><strong>Display LRS greater than:</strong></span></td>
+                <label for="suggestive_lrs">Display LRS greater than:
+                    <input name="suggestive_lrs" />
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" name="display_all_lrs" /> Display All LRS
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" name="use_parents" /> Use Parents
+                </label>                   
+                <label class="checkbox">
+                    <input type="checkbox" name="use_weighted" /> Use Weighted
+                </label>                
+                <input type="button" id="marker_regression_btn" name="marker_regression_btn" class="btn" value="Compute">
 
-                          <td><input type="text" name="suggestive" size="5" maxlength="8"></td>
-                        </tr>
-
-                        <tr>
-                          <td><input type="checkbox" name="displayAllLRS" class="checkbox"> <span class="ffl fs12">Display all LRS</span></td>
-                        </tr>
-
-                        <tr>
-                          <td><input type="checkbox" name="parentsf14regression2" class="checkbox"> <span class="ffl fs12">Use Parents</span></td>
-                        </tr>
-
-                        <tr>
-                          <td><input type="checkbox" name="applyVarianceSE2" class="checkbox"> <span class="ffl fs12">Use Weighted</span></td>
-                        </tr>
-                      </table><br>
-                      <input type="button" name="marker" class="btn" value=" Compute "><br>
-                      <br>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td valign="top"><span class="fs12"><a href="/glossary.html#" target="_blank">Marker regression</a> computes and displays LRS
+<!--                    <td valign="top"><span class="fs12"><a href="/glossary.html#" target="_blank">Marker regression</a> computes and displays LRS
                     values for individual markers.<br>
                     This function also lists additive effects (phenotype units per allele) and<br>
                     dominance deviations for some datasets.<br></span><br></td>
-                  </tr>
-                </table>
+-->
             </div>
             
             <div class="tab-pane" id="pair_scan">

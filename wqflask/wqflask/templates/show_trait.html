@@ -11,7 +11,7 @@
         </div>
     </header>
 
-    <form method="post" action="/corr_compute" name="dataInput" id="trait_data_form">
+    <form method="post" action="/corr_compute" name="trait_page" id="trait_data_form">
             {% for key in hddn %}
                 <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
             {% endfor %}
@@ -48,5 +48,6 @@
 
     <script type="text/javascript" src="/static/new/javascript/stats.js"></script>
     <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/show_trait_mapping_tools.js"></script>
     <script type="text/javascript" src="/static/new/javascript/validation.js"></script>
 {% endblock %}
