@@ -14,7 +14,12 @@
     composite_mapping_fields = function() {
       return $(".composite_fields").toggle();
     };
-    return $("#use_composite_choice").change(composite_mapping_fields);
+    $("#use_composite_choice").change(composite_mapping_fields);
+    return $("#choose_closet_control").change(function() {
+      var elem;
+      elem = "#control_locus";
+      return $(elem).prop("disabled", !$(elem).prop("disabled"));
+    });
   });
 
 }).call(this);

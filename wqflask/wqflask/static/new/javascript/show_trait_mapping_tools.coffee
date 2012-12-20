@@ -7,10 +7,17 @@ $ ->
         
     $("#marker_regression_btn").click(run_marker_regression)
         
-        
+    
         
         
     composite_mapping_fields = ->
         $(".composite_fields").toggle()
     
     $("#use_composite_choice").change(composite_mapping_fields)
+    
+    
+    
+    $("#choose_closet_control").change(->
+        elem = "#control_locus"
+        $(elem).prop("disabled", !$(elem).prop("disabled"))
+    )

@@ -74,17 +74,18 @@
                             </label>
                         </div>
                     </div>
-                    <div class="control-group composite_fields" style="display: none;">
+                    <div class="control-group composite_fields" style="display: none;"
+                         id="choose_closet_control">
                         <label class="control-label">Choose Closest Control</label>
                         <div class="controls">                      
                             <label class="radio inline">
                                 <input type="radio" name="default_control_locus"
-                                       id="default_control_locus" value="yes">
+                                       id="default_control_locus" value="yes" checked>
                                 Yes
                             </label>
                             <label class="radio inline">
                                 <input type="radio" name="default_control_locus"
-                                       id="default_control_locus" value="no" checked>
+                                       id="default_control_locus" value="no">
                                 No
                             </label>
                         </div>
@@ -93,7 +94,8 @@
                         <label for="mapping_bootstraps" class="control-label"
                                title="Bootstrapping Resamples">Control Locus</label>
                         <div class="controls">
-                            <input name="mapping_bootstraps" value="2000" type="text" />
+                            <input name="control_locus" placeholder="rs12345" id="control_locus"
+                                    type="text" disabled />
                         </div>
                     </div>
                          
