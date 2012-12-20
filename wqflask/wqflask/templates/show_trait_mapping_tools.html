@@ -32,22 +32,13 @@
                 {% endif %}
                 <br>
                   
-                <label for="use_permutations" class="checkbox">Permutation Test n=
-                    <input type="checkbox" name="use_permutations" />
+                <label for="mapping_permutations">Permutation Test n=
                     <input name="num_permutations" value="2000" />
                 </label>
-                <label for="use_bootstraps" class="checkbox">Bootstrap Test n=
-                    <input type="checkbox" name="use_bootstraps" />
-                    <input name="num_bootstraps" value="2000" />
-                </label>                 
+                <label for="mapping_bootstraps">Bootstrap Test n=
+                    <input name="mapping_bootstraps" value="2000" />
+                </label>
 
-                <br>
-                <label class="checkbox">
-                    <input type="checkbox" name="use_parents" /> Use Parents
-                </label>
-                <label class="checkbox">
-                    <input type="checkbox" name="use_weighted" /> Use Weighted
-                </label>
                 <br>
                     
                 <div class="well well-small">
@@ -66,12 +57,6 @@
                 <label class="checkbox">
                     <input type="checkbox" name="display_all_lrs" /> Display All LRS
                 </label>
-                <label class="checkbox">
-                    <input type="checkbox" name="use_parents" /> Use Parents
-                </label>                   
-                <label class="checkbox">
-                    <input type="checkbox" name="use_weighted" /> Use Weighted
-                </label>                
                 <input type="button" id="marker_regression_btn" name="marker_regression_btn" class="btn" value="Compute">
 
 <!--                    <td valign="top"><span class="fs12"><a href="/glossary.html#" target="_blank">Marker regression</a> computes and displays LRS
@@ -122,8 +107,10 @@
                         </select></td>
                       </tr>
                     </table><br>
-                    <input type="checkbox" name="directPermuCheckbox" class="checkbox" checked><span class="ffl fs12">Permutation Test
-                    (n=500)</span><br>
+                    <label for="pairscan_permutations">Permutation Test n=
+                        <input name="pairscan_permutations" value="2000" />
+                    </label>
+                    <br>
                     <br>
                     <input type="button" class="btn" value=" Compute " onclick="dataEditingFunc(this.form,'directPlot');"><br>
                     <br>
