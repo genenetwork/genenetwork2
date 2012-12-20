@@ -4,7 +4,7 @@
         <div class="tabbable"> <!-- Only required for left/right tabs -->
             <ul class="nav nav-pills">
                 <li class="active">
-                    <a href="#interval_mapping" data-toggle="tab">Interval or Composite Mapping</a>
+                    <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
                 </li>
                 <li>
                     <a href="#marker_regression" data-toggle="tab">Marker Regression</a>
@@ -28,14 +28,15 @@
                     </div>
     
                     <div class="control-group">
-                        <label for="mapping_permutations" class="control-label">Permutations</label>
+                        <label for="mapping_permutations" class="control-label">Permutations (n)</label>
                         <div class="controls">
                             <input name="num_permutations" value="2000" type="text" />
                         </div>
                     </div>
     
                     <div class="control-group">
-                        <label for="mapping_bootstraps" class="control-label">Bootstrapping Resamples</label>
+                        <label for="mapping_bootstraps" class="control-label"
+                               title="Bootstrapping Resamples">Bootstrap (n)</label>
                         <div class="controls">
                             <input name="mapping_bootstraps" value="2000" type="text" />
                         </div>
@@ -59,12 +60,46 @@
                     {% endif %}
 
                     <div class="well well-small">
-                        <b>Composite Mapping</b>
+                        <div class="control-group">
+                            <label class="control-label"><b>Composite Mapping</b></label>
+                            <div class="controls">                      
+                                <label class="radio inline">
+                                    <input type="radio" name="scale" id="scale" value="megabase">
+                                    Yes
+                                </label>
+                                <label class="radio inline">
+                                    <input type="radio" name="scale" id="scale" value="centimorgan" checked>
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Choose Closest Control</label>
+                            <div class="controls">                      
+                                <label class="radio inline">
+                                    <input type="radio" name="scale" id="scale" value="megabase">
+                                    Yes
+                                </label>
+                                <label class="radio inline">
+                                    <input type="radio" name="scale" id="scale" value="centimorgan" checked>
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="mapping_bootstraps" class="control-label"
+                                   title="Bootstrapping Resamples">Control Locus</label>
+                            <div class="controls">
+                                <input name="mapping_bootstraps" value="2000" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                         
                         <!--<span class="lead">Composite Mapping</span>-->
                         <!--<span class="muted">Enter the control locus</>-->
                         <!--Prefer a <strong>composite</strong>? Tell us the control locus (e.g.: rs12345):-->
-                        <INPUT TYPE="text" NAME="control_locus" placeholder="Enter the control locus" />
-                    </div>
+<!--                        <INPUT TYPE="text" NAME="control_locus" placeholder=""" />
+                    </div>-->
                     
                     <button class="btn btn-inverse" title="Compute Intreval Mapping">
                         <i class="icon-ok-circle icon-white"></i> Compute
