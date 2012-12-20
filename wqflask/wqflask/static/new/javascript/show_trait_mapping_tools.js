@@ -2,7 +2,7 @@
 (function() {
 
   $(function() {
-    var composite_mapping_fields, run_marker_regression;
+    var composite_mapping_fields, run_marker_regression, toggle_enable_disable;
     run_marker_regression = function() {
       var url;
       console.log("In marker regression");
@@ -10,15 +10,19 @@
       $("#trait_data_form").attr("action", url);
       return $("#trait_data_form").submit();
     };
-    $("#marker_regression_btn").click(run_marker_regression);
+    $("#do_marker_regression").click(run_marker_regression);
     composite_mapping_fields = function() {
       return $(".composite_fields").toggle();
     };
     $("#use_composite_choice").change(composite_mapping_fields);
-    return $("#choose_closet_control").change(function() {
-      var elem;
-      elem = "#control_locus";
-      return $(elem).prop("disabled", !$(elem).prop("disabled"));
+    toggle_enable_disable = function(elem) {
+      return $(elem).prop("disabled", !$(elem.prop("disabled")));
+    };
+    $("#choose_closet_control").change(function() {
+      return toggle_enable_disable("#control_locus");
+    });
+    return $("#display_all_lrs").change(function() {
+      return toggle_enable_disable("#suggestive_lrs");
     });
   });
 

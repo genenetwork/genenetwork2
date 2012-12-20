@@ -9,9 +9,9 @@
                 <li>
                     <a href="#marker_regression" data-toggle="tab">Marker Regression</a>
                 </li>
-                <li>
+                <!--<li>
                     <a href="#pair_scan" data-toggle="tab">Pair Scan</a>
-                </li>
+                </li>-->
             </ul>
 
             <div class="tab-content">
@@ -76,7 +76,7 @@
                     </div>
                     <div class="control-group composite_fields" style="display: none;"
                          id="choose_closet_control">
-                        <label class="control-label">Choose Closest Control</label>
+                        <label class="control-label">Use Closest Marker</label>
                         <div class="controls">                      
                             <label class="radio inline">
                                 <input type="radio" name="default_control_locus"
@@ -91,93 +91,59 @@
                         </div>
                     </div>
                     <div class="control-group composite_fields" style="display: none;">
-                        <label for="mapping_bootstraps" class="control-label"
-                               title="Bootstrapping Resamples">Control Locus</label>
+                        <label for="control_locus" class="control-label"
+                               title="Control Locus">Control Locus</label>
                         <div class="controls">
                             <input name="control_locus" placeholder="rs12345" id="control_locus"
                                     type="text" disabled />
                         </div>
                     </div>
-                         
-                        <!--<span class="lead">Composite Mapping</span>-->
-                        <!--<span class="muted">Enter the control locus</>-->
-                        <!--Prefer a <strong>composite</strong>? Tell us the control locus (e.g.: rs12345):-->
-<!--                        <INPUT TYPE="text" NAME="control_locus" placeholder=""" />
-                    </div>-->
-                    
-                    <button class="btn btn-inverse" title="Compute Intreval Mapping">
-                        <i class="icon-ok-circle icon-white"></i> Compute
-                    </button>
+
+                    <div class="control-group">
+                        <div class="controls">
+                            <button id="do_interval_mapping" class="btn btn-inverse"
+                                    title="Compute Interval Mapping">
+                                <i class="icon-ok-circle icon-white"></i> Compute
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="tab-pane" id="marker_regression">
-                    <label for="suggestive_lrs">Display LRS greater than:
-                        <input name="suggestive_lrs" />
-                    </label>
-                    <label class="checkbox">
-                        <input type="checkbox" name="display_all_lrs" /> Display All LRS
-                    </label>
-                    <input type="button" id="marker_regression_btn" name="marker_regression_btn" class="btn" value="Compute">
+                    <div class="control-group" id="display_all_lrs">
+                        <label class="control-label">Display all LRS</label>
+                        <div class="controls">                      
+                            <label class="radio inline">
+                                <input type="radio" name="display_all_lrs"
+                                       id="display_all_lrs" value="yes">
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="display_all_lrs"
+                                       id="display_all_lrs" value="no" checked>
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="suggestive_lrs" class="control-label"
+                               title="Control Locus">LRS greater than</label>
+                        <div class="controls">
+                            <input name="suggestive_lrs" id="suggestive_lrs" type="text" />
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="controls">
+                            <button id="do_marker_regression"
+                                    class="btn btn-inverse" title="Compute Marker Regression">
+                                <i class="icon-ok-circle icon-white"></i> Compute
+                            </button>
+                        </div>
+                    </div>                    
+                    
                 </div>
 
-                <div class="tab-pane" id="pair_scan">
-                  <table cellpadding="0" cellspacing="0" width="100%">
-                    <tr>
-                      <td class="fs12 fwn" nowrap="on">
-                        <table cellpadding="2" cellspacing="0" width="232px">
-                          <tr>
-                            <td><span class="ffl fwb fs12"><strong>Sort by:</strong></span></td>
-
-                            <td><select name="graphSort" size="1">
-                              <option value="0">
-                                LRS Full
-                              </option>
-
-                              <option value="1">
-                                LRS Interact
-                              </option>
-                            </select></td>
-                          </tr>
-
-                          <tr>
-                            <td><span class="ffl fwb fs12"><strong>Return:</strong></span></td>
-
-                            <td><select name="pairScanReturn" size="1">
-                              <option value="50">
-                                top 50
-                              </option>
-
-                              <option value="100">
-                                top 100
-                              </option>
-
-                              <option value="200">
-                                top 200
-                              </option>
-
-                              <option value="500">
-                                top 500
-                              </option>
-                            </select></td>
-                          </tr>
-                        </table><br>
-                        <label for="pairscan_permutations">Permutation Test n=
-                            <input name="pairscan_permutations" value="2000" />
-                        </label>
-                        <br>
-                        <br>
-                        <input type="button" class="btn" value=" Compute " onclick="dataEditingFunc(this.form,'directPlot');"><br>
-                        <br>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td valign="top"><span><a href="/glossary.html#Pair_Scan" target="_blank">Pair-Scan</a> searches for pairs of chromosomal regions
-                      that are<br>
-                      involved in two-locus epistatic interactions.</span><br></td>
-                    </tr>
-                  </table>
-                </div>
             </div>
         </div>
     </div>
