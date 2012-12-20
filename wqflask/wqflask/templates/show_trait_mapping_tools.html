@@ -1,183 +1,141 @@
 <div>
     <h2>Mapping Tools</h2>
+    <div class="well form-horizontal">
+        <div class="tabbable"> <!-- Only required for left/right tabs -->
+            <ul class="nav nav-pills">
+                <li class="active">
+                    <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
+                </li>
+                <li>
+                    <a href="#marker_regression" data-toggle="tab">Marker Regression</a>
+                </li>
+                <li>
+                    <a href="#pair_scan" data-toggle="tab">Pair Scan</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="interval_mapping">
+                    <div class="control-group">
+                        <label for="chromosome" class="control-label">Chromosome:</label>
+                        <div class="controls">
+                            <select name="chromosome">
+                                {% for name, value in dataset.species.chromosomes %}
+                                <option value="{{ value }}">{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
     
-    <div class="tabbable"> <!-- Only required for left/right tabs -->
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
-            </li>
-            <li>
-                <a href="#marker_regression" data-toggle="tab">Marker Regression</a>
-            </li>
-            <li>
-                <a href="#pair_scan" data-toggle="tab">Pair Scan</a>
-            </li>
-        </ul>
-
-        <div class="tab-content" style="padding-bottom: 9px; border-bottom: 1px solid #ddd;">
-            <div class="tab-pane active" id="interval_mapping">
-                <label for="chromosome">Chromosome: </label>
-                <select name="chromosome">
-                    {% for name, value in dataset.species.chromosomes %}
-                    <option value="{{ value }}">{{ name }}</option>
-                    {% endfor %}
-                </select>
-                <br>
-                {% if dataset.group.genotype.Mbmap %}
-                <label for="scale">Scale: </label>
-                <select name="scale">
-                    <option value="megabase">Megabase</option>
-                    <option value="centimorgan">Centimorgan</option>
-                </select>
-                {% endif %}
-                <br>
-                  
-                <label for="mapping_permutations">Permutation Test n=
-                    <input name="num_permutations" value="2000" />
-                </label>
-                <label for="mapping_bootstraps">Bootstrap Test n=
-                    <input name="mapping_bootstraps" value="2000" />
-                </label>
-
-                <br>
+                    <div class="control-group">
+                        <label for="mapping_permutations" class="control-label">Permutation Test n=</label>
+                        <div class="controls">
+                            <input name="num_permutations" value="2000" />
+                        </div>
+                    </div>
+    
+                    <div class="control-group">
+                        <label for="mapping_bootstraps" class="control-label">Bootstrap Test n=</label>
+                        <div class="controls">
+                            <input name="mapping_bootstraps" value="2000" />
+                        </div>
+                    </div>
                     
-                <div class="well well-small">
-                    <strong>Composite Mapping</strong>
-                    - Control for a marker as a co-factor (e.g.: rs12345):
-                    <!--Prefer a <strong>composite</strong>? Tell us the control locus (e.g.: rs12345):-->
-                    <INPUT TYPE="text" NAME="control_locus" default="" />
+               
+                    {% if dataset.group.genotype.Mbmap %}
+                    <div class="control-group">
+                        <label class="control-label">Scale: </label>
+                        <div class="controls">                      
+                        <label class="radio inline">
+                            <input type="radio" name="scale" id="scale" value="megabase" checked>
+                            Megabase
+                        </label>
+                        <label class="radio inline">
+                            <input type="radio" name="scale" id="scale" value="centimorgan">
+                            Centimorgan
+                        </label>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="well well-small">
+                        <strong>Composite Mapping</strong>
+                        - Control for a marker as a co-factor (e.g.: rs12345):
+                        <!--Prefer a <strong>composite</strong>? Tell us the control locus (e.g.: rs12345):-->
+                        <INPUT TYPE="text" NAME="control_locus" default="" />
+                    </div>
+                    <input type="button" name="interval_mapping_btn" class="btn" value="Compute">
                 </div>
-                <input type="button" name="interval_mapping_btn" class="btn" value="Compute">
-            </div>
-            
-            <div class="tab-pane" id="marker_regression">
-                <label for="suggestive_lrs">Display LRS greater than:
-                    <input name="suggestive_lrs" />
-                </label>
-                <label class="checkbox">
-                    <input type="checkbox" name="display_all_lrs" /> Display All LRS
-                </label>
-                <input type="button" id="marker_regression_btn" name="marker_regression_btn" class="btn" value="Compute">
-
-<!--                    <td valign="top"><span class="fs12"><a href="/glossary.html#" target="_blank">Marker regression</a> computes and displays LRS
-                    values for individual markers.<br>
-                    This function also lists additive effects (phenotype units per allele) and<br>
-                    dominance deviations for some datasets.<br></span><br></td>
--->
-            </div>
-            
-            <div class="tab-pane" id="pair_scan">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td class="fs12 fwn" nowrap="on">
-                    <table cellpadding="2" cellspacing="0" width="232px">
-                      <tr>
-                        <td><span class="ffl fwb fs12"><strong>Sort by:</strong></span></td>
-
-                        <td><select name="graphSort" size="1">
-                          <option value="0">
-                            LRS Full
-                          </option>
-
-                          <option value="1">
-                            LRS Interact
-                          </option>
-                        </select></td>
-                      </tr>
-
-                      <tr>
-                        <td><span class="ffl fwb fs12"><strong>Return:</strong></span></td>
-
-                        <td><select name="pairScanReturn" size="1">
-                          <option value="50">
-                            top 50
-                          </option>
-
-                          <option value="100">
-                            top 100
-                          </option>
-
-                          <option value="200">
-                            top 200
-                          </option>
-
-                          <option value="500">
-                            top 500
-                          </option>
-                        </select></td>
-                      </tr>
-                    </table><br>
-                    <label for="pairscan_permutations">Permutation Test n=
-                        <input name="pairscan_permutations" value="2000" />
+                
+                <div class="tab-pane" id="marker_regression">
+                    <label for="suggestive_lrs">Display LRS greater than:
+                        <input name="suggestive_lrs" />
                     </label>
-                    <br>
-                    <br>
-                    <input type="button" class="btn" value=" Compute " onclick="dataEditingFunc(this.form,'directPlot');"><br>
-                    <br>
-                  </td>
-                </tr>
+                    <label class="checkbox">
+                        <input type="checkbox" name="display_all_lrs" /> Display All LRS
+                    </label>
+                    <input type="button" id="marker_regression_btn" name="marker_regression_btn" class="btn" value="Compute">
+                </div>
 
-                <tr>
-                  <td valign="top"><span><a href="/glossary.html#Pair_Scan" target="_blank">Pair-Scan</a> searches for pairs of chromosomal regions
-                  that are<br>
-                  involved in two-locus epistatic interactions.</span><br></td>
-                </tr>
-              </table>
-            </div>            
+                <div class="tab-pane" id="pair_scan">
+                  <table cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td class="fs12 fwn" nowrap="on">
+                        <table cellpadding="2" cellspacing="0" width="232px">
+                          <tr>
+                            <td><span class="ffl fwb fs12"><strong>Sort by:</strong></span></td>
+
+                            <td><select name="graphSort" size="1">
+                              <option value="0">
+                                LRS Full
+                              </option>
+
+                              <option value="1">
+                                LRS Interact
+                              </option>
+                            </select></td>
+                          </tr>
+
+                          <tr>
+                            <td><span class="ffl fwb fs12"><strong>Return:</strong></span></td>
+
+                            <td><select name="pairScanReturn" size="1">
+                              <option value="50">
+                                top 50
+                              </option>
+
+                              <option value="100">
+                                top 100
+                              </option>
+
+                              <option value="200">
+                                top 200
+                              </option>
+
+                              <option value="500">
+                                top 500
+                              </option>
+                            </select></td>
+                          </tr>
+                        </table><br>
+                        <label for="pairscan_permutations">Permutation Test n=
+                            <input name="pairscan_permutations" value="2000" />
+                        </label>
+                        <br>
+                        <br>
+                        <input type="button" class="btn" value=" Compute " onclick="dataEditingFunc(this.form,'directPlot');"><br>
+                        <br>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td valign="top"><span><a href="/glossary.html#Pair_Scan" target="_blank">Pair-Scan</a> searches for pairs of chromosomal regions
+                      that are<br>
+                      involved in two-locus epistatic interactions.</span><br></td>
+                    </tr>
+                  </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<!--                                <tr>
-                                      <td valign="top"><span class="fs12"><a href="/glossary.html#intmap" target="_blank">Interval Mapping</a> computes linkage maps
-                                      for the entire genome or single<br>
-                                      chromosomes. The <a href="/glossary.html#permutation" target="_blank">Permutation Test</a> estimates suggestive and
-                                      significant<br>
-                                      linkage scores. The <a href="/glossary.html#bootstrap" target="_blank">Bootstrap Test</a> estimates the precision of the QTL
-                                      location.</span><br></td>
-                                </tr>
-
-
-
-                                <tr>
-                                  <td><span class="ffl fwb fs12">Mapping Scale:</span></td>
-
-                                  <td><select name="scale2" size="1" onchange=
-                                  "checkUncheck(window.document.dataInput.scale2.value, window.document.dataInput.permCheck2, window.document.dataInput.bootCheck2)">
-                                  <option value="physic">
-                                      Megabase
-                                    </option>
-
-                                    <option value="morgan">
-                                      Centimorgan
-                                    </option>
-                                  </select></td>
-                                </tr>
-
-                                <tr>
-                                  <td><span class="ffl fwb fs12">Control Locus:</span></td>
-
-                                  <td><input type="text" name="controlLocus" class="controlLocus"></td>
-                                </tr>
-                              </table><br>
-                              <input type="checkbox" name="permCheck2" class="checkbox" checked>Permutation Test (n=2000)<br>
-                              <input type="checkbox" name="bootCheck2" class="checkbox">Bootstrap Test (n=2000)<br>
-                              <input type="checkbox" name="parentsf14regression3" class="checkbox">Use Parents<br>
-                              <br>
-                              <input type="button" name="composite" class="btn" value=" Compute "><br>
-                              <br>
-                            </td>
-                          </tr>
-
-                          <tr>
-                            <td valign="top"><span><a href="/glossary.html#Composite" target="_blank">Composite Interval Mapping</a> allows you to control
-                            for a single marker as<br>
-                            a cofactor. To find a control marker, run the <strong>Marker Regression</strong> function.</span><br></td>
-                          </tr>
-
-
-                          <tr>
-                            <td valign="top"><span><a href="/glossary.html#Pair_Scan" target="_blank">Pair-Scan</a> searches for pairs of chromosomal regions
-                            that are<br>
-                            involved in two-locus epistatic interactions.</span><br></td>
-                          </tr>-->
