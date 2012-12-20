@@ -4,7 +4,7 @@
         <div class="tabbable"> <!-- Only required for left/right tabs -->
             <ul class="nav nav-pills">
                 <li class="active">
-                    <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
+                    <a href="#interval_mapping" data-toggle="tab">Interval or Composite Mapping</a>
                 </li>
                 <li>
                     <a href="#marker_regression" data-toggle="tab">Marker Regression</a>
@@ -17,7 +17,7 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="interval_mapping">
                     <div class="control-group">
-                        <label for="chromosome" class="control-label">Chromosome:</label>
+                        <label for="chromosome" class="control-label">Chromosome</label>
                         <div class="controls">
                             <select name="chromosome">
                                 {% for name, value in dataset.species.chromosomes %}
@@ -28,23 +28,23 @@
                     </div>
     
                     <div class="control-group">
-                        <label for="mapping_permutations" class="control-label">Permutation Test n=</label>
+                        <label for="mapping_permutations" class="control-label">Permutations</label>
                         <div class="controls">
-                            <input name="num_permutations" value="2000" />
+                            <input name="num_permutations" value="2000" type="text" />
                         </div>
                     </div>
     
                     <div class="control-group">
-                        <label for="mapping_bootstraps" class="control-label">Bootstrap Test n=</label>
+                        <label for="mapping_bootstraps" class="control-label">Bootstrapping Resamples</label>
                         <div class="controls">
-                            <input name="mapping_bootstraps" value="2000" />
+                            <input name="mapping_bootstraps" value="2000" type="text" />
                         </div>
                     </div>
                     
                
                     {% if dataset.group.genotype.Mbmap %}
                     <div class="control-group">
-                        <label class="control-label">Scale: </label>
+                        <label class="control-label">Scale</label>
                         <div class="controls">                      
                         <label class="radio inline">
                             <input type="radio" name="scale" id="scale" value="megabase" checked>
@@ -59,12 +59,16 @@
                     {% endif %}
 
                     <div class="well well-small">
-                        <strong>Composite Mapping</strong>
-                        - Control for a marker as a co-factor (e.g.: rs12345):
+                        <b>Composite Mapping</b>
+                        <!--<span class="lead">Composite Mapping</span>-->
+                        <!--<span class="muted">Enter the control locus</>-->
                         <!--Prefer a <strong>composite</strong>? Tell us the control locus (e.g.: rs12345):-->
-                        <INPUT TYPE="text" NAME="control_locus" default="" />
+                        <INPUT TYPE="text" NAME="control_locus" placeholder="Enter the control locus" />
                     </div>
-                    <input type="button" name="interval_mapping_btn" class="btn" value="Compute">
+                    
+                    <button class="btn btn-inverse" title="Compute Intreval Mapping">
+                        <i class="icon-ok-circle icon-white"></i> Compute
+                    </button>
                 </div>
                 
                 <div class="tab-pane" id="marker_regression">
