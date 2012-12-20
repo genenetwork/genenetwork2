@@ -59,39 +59,41 @@
                     </div>
                     {% endif %}
 
-                    <div class="well well-small">
-                        <div class="control-group">
-                            <label class="control-label"><b>Composite Mapping</b></label>
-                            <div class="controls">                      
-                                <label class="radio inline">
-                                    <input type="radio" name="scale" id="scale" value="megabase">
-                                    Yes
-                                </label>
-                                <label class="radio inline">
-                                    <input type="radio" name="scale" id="scale" value="centimorgan" checked>
-                                    No
-                                </label>
-                            </div>
+                    <div class="control-group">
+                        <label class="control-label"><b>Composite Mapping</b></label>
+                        <div class="controls" id="use_composite_choice">                      
+                            <label class="radio inline">
+                                <input type="radio" name="use_composite"
+                                       id="use_composite" value="yes">
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="use_composite"
+                                       id="use_composite" value="no" checked>
+                                No
+                            </label>
                         </div>
-                        <div class="control-group">
-                            <label class="control-label">Choose Closest Control</label>
-                            <div class="controls">                      
-                                <label class="radio inline">
-                                    <input type="radio" name="scale" id="scale" value="megabase">
-                                    Yes
-                                </label>
-                                <label class="radio inline">
-                                    <input type="radio" name="scale" id="scale" value="centimorgan" checked>
-                                    No
-                                </label>
-                            </div>
+                    </div>
+                    <div class="control-group composite_fields" style="display: none;">
+                        <label class="control-label">Choose Closest Control</label>
+                        <div class="controls">                      
+                            <label class="radio inline">
+                                <input type="radio" name="default_control_locus"
+                                       id="default_control_locus" value="yes">
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="default_control_locus"
+                                       id="default_control_locus" value="no" checked>
+                                No
+                            </label>
                         </div>
-                        <div class="control-group">
-                            <label for="mapping_bootstraps" class="control-label"
-                                   title="Bootstrapping Resamples">Control Locus</label>
-                            <div class="controls">
-                                <input name="mapping_bootstraps" value="2000" type="text" />
-                            </div>
+                    </div>
+                    <div class="control-group composite_fields" style="display: none;">
+                        <label for="mapping_bootstraps" class="control-label"
+                               title="Bootstrapping Resamples">Control Locus</label>
+                        <div class="controls">
+                            <input name="mapping_bootstraps" value="2000" type="text" />
                         </div>
                     </div>
                          

@@ -2,7 +2,7 @@
 (function() {
 
   $(function() {
-    var run_marker_regression;
+    var composite_mapping_fields, run_marker_regression;
     run_marker_regression = function() {
       var url;
       console.log("In marker regression");
@@ -10,7 +10,11 @@
       $("#trait_data_form").attr("action", url);
       return $("#trait_data_form").submit();
     };
-    return $("#marker_regression_btn").click(run_marker_regression);
+    $("#marker_regression_btn").click(run_marker_regression);
+    composite_mapping_fields = function() {
+      return $(".composite_fields").toggle();
+    };
+    return $("#use_composite_choice").change(composite_mapping_fields);
   });
 
 }).call(this);
