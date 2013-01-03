@@ -113,6 +113,9 @@ class ShowTrait(object):
         if self.dataset.group.allsamples:
             hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
 
+        hddn['trait_id'] = self.trait_id
+        hddn['dataset_name'] = self.dataset.name
+
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.this_trait = this_trait
         self.hddn = hddn
