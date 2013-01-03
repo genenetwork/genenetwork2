@@ -1,12 +1,12 @@
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 
 import string
 
 from htmlgen import HTMLgen2 as HT
 
-import webqtlConfig
-from webqtlCaseData import webqtlCaseData
-from data_set import create_dataset
+from base import webqtlConfig
+from base.webqtlCaseData import webqtlCaseData
+from base.data_set import create_dataset
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 
@@ -24,76 +24,28 @@ class GeneralTrait:
 
     def __init__(self, **kw):
         print("in GeneralTrait")
-        self.dataset = kw.get('dataset', None)                  # database name
-        self.name = kw.get('name', None)                 # Trait ID, ProbeSet ID, Published ID, etc.
-        self.cellid = kw.get('cellid', None)
+        self.dataset = kw.get('dataset')           # database name
+        self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
+        self.cellid = kw.get('cellid')
         self.identification = kw.get('identification', 'un-named trait')
-        #self.group = kw.get('group', None)
         self.haveinfo = kw.get('haveinfo', False)
-        self.sequence = kw.get('sequence', None)              # Blat sequence, available for ProbeSet
+        self.sequence = kw.get('sequence')         # Blat sequence, available for ProbeSet
         self.data = kw.get('data', {})
-        
+
         if kw.get('fullname'):
             name2 = value.split("::")
             if len(name2) == 2:
                 self.dataset, self.name = name2
+                # self.cellid is set to None above
             elif len(name2) == 3:
                 self.dataset, self.name, self.cellid = name2
-                
-        #if self.dataset and isinstance(self.dataset, basestring):
+
         self.dataset = create_dataset(self.dataset)
-
-        print("self.dataset is:", self.dataset, type(self.dataset))
-        #if self.dataset:
         
-        #self.dataset.get_group()
-        
-        #if self.dataset.type == "Temp":
-        #    self.cursor.execute('''
-        #            SELECT
-        #                    InbredSet.Name
-        #            FROM
-        #                    InbredSet, Temp
-        #            WHERE
-        #                    Temp.InbredSetId = InbredSet.Id AND
-        #                    Temp.Name = "%s"
-        #    ''', self.name)
-        #    self.group = self.cursor.fetchone()[0]
-        #else:
-        #    self.group = self.dataset.get_group()
-
-        #print("trinity, self.group is:", self.group)
-
-        #
-        # In ProbeSet, there are maybe several annotations match one sequence
-        # so we need use sequence(BlatSeq) as the identification, when we update
-        # one annotation, we update the others who match the sequence also.
-        #
-        # Hongqiang Li, 3/3/2008
-        #
-
-        #XZ, 05/08/2009: This block is not neccessary. We can add 'BlatSeq' into disfield.
-        # The variable self.sequence should be changed to self.BlatSeq
-        # It also should be changed in other places where it are used.
-
-        #if self.dataset:
-        #if self.dataset.type == 'ProbeSet':
-        #    print("Doing ProbeSet Query")
-        #    query = '''
-        #            SELECT
-        #                    ProbeSet.BlatSeq
-        #            FROM
-        #                    ProbeSet, ProbeSetFreeze, ProbeSetXRef
-        #            WHERE
-        #                    ProbeSet.Id=ProbeSetXRef.ProbeSetId and
-        #                    ProbeSetFreeze.Id = ProbeSetXRef.ProbeSetFreezeId and
-        #                    ProbeSet.Name = %s and
-        #                    ProbeSetFreeze.Name = %s
-        #    ''', (self.name, self.dataset.name)
-        #    print("query is:", query)
-        #    self.sequence = g.db.execute(*query).fetchone()[0]
-        #    #self.sequence = self.cursor.fetchone()[0]
-        #    print("self.sequence is:", self.sequence)
+        # Todo: These two lines are necessary most of the time, but perhaps not all of the time
+        # So we could add a simple if statement to short-circuit this if necessary
+        self.retrieve_info()
+        self.retrieve_sample_data()
 
 
     def get_name(self):

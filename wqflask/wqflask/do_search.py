@@ -63,7 +63,7 @@ class DoSearch(object):
 class MrnaAssaySearch(DoSearch):
     """A search within an mRNA expression dataset"""
 
-    DoSearch.search_types['ProbeSet'] = "ProbeSetSearch"
+    DoSearch.search_types['ProbeSet'] = "MrnaAssaySearch"
 
     base_query = """SELECT ProbeSet.Name as TNAME,
                 0 as thistable,

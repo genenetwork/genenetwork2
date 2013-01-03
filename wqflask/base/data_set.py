@@ -16,11 +16,11 @@
 # Contact Drs. Robert W. Williams and Xiaodong Zhou (2010)
 # at rwilliams@uthsc.edu and xzhou15@uthsc.edu
 #
-#
+#we
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import print_function, division
+from __future__ import absolute_import, print_function, division
 import os
 
 from flask import Flask, g
@@ -29,7 +29,7 @@ from htmlgen import HTMLgen2 as HT
 
 import reaper
 
-import webqtlConfig
+from base import webqtlConfig
 from base import species
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
@@ -50,6 +50,7 @@ def create_dataset(dataset_name):
         WHERE DBList.Name = '%s' and
               DBType.Id = DBList.DBTypeId
         """ % (escape(dataset_name))
+    print("query is: ", pf(query))
     dataset_type = g.db.execute(query).fetchone().Name
 
     #dataset_type = cursor.fetchone()[0]

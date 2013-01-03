@@ -34,45 +34,26 @@ from pprint import pformat as pf
 
 class ShowTrait(object):
 
-    def __init__(self, args):
-        print("in ShowTrait, args are:", args)
-        #self.group = args.group
-        self.trait_id = args['trait_id']
+    def __init__(self, kw):
+        print("in ShowTrait, kw are:", kw)
+        self.trait_id = kw['trait_id']
         
-        self.dataset = create_dataset(args['dataset'])
-        
-        #self.dataset = create_dataset(args['dataset'])
-        self.cell_id = None
+        self.dataset = create_dataset(kw['dataset'])
 
-        #assert self.openMysql(), "No database!"
+        #self.cell_id = None
 
-        #print("red3 fd.group:", fd.group)
-        this_trait = self.get_this_trait()
 
-        #print("red4 fd.group:", fd.group)
-        ##read genotype file
-        #fd.group = this_trait.group
+        this_trait = GeneralTrait(dataset=self.dataset.name,
+                                  name=self.trait_id,
+                                  cellid=None)
 
-        #print("[red5] fd.group is:", fd.group)
+
         self.dataset.group.read_genotype_file()
-        #fd.readGenotype()
 
         if not self.dataset.group.genotype:
-            self.read_data(include_f1=True)  #incf1=1)
+            self.read_data(include_f1=True) 
 
-        ## determine data editing page format
-        #variance_data_page = 0
-        #if fd.formID == 'varianceChoice':
-        #    variance_data_page = 1
-        #
-        #if variance_data_page:
-        #    fmID='dataEditing'
-        #else:
-        #    if fd.enablevariance:
-        #        fmID='pre_dataEditing'
-        #    else:
-        #        fmID='dataEditing'
-        
+      
         # Todo: Add back in the ones we actually need from below, as we discover we need them
         hddn = OrderedDict()
 
@@ -111,55 +92,19 @@ class ShowTrait(object):
         #        export_data = None
         #        )
 
-        #if fd.enablevariance:
-        #    hddn['enablevariance']='ON'
-        #if fd.incparentsf1:
-        #    hddn['incparentsf1']='ON'
-
         #if this_trait:
-        #    hddn['fullname'] = str(this_trait)
-        #    try:
-        #        hddn['normalPlotTitle'] = this_trait.symbol
-        #        hddn['normalPlotTitle'] += ": "
-        #        hddn['normalPlotTitle'] += this_trait.name
-        #    except:
-        #        hddn['normalPlotTitle'] = str(this_trait.name)
-        #    hddn['fromDataEditingPage'] = 1
         #    if this_trait.dataset and this_trait.dataset.type and this_trait.dataset.type == 'ProbeSet':
-        #        hddn['trait_type'] = this_trait.dataset.type
-        #        if this_trait.cellid:
-        #            hddn['cellid'] = this_trait.cellid
-        #        else:
         #            self.cursor.execute("SELECT h2 from ProbeSetXRef WHERE DataId = %d" %
         #                                this_trait.mysqlid)
         #            heritability = self.cursor.fetchone()
-        #            hddn['heritability'] = heritability
-        #
-        #        hddn['attribute_names'] = ""
-        #
+
         #hddn['mappingMethodId'] = webqtlDatabaseFunction.getMappingMethod (cursor=self.cursor,
         #                                                                   groupName=fd.group)
-        #
-        #if fd.identification:
-        #    hddn['identification'] = fd.identification
-        #else:
-        #    hddn['identification'] = "Un-named trait"  #If no identification, set identification to un-named
 
-        self.dispTraitInformation(args, "", hddn, this_trait) #Display trait information + function buttons
+        self.dispTraitInformation(kw, "", hddn, this_trait) #Display trait information + function buttons
 
-        if this_trait == None:
-            this_trait = webqtlTrait(data=args['allTraitData'], dataset=None)
-
-        ## Variance submit page only
-        #if fd.enablevariance and not variance_data_page:
-        #    pass
-        #    #title2Body.append("Click the next button to go to the variance submission form.",
-        #    #        HT.Center(next,reset))
-        #else:
-        #    pass
-        #    # We'll get this part working later
-        #    print("Calling dispBasicStatistics")
-        #    self.dispBasicStatistics(fd, this_trait)
+        #if this_trait == None:
+        #    this_trait = webqtlTrait(data=kw['allTraitData'], dataset=None)
 
         self.build_correlation_tools(this_trait)
 
@@ -167,9 +112,6 @@ class ShowTrait(object):
 
         if self.dataset.group.allsamples:
             hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
-
-        #if args['varianceDispName'] != 'Variance':
-        #    hddn['isSE'] = "yes"
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.this_trait = this_trait
@@ -188,34 +130,23 @@ class ShowTrait(object):
         self.js_data = js_data
 
 
-    def get_this_trait(self):
-        # When is traitInfos used?
-        #if traitInfos:
-        #    database, ProbeSetID, CellID = traitInfos
-        #else:
-        #dataset = self.fd['dataset']
-        #trait_id = self.fd['trait_id']
-        #cell_id = self.fd.get('CellID')
-
-        this_trait = GeneralTrait(dataset=self.dataset.name,
-                                 name=self.trait_id,
-                                 cellid=self.cell_id)
-
-        ##identification, etc.
-        self.identification = '%s : %s' % (self.dataset.shortname, self.trait_id)
-        this_trait.returnURL = webqtlConfig.CGIDIR + webqtlConfig.SCRIPTFILE + '?FormID=showDatabase&database=%s\
-                &ProbeSetID=%s&group=%s&parentsf1=on' %(self.dataset, self.trait_id, self.dataset.group.name)
-
-        if self.cell_id:
-            self.identification = '%s/%s'%(self.identification, self.cell_id)
-            this_trait.returnURL = '%s&CellID=%s' % (this_trait.returnURL, self.cell_id)
-
-        print("yellow1:", self.dataset.group)
-        this_trait.retrieve_info()
-        print("yellow2:", self.dataset.group)
-        this_trait.retrieve_sample_data()
-        print("yellow3:", self.dataset.group)
-        return this_trait
+    #def get_this_trait(self):
+    #    this_trait = GeneralTrait(dataset=self.dataset.name,
+    #                             name=self.trait_id,
+    #                             cellid=self.cell_id)
+    #
+    #    ###identification, etc.
+    #    #self.identification = '%s : %s' % (self.dataset.shortname, self.trait_id)
+    #    #this_trait.returnURL = webqtlConfig.CGIDIR + webqtlConfig.SCRIPTFILE + '?FormID=showDatabase&database=%s\
+    #    #        &ProbeSetID=%s&group=%s&parentsf1=on' %(self.dataset, self.trait_id, self.dataset.group.name)
+    #    #
+    #    #if self.cell_id:
+    #    #    self.identification = '%s/%s'%(self.identification, self.cell_id)
+    #    #    this_trait.returnURL = '%s&CellID=%s' % (this_trait.returnURL, self.cell_id)
+    #
+    #    this_trait.retrieve_info()
+    #    this_trait.retrieve_sample_data()
+    #    return this_trait
 
 
     def read_data(self, include_f1=False):

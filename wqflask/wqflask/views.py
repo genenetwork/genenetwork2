@@ -18,6 +18,7 @@ from flask import render_template, request, make_response, Response, Flask, g, c
 from wqflask import search_results
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
+from wqflask.marker_regression import marker_regression
 from wqflask.correlation import CorrelationPage
 
 from wqflask.dataSharing import SharingInfo, SharingInfoPage
@@ -89,27 +90,6 @@ def whats_new_page():
         print("\nnews_item is: %s\n" % (news_item))
     return render_template("whats_new.html", news_items=news_items)
 
-
-@app.route("/show_trait")
-def show_trait_page():
-    # Here it's currently too complicated not to use an fd that is a webqtlFormData
-    #fd = webqtlFormData.webqtlFormData(request.args)
-    #print("stp y1:", pf(vars(fd)))
-    template_vars = show_trait.ShowTrait(request.args)
-
-    print("js_data before dump:", template_vars.js_data)
-
-    template_vars.js_data = json.dumps(template_vars.js_data,
-                                       default=json_default_handler,
-                                       indent="   ")
-    # Sorting the keys messes up the ordered dictionary, so don't do that
-                                       #sort_keys=True)
-
-    print("js_data after dump:", template_vars.js_data)
-
-    print("show_trait template_vars:", pf(template_vars.__dict__))
-    return render_template("show_trait.html", **template_vars.__dict__)
-
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
@@ -150,33 +130,52 @@ def export_trait_csv():
                     mimetype='text/csv',
                     headers={"Content-Disposition":"attachment;filename=test.csv"})
 
+@app.route("/show_trait")
+def show_trait_page():
+    # Here it's currently too complicated not to use an fd that is a webqtlFormData
+    #fd = webqtlFormData.webqtlFormData(request.args)
+    #print("stp y1:", pf(vars(fd)))
+    template_vars = show_trait.ShowTrait(request.args)
+    print("js_data before dump:", template_vars.js_data)
+    template_vars.js_data = json.dumps(template_vars.js_data,
+                                       default=json_default_handler,
+                                       indent="   ")
+    # Sorting the keys messes up the ordered dictionary, so don't do that
+                                       #sort_keys=True)
+
+    print("js_data after dump:", template_vars.js_data)
+    print("show_trait template_vars:", pf(template_vars.__dict__))
+    return render_template("show_trait.html", **template_vars.__dict__)
+
+@app.route("/marker_regression", methods=('POST',))
+def marker_regression_page():
+    template_vars = marker_regression.MarkerRegression(request.form)
+    #print("js_data before dump:", template_vars.js_data)
+    #template_vars.js_data = json.dumps(template_vars.js_data,
+    #                                   default=json_default_handler,
+    #                                   indent="   ")
+    #print("js_data after dump:", template_vars.js_data)
+    print("marker_regression template_vars:", pf(template_vars.__dict__))
+    return render_template("marker_regression.html", **template_vars.__dict__)
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
-    #print("In corr_compute, request.args is:", pf(request.form))
+    print("In corr_compute, request.args is:", pf(request.form))
     fd = webqtlFormData.webqtlFormData(request.form)
-    print("Have fd")
     template_vars = CorrelationPage.CorrelationPage(fd)
-    print("Made it to  rendering")
     return render_template("correlation_page.html", **template_vars.__dict__)
 
 @app.route("/int_mapping", methods=('POST',))
 def interval_mapping_page():
-    fd = webqtlFormData.webqtlFormData(request.form)
-    print("Have fd")
-    template_vars = CorrelationPage.CorrelationPage(fd)
-    print("Made it to  rendering")
-    return render_template("correlation_page.html", **template_vars.__dict__)
-
+    template_vars = interval_mapping.IntervalMapping(request.args)
+    return render_template("interval_mapping.html", **template_vars.__dict__)
 
 # Todo: Can we simplify this? -Sam
 def sharing_info_page():
     """Info page displayed when the user clicks the "Info" button next to the dataset selection"""
     print("In sharing_info_page")
     fd = webqtlFormData.webqtlFormData(request.args)
-    print("2Have fd")
     template_vars = SharingInfoPage.SharingInfoPage(fd)
-    print("2 Made it to rendering")
     return template_vars
 
 
