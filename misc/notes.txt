@@ -57,12 +57,6 @@ unset SSH_ASKPASS
 
 ===========================================
 
-Python stuff:
-
-Classes should always inherit "object"
-
-===========================================
-
 htop: Gives information on processes, cpu/memory load, etc
 dstat: Also gives various system information, resource usage, etc
 df: Reports file system disk space usage
@@ -77,5 +71,12 @@ tidyp -m -i -w 100 index_page.html
 ps -ax - View processes
 
 kill (process #)
+
+===========================================
+
+Python stuff:
+
+Classes should always inherit "object"
+To iterate through dictionary items: for X, Y in MyDictionary.items():
 
 

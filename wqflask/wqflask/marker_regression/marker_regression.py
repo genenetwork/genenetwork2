@@ -52,7 +52,36 @@ class MarkerRegression(object):
         #if not self.openMysql():
         #    return
 
+        print("start_vars are: ", pf(start_vars))
+
         self.dataset = create_dataset(start_vars['dataset_name'])
+        self.num_perm = int(start_vars['num_perm'])
+
+        # Passed in by the form (user might have edited)
+        #samples = start_vars['allsamples'].split()
+        
+        self.samples = []   # Want only ones with values
+        self.vals = []
+        self.variances = []
+        
+        self.dataset.group.read_genotype_file()
+        self.genotype = self.dataset.group.genotype
+        
+        for sample in self.dataset.group.samplelist:
+            value = start_vars['value:' + sample]
+            variance = start_vars['variance:' + sample]
+            if variance.strip().lower() == 'x':
+                variance = 0
+            else:
+                variance = float(variance)
+            if value.strip().lower() != 'x':
+                self.samples.append(str(sample))
+                self.vals.append(float(value))
+                self.variances.append(variance)
+
+        print("self.samples is:", pf(self.samples))
+        print("self.vals is:", pf(self.vals))
+        print("self.variances is:", pf(self.variances))
 
         #self.initializeParameters(start_vars)
 
@@ -162,111 +191,114 @@ class MarkerRegression(object):
             #if fd.parentsf14regression and fd.genotype_2:
             #    _genotype = fd.genotype_2
             #else:
-            genotype = self.dataset.group.read_genotype_file()
-            print("[black]:", genotype)
+            #print("[black]:", self.genotype)
 
-            _strains, _vals, _vars, N = fd.informativeStrains(_genotype.prgy, weightedRegression)
+            #_strains, _vals, _vars, N = fd.informativeStrains(_genotype.prgy, weightedRegression)
 
-            if fd.identification:
-                heading2 = HT.Paragraph('Trait ID: %s' % fd.identification)
-                heading2.__setattr__("class","subtitle")
-                self.dict['title'] = '%s: Genome Association' % fd.identification
+            #if fd.identification:
+            #    heading2 = HT.Paragraph('Trait ID: %s' % fd.identification)
+            #    heading2.__setattr__("class","subtitle")
+            #    self.dict['title'] = '%s: Genome Association' % fd.identification
+            #else:
+            #    heading2 = ""
+            #    self.dict['title'] = 'Genome Association'
+
+            #if fd.traitInfo:
+            #    symbol, chromosome, MB = string.split(fd.traitInfo,'\t')
+            #    heading3 = HT.Paragraph('[ ',HT.Strong(HT.Italic('%s' % symbol,id="green")),' on Chr %s @ %s Mb ]' % (chromosome,MB))
+            #else:
+            #    heading3 = ""
+
+            ### Todo in 2013: Don't allow marker regression in show trait page when number of samples
+            ### with values < 5
+
+            #if N < webqtlConfig.KMININFORMATIVE:
+            #    heading = "Genome Association"
+            #    detail = ['Fewer than %d strain data were entered for %s data set. No mapping attempted.' % (webqtlConfig.KMININFORMATIVE, fd.RISet)]
+            #    self.error(heading=heading,detail=detail)
+            #    return
+            #else:
+            #    heading = HT.Paragraph('Trait Data Entered for %s Set' % fd.RISet)
+            #    heading.__setattr__("class","title")
+
+                #datadiv = HT.TD(heading, heading2,heading3, width='45%',valign='top', align='left', bgColor='#eeeeee')
+            #resultstable,tblobj,bottomInfo  = self.GenReport(ChrNameOrderIdDict,fd, _genotype, _strains, _vals, _vars)
+            resultstable, tblobj, bottomInfo = self.gen_data()
+            #resultstable = self.GenReport(fd, _genotype, _strains, _vals, _vars)
+
+            # creat object for result table for sort function
+            objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
+            cPickle.dump(tblobj, objfile)
+            objfile.close()
+
+            sortby = ("Index", "up")
+            reportTable =HT.Div(webqtlUtil.genTableObj(tblobj=tblobj, file=filename, sortby=sortby, tableID = "sortable", addIndex = "0"), Id="sortable")
+
+            descriptionTable =  HT.TableLite(border=0, cellpadding=0, cellspacing=0)
+            descriptionTable.append(HT.TR(HT.TD(reportTable, colspan=3)))
+            descriptionTable.append(HT.TR(HT.TD(HT.BR(),HT.BR())))
+            descriptionTable.append(bottomInfo)
+
+            self.traitList=_vals
+
+            ##########################plot#######################
+
+            ################################################################
+            # Generate Chr list and Retrieve Length Information
+            ################################################################
+            self.genotype= _genotype
+            self.ChrList = [("All", -1)]
+
+            for i, indChr in enumerate(self.genotype):
+                self.ChrList.append((indChr.name, i))
+
+            self.cursor.execute("""
+                    Select
+                            Length from Chr_Length, InbredSet
+                    where
+                            Chr_Length.SpeciesId = InbredSet.SpeciesId AND
+                            InbredSet.Name = '%s' AND
+                            Chr_Length.Name in (%s)
+                    Order by
+                            OrderId
+                    """ % (fd.RISet, string.join(map(lambda X: "'%s'" % X[0], self.ChrList[1:]), ", ")))
+
+            self.ChrLengthMbList = self.cursor.fetchall()
+            self.ChrLengthMbList = map(lambda x: x[0]/1000000.0, self.ChrLengthMbList)
+            self.ChrLengthMbSum = reduce(lambda x, y:x+y, self.ChrLengthMbList, 0.0)
+            if self.ChrLengthMbList:
+                self.MbGraphInterval = self.ChrLengthMbSum/(len(self.ChrLengthMbList)*12) #Empirical Mb interval
             else:
-                heading2 = ""
-                self.dict['title'] = 'Genome Association'
+                self.MbGraphInterval = 1
 
-            if fd.traitInfo:
-                symbol,chromosome,MB = string.split(fd.traitInfo,'\t')
-                heading3 = HT.Paragraph('[ ',HT.Strong(HT.Italic('%s' % symbol,id="green")),' on Chr %s @ %s Mb ]' % (chromosome,MB))
-            else:
-                heading3 = ""
+            self.ChrLengthCMList = []
+            for i, _chr in enumerate(self.genotype):
+                self.ChrLengthCMList.append(_chr[-1].cM - _chr[0].cM)
+            self.ChrLengthCMSum = reduce(lambda x, y:x+y, self.ChrLengthCMList, 0.0)# used for calculate plot scale
 
-            if N < webqtlConfig.KMININFORMATIVE:
-                heading = "Genome Association"
-                detail = ['Fewer than %d strain data were entered for %s data set. No mapping attempted.' % (webqtlConfig.KMININFORMATIVE, fd.RISet)]
-                self.error(heading=heading,detail=detail)
-                return
-            else:
-                heading = HT.Paragraph('Trait Data Entered for %s Set' % fd.RISet)
-                heading.__setattr__("class","title")
+            self.GraphInterval = self.MbGraphInterval #Mb
 
-                datadiv = HT.TD(heading, heading2,heading3, width='45%',valign='top', align='left', bgColor='#eeeeee')
-                resultstable,tblobj,bottomInfo  = self.GenReport(ChrNameOrderIdDict,fd, _genotype, _strains, _vals, _vars)
-                #resultstable = self.GenReport(fd, _genotype, _strains, _vals, _vars)
+            # begin: common part with human data
+            intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
+            gifmap = self.plotIntMapping(fd, intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= "")
+            filename= webqtlUtil.genRandStr("Itvl_")
+            intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='png')
+            intImg=HT.Image('/image/'+filename+'.png', border=0, usemap='#WebQTLImageMap')
 
-                # creat object for result table for sort function
-                objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-                cPickle.dump(tblobj, objfile)
-                objfile.close()
+            ################################################################
+            # footnote goes here
+            ################################################################
+            btminfo = HT.Paragraph(Id="smallsize") #Small('More information about this graph is available here.')
 
-                sortby = ("Index", "up")
-                reportTable =HT.Div(webqtlUtil.genTableObj(tblobj=tblobj, file=filename, sortby=sortby, tableID = "sortable", addIndex = "0"), Id="sortable")
-
-                descriptionTable =  HT.TableLite(border=0, cellpadding=0, cellspacing=0)
-                descriptionTable.append(HT.TR(HT.TD(reportTable, colspan=3)))
-                descriptionTable.append(HT.TR(HT.TD(HT.BR(),HT.BR())))
-                descriptionTable.append(bottomInfo)
-
-                self.traitList=_vals
-
-                ##########################plot#######################
-
-                ################################################################
-                # Generate Chr list and Retrieve Length Information
-                ################################################################
-                self.genotype= _genotype
-                self.ChrList = [("All", -1)]
-
-                for i, indChr in enumerate(self.genotype):
-                    self.ChrList.append((indChr.name, i))
-
-                self.cursor.execute("""
-                        Select
-                                Length from Chr_Length, InbredSet
-                        where
-                                Chr_Length.SpeciesId = InbredSet.SpeciesId AND
-                                InbredSet.Name = '%s' AND
-                                Chr_Length.Name in (%s)
-                        Order by
-                                OrderId
-                        """ % (fd.RISet, string.join(map(lambda X: "'%s'" % X[0], self.ChrList[1:]), ", ")))
-
-                self.ChrLengthMbList = self.cursor.fetchall()
-                self.ChrLengthMbList = map(lambda x: x[0]/1000000.0, self.ChrLengthMbList)
-                self.ChrLengthMbSum = reduce(lambda x, y:x+y, self.ChrLengthMbList, 0.0)
-                if self.ChrLengthMbList:
-                    self.MbGraphInterval = self.ChrLengthMbSum/(len(self.ChrLengthMbList)*12) #Empirical Mb interval
-                else:
-                    self.MbGraphInterval = 1
-
-                self.ChrLengthCMList = []
-                for i, _chr in enumerate(self.genotype):
-                    self.ChrLengthCMList.append(_chr[-1].cM - _chr[0].cM)
-                self.ChrLengthCMSum = reduce(lambda x, y:x+y, self.ChrLengthCMList, 0.0)# used for calculate plot scale
-
-                self.GraphInterval = self.MbGraphInterval #Mb
-
-                # begin: common part with human data
-                intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
-                gifmap = self.plotIntMapping(fd, intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= "")
-                filename= webqtlUtil.genRandStr("Itvl_")
-                intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='png')
-                intImg=HT.Image('/image/'+filename+'.png', border=0, usemap='#WebQTLImageMap')
-
-                ################################################################
-                # footnote goes here
-                ################################################################
-                btminfo = HT.Paragraph(Id="smallsize") #Small('More information about this graph is available here.')
-
-                if (self.additiveChecked):
-                    btminfo.append(HT.BR(), 'A positive additive coefficient (', HT.Font('green', color='green'), ' line) indicates that %s alleles increase trait values. In contrast, a negative additive coefficient (' % fd.ppolar, HT.Font('red', color='red'), ' line) indicates that %s alleles increase trait values.' % fd.mpolar)
+            if (self.additiveChecked):
+                btminfo.append(HT.BR(), 'A positive additive coefficient (', HT.Font('green', color='green'), ' line) indicates that %s alleles increase trait values. In contrast, a negative additive coefficient (' % fd.ppolar, HT.Font('red', color='red'), ' line) indicates that %s alleles increase trait values.' % fd.mpolar)
 
 
-                TD_LR = HT.TR(HT.TD(HT.Blockquote(gifmap,intImg, HT.P()), bgColor='#eeeeee', height = 200))
+            TD_LR = HT.TR(HT.TD(HT.Blockquote(gifmap,intImg, HT.P()), bgColor='#eeeeee', height = 200))
 
-                self.dict['body'] = str(datadiv)+str(TD_LR)+str(resultstable)+str(HT.TR(HT.TD(descriptionTable)))
+            self.dict['body'] = str(datadiv)+str(TD_LR)+str(resultstable)+str(HT.TR(HT.TD(descriptionTable)))
 
-                # end: common part with human data
+            # end: common part with human data
 
 
 
@@ -410,18 +442,37 @@ class MarkerRegression(object):
         return rv, tblobj,bottomInfo
 
 
-    def GenReport(self, ChrNameOrderIdDict,fd, _genotype, _strains, _vals, _vars= []):
-        'Create an HTML division which reports any loci which are significantly associated with the submitted trait data.'
+    #def GenReport(self, ChrNameOrderIdDict,fd, _genotype, _strains, _vals, _vars= []):
+    def gen_data(self):
+        """Todo: Fill this in here"""
+        #'Create an HTML division which reports any loci which are significantly associated with the submitted trait data.'
+       
         #calculate QTL for each trait
-        self.qtlresults = []
-        if webqtlUtil.ListNotNull(_vars):
-            qtlresults = _genotype.regression(strains = _strains, trait = _vals, variance = _vars)
-            LRSArray = _genotype.permutation(strains = _strains, trait = _vals, variance = _vars, nperm=fd.nperm)
-        else:
-            qtlresults = _genotype.regression(strains = _strains, trait = _vals)
-            LRSArray = _genotype.permutation(strains = _strains, trait = _vals,nperm=fd.nperm)
+        #self.qtlresults = []
+        #if webqtlUtil.ListNotNull(_vars):
+        
+        #strains =
+        #vals =
+        #variances = 
+        
+        #if any(self.variances):
+        #    self.qtl_results = self.genotype.regression(strains = self.samples,
+        #                                            trait = self.vals,
+        #                                            variance = self.variances)
+        #    self.lrs_array = self.genotype.permutation(strains = self.samples,
+        #                                           trait = self.vals,
+        #                                           variance = self.variances,
+        #                                           nperm = self.num_perm)
+        #else:
+        self.qtl_results = self.genotype.regression(strains = self.samples,
+                                                trait = self.vals)
+        self.lrs_array = self.genotype.permutation(strains = self.samples,
+                                               trait = self.vals,
+                                               nperm=self.num_perm)
 
-        self.qtlresults.append(qtlresults)
+        print("[yellow] self.__dict__ is:", pf(self.__dict__))
+
+        #self.qtlresults.append(qtlresults)
 
         filename= webqtlUtil.genRandStr("GenomeAsscociation_")
 

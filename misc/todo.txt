@@ -1,3 +1,2 @@
-- Check about using trait id instead of trait name in queries in data_set.py
-
+- Ask Rob about potentially recoding qtlreaper
 - Ask Rob about Probe/cellid traits

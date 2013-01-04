@@ -20,7 +20,7 @@
                         <label for="chromosome" class="control-label">Chromosome</label>
                         <div class="controls">
                             <select name="chromosome">
-                                {% for name, value in dataset.species.chromosomes %}
+                                {% for name, value in dataset.species.chromosomes.chromosomes.items() %}
                                 <option value="{{ value }}">{{ name }}</option>
                                 {% endfor %}
                             </select>
@@ -30,7 +30,7 @@
                     <div class="control-group">
                         <label for="mapping_permutations" class="control-label">Permutations (n)</label>
                         <div class="controls">
-                            <input name="num_permutations" value="2000" type="text" />
+                            <input name="num_perm" value="2000" type="text" />
                         </div>
                     </div>
     
@@ -125,7 +125,7 @@
                                 No
                             </label>
                         </div>
-                    </div>
+                    </div>                  
                     <div class="control-group">
                         <label for="suggestive_lrs" class="control-label"
                                title="Control Locus">LRS greater than</label>
@@ -133,6 +133,13 @@
                             <input name="suggestive_lrs" id="suggestive_lrs" type="text" />
                         </div>
                     </div>
+                    
+                    <div class="control-group">
+                        <label for="marker_reg_permutations" class="control-label">Permutations (n)</label>
+                        <div class="controls">
+                            <input name="num_perm" value="2000" type="text" />
+                        </div>
+                    </div>                    
                     
                     <div class="control-group">
                         <div class="controls">
