@@ -85,8 +85,8 @@ class DatasetGroup(object):
         self.f1list = None
         self.parlist = None
         self.allsamples = None
-            
-            
+
+
     #def read_genotype(self):
     #    self.read_genotype_file()
     #
@@ -158,8 +158,8 @@ class DataSet(object):
 
         self.retrieve_other_names()
         
-        self.species = species.TheSpecies(self)
         self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
+        self.species = species.TheSpecies(self)
     
        
         
