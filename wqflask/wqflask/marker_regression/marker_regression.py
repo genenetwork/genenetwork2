@@ -16,7 +16,7 @@ import httplib
 import urllib
 
 from htmlgen import HTMLgen2 as HT
-from utility import Plot
+from utility import Plot, Bunch
 from wqflask.interval_analyst import GeneUtil
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
@@ -66,6 +66,11 @@ class MarkerRegression(object):
         
         self.dataset.group.read_genotype_file()
         self.genotype = self.dataset.group.genotype
+        
+        assert start_vars['display_all_vars'] in ('True', 'False')
+        self.display_all_lrs = True if start_vars['display_all_lrs'] == 'True' else False
+        
+        print("self.display_all_lrs is:", pf(self.display_all_lrs))
         
         for sample in self.dataset.group.samplelist:
             value = start_vars['value:' + sample]
@@ -223,34 +228,35 @@ class MarkerRegression(object):
 
                 #datadiv = HT.TD(heading, heading2,heading3, width='45%',valign='top', align='left', bgColor='#eeeeee')
             #resultstable,tblobj,bottomInfo  = self.GenReport(ChrNameOrderIdDict,fd, _genotype, _strains, _vals, _vars)
-            resultstable, tblobj, bottomInfo = self.gen_data()
+            
+            self.gen_data()
             #resultstable = self.GenReport(fd, _genotype, _strains, _vals, _vars)
 
             # creat object for result table for sort function
-            objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-            cPickle.dump(tblobj, objfile)
-            objfile.close()
+            ##objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
+            ##cPickle.dump(tblobj, objfile)
+            ##objfile.close()
+            #
+            #sortby = ("Index", "up")
+            #reportTable =HT.Div(webqtlUtil.genTableObj(tblobj=tblobj, file=filename, sortby=sortby, tableID = "sortable", addIndex = "0"), Id="sortable")
+            #
+            #descriptionTable =  HT.TableLite(border=0, cellpadding=0, cellspacing=0)
+            #descriptionTable.append(HT.TR(HT.TD(reportTable, colspan=3)))
+            #descriptionTable.append(HT.TR(HT.TD(HT.BR(),HT.BR())))
+            #descriptionTable.append(bottomInfo)
 
-            sortby = ("Index", "up")
-            reportTable =HT.Div(webqtlUtil.genTableObj(tblobj=tblobj, file=filename, sortby=sortby, tableID = "sortable", addIndex = "0"), Id="sortable")
-
-            descriptionTable =  HT.TableLite(border=0, cellpadding=0, cellspacing=0)
-            descriptionTable.append(HT.TR(HT.TD(reportTable, colspan=3)))
-            descriptionTable.append(HT.TR(HT.TD(HT.BR(),HT.BR())))
-            descriptionTable.append(bottomInfo)
-
-            self.traitList=_vals
+            #self.traitList=_vals
 
             ##########################plot#######################
 
             ################################################################
             # Generate Chr list and Retrieve Length Information
             ################################################################
-            self.genotype= _genotype
-            self.ChrList = [("All", -1)]
+            #self.genotype= _genotype
+            #self.ChrList = [("All", -1)]
 
-            for i, indChr in enumerate(self.genotype):
-                self.ChrList.append((indChr.name, i))
+            #for i, indChr in enumerate(self.genotype):
+            #    self.ChrList.append((indChr.name, i))
 
             self.cursor.execute("""
                     Select
@@ -470,188 +476,229 @@ class MarkerRegression(object):
                                                trait = self.vals,
                                                nperm=self.num_perm)
 
-        print("[yellow] self.__dict__ is:", pf(self.__dict__))
+        #print("[yellow] self.__dict__ is:", pf(self.__dict__))
 
         #self.qtlresults.append(qtlresults)
 
-        filename= webqtlUtil.genRandStr("GenomeAsscociation_")
+        #filename= webqtlUtil.genRandStr("GenomeAsscociation_")
+        
+        
 
         # set suggestive, significant and highly significant LRS
-        if fd.suggestive == None:
-            fd.suggestive = LRSArray[int(fd.nperm*0.37-1)]
-        else:
-            fd.suggestive = float(fd.suggestive)
-        if fd.significance == None:
-            fd.significance = LRSArray[int(fd.nperm*0.95-1)]
-        else:
-            fd.significance = float(fd.significance)
+        #if fd.suggestive == None:
+        #self.suggestive = self.lrs_array[int(self.num_perm*0.37-1)]
+        ##else:
+        ##    fd.suggestive = float(fd.suggestive)
+        ##if fd.significance == None:
+        #self.significance = self.lrs_array[int(self.num_perm*0.95-1)]
+        ##else:
+        ##    fd.significance = float(fd.significance)
+        #
+        ##self.significance =fd.significance
+        ##self.suggestive = fd.suggestive
+        #self.highlysignificant = LRSArray[int(fd.nperm*0.99-1)]
+        
+        self.lrs_thresholds = Bunch(
+                                suggestive = self.lrs_array[int(self.num_perm*0.37-1)],
+                                significant = self.lrs_array[int(self.num_perm*0.95-1)],
+                                highly_significant = self.lrs_array[int(fd.nperm*0.99-1)]
+                                )
+        
+        #disp_all_lrs = False
+        #if fd.formdata.getvalue('displayAllLRS'):
+        #    disp_all_lrs = True
+        
+        #if not self.disp_all_lrs:
+            
 
-        self.significance =fd.significance
-        self.suggestive = fd.suggestive
-        self.highlysignificant = LRSArray[int(fd.nperm*0.99-1)]
-        _dispAllLRS = 0
-        if fd.formdata.getvalue('displayAllLRS'):
-            _dispAllLRS = 1
-        qtlresults2 = []
-        if _dispAllLRS:
-            filtered = qtlresults[:]
+        if self.disp_all_lrs:
+            filtered_results = self.qtl_results
         else:
-            filtered = filter(lambda x, y=fd.suggestive: x.lrs > y, qtlresults)
-        if len(filtered) == 0:
-            qtlresults2 = qtlresults[:]
-            qtlresults2.sort()
-            filtered = qtlresults2[-10:]
+            suggestive_results = []
+            for result in self.qtl_results:
+                if result.lrs > self.lrs_thresholds.suggestive:
+                    suggestive_results.append(result)
+            filtered_results = suggestive_results 
+        
+        
+        # Todo (2013): Use top_10 variable to generate page message about whether top 10 was used
+        if not filtered_results:
+            # We use the 10 results with the highest LRS values
+            filtered_results = sorted(self.qtl_results)[-10:]
+            self.top_10 = True
+        else:
+            self.top_10 = False
+            
+            
+
+
+        #qtlresults2 = []
+        #if self.disp_all_lrs:
+        #    filtered = self.qtl_results[:]
+        #else:
+        #    filtered = filter(lambda x, y=fd.suggestive: x.lrs > y, qtlresults)
+        #if len(filtered) == 0:
+        #    qtlresults2 = qtlresults[:]
+        #    qtlresults2.sort()
+        #    filtered = qtlresults2[-10:]
 
         #########################################
         #      Permutation Graph
         #########################################
-        myCanvas = pid.PILCanvas(size=(400,300))
-        #plotBar(myCanvas,10,10,390,290,LRSArray,XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test',identification=fd.identification)
-        Plot.plotBar(myCanvas, LRSArray, XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test')
-        filename= webqtlUtil.genRandStr("Reg_")
-        myCanvas.save(webqtlConfig.IMGDIR+filename, format='gif')
-        img=HT.Image('/image/'+filename+'.gif',border=0,alt='Histogram of Permutation Test')
+        #myCanvas = pid.PILCanvas(size=(400,300))
+        ##plotBar(myCanvas,10,10,390,290,LRSArray,XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test',identification=fd.identification)
+        #Plot.plotBar(myCanvas, LRSArray, XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test')
+        #filename= webqtlUtil.genRandStr("Reg_")
+        #myCanvas.save(webqtlConfig.IMGDIR+filename, format='gif')
+        #img=HT.Image('/image/'+filename+'.gif',border=0,alt='Histogram of Permutation Test')
             
-        if fd.suggestive == None:
-            fd.suggestive = LRSArray[int(fd.nperm*0.37-1)]
-        else:
-            fd.suggestive = float(fd.suggestive)
-        if fd.significance == None:
-            fd.significance = LRSArray[int(fd.nperm*0.95-1)]
-        else:
-            fd.significance = float(fd.significance)
+        #if fd.suggestive == None:
+        #    fd.suggestive = LRSArray[int(fd.nperm*0.37-1)]
+        #else:
+        #    fd.suggestive = float(fd.suggestive)
+        #if fd.significance == None:
+        #    fd.significance = LRSArray[int(fd.nperm*0.95-1)]
+        #else:
+        #    fd.significance = float(fd.significance)
 
-        permutationHeading = HT.Paragraph('Histogram of Permutation Test')
-        permutationHeading.__setattr__("class","title")
-
-        permutation = HT.TableLite()
-        permutation.append(HT.TR(HT.TD(img)))
+        #permutationHeading = HT.Paragraph('Histogram of Permutation Test')
+        #permutationHeading.__setattr__("class","title")
+        #
+        #permutation = HT.TableLite()
+        #permutation.append(HT.TR(HT.TD(img)))
 
 
         #########################################
         #      Genome Association report
         #########################################
-        locusFormName = webqtlUtil.genRandStr("fm_")
-        locusForm = HT.Form(cgi = os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), \
-                enctype='multipart/form-data', name=locusFormName, submit=HT.Input(type='hidden'))
-        hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':fd.RISet+"Geno",'CellID':'_', \
-                'RISet':fd.RISet, 'incparentsf1':'on'}
-        for key in hddn.keys():
-            locusForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
+        #locusFormName = webqtlUtil.genRandStr("fm_")
+        #locusForm = HT.Form(cgi = os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), \
+        #        enctype='multipart/form-data', name=locusFormName, submit=HT.Input(type='hidden'))
+        #hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':fd.RISet+"Geno",'CellID':'_', \
+        #        'RISet':fd.RISet, 'incparentsf1':'on'}
+        #for key in hddn.keys():
+        #    locusForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
 
-        regressionHeading = HT.Paragraph('Genome Association Report')
-        regressionHeading.__setattr__("class","title")
+        #regressionHeading = HT.Paragraph('Genome Association Report')
+        #regressionHeading.__setattr__("class","title")
         # report is the info part above report table
-        if qtlresults2 != []:
-            report = HT.Blockquote(HT.Font('No association ',color="#FF0000"),HT.Font('with a likelihood ratio statistic greater than %3.1f was found. Here are the top 10 LRSs.' % fd.suggestive,color="#000000"))
-        else:
-            report = HT.Blockquote('The following loci in the %s data set have associations with the above trait data.\n' % fd.RISet, HT.P())
+        
+        #if qtlresults2 != []:
+        #    report = HT.Blockquote(HT.Font('No association ',color="#FF0000"),HT.Font('with a likelihood ratio statistic greater than %3.1f was found. Here are the top 10 LRSs.' % fd.suggestive,color="#000000"))
+        #else:
+        #    report = HT.Blockquote('The following loci in the %s data set have associations with the above trait data.\n' % fd.RISet, HT.P())
         report.__setattr__("class","normalsize")
 
-        fpText = open('%s.txt' % (webqtlConfig.TMPDIR+filename), 'wb')
-        fpText.write('Suggestive LRS =%3.2f\n'%self.suggestive)
-        fpText.write('Significant LRS =%3.2f\n'%self.significance)
-        fpText.write('Highly Significant LRS =%3.2f\n'%self.highlysignificant)
-        LRSInfo =HT.Paragraph('&nbsp;&nbsp;&nbsp;&nbsp;Suggestive LRS =%3.2f\n'%fd.suggestive, HT.BR(), '&nbsp;&nbsp;&nbsp;&nbsp;Significant LRS =%3.2f\n'%fd.significance,HT.BR(),'&nbsp;&nbsp;&nbsp;&nbsp;Highly Significant LRS =%3.2f\n' % self.highlysignificant)
+        #fpText = open('%s.txt' % (webqtlConfig.TMPDIR+filename), 'wb')
+        #fpText.write('Suggestive LRS =%3.2f\n'%self.suggestive)
+        #fpText.write('Significant LRS =%3.2f\n'%self.significance)
+        #fpText.write('Highly Significant LRS =%3.2f\n'%self.highlysignificant)
+        #LRSInfo =HT.Paragraph('&nbsp;&nbsp;&nbsp;&nbsp;Suggestive LRS =%3.2f\n'%fd.suggestive, HT.BR(), '&nbsp;&nbsp;&nbsp;&nbsp;Significant LRS =%3.2f\n'%fd.significance,HT.BR(),'&nbsp;&nbsp;&nbsp;&nbsp;Highly Significant LRS =%3.2f\n' % self.highlysignificant)
 
-        textUrl = HT.Href(text = 'Download', url= '/tmp/'+filename+'.txt', target = "_blank", Class='fs12 fwn')
+        #textUrl = HT.Href(text = 'Download', url= '/tmp/'+filename+'.txt', target = "_blank", Class='fs12 fwn')
 
-        bottomInfo = HT.TR(HT.TD(HT.Paragraph(textUrl, ' result in tab-delimited text format.', HT.BR(), HT.BR(),'LRS values marked with',HT.Font(' * ',color="red"), 'are greater than the significance threshold (specified by you or by permutation test). ' , HT.BR(), HT.BR(), HT.Strong('Additive Effect'), ' is half the difference in the mean phenotype of all cases that are homozygous for one parental allel at this marker minus the mean of all cases that are homozygous for the other parental allele at this marker. ','In the case of %s strains, for example,' % fd.RISet,' A positive additive effect indicates that %s alleles increase trait values. Negative additive effect indicates that %s alleles increase trait values.'% (fd.ppolar,fd.mpolar),Class="fs12 fwn")))
+        #bottomInfo = HT.TR(HT.TD(HT.Paragraph(textUrl, ' result in tab-delimited text format.', HT.BR(), HT.BR(),'LRS values marked with',HT.Font(' * ',color="red"), 'are greater than the significance threshold (specified by you or by permutation test). ' , HT.BR(), HT.BR(), HT.Strong('Additive Effect'), ' is half the difference in the mean phenotype of all cases that are homozygous for one parental allel at this marker minus the mean of all cases that are homozygous for the other parental allele at this marker. ','In the case of %s strains, for example,' % fd.RISet,' A positive additive effect indicates that %s alleles increase trait values. Negative additive effect indicates that %s alleles increase trait values.'% (fd.ppolar,fd.mpolar),Class="fs12 fwn")))
 
-        tblobj={}       # build dict for genTableObj function; keys include header and body
-        tblobj_header = [] # value of key 'header'
-        tblobj_body=[]          # value of key 'body'
-        reportHeaderRow=[]      # header row list for tblobj_header (html part)
-        headerStyle="fs14 fwb ffl b1 cw cbrb" # style of the header
-        cellColorStyle = "fs13 b1 fwn c222" # style of the cells
+        #tblobj={}       # build dict for genTableObj function; keys include header and body
+        #tblobj_header = [] # value of key 'header'
+        #tblobj_body=[]          # value of key 'body'
+        #reportHeaderRow=[]      # header row list for tblobj_header (html part)
+        #headerStyle="fs14 fwb ffl b1 cw cbrb" # style of the header
+        #cellColorStyle = "fs13 b1 fwn c222" # style of the cells
 
-        headerList=['Index','LRS','Chr','Mb','Locus','Additive Effect']
-        for ncol, item in enumerate(headerList):
-            reportHeaderRow.append(THCell(HT.TD(item, Class=headerStyle, valign='bottom',nowrap='ON'),text=item, idx=ncol))
+        #headerList=['Index','LRS','Chr','Mb','Locus','Additive Effect']
+        #for ncol, item in enumerate(headerList):
+        #    reportHeaderRow.append(THCell(HT.TD(item, Class=headerStyle, valign='bottom',nowrap='ON'),text=item, idx=ncol))
+        
+        for marker in filtered:
+            if marker.lrs > webqtlConfig.MAXLRS:
+                marker.lrs = webqtlConfig.MAXLRS
+        
+        self.filtered = filtered
 
-        if fd.genotype.type == 'intercross':
-            ncol =len(headerList)
-            reportHeaderRow.append(THCell(HT.TD('Dominance Effect', Class=headerStyle, valign='bottom',nowrap='ON'),text='Dominance Effect', idx=ncol))
+        #if fd.genotype.type == 'intercross':
+        #    ncol =len(headerList)
+        #    reportHeaderRow.append(THCell(HT.TD('Dominance Effect', Class=headerStyle, valign='bottom',nowrap='ON'),text='Dominance Effect', idx=ncol))
+        #
+        #    #download file for table headers' names
+        #    fpText.write('LRS\tChromosome\tMb\tLocus\tAdditive Effect\tDominance Effect\n')
+        #
+        #    index=1
+        #    for ii in filtered:
+        #        #add by NL 06-20-2011: set LRS to 460 when LRS is infinite,
+        #        if ii.lrs==float('inf') or ii.lrs>webqtlConfig.MAXLRS:
+        #            LRS=webqtlConfig.MAXLRS #maximum LRS value
+        #        else:
+        #            LRS=ii.lrs
+        #
+        #        if LRS > fd.significance:
+        #            lrs = HT.TD(HT.Font('%3.3f*' % LRS, color='#FF0000'),Class=cellColorStyle)
+        #        else:
+        #            lrs = HT.TD('%3.3f' % LRS,Class=cellColorStyle)
+        #
+        #        if ii.locus.chr in ChrNameOrderIdDict.keys():
+        #            chrOrderId =ChrNameOrderIdDict[ii.locus.chr]
+        #        else:
+        #            chrOrderId=ii.locus.chr
+        #
+        #        reportBodyRow=[]        # row list for tblobj_body (html part)
+        #        selectCheck=HT.Input(type="checkbox", Class="checkbox", name="index",value=index, onClick="highlight(this)")
+        #        reportBodyRow.append(TDCell(HT.TD(str(index),selectCheck, align='right',Class=cellColorStyle,nowrap='ON'),str(index),index))
+        #        reportBodyRow.append(TDCell(lrs,LRS, LRS))
+        #        reportBodyRow.append(TDCell(HT.TD(ii.locus.chr, Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.chr, chrOrderId))
+        #        reportBodyRow.append(TDCell(HT.TD('%3.6f'%ii.locus.Mb, Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.Mb, ii.locus.Mb))
+        #        reportBodyRow.append(TDCell(HT.TD(HT.Href(text=ii.locus.name, url = "javascript:showTrait('%s','%s');" % (locusFormName, ii.locus.name), Class='normalsize'), Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.name, ii.locus.name))
+        #        reportBodyRow.append(TDCell(HT.TD('%3.3f' % ii.additive, Class=cellColorStyle, align="center",nowrap='ON'),ii.additive, ii.additive))
+        #        reportBodyRow.append(TDCell(HT.TD('%3.3f' % ii.dominance, Class=cellColorStyle, align="center",nowrap='ON'),ii.dominance, ii.dominance))
+        #
+        #        fpText.write('%2.3f\t%s\t%3.6f\t%s\t%2.3f\t%2.3f\n' % (LRS, ii.locus.chr, ii.locus.Mb, ii.locus.name, ii.additive, ii.dominance))
+        #        index+=1
+        #        tblobj_body.append(reportBodyRow)
+        #else:
+        #    #download file for table headers' names
+        #    fpText.write('LRS\tChromosome\tMb\tLocus\tAdditive Effect\n')
+        #
+        #    index=1
+        #    for ii in filtered:
+        #        #add by NL 06-20-2011: set LRS to 460 when LRS is infinite,
+        #        if ii.lrs==float('inf') or ii.lrs>webqtlConfig.MAXLRS:
+        #            LRS=webqtlConfig.MAXLRS #maximum LRS value
+        #        else:
+        #            LRS=ii.lrs
+        #
+        #        if LRS > fd.significance:
+        #            lrs = HT.TD(HT.Font('%3.3f*' % LRS, color='#FF0000'),Class=cellColorStyle)
+        #        else:
+        #            lrs = HT.TD('%3.3f' % LRS,Class=cellColorStyle)
+        #
+        #        if ii.locus.chr in ChrNameOrderIdDict.keys():
+        #            chrOrderId =ChrNameOrderIdDict[ii.locus.chr]
+        #        else:
+        #            chrOrderId=ii.locus.chr
+        #
+        #        reportBodyRow=[]        # row list for tblobj_body (html part)
+        #        selectCheck=HT.Input(type="checkbox", Class="checkbox", name="index",value=index, onClick="highlight(this)")
+        #        reportBodyRow.append(TDCell(HT.TD(str(index),selectCheck, align='right',Class=cellColorStyle,nowrap='ON'),str(index),index))
+        #        reportBodyRow.append(TDCell(lrs,LRS, LRS))
+        #        reportBodyRow.append(TDCell(HT.TD(ii.locus.chr, Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.chr, chrOrderId))
+        #        reportBodyRow.append(TDCell(HT.TD('%3.6f'%ii.locus.Mb, Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.Mb, ii.locus.Mb))
+        #        reportBodyRow.append(TDCell(HT.TD(HT.Href(text=ii.locus.name, url = "javascript:showTrait('%s','%s');" % (locusFormName, ii.locus.name), Class='normalsize'), Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.name, ii.locus.name))
+        #        reportBodyRow.append(TDCell(HT.TD('%3.3f' % ii.additive, Class=cellColorStyle, align="center",nowrap='ON'),ii.additive, ii.additive))
+        #
+        #        fpText.write('%2.3f\t%s\t%3.6f\t%s\t%2.3f\n' % (LRS, ii.locus.chr, ii.locus.Mb, ii.locus.name, ii.additive))
+        #        index+=1
+        #        tblobj_body.append(reportBodyRow)
 
-            #download file for table headers' names
-            fpText.write('LRS\tChromosome\tMb\tLocus\tAdditive Effect\tDominance Effect\n')
+        #tblobj_header.append(reportHeaderRow)
+        #tblobj['header']=tblobj_header
+        #tblobj['body']=tblobj_body
 
-            index=1
-            for ii in filtered:
-                #add by NL 06-20-2011: set LRS to 460 when LRS is infinite,
-                if ii.lrs==float('inf') or ii.lrs>webqtlConfig.MAXLRS:
-                    LRS=webqtlConfig.MAXLRS #maximum LRS value
-                else:
-                    LRS=ii.lrs
+        #rv=HT.TD(regressionHeading,LRSInfo,report, locusForm, HT.P(),width='55%',valign='top', align='left', bgColor='#eeeeee')
+        #if fd.genotype.type == 'intercross':
+        #    bottomInfo.append(HT.BR(), HT.BR(), HT.Strong('Dominance Effect'),' is the difference between the mean trait value of cases heterozygous at a marker and the average mean for the two groups homozygous at this marker: e.g.,  BD - (BB+DD)/2]. A positive dominance effect indicates that the average phenotype of BD heterozygotes exceeds the mean of BB and DD homozygotes. No dominance deviation can be computed for a set of recombinant inbred strains or for a backcross.')
+            #return rv,tblobj,bottomInfo
 
-                if LRS > fd.significance:
-                    lrs = HT.TD(HT.Font('%3.3f*' % LRS, color='#FF0000'),Class=cellColorStyle)
-                else:
-                    lrs = HT.TD('%3.3f' % LRS,Class=cellColorStyle)
-
-                if ii.locus.chr in ChrNameOrderIdDict.keys():
-                    chrOrderId =ChrNameOrderIdDict[ii.locus.chr]
-                else:
-                    chrOrderId=ii.locus.chr
-
-                reportBodyRow=[]        # row list for tblobj_body (html part)
-                selectCheck=HT.Input(type="checkbox", Class="checkbox", name="index",value=index, onClick="highlight(this)")
-                reportBodyRow.append(TDCell(HT.TD(str(index),selectCheck, align='right',Class=cellColorStyle,nowrap='ON'),str(index),index))
-                reportBodyRow.append(TDCell(lrs,LRS, LRS))
-                reportBodyRow.append(TDCell(HT.TD(ii.locus.chr, Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.chr, chrOrderId))
-                reportBodyRow.append(TDCell(HT.TD('%3.6f'%ii.locus.Mb, Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.Mb, ii.locus.Mb))
-                reportBodyRow.append(TDCell(HT.TD(HT.Href(text=ii.locus.name, url = "javascript:showTrait('%s','%s');" % (locusFormName, ii.locus.name), Class='normalsize'), Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.name, ii.locus.name))
-                reportBodyRow.append(TDCell(HT.TD('%3.3f' % ii.additive, Class=cellColorStyle, align="center",nowrap='ON'),ii.additive, ii.additive))
-                reportBodyRow.append(TDCell(HT.TD('%3.3f' % ii.dominance, Class=cellColorStyle, align="center",nowrap='ON'),ii.dominance, ii.dominance))
-
-                fpText.write('%2.3f\t%s\t%3.6f\t%s\t%2.3f\t%2.3f\n' % (LRS, ii.locus.chr, ii.locus.Mb, ii.locus.name, ii.additive, ii.dominance))
-                index+=1
-                tblobj_body.append(reportBodyRow)
-        else:
-            #download file for table headers' names
-            fpText.write('LRS\tChromosome\tMb\tLocus\tAdditive Effect\n')
-
-            index=1
-            for ii in filtered:
-                #add by NL 06-20-2011: set LRS to 460 when LRS is infinite,
-                if ii.lrs==float('inf') or ii.lrs>webqtlConfig.MAXLRS:
-                    LRS=webqtlConfig.MAXLRS #maximum LRS value
-                else:
-                    LRS=ii.lrs
-
-                if LRS > fd.significance:
-                    lrs = HT.TD(HT.Font('%3.3f*' % LRS, color='#FF0000'),Class=cellColorStyle)
-                else:
-                    lrs = HT.TD('%3.3f' % LRS,Class=cellColorStyle)
-
-                if ii.locus.chr in ChrNameOrderIdDict.keys():
-                    chrOrderId =ChrNameOrderIdDict[ii.locus.chr]
-                else:
-                    chrOrderId=ii.locus.chr
-
-                reportBodyRow=[]        # row list for tblobj_body (html part)
-                selectCheck=HT.Input(type="checkbox", Class="checkbox", name="index",value=index, onClick="highlight(this)")
-                reportBodyRow.append(TDCell(HT.TD(str(index),selectCheck, align='right',Class=cellColorStyle,nowrap='ON'),str(index),index))
-                reportBodyRow.append(TDCell(lrs,LRS, LRS))
-                reportBodyRow.append(TDCell(HT.TD(ii.locus.chr, Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.chr, chrOrderId))
-                reportBodyRow.append(TDCell(HT.TD('%3.6f'%ii.locus.Mb, Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.Mb, ii.locus.Mb))
-                reportBodyRow.append(TDCell(HT.TD(HT.Href(text=ii.locus.name, url = "javascript:showTrait('%s','%s');" % (locusFormName, ii.locus.name), Class='normalsize'), Class=cellColorStyle, align="center",nowrap='ON'),ii.locus.name, ii.locus.name))
-                reportBodyRow.append(TDCell(HT.TD('%3.3f' % ii.additive, Class=cellColorStyle, align="center",nowrap='ON'),ii.additive, ii.additive))
-
-                fpText.write('%2.3f\t%s\t%3.6f\t%s\t%2.3f\n' % (LRS, ii.locus.chr, ii.locus.Mb, ii.locus.name, ii.additive))
-                index+=1
-                tblobj_body.append(reportBodyRow)
-
-        tblobj_header.append(reportHeaderRow)
-        tblobj['header']=tblobj_header
-        tblobj['body']=tblobj_body
-
-        rv=HT.TD(regressionHeading,LRSInfo,report, locusForm, HT.P(),width='55%',valign='top', align='left', bgColor='#eeeeee')
-        if fd.genotype.type == 'intercross':
-            bottomInfo.append(HT.BR(), HT.BR(), HT.Strong('Dominance Effect'),' is the difference between the mean trait value of cases heterozygous at a marker and the average mean for the two groups homozygous at this marker: e.g.,  BD - (BB+DD)/2]. A positive dominance effect indicates that the average phenotype of BD heterozygotes exceeds the mean of BB and DD homozygotes. No dominance deviation can be computed for a set of recombinant inbred strains or for a backcross.')
-            return rv,tblobj,bottomInfo
-
-        return rv,tblobj,bottomInfo
+        #return rv,tblobj,bottomInfo
 
     def plotIntMappingForPLINK(self, fd, canvas, offset= (80, 120, 20, 80), zoom = 1, startMb = None, endMb = None, showLocusForm = "",plinkResultDict={}):
         #calculating margins
@@ -1697,3 +1744,4 @@ class MarkerRegression(object):
     #        ChrLengthMbList=[]
     #
     #    return ChrList,ChrNameOrderIdDict,ChrOrderIdNameDict,ChrLengthMbList
+  
