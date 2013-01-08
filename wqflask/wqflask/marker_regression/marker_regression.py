@@ -67,10 +67,8 @@ class MarkerRegression(object):
         self.dataset.group.read_genotype_file()
         self.genotype = self.dataset.group.genotype
         
-        assert start_vars['display_all_vars'] in ('True', 'False')
+        assert start_vars['display_all_lrs'] in ('True', 'False')
         self.display_all_lrs = True if start_vars['display_all_lrs'] == 'True' else False
-        
-        print("self.display_all_lrs is:", pf(self.display_all_lrs))
         
         for sample in self.dataset.group.samplelist:
             value = start_vars['value:' + sample]
@@ -314,6 +312,7 @@ class MarkerRegression(object):
         """
         Initializes all of the MarkerRegressionPage class parameters,
         acquiring most values from the formdata (fd)
+        
         """
         ###################################
         # manhattam plot parameters
@@ -448,70 +447,23 @@ class MarkerRegression(object):
         return rv, tblobj,bottomInfo
 
 
-    #def GenReport(self, ChrNameOrderIdDict,fd, _genotype, _strains, _vals, _vars= []):
     def gen_data(self):
         """Todo: Fill this in here"""
-        #'Create an HTML division which reports any loci which are significantly associated with the submitted trait data.'
-       
+
         #calculate QTL for each trait
-        #self.qtlresults = []
-        #if webqtlUtil.ListNotNull(_vars):
-        
-        #strains =
-        #vals =
-        #variances = 
-        
-        #if any(self.variances):
-        #    self.qtl_results = self.genotype.regression(strains = self.samples,
-        #                                            trait = self.vals,
-        #                                            variance = self.variances)
-        #    self.lrs_array = self.genotype.permutation(strains = self.samples,
-        #                                           trait = self.vals,
-        #                                           variance = self.variances,
-        #                                           nperm = self.num_perm)
-        #else:
         self.qtl_results = self.genotype.regression(strains = self.samples,
                                                 trait = self.vals)
         self.lrs_array = self.genotype.permutation(strains = self.samples,
                                                trait = self.vals,
                                                nperm=self.num_perm)
 
-        #print("[yellow] self.__dict__ is:", pf(self.__dict__))
-
-        #self.qtlresults.append(qtlresults)
-
-        #filename= webqtlUtil.genRandStr("GenomeAsscociation_")
-        
-        
-
-        # set suggestive, significant and highly significant LRS
-        #if fd.suggestive == None:
-        #self.suggestive = self.lrs_array[int(self.num_perm*0.37-1)]
-        ##else:
-        ##    fd.suggestive = float(fd.suggestive)
-        ##if fd.significance == None:
-        #self.significance = self.lrs_array[int(self.num_perm*0.95-1)]
-        ##else:
-        ##    fd.significance = float(fd.significance)
-        #
-        ##self.significance =fd.significance
-        ##self.suggestive = fd.suggestive
-        #self.highlysignificant = LRSArray[int(fd.nperm*0.99-1)]
-        
         self.lrs_thresholds = Bunch(
                                 suggestive = self.lrs_array[int(self.num_perm*0.37-1)],
                                 significant = self.lrs_array[int(self.num_perm*0.95-1)],
-                                highly_significant = self.lrs_array[int(fd.nperm*0.99-1)]
+                                highly_significant = self.lrs_array[int(self.num_perm*0.99-1)]
                                 )
-        
-        #disp_all_lrs = False
-        #if fd.formdata.getvalue('displayAllLRS'):
-        #    disp_all_lrs = True
-        
-        #if not self.disp_all_lrs:
-            
 
-        if self.disp_all_lrs:
+        if self.display_all_lrs:
             filtered_results = self.qtl_results
         else:
             suggestive_results = []
@@ -587,7 +539,9 @@ class MarkerRegression(object):
         #    report = HT.Blockquote(HT.Font('No association ',color="#FF0000"),HT.Font('with a likelihood ratio statistic greater than %3.1f was found. Here are the top 10 LRSs.' % fd.suggestive,color="#000000"))
         #else:
         #    report = HT.Blockquote('The following loci in the %s data set have associations with the above trait data.\n' % fd.RISet, HT.P())
-        report.__setattr__("class","normalsize")
+        
+        
+        #report.__setattr__("class","normalsize")
 
         #fpText = open('%s.txt' % (webqtlConfig.TMPDIR+filename), 'wb')
         #fpText.write('Suggestive LRS =%3.2f\n'%self.suggestive)
@@ -610,11 +564,11 @@ class MarkerRegression(object):
         #for ncol, item in enumerate(headerList):
         #    reportHeaderRow.append(THCell(HT.TD(item, Class=headerStyle, valign='bottom',nowrap='ON'),text=item, idx=ncol))
         
-        for marker in filtered:
+        for marker in filtered_results:
             if marker.lrs > webqtlConfig.MAXLRS:
                 marker.lrs = webqtlConfig.MAXLRS
         
-        self.filtered = filtered
+        self.filtered_results = filtered_results
 
         #if fd.genotype.type == 'intercross':
         #    ncol =len(headerList)
