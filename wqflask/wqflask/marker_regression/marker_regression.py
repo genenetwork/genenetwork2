@@ -256,54 +256,58 @@ class MarkerRegression(object):
             #for i, indChr in enumerate(self.genotype):
             #    self.ChrList.append((indChr.name, i))
 
-            self.cursor.execute("""
-                    Select
-                            Length from Chr_Length, InbredSet
-                    where
-                            Chr_Length.SpeciesId = InbredSet.SpeciesId AND
-                            InbredSet.Name = '%s' AND
-                            Chr_Length.Name in (%s)
-                    Order by
-                            OrderId
-                    """ % (fd.RISet, string.join(map(lambda X: "'%s'" % X[0], self.ChrList[1:]), ", ")))
+            #self.cursor.execute("""
+            #        Select
+            #                Length from Chr_Length, InbredSet
+            #        where
+            #                Chr_Length.SpeciesId = InbredSet.SpeciesId AND
+            #                InbredSet.Name = '%s' AND
+            #                Chr_Length.Name in (%s)
+            #        Order by
+            #                OrderId
+            #        """ % (fd.RISet, string.join(map(lambda X: "'%s'" % X[0], self.ChrList[1:]), ", ")))
+            #
+            #self.ChrLengthMbList = self.cursor.fetchall()
+            #self.ChrLengthMbList = map(lambda x: x[0]/1000000.0, self.ChrLengthMbList)
+            #self.ChrLengthMbSum = reduce(lambda x, y:x+y, self.ChrLengthMbList, 0.0)
+            #if self.ChrLengthMbList:
+            #    self.MbGraphInterval = self.ChrLengthMbSum/(len(self.ChrLengthMbList)*12) #Empirical Mb interval
+            #else:
+            #    self.MbGraphInterval = 1
+            #
+            #self.ChrLengthCMList = []
+            #for i, _chr in enumerate(self.genotype):
+            #    self.ChrLengthCMList.append(_chr[-1].cM - _chr[0].cM)
+            #self.ChrLengthCMSum = reduce(lambda x, y:x+y, self.ChrLengthCMList, 0.0)# used for calculate plot scale
 
-            self.ChrLengthMbList = self.cursor.fetchall()
-            self.ChrLengthMbList = map(lambda x: x[0]/1000000.0, self.ChrLengthMbList)
-            self.ChrLengthMbSum = reduce(lambda x, y:x+y, self.ChrLengthMbList, 0.0)
-            if self.ChrLengthMbList:
-                self.MbGraphInterval = self.ChrLengthMbSum/(len(self.ChrLengthMbList)*12) #Empirical Mb interval
-            else:
-                self.MbGraphInterval = 1
-
-            self.ChrLengthCMList = []
-            for i, _chr in enumerate(self.genotype):
-                self.ChrLengthCMList.append(_chr[-1].cM - _chr[0].cM)
-            self.ChrLengthCMSum = reduce(lambda x, y:x+y, self.ChrLengthCMList, 0.0)# used for calculate plot scale
-
-            self.GraphInterval = self.MbGraphInterval #Mb
+            #self.GraphInterval = self.MbGraphInterval #Mb
 
             # begin: common part with human data
-            intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
-            gifmap = self.plotIntMapping(fd, intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= "")
-            filename= webqtlUtil.genRandStr("Itvl_")
-            intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='png')
-            intImg=HT.Image('/image/'+filename+'.png', border=0, usemap='#WebQTLImageMap')
+            #intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
+            #gifmap = self.plotIntMapping(fd, intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= "")
+            #filename= webqtlUtil.genRandStr("Itvl_")
+            #intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='png')
+            #intImg=HT.Image('/image/'+filename+'.png', border=0, usemap='#WebQTLImageMap')
 
             ################################################################
             # footnote goes here
             ################################################################
-            btminfo = HT.Paragraph(Id="smallsize") #Small('More information about this graph is available here.')
+            #btminfo = HT.Paragraph(Id="smallsize") #Small('More information about this graph is available here.')
 
-            if (self.additiveChecked):
-                btminfo.append(HT.BR(), 'A positive additive coefficient (', HT.Font('green', color='green'), ' line) indicates that %s alleles increase trait values. In contrast, a negative additive coefficient (' % fd.ppolar, HT.Font('red', color='red'), ' line) indicates that %s alleles increase trait values.' % fd.mpolar)
+            #if (self.additiveChecked):
+            #    btminfo.append(HT.BR(), 'A positive additive coefficient (', HT.Font('green', color='green'), ' line) indicates that %s alleles increase trait values. In contrast, a negative additive coefficient (' % fd.ppolar, HT.Font('red', color='red'), ' line) indicates that %s alleles increase trait values.' % fd.mpolar)
 
 
-            TD_LR = HT.TR(HT.TD(HT.Blockquote(gifmap,intImg, HT.P()), bgColor='#eeeeee', height = 200))
-
-            self.dict['body'] = str(datadiv)+str(TD_LR)+str(resultstable)+str(HT.TR(HT.TD(descriptionTable)))
+            #TD_LR = HT.TR(HT.TD(HT.Blockquote(gifmap,intImg, HT.P()), bgColor='#eeeeee', height = 200))
+            #
+            #self.dict['body'] = str(datadiv)+str(TD_LR)+str(resultstable)+str(HT.TR(HT.TD(descriptionTable)))
 
             # end: common part with human data
-
+            
+            self.js_data = dict(
+                qtl_results = self.pure_qtl_results,
+                #lrs_array = vars(self.lrs_array),
+            )
 
 
 
@@ -467,7 +471,12 @@ class MarkerRegression(object):
             filtered_results = self.qtl_results
         else:
             suggestive_results = []
+            self.pure_qtl_results = []
             for result in self.qtl_results:
+                self.pure_qtl_results.append(dict(locus=dict(cM=result.locus.cM,
+                                                             chromosome=result.locus.chr),
+                                                  lrs=result.lrs,
+                                                  additive=result.additive))
                 if result.lrs > self.lrs_thresholds.suggestive:
                     suggestive_results.append(result)
             filtered_results = suggestive_results 

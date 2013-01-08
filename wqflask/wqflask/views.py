@@ -151,10 +151,10 @@ def show_trait_page():
 def marker_regression_page():
     template_vars = marker_regression.MarkerRegression(request.form)
     #print("js_data before dump:", template_vars.js_data)
-    #template_vars.js_data = json.dumps(template_vars.js_data,
-    #                                   default=json_default_handler,
-    #                                   indent="   ")
-    #print("js_data after dump:", template_vars.js_data)
+    template_vars.js_data = json.dumps(template_vars.js_data,
+                                       default=json_default_handler,
+                                       indent="   ")
+    print("[dub] js_data after dump:", template_vars.js_data)
     print("marker_regression template_vars:", pf(template_vars.__dict__))
     return render_template("marker_regression.html", **template_vars.__dict__)
 
@@ -190,6 +190,9 @@ def json_default_handler(obj):
     # Handle custom objects
     if hasattr(obj, '__dict__'):
         return obj.__dict__
+    #elif type(obj) == "Dataset":
+    #     print("Not going to serialize Dataset")
+    #    return None
     else:
         raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (
             type(obj), repr(obj))
