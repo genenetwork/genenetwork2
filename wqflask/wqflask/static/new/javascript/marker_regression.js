@@ -34,19 +34,32 @@
       return bars_ordered;
     };
     display_permutation_histogram = function(bars_ordered) {
+      var max_lrs;
+      max_lrs = bars_ordered[bars_ordered.length - 1][0];
+      console.log("max_key is:", max_lrs);
       return $.jqplot('permutation_histogram', [bars_ordered], {
+        title: 'Permutation Histogram',
         seriesDefaults: {
-          renderer: $.jqplot.BarRenderer
+          renderer: $.jqplot.BarRenderer,
+          rendererOptions: {
+            barWidth: 15
+          },
+          pointLabels: {
+            show: true
+          }
+        },
+        axesDefaults: {
+          labelRenderer: $.jqplot.CanvasAxisLabelRenderer
         },
         axes: {
           xaxis: {
             min: 0,
             label: "LRS",
-            pad: 0
+            pad: 1.1
           },
           yaxis: {
-            label: "Count",
-            pad: 0
+            min: 0,
+            label: "Frequency"
           }
         }
       });
