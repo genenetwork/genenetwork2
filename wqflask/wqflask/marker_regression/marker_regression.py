@@ -304,12 +304,9 @@ class MarkerRegression(object):
             # end: common part with human data
             
             self.js_data = dict(
-                #qtl_results = self.pure_qtl_results,
+                qtl_results = self.pure_qtl_results,
                 lrs_array = self.lrs_array,
             )
-            
-            print("bears self.js_data is: ", pf(self.js_data))
-
 
 
     # add by NL 10-2-2011

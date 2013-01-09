@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Marker Regression{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/packages/jqplot/jquery.jqplot.min.css" />
+{% endblock %}
 {% block content %} <!-- Start of body -->
 
     <header class="jumbotron subhead" id="overview">
@@ -10,6 +13,8 @@
             </p>
         </div>
     </header>
+    
+    <div id="permutation_histogram" style="height:300px;width:600px; "></div>
 
 
     <!-- End of body -->
@@ -20,4 +25,11 @@
     <script>
         js_data = {{ js_data | safe }}
     </script>
+
+    <!--[if lt IE 9]>
+        <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>
+    <![endif]-->
+    <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.barRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/jqplot/jquery.jqplot.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/marker_regression.js"></script>
 {% endblock %}
