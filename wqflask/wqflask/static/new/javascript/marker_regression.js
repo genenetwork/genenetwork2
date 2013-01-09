@@ -2,67 +2,68 @@
 (function() {
 
   $(function() {
-    var bars_ordered, display_permutation_histogram, process_lrs_array, sort_number;
+    var bars_ordered, sort_number;
     sort_number = function(a, b) {
+      var display_permutation_histogram, process_lrs_array;
       return a - b;
-    };
-    process_lrs_array = function() {
-      var bars, bars_ordered, floored, key, keys, lrs, lrs_array, _i, _j, _len, _len1;
-      lrs_array = js_data.lrs_array;
-      bars = {};
-      for (_i = 0, _len = lrs_array.length; _i < _len; _i++) {
-        lrs = lrs_array[_i];
-        floored = Math.floor(lrs);
-        if (!(floored in bars)) {
-          bars[floored] = 0;
-        }
-        bars[floored] += 1;
-      }
-      keys = [];
-      for (key in bars) {
-        keys.push(key);
-      }
-      keys.sort(sort_number);
-      bars_ordered = [];
-      for (_j = 0, _len1 = keys.length; _j < _len1; _j++) {
-        key = keys[_j];
-        bars_ordered.push([parseInt(key), bars[key]]);
-      }
-      console.log("bars is:", bars);
-      console.log("keys are:", keys);
-      console.log("bars_ordered are:", bars_ordered);
-      return bars_ordered;
-    };
-    display_permutation_histogram = function(bars_ordered) {
-      var max_lrs;
-      max_lrs = bars_ordered[bars_ordered.length - 1][0];
-      console.log("max_key is:", max_lrs);
-      return $.jqplot('permutation_histogram', [bars_ordered], {
-        title: 'Permutation Histogram',
-        seriesDefaults: {
-          renderer: $.jqplot.BarRenderer,
-          rendererOptions: {
-            barWidth: 15
-          },
-          pointLabels: {
-            show: true
+      process_lrs_array = function() {
+        var bars, bars_ordered, floored, key, keys, lrs, lrs_array, _i, _j, _len, _len1;
+        lrs_array = js_data.lrs_array;
+        bars = {};
+        for (_i = 0, _len = lrs_array.length; _i < _len; _i++) {
+          lrs = lrs_array[_i];
+          floored = Math.floor(lrs);
+          if (!(floored in bars)) {
+            bars[floored] = 0;
           }
-        },
-        axesDefaults: {
-          labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-        },
-        axes: {
-          xaxis: {
-            min: 0,
-            label: "LRS",
-            pad: 1.1
-          },
-          yaxis: {
-            min: 0,
-            label: "Frequency"
-          }
+          bars[floored] += 1;
         }
-      });
+        keys = [];
+        for (key in bars) {
+          keys.push(key);
+        }
+        keys.sort(sort_number);
+        bars_ordered = [];
+        for (_j = 0, _len1 = keys.length; _j < _len1; _j++) {
+          key = keys[_j];
+          bars_ordered.push([parseInt(key), bars[key]]);
+        }
+        console.log("bars is:", bars);
+        console.log("keys are:", keys);
+        console.log("bars_ordered are:", bars_ordered);
+        return bars_ordered;
+      };
+      return display_permutation_histogram = function(bars_ordered) {
+        var max_lrs;
+        max_lrs = bars_ordered[bars_ordered.length - 1][0];
+        console.log("max_key is:", max_lrs);
+        return $.jqplot('permutation_histogram', [bars_ordered], {
+          title: 'Permutation Histogram',
+          seriesDefaults: {
+            renderer: $.jqplot.BarRenderer,
+            rendererOptions: {
+              barWidth: 15
+            },
+            pointLabels: {
+              show: true
+            }
+          },
+          axesDefaults: {
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+          },
+          axes: {
+            xaxis: {
+              min: 0,
+              label: "LRS",
+              pad: 1.1
+            },
+            yaxis: {
+              min: 0,
+              label: "Frequency"
+            }
+          }
+        });
+      };
     };
     bars_ordered = process_lrs_array();
     return display_permutation_histogram(bars_ordered);

@@ -471,7 +471,7 @@ class MarkerRegression(object):
             suggestive_results = []
             self.pure_qtl_results = []
             for result in self.qtl_results:
-                self.pure_qtl_results.append(dict(locus=dict(cM=result.locus.cM,
+                self.pure_qtl_results.append(dict(locus=dict(mb=result.locus.Mb,
                                                              chromosome=result.locus.chr),
                                                   lrs=result.lrs,
                                                   additive=result.additive))
