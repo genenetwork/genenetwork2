@@ -3,8 +3,12 @@ $ ->
         return a - b
 
 
-    
-        process_lrs_array = ->
+    class Permutation_Histogram
+        constructor: ->
+            @process_data()
+            @display_graph()
+            
+        process_data: ->
             # Put the data in a format needed for graphing 
             # The permutation count for a particular integer range (10-11 or 12-13 for example)
             # will be on the y-axis; LRS values will be on the x-axis
@@ -27,21 +31,21 @@ $ ->
     
             # Now that we have the ordered keys above
             # We can build an array of arrays that jqPlot will use
-            bars_ordered = []
+            @bars_ordered = []
             for key in keys
-                bars_ordered.push([parseInt(key), bars[key]])
+                @bars_ordered.push([parseInt(key), bars[key]])
     
             console.log("bars is:", bars)
             console.log("keys are:", keys)
-            console.log("bars_ordered are:", bars_ordered)
-            return bars_ordered
+            console.log("bars_ordered are:", @bars_ordered)
+            #return bars_ordered
     
-        display_permutation_histogram = (bars_ordered) ->
+        display_graph: ->
             # Figure out the largest key, so we can make sure the x axis max is one larger later on
-            max_lrs = bars_ordered[bars_ordered.length-1][0]
-            console.log("max_key is:", max_lrs)
+            #max_lrs = bars_ordered[bars_ordered.length-1][0]
+            #console.log("max_key is:", max_lrs)
         
-            $.jqplot('permutation_histogram',  [bars_ordered],
+            $.jqplot('permutation_histogram',  [@bars_ordered],
                 title: 'Permutation Histogram'     
                 seriesDefaults:
                     renderer:$.jqplot.BarRenderer
@@ -74,5 +78,7 @@ $ ->
 
 
 
-    bars_ordered = process_lrs_array()
-    display_permutation_histogram(bars_ordered)
+    #bars_ordered = process_lrs_array()
+    #display_permutation_histogram(bars_ordered)
+    
+    new Permutation_Histogram

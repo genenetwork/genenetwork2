@@ -2,12 +2,19 @@
 (function() {
 
   $(function() {
-    var bars_ordered, sort_number;
+    var Permutation_Histogram, sort_number;
     sort_number = function(a, b) {
-      var display_permutation_histogram, process_lrs_array;
       return a - b;
-      process_lrs_array = function() {
-        var bars, bars_ordered, floored, key, keys, lrs, lrs_array, _i, _j, _len, _len1;
+    };
+    Permutation_Histogram = (function() {
+
+      function Permutation_Histogram() {
+        this.process_data();
+        this.display_graph();
+      }
+
+      Permutation_Histogram.prototype.process_data = function() {
+        var bars, floored, key, keys, lrs, lrs_array, _i, _j, _len, _len1;
         lrs_array = js_data.lrs_array;
         bars = {};
         for (_i = 0, _len = lrs_array.length; _i < _len; _i++) {
@@ -23,21 +30,18 @@
           keys.push(key);
         }
         keys.sort(sort_number);
-        bars_ordered = [];
+        this.bars_ordered = [];
         for (_j = 0, _len1 = keys.length; _j < _len1; _j++) {
           key = keys[_j];
-          bars_ordered.push([parseInt(key), bars[key]]);
+          this.bars_ordered.push([parseInt(key), bars[key]]);
         }
         console.log("bars is:", bars);
         console.log("keys are:", keys);
-        console.log("bars_ordered are:", bars_ordered);
-        return bars_ordered;
+        return console.log("bars_ordered are:", this.bars_ordered);
       };
-      return display_permutation_histogram = function(bars_ordered) {
-        var max_lrs;
-        max_lrs = bars_ordered[bars_ordered.length - 1][0];
-        console.log("max_key is:", max_lrs);
-        return $.jqplot('permutation_histogram', [bars_ordered], {
+
+      Permutation_Histogram.prototype.display_graph = function() {
+        return $.jqplot('permutation_histogram', [this.bars_ordered], {
           title: 'Permutation Histogram',
           seriesDefaults: {
             renderer: $.jqplot.BarRenderer,
@@ -64,9 +68,11 @@
           }
         });
       };
-    };
-    bars_ordered = process_lrs_array();
-    return display_permutation_histogram(bars_ordered);
+
+      return Permutation_Histogram;
+
+    })();
+    return new Permutation_Histogram;
   });
 
 }).call(this);
