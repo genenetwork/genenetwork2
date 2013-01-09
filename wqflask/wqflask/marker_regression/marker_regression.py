@@ -52,9 +52,12 @@ class MarkerRegression(object):
         #if not self.openMysql():
         #    return
 
-        print("start_vars are: ", pf(start_vars))
+        #print("start_vars are: ", pf(start_vars))
 
         self.dataset = create_dataset(start_vars['dataset_name'])
+        self.this_trait = GeneralTrait(dataset=self.dataset.name,
+                                       name=start_vars['trait_id'],
+                                       cellid=None)        
         self.num_perm = int(start_vars['num_perm'])
 
         # Passed in by the form (user might have edited)
@@ -81,10 +84,6 @@ class MarkerRegression(object):
                 self.samples.append(str(sample))
                 self.vals.append(float(value))
                 self.variances.append(variance)
-
-        print("self.samples is:", pf(self.samples))
-        print("self.vals is:", pf(self.vals))
-        print("self.variances is:", pf(self.variances))
 
         #self.initializeParameters(start_vars)
 
@@ -305,9 +304,11 @@ class MarkerRegression(object):
             # end: common part with human data
             
             self.js_data = dict(
-                qtl_results = self.pure_qtl_results,
-                #lrs_array = vars(self.lrs_array),
+                #qtl_results = self.pure_qtl_results,
+                lrs_array = self.lrs_array,
             )
+            
+            print("bears self.js_data is: ", pf(self.js_data))
 
 
 
@@ -480,8 +481,8 @@ class MarkerRegression(object):
                 if result.lrs > self.lrs_thresholds.suggestive:
                     suggestive_results.append(result)
             filtered_results = suggestive_results 
-        
-        
+
+
         # Todo (2013): Use top_10 variable to generate page message about whether top 10 was used
         if not filtered_results:
             # We use the 10 results with the highest LRS values
@@ -489,8 +490,7 @@ class MarkerRegression(object):
             self.top_10 = True
         else:
             self.top_10 = False
-            
-            
+
 
 
         #qtlresults2 = []

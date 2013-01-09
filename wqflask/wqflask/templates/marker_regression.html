@@ -11,34 +11,6 @@
         </div>
     </header>
 
-    <dl class="dl-horizontal">
-        <dt>Aliases</dt>
-        <dd>{{ this_trait.alias_fmt }}</dd>
-    
-        <dt>Location</dt>
-        <dd>{{ this_trait.location_fmt }}</dd>
-    
-        <dt>Database</dt>
-        <dd>
-            <a href="{{ url_for('static', filename='/dbdoc/' + dataset.fullname + '.html') }}" target="_blank">
-                {{ dataset.name }}
-            </a>
-        </dd>
-    
-        {% if this_trait.probe_set_specificity %}
-        <dt>
-            <a href="/blatInfo.html" target="_blank"
-               title="Values higher than 2 for the specificity are good">
-                BLAT Specifity
-            </a>
-        </dt>
-        <dd>{{ "%.1f" % (this_trait.probe_set_specificity) }}</dd>
-        {% endif %}
-        {% if this_trait.probe_set_blat_score %}
-        <dt>BLAT Score</dt>
-        <dd>{{ "%i" % (this_trait.probe_set_blat_score) }}</dd>
-        {% endif %}
-    </dl>
 
     <!-- End of body -->
 
