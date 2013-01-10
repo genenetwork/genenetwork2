@@ -2,7 +2,7 @@
 (function() {
 
   $(function() {
-    var Manhattan_Plot, Permutation_Histogram, sort_number;
+    var Chromosome, Manhattan_Plot, Permutation_Histogram, sort_number;
     sort_number = function(a, b) {
       return a - b;
     };
@@ -72,35 +72,22 @@
       return Permutation_Histogram;
 
     })();
-    Manhattan_Plot = (function() {
+    Chromosome = (function() {
 
-      function Manhattan_Plot() {
-        this.process_data();
-        this.display_graph();
+      function Chromosome(name) {
+        this.name = name;
+        this.max_mb = 0;
+        this.plot_points = [];
       }
 
-      Manhattan_Plot.prototype.process_data = function() {
-        var mb, qtl_results, result, _i, _len, _results;
-        qtl_results = js_data.qtl_results;
-        this.plot_points = [];
-        this.max_mb = 0;
-        _results = [];
-        for (_i = 0, _len = qtl_results.length; _i < _len; _i++) {
-          result = qtl_results[_i];
-          if (result.locus.chromosome === '1') {
-            mb = parseInt(result.locus.mb);
-            if (mb > this.max_mb) {
-              this.max_mb = mb;
-            }
-            _results.push(this.plot_points.push([mb, result.lrs]));
-          } else {
-            _results.push(void 0);
-          }
+      Chromosome.prototype.process_point = function(mb, lrs) {
+        if (mb > this.max_mb) {
+          this.max_mb = mb;
         }
-        return _results;
+        return this.plot_points.push([mb, lrs]);
       };
 
-      Manhattan_Plot.prototype.display_graph = function() {
+      Chromosome.prototype.display_graph = function() {
         var x_axis_max, x_axis_ticks, x_tick;
         x_axis_max = Math.ceil(this.max_mb / 25) * 25;
         x_axis_ticks = [];
@@ -109,10 +96,8 @@
           x_axis_ticks.push(x_tick);
           x_tick += 25;
         }
-        console.log("x_axis_ticks:", x_axis_ticks);
-        console.log("type of x_axis ticks:", typeof x_axis_ticks[0], typeof x_axis_ticks[2]);
         return $.jqplot('manhattan_plot', [this.plot_points], {
-          title: '1',
+          title: this.name,
           seriesDefaults: {
             showLine: false,
             markerRenderer: $.jqplot.MarkerRenderer,
@@ -146,6 +131,59 @@
             }
           }
         });
+      };
+
+      return Chromosome;
+
+    })();
+    Manhattan_Plot = (function() {
+
+      function Manhattan_Plot() {
+        this.chromosomes = {};
+        this.build_chromosomes();
+        this.display_graphs();
+      }
+
+      Manhattan_Plot.prototype.build_chromosomes = function() {
+        var chromosome, mb, result, _i, _len, _ref, _results;
+        _ref = js_data.qtl_results;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          result = _ref[_i];
+          chromosome = result.locus.chromosome;
+          if (!(chromosome in this.chromosomes)) {
+            this.chromosomes[chromosome] = new Chromosome(chromosome);
+          }
+          mb = parseInt(result.locus.mb);
+          _results.push(this.chromosomes[chromosome].process_point(mb, result.lrs));
+        }
+        return _results;
+      };
+
+      Manhattan_Plot.prototype.display_graphs = function() {
+        /* Call display_graph for each chromosome
+        */
+
+        var chromosome, extra_keys, key, keys, numbered_keys, _i, _len, _results;
+        numbered_keys = [];
+        extra_keys = [];
+        for (key in this.chromosomes) {
+          if (isNaN(key)) {
+            extra_keys.push(key);
+          } else {
+            numbered_keys.push(key);
+          }
+        }
+        numbered_keys.sort(sort_number);
+        extra_keys.sort();
+        keys = numbered_keys + extra_keys;
+        console.log("keys are:", keys);
+        _results = [];
+        for (_i = 0, _len = key.length; _i < _len; _i++) {
+          chromosome = key[_i];
+          _results.push(this.chromosomes[chromosome].display_graph());
+        }
+        return _results;
       };
 
       return Manhattan_Plot;

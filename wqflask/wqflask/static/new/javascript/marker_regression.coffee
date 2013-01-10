@@ -72,28 +72,16 @@ $ ->
     #bars_ordered = process_lrs_array()
     #display_permutation_histogram(bars_ordered)
     
-    class Manhattan_Plot
-        constructor: ->
-            #@chromosomes = {}   # Hash of chromosomes
-            #
-            #@init_chromosomes()
-            
-            @process_data()
-            @display_graph()
-            
-            
-        process_data: ->
-            qtl_results = js_data.qtl_results
-            #console.log("qtl_results: ", qtl_results)
-            @plot_points = []
+    class Chromosome
+        constructor:  (@name) ->
             @max_mb = 0
-            for result in qtl_results
-                if result.locus.chromosome == '1'
-                    mb = parseInt(result.locus.mb)
-                    if mb > @max_mb
-                        @max_mb = mb
-                    @plot_points.push([mb, result.lrs])
-                
+            @plot_points = []
+            
+        process_point: (mb, lrs) ->
+            if mb > @max_mb
+                @max_mb = mb
+            @plot_points.push([mb, lrs])
+            
         display_graph: ->
             x_axis_max = Math.ceil(@max_mb/25) * 25
             x_axis_ticks = []
@@ -101,11 +89,8 @@ $ ->
             while (x_tick <= x_axis_max)
                 x_axis_ticks.push(x_tick)
                 x_tick += 25
-            console.log("x_axis_ticks:", x_axis_ticks)    
-            console.log("type of x_axis ticks:", typeof(x_axis_ticks[0]), typeof(x_axis_ticks[2]))
-            #console.log("@plot_points is:", @plot_points)
             $.jqplot('manhattan_plot',  [@plot_points],
-                title: '1'
+                title: @name
                 seriesDefaults:
                     showLine: false
                     markerRenderer: $.jqplot.MarkerRenderer
@@ -131,6 +116,68 @@ $ ->
                         tickOptions:
                             showGridline: false
             )
+            
+        
+            
+        
+    
+    class Manhattan_Plot
+        constructor: ->
+            @chromosomes = {}   # Hash of chromosomes
+            
+            @build_chromosomes()
+            
+            #@process_data()
+            @display_graphs()
+            
+        build_chromosomes: ->
+            for result in js_data.qtl_results
+                #if result.locus.chromosome == '1'
+                chromosome = result.locus.chromosome
+                if chromosome not of @chromosomes
+                    @chromosomes[chromosome] = new Chromosome(chromosome)
+                mb = parseInt(result.locus.mb)
+                @chromosomes[chromosome].process_point(mb, result.lrs)
+                 
+                    #if mb > @max_mb
+                    #    @max_mb = mb
+                    #@plot_points.push([mb, result.lrs])                    
+        
+        display_graphs: ->
+            ### Call display_graph for each chromosome ###
+            
+            # First get everything in the right order
+            numbered_keys = []
+            extra_keys = []
+            for key of @chromosomes
+                if isNaN(key)
+                    extra_keys.push(key)
+                else
+                    numbered_keys.push(key)
+        
+            numbered_keys.sort(sort_number)
+            extra_keys.sort()
+            keys = numbered_keys + extra_keys
+            console.log("keys are:", keys)
+            
+            for chromosome in key
+                @chromosomes[chromosome].display_graph()
+            
+            
+            
+        #process_data: ->
+        #    qtl_results = js_data.qtl_results
+        #    #console.log("qtl_results: ", qtl_results)
+        #    @plot_points = []
+        #    @max_mb = 0
+        #    for result in qtl_results
+        #        if result.locus.chromosome == '1'
+        #            mb = parseInt(result.locus.mb)
+        #            if mb > @max_mb
+        #                @max_mb = mb
+        #            @plot_points.push([mb, result.lrs])
+                
+
 
     new Permutation_Histogram
     new Manhattan_Plot
