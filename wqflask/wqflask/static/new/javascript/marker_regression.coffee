@@ -88,13 +88,16 @@ $ ->
         
             #console.log("max_lrs is", max_lrs)
         
+        
             x_axis_max = Math.ceil(@max_mb/25) * 25
             x_axis_ticks = []
             x_tick = 0
             while (x_tick <= x_axis_max)
                 x_axis_ticks.push(x_tick)
                 x_tick += 25
-            $.jqplot(div_name,  [@plot_points],
+                
+            
+            plot_options = 
                 title: @name
                 seriesDefaults:
                     showLine: false
@@ -115,15 +118,29 @@ $ ->
                             showGridline: false
                             formatString: '%d' 
                         label: "Megabases"
-                    yaxis:
-                        min: 0
-                        max: Math.floor(max_lrs + 0.1 * max_lrs)
-                        tickInterval: 1
-                        label: "LRS"
-                        tickOptions:
-                            formatString: '%d' 
-                            showGridline: false
-            )
+                   
+                        
+            
+            if @name == "1"
+                plot_options.axes.yaxis =
+                    min: 0
+                    max: Math.floor(max_lrs + 0.1 * max_lrs)
+                    tickInterval: 1
+                    label: "LRS"
+                    tickOptions:
+                        formatString: '%d' 
+                        showGridline: false    
+            else
+                plot_options.axes.yaxis =
+                    show: false
+                    min: 0
+                    max: Math.floor(max_lrs + 0.1 * max_lrs)
+                    tickInterval: 1
+                    tickOptions:
+                        formatString: '%d' 
+                        showGridline: false                        
+                    
+            $.jqplot(div_name,  [@plot_points], plot_options)
 
     class Manhattan_Plot
         constructor: ->
@@ -133,8 +150,7 @@ $ ->
             @build_chromosomes()
             
             @display_graphs()
-            
-            
+
         build_chromosomes: ->
             for result in js_data.qtl_results
                 #if result.locus.chromosome == '1'
@@ -165,11 +181,16 @@ $ ->
             console.log("keys are:", keys)
             
             for key in keys
-                html = """<div id="manhattan_plot_#{ key }" class="manhattan_plot_segment"></div>"""
+                this_class = "manhattan_plot_segment"
+                if key != "1"
+                    this_class += " no_y_axis"
+                html = """<div id="manhattan_plot_#{ key }" class=#{ this_class }></div>"""
                 console.log("html is:", html)
                 $("#manhattan_plots").append(html)
                 @chromosomes[key].display_graph(@max_lrs)
             
+            $(".jqplot-yaxis").hide()
+            $(".jqplot-yaxis-tick").hide()
             
             
         #process_data: ->

@@ -88,7 +88,7 @@
       };
 
       Chromosome.prototype.display_graph = function(max_lrs) {
-        var div_name, x_axis_max, x_axis_ticks, x_tick;
+        var div_name, plot_options, x_axis_max, x_axis_ticks, x_tick;
         div_name = 'manhattan_plot_' + this.name;
         console.log("div_name:", div_name);
         x_axis_max = Math.ceil(this.max_mb / 25) * 25;
@@ -98,7 +98,7 @@
           x_axis_ticks.push(x_tick);
           x_tick += 25;
         }
-        return $.jqplot(div_name, [this.plot_points], {
+        plot_options = {
           title: this.name,
           seriesDefaults: {
             showLine: false,
@@ -123,19 +123,33 @@
                 formatString: '%d'
               },
               label: "Megabases"
-            },
-            yaxis: {
-              min: 0,
-              max: Math.floor(max_lrs + 0.1 * max_lrs),
-              tickInterval: 1,
-              label: "LRS",
-              tickOptions: {
-                formatString: '%d',
-                showGridline: false
-              }
             }
           }
-        });
+        };
+        if (this.name === "1") {
+          plot_options.axes.yaxis = {
+            min: 0,
+            max: Math.floor(max_lrs + 0.1 * max_lrs),
+            tickInterval: 1,
+            label: "LRS",
+            tickOptions: {
+              formatString: '%d',
+              showGridline: false
+            }
+          };
+        } else {
+          plot_options.axes.yaxis = {
+            show: false,
+            min: 0,
+            max: Math.floor(max_lrs + 0.1 * max_lrs),
+            tickInterval: 1,
+            tickOptions: {
+              formatString: '%d',
+              showGridline: false
+            }
+          };
+        }
+        return $.jqplot(div_name, [this.plot_points], plot_options);
       };
 
       return Chromosome;
@@ -173,7 +187,7 @@
         /* Call display_graph for each chromosome
         */
 
-        var extra_keys, html, key, keys, numbered_keys, _i, _len, _results;
+        var extra_keys, html, key, keys, numbered_keys, this_class, _i, _len;
         numbered_keys = [];
         extra_keys = [];
         for (key in this.chromosomes) {
@@ -187,15 +201,19 @@
         extra_keys.sort();
         keys = numbered_keys.concat(extra_keys);
         console.log("keys are:", keys);
-        _results = [];
         for (_i = 0, _len = keys.length; _i < _len; _i++) {
           key = keys[_i];
-          html = "<div id=\"manhattan_plot_" + key + "\" class=\"manhattan_plot_segment\"></div>";
+          this_class = "manhattan_plot_segment";
+          if (key !== "1") {
+            this_class += " no_y_axis";
+          }
+          html = "<div id=\"manhattan_plot_" + key + "\" class=" + this_class + "></div>";
           console.log("html is:", html);
           $("#manhattan_plots").append(html);
-          _results.push(this.chromosomes[key].display_graph(this.max_lrs));
+          this.chromosomes[key].display_graph(this.max_lrs);
         }
-        return _results;
+        $(".jqplot-yaxis").hide();
+        return $(".jqplot-yaxis-tick").hide();
       };
 
       return Manhattan_Plot;
