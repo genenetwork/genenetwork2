@@ -212,8 +212,8 @@
           $("#manhattan_plots").append(html);
           this.chromosomes[key].display_graph(this.max_lrs);
         }
-        $(".jqplot-yaxis").hide();
-        return $(".jqplot-yaxis-tick").hide();
+        $('.jqplot-yaxis').hide();
+        return $('#manhattan_plot_1').find('.jqplot-yaxis').show();
       };
 
       return Manhattan_Plot;

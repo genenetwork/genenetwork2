@@ -118,8 +118,7 @@ $ ->
                             showGridline: false
                             formatString: '%d' 
                         label: "Megabases"
-                   
-                        
+
             
             if @name == "1"
                 plot_options.axes.yaxis =
@@ -161,8 +160,7 @@ $ ->
                 if result.lrs > @max_lrs
                     @max_lrs = result.lrs
                 @chromosomes[chromosome].process_point(mb, result.lrs)
-                 
-        
+
         display_graphs: ->
             ### Call display_graph for each chromosome ###
             
@@ -188,9 +186,12 @@ $ ->
                 console.log("html is:", html)
                 $("#manhattan_plots").append(html)
                 @chromosomes[key].display_graph(@max_lrs)
+
+            $('.jqplot-yaxis').hide()
+            $('#manhattan_plot_1').find('.jqplot-yaxis').show()
             
-            $(".jqplot-yaxis").hide()
-            $(".jqplot-yaxis-tick").hide()
+            #$(".jqplot-yaxis").hide()
+            #$(".jqplot-yaxis-tick").hide()
             
             
         #process_data: ->
