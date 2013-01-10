@@ -88,7 +88,9 @@
       };
 
       Chromosome.prototype.display_graph = function() {
-        var x_axis_max, x_axis_ticks, x_tick;
+        var div_name, x_axis_max, x_axis_ticks, x_tick;
+        div_name = 'manhattan_plot_' + this.name;
+        console.log("div_name:", div_name);
         x_axis_max = Math.ceil(this.max_mb / 25) * 25;
         x_axis_ticks = [];
         x_tick = 0;
@@ -96,7 +98,7 @@
           x_axis_ticks.push(x_tick);
           x_tick += 25;
         }
-        return $.jqplot('manhattan_plot', [this.plot_points], {
+        return $.jqplot(div_name, [this.plot_points], {
           title: this.name,
           seriesDefaults: {
             showLine: false,
@@ -164,7 +166,7 @@
         /* Call display_graph for each chromosome
         */
 
-        var chromosome, extra_keys, key, keys, numbered_keys, _i, _len, _results;
+        var extra_keys, html, key, keys, numbered_keys, _i, _len, _results;
         numbered_keys = [];
         extra_keys = [];
         for (key in this.chromosomes) {
@@ -176,12 +178,15 @@
         }
         numbered_keys.sort(sort_number);
         extra_keys.sort();
-        keys = numbered_keys + extra_keys;
+        keys = numbered_keys.concat(extra_keys);
         console.log("keys are:", keys);
         _results = [];
-        for (_i = 0, _len = key.length; _i < _len; _i++) {
-          chromosome = key[_i];
-          _results.push(this.chromosomes[chromosome].display_graph());
+        for (_i = 0, _len = keys.length; _i < _len; _i++) {
+          key = keys[_i];
+          html = "<div id=\"manhattan_plot_" + key + "\" class=\"manhattan_plot_segment\"></div>";
+          console.log("html is:", html);
+          $("#manhattan_plots").append(html);
+          _results.push(this.chromosomes[key].display_graph());
         }
         return _results;
       };

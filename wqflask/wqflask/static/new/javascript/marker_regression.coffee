@@ -83,13 +83,16 @@ $ ->
             @plot_points.push([mb, lrs])
             
         display_graph: ->
+            div_name = 'manhattan_plot_' + @name
+            console.log("div_name:", div_name)
+        
             x_axis_max = Math.ceil(@max_mb/25) * 25
             x_axis_ticks = []
             x_tick = 0
             while (x_tick <= x_axis_max)
                 x_axis_ticks.push(x_tick)
                 x_tick += 25
-            $.jqplot('manhattan_plot',  [@plot_points],
+            $.jqplot(div_name,  [@plot_points],
                 title: @name
                 seriesDefaults:
                     showLine: false
@@ -116,11 +119,7 @@ $ ->
                         tickOptions:
                             showGridline: false
             )
-            
-        
-            
-        
-    
+
     class Manhattan_Plot
         constructor: ->
             @chromosomes = {}   # Hash of chromosomes
@@ -141,7 +140,7 @@ $ ->
                  
                     #if mb > @max_mb
                     #    @max_mb = mb
-                    #@plot_points.push([mb, result.lrs])                    
+                    #@plot_points.push([mb, result.lrs])
         
         display_graphs: ->
             ### Call display_graph for each chromosome ###
@@ -157,11 +156,14 @@ $ ->
         
             numbered_keys.sort(sort_number)
             extra_keys.sort()
-            keys = numbered_keys + extra_keys
+            keys = numbered_keys.concat(extra_keys)
             console.log("keys are:", keys)
             
-            for chromosome in key
-                @chromosomes[chromosome].display_graph()
+            for key in keys
+                html = """<div id="manhattan_plot_#{ key }" class="manhattan_plot_segment"></div>"""
+                console.log("html is:", html)
+                $("#manhattan_plots").append(html)
+                @chromosomes[key].display_graph()
             
             
             

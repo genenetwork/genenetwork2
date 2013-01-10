@@ -2,6 +2,7 @@
 {% block title %}Marker Regression{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/packages/jqplot/jquery.jqplot.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
@@ -14,7 +15,9 @@
         </div>
     </header>
     
-    <div id="manhattan_plot" style="height:400px;width:150px; "></div>
+    <!--<div id="manhattan_plot_1" style="height:400px;width:150px; "></div>-->
+    <div id="manhattan_plots"></div>
+    
     <div id="permutation_histogram" style="height:400px;width:900px; "></div>
 
 
