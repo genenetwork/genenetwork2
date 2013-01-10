@@ -14,18 +14,18 @@
             </p>
         </div>
     </header>
-    
-    <!--<div id="manhattan_plot_1" style="height:400px;width:150px; "></div>-->
-    <div id="manhattan_plots"></div>
-    
-    <div id="permutation_histogram" style="height:400px;width:900px; "></div>
+
+    <div class="container">
+        <div id="manhattan_plots" class="manhattan_plots"></div>
+        <div id="permutation_histogram" class="permutation_histogram"></div>
+    </div>
 
 
     <!-- End of body -->
 
 {% endblock %}
 
-{% block js %}
+{% block js %}  
     <script>
         js_data = {{ js_data | safe }}
     </script>
