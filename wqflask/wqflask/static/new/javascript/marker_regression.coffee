@@ -74,8 +74,13 @@ $ ->
     
     class Manhattan_Plot
         constructor: ->
+            #@chromosomes = {}   # Hash of chromosomes
+            #
+            #@init_chromosomes()
+            
             @process_data()
             @display_graph()
+            
             
         process_data: ->
             qtl_results = js_data.qtl_results
@@ -84,9 +89,10 @@ $ ->
             @max_mb = 0
             for result in qtl_results
                 if result.locus.chromosome == '1'
-                    if parseInt(result.locus.mb) > @max_mb
-                        @max_mb = result.locus.mb
-                    @plot_points.push([result.locus.mb, result.lrs])
+                    mb = parseInt(result.locus.mb)
+                    if mb > @max_mb
+                        @max_mb = mb
+                    @plot_points.push([mb, result.lrs])
                 
         display_graph: ->
             x_axis_max = Math.ceil(@max_mb/25) * 25
@@ -95,6 +101,8 @@ $ ->
             while (x_tick <= x_axis_max)
                 x_axis_ticks.push(x_tick)
                 x_tick += 25
+            console.log("x_axis_ticks:", x_axis_ticks)    
+            console.log("type of x_axis ticks:", typeof(x_axis_ticks[0]), typeof(x_axis_ticks[2]))
             #console.log("@plot_points is:", @plot_points)
             $.jqplot('manhattan_plot',  [@plot_points],
                 title: '1'
@@ -103,7 +111,7 @@ $ ->
                     markerRenderer: $.jqplot.MarkerRenderer
                     markerOptions:
                         style: "filledCircle"
-                        size: 3                   
+                        size: 3
                 axesDefaults:
                     tickRenderer: $.jqplot.CanvasAxisTickRenderer
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer
@@ -115,6 +123,7 @@ $ ->
                         tickOptions:
                             angle: 90
                             showGridline: false
+                            formatString: '%d' 
                         label: "Megabases"
                     yaxis:
                         min: 0

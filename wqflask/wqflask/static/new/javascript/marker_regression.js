@@ -80,7 +80,7 @@
       }
 
       Manhattan_Plot.prototype.process_data = function() {
-        var qtl_results, result, _i, _len, _results;
+        var mb, qtl_results, result, _i, _len, _results;
         qtl_results = js_data.qtl_results;
         this.plot_points = [];
         this.max_mb = 0;
@@ -88,10 +88,11 @@
         for (_i = 0, _len = qtl_results.length; _i < _len; _i++) {
           result = qtl_results[_i];
           if (result.locus.chromosome === '1') {
-            if (parseInt(result.locus.mb) > this.max_mb) {
-              this.max_mb = result.locus.mb;
+            mb = parseInt(result.locus.mb);
+            if (mb > this.max_mb) {
+              this.max_mb = mb;
             }
-            _results.push(this.plot_points.push([result.locus.mb, result.lrs]));
+            _results.push(this.plot_points.push([mb, result.lrs]));
           } else {
             _results.push(void 0);
           }
@@ -108,6 +109,8 @@
           x_axis_ticks.push(x_tick);
           x_tick += 25;
         }
+        console.log("x_axis_ticks:", x_axis_ticks);
+        console.log("type of x_axis ticks:", typeof x_axis_ticks[0], typeof x_axis_ticks[2]);
         return $.jqplot('manhattan_plot', [this.plot_points], {
           title: '1',
           seriesDefaults: {
@@ -129,7 +132,8 @@
               ticks: x_axis_ticks,
               tickOptions: {
                 angle: 90,
-                showGridline: false
+                showGridline: false,
+                formatString: '%d'
               },
               label: "Megabases"
             },
