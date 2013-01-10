@@ -82,9 +82,11 @@ $ ->
                 @max_mb = mb
             @plot_points.push([mb, lrs])
             
-        display_graph: ->
+        display_graph: (max_lrs) ->
             div_name = 'manhattan_plot_' + @name
             console.log("div_name:", div_name)
+        
+            #console.log("max_lrs is", max_lrs)
         
             x_axis_max = Math.ceil(@max_mb/25) * 25
             x_axis_ticks = []
@@ -115,19 +117,23 @@ $ ->
                         label: "Megabases"
                     yaxis:
                         min: 0
+                        max: Math.floor(max_lrs + 0.1 * max_lrs)
+                        tickInterval: 1
                         label: "LRS"
                         tickOptions:
+                            formatString: '%d' 
                             showGridline: false
             )
 
     class Manhattan_Plot
         constructor: ->
-            @chromosomes = {}   # Hash of chromosomes
+            @max_lrs = 0
             
+            @chromosomes = {}   
             @build_chromosomes()
             
-            #@process_data()
             @display_graphs()
+            
             
         build_chromosomes: ->
             for result in js_data.qtl_results
@@ -136,11 +142,10 @@ $ ->
                 if chromosome not of @chromosomes
                     @chromosomes[chromosome] = new Chromosome(chromosome)
                 mb = parseInt(result.locus.mb)
+                if result.lrs > @max_lrs
+                    @max_lrs = result.lrs
                 @chromosomes[chromosome].process_point(mb, result.lrs)
                  
-                    #if mb > @max_mb
-                    #    @max_mb = mb
-                    #@plot_points.push([mb, result.lrs])
         
         display_graphs: ->
             ### Call display_graph for each chromosome ###
@@ -163,7 +168,7 @@ $ ->
                 html = """<div id="manhattan_plot_#{ key }" class="manhattan_plot_segment"></div>"""
                 console.log("html is:", html)
                 $("#manhattan_plots").append(html)
-                @chromosomes[key].display_graph()
+                @chromosomes[key].display_graph(@max_lrs)
             
             
             

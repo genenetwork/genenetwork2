@@ -87,7 +87,7 @@
         return this.plot_points.push([mb, lrs]);
       };
 
-      Chromosome.prototype.display_graph = function() {
+      Chromosome.prototype.display_graph = function(max_lrs) {
         var div_name, x_axis_max, x_axis_ticks, x_tick;
         div_name = 'manhattan_plot_' + this.name;
         console.log("div_name:", div_name);
@@ -126,8 +126,11 @@
             },
             yaxis: {
               min: 0,
+              max: Math.floor(max_lrs + 0.1 * max_lrs),
+              tickInterval: 1,
               label: "LRS",
               tickOptions: {
+                formatString: '%d',
                 showGridline: false
               }
             }
@@ -141,6 +144,7 @@
     Manhattan_Plot = (function() {
 
       function Manhattan_Plot() {
+        this.max_lrs = 0;
         this.chromosomes = {};
         this.build_chromosomes();
         this.display_graphs();
@@ -157,6 +161,9 @@
             this.chromosomes[chromosome] = new Chromosome(chromosome);
           }
           mb = parseInt(result.locus.mb);
+          if (result.lrs > this.max_lrs) {
+            this.max_lrs = result.lrs;
+          }
           _results.push(this.chromosomes[chromosome].process_point(mb, result.lrs));
         }
         return _results;
@@ -186,7 +193,7 @@
           html = "<div id=\"manhattan_plot_" + key + "\" class=\"manhattan_plot_segment\"></div>";
           console.log("html is:", html);
           $("#manhattan_plots").append(html);
-          _results.push(this.chromosomes[key].display_graph());
+          _results.push(this.chromosomes[key].display_graph(this.max_lrs));
         }
         return _results;
       };
