@@ -41,21 +41,13 @@ $ ->
             #return bars_ordered
     
         display_graph: ->
-            # Figure out the largest key, so we can make sure the x axis max is one larger later on
-            #max_lrs = bars_ordered[bars_ordered.length-1][0]
-            #console.log("max_key is:", max_lrs)
         
             $.jqplot('permutation_histogram',  [@bars_ordered],
                 title: 'Permutation Histogram'     
                 seriesDefaults:
                     renderer:$.jqplot.BarRenderer
                     rendererOptions: 
-                        #barPadding: 30
-                        #barMargin: 30
                         barWidth: 15
-                        #shadowOffset: 2
-                        #shadowDepth: 5
-                        #shadowAlpha: 0.8
                     pointLabels: 
                         show: true
                 axesDefaults:
@@ -63,7 +55,6 @@ $ ->
                 axes: 
                     xaxis: 
                       min: 0
-                      #max: max_lrs + 2
                       label: "LRS"
                       pad: 1.1
                     yaxis:
@@ -81,4 +72,33 @@ $ ->
     #bars_ordered = process_lrs_array()
     #display_permutation_histogram(bars_ordered)
     
+    class Manhattan_Plot
+        constructor: ->
+            @process_data()
+            @display_graph()
+            
+        process_data: ->
+            qtl_results = js_data.qtl_results
+            #console.log("qtl_results: ", qtl_results)
+            @plot_points = []
+            for result in qtl_results
+                if result.locus.chromosome == '1'
+                    @plot_points.push([result.locus.mb, result.lrs])
+                
+        display_graph: ->
+            #console.log("@plot_points is:", @plot_points)
+            $.jqplot('manhattan_plot',  [@plot_points],
+                title: '1'     
+                axesDefaults:
+                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                axes: 
+                    xaxis: 
+                      min: 0
+                      label: "Megabases"
+                    yaxis:
+                      min: 0
+                      label: "LRS"
+            )
+
     new Permutation_Histogram
+    new Manhattan_Plot

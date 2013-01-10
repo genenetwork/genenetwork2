@@ -2,7 +2,7 @@
 (function() {
 
   $(function() {
-    var Permutation_Histogram, sort_number;
+    var Manhattan_Plot, Permutation_Histogram, sort_number;
     sort_number = function(a, b) {
       return a - b;
     };
@@ -72,7 +72,53 @@
       return Permutation_Histogram;
 
     })();
-    return new Permutation_Histogram;
+    Manhattan_Plot = (function() {
+
+      function Manhattan_Plot() {
+        this.process_data();
+        this.display_graph();
+      }
+
+      Manhattan_Plot.prototype.process_data = function() {
+        var qtl_results, result, _i, _len, _results;
+        qtl_results = js_data.qtl_results;
+        this.plot_points = [];
+        _results = [];
+        for (_i = 0, _len = qtl_results.length; _i < _len; _i++) {
+          result = qtl_results[_i];
+          if (result.locus.chromosome === '1') {
+            _results.push(this.plot_points.push([result.locus.mb, result.lrs]));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+
+      Manhattan_Plot.prototype.display_graph = function() {
+        return $.jqplot('manhattan_plot', [this.plot_points], {
+          title: '1',
+          axesDefaults: {
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+          },
+          axes: {
+            xaxis: {
+              min: 0,
+              label: "Megabases"
+            },
+            yaxis: {
+              min: 0,
+              label: "LRS"
+            }
+          }
+        });
+      };
+
+      return Manhattan_Plot;
+
+    })();
+    new Permutation_Histogram;
+    return new Manhattan_Plot;
   });
 
 }).call(this);
