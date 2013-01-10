@@ -81,23 +81,46 @@ $ ->
             qtl_results = js_data.qtl_results
             #console.log("qtl_results: ", qtl_results)
             @plot_points = []
+            @max_mb = 0
             for result in qtl_results
                 if result.locus.chromosome == '1'
+                    if parseInt(result.locus.mb) > @max_mb
+                        @max_mb = result.locus.mb
                     @plot_points.push([result.locus.mb, result.lrs])
                 
         display_graph: ->
+            x_axis_max = Math.ceil(@max_mb/25) * 25
+            x_axis_ticks = []
+            x_tick = 0
+            while (x_tick <= x_axis_max)
+                x_axis_ticks.push(x_tick)
+                x_tick += 25
             #console.log("@plot_points is:", @plot_points)
             $.jqplot('manhattan_plot',  [@plot_points],
-                title: '1'     
+                title: '1'
+                seriesDefaults:
+                    showLine: false
+                    markerRenderer: $.jqplot.MarkerRenderer
+                    markerOptions:
+                        style: "filledCircle"
+                        size: 3                   
                 axesDefaults:
+                    tickRenderer: $.jqplot.CanvasAxisTickRenderer
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                 axes: 
                     xaxis: 
-                      min: 0
-                      label: "Megabases"
+                        min: 0
+                        max: x_axis_max
+                        ticks: x_axis_ticks
+                        tickOptions:
+                            angle: 90
+                            showGridline: false
+                        label: "Megabases"
                     yaxis:
-                      min: 0
-                      label: "LRS"
+                        min: 0
+                        label: "LRS"
+                        tickOptions:
+                            showGridline: false
             )
 
     new Permutation_Histogram

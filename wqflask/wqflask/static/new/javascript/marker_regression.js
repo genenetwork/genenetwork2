@@ -83,10 +83,14 @@
         var qtl_results, result, _i, _len, _results;
         qtl_results = js_data.qtl_results;
         this.plot_points = [];
+        this.max_mb = 0;
         _results = [];
         for (_i = 0, _len = qtl_results.length; _i < _len; _i++) {
           result = qtl_results[_i];
           if (result.locus.chromosome === '1') {
+            if (parseInt(result.locus.mb) > this.max_mb) {
+              this.max_mb = result.locus.mb;
+            }
             _results.push(this.plot_points.push([result.locus.mb, result.lrs]));
           } else {
             _results.push(void 0);
@@ -96,19 +100,45 @@
       };
 
       Manhattan_Plot.prototype.display_graph = function() {
+        var x_axis_max, x_axis_ticks, x_tick;
+        x_axis_max = Math.ceil(this.max_mb / 25) * 25;
+        x_axis_ticks = [];
+        x_tick = 0;
+        while (x_tick <= x_axis_max) {
+          x_axis_ticks.push(x_tick);
+          x_tick += 25;
+        }
         return $.jqplot('manhattan_plot', [this.plot_points], {
           title: '1',
+          seriesDefaults: {
+            showLine: false,
+            markerRenderer: $.jqplot.MarkerRenderer,
+            markerOptions: {
+              style: "filledCircle",
+              size: 3
+            }
+          },
           axesDefaults: {
+            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer
           },
           axes: {
             xaxis: {
               min: 0,
+              max: x_axis_max,
+              ticks: x_axis_ticks,
+              tickOptions: {
+                angle: 90,
+                showGridline: false
+              },
               label: "Megabases"
             },
             yaxis: {
               min: 0,
-              label: "LRS"
+              label: "LRS",
+              tickOptions: {
+                showGridline: false
+              }
             }
           }
         });
