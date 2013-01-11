@@ -91,7 +91,7 @@ class Trait(object):
 
         #ZS: This takes the list of values of the trait our selected trait is being correlated against and removes the values of the samples our trait has no value for
         #There's probably a better way of dealing with this, but I'll have to ask Christian
-        updated_raw_values = [] 
+        updated_raw_values = []
         updated_values = []
         for i in range(len(values)):
             if values[i] != "None":
@@ -120,7 +120,7 @@ class Trait(object):
                 ZValue = ZValue*sqrt(self.overlap-3)
                 self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))
 
-	
+
 
 #XZ, 01/14/2009: This method is for parallel computing only.
 #XZ: It is supposed to be called when "Genetic Correlation, Pearson's r" (method 1)
@@ -151,7 +151,7 @@ def get_correlation_method_key(form_data):
     #XZ, 09/28/2008: if user select "2", then display 2, 3 and 5.
     #XZ, 09/28/2008: if user select "3", then display 1, 3 and 4.
     #XZ, 09/28/2008: if user select "4", then display 1, 3 and 4.
-    #XZ, 09/28/2008: if user select "5", then display 2, 3 and 5.		
+    #XZ, 09/28/2008: if user select "5", then display 2, 3 and 5.
 
     method = form_data.formdata.getvalue("method")
     if method not in ["1", "2", "3" ,"4", "5"]:
@@ -172,7 +172,7 @@ def get_custom_trait(form_data, cursor):
 	return None
 
 
-#XZ, 09/18/2008: get the information such as value, variance of the input strain names from the form.		
+#XZ, 09/18/2008: get the information such as value, variance of the input strain names from the form.
 def get_sample_data(form_data):
     if form_data.allstrainlist:
 	mdpchoice = form_data.formdata.getvalue('MDPChoice')
@@ -194,8 +194,8 @@ def get_sample_data(form_data):
 	    strainlist = form_data.allstrainlist
 	#XZ, 09/18/2008: put the trait data into dictionary form_data.allTraitData
 	form_data.readData(form_data.allstrainlist)
-    else:	
-	mdpchoice = None	
+    else:
+	mdpchoice = None
 	strainlist = form_data.strainlist
 	#XZ, 09/18/2008: put the trait data into dictionary form_data.allTraitData
 	form_data.readData()
@@ -267,7 +267,7 @@ class CorrelationPage(templatePage):
     CORRELATION_METHODS = {"1" : "Genetic Correlation (Pearson's r)",
 			   "2" : "Genetic Correlation (Spearman's rho)",
 			   "3" : "SGO Literature Correlation",
-			   "4" : "Tissue Correlation (Pearson's r)", 
+			   "4" : "Tissue Correlation (Pearson's r)",
 			   "5" : "Tissue Correlation (Spearman's rho)"}
 
     RANK_ORDERS = {"1": 0, "2": 1, "3": 0, "4": 0, "5": 1}
@@ -338,7 +338,7 @@ class CorrelationPage(templatePage):
 
         # We will not get Tissue Correlations if there is no gene symbol because there is nothing to look against
         self.trait_symbol = myTrait.symbol
-                
+
 
         #XZ, 12/12/2008: if the species is rat or human, translate the geneid to mouse geneid
         self.input_trait_mouse_gene_id = self.translateToMouseGeneID(self.species, self.gene_id)
@@ -347,7 +347,7 @@ class CorrelationPage(templatePage):
         self.tissue_probeset_freeze_id = 1
 
         traitList = self.correlate(vals)
-        
+
         _log.info("Done doing correlation calculation")
 
 ############################################################################################################################################
@@ -356,12 +356,12 @@ class CorrelationPage(templatePage):
 
         mainfmName = webqtlUtil.genRandStr("fm_")
         form = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name= mainfmName, submit=HT.Input(type='hidden'))
-        hddn = {'FormID': 'showDatabase', 
+        hddn = {'FormID': 'showDatabase',
 	        'ProbeSetID': '_',
-		'database': self.target_db_name, 
-		'databaseFull': self.db.fullname, 
-		'CellID': '_', 
-		'RISet': fd.RISet, 
+		'database': self.target_db_name,
+		'databaseFull': self.db.fullname,
+		'CellID': '_',
+		'RISet': fd.RISet,
 		'identification': fd.identification}
 
         if myTrait:
@@ -400,7 +400,7 @@ class CorrelationPage(templatePage):
 
         ##############
         # Excel file #
-        ##############	
+        ##############
         filename= webqtlUtil.genRandStr("Corr_")
         xlsUrl = HT.Input(type='button', value = 'Download Table', onClick= "location.href='/tmp/%s.xls'" % filename, Class='button')
         # Create a new Excel workbook
@@ -432,7 +432,7 @@ class CorrelationPage(templatePage):
         heatmap = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'heatmap');" % mainfmName)
         heatmap_img = HT.Image("/images/heatmap2_final.jpg", name='mintmap', alt="QTL Heat Map and Clustering", title="QTL Heatmap and Clustering", style="border:none;")
         heatmap.append(heatmap_img)
-        partialCorr = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'partialCorrInput');" % mainfmName) 
+        partialCorr = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'partialCorrInput');" % mainfmName)
         partialCorr_img = HT.Image("/images/partial_correlation_final.jpg", name='partialCorr', alt="Partial Correlation", title="Partial Correlation", style="border:none;")
         partialCorr.append(partialCorr_img)
         addselect = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (fd.RISet, mainfmName))
@@ -454,7 +454,7 @@ class CorrelationPage(templatePage):
         selectandor.append(('AND','and'))
         selectandor.append(('OR','or'))
         selectandor.selected.append('AND')
-        
+
 
         #External analysis tools
         GCATButton = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'GCAT');" % mainfmName)
@@ -473,8 +473,8 @@ setTimeout('openWebGestalt()', 2000);
 function openWebGestalt(){
 var thisForm = document['WebGestalt'];
 makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
-}   
-        """ % (mainfmName, len(traitList))) 
+}
+        """ % (mainfmName, len(traitList)))
         '''
 
         self.cursor.execute('SELECT GeneChip.GO_tree_value FROM GeneChip, ProbeFreeze, ProbeSetFreeze WHERE GeneChip.Id = ProbeFreeze.ChipId and ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeSetFreeze.Name = "%s"' % self.db.name)
@@ -484,15 +484,15 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
             GO_tree_value = result[0]
 
         if GO_tree_value:
-        
+
             WebGestalt = HT.Href(url="#redirect", onClick="databaseFunc(document.getElementsByName('%s')[0], 'GOTree');" % mainfmName)
-            WebGestalt_img = HT.Image("/images/webgestalt_icon_final.jpg", name="webgestalt", alt="Gene Set Analysis Toolkit", title="Gene Set Analysis Toolkit", style="border:none")        
-            WebGestalt.append(WebGestalt_img)      
-              
+            WebGestalt_img = HT.Image("/images/webgestalt_icon_final.jpg", name="webgestalt", alt="Gene Set Analysis Toolkit", title="Gene Set Analysis Toolkit", style="border:none")
+            WebGestalt.append(WebGestalt_img)
+
             hddnWebGestalt = {
                               'id_list':'',
                               'correlation':'',
-                              'id_value':'', 
+                              'id_value':'',
                               'llid_list':'',
                               'id_type':GO_tree_value,
                               'idtype':'',
@@ -512,7 +512,7 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
                 hddnWebGestalt['org'] = 'Mus musculus'
             else:
                 hddnWebGestalt['org'] = ''
-        
+
             for key in hddnWebGestalt.keys():
                 form.append(HT.Input(name=key, value=hddnWebGestalt[key], type='hidden'))
 
@@ -523,11 +523,11 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
 
         containerTable = HT.TableLite(cellSpacing=0,cellPadding=0,width="90%",border=0, align="Left")
 
-        
+
         if not GO_tree_value:
             optionsTable = HT.TableLite(cellSpacing=2, cellPadding=0,width="480", height="80", border=0, align="Left")
             optionsTable.append(HT.TR(HT.TD(selectall), HT.TD(reset), HT.TD(selectinvert), HT.TD(addselect), HT.TD(GCATButton), HT.TD(ODE), align="left"))
-            optionsTable.append(HT.TR(HT.TD("&nbsp;"*1,"Select"), HT.TD("Deselect"), HT.TD("&nbsp;"*1,"Invert"), HT.TD("&nbsp;"*3,"Add"), HT.TD("Gene Set"), HT.TD("&nbsp;"*2,"GCAT")))            
+            optionsTable.append(HT.TR(HT.TD("&nbsp;"*1,"Select"), HT.TD("Deselect"), HT.TD("&nbsp;"*1,"Invert"), HT.TD("&nbsp;"*3,"Add"), HT.TD("Gene Set"), HT.TD("&nbsp;"*2,"GCAT")))
         else:
             optionsTable = HT.TableLite(cellSpacing=2, cellPadding=0,width="560", height="80", border=0, align="Left")
             optionsTable.append(HT.TR(HT.TD(selectall), HT.TD(reset), HT.TD(selectinvert), HT.TD(addselect), HT.TD(GCATButton), HT.TD(ODE), HT.TD(WebGestalt), align="left"))
@@ -548,11 +548,11 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
         fewerOptions = HT.Input(type='button',name='options',value='Fewer Options', onClick="",Class="toggle")
 
         """
-        if (fd.formdata.getvalue('showHideOptions') == 'less'):		
+        if (fd.formdata.getvalue('showHideOptions') == 'less'):
             containerTable.append(HT.TR(HT.TD("&nbsp;"), height="10"), HT.TR(HT.TD(HT.Div(fewerOptions, Class="toggleShowHide"))))
             containerTable.append(HT.TR(HT.TD("&nbsp;")))
-        else:	
-            containerTable.append(HT.TR(HT.TD("&nbsp;"), height="10"), HT.TR(HT.TD(HT.Div(moreOptions, Class="toggleShowHide"))))	
+        else:
+            containerTable.append(HT.TR(HT.TD("&nbsp;"), height="10"), HT.TR(HT.TD(HT.Div(moreOptions, Class="toggleShowHide"))))
             containerTable.append(HT.TR(HT.TD("&nbsp;")))
         """
 
@@ -566,8 +566,7 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
         tblobj = {}
 
         if self.db.type=="Geno":
-
-            containerTable.append(HT.TR(HT.TD(xlsUrl, height=40)))
+            containerTable.append(HT.TR(HT.TD(xlsUrl, height=60)))
 
             pageTable.append(HT.TR(HT.TD(containerTable)))
 
@@ -579,7 +578,7 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
             corrScript = HT.Script(language="Javascript")
             corrScript.append("var corrArray = new Array();")
 
-            tblobj['body'], worksheet, corrScript = self.getTableBodyForGeno(traitList=traitList, formName=mainfmName, worksheet=worksheet, newrow=newrow, corrScript=corrScript) 
+            tblobj['body'], worksheet, corrScript = self.getTableBodyForGeno(traitList=traitList, formName=mainfmName, worksheet=worksheet, newrow=newrow, corrScript=corrScript)
 
             workbook.close()
             objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
@@ -604,15 +603,15 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
             containerTable.append(HT.TR(HT.TD(xlsUrl, height=40)))
 
             pageTable.append(HT.TR(HT.TD(containerTable)))
-	
+
             tblobj['header'], worksheet = self.getTableHeaderForPublish(method=self.method, worksheet=worksheet, newrow=newrow, headingStyle=headingStyle)
             newrow += 1
 
             sortby = self.getSortByValue( calculationMethod = self.method )
-            
+
             corrScript = HT.Script(language="Javascript")
             corrScript.append("var corrArray = new Array();")
-            
+
             tblobj['body'], worksheet, corrScript = self.getTableBodyForPublish(traitList=traitList, formName=mainfmName, worksheet=worksheet, newrow=newrow, corrScript=corrScript, species=self.species)
 
             workbook.close()
@@ -650,7 +649,7 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
             workbook.close()
             objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
             cPickle.dump(tblobj, objfile)
-            objfile.close()	
+            objfile.close()
 
             #XZ: here is the table of traits
             div = HT.Div(webqtlUtil.genTableObj(tblobj=tblobj, file=filename, sortby=sortby, tableID = "sortable", addIndex = "1", hiddenColumns=["Gene ID","Homologene ID"]), corrScript, Id="sortable")
@@ -708,11 +707,11 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
 
             if self.species == 'human':
                 heatmap = ""
-            
+
             form.append(HT.Input(name='ShowStrains',type='hidden', value =1),
                             HT.Input(name='ShowLine',type='hidden', value =1),
                             info, HT.BR(), pageTable, HT.BR())
-			
+
             TD_LR.append(corrHeading, form, HT.P())
 
 
@@ -745,7 +744,7 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
                 sortby = ("Tissue r", "down")
         elif calculationMethod == "5":
                 sortby = ("Tissue rho", "down")
-                
+
         return sortby
 
 
@@ -808,7 +807,7 @@ Resorting this table <br>
     def getStrainIds(self, species=None, strains=[]):
         StrainIds = []
         for item in strains:
-            self.cursor.execute('''SELECT Strain.Id FROM Strain, Species WHERE 
+            self.cursor.execute('''SELECT Strain.Id FROM Strain, Species WHERE
                 Strain.Name="%s" and Strain.SpeciesId=Species.Id and Species.name = "%s" ''' % (item, species))
             Id = self.cursor.fetchone()[0]
             StrainIds.append(Id)
@@ -855,16 +854,16 @@ Resorting this table <br>
 
     #XZ, 12/16/2008: the input geneid is of mouse type
     def checkSymbolForTissueCorr(self, tissueProbeSetFreezeId=0, symbol=""):
-        q = "SELECT 1 FROM  TissueProbeSetXRef WHERE TissueProbeSetFreezeId=%s and Symbol='%s' LIMIT 1" % (tissueProbeSetFreezeId,symbol) 
+        q = "SELECT 1 FROM  TissueProbeSetXRef WHERE TissueProbeSetFreezeId=%s and Symbol='%s' LIMIT 1" % (tissueProbeSetFreezeId,symbol)
         self.cursor.execute(q)
         try:
             x = self.cursor.fetchone()
             if x: return True
             else: raise
         except: return False
-   
 
-	
+
+
     def fetchAllDatabaseData(self, species, GeneId, GeneSymbol, strains, db, method, returnNumber, tissueProbeSetFreezeId):
 
         StrainIds = []
@@ -879,9 +878,9 @@ Resorting this table <br>
             nnn += 1
         oridata = []
 
-        #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
+        #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId
         tempTable = None
-        if GeneId and db.type == "ProbeSet": 
+        if GeneId and db.type == "ProbeSet":
             if method == "3":
                 tempTable = self.getTempLiteratureTable(species=species, input_species_geneid=GeneId, returnNumber=returnNumber)
 
@@ -892,7 +891,7 @@ Resorting this table <br>
             temp = []
             StrainIdstep = StrainIds[step*25:min(len(StrainIds), (step+1)*25)]
             for item in StrainIdstep: temp.append('T%s.value' % item)
-				
+
             if db.type == "Publish":
                 query = "SELECT PublishXRef.Id, "
                 dataStartPos = 1
@@ -910,12 +909,12 @@ Resorting this table <br>
                 # as we would not have litCorr data.
 
                 if method == "3":
-                    query = "SELECT %s.Name, %s.value," %  (db.type,tempTable) 
-                    dataStartPos = 2 
+                    query = "SELECT %s.Name, %s.value," %  (db.type,tempTable)
+                    dataStartPos = 2
                 if method == "4" or method == "5":
-                    query = "SELECT %s.Name, %s.Correlation, %s.PValue," %  (db.type,tempTable, tempTable) 
-                    dataStartPos = 3 
-				
+                    query = "SELECT %s.Name, %s.Correlation, %s.PValue," %  (db.type,tempTable, tempTable)
+                    dataStartPos = 3
+
                 query += string.join(temp,', ')
                 query += ' FROM (%s, %sXRef, %sFreeze)' % (db.type, db.type, db.type)
                 if method == "3":
@@ -925,8 +924,8 @@ Resorting this table <br>
                 #XZ, 03/04/2009: Xiaodong changed Data to %sData and changed parameters from %(item,item, db.type,item,item) to %(db.type, item,item, db.type,item,item)
                 for item in StrainIdstep:
                     query += 'left join %sData as T%s on T%s.Id = %sXRef.DataId and T%s.StrainId=%s\n' %(db.type, item,item, db.type,item,item)
-                
-                if method == "3":	
+
+                if method == "3":
                     query += "WHERE ProbeSet.GeneId IS NOT NULL AND %s.value IS NOT NULL AND %sXRef.%sFreezeId = %sFreeze.Id and %sFreeze.Name = '%s'  and %s.Id = %sXRef.%sId order by %s.Id" % (tempTable,db.type, db.type, db.type, db.type, db.name, db.type, db.type, db.type, db.type)
                 if method == "4" or method == "5":
                     query += "WHERE ProbeSet.Symbol IS NOT NULL AND %s.Correlation IS NOT NULL AND %sXRef.%sFreezeId = %sFreeze.Id and %sFreeze.Name = '%s'  and %s.Id = %sXRef.%sId order by %s.Id" % (tempTable,db.type, db.type, db.type, db.type, db.name, db.type, db.type, db.type, db.type)
@@ -939,7 +938,7 @@ Resorting this table <br>
                 for item in StrainIdstep:
                     query += 'left join %sData as T%s on T%s.Id = %sXRef.DataId and T%s.StrainId=%s\n' %(db.type, item,item, db.type,item,item)
                 query += "WHERE %sXRef.%sFreezeId = %sFreeze.Id and %sFreeze.Name = '%s'  and %s.Id = %sXRef.%sId order by %s.Id" % (db.type, db.type, db.type, db.type, db.name, db.type, db.type, db.type, db.type)
-                
+
             self.cursor.execute(query)
             results = self.cursor.fetchall()
             oridata.append(results)
@@ -971,17 +970,17 @@ Resorting this table <br>
 
 
 
-    # XZ, 09/20/2008: This function creates TEMPORARY TABLE tmpTableName_2 and return its name. 
+    # XZ, 09/20/2008: This function creates TEMPORARY TABLE tmpTableName_2 and return its name.
     # XZ, 09/20/2008: It stores top literature correlation values associated with the input geneId.
     # XZ, 09/20/2008: Attention: In each row, the input geneId is always in column GeneId1.
     #XZ, 12/16/2008: the input geneid can be of mouse, rat or human type
     def getTempLiteratureTable(self, species, input_species_geneid, returnNumber):
         # according to mysql the TEMPORARY TABLE name should not have to be unique because
-        # it is only available to the current connection. This program will be invoked via command line, but if it 
+        # it is only available to the current connection. This program will be invoked via command line, but if it
         # were to be invoked over mod_python this could cuase problems.  mod_python will keep the connection alive
         # in its executing threads ( i think) so there is a potential for the table not being dropped between users.
         #XZ, 01/29/2009: To prevent the potential risk, I generate random table names and drop the tables after use them.
-        
+
 
         # the 'input_species_geneid' could be rat or human geneid, need to translate it to mouse geneid
         translated_mouse_geneid = self.translateToMouseGeneID (species, input_species_geneid)
@@ -1022,7 +1021,7 @@ Resorting this table <br>
                     translated_species_geneid = record[0]
 
             if translated_species_geneid:
-                self.cursor.execute( 'INSERT INTO %s (GeneId1, GeneId2, value) VALUES (%d,%d,%f)' % (tmpTableName_2, int(input_species_geneid),int(translated_species_geneid), float(lit_corr_alue)) )              
+                self.cursor.execute( 'INSERT INTO %s (GeneId1, GeneId2, value) VALUES (%d,%d,%f)' % (tmpTableName_2, int(input_species_geneid),int(translated_species_geneid), float(lit_corr_alue)) )
                 counter = counter + 1
 
             #pay attention to the number
@@ -1054,9 +1053,9 @@ Resorting this table <br>
 
         symbolCorrList.sort(cmpTissCorrAbsoluteValue)
         symbolCorrList = symbolCorrList[0 : 2*returnNumber]
-        
+
         tmpTableName = webqtlUtil.genRandStr(prefix="TOPTISSUE")
- 
+
         q1 = 'CREATE TEMPORARY TABLE %s (Symbol varchar(100) PRIMARY KEY, Correlation float, PValue float)' % tmpTableName
         self.cursor.execute(q1)
 
@@ -1166,7 +1165,7 @@ Resorting this table <br>
         return traitList
 
     def get_trait(self, cached, vals):
-        
+
         if cached:
             _log.info("Using the fast method because the file exists")
             lit_corrs = {}
@@ -1194,7 +1193,7 @@ Resorting this table <br>
             #XZ: The new method uses all strains stored in variable dataset_strains to create a new variable
             #XZ: _newvals. _newvals has the same length as dataset_strains. The items in _newvals is in
             #XZ: the same order of items in dataset_strains. The value of each item in _newvals is either
-            #XZ: the value of correspinding strain in _vals or 'None'. 
+            #XZ: the value of correspinding strain in _vals or 'None'.
             new_vals = []
             for name in cached_sample_names:
                 if name in self.sample_names:
@@ -1211,13 +1210,13 @@ Resorting this table <br>
             data_start = 1
             for line in datasetFile:
                 raw_trait = webqtlUtil.readLineCSV(line)
-                trait = Trait.from_csv(raw_trait, data_start) 
+                trait = Trait.from_csv(raw_trait, data_start)
                 trait.lit_corr = lit_corrs.get(trait.name)
                 trait.tissue_corr, trait.p_tissue = tissue_corrs.get(trait.name, (None, None))
                 traits.append(trait)
 
             return traits, new_vals
-        
+
         else:
             _log.info("Using the slow method for correlation")
 
@@ -1318,7 +1317,7 @@ Resorting this table <br>
         #the top ones always have p value 0. So comparing p values actually does nothing.
         #In addition, for the tissue data in our database, the N is always the same.
         #So it's safe to compare with tissue corr statistic value.
-        #That's the same as literature corr. 
+        #That's the same as literature corr.
         #if self.method in [METHOD_LIT, METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK] and self.gene_id:
         #    traits.sort(webqtlUtil.cmpLitCorr)
         #else:
@@ -1348,13 +1347,13 @@ Resorting this table <br>
             # NL, 07/19/2010
             # js function changed, add a new parameter rankOrder for js function 'showTissueCorrPlot'
             db_trait.RANK_ORDER = self.RANK_ORDERS[self.method]
-	
+
             #XZ, 26/09/2008: Method is 4 or 5. Have fetched tissue corr, but no literature correlation yet.
             if self.method in TISSUE_METHODS:
                 db_trait.tissueCorr = trait.tissue_corr
                 db_trait.tissuePValue = trait.p_tissue
                 addTissueCorr = True
-                
+
 
             #XZ, 26/09/2008: Method is 3,  Have fetched literature corr, but no tissue corr yet.
             elif self.method == METHOD_LIT:
@@ -1374,13 +1373,13 @@ Resorting this table <br>
             trait_list.append(db_trait)
 
         if addLiteratureCorr:
-            trait_list = self.getLiteratureCorrelationByList(self.input_trait_mouse_gene_id, 
+            trait_list = self.getLiteratureCorrelationByList(self.input_trait_mouse_gene_id,
 						    self.species, trait_list)
         if addTissueCorr:
             trait_list = self.getTissueCorrelationByList(
-			primaryTraitSymbol = self.trait_symbol, 
+			primaryTraitSymbol = self.trait_symbol,
 			traitList = trait_list,
-			TissueProbeSetFreezeId = TISSUE_MOUSE_DB, 
+			TissueProbeSetFreezeId = TISSUE_MOUSE_DB,
 			method=self.method)
 
 	return trait_list
@@ -1446,7 +1445,7 @@ Resorting this table <br>
 
         if myTrait:
             if method in ["1","2"]: #genetic correlation
-                info = HT.Paragraph("Values of Record %s in the " % myTrait.getGivenName(), HT.Href(text=myTrait.db.fullname,url=webqtlConfig.INFOPAGEHREF % myTrait.db.name,target="_blank", Class="fwn"), 
+                info = HT.Paragraph("Values of Record %s in the " % myTrait.getGivenName(), HT.Href(text=myTrait.db.fullname,url=webqtlConfig.INFOPAGEHREF % myTrait.db.name,target="_blank", Class="fwn"),
                                      " database were compared to all %d records in the " % self.record_count, HT.Href(text=db.fullname,url=webqtlConfig.INFOPAGEHREF % target_db_name,target="_blank", Class="fwn"),
                                      ' database. The top %d correlations ranked by the %s are displayed.' % (returnNumber,methodDict[method]),
                                      ' You can resort this list using the small arrowheads in the top row.')
@@ -1498,7 +1497,7 @@ Resorting this table <br>
         titleStyle = workbook.add_format(align = 'left', bold = 0, size=14, border = 1, border_color="gray")
 
         ##Write title Info
-        # Modified by Hongqiang Li 
+        # Modified by Hongqiang Li
         worksheet.write([1, 0], "Citations: Please see %s/reference.html" % webqtlConfig.PORTADDR, titleStyle)
         worksheet.write([1, 0], "Citations: Please see %s/reference.html" % webqtlConfig.PORTADDR, titleStyle)
         worksheet.write([2, 0], "Trait : %s" % identification, titleStyle)
@@ -1568,7 +1567,7 @@ Resorting this table <br>
                 tr = []
 
                 trId = str(thisTrait)
-                
+
                 corrScript.append('corrArray["%s"] = {corr:%1.4f};' % (trId, thisTrait.corr))
 
                 tr.append(TDCell(HT.TD(HT.Input(type="checkbox", Class="checkbox", name="searchResult",value=trId, onClick="highlight(this)"), nowrap="on", Class="fs12 fwn ffl b1 c222"), text=trId))
@@ -1616,7 +1615,7 @@ Resorting this table <br>
         tblobj_header = []
 
         if method in ["1","3","4"]:
-            tblobj_header = [[THCell(HT.TD(' ', Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), sort=0), 
+            tblobj_header = [[THCell(HT.TD(' ', Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), sort=0),
                               THCell(HT.TD('Record',HT.BR(), 'ID',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), text="Record ID", idx=1),
                               THCell(HT.TD('Phenotype', HT.BR(),HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), text="Phenotype", idx=2),
                               THCell(HT.TD('Authors', HT.BR(),HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), text="Authors", idx=3),
@@ -1626,7 +1625,7 @@ Resorting this table <br>
                               THCell(HT.TD(HT.Href(
                                                    text = HT.Span('Sample',HT.BR(), 'r', HT.Sup('  ?', style="color:#f00"),HT.BR(), Class="fs13 fwb ffl cw"),
                                                    target = '_blank',
-                                                   url = "/correlationAnnotation.html#genetic_r"), 
+                                                   url = "/correlationAnnotation.html#genetic_r"),
                                            Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="Sample r", idx=7),
                               THCell(HT.TD('N',HT.BR(),'Cases',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="N Cases", idx=8),
                               THCell(HT.TD(HT.Href(
@@ -1639,7 +1638,7 @@ Resorting this table <br>
                 worksheet.write([newrow, ncol], item, headingStyle)
                 worksheet.set_column([ncol, ncol], 2*len(item))
         else:
-            tblobj_header = [[THCell(HT.TD(' ', Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), sort=0), 
+            tblobj_header = [[THCell(HT.TD(' ', Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), sort=0),
                               THCell(HT.TD('Record',HT.BR(), 'ID',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), text="Record ID", idx=1),
                               THCell(HT.TD('Phenotype', HT.BR(),HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), text="Phenotype", idx=2),
                               THCell(HT.TD('Authors', HT.BR(),HT.BR(), Class="fs13 fwb ffl b1 cw cbrb", nowrap="on"), text="Authors", idx=3),
@@ -1649,7 +1648,7 @@ Resorting this table <br>
                               THCell(HT.TD(HT.Href(
                                                    text = HT.Span('Sample',HT.BR(), 'rho', HT.Sup('  ?', style="color:#f00"),HT.BR(), Class="fs13 fwb ffl cw"),
                                                    target = '_blank',
-                                                   url = "/correlationAnnotation.html#genetic_rho"), 
+                                                   url = "/correlationAnnotation.html#genetic_rho"),
                                            Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="Sample rho", idx=7),
                               THCell(HT.TD('N',HT.BR(),'Cases',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="N Cases", idx=8),
                               THCell(HT.TD(HT.Href(
@@ -1674,7 +1673,7 @@ Resorting this table <br>
             tr = []
 
             trId = str(thisTrait)
-            
+
             corrScript.append('corrArray["%s"] = {corr:%1.4f};' % (trId, thisTrait.corr))
 
             tr.append(TDCell(HT.TD(HT.Input(type="checkbox", Class="checkbox", name="searchResult",value=trId, onClick="highlight(this)"), nowrap="on", Class="fs12 fwn ffl b1 c222"), text=trId))
@@ -1757,7 +1756,7 @@ Resorting this table <br>
             tr.append(TDCell(HT.TD(repr,nowrap='ON', Class="fs12 fwn ffl b1 c222", align='right'),repr,thisTrait.corrPValue))
 
             tblobj_body.append(tr)
-            
+
             for ncol, item in enumerate([thisTrait.name, PhenotypeString, thisTrait.authors, thisTrait.year, thisTrait.pubmed_id, LRS_score_repr, LRS_location_repr, thisTrait.corr, thisTrait.nOverlap, thisTrait.corrPValue]):
                 worksheet.write([newrow, ncol], item)
             newrow += 1
@@ -1783,7 +1782,7 @@ Resorting this table <br>
                                   THCell(HT.TD(HT.Href(
                                                        text = HT.Span('Sample',HT.BR(), 'r', HT.Sup('  ?', style="color:#f00"),HT.BR(), Class="fs13 fwb ffl cw"),
                                                        target = '_blank',
-                                                       url = "/correlationAnnotation.html#genetic_r"), 
+                                                       url = "/correlationAnnotation.html#genetic_r"),
                                                Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="Sample r", idx=10),
                                   THCell(HT.TD('N',HT.BR(),'Cases',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="N Cases", idx=11),
                                   THCell(HT.TD(HT.Href(
@@ -1825,7 +1824,7 @@ Resorting this table <br>
                                   THCell(HT.TD(HT.Href(
                                                        text = HT.Span('Sample',HT.BR(), 'rho', HT.Sup('  ?', style="color:#f00"),HT.BR(), Class="fs13 fwb ffl cw"),
                                                        target = '_blank',
-                                                       url = "/correlationAnnotation.html#genetic_rho"), 
+                                                       url = "/correlationAnnotation.html#genetic_rho"),
                                                Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="Sample rho", idx=10),
                                   THCell(HT.TD('N',HT.BR(),'Cases',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="N Cases", idx=11),
                                   THCell(HT.TD(HT.Href(
@@ -1885,17 +1884,17 @@ Resorting this table <br>
             #XZ, 12/08/2008: probeset name
             tr.append(TDCell(HT.TD(HT.Href(text=thisTrait.name,url="javascript:showTrait('%s', '%s')" % (formName,thisTrait.name), Class="fs12 fwn"), Class="fs12 fwn b1 c222"), thisTrait.name, thisTrait.name.upper()))
 
-            #XZ, 12/08/2008: gene id    
+            #XZ, 12/08/2008: gene id
             if thisTrait.geneid:
                 tr.append(TDCell(None, thisTrait.geneid, val=999))
             else:
-                tr.append(TDCell(None, thisTrait.geneid, val=999))                
-            
+                tr.append(TDCell(None, thisTrait.geneid, val=999))
+
             #XZ, 12/08/2008: homologene id
             if thisTrait.homologeneid:
                 tr.append(TDCell("", thisTrait.homologeneid, val=999))
             else:
-                tr.append(TDCell("", thisTrait.homologeneid, val=999))                 
+                tr.append(TDCell("", thisTrait.homologeneid, val=999))
 
             #XZ, 12/08/2008: gene symbol
             tr.append(TDCell(HT.TD(symbolurl, Class="fs12 fwn b1 c222 fsI"),thisTrait.symbol, thisTrait.symbol.upper()))

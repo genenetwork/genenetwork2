@@ -1,0 +1,6 @@
+RISet/riset -> group
+webqtlDataset.py -> data_set.py
+webqtlDataset (class object) -> DataSet
+database/db -> dataset/data_set
+DataEditingPage -> show_trait.py/show_trait.html
+webqtlTrait -> GeneralTrait

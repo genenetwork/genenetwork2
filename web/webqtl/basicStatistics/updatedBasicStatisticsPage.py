@@ -63,9 +63,9 @@ class updatedBasicStatisticsPage(templatePage):
 					thisValFull = [strain_names[i], this_strain_val, this_strain_var]	
 					vals.append(thisValFull)
 	
-				stats_tab_list = [HT.Href(text="Basic Table", url="#statstabs-1", Class="stats_tab"),HT.Href(text="Probability Plot", url="#statstabs-5", Class="stats_tab"), 
+				stats_tab_list = [HT.Href(text="Basic Table", url="#statstabs-1", Class="stats_tab"),HT.Href(text="Probability Plot", url="#statstabs-2", Class="stats_tab"), 
 								HT.Href(text="Bar Graph (by name)", url="#statstabs-3", Class="stats_tab"), HT.Href(text="Bar Graph (by rank)", url="#statstabs-4", Class="stats_tab"), 
-								HT.Href(text="Box Plot", url="#statstabs-2", Class="stats_tab")]
+								HT.Href(text="Box Plot", url="#statstabs-5", Class="stats_tab")]
 				stats_tabs = HT.List(stats_tab_list)
 				
 				stats_container = HT.Div(id="stats_tabs", Class="ui-tabs")
@@ -73,7 +73,7 @@ class updatedBasicStatisticsPage(templatePage):
 				
 				stats_script_text = """$(function() { $("#stats_tabs").tabs();});""" #Javascript enabling tabs
 				
-				table_div = HT.Div(id="statstabs-1")
+				table_div = HT.Div(id="statstabs-1", style="height:320px;width:740px;overflow:scroll;")
 				table_container = HT.Paragraph()	
 			
 				statsTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
@@ -86,34 +86,7 @@ class updatedBasicStatisticsPage(templatePage):
 				table_div.append(table_container)
 				stats_container.append(table_div)
 	
-				boxplot_div = HT.Div(id="statstabs-2")
-				boxplot_container = HT.Paragraph()
-				boxplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-				boxplot_img, boxplot_link = BasicStatisticsFunctions.plotBoxPlot(vals)
-				boxplot.append(HT.TR(HT.TD(boxplot_img, HT.P(), boxplot_link, align="left")))		
-				boxplot_container.append(boxplot)
-				boxplot_div.append(boxplot_container)
-				stats_container.append(boxplot_div)	
-	
-				barName_div = HT.Div(id="statstabs-3")
-				barName_container = HT.Paragraph()
-				barName = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-				barName_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="name")
-				barName.append(HT.TR(HT.TD(barName_img)))		
-				barName_container.append(barName)
-				barName_div.append(barName_container)
-				stats_container.append(barName_div)
-	
-				barRank_div = HT.Div(id="statstabs-4")
-				barRank_container = HT.Paragraph()
-				barRank = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-				barRank_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="rank")
-				barRank.append(HT.TR(HT.TD(barRank_img)))	
-				barRank_container.append(barRank)
-				barRank_div.append(barRank_container)
-				stats_container.append(barRank_div)		
-	
-				normalplot_div = HT.Div(id="statstabs-5")
+				normalplot_div = HT.Div(id="statstabs-2", style="height:540px;width:740px;overflow:scroll;")
 				normalplot_container = HT.Paragraph()
 				normalplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
 				plotTitle = fd.formdata.getvalue("normalPlotTitle","")
@@ -126,6 +99,33 @@ class updatedBasicStatisticsPage(templatePage):
 				normalplot_container.append(normalplot)
 				normalplot_div.append(normalplot_container)
 				stats_container.append(normalplot_div)
+	
+				barName_div = HT.Div(id="statstabs-3", style="height:540px;width:740px;overflow:scroll;")
+				barName_container = HT.Paragraph()
+				barName = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+				barName_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="name")
+				barName.append(HT.TR(HT.TD(barName_img)))		
+				barName_container.append(barName)
+				barName_div.append(barName_container)
+				stats_container.append(barName_div)
+	
+				barRank_div = HT.Div(id="statstabs-4", style="height:540px;width:740px;overflow:scroll;")
+				barRank_container = HT.Paragraph()
+				barRank = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+				barRank_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, RISet=fd.RISet, vals=vals, type="rank")
+				barRank.append(HT.TR(HT.TD(barRank_img)))	
+				barRank_container.append(barRank)
+				barRank_div.append(barRank_container)
+				stats_container.append(barRank_div)		
+
+				boxplot_div = HT.Div(id="statstabs-5", style="height:540px;width:740px;overflow:scroll;")
+				boxplot_container = HT.Paragraph()
+				boxplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
+				boxplot_img, boxplot_link = BasicStatisticsFunctions.plotBoxPlot(vals)
+				boxplot.append(HT.TR(HT.TD(boxplot_img, HT.P(), boxplot_link, align="left")))		
+				boxplot_container.append(boxplot)
+				boxplot_div.append(boxplot_container)
+				stats_container.append(boxplot_div)					
 	
 				stats_cell.append(stats_container)	
 				stats_script.append(stats_script_text)

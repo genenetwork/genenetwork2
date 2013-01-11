@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+{% block content %}
+
+	<!-- Start of body -->
+	<TR>
+		<TD  bgColor=#eeeeee class="solidBorder">
+		<Table width= "100%" cellSpacing=0 cellPadding=5>
+		<TR>
+		<td>
+<a href="/webqtl/main.py?FormID=sharingListDataset">List of DataSets</a><br>
+<H1 class="title" id="parent-fieldname-title">{{ info.DB_Name }}
+<a href="/webqtl/main.py?FormID=sharinginfoedit&GN_AccessionId={{ info.GN_AccesionId }}"><img src="/images/modify.gif" alt="modify this page" border="0" valign="middle"></a>
+<span style="color:red;"></span>
+</H1>
+<table border="0" width="100%">
+<tr>
+<td valign="top" width="50%">
+<TABLE cellSpacing=0 cellPadding=5 width=100% border=0>
+                      <TR><td><b>GN Accession:</b> {{ info.GN_AccesionId }}</TD></tr>
+                      <TR><TD><b>GEO Series:</b> {{ info.GEO_Series }}</TD></TR>
+                      <TR><TD><b>Title:</b> {{ info.Title }}</TD></TR>
+                      <TR><TD><b>Organism:</b> <a href=http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id={{ info.Organism_Id }}>{{ info.Organism }}</a></TD></tr>
+                      <tr><TD><b>Group:</b> {{ info.InbredSet }}</TD></TR>
+                      <TR><TD><b>Tissue:</b> {{ info.Tissue }}</TD></tr>
+                      <tr><TD><b>Dataset Status:</b> {{ info.Status }}</TD></tr>
+                      <TR><TD><b>Platforms:</b> {{ info.Platforms }}</TD></TR>
+                      <TR><TD><b>Normalization:</b> {{ info.Normalization }}</TD></TR>
+                      <TR><TD><!--Code below to Show hide Contact information -->
+                       <a href="#" onclick="colapse('answer1')">See Contact Information</a><br>
+                       <span id="answer1" style="display: none; return: false;">
+					   {{ info.Contact_Name }}<br>
+                       {{ info.Organization_Name }}<br>
+                       {{ info.Department }}<br>
+                       {{ info.Street }}<br>
+                       {{ info.City }}, {{ info.State }} {{ info.ZIP }} {{ info.Country }}<br>
+                       Tel. {{ info.Phone }}<br>
+                      {{ info.Emails }}<br>
+                       <a href="{{ info.URL }}">{{ info.URL }}</a>
+                       </span><!--Code above to Show hide Contact information --></TD></TR>
+</TABLE>
+</td>
+<td valign="top" width="50%">
+<table border="0" width="100%">
+<tr>
+	<td bgcolor="#dce4e1"><b>Download datasets and supplementary data files</b></td>
+</tr>
+<tr>
+	<td>{{ htmlfilelist|safe }}</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<HR>
+<p>
+<table width="100%" border="0" cellpadding="5" cellspacing="0">
+<tr><td><span style="font-size:115%;font-weight:bold;">Summary:</span></td></tr>
+	<tr><td>{{ info.Summary | safe}}<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About the cases used to generate this set of data:</span></td></tr>
+	<tr><td>{{ info.About_Cases | safe}}</td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About the tissue used to generate this set of data:</span></td></tr>
+	<tr><td>{{ info.About_Tissue | safe }}</td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About downloading this data set:</span></td></tr>
+	<tr><td> <P>All data links (right-most column above) will be made active as sooon as the global analysis of these data by the Consortium has been accepted for publication. Please see text on <A HREF="http://www.genenetwork.org/dataSharing.html" target="_empty" class="normalsize">Data Sharing Policies</A>, and <A HREF="http://www.genenetwork.org/conditionsofUse.html" target="_empty" class="normalsize">Conditions and Limitations</A>, and <A HREF="http://www.genenetwork.org/statusandContact.html" target="_empty" class="normalsize">Contacts</A>. Following publication, download a summary text file or Excel file of the PDNN probe set data. Contact RW Williams regarding data access problems.
+</P><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About the array platform:</span></td></tr>
+	<tr><td> <P><B>Affymetrix Mouse Genome 430 2.0 array: </B>The <A HREF="http://www.affymetrix.com/support/technical/byproduct.affx?product=moe430-20" target="_blank" class="normalsize">430v2</A> array consists of 992936 useful 25-nucleotide probes that estimate the expression of approximately 39,000 transcripts and the majority of known genes and expressed sequence tags. The array sequences were selected late in 2002 using Unigene Build 107 by Affymetrix. The UTHSC group has recently reannotated all probe sets on this array, producing more accurate data on probe and probe set targets. All probes were aligned to the most recent assembly of the Mouse Genome (Build 34, mm6) using Jim Kent's BLAT program. Many of the probe sets have been manually curated by Jing Gu and Rob Williams. </P><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">About data values and data processing:</span></td></tr>
+	<tr><td> <A HREF="http://www.biomedcentral.com/1471-2105/6/65" target="_empty" class="normalsize">Harshlight</A> was used to examine the image quality of the array (CEL files). Bad areas (bubbles, scratches, blemishes) of arrays were masked.
+
+<P>First pass data quality control:  Affymetrix GCOS provides useful array quality control data including:
+<OL>
+<LI>The scale factor used to normalize mean probe intensity. This averaged 3.3 for the 179 arrays that passed and 6.2 for arrays that were excluded. The scale factor is not a particular critical parameter.
+<LI>The average background level. Values averaged 54.8 units for the data sets that passed and 55.8 for data sets that were excluded. This factor is not important for quality control.
+<LI>The percentage of probe sets that are associated with good signal ("present" calls). This averaged 50% for the 179 data sets that passed and 42% for those that failed. Values for passing data sets extended from 43% to 55%. This is a particularly important criterion.
+<LI>The 3':5' signal ratios of actin and Gapdh. Values for passing data sets averaged 1.5 for actin and 1.0 for Gapdh. Values for excluded data sets averaged 12.9 for actin and 9.6 for Gapdh. This is a highly discriminative QC criterion, although one must keep in mind that only two transcripts are being tested. Sequence variation among strains (particularly wild derivative strains such as CAST/Ei) may affect these ratios.
+</OL>
+
+<P>The second step in our post-processing QC involves a count of the number of probe sets in each array that are more than 2 standard deviations (z score units) from the mean across the entire 206 array data sets. This was the most important criterion used to eliminate "bad" data sets. All 206 arrays were processed togther using standard RMA and PDNN methods. The count and percentage of probe sets in each array that were beyond the 2 z theshold was computed. Using the RMA transform the average percentage of probe sets beyond the 2 z threshold for the 179 arrays that finally passed of QC procedure was 1.76% (median of 1.18%). In contrast the 2 z percentage was more than 10-fold higher (mean of 22.4% and median 20.2%) for those arrays that were excluded. This method is not very sensitive to the transformation method that is used. Using the PDNN transform, the average percent of probe sets exceeding was 1.31% for good arrays and was 22.6% for those that were excluded. In our opinion, this 2 z criterion is the most useful criterion for the final decision of whether or not to include arrays, although again, allowances need to be made for wild strains that one expects to be different from the majority of conventional inbred strains. For example, if a data set has excellent characteristics on all of the Affymetrix GCOS metrics listed above, but generates a high 2 z percentage, then one would include the sample if one can verify that there are no problems in sample and data set identification.
+
+<P>The entire procedure can be reapplied once the initial outlier data sets have been eliminated to detect any remaining outlier data sets.
+
+
+<P><A HREF="http://www.datadesk.com/products/data_analysis/datadesk/" target="_empty" class="normalsize">DataDesk</A> was used to examine the statistical quality of the probe level (CEL) data after step 5 below. DataDesk allows the rapid detection of subsets of probes that are particularly sensitive to still unknown factors in array processing. Arrays can then be categorized at the probe level into "reaction classes." A reaction class is a group of arrays for which the expression of essentially all probes are colinear over the full range of log2 values. A single but large group of arrays (n = 32) processed in essentially the identical manner by a single operator can produce arrays belonging to as many as four different reaction classes. Reaction classes are NOT related to strain, age, sex, treatment, or any known biological parameter (technical replicates can belong to different reaction classes). We do not yet understand the technical origins of reaction classes. The number of probes that contribute to the definition of reaction classes is quite small (<10% of all probes). We have categorized all arrays in this data set into one of 5 reaction classes. These have then been treated as if they were separate batches. Probes in these data type "batches" have been aligned to a common mean as described below.
+
+<P><B>Probe (cell) level data from the CEL file: </B>These CEL values produced by <a href="http://www.affymetrix.com/support/technical/product_updates/gcos_download.affx" target="_blank" class="normalsize">GCOS</a> are 75% quantiles from a set of 91 pixel values per cell.
+<OL>
+
+<LI>We added an offset of 1.0 unit to each cell signal to ensure that all values could be logged without generating negative values. We then computed the log base 2 of each cell.
+
+<LI>We performed a quantile normalization of the log base 2 values for all arrays using the same initial steps used by the RMA transform.
+
+<LI>We computed the Z scores for each cell value.
+
+<LI>We multiplied all Z scores by 2.
+
+<LI>We added 8 to the value of all Z scores. The consequence of this simple set of transformations is to produce a set of Z scores that have a mean of 8, a variance of 4, and a standard deviation of 2. The advantage of this modified Z score is that a two-fold difference in expression level (probe brightness level) corresponds approximately to a 1 unit difference.
+
+<LI>Finally, we computed the arithmetic mean of the values for the set of microarrays for each strain. Technical replicates were averaged before computing the mean for independent biological samples. Note, that we have not (yet) corrected for variance introduced by differences in sex or any interaction terms. We have not corrected for background beyond the background correction implemented by Affymetrix in generating the CEL file. We eventually hope to add statistical controls and adjustments for some of these variables.
+</OL>
+<P><B>Probe set data from the CHP file: </B>The expression values were generated using PDNN. The same simple steps described above were also applied to these values. Every microarray data set therefore has a mean expression of 8 with a standard deviation of 2. A 1 unit difference represents roughly a two-fold difference in expression level. Expression levels below 5 are usually close to background noise levels. </Blockquote>
+
+
+<P>Probe level QC: Log2 probe data of all arrays were inspected in DataDesk before and after quantile normalization. Inspection involved examining scatterplots of pairs of arrays for signal homogeneity (i.e., high correlation and linearity of the bivariate plots) and looking at all pairs of correlation coefficients. XY plots of probe expression and signal variance were also examined. Probe level array data sets were organized into reaction groups. Arrays with probe data that were not homogeneous when compared to other arrays were flagged.
+
+<P>Probe set level QC: The final normalized individual array data were evaluated for outliers. This involved counting the number of times that the probe set value for a particular array was beyond two standard deviations of the mean. This outlier analysis was carried out using the PDNN, RMA and MAS5 transforms and outliers across different levels of expression.  Arrays that were associated with an average of more than 8% outlier probe sets across all transforms and at all expression levels were eliminated. In contrast, most other arrays generated fewer than 5% outliers.
+
+
+<P>Validation of strains and sex of each array data set: A subset of probes and probe sets with a Mendelian pattern of inheritance were used to construct a expression correlation matrix for all arrays and the ideal Mendelian expectation for each strain constructed from the genotypes. There should naturally be a very high correlation in the expression patterns of transcripts with Mendelian phenotypes within each strain, as well as with the genotype strain distribution pattern of markers for the strain.
+
+<P>Sex of the samples was validated using sex-specific probe sets such as <I>Xist</I> and <I>Dby</I>.<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Data source acknowledgment:</span></td></tr>
+	<tr><td> <P>Data were generated with funds provided by a variety of public and private source to members of the Consortium. All of us thank Muriel Davisson, Cathy Lutz, and colleagues at the Jackson Laboratory for making it possible for us to add all of the CXB strains, and one or more samples from KK/HIJ, WSB/Ei, NZO/HILtJ, LG/J, CAST/Ei, PWD/PhJ, and PWK/PhJ to this study. We thank Yan Cui at UTHSC for allowing us to use his Linux cluster to align all M430 2.0 probes and probe sets to the mouse genome. We thank Hui-Chen Hsu and John Mountz for providing us BXD tissue samples, as well as many strains of BXD stock. We thanks Douglas Matthews (UMem in Table 1) and John Boughter (JBo in Table 1) for sharing BXD stock with us. Members of the Hippocampus Consortium thank the following sources for financial support of this effort:
+
+<UL>
+<LI>David C. Airey, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: Vanderbilt Institute for Integratie Genomics
+<BR>Department of Pharmacology
+<BR>david.airey at vanderbilt.edu
+
+<LI>Lu Lu, M.D.  <!--Tissue acquisition, RNA processing, experimental design-->
+<BR>Grant Support: NIH U01AA13499, U24AA13513
+
+<LI><A HREF="http://www.salk.edu/faculty/faculty/details.php?id=23" target="_empty" class="normalsize">Fred H. Gage, Ph.D.</A>  <!--$10,000 contribution -->
+<BR>Grant Support: Lookout Foundation
+
+<LI>Dan Goldowitz, Ph.D. <!--$30,000 contribution -->
+<BR>Grant Support: NIAAA INIA AA013503
+<BR>University of Tennessee Health Science Center
+<BR>Dept. Anatomy and Neurobiology
+<BR>email: dgold@nb.utmem.edu
+
+<LI>Shirlean Goodwin, Ph.D.  <!--All array processing-->
+<BR>Grant Support: NIAAA INIA U01AA013515
+
+<LI><A HREF="http://www.bccn-berlin.de/ResearchGroups/Kempermann" target="_empty" class="normalsize">Gerd Kempermann, M.D.</A> <!--$30,000 contribution -->
+<BR>Grant Support: The <A HREF="http://www.volkswagen-stiftung.de/" target="_empty" class="normalsize">Volkswagen Foundation</A> Grant on Permissive and Persistent Factors in Neurogenesis in the Adult Central Nervous System
+<BR>Humboldt-Universitat Berlin
+<BR>Universitatsklinikum Charite
+<BR>email: gerd.kempermann at mdc-berlin.de
+
+<LI>Kenneth F. Manly, Ph.D.  <!--Data handling in The GeneNetwork-->
+<BR>Grant Support: NIH P20MH062009 and U01CA105417
+
+<LI>Richard S. Nowakowski, Ph.D. <!--$10,000 contribution-->
+<BR>Grant Support: R01 NS049445-01
+
+<LI>Glenn D. Rosen, Ph.D. <!--Tissue and dissections-->
+<BR>Grant Support: NIH P20
+
+<LI>Leonard C. Schalkwyk, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: MRC Career Establishment Grant G0000170
+<BR>Social, Genetic and Developmental Psychiatry
+<BR>Institute of Psychiatry,Kings College London
+<BR>PO82, De Crespigny Park London SE5 8AF
+<BR>L.Schalkwyk@iop.kcl.ac.uk
+
+<LI>Guus Smit, Ph.D. <!--$6,000 contribution -->
+<BR>Dutch NeuroBsik Mouse Phenomics Consortium
+<BR>Center for Neurogenomics & Cognitive Research
+<BR>Vrije Universiteit Amsterdam, The Netherlands
+<BR>e-mail: guus.smit at falw.vu.nl
+<BR>Grant Support: BSIK 03053
+
+<LI>Thomas Sutter, Ph.D.  <!--All array handling and ~$20,000 for array chemistry -->
+<BR>Grant Support: INIA U01 AA13515 and the W. Harry Feinstone Center for Genome Research
+
+<LI>Stephen Whatley, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: XXXX
+
+<LI>Robert W. Williams, Ph.D. <!--Consortium director, design, error checking, metadata, and GeneNetwork-->
+<BR>Grant Support: NIH U01AA013499, P20MH062009, U01AA013499, U01AA013513
+</UL>
+</P><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Experiment Type:</span></td></tr>
+	<tr><td> <P>Pooled RNA samples (usually one pool of male hippocampii and one pool of female hippocampii) were prepared using standard protocols. Samples were processed using a total of 206 Affymetrix GeneChip Mouse Expression 430 2.0 short oligomer arrays (MOE430 2.0 or M430v2; see GEO platform ID <A HREF="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL1261" target="_empty" class="normalsize">GPL1261</A>), of which 201 passed quality control and error checking. This particular data set was processed using the <a href="http://odin.mdacc.tmc.edu/~zhangli/PerfectMatch/" target="_blank" class="normalsize">PDNN</a> protocol. To simplify comparisons among transforms, PDNN values of each array were adjusted to an average of 8 units and a standard deviation of 2 units.
+<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Overall Design:</span></td></tr>
+	<tr><td> <P>Pooled RNA samples (usually one pool of male hippocampii and one pool of female hippocampii) were prepared using standard protocols. Samples were processed using a total of 206 Affymetrix GeneChip Mouse Expression 430 2.0 short oligomer arrays (MOE430 2.0 or M430v2; see GEO platform ID <A HREF="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=GPL1261" target="_empty" class="normalsize">GPL1261</A>), of which 201 passed quality control and error checking. This particular data set was processed using the <a href="http://odin.mdacc.tmc.edu/~zhangli/PerfectMatch/" target="_blank" class="normalsize">PDNN</a> protocol. To simplify comparisons among transforms, PDNN values of each array were adjusted to an average of 8 units and a standard deviation of 2 units.
+<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Contributor:</span></td></tr>
+	<tr><td> <UL>
+<LI>David C. Airey, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: Vanderbilt Institute for Integratie Genomics
+<BR>Department of Pharmacology
+<BR>david.airey at vanderbilt.edu
+
+<LI>Lu Lu, M.D.  <!--Tissue acquisition, RNA processing, experimental design-->
+<BR>Grant Support: NIH U01AA13499, U24AA13513
+
+<LI><A HREF="http://www.salk.edu/faculty/faculty/details.php?id=23" target="_empty" class="normalsize">Fred H. Gage, Ph.D.</A>  <!--$10,000 contribution -->
+<BR>Grant Support: Lookout Foundation
+
+<LI>Dan Goldowitz, Ph.D. <!--$30,000 contribution -->
+<BR>Grant Support: NIAAA INIA AA013503
+<BR>University of Tennessee Health Science Center
+<BR>Dept. Anatomy and Neurobiology
+<BR>email: dgold@nb.utmem.edu
+
+<LI>Shirlean Goodwin, Ph.D.  <!--All array processing-->
+<BR>Grant Support: NIAAA INIA U01AA013515
+
+<LI><A HREF="http://www.bccn-berlin.de/ResearchGroups/Kempermann" target="_empty" class="normalsize">Gerd Kempermann, M.D.</A> <!--$30,000 contribution -->
+<BR>Grant Support: The <A HREF="http://www.volkswagen-stiftung.de/" target="_empty" class="normalsize">Volkswagen Foundation</A> Grant on Permissive and Persistent Factors in Neurogenesis in the Adult Central Nervous System
+<BR>Humboldt-Universitat Berlin
+<BR>Universitatsklinikum Charite
+<BR>email: gerd.kempermann at mdc-berlin.de
+
+<LI>Kenneth F. Manly, Ph.D.  <!--Data handling in The GeneNetwork-->
+<BR>Grant Support: NIH P20MH062009 and U01CA105417
+
+<LI>Richard S. Nowakowski, Ph.D. <!--$10,000 contribution-->
+<BR>Grant Support: R01 NS049445-01
+
+<LI>Glenn D. Rosen, Ph.D. <!--Tissue and dissections-->
+<BR>Grant Support: NIH P20
+
+<LI>Leonard C. Schalkwyk, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: MRC Career Establishment Grant G0000170
+<BR>Social, Genetic and Developmental Psychiatry
+<BR>Institute of Psychiatry,Kings College London
+<BR>PO82, De Crespigny Park London SE5 8AF
+<BR>L.Schalkwyk@iop.kcl.ac.uk
+
+<LI>Guus Smit, Ph.D. <!--$6,000 contribution -->
+<BR>Dutch NeuroBsik Mouse Phenomics Consortium
+<BR>Center for Neurogenomics & Cognitive Research
+<BR>Vrije Universiteit Amsterdam, The Netherlands
+<BR>e-mail: guus.smit at falw.vu.nl
+<BR>Grant Support: BSIK 03053
+
+<LI>Thomas Sutter, Ph.D.  <!--All array handling and ~$20,000 for array chemistry -->
+<BR>Grant Support: INIA U01 AA13515 and the W. Harry Feinstone Center for Genome Research
+
+<LI>Stephen Whatley, Ph.D.  <!--$5,000 contribution -->
+<BR>Grant Support: XXXX
+
+<LI>Robert W. Williams, Ph.D. <!--Consortium director, design, error checking, metadata, and GeneNetwork-->
+<BR>Grant Support: NIH U01AA013499, P20MH062009, U01AA013499, U01AA013513
+</UL><br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Citation:</span></td></tr>
+	<tr><td>
+<P>Please cite: Overall RW, Kempermann G, Peirce J, Lu L, Goldowitz D, Gage FH, Goodwin S, Smit AB, Airey DC, Rosen GD, Schalkwyk LC, Sutter TR, Nowakowski RS, Whatley S, Williams RW (<a href="http://frontiersin.org/neurogenomics/paper/pending/0/815/"  target="_blank" class="normalsize">2009</a>) Genetics of the hippocampal transcriptome in mice: a systematic survey and online neurogenomic resource. Front. Neurogen. 1:3   <A href="http://frontiersin.org/neurogenomics/paper/pending/0/815/" target="_blank" class="smallsize"><I>Full Text HTML</I></A>  doi:10.3389/neuro.15.003.2009
+
+<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Submission Date:</span></td></tr>
+	<tr><td> 01 Jul. 2009<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Laboratory:</span></td></tr>
+	<tr><td> Williams and Lu Labs<br><br></td></tr>
+<tr><td><span style="font-size:115%;font-weight:bold;">Samples:</span></td></tr>
+	<tr><td> None<br><br></td></tr>
+</table>
+</p>
+</td>
+
+		</TR>
+		</TABLE>
+		</TD>
+	</TR>
+	<!-- End of body -->
+{% endblock %}

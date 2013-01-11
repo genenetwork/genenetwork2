@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Marker Regression{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/packages/jqplot/jquery.jqplot.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
+{% endblock %}
+{% block content %} <!-- Start of body -->
+
+    <header class="jumbotron subhead" id="overview">
+        <div class="container">
+            <h1>Marker Regression</h1>
+            <p class="lead">
+                {{ this_trait.name }}: {{ this_trait.description_fmt }}
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="manhattan_plots" class="manhattan_plots"></div>
+        <div id="permutation_histogram" class="permutation_histogram"></div>
+    </div>
+
+
+    <!-- End of body -->
+
+{% endblock %}
+
+{% block js %}  
+    <script>
+        js_data = {{ js_data | safe }}
+    </script>
+
+    <!--[if lt IE 9]>
+        <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>
+    <![endif]-->
+    <script language="javascript" type="text/javascript" src="/static/packages/jqplot/jquery.jqplot.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.pointLabels.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.barRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.markerRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/marker_regression.js"></script>
+{% endblock %}

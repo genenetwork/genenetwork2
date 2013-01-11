@@ -1,0 +1,2 @@
+- Ask Rob about potentially recoding qtlreaper
+- Ask Rob about Probe/cellid traits

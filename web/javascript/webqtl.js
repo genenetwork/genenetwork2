@@ -38,16 +38,16 @@ function makeTree(thisForm, nnn){
 			j += 1;
 		}
 	}
-	
+
 	var windowName = 'formTarget' + (new Date().getTime());
 	var newWindow = open("", windowName,"width=900,menubar=0,toolbar=1,resizable=1,status=1,scrollbars=1");
 	var html = "";
 	if (j > 0)
-	{	
+	{
 		var waithtml1 ="<Blockquote class='title' id='red'>Your list of "+j+" transcripts is being exported to the Gene Ontology Tree Machine for analysis. This window will soon be replaced with the main GOTM results.</Blockquote>";
 	}
 	else
-	{	
+	{
 		var waithtml1 ="<Blockquote class='title' id='red'>Your should select at least one transcript to export to the Gene Ontology Tree Machine for analysis.</Blockquote>";
 	}
   	html +=  waithtml1;
@@ -152,7 +152,11 @@ function showDatabase3(formName, Database,ProbeSetID,CellID){
 	document[formName].database.value = Database;
 	document[formName].ProbeSetID.value = ProbeSetID;
 	document[formName].CellID.value = CellID;
-	document[formName].submit();
+	console.log("formName:", formName)
+	console.log("document[formName]:", document[formName])
+	console.log("submit turned off for debugging")
+	console.log("showDatabase3 is deprecated for the flask version of this site")
+	//document[formName].submit();
 }
 
 
@@ -188,10 +192,10 @@ function showTrait(fmName){
 	var thisForm = getForm(fmName);
 	if (thisForm == null || showTrait.arguments.length < 2)
 		return;
-	
+
 	windowName = genNewWin();
 	thisForm.target = windowName;
-	
+
 	thisForm.FormID.value = "showDatabase";
 	thisForm.ProbeSetID.value = showTrait.arguments[1];
 	if (showTrait.arguments.length > 2)
@@ -205,10 +209,10 @@ function showCateGraph(fmName){
 	var thisForm = getForm(fmName);
 	if (thisForm == null || showCateGraph.arguments.length < 2)
 		return;
-	
+
 	windowName = genNewWin();
 	thisForm.target = windowName;
-	
+
 	thisForm.FormID.value = "showCategoryGraph";
 	thisForm.interval1.value = showCateGraph.arguments[1];
 	thisForm.interval2.value = showCateGraph.arguments[2];
@@ -219,22 +223,22 @@ function showCorrPlot(fmName){
 	var thisForm = getForm(fmName);
 	if (thisForm == null || showCorrPlot.arguments.length < 2)
 		return;
-	
+
 	windowName = genNewWin();
 	thisForm.target = windowName;
-	
+
 	thisForm.FormID.value = "showCorrelationPlot";
 	thisForm.ProbeSetID.value = showCorrPlot.arguments[1];
 	if (showCorrPlot.arguments.length > 2)
 		thisForm.CellID.value = showCorrPlot.arguments[2];
 	else
 		thisForm.CellID.value = "";
-	
+
 	thisForm.X_geneSymbol.value = null;
 	thisForm.Y_geneSymbol.value = null;
 
 	thisForm.submit();
-	
+
 }
 
 
@@ -242,12 +246,12 @@ function showCorrPlotThird(fmName){
 	var thisForm = getForm(fmName);
 	if (thisForm == null || showCorrPlotThird.arguments.length < 3)
 		return;
-	
+
 	windowName = genNewWin();
 	thisForm.target = windowName;
-	
+
 	var olddb = thisForm.database.value;
-	
+
 	thisForm.FormID.value = "showCorrelationPlot";
 	thisForm.database.value = showCorrPlotThird.arguments[1];
 	thisForm.ProbeSetID.value = showCorrPlotThird.arguments[2];
@@ -284,15 +288,15 @@ function ODE(thisForm, script){
 	var windowName = 'formTarget' + (new Date().getTime());
 	var newWindow = open("", windowName, "width=900,menubar=0,toolbar=1,resizable=1,status=1,scrollbars=1");
 	var html = "";
-	if (j == 0){	
+	if (j == 0){
 		j = length;
 		trait_list2 = trait_list_all;
 		correlation2 = correlation_all;
 		llid_list2 = llid_list_all;
 	}
-	
+
 	var waithtml1 ="<Blockquote class='title' id='red'>Your list of "+j+" transcripts is being exported to the ODE for analysis. This window will soon be replaced with the results.</Blockquote>";
-	
+
   	html +=  waithtml1;
   	newWindow.document.write(html);
   	newWindow.document.close();
@@ -302,14 +306,14 @@ function ODE(thisForm, script){
 		thisForm.correlation.value = correlation2.join(',');
 		thisForm.id_value.value = thisForm.correlation.value;
 		thisForm.llid_list.value = llid_list2.join(',');
-		
+
 		// ODE
-		
+
 		thisForm.idtype.value = thisForm.id_type.value;
 		thisForm.species.value = thisForm.org.value;
 		thisForm.list.value = thisForm.id_list.value;
 		thisForm.client.value = "genenetwork";
-		
+
 		thisForm.target = windowName;
 		var oldaction = thisForm.action;
 		thisForm.action = script;
@@ -318,13 +322,13 @@ function ODE(thisForm, script){
 	}
 }
 */
-// 02/12/2009 
+// 02/12/2009
 // Lei Yan
 
 /*scripts in the Dataediting form*/
 
 function dataEditingFunc(thisForm,submitIdValue){
-	
+
 	windowName = 'formTarget' + (new Date().getTime());
 
 	if (thisForm.FormID.value!='secondRegression'){
@@ -336,7 +340,7 @@ function dataEditingFunc(thisForm,submitIdValue){
 	}
 
 	else if (submitIdValue == "addRecord"){
-		windowName = thisForm.RISet.value;	
+		windowName = thisForm.RISet.value;
 		var name = thisForm.identification.value;
 		if (name != ""){
 		}
@@ -352,7 +356,7 @@ function dataEditingFunc(thisForm,submitIdValue){
 
 	newWindow = open("",windowName,"menubar=1,toolbar=1,location=1,resizable=1,status=1,scrollbars=1,directories=1,width=900");
 	thisForm.target = windowName;
-	newWindow.focus();		
+	newWindow.focus();
 	thisForm.submitID.value = submitIdValue;
 	thisForm.submit();
 }
@@ -394,7 +398,7 @@ function addRmvSelection(windowName, thisForm, addORrmv){
 	thisForm.target = windowName;
 	thisForm.FormID.value = addORrmv;
 	thisForm.submit();
-	newWindow.focus();	
+	newWindow.focus();
 }
 
 function batchSelection(thisForm){
@@ -424,7 +428,7 @@ function showTop10(formName, submitIdValue){
 	if ((submitIdValue == "markerRegression")||(submitIdValue == "compositeRegression")){
 		thisForm.topten.value = "topten";
 	}
-		
+
 	thisForm.submitID.value = submitIdValue;
 	thisForm.submit();
 }
@@ -441,12 +445,12 @@ function showIndividualChromosome(formName, submitIdValue, ii){
 	}
 	if (match == 0)
 		return;
-		
+
 	windowName = 'formTarget' + (new Date().getTime());
 	newWindow = open("",windowName,"menubar=1,toolbar=1,location=1,resizable=1,status=1,scrollbars=1,directories=1,width=900");
 	newWindow.focus();
 	thisForm.target = windowName;
-	
+
 	if (submitIdValue == "showIntMap"){
 		thisForm.chromosomes.value = ii;
 	}
@@ -529,10 +533,10 @@ function dataWindow(form){
 }
 
 
-function xchange() {  
+function xchange() {
   var select = document.crossChoice.RISet;
   var value = select.options[select.selectedIndex].value;
-  
+
   if (value !="BDAI") return;
   document.crossChoice.variance.checked = false;
 }
@@ -580,97 +584,97 @@ function crossinfo2(){
 
 function checkWidth(){
 	var width = document.getElementsByName('plotSize')[0].value
-	
+
 	if (width < 600) {
 		alert("Plot size is too small - setting size to 600")
 		document.getElementsByName('plotSize')[0].value = 600
-	}	
+	}
 }
 
 function changeLineColor(){
 	var lineColor = document.getElementsByName('lineColorSel')[0].value
-	
+
 	document.getElementsByName('lineColor')[0].value = lineColor
 }
 
 function changeLineSize(){
 	var lineSize = document.getElementsByName('lineSizeSel')[0].value
-	
+
 	document.getElementsByName('lineSize')[0].value = lineSize
 }
 
 function changeIdColor(){
 	var idColor = document.getElementsByName('idColorSel')[0].value
-	
+
 	document.getElementsByName('idColor')[0].value = idColor
 }
 
 function changeIdFont(){
 	var idFont = document.getElementsByName('idFontSel')[0].value
-	
+
 	document.getElementsByName('idFont')[0].value = idFont
 }
 
 function changeIdSize(){
 	var idSize = document.getElementsByName('idSizeSel')[0].value
-	
+
 	document.getElementsByName('idSize')[0].value = idSize
 }
 
 function changeSymbolColor(){
 	var symbolColor = document.getElementsByName('colorSel')[0].value
-	
+
 	document.getElementsByName('symbolColor')[0].value = symbolColor
 }
 
 function changeSymbol(){
 	var symbol = document.getElementsByName('symbolSel')[0].value
-	
+
 	document.getElementsByName('symbol')[0].value = symbol
 }
 
 function changeFilled(){
 	var filled = document.getElementsByName('fillSel')[0].value
-	
+
 	document.getElementsByName('filled')[0].value = filled
 }
 
 function changeSize(){
 	var symbolSize = document.getElementsByName('sizeSel')[0].value
-	
+
 	document.getElementsByName('symbolSize')[0].value = symbolSize
 }
 
 
-function checkAll(thisForm){ 
+function checkAll(thisForm){
 	var length = thisForm.searchResult.length;
 	for(var i = 0; i < length; i++)
 	{
 		thisForm.searchResult[i].checked = true;
 		highlight(thisForm.searchResult[i]);
 	}
-} 
+}
 
-function checkNone(thisForm){ 
+function checkNone(thisForm){
 	var length = thisForm.searchResult.length;
 	for(var i = 0; i < length; i++)
 	{
 		thisForm.searchResult[i].checked = false;
 		highlight(thisForm.searchResult[i]);
 	}
-} 
+}
 
-function checkInvert(thisForm){ 
+function checkInvert(thisForm){
 	var length = thisForm.searchResult.length;
 	for(var i = 0; i < length; i++)
 	{
 		thisForm.searchResult[i].checked = !(thisForm.searchResult[i].checked);
 		highlight(thisForm.searchResult[i]);
 	}
-} 
+}
 
 /*Not used anymore*/
-function checkTraits2(thisForm){ 
+function checkTraits2(thisForm){
 	var length = thisForm.searchResult.length;
 	var category = thisForm.selectmenu.value;
 	for(var i = 0; i < length; i++)
@@ -720,18 +724,18 @@ function checkTraits2(thisForm){
 		else
 			{}
 	}
-} 
+}
 
 
 function checkNumeric(field,limit,resetvalue,compares,fdname)
 	{
-		pattern = /^-?[0-9]*\.?[0-9]*$/; 
+		pattern = /^-?[0-9]*\.?[0-9]*$/;
 		if(pattern.test(field.value)==false)
 		{
 			alert("Not numeric in " + fdname);
 			field.value = resetvalue;
 		}
-		else 
+		else
 		{
 			if (compares == 'gthan') {
 			if(field.value > limit)
@@ -748,7 +752,7 @@ function checkNumeric(field,limit,resetvalue,compares,fdname)
 		}
 	}
 
-function checkTraits(thisForm){ 
+function checkTraits(thisForm){
 	var length = thisForm.searchResult.length;
 	var andor = thisForm.selectandor.value;
 	var gthan = parseFloat(thisForm.selectgt.value);
@@ -780,7 +784,7 @@ function checkTraits(thisForm){
 }
 
 
-function checkPM(thisForm){ 
+function checkPM(thisForm){
 	var length = thisForm.searchResult.length;
 	for(var i = 0; i < length; i++)
 	{
@@ -792,8 +796,8 @@ function checkPM(thisForm){
 			{thisForm.searchResult[i].checked = false;}
 		highlight(thisForm.searchResult[i]);
 	}
-} 
-function checkMM(thisForm){ 
+}
+function checkMM(thisForm){
 	var length = thisForm.searchResult.length;
 	for(var i = 0; i < length; i++)
 	{
@@ -804,14 +808,14 @@ function checkMM(thisForm){
 			{thisForm.searchResult[i].checked = false;}
 		highlight(thisForm.searchResult[i]);
 	}
-} 
+}
 
 
-function directPermuAlert(thisForm){ 
-	if (thisForm.directPermuCheckbox.checked){ 
-		alert("Interaction permutation will take long time to compute.\n Check this box only when necessary."); 
+function directPermuAlert(thisForm){
+	if (thisForm.directPermuCheckbox.checked){
+		alert("Interaction permutation will take long time to compute.\n Check this box only when necessary.");
 	}
-} 
+}
 
 function cliqueDatabase(pid){
 	var windowName = 'clique';
@@ -869,7 +873,7 @@ function snpbrowser_function_refresh() {
       for (var i=1; i<document.newSNPPadding.exonfunction.length; i++) {
           document.newSNPPadding.exonfunction.options[i].selected=false;
       }
-   } 
+   }
 }
 
 function snpbrowser_domain_refresh() {
@@ -889,7 +893,7 @@ function showHideOptions() {
 	var options = document.getElementById("options");
 	var showOptions = document.getElementsByName("showOptions")[0];
 	var optionsButton = document.getElementsByName("optionsButton")[0];
-	
+
 	if (showOptions.value == '0') {
 		showOptions.value = '1';
 		optionsButton.value = "Hide Options";
@@ -898,22 +902,22 @@ function showHideOptions() {
 		showOptions.value = '0';
 		optionsButton.value = "Show Options";
 	}
-	
-	options.style.display = (options.style.display != 'none' ? 'none' : '' );	
+
+	options.style.display = (options.style.display != 'none' ? 'none' : '' );
 }
 
 function editPCAName(thisForm) {
 	var pcaTraits = document.getElementsByName("searchResult");
-	
+
 	var nameArray = new Array();
-	
+
 	for (j=1; j<=pcaTraits.length; j++){
 		var traitName = "pcaTrait" + String(j);
 		var pcaTrait = document.getElementById(traitName).childNodes[0].innerHTML;
 		var editID = "editName" + String(j);
 		var editName = document.getElementsByName(editID)[0].value;
 		var originalName = pcaTrait.split(":")[3];
-		
+
 		if (editName.length < 1) {
 			nameArray.push(originalName);
 		}
@@ -921,13 +925,13 @@ function editPCAName(thisForm) {
 			nameArray.push(editName);
 		}
 	}
-	
+
 	var newNames = nameArray.join(",");
-	
+
 	thisForm.newNames.value = newNames;
 	thisForm.searchResult = thisForm.oldSearchResult;
 	thisForm.FormID.value = "corMatrix";
-	
+
 	thisForm.submit();
 }
 
@@ -950,7 +954,7 @@ function unknownChipError(chipName){
 }
 
 /*
-Used by PartialCorrInputPage.py, 
+Used by PartialCorrInputPage.py,
 */
 function validateTrait(thisForm, inputRadioNames, type, method)
 {
@@ -1029,7 +1033,7 @@ function validateTrait(thisForm, inputRadioNames, type, method)
         }
 
     }
-    
+
 }
 
 /*
@@ -1044,7 +1048,7 @@ function changeView(i, Chr_Mb_list){
 	newWindow = open('',windowName,'menubar=1,toolbar=1,location=1,resizable=1,status=1,scrollbars=1,directories=1,width=900');
 	document.changeViewForm.target = windowName;
 	document.changeViewForm.chromosomes.selectedIndex = i+1;
-	document.changeViewForm.startMb.value = '0.000000'; 
+	document.changeViewForm.startMb.value = '0.000000';
 	document.changeViewForm.endMb.value = Chr_Mb_list[i];
 	document.changeViewForm.graphWidth.value = 1280;
 	document.changeViewForm.submit();
@@ -1076,7 +1080,7 @@ used by networkGraphPageBody.py
 function changeFormat(graphName){
 	var graphFormat = document.getElementById('exportFormat').value;
 	var traitType = document.getElementById('traitType').value;
-	
+
 	if (graphFormat=="xgmml"){
 		if (traitType=="symbol"){
 			var graphname = graphName+ "_xgmml_symbol.txt";
@@ -1087,7 +1091,7 @@ function changeFormat(graphName){
 			document.getElementById('exportGraphFile').onclick = function() { window.open(graphname) };
 		}
 	}
-	
+
 	else if (graphFormat=="plain")
 	{
 		if (traitType=="symbol")
@@ -1102,7 +1106,7 @@ function changeFormat(graphName){
 		}
 	}
 
-} 
+}
 
 
 /*
@@ -1126,13 +1130,13 @@ function set_customStrains_cookie() {
 }
 
 /*
-* moved from beta2.js 
-*/	
+* moved from beta2.js
+*/
 function centerIntervalMapOnRange2(chr, start, stop, form) {
 	var oldindex = form.chromosomes.selectedIndex;
 	var oldstart = form.startMb.value;
 	var oldend = form.endMb.value;
-	
+
 	for (var i = 1; i < form.chromosomes.length; i++){
 		if(form.chromosomes.options[i].text == chr){
 			form.chromosomes.selectedIndex = i;
@@ -1145,12 +1149,12 @@ function centerIntervalMapOnRange2(chr, start, stop, form) {
 	form.chromosomes.selectedIndex = oldindex;
 	form.startMb.value = oldstart;
 	form.endMb.value = oldend;
-	
+
 }
 
 /*
-* moved from index3.html 
-*/	
+* moved from index3.html
+*/
 
 String.prototype.trim = function(){
 	return this.replace(/(^\s*)|(\s*$)/g, "");
@@ -1282,13 +1286,13 @@ function showTissueCorrPlot(fmName,geneSymbol1, geneSymbol2,rank){
     var thisForm = getForm(fmName);
     if (thisForm == null || showTissueCorrPlot.arguments.length < 3)
     	return;
-	
+
 	if (rank){
 		thisForm.rankOrder.value = rank;
 	}else{
 		thisForm.rankOrder.value = 0;
 	}
-    
+
     windowName = genNewWin();
     thisForm.target = windowName;
 
@@ -1302,7 +1306,7 @@ function showTissueCorrPlot(fmName,geneSymbol1, geneSymbol2,rank){
     if(typeof(thisForm.ProbeSetID2) !== 'undefined'){
     	thisForm.ProbeSetID2.value = 'none';
     }
-    thisForm.submit();	
+    thisForm.submit();
 }
 
 /* Used by MarkerRegressionPage.py */
@@ -1317,7 +1321,7 @@ function validatePvalue(thisForm){
 	{
 		alert("Please enter numeric value.");
 		thisForm.pValue.focus();
-	}	
+	}
 	else if (pValue <0){
 		alert("Please enter the valid P-Value.");
 		thisForm.pValue.focus();
@@ -1327,7 +1331,7 @@ function validatePvalue(thisForm){
 
 	}
 
-	
+
 
 }
 
@@ -1338,9 +1342,9 @@ function showTissueAbbr(fmName,shortname, fullname){
     thisForm.FormID.value = 'tissueAbbreviation';
     thisForm.shortTissueName.value=shortname;
     thisForm.fullTissueName.value=fullname;
-	
+
     thisForm.submit();
     thisForm.FormID.value = 'showCorrelationPlot';
     thisForm.target =''
-	
+
 }

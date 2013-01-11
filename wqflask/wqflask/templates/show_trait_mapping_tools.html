@@ -1,0 +1,159 @@
+<div>
+    <h2>Mapping Tools</h2>
+    <div class="well form-horizontal">
+        <div class="tabbable"> <!-- Only required for left/right tabs -->
+            <ul class="nav nav-pills">
+                <li class="active">
+                    <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
+                </li>
+                <li>
+                    <a href="#marker_regression" data-toggle="tab">Marker Regression</a>
+                </li>
+                <!--<li>
+                    <a href="#pair_scan" data-toggle="tab">Pair Scan</a>
+                </li>-->
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="interval_mapping">
+                    <div class="control-group">
+                        <label for="chromosome" class="control-label">Chromosome</label>
+                        <div class="controls">
+                            <select name="chromosome">
+                                {% for name, value in dataset.species.chromosomes.chromosomes.items() %}
+                                <option value="{{ value }}">{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+    
+                    <div class="control-group">
+                        <label for="mapping_permutations" class="control-label">Permutations (n)</label>
+                        <div class="controls">
+                            <input name="num_perm1" value="2000" type="text" />
+                        </div>
+                    </div>
+    
+                    <div class="control-group">
+                        <label for="mapping_bootstraps" class="control-label"
+                               title="Bootstrapping Resamples">Bootstrap (n)</label>
+                        <div class="controls">
+                            <input name="mapping_bootstraps" value="2000" type="text" />
+                        </div>
+                    </div>
+                    
+               
+                    {% if dataset.group.genotype.Mbmap %}
+                    <div class="control-group">
+                        <label class="control-label">Scale</label>
+                        <div class="controls">                      
+                        <label class="radio inline">
+                            <input type="radio" name="scale" id="scale" value="megabase" checked>
+                            Megabase
+                        </label>
+                        <label class="radio inline">
+                            <input type="radio" name="scale" id="scale" value="centimorgan">
+                            Centimorgan
+                        </label>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="control-group">
+                        <label class="control-label"><b>Composite Mapping</b></label>
+                        <div class="controls" id="use_composite_choice">                      
+                            <label class="radio inline">
+                                <input type="radio" name="use_composite"
+                                       id="use_composite" value="yes">
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="use_composite"
+                                       id="use_composite" value="no" checked>
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    <div class="control-group composite_fields" style="display: none;"
+                         id="choose_closet_control">
+                        <label class="control-label">Use Closest Marker</label>
+                        <div class="controls">                      
+                            <label class="radio inline">
+                                <input type="radio" name="default_control_locus"
+                                       id="default_control_locus" value="yes" checked>
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="default_control_locus"
+                                       id="default_control_locus" value="no">
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    <div class="control-group composite_fields" style="display: none;">
+                        <label for="control_locus" class="control-label"
+                               title="Control Locus">Control Locus</label>
+                        <div class="controls">
+                            <input name="control_locus" placeholder="rs12345" id="control_locus"
+                                    type="text" disabled />
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="controls">
+                            <button class="btn btn-inverse submit_special"
+                                    data-url="/interval_mapping"
+                                    title="Compute Interval Mapping">
+                                <i class="icon-ok-circle icon-white"></i> Compute
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane" id="marker_regression">
+                    <div class="control-group" id="display_all_lrs">
+                        <label class="control-label">Display all LRS</label>
+                        <div class="controls">                      
+                            <label class="radio inline">
+                                <input type="radio" name="display_all_lrs"
+                                       id="display_all_lrs" value=True>
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="display_all_lrs"
+                                       id="display_all_lrs" value=False checked>
+                                No
+                            </label>
+                        </div>
+                    </div>                  
+                    <div class="control-group">
+                        <label for="suggestive_lrs" class="control-label"
+                               title="Control Locus">LRS greater than</label>
+                        <div class="controls">
+                            <input name="suggestive_lrs" id="suggestive_lrs" type="text" />
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="marker_reg_permutations" class="control-label">Permutations (n)</label>
+                        <div class="controls">
+                            <input name="num_perm" value="2000" type="text" />
+                        </div>
+                    </div>                    
+                    
+                    <div class="control-group">
+                        <div class="controls">
+                            <button class="btn btn-inverse submit_special"
+                                    data-url="/marker_regression"
+                                    title="Compute Marker Regression">
+                                <i class="icon-ok-circle icon-white"></i> Compute
+                            </button>
+                        </div>
+                    </div>                    
+                    
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

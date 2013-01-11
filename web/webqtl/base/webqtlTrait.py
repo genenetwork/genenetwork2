@@ -9,6 +9,10 @@ from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 
 
+from __future__ import print_function, division
+
+from pprint import pformat as pf
+
 class webqtlTrait:
 	"""
 	Trait class defines a trait in webqtl, can be either Microarray, 	
@@ -215,6 +219,9 @@ class webqtlTrait:
 	def retrieveData(self, strainlist=[]):
 		assert self.db and self.cursor
 
+		debug_file = open("/home/zas1024/gn/web/traitlist_debug.txt", "w")
+		debug_file.write("strianlist is:" + strainlist + "\n")
+
 		if self.db.type == 'Temp':
 			query = '''
 				SELECT 
@@ -341,6 +348,8 @@ class webqtlTrait:
 			#end if
 		else:
 			pass
+
+		debug_file.write("self.data is:", pf(self.data) + "\n")
 			
 	def keys(self):
 		return self.__dict__.keys()

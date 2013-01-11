@@ -1,0 +1,19 @@
+.manhattan_plot_segment {
+    position:relative;
+    display:inline;
+    height: 400px;
+    width: 150px;
+    float: left;
+    clear: none;
+}
+
+.manhattan_plots {
+    clear: both;
+}
+
+.permutation_histogram {
+    display: block;
+    height: 400px;
+    width: 900px;
+    clear: both;
+}
