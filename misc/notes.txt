@@ -1,3 +1,8 @@
+Clone code from git repository:
+git clone http://github.com/zsloan/genenetwork.git gene 
+
+============================================
+
 To get server running:
 
 !If having seemingly inexplicable problems with imports, make sure I've started the environment!
@@ -26,6 +31,9 @@ Start screen session:
 byobu -RD (to start)
 control-a then :multiuser on
 control-a then :acladd sam
+
+More info on sharing byobu screen with other users:
+http://wiki.networksecuritytoolkit.org/nstwiki/index.php/HowTo_Share_A_Terminal_Session_Using_Screen
 
 control-a c to create channel
 
@@ -60,7 +68,11 @@ unset SSH_ASKPASS
 htop: Gives information on processes, cpu/memory load, etc
 dstat: Also gives various system information, resource usage, etc
 df: Reports file system disk space usage
-d
+
+===========================================
+
+ll h*: Finds items in the directory starting with h
+
 ===========================================
 
 tidyp - Improves/beautifies html code
