@@ -526,51 +526,6 @@ class MarkerRegression(object):
         #permutation = HT.TableLite()
         #permutation.append(HT.TR(HT.TD(img)))
 
-
-        #########################################
-        #      Genome Association report
-        #########################################
-        #locusFormName = webqtlUtil.genRandStr("fm_")
-        #locusForm = HT.Form(cgi = os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), \
-        #        enctype='multipart/form-data', name=locusFormName, submit=HT.Input(type='hidden'))
-        #hddn = {'FormID':'showDatabase','ProbeSetID':'_','database':fd.RISet+"Geno",'CellID':'_', \
-        #        'RISet':fd.RISet, 'incparentsf1':'on'}
-        #for key in hddn.keys():
-        #    locusForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
-
-        #regressionHeading = HT.Paragraph('Genome Association Report')
-        #regressionHeading.__setattr__("class","title")
-        # report is the info part above report table
-        
-        #if qtlresults2 != []:
-        #    report = HT.Blockquote(HT.Font('No association ',color="#FF0000"),HT.Font('with a likelihood ratio statistic greater than %3.1f was found. Here are the top 10 LRSs.' % fd.suggestive,color="#000000"))
-        #else:
-        #    report = HT.Blockquote('The following loci in the %s data set have associations with the above trait data.\n' % fd.RISet, HT.P())
-        
-        
-        #report.__setattr__("class","normalsize")
-
-        #fpText = open('%s.txt' % (webqtlConfig.TMPDIR+filename), 'wb')
-        #fpText.write('Suggestive LRS =%3.2f\n'%self.suggestive)
-        #fpText.write('Significant LRS =%3.2f\n'%self.significance)
-        #fpText.write('Highly Significant LRS =%3.2f\n'%self.highlysignificant)
-        #LRSInfo =HT.Paragraph('&nbsp;&nbsp;&nbsp;&nbsp;Suggestive LRS =%3.2f\n'%fd.suggestive, HT.BR(), '&nbsp;&nbsp;&nbsp;&nbsp;Significant LRS =%3.2f\n'%fd.significance,HT.BR(),'&nbsp;&nbsp;&nbsp;&nbsp;Highly Significant LRS =%3.2f\n' % self.highlysignificant)
-
-        #textUrl = HT.Href(text = 'Download', url= '/tmp/'+filename+'.txt', target = "_blank", Class='fs12 fwn')
-
-        #bottomInfo = HT.TR(HT.TD(HT.Paragraph(textUrl, ' result in tab-delimited text format.', HT.BR(), HT.BR(),'LRS values marked with',HT.Font(' * ',color="red"), 'are greater than the significance threshold (specified by you or by permutation test). ' , HT.BR(), HT.BR(), HT.Strong('Additive Effect'), ' is half the difference in the mean phenotype of all cases that are homozygous for one parental allel at this marker minus the mean of all cases that are homozygous for the other parental allele at this marker. ','In the case of %s strains, for example,' % fd.RISet,' A positive additive effect indicates that %s alleles increase trait values. Negative additive effect indicates that %s alleles increase trait values.'% (fd.ppolar,fd.mpolar),Class="fs12 fwn")))
-
-        #tblobj={}       # build dict for genTableObj function; keys include header and body
-        #tblobj_header = [] # value of key 'header'
-        #tblobj_body=[]          # value of key 'body'
-        #reportHeaderRow=[]      # header row list for tblobj_header (html part)
-        #headerStyle="fs14 fwb ffl b1 cw cbrb" # style of the header
-        #cellColorStyle = "fs13 b1 fwn c222" # style of the cells
-
-        #headerList=['Index','LRS','Chr','Mb','Locus','Additive Effect']
-        #for ncol, item in enumerate(headerList):
-        #    reportHeaderRow.append(THCell(HT.TD(item, Class=headerStyle, valign='bottom',nowrap='ON'),text=item, idx=ncol))
-        
         for marker in filtered_results:
             if marker.lrs > webqtlConfig.MAXLRS:
                 marker.lrs = webqtlConfig.MAXLRS
