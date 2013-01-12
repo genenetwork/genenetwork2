@@ -1,9 +1,9 @@
 Flask==0.9
 Jinja2==2.6
-MySQL-python==1.2.3
+#MySQL-python==1.2.3
 Piddle==0.1-dev
 PyYAML==3.10
-Reaper==1.0
+#Reaper==1.0
 SQLAlchemy==0.7.9
 Werkzeug==0.8.3
 ipython==0.13.1
