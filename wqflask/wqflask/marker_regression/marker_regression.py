@@ -19,9 +19,9 @@ from htmlgen import HTMLgen2 as HT
 from utility import Plot, Bunch
 from wqflask.interval_analyst import GeneUtil
 from base.trait import GeneralTrait
-from base.data_set import create_dataset
+from base import data_set
 from base.templatePage import templatePage
-from utility import webqtlUtil
+from utility import webqtlUtil, helper_functions
 from base import webqtlConfig
 from dbFunction import webqtlDatabaseFunction
 from base.GeneralObject import GeneralObject
@@ -54,10 +54,8 @@ class MarkerRegression(object):
 
         #print("start_vars are: ", pf(start_vars))
 
-        self.dataset = create_dataset(start_vars['dataset_name'])
-        self.this_trait = GeneralTrait(dataset=self.dataset.name,
-                                       name=start_vars['trait_id'],
-                                       cellid=None)        
+        helper_functions.get_dataset_and_trait(self, start_vars)
+
         self.num_perm = int(start_vars['num_perm'])
 
         # Passed in by the form (user might have edited)
@@ -66,9 +64,6 @@ class MarkerRegression(object):
         self.samples = []   # Want only ones with values
         self.vals = []
         self.variances = []
-        
-        self.dataset.group.read_genotype_file()
-        self.genotype = self.dataset.group.genotype
         
         assert start_vars['display_all_lrs'] in ('True', 'False')
         self.display_all_lrs = True if start_vars['display_all_lrs'] == 'True' else False

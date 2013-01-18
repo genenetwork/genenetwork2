@@ -27,7 +27,7 @@
 # Refactored correlation calculation into smaller functions in preparation of
 # separating html from existing code
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function, division
 
 import string
 from math import *
@@ -47,12 +47,12 @@ from base import webqtlConfig
 from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.webqtlTrait import GeneralTrait
-from base.data_set import create_dataset
+from base import data_set
 from base.templatePage import templatePage
-from utility import webqtlUtil
+from utility import webqtlUtil, helper_functions
 from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
-import correlationFunction
+from wqflask.correlation import correlationFunction
 
 
 METHOD_SAMPLE_PEARSON = "1"
@@ -119,6 +119,7 @@ class Trait(object):
             if abs(self.correlation) >= 1.0:
                 self.p_value = 0.0
             else:
+                #Confirm that this division works after future import
                 ZValue = 0.5*log((1.0+self.correlation)/(1.0-self.correlation))
                 ZValue = ZValue*sqrt(self.overlap-3)
                 self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))
@@ -128,10 +129,9 @@ class Trait(object):
 #XZ, 01/14/2009: This method is for parallel computing only.
 #XZ: It is supposed to be called when "Genetic Correlation, Pearson's r" (method 1)
 #XZ: or "Genetic Correlation, Spearman's rho" (method 2) is selected
-def compute_corr( input_nnCorr, input_trait, input_list, computing_method):
+def compute_corr(input_nnCorr, input_trait, input_list, computing_method):
 
     allcorrelations = []
-
     for line in input_list:
         tokens = line.split('","')
         tokens[-1] = tokens[-1][:-2] #remove the last "
@@ -257,11 +257,11 @@ def auth_user_for_db(db, cursor, target_db_name, privilege, username):
                 raise AuthException("The %s database you selected is not open to the public at this time, please go back and select other database." % indFullName)
 
 
-class CorrelationPage(templatePage):
+class CorrelationResults(object):
 
     corr_min_informative = 4
 
-    PAGE_HEADING = "Correlation Table"
+    #PAGE_HEADING = "Correlation Table"
     #CORRELATION_METHODS = {"1" : "Genetic Correlation (Pearson's r)",
     #                       "2" : "Genetic Correlation (Spearman's rho)",
     #                       "3" : "SGO Literature Correlation",
@@ -271,98 +271,110 @@ class CorrelationPage(templatePage):
     #RANK_ORDERS = {"1": 0, "2": 1, "3": 0, "4": 0, "5": 1}
 
 
-    def error(self, message, *args, **kw):
-        heading = heading or self.PAGE_HEADING
-        return templatePage.error(heading = heading, detail = [message], error=error)
+    #def error(self, message, *args, **kw):
+    #    heading = heading or self.PAGE_HEADING
+    #    return templatePage.error(heading = heading, detail = [message], error=error)
 
-    def __init__(self, fd):
-        #print("in CorrelationPage __init__ fd is:", pf(fd.__dict__))
-        # Call the superclass constructor
+    def __init__(self, start_vars):
+        #self.dataset = create_dataset(start_vars['dataset_name'])
+        #self.dataset.group.read_genotype_file()
+        #self.genotype = self.dataset.group.genotype
+        #
+        #self.this_trait = GeneralTrait(dataset=self.dataset.name,
+        #                               name=start_vars['trait_id'],
+        #                               cellid=None)                
+        
+        helper_functions.get_dataset_and_trait(self, start_vars)
+        
+        self.samples = []   # Want only ones with values
+        self.vals = []
+        self.variances = []
 
-        # Put everything in fd into self
-        self.__dict__.update(fd.__dict__)
+        corr_samples_group = start_vars['corr_samples_group']
+        if corr_samples_group != 'samples_other':
+            self.process_samples(start_vars, self.dataset.group.samplelist, ())
+            #for sample in self.dataset.group.samplelist:
+            #    value = start_vars['value:' + sample]
+            #    variance = start_vars['variance:' + sample]
+            #    if variance.strip().lower() == 'x':
+            #        variance = 0
+            #    else:
+            #        variance = float(variance)
+            #    if value.strip().lower() != 'x':
+            #        self.samples.append(str(sample))
+            #        self.vals.append(float(value))
+            #        self.variances.append(variance)
+        
+        if corr_samples_group != 'samples_primary':
+            primary_samples = (self.dataset.group.parlist +
+                                   self.dataset.group.f1list +
+                                   self.dataset.group.samplelist)
+            self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
+            #for sample in self.this_trait.data.keys():
+            #    if sample not in primary_samples:
+            #        value = start_vars['value:' + sample]
+            #        variance = start_vars['variance:' + sample]
+            #        if variance.strip().lower() == 'x':
+            #            variance = 0
+            #        else:
+            #            variance = float(variance)
+            #        if value.strip().lower() != 'x':
+            #            self.samples.append(str(sample))
+            #            self.vals.append(float(value))
+            #            self.variances.append(variance)
 
-        templatePage.__init__(self, fd)
+        print("self.samples is:", pf(self.samples))
 
-        #print("in CorrelationPage __init__ now fd is:", pf(fd.__dict__))
-        # Connect to the database
-        if not self.openMysql():
-            return
-
-        # Read the genotype from a file
-        if not fd.genotype:
-            fd.readGenotype()
-
-        sample_list = get_sample_data(fd)
-        print("sample_list is", pf(sample_list))
-
-        # Whether the user chose BXD Only, Non-BXD Only, or All Strains
-        # (replace BXD with whatever the group/inbredset name is)
-        # "mdp" stands for "mouse diversity panel" This is outdated; it now represents any
-        # cases/strains from the non-primary group
-        mdp_choice = fd.MDPChoice if fd.allstrainlist else None
-
-        self.species = get_species(fd, self.cursor)
+        #sample_list = get_sample_data(fd)
+        #print("sample_list is", pf(sample_list))
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset
-        self.target_db_name = fd.corr_dataset
+        self.target_db_name = start_vars['corr_dataset']
 
+        # Zach said this is ok
+        # Auth if needed
         #try:
-        #print("target_db_name is:", target_db_name)
-        self.db = create_dataset(self.db_conn, self.target_db_name)
-        #except:
-        #    detail = ["The database you just requested has not been established yet."]
-        #    self.error(detail)
-        #    return
-
-         # Auth if needed
-        try:
-            auth_user_for_db(self.db, self.cursor, self.target_db_name, self.privilege, self.userName)
-        except AuthException as e:
-            detail = [e.message]
-            return self.error(detail)
+        #    auth_user_for_db(self.db, self.cursor, self.target_db_name, self.privilege, self.userName)
+        #except AuthException as e:
+        #    detail = [e.message]
+        #    return self.error(detail)
 
         #XZ, 09/18/2008: filter out the strains that have no value.
-        self.sample_names, vals, vars, N = fd.informativeStrains(sample_list)
+        #self.sample_names, vals, vars, N = fd.informativeStrains(sample_list)
 
-        print("samplenames is:", pf(self.sample_names))
+        #print("samplenames is:", pf(self.sample_names))
         #CF - If less than a minimum number of strains/cases in common, don't calculate anything
-        if len(self.sample_names) < self.corr_min_informative:
-            detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corr_min_informative, fd.RISet)]
-            self.error(heading=None, detail=detail)
-
-        for key, value in self.__dict__.items():
-            if key.startswith("corr"):
-                print("[red] %s - %s" % (key, value))
+        #if len(self.sample_names) < self.corr_min_informative:
+        #    detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corr_min_informative, fd.RISet)]
+        #    self.error(heading=None, detail=detail)
 
         #correlation_method = self.CORRELATION_METHODS[self.method]
         #rankOrder = self.RANK_ORDERS[self.method]
 
         # CF - Number of results returned
         # Todo: Get rid of self.returnNumber
-        self.returnNumber = self.corr_return_results
 
-        self.record_count = 0
+        #self.record_count = 0
 
-        myTrait = get_custom_trait(fd, self.cursor)
+        #myTrait = get_custom_trait(fd, self.cursor)
 
 
         # We will not get Literature Correlations if there is no GeneId because there is nothing
         # to look against
-        self.gene_id = int(fd.GeneId)
+        self.geneid = self.this_trait.geneid
 
         # We will not get Tissue Correlations if there is no gene symbol because there is nothing to look against
-        self.trait_symbol = myTrait.symbol
+        #self.trait_symbol = myTrait.symbol
 
 
         #XZ, 12/12/2008: if the species is rat or human, translate the geneid to mouse geneid
-        self.input_trait_mouse_gene_id = self.translateToMouseGeneID(self.species, self.gene_id)
+        self.input_trait_mouse_gene_id = self.translateToMouseGeneID(self.dataset.group.species, self.geneid)
 
         #XZ: As of Nov/13/2010, this dataset is 'UTHSC Illumina V6.2 RankInv B6 D2 average CNS GI average (May 08)'
         self.tissue_probeset_freeze_id = 1
 
-        traitList = self.correlate(vals)
+        traitList = self.correlate(self.vals)
 
         _log.info("Done doing correlation calculation")
 
@@ -741,13 +753,19 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
         else:
             self.dict['body'] = ""
 
-
-#############################
-#                           #
-# CorrelationPage Functions #
-#                           #
-#############################
-
+    def process_samples(self, start_vars, sample_names, excluded_samples):
+        for sample in sample_names:
+            if sample not in excluded_samples:
+                value = start_vars['value:' + sample]
+                variance = start_vars['variance:' + sample]
+                if variance.strip().lower() == 'x':
+                    variance = 0
+                else:
+                    variance = float(variance)
+                if value.strip().lower() != 'x':
+                    self.samples.append(str(sample))
+                    self.vals.append(float(value))
+                    self.variances.append(variance)    
 
     def getSortByValue(self, calculationMethod):
 
@@ -805,8 +823,7 @@ Resorting this table <br>
         """Returns the name of the reference database file with which correlations are calculated.
         Takes argument cursor which is a cursor object of any instance of a subclass of templatePage
         Used by correlationPage"""
-
-        query = 'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = "%s"' %  target_db_name
+ROM ProbeSetFreeze WHERE Name = "%s"' %  target_db_name
         self.cursor.execute(query)
         result = self.cursor.fetchone()
         Id = result[0]
@@ -817,6 +834,7 @@ Resorting this table <br>
         FileName = 'ProbeSetFreezeId_' + str(Id) + '_FullName_' + FullName + '.txt'
 
         return FileName
+        query = 'SELECT Id, FullName F
 
 
     #XZ, 01/29/2009: I modified this function.
@@ -835,26 +853,32 @@ Resorting this table <br>
     #XZ, 12/12/2008: if the species is rat or human, translate the geneid to mouse geneid
     #XZ, 12/12/2008: if the input geneid is 'None', return 0
     #XZ, 12/12/2008: if the input geneid has no corresponding mouse geneid, return 0
-    def translateToMouseGeneID (self, species, geneid):
-        mouse_geneid = 0;
+    def translateToMouseGeneID(self, species, geneid):
+        #mouse_geneid = 0
 
-        #if input geneid is None, return 0.
         if not geneid:
-            return mouse_geneid
+            return 0
+
+        #self.id, self.name, self.fullname, self.shortname = g.db.execute("""
+        #        SELECT Id, Name, FullName, ShortName
+        #        FROM %s
+        #        WHERE public > %s AND
+        #             (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
+        #  """ % (query_args)).fetchone()
 
         if species == 'mouse':
             mouse_geneid = geneid
         elif species == 'rat':
-            self.cursor.execute( "SELECT mouse FROM GeneIDXRef WHERE rat=%d" % int(geneid) )
-            record = self.cursor.fetchone()
-            if record:
-                mouse_geneid = record[0]
+            mouse_geneid = g.db.execute(
+                """SELECT mouse FROM GeneIDXRef WHERE rat='%d'""", int(geneid)).fetchone().mouse
+            #if record:
+            #    mouse_geneid = record[0]
         elif species == 'human':
-            self.cursor.execute( "SELECT mouse FROM GeneIDXRef WHERE human=%d" % int(geneid) )
-            record = self.cursor.fetchone()
-            if record:
-                mouse_geneid = record[0]
-
+            mouse_geneid = g.db.execute(
+                """SELECT mouse FROM GeneIDXRef WHERE human='%d'""", int(geneid)).fetchone().mouse
+            #if record:
+            #    mouse_geneid = record[0]
+        print("mouse_geneid:", mouse_geneid)
         return mouse_geneid
 
 
@@ -878,7 +902,6 @@ Resorting this table <br>
             if x: return True
             else: raise
         except: return False
-
 
 
     def fetchAllDatabaseData(self, species, GeneId, GeneSymbol, strains, db, method, returnNumber, tissueProbeSetFreezeId):
@@ -1181,9 +1204,10 @@ Resorting this table <br>
 
         return traitList
 
-    def get_trait(self, cached, vals):
+    def get_traits(self, vals):
 
-        if cached:
+        #Todo: Redo cached stuff using memcached
+        if False:
             _log.info("Using the fast method because the file exists")
             lit_corrs = {}
             tissue_corrs = {}
@@ -1235,14 +1259,14 @@ Resorting this table <br>
             return traits, new_vals
 
         else:
-            _log.info("Using the slow method for correlation")
-
-            _log.info("Fetching from database")
+            #_log.info("Using the slow method for correlation")
+            #
+            #_log.info("Fetching from database")
             traits = self.fetchAllDatabaseData(species=self.species, GeneId=self.gene_id, GeneSymbol=self.trait_symbol, strains=self.sample_names, db=self.db, method=self.method, returnNumber=self.returnNumber, tissueProbeSetFreezeId= self.tissue_probeset_freeze_id)
-            _log.info("Done fetching from database")
+            #_log.info("Done fetching from database")
             totalTraits = len(traits) #XZ, 09/18/2008: total trait number
 
-        return traits, vals
+        return traits
 
 
         def do_parallel_correlation(self):
@@ -1302,17 +1326,17 @@ Resorting this table <br>
         _log.info("Done correlating using the fast method")
 
 
-    def correlate(self, vals):
+    def correlate(self):
 
         correlations = []
 
         #XZ: Use the fast method only for probeset dataset, and this dataset must have been created.
         #XZ: Otherwise, use original method
-        _log.info("Entering correlation")
+        #_log.info("Entering correlation")
 
-        db_filename = self.getFileName( target_db_name=self.target_db_name )
-
-        cache_available = db_filename in os.listdir(webqtlConfig.TEXTDIR)
+        #db_filename = self.getFileName(target_db_name=self.target_db_name)
+        #
+        #cache_available = db_filename in os.listdir(webqtlConfig.TEXTDIR)
 
          # If the cache file exists, do a cached correlation for probeset data
         if self.db.type == "ProbeSet":
@@ -1321,7 +1345,7 @@ Resorting this table <br>
 #
 #           else:
 
-            (traits, vals) = self.get_trait(cache_available, vals)
+            traits = self.get_traits(self.vals)
 
             for trait in traits:
                 trait.calculate_correlation(vals, self.method)
@@ -2080,3 +2104,4 @@ Resorting this table <br>
             newrow += 1
 
         return tblobj_body, worksheet, corrScript
+

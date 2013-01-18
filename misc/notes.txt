@@ -1,6 +1,12 @@
 Clone code from git repository:
 git clone http://github.com/zsloan/genenetwork.git gene 
 
+Pull from branch in git repository:
+git pull origin flask(or whatever the branch is)
+
+Install from requirements.txt:
+pip install -r gene/wqflask/requirements.txt -t ve27
+
 ============================================
 
 To get server running:

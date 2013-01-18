@@ -14,9 +14,9 @@ from htmlgen import HTMLgen2 as HT
 from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
-from utility import webqtlUtil, Plot, Bunch
+from utility import webqtlUtil, Plot, Bunch, helper_functions
 from base.trait import GeneralTrait
-from base.data_set import create_dataset
+from base import data_set
 from dbFunction import webqtlDatabaseFunction
 from base.templatePage import templatePage
 from basicStatistics import BasicStatisticsFunctions
@@ -38,17 +38,19 @@ class ShowTrait(object):
         print("in ShowTrait, kw are:", kw)
         self.trait_id = kw['trait_id']
         
-        self.dataset = create_dataset(kw['dataset'])
+        helper_functions.get_dataset_and_trait(self, kw)
 
-        #self.cell_id = None
-
-
-        this_trait = GeneralTrait(dataset=self.dataset.name,
-                                  name=self.trait_id,
-                                  cellid=None)
-
-
-        self.dataset.group.read_genotype_file()
+        #self.dataset = create_dataset(kw['dataset'])
+        #
+        ##self.cell_id = None
+        #
+        #
+        #this_trait = GeneralTrait(dataset=self.dataset.name,
+        #                          name=self.trait_id,
+        #                          cellid=None)
+        #
+        #
+        #self.dataset.group.read_genotype_file()
 
         if not self.dataset.group.genotype:
             self.read_data(include_f1=True) 
@@ -101,23 +103,22 @@ class ShowTrait(object):
         #hddn['mappingMethodId'] = webqtlDatabaseFunction.getMappingMethod (cursor=self.cursor,
         #                                                                   groupName=fd.group)
 
-        self.dispTraitInformation(kw, "", hddn, this_trait) #Display trait information + function buttons
+        self.dispTraitInformation(kw, "", hddn, self.this_trait) #Display trait information + function buttons
 
         #if this_trait == None:
         #    this_trait = webqtlTrait(data=kw['allTraitData'], dataset=None)
 
-        self.build_correlation_tools(this_trait)
+        self.build_correlation_tools(self.this_trait)
 
-        self.make_sample_lists(this_trait)
+        self.make_sample_lists(self.this_trait)
 
         if self.dataset.group.allsamples:
             hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
 
         hddn['trait_id'] = self.trait_id
-        hddn['dataset_name'] = self.dataset.name
+        hddn['dataset'] = self.dataset.name
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
-        self.this_trait = this_trait
         self.hddn = hddn
 
         self.sample_group_types = OrderedDict()

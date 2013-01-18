@@ -19,7 +19,7 @@ from wqflask import search_results
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
-from wqflask.correlation import CorrelationPage
+from wqflask.correlation import show_corr_results
 
 from wqflask.dataSharing import SharingInfo, SharingInfoPage
 
@@ -161,8 +161,8 @@ def marker_regression_page():
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
     print("In corr_compute, request.args is:", pf(request.form))
-    fd = webqtlFormData.webqtlFormData(request.form)
-    template_vars = CorrelationPage.CorrelationPage(fd)
+    #fd = webqtlFormData.webqtlFormData(request.form)
+    template_vars = show_corr_results.CorrelationResults(request.form)
     return render_template("correlation_page.html", **template_vars.__dict__)
 
 @app.route("/int_mapping", methods=('POST',))

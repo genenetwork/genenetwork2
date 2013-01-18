@@ -314,27 +314,27 @@ class GeneralTrait:
                 #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
                 #XZ: So I have to test if geneid is number before execute the query.
                 #XZ: The geneid values in database should be cleaned up.
-                try:
-                    junk = float(self.geneid)
-                    geneidIsNumber = 1
-                except:
-                    geneidIsNumber = 0
+                #try:
+                #    float(self.geneid)
+                #    geneidIsNumber = True
+                #except ValueError:
+                #    geneidIsNumber = False
 
-                if geneidIsNumber:
-                    query = """
-                            SELECT
-                                    HomologeneId
-                            FROM
-                                    Homologene, Species, InbredSet
-                            WHERE
-                                    Homologene.GeneId =%s AND
-                                    InbredSet.Name = '%s' AND
-                                    InbredSet.SpeciesId = Species.Id AND
-                                    Species.TaxonomyId = Homologene.TaxonomyId
-                            """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
-                    result = g.db.execute(query).fetchone()
-                else:
-                    result = None
+                #if geneidIsNumber:
+                query = """
+                        SELECT
+                                HomologeneId
+                        FROM
+                                Homologene, Species, InbredSet
+                        WHERE
+                                Homologene.GeneId =%s AND
+                                InbredSet.Name = '%s' AND
+                                InbredSet.SpeciesId = Species.Id AND
+                                Species.TaxonomyId = Homologene.TaxonomyId
+                        """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
+                result = g.db.execute(query).fetchone()
+                #else:
+                #    result = None
 
                 if result:
                     self.homologeneid = result[0]
