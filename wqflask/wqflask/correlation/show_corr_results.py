@@ -374,7 +374,7 @@ class CorrelationResults(object):
         #XZ: As of Nov/13/2010, this dataset is 'UTHSC Illumina V6.2 RankInv B6 D2 average CNS GI average (May 08)'
         self.tissue_probeset_freeze_id = 1
 
-        traitList = self.correlate(self.vals)
+        traitList = self.correlate()
 
         _log.info("Done doing correlation calculation")
 
@@ -823,18 +823,17 @@ Resorting this table <br>
         """Returns the name of the reference database file with which correlations are calculated.
         Takes argument cursor which is a cursor object of any instance of a subclass of templatePage
         Used by correlationPage"""
-ROM ProbeSetFreeze WHERE Name = "%s"' %  target_db_name
-        self.cursor.execute(query)
-        result = self.cursor.fetchone()
-        Id = result[0]
-        FullName = result[1]
-        FullName = FullName.replace(' ','_')
-        FullName = FullName.replace('/','_')
 
-        FileName = 'ProbeSetFreezeId_' + str(Id) + '_FullName_' + FullName + '.txt'
+        trait_id, full_name = g.db.execute("""SELECT Id, FullName
+                                              FROM ProbeSetFreeze
+                                              WHERE Name = '%s'""" % target_db_name).fetchone()
+        for char in [' ', '/']:
+            full_name = full_name.replace(char, '_')
+            
+        file_name = 'ProbeSetFreezeId_' + str(trait_id) + '_FullName_' + full_name + '.txt'
 
-        return FileName
-        query = 'SELECT Id, FullName F
+        return file_name
+
 
 
     #XZ, 01/29/2009: I modified this function.
@@ -1262,7 +1261,7 @@ ROM ProbeSetFreeze WHERE Name = "%s"' %  target_db_name
             #_log.info("Using the slow method for correlation")
             #
             #_log.info("Fetching from database")
-            traits = self.fetchAllDatabaseData(species=self.species, GeneId=self.gene_id, GeneSymbol=self.trait_symbol, strains=self.sample_names, db=self.db, method=self.method, returnNumber=self.returnNumber, tissueProbeSetFreezeId= self.tissue_probeset_freeze_id)
+            traits = self.fetchAllDatabaseData(species=self.dataset.species, GeneId=self.gene_id, GeneSymbol=self.trait.symbol, strains=self.sample_names, db=self.db, method=self.method, returnNumber=self.returnNumber, tissueProbeSetFreezeId= self.tissue_probeset_freeze_id)
             #_log.info("Done fetching from database")
             totalTraits = len(traits) #XZ, 09/18/2008: total trait number
 
@@ -1339,7 +1338,7 @@ ROM ProbeSetFreeze WHERE Name = "%s"' %  target_db_name
         #cache_available = db_filename in os.listdir(webqtlConfig.TEXTDIR)
 
          # If the cache file exists, do a cached correlation for probeset data
-        if self.db.type == "ProbeSet":
+        if self.dataset.type == "ProbeSet":
 #           if self.method in [METHOD_SAMPLE_PEARSON, METHOD_SAMPLE_RANK] and cache_available:
 #               traits = do_parallel_correlation()
 #
