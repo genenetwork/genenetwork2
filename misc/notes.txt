@@ -4,13 +4,20 @@ git clone http://github.com/zsloan/genenetwork.git gene
 Pull from branch in git repository:
 git pull origin flask(or whatever the branch is)
 
+**"apt-cache search" searches for text in the description for various packages, while
+"apt-file search" searches for files within the packages**
+
+Search for package with a specified file that can be installed with apt-get
+apt-file search _______
+
 To fix error "mysql_config not found":
 sudo apt-get install libmysqlclient-dev
 
+Create requirements.txt file:
+pip freeze > requirements.txt (or whatever filename)
+
 Install from requirements.txt:
 pip install -r gene/wqflask/requirements.txt -t ve27
-
-
 
 ============================================
 
@@ -94,6 +101,25 @@ tidyp -m -i -w 100 index_page.html
 ps -ax - View processes
 
 kill (process #)
+
+===========================================
+
+Installing QTL Reaper
+
+wget http://downloads.sourceforge.net/project/qtlreaper/qtlreaper/1.1.1/qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb
+tar xvf qtlreaper-1.1.1.tar.gz (to unzip)
+python setup.py build
+python setup.py install
+
+===========================================
+
+Using Yolk
+
+Check packages installed in this virtual environment:
+yolk -l
+
+Checks packages that have updates available:
+yolk -U
 
 ===========================================
 

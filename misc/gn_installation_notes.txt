@@ -1,0 +1,88 @@
+Get git:
+
+sudo apt-get install git-core
+
+===========================================
+
+Clone code from git repository:
+git clone http://github.com/zsloan/genenetwork.git gene 
+
+Pull from branch in git repository:
+git pull origin flask(or whatever the branch is)
+
+**"apt-cache search" searches for text in the description for various packages, while
+"apt-file search" searches for files within the packages**
+
+Search for package with a specified file that can be installed with apt-get
+apt-file search _______
+
+Install from requirements.txt:
+pip install -r gene/wqflask/requirements.txt -t ve27
+
+===========================================
+
+Installing virtualenv:
+sudo pip install virtualenv
+
+Tell virtualenv which directory to use:
+virtualenv ve27
+
+
+
+===========================================
+
+Install MySQL Client
+
+To fix error "mysql_config not found" while installing packages with pip:
+sudo apt-get install libmysqlclient-dev
+
+===========================================
+
+Installing QTL Reaper
+
+wget http://downloads.sourceforge.net/project/qtlreaper/qtlreaper/1.1.1/qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb
+mv -v qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb qtlreaper-1.1.1.tar.gz
+tar xvf qtlreaper-1.1.1.tar.gz (to unzip)
+sudo python setup.py build
+sudo python setup.py install
+
+===========================================
+
+Installing numarray 1.5.2
+
+wget http://downloads.sourceforge.net/project/numpy/Old%20Numarray/1.5.2/numarray-1.5.2.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnumpy%2Ffiles%2FOld%2520Numarray%2F1.5.2%2Fnumarray-1.5.2.tar.gz%2Fdownload&ts=1358978306&use_mirror=superb-dca2
+mv -v numarray-1.5.2.tar.gz?r=http:%2F%2Fsourceforge.net%2Fprojects%2Fnumpy%2Ffiles%2FOld%20Numarray%2F1.5.2%2Fnumarray-1.5.2.tar.gz%2Fdownload numarray-1.5.2.tar.gz
+tar xvf numarray-1.5.2.tar.gz
+sudo python setup.py install
+
+===========================================
+
+Installing R
+
+sudo apt-get install r-base-dev
+
+===========================================
+
+To get server running:
+
+!If having seemingly inexplicable problems with imports, make sure I've started the environment!
+
+Start up virtual environment:
+source ~/ve27/bin/activate
+
+To set WQFLASK_SETTINGS environment variable:
+export WQFLASK_SETTINGS=~/gene/wqflask/cfg/zach_settings.py (or wherever file is located)
+
+To change screen environment variable (if man not working or to get color, for example):
+export TERM=screen
+
+To search for commands in history if necessary:
+history | grep "(whatever is being searched for)"
+
+Run web server:
+/usr/local/nginx/sbin/nginx
+
+Run server:
+python runserver.py
+
+===========================================
