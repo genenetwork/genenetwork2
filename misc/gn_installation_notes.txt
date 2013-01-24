@@ -27,7 +27,18 @@ sudo pip install virtualenv
 Tell virtualenv which directory to use:
 virtualenv ve27
 
+Start up virtual environment:
+source ~/ve27/bin/activate
 
+===========================================
+
+Installing yaml
+
+Install libyaml-dev:
+sudo apt-get install libyaml-dev
+
+Install yaml:
+pip install pyyaml
 
 ===========================================
 
@@ -43,8 +54,11 @@ Installing QTL Reaper
 wget http://downloads.sourceforge.net/project/qtlreaper/qtlreaper/1.1.1/qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb
 mv -v qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb qtlreaper-1.1.1.tar.gz
 tar xvf qtlreaper-1.1.1.tar.gz (to unzip)
-sudo python setup.py build
-sudo python setup.py install
+python setup.py build
+sudo mkdir /home/zas1024/ve27/include/python2.7/Reaper
+sudo chown /home/zas1024/ve27/include/python2.7/Reaper (or whereever the directory is; the problem
+involved the fact that doing "sudo python setup.py install" doesn't install within the virtualenv)
+python setup.py install
 
 ===========================================
 
@@ -62,6 +76,26 @@ Installing R
 sudo apt-get install r-base-dev
 
 ===========================================
+
+Install Parallel Python (pp)
+
+wget http://www.parallelpython.com/downloads/pp/pp-1.6.3.tar.gz
+tar xvf pp-1.6.3.tar.gz
+python setup.py install
+
+==========================================
+
+Install requests
+
+pip install requests
+
+==========================================
+
+Install logging_tree
+
+pip install logging_tree
+
+==========================================
 
 To get server running:
 
