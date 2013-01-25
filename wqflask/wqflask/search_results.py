@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, print_function, division
 
 from wqflask import app
 
@@ -15,6 +15,8 @@ import math
 import datetime
 
 from pprint import pformat as pf
+
+from flask import Flask, g
 
 # Instead of importing HT we're going to build a class below until we can eliminate it
 from htmlgen import HTMLgen2 as HT
@@ -45,7 +47,7 @@ class SearchResultPage(templatePage):
         #logging_tree.printout()
         self.fd = fd
         templatePage.__init__(self, fd)
-        assert self.openMysql(), "Couldn't open MySQL"
+        #assert self.openMysql(), "Couldn't open MySQL"
 
         print("fd is:", pf(fd))
         print("fd.dict is:", pf(fd['dataset']))
