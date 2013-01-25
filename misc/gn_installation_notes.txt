@@ -19,6 +19,27 @@ apt-file search _______
 Install from requirements.txt:
 pip install -r gene/wqflask/requirements.txt -t ve27
 
+
+============================================
+
+Using dpkg
+
+Check which system packages are already installed:
+dpkg -l | less
+
+===========================================
+
+Using Yolk
+
+Install Yolk:
+pip install yolk
+
+Check packages installed in this virtual environment:
+yolk -l
+
+Checks packages that have updates available:
+yolk -U
+
 ===========================================
 
 Installing virtualenv:
@@ -94,6 +115,12 @@ pip install requests
 Install logging_tree
 
 pip install logging_tree
+
+==========================================
+
+Install colordiff (just to make it easier to view differences in files, not necessary for GN)
+
+sudo apt-get install colordiff
 
 ==========================================
 

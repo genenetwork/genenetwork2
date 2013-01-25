@@ -20,6 +20,14 @@ apt-cache show _______
 Search for package with a specified file that can be installed with apt-get
 apt-file search _______
 
+============================================
+
+Check which system packages are installed:
+dpkg -l | less
+
+============================================
+
+
 To fix error "mysql_config not found":
 sudo apt-get install libmysqlclient-dev
 
@@ -130,6 +138,9 @@ python setup.py install
 
 Using Yolk
 
+Install Yolk:
+pip install yolk
+
 Check packages installed in this virtual environment:
 yolk -l
 
@@ -147,3 +158,12 @@ To iterate through dictionary items: for X, Y in MyDictionary.items():
 
 Create symbolic link:
 ln -s dir_to_link_to linking_dir
+
+===========================================
+
+Using grep:
+
+grep -ir (search string) (directory)
+
+-i ignores case
+-r searches recursively through subdirectories of directory you specify
