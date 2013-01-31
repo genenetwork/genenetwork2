@@ -161,6 +161,11 @@ ln -s dir_to_link_to linking_dir
 
 ===========================================
 
+Reboot server
+sudo reboot
+
+===========================================
+
 Using grep:
 
 grep -ir (search string) (directory)
