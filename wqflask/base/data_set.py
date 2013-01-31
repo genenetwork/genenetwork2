@@ -41,7 +41,6 @@ from pprint import pformat as pf
 DS_NAME_MAP = {}
 
 def create_dataset(dataset_name):
-    #cursor = db_conn.cursor()
     print("dataset_name:", dataset_name)
 
     query = """

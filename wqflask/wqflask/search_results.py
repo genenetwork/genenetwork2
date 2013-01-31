@@ -26,7 +26,6 @@ from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.data_set import create_dataset
 from base.trait import GeneralTrait
-from base.templatePage import templatePage
 from wqflask import parser
 from wqflask import do_search
 from utility import webqtlUtil
@@ -37,21 +36,17 @@ from utility import formatting
 #from base.JinjaPage import JinjaEnv, JinjaPage
 
 
-class SearchResultPage(templatePage):
+class SearchResultPage():
     #maxReturn = 3000
 
 
-    def __init__(self, fd):
+    def __init__(self, kw):
         print("initing SearchResultPage")
         #import logging_tree
         #logging_tree.printout()
-        self.fd = fd
-        templatePage.__init__(self, fd)
+        #self.fd = fd
+        #templatePage.__init__(self, fd)
         #assert self.openMysql(), "Couldn't open MySQL"
-
-        print("fd is:", pf(fd))
-        print("fd.dict is:", pf(fd['dataset']))
-        self.dataset = fd['dataset']
 
         # change back to self.dataset
         #if not self.dataset or self.dataset == 'spacer':
@@ -62,20 +57,17 @@ class SearchResultPage(templatePage):
         ###########################################
         
         # All Phenotypes is a special case we'll deal with later
-        if self.dataset == "All Phenotypes":
-            self.cursor.execute("""
-                select PublishFreeze.Name, InbredSet.Name, InbredSet.Id from PublishFreeze,
-                InbredSet where PublishFreeze.Name not like 'BXD300%' and InbredSet.Id =
-                PublishFreeze.InbredSetId""")
-            results = self.cursor.fetchall()
-            self.dataset = map(lambda x: DataSet(x[0], self.cursor), results)
-            self.dataset_groups = map(lambda x: x[1], results)
-            self.dataset_group_ids = map(lambda x: x[2], results)
-        else:
-            print("self.dataset is:", pf(self.dataset))
-            # Replaces a string with an object
-            self.dataset = create_dataset(self.dataset)
-            print("self.dataset is now:", pf(self.dataset))
+        #if kw['dataset'] == "All Phenotypes":
+        #    self.cursor.execute("""
+        #        select PublishFreeze.Name, InbredSet.Name, InbredSet.Id from PublishFreeze,
+        #        InbredSet where PublishFreeze.Name not like 'BXD300%' and InbredSet.Id =
+        #        PublishFreeze.InbredSetId""")
+        #    results = self.cursor.fetchall()
+        #    self.dataset = map(lambda x: DataSet(x[0], self.cursor), results)
+        #    self.dataset_groups = map(lambda x: x[1], results)
+        #    self.dataset_group_ids = map(lambda x: x[2], results)
+        #else:
+        self.dataset = create_dataset(kw['dataset'])
  
         self.search()
         self.gen_search_result()
@@ -110,7 +102,7 @@ class SearchResultPage(templatePage):
 
 
     def search(self):
-        self.search_terms = parser.parse(self.fd['search_terms'])
+        self.search_terms = parser.parse(self.kw['search_terms'])
         print("After parsing:", self.search_terms)
 
         self.results = []
