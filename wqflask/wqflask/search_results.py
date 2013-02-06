@@ -69,6 +69,8 @@ class SearchResultPage():
         #else:
         self.dataset = create_dataset(kw['dataset'])
  
+        self.search_terms = kw['search_terms']
+ 
         self.search()
         self.gen_search_result()
 
@@ -102,7 +104,7 @@ class SearchResultPage():
 
 
     def search(self):
-        self.search_terms = parser.parse(self.kw['search_terms'])
+        self.search_terms = parser.parse(self.search_terms)
         print("After parsing:", self.search_terms)
 
         self.results = []
