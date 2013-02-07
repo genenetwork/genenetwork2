@@ -12,7 +12,7 @@ DB_UPDNAME = 'db_webqtl_zas1024'
 DB_UPDUSER = 'webqtl'
 DB_UPDPASSWD = 'webqtl'
 
-GNROOT = '/home/zas1024/gn/'
+GNROOT = '/home/zas1024/gene/'
 ROOT_URL = 'http://alexandria.uthsc.edu:91/'
 PythonPath = '/usr/bin/python'
 PIDDLE_FONT_PATH = '/usr/lib/python2.4/site-packages/piddle/truetypefonts/'

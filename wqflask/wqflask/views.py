@@ -136,15 +136,15 @@ def show_trait_page():
     #fd = webqtlFormData.webqtlFormData(request.args)
     #print("stp y1:", pf(vars(fd)))
     template_vars = show_trait.ShowTrait(request.args)
-    print("js_data before dump:", template_vars.js_data)
+    #print("js_data before dump:", template_vars.js_data)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
     # Sorting the keys messes up the ordered dictionary, so don't do that
                                        #sort_keys=True)
 
-    print("js_data after dump:", template_vars.js_data)
-    print("show_trait template_vars:", pf(template_vars.__dict__))
+    #print("js_data after dump:", template_vars.js_data)
+    #print("show_trait template_vars:", pf(template_vars.__dict__))
     return render_template("show_trait.html", **template_vars.__dict__)
 
 @app.route("/marker_regression", methods=('POST',))

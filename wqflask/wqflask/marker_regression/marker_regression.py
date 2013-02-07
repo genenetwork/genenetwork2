@@ -15,6 +15,8 @@ import os
 import httplib
 import urllib
 
+import numpy as np
+
 from htmlgen import HTMLgen2 as HT
 from utility import Plot, Bunch
 from wqflask.interval_analyst import GeneUtil
@@ -25,6 +27,8 @@ from utility import webqtlUtil, helper_functions
 from base import webqtlConfig
 from dbFunction import webqtlDatabaseFunction
 from base.GeneralObject import GeneralObject
+from wqflask.my_pylmm.data import prep_data
+from wqflask.my_pylmm.pyLMM import lmm
 
 import reaper
 import cPickle
@@ -63,22 +67,24 @@ class MarkerRegression(object):
         
         self.samples = []   # Want only ones with values
         self.vals = []
-        self.variances = []
+        #self.variances = []
         
         assert start_vars['display_all_lrs'] in ('True', 'False')
         self.display_all_lrs = True if start_vars['display_all_lrs'] == 'True' else False
         
         for sample in self.dataset.group.samplelist:
             value = start_vars['value:' + sample]
-            variance = start_vars['variance:' + sample]
-            if variance.strip().lower() == 'x':
-                variance = 0
-            else:
-                variance = float(variance)
-            if value.strip().lower() != 'x':
-                self.samples.append(str(sample))
-                self.vals.append(float(value))
-                self.variances.append(variance)
+            #variance = start_vars['variance:' + sample]
+            #if variance.strip().lower() == 'x':
+            #    variance = 0
+            #else:
+            #    variance = float(variance)
+            #if value.strip().lower() != 'x':
+            self.samples.append(str(sample))
+            self.vals.append(value)
+            #self.variances.append(variance)
+        
+        
 
         #self.initializeParameters(start_vars)
 
@@ -446,6 +452,22 @@ class MarkerRegression(object):
 
     def gen_data(self):
         """Todo: Fill this in here"""
+
+        prep_data.PrepData(self.vals, self.dataset.group.name)
+        
+        pheno_vector = np.array([float(val) for val in self.vals if val!="x"])
+        genotypes = np.genfromtxt(os.path.join(webqtlConfig.TMPDIR,
+                                               self.dataset.group.name + '.snps.new'))
+        
+        print("genotypes is:", pf(genotypes))
+        
+        kinship_matrix = lmm.calculateKinship(genotypes)
+        print("kinship_matrix is:", pf(kinship_matrix))
+        print("pheno_vector is:", pf(pheno_vector))
+        
+        lmm_ob = lmm.LMM(pheno_vector, kinship_matrix)
+        lmm_ob.fit()
+        
 
         #calculate QTL for each trait
         self.qtl_results = self.genotype.regression(strains = self.samples,

@@ -130,7 +130,7 @@ class ShowTrait(object):
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
                         attribute_names = self.sample_groups[0].attributes)
-        print("js_data:", pf(js_data))
+        #print("js_data:", pf(js_data))
         self.js_data = js_data
 
 

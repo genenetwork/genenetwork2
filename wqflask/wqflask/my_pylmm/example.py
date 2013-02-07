@@ -20,7 +20,7 @@ print("exprs is:", pf(Y.shape))
 
 # These three lines will load all SNPs (from npdump or from txt) and 
 # calculate the kinship
-snps = np.genfromtxt('data/mdp.snps.1000.new').T
+snps = np.genfromtxt('/home/zas1024/gene/web/new_genotypers/mdp.snps.1000.new').T
 print("snps is:", pf(snps.shape))
 #snps = snps[~np.isnan(snps).all(axis=1)]
 #print ("snps is now:", pf(snps))

@@ -142,20 +142,35 @@ class LMM:
           is not done consistently.
 
     """
-    def __init__(self,Y,K,Kva=[],Kve=[],X0=None):
-
+    def __init__(self, Y, K, Kva=None, Kve=None, X0=None):
         """
         The constructor takes a phenotype vector or array of size n.
         It takes a kinship matrix of size n x n.  Kva and Kve can be computed as Kva,Kve = linalg.eigh(K) and cached.
         If they are not provided, the constructor will calculate them.
         X0 is an optional covariate matrix of size n x q, where there are q covariates.
         When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
+       
         """
 
-        if X0 == None: X0 = np.ones(len(Y)).reshape(len(Y),1)
+        if Kva is None:
+            Kva = []
+        if Kve is None:
+            Kve = []
+            
 
+        if X0 == None:
+            X0 = np.ones(len(Y)).reshape(len(Y),1)
+
+        print("Y is:", pf(Y))
+        
+        for key, value in locals().iteritems():
+            print("  %s - %s" % (key, type(value)))
+        
         x = Y != -9
+        print("x is:", pf(x))
         if not x.sum() == len(Y):
+            print("x.sum is:", pf(x.sum()))
+            print("len(Y) is:", pf(len(Y)))
             sys.stderr.write("Removing %d missing values from Y\n" % ((True - x).sum()))
             Y = Y[x]
             K = K[x,:][:,x]
