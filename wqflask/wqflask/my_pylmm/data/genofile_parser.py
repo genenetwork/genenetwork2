@@ -1,12 +1,30 @@
 #!/usr/bin/python
 
 from __future__ import print_function, division, absolute_import
-import csv
+import sys
+sys.path.append("..")
 import os
 import glob
 import traceback
 
+import numpy as np
+from pyLMM import lmm
+
+import simplejson as json
+
+from pprint import pformat as pf
+
 class EmptyConfigurations(Exception): pass
+
+        
+
+class Marker(object):
+    def __init__(self):
+        self.name = None
+        self.chr = None
+        self.cM = None
+        self.Mb = None
+        self.genotypes = []
 
 class ConvertGenoFile(object):
 
@@ -14,6 +32,9 @@ class ConvertGenoFile(object):
         
         self.input_file = input_file
         self.output_file = output_file
+        
+        self.mb_exists = False
+        self.markers = []
         
         self.latest_row_pos = None
         self.latest_col_pos = None
@@ -23,7 +44,7 @@ class ConvertGenoFile(object):
         
     def convert(self):
 
-        self.prefer_config = {
+        self.haplotype_notation = {
             '@mat': "1",
             '@pat': "0",
             '@het': "0.5",
@@ -31,36 +52,56 @@ class ConvertGenoFile(object):
             }
         
         self.configurations = {}
-        self.skipped_cols = 3
+        #self.skipped_cols = 3
         
         self.input_fh = open(self.input_file)
         
-        
         with open(self.output_file, "w") as self.output_fh:
             self.process_csv()
-     
-            
-        
+
+
     #def process_row(self, row):
     #    counter = 0
     #    for char in row:
     #        if char 
     #        counter += 1
-     
+
     def process_csv(self):
         for row_count, row in enumerate(self.process_rows()):
             #self.latest_row_pos = row_count
 
-            for item_count, item in enumerate(row.split()[self.skipped_cols:]):
+            row_items = row.split()
+
+            this_marker = Marker()
+            this_marker.name = row_items[1]
+            this_marker.chr = row_items[0]
+            this_marker.cM = row_items[2]
+            if self.mb_exists:
+                this_marker.Mb = row_items[3]
+                genotypes = row_items[4:]
+            else:
+                genotypes = row_items[3:]
+            for item_count, genotype in enumerate(genotypes):
+                this_marker.genotypes.append(self.configurations[genotype.upper()])
+                
+            #print("this_marker is:", pf(this_marker.__dict__))   
+                
+            self.markers.append(this_marker.__dict__)
+
+        with open(self.output_file, 'w') as fh:
+            json.dump(self.markers, fh, indent="   ", sort_keys=True)
+                
                 # print('configurations:', str(configurations))
-                self.latest_col_pos = item_count + self.skipped_cols
-                self.latest_col_value = item
-                if item_count != 0:
-                    self.output_fh.write(" ")
-                self.output_fh.write(self.configurations[item.upper()])
+                #self.latest_col_pos = item_count + self.skipped_cols
+                #self.latest_col_value = item
+                
+                #if item_count != 0:
+                #    self.output_fh.write(" ")
+                #self.output_fh.write(self.configurations[item.upper()])
                     
-            self.output_fh.write("\n")
-            
+            #self.output_fh.write("\n")
+
+
     def process_rows(self):
         for self.latest_row_pos, row in enumerate(self.input_fh):
             self.latest_row_value = row
@@ -69,14 +110,14 @@ class ConvertGenoFile(object):
                 continue
             if row.startswith('Chr'):
                 if 'Mb' in row.split():
-                    self.skipped_cols = 4
+                    self.mb_exists = True
                 continue
             if row.startswith('@'):
                 key, _separater, value = row.partition(':')
                 key = key.strip()
                 value = value.strip()
-                if key in self.prefer_config:
-                    self.configurations[value] = self.prefer_config[key]
+                if key in self.haplotype_notation:
+                    self.configurations[value] = self.haplotype_notation[key]
                 continue
             if not len(self.configurations):
                 raise EmptyConfigurations
@@ -87,17 +128,17 @@ class ConvertGenoFile(object):
         os.chdir(old_directory)
         for input_file in glob.glob("*.geno"):
             group_name = input_file.split('.')[0]
-            output_file = os.path.join(new_directory, group_name + ".snps")
+            output_file = os.path.join(new_directory, group_name + ".json")
             print("%s -> %s" % (input_file, output_file))
             convertob = ConvertGenoFile(input_file, output_file)
             try:
-                convertob.convert() 
+                convertob.convert()
             except EmptyConfigurations as why:
                 print("  No config info? Continuing...")
                 #excepted = True
                 continue
             except Exception as why:
-            
+
                 print("  Exception:", why)
                 print(traceback.print_exc())
                 print("    Found in row %i at tabular column %i" % (convertob.latest_row_pos,

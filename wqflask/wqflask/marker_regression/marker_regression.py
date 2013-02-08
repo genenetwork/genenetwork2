@@ -17,6 +17,8 @@ import urllib
 
 import numpy as np
 
+import json
+
 from htmlgen import HTMLgen2 as HT
 from utility import Plot, Bunch
 from wqflask.interval_analyst import GeneUtil
@@ -453,21 +455,43 @@ class MarkerRegression(object):
     def gen_data(self):
         """Todo: Fill this in here"""
 
-        prep_data.PrepData(self.vals, self.dataset.group.name)
+        json_data = open(os.path.join(webqtlConfig.NEWGENODIR + self.dataset.group.name + '.json'))
+        markers = json.load(json_data)
+        genotype_data = [marker['genotypes'] for marker in markers]
+        
+        no_val_samples = self.identify_empty_samples()
+        trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
+        
+        #print("trimmed genotype data is:", pf(trimmed_genotype_data))
+        
+        #for marker_object in genotype_data:
+        #    print("marker_object:", pf(marker_object))
+        
+
+        #prep_data.PrepData(self.vals, genotype_data)
         
         pheno_vector = np.array([float(val) for val in self.vals if val!="x"])
-        genotypes = np.genfromtxt(os.path.join(webqtlConfig.TMPDIR,
-                                               self.dataset.group.name + '.snps.new'))
+        genotypes = np.array(trimmed_genotype_data).T
+        print("genotypes is", pf(genotypes))
+        #genotypes = np.genfromtxt(os.path.join(webqtlConfig.TMPDIR,
+        #                                       self.dataset.group.name + '.snps.new')).T
         
-        print("genotypes is:", pf(genotypes))
+        print("pheno_vector is:", pf(pheno_vector.shape))
+        print("genotypes is:", pf(genotypes.shape))
         
         kinship_matrix = lmm.calculateKinship(genotypes)
         print("kinship_matrix is:", pf(kinship_matrix))
-        print("pheno_vector is:", pf(pheno_vector))
         
         lmm_ob = lmm.LMM(pheno_vector, kinship_matrix)
         lmm_ob.fit()
-        
+
+        t_stats, p_values = lmm.GWAS(pheno_vector,
+                                     genotypes,
+                                     kinship_matrix,
+                                     REML=True,
+                                     refit=False)
+
+        print("p_values is:", pf(len(p_values)))
 
         #calculate QTL for each trait
         self.qtl_results = self.genotype.regression(strains = self.samples,
@@ -632,6 +656,31 @@ class MarkerRegression(object):
             #return rv,tblobj,bottomInfo
 
         #return rv,tblobj,bottomInfo
+
+    def identify_empty_samples(self):
+        no_val_samples = []
+        for sample_count, val in enumerate(self.vals):
+            if val == "x":
+                no_val_samples.append(sample_count)
+        return no_val_samples
+        #print("self.no_val_samples:", self.no_val_samples)
+        #nums = set(range(0, 176))
+        #print("not included:", nums-self.empty_columns)
+        
+    def trim_genotypes(self, genotype_data, no_value_samples):
+        trimmed_genotype_data = []
+        for marker in genotype_data:
+            new_genotypes = []
+            for item_count, genotype in enumerate(marker):
+                if item_count in no_value_samples:
+                    continue
+                try:
+                    genotype = float(genotype)
+                except ValueError:
+                    pass
+                new_genotypes.append(genotype)
+            trimmed_genotype_data.append(new_genotypes)
+        return trimmed_genotype_data
 
     def plotIntMappingForPLINK(self, fd, canvas, offset= (80, 120, 20, 80), zoom = 1, startMb = None, endMb = None, showLocusForm = "",plinkResultDict={}):
         #calculating margins
