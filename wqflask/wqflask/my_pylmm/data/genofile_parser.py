@@ -28,10 +28,11 @@ class Marker(object):
 
 class ConvertGenoFile(object):
 
-    def __init__(self, input_file, output_file):
+    def __init__(self, input_file, output_file, file_type):
         
         self.input_file = input_file
         self.output_file = output_file
+        self.file_type = file_type
         
         self.mb_exists = False
         self.markers = []
@@ -57,7 +58,10 @@ class ConvertGenoFile(object):
         self.input_fh = open(self.input_file)
         
         with open(self.output_file, "w") as self.output_fh:
-            self.process_csv()
+            if self.file_type == "geno":
+                self.process_csv()
+            elif self.file_type == "snps":
+                self.process_snps_file()
 
 
     #def process_row(self, row):
@@ -65,6 +69,7 @@ class ConvertGenoFile(object):
     #    for char in row:
     #        if char 
     #        counter += 1
+
 
     def process_csv(self):
         for row_count, row in enumerate(self.process_rows()):
@@ -146,6 +151,12 @@ class ConvertGenoFile(object):
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break
+            
+    def process_snps_file(cls, snps_file, new_directory):
+        output_file = os.path.join(new_directory, "mouse_families.json")
+        print("%s -> %s" % (snps_file, output_file))
+        convertob = ConvertGenoFile(input_file, output_file)
+        
 
 
 if __name__=="__main__":

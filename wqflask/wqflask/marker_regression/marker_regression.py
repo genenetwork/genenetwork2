@@ -454,10 +454,11 @@ class MarkerRegression(object):
 
     def gen_data(self):
         """Todo: Fill this in here"""
-
-        json_data = open(os.path.join(webqtlConfig.NEWGENODIR + self.dataset.group.name + '.json'))
-        markers = json.load(json_data)
-        genotype_data = [marker['genotypes'] for marker in markers]
+        
+        #json_data = open(os.path.join(webqtlConfig.NEWGENODIR + self.dataset.group.name + '.json'))
+        #markers = json.load(json_data)
+        
+        genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers]
         
         no_val_samples = self.identify_empty_samples()
         trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
@@ -466,7 +467,6 @@ class MarkerRegression(object):
         
         #for marker_object in genotype_data:
         #    print("marker_object:", pf(marker_object))
-        
 
         #prep_data.PrepData(self.vals, genotype_data)
         
@@ -492,40 +492,60 @@ class MarkerRegression(object):
                                      refit=False)
 
         print("p_values is:", pf(len(p_values)))
+        
+        self.dataset.group.markers.add_pvalues(p_values)
 
         #calculate QTL for each trait
-        self.qtl_results = self.genotype.regression(strains = self.samples,
-                                                trait = self.vals)
-        self.lrs_array = self.genotype.permutation(strains = self.samples,
-                                               trait = self.vals,
-                                               nperm=self.num_perm)
+        #self.qtl_results = self.genotype.regression(strains = self.samples,
+        #                                        trait = self.vals)
+        #self.lrs_array = self.genotype.permutation(strains = self.samples,
+        #                                       trait = self.vals,
+        #                                       nperm=self.num_perm)
+
+        self.lrs_values = [marker['lrs_value'] for marker in self.dataset.group.markers]
 
         self.lrs_thresholds = Bunch(
-                                suggestive = self.lrs_array[int(self.num_perm*0.37-1)],
-                                significant = self.lrs_array[int(self.num_perm*0.95-1)],
-                                highly_significant = self.lrs_array[int(self.num_perm*0.99-1)]
+                                suggestive = self.lrs_values[int(self.num_perm*0.37-1)],
+                                significant = self.lrs_values[int(self.num_perm*0.95-1)],
+                                highly_significant = self.lrs_values[int(self.num_perm*0.99-1)]
                                 )
 
+        #self.lrs_thresholds = Bunch(
+        #                        suggestive = self.lrs_array[int(self.num_perm*0.37-1)],
+        #                        significant = self.lrs_array[int(self.num_perm*0.95-1)],
+        #                        highly_significant = self.lrs_array[int(self.num_perm*0.99-1)]
+        #                        )
+
         if self.display_all_lrs:
-            filtered_results = self.qtl_results
+            self.filtered_results = self.dataset.group.markers.markers
         else:
-            suggestive_results = []
+            self.filtered_results = []
             self.pure_qtl_results = []
-            for result in self.qtl_results:
-                self.pure_qtl_results.append(dict(locus=dict(name=result.locus.name,
-                                                             mb=result.locus.Mb,
-                                                             chromosome=result.locus.chr),
-                                                  lrs=result.lrs,
-                                                  additive=result.additive))
-                if result.lrs > self.lrs_thresholds.suggestive:
-                    suggestive_results.append(result)
-            filtered_results = suggestive_results 
+            for marker in self.dataset.group.markers.markers:
+                self.pure_qtl_results.append(marker)
+                if marker['lrs_value'] > self.lrs_thresholds.suggestive:
+                    self.filtered_results.append(marker)
+
+        #if self.display_all_lrs:
+        #    filtered_results = self.qtl_results
+        #else:
+        #    suggestive_results = []
+        #    self.pure_qtl_results = []
+        #    for result in self.qtl_results:
+        #        self.pure_qtl_results.append(dict(locus=dict(name=result.locus.name,
+        #                                                     mb=result.locus.Mb,
+        #                                                     chromosome=result.locus.chr),
+        #                                          lrs=result.lrs,
+        #                                          additive=result.additive))
+        #        if result.lrs > self.lrs_thresholds.suggestive:
+        #            suggestive_results.append(result)
+        #    filtered_results = suggestive_results 
 
 
         # Todo (2013): Use top_10 variable to generate page message about whether top 10 was used
-        if not filtered_results:
+        if not self.filtered_results:
             # We use the 10 results with the highest LRS values
-            filtered_results = sorted(self.qtl_results)[-10:]
+            self.filtered_results = sorted(self.qtl_results)[-10:]
             self.top_10 = True
         else:
             self.top_10 = False
@@ -567,11 +587,9 @@ class MarkerRegression(object):
         #permutation = HT.TableLite()
         #permutation.append(HT.TR(HT.TD(img)))
 
-        for marker in filtered_results:
-            if marker.lrs > webqtlConfig.MAXLRS:
-                marker.lrs = webqtlConfig.MAXLRS
-        
-        self.filtered_results = filtered_results
+        for marker in self.filtered_results:
+            if marker['lrs_value'] > webqtlConfig.MAXLRS:
+                marker['lrs_value'] = webqtlConfig.MAXLRS
 
         #if fd.genotype.type == 'intercross':
         #    ncol =len(headerList)

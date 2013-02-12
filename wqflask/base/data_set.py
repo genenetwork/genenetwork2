@@ -23,6 +23,8 @@
 from __future__ import absolute_import, print_function, division
 import os
 
+import json
+
 from flask import Flask, g
 
 from htmlgen import HTMLgen2 as HT
@@ -64,6 +66,21 @@ def create_dataset(dataset_name):
     return dataset_class(dataset_name)
 
 
+class Markers(object):
+    """Todo: Build in cacheing so it saves us reading the same file more than once"""
+    def __init__(self, name):
+        json_data_fh = open(os.path.join(webqtlConfig.NEWGENODIR + name + '.json'))
+        self.markers = json.load(json_data)
+    
+    def add_pvalues(p_values):
+        #for count, marker in enumerate(self.markers):
+        #    marker['p_value'] = p_values[count]
+            
+        for marker, p_value in itertools.izip(self.markers, p_values):
+            marker['p_value'] = p_value
+            #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
+            marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+
 class DatasetGroup(object):
     """
     Each group has multiple datasets; each species has multiple groups.
@@ -84,6 +101,7 @@ class DatasetGroup(object):
         self.f1list = None
         self.parlist = None
         self.allsamples = None
+        self.markers = Markers(self.name)
 
 
     #def read_genotype(self):
@@ -91,9 +109,16 @@ class DatasetGroup(object):
     #
     #    if not self.genotype:   # Didn'd succeed, so we try method 2
     #        self.read_genotype_data()
-            
+
+    #def read_genotype_json(self):
+    #    '''Read genotype from json file'''
+    #    
+    #    json_data = open(os.path.join(webqtlConfig.NEWGENODIR + self.name + '.json'))
+    #    markers = json.load(json_data)
+    #    
+
     def read_genotype_file(self):
-        '''read genotype from .geno file instead of database'''
+        '''Read genotype from .geno file instead of database'''
         #if self.group == 'BXD300':
         #    self.group = 'BXD'
         #
