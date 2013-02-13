@@ -18,8 +18,31 @@
     <div class="container">
         <div id="manhattan_plots" class="manhattan_plots"></div>
         <div id="permutation_histogram" class="permutation_histogram"></div>
+        
+        <table class="table table-hover table-striped table-bordered">
+            <thead>
+                <tr>
+                    <td>Index</td>
+                    <td>LRS</td>
+                    <td>Chr</td>
+                    <td>Mb</td>
+                    <td>Locus</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for marker in filtered_results %}
+                <tr>
+                    <td>{{loop.index}}</td>
+                    <td>{{marker.lrs_value}}</td>
+                    <td>{{marker.chr}}</td>
+                    <td>{{marker.Mb}}</td>
+                    <td>{{marker.name}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
     </div>
-
 
     <!-- End of body -->
 

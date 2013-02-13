@@ -308,7 +308,7 @@ class MarkerRegression(object):
             
             self.js_data = dict(
                 qtl_results = self.pure_qtl_results,
-                lrs_array = self.lrs_array,
+                lrs_values = self.lrs_values,
             )
 
 
@@ -504,12 +504,20 @@ class MarkerRegression(object):
 
         self.lrs_values = [marker['lrs_value'] for marker in self.dataset.group.markers.markers]
         print("self.lrs_values is:", pf(self.lrs_values))
+        lrs_values_sorted = sorted(self.lrs_values)
+        
+        print("lrs_values_sorted is:", pf(lrs_values_sorted))
         print("int(self.num_perm*0.37-1)", pf(int(self.num_perm*0.37-1)))
-
+        
+        lrs_values_length = len(lrs_values_sorted)
+        
+        def lrs_threshold(place):
+            return lrs_values_sorted[int((lrs_values_length * place) -1)]
+        
         self.lrs_thresholds = Bunch(
-                                suggestive = self.lrs_values[int(self.num_perm*0.37-1)],
-                                significant = self.lrs_values[int(self.num_perm*0.95-1)],
-                                highly_significant = self.lrs_values[int(self.num_perm*0.99-1)]
+                            suggestive = lrs_threshold(.37),
+                            significant = lrs_threshold(.95),
+                            highly_significant = lrs_threshold(.99),
                                 )
 
         #self.lrs_thresholds = Bunch(
