@@ -458,7 +458,7 @@ class MarkerRegression(object):
         #json_data = open(os.path.join(webqtlConfig.NEWGENODIR + self.dataset.group.name + '.json'))
         #markers = json.load(json_data)
         
-        genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers]
+        genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
         
         no_val_samples = self.identify_empty_samples()
         trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
@@ -502,7 +502,9 @@ class MarkerRegression(object):
         #                                       trait = self.vals,
         #                                       nperm=self.num_perm)
 
-        self.lrs_values = [marker['lrs_value'] for marker in self.dataset.group.markers]
+        self.lrs_values = [marker['lrs_value'] for marker in self.dataset.group.markers.markers]
+        print("self.lrs_values is:", pf(self.lrs_values))
+        print("int(self.num_perm*0.37-1)", pf(int(self.num_perm*0.37-1)))
 
         self.lrs_thresholds = Bunch(
                                 suggestive = self.lrs_values[int(self.num_perm*0.37-1)],

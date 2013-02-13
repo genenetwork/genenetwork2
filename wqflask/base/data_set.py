@@ -22,8 +22,10 @@
 
 from __future__ import absolute_import, print_function, division
 import os
+import math
 
 import json
+import itertools
 
 from flask import Flask, g
 
@@ -70,12 +72,9 @@ class Markers(object):
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
     def __init__(self, name):
         json_data_fh = open(os.path.join(webqtlConfig.NEWGENODIR + name + '.json'))
-        self.markers = json.load(json_data)
+        self.markers = json.load(json_data_fh)
     
-    def add_pvalues(p_values):
-        #for count, marker in enumerate(self.markers):
-        #    marker['p_value'] = p_values[count]
-            
+    def add_pvalues(self, p_values):
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
             #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
