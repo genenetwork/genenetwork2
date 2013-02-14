@@ -54,27 +54,33 @@ def matrixMult(A,B):
     return linalg.fblas.dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)
 
 def calculateKinship(W):
-      """
-         W is an n x m matrix encoding SNP minor alleles.
-
-         This function takes a matrix oF SNPs, imputes missing values with the maf,
-         normalizes the resulting vectors and returns the RRM matrix.
-      """
-      n = W.shape[0]
-      m = W.shape[1]
-      keep = []
-      for i in range(m):
-         mn = W[True - np.isnan(W[:,i]),i].mean()
-         W[np.isnan(W[:,i]),i] = mn
-         vr = W[:,i].var()
-         if vr == 0: continue
-
-         keep.append(i)
-         W[:,i] = (W[:,i] - mn) / np.sqrt(vr)
-
-      W = W[:,keep]
-      K = matrixMult(W,W.T) * 1.0/float(m)
-      return K
+    """
+       W is an n x m matrix encoding SNP minor alleles.
+    
+       This function takes a matrix oF SNPs, imputes missing values with the maf,
+       normalizes the resulting vectors and returns the RRM matrix.
+    """
+    n = W.shape[0]
+    m = W.shape[1]
+    print("n is:", n)
+    print("m is:", m)
+    keep = []
+    for i in range(m):
+        print("type of W[:,i]:", pf(W[:,i]))
+        foo = np.isnan(W[:,i])
+        print("type of foo:", type(foo))
+        mn = W[True - foo,i]
+        print("type of mn is:", type(mn))
+        mn = mn.mean()
+        W[np.isnan(W[:,i]),i] = mn
+        vr = W[:,i].var()
+        if vr == 0:
+            continue
+        keep.append(i)
+        W[:,i] = (W[:,i] - mn) / np.sqrt(vr)
+    W = W[:,keep]
+    K = np.dot(W,W.T) * 1.0/float(m)
+    return K
 
 def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
       """

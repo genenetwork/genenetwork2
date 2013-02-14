@@ -462,6 +462,11 @@ class MarkerRegression(object):
         
         no_val_samples = self.identify_empty_samples()
         trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
+
+        #for i, marker in enumerate(trimmed_genotype_data):
+        #    if i > 10:
+        #        break
+        #    print("genotype is:", pf(marker))
         
         #print("trimmed genotype data is:", pf(trimmed_genotype_data))
         
@@ -471,8 +476,17 @@ class MarkerRegression(object):
         #prep_data.PrepData(self.vals, genotype_data)
         
         pheno_vector = np.array([float(val) for val in self.vals if val!="x"])
+        print("genotypes was:", pf(trimmed_genotype_data))
+        for item in trimmed_genotype_data:
+            if type(item) != type(list()):
+                print(" --->", type(item))
+            for counter, part in enumerate(item):
+                if type(part) != type(float()):
+                    print(" ------>", type(part), " : ", part)
+                if counter % 100 == 0:
+                    print(" ------>", type(part))
         genotypes = np.array(trimmed_genotype_data).T
-        print("genotypes is", pf(genotypes))
+        print("genotypes is:", pf(genotypes))
         #genotypes = np.genfromtxt(os.path.join(webqtlConfig.TMPDIR,
         #                                       self.dataset.group.name + '.snps.new')).T
         
@@ -491,7 +505,7 @@ class MarkerRegression(object):
                                      REML=True,
                                      refit=False)
 
-        print("p_values is:", pf(len(p_values)))
+        #print("p_values is:", pf(len(p_values)))
         
         self.dataset.group.markers.add_pvalues(p_values)
 
@@ -503,11 +517,11 @@ class MarkerRegression(object):
         #                                       nperm=self.num_perm)
 
         self.lrs_values = [marker['lrs_value'] for marker in self.dataset.group.markers.markers]
-        print("self.lrs_values is:", pf(self.lrs_values))
+        #print("self.lrs_values is:", pf(self.lrs_values))
         lrs_values_sorted = sorted(self.lrs_values)
         
-        print("lrs_values_sorted is:", pf(lrs_values_sorted))
-        print("int(self.num_perm*0.37-1)", pf(int(self.num_perm*0.37-1)))
+        #print("lrs_values_sorted is:", pf(lrs_values_sorted))
+        #print("int(self.num_perm*0.37-1)", pf(int(self.num_perm*0.37-1)))
         
         lrs_values_length = len(lrs_values_sorted)
         
@@ -705,6 +719,8 @@ class MarkerRegression(object):
                 try:
                     genotype = float(genotype)
                 except ValueError:
+                    genotype = np.nan
+                    print("Couldn't convert to float:", genotype)
                     pass
                 new_genotypes.append(genotype)
             trimmed_genotype_data.append(new_genotypes)

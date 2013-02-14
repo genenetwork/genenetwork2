@@ -28,11 +28,10 @@ class Marker(object):
 
 class ConvertGenoFile(object):
 
-    def __init__(self, input_file, output_file, file_type):
+    def __init__(self, input_file, output_file):
         
         self.input_file = input_file
         self.output_file = output_file
-        self.file_type = file_type
         
         self.mb_exists = False
         self.markers = []
@@ -58,10 +57,10 @@ class ConvertGenoFile(object):
         self.input_fh = open(self.input_file)
         
         with open(self.output_file, "w") as self.output_fh:
-            if self.file_type == "geno":
-                self.process_csv()
-            elif self.file_type == "snps":
-                self.process_snps_file()
+            #if self.file_type == "geno":
+            self.process_csv()
+            #elif self.file_type == "snps":
+            #    self.process_snps_file()
 
 
     #def process_row(self, row):
@@ -87,7 +86,10 @@ class ConvertGenoFile(object):
             else:
                 genotypes = row_items[3:]
             for item_count, genotype in enumerate(genotypes):
-                this_marker.genotypes.append(self.configurations[genotype.upper()])
+                if genotype.upper() in self.configurations:
+                    this_marker.genotypes.append(self.configurations[genotype.upper()])
+                else:
+                    this_marker.genotypes.append("NA")
                 
             #print("this_marker is:", pf(this_marker.__dict__))   
                 
@@ -111,6 +113,8 @@ class ConvertGenoFile(object):
         for self.latest_row_pos, row in enumerate(self.input_fh):
             self.latest_row_value = row
             # Take care of headers
+            if not row.strip():
+                continue
             if row.startswith('#'):
                 continue
             if row.startswith('Chr'):
@@ -134,7 +138,8 @@ class ConvertGenoFile(object):
         for input_file in glob.glob("*.geno"):
             group_name = input_file.split('.')[0]
             output_file = os.path.join(new_directory, group_name + ".json")
-            print("%s -> %s" % (input_file, output_file))
+            print("%s -> %s" % (
+                os.path.join(old_directory, input_file), output_file))
             convertob = ConvertGenoFile(input_file, output_file)
             try:
                 convertob.convert()
@@ -146,16 +151,16 @@ class ConvertGenoFile(object):
 
                 print("  Exception:", why)
                 print(traceback.print_exc())
-                print("    Found in row %i at tabular column %i" % (convertob.latest_row_pos,
+                print("    Found in row %s at tabular column %s" % (convertob.latest_row_pos,
                                                                 convertob.latest_col_pos))
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break
             
-    def process_snps_file(cls, snps_file, new_directory):
-        output_file = os.path.join(new_directory, "mouse_families.json")
-        print("%s -> %s" % (snps_file, output_file))
-        convertob = ConvertGenoFile(input_file, output_file)
+    #def process_snps_file(cls, snps_file, new_directory):
+    #    output_file = os.path.join(new_directory, "mouse_families.json")
+    #    print("%s -> %s" % (snps_file, output_file))
+    #    convertob = ConvertGenoFile(input_file, output_file)
         
 
 
