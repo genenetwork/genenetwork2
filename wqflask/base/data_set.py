@@ -77,8 +77,10 @@ class Markers(object):
     def add_pvalues(self, p_values):
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
+            marker['lod_score'] = -math.log10(marker['p_value'])
             #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
             marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+
 
 class DatasetGroup(object):
     """

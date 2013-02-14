@@ -36,7 +36,7 @@
                 {% for marker in filtered_results %}
                 <tr>
                     <td>{{loop.index}}</td>
-                    <td>{{marker.lrs_value}}</td>
+                    <td>{{marker.lod_score}}</td>
                     <td>{{marker.chr}}</td>
                     <td>{{marker.Mb}}</td>
                     <td>{{marker.name}}</td>
@@ -59,6 +59,7 @@
     <!--[if lt IE 9]>
         <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>
     <![endif]-->
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/jqplot/jquery.jqplot.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.pointLabels.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
@@ -66,13 +67,13 @@
     <!--<script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.markerRenderer.min.js"></script>-->
     <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
-    <!--<script language="javascript" type="text/javascript" src="/static/new/javascript/marker_regression.js"></script>-->
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/marker_regression.js"></script>
     
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
     
- 
         
     
     <script type="text/javascript" charset="utf-8">
@@ -81,7 +82,7 @@
                 "iDisplayLength": 50
             } );            
             
-                 $('#qtl_results').dataTable();
+            $('#qtl_results').dataTable();
          } );
     </script>
 {% endblock %}
