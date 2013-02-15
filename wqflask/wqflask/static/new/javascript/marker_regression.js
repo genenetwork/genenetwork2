@@ -64,7 +64,18 @@
           return _this.plot_width * d[0] / _this.x_max;
         }).attr("cy", function(d) {
           return _this.plot_height - ((0.8 * _this.plot_height) * d[1] / _this.y_max);
-        }).attr("r", 2);
+        }).attr("r", 2).classed("circle", true).on("mouseover", function() {
+          return d3.select(d3.event.target).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow");
+        }).on("mouseout", function() {
+          return d3.select(d3.event.target).classed("d3_highlight", false).attr("r", 2).attr("fill", "black");
+        });
+        svg.selectAll("text").data(this.plot_coordinates).enter().append("text").text(function(d) {
+          return d[1];
+        }).attr("x", function(d) {
+          return _this.plot_width * d[0] / _this.x_max;
+        }).attr("y", function(d) {
+          return _this.plot_height - ((0.8 * _this.plot_height) * d[1] / _this.y_max);
+        }).attr("font-family", "sans-serif").attr("font-size", "11px").attr("fill", "red");
         x = d3.scale.linear().domain([0, this.x_max]).range([0, this.plot_width]);
         y = d3.scale.linear().domain([0, this.y_max]).range([0, this.plot_height]);
         return svg.selectAll("line").data(x.ticks(this.max_chr)).enter().append("line").attr("x1", x).attr("x2", x).attr("y1", 0).attr("y2", this.plot_height).style("stroke", "#ccc");

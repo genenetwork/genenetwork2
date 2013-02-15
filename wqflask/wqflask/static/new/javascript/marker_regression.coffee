@@ -62,6 +62,34 @@ $ ->
                     return @plot_height - ((0.8*@plot_height) * d[1]/@y_max)
                 )
                 .attr("r", 2)
+                .classed("circle", true)
+                .on("mouseover", () =>
+                    d3.select(d3.event.target).classed("d3_highlight", true)
+                        .attr("r", 5)
+                        .attr("fill", "yellow")
+                )
+                .on("mouseout", () =>
+                    d3.select(d3.event.target).classed("d3_highlight", false)
+                        .attr("r", 2)
+                        .attr("fill", "black")
+                )
+
+                svg.selectAll("text")
+                    .data(@plot_coordinates)
+                    .enter()
+                    .append("text")
+                    .text( (d) =>
+                        return d[1]
+                    )
+                    .attr("x", (d) =>
+                        return (@plot_width * d[0]/@x_max)
+                    )
+                    .attr("y", (d) =>
+                        return @plot_height - ((0.8*@plot_height) * d[1]/@y_max)
+                    )                 
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "11px")
+                    .attr("fill", "red")
 
             x = d3.scale.linear()
                 .domain([0, @x_max])
