@@ -2,49 +2,73 @@
 (function() {
 
   $(function() {
-    var chr, largest_chr, plot_coordinates, result, svg, x_coords, x_max, y_coords, y_max, _i, _j, _len, _len1, _ref, _ref1,
-      _this = this;
-    x_coords = [];
-    y_coords = [];
-    largest_chr = 0;
-    _ref = js_data.qtl_results;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      result = _ref[_i];
-      chr = parseInt(result.chr);
-      console.log("foo:", chr, typeof chr);
-      if (_.isNaN(chr)) {
-        console.log("Got NaN");
-      } else {
-        if (chr > largest_chr) {
-          largest_chr = chr;
-        }
+    var Manhattan_Plot;
+    Manhattan_Plot = (function() {
+
+      function Manhattan_Plot() {
+        this.qtl_results = js_data.qtl_results;
+        this.max_chr = this.get_max_chr();
+        this.x_coords = [];
+        this.y_coords = [];
+        this.get_coordinates();
+        this.x_max = d3.max(this.x_coords);
+        this.y_max = d3.max(this.y_coords);
+        this.plot_coordinates = _.zip(this.x_coords, this.y_coords);
+        this.create_graph();
       }
-    }
-    console.log("largest_chr is:", largest_chr);
-    _ref1 = js_data.qtl_results;
-    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-      result = _ref1[_j];
-      chr = parseInt(result.chr);
-      if (_.isNaN(chr)) {
-        if (result.chr === "X") {
-          chr = largest_chr + 1;
-        } else if (result.chr === "Y") {
-          chr = largest_chr + 2;
+
+      Manhattan_Plot.prototype.get_max_chr = function() {
+        var chr, max_chr, result, _i, _len, _ref;
+        max_chr = 0;
+        _ref = this.qtl_results;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          result = _ref[_i];
+          chr = parseInt(result.chr);
+          console.log("foo:", chr, typeof chr);
+          if (!_.isNaN(chr)) {
+            if (chr > max_chr) {
+              max_chr = chr;
+            }
+          }
         }
-      }
-      x_coords.push((chr * 200) + parseFloat(result.Mb));
-      y_coords.push(result.lrs_value);
-    }
-    x_max = d3.max(x_coords);
-    y_max = d3.max(y_coords);
-    plot_coordinates = _.zip(x_coords, y_coords);
-    console.log(plot_coordinates);
-    svg = d3.select("#manhattan_plots").append("svg").attr("width", 1000).attr("height", 800);
-    return svg.selectAll("circle").data(plot_coordinates).enter().append("circle").attr("cx", function(d) {
-      return 1000 * d[0] / x_max;
-    }).attr("cy", function(d) {
-      return 800 - (600 * d[1] / y_max);
-    }).attr("r", 3);
+        return max_chr;
+      };
+
+      Manhattan_Plot.prototype.get_coordinates = function() {
+        var chr, result, _i, _len, _ref, _results;
+        _ref = js_data.qtl_results;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          result = _ref[_i];
+          chr = parseInt(result.chr);
+          if (_.isNaN(chr)) {
+            if (result.chr === "X") {
+              chr = this.max_chr + 1;
+            } else if (result.chr === "Y") {
+              chr = this.max_chr + 2;
+            }
+          }
+          this.x_coords.push((chr * 200) + parseFloat(result.Mb));
+          _results.push(this.y_coords.push(result.lrs_value));
+        }
+        return _results;
+      };
+
+      Manhattan_Plot.prototype.create_graph = function() {
+        var svg,
+          _this = this;
+        svg = d3.select("#manhattan_plots").append("svg").attr("width", 1000).attr("height", 800);
+        return svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
+          return 1000 * d[0] / _this.x_max;
+        }).attr("cy", function(d) {
+          return 800 - (600 * d[1] / _this.y_max);
+        }).attr("r", 3);
+      };
+
+      return Manhattan_Plot;
+
+    })();
+    return new Manhattan_Plot;
   });
 
 }).call(this);
