@@ -8,6 +8,8 @@
       function Manhattan_Plot() {
         this.qtl_results = js_data.qtl_results;
         this.max_chr = this.get_max_chr();
+        this.plot_height = 500;
+        this.plot_width = 1000;
         this.x_coords = [];
         this.y_coords = [];
         this.get_coordinates();
@@ -48,21 +50,24 @@
               chr = this.max_chr + 2;
             }
           }
-          this.x_coords.push((chr * 200) + parseFloat(result.Mb));
+          this.x_coords.push(((chr - 1) * 200) + parseFloat(result.Mb));
           _results.push(this.y_coords.push(result.lrs_value));
         }
         return _results;
       };
 
       Manhattan_Plot.prototype.create_graph = function() {
-        var svg,
+        var svg, x, y,
           _this = this;
-        svg = d3.select("#manhattan_plots").append("svg").attr("width", 1000).attr("height", 800);
-        return svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
-          return 1000 * d[0] / _this.x_max;
+        svg = d3.select("#manhattan_plots").append("svg").style('border', '2px solid black').attr("width", this.plot_width).attr("height", this.plot_height);
+        svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
+          return _this.plot_width * d[0] / _this.x_max;
         }).attr("cy", function(d) {
-          return 800 - (600 * d[1] / _this.y_max);
-        }).attr("r", 3);
+          return _this.plot_height - ((0.8 * _this.plot_height) * d[1] / _this.y_max);
+        }).attr("r", 2);
+        x = d3.scale.linear().domain([0, this.x_max]).range([0, this.plot_width]);
+        y = d3.scale.linear().domain([0, this.y_max]).range([0, this.plot_height]);
+        return svg.selectAll("line").data(x.ticks(this.max_chr)).enter().append("line").attr("x1", x).attr("x2", x).attr("y1", 0).attr("y2", this.plot_height).style("stroke", "#ccc");
       };
 
       return Manhattan_Plot;
