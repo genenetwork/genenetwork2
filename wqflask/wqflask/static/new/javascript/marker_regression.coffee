@@ -11,12 +11,13 @@ $ ->
 
             @x_coords = []
             @y_coords = []
+            @marker_names = []
             @get_coordinates()
             
             @x_max = d3.max(@x_coords)
             @y_max = d3.max(@y_coords)
 
-            @plot_coordinates = _.zip(@x_coords, @y_coords)
+            @plot_coordinates = _.zip(@x_coords, @y_coords, @marker_names)
             @create_graph()
 
 
@@ -42,7 +43,11 @@ $ ->
         
                 @x_coords.push(((chr-1) * 200) + parseFloat(result.Mb))
                 @y_coords.push(result.lrs_value)
+                @marker_names.push(result.name)
 
+
+        display_info: (d) ->
+            $("#coords").text(d[1])
 
         create_graph: () ->
             svg = d3.select("#manhattan_plots")
@@ -51,6 +56,21 @@ $ ->
                         .attr("width", @plot_width)
                         .attr("height", @plot_height)
         
+            svg.selectAll("text")
+                .data(@plot_coordinates)
+                .enter()
+                .append("text")
+                .attr("x", (d) =>
+                    return (@plot_width * d[0]/@x_max)
+                )
+                .attr("y", (d) =>
+                    return @plot_height - ((0.8*@plot_height) * d[1]/@y_max)
+                )
+                .text((d) => d[2])
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "12px")
+                .attr("fill", "black");
+            
             svg.selectAll("circle")
                 .data(@plot_coordinates)
                 .enter()
@@ -63,33 +83,45 @@ $ ->
                 )
                 .attr("r", 2)
                 .classed("circle", true)
-                .on("mouseover", () =>
+                .on("mouseover", (d) =>
                     d3.select(d3.event.target).classed("d3_highlight", true)
                         .attr("r", 5)
                         .attr("fill", "yellow")
+                        .call(@display_info(d))
+                        #.append("svg:text")
+                        #.text("test")
+                        #.attr("dx", 12)
+                        #.attr("dy", ".35em")
+                        #.attr("font-family", "sans-serif")
+                        #.attr("font-size", "11px")
+                        #.attr("fill", "red")
+                        #.attr("x", @plot_width * d[0]/@x_max)
+                        #.attr("y", @plot_height - ((0.8*@plot_height) * d[1]/@y_max))                 
+
+                        
+                    #d3.select(this).enter().append("svg:text") 
+                    #                .text("test") 
+                    #                .attr("x", function(d, i) { return i; } ) 
+                    #                .attr("y", function(d) { return -1 * d; }) 
+                    #                          }) 
+                        #.attr("font-family", "sans-serif")
+                        #.attr("font-size", "11px")
+                        #.attr("fill", "red")
+                        #.text(d[1])
+                        #.attr("x", @plot_width * d[0]/@x_max)
+                        #.attr("y", @plot_height - ((0.8*@plot_height) * d[1]/@y_max))
+                        #.attr("font-family", "sans-serif")
+                        #.attr("font-size", "11px")
+                        #.attr("fill", "red")
                 )
                 .on("mouseout", () =>
                     d3.select(d3.event.target).classed("d3_highlight", false)
                         .attr("r", 2)
                         .attr("fill", "black")
                 )
+                .attr("title", "foobar")
+                
 
-                svg.selectAll("text")
-                    .data(@plot_coordinates)
-                    .enter()
-                    .append("text")
-                    .text( (d) =>
-                        return d[1]
-                    )
-                    .attr("x", (d) =>
-                        return (@plot_width * d[0]/@x_max)
-                    )
-                    .attr("y", (d) =>
-                        return @plot_height - ((0.8*@plot_height) * d[1]/@y_max)
-                    )                 
-                    .attr("font-family", "sans-serif")
-                    .attr("font-size", "11px")
-                    .attr("fill", "red")
 
             x = d3.scale.linear()
                 .domain([0, @x_max])
