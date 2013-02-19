@@ -4,7 +4,9 @@ $ ->
 
         constructor: ->
             @qtl_results = js_data.qtl_results
+            @chromosomes = js_data.chromosomes
             @max_chr = @get_max_chr()
+            @cumulative_chr_lengths = @get_cumulative_chr_lengths()
 
             @plot_height = 500
             @plot_width = 1000
@@ -31,9 +33,22 @@ $ ->
                         max_chr = chr
             return max_chr
 
+        get_cumulative_chr_lengths: () ->
+            cumulative_chr_lengths = []
+            total_length = 0
+            for key of @chromosomes
+                this_length = @chromosomes[key]
+                cumulative_chr_lengths.push(total_length + this_length)
+                total_length += this_length
+            console.log("lengths:", cumulative_chr_lengths)
+            return cumulative_chr_lengths
+
 
         get_coordinates: () ->
+            total_length = 0
+            chr_lengths = []
             for result in js_data.qtl_results
+                chr_length = @chromosomes[result.chr]
                 chr = parseInt(result.chr)
                 if _.isNaN(chr)
                     if result.chr == "X"
@@ -41,9 +56,17 @@ $ ->
                     else if result.chr == "Y"
                         chr = @max_chr + 2
         
-                @x_coords.push(((chr-1) * 200) + parseFloat(result.Mb))
+                @x_coords.push(total_length + parseFloat(result.Mb))
                 @y_coords.push(result.lrs_value)
                 @marker_names.push(result.name)
+                
+                if chr_length in chr_lengths
+                    continue
+                else
+                    chr_lengths.push(chr_length)
+                    total_length += chr_length
+
+            console.log("chr_lengths are:", @chr_lengths)
 
 
         display_info: (d) ->
@@ -56,20 +79,20 @@ $ ->
                         .attr("width", @plot_width)
                         .attr("height", @plot_height)
         
-            svg.selectAll("text")
-                .data(@plot_coordinates)
-                .enter()
-                .append("text")
-                .attr("x", (d) =>
-                    return (@plot_width * d[0]/@x_max)
-                )
-                .attr("y", (d) =>
-                    return @plot_height - ((0.8*@plot_height) * d[1]/@y_max)
-                )
-                .text((d) => d[2])
-                .attr("font-family", "sans-serif")
-                .attr("font-size", "12px")
-                .attr("fill", "black");
+            #svg.selectAll("text")
+            #    .data(@plot_coordinates)
+            #    .enter()
+            #    .append("text")
+            #    .attr("x", (d) =>
+            #        return (@plot_width * d[0]/@x_max)
+            #    )
+            #    .attr("y", (d) =>
+            #        return @plot_height - ((0.8*@plot_height) * d[1]/@y_max)
+            #    )
+            #    .text((d) => d[2])
+            #    .attr("font-family", "sans-serif")
+            #    .attr("font-size", "12px")
+            #    .attr("fill", "black");
             
             svg.selectAll("circle")
                 .data(@plot_coordinates)
@@ -116,7 +139,7 @@ $ ->
                 )
                 .on("mouseout", () =>
                     d3.select(d3.event.target).classed("d3_highlight", false)
-                        .attr("r", 2)
+                       .attr("r", 2)
                         .attr("fill", "black")
                 )
                 .attr("title", "foobar")
@@ -132,7 +155,7 @@ $ ->
                 .range([0, @plot_height])
                 
             svg.selectAll("line")
-                .data(x.ticks(@max_chr))
+                .data(@cumulative_chr_lengths)
                 .enter()
                 .append("line")
                 .attr("x1", x)

@@ -38,7 +38,7 @@ class ShowTrait(object):
         print("in ShowTrait, kw are:", kw)
         self.trait_id = kw['trait_id']
         
-        helper_functions.get_dataset_and_trait(self, kw)
+        helper_functions.get_species_dataset_trait(self, kw)
 
         #self.dataset = create_dataset(kw['dataset'])
         #

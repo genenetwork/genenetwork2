@@ -24,6 +24,7 @@ from utility import Plot, Bunch
 from wqflask.interval_analyst import GeneUtil
 from base.trait import GeneralTrait
 from base import data_set
+from base import species
 from base.templatePage import templatePage
 from utility import webqtlUtil, helper_functions
 from base import webqtlConfig
@@ -60,7 +61,7 @@ class MarkerRegression(object):
 
         #print("start_vars are: ", pf(start_vars))
 
-        helper_functions.get_dataset_and_trait(self, start_vars)
+        helper_functions.get_species_dataset_trait(self, start_vars)
 
         self.num_perm = int(start_vars['num_perm'])
 
@@ -306,7 +307,14 @@ class MarkerRegression(object):
 
             # end: common part with human data
             
+            chromosome_mb_lengths = {}
+            for key in self.species.chromosomes.chromosomes.keys():
+                chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
+            
+            print("chromosomes is:", pf(chromosome_mb_lengths))
+            
             self.js_data = dict(
+                chromosomes = chromosome_mb_lengths,
                 qtl_results = self.pure_qtl_results,
                 lrs_values = self.lrs_values,
             )
@@ -476,25 +484,24 @@ class MarkerRegression(object):
         #prep_data.PrepData(self.vals, genotype_data)
         
         pheno_vector = np.array([float(val) for val in self.vals if val!="x"])
-        print("genotypes was:", pf(trimmed_genotype_data))
-        for item in trimmed_genotype_data:
-            if type(item) != type(list()):
-                print(" --->", type(item))
-            for counter, part in enumerate(item):
-                if type(part) != type(float()):
-                    print(" ------>", type(part), " : ", part)
-                if counter % 100 == 0:
-                    print(" ------>", type(part))
+        #for item in trimmed_genotype_data:
+        #    if type(item) != type(list()):
+        #        print(" --->", type(item))
+        #    for counter, part in enumerate(item):
+        #        if type(part) != type(float()):
+        #            print(" ------>", type(part), " : ", part)
+        #        if counter % 100 == 0:
+        #            print(" ------>", type(part))
         genotypes = np.array(trimmed_genotype_data).T
-        print("genotypes is:", pf(genotypes))
+        #print("genotypes is:", pf(genotypes))
         #genotypes = np.genfromtxt(os.path.join(webqtlConfig.TMPDIR,
         #                                       self.dataset.group.name + '.snps.new')).T
         
-        print("pheno_vector is:", pf(pheno_vector.shape))
-        print("genotypes is:", pf(genotypes.shape))
+        #print("pheno_vector is:", pf(pheno_vector.shape))
+        #print("genotypes is:", pf(genotypes.shape))
         
         kinship_matrix = lmm.calculateKinship(genotypes)
-        print("kinship_matrix is:", pf(kinship_matrix))
+        #print("kinship_matrix is:", pf(kinship_matrix))
         
         lmm_ob = lmm.LMM(pheno_vector, kinship_matrix)
         lmm_ob.fit()

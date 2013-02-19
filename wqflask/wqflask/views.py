@@ -154,7 +154,7 @@ def marker_regression_page():
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
-    print("[dub] js_data after dump:", template_vars.js_data)
+    #print("[dub] js_data after dump:", template_vars.js_data)
     #print("marker_regression template_vars:", pf(template_vars.__dict__))
     return render_template("marker_regression.html", **template_vars.__dict__)
 
