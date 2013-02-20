@@ -6,18 +6,21 @@
     var Manhattan_Plot;
     Manhattan_Plot = (function() {
 
-      function Manhattan_Plot() {
+      function Manhattan_Plot(plot_height, plot_width) {
+        this.plot_height = plot_height;
+        this.plot_width = plot_width;
         this.qtl_results = js_data.qtl_results;
         this.chromosomes = js_data.chromosomes;
+        this.total_length = 0;
         this.max_chr = this.get_max_chr();
-        this.cumulative_chr_lengths = this.get_cumulative_chr_lengths();
-        this.plot_height = 500;
-        this.plot_width = 1000;
+        this.scaled_chr_lengths = this.get_chr_lengths();
+        console.log("scaled_chr_lengths is", this.scaled_chr_lengths);
         this.x_coords = [];
         this.y_coords = [];
         this.marker_names = [];
         this.get_coordinates();
         this.x_max = d3.max(this.x_coords);
+        console.log("x_max is:", this.x_max);
         this.y_max = d3.max(this.y_coords);
         this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
         this.create_graph();
@@ -40,7 +43,13 @@
         return max_chr;
       };
 
-      Manhattan_Plot.prototype.get_cumulative_chr_lengths = function() {
+      Manhattan_Plot.prototype.get_chr_lengths = function() {
+        /*
+                    Gets a list of cumulative lengths in order to draw the vertical
+                    lines separating chromosomes (the position of one on the graph is its own length
+                    plus the lengths of all preceding chromosomes)
+        */
+
         var cumulative_chr_lengths, key, this_length, total_length;
         cumulative_chr_lengths = [];
         total_length = 0;
@@ -49,41 +58,41 @@
           cumulative_chr_lengths.push(total_length + this_length);
           total_length += this_length;
         }
+        console.log("@plot_width:", this.plot_width);
         console.log("lengths:", cumulative_chr_lengths);
+        console.log("total_length:", total_length);
         return cumulative_chr_lengths;
       };
 
       Manhattan_Plot.prototype.get_coordinates = function() {
-        var chr, chr_length, chr_lengths, result, total_length, _i, _len, _ref;
-        total_length = 0;
+        var chr_length, chr_lengths, chr_seen, result, _i, _len, _ref, _ref1;
         chr_lengths = [];
+        chr_seen = [];
         _ref = js_data.qtl_results;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           result = _ref[_i];
           chr_length = this.chromosomes[result.chr];
-          chr = parseInt(result.chr);
-          if (_.isNaN(chr)) {
-            if (result.chr === "X") {
-              chr = this.max_chr + 1;
-            } else if (result.chr === "Y") {
-              chr = this.max_chr + 2;
+          if (!(_ref1 = result.chr, __indexOf.call(chr_seen, _ref1) >= 0)) {
+            chr_seen.push(result.chr);
+            chr_lengths.push(chr_length);
+            if (result.chr !== "1") {
+              this.total_length += chr_lengths[chr_lengths.length - 2];
+              console.log("total_length is:", this.total_length);
             }
           }
-          this.x_coords.push(total_length + parseFloat(result.Mb));
-          this.y_coords.push(result.lrs_value);
+          this.x_coords.push(this.total_length + parseFloat(result.Mb));
+          this.y_coords.push(result.lod_score);
           this.marker_names.push(result.name);
-          if (__indexOf.call(chr_lengths, chr_length) >= 0) {
-            continue;
-          } else {
-            chr_lengths.push(chr_length);
-            total_length += chr_length;
-          }
         }
-        return console.log("chr_lengths are:", this.chr_lengths);
+        return console.log("chr_lengths are:", chr_lengths);
       };
 
       Manhattan_Plot.prototype.display_info = function(d) {
-        return $("#coords").text(d[1]);
+        return $("#qtl_results_filter").find("input:first").val(d[2]).keyup();
+      };
+
+      Manhattan_Plot.prototype.undisplay_info = function() {
+        return $("#qtl_results_filter").find("input:first").val("").keyup();
       };
 
       Manhattan_Plot.prototype.create_graph = function() {
@@ -97,17 +106,17 @@
         }).attr("r", 2).classed("circle", true).on("mouseover", function(d) {
           return d3.select(d3.event.target).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow").call(_this.display_info(d));
         }).on("mouseout", function() {
-          return d3.select(d3.event.target).classed("d3_highlight", false).attr("r", 2).attr("fill", "black");
+          return d3.select(d3.event.target).classed("d3_highlight", false).attr("r", 2).attr("fill", "black").call(_this.undisplay_info());
         }).attr("title", "foobar");
         x = d3.scale.linear().domain([0, this.x_max]).range([0, this.plot_width]);
         y = d3.scale.linear().domain([0, this.y_max]).range([0, this.plot_height]);
-        return svg.selectAll("line").data(this.cumulative_chr_lengths).enter().append("line").attr("x1", x).attr("x2", x).attr("y1", 0).attr("y2", this.plot_height).style("stroke", "#ccc");
+        return svg.selectAll("line").data(this.scaled_chr_lengths).enter().append("line").attr("x1", x).attr("x2", x).attr("y1", 0).attr("y2", this.plot_height).style("stroke", "#ccc");
       };
 
       return Manhattan_Plot;
 
     })();
-    return new Manhattan_Plot;
+    return new Manhattan_Plot(600, 1200);
   });
 
 }).call(this);
