@@ -14,15 +14,18 @@
         this.total_length = 0;
         this.max_chr = this.get_max_chr();
         this.scaled_chr_lengths = this.get_chr_lengths();
-        console.log("scaled_chr_lengths is", this.scaled_chr_lengths);
         this.x_coords = [];
         this.y_coords = [];
         this.marker_names = [];
-        this.get_coordinates();
+        this.create_coordinates();
+        this.x_buffer = this.plot_width / 30;
+        this.y_buffer = this.plot_height / 20;
         this.x_max = d3.max(this.x_coords);
-        console.log("x_max is:", this.x_max);
-        this.y_max = d3.max(this.y_coords);
+        this.y_max = d3.max(this.y_coords) * 1.2;
+        this.svg = this.create_svg();
         this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
+        this.plot_height = this.plot_height - this.y_buffer;
+        this.create_scales();
         this.create_graph();
       }
 
@@ -58,13 +61,10 @@
           cumulative_chr_lengths.push(total_length + this_length);
           total_length += this_length;
         }
-        console.log("@plot_width:", this.plot_width);
-        console.log("lengths:", cumulative_chr_lengths);
-        console.log("total_length:", total_length);
         return cumulative_chr_lengths;
       };
 
-      Manhattan_Plot.prototype.get_coordinates = function() {
+      Manhattan_Plot.prototype.create_coordinates = function() {
         var chr_length, chr_lengths, chr_seen, result, _i, _len, _ref, _ref1;
         chr_lengths = [];
         chr_seen = [];
@@ -87,30 +87,76 @@
         return console.log("chr_lengths are:", chr_lengths);
       };
 
-      Manhattan_Plot.prototype.display_info = function(d) {
-        return $("#qtl_results_filter").find("input:first").val(d[2]).keyup();
+      Manhattan_Plot.prototype.show_marker_in_table = function(marker_info) {
+        /* Searches for the select marker in the results table below
+        */
+
+        var marker_name;
+        if (marker_info) {
+          marker_name = marker_info[2];
+        } else {
+          marker_name = "";
+        }
+        return $("#qtl_results_filter").find("input:first").val(marker_name).keyup();
       };
 
-      Manhattan_Plot.prototype.undisplay_info = function() {
-        return $("#qtl_results_filter").find("input:first").val("").keyup();
+      Manhattan_Plot.prototype.create_svg = function() {
+        var svg;
+        svg = d3.select("#manhattan_plots").append("svg").attr("width", this.plot_width).attr("height", this.plot_height);
+        return svg;
+      };
+
+      Manhattan_Plot.prototype.create_scales = function() {
+        this.x_scale = d3.scale.linear().domain([0, this.x_max]).range([this.x_buffer, this.plot_width]);
+        return this.y_scale = d3.scale.linear().domain([0, this.y_max]).range([this.plot_height, this.y_buffer]);
       };
 
       Manhattan_Plot.prototype.create_graph = function() {
-        var svg, x, y,
+        this.add_border();
+        this.add_y_axis();
+        this.add_chr_lines();
+        return this.add_plot_points();
+      };
+
+      Manhattan_Plot.prototype.add_border = function() {
+        var border_coords,
           _this = this;
-        svg = d3.select("#manhattan_plots").append("svg").style('border', '2px solid black').attr("width", this.plot_width).attr("height", this.plot_height);
-        svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
-          return _this.plot_width * d[0] / _this.x_max;
+        border_coords = [[this.y_buffer, this.plot_height, this.x_buffer, this.x_buffer], [this.y_buffer, this.plot_height, this.plot_width, this.plot_width], [this.y_buffer, this.y_buffer, this.x_buffer, this.plot_width], [this.plot_height, this.plot_height, this.x_buffer, this.plot_width]];
+        return this.svg.selectAll("line").data(border_coords).enter().append("line").attr("y1", function(d) {
+          return d[0];
+        }).attr("y2", function(d) {
+          return d[1];
+        }).attr("x1", function(d) {
+          return d[2];
+        }).attr("x2", function(d) {
+          return d[3];
+        }).style("stroke", "#000");
+      };
+
+      Manhattan_Plot.prototype.add_y_axis = function() {
+        var yAxis;
+        yAxis = d3.svg.axis().scale(this.y_scale).orient("left").ticks(5);
+        return this.svg.append("g").attr("class", "axis").attr("transform", "translate(" + this.x_buffer + ",0)").call(yAxis);
+      };
+
+      Manhattan_Plot.prototype.add_chr_lines = function() {
+        var _this = this;
+        return this.svg.selectAll("line").data(this.scaled_chr_lengths, function(d) {
+          return d;
+        }).enter().append("line").attr("x1", this.x_scale).attr("x2", this.x_scale).attr("y1", this.y_buffer).attr("y2", this.plot_height).style("stroke", "#ccc");
+      };
+
+      Manhattan_Plot.prototype.add_plot_points = function() {
+        var _this = this;
+        return this.svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
+          return _this.x_buffer + (_this.plot_width * d[0] / _this.x_max);
         }).attr("cy", function(d) {
-          return _this.plot_height - ((0.8 * _this.plot_height) * d[1] / _this.y_max);
+          return _this.plot_height - (_this.plot_height * d[1] / _this.y_max);
         }).attr("r", 2).classed("circle", true).on("mouseover", function(d) {
-          return d3.select(d3.event.target).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow").call(_this.display_info(d));
+          return d3.select(d3.event.target).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow").call(_this.show_marker_in_table(d));
         }).on("mouseout", function() {
-          return d3.select(d3.event.target).classed("d3_highlight", false).attr("r", 2).attr("fill", "black").call(_this.undisplay_info());
-        }).attr("title", "foobar");
-        x = d3.scale.linear().domain([0, this.x_max]).range([0, this.plot_width]);
-        y = d3.scale.linear().domain([0, this.y_max]).range([0, this.plot_height]);
-        return svg.selectAll("line").data(this.scaled_chr_lengths).enter().append("line").attr("x1", x).attr("x2", x).attr("y1", 0).attr("y2", this.plot_height).style("stroke", "#ccc");
+          return d3.select(d3.event.target).classed("d3_highlight", false).attr("r", 2).attr("fill", "black").call(_this.show_marker_in_table());
+        });
       };
 
       return Manhattan_Plot;

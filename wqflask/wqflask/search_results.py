@@ -41,16 +41,6 @@ class SearchResultPage():
 
 
     def __init__(self, kw):
-        print("initing SearchResultPage")
-        #import logging_tree
-        #logging_tree.printout()
-        #self.fd = fd
-        #templatePage.__init__(self, fd)
-        #assert self.openMysql(), "Couldn't open MySQL"
-
-        # change back to self.dataset
-        #if not self.dataset or self.dataset == 'spacer':
-        #    #Error, No dataset selected
 
         ###########################################
         #   Names and IDs of group / F2 set
