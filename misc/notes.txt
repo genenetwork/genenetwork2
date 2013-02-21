@@ -27,6 +27,7 @@ dpkg -l | less
 
 ============================================
 
+NEVER USE SUDO WITH PIP
 
 To fix error "mysql_config not found":
 sudo apt-get install libmysqlclient-dev
@@ -62,6 +63,7 @@ history | grep "(whatever is being searched for)"
 
 Run web server:
 /usr/local/nginx/sbin/nginx
+/usr/sbin/nginx
 
 Run server:
 python runserver.py
