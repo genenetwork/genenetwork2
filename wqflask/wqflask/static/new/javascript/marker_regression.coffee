@@ -12,16 +12,14 @@ $ ->
             @y_coords = []
             @marker_names = []    
             @create_coordinates()
-            @scaled_chr_lengths = @get_chr_lengths()
+            [@chr_lengths, @cumulative_chr_lengths] = @get_chr_lengths()
 
             # Buffer to allow for the ticks/labels to be drawn
-            @x_buffer = @plot_width/25
+            @x_buffer = @plot_width/30
             @y_buffer = @plot_height/20
             
             #@x_max = d3.max(@x_coords)
-            console.log("x_max is", d3.max(@x_coords))
             @x_max = @total_length
-            console.log("x_max is", @x_max)
             @y_max = d3.max(@y_coords) * 1.2
 
             @svg = @create_svg()
@@ -42,22 +40,24 @@ $ ->
 
         get_chr_lengths: () ->
             ###
-            Gets a list of cumulative lengths in order to draw the vertical
-            lines separating chromosomes (the position of one on the graph is its own length
-            plus the lengths of all preceding chromosomes)
+            Gets a list of both individual and cumulative (the position of one on the graph
+            is its own length plus the lengths of all preceding chromosomes) lengths in order
+            to draw the vertical lines separating chromosomes and the chromosome labels
             
             ###
             
             cumulative_chr_lengths = []
+            chr_lengths = []
             total_length = 0
             for key of @chromosomes
                 this_length = @chromosomes[key]
+                chr_lengths.push(this_length)
                 cumulative_chr_lengths.push(total_length + this_length)
                 total_length += this_length
                 
             console.log("total length is:", total_length)
 
-            return cumulative_chr_lengths
+            return [chr_lengths, cumulative_chr_lengths]
 
         create_coordinates: () -> 
             chr_lengths = []
@@ -85,9 +85,6 @@ $ ->
             else
                 marker_name = ""
             $("#qtl_results_filter").find("input:first").val(marker_name).keyup()
-            
-        #unselect_marker: () ->
-        #    $("#qtl_results_filter").find("input:first").val("").keyup()
 
         create_svg: () ->
             svg = d3.select("#manhattan_plots")
@@ -96,15 +93,6 @@ $ ->
                 .attr("height", @plot_height)
             
             return svg
-
-        create_scales: () ->
-            @x_scale = d3.scale.linear()
-                .domain([0, d3.max(@x_coords)])
-                .range([@x_buffer, @plot_width])
-
-            @y_scale = d3.scale.linear()
-                .domain([0, @y_max])
-                .range([@plot_height, @y_buffer])
 
         create_graph: () ->
             @add_border()
@@ -136,6 +124,16 @@ $ ->
                 )             
                 .style("stroke", "#000")
 
+        create_scales: () ->
+            console.log("plot_width is: ", @plot_width)
+            @x_scale = d3.scale.linear()
+                .domain([0, d3.max(@x_coords)])
+                .range([@x_buffer, @plot_width])
+
+            @y_scale = d3.scale.linear()
+                .domain([0, @y_max])
+                .range([@plot_height, @y_buffer])
+
         add_y_axis: () ->
             yAxis = d3.svg.axis()
                     .scale(@y_scale)
@@ -149,7 +147,7 @@ $ ->
 
         add_chr_lines: () ->
             @svg.selectAll("line")
-                .data(@scaled_chr_lengths, (d) =>
+                .data(@cumulative_chr_lengths, (d) =>
                     return d
                 )
                 .enter()
@@ -159,18 +157,30 @@ $ ->
                 .attr("y1", @y_buffer)
                 .attr("y2", @plot_height)
                 .style("stroke", "#ccc")
+
+        add_chr_labels: () ->
+            @svg.selectAll("text")
+                .data(_.zip(@chr_lengths, @cumulative_chr_lengths), (d) =>
+                    label_positions = []
+                    for chr in d
+                        label_positions.push(chr[1] - chr[0]/2)
+                    return label_positions
+                )
+                .enter()
+                .append("text")
                 
 
         add_plot_points: () ->
+            console.log("x_max is:", @x_max)
             @svg.selectAll("circle")
                 .data(@plot_coordinates)
                 .enter()
                 .append("circle")
                 .attr("cx", (d) =>
-                    return @x_buffer + (@plot_width * d[0]/@x_max)
+                    return @x_buffer + ((@plot_width-@x_buffer) * d[0]/@x_max)
                 )
                 .attr("cy", (d) =>
-                    return @plot_height - ((@plot_height) * d[1]/@y_max)
+                    return @plot_height - ((@plot_height-@y_buffer) * d[1]/@y_max)
                 )
                 .attr("r", 2)
                 .classed("circle", true)
