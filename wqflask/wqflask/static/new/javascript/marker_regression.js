@@ -13,18 +13,20 @@
         this.chromosomes = js_data.chromosomes;
         this.total_length = 0;
         this.max_chr = this.get_max_chr();
-        this.scaled_chr_lengths = this.get_chr_lengths();
         this.x_coords = [];
         this.y_coords = [];
         this.marker_names = [];
         this.create_coordinates();
-        this.x_buffer = this.plot_width / 30;
+        this.scaled_chr_lengths = this.get_chr_lengths();
+        this.x_buffer = this.plot_width / 25;
         this.y_buffer = this.plot_height / 20;
-        this.x_max = d3.max(this.x_coords);
+        console.log("x_max is", d3.max(this.x_coords));
+        this.x_max = this.total_length;
+        console.log("x_max is", this.x_max);
         this.y_max = d3.max(this.y_coords) * 1.2;
         this.svg = this.create_svg();
         this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
-        this.plot_height = this.plot_height - this.y_buffer;
+        this.plot_height -= this.y_buffer;
         this.create_scales();
         this.create_graph();
       }
@@ -61,6 +63,7 @@
           cumulative_chr_lengths.push(total_length + this_length);
           total_length += this_length;
         }
+        console.log("total length is:", total_length);
         return cumulative_chr_lengths;
       };
 
@@ -84,6 +87,8 @@
           this.y_coords.push(result.lod_score);
           this.marker_names.push(result.name);
         }
+        this.total_length += chr_lengths[chr_lengths.length - 1];
+        console.log("total length is", this.total_length);
         return console.log("chr_lengths are:", chr_lengths);
       };
 
@@ -107,7 +112,7 @@
       };
 
       Manhattan_Plot.prototype.create_scales = function() {
-        this.x_scale = d3.scale.linear().domain([0, this.x_max]).range([this.x_buffer, this.plot_width]);
+        this.x_scale = d3.scale.linear().domain([0, d3.max(this.x_coords)]).range([this.x_buffer, this.plot_width]);
         return this.y_scale = d3.scale.linear().domain([0, this.y_max]).range([this.plot_height, this.y_buffer]);
       };
 

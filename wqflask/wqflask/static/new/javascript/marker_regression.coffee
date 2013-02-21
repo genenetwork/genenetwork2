@@ -5,28 +5,30 @@ $ ->
             @chromosomes = js_data.chromosomes
 
             @total_length = 0
-            
+
             @max_chr = @get_max_chr()
-            @scaled_chr_lengths = @get_chr_lengths()
 
             @x_coords = []
             @y_coords = []
             @marker_names = []    
             @create_coordinates()
+            @scaled_chr_lengths = @get_chr_lengths()
 
             # Buffer to allow for the ticks/labels to be drawn
-            @x_buffer = @plot_width/30
+            @x_buffer = @plot_width/25
             @y_buffer = @plot_height/20
             
-            @x_max = d3.max(@x_coords)
+            #@x_max = d3.max(@x_coords)
+            console.log("x_max is", d3.max(@x_coords))
+            @x_max = @total_length
+            console.log("x_max is", @x_max)
             @y_max = d3.max(@y_coords) * 1.2
 
             @svg = @create_svg()
             @plot_coordinates = _.zip(@x_coords, @y_coords, @marker_names)
-            @plot_height = @plot_height - @y_buffer
+            @plot_height -= @y_buffer
             @create_scales()
             @create_graph()
-
 
         get_max_chr: () ->
             max_chr = 0
@@ -52,6 +54,8 @@ $ ->
                 this_length = @chromosomes[key]
                 cumulative_chr_lengths.push(total_length + this_length)
                 total_length += this_length
+                
+            console.log("total length is:", total_length)
 
             return cumulative_chr_lengths
 
@@ -69,6 +73,8 @@ $ ->
                 @x_coords.push(@total_length + parseFloat(result.Mb))
                 @y_coords.push(result.lod_score)
                 @marker_names.push(result.name)
+            @total_length += chr_lengths[chr_lengths.length-1]
+            console.log("total length is", @total_length)
 
             console.log("chr_lengths are:", chr_lengths)
 
@@ -93,7 +99,7 @@ $ ->
 
         create_scales: () ->
             @x_scale = d3.scale.linear()
-                .domain([0, @x_max])
+                .domain([0, d3.max(@x_coords)])
                 .range([@x_buffer, @plot_width])
 
             @y_scale = d3.scale.linear()
