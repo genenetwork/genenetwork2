@@ -4,11 +4,15 @@ git clone http://github.com/zsloan/genenetwork.git gene
 Pull from branch in git repository:
 git pull origin flask(or whatever the branch is)
 
+Add all files in current directory branch to be staged to be committed
+git add -A
+
 
 **** apt-get is an Ubuntu system-wide package manager, while pip is a Python-only system
 for python packages ****
 
 Upgrade system packages for security updates, etc:
+apt-get update
 apt-get upgrade
 
 **"apt-cache search" searches for text in the description for various packages, while
@@ -67,6 +71,14 @@ Run web server:
 
 Run server:
 python runserver.py
+
+===========================================
+
+Redis things
+
+Restart redis server:
+sudo /etc/init.d/redis_6379 stop
+sudo /etc/init.d/redis_6379 start
 
 ===========================================
 
