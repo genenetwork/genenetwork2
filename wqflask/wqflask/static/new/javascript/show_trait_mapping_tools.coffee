@@ -11,8 +11,21 @@ $ ->
         $("#trait_data_form").attr("action", url);
         $("#trait_data_form").submit()
         
-    $(".submit_special").click(submit_special)
-
+    $("#marker_regression").click(() =>
+        $("#progress_bar_container").modal()
+        url = "/marker_regression"
+        $.ajax(
+            type: "POST"
+            url: url
+            data: $("#trait_data_form").serialize()
+            success: (data) =>
+                $('#progress_bar_container').modal('hide')
+                $("body").html(data)
+        )
+        return false
+    )
+        
+    #$(".submit_special").click(submit_special)
 
     composite_mapping_fields = ->
         $(".composite_fields").toggle()
