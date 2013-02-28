@@ -33,7 +33,6 @@ from pprint import pformat as pf
 
 @app.before_request
 def connect_db():
-    print("blue app.config:", app.config, pf(vars(app.config)))
     g.db = sqlalchemy.create_engine(app.config['DB_URI'])
 
 @app.route("/")
