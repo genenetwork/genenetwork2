@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, division
 import string
 import os
 import cPickle
+import uuid
 #import pyXLWriter as xl
 
 from collections import OrderedDict
@@ -120,6 +121,8 @@ class ShowTrait(object):
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
+        
+        self.session_uuid = uuid.uuid4()
 
         self.sample_group_types = OrderedDict()
         self.sample_group_types['samples_primary'] = self.dataset.group.name + " Only"
@@ -129,7 +132,8 @@ class ShowTrait(object):
         print("sample_lists is:", pf(sample_lists))
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
-                        attribute_names = self.sample_groups[0].attributes)
+                        attribute_names = self.sample_groups[0].attributes,
+                        session_uuid = self.session_uuid)
         #print("js_data:", pf(js_data))
         self.js_data = js_data
 

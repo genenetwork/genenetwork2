@@ -14,6 +14,7 @@ import sys
 import os
 import httplib
 import urllib
+import collections
 
 import numpy as np
 
@@ -21,6 +22,7 @@ import json
 
 from htmlgen import HTMLgen2 as HT
 from utility import Plot, Bunch
+from utility.benchmark import Bench
 from wqflask.interval_analyst import GeneUtil
 from base.trait import GeneralTrait
 from base import data_set
@@ -462,90 +464,61 @@ class MarkerRegression(object):
 
     def gen_data(self):
         """Todo: Fill this in here"""
-        
-        #json_data = open(os.path.join(webqtlConfig.NEWGENODIR + self.dataset.group.name + '.json'))
-        #markers = json.load(json_data)
-        
+
+        print("something")
+
         genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-        
+
         no_val_samples = self.identify_empty_samples()
         trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
 
-        #for i, marker in enumerate(trimmed_genotype_data):
-        #    if i > 10:
-        #        break
-        #    print("genotype is:", pf(marker))
-        
-        #print("trimmed genotype data is:", pf(trimmed_genotype_data))
-        
-        #for marker_object in genotype_data:
-        #    print("marker_object:", pf(marker_object))
-
-        #prep_data.PrepData(self.vals, genotype_data)
-        
         pheno_vector = np.array([float(val) for val in self.vals if val!="x"])
-        #for item in trimmed_genotype_data:
-        #    if type(item) != type(list()):
-        #        print(" --->", type(item))
-        #    for counter, part in enumerate(item):
-        #        if type(part) != type(float()):
-        #            print(" ------>", type(part), " : ", part)
-        #        if counter % 100 == 0:
-        #            print(" ------>", type(part))
         genotypes = np.array(trimmed_genotype_data).T
-        #print("genotypes is:", pf(genotypes))
-        #genotypes = np.genfromtxt(os.path.join(webqtlConfig.TMPDIR,
-        #                                       self.dataset.group.name + '.snps.new')).T
-        
-        #print("pheno_vector is:", pf(pheno_vector.shape))
-        #print("genotypes is:", pf(genotypes.shape))
-        
-        kinship_matrix = lmm.calculateKinship(genotypes)
-        #print("kinship_matrix is:", pf(kinship_matrix))
-        
-        lmm_ob = lmm.LMM(pheno_vector, kinship_matrix)
-        lmm_ob.fit()
 
-        t_stats, p_values = lmm.GWAS(pheno_vector,
-                                     genotypes,
-                                     kinship_matrix,
-                                     REML=True,
-                                     refit=False)
-
-        #print("p_values is:", pf(len(p_values)))
+        #times = collections.OrderedDict()
+        #times['start'] = time.time()
         
+        with Bench("Calculate Kinship"):
+            kinship_matrix = lmm.calculateKinship(genotypes)
+        
+        with Bench("Create LMM object"):
+            lmm_ob = lmm.LMM(pheno_vector, kinship_matrix)
+        
+        with Bench("LMM_ob fitting"):
+            lmm_ob.fit()
+            
+        
+        with Bench("Doing gwas"):
+            t_stats, p_values = lmm.GWAS(pheno_vector,
+                                         genotypes,
+                                         kinship_matrix,
+                                         REML=True,
+                                         refit=False)
+            
+        Bench().report()
+        
+        #previous_time = None
+        #for operation, this_time in times.iteritems():
+        #    if previous_time:
+        #        print("{} run time: {}".format(operation, this_time-previous_time))
+        #        #print("time[{}]:{}\t{}".format(key, thistime, thistime-lasttime))
+        #    previous_time = this_time
+
         self.dataset.group.markers.add_pvalues(p_values)
 
-        #calculate QTL for each trait
-        #self.qtl_results = self.genotype.regression(strains = self.samples,
-        #                                        trait = self.vals)
-        #self.lrs_array = self.genotype.permutation(strains = self.samples,
-        #                                       trait = self.vals,
-        #                                       nperm=self.num_perm)
-
         self.lrs_values = [marker['lrs_value'] for marker in self.dataset.group.markers.markers]
-        #print("self.lrs_values is:", pf(self.lrs_values))
         lrs_values_sorted = sorted(self.lrs_values)
-        
-        #print("lrs_values_sorted is:", pf(lrs_values_sorted))
-        #print("int(self.num_perm*0.37-1)", pf(int(self.num_perm*0.37-1)))
-        
+
         lrs_values_length = len(lrs_values_sorted)
-        
+
         def lrs_threshold(place):
             return lrs_values_sorted[int((lrs_values_length * place) -1)]
-        
+
         self.lrs_thresholds = Bunch(
                             suggestive = lrs_threshold(.37),
                             significant = lrs_threshold(.95),
                             highly_significant = lrs_threshold(.99),
                                 )
-
-        #self.lrs_thresholds = Bunch(
-        #                        suggestive = self.lrs_array[int(self.num_perm*0.37-1)],
-        #                        significant = self.lrs_array[int(self.num_perm*0.95-1)],
-        #                        highly_significant = self.lrs_array[int(self.num_perm*0.99-1)]
-        #                        )
 
         if self.display_all_lrs:
             self.filtered_results = self.dataset.group.markers.markers
@@ -556,67 +529,6 @@ class MarkerRegression(object):
                 self.pure_qtl_results.append(marker)
                 if marker['lrs_value'] > self.lrs_thresholds.suggestive:
                     self.filtered_results.append(marker)
-
-        #if self.display_all_lrs:
-        #    filtered_results = self.qtl_results
-        #else:
-        #    suggestive_results = []
-        #    self.pure_qtl_results = []
-        #    for result in self.qtl_results:
-        #        self.pure_qtl_results.append(dict(locus=dict(name=result.locus.name,
-        #                                                     mb=result.locus.Mb,
-        #                                                     chromosome=result.locus.chr),
-        #                                          lrs=result.lrs,
-        #                                          additive=result.additive))
-        #        if result.lrs > self.lrs_thresholds.suggestive:
-        #            suggestive_results.append(result)
-        #    filtered_results = suggestive_results 
-
-
-        # Todo (2013): Use top_10 variable to generate page message about whether top 10 was used
-        if not self.filtered_results:
-            # We use the 10 results with the highest LRS values
-            self.filtered_results = sorted(self.qtl_results)[-10:]
-            self.top_10 = True
-        else:
-            self.top_10 = False
-
-
-
-        #qtlresults2 = []
-        #if self.disp_all_lrs:
-        #    filtered = self.qtl_results[:]
-        #else:
-        #    filtered = filter(lambda x, y=fd.suggestive: x.lrs > y, qtlresults)
-        #if len(filtered) == 0:
-        #    qtlresults2 = qtlresults[:]
-        #    qtlresults2.sort()
-        #    filtered = qtlresults2[-10:]
-
-        #########################################
-        #      Permutation Graph
-        #########################################
-        #myCanvas = pid.PILCanvas(size=(400,300))
-        ##plotBar(myCanvas,10,10,390,290,LRSArray,XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test',identification=fd.identification)
-        #Plot.plotBar(myCanvas, LRSArray, XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test')
-        #filename= webqtlUtil.genRandStr("Reg_")
-        #myCanvas.save(webqtlConfig.IMGDIR+filename, format='gif')
-        #img=HT.Image('/image/'+filename+'.gif',border=0,alt='Histogram of Permutation Test')
-            
-        #if fd.suggestive == None:
-        #    fd.suggestive = LRSArray[int(fd.nperm*0.37-1)]
-        #else:
-        #    fd.suggestive = float(fd.suggestive)
-        #if fd.significance == None:
-        #    fd.significance = LRSArray[int(fd.nperm*0.95-1)]
-        #else:
-        #    fd.significance = float(fd.significance)
-
-        #permutationHeading = HT.Paragraph('Histogram of Permutation Test')
-        #permutationHeading.__setattr__("class","title")
-        #
-        #permutation = HT.TableLite()
-        #permutation.append(HT.TR(HT.TD(img)))
 
         for marker in self.filtered_results:
             if marker['lrs_value'] > webqtlConfig.MAXLRS:
@@ -694,17 +606,6 @@ class MarkerRegression(object):
         #        fpText.write('%2.3f\t%s\t%3.6f\t%s\t%2.3f\n' % (LRS, ii.locus.chr, ii.locus.Mb, ii.locus.name, ii.additive))
         #        index+=1
         #        tblobj_body.append(reportBodyRow)
-
-        #tblobj_header.append(reportHeaderRow)
-        #tblobj['header']=tblobj_header
-        #tblobj['body']=tblobj_body
-
-        #rv=HT.TD(regressionHeading,LRSInfo,report, locusForm, HT.P(),width='55%',valign='top', align='left', bgColor='#eeeeee')
-        #if fd.genotype.type == 'intercross':
-        #    bottomInfo.append(HT.BR(), HT.BR(), HT.Strong('Dominance Effect'),' is the difference between the mean trait value of cases heterozygous at a marker and the average mean for the two groups homozygous at this marker: e.g.,  BD - (BB+DD)/2]. A positive dominance effect indicates that the average phenotype of BD heterozygotes exceeds the mean of BB and DD homozygotes. No dominance deviation can be computed for a set of recombinant inbred strains or for a backcross.')
-            #return rv,tblobj,bottomInfo
-
-        #return rv,tblobj,bottomInfo
 
     def identify_empty_samples(self):
         no_val_samples = []

@@ -137,7 +137,7 @@ def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
             if refit: Ls.fit(X=xs)
             else: Ls.fit()
             ts,ps = Ls.association(xs,REML=REML)
-         else: 
+         else:
             if x.var() == 0: 
                PS.append(np.nan) 
                TS.append(np.nan) 
