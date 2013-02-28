@@ -13,6 +13,7 @@ $ ->
             @marker_names = []    
             @create_coordinates()
             [@chr_lengths, @cumulative_chr_lengths] = @get_chr_lengths()
+            console.log("cumulative_chr_len: ", @cumulative_chr_lengths)
 
             # Buffer to allow for the ticks/labels to be drawn
             @x_buffer = @plot_width/30
@@ -74,9 +75,6 @@ $ ->
                 @y_coords.push(result.lod_score)
                 @marker_names.push(result.name)
             @total_length += chr_lengths[chr_lengths.length-1]
-            console.log("total length is", @total_length)
-
-            console.log("chr_lengths are:", chr_lengths)
 
         show_marker_in_table: (marker_info) ->
             ### Searches for the select marker in the results table below ###
@@ -89,15 +87,19 @@ $ ->
         create_svg: () ->
             svg = d3.select("#manhattan_plots")
                 .append("svg")
-                .attr("width", @plot_width)
-                .attr("height", @plot_height)
+                .attr("class", "manhattan_plot")
+                .attr("width", @plot_width+@x_buffer)
+                .attr("height", @plot_height+@y_buffer)
             
             return svg
 
         create_graph: () ->
             @add_border()
+            @add_x_axis()
             @add_y_axis()
             @add_chr_lines()
+            @fill_chr_areas()
+            @add_chr_labels()
             @add_plot_points()
 
         add_border: () ->
@@ -125,7 +127,6 @@ $ ->
                 .style("stroke", "#000")
 
         create_scales: () ->
-            console.log("plot_width is: ", @plot_width)
             @x_scale = d3.scale.linear()
                 .domain([0, d3.max(@x_coords)])
                 .range([@x_buffer, @plot_width])
@@ -134,6 +135,64 @@ $ ->
                 .domain([0, @y_max])
                 .range([@plot_height, @y_buffer])
 
+        create_x_axis_tick_values: () ->
+            tick_vals = []
+            for val in [25..@cumulative_chr_lengths[0]] when val%25 == 0
+                tick_vals.push(val)
+                
+            for length, i in @cumulative_chr_lengths
+                if i == 0
+                    continue
+                chr_ticks = []
+                tick_count = Math.floor(@chr_lengths[i]/25)
+                tick_val = parseInt(@cumulative_chr_lengths[i-1])
+                for tick in [0..(tick_count-1)]
+                    tick_val += 25
+                    console.log("tick_val is:", tick_val)
+                    chr_ticks.push(tick_val)
+                Array::push.apply tick_vals, chr_ticks    
+                    
+            console.log("tick_vals:", tick_vals)
+            return tick_vals
+
+        add_x_axis: () ->
+            xAxis = d3.svg.axis()
+                    .scale(@x_scale)
+                    .orient("bottom")
+                    .tickValues(@create_x_axis_tick_values())
+
+            next_chr = 1
+            tmp_tick_val = 0
+            xAxis.tickFormat((d) =>
+                d3.format("d") #format as integer
+                if d < @cumulative_chr_lengths[0]
+                    tick_val = d
+                else
+                    next_chr_length = @cumulative_chr_lengths[next_chr]
+                    if d > next_chr_length
+                        next_chr += 1
+                        tmp_tick_val = 25
+                        tick_val = tmp_tick_val
+                    else
+                        tmp_tick_val += 25
+                        tick_val = tmp_tick_val
+                console.log("tick_val: ", tick_val)
+                return (tick_val)
+            )
+
+            @svg.append("g")
+                .attr("class", "x_axis")
+                .attr("transform", "translate(0," + @plot_height + ")")
+                .call(xAxis)
+                .selectAll("text")
+                    .attr("text-anchor", "right")
+                    .attr("dx", "-1.6em")
+                    .attr("transform", (d) =>
+                        return "translate(-12,0) rotate(-90)"
+                    )
+                    #.attr("dy", "-1.0em")                        
+                                    
+
         add_y_axis: () ->
             yAxis = d3.svg.axis()
                     .scale(@y_scale)
@@ -141,7 +200,7 @@ $ ->
                     .ticks(5)
             
             @svg.append("g")
-                .attr("class", "axis")
+                .attr("class", "y_axis")
                 .attr("transform", "translate(" + @x_buffer + ",0)")
                 .call(yAxis)
 
@@ -157,18 +216,53 @@ $ ->
                 .attr("y1", @y_buffer)
                 .attr("y2", @plot_height)
                 .style("stroke", "#ccc")
+                
+        fill_chr_areas: () ->
+            @svg.selectAll("rect.chr_fill_area_1")
+                .data(_.zip(@chr_lengths, @cumulative_chr_lengths), (d) =>
+                    return d
+                )
+                .enter()
+                .append("rect")
+                .attr("class", "chr_fill_area_1")
+                .attr("x", (d, i) =>
+                    if i == 0
+                        return @x_scale(0)
+                    else
+                        return @x_scale(@cumulative_chr_lengths[i-1])
+                )
+                .attr("y", @y_buffer)
+                .attr("width", (d) =>
+                    return @x_scale(d[0])
+                )
+                .attr("height", @plot_height-@y_buffer)                
 
         add_chr_labels: () ->
+            chr_names = []
+            for key of @chromosomes
+                chr_names.push(key)
+            chr_info = _.zip(chr_names, @chr_lengths, @cumulative_chr_lengths)
+            console.log("chr_info is", chr_info)                     
             @svg.selectAll("text")
-                .data(_.zip(@chr_lengths, @cumulative_chr_lengths), (d) =>
-                    label_positions = []
-                    for chr in d
-                        label_positions.push(chr[1] - chr[0]/2)
-                    return label_positions
+                .data(chr_info, (d) =>
+                    return d
                 )
                 .enter()
                 .append("text")
-                
+                .text((d) =>
+                    console.log("d[0] is ", d[0])
+                    return d[0]
+                )
+                .attr("x", (d) =>
+                    return @x_scale(d[2] - d[1]/2)
+                )
+                .attr("y", @plot_height * 0.1)
+                .attr("dx", "0em")
+                .attr("text-anchor", "middle")
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "18px")
+                .attr("fill", "grey")
+
 
         add_plot_points: () ->
             console.log("x_max is:", @x_max)

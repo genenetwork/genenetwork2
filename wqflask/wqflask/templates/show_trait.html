@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Trait Data and Analysis{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+{% endblock %}
 {% block content %} <!-- Start of body -->
 
     <header class="jumbotron subhead" id="overview">
@@ -44,6 +49,7 @@
         js_data = {{ js_data | safe }}
     </script>
 
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>-->
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
     <script type="text/javascript" src="/static/new/packages/ValidationPlugin/dist/jquery.validate.min.js"></script>

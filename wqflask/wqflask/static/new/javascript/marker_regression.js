@@ -19,6 +19,7 @@
         this.marker_names = [];
         this.create_coordinates();
         _ref = this.get_chr_lengths(), this.chr_lengths = _ref[0], this.cumulative_chr_lengths = _ref[1];
+        console.log("cumulative_chr_len: ", this.cumulative_chr_lengths);
         this.x_buffer = this.plot_width / 30;
         this.y_buffer = this.plot_height / 20;
         this.x_max = this.total_length;
@@ -88,9 +89,7 @@
           this.y_coords.push(result.lod_score);
           this.marker_names.push(result.name);
         }
-        this.total_length += chr_lengths[chr_lengths.length - 1];
-        console.log("total length is", this.total_length);
-        return console.log("chr_lengths are:", chr_lengths);
+        return this.total_length += chr_lengths[chr_lengths.length - 1];
       };
 
       Manhattan_Plot.prototype.show_marker_in_table = function(marker_info) {
@@ -108,14 +107,17 @@
 
       Manhattan_Plot.prototype.create_svg = function() {
         var svg;
-        svg = d3.select("#manhattan_plots").append("svg").attr("width", this.plot_width).attr("height", this.plot_height);
+        svg = d3.select("#manhattan_plots").append("svg").attr("class", "manhattan_plot").attr("width", this.plot_width + this.x_buffer).attr("height", this.plot_height + this.y_buffer);
         return svg;
       };
 
       Manhattan_Plot.prototype.create_graph = function() {
         this.add_border();
+        this.add_x_axis();
         this.add_y_axis();
         this.add_chr_lines();
+        this.fill_chr_areas();
+        this.add_chr_labels();
         return this.add_plot_points();
       };
 
@@ -135,15 +137,72 @@
       };
 
       Manhattan_Plot.prototype.create_scales = function() {
-        console.log("plot_width is: ", this.plot_width);
         this.x_scale = d3.scale.linear().domain([0, d3.max(this.x_coords)]).range([this.x_buffer, this.plot_width]);
         return this.y_scale = d3.scale.linear().domain([0, this.y_max]).range([this.plot_height, this.y_buffer]);
+      };
+
+      Manhattan_Plot.prototype.create_x_axis_tick_values = function() {
+        var chr_ticks, i, length, tick, tick_count, tick_val, tick_vals, val, _i, _j, _k, _len, _ref, _ref1, _ref2;
+        tick_vals = [];
+        for (val = _i = 25, _ref = this.cumulative_chr_lengths[0]; 25 <= _ref ? _i <= _ref : _i >= _ref; val = 25 <= _ref ? ++_i : --_i) {
+          if (val % 25 === 0) {
+            tick_vals.push(val);
+          }
+        }
+        _ref1 = this.cumulative_chr_lengths;
+        for (i = _j = 0, _len = _ref1.length; _j < _len; i = ++_j) {
+          length = _ref1[i];
+          if (i === 0) {
+            continue;
+          }
+          chr_ticks = [];
+          tick_count = Math.floor(this.chr_lengths[i] / 25);
+          tick_val = parseInt(this.cumulative_chr_lengths[i - 1]);
+          for (tick = _k = 0, _ref2 = tick_count - 1; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; tick = 0 <= _ref2 ? ++_k : --_k) {
+            tick_val += 25;
+            console.log("tick_val is:", tick_val);
+            chr_ticks.push(tick_val);
+          }
+          Array.prototype.push.apply(tick_vals, chr_ticks);
+        }
+        console.log("tick_vals:", tick_vals);
+        return tick_vals;
+      };
+
+      Manhattan_Plot.prototype.add_x_axis = function() {
+        var next_chr, tmp_tick_val, xAxis,
+          _this = this;
+        xAxis = d3.svg.axis().scale(this.x_scale).orient("bottom").tickValues(this.create_x_axis_tick_values());
+        next_chr = 1;
+        tmp_tick_val = 0;
+        xAxis.tickFormat(function(d) {
+          var next_chr_length, tick_val;
+          d3.format("d");
+          if (d < _this.cumulative_chr_lengths[0]) {
+            tick_val = d;
+          } else {
+            next_chr_length = _this.cumulative_chr_lengths[next_chr];
+            if (d > next_chr_length) {
+              next_chr += 1;
+              tmp_tick_val = 25;
+              tick_val = tmp_tick_val;
+            } else {
+              tmp_tick_val += 25;
+              tick_val = tmp_tick_val;
+            }
+          }
+          console.log("tick_val: ", tick_val);
+          return tick_val;
+        });
+        return this.svg.append("g").attr("class", "x_axis").attr("transform", "translate(0," + this.plot_height + ")").call(xAxis).selectAll("text").attr("text-anchor", "right").attr("dx", "-1.6em").attr("transform", function(d) {
+          return "translate(-12,0) rotate(-90)";
+        });
       };
 
       Manhattan_Plot.prototype.add_y_axis = function() {
         var yAxis;
         yAxis = d3.svg.axis().scale(this.y_scale).orient("left").ticks(5);
-        return this.svg.append("g").attr("class", "axis").attr("transform", "translate(" + this.x_buffer + ",0)").call(yAxis);
+        return this.svg.append("g").attr("class", "y_axis").attr("transform", "translate(" + this.x_buffer + ",0)").call(yAxis);
       };
 
       Manhattan_Plot.prototype.add_chr_lines = function() {
@@ -153,17 +212,38 @@
         }).enter().append("line").attr("x1", this.x_scale).attr("x2", this.x_scale).attr("y1", this.y_buffer).attr("y2", this.plot_height).style("stroke", "#ccc");
       };
 
-      Manhattan_Plot.prototype.add_chr_labels = function() {
+      Manhattan_Plot.prototype.fill_chr_areas = function() {
         var _this = this;
-        return this.svg.selectAll("text").data(_.zip(this.chr_lengths, this.cumulative_chr_lengths), function(d) {
-          var chr, label_positions, _i, _len;
-          label_positions = [];
-          for (_i = 0, _len = d.length; _i < _len; _i++) {
-            chr = d[_i];
-            label_positions.push(chr[1] - chr[0] / 2);
+        return this.svg.selectAll("rect.chr_fill_area_1").data(_.zip(this.chr_lengths, this.cumulative_chr_lengths), function(d) {
+          return d;
+        }).enter().append("rect").attr("class", "chr_fill_area_1").attr("x", function(d, i) {
+          if (i === 0) {
+            return _this.x_scale(0);
+          } else {
+            return _this.x_scale(_this.cumulative_chr_lengths[i - 1]);
           }
-          return label_positions;
-        }).enter().append("text");
+        }).attr("y", this.y_buffer).attr("width", function(d) {
+          return _this.x_scale(d[0]);
+        }).attr("height", this.plot_height - this.y_buffer);
+      };
+
+      Manhattan_Plot.prototype.add_chr_labels = function() {
+        var chr_info, chr_names, key,
+          _this = this;
+        chr_names = [];
+        for (key in this.chromosomes) {
+          chr_names.push(key);
+        }
+        chr_info = _.zip(chr_names, this.chr_lengths, this.cumulative_chr_lengths);
+        console.log("chr_info is", chr_info);
+        return this.svg.selectAll("text").data(chr_info, function(d) {
+          return d;
+        }).enter().append("text").text(function(d) {
+          console.log("d[0] is ", d[0]);
+          return d[0];
+        }).attr("x", function(d) {
+          return _this.x_scale(d[2] - d[1] / 2);
+        }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("fill", "grey");
       };
 
       Manhattan_Plot.prototype.add_plot_points = function() {
