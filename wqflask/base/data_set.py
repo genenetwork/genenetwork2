@@ -29,8 +29,6 @@ import itertools
 
 from flask import Flask, g
 
-from htmlgen import HTMLgen2 as HT
-
 import reaper
 
 from base import webqtlConfig
@@ -252,11 +250,7 @@ class DataSet(object):
 
         #self.cursor.execute(query)
         #self.id, self.name, self.fullname, self.shortname = self.cursor.fetchone()
-
-
-    #def genHTML(self, Class='c0dd'):
-    #    return  HT.Href(text = HT.Span('%s Database' % self.fullname, Class= "fwb " + Class),
-    #            url= webqtlConfig.INFOPAGEHREF % self.name,target="_blank")
+        
 
 class PhenotypeDataSet(DataSet):
     DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
