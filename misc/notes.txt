@@ -8,6 +8,16 @@ Add all files in current directory branch to be staged to be committed
 git add -A
 
 
+Get the default path being used when a command is typed:
+which _______
+
+Get the paths checked when a user types a command:
+echo $PATH
+
+Get all environment variables:
+set
+
+
 **** apt-get is an Ubuntu system-wide package manager, while pip is a Python-only system
 for python packages ****
 
