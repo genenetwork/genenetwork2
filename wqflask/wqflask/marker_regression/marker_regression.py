@@ -465,7 +465,7 @@ class MarkerRegression(object):
     def gen_data(self):
         """Todo: Fill this in here"""
 
-        print("something")
+        print("Session UUID: ", self.start_vars[session_uuid])
 
         genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
 
@@ -473,13 +473,10 @@ class MarkerRegression(object):
         trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
 
         pheno_vector = np.array([float(val) for val in self.vals if val!="x"])
-        genotypes = np.array(trimmed_genotype_data).T
+        genotype_matrix = np.array(trimmed_genotype_data).T
 
-        #times = collections.OrderedDict()
-        #times['start'] = time.time()
-        
         with Bench("Calculate Kinship"):
-            kinship_matrix = lmm.calculateKinship(genotypes)
+            kinship_matrix = lmm.calculate_kinship(genotype_matrix)
         
         with Bench("Create LMM object"):
             lmm_ob = lmm.LMM(pheno_vector, kinship_matrix)
@@ -490,19 +487,12 @@ class MarkerRegression(object):
         
         with Bench("Doing gwas"):
             t_stats, p_values = lmm.GWAS(pheno_vector,
-                                         genotypes,
+                                         genotype_matrix,
                                          kinship_matrix,
                                          REML=True,
                                          refit=False)
             
         Bench().report()
-        
-        #previous_time = None
-        #for operation, this_time in times.iteritems():
-        #    if previous_time:
-        #        print("{} run time: {}".format(operation, this_time-previous_time))
-        #        #print("time[{}]:{}\t{}".format(key, thistime, thistime-lasttime))
-        #    previous_time = this_time
 
         self.dataset.group.markers.add_pvalues(p_values)
 

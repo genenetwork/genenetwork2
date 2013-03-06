@@ -53,34 +53,45 @@ def matrixMult(A,B):
 
     return linalg.fblas.dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)
 
-def calculateKinship(W):
+
+def calculate_kinship(genotype_matrix):
     """
-       W is an n x m matrix encoding SNP minor alleles.
+    genotype_matrix is an n x m matrix encoding SNP minor alleles.
     
-       This function takes a matrix oF SNPs, imputes missing values with the maf,
-       normalizes the resulting vectors and returns the RRM matrix.
+    This function takes a matrix oF SNPs, imputes missing values with the maf,
+    normalizes the resulting vectors and returns the RRM matrix.
+    
     """
-    n = W.shape[0]
-    m = W.shape[1]
+    n = genotype_matrix.shape[0]
+    m = genotype_matrix.shape[1]
     print("n is:", n)
     print("m is:", m)
     keep = []
-    for i in range(m):
-        print("type of W[:,i]:", pf(W[:,i]))
-        foo = np.isnan(W[:,i])
-        print("type of foo:", type(foo))
-        mn = W[True - foo,i]
-        print("type of mn is:", type(mn))
-        mn = mn.mean()
-        W[np.isnan(W[:,i]),i] = mn
-        vr = W[:,i].var()
+    for counter in range(m):
+        print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
+        #Checks if any values in column are not numbers
+        not_number = np.isnan(genotype_matrix[:,counter])
+        print("type of not_number:", type(not_number))
+        
+        #Gets vector of values for column (no values in vector if not all values in col are numbers)
+        marker_values = genotype_matrix[True - not_number, counter]
+        print("type of marker_values is:", type(marker_values))
+        
+        #Gets mean of values in vector
+        values_mean = marker_values.mean()
+
+        genotype_matrix[not_number,counter] = values_mean
+        vr = genotype_matrix[:,counter].var()
         if vr == 0:
             continue
-        keep.append(i)
-        W[:,i] = (W[:,i] - mn) / np.sqrt(vr)
-    W = W[:,keep]
-    K = np.dot(W,W.T) * 1.0/float(m)
-    return K
+        keep.append(counter)
+        genotype_matrix[:,counter] = (genotype_matrix[:,counter] - values_mean) / np.sqrt(vr)
+        
+        stage = round((counter/m)*45)
+        print("Percent complete: ", stage)
+    genotype_matrix = genotype_matrix[:,keep]
+    kinship_matrix = np.dot(genotype_matrix,genotype_matrix.T) * 1.0/float(m)
+    return kinship_matrix
 
 def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
       """
