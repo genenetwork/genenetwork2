@@ -80,16 +80,36 @@
         
     
     <script type="text/javascript" charset="utf-8">
+        //$(document).ready( function () {
+        //    $('#qtl_results').dataTable( {
+        //        "sDom": 'T<"clear">lfrtip',
+        //        "oTableTools": {
+        //            "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
+        //        },
+        //        "iDisplayLength": 50
+        //    } );
+        //} );
         $(document).ready( function () {
             $('#qtl_results').dataTable( {
-                "sDom": 'T<"clear">lfrtip',
+                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
+                "sDom": "lTftipr",
                 "oTableTools": {
+                    "aButtons": [
+                        "copy",
+                        "print",
+                        {
+                            "sExtends":    "collection",
+                            "sButtonText": 'Save <span class="caret" />',
+                            "aButtons":    [ "csv", "xls", "pdf" ]
+                        }
+                    ],
                     "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
                 },
-                "iDisplayLength": 50
+                "iDisplayLength": 50,
+                "bLengthChange": true
             } );
-        } );        
- 
+        });
+
          //$(document).ready(function() {
          //   $.extend( $.fn.dataTable.defaults, {
          //       "sDom": 'T<"clear">lfrtip',
