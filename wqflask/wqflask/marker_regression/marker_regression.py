@@ -34,6 +34,7 @@ from dbFunction import webqtlDatabaseFunction
 from base.GeneralObject import GeneralObject
 from wqflask.my_pylmm.data import prep_data
 from wqflask.my_pylmm.pyLMM import lmm
+from utility import temp_data
 
 import reaper
 import cPickle
@@ -65,7 +66,13 @@ class MarkerRegression(object):
 
         helper_functions.get_species_dataset_trait(self, start_vars)
 
+        print("start_vars is:", start_vars)
+
+
         self.num_perm = int(start_vars['num_perm'])
+        #self.temp_uuid = start_vars['temp_uuid']
+        self.temp_data = temp_data.TempData(start_vars['temp_uuid'])
+        
 
         # Passed in by the form (user might have edited)
         #samples = start_vars['allsamples'].split()
@@ -465,7 +472,7 @@ class MarkerRegression(object):
     def gen_data(self):
         """Todo: Fill this in here"""
 
-        print("Session UUID: ", self.start_vars[session_uuid])
+        #print("Temp UUID: ", self.temp_uuid)
 
         genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
 
@@ -476,7 +483,7 @@ class MarkerRegression(object):
         genotype_matrix = np.array(trimmed_genotype_data).T
 
         with Bench("Calculate Kinship"):
-            kinship_matrix = lmm.calculate_kinship(genotype_matrix)
+            kinship_matrix = lmm.calculate_kinship(genotype_matrix, self.temp_data)
         
         with Bench("Create LMM object"):
             lmm_ob = lmm.LMM(pheno_vector, kinship_matrix)

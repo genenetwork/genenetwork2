@@ -11,13 +11,21 @@ $ ->
         $("#trait_data_form").attr("action", url);
         $("#trait_data_form").submit()
         
+    get_progress () =>
+        console.log("temp_uuid:", $("#temp_uuid").val())
+        
     $("#marker_regression").click(() =>
         $("#progress_bar_container").modal()
+        
+        get_progress()
+        
         url = "/marker_regression"
+        form_data = $('#trait_data_form').serialize()
+        console.log("form_data is:", form_data)
         $.ajax(
             type: "POST"
             url: url
-            data: $("#trait_data_form").serialize()
+            data: form_data
             success: (data) =>
                 $('#progress_bar_container').modal('hide')
                 $("body").html(data)

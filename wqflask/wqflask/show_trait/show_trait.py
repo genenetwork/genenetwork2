@@ -122,7 +122,7 @@ class ShowTrait(object):
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
         
-        self.session_uuid = uuid.uuid4()
+        self.temp_uuid = uuid.uuid4()
 
         self.sample_group_types = OrderedDict()
         self.sample_group_types['samples_primary'] = self.dataset.group.name + " Only"
@@ -133,7 +133,7 @@ class ShowTrait(object):
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
                         attribute_names = self.sample_groups[0].attributes,
-                        session_uuid = self.session_uuid)
+                        temp_uuid = self.temp_uuid)
         #print("js_data:", pf(js_data))
         self.js_data = js_data
 

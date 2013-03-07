@@ -13,13 +13,14 @@ import sqlalchemy
 
 from wqflask import app
 
-from flask import render_template, request, make_response, Response, Flask, g, config
+from flask import render_template, request, make_response, Response, Flask, g, config, jsonify
 
 from wqflask import search_results
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
 from wqflask.correlation import show_corr_results
+from utility import temp_data
 
 from wqflask.dataSharing import SharingInfo, SharingInfoPage
 
@@ -176,6 +177,12 @@ def sharing_info_page():
     fd = webqtlFormData.webqtlFormData(request.args)
     template_vars = SharingInfoPage.SharingInfoPage(fd)
     return template_vars
+
+
+@app.route("/get_temp_data")
+def get_temp_data():
+    temp_uuid = request.args['key']
+    return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
 
 
 def json_default_handler(obj):

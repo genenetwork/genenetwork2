@@ -4,6 +4,7 @@ from base.trait import GeneralTrait
 from base import data_set
 from base.species import TheSpecies
 
+
 def get_species_dataset_trait(self, start_vars):
     #assert type(read_genotype) == type(bool()), "Expecting boolean value for read_genotype"
     self.dataset = data_set.create_dataset(start_vars['dataset'])
