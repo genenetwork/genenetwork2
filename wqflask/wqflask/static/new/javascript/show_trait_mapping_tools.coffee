@@ -30,7 +30,6 @@ $ ->
 
     $("#marker_regression").click(() =>
         $("#progress_bar_container").modal()
-
         url = "/marker_regression"
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)

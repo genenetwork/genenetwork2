@@ -95,53 +95,53 @@ def calculate_kinship(genotype_matrix, temp_data):
     kinship_matrix = np.dot(genotype_matrix,genotype_matrix.T) * 1.0/float(m)
     return kinship_matrix
 
-def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
-      """
-        Performs a basic GWAS scan using the LMM.  This function
-        uses the LMM module to assess association at each SNP and 
-        does some simple cleanup, such as removing missing individuals 
-        per SNP and re-computing the eigen-decomp
+def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False, temp_data=None):
+    """
+      Performs a basic GWAS scan using the LMM.  This function
+      uses the LMM module to assess association at each SNP and
+      does some simple cleanup, such as removing missing individuals
+      per SNP and re-computing the eigen-decomp
 
-        Y - n x 1 phenotype vector 
-        X - n x m SNP matrix
-        K - n x n kinship matrix
-        Kva,Kve = linalg.eigh(K) - or the eigen vectors and values for K
-        X0 - n x q covariate matrix
-        REML - use restricted maximum likelihood 
-        refit - refit the variance component for each SNP
-      """
-      n = X.shape[0]
-      m = X.shape[1]
+      Y - n x 1 phenotype vector
+      X - n x m SNP matrix
+      K - n x n kinship matrix
+      Kva,Kve = linalg.eigh(K) - or the eigen vectors and values for K
+      X0 - n x q covariate matrix
+      REML - use restricted maximum likelihood
+      refit - refit the variance component for each SNP
+    """
+    n = X.shape[0]
+    m = X.shape[1]
 
-      if X0 == None: X0 = np.ones((n,1))
-      
-      # Remove missing values in Y and adjust associated parameters
-      v = np.isnan(Y)
-      if v.sum():
-         keep = True - v
-         Y = Y[keep]
-         X = X[keep,:]
-         X0 = X0[keep,:]
-         K = K[keep,:][:,keep]
-         Kva = []
-         Kve = []
+    if X0 == None: X0 = np.ones((n,1))
 
-      L = LMM(Y,K,Kva,Kve,X0)
-      if not refit: L.fit()
+    # Remove missing values in Y and adjust associated parameters
+    v = np.isnan(Y)
+    if v.sum():
+        keep = True - v
+        Y = Y[keep]
+        X = X[keep,:]
+        X0 = X0[keep,:]
+        K = K[keep,:][:,keep]
+        Kva = []
+        Kve = []
 
-      PS = []
-      TS = []
+    L = LMM(Y,K,Kva,Kve,X0)
+    if not refit: L.fit()
 
-      for i in range(m):
-         x = X[:,i].reshape((n,1))
-         v = np.isnan(x).reshape((-1,))
-         if v.sum():
+    PS = []
+    TS = []
+
+    for counter in range(m):
+        x = X[:,counter].reshape((n,1))
+        v = np.isnan(x).reshape((-1,))
+        if v.sum():
             keep = True - v
             xs = x[keep,:]
-            if xs.var() == 0: 
-               PS.append(np.nan) 
-               TS.append(np.nan) 
-               continue
+            if xs.var() == 0:
+                PS.append(np.nan)
+                TS.append(np.nan)
+                continue
 
             Ys = Y[keep]
             X0s = X0[keep,:]
@@ -150,19 +150,124 @@ def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
             if refit: Ls.fit(X=xs)
             else: Ls.fit()
             ts,ps = Ls.association(xs,REML=REML)
-         else:
-            if x.var() == 0: 
-               PS.append(np.nan) 
-               TS.append(np.nan) 
-               continue
+        else:
+            if x.var() == 0:
+                PS.append(np.nan)
+                TS.append(np.nan)
+                continue
 
             if refit: L.fit(X=x)
             ts,ps = L.association(x,REML=REML)
             
-         PS.append(ps)
-         TS.append(ts)
+        percent_complete = 45 + int(round((counter/m)*55))
+        print("Percent complete: ", percent_complete)
+        temp_data.store("percent_complete", percent_complete)
 
-      return TS,PS
+        PS.append(ps)
+        TS.append(ts)
+
+    return TS,PS
+
+#def GWAS(pheno_vector,
+#        genotype_matrix,
+#        kinship_matrix,
+#        kinship_eigenvals=None,
+#        kinship_eigenvectors=None,
+#        covariate_matrix=None,
+#        restricted_max_likelihood=True,
+#        refit=False,
+#        temp_data=None):
+#    """
+#    Performs a basic GWAS scan using the LMM.  This function
+#    uses the LMM module to assess association at each SNP and 
+#    does some simple cleanup, such as removing missing individuals 
+#    per SNP and re-computing the eigen-decomp
+#
+#    Y - n x 1 phenotype vector 
+#    X - n x m SNP matrix
+#    K - n x n kinship matrix
+#    Kva,Kve = linalg.eigh(K) - or the eigen vectors and values for K
+#    X0 - n x q covariate matrix
+#    REML - use restricted maximum likelihood 
+#    refit - refit the variance component for each SNP
+#        
+#    """
+#
+#    assert temp_data, "You forgot to pass in temp_data"
+#    
+#    if kinship_eigenvals == None:
+#        kinship_eigenvals = []
+#    if kinship_eigenvectors == None:
+#        kinship_eigenvectors = []
+#        
+#    n = genotype_matrix.shape[0]
+#    m = genotype_matrix.shape[1]
+#
+#    if covariate_matrix == None:
+#        covariate_matrix = np.ones((n,1))
+#    
+#    # Remove missing values in Y and adjust associated parameters
+#    pheno_not_number = np.isnan(pheno_vector)
+#    if pheno_not_number.sum():
+#        keep = True - pheno_not_number
+#        pheno_vector = pheno_vector[keep]
+#        genotype_matrix = genotype_matrix[keep,:]
+#        covariate_matrix = covariate_matrix[keep,:]
+#        kinship_matrix = kinship_matrix[keep,:][:,keep]
+#        kinship_eigenvals = []
+#        kinship_eigenvectors = []
+#
+#    lmm_ob = LMM(pheno_vector,
+#                 kinship_matrix,
+#                 kinship_eigenvals,
+#                 kinship_eigenvectors,
+#                 covariate_matrix)
+#    if not refit:
+#        lmm_ob.fit()
+#
+#    p_value_matrix = []
+#    t_stats_matrix = []
+#
+#    for counter in range(m):
+#        #pheno_vector_2 = geno_vector[:, counter]
+#        #x = pheno_vector_2.reshape((n,1))
+#        x = genotype_matrix[:,counter].reshape((n,1))
+#        v = np.isnan(x).reshape((-1,))
+#        if v.sum():
+#            keep = True - v
+#            xs = x[keep,:]
+#            if xs.var() == 0: 
+#                p_value_matrix.append(np.nan) 
+#                t_stats_matrix.append(np.nan) 
+#                continue
+# 
+#            pheno_vector_2 = pheno_vector[keep]
+#            covariate_matrix_2 = covariate_matrix[keep,:]
+#            kinship_matrix_2 = kinship_matrix[keep,:][:,keep]
+#            lmm_ob_2 = LMM(pheno_vector, kinship_matrix, covariate_matrix=covariate_matrix)
+#            if refit:
+#                lmm_ob_2.fit(X=xs)
+#            else:
+#                lmm_ob_2.fit()
+#            t_stats, p_values = lmm_ob_2.association(xs, REML=restricted_max_likelihood)
+#        else:
+#            if x.var() == 0: 
+#                p_value_matrix.append(np.nan) 
+#                t_stats_matrix.append(np.nan) 
+#                continue
+# 
+#            if refit:
+#                lmm_ob.fit(X=x)
+#            t_stats,p_values = lmm_ob.association(x, REML=restricted_max_likelihood)
+#           
+#        p_value_matrix.append(p_values)
+#        t_stats_matrix.append(t_stats)
+#        
+#        percent_complete = 45 + int(round((counter/m)*55))
+#        print("Percent complete: ", percent_complete)
+#        temp_data.store("percent_complete", percent_complete)
+#
+#    return p_value_matrix, t_stats_matrix
 
 class LMM:
 

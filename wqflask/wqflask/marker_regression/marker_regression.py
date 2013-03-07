@@ -497,7 +497,8 @@ class MarkerRegression(object):
                                          genotype_matrix,
                                          kinship_matrix,
                                          REML=True,
-                                         refit=False)
+                                         refit=False,
+                                         temp_data=self.temp_data)
             
         Bench().report()
 
