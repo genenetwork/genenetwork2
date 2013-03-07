@@ -19,7 +19,6 @@ class TempData(object):
         return self.redis.hgetall(self.key)
 
 
-
 if __name__ == "__main__":
     redis = Redis()
     for key in redis.keys():

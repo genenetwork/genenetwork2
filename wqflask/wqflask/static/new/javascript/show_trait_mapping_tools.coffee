@@ -11,14 +11,26 @@ $ ->
         $("#trait_data_form").attr("action", url);
         $("#trait_data_form").submit()
         
-    get_progress () =>
+    get_progress = ->
         console.log("temp_uuid:", $("#temp_uuid").val())
-        
+        temp_uuid = $("#temp_uuid").val()
+        params = { key:temp_uuid }
+        params_str = $.param(params)
+        url = "/get_temp_data?" + params_str
+        console.log("url:", url)
+        $.ajax(
+            type: "GET"
+            url: url
+            success: (progress_data) =>
+                console.log("in get_progress data:", progress_data)
+                console.log(progress_data['percent_complete'] + "%")
+                $('#marker_regression_progress').css("width", progress_data['percent_complete'] + "%")
+        )
+        return false
+
     $("#marker_regression").click(() =>
         $("#progress_bar_container").modal()
-        
-        get_progress()
-        
+
         url = "/marker_regression"
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
@@ -27,12 +39,15 @@ $ ->
             url: url
             data: form_data
             success: (data) =>
+                clearInterval(this.my_timer)
                 $('#progress_bar_container').modal('hide')
                 $("body").html(data)
         )
+        console.log("settingInterval")
+        this.my_timer = setInterval(get_progress, 1000)
         return false
     )
-        
+
     #$(".submit_special").click(submit_special)
 
     composite_mapping_fields = ->
@@ -51,4 +66,4 @@ $ ->
     
     $("#display_all_lrs").change(->
         toggle_enable_disable("#suggestive_lrs")
-    )
+    );
