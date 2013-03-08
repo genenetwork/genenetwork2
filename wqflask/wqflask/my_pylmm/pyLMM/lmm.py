@@ -23,11 +23,46 @@ import numpy as np
 from scipy import linalg
 from scipy import optimize
 from scipy import stats
-import pdb
 
 from pprint import pformat as pf
 
+from utility.benchmark import Bench
+
 #np.seterr('raise')
+
+def run(pheno_vector,
+        genotype_matrix,
+        restricted_max_likelihood=True,
+        refit=False,
+        temp_data=None):
+    """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
+    
+    restricted_max_likelihood -- whether to use restricted max likelihood; True or False
+    refit -- whether to refit the variance component for each marker
+    temp_data -- TempData object that stores the progress for each major step of the
+    calculations ("calculate_kinship" and "GWAS" take the majority of time)
+    
+    """
+    
+    with Bench("Calculate Kinship"):
+        kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
+    
+    with Bench("Create LMM object"):
+        lmm_ob = LMM(pheno_vector, kinship_matrix)
+    
+    with Bench("LMM_ob fitting"):
+        lmm_ob.fit()
+
+    with Bench("Doing GWAS"):
+        t_stats, p_values = GWAS(pheno_vector,
+                                genotype_matrix,
+                                kinship_matrix,
+                                restricted_max_likelihood=True,
+                                refit=False,
+                                temp_data=temp_data)
+    Bench().report()
+    return t_stats, p_values
+
 
 def matrixMult(A,B):
     #return np.dot(A,B)
@@ -121,7 +156,7 @@ def GWAS(pheno_vector,
     """
     if kinship_eigen_vals == None:
         kinship_eigen_vals = []
-    if kinship_eigen_vectors= == None:
+    if kinship_eigen_vectors == None:
         kinship_eigen_vectors = []
     
     n = genotype_matrix.shape[0]
@@ -153,7 +188,7 @@ def GWAS(pheno_vector,
     t_statistics = []
 
     for counter in range(m):
-        x = genotype_matrix[:,counter].reshape((n,1))
+        x = genotype_matrix[:,counter].reshape((n, 1))
         v = np.isnan(x).reshape((-1,))
         if v.sum():
             keep = True - v
@@ -173,7 +208,7 @@ def GWAS(pheno_vector,
                 lmm_ob_2.fit(X=xs)
             else:
                 lmm_ob_2.fit()
-            ts,ps = lmm_ob_2.association(xs, REML=restricted_max_likelihood)
+            ts, ps = lmm_ob_2.association(xs, REML=restricted_max_likelihood)
         else:
             if x.var() == 0:
                 p_values.append(np.nan)
@@ -182,7 +217,7 @@ def GWAS(pheno_vector,
 
             if refit:
                 lmm_ob.fit(X=x)
-            ts,ps = lmm_ob.association(x,REML=restricted_max_likelihood)
+            ts, ps = lmm_ob.association(x, REML=restricted_max_likelihood)
             
         percent_complete = 45 + int(round((counter/m)*55))
         print("Percent complete: ", percent_complete)
@@ -191,7 +226,7 @@ def GWAS(pheno_vector,
         p_values.append(ps)
         t_statistics.append(ts)
 
-    return t_statistics,p_values
+    return t_statistics, p_values
 
 
 class LMM:

@@ -43,7 +43,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for marker in pure_qtl_results %}
+                {% for marker in qtl_results %}
                 <tr>
                     <td>{{loop.index}}</td>
                     <td>{{marker.lod_score}}</td>
@@ -80,15 +80,6 @@
         
     
     <script type="text/javascript" charset="utf-8">
-        //$(document).ready( function () {
-        //    $('#qtl_results').dataTable( {
-        //        "sDom": 'T<"clear">lfrtip',
-        //        "oTableTools": {
-        //            "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
-        //        },
-        //        "iDisplayLength": 50
-        //    } );
-        //} );
         $(document).ready( function () {
             $('#qtl_results').dataTable( {
                 //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
@@ -109,17 +100,5 @@
                 "bLengthChange": true
             } );
         });
-
-         //$(document).ready(function() {
-         //   $.extend( $.fn.dataTable.defaults, {
-         //       "sDom": 'T<"clear">lfrtip',
-         //       "oTableTools": {
-         //           "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
-         //       },
-         //       "iDisplayLength": 50
-         //   } );
-         //
-         //   $('#qtl_results').dataTable();
-         //} );
     </script>
 {% endblock %}

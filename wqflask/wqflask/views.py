@@ -3,9 +3,14 @@ from __future__ import absolute_import, division, print_function
 import csv
 import StringIO  # Todo: Use cStringIO?
 
+import cPickle as pickle
+
 import simplejson as json
 #import json
 import yaml
+
+from redis import Redis
+Redis = Redis()
 
 import flask
 import sqlalchemy
@@ -16,6 +21,7 @@ from wqflask import app
 from flask import render_template, request, make_response, Response, Flask, g, config, jsonify
 
 from wqflask import search_results
+from base.data_set import DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
@@ -149,14 +155,54 @@ def show_trait_page():
 
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
-    template_vars = marker_regression.MarkerRegression(request.form)
-    #print("js_data before dump:", template_vars.js_data)
-    template_vars.js_data = json.dumps(template_vars.js_data,
-                                       default=json_default_handler,
-                                       indent="   ")
-    #print("[dub] js_data after dump:", template_vars.js_data)
-    #print("marker_regression template_vars:", pf(template_vars.__dict__))
-    return render_template("marker_regression.html", **template_vars.__dict__)
+    initial_start_vars = request.form
+    temp_uuid = initial_start_vars['temp_uuid']
+    wanted = (
+        'trait_id',
+        'dataset',
+    )
+    
+    start_vars = {}
+    for key, value in initial_start_vars.iteritems():
+        if key in wanted or key.startswith(('value:')):
+            start_vars[key] = value
+    
+    key = "marker_regression:v2:" + json.dumps(start_vars, sort_keys=True)
+    result = Redis.get(key)
+    
+    print("************************ Starting result *****************")
+    print("result is [{}]: {}".format(type(result), result))
+    print("************************ Ending result ********************")
+    
+    if result:
+        with open("/tmp/result", "w") as fh:
+            fh.write(result)
+        print("Cache hit!!!")
+        import __builtin__
+        import reaper
+        __builtin__.Dataset = reaper.Dataset
+        result = yaml.load(result)
+        print("Done loading yaml")
+        
+    else:
+        print("Cache miss!!!")
+        template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
+
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
+
+        result = template_vars.__dict__
+     
+        for item in template_vars.__dict__.keys():
+            print("  ---**--- {}: {}".format(type(item), item))
+        
+        #causeerror
+        Redis.set(key, yaml.dump(result))
+        Redis.expire(key, 60*60)
+    
+    return render_template("marker_regression.html", **result)
+
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
