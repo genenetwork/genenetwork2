@@ -491,12 +491,12 @@ class MarkerRegression(object):
         with Bench("LMM_ob fitting"):
             lmm_ob.fit()
             
-        
+
         with Bench("Doing gwas"):
             t_stats, p_values = lmm.GWAS(pheno_vector,
                                          genotype_matrix,
                                          kinship_matrix,
-                                         REML=True,
+                                         restricted_max_likelihood=True,
                                          refit=False,
                                          temp_data=self.temp_data)
             
