@@ -167,11 +167,13 @@ def marker_regression_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
     
-    key = "marker_regression:v2:" + json.dumps(start_vars, sort_keys=True)
+    version = "v5"
+    print("version is:", version)
+    key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     result = Redis.get(key)
     
     print("************************ Starting result *****************")
-    print("result is [{}]: {}".format(type(result), result))
+    #print("result is [{}]: {}".format(type(result), result))
     print("************************ Ending result ********************")
     
     if result:
@@ -181,7 +183,8 @@ def marker_regression_page():
         import __builtin__
         import reaper
         __builtin__.Dataset = reaper.Dataset
-        result = yaml.load(result)
+        #result = yaml.load(result)
+        result = pickle.loads(result)
         print("Done loading yaml")
         
     else:
@@ -198,7 +201,7 @@ def marker_regression_page():
             print("  ---**--- {}: {}".format(type(item), item))
         
         #causeerror
-        Redis.set(key, yaml.dump(result))
+        Redis.set(key, pickle.dumps(result))
         Redis.expire(key, 60*60)
     
     return render_template("marker_regression.html", **result)
