@@ -17,9 +17,10 @@
         this.x_coords = [];
         this.y_coords = [];
         this.marker_names = [];
+        console.time('Create coordinates');
         this.create_coordinates();
+        console.timeEnd('Create coordinates');
         _ref = this.get_chr_lengths(), this.chr_lengths = _ref[0], this.cumulative_chr_lengths = _ref[1];
-        console.log("cumulative_chr_len: ", this.cumulative_chr_lengths);
         this.x_buffer = this.plot_width / 30;
         this.y_buffer = this.plot_height / 20;
         this.x_max = this.total_length;
@@ -28,7 +29,9 @@
         this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
         this.plot_height -= this.y_buffer;
         this.create_scales();
+        console.time('Create graph');
         this.create_graph();
+        console.timeEnd('Create graph');
       }
 
       Manhattan_Plot.prototype.get_max_chr = function() {
@@ -38,7 +41,6 @@
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           result = _ref[_i];
           chr = parseInt(result.chr);
-          console.log("foo:", chr, typeof chr);
           if (!_.isNaN(chr)) {
             if (chr > max_chr) {
               max_chr = chr;
@@ -65,7 +67,6 @@
           cumulative_chr_lengths.push(total_length + this_length);
           total_length += this_length;
         }
-        console.log("total length is:", total_length);
         return [chr_lengths, cumulative_chr_lengths];
       };
 
@@ -82,7 +83,6 @@
             chr_lengths.push(chr_length);
             if (result.chr !== "1") {
               this.total_length += chr_lengths[chr_lengths.length - 2];
-              console.log("total_length is:", this.total_length);
             }
           }
           this.x_coords.push(this.total_length + parseFloat(result.Mb));
@@ -93,10 +93,11 @@
       };
 
       Manhattan_Plot.prototype.show_marker_in_table = function(marker_info) {
+        var marker_name;
+        console.log("in show_marker_in_table");
         /* Searches for the select marker in the results table below
         */
 
-        var marker_name;
         if (marker_info) {
           marker_name = marker_info[2];
         } else {
@@ -160,12 +161,10 @@
           tick_val = parseInt(this.cumulative_chr_lengths[i - 1]);
           for (tick = _k = 0, _ref2 = tick_count - 1; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; tick = 0 <= _ref2 ? ++_k : --_k) {
             tick_val += 25;
-            console.log("tick_val is:", tick_val);
             chr_ticks.push(tick_val);
           }
           Array.prototype.push.apply(tick_vals, chr_ticks);
         }
-        console.log("tick_vals:", tick_vals);
         return tick_vals;
       };
 
@@ -191,7 +190,6 @@
               tick_val = tmp_tick_val;
             }
           }
-          console.log("tick_val: ", tick_val);
           return tick_val;
         });
         return this.svg.append("g").attr("class", "x_axis").attr("transform", "translate(0," + this.plot_height + ")").call(xAxis).selectAll("text").attr("text-anchor", "right").attr("dx", "-1.6em").attr("transform", function(d) {
@@ -235,11 +233,9 @@
           chr_names.push(key);
         }
         chr_info = _.zip(chr_names, this.chr_lengths, this.cumulative_chr_lengths);
-        console.log("chr_info is", chr_info);
         return this.svg.selectAll("text").data(chr_info, function(d) {
           return d;
         }).enter().append("text").text(function(d) {
-          console.log("d[0] is ", d[0]);
           return d[0];
         }).attr("x", function(d) {
           return _this.x_scale(d[2] - d[1] / 2);
@@ -248,22 +244,26 @@
 
       Manhattan_Plot.prototype.add_plot_points = function() {
         var _this = this;
-        console.log("x_max is:", this.x_max);
         return this.svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
           return _this.x_buffer + ((_this.plot_width - _this.x_buffer) * d[0] / _this.x_max);
         }).attr("cy", function(d) {
           return _this.plot_height - ((_this.plot_height - _this.y_buffer) * d[1] / _this.y_max);
         }).attr("r", 2).classed("circle", true).on("mouseover", function(d) {
-          return d3.select(d3.event.target).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow").call(_this.show_marker_in_table(d));
+          console.log("this:", _this);
+          console.log("d3.event is:", d3.event);
+          console.log("d is:", d);
+          return d3.select(d3.event).attr("r", 5).attr("fill", "yellow").call(_this.show_marker_in_table(d));
         }).on("mouseout", function() {
-          return d3.select(d3.event.target).classed("d3_highlight", false).attr("r", 2).attr("fill", "black").call(_this.show_marker_in_table());
+          return d3.select(d3.event).attr("r", 2).attr("fill", "black").call(_this.show_marker_in_table());
         });
       };
 
       return Manhattan_Plot;
 
     })();
-    return new Manhattan_Plot(600, 1200);
+    console.time('Create manhattan plot');
+    new Manhattan_Plot(600, 1200);
+    return console.timeEnd('Create manhattan plot');
   });
 
 }).call(this);

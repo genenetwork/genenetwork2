@@ -10,10 +10,11 @@ $ ->
 
             @x_coords = []
             @y_coords = []
-            @marker_names = []    
+            @marker_names = []
+            console.time('Create coordinates')
             @create_coordinates()
+            console.timeEnd('Create coordinates')
             [@chr_lengths, @cumulative_chr_lengths] = @get_chr_lengths()
-            console.log("cumulative_chr_len: ", @cumulative_chr_lengths)
 
             # Buffer to allow for the ticks/labels to be drawn
             @x_buffer = @plot_width/30
@@ -25,15 +26,17 @@ $ ->
 
             @svg = @create_svg()
             @plot_coordinates = _.zip(@x_coords, @y_coords, @marker_names)
+            
             @plot_height -= @y_buffer
             @create_scales()
+            console.time('Create graph')
             @create_graph()
+            console.timeEnd('Create graph')
 
         get_max_chr: () ->
             max_chr = 0
             for result in @qtl_results
                 chr = parseInt(result.chr)
-                console.log("foo:", chr, typeof(chr))
                 if not _.isNaN(chr) 
                     if chr > max_chr
                         max_chr = chr
@@ -56,7 +59,7 @@ $ ->
                 cumulative_chr_lengths.push(total_length + this_length)
                 total_length += this_length
                 
-            console.log("total length is:", total_length)
+            #console.log("total length is:", total_length)
 
             return [chr_lengths, cumulative_chr_lengths]
 
@@ -70,13 +73,13 @@ $ ->
                     chr_lengths.push(chr_length) 
                     if result.chr != "1"
                         @total_length += chr_lengths[chr_lengths.length - 2]
-                        console.log("total_length is:", @total_length)                
                 @x_coords.push(@total_length + parseFloat(result.Mb))
                 @y_coords.push(result.lod_score)
                 @marker_names.push(result.name)
             @total_length += chr_lengths[chr_lengths.length-1]
 
         show_marker_in_table: (marker_info) ->
+            console.log("in show_marker_in_table")
             ### Searches for the select marker in the results table below ###
             if marker_info
                 marker_name = marker_info[2]
@@ -148,11 +151,10 @@ $ ->
                 tick_val = parseInt(@cumulative_chr_lengths[i-1])
                 for tick in [0..(tick_count-1)]
                     tick_val += 25
-                    console.log("tick_val is:", tick_val)
                     chr_ticks.push(tick_val)
                 Array::push.apply tick_vals, chr_ticks    
                     
-            console.log("tick_vals:", tick_vals)
+            #console.log("tick_vals:", tick_vals)
             return tick_vals
 
         add_x_axis: () ->
@@ -176,7 +178,6 @@ $ ->
                     else
                         tmp_tick_val += 25
                         tick_val = tmp_tick_val
-                console.log("tick_val: ", tick_val)
                 return (tick_val)
             )
 
@@ -242,7 +243,6 @@ $ ->
             for key of @chromosomes
                 chr_names.push(key)
             chr_info = _.zip(chr_names, @chr_lengths, @cumulative_chr_lengths)
-            console.log("chr_info is", chr_info)                     
             @svg.selectAll("text")
                 .data(chr_info, (d) =>
                     return d
@@ -250,7 +250,6 @@ $ ->
                 .enter()
                 .append("text")
                 .text((d) =>
-                    console.log("d[0] is ", d[0])
                     return d[0]
                 )
                 .attr("x", (d) =>
@@ -263,9 +262,7 @@ $ ->
                 .attr("font-size", "18px")
                 .attr("fill", "grey")
 
-
         add_plot_points: () ->
-            console.log("x_max is:", @x_max)
             @svg.selectAll("circle")
                 .data(@plot_coordinates)
                 .enter()
@@ -279,16 +276,21 @@ $ ->
                 .attr("r", 2)
                 .classed("circle", true)
                 .on("mouseover", (d) =>
-                    d3.select(d3.event.target).classed("d3_highlight", true)
+                    console.log("this:", this)
+                    console.log("d3.event is:", d3.event)
+                    console.log("d is:", d)
+                    d3.select(d3.event)
                         .attr("r", 5)
                         .attr("fill", "yellow")
                         .call(@show_marker_in_table(d))
                 )
                 .on("mouseout", () =>
-                    d3.select(d3.event.target).classed("d3_highlight", false)
+                    d3.select(d3.event)
                         .attr("r", 2)
                         .attr("fill", "black")
                         .call(@show_marker_in_table())
                 )
 
+    console.time('Create manhattan plot')
     new Manhattan_Plot(600, 1200)
+    console.timeEnd('Create manhattan plot')

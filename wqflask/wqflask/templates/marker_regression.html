@@ -69,18 +69,18 @@
     <!--[if lt IE 9]>
         <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>
     <![endif]-->
-    <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/marker_regression.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
-    
-        
+
     
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
+            console.time("Creating table");
             $('#qtl_results').dataTable( {
                 //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
                 "sDom": "lTftipr",
@@ -97,8 +97,11 @@
                     "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
                 },
                 "iDisplayLength": 50,
-                "bLengthChange": true
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "bSortClasses": false
             } );
+            console.timeEnd("Creating table");
         });
     </script>
 {% endblock %}

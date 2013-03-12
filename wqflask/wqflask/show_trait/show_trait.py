@@ -51,10 +51,10 @@ class ShowTrait(object):
         #                          cellid=None)
         #
         #
-        #self.dataset.group.read_genotype_file()
+        self.dataset.group.read_genotype_file()
 
-        if not self.dataset.group.genotype:
-            self.read_data(include_f1=True) 
+        #if not self.dataset.group.genotype:
+        #    self.read_data(include_f1=True) 
 
       
         # Todo: Add back in the ones we actually need from below, as we discover we need them
@@ -163,8 +163,8 @@ class ShowTrait(object):
         #if incf1 == None:
         #    incf1 = []
 
-        if not self.genotype:
-            self.dataset.read_genotype_file()
+        #if not self.genotype:
+        #    self.dataset.read_genotype_file()
         if not samplelist:
             if include_f1:
                 samplelist = self.f1list + self.samplelist

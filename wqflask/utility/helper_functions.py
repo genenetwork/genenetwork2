@@ -12,7 +12,7 @@ def get_species_dataset_trait(self, start_vars):
     self.this_trait = GeneralTrait(dataset=self.dataset.name,
                                    name=start_vars['trait_id'],
                                    cellid=None)
-    
+
     #if read_genotype:
     self.dataset.group.read_genotype_file()
-    self.genotype = self.dataset.group.genotype
+    #self.genotype = self.dataset.group.genotype

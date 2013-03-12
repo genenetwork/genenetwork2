@@ -31,6 +31,7 @@ from utility import temp_data
 from wqflask.dataSharing import SharingInfo, SharingInfoPage
 
 from base import webqtlFormData
+from utility.benchmark import Bench
 
 from pprint import pformat as pf
 
@@ -168,25 +169,18 @@ def marker_regression_page():
             start_vars[key] = value
     
     version = "v5"
-    print("version is:", version)
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
-    result = Redis.get(key)
+    with Bench("Loading cache"):
+        result = Redis.get(key)
     
-    print("************************ Starting result *****************")
+    #print("************************ Starting result *****************")
     #print("result is [{}]: {}".format(type(result), result))
-    print("************************ Ending result ********************")
+    #print("************************ Ending result ********************")
     
     if result:
-        with open("/tmp/result", "w") as fh:
-            fh.write(result)
         print("Cache hit!!!")
-        import __builtin__
-        import reaper
-        __builtin__.Dataset = reaper.Dataset
-        #result = yaml.load(result)
-        result = pickle.loads(result)
-        print("Done loading yaml")
-        
+        with Bench("Loading results"):
+            result = pickle.loads(result)
     else:
         print("Cache miss!!!")
         template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
@@ -197,14 +191,17 @@ def marker_regression_page():
 
         result = template_vars.__dict__
      
-        for item in template_vars.__dict__.keys():
-            print("  ---**--- {}: {}".format(type(item), item))
+        #for item in template_vars.__dict__.keys():
+        #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
         
         #causeerror
         Redis.set(key, pickle.dumps(result))
         Redis.expire(key, 60*60)
+        
+    with Bench("Rendering template"):
+        rendered_template = render_template("marker_regression.html", **result)
     
-    return render_template("marker_regression.html", **result)
+    return rendered_template
 
 
 @app.route("/corr_compute", methods=('POST',))

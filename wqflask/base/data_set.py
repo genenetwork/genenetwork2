@@ -95,11 +95,14 @@ class DatasetGroup(object):
         if self.name == 'BXD300':
             self.name = "BXD"
         
+        self.f1list = None
+        self.parlist = None        
+        self.get_f1_parent_strains()
+        print("parents/f1s: {}:{}".format(self.parlist, self.f1list))
+        
         self.species = webqtlDatabaseFunction.retrieve_species(self.name)
         
         self.incparentsf1 = False
-        self.f1list = None
-        self.parlist = None
         self.allsamples = None
         self.markers = Markers(self.name)
 
@@ -117,6 +120,18 @@ class DatasetGroup(object):
     #    markers = json.load(json_data)
     #    
 
+    def get_f1_parent_strains(self):
+        try:
+            # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
+            f1, f12, maternal, paternal = webqtlUtil.ParInfo[self.name]
+        except KeyError:
+            f1 = f12 = maternal = paternal = None
+            
+        if f1 and f12:
+            self.f1list = [f1, f12]
+        if maternal and paternal:
+            self.parlist = [maternal, paternal]
+            
     def read_genotype_file(self):
         '''Read genotype from .geno file instead of database'''
         #if self.group == 'BXD300':
@@ -128,38 +143,24 @@ class DatasetGroup(object):
         #genotype_2 is Dataset Object with parents and f1 (not for intercross)
 
         genotype_1 = reaper.Dataset()
-        
+
         # reaper barfs on unicode filenames, so here we ensure it's a string
         full_filename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
         genotype_1.read(full_filename)
 
-        print("Got to after read")
-
-        try:
-            # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
-            f1, f12, maternal, paternal = webqtlUtil.ParInfo[self.name]
-        except KeyError:
-            f1 = f12 = maternal = paternal = None
-
-
-        if genotype_1.type == "group" and maternal and paternal:
-            genotype_2 = genotype_1.add(Mat=maternal, Pat=paternal)       #, F1=_f1)
+        if genotype_1.type == "group" and self.parlist:
+            genotype_2 = genotype_1.add(Mat=self.parlist[0], Pat=self.parlist[1])       #, F1=_f1)
         else:
             genotype_2 = genotype_1
 
         #determine default genotype object
         if self.incparentsf1 and genotype_1.type != "intercross":
-            self.genotype = genotype_2
+            genotype = genotype_2
         else:
             self.incparentsf1 = 0
-            self.genotype = genotype_1
+            genotype = genotype_1
 
-        self.samplelist = list(self.genotype.prgy)
-
-        if f1 and f12:
-            self.f1list = [f1, f12]
-        if maternal and paternal:
-            self.parlist = [maternal, paternal]
+        self.samplelist = list(genotype.prgy)
 
 
 class DataSet(object):

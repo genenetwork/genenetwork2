@@ -62,7 +62,7 @@ class Chromosomes(object):
             self.chromosomes[item.Name] = IndChromosome(item.Length)
         
         self.set_mb_graph_interval()
-        self.get_cm_length_list()
+        #self.get_cm_length_list()
 
 
     def set_mb_graph_interval(self):
