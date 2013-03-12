@@ -249,12 +249,13 @@
         }).attr("cy", function(d) {
           return _this.plot_height - ((_this.plot_height - _this.y_buffer) * d[1] / _this.y_max);
         }).attr("r", 2).classed("circle", true).on("mouseover", function(d) {
+          console.log("foodie");
           console.log("this:", _this);
           console.log("d3.event is:", d3.event);
           console.log("d is:", d);
-          return d3.select(d3.event).attr("r", 5).attr("fill", "yellow").call(_this.show_marker_in_table(d));
+          return d3.select(d3.event.target).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow").call(_this.show_marker_in_table(d));
         }).on("mouseout", function() {
-          return d3.select(d3.event).attr("r", 2).attr("fill", "black").call(_this.show_marker_in_table());
+          return d3.select(d3.event.target).classed("d3_highlight", false).attr("r", 2).attr("fill", "black").call(_this.show_marker_in_table());
         });
       };
 
