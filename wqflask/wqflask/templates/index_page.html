@@ -18,6 +18,7 @@
         <div class="row">
             <div class="span3 bs-docs-sidebar">
               <ul class="nav nav-list bs-docs-sidenav">
+                <li><a href="#quick-search"><i class="icon-chevron-right"></i> Quick Search</a></li>
                 <li><a href="#search"><i class="icon-chevron-right"></i> Search</a></li>
                 <li><a href="#getting-started"><i class="icon-chevron-right"></i> Getting started</a></li>
                 <li><a href="#advanced"><i class="icon-chevron-right"></i> Advanced commands</a></li>
@@ -27,7 +28,27 @@
             </div>
 
             <div class="span9">
+                <section id="quick-search">
+                    <div class="page-header">
+                        <h1>Quick search</h1>
+                    </div>
+                    <form method="get" action="/search"  name="SEARCHFORM">
+                        <fieldset>
+                            <label for="tfor">Search:</label>
+                            <div class="input-append">
+                                <input class="input-xlarge"
+                                    id="tfor" name="q"
+                                    type="text" maxlength="500">
+                                    
+                                <input id="btsearch" type="submit"
+                                    class="btn btn-primary" value="Search">
+                            </div>
+                        </fieldset>
+                       
+                    </form>
+                </section>
                 <section id="search">
+                    
                     <div class="page-header">
                         <h1>Select and search</h1>
                     </div>

@@ -57,10 +57,14 @@ class SearchResultPage():
         #    self.dataset_groups = map(lambda x: x[1], results)
         #    self.dataset_group_ids = map(lambda x: x[2], results)
         #else:
-        self.dataset = create_dataset(kw['dataset'])
- 
-        self.search_terms = kw['search_terms']
- 
+        if kw['q']:
+            self.quick_search = True
+            self.search_terms = kw['q']
+        else:
+            self.quick_search = False
+            self.search_terms = kw['search_terms']
+            self.dataset = create_dataset(kw['dataset'])
+
         self.search()
         self.gen_search_result()
 
