@@ -274,19 +274,24 @@ $ ->
                     return @plot_height - ((@plot_height-@y_buffer) * d[1]/@y_max)
                 )
                 .attr("r", 2)
+                .attr("id", (d) =>
+                    return "point_" + String(d[2])
+                )
                 .classed("circle", true)
                 .on("mouseover", (d) =>
                     console.log("foodie")
                     console.log("this:", this)
                     console.log("d3.event is:", d3.event)
                     console.log("d is:", d)
-                    d3.select(d3.event.target).classed("d3_highlight", true)
+                    this_id = "point_" + String(d[2])
+                    d3.select("#" + this_id).classed("d3_highlight", true)
                         .attr("r", 5)
                         .attr("fill", "yellow")
                         .call(@show_marker_in_table(d))
                 )
-                .on("mouseout", () =>
-                    d3.select(d3.event.target).classed("d3_highlight", false)
+                .on("mouseout", (d) =>
+                    this_id = "point_" + String(d[2])
+                    d3.select("#" + this_id).classed("d3_highlight", false)
                         .attr("r", 2)
                         .attr("fill", "black")
                         .call(@show_marker_in_table())

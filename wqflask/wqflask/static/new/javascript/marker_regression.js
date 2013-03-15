@@ -248,14 +248,20 @@
           return _this.x_buffer + ((_this.plot_width - _this.x_buffer) * d[0] / _this.x_max);
         }).attr("cy", function(d) {
           return _this.plot_height - ((_this.plot_height - _this.y_buffer) * d[1] / _this.y_max);
-        }).attr("r", 2).classed("circle", true).on("mouseover", function(d) {
+        }).attr("r", 2).attr("id", function(d) {
+          return "point_" + String(d[2]);
+        }).classed("circle", true).on("mouseover", function(d) {
+          var this_id;
           console.log("foodie");
           console.log("this:", _this);
           console.log("d3.event is:", d3.event);
           console.log("d is:", d);
-          return d3.select(d3.event.target).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow").call(_this.show_marker_in_table(d));
-        }).on("mouseout", function() {
-          return d3.select(d3.event.target).classed("d3_highlight", false).attr("r", 2).attr("fill", "black").call(_this.show_marker_in_table());
+          this_id = "point_" + String(d[2]);
+          return d3.select("#" + this_id).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow").call(_this.show_marker_in_table(d));
+        }).on("mouseout", function(d) {
+          var this_id;
+          this_id = "point_" + String(d[2]);
+          return d3.select("#" + this_id).classed("d3_highlight", false).attr("r", 2).attr("fill", "black").call(_this.show_marker_in_table());
         });
       };
 
