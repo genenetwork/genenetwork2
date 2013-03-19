@@ -26,42 +26,42 @@ from scipy import stats
 
 from pprint import pformat as pf
 
-from utility.benchmark import Bench
-
-#np.seterr('raise')
-
-def run(pheno_vector,
-        genotype_matrix,
-        restricted_max_likelihood=True,
-        refit=False,
-        temp_data=None):
-    """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
-    
-    restricted_max_likelihood -- whether to use restricted max likelihood; True or False
-    refit -- whether to refit the variance component for each marker
-    temp_data -- TempData object that stores the progress for each major step of the
-    calculations ("calculate_kinship" and "GWAS" take the majority of time)
-    
-    """
-    
-    with Bench("Calculate Kinship"):
-        kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
-    
-    with Bench("Create LMM object"):
-        lmm_ob = LMM(pheno_vector, kinship_matrix)
-    
-    with Bench("LMM_ob fitting"):
-        lmm_ob.fit()
-
-    with Bench("Doing GWAS"):
-        t_stats, p_values = GWAS(pheno_vector,
-                                genotype_matrix,
-                                kinship_matrix,
-                                restricted_max_likelihood=True,
-                                refit=False,
-                                temp_data=temp_data)
-    Bench().report()
-    return t_stats, p_values
+#from utility.benchmark import Bench
+#
+##np.seterr('raise')
+#
+#def run(pheno_vector,
+#        genotype_matrix,
+#        restricted_max_likelihood=True,
+#        refit=False,
+#        temp_data=None):
+#    """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
+#    
+#    restricted_max_likelihood -- whether to use restricted max likelihood; True or False
+#    refit -- whether to refit the variance component for each marker
+#    temp_data -- TempData object that stores the progress for each major step of the
+#    calculations ("calculate_kinship" and "GWAS" take the majority of time)
+#    
+#    """
+#    
+#    with Bench("Calculate Kinship"):
+#        kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
+#    
+#    with Bench("Create LMM object"):
+#        lmm_ob = LMM(pheno_vector, kinship_matrix)
+#    
+#    with Bench("LMM_ob fitting"):
+#        lmm_ob.fit()
+#
+#    with Bench("Doing GWAS"):
+#        t_stats, p_values = GWAS(pheno_vector,
+#                                genotype_matrix,
+#                                kinship_matrix,
+#                                restricted_max_likelihood=True,
+#                                refit=False,
+#                                temp_data=temp_data)
+#    Bench().report()
+#    return t_stats, p_values
 
 
 def matrixMult(A,B):
