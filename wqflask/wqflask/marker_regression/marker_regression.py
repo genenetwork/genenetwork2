@@ -65,6 +65,9 @@ class MarkerRegression(object):
         pheno_vector = np.array([float(val) for val in self.vals if val!="x"])
         genotype_matrix = np.array(trimmed_genotype_data).T
 
+        print("pheno_vector is: ", pf(pheno_vector))
+        print("genotype_matrix is: ", pf(genotype_matrix))
+
         t_stats, p_values = lmm.run(
             pheno_vector,
             genotype_matrix,

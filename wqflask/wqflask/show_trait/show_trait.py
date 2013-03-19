@@ -1552,8 +1552,10 @@ class ShowTrait(object):
             all_samples_ordered = (self.dataset.group.parlist +
                                    self.dataset.group.f1list +
                                    self.dataset.group.samplelist)
-        else:
+        elif self.dataset.group.f1list:
             all_samples_ordered = self.dataset.group.f1list + self.dataset.group.samplelist
+        else:
+            all_samples_ordered = self.dataset.group.samplelist
 
         this_trait_samples = set(this_trait.data.keys())
 

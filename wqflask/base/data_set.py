@@ -185,9 +185,8 @@ class DataSet(object):
         
         self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
         self.species = species.TheSpecies(self)
-    
-       
-        
+
+
     def get_desc(self):
         """Gets overridden later, at least for Temp...used by trait's get_given_name"""
         return None

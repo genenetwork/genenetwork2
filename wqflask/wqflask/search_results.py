@@ -57,15 +57,18 @@ class SearchResultPage():
         #    self.dataset_groups = map(lambda x: x[1], results)
         #    self.dataset_group_ids = map(lambda x: x[2], results)
         #else:
-        if kw['q']:
+        
+        self.results = []
+        
+        if 'q' in kw:
             self.quick_search = True
             self.search_terms = kw['q']
+            self.quick_search()
         else:
             self.quick_search = False
             self.search_terms = kw['search_terms']
             self.dataset = create_dataset(kw['dataset'])
-
-        self.search()
+            self.search()
         self.gen_search_result()
 
 
@@ -95,13 +98,24 @@ class SearchResultPage():
             self.trait_list.append(this_trait)
 
         self.dataset.get_trait_info(self.trait_list, species)
+        
+    def quick_search(self):
+
+        return True
+
+        #search_gene
+        #search_geno
+        #searhch_pheno
+        #search_mrn
+        #searhc_publish
 
 
     def search(self):
         self.search_terms = parser.parse(self.search_terms)
         print("After parsing:", self.search_terms)
 
-        self.results = []
+        
+        
         for a_search in self.search_terms:
             print("[kodak] item is:", pf(a_search))
             search_term = a_search['search_term']
