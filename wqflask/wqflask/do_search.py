@@ -20,17 +20,18 @@ class DoSearch(object):
     # Used to translate search phrases into classes
     search_types = dict()
 
-    def __init__(self, search_term, search_operator, dataset):
+    def __init__(self, search_term, search_operator=None, dataset=None):
         self.search_term = search_term
         # Make sure search_operator is something we expect
         assert search_operator in (None, "=", "<", ">", "<=", ">="), "Bad search operator"
         self.search_operator = search_operator
         self.dataset = dataset
-        print("self.dataset is boo: ", type(self.dataset), pf(self.dataset))
-        print("self.dataset.group is: ", pf(self.dataset.group))
-
-        #Get group information for dataset and the species id
-        self.species_id = webqtlDatabaseFunction.retrieve_species_id(self.dataset.group.name)           
+        
+        if self.dataset:
+            print("self.dataset is boo: ", type(self.dataset), pf(self.dataset))
+            print("self.dataset.group is: ", pf(self.dataset.group))
+            #Get group information for dataset and the species id
+            self.species_id = webqtlDatabaseFunction.retrieve_species_id(self.dataset.group.name)           
 
     def execute(self, query):
         """Executes query and returns results"""
@@ -58,6 +59,47 @@ class DoSearch(object):
     @classmethod
     def get_search(cls, search_type):
         return cls.search_types[search_type]
+
+class QuickMrnaAssaySearch(DoSearch):
+    """A general search for mRNA assays"""
+    
+    DoSearch.search_types['quick_mrna_assay'] = "QuickMrnaAssaySearch"
+    
+    base_query = """SELECT ProbeSet.Name as ProbeSet_Name,
+                ProbeSet.Chr_num as ProbeSet_Chr_Num,
+                ProbeSet.Mb as ProbeSet_Mb,
+                ProbeSet.Symbol as ProbeSet_Symbol,
+                ProbeSet.name_num as ProbeSet_name_num
+                FROM ProbeSet,
+                ProbeSetXRef,
+                ProbeSetFreeze,
+                ProbeFreeze,
+                InbredSet,
+                Species """
+                
+    header_fields = ['',
+                     'Record ID',
+                     'Symbol',
+                     'Location']
+    
+    def run(self):
+        """Generates and runs a search for assays across all mRNA expression datasets"""
+
+        print("Running ProbeSetSearch")
+        query = self.base_query + """WHERE (MATCH (ProbeSet.Name,
+                    ProbeSet.description,
+                    ProbeSet.symbol)
+                    AGAINST ('%s' IN BOOLEAN MODE)) and
+                    ProbeSet.Id = ProbeSetXRef.ProbeSetId and
+                    ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id and
+                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+                    ProbeFreeze.InbredSetId = InbredSet.Id and
+                    InbredSet.SpeciesId = Species.Id
+                            """ % (escape(self.search_term[0]))
+
+        print("final query is:", pf(query))
+
+        return self.execute(query)
 
 
 class MrnaAssaySearch(DoSearch):
@@ -124,6 +166,8 @@ class MrnaAssaySearch(DoSearch):
 
         return self.execute(query)
 
+
+#class QuickPhenotypeSearch(DoSearch):
 
 class PhenotypeSearch(DoSearch):
     """A search within a phenotype dataset"""

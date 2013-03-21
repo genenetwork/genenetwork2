@@ -85,7 +85,7 @@ $ ->
                 marker_name = marker_info[2]
             else
                 marker_name = ""
-            $("#qtl_results_filter").find("input:first").val(marker_name).keyup()
+            $("#qtl_results_filter").find("input:first").val(marker_name).keypress()
 
         create_svg: () ->
             svg = d3.select("#manhattan_plots")
@@ -279,8 +279,6 @@ $ ->
                 )
                 .classed("circle", true)
                 .on("mouseover", (d) =>
-                    console.log("foodie")
-                    console.log("this:", this)
                     console.log("d3.event is:", d3.event)
                     console.log("d is:", d)
                     this_id = "point_" + String(d[2])

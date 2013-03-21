@@ -45,7 +45,7 @@ class SearchResultPage():
         ###########################################
         #   Names and IDs of group / F2 set
         ###########################################
-        
+
         # All Phenotypes is a special case we'll deal with later
         #if kw['dataset'] == "All Phenotypes":
         #    self.cursor.execute("""
@@ -57,15 +57,16 @@ class SearchResultPage():
         #    self.dataset_groups = map(lambda x: x[1], results)
         #    self.dataset_group_ids = map(lambda x: x[2], results)
         #else:
-        
+
         self.results = []
-        
+
         if 'q' in kw:
-            self.quick_search = True
+            #self.quick_search = True
             self.search_terms = kw['q']
+            print("self.search_terms is: ", self.search_terms)
             self.quick_search()
         else:
-            self.quick_search = False
+            #self.quick_search = False
             self.search_terms = kw['search_terms']
             self.dataset = create_dataset(kw['dataset'])
             self.search()
@@ -98,10 +99,23 @@ class SearchResultPage():
             self.trait_list.append(this_trait)
 
         self.dataset.get_trait_info(self.trait_list, species)
-        
-    def quick_search(self):
 
-        return True
+    def quick_search(self):
+        self.search_terms = parser.parse(self.search_terms)
+        print("After parsing:", self.search_terms)
+
+        for a_search in self.search_terms:
+            search_term = a_search['search_term']
+            #Do mRNA assay search
+            search_ob = do_search.DoSearch.get_search("quick_mrna_assay")
+            search_class = getattr(do_search, search_ob)
+            the_search = search_class(search_term)
+            
+            self.results.extend(the_search.run())
+            print("in the search results are:", self.results)
+
+
+        #return True
 
         #search_gene
         #search_geno
@@ -114,8 +128,6 @@ class SearchResultPage():
         self.search_terms = parser.parse(self.search_terms)
         print("After parsing:", self.search_terms)
 
-        
-        
         for a_search in self.search_terms:
             print("[kodak] item is:", pf(a_search))
             search_term = a_search['search_term']

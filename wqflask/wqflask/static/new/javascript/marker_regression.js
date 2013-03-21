@@ -103,7 +103,7 @@
         } else {
           marker_name = "";
         }
-        return $("#qtl_results_filter").find("input:first").val(marker_name).keyup();
+        return $("#qtl_results_filter").find("input:first").val(marker_name).keypress();
       };
 
       Manhattan_Plot.prototype.create_svg = function() {
@@ -252,8 +252,6 @@
           return "point_" + String(d[2]);
         }).classed("circle", true).on("mouseover", function(d) {
           var this_id;
-          console.log("foodie");
-          console.log("this:", _this);
           console.log("d3.event is:", d3.event);
           console.log("d is:", d);
           this_id = "point_" + String(d[2]);

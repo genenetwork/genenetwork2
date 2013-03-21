@@ -26,42 +26,42 @@ from scipy import stats
 
 from pprint import pformat as pf
 
-#from utility.benchmark import Bench
-#
-##np.seterr('raise')
-#
-#def run(pheno_vector,
-#        genotype_matrix,
-#        restricted_max_likelihood=True,
-#        refit=False,
-#        temp_data=None):
-#    """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
-#    
-#    restricted_max_likelihood -- whether to use restricted max likelihood; True or False
-#    refit -- whether to refit the variance component for each marker
-#    temp_data -- TempData object that stores the progress for each major step of the
-#    calculations ("calculate_kinship" and "GWAS" take the majority of time)
-#    
-#    """
-#    
-#    with Bench("Calculate Kinship"):
-#        kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
-#    
-#    with Bench("Create LMM object"):
-#        lmm_ob = LMM(pheno_vector, kinship_matrix)
-#    
-#    with Bench("LMM_ob fitting"):
-#        lmm_ob.fit()
-#
-#    with Bench("Doing GWAS"):
-#        t_stats, p_values = GWAS(pheno_vector,
-#                                genotype_matrix,
-#                                kinship_matrix,
-#                                restricted_max_likelihood=True,
-#                                refit=False,
-#                                temp_data=temp_data)
-#    Bench().report()
-#    return t_stats, p_values
+from utility.benchmark import Bench
+
+#np.seterr('raise')
+
+def run(pheno_vector,
+        genotype_matrix,
+        restricted_max_likelihood=True,
+        refit=False,
+        temp_data=None):
+    """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
+    
+    restricted_max_likelihood -- whether to use restricted max likelihood; True or False
+    refit -- whether to refit the variance component for each marker
+    temp_data -- TempData object that stores the progress for each major step of the
+    calculations ("calculate_kinship" and "GWAS" take the majority of time)
+    
+    """
+    
+    with Bench("Calculate Kinship"):
+        kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
+    
+    with Bench("Create LMM object"):
+        lmm_ob = LMM(pheno_vector, kinship_matrix)
+    
+    with Bench("LMM_ob fitting"):
+        lmm_ob.fit()
+
+    with Bench("Doing GWAS"):
+        t_stats, p_values = GWAS(pheno_vector,
+                                genotype_matrix,
+                                kinship_matrix,
+                                restricted_max_likelihood=True,
+                                refit=False,
+                                temp_data=temp_data)
+    Bench().report()
+    return t_stats, p_values
 
 
 def matrixMult(A,B):
@@ -99,8 +99,8 @@ def calculate_kinship(genotype_matrix, temp_data):
     """
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
-    print("n is:", n)
-    print("m is:", m)
+    #print("n is:", n)
+    #print("m is:", m)
     keep = []
     for counter in range(m):
         print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
@@ -123,7 +123,6 @@ def calculate_kinship(genotype_matrix, temp_data):
         genotype_matrix[:,counter] = (genotype_matrix[:,counter] - values_mean) / np.sqrt(vr)
         
         percent_complete = int(round((counter/m)*45))
-        print("Percent complete: ", percent_complete)
         temp_data.store("percent_complete", percent_complete)
         
     genotype_matrix = genotype_matrix[:,keep]
@@ -220,7 +219,6 @@ def GWAS(pheno_vector,
             ts, ps = lmm_ob.association(x, REML=restricted_max_likelihood)
             
         percent_complete = 45 + int(round((counter/m)*55))
-        print("Percent complete: ", percent_complete)
         temp_data.store("percent_complete", percent_complete)
 
         p_values.append(ps)
@@ -279,6 +277,8 @@ class LMM:
       self.K = K
       self.Kva = Kva
       self.Kve = Kve
+      print("self.Kva is: ", pf(self.Kva))
+      print("self.Kve is: ", pf(self.Kve))
       self.Y = Y
       self.X0 = X0
       self.N = self.K.shape[0]
