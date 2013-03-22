@@ -122,7 +122,7 @@ np.savetxt(outFile,K)
 if options.saveEig:
     if options.verbose:
         sys.stderr.write("Obtaining Eigendecomposition\n")
-    Kva,Kve = linalg.eigh(K)
+    Kva, Kve = linalg.eigh(K)
     if options.verbose:
         sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
     np.savetxt(outFile+".kva",Kva)
