@@ -4,15 +4,8 @@ from wqflask import app
 
 from flask import Flask, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.security import Security, SQLAlchemyUserDatastore, \
-     UserMixin, RoleMixin
+from flask.ext.security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin
 
-# Create app
-#app = Flask(__name__)
-app.config['SECRET_KEY'] = 'LjfrbDOlvdFMT5cCi9qrJqStxK4NcmxW'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://webqtl:f2ZypIflRM@gn.cazhbciu2y1i.us-east-1.rds.amazonaws.com/db_webqtl'
-#app.config['SECURITY_CONFIRMABLE'] = True
-app.config['SECURITY_TRACKABLE'] = True
 
 # Create database connection object
 db = SQLAlchemy(app)
@@ -48,19 +41,14 @@ user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
 # Create a user to test with
-#@app.before_first_request
-def create_user():
-    db.create_all()
-    user_datastore.create_user(email='matt@example.com', password='notebook')
-    db.session.commit()
+##@app.before_first_request
+#def create_user():
+#    db.create_all()
+#    user_datastore.create_user(email='matt@example.com', password='notebook')
+#    db.session.commit()
 
-## Views
-#@app.route('/')
-#def home():
-#    return render_template('index.html')
 
 import logging
-#from themodule import TheHandlerYouWant
 file_handler = logging.FileHandler("/tmp/flask_gn_log")
 file_handler.setLevel(logging.DEBUG)
 app.logger.addHandler(file_handler)

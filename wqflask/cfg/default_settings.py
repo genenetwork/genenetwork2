@@ -4,5 +4,8 @@ LOGFILE = """/tmp/flask_gn_log"""
 #400 bad request response with no exception/log 
 TRAP_BAD_REQUEST_ERRORS = True
 
-#SECURITY_CONFIRMABLE = True
+# http://pythonhosted.org/Flask-Security/configuration.html
+SECURITY_CONFIRMABLE = True
 SECURITY_TRACKABLE = True
+SECURITY_REGISTERABLE = True
+SECURITY_RECOVERABLE = True
