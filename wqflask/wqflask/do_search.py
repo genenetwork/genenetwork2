@@ -70,12 +70,7 @@ class QuickMrnaAssaySearch(DoSearch):
                 ProbeSet.Mb as ProbeSet_Mb,
                 ProbeSet.Symbol as ProbeSet_Symbol,
                 ProbeSet.name_num as ProbeSet_name_num
-                FROM ProbeSet,
-                ProbeSetXRef,
-                ProbeSetFreeze,
-                ProbeFreeze,
-                InbredSet,
-                Species """
+                FROM ProbeSet """
                 
     header_fields = ['',
                      'Record ID',
@@ -89,12 +84,7 @@ class QuickMrnaAssaySearch(DoSearch):
         query = self.base_query + """WHERE (MATCH (ProbeSet.Name,
                     ProbeSet.description,
                     ProbeSet.symbol)
-                    AGAINST ('%s' IN BOOLEAN MODE)) and
-                    ProbeSet.Id = ProbeSetXRef.ProbeSetId and
-                    ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id and
-                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                    ProbeFreeze.InbredSetId = InbredSet.Id and
-                    InbredSet.SpeciesId = Species.Id
+                    AGAINST ('%s' IN BOOLEAN MODE))
                             """ % (escape(self.search_term[0]))
 
         print("final query is:", pf(query))

@@ -219,3 +219,10 @@ grep -ir (search string) (directory)
 
 -i ignores case
 -r searches recursively through subdirectories of directory you specify
+
+===========================================
+
+MySQL Things -
+
+Create fulltext (MATCH AGAINST syntax) index:
+CREATE FULLTEXT INDEX __________ ON Table (Column);
