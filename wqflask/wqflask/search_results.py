@@ -104,15 +104,27 @@ class SearchResultPage():
         self.search_terms = parser.parse(self.search_terms)
         print("After parsing:", self.search_terms)
 
-        for a_search in self.search_terms:
-            search_term = a_search['search_term']
-            #Do mRNA assay search
-            search_ob = do_search.DoSearch.get_search("quick_mrna_assay")
+        search_types = ["quick_phenotype", "quick_mrna_assay"]
+
+        for search_category in search_types:
+            search_ob = do_search.DoSearch.get_search(search_category)
             search_class = getattr(do_search, search_ob)
-            the_search = search_class(search_term)
-            
-            self.results.extend(the_search.run())
-            print("in the search results are:", self.results)
+            for a_search in self.search_terms:
+                search_term = a_search['search_term']
+                the_search = search_class(search_term)
+                self.results.extend(the_search.run())
+                print("in the search results are:", self.results)
+
+        #for a_search in self.search_terms:
+        #    search_term = a_search['search_term']
+        #
+        #    #Do mRNA assay search
+        #    search_ob = do_search.DoSearch.get_search("quick_mrna_assay")
+        #    search_class = getattr(do_search, search_ob)
+        #    the_search = search_class(search_term)
+        #    
+        #    self.results.extend(the_search.run())
+        #    print("in the search results are:", self.results)
 
 
         #return True
