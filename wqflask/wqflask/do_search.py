@@ -13,6 +13,7 @@ sys.path.append("..")
 
 from dbFunction import webqtlDatabaseFunction
 
+from utility.benchmark import Bench
 
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""
@@ -63,9 +64,9 @@ class DoSearch(object):
 
 class QuickMrnaAssaySearch(DoSearch):
     """A general search for mRNA assays"""
-    
+
     DoSearch.search_types['quick_mrna_assay'] = "QuickMrnaAssaySearch"
-    
+
     base_query = """SELECT ProbeSet.Name as ProbeSet_Name,
                 ProbeSet.Symbol as ProbeSet_Symbol,
                 ProbeSet.description as ProbeSet_Description,
@@ -73,7 +74,7 @@ class QuickMrnaAssaySearch(DoSearch):
                 ProbeSet.Mb as ProbeSet_Mb,
                 ProbeSet.name_num as ProbeSet_name_num
                 FROM ProbeSet """
-                
+
     header_fields = ['',
                      'Record ID',
                      'Symbol',
@@ -190,6 +191,23 @@ class PhenotypeSearch(DoSearch):
                      'Max LRS',
                      'Max LRS Location']
 
+    #def get_fields_clause(self):
+    #    """Generate clause for WHERE portion of query"""
+    #
+    #    #Todo: Zach will figure out exactly what both these lines mean
+    #    #and comment here
+    #    if "'" not in self.search_term[0]:
+    #        search_term = "[[:<:]]" + self.search_term[0] + "[[:>:]]"
+    #
+    #    # This adds a clause to the query that matches the search term
+    #    # against each field in the search_fields tuple
+    #    fields_clause = []
+    #    for field in self.search_fields:
+    #        fields_clause.append('''%s REGEXP "%s"''' % (field, search_term))
+    #    fields_clause = "(%s) and " % ' OR '.join(fields_clause)
+    #
+    #    return fields_clause
+
     def get_fields_clause(self):
         """Generate clause for WHERE portion of query"""
 
@@ -200,12 +218,12 @@ class PhenotypeSearch(DoSearch):
 
         # This adds a clause to the query that matches the search term
         # against each field in the search_fields tuple
-        fields_clause = []
-        for field in self.search_fields:
-            fields_clause.append('''%s REGEXP "%s"''' % (field, search_term))
-        fields_clause = "(%s) and " % ' OR '.join(fields_clause)
+        fields_clause = "MATCH("
+        fields_clause += ",".join(self.search_fields) + ") "
+        fields_clause += "AGAINST('{}' IN BOOLEAN MODE)".format(self.search_term[0])
 
         return fields_clause
+
 
     def compile_final_query(self, from_clause = '', where_clause = ''):
         """Generates the final query string"""
@@ -262,13 +280,13 @@ class QuickPhenotypeSearch(PhenotypeSearch):
                     'Publication.PubMed_ID',
                     'Publication.Abstract',
                     'Publication.Title',
-                    'Publication.Authors')    
+                    'Publication.Authors')
     
     def compile_final_query(self, where_clause = ''):
         """Generates the final query string"""
 
         query = (self.base_query +
-                 """WHERE %s
+                 """WHERE (%s) and
                     PublishXRef.PhenotypeId = Phenotype.Id and
                     PublishXRef.PublicationId = Publication.Id and
                     PublishXRef.InbredSetId = InbredSet.Id and
@@ -283,7 +301,10 @@ class QuickPhenotypeSearch(PhenotypeSearch):
 
         query = self.compile_final_query(where_clause = self.get_fields_clause())
 
-        return self.execute(query)
+        with Bench("Doing quick phenotype search"):
+            results = self.execute(query)
+
+        return results
 
 class GenotypeSearch(DoSearch):
     """A search within a genotype dataset"""
