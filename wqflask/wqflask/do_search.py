@@ -67,13 +67,21 @@ class QuickMrnaAssaySearch(DoSearch):
 
     DoSearch.search_types['quick_mrna_assay'] = "QuickMrnaAssaySearch"
 
-    base_query = """SELECT ProbeSet.Name as ProbeSet_Name,
+    base_query = """SELECT Species.Name as Species_Name,
+                ProbeSetFreeze.Name as DataSet_Name,
+                ProbeSetFreeze.FullName as DataSet_FullName,
+                ProbeSet.Name as ProbeSet_Name,
                 ProbeSet.Symbol as ProbeSet_Symbol,
                 ProbeSet.description as ProbeSet_Description,
                 ProbeSet.Chr_num as ProbeSet_Chr_Num,
                 ProbeSet.Mb as ProbeSet_Mb,
                 ProbeSet.name_num as ProbeSet_name_num
-                FROM ProbeSet """
+                FROM ProbeSet,
+                ProbeSetXRef,
+                ProbeSetFreeze,
+                ProbeFreeze,
+                InbredSet,
+                Species """
 
     header_fields = ['',
                      'Record ID',
@@ -88,7 +96,12 @@ class QuickMrnaAssaySearch(DoSearch):
                     ProbeSet.description,
                     ProbeSet.symbol,
                     ProbeSet.alias)
-                    AGAINST ('%s' IN BOOLEAN MODE))
+                    AGAINST ('%s' IN BOOLEAN MODE)) and
+                    ProbeSet.Id = ProbeSetXRef.ProbeSetId and
+                    ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id and
+                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+                    ProbeFreeze.InbredSetId = InbredSet.Id and
+                    InbredSet.SpeciesId = Species.Id
                             """ % (escape(self.search_term[0]))
 
         print("final query is:", pf(query))
@@ -159,7 +172,7 @@ class MrnaAssaySearch(DoSearch):
         print("final query is:", pf(query))
 
         return self.execute(query)
-
+    
     
 class PhenotypeSearch(DoSearch):
     """A search within a phenotype dataset"""
@@ -252,7 +265,8 @@ class PhenotypeSearch(DoSearch):
         query = self.compile_final_query(where_clause = self.get_fields_clause())
 
         return self.execute(query)
-
+    
+    
 class QuickPhenotypeSearch(PhenotypeSearch):
     """A search across all phenotype datasets"""
     
@@ -304,7 +318,8 @@ class QuickPhenotypeSearch(PhenotypeSearch):
         with Bench("Doing quick phenotype search"):
             results = self.execute(query)
 
-        return results
+        return results    
+
 
 class GenotypeSearch(DoSearch):
     """A search within a genotype dataset"""
