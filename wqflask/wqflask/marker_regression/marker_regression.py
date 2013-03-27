@@ -11,8 +11,6 @@ import collections
 
 import numpy as np
 
-import simplejson as json
-
 #from redis import Redis
 
 from utility import Plot, Bunch
