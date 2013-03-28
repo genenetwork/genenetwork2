@@ -24,8 +24,6 @@ from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declarative_base
 
-from BeautifulSoup import UnicodeDammit
-
 import zach_settings as settings
 
 Engine = sa.create_engine(settings.SQLALCHEMY_DATABASE_URI,
@@ -35,13 +33,147 @@ Engine = sa.create_engine(settings.SQLALCHEMY_DATABASE_URI,
                        )
 
 Session = scoped_session(sessionmaker(bind=Engine)) #, extension=VersionedListener()))
-#Xsession = Session()
 
 Base = declarative_base(bind=Engine)
 Metadata = sa.MetaData()
 Metadata.bind = Engine
 
+class PublishXRef(Base):
+    __tablename__ = 'PublishXRef'
+    
+    Id = sa.Column(sa.Integer, primary_key=True)
+    InbredSetId = sa.Column(sa.Integer, primary_key=True)
+    PhenotypeId = sa.Column(sa.Integer)
+    PublicationId = sa.Column(sa.Integer)
+    DataId = sa.Column(sa.Integer)
+    Locus = sa.Column(sa.Text)
+    LRS = sa.Column(sa.Float)
+    additive = sa.Column(sa.Float)
+    Sequence = sa.Column(sa.Integer)
+    comments = sa.Column(sa.Text)
+    
+    @classmethod
+    def run(cls):
+        conn = Engine.connect()
+        counter = 0
+        for ps in page_query(Session.query(cls)):   #all()
+            values = {}
+            values['table_name'] = cls.__tablename__
+            values['the_key'] = json.dumps([ps.Id, ps.InbredSetId])
+            values['terms'] = cls.get_unique_terms(ps.Id, ps.InbredSetId)
+            print("terms is:", values['terms'])
+            values['result_fields'] = cls.get_result_fields(ps.Id, ps.InbredSetId)
+            ins = QuickSearch.insert().values(**values)
+            conn.execute(ins)
+            counter += 1
+            print("Done:", counter)
+            
+    @staticmethod
+    def get_unique_terms(publishxref_id, inbredset_id):
+        results = Session.query(
+                "pre_publication_description",
+                "post_publication_description",
+                "pre_publication_abbreviation",
+                "post_publication_abbreviation",
+                "publication_title"
+            ).from_statement(
+                "SELECT Phenotype.Pre_publication_description as pre_publication_description, "
+                "Phenotype.Post_publication_description as post_publication_description, "
+                "Phenotype.Pre_publication_abbreviation as pre_publication_abbreviation, "
+                "Phenotype.Post_publication_abbreviation as post_publication_abbreviation, "
+                "Publication.Title as publication_title "
+                "FROM Phenotype, Publication, PublishXRef "
+                "WHERE PublishXRef.Id = :publishxref_id and "
+                "PublishXRef.InbredSetId = :inbredset_id and "
+                "PublishXRef.PhenotypeId = Phenotype.Id and "
+                "PublishXRef.PublicationId = Publication.Id ").params(publishxref_id=publishxref_id,
+                                                            inbredset_id=inbredset_id).all()
+        
+        unique = set()
+        for item in results[0]:
+            #print("locals:", locals())
+            if not item:
+                continue
+            for token in item.split():
+                if token.startswith(('(','[')):
+                    token = token[1:]
+                if token.endswith((')', ']')):
+                    token = token[:-1]
+                if token.endswith(';'):
+                    token = token[:-1]
+                if len(token) > 2:
+                    try:
+                        # This hopefully ensures that the token is utf-8
+                        token = token.encode('utf-8')
+                        print(" ->", token)
+                    except UnicodeDecodeError:
+                        print("\n-- UDE \n")
+                        # Can't get it into utf-8, we won't use it
+                        continue 
+                    
+                    unique.add(token)
+        print("\nUnique terms are: {}\n".format(unique))
+        return " ".join(unique)            
+    
+    @staticmethod
+    def get_result_fields(publishxref_id, inbredset_id):
+        results = Session.query(
+                "phenotype_id",
+                "species",
+                "group_name",
+                "description",
+                "lrs",
+                "publication_id",
+                "year",
+                "authors"
+            ).from_statement(
+                "SELECT PublishXRef.PhenotypeId as phenotype_id, "
+                "Species.Name as species, "
+                "InbredSet.Name as group_name, "
+                "Phenotype.Original_description as description, "
+                "PublishXRef.LRS as lrs, "
+                "PublishXRef.PublicationId as publication_id, "
+                "Publication.Year as year, "
+                "Publication.Authors as authors "
+                "FROM PublishXRef, "
+                "Phenotype, "
+                "Publication, "
+                "InbredSet, "
+                "Species "
+                "WHERE PublishXRef.Id = :publishxref_id and "
+                "PublishXRef.InbredSetId = :inbredset_id and "
+                "PublishXRef.PhenotypeId = Phenotype.Id and "
+                "PublishXRef.PublicationId = Publication.Id and "
+                "InbredSet.Id = :inbredset_id and "
+                "Species.Id = InbredSet.SpeciesId ").params(publishxref_id=publishxref_id,
+                                                            inbredset_id=inbredset_id).all()                
+                #"InbredSet.SpeciesId = Species.Id and "
+                #"Geno.SpeciesId = Species.Id and "
+                #"Geno.Name = PublishXRef.Locus ").params(publishxref_id=publishxref_id,
+                #                                            inbredset_id=inbredset_id).all()
+        for result in results:
+            print("****", result)
+        
+        assert len(set(result for result in results)) == 1, "Different results or no results"
+        
+        print("results are:", results)
+        result = results[0]
+        result = row2dict(result)
+        try:
+            json_results = json.dumps(result, sort_keys=True)
+        except UnicodeDecodeError:
+            print("\n\nTrying to massage unicode\n\n")
+            for key, value in result.iteritems():
+                print("\tkey is:", key)
+                print("\tvalue is:", value)
+                if isinstance(value, basestring):
+                    result[key] = value.decode('utf-8', errors='ignore')
+            json_results = json.dumps(result, sort_keys=True)
 
+        return json_results    
+    
+    
+    
 class ProbeSetXRef(Base):
     __tablename__ = 'ProbeSetXRef'
     
@@ -59,8 +191,6 @@ class ProbeSetXRef(Base):
     additive = sa.Column(sa.Float)
     h2 = sa.Column(sa.Float)
 
-    #__mapper_args__ = {'primary_key':[ProbeSetXRef.ProbeSetId, ProbeSetXRef.ProbeSetFreezeId]}
-
     @classmethod
     def run(cls):
         conn = Engine.connect()
@@ -76,7 +206,7 @@ class ProbeSetXRef(Base):
             ins = QuickSearch.insert().values(**values)
             conn.execute(ins)
             counter += 1
-            print("Done:", counter)        
+            print("Done:", counter)
     
     @staticmethod
     def get_unique_terms(probeset_id):
@@ -119,31 +249,13 @@ class ProbeSetXRef(Base):
         print("\nUnique terms are: {}\n".format(unique))
         return " ".join(unique)
 
-    #def get_species(dataset_id):
-    #    print("Before species query")
-    #    results = Session.query("Name").from_statement("SELECT Species.Name "
-    #                "FROM ProbeSetXRef, "
-    #                "ProbeSetFreeze, "
-    #                "ProbeFreeze, "
-    #                "InbredSet, "
-    #                "Species "
-    #                "WHERE ProbeSetFreeze.Id =:probeset_freeze_id and "
-    #                "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and "
-    #                "ProbeFreeze.InbredSetId = InbredSet.Id and "
-    #                "InbredSet.SpeciesId = Species.Id").params(probeset_freeze_id=dataset_id).all()
-    #    print("After query")
-    #
-    #    assert len(set([result.Name for result in results])) == 1, "Multiple names?"
-    #
-    #    print("species is:", results[0].Name)
-    #
-    #    return results[0].Name
 
     @staticmethod
     def get_result_fields(probeset_id, dataset_id):
         results = Session.query(
                 "name",
                 "species",
+                "group",
                 "dataset",
                 "dataset_name",
                 "symbol",
@@ -157,6 +269,7 @@ class ProbeSetXRef(Base):
             ).from_statement(
                 "SELECT ProbeSet.Name as name, "
                 "Species.Name as species, "
+                "InbredSet.Name as group, "
                 "ProbeSetFreeze.Name as dataset, "
                 "ProbeSetFreeze.FullName as dataset_name, "
                 "ProbeSet.Symbol as symbol, "
@@ -201,10 +314,9 @@ class ProbeSetXRef(Base):
                 if isinstance(value, basestring):
                     result[key] = value.decode('utf-8', errors='ignore')
             json_results = json.dumps(result, sort_keys=True)
-        
-        #print("json is: ", json_results)
-        
+
         return json_results    
+
 
 QuickSearch = sa.Table("QuickSearch", Metadata,
         sa.Column('table_name', sa.String(15),
@@ -212,172 +324,17 @@ QuickSearch = sa.Table("QuickSearch", Metadata,
         sa.Column('the_key', sa.String(30),
                   primary_key=True, nullable=False, autoincrement=False), # key in database table
         sa.Column('terms', sa.Text), # terms to compare search string with
-        #sa.Column('species', sa.Text),
         sa.Column('result_fields', sa.Text)  # json
                     )
 
 QuickSearch.drop(Engine, checkfirst=True)
 Metadata.create_all(Engine)
 
-#class QuickSearch(Base):
-#    table_name = Column(String)
-#    the_key = Column(String)
-#    terms = Column(String)
-#    
-#    def __init__(self, table_name, the_key, terms, category, species, result_fields):
-#        self.table_name = table_name
-#        self.the_key = the_key
-#        self.terms = terms
-#        self.species = species
-#        self.category = category
-#        self.result_fields = json.dumps(sort_keys=True)
-
-
-def get_unique_terms(trait_type, trait_id):
-    #if not args:
-    #    return None
-    
-    if trait_type=="ProbeSet":
-        results = Session.query(
-                "name",
-                "symbol",
-                "description",
-                "alias"
-            ).from_statement(
-                "SELECT ProbeSet.Name as name, "
-                "ProbeSet.Symbol as symbol, "
-                "ProbeSet.description as description, "
-                "ProbeSet.alias as alias "
-                "FROM ProbeSet"
-                "WHERE ProbeSet.Id = :probeset_id ").params(probeset_id=trait_id).all()
-    
-    unique = set()
-    for item in results[0]:
-        #print("locals:", locals())
-        if not item:
-            continue
-        for token in item.split():
-            if token.startswith(('(','[')):
-                token = token[1:]
-            if token.endswith((')', ']')):
-                token = token[:-1]
-            if token.endswith(';'):
-                token = token[:-1]
-            if len(token) > 2:
-                try:
-                    # This hopefully ensures that the token is utf-8
-                    token = token.encode('utf-8')
-                    print(" ->", token)
-                except UnicodeDecodeError:
-                    print("\n-- UDE \n")
-                    # Can't get it into utf-8, we won't use it
-                    continue 
-                
-                unique.add(token)
-    print("\nUnique terms are: {}\n".format(unique))
-    return " ".join(unique)
-
-def main():
-    conn = Engine.connect()
-    counter = 0
-    
-    ProbeSetXRef.run()
-    
-    #for ps in page_query(Session.query(ProbeSet)):   #all()
-    #    values = {}
-    #    values['table_name'] = "ProbeSetXRef"
-    #    values['the_key'] = json.dumps([ps.ProbeSetId, ps.ProbeSetFreezeId])
-    #    values['terms'] = get_unique_terms("ProbeSet", ps.ProbeSetId)
-    #    print("terms is:", values['terms'])
-    #    #values['species'] = get_species("ProbeSet", ps.Id)
-    #    values['result_fields'] = get_result_fields("ProbeSet", ps.ProbeSetId, ps.ProbeSetFreezeId)
-    #    ins = QuickSearch.insert().values(**values)
-    #    conn.execute(ins)
-    #    counter += 1
-    #    print("Done:", counter)
-
-
-def get_species(trait_type, trait_id):
-    if trait_type == "ProbeSet":
-        print("Before species query")
-        results = Session.query("Name").from_statement("SELECT Species.Name "
-                    "FROM ProbeSetXRef, "
-                    "ProbeSetFreeze, "
-                    "ProbeFreeze, "
-                    "InbredSet, "
-                    "Species "
-                    "WHERE ProbeSetXRef.ProbeSetId =:probeset_id and "
-                    "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id and "
-                    "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and "
-                    "ProbeFreeze.InbredSetId = InbredSet.Id and "
-                    "InbredSet.SpeciesId = Species.Id").params(probeset_id=trait_id).all()
-        print("After query")
-        
-        assert len(set([result.Name for result in results])) == 1, "Multiple names?"
-
-    print("species is:", results[0].Name)
-
-    return results[0].Name
-
-#def get_result_fields(trait_type, *args):
-#    if trait_type == "ProbeSet":
-#        print("qs1")
-#        results = Session.query(
-#                "name",
-#                "symbol",
-#                "description",
-#                "chr", "mb",
-#                "genbank_id",
-#                "gene_id",
-#                "chip_id",
-#                "chip_name"
-#            ).from_statement(
-#                "SELECT ProbeSet.Name as name, "
-#                "ProbeSet.Symbol as symbol, "
-#                "ProbeSet.description as description, "
-#                "ProbeSet.Chr as chr, "
-#                "ProbeSet.Mb as mb, "
-#                "ProbeSet.GenbankId as genbank_id, "
-#                "ProbeSet.GeneId as gene_id, "
-#                "ProbeSet.ChipId as chip_id, "
-#                "GeneChip.Name as chip_name "
-#                "FROM ProbeSet, GeneChip "
-#                "WHERE ProbeSet.ChipId = GeneChip.Id and "
-#                "ProbeSet.Id = :probeset_id ").params(probeset_id=*args[0], dataset_id=*args[1]).all()
-#        print("qs2")
-#        for result in results:
-#            print(result)
-#        assert len(set(result for result in results)) == 1, "Different results"
-#    
-#    print("results are:", results)
-#    result = results[0]
-#    result = row2dict(result)
-#    try:
-#        json_results = json.dumps(result, sort_keys=True)
-#    except UnicodeDecodeError:
-#        print("\n\nTrying to massage unicode\n\n")
-#        #print("result.__dict__ is [{}]: {}".format(type(result.__dict__), result.__dict__))
-#        #resultd = dict(**result.__dict__)
-#        for key, value in result.iteritems():
-#            print("   key is:", key)
-#            print("   value is:", value)
-#            if isinstance(value, basestring):
-#                result[key] = value.decode('utf-8', errors='ignore')
-#        json_results = json.dumps(result, sort_keys=True)
-#    
-#    #print("json is: ", json_results)
-#    
-#    return json_results
-
 
 def row2dict(row):
-    return dict(zip(row.keys(), row))  # http://stackoverflow.com/a/2848519/1175849
-    #"""http://stackoverflow.com/a/1960546/1175849"""
-    #d = {}
-    #for column in row.__table__.columns:
-    #    d[column.name] = getattr(row, column.name)
-    #
-    #return d
+    """http://stackoverflow.com/a/2848519/1175849"""
+    return dict(zip(row.keys(), row))
+
 
 def page_query(q):
     """http://stackoverflow.com/a/1217947/1175849"""
@@ -390,6 +347,11 @@ def page_query(q):
         offset += 1000
         if not r:
             break
+
+
+def main():
+    PublishXRef.run()
+    ProbeSetXRef.run()
 
 if __name__ == "__main__":
     main()
