@@ -43,7 +43,7 @@ Metadata.bind = Engine
 
 
 class ProbeSet(Base):
-    __tablename__ = 'ProbeSet'
+    __tablename__ = 'ProbeSetXRef'
     __table_args__ = {'autoload': True}
     
 QuickSearch = sa.Table("QuickSearch", Metadata,
@@ -52,11 +52,11 @@ QuickSearch = sa.Table("QuickSearch", Metadata,
         sa.Column('the_key', sa.String(30),
                   primary_key=True, nullable=False, autoincrement=False), # key in database table
         sa.Column('terms', sa.Text), # terms to compare search string with
-        sa.Column('species', sa.Text),
+        #sa.Column('species', sa.Text),
         sa.Column('result_fields', sa.Text)  # json
                     )
 
-#QuickSearch.drop(Engine, checkfirst=True)
+QuickSearch.drop(Engine, checkfirst=True)
 Metadata.create_all(Engine)
 
 #class QuickSearch(Base):
@@ -73,11 +73,26 @@ Metadata.create_all(Engine)
 #        self.result_fields = json.dumps(sort_keys=True)
 
 
-def get_unique_terms(*args):
-    if not args:
-        return None
+def get_unique_terms(trait_type, trait_id):
+    #if not args:
+    #    return None
+    
+    if trait_type="ProbeSet":
+        results = Session.query(
+                "name",
+                "symbol",
+                "description",
+                "alias"
+            ).from_statement(
+                "SELECT ProbeSet.Name as name, "
+                "ProbeSet.Symbol as symbol, "
+                "ProbeSet.description as description, "
+                "ProbeSet.alias as alias "
+                "FROM ProbeSet"
+                "WHERE ProbeSet.Id = :probeset_id ").params(probeset_id=trait_id).all()
+    
     unique = set()
-    for item in args:
+    for item in results[0]:
         #print("locals:", locals())
         if not item:
             continue
@@ -107,12 +122,12 @@ def main():
     counter = 0
     for ps in page_query(Session.query(ProbeSet)):   #all()
         values = {}
-        values['table_name'] = "ProbeSet"
-        values['the_key'] = ps.Id
-        values['terms'] = get_unique_terms(ps.Name, ps.Symbol, ps.description, ps.alias)
+        values['table_name'] = "ProbeSetXRef"
+        values['the_key'] = json.dumps([ps.ProbeSetId, ps.ProbeSetFreezeId])
+        values['terms'] = get_unique_terms("ProbeSet", ps.ProbeSetId)
         print("terms is:", values['terms'])
-        values['species'] = get_species("ProbeSet", ps.Id)
-        values['result_fields'] = get_result_fields("ProbeSet", ps.Id)
+        #values['species'] = get_species("ProbeSet", ps.Id)
+        values['result_fields'] = get_result_fields("ProbeSet", ps.ProbeSetId, ps.ProbeSetFreezeId)
         ins = QuickSearch.insert().values(**values)
         conn.execute(ins)
         counter += 1
@@ -141,19 +156,31 @@ def get_species(trait_type, trait_id):
 
     return results[0].Name
 
-def get_result_fields(trait_type, trait_id):
+def get_result_fields(trait_type, *args):
     if trait_type == "ProbeSet":
         print("qs1")
         results = Session.query(
-                "name", "symbol", "description", "chr", "mb"
+                "name",
+                "symbol",
+                "description",
+                "chr", "mb",
+                "genbank_id",
+                "gene_id",
+                "chip_id",
+                "chip_name"
             ).from_statement(
                 "SELECT ProbeSet.Name as name, "
                 "ProbeSet.Symbol as symbol, "
                 "ProbeSet.description as description, "
                 "ProbeSet.Chr as chr, "
-                "ProbeSet.Mb as mb "
-                "FROM ProbeSet "
-                "WHERE ProbeSet.Id = :probeset_id ").params(probeset_id=trait_id).all()
+                "ProbeSet.Mb as mb, "
+                "ProbeSet.GenbankId as genbank_id, "
+                "ProbeSet.GeneId as gene_id, "
+                "ProbeSet.ChipId as chip_id, "
+                "GeneChip.Name as chip_name "
+                "FROM ProbeSet, GeneChip "
+                "WHERE ProbeSet.ChipId = GeneChip.Id and "
+                "ProbeSet.Id = :probeset_id ").params(probeset_id=*args[0], dataset_id=*args[1]).all()
         print("qs2")
         for result in results:
             print(result)
