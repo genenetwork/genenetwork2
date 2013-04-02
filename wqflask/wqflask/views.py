@@ -168,7 +168,7 @@ def marker_regression_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
     
-    version = "v5"
+    version = "v13"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     with Bench("Loading cache"):
         result = Redis.get(key)

@@ -2,6 +2,7 @@ $ ->
     class Manhattan_Plot
         constructor: (@plot_height, @plot_width) ->
             @qtl_results = js_data.qtl_results
+            console.log("qtl_results are:", @qtl_results)
             @chromosomes = js_data.chromosomes
 
             @total_length = 0

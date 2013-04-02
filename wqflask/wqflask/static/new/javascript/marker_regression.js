@@ -11,6 +11,7 @@
         this.plot_height = plot_height;
         this.plot_width = plot_width;
         this.qtl_results = js_data.qtl_results;
+        console.log("qtl_results are:", this.qtl_results);
         this.chromosomes = js_data.chromosomes;
         this.total_length = 0;
         this.max_chr = this.get_max_chr();

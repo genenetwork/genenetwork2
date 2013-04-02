@@ -57,7 +57,6 @@ class MarkerRegression(object):
             chromosomes = chromosome_mb_lengths,
             qtl_results = self.qtl_results,
         )
-        
 
 
     def gen_data(self, tempdata):
@@ -67,8 +66,8 @@ class MarkerRegression(object):
         file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
         
         plink_input = input.plink(file_base, type='b')
-        
-        
+
+
         pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
         pheno_vector = pheno_vector.reshape((len(pheno_vector), 1))
         covariate_matrix = np.ones((pheno_vector.shape[0],1))
@@ -82,9 +81,6 @@ class MarkerRegression(object):
         keep = keep.reshape((len(keep),))
         eigen_values = []
         eigen_vectors = []
-        
-        
-        print("pheno_vector shape is: ", pf(pheno_vector.shape))
         
         #print("pheno_vector is: ", pf(pheno_vector))
         #print("kinship_matrix is: ", pf(kinship_matrix))
@@ -100,9 +96,6 @@ class MarkerRegression(object):
         #if not v.sum():
         #    eigen_values = np.fromfile(file_base + ".kin.kva")
         #    eigen_vectors = np.fromfile(file_base + ".kin.kve")
-            
-        #print("eigen_values is: ", pf(eigen_values))
-        #print("eigen_vectors is: ", pf(eigen_vectors))
             
         n = kinship_matrix.shape[0]
         lmm_ob = lmm.LMM(pheno_vector,
@@ -121,8 +114,8 @@ class MarkerRegression(object):
         print("# snps is: ", pf(plink_input.numSNPs))
         with Bench("snp iterator loop"):
             for snp, this_id in plink_input:
-                #if count > 10000:
-                #    break            
+                if count > 1000:
+                    break
                 count += 1
                 
                 x = snp[keep].reshape((n,1))
@@ -138,13 +131,13 @@ class MarkerRegression(object):
                         p_values.append(np.nan)
                         t_statistics.append(np.nan)
                         continue
-            
+
                     # Its ok to center the genotype -  I used options.normalizeGenotype to
                     # force the removal of missing genotypes as opposed to replacing them with MAF.
-                    
+
                     #if not options.normalizeGenotype:
                     #    xs = (xs - xs.mean()) / np.sqrt(xs.var())
-                    
+
                     filtered_pheno = pheno_vector[keeps]
                     filtered_covariate_matrix = covariate_matrix[keeps,:]
                     filtered_kinship_matrix = kinship_matrix[keeps,:][:,keeps]
@@ -167,7 +160,6 @@ class MarkerRegression(object):
                     ts,ps,beta,betaVar = lmm_ob.association(x)
                 p_values.append(ps)
                 t_statistics.append(ts)
-        
 
         #genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
         #
@@ -187,28 +179,11 @@ class MarkerRegression(object):
         #    temp_data=tempdata
         #)
         
-        print("p_values is: ", pf(p_values))
+        self.dataset.group.get_markers()
         self.dataset.group.markers.add_pvalues(p_values)
-
-        #self.lrs_values = [marker['lrs_value'] for marker in self.dataset.group.markers.markers]
-        #lrs_values_sorted = sorted(self.lrs_values)
-        #
-        #lrs_values_length = len(lrs_values_sorted)
-        #
-        #def lrs_threshold(place):
-        #    return lrs_values_sorted[int((lrs_values_length * place) -1)]
-        #
-        #self.lrs_thresholds = Bunch(
-        #                    suggestive = lrs_threshold(.37),
-        #                    significant = lrs_threshold(.95),
-        #                    highly_significant = lrs_threshold(.99),
-        #                        )
 
         self.qtl_results = self.dataset.group.markers.markers
 
-        for marker in self.qtl_results:
-            if marker['lrs_value'] > webqtlConfig.MAXLRS:
-                marker['lrs_value'] = webqtlConfig.MAXLRS
 
     def identify_empty_samples(self):
         no_val_samples = []

@@ -35,6 +35,7 @@ from base import webqtlConfig
 from base import species
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
+from utility.benchmark import Bench
 
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
@@ -73,13 +74,59 @@ class Markers(object):
         self.markers = json.load(json_data_fh)
     
     def add_pvalues(self, p_values):
+        print("length of self.markers:", len(self.markers))
+        print("length of p_values:", len(p_values))
+        
+        # THIS IS only needed for the case when we are limiting the number of p-values calculated
+        if len(self.markers) > len(p_values):
+            self.markers = self.markers[:len(p_values)]
+        
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
             print("p_value is:", marker['p_value'])
             marker['lod_score'] = -math.log10(marker['p_value'])
             #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
             marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+        
+        
 
+
+class HumanMarkers(Markers):
+    
+    def __init__(self, name):
+        marker_data_fh = open(os.path.join(webqtlConfig.PYLMM_PATH + name + '.bim'))
+        self.markers = []
+        for line in marker_data_fh:
+            splat = line.strip().split()
+            marker = {}
+            marker['chr'] = int(splat[0])
+            marker['name'] = splat[1]
+            marker['Mb'] = float(splat[3]) / 1000000
+            self.markers.append(marker)
+            
+        #print("markers is: ", pf(self.markers))
+
+
+    def add_pvalues(self, p_values):
+        #for marker, p_value in itertools.izip(self.markers, p_values):
+        #    if marker['Mb'] <= 0 and marker['chr'] == 0:
+        #        continue
+        #    marker['p_value'] = p_value
+        #    print("p_value is:", marker['p_value'])
+        #    marker['lod_score'] = -math.log10(marker['p_value'])
+        #    #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
+        #    marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+        
+        super(HumanMarkers, self).add_pvalues(p_values)
+        
+        with Bench("deleting markers"):
+            markers = []
+            for marker in self.markers:
+                if not marker['Mb'] <= 0 and not marker['chr'] == 0:
+                    markers.append(marker)
+            self.markers = markers
+        
+    
 
 class DatasetGroup(object):
     """
@@ -104,21 +151,17 @@ class DatasetGroup(object):
         
         self.incparentsf1 = False
         self.allsamples = None
-        self.markers = Markers(self.name)
+        
+        
+    def get_markers(self):
+        print("self.species is:", self.species)
+        if self.species == "human":
+            marker_class = HumanMarkers 
+        else:
+            marker_class = Markers
 
-
-    #def read_genotype(self):
-    #    self.read_genotype_file()
-    #
-    #    if not self.genotype:   # Didn'd succeed, so we try method 2
-    #        self.read_genotype_data()
-
-    #def read_genotype_json(self):
-    #    '''Read genotype from json file'''
-    #    
-    #    json_data = open(os.path.join(webqtlConfig.NEWGENODIR + self.name + '.json'))
-    #    markers = json.load(json_data)
-    #    
+        self.markers = marker_class(self.name)
+        
 
     def get_f1_parent_strains(self):
         try:
@@ -321,12 +364,9 @@ class PhenotypeDataSet(DataSet):
                 continue   # for now
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
                     description = this_trait.pre_publication_description
-            this_trait.description_display = description
-
-            try:
-                this_trait.description_display.decode('ascii')
-            except Exception:
-                this_trait.description_display = this_trait.description_display.decode('utf-8')
+            this_trait.description_display = description.decode('utf-8')
+            
+            
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
