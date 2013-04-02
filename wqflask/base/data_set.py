@@ -323,6 +323,11 @@ class PhenotypeDataSet(DataSet):
                     description = this_trait.pre_publication_description
             this_trait.description_display = description
 
+            try:
+                this_trait.description_display.decode('ascii')
+            except Exception:
+                this_trait.description_display = this_trait.description_display.decode('utf-8')
+
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
 

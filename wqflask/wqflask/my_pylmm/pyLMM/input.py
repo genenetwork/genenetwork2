@@ -41,7 +41,8 @@ class plink:
         # the programmer to turn off the kinship reading.
         self.readKFile = readKFile
     
-        if self.kFile: self.K = self.readKinship(self.kFile)
+        if self.kFile:
+            self.K = self.readKinship(self.kFile)
         elif os.path.isfile("%s.kin" % fbase): 
             self.kFile = "%s.kin" %fbase
             if self.readKFile:
@@ -54,7 +55,7 @@ class plink:
      
         self.fhandle = None
         self.snpFileHandle = None
-    
+
     def __del__(self): 
         if self.fhandle: self.fhandle.close()
         if self.snpFileHandle: self.snpFileHandle.close()
@@ -160,7 +161,8 @@ class plink:
         # reorder to match self.indivs
         D = {}
         L = []
-        for i in range(len(keys)): D[keys[i]] = i
+        for i in range(len(keys)):
+            D[keys[i]] = i
         for i in range(len(self.indivs)):
             if not D.has_key(self.indivs[i]):
                 continue 

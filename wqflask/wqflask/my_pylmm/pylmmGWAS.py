@@ -20,7 +20,8 @@
 import pdb
 import time
 
-def printOutHead(): out.write("\t".join(["SNP_ID","BETA","BETA_SD","F_STAT","P_VALUE"]) + "\n")
+def printOutHead():
+    out.write("\t".join(["SNP_ID","BETA","BETA_SD","F_STAT","P_VALUE"]) + "\n")
 def outputResult(id,beta,betaSD,ts,ps):
     out.write("\t".join([str(x) for x in [id,beta,betaSD,ts,ps]]) + "\n")
 
@@ -88,7 +89,8 @@ from scipy import linalg
 from pylmm.lmm import LMM
 from pylmm import input
 
-if len(args) != 1: parser.error("Incorrect number of arguments")
+if len(args) != 1:
+    parser.error("Incorrect number of arguments")
 outFile = args[0]
 
 if not options.pfile and not options.tfile and not options.bfile:
@@ -97,30 +99,40 @@ if not options.kfile:
     parser.error("Please provide a pre-computed kinship file")
 
 # READING PLINK input
-if options.verbose: sys.stderr.write("Reading PLINK input...\n")
-if options.bfile: IN = input.plink(options.bfile,type='b', phenoFile=options.phenoFile,normGenotype=options.normalizeGenotype)
-elif options.tfile: IN = input.plink(options.tfile,type='t', phenoFile=options.phenoFile,normGenotype=options.normalizeGenotype)
-elif options.pfile: IN = input.plink(options.pfile,type='p', phenoFile=options.phenoFile,normGenotype=options.normalizeGenotype)
-else: parser.error("You must provide at least one PLINK input file base")
+if options.verbose:
+    sys.stderr.write("Reading PLINK input...\n")
+if options.bfile:
+    IN = input.plink(options.bfile,type='b', phenoFile=options.phenoFile,normGenotype=options.normalizeGenotype)
+elif options.tfile:
+    IN = input.plink(options.tfile,type='t', phenoFile=options.phenoFile,normGenotype=options.normalizeGenotype)
+elif options.pfile:
+    IN = input.plink(options.pfile,type='p', phenoFile=options.phenoFile,normGenotype=options.normalizeGenotype)
+else:
+    parser.error("You must provide at least one PLINK input file base")
 
 if not os.path.isfile(options.phenoFile or IN.fbase + '.phenos'):
     parser.error("No .pheno file exist for %s" % (options.phenoFile or IN.fbase + '.phenos'))
 
 # READING Covariate File
 if options.covfile:
-    if options.verbose: sys.stderr.write("Reading covariate file...\n")
+    if options.verbose:
+        sys.stderr.write("Reading covariate file...\n")
     # Read the covariate file -- write this into input.plink
     P = IN.getCovariates(options.covfile)
 
-    if options.noMean: X0 = P
-    else: X0 = np.hstack([np.ones((IN.phenos.shape[0],1)),P])
+    if options.noMean:
+        X0 = P
+    else:
+        X0 = np.hstack([np.ones((IN.phenos.shape[0],1)),P])
 
     if np.isnan(X0).sum():
         parser.error("The covariate file %s contains missing values. At this time we are not dealing with this case.  Either remove those individuals with missing values or replace them in some way.")
-else: X0 = np.ones((IN.phenos.shape[0],1))
+else:
+    X0 = np.ones((IN.phenos.shape[0],1))
 
 # READING Kinship - major bottleneck for large datasets
-if options.verbose: sys.stderr.write("Reading kinship...\n")
+if options.verbose:
+    sys.stderr.write("Reading kinship...\n")
 begin = time.time()
 # This method seems to be the fastest and works if you already know the size of the matrix
 if options.kfile[-3:] == '.gz':
@@ -129,13 +141,15 @@ if options.kfile[-3:] == '.gz':
     F = f.read() # might exhaust mem if the file is huge
     K = np.fromstring(F,sep=' ') # Assume that space separated
     f.close()
-else: K = np.fromfile(open(options.kfile,'r'),sep=" ")
+else:
+    K = np.fromfile(open(options.kfile,'r'),sep=" ")
 K.resize((len(IN.indivs),len(IN.indivs)))
 end = time.time()
 # Other slower ways
 #K = np.loadtxt(options.kfile)
 #K = np.genfromtxt(options.kfile)
-if options.verbose: sys.stderr.write("Read the %d x %d kinship matrix in %0.3fs \n" % (K.shape[0],K.shape[1],end-begin))
+if options.verbose:
+    sys.stderr.write("Read the %d x %d kinship matrix in %0.3fs \n" % (K.shape[0],K.shape[1],end-begin))
 
 
 # PROCESS the phenotype data -- Remove missing phenotype values
@@ -144,7 +158,8 @@ Y = IN.phenos[:,options.pheno]
 v = np.isnan(Y)
 keep = True - v
 if v.sum():
-    if options.verbose: sys.stderr.write("Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
+    if options.verbose:
+        sys.stderr.write("Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
     Y = Y[keep]
     X0 = X0[keep,:]
     K = K[keep,:][:,keep]

@@ -52,6 +52,7 @@ ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Lucene/Details?sp
 SECUREDIR = GNROOT + 'secure/'
 COMMON_LIB = GNROOT + 'support/admin'
 HTMLPATH = GNROOT + 'web/'
+PYLMM_PATH = HTMLPATH + 'plink/'
 IMGDIR = HTMLPATH +'image/'
 IMAGESPATH = HTMLPATH + 'images/'
 UPLOADPATH = IMAGESPATH + 'upload/'

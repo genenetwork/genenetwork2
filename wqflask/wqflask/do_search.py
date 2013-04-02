@@ -13,7 +13,6 @@ sys.path.append("..")
 
 from dbFunction import webqtlDatabaseFunction
 
-from utility.benchmark import Bench
 
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""
@@ -64,25 +63,17 @@ class DoSearch(object):
 
 class QuickMrnaAssaySearch(DoSearch):
     """A general search for mRNA assays"""
-
+    
     DoSearch.search_types['quick_mrna_assay'] = "QuickMrnaAssaySearch"
-
-    base_query = """SELECT Species.Name as Species_Name,
-                ProbeSetFreeze.Name as DataSet_Name,
-                ProbeSetFreeze.FullName as DataSet_FullName,
-                ProbeSet.Name as ProbeSet_Name,
+    
+    base_query = """SELECT ProbeSet.Name as ProbeSet_Name,
                 ProbeSet.Symbol as ProbeSet_Symbol,
                 ProbeSet.description as ProbeSet_Description,
                 ProbeSet.Chr_num as ProbeSet_Chr_Num,
                 ProbeSet.Mb as ProbeSet_Mb,
                 ProbeSet.name_num as ProbeSet_name_num
-                FROM ProbeSet,
-                ProbeSetXRef,
-                ProbeSetFreeze,
-                ProbeFreeze,
-                InbredSet,
-                Species """
-
+                FROM ProbeSet """
+                
     header_fields = ['',
                      'Record ID',
                      'Symbol',
@@ -96,12 +87,7 @@ class QuickMrnaAssaySearch(DoSearch):
                     ProbeSet.description,
                     ProbeSet.symbol,
                     ProbeSet.alias)
-                    AGAINST ('%s' IN BOOLEAN MODE)) and
-                    ProbeSet.Id = ProbeSetXRef.ProbeSetId and
-                    ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id and
-                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                    ProbeFreeze.InbredSetId = InbredSet.Id and
-                    InbredSet.SpeciesId = Species.Id
+                    AGAINST ('%s' IN BOOLEAN MODE))
                             """ % (escape(self.search_term[0]))
 
         print("final query is:", pf(query))
@@ -172,7 +158,7 @@ class MrnaAssaySearch(DoSearch):
         print("final query is:", pf(query))
 
         return self.execute(query)
-    
+
     
 class PhenotypeSearch(DoSearch):
     """A search within a phenotype dataset"""
@@ -204,23 +190,6 @@ class PhenotypeSearch(DoSearch):
                      'Max LRS',
                      'Max LRS Location']
 
-    #def get_fields_clause(self):
-    #    """Generate clause for WHERE portion of query"""
-    #
-    #    #Todo: Zach will figure out exactly what both these lines mean
-    #    #and comment here
-    #    if "'" not in self.search_term[0]:
-    #        search_term = "[[:<:]]" + self.search_term[0] + "[[:>:]]"
-    #
-    #    # This adds a clause to the query that matches the search term
-    #    # against each field in the search_fields tuple
-    #    fields_clause = []
-    #    for field in self.search_fields:
-    #        fields_clause.append('''%s REGEXP "%s"''' % (field, search_term))
-    #    fields_clause = "(%s) and " % ' OR '.join(fields_clause)
-    #
-    #    return fields_clause
-
     def get_fields_clause(self):
         """Generate clause for WHERE portion of query"""
 
@@ -231,12 +200,12 @@ class PhenotypeSearch(DoSearch):
 
         # This adds a clause to the query that matches the search term
         # against each field in the search_fields tuple
-        fields_clause = "MATCH("
-        fields_clause += ",".join(self.search_fields) + ") "
-        fields_clause += "AGAINST('{}' IN BOOLEAN MODE)".format(self.search_term[0])
+        fields_clause = []
+        for field in self.search_fields:
+            fields_clause.append('''%s REGEXP "%s"''' % (field, search_term))
+        fields_clause = "(%s) and " % ' OR '.join(fields_clause)
 
         return fields_clause
-
 
     def compile_final_query(self, from_clause = '', where_clause = ''):
         """Generates the final query string"""
@@ -265,61 +234,56 @@ class PhenotypeSearch(DoSearch):
         query = self.compile_final_query(where_clause = self.get_fields_clause())
 
         return self.execute(query)
-    
-    
-class QuickPhenotypeSearch(PhenotypeSearch):
-    """A search across all phenotype datasets"""
-    
-    DoSearch.search_types['quick_phenotype'] = "QuickPhenotypeSearch"
-    
-    base_query = """SELECT Species.Name as Species_Name,
-                PublishFreeze.FullName as Dataset_Name,
-                PublishFreeze.Name,
-                PublishXRef.Id,
-                PublishFreeze.createtime as thistable,
-                Publication.PubMed_ID as Publication_PubMed_ID,
-                Phenotype.Post_publication_description as Phenotype_Name
-                FROM Phenotype,
-                    PublishFreeze,
-                    Publication,
-                    PublishXRef,
-                    InbredSet,
-                    Species """
 
-    search_fields = ('Phenotype.Post_publication_description',
-                    'Phenotype.Pre_publication_description',
-                    'Phenotype.Pre_publication_abbreviation',
-                    'Phenotype.Post_publication_abbreviation',
-                    'Phenotype.Lab_code',
-                    'Publication.PubMed_ID',
-                    'Publication.Abstract',
-                    'Publication.Title',
-                    'Publication.Authors')
-    
-    def compile_final_query(self, where_clause = ''):
-        """Generates the final query string"""
-
-        query = (self.base_query +
-                 """WHERE (%s) and
-                    PublishXRef.PhenotypeId = Phenotype.Id and
-                    PublishXRef.PublicationId = Publication.Id and
-                    PublishXRef.InbredSetId = InbredSet.Id and
-                    InbredSet.SpeciesId = Species.Id""" % where_clause)
-
-        print("query is:", pf(query))
-
-        return query
+#class QuickPhenotypeSearch(PhenotypeSearch):
+#    """A search across all phenotype datasets"""
+#    
+#    DoSearch.search_types['quick_phenotype'] = "QuickPhenotypeSearch"
+#    
+#    base_query = """SELECT Species.Name as Species_Name,
+#                PublishFreeze.FullName as Dataset_Name,
+#                PublishFreeze.Name,
+#                PublishXRef.Id,
+#                PublishFreeze.createtime as thistable,
+#                Publication.PubMed_ID as Publication_PubMed_ID,
+#                Phenotype.Post_publication_description as Phenotype_Name
+#                FROM Phenotype,
+#                    PublishFreeze,
+#                    Publication,
+#                    PublishXRef,
+#                    InbredSet,
+#                    Species """
+#
+#    search_fields = ('Phenotype.Post_publication_description',
+#                    'Phenotype.Pre_publication_description',
+#                    'Phenotype.Pre_publication_abbreviation',
+#                    'Phenotype.Post_publication_abbreviation',
+#                    'Phenotype.Lab_code',
+#                    'Publication.PubMed_ID',
+#                    'Publication.Abstract',
+#                    'Publication.Title',
+#                    'Publication.Authors')    
+#    
+#    def compile_final_query(self, where_clause = ''):
+#        """Generates the final query string"""
+#
+#        query = (self.base_query +
+#                 """WHERE %s
+#                    PublishXRef.PhenotypeId = Phenotype.Id and
+#                    PublishXRef.PublicationId = Publication.Id and
+#                    PublishXRef.InbredSetId = InbredSet.Id and
+#                    InbredSet.SpeciesId = Species.Id""" % where_clause)
+#
+#        print("query is:", pf(query))
+#
+#        return query
     
     def run(self):
         """Generates and runs a search across all phenotype datasets"""
 
         query = self.compile_final_query(where_clause = self.get_fields_clause())
 
-        with Bench("Doing quick phenotype search"):
-            results = self.execute(query)
-
-        return results    
-
+        return self.execute(query)
 
 class GenotypeSearch(DoSearch):
     """A search within a genotype dataset"""

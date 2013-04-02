@@ -61,29 +61,17 @@ class SearchResultPage():
         self.results = []
 
         if 'q' in kw:
-            self.quick_search = True
+            #self.quick_search = True
             self.search_terms = kw['q']
             print("self.search_terms is: ", self.search_terms)
-            self.do_quick_search()
+            self.quick_search()
         else:
-            self.quick_search = False
+            #self.quick_search = False
             self.search_terms = kw['search_terms']
             self.dataset = create_dataset(kw['dataset'])
             self.search()
         self.gen_search_result()
 
-    def gen_quick_search_result(self):
-        self.trait_list = []
-        
-        species_list = []
-        
-        for result in self.results:
-            if not result:
-                continue
-            if result[0] not in species_list:
-                species_list.append(result[0])
-            
-    
 
     def gen_search_result(self):
         """
@@ -112,7 +100,7 @@ class SearchResultPage():
 
         self.dataset.get_trait_info(self.trait_list, species)
 
-    def do_quick_search(self):
+    def quick_search(self):
         self.search_terms = parser.parse(self.search_terms)
         print("After parsing:", self.search_terms)
 
@@ -171,6 +159,7 @@ class SearchResultPage():
 
             search_ob = do_search.DoSearch.get_search(search_type)
             search_class = getattr(do_search, search_ob)
+            print("search_class is: ", pf(search_class))
             the_search = search_class(search_term,
                                     search_operator,
                                     self.dataset,

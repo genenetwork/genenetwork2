@@ -679,61 +679,61 @@ class ShowTrait(object):
 
         elif this_trait and this_trait.dataset and this_trait.dataset.type =='Publish': #Check if trait is phenotype
 
-            if this_trait.confidential:
-                pass
-                #tbl.append(HT.TR(
-                #                HT.TD('Pre-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                #                HT.TD(width=10, valign="top"),
-                #                HT.TD(HT.Span(this_trait.pre_publication_description, Class="fs13"), valign="top", width=740)
-                #                ))
-                if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
-                    #tbl.append(HT.TR(
-                    #                HT.TD('Post-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                    #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
-                    #                ))
-                    #tbl.append(HT.TR(
-                    #                HT.TD('Pre-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                    #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(this_trait.pre_publication_abbreviation, Class="fs13"), valign="top", width=740)
-                    #                ))
-                    #tbl.append(HT.TR(
-                    #                HT.TD('Post-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                    #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(this_trait.post_publication_abbreviation, Class="fs13"), valign="top", width=740)
-                    #                ))
-                    #tbl.append(HT.TR(
-                    #                HT.TD('Lab code: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                    #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(this_trait.lab_code, Class="fs13"), valign="top", width=740)
-                    #                ))
-                    pass
-                #tbl.append(HT.TR(
-                #                HT.TD('Owner: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                #                HT.TD(width=10, valign="top"),
-                #                HT.TD(HT.Span(this_trait.owner, Class="fs13"), valign="top", width=740)
-                #                ))
-            else:
-                pass
-                #tbl.append(HT.TR(
-                #                HT.TD('Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                #                HT.TD(width=10, valign="top"),
-                #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
-                #                ))
-            #tbl.append(HT.TR(
-            #                HT.TD('Authors: ', Class="fs13 fwb",
-            #                        valign="top", nowrap="on", width=90),
-            #                HT.TD(width=10, valign="top"),
-            #                HT.TD(HT.Span(this_trait.authors, Class="fs13"),
-            #                        valign="top", width=740)
-            #                ))
-            #tbl.append(HT.TR(
-            #                HT.TD('Title: ', Class="fs13 fwb",
-            #                        valign="top", nowrap="on", width=90),
-            #                HT.TD(width=10, valign="top"),
-            #                HT.TD(HT.Span(this_trait.title, Class="fs13"),
-            #                        valign="top", width=740)
-            #                ))
+            #if this_trait.confidential:
+            #    pass
+            #    #tbl.append(HT.TR(
+            #    #                HT.TD('Pre-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #    #                HT.TD(width=10, valign="top"),
+            #    #                HT.TD(HT.Span(this_trait.pre_publication_description, Class="fs13"), valign="top", width=740)
+            #    #                ))
+            #    if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
+            #        #tbl.append(HT.TR(
+            #        #                HT.TD('Post-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #        #                HT.TD(width=10, valign="top"),
+            #        #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
+            #        #                ))
+            #        #tbl.append(HT.TR(
+            #        #                HT.TD('Pre-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #        #                HT.TD(width=10, valign="top"),
+            #        #                HT.TD(HT.Span(this_trait.pre_publication_abbreviation, Class="fs13"), valign="top", width=740)
+            #        #                ))
+            #        #tbl.append(HT.TR(
+            #        #                HT.TD('Post-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #        #                HT.TD(width=10, valign="top"),
+            #        #                HT.TD(HT.Span(this_trait.post_publication_abbreviation, Class="fs13"), valign="top", width=740)
+            #        #                ))
+            #        #tbl.append(HT.TR(
+            #        #                HT.TD('Lab code: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #        #                HT.TD(width=10, valign="top"),
+            #        #                HT.TD(HT.Span(this_trait.lab_code, Class="fs13"), valign="top", width=740)
+            #        #                ))
+            #        pass
+            #    #tbl.append(HT.TR(
+            #    #                HT.TD('Owner: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #    #                HT.TD(width=10, valign="top"),
+            #    #                HT.TD(HT.Span(this_trait.owner, Class="fs13"), valign="top", width=740)
+            #    #                ))
+            #else:
+            #    pass
+            #    #tbl.append(HT.TR(
+            #    #                HT.TD('Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #    #                HT.TD(width=10, valign="top"),
+            #    #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
+            #    #                ))
+            ##tbl.append(HT.TR(
+            ##                HT.TD('Authors: ', Class="fs13 fwb",
+            ##                        valign="top", nowrap="on", width=90),
+            ##                HT.TD(width=10, valign="top"),
+            ##                HT.TD(HT.Span(this_trait.authors, Class="fs13"),
+            ##                        valign="top", width=740)
+            ##                ))
+            ##tbl.append(HT.TR(
+            ##                HT.TD('Title: ', Class="fs13 fwb",
+            ##                        valign="top", nowrap="on", width=90),
+            ##                HT.TD(width=10, valign="top"),
+            ##                HT.TD(HT.Span(this_trait.title, Class="fs13"),
+            ##                        valign="top", width=740)
+            ##                ))
             if this_trait.journal:
                 journal = this_trait.journal
                 if this_trait.year:
