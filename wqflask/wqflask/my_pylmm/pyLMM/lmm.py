@@ -26,42 +26,122 @@ from scipy import stats
 
 from pprint import pformat as pf
 
-#from utility.benchmark import Bench
-#
-##np.seterr('raise')
-#
-#def run(pheno_vector,
-#        genotype_matrix,
-#        restricted_max_likelihood=True,
-#        refit=False,
-#        temp_data=None):
-#    """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
-#    
-#    restricted_max_likelihood -- whether to use restricted max likelihood; True or False
-#    refit -- whether to refit the variance component for each marker
-#    temp_data -- TempData object that stores the progress for each major step of the
-#    calculations ("calculate_kinship" and "GWAS" take the majority of time)
-#    
-#    """
-#    
-#    with Bench("Calculate Kinship"):
-#        kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
-#    
-#    with Bench("Create LMM object"):
-#        lmm_ob = LMM(pheno_vector, kinship_matrix)
-#    
-#    with Bench("LMM_ob fitting"):
-#        lmm_ob.fit()
-#
-#    with Bench("Doing GWAS"):
-#        t_stats, p_values = GWAS(pheno_vector,
-#                                genotype_matrix,
-#                                kinship_matrix,
-#                                restricted_max_likelihood=True,
-#                                refit=False,
-#                                temp_data=temp_data)
-#    Bench().report()
-#    return t_stats, p_values
+from utility.benchmark import Bench
+
+#np.seterr('raise')
+
+def run_human(pheno_vector,
+            covariate_matrix,
+            plink_input,
+            kinship_matrix,
+            refit=False,
+            temp_data=None):
+
+    v = np.isnan(pheno_vector)
+    keep = True - v
+    keep = keep.reshape((len(keep),))
+
+    if v.sum():
+        pheno_vector = pheno_vector[keep]
+        print("pheno_vector shape is now: ", pf(pheno_vector.shape))
+        covariate_matrix = covariate_matrix[keep,:]
+        print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
+        print("len(keep) is: ", pf(keep.shape))
+        kinship_matrix = kinship_matrix[keep,:][:,keep]
+
+    n = kinship_matrix.shape[0]
+    lmm_ob = LMM(pheno_vector,
+                kinship_matrix,
+                covariate_matrix)
+    lmm_ob.fit()
+
+    # Buffers for pvalues and t-stats
+    p_values = []
+    t_stats = []
+    count = 0
+    with Bench("snp iterator loop"):
+        for snp, this_id in plink_input:
+            if count > 1000:
+                break
+            count += 1
+
+            x = snp[keep].reshape((n,1))
+            #x[[1,50,100,200,3000],:] = np.nan
+            v = np.isnan(x).reshape((-1,))
+
+            # Check SNPs for missing values
+            if v.sum():
+                keeps = True - v
+                xs = x[keeps,:]
+                # If no variation at this snp or all genotypes missing 
+                if keeps.sum() <= 1 or xs.var() <= 1e-6:
+                    p_values.append(np.nan)
+                    t_stats.append(np.nan)
+                    continue
+
+                # Its ok to center the genotype -  I used options.normalizeGenotype to
+                # force the removal of missing genotypes as opposed to replacing them with MAF.
+
+                #if not options.normalizeGenotype:
+                #    xs = (xs - xs.mean()) / np.sqrt(xs.var())
+
+                filtered_pheno = pheno_vector[keeps]
+                filtered_covariate_matrix = covariate_matrix[keeps,:]
+                filtered_kinship_matrix = kinship_matrix[keeps,:][:,keeps]
+                filtered_lmm_ob = lmm.LMM(filtered_pheno,filtered_kinship_matrix,X0=filtered_covariate_matrix)
+                if refit:
+                    filtered_lmm_ob.fit(X=xs)
+                else:
+                    #try:
+                    filtered_lmm_ob.fit()
+                    #except: pdb.set_trace()
+                ts,ps,beta,betaVar = Ls.association(xs,returnBeta=True)
+            else:
+                if x.var() == 0:
+                    p_values.append(np.nan)
+                    t_stats.append(np.nan)
+                    continue
+                if refit:
+                    lmm_ob.fit(X=x)
+                ts, ps, beta, betaVar = lmm_ob.association(x)
+            p_values.append(ps)
+            t_stats.append(ts)
+            
+    return p_values, t_stats
+
+
+def run(pheno_vector,
+        genotype_matrix,
+        restricted_max_likelihood=True,
+        refit=False,
+        temp_data=None):
+    """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
+    
+    restricted_max_likelihood -- whether to use restricted max likelihood; True or False
+    refit -- whether to refit the variance component for each marker
+    temp_data -- TempData object that stores the progress for each major step of the
+    calculations ("calculate_kinship" and "GWAS" take the majority of time)
+    
+    """
+    
+    with Bench("Calculate Kinship"):
+        kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
+    
+    with Bench("Create LMM object"):
+        lmm_ob = LMM(pheno_vector, kinship_matrix)
+    
+    with Bench("LMM_ob fitting"):
+        lmm_ob.fit()
+
+    with Bench("Doing GWAS"):
+        t_stats, p_values = GWAS(pheno_vector,
+                                genotype_matrix,
+                                kinship_matrix,
+                                restricted_max_likelihood=True,
+                                refit=False,
+                                temp_data=temp_data)
+    Bench().report()
+    return t_stats, p_values
 
 
 def matrixMult(A,B):
@@ -212,7 +292,7 @@ def GWAS(pheno_vector,
                 lmm_ob_2.fit(X=xs)
             else:
                 lmm_ob_2.fit()
-            ts, ps = lmm_ob_2.association(xs, REML=restricted_max_likelihood)
+            ts, ps, beta, betaVar = lmm_ob_2.association(xs, REML=restricted_max_likelihood)
         else:
             if x.var() == 0:
                 p_values.append(np.nan)
@@ -221,7 +301,7 @@ def GWAS(pheno_vector,
 
             if refit:
                 lmm_ob.fit(X=x)
-            ts, ps = lmm_ob.association(x, REML=restricted_max_likelihood)
+            ts, ps, beta, betaVar = lmm_ob.association(x, REML=restricted_max_likelihood)
             
         percent_complete = 45 + int(round((counter/m)*55))
         temp_data.store("percent_complete", percent_complete)

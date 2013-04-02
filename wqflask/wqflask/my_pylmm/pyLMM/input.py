@@ -40,7 +40,7 @@ class plink:
         # NOW I want to use this module to just read SNPs so I'm allowing 
         # the programmer to turn off the kinship reading.
         self.readKFile = readKFile
-    
+
         if self.kFile:
             self.K = self.readKinship(self.kFile)
         elif os.path.isfile("%s.kin" % fbase): 
@@ -50,21 +50,21 @@ class plink:
         else: 
             self.kFile = None
             self.K = None
-    
+
         self.getPhenos(self.phenoFile)
-     
+
         self.fhandle = None
         self.snpFileHandle = None
 
     def __del__(self): 
         if self.fhandle: self.fhandle.close()
         if self.snpFileHandle: self.snpFileHandle.close()
-    
+
     def getSNPIterator(self):
         if not self.type == 'b': 
             sys.stderr.write("Have only implemented this for binary plink files (bed)\n")
             return
-    
+
         # get the number of snps
         file = self.fbase + '.bim'
         i = 0
@@ -74,10 +74,10 @@ class plink:
         self.numSNPs = i
         self.have_read = 0
         self.snpFileHandle = open(file,'r')
-    
+
         self.BytestoRead = self.N / 4 + (self.N % 4 and 1 or 0)
         self._formatStr = 'c'*self.BytestoRead
-     
+
         file = self.fbase + '.bed'
         self.fhandle = open(file,'rb')
      
@@ -86,12 +86,12 @@ class plink:
         if not order == '\x01': 
             sys.stderr.write("This is not in SNP major order - you did not handle this case\n")
             raise StopIteration
-    
+
         return self
-    
+
     def __iter__(self):
         return self.getSNPIterator()
-    
+
     def next(self):
         if self.have_read == self.numSNPs:
             raise StopIteration

@@ -62,128 +62,55 @@ class MarkerRegression(object):
     def gen_data(self, tempdata):
         """Generates p-values for each marker"""
 
-
-        file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
-        
-        plink_input = input.plink(file_base, type='b')
-
+        self.dataset.group.get_markers()
 
         pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
-        pheno_vector = pheno_vector.reshape((len(pheno_vector), 1))
-        covariate_matrix = np.ones((pheno_vector.shape[0],1))
-        kinship_matrix = np.fromfile(open(file_base + '.kin','r'),sep=" ")
-        kinship_matrix.resize((len(plink_input.indivs),len(plink_input.indivs)))
-        
-        refit = False
-        
-        v = np.isnan(pheno_vector)
-        keep = True - v
-        keep = keep.reshape((len(keep),))
-        eigen_values = []
-        eigen_vectors = []
-        
-        #print("pheno_vector is: ", pf(pheno_vector))
-        #print("kinship_matrix is: ", pf(kinship_matrix))
-        
-        if v.sum():
-            pheno_vector = pheno_vector[keep]
-            print("pheno_vector shape is now: ", pf(pheno_vector.shape))
-            covariate_matrix = covariate_matrix[keep,:]
-            print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
-            print("len(keep) is: ", pf(keep.shape))
-            kinship_matrix = kinship_matrix[keep,:][:,keep]
+
+        if self.dataset.group.species == "human":
+            p_values, t_stats = self.gen_human_results(pheno_vector)
+        else:
+            genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
             
-        #if not v.sum():
-        #    eigen_values = np.fromfile(file_base + ".kin.kva")
-        #    eigen_vectors = np.fromfile(file_base + ".kin.kve")
+            no_val_samples = self.identify_empty_samples()
+            trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
             
-        n = kinship_matrix.shape[0]
-        lmm_ob = lmm.LMM(pheno_vector,
-                         kinship_matrix,
-                         eigen_values,
-                         eigen_vectors,
-                         covariate_matrix)
-        lmm_ob.fit()
-
-        # Buffers for pvalues and t-stats
-        p_values = []
-        t_statistics = []
-        count = 0
-        
-        plink_input.getSNPIterator()
-        print("# snps is: ", pf(plink_input.numSNPs))
-        with Bench("snp iterator loop"):
-            for snp, this_id in plink_input:
-                if count > 1000:
-                    break
-                count += 1
-                
-                x = snp[keep].reshape((n,1))
-                #x[[1,50,100,200,3000],:] = np.nan
-                v = np.isnan(x).reshape((-1,))
-                
-                # Check SNPs for missing values
-                if v.sum():
-                    keeps = True - v
-                    xs = x[keeps,:]
-                    # If no variation at this snp or all genotypes missing 
-                    if keeps.sum() <= 1 or xs.var() <= 1e-6:
-                        p_values.append(np.nan)
-                        t_statistics.append(np.nan)
-                        continue
-
-                    # Its ok to center the genotype -  I used options.normalizeGenotype to
-                    # force the removal of missing genotypes as opposed to replacing them with MAF.
-
-                    #if not options.normalizeGenotype:
-                    #    xs = (xs - xs.mean()) / np.sqrt(xs.var())
-
-                    filtered_pheno = pheno_vector[keeps]
-                    filtered_covariate_matrix = covariate_matrix[keeps,:]
-                    filtered_kinship_matrix = kinship_matrix[keeps,:][:,keeps]
-                    filtered_lmm_ob = lmm.LMM(filtered_pheno,filtered_kinship_matrix,X0=filtered_covariate_matrix)
-                    if refit:
-                        filtered_lmm_ob.fit(X=xs)
-                    else:
-                        #try:
-                        filtered_lmm_ob.fit()
-                        #except: pdb.set_trace()
-                    ts,ps,beta,betaVar = Ls.association(xs,returnBeta=True)
-                else:
-                    if x.var() == 0:
-                        p_values.append(np.nan)
-                        t_statistics.append(np.nan)
-                        continue
+            genotype_matrix = np.array(trimmed_genotype_data).T
             
-                    if refit:
-                        lmm_ob.fit(X=x)
-                    ts,ps,beta,betaVar = lmm_ob.association(x)
-                p_values.append(ps)
-                t_statistics.append(ts)
-
-        #genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-        #
-        #no_val_samples = self.identify_empty_samples()
-        #trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
-        #
-        #genotype_matrix = np.array(trimmed_genotype_data).T
-        #
-        #print("pheno_vector is: ", pf(pheno_vector))
-        #print("genotype_matrix is: ", pf(genotype_matrix))
-        #
-        #t_stats, p_values = lmm.run(
-        #    pheno_vector,
-        #    genotype_matrix,
-        #    restricted_max_likelihood=True,
-        #    refit=False,
-        #    temp_data=tempdata
-        #)
+            print("pheno_vector is: ", pf(pheno_vector))
+            print("genotype_matrix is: ", pf(genotype_matrix))
+            
+            t_stats, p_values = lmm.run(
+                pheno_vector,
+                genotype_matrix,
+                restricted_max_likelihood=True,
+                refit=False,
+                temp_data=tempdata
+            )
         
-        self.dataset.group.get_markers()
         self.dataset.group.markers.add_pvalues(p_values)
 
         self.qtl_results = self.dataset.group.markers.markers
 
+
+    def gen_human_results(self, pheno_vector):
+        file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
+        
+        plink_input = input.plink(file_base, type='b')
+
+        pheno_vector = pheno_vector.reshape((len(pheno_vector), 1))
+        covariate_matrix = np.ones((pheno_vector.shape[0],1))
+        kinship_matrix = np.fromfile(open(file_base + '.kin','r'),sep=" ")
+        kinship_matrix.resize((len(plink_input.indivs),len(plink_input.indivs)))
+
+        p_values, t_stats = lmm.run_human(
+                pheno_vector,
+                covariate_matrix,
+                plink_input,
+                kinship_matrix
+            )
+
+        return p_values, t_stats
+    
 
     def identify_empty_samples(self):
         no_val_samples = []
