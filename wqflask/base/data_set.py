@@ -74,16 +74,12 @@ class Markers(object):
         self.markers = json.load(json_data_fh)
     
     def add_pvalues(self, p_values):
-        print("length of self.markers:", len(self.markers))
-        print("length of p_values:", len(p_values))
-        
         # THIS IS only needed for the case when we are limiting the number of p-values calculated
         if len(self.markers) > len(p_values):
             self.markers = self.markers[:len(p_values)]
         
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
-            print("p_value is:", marker['p_value'])
             marker['lod_score'] = -math.log10(marker['p_value'])
             #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
             marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
@@ -99,9 +95,9 @@ class HumanMarkers(Markers):
         for line in marker_data_fh:
             splat = line.strip().split()
             marker = {}
-            marker['chr'] = int(splat[0])
+            marker['chr'] = splat[0]
             marker['name'] = splat[1]
-            marker['Mb'] = float(splat[3]) / 1000000
+            marker['Mb'] = str(float(splat[3]) / 1000000)
             self.markers.append(marker)
             
         #print("markers is: ", pf(self.markers))
@@ -122,7 +118,8 @@ class HumanMarkers(Markers):
         with Bench("deleting markers"):
             markers = []
             for marker in self.markers:
-                if not marker['Mb'] <= 0 and not marker['chr'] == 0:
+                #if not float(marker['Mb']) <= 0 or not float(marker['chr']) == 0:
+                if float(marker['Mb']) > 0 and marker['chr'] != "0":
                     markers.append(marker)
             self.markers = markers
         
