@@ -1,3 +1,6 @@
+# http://stackoverflow.com/a/4215132/1175849
+root = exports ? this
+
 $ ->
     submit_special = ->
         # Add submit_special class plus a data-url field to any button
@@ -10,7 +13,29 @@ $ ->
         console.log("url is:", url)
         $("#trait_data_form").attr("action", url);
         $("#trait_data_form").submit()
+
+    #update_time_remaining = (percent_complete) ->
+    #    seconds_remaining = 1 / (percent_complete - root.previous_percent) * (100 - percent_complete)
+    #    minutes_remaining = seconds_remaining  / 60
+    #    $('#time_remaining').text(Math.round(minutes_remaining) + " minutes remaining")
+    #    root.previous_percent = percent_complete
         
+    update_time_remaining = (percent_complete) ->
+        now = new Date()
+        period = now.getTime() - root.start_time
+        console.log("period is:", period)
+        if period > 8000
+            total_seconds_remaining = (period / percent_complete * (100 - percent_complete))/1000
+            minutes_remaining = Math.round(total_seconds_remaining / 60)
+            #seconds_remaining = Math.round(total_seconds_remaining % 60)
+            #console.log("seconds_remaining:", seconds_remaining)
+            if minutes_remaining < 3
+                $('#time_remaining').text(Math.round(total_seconds_remaining) + " seconds remaining")
+            else
+                $('#time_remaining').text(minutes_remaining + " minutes remaining")
+        #else
+        #    $('#time_remaining').text("period too small")
+
     get_progress = ->
         console.log("temp_uuid:", $("#temp_uuid").val())
         temp_uuid = $("#temp_uuid").val()
@@ -22,9 +47,16 @@ $ ->
             type: "GET"
             url: url
             success: (progress_data) =>
+                percent_complete = progress_data['percent_complete']
                 console.log("in get_progress data:", progress_data)
-                console.log(progress_data['percent_complete'] + "%")
-                $('#marker_regression_progress').css("width", progress_data['percent_complete'] + "%")
+
+                $('#marker_regression_progress').css("width", percent_complete + "%")
+                
+                if root.start_time
+                    unless isNaN(percent_complete)
+                        update_time_remaining(percent_complete)
+                else
+                    root.start_time = new Date().getTime()
         )
         return false
 
@@ -38,17 +70,19 @@ $ ->
             url: url
             data: form_data
             error: (xhr, ajaxOptions, thrownError) =>
-                alert("some error occurred")
+                alert("Sorry, an error occurred")
                 console.log(xhr)
                 clearInterval(this.my_timer)
                 $('#progress_bar_container').modal('hide')
-                $("body").html("error")        
+                $("body").html("We got an error.")        
             success: (data) =>
                 clearInterval(this.my_timer)
                 $('#progress_bar_container').modal('hide')
                 $("body").html(data)
         )
         console.log("settingInterval")
+
+        #root.start_time = new Date().getTime()
         this.my_timer = setInterval(get_progress, 1000)
         return false
     )

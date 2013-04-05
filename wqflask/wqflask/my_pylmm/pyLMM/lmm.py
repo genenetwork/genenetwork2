@@ -62,17 +62,18 @@ def run_human(pheno_vector,
     
     plink_input.getSNPIterator()
     total_snps = plink_input.numSNPs
-    
-    count = 0
+
     with Bench("snp iterator loop"):
+        count = 0
         for snp, this_id in plink_input:
-            #if count > 1000:
+            #if count > 5000:
             #    break
             count += 1
 
+            
             percent_complete = (float(count) / total_snps) * 100
-            print("percent_complete: ", pf(percent_complete))
-            temp_data.store("percent_complete", percent_complete)        
+            #print("percent_complete: ", percent_complete)
+            temp_data.store("percent_complete", percent_complete)
 
             x = snp[keep].reshape((n,1))
             #x[[1,50,100,200,3000],:] = np.nan
@@ -113,11 +114,9 @@ def run_human(pheno_vector,
                 if refit:
                     lmm_ob.fit(X=x)
                 ts, ps, beta, betaVar = lmm_ob.association(x)
-                
+            
             p_values.append(ps)
             t_stats.append(ts)
-            
-    print("p_values: ", pf(p_values))        
     
     return p_values, t_stats
 

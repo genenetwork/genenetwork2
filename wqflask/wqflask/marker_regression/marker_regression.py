@@ -71,7 +71,7 @@ class MarkerRegression(object):
             p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
         else:
             genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-            
+
             no_val_samples = self.identify_empty_samples()
             trimmed_genotype_data = self.trim_genotypes(genotype_data, no_value_samples=[])
             pdb.set_trace()
@@ -90,7 +90,12 @@ class MarkerRegression(object):
         
         self.dataset.group.markers.add_pvalues(p_values)
 
-        self.qtl_results = self.dataset.group.markers.markers
+        self.qtl_results = []
+        for marker in self.dataset.group.markers.markers:
+            if marker['p_value'] < 0.2:
+                self.qtl_results.append(marker)
+        
+        #self.qtl_results = self.dataset.group.markers.markers
 
 
     def gen_human_results(self, pheno_vector, tempdata):

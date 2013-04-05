@@ -11,7 +11,6 @@ class TempData(object):
         self.key = "tempdata:{}".format(self.temp_uuid)
         
     def store(self, field, value):
-        print("Storing...")
         self.redis.hset(self.key, field, value)
         self.redis.expire(self.key, 60*15)  # Expire in 15 minutes
         
