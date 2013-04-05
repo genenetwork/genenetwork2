@@ -23,6 +23,7 @@ import numpy as np
 from scipy import linalg
 from scipy import optimize
 from scipy import stats
+import pdb
 
 from pprint import pformat as pf
 
@@ -43,10 +44,10 @@ def run_human(pheno_vector,
 
     if v.sum():
         pheno_vector = pheno_vector[keep]
-        print("pheno_vector shape is now: ", pf(pheno_vector.shape))
+        #print("pheno_vector shape is now: ", pf(pheno_vector.shape))
         covariate_matrix = covariate_matrix[keep,:]
-        print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
-        print("len(keep) is: ", pf(keep.shape))
+        #print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
+        #print("len(keep) is: ", pf(keep.shape))
         kinship_matrix = kinship_matrix[keep,:][:,keep]
 
     n = kinship_matrix.shape[0]
@@ -58,12 +59,20 @@ def run_human(pheno_vector,
     # Buffers for pvalues and t-stats
     p_values = []
     t_stats = []
+    
+    plink_input.getSNPIterator()
+    total_snps = plink_input.numSNPs
+    
     count = 0
     with Bench("snp iterator loop"):
         for snp, this_id in plink_input:
-            if count > 1000:
-                break
+            #if count > 1000:
+            #    break
             count += 1
+
+            percent_complete = (float(count) / total_snps) * 100
+            print("percent_complete: ", pf(percent_complete))
+            temp_data.store("percent_complete", percent_complete)        
 
             x = snp[keep].reshape((n,1))
             #x[[1,50,100,200,3000],:] = np.nan
@@ -104,9 +113,12 @@ def run_human(pheno_vector,
                 if refit:
                     lmm_ob.fit(X=x)
                 ts, ps, beta, betaVar = lmm_ob.association(x)
+                
             p_values.append(ps)
             t_stats.append(ts)
             
+    print("p_values: ", pf(p_values))        
+    
     return p_values, t_stats
 
 
@@ -188,14 +200,13 @@ def calculate_kinship(genotype_matrix, temp_data):
     #print("m is:", m)
     keep = []
     for counter in range(m):
-        print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
+        #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
         #Checks if any values in column are not numbers
         not_number = np.isnan(genotype_matrix[:,counter])
-        print("type of not_number:", type(not_number))
         
         #Gets vector of values for column (no values in vector if not all values in col are numbers)
         marker_values = genotype_matrix[True - not_number, counter]
-        print("type of marker_values is:", type(marker_values))
+        #print("type of marker_values is:", type(marker_values))
         
         #Gets mean of values in vector
         values_mean = marker_values.mean()
@@ -270,7 +281,10 @@ def GWAS(pheno_vector,
 
     p_values = []
     t_statistics = []
-
+    
+    n = genotype_matrix.shape[0]
+    m = genotype_matrix.shape[1]
+    
     for counter in range(m):
         x = genotype_matrix[:,counter].reshape((n, 1))
         v = np.isnan(x).reshape((-1,))
@@ -343,6 +357,7 @@ class LMM:
  
        #x = Y != -9
        x = True - np.isnan(Y)
+       #pdb.set_trace()
        if not x.sum() == len(Y):
           if self.verbose: sys.stderr.write("Removing %d missing values from Y\n" % ((True - x).sum()))
           Y = Y[x]
@@ -362,8 +377,8 @@ class LMM:
        self.K = K
        self.Kva = Kva
        self.Kve = Kve
-       print("self.Kva is: ", pf(self.Kva))
-       print("self.Kve is: ", pf(self.Kve))
+       #print("self.Kva is: ", pf(self.Kva))
+       #print("self.Kve is: ", pf(self.Kve))
        self.Y = Y
        self.X0 = X0
        self.N = self.K.shape[0]

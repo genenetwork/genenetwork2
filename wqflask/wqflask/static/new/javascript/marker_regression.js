@@ -13,8 +13,10 @@
         this.qtl_results = js_data.qtl_results;
         console.log("qtl_results are:", this.qtl_results);
         this.chromosomes = js_data.chromosomes;
+        console.log("chromosomes: ", this.chromosomes);
         this.total_length = 0;
         this.max_chr = this.get_max_chr();
+        console.log("max_chr is: ", this.max_chr);
         this.x_coords = [];
         this.y_coords = [];
         this.marker_names = [];

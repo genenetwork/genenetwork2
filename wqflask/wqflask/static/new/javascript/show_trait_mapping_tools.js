@@ -46,6 +46,13 @@
         type: "POST",
         url: url,
         data: form_data,
+        error: function(xhr, ajaxOptions, thrownError) {
+          alert("some error occurred");
+          console.log(xhr);
+          clearInterval(_this.my_timer);
+          $('#progress_bar_container').modal('hide');
+          return $("body").html("error");
+        },
         success: function(data) {
           clearInterval(_this.my_timer);
           $('#progress_bar_container').modal('hide');

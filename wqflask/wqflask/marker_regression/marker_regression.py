@@ -9,6 +9,7 @@ import string
 import sys
 import os
 import collections
+import pdb
 
 import numpy as np
 from scipy import linalg
@@ -67,13 +68,13 @@ class MarkerRegression(object):
         pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
 
         if self.dataset.group.species == "human":
-            p_values, t_stats = self.gen_human_results(pheno_vector)
+            p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
         else:
             genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
             
             no_val_samples = self.identify_empty_samples()
-            trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
-            
+            trimmed_genotype_data = self.trim_genotypes(genotype_data, no_value_samples=[])
+            pdb.set_trace()
             genotype_matrix = np.array(trimmed_genotype_data).T
             
             print("pheno_vector is: ", pf(pheno_vector))
@@ -92,10 +93,12 @@ class MarkerRegression(object):
         self.qtl_results = self.dataset.group.markers.markers
 
 
-    def gen_human_results(self, pheno_vector):
+    def gen_human_results(self, pheno_vector, tempdata):
         file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
         
+        tempdata.store("percent_complete", 0)
         plink_input = input.plink(file_base, type='b')
+        tempdata.store("percent_complete", 0.1)
 
         pheno_vector = pheno_vector.reshape((len(pheno_vector), 1))
         covariate_matrix = np.ones((pheno_vector.shape[0],1))
@@ -106,7 +109,8 @@ class MarkerRegression(object):
                 pheno_vector,
                 covariate_matrix,
                 plink_input,
-                kinship_matrix
+                kinship_matrix,
+                temp_data=tempdata
             )
 
         return p_values, t_stats

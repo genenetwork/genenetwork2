@@ -37,6 +37,12 @@ $ ->
             type: "POST"
             url: url
             data: form_data
+            error: (xhr, ajaxOptions, thrownError) =>
+                alert("some error occurred")
+                console.log(xhr)
+                clearInterval(this.my_timer)
+                $('#progress_bar_container').modal('hide')
+                $("body").html("error")        
             success: (data) =>
                 clearInterval(this.my_timer)
                 $('#progress_bar_container').modal('hide')

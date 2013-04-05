@@ -4,10 +4,12 @@ $ ->
             @qtl_results = js_data.qtl_results
             console.log("qtl_results are:", @qtl_results)
             @chromosomes = js_data.chromosomes
+            console.log("chromosomes: ", @chromosomes)
 
             @total_length = 0
 
             @max_chr = @get_max_chr()
+            console.log("max_chr is: ", @max_chr)
 
             @x_coords = []
             @y_coords = []
