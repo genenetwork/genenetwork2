@@ -25,6 +25,7 @@ $ ->
             
             #@x_max = d3.max(@x_coords)
             @x_max = @total_length
+            @y_min = d3.min(@y_coords)
             @y_max = d3.max(@y_coords) * 1.2
 
             @svg = @create_svg()
@@ -57,7 +58,7 @@ $ ->
             chr_lengths = []
             total_length = 0
             for key of @chromosomes
-                this_length = @chromosomes[key]
+                this_length = @chromosomes[key][1]
                 chr_lengths.push(this_length)
                 cumulative_chr_lengths.push(total_length + this_length)
                 total_length += this_length
@@ -70,10 +71,11 @@ $ ->
             chr_lengths = []
             chr_seen = []
             for result in js_data.qtl_results
-                chr_length = @chromosomes[result.chr]
+                chr_length = @chromosomes[result.chr][1]
                 if not(result.chr in chr_seen)
                     chr_seen.push(result.chr) 
-                    chr_lengths.push(chr_length) 
+                    chr_lengths.push(chr_length)
+                        
                     if result.chr != "1"
                         @total_length += chr_lengths[chr_lengths.length - 2]
                 @x_coords.push(@total_length + parseFloat(result.Mb))
@@ -104,7 +106,7 @@ $ ->
             @add_x_axis()
             @add_y_axis()
             @add_chr_lines()
-            @fill_chr_areas()
+            #@fill_chr_areas()
             @add_chr_labels()
             @add_plot_points()
 
@@ -138,7 +140,7 @@ $ ->
                 .range([@x_buffer, @plot_width])
 
             @y_scale = d3.scale.linear()
-                .domain([0, @y_max])
+                .domain([@y_min, @y_max])
                 .range([@plot_height, @y_buffer])
 
         create_x_axis_tick_values: () ->
@@ -244,7 +246,7 @@ $ ->
         add_chr_labels: () ->
             chr_names = []
             for key of @chromosomes
-                chr_names.push(key)
+                chr_names.push(@chromosomes[key][0])
             chr_info = _.zip(chr_names, @chr_lengths, @cumulative_chr_lengths)
             @svg.selectAll("text")
                 .data(chr_info, (d) =>
@@ -274,7 +276,7 @@ $ ->
                     return @x_buffer + ((@plot_width-@x_buffer) * d[0]/@x_max)
                 )
                 .attr("cy", (d) =>
-                    return @plot_height - ((@plot_height-@y_buffer) * d[1]/@y_max)
+                    return @plot_height - ((@plot_height-@y_buffer) * (d[1]-@y_min)/@y_max)
                 )
                 .attr("r", 2)
                 .attr("id", (d) =>

@@ -62,7 +62,16 @@
       });
       return false;
     };
-    $("#marker_regression").click(function() {
+    $('#suggestive').hide();
+    $('input[name=display_all]').change(function() {
+      console.log("check");
+      if ($('input[name=display_all]:checked').val() === "False") {
+        return $('#suggestive').show();
+      } else {
+        return $('#suggestive').hide();
+      }
+    });
+    $("#marker_regression_compute").click(function() {
       var form_data, url;
       $("#progress_bar_container").modal();
       url = "/marker_regression";

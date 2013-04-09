@@ -161,6 +161,7 @@ def marker_regression_page():
     wanted = (
         'trait_id',
         'dataset',
+        'suggestive'
     )
     
     start_vars = {}

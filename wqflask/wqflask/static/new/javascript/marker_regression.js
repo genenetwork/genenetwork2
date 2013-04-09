@@ -27,6 +27,7 @@
         this.x_buffer = this.plot_width / 30;
         this.y_buffer = this.plot_height / 20;
         this.x_max = this.total_length;
+        this.y_min = d3.min(this.y_coords);
         this.y_max = d3.max(this.y_coords) * 1.2;
         this.svg = this.create_svg();
         this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
@@ -65,7 +66,7 @@
         chr_lengths = [];
         total_length = 0;
         for (key in this.chromosomes) {
-          this_length = this.chromosomes[key];
+          this_length = this.chromosomes[key][1];
           chr_lengths.push(this_length);
           cumulative_chr_lengths.push(total_length + this_length);
           total_length += this_length;
@@ -80,7 +81,7 @@
         _ref = js_data.qtl_results;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           result = _ref[_i];
-          chr_length = this.chromosomes[result.chr];
+          chr_length = this.chromosomes[result.chr][1];
           if (!(_ref1 = result.chr, __indexOf.call(chr_seen, _ref1) >= 0)) {
             chr_seen.push(result.chr);
             chr_lengths.push(chr_length);
@@ -120,7 +121,6 @@
         this.add_x_axis();
         this.add_y_axis();
         this.add_chr_lines();
-        this.fill_chr_areas();
         this.add_chr_labels();
         return this.add_plot_points();
       };
@@ -142,7 +142,7 @@
 
       Manhattan_Plot.prototype.create_scales = function() {
         this.x_scale = d3.scale.linear().domain([0, d3.max(this.x_coords)]).range([this.x_buffer, this.plot_width]);
-        return this.y_scale = d3.scale.linear().domain([0, this.y_max]).range([this.plot_height, this.y_buffer]);
+        return this.y_scale = d3.scale.linear().domain([this.y_min, this.y_max]).range([this.plot_height, this.y_buffer]);
       };
 
       Manhattan_Plot.prototype.create_x_axis_tick_values = function() {
@@ -233,7 +233,7 @@
           _this = this;
         chr_names = [];
         for (key in this.chromosomes) {
-          chr_names.push(key);
+          chr_names.push(this.chromosomes[key][0]);
         }
         chr_info = _.zip(chr_names, this.chr_lengths, this.cumulative_chr_lengths);
         return this.svg.selectAll("text").data(chr_info, function(d) {
@@ -250,7 +250,7 @@
         return this.svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
           return _this.x_buffer + ((_this.plot_width - _this.x_buffer) * d[0] / _this.x_max);
         }).attr("cy", function(d) {
-          return _this.plot_height - ((_this.plot_height - _this.y_buffer) * d[1] / _this.y_max);
+          return _this.plot_height - ((_this.plot_height - _this.y_buffer) * (d[1] - _this.y_min) / _this.y_max);
         }).attr("r", 2).attr("id", function(d) {
           return "point_" + String(d[2]);
         }).classed("circle", true).on("mouseover", function(d) {

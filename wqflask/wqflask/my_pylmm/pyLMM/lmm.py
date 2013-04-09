@@ -66,8 +66,8 @@ def run_human(pheno_vector,
     with Bench("snp iterator loop"):
         count = 0
         for snp, this_id in plink_input:
-            #if count > 5000:
-            #    break
+            if count > 5000:
+                break
             count += 1
 
             

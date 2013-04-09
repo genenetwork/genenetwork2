@@ -41,6 +41,8 @@ class MarkerRegression(object):
         
         self.samples = [] # Want only ones with values
         self.vals = []
+        print("start_vars: ", pf(start_vars))
+        self.suggestive = float(start_vars['suggestive'])
 
         for sample in self.dataset.group.samplelist:
             value = start_vars['value:' + sample]
@@ -50,12 +52,13 @@ class MarkerRegression(object):
         self.gen_data(tempdata)
 
         #Get chromosome lengths for drawing the manhattan plot
-        chromosome_mb_lengths = {}
+        chromosomes = {}
         for key in self.species.chromosomes.chromosomes.keys():
-            chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
+            this_chr = self.species.chromosomes.chromosomes[key]
+            chromosomes[key] = [this_chr.name, this_chr.mb_length]
         
         self.js_data = dict(
-            chromosomes = chromosome_mb_lengths,
+            chromosomes = chromosomes,
             qtl_results = self.qtl_results,
         )
 
@@ -87,12 +90,12 @@ class MarkerRegression(object):
                 refit=False,
                 temp_data=tempdata
             )
-        
+
         self.dataset.group.markers.add_pvalues(p_values)
 
         self.qtl_results = []
         for marker in self.dataset.group.markers.markers:
-            if marker['p_value'] < 0.2:
+            if marker['lod_score'] >= self.suggestive:
                 self.qtl_results.append(marker)
         
         #self.qtl_results = self.dataset.group.markers.markers

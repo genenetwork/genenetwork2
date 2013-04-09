@@ -60,7 +60,17 @@ $ ->
         )
         return false
 
-    $("#marker_regression").click(() =>
+    $('#suggestive').hide()
+
+    $('input[name=display_all]').change(() =>
+        console.log("check")
+        if $('input[name=display_all]:checked').val() == "False"
+            $('#suggestive').show()
+        else
+            $('#suggestive').hide()
+    )
+
+    $("#marker_regression_compute").click(() =>
         $("#progress_bar_container").modal()
         url = "/marker_regression"
         form_data = $('#trait_data_form').serialize()
