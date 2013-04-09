@@ -235,48 +235,48 @@ class PhenotypeSearch(DoSearch):
 
         return self.execute(query)
 
-#class QuickPhenotypeSearch(PhenotypeSearch):
-#    """A search across all phenotype datasets"""
-#    
-#    DoSearch.search_types['quick_phenotype'] = "QuickPhenotypeSearch"
-#    
-#    base_query = """SELECT Species.Name as Species_Name,
-#                PublishFreeze.FullName as Dataset_Name,
-#                PublishFreeze.Name,
-#                PublishXRef.Id,
-#                PublishFreeze.createtime as thistable,
-#                Publication.PubMed_ID as Publication_PubMed_ID,
-#                Phenotype.Post_publication_description as Phenotype_Name
-#                FROM Phenotype,
-#                    PublishFreeze,
-#                    Publication,
-#                    PublishXRef,
-#                    InbredSet,
-#                    Species """
-#
-#    search_fields = ('Phenotype.Post_publication_description',
-#                    'Phenotype.Pre_publication_description',
-#                    'Phenotype.Pre_publication_abbreviation',
-#                    'Phenotype.Post_publication_abbreviation',
-#                    'Phenotype.Lab_code',
-#                    'Publication.PubMed_ID',
-#                    'Publication.Abstract',
-#                    'Publication.Title',
-#                    'Publication.Authors')    
-#    
-#    def compile_final_query(self, where_clause = ''):
-#        """Generates the final query string"""
-#
-#        query = (self.base_query +
-#                 """WHERE %s
-#                    PublishXRef.PhenotypeId = Phenotype.Id and
-#                    PublishXRef.PublicationId = Publication.Id and
-#                    PublishXRef.InbredSetId = InbredSet.Id and
-#                    InbredSet.SpeciesId = Species.Id""" % where_clause)
-#
-#        print("query is:", pf(query))
-#
-#        return query
+class QuickPhenotypeSearch(PhenotypeSearch):
+    """A search across all phenotype datasets"""
+    
+    DoSearch.search_types['quick_phenotype'] = "QuickPhenotypeSearch"
+    
+    base_query = """SELECT Species.Name as Species_Name,
+                PublishFreeze.FullName as Dataset_Name,
+                PublishFreeze.Name,
+                PublishXRef.Id,
+                PublishFreeze.createtime as thistable,
+                Publication.PubMed_ID as Publication_PubMed_ID,
+                Phenotype.Post_publication_description as Phenotype_Name
+                FROM Phenotype,
+                    PublishFreeze,
+                    Publication,
+                    PublishXRef,
+                    InbredSet,
+                    Species """
+
+    search_fields = ('Phenotype.Post_publication_description',
+                    'Phenotype.Pre_publication_description',
+                    'Phenotype.Pre_publication_abbreviation',
+                    'Phenotype.Post_publication_abbreviation',
+                    'Phenotype.Lab_code',
+                    'Publication.PubMed_ID',
+                    'Publication.Abstract',
+                    'Publication.Title',
+                    'Publication.Authors')    
+    
+    def compile_final_query(self, where_clause = ''):
+        """Generates the final query string"""
+
+        query = (self.base_query +
+                 """WHERE %s
+                    PublishXRef.PhenotypeId = Phenotype.Id and
+                    PublishXRef.PublicationId = Publication.Id and
+                    PublishXRef.InbredSetId = InbredSet.Id and
+                    InbredSet.SpeciesId = Species.Id""" % where_clause)
+
+        print("query is:", pf(query))
+
+        return query
     
     def run(self):
         """Generates and runs a search across all phenotype datasets"""

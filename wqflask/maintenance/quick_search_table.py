@@ -88,7 +88,7 @@ class PublishXRef(Base):
                 "PublishXRef.PhenotypeId = Phenotype.Id and "
                 "PublishXRef.PublicationId = Publication.Id ").params(publishxref_id=publishxref_id,
                                                             inbredset_id=inbredset_id).all()
-        
+
         unique = set()
         for item in results[0]:
             #print("locals:", locals())
@@ -110,11 +110,11 @@ class PublishXRef(Base):
                         print("\n-- UDE \n")
                         # Can't get it into utf-8, we won't use it
                         continue 
-                    
+
                     unique.add(token)
         print("\nUnique terms are: {}\n".format(unique))
         return " ".join(unique)            
-    
+
     @staticmethod
     def get_result_fields(publishxref_id, inbredset_id):
         results = Session.query(
@@ -153,8 +153,123 @@ class PublishXRef(Base):
                 #                                            inbredset_id=inbredset_id).all()
         for result in results:
             print("****", result)
-        
+
         assert len(set(result for result in results)) == 1, "Different results or no results"
+
+        print("results are:", results)
+        result = results[0]
+        result = row2dict(result)
+        try:
+            json_results = json.dumps(result, sort_keys=True)
+        except UnicodeDecodeError:
+            print("\n\nTrying to massage unicode\n\n")
+            for key, value in result.iteritems():
+                print("\tkey is:", key)
+                print("\tvalue is:", value)
+                if isinstance(value, basestring):
+                    result[key] = value.decode('utf-8', errors='ignore')
+            json_results = json.dumps(result, sort_keys=True)
+
+        return json_results
+
+class GenoXRef(Base):
+    __tablename__ = 'ProbeSetXRef'
+    
+    GenoFreezeId = sa.Column(sa.Integer, primary_key=True)
+    GenoId = sa.Column(sa.Integer, primary_key=True)
+    DataId = sa.Column(sa.Integer)
+    cM = sa.Column(sa.Float)
+    Used_for_mapping = sa.Column(sa.Text)
+
+    @classmethod
+    def run(cls):
+        conn = Engine.connect()
+        counter = 0
+        for item in page_query(Session.query(cls)):   #all()
+            values = {}
+            values['table_name'] = cls.__tablename__
+            values['the_key'] = json.dumps([item.GenoId, item.GenoFreezeId])
+            values['terms'] = cls.get_unique_terms(item.GenoId)
+            print("terms is:", values['terms'])
+            values['result_fields'] = cls.get_result_fields(item.GenoId, item.GenoFreezeId)
+            ins = QuickSearch.insert().values(**values)
+            conn.execute(ins)
+            counter += 1
+            print("Done:", counter)
+    
+    @staticmethod
+    def get_unique_terms(geno_id):
+        results = Session.query(
+                "name",
+                "marker_name"
+            ).from_statement(
+                "SELECT Geno.Name as name, "
+                "Geno.Marker_Name as marker_name "
+                "FROM Geno "
+                "WHERE Geno.Id = :geno_id ").params(geno_id=geno_id).all()
+        
+        unique = set()
+        for item in results[0]:
+            #print("locals:", locals())
+            if not item:
+                continue
+            for token in item.split():
+                if len(token) > 2:
+                    try:
+                        # This hopefully ensures that the token is utf-8
+                        token = token.encode('utf-8')
+                        print(" ->", token)
+                    except UnicodeDecodeError:
+                        print("\n-- UDE \n")
+                        # Can't get it into utf-8, we won't use it
+                        continue 
+                    
+                    unique.add(token)
+        print("\nUnique terms are: {}\n".format(unique))
+        return " ".join(unique)
+
+
+    @staticmethod
+    def get_result_fields(geno_id, dataset_id):
+        results = Session.query(
+                "name",
+                "species",
+                "group_name",
+                "dataset",
+                "dataset_name",
+                "symbol",
+                "description",
+                "chr", "mb",
+                "lrs",
+                "genbank_id",
+                "gene_id",
+                "chip_id",
+                "chip_name"
+            ).from_statement(
+                "SELECT Geno.Name as name, "
+                "Geno.Marker_Name as marker_name, "
+                "InbredSet.Name as group_name, "
+                "Species.Name as species, "
+                "GenoFreeze.Name as dataset, "
+                "GenoFreeze.FullName as dataset_name, "
+                "Geno.Chr as chr, "
+                "Geno.Mb as mb, "
+                "Geno.Source as source "
+                "FROM Geno, "
+                "GenoXRef, "
+                "GenoFreeze, "
+                "InbredSet, "
+                "Species "
+                "WHERE Geno.Id = :geno_id and "
+                "GenoXRef.GenoId = Geno.Id and "
+                "GenoFreeze.Id = :dataset_id and "
+                "GenoXRef.GenoFreezeId = GenoFreeze.Id and "
+                "InbredSet.Id = GenoFreeze.InbredSetId and "
+                "InbredSet.SpeciesId = Species.Id ").params(geno_id=geno_id,
+                                                                    dataset_id=dataset_id).all()
+        for result in results:
+            print(result)
+        assert len(set(result for result in results)) == 1, "Different results"
         
         print("results are:", results)
         result = results[0]
@@ -171,9 +286,7 @@ class PublishXRef(Base):
             json_results = json.dumps(result, sort_keys=True)
 
         return json_results    
-    
-    
-    
+
 class ProbeSetXRef(Base):
     __tablename__ = 'ProbeSetXRef'
     
@@ -255,7 +368,7 @@ class ProbeSetXRef(Base):
         results = Session.query(
                 "name",
                 "species",
-                "group",
+                "group_name",
                 "dataset",
                 "dataset_name",
                 "symbol",
@@ -269,7 +382,7 @@ class ProbeSetXRef(Base):
             ).from_statement(
                 "SELECT ProbeSet.Name as name, "
                 "Species.Name as species, "
-                "InbredSet.Name as group, "
+                "InbredSet.Name as group_name, "
                 "ProbeSetFreeze.Name as dataset, "
                 "ProbeSetFreeze.FullName as dataset_name, "
                 "ProbeSet.Symbol as symbol, "
@@ -350,8 +463,8 @@ def page_query(q):
 
 
 def main():
-    PublishXRef.run()
     ProbeSetXRef.run()
+    PublishXRef.run()
 
 if __name__ == "__main__":
     main()

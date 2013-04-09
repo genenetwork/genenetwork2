@@ -83,7 +83,10 @@ def search_page():
         #for trait in the_search.trait_list:
         #    print(" -", trait.description_display)
 
-        return render_template("search_result_page.html", **the_search.__dict__)
+        if the_search.quick:
+            return render_template("quick_search.html", **the_search.__dict__)
+        else:
+            return render_template("search_result_page.html", **the_search.__dict__)
 
 
 @app.route("/whats_new")
