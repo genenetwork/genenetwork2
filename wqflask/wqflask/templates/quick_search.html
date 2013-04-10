@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}QuickSearch Results{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <header class="jumbotron subhead" id="overview">
+        <div class="container">
+            <h1>QuickSearch Results</h1>
+            <p class="lead">
+                GeneNetwork found {{ numify(results|count, "record", "records") }}.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Your Search</h1>
+        </div>
+
+        <p>We across all data sets to find all records that match:</p>
+
+        <ul>
+            {% if search_terms %}
+            <li>
+                {% for word in search_terms %}
+                    <strong>{{word}}</strong> {% if not loop.last %} or {% endif %}
+                {% endfor %}
+            </li>
+            {% endif %}
+        </ul>
+        
+        <p>To study a record, click on its ID below.<br />
+        Check records below and click Add button to add to selection.</p>
+
+        <div class="tabbable"> <!-- Only required for left/right tabs -->
+            <ul class="nav nav-tabs">
+                <li class="active"> <a href="#tab1" data-toggle="tab">Phenotype</a></li>
+                <li>                <a href="#tab2" data-toggle="tab">mRNA Assay</a></li>
+                <li>                <a href="#tab3" data-toggle="tab">Genotype</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                       <!--     {% for key, _value in results.phenotype[0].result_fields.items() %}
+                                <th>{{key}}</th>
+                            {% endfor %}-->
+                            <th>Id</th>
+                            <th>Species</th>
+                            <th>Group</th>
+                            <th>Description</th>
+                            <th>LRS</th>
+                            <th>Year</th>
+                            <th>Authors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results.phenotype %}
+                            <tr>
+                                {% for result in result.result_fields.items() %}
+                                <td>{{ result['phenotype_id'] }}</td>
+                                <td>{{ result['species'] }}</td>
+                                <td>{{ result['group_name'] }}</td>
+                                <td>{{ result['description'] }}</td>
+                                <td>{{ result['lrs'] }}</td>
+                                <td>
+                                    <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ result['pubmed_id'] }}&dopt=Abstract">
+                                        {{ result['year'] }}
+                                    </a>
+                                </td>
+                                <td>{{ result['authors'] }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="tab2">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                            <th>Record ID</th>
+                            <th>Species</th>
+                            <th>Group</th>
+                            <th>Data Set</th>
+                            <th>Symbol</th>
+                            <th>Description</th>
+                            <th>Location</th>
+                            <th>Mean Expr</th>
+                            <th>Max LRS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results.mrna_assay %}
+                            <tr>
+                                {% for result in result.result_fields.items() %}
+                                <td>
+                                    <a href="http://gn2python.genenetwork.org/show_trait?trait_id={{ result['name'] }}&dataset={{ result['dataset'] }}"
+                                       {{ result['name'] }}
+                                    </a>
+                                </td>
+                                <td>{{ result['species'] }}</td>
+                                <td>{{ result['group_name'] }}</td>
+                                <td>{{ result['dataset_name'] }}</td>
+                                <td>{{ result['symbol'] }}</td>
+                                <td>{{ result['description'] }}</td>
+                                <td>{{ result['chr'] }} : {{ result['mb'] }}</td>
+                                <td>{{ result['mean'] }}</td>
+                                <td>{{ result['lrs'] }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>                    
+                </div>
+                <div class="tab-pane" id="tab3">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                            <th>Marker</th>
+                            <th>Species</th>
+                            <th>Group</th>
+                            <th>Data Set</th>
+                            <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results.mrna_assay %}
+                            <tr>
+                                {% for result in result.result_fields.items() %}
+                                <td>
+                                    <a href="http://gn2python.genenetwork.org/show_trait?trait_id={{ result['marker_name'] }}&dataset={{ result['dataset'] }}">
+                                        {{ result['marker_name'] }}
+                                    </a>
+                                </td>
+                                <td>{{ result['species'] }}</td>
+                                <td>{{ result['group_name'] }}</td>
+                                <td>{{ result['dataset_name'] }}</td>
+                                <td>{{ result['chr'] }} : {{ result['mb'] }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>                     
+                </div>
+            </div>
+        </div>
+        
+        
+
+        <!--<div class="bs-docs-example">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                    {% for header in header_fields %}
+                        <th>{{header}}</th>
+                    {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for this_trait in trait_list %}
+                    <TR id="{{ this_trait }}">
+                        <TD>
+                            <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox"
+                                   VALUE="{{ this_trait }}">
+                        </TD>
+                        <TD>
+                            <a href="{{ url_for('show_trait_page',
+                                    trait_id = this_trait.name,
+                                    dataset = dataset.name
+                                    )}}">
+                                {{ this_trait.name }}
+                            </a>
+                        </TD>
+                        {% if dataset.type == 'ProbeSet' %}
+                            <TD>{{ this_trait.symbol }}</TD>
+                            <TD>{{ this_trait.description_display }}</TD>
+                            <TD>{{ this_trait.location_repr }}</TD>
+                            <TD>{{ this_trait.mean }}</TD>
+                            <TD>{{ this_trait.LRS_score_repr }}</TD>
+                            <TD>{{ this_trait.LRS_location_repr }}</TD>
+                        {% elif dataset.type == 'Publish' %}
+                            <TD>{{ this_trait.description_display }}</TD>
+                            <TD>{{ this_trait.authors }}</TD>
+                            <TD>
+                                <a href="{{ this_trait.pubmed_link }}">
+                                    {{ this_trait.pubmed_text }}
+                                </a>
+                            </TD>
+                            <TD>{{ this_trait.LRS_score_repr }}</TD>
+                            <TD>{{ this_trait.LRS_location_repr }}</TD>
+                        {% elif dataset.type == 'Geno' %}
+                            <TD>{{ this_trait.location_repr }}</TD>
+                        {% endif %}
+                    </TR>
+                {% endfor %}
+                </tbody>
+
+            </table>
+
+            <br />
+
+            <button class="btn"><i class="icon-ok"></i> Select</button>
+            <button class="btn"><i class="icon-remove"></i> Deselect</button>
+            <button class="btn"><i class="icon-resize-vertical"></i> Invert</button>
+            <button class="btn"><i class="icon-plus-sign"></i> Add</button>
+            <button class="btn btn-primary pull-right"><i class="icon-download icon-white"></i> Download Table</button>
+        </div>-->
+
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}

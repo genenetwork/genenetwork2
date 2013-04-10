@@ -24,6 +24,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declarative_base
 
+from pprint import pformat as pf
+
 import zach_settings as settings
 
 Engine = sa.create_engine(settings.SQLALCHEMY_DATABASE_URI,
@@ -124,6 +126,7 @@ class PublishXRef(Base):
                 "description",
                 "lrs",
                 "publication_id",
+                "pubmed_id",
                 "year",
                 "authors"
             ).from_statement(
@@ -133,6 +136,7 @@ class PublishXRef(Base):
                 "Phenotype.Original_description as description, "
                 "PublishXRef.LRS as lrs, "
                 "PublishXRef.PublicationId as publication_id, "
+                "Publication.PubMed_ID"
                 "Publication.Year as year, "
                 "Publication.Authors as authors "
                 "FROM PublishXRef, "
@@ -173,7 +177,7 @@ class PublishXRef(Base):
         return json_results
 
 class GenoXRef(Base):
-    __tablename__ = 'ProbeSetXRef'
+    __tablename__ = 'GenoXRef'
     
     GenoFreezeId = sa.Column(sa.Integer, primary_key=True)
     GenoId = sa.Column(sa.Integer, primary_key=True)
@@ -191,14 +195,16 @@ class GenoXRef(Base):
             values['the_key'] = json.dumps([item.GenoId, item.GenoFreezeId])
             values['terms'] = cls.get_unique_terms(item.GenoId)
             print("terms is:", values['terms'])
-            values['result_fields'] = cls.get_result_fields(item.GenoId, item.GenoFreezeId)
-            ins = QuickSearch.insert().values(**values)
-            conn.execute(ins)
+            if values['terms']:
+                values['result_fields'] = cls.get_result_fields(item.GenoId, item.GenoFreezeId)
+                ins = QuickSearch.insert().values(**values)
+                conn.execute(ins)
             counter += 1
             print("Done:", counter)
     
     @staticmethod
     def get_unique_terms(geno_id):
+        print("geno_id: ", geno_id)
         results = Session.query(
                 "name",
                 "marker_name"
@@ -208,23 +214,26 @@ class GenoXRef(Base):
                 "FROM Geno "
                 "WHERE Geno.Id = :geno_id ").params(geno_id=geno_id).all()
         
+        print("results: ", pf(results))
+        
         unique = set()
-        for item in results[0]:
-            #print("locals:", locals())
-            if not item:
-                continue
-            for token in item.split():
-                if len(token) > 2:
-                    try:
-                        # This hopefully ensures that the token is utf-8
-                        token = token.encode('utf-8')
-                        print(" ->", token)
-                    except UnicodeDecodeError:
-                        print("\n-- UDE \n")
-                        # Can't get it into utf-8, we won't use it
-                        continue 
-                    
-                    unique.add(token)
+        if len(results):
+            for item in results[0]:
+                #print("locals:", locals())
+                if not item:
+                    continue
+                for token in item.split():
+                    if len(token) > 2:
+                        try:
+                            # This hopefully ensures that the token is utf-8
+                            token = token.encode('utf-8')
+                            print(" ->", token)
+                        except UnicodeDecodeError:
+                            print("\n-- UDE \n")
+                            # Can't get it into utf-8, we won't use it
+                            continue 
+                        
+                        unique.add(token)
         print("\nUnique terms are: {}\n".format(unique))
         return " ".join(unique)
 
@@ -233,18 +242,13 @@ class GenoXRef(Base):
     def get_result_fields(geno_id, dataset_id):
         results = Session.query(
                 "name",
-                "species",
+                "marker_name",
                 "group_name",
+                "species",
                 "dataset",
                 "dataset_name",
-                "symbol",
-                "description",
                 "chr", "mb",
-                "lrs",
-                "genbank_id",
-                "gene_id",
-                "chip_id",
-                "chip_name"
+                "source"
             ).from_statement(
                 "SELECT Geno.Name as name, "
                 "Geno.Marker_Name as marker_name, "
@@ -374,7 +378,7 @@ class ProbeSetXRef(Base):
                 "symbol",
                 "description",
                 "chr", "mb",
-                "lrs",
+                "lrs", "mean",
                 "genbank_id",
                 "gene_id",
                 "chip_id",
@@ -390,6 +394,7 @@ class ProbeSetXRef(Base):
                 "ProbeSet.Chr as chr, "
                 "ProbeSet.Mb as mb, "
                 "ProbeSetXRef.LRS as lrs, "
+                "ProbeSetXRef.mean as mean, "
                 "ProbeSet.GenbankId as genbank_id, "
                 "ProbeSet.GeneId as gene_id, "
                 "ProbeSet.ChipId as chip_id, "
@@ -463,6 +468,7 @@ def page_query(q):
 
 
 def main():
+    GenoXRef.run()
     ProbeSetXRef.run()
     PublishXRef.run()
 

@@ -39,8 +39,13 @@ from utility import formatting
 
 #from base.JinjaPage import JinjaEnv, JinjaPage
 
+#class QuickSearchResult(object):
+    #def __init__(self, key, result_fields):
+    #    self.key = key
+    #    self.result_fields = result_fields
+    
 
-class SearchResultPage():
+class SearchResultPage(object):
     #maxReturn = 3000
 
 
