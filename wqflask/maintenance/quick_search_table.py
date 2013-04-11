@@ -320,6 +320,8 @@ class ProbeSetXRef(Base):
             print("terms is:", values['terms'])
             #values['species'] = get_species("ProbeSet", ps.Id)
             values['result_fields'] = cls.get_result_fields(ps.ProbeSetId, ps.ProbeSetFreezeId)
+            if values['result_fields'] == None:
+                continue
             ins = QuickSearch.insert().values(**values)
             conn.execute(ins)
             counter += 1
@@ -339,36 +341,39 @@ class ProbeSetXRef(Base):
                 "ProbeSet.alias as alias "
                 "FROM ProbeSet "
                 "WHERE ProbeSet.Id = :probeset_id ").params(probeset_id=probeset_id).all()
-        
+
         unique = set()
-        for item in results[0]:
-            #print("locals:", locals())
-            if not item:
-                continue
-            for token in item.split():
-                if token.startswith(('(','[')):
-                    token = token[1:]
-                if token.endswith((')', ']')):
-                    token = token[:-1]
-                if token.endswith(';'):
-                    token = token[:-1]
-                if len(token) > 2:
-                    try:
-                        # This hopefully ensures that the token is utf-8
-                        token = token.encode('utf-8')
-                        print(" ->", token)
-                    except UnicodeDecodeError:
-                        print("\n-- UDE \n")
-                        # Can't get it into utf-8, we won't use it
-                        continue 
-                    
-                    unique.add(token)
-        print("\nUnique terms are: {}\n".format(unique))
-        return " ".join(unique)
+        if len(results):
+            for item in results[0]:
+                #print("locals:", locals())
+                if not item:
+                    continue
+                for token in item.split():
+                    if token.startswith(('(','[')):
+                        token = token[1:]
+                    if token.endswith((')', ']')):
+                        token = token[:-1]
+                    if token.endswith(';'):
+                        token = token[:-1]
+                    if len(token) > 2:
+                        try:
+                            # This hopefully ensures that the token is utf-8
+                            token = token.encode('utf-8')
+                            print(" ->", token)
+                        except UnicodeDecodeError:
+                            print("\n-- UDE \n")
+                            # Can't get it into utf-8, we won't use it
+                            continue 
+                        
+                        unique.add(token)
+            print("\nUnique terms are: {}\n".format(unique))
+            return " ".join(unique)
 
 
     @staticmethod
     def get_result_fields(probeset_id, dataset_id):
+        print("probeset_id: ", probeset_id)
+        print("dataset_id: ", dataset_id)
         results = Session.query(
                 "name",
                 "species",
@@ -416,8 +421,11 @@ class ProbeSetXRef(Base):
                 "InbredSet.SpeciesId = Species.Id ").params(probeset_id=probeset_id,
                                                                     dataset_id=dataset_id).all()
         for result in results:
-            print(result)
-        assert len(set(result for result in results)) == 1, "Different results"
+            print("-", result)
+            
+        if len(set(result for result in results)) != 1:
+            return None
+        #assert len(set(result for result in results)) == 1, "Different results"
         
         print("results are:", results)
         result = results[0]
@@ -468,8 +476,8 @@ def page_query(q):
 
 
 def main():
-    GenoXRef.run()
     ProbeSetXRef.run()
+    GenoXRef.run()
     PublishXRef.run()
 
 if __name__ == "__main__":

@@ -36,12 +36,12 @@ def get_strains(cursor):
                             StrainXRef.InbredSetId = InbredSet.Id
                             and InbredSet.Name=%s;
                 """, "BXD")
-    
+
     strains = [strain[0] for strain in cursor.fetchall()]
     print("strains:", pf(strains))
     for strain in strains:
         print(" -", strain)
-    
+
     return strains
 
 def get_probeset_vals(cursor, dataset_name):
@@ -53,13 +53,13 @@ def get_probeset_vals(cursor, dataset_name):
                       ProbeSetFreeze.Name = %s and
                       ProbeSetXRef.ProbeSetId = ProbeSet.Id;
             """, dataset_name)
-    
+
     probesets = cursor.fetchall()
-    
+
     print("Fetched probesets")
-    
+
     probeset_vals = collections.OrderedDict()
-    
+
     for counter, probeset in enumerate(probesets):
         cursor.execute(""" select Strain.Name, ProbeSetData.value
                        from ProbeSetData, ProbeSetXRef, ProbeSetFreeze, Strain
@@ -73,19 +73,19 @@ def get_probeset_vals(cursor, dataset_name):
         vals = cursor.fetchall()
         for val in vals:
             val_dic[val[0]] = val[1]
-        
+
         probeset_vals[probeset[1]] = val_dic
         show_progress("Querying DB", counter)
-        
+
     return probeset_vals
 
 def trim_strains(strains, probeset_vals):
     trimmed_strains = []
     #print("probeset_vals is:", pf(probeset_vals))
     first_probeset = list(probeset_vals.itervalues())[0]
+    print("\n**** first_probeset is:", pf(first_probeset))
     for strain in strains:
         print("\n**** strain is:", pf(strain))
-        print("\n**** first_probeset is:", pf(first_probeset))
         if strain in first_probeset:
             trimmed_strains.append(strain)
     print("trimmed_strains:", pf(trimmed_strains))
@@ -107,9 +107,9 @@ def write_data_matrix_file(strains, probeset_vals, filename):
 
 def main():
     filename = os.path.expanduser("~/gene/wqflask/maintenance/" +
-                "ProbeSetFreezeId_379_FullName_EPFL_LISP_BXD_CD_Muscle_Affy_Mouse_Gene_1.0_ST_" + 
-                "(Dec11)_RMA_**.txt")
-    dataset_name = "EPFLMouseMuscleCDRMA1211"
+                "ProbeSetFreezeId_210_FullName_Eye_AXBXA_Illumina_V6.2" + 
+                "(Oct08)_RankInv_Beta.txt")
+    dataset_name = "Eye_AXBXA_1008_RankInv"
 
     cursor = get_cursor()
     strains = get_strains(cursor)
