@@ -59,66 +59,87 @@ def run_human(pheno_vector,
     # Buffers for pvalues and t-stats
     p_values = []
     t_stats = []
-    
+
     plink_input.getSNPIterator()
     total_snps = plink_input.numSNPs
 
     with Bench("snp iterator loop"):
         count = 0
         for snp, this_id in plink_input:
-            if count > 5000:
+            if count > 10000:
                 break
             count += 1
-
             
             percent_complete = (float(count) / total_snps) * 100
             #print("percent_complete: ", percent_complete)
             temp_data.store("percent_complete", percent_complete)
+        
+            ps, ts = human_association(snp,
+                                       n,
+                                       keep,
+                                       lmm_ob,
+                                       pheno_vector,
+                                       covariate_matrix,
+                                       kinship_matrix,
+                                       refit)
 
-            x = snp[keep].reshape((n,1))
-            #x[[1,50,100,200,3000],:] = np.nan
-            v = np.isnan(x).reshape((-1,))
-
-            # Check SNPs for missing values
-            if v.sum():
-                keeps = True - v
-                xs = x[keeps,:]
-                # If no variation at this snp or all genotypes missing 
-                if keeps.sum() <= 1 or xs.var() <= 1e-6:
-                    p_values.append(np.nan)
-                    t_stats.append(np.nan)
-                    continue
-
-                # Its ok to center the genotype -  I used options.normalizeGenotype to
-                # force the removal of missing genotypes as opposed to replacing them with MAF.
-
-                #if not options.normalizeGenotype:
-                #    xs = (xs - xs.mean()) / np.sqrt(xs.var())
-
-                filtered_pheno = pheno_vector[keeps]
-                filtered_covariate_matrix = covariate_matrix[keeps,:]
-                filtered_kinship_matrix = kinship_matrix[keeps,:][:,keeps]
-                filtered_lmm_ob = lmm.LMM(filtered_pheno,filtered_kinship_matrix,X0=filtered_covariate_matrix)
-                if refit:
-                    filtered_lmm_ob.fit(X=xs)
-                else:
-                    #try:
-                    filtered_lmm_ob.fit()
-                    #except: pdb.set_trace()
-                ts,ps,beta,betaVar = Ls.association(xs,returnBeta=True)
-            else:
-                if x.var() == 0:
-                    p_values.append(np.nan)
-                    t_stats.append(np.nan)
-                    continue
-                if refit:
-                    lmm_ob.fit(X=x)
-                ts, ps, beta, betaVar = lmm_ob.association(x)
-            
             p_values.append(ps)
             t_stats.append(ts)
     
     return p_values, t_stats
+
+
+def human_association(snp,
+                      n,
+                      keep,
+                      lmm_ob,
+                      pheno_vector,
+                      covariate_matrix,
+                      kinship_matrix,
+                      refit):
+
+    x = snp[keep].reshape((n,1))
+    #x[[1,50,100,200,3000],:] = np.nan
+    v = np.isnan(x).reshape((-1,))
+
+    # Check SNPs for missing values
+    if v.sum():
+        keeps = True - v
+        xs = x[keeps,:]
+        # If no variation at this snp or all genotypes missing 
+        if keeps.sum() <= 1 or xs.var() <= 1e-6:
+            return np.nan, np.nan
+            #p_values.append(np.nan)
+            #t_stats.append(np.nan)
+            #continue
+
+        # Its ok to center the genotype -  I used options.normalizeGenotype to
+        # force the removal of missing genotypes as opposed to replacing them with MAF.
+
+        #if not options.normalizeGenotype:
+        #    xs = (xs - xs.mean()) / np.sqrt(xs.var())
+
+        filtered_pheno = pheno_vector[keeps]
+        filtered_covariate_matrix = covariate_matrix[keeps,:]
+        filtered_kinship_matrix = kinship_matrix[keeps,:][:,keeps]
+        filtered_lmm_ob = lmm.LMM(filtered_pheno,filtered_kinship_matrix,X0=filtered_covariate_matrix)
+        if refit:
+            filtered_lmm_ob.fit(X=xs)
+        else:
+            #try:
+            filtered_lmm_ob.fit()
+            #except: pdb.set_trace()
+        ts,ps,beta,betaVar = Ls.association(xs,returnBeta=True)
+    else:
+        if x.var() == 0:
+            return np.nan, np.nan
+            #p_values.append(np.nan)
+            #t_stats.append(np.nan)
+            #continue
+        if refit:
+            lmm_ob.fit(X=x)
+        ts, ps, beta, betaVar = lmm_ob.association(x)
+    return ps, ts
 
 
 def run(pheno_vector,
