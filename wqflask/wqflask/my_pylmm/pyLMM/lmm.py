@@ -66,26 +66,29 @@ def run_human(pheno_vector,
     with Bench("snp iterator loop"):
         count = 0
         for snp, this_id in plink_input:
-            if count > 10000:
-                break
-            count += 1
-            
-            percent_complete = (float(count) / total_snps) * 100
-            #print("percent_complete: ", percent_complete)
-            temp_data.store("percent_complete", percent_complete)
+            with Bench("part before association"):
+                if count > 10000:
+                    break
+                count += 1
+                
+                percent_complete = (float(count) / total_snps) * 100
+                #print("percent_complete: ", percent_complete)
+                temp_data.store("percent_complete", percent_complete)
         
-            ps, ts = human_association(snp,
-                                       n,
-                                       keep,
-                                       lmm_ob,
-                                       pheno_vector,
-                                       covariate_matrix,
-                                       kinship_matrix,
-                                       refit)
+            with Bench("actual association"):
+                ps, ts = human_association(snp,
+                                           n,
+                                           keep,
+                                           lmm_ob,
+                                           pheno_vector,
+                                           covariate_matrix,
+                                           kinship_matrix,
+                                           refit)
 
-            p_values.append(ps)
-            t_stats.append(ts)
-    
+            with Bench("after association"):
+                p_values.append(ps)
+                t_stats.append(ts)
+        
     return p_values, t_stats
 
 
