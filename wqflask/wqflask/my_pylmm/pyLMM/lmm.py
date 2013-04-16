@@ -63,8 +63,19 @@ def run_human(pheno_vector,
     plink_input.getSNPIterator()
     total_snps = plink_input.numSNPs
 
+    number_chunks = 63
+
     with Bench("snp iterator loop"):
         count = 0
+        
+            
+        with Bench("Create list of inputs"):
+           
+            inputs = list(plink_input)
+            
+        with Bench("Divide into chunks"):
+            divide_into_chunks(inputs, 63)
+            
         for snp, this_id in plink_input:
             with Bench("part before association"):
                 if count > 10000:
@@ -91,6 +102,48 @@ def run_human(pheno_vector,
         
     return p_values, t_stats
 
+
+def divide_into_chunks(the_list, number_chunks):
+
+    length = len(the_list)
+    print("length the_list:", length)
+    
+    remainder = length % number_chunks
+    
+    print("remainder is:", remainder)
+    
+    #if remainder:
+    #    number_chunks -= 1
+    
+    chunksize = int(length / number_chunks)
+    print("chunksize:", chunksize)
+    
+    #remainder = length  % number_chunks
+    #assert (chunksize * number_chunks) + remainder == length, "Best check yourself!"
+    
+    chunks = []
+    for counter in range(0, length-1, chunksize):
+        print("counter is:", counter)
+        chunks.append(the_list[counter:counter+chunksize])
+    
+    # Deal with remainder
+    #if remainder:
+    #    chunks.append(the_list[(counter + chunksize):])
+
+    # Sanity check
+    all_chunked = []
+    for chunk in chunks:
+        all_chunked.extend(chunk)
+    print("length of all chunked:", len(all_chunked))
+    assert the_list == all_chunked, "You didn't chunk right"
+    
+    return chunks
+
+
+def chunk_test():
+    the_list = list(range(1, 53))
+    results = divide_into_chunks(the_list, 5)
+    print("results are:", results)
 
 def human_association(snp,
                       n,
@@ -594,3 +647,7 @@ class LMM:
        pl.xlabel("Heritability")
        pl.ylabel("Probability of data")
        pl.title(title)
+       
+       
+if __name__ == '__main__':
+    chunk_test()
