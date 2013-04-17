@@ -5,14 +5,16 @@ import simplejson as json
 
 class TempData(object):
     
-    def __init__(self, temp_uuid):
+    def __init__(self, temp_uuid, part=None):
         self.temp_uuid = temp_uuid
         self.redis = Redis()
         self.key = "tempdata:{}".format(self.temp_uuid)
+        if part:
+            self.key += ":{}".format(part)
         
     def store(self, field, value):
         self.redis.hset(self.key, field, value)
-        self.redis.expire(self.key, 60*15)  # Expire in 15 minutes
+        self.redis.expire(self.key, 60*60)  # Expire in 60 minutes
         
     def get_all(self):
         return self.redis.hgetall(self.key)

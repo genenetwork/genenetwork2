@@ -9,10 +9,11 @@ import string
 import sys
 import os
 import collections
-import pdb
 
 import numpy as np
 from scipy import linalg
+
+import simplejson as json
 
 #from redis import Redis
 
@@ -41,8 +42,6 @@ class MarkerRegression(object):
         
         self.samples = [] # Want only ones with values
         self.vals = []
-        print("start_vars: ", pf(start_vars))
-        self.suggestive = float(start_vars['suggestive'])
 
         for sample in self.dataset.group.samplelist:
             value = start_vars['value:' + sample]
@@ -52,13 +51,12 @@ class MarkerRegression(object):
         self.gen_data(tempdata)
 
         #Get chromosome lengths for drawing the manhattan plot
-        chromosomes = {}
+        chromosome_mb_lengths = {}
         for key in self.species.chromosomes.chromosomes.keys():
-            this_chr = self.species.chromosomes.chromosomes[key]
-            chromosomes[key] = [this_chr.name, this_chr.mb_length]
+            chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
         self.js_data = dict(
-            chromosomes = chromosomes,
+            chromosomes = chromosome_mb_lengths,
             qtl_results = self.qtl_results,
         )
 
@@ -74,10 +72,10 @@ class MarkerRegression(object):
             p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
         else:
             genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-
+            
             no_val_samples = self.identify_empty_samples()
-            trimmed_genotype_data = self.trim_genotypes(genotype_data, no_value_samples=[])
-            pdb.set_trace()
+            trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
+            
             genotype_matrix = np.array(trimmed_genotype_data).T
             
             print("pheno_vector is: ", pf(pheno_vector))
@@ -90,23 +88,16 @@ class MarkerRegression(object):
                 refit=False,
                 temp_data=tempdata
             )
-
+        
         self.dataset.group.markers.add_pvalues(p_values)
 
-        self.qtl_results = []
-        for marker in self.dataset.group.markers.markers:
-            if marker['lod_score'] >= self.suggestive:
-                self.qtl_results.append(marker)
-        
-        #self.qtl_results = self.dataset.group.markers.markers
+        self.qtl_results = self.dataset.group.markers.markers
 
 
     def gen_human_results(self, pheno_vector, tempdata):
         file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
-        
-        tempdata.store("percent_complete", 0)
+
         plink_input = input.plink(file_base, type='b')
-        tempdata.store("percent_complete", 0.1)
 
         pheno_vector = pheno_vector.reshape((len(pheno_vector), 1))
         covariate_matrix = np.ones((pheno_vector.shape[0],1))
@@ -118,11 +109,11 @@ class MarkerRegression(object):
                 covariate_matrix,
                 plink_input,
                 kinship_matrix,
-                temp_data=tempdata
+                loading_progress=tempdata
             )
 
         return p_values, t_stats
-    
+
 
     def identify_empty_samples(self):
         no_val_samples = []
@@ -147,4 +138,17 @@ class MarkerRegression(object):
             trimmed_genotype_data.append(new_genotypes)
         return trimmed_genotype_data
     
+def create_snp_iterator_file(group):
+    plink_file_base = os.path.join(webqtlConfig.PYLMM_PATH, group)
+    plink_input = input.plink(plink_file_base, type='b')
+    inputs = list(plink_input)
     
+    snp_file_base = os.path.join(webqtlConfig.SNP_PATH, group + ".snps")
+    
+    with open(snp_file_base, "w") as fh:
+        pickle.dump(inputs, fh)
+    
+
+if __name__ == '__main__':
+    import cPickle as pickle
+    create_snp_iterator_file("HLC")

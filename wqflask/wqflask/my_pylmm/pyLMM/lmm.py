@@ -19,15 +19,21 @@ from __future__ import absolute_import, print_function, division
 
 import sys
 import time
+import uuid
+
 import numpy as np
 from scipy import linalg
 from scipy import optimize
 from scipy import stats
 import pdb
 
+#import cPickle as pickle
+import simplejson as json
+
 from pprint import pformat as pf
 
 from utility.benchmark import Bench
+from utility import temp_data
 
 from wqflask.my_pylmm.pyLMM import chunks
 
@@ -38,7 +44,7 @@ def run_human(pheno_vector,
             plink_input,
             kinship_matrix,
             refit=False,
-            temp_data=None):
+            loading_progress=None):
 
     v = np.isnan(pheno_vector)
     keep = True - v
@@ -65,27 +71,32 @@ def run_human(pheno_vector,
     plink_input.getSNPIterator()
     total_snps = plink_input.numSNPs
 
-    number_chunks = 63
-
     with Bench("snp iterator loop"):
         count = 0
-        
-            
+
         with Bench("Create list of inputs"):
             inputs = list(plink_input)
             
         with Bench("Divide into chunks"):
-            results = chunks.divide_into_chunks(inputs, 63)
+            results = chunks.divide_into_chunks(inputs, 64)
             
+        result_store = []
+        identifier = uuid.uuid4()
+        for part, result in enumerate(results):
+            data_store = temp_data.TempData(identifier, part)
+            
+            data_store.store(data=json.dumps(result.tolist()))
+            result_store.append(data_store)
+
         for snp, this_id in plink_input:
             with Bench("part before association"):
-                if count > 500:
+                if count > 2000:
                     break
                 count += 1
                 
                 percent_complete = (float(count) / total_snps) * 100
                 #print("percent_complete: ", percent_complete)
-                temp_data.store("percent_complete", percent_complete)
+                loading_progress.store("percent_complete", percent_complete)
         
             with Bench("actual association"):
                 ps, ts = human_association(snp,
