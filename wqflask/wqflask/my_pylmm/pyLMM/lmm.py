@@ -104,19 +104,16 @@ def run_human(pheno_vector,
 
 
 def divide_into_chunks(the_list, number_chunks):
+    """Divides a list into approximately number_chunks smaller lists"""
     length = len(the_list)
+
     if length == 0:
         return [[]]
-
-    if number_chunks > length:
+    
+    if length <= number_chunks:
         number_chunks = length
 
-    chunksize = int(length / number_chunks)
-    if length % number_chunks > 0:
-        chunksize += 1
-        while (chunksize * number_chunks) > length:
-            print("in while")
-            number_chunks -= 1
+    chunksize = int(math.ceil(length / number_chunks))
 
     chunks = []
     for counter in range(0, length, chunksize):
@@ -124,86 +121,7 @@ def divide_into_chunks(the_list, number_chunks):
 
     return chunks
 
-def confirm_chunk(original, result):
-    all_chunked = []
-    for chunk in result:
-        all_chunked.extend(chunk)
-    assert original == all_chunked, "You didn't chunk right"
 
-def chunk_test():
-    import random
-    random.seed(7)
-
-    number_exact = 0
-    total_amount_off = 0
-
-    for test in range(1, 1001):
-        print("\n\ntest:", test)
-        number_chunks = random.randint(1, 20)
-        number_elements = random.randint(0, 100)
-        the_list = list(range(1, number_elements))
-        result = divide_into_chunks(the_list, number_chunks)
-
-        print("Dividing list of length {} into approximately {} chunks - got {} chunks".format(
-            len(the_list), number_chunks, len(result)))
-        print("result:", result)
-
-        confirm_chunk(the_list, result)
-
-        amount_off = abs(number_chunks - len(result))
-        if amount_off == 0:
-            number_exact += 1
-        else:
-            total_amount_off += amount_off
-
-
-        print("\n{} exact out of {}    [Total amount off: {}]".format(number_exact,
-                                                                      test,
-                                                                      total_amount_off))
-
-
-def chunk_test2():
-    import random
-    random.seed(7)
-
-    number_exact = 0
-    total_amount_off = 0
-
-    for test in range(1, 1001):
-        print("\n\ntest:", test)
-        number_chunks = random.randint(1, 20)
-        number_elements = random.randint(0, 100)
-        the_list = list(range(1, number_elements))
-        result = divide_into_chunks(the_list, number_chunks)
-        print("Dividing list of length {} into approximately {} chunks - got {} chunks".format(
-            len(the_list), number_chunks, len(result)))
-        print("result:", result)
-
-        amount_off = abs(number_chunks - len(result))
-        if amount_off == 0:
-            number_exact += 1
-        else:
-            total_amount_off += amount_off
-
-
-        print("\n{} exact out of {}    [Total amount off: {}]".format(number_exact,
-                                                                      test,
-                                                                      total_amount_off))
-
-def old_chunk_test():
-    
-    import random
-    random.seed(7)
-    for test in range(0, 10):
-        print("\n\ntest:", test)
-        num_elements = random.randint(0, 100)
-        the_list = list(range(1, num_elements))
-        num_chunks = random.randint(1, 20)
-        results = divide_into_chunks(the_list, num_chunks)
-        print("locals are:", locals())
-        print("results are:", results)
-        assert len(results) == num_chunks, "Didn't get number of chunks we expected"
-        
 def human_association(snp,
                       n,
                       keep,

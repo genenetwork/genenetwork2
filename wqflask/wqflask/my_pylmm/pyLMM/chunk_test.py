@@ -2,49 +2,33 @@ from __future__ import absolute_import, print_function, division
 
 import math
 import time
-import collections
-
-"""
-558 exact out of 1000    [Total amount off: 1580]
-"""
 
 
-
-def zach_divide_into_chunks(the_list, number_chunks):
+def divide_into_chunks(the_list, number_chunks):
+    """Divides a list into approximately number_chunks smaller lists
+    
+    >>> divide_into_chunks([1, 2, 7, 3, 22, 8, 5, 22, 333], 3)
+    [[1, 2, 7], [3, 22, 8], [5, 22, 333]]
+    >>> divide_into_chunks([1, 2, 7, 3, 22, 8, 5, 22, 333], 4)                                                                                                                                                     
+    [[1, 2, 7], [3, 22, 8], [5, 22, 333]]
+    >>> divide_into_chunks([1, 2, 7, 3, 22, 8, 5, 22, 333], 5)                                                                                                                                                     
+    [[1, 2], [7, 3], [22, 8], [5, 22], [333]]
+    >>>
+    
+    """
     length = len(the_list)
+
     if length == 0:
         return [[]]
-
-    if number_chunks > length:
+    
+    if length <= number_chunks:
         number_chunks = length
 
     chunksize = int(math.ceil(length / number_chunks))
-    #if length % number_chunks > 0:
-    #    chunksize += 1
-    #    while (chunksize * number_chunks) > length:
-    #        number_chunks -= 1
 
     chunks = []
     for counter in range(0, length, chunksize):
         chunks.append(the_list[counter:counter+chunksize])
-
-    return chunks
-
-
-def sam_divide_into_chunks(the_list, number_chunks):
-    length = len(the_list)
-
-    if length == 0:
-        return [[]]
-    else:
-        if length <= number_chunks:
-            number_chunks = length
-
-        chunksize = int(math.ceil(length / number_chunks))
-
-        chunks = []
-        for counter in range(0, length, chunksize):
-            chunks.append(the_list[counter:counter+chunksize])
 
     return chunks
 
@@ -86,13 +70,15 @@ def chunk_test(divide_func):
         print("\n{} exact out of {}    [Total amount off: {}]".format(number_exact,
                                                                       test,
                                                                       total_amount_off))
-
+    assert number_exact == 558
+    assert total_amount_off == 1580
     return number_exact, total_amount_off
 
 
 def main():
     info = dict()
-    funcs = (("sam", sam_divide_into_chunks), ("zach", zach_divide_into_chunks))
+    #funcs = (("sam", sam_divide_into_chunks), ("zach", zach_divide_into_chunks))
+    funcs = (("only one", divide_into_chunks),)
     for name, func in funcs:
         start = time.time()
         number_exact, total_amount_off = chunk_test(func)
@@ -105,3 +91,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+    print("\nConfirming doctests...")
+    import doctest
+    doctest.testmod()
