@@ -32,7 +32,7 @@ def divide_into_chunks(the_list, number_chunks):
 
     return chunks
 
-def confirm_chunk(original, result):
+def _confirm_chunk(original, result):
     all_chunked = []
     for chunk in result:
         all_chunked.extend(chunk)
@@ -40,7 +40,7 @@ def confirm_chunk(original, result):
     assert original == all_chunked, "You didn't chunk right"
 
 
-def chunk_test(divide_func):
+def _chunk_test(divide_func):
     import random
     random.seed(7)
 
@@ -58,7 +58,7 @@ def chunk_test(divide_func):
             len(the_list), number_chunks, len(result)))
         print("result:", result)
 
-        confirm_chunk(the_list, result)
+        _confirm_chunk(the_list, result)
 
         amount_off = abs(number_chunks - len(result))
         if amount_off == 0:
@@ -75,13 +75,13 @@ def chunk_test(divide_func):
     return number_exact, total_amount_off
 
 
-def main():
+def _main():
     info = dict()
     #funcs = (("sam", sam_divide_into_chunks), ("zach", zach_divide_into_chunks))
     funcs = (("only one", divide_into_chunks),)
     for name, func in funcs:
         start = time.time()
-        number_exact, total_amount_off = chunk_test(func)
+        number_exact, total_amount_off = _chunk_test(func)
         took = time.time() - start
         info[name] = dict(number_exact=number_exact,
                           total_amount_off=total_amount_off,
@@ -90,7 +90,7 @@ def main():
     print("info is:", info)
 
 if __name__ == '__main__':
-    main()
+    _main()
     print("\nConfirming doctests...")
     import doctest
     doctest.testmod()

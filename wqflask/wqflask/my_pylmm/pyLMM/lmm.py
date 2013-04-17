@@ -29,6 +29,8 @@ from pprint import pformat as pf
 
 from utility.benchmark import Bench
 
+from wqflask.my_pylmm.pyLMM import chunks
+
 #np.seterr('raise')
 
 def run_human(pheno_vector,
@@ -70,15 +72,14 @@ def run_human(pheno_vector,
         
             
         with Bench("Create list of inputs"):
-           
             inputs = list(plink_input)
             
         with Bench("Divide into chunks"):
-            divide_into_chunks(inputs, 63)
+            results = chunks.divide_into_chunks(inputs, 63)
             
         for snp, this_id in plink_input:
             with Bench("part before association"):
-                if count > 10000:
+                if count > 500:
                     break
                 count += 1
                 
@@ -101,25 +102,6 @@ def run_human(pheno_vector,
                 t_stats.append(ts)
         
     return p_values, t_stats
-
-
-def divide_into_chunks(the_list, number_chunks):
-    """Divides a list into approximately number_chunks smaller lists"""
-    length = len(the_list)
-
-    if length == 0:
-        return [[]]
-    
-    if length <= number_chunks:
-        number_chunks = length
-
-    chunksize = int(math.ceil(length / number_chunks))
-
-    chunks = []
-    for counter in range(0, length, chunksize):
-        chunks.append(the_list[counter:counter+chunksize])
-
-    return chunks
 
 
 def human_association(snp,
@@ -624,7 +606,3 @@ class LMM:
        pl.xlabel("Heritability")
        pl.ylabel("Probability of data")
        pl.title(title)
-       
-       
-if __name__ == '__main__':
-    chunk_test()
