@@ -104,48 +104,107 @@ def run_human(pheno_vector,
 
 
 def divide_into_chunks(the_list, number_chunks):
-
     length = len(the_list)
-    print("length the_list:", length)
-    
-    remainder = length % number_chunks
-    
-    print("remainder is:", remainder)
-    
-    #if remainder:
-    #    number_chunks -= 1
-    
-    chunksize = int(length / number_chunks) + 1
-    print("chunksize:", chunksize)
-    
-    #remainder = length  % number_chunks
-    #assert (chunksize * number_chunks) + remainder == length, "Best check yourself!"
-    
-    chunks = []
-    for counter in range(0, length-1, chunksize):
-        print("counter is:", counter)
-        chunks.append(the_list[counter:counter+chunksize])
-        print("chunks is now:", chunks)
-    
-    # Deal with remainder
-    #if remainder:
-    #    chunks.append(the_list[(counter + chunksize):])
+    if length == 0:
+        return [[]]
 
-    # Sanity check
-    all_chunked = []
-    for chunk in chunks:
-        all_chunked.extend(chunk)
-    print("length of all chunked:", len(all_chunked))
-    assert the_list == all_chunked, "You didn't chunk right"
-    
+    if number_chunks > length:
+        number_chunks = length
+
+    remainder = length - (int(length / number_chunks) * number_chunks)
+    if remainder > 0:
+        chunksize = int(length / number_chunks) + 1
+        while (chunksize * number_chunks) > length:
+            number_chunks -= 1
+    else:
+        chunksize = int(length / number_chunks)
+
+    chunks = []
+    for counter in range(0, length, chunksize):
+        chunks.append(the_list[counter:counter+chunksize])
+
     return chunks
 
+def confirm_chunk(original, result):
+    all_chunked = []
+    for chunk in result:
+        all_chunked.extend(chunk)
+    assert original == all_chunked, "You didn't chunk right"
 
 def chunk_test():
-    the_list = list(range(1, 57))
-    results = divide_into_chunks(the_list, 7)
-    print("results are:", results)
+    import random
+    random.seed(7)
 
+    number_exact = 0
+    total_amount_off = 0
+
+    for test in range(1, 1001):
+        print("\n\ntest:", test)
+        number_chunks = random.randint(1, 20)
+        number_elements = random.randint(0, 100)
+        the_list = list(range(1, number_elements))
+        result = divide_into_chunks(the_list, number_chunks)
+
+        print("Dividing list of length {} into approximately {} chunks - got {} chunks".format(
+            len(the_list), number_chunks, len(result)))
+        print("result:", result)
+
+        confirm_chunk(the_list, result)
+
+        amount_off = abs(number_chunks - len(result))
+        if amount_off == 0:
+            number_exact += 1
+        else:
+            total_amount_off += amount_off
+
+
+        print("\n{} exact out of {}    [Total amount off: {}]".format(number_exact,
+                                                                      test,
+                                                                      total_amount_off))
+
+
+def chunk_test2():
+    import random
+    random.seed(7)
+
+    number_exact = 0
+    total_amount_off = 0
+
+    for test in range(1, 1001):
+        print("\n\ntest:", test)
+        number_chunks = random.randint(1, 20)
+        number_elements = random.randint(0, 100)
+        the_list = list(range(1, number_elements))
+        result = divide_into_chunks(the_list, number_chunks)
+        print("Dividing list of length {} into approximately {} chunks - got {} chunks".format(
+            len(the_list), number_chunks, len(result)))
+        print("result:", result)
+
+        amount_off = abs(number_chunks - len(result))
+        if amount_off == 0:
+            number_exact += 1
+        else:
+            total_amount_off += amount_off
+
+
+        print("\n{} exact out of {}    [Total amount off: {}]".format(number_exact,
+                                                                      test,
+                                                                      total_amount_off))
+
+def old_chunk_test():
+    
+    import random
+    random.seed(7)
+    for test in range(0, 10):
+        print("\n\ntest:", test)
+        num_elements = random.randint(0, 100)
+        the_list = list(range(1, num_elements))
+        num_chunks = random.randint(1, 20)
+        results = divide_into_chunks(the_list, num_chunks)
+        print("locals are:", locals())
+        print("results are:", results)
+        assert len(results) == num_chunks, "Didn't get number of chunks we expected"
+        
 def human_association(snp,
                       n,
                       keep,
