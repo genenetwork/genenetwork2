@@ -115,7 +115,7 @@ def divide_into_chunks(the_list, number_chunks):
     #if remainder:
     #    number_chunks -= 1
     
-    chunksize = int(length / number_chunks)
+    chunksize = int(length / number_chunks) + 1
     print("chunksize:", chunksize)
     
     #remainder = length  % number_chunks
@@ -125,6 +125,7 @@ def divide_into_chunks(the_list, number_chunks):
     for counter in range(0, length-1, chunksize):
         print("counter is:", counter)
         chunks.append(the_list[counter:counter+chunksize])
+        print("chunks is now:", chunks)
     
     # Deal with remainder
     #if remainder:
@@ -141,8 +142,8 @@ def divide_into_chunks(the_list, number_chunks):
 
 
 def chunk_test():
-    the_list = list(range(1, 53))
-    results = divide_into_chunks(the_list, 5)
+    the_list = list(range(1, 57))
+    results = divide_into_chunks(the_list, 7)
     print("results are:", results)
 
 def human_association(snp,
