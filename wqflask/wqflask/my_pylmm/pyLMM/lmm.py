@@ -111,13 +111,12 @@ def divide_into_chunks(the_list, number_chunks):
     if number_chunks > length:
         number_chunks = length
 
-    remainder = length - (int(length / number_chunks) * number_chunks)
-    if remainder > 0:
-        chunksize = int(length / number_chunks) + 1
+    chunksize = int(length / number_chunks)
+    if length % number_chunks > 0:
+        chunksize += 1
         while (chunksize * number_chunks) > length:
+            print("in while")
             number_chunks -= 1
-    else:
-        chunksize = int(length / number_chunks)
 
     chunks = []
     for counter in range(0, length, chunksize):
