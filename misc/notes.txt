@@ -154,6 +154,13 @@ ll h*: Finds items in the directory starting with h
 
 ===========================================
 
+du -hms * | sort -n : Gives size used by different directories
+-h: human readable
+-m: in megabytes (default)
+-s: summarize
+
+===========================================
+
 cp -a (archive; copies recursively and doesn't follow symbol links)
    -i (interactive, prompts before overwrite)
    -v (verbose)

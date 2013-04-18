@@ -98,6 +98,7 @@ class MarkerRegression(object):
         file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
 
         plink_input = input.plink(file_base, type='b')
+        input_file_name = os.path.join(webqtlConfig.SNP_PATH, self.dataset.group.name + ".snps")
 
         pheno_vector = pheno_vector.reshape((len(pheno_vector), 1))
         covariate_matrix = np.ones((pheno_vector.shape[0],1))
@@ -107,7 +108,7 @@ class MarkerRegression(object):
         p_values, t_stats = lmm.run_human(
                 pheno_vector,
                 covariate_matrix,
-                plink_input,
+                input_file_name,
                 kinship_matrix,
                 loading_progress=tempdata
             )
@@ -145,9 +146,8 @@ def create_snp_iterator_file(group):
     
     snp_file_base = os.path.join(webqtlConfig.SNP_PATH, group + ".snps")
     
-    with open(snp_file_base, "w") as fh:
+    with open(snp_file_base, "wb") as fh:
         pickle.dump(inputs, fh)
-    
 
 if __name__ == '__main__':
     import cPickle as pickle

@@ -27,7 +27,7 @@ from scipy import optimize
 from scipy import stats
 import pdb
 
-#import cPickle as pickle
+import cPickle as pickle
 import simplejson as json
 
 from pprint import pformat as pf
@@ -41,7 +41,7 @@ from wqflask.my_pylmm.pyLMM import chunks
 
 def run_human(pheno_vector,
             covariate_matrix,
-            plink_input,
+            plink_input_file,
             kinship_matrix,
             refit=False,
             loading_progress=None):
@@ -68,25 +68,30 @@ def run_human(pheno_vector,
     p_values = []
     t_stats = []
 
-    plink_input.getSNPIterator()
-    total_snps = plink_input.numSNPs
+    print("input_file: ", plink_input_file)
+
+    with open(plink_input_file, "rb") as input_file:
+        plink_input = pickle.load(input_file)
+
+    #plink_input.getSNPIterator()
+    #total_snps = plink_input.numSNPs
 
     with Bench("snp iterator loop"):
         count = 0
 
-        with Bench("Create list of inputs"):
-            inputs = list(plink_input)
+        #with Bench("Create list of inputs"):
+        #    inputs = list(plink_input)
             
-        with Bench("Divide into chunks"):
-            results = chunks.divide_into_chunks(inputs, 64)
-            
-        result_store = []
-        identifier = uuid.uuid4()
-        for part, result in enumerate(results):
-            data_store = temp_data.TempData(identifier, part)
-            
-            data_store.store(data=json.dumps(result.tolist()))
-            result_store.append(data_store)
+        #with Bench("Divide into chunks"):
+        #    results = chunks.divide_into_chunks(inputs, 64)
+        #    
+        #result_store = []
+        #identifier = uuid.uuid4()
+        #for part, result in enumerate(results):
+        #    data_store = temp_data.TempData(identifier, part)
+        #    
+        #    data_store.store(data=pickle.dumps(result))
+        #    result_store.append(data_store)
 
         for snp, this_id in plink_input:
             with Bench("part before association"):
