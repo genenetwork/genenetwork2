@@ -98,7 +98,7 @@ class MarkerRegression(object):
         file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
 
         plink_input = input.plink(file_base, type='b')
-        input_file_name = os.path.join(webqtlConfig.SNP_PATH, self.dataset.group.name + ".snps")
+        input_file_name = os.path.join(webqtlConfig.SNP_PATH, self.dataset.group.name + ".snps.gz")
 
         pheno_vector = pheno_vector.reshape((len(pheno_vector), 1))
         covariate_matrix = np.ones((pheno_vector.shape[0],1))
@@ -142,13 +142,22 @@ class MarkerRegression(object):
 def create_snp_iterator_file(group):
     plink_file_base = os.path.join(webqtlConfig.PYLMM_PATH, group)
     plink_input = input.plink(plink_file_base, type='b')
-    inputs = list(plink_input)
     
-    snp_file_base = os.path.join(webqtlConfig.SNP_PATH, group + ".snps")
+    data = dict(plink_input = list(plink_input),
+                numSNPs = plink_input.numSNPs)
     
-    with open(snp_file_base, "wb") as fh:
-        pickle.dump(inputs, fh)
+    #input_dict = {}
+    #
+    #input_dict['plink_input'] = list(plink_input)
+    #input_dict['numSNPs'] = plink_input.numSNPs
+    #
+    
+    snp_file_base = os.path.join(webqtlConfig.SNP_PATH, group + ".snps.gz")
+    
+    with gzip.open(snp_file_base, "wb") as fh:
+        pickle.dump(data, fh, pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
     import cPickle as pickle
+    import gzip
     create_snp_iterator_file("HLC")

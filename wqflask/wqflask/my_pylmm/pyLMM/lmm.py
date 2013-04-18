@@ -27,6 +27,7 @@ from scipy import optimize
 from scipy import stats
 import pdb
 
+import gzip
 import cPickle as pickle
 import simplejson as json
 
@@ -70,28 +71,32 @@ def run_human(pheno_vector,
 
     print("input_file: ", plink_input_file)
 
-    with open(plink_input_file, "rb") as input_file:
-        plink_input = pickle.load(input_file)
+    with Bench("Opening and loading pickle file"):
+        with gzip.open(plink_input_file, "rb") as input_file:
+            data = pickle.load(input_file)
+            
+    plink_input = data['plink_input']
 
     #plink_input.getSNPIterator()
-    #total_snps = plink_input.numSNPs
+    with Bench("Calculating numSNPs"):
+        total_snps = data['numSNPs']
 
     with Bench("snp iterator loop"):
         count = 0
 
-        #with Bench("Create list of inputs"):
-        #    inputs = list(plink_input)
+        with Bench("Create list of inputs"):
+            inputs = list(plink_input)
             
-        #with Bench("Divide into chunks"):
-        #    results = chunks.divide_into_chunks(inputs, 64)
-        #    
-        #result_store = []
-        #identifier = uuid.uuid4()
-        #for part, result in enumerate(results):
-        #    data_store = temp_data.TempData(identifier, part)
-        #    
-        #    data_store.store(data=pickle.dumps(result))
-        #    result_store.append(data_store)
+        with Bench("Divide into chunks"):
+            results = chunks.divide_into_chunks(inputs, 64)
+            
+        result_store = []
+        identifier = uuid.uuid4()
+        for part, result in enumerate(results):
+            data_store = temp_data.TempData(identifier, part)
+            
+            data_store.store(data=pickle.dumps(result))
+            result_store.append(data_store)
 
         for snp, this_id in plink_input:
             with Bench("part before association"):

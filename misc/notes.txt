@@ -161,6 +161,10 @@ du -hms * | sort -n : Gives size used by different directories
 
 ===========================================
 
+rm -rfv
+
+===========================================
+
 cp -a (archive; copies recursively and doesn't follow symbol links)
    -i (interactive, prompts before overwrite)
    -v (verbose)
