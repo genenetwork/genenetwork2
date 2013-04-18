@@ -89,13 +89,13 @@ def run_human(pheno_vector,
             
         with Bench("Divide into chunks"):
             results = chunks.divide_into_chunks(inputs, 64)
-            
+
         result_store = []
         identifier = uuid.uuid4()
         for part, result in enumerate(results):
-            data_store = temp_data.TempData(identifier, part)
+            data_store = temp_data.TempData(identifier, "plink", part)
             
-            data_store.store(data=pickle.dumps(result))
+            data_store.store("data", pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
             result_store.append(data_store)
 
         for snp, this_id in plink_input:
@@ -103,7 +103,7 @@ def run_human(pheno_vector,
                 if count > 2000:
                     break
                 count += 1
-                
+
                 percent_complete = (float(count) / total_snps) * 100
                 #print("percent_complete: ", percent_complete)
                 loading_progress.store("percent_complete", percent_complete)
