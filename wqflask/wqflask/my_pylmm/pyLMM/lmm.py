@@ -93,6 +93,7 @@ def run_human(pheno_vector,
         result_store = []
         identifier = uuid.uuid4()
         for part, result in enumerate(results):
+            # todo: Don't use TempData here. Instead revert old one and store this stuff as a list
             data_store = temp_data.TempData(identifier, "plink", part)
             
             data_store.store("data", pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
