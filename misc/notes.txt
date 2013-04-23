@@ -107,6 +107,11 @@ sudo /etc/init.d/redis_6379 start
 ===========================================
 
 Start screen session:
+
+If "no option -R":
+byobu-select-backend
+2. screen
+
 byobu -RD (to start)
 control-a then :multiuser on
 control-a then :acladd sam
@@ -171,6 +176,13 @@ cp -a (archive; copies recursively and doesn't follow symbol links)
    -b (backup)
    
 mv (same as above, but with no -a)
+
+===========================================
+
+Add user:
+sudo adduser
+Edit /etc/sudoers to give user root privileges
+
 
 ===========================================
 

@@ -42,7 +42,7 @@ Metadata.bind = Engine
 
 class PublishXRef(Base):
     __tablename__ = 'PublishXRef'
-    
+
     Id = sa.Column(sa.Integer, primary_key=True)
     InbredSetId = sa.Column(sa.Integer, primary_key=True)
     PhenotypeId = sa.Column(sa.Integer)
@@ -53,7 +53,7 @@ class PublishXRef(Base):
     additive = sa.Column(sa.Float)
     Sequence = sa.Column(sa.Integer)
     comments = sa.Column(sa.Text)
-    
+
     @classmethod
     def run(cls):
         conn = Engine.connect()
@@ -69,7 +69,7 @@ class PublishXRef(Base):
             conn.execute(ins)
             counter += 1
             print("Done:", counter)
-            
+
     @staticmethod
     def get_unique_terms(publishxref_id, inbredset_id):
         results = Session.query(
@@ -114,7 +114,7 @@ class PublishXRef(Base):
                         continue 
 
                     unique.add(token)
-        print("\nUnique terms are: {}\n".format(unique))
+        #print("\nUnique terms are: {}\n".format(unique))
         return " ".join(unique)            
 
     @staticmethod
@@ -155,12 +155,12 @@ class PublishXRef(Base):
                 #"Geno.SpeciesId = Species.Id and "
                 #"Geno.Name = PublishXRef.Locus ").params(publishxref_id=publishxref_id,
                 #                                            inbredset_id=inbredset_id).all()
-        for result in results:
-            print("****", result)
+        #for result in results:
+        #    print("****", result)
 
         assert len(set(result for result in results)) == 1, "Different results or no results"
 
-        print("results are:", results)
+        #print("results are:", results)
         result = results[0]
         result = row2dict(result)
         try:
@@ -214,7 +214,7 @@ class GenoXRef(Base):
                 "FROM Geno "
                 "WHERE Geno.Id = :geno_id ").params(geno_id=geno_id).all()
         
-        print("results: ", pf(results))
+        #print("results: ", pf(results))
         
         unique = set()
         if len(results):
@@ -234,7 +234,7 @@ class GenoXRef(Base):
                             continue 
                         
                         unique.add(token)
-        print("\nUnique terms are: {}\n".format(unique))
+        #print("\nUnique terms are: {}\n".format(unique))
         return " ".join(unique)
 
 
@@ -271,11 +271,11 @@ class GenoXRef(Base):
                 "InbredSet.Id = GenoFreeze.InbredSetId and "
                 "InbredSet.SpeciesId = Species.Id ").params(geno_id=geno_id,
                                                                     dataset_id=dataset_id).all()
-        for result in results:
-            print(result)
+        #for result in results:
+        #    print(result)
         assert len(set(result for result in results)) == 1, "Different results"
         
-        print("results are:", results)
+        #print("results are:", results)
         result = results[0]
         result = row2dict(result)
         try:
@@ -366,7 +366,7 @@ class ProbeSetXRef(Base):
                             continue 
                         
                         unique.add(token)
-            print("\nUnique terms are: {}\n".format(unique))
+            #print("\nUnique terms are: {}\n".format(unique))
             return " ".join(unique)
 
 
@@ -420,14 +420,14 @@ class ProbeSetXRef(Base):
                 "ProbeFreeze.InbredSetId = InbredSet.Id and "
                 "InbredSet.SpeciesId = Species.Id ").params(probeset_id=probeset_id,
                                                                     dataset_id=dataset_id).all()
-        for result in results:
-            print("-", result)
+        #for result in results:
+        #    print("-", result)
             
         if len(set(result for result in results)) != 1:
             return None
         #assert len(set(result for result in results)) == 1, "Different results"
         
-        print("results are:", results)
+        #print("results are:", results)
         result = results[0]
         result = row2dict(result)
         try:

@@ -468,7 +468,7 @@ class LMM:
           the heritability or the proportion of the total variance attributed to genetics.  The X is the 
           covariate matrix.
        """
-    
+
        S = 1.0/(h*self.Kva + (1.0 - h))
        Xt = X.T*S
        XX = matrixMult(Xt,X)
@@ -487,67 +487,68 @@ class LMM:
          
     def LL(self,h,X=None,stack=True,REML=False):
  
-       """
-          Computes the log-likelihood for a given heritability (h).  If X==None, then the 
-          default X0t will be used.  If X is set and stack=True, then X0t will be matrix concatenated with
-          the input X.  If stack is false, then X is used in place of X0t in the LL calculation.
-          REML is computed by adding additional terms to the standard LL and can be computed by setting REML=True.
-       """
+        """
+           Computes the log-likelihood for a given heritability (h).  If X==None, then the 
+           default X0t will be used.  If X is set and stack=True, then X0t will be matrix concatenated with
+           the input X.  If stack is false, then X is used in place of X0t in the LL calculation.
+           REML is computed by adding additional terms to the standard LL and can be computed by setting REML=True.
+        """
  
-       if X == None: X = self.X0t
-       elif stack: 
-          self.X0t_stack[:,(self.q)] = matrixMult(self.Kve.T,X)[:,0]
-          X = self.X0t_stack
+        if X == None:
+            X = self.X0t
+        elif stack: 
+            self.X0t_stack[:,(self.q)] = matrixMult(self.Kve.T,X)[:,0]
+            X = self.X0t_stack
  
-       n = float(self.N)
-       q = float(X.shape[1])
-       beta,sigma,Q,XX_i,XX = self.getMLSoln(h,X)
-       LL = n*np.log(2*np.pi) + np.log(h*self.Kva + (1.0-h)).sum() + n + n*np.log(1.0/n * Q)
-       LL = -0.5 * LL
+        n = float(self.N)
+        q = float(X.shape[1])
+        beta,sigma,Q,XX_i,XX = self.getMLSoln(h,X)
+        LL = n*np.log(2*np.pi) + np.log(h*self.Kva + (1.0-h)).sum() + n + n*np.log(1.0/n * Q)
+        LL = -0.5 * LL
  
-       if REML:
-          LL_REML_part = q*np.log(2.0*np.pi*sigma) + np.log(linalg.det(matrixMult(X.T,X))) - np.log(linalg.det(XX))
-          LL = LL + 0.5*LL_REML_part
- 
-       return LL,beta,sigma,XX_i
+        if REML:
+            LL_REML_part = q*np.log(2.0*np.pi*sigma) + np.log(linalg.det(matrixMult(X.T,X))) - np.log(linalg.det(XX))
+            LL = LL + 0.5*LL_REML_part
+
+        return LL,beta,sigma,XX_i
 
     def getMax(self,H, X=None,REML=False):
  
-         """
-            Helper functions for .fit(...).  
-            This function takes a set of LLs computed over a grid and finds possible regions 
-            containing a maximum.  Within these regions, a Brent search is performed to find the 
-            optimum.
-   
-         """
-         n = len(self.LLs)
-         HOpt = []
-         for i in range(1,n-2):
-             if self.LLs[i-1] < self.LLs[i] and self.LLs[i] > self.LLs[i+1]: 
-                 HOpt.append(optimize.brent(self.LL_brent,args=(X,REML),brack=(H[i-1],H[i+1])))
-                 if np.isnan(HOpt[-1][0]):
-                     HOpt[-1][0] = [self.LLs[i-1]]
- 
-         if len(HOpt) > 1: 
-             if self.verbose:
-                 sys.stderr.write("NOTE: Found multiple optima.  Returning first...\n")
-             return HOpt[0]
-         elif len(HOpt) == 1:
-             return HOpt[0]
-         elif self.LLs[0] > self.LLs[n-1]:
-             return H[0]
-         else:
-             return H[n-1]
+        """
+           Helper functions for .fit(...).  
+           This function takes a set of LLs computed over a grid and finds possible regions 
+           containing a maximum.  Within these regions, a Brent search is performed to find the 
+           optimum.
+  
+        """
+        n = len(self.LLs)
+        HOpt = []
+        for i in range(1,n-2):
+            if self.LLs[i-1] < self.LLs[i] and self.LLs[i] > self.LLs[i+1]: 
+                HOpt.append(optimize.brent(self.LL_brent,args=(X,REML),brack=(H[i-1],H[i+1])))
+                if np.isnan(HOpt[-1][0]):
+                    HOpt[-1][0] = [self.LLs[i-1]]
+
+        if len(HOpt) > 1: 
+            if self.verbose:
+                sys.stderr.write("NOTE: Found multiple optima.  Returning first...\n")
+            return HOpt[0]
+        elif len(HOpt) == 1:
+            return HOpt[0]
+        elif self.LLs[0] > self.LLs[n-1]:
+            return H[0]
+        else:
+            return H[n-1]
 
     def fit(self,X=None,ngrids=100,REML=True):
  
         """
-           Finds the maximum-likelihood solution for the heritability (h) given the current parameters.
-           X can be passed and will transformed and concatenated to X0t.  Otherwise, X0t is used as 
-           the covariate matrix.
-  
-           This function calculates the LLs over a grid and then uses .getMax(...) to find the optimum.
-           Given this optimum, the function computes the LL and associated ML solutions.
+            Finds the maximum-likelihood solution for the heritability (h) given the current parameters.
+            X can be passed and will transformed and concatenated to X0t.  Otherwise, X0t is used as 
+            the covariate matrix.
+   
+            This function calculates the LLs over a grid and then uses .getMax(...) to find the optimum.
+            Given this optimum, the function computes the LL and associated ML solutions.
         """
      
         if X == None:
@@ -575,8 +576,8 @@ class LMM:
     def association(self,X, h = None, stack=True,REML=True, returnBeta=True):
  
         """
-          Calculates association statitics for the SNPs encoded in the vector X of size n.
-          If h == None, the optimal h stored in optH is used.
+            Calculates association statitics for the SNPs encoded in the vector X of size n.
+            If h == None, the optimal h stored in optH is used.
   
         """
         if stack: 
