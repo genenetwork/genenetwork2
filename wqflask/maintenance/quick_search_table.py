@@ -136,7 +136,7 @@ class PublishXRef(Base):
                 "Phenotype.Original_description as description, "
                 "PublishXRef.LRS as lrs, "
                 "PublishXRef.PublicationId as publication_id, "
-                "Publication.PubMed_ID"
+                "Publication.PubMed_ID, "
                 "Publication.Year as year, "
                 "Publication.Authors as authors "
                 "FROM PublishXRef, "
