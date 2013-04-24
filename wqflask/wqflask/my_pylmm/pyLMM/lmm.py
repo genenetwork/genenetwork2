@@ -28,6 +28,7 @@ from scipy import stats
 import pdb
 
 import gzip
+import datetime
 import cPickle as pickle
 import simplejson as json
 
@@ -37,6 +38,9 @@ from utility.benchmark import Bench
 from utility import temp_data
 
 from wqflask.my_pylmm.pyLMM import chunks
+
+import redis
+Redis = redis.Redis()
 
 #np.seterr('raise')
 
@@ -65,6 +69,7 @@ def run_human(pheno_vector,
                 covariate_matrix)
     lmm_ob.fit()
 
+
     # Buffers for pvalues and t-stats
     p_values = []
     t_stats = []
@@ -86,19 +91,36 @@ def run_human(pheno_vector,
 
         with Bench("Create list of inputs"):
             inputs = list(plink_input)
-            
+
         with Bench("Divide into chunks"):
             results = chunks.divide_into_chunks(inputs, 64)
 
         result_store = []
-        identifier = uuid.uuid4()
-        for part, result in enumerate(results):
-            # todo: Don't use TempData here. Instead revert old one and store this stuff as a list
-            data_store = temp_data.TempData(identifier, "plink", part)
-            
-            data_store.store("data", pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
-            result_store.append(data_store)
+        identifier = str(uuid.uuid4())
+        
+        lmm_vars = pickle.dumps(dict(
+            pheno_vector = pheno_vector,
+            covariate_matrix = covariate_matrix,
+            kinship_matrix = kinship_matrix
+        ))
+        Redis.hset(identifier, "lmm_vars", pickle.dumps(lmm_vars))
 
+
+        key = "plink_inputs"
+        timestamp = datetime.datetime.utcnow().isoformat()
+
+        for part, result in enumerate(results):
+            #data = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+            holder = pickle.dumps(dict(
+                identifier = identifier,
+                part = part,
+                timestamp = timestamp,
+                result = result
+            ), pickle.HIGHEST_PROTOCOL)
+            print("Adding:", part)
+            Redis.rpush(key, holder)
+
+        print("***** Added to {} queue *****".format(key))
         for snp, this_id in plink_input:
             with Bench("part before association"):
                 if count > 2000:
