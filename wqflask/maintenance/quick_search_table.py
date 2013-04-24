@@ -136,7 +136,7 @@ class PublishXRef(Base):
                 "Phenotype.Original_description as description, "
                 "PublishXRef.LRS as lrs, "
                 "PublishXRef.PublicationId as publication_id, "
-                "Publication.PubMed_ID, "
+                "Publication.PubMed_ID as pubmed_id, "
                 "Publication.Year as year, "
                 "Publication.Authors as authors "
                 "FROM PublishXRef, "
@@ -450,11 +450,12 @@ QuickSearch = sa.Table("QuickSearch", Metadata,
         sa.Column('the_key', sa.String(30),
                   primary_key=True, nullable=False, autoincrement=False), # key in database table
         sa.Column('terms', sa.Text), # terms to compare search string with
-        sa.Column('result_fields', sa.Text)  # json
+        sa.Column('result_fields', sa.Text),  # json
+        mysql_engine = 'MyISAM',
                     )
 
-QuickSearch.drop(Engine, checkfirst=True)
-Metadata.create_all(Engine)
+#QuickSearch.drop(Engine, checkfirst=True)
+#Metadata.create_all(Engine)
 
 
 def row2dict(row):
@@ -476,8 +477,8 @@ def page_query(q):
 
 
 def main():
-    ProbeSetXRef.run()
-    GenoXRef.run()
+    #ProbeSetXRef.run()
+    #GenoXRef.run()
     PublishXRef.run()
 
 if __name__ == "__main__":
