@@ -13,6 +13,9 @@ plink_pickled = Redis.lpop("plink_inputs")
 
 plink_data = pickle.loads(plink_pickled)
 
+identifier = plink_data['identifier']
+print("identifier: ", identifier)
+
 
 ps, ts = lmm.human_association(snp,
                                 n,
@@ -22,3 +25,4 @@ ps, ts = lmm.human_association(snp,
                                 covariate_matrix,
                                 kinship_matrix,
                                 refit)
+
