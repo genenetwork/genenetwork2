@@ -17,6 +17,7 @@ identifier = plink_data['identifier']
 print("identifier: ", identifier)
 
 
+
 ps, ts = lmm.human_association(snp,
                                 n,
                                 keep,
@@ -25,4 +26,3 @@ ps, ts = lmm.human_association(snp,
                                 covariate_matrix,
                                 kinship_matrix,
                                 refit)
-
