@@ -49,16 +49,19 @@ security = Security(app, user_datastore)
 
 
 import logging
-file_handler = logging.FileHandler("/tmp/flask_gn_log")
+file_handler = logging.FileHandler(app.config['LOGFILE'])
 file_handler.setLevel(logging.DEBUG)
 app.logger.addHandler(file_handler)
 
 import logging_tree
 logging_tree.printout()
 
+#print("app.config is:", app.config)
+
 if __name__ == '__main__':
     #create_user()
     app.run(host='0.0.0.0',
+        port=app.config['SERVER_PORT'],
         use_debugger=False,
         threaded=True,
         use_reloader=True)
