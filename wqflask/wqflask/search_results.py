@@ -26,8 +26,7 @@ from MySQLdb import escape_string as escape
 from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
-from utility.THCell import THCell
-from utility.TDCell import TDCell
+from utility.benchmark import Bench
 from base.data_set import create_dataset
 from base.trait import GeneralTrait
 from wqflask import parser
@@ -124,13 +123,16 @@ class SearchResultPage(object):
                     FROM QuickSearch
                     WHERE MATCH (terms)
                           AGAINST ('{}' IN BOOLEAN MODE) """.format(search_terms)
-        dbresults = g.db.execute(query, no_parameters=True).fetchall()
+        #print("query is: ", query)
+        
+        with Bench("Doing QuickSearch Query: "):
+            dbresults = g.db.execute(query, no_parameters=True).fetchall()
         #print("results: ", pf(results))
         
         self.results = collections.defaultdict(list)
         
         type_dict = {'PublishXRef': 'phenotype',
-                   'ProbesetXRef': 'mrna_assay',
+                   'ProbeSetXRef': 'mrna_assay',
                    'GenoXRef': 'genotype'}
 
         for dbresult in dbresults:
@@ -141,7 +143,7 @@ class SearchResultPage(object):
             
             self.results[type_dict[dbresult.table_name]].append(this_result)
             
-        print("results: ", pf(self.results['phenotype']))
+        #print("results: ", pf(self.results['phenotype']))
 
     #def quick_search(self):
     #    self.search_terms = parser.parse(self.search_terms)
@@ -209,6 +211,6 @@ class SearchResultPage(object):
                                     self.dataset,
                                     )
             self.results.extend(the_search.run())
-            print("in the search results are:", self.results)
+            #print("in the search results are:", self.results)
 
         self.header_fields = the_search.header_fields

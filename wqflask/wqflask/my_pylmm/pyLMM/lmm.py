@@ -28,6 +28,7 @@ from scipy import stats
 import pdb
 
 import gzip
+import zlib
 import datetime
 import cPickle as pickle
 import simplejson as json
@@ -55,15 +56,26 @@ def run_human(pheno_vector,
     keep = True - v
     keep = keep.reshape((len(keep),))
 
+    identifier = str(uuid.uuid4())
+    
+    lmm_vars = pickle.dumps(dict(
+        pheno_vector = pheno_vector,
+        covariate_matrix = covariate_matrix,
+        kinship_matrix = kinship_matrix
+    ))
+    Redis.hset(identifier, "lmm_vars", lmm_vars)
+    Redis.expire(identifier, 60*60)
+
     if v.sum():
         pheno_vector = pheno_vector[keep]
         #print("pheno_vector shape is now: ", pf(pheno_vector.shape))
         covariate_matrix = covariate_matrix[keep,:]
-        #print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
+        print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
         #print("len(keep) is: ", pf(keep.shape))
         kinship_matrix = kinship_matrix[keep,:][:,keep]
 
     n = kinship_matrix.shape[0]
+    print("n is:", n)
     lmm_ob = LMM(pheno_vector,
                 kinship_matrix,
                 covariate_matrix)
@@ -96,19 +108,15 @@ def run_human(pheno_vector,
             results = chunks.divide_into_chunks(inputs, 64)
 
         result_store = []
-        identifier = str(uuid.uuid4())
-        
-        lmm_vars = pickle.dumps(dict(
-            pheno_vector = pheno_vector,
-            covariate_matrix = covariate_matrix,
-            kinship_matrix = kinship_matrix
-        ))
-        Redis.hset(identifier, "lmm_vars", pickle.dumps(lmm_vars))
-
 
         key = "plink_inputs"
+        
+        # Todo: Delete below line when done testing
+        Redis.delete(key)
+        
         timestamp = datetime.datetime.utcnow().isoformat()
 
+        print("Starting adding loop")
         for part, result in enumerate(results):
             #data = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             holder = pickle.dumps(dict(
@@ -117,33 +125,34 @@ def run_human(pheno_vector,
                 timestamp = timestamp,
                 result = result
             ), pickle.HIGHEST_PROTOCOL)
+            
             print("Adding:", part)
-            Redis.rpush(key, holder)
-
+            Redis.rpush(key, zlib.compress(holder))
+        print("End adding loop")
         print("***** Added to {} queue *****".format(key))
         for snp, this_id in plink_input:
-            with Bench("part before association"):
-                if count > 2000:
-                    break
-                count += 1
+            #with Bench("part before association"):
+            if count > 2000:
+                break
+            count += 1
 
-                percent_complete = (float(count) / total_snps) * 100
-                #print("percent_complete: ", percent_complete)
-                loading_progress.store("percent_complete", percent_complete)
-        
-            with Bench("actual association"):
-                ps, ts = human_association(snp,
-                                           n,
-                                           keep,
-                                           lmm_ob,
-                                           pheno_vector,
-                                           covariate_matrix,
-                                           kinship_matrix,
-                                           refit)
+            percent_complete = (float(count) / total_snps) * 100
+            #print("percent_complete: ", percent_complete)
+            loading_progress.store("percent_complete", percent_complete)
 
-            with Bench("after association"):
-                p_values.append(ps)
-                t_stats.append(ts)
+            #with Bench("actual association"):
+            ps, ts = human_association(snp,
+                                       n,
+                                       keep,
+                                       lmm_ob,
+                                       pheno_vector,
+                                       covariate_matrix,
+                                       kinship_matrix,
+                                       refit)
+
+            #with Bench("after association"):
+            p_values.append(ps)
+            t_stats.append(ts)
         
     return p_values, t_stats
 
@@ -326,7 +335,7 @@ def GWAS(pheno_vector,
     covariate_matrix - n x q covariate matrix
     restricted_max_likelihood - use restricted maximum likelihood
     refit - refit the variance component for each SNP
-      
+    
     """
     if kinship_eigen_vals == None:
         kinship_eigen_vals = []

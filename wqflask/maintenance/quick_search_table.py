@@ -495,9 +495,9 @@ def main():
     Add all items from the ProbeSetXRef, GenoXRef, and PublishXRef tables to the QuickSearch tables.
     
     """
-    #ProbeSetXRef.run()
+    ProbeSetXRef.run()
     #GenoXRef.run()
-    PublishXRef.run()
+    #PublishXRef.run()
 
 if __name__ == "__main__":
     main()
