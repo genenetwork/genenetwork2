@@ -74,6 +74,7 @@ class SearchResultPage(object):
             self.search_terms = kw['q']
             print("self.search_terms is: ", self.search_terms)
             self.quick_search()
+            self.get_group_species_tree()
         else:
             self.results = []
             #self.quick_search = False
@@ -134,16 +135,32 @@ class SearchResultPage(object):
         type_dict = {'PublishXRef': 'phenotype',
                    'ProbeSetXRef': 'mrna_assay',
                    'GenoXRef': 'genotype'}
-
+        
+        self.species_groups = {}
         for dbresult in dbresults:
             this_result = {}
             this_result['table_name'] = dbresult.table_name
             this_result['key'] = dbresult.the_key
             this_result['result_fields'] = json.loads(dbresult.result_fields)
-            
+            this_species = this_result['result_fields']['species']
+            this_group = this_result['result_fields']['group_name']
+            if type_dict[dbresult.table_name] not in self.species_groups:
+                self.species_groups[type_dict[dbresult.table_name]] = {}
+            if this_species not in self.species_groups[type_dict[dbresult.table_name]]:
+                self.species_groups[type_dict[dbresult.table_name]][this_species] = collections.defaultdict(list)
+            if this_group not in self.species_groups[type_dict[dbresult.table_name]][this_species]:
+                self.species_groups[type_dict[dbresult.table_name]][this_species].append(this_group)
             self.results[type_dict[dbresult.table_name]].append(this_result)
             
         #print("results: ", pf(self.results['phenotype']))
+        
+    #def get_group_species_tree(self):
+    #    self.species_groups = collections.default_dict(list)
+    #    for key in self.results:
+    #        for item in self.results[key]:
+    #            self.species_groups[item['result_fields']['species']].append(
+    #                                        item['result_fields']['group_name'])
+
 
     #def quick_search(self):
     #    self.search_terms = parser.parse(self.search_terms)
