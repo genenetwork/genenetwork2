@@ -207,7 +207,6 @@ $ ->
 
     ##Calculate Correlations Code
 
-
     on_corr_method_change = ->
         console.log("in beginning of on_corr_method_change")
         corr_method = $('select[name=corr_method]').val()

@@ -54,6 +54,7 @@ from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlationFunction
 
+from pprint import pformat as pf
 
 METHOD_SAMPLE_PEARSON = "1"
 METHOD_SAMPLE_RANK = "2"
@@ -92,7 +93,8 @@ class Trait(object):
     def calculate_correlation(self, values, method):
         """Calculate the correlation value and p value according to the method specified"""
 
-        #ZS: This takes the list of values of the trait our selected trait is being correlated against and removes the values of the samples our trait has no value for
+        #ZS: This takes the list of values of the trait our selected trait is being correlated
+        #against and removes the values of the samples our trait has no value for
         #There's probably a better way of dealing with this, but I'll have to ask Christian
         updated_raw_values = []
         updated_values = []
@@ -276,57 +278,48 @@ class CorrelationResults(object):
     #    return templatePage.error(heading = heading, detail = [message], error=error)
 
     def __init__(self, start_vars):
-        #self.dataset = create_dataset(start_vars['dataset_name'])
-        #self.dataset.group.read_genotype_file()
-        #self.genotype = self.dataset.group.genotype
-        #
+        # get trait list from db (database name)
+        # calculate correlation with Base vector and targets
+        
         #self.this_trait = GeneralTrait(dataset=self.dataset.name,
         #                               name=start_vars['trait_id'],
         #                               cellid=None)                
         
-        helper_functions.get_dataset_and_trait(self, start_vars)
+        print("start_vars: ", pf(start_vars))
+        
+        helper_functions.get_species_dataset_trait(self, start_vars)
+        self.dataset.group.read_genotype_file()
         
         self.samples = []   # Want only ones with values
         self.vals = []
-        self.variances = []
 
         corr_samples_group = start_vars['corr_samples_group']
+
+        #The two if statements below append samples to the sample list based upon whether the user
+        #selected Primary Samples Only, Other Samples Only, or All Samples
+
+        #If either BXD/whatever Only or All Samples, append all of that group's samplelist      
         if corr_samples_group != 'samples_other':
             self.process_samples(start_vars, self.dataset.group.samplelist, ())
-            #for sample in self.dataset.group.samplelist:
-            #    value = start_vars['value:' + sample]
-            #    variance = start_vars['variance:' + sample]
-            #    if variance.strip().lower() == 'x':
-            #        variance = 0
-            #    else:
-            #        variance = float(variance)
-            #    if value.strip().lower() != 'x':
-            #        self.samples.append(str(sample))
-            #        self.vals.append(float(value))
-            #        self.variances.append(variance)
         
+        #If either Non-BXD/whatever or All Samples, get all samples from this_trait.data and
+        #exclude the primary samples (because they would have been added in the previous
+        #if statement if the user selected All Samples)
         if corr_samples_group != 'samples_primary':
             primary_samples = (self.dataset.group.parlist +
                                    self.dataset.group.f1list +
                                    self.dataset.group.samplelist)
             self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
-            #for sample in self.this_trait.data.keys():
-            #    if sample not in primary_samples:
-            #        value = start_vars['value:' + sample]
-            #        variance = start_vars['variance:' + sample]
-            #        if variance.strip().lower() == 'x':
-            #            variance = 0
-            #        else:
-            #            variance = float(variance)
-            #        if value.strip().lower() != 'x':
-            #            self.samples.append(str(sample))
-            #            self.vals.append(float(value))
-            #            self.variances.append(variance)
 
-        print("self.samples is:", pf(self.samples))
-
-        #sample_list = get_sample_data(fd)
-        #print("sample_list is", pf(sample_list))
+        #for i, sample in enumerate(self.samples):
+        #    print("{} : {}".format(sample, self.vals[i]))
+    
+        self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
+        self.target_dataset.get_trait_data()
+        print("trait_list: {}".format(pf(self.target_dataset.trait_data)))
+        # Lei Yan todo
+        for trait, values in self.target_dataset.trait_data.iteritems():
+            correlation = calCorrelation(values, )
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset
@@ -753,6 +746,39 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
         else:
             self.dict['body'] = ""
 
+    def get_all_dataset_data(self):
+        
+        """
+        SELECT ProbeSet.Name, T128.value, T129.value, T130.value, T131.value, T132.value, T134.value, T135.value, T138.value, T139.value, T140.value, T141.value, T142.value, T144
+        .value, T145.value, T147.value, T148.value, T149.value, T487.value, T919.value, T920.value, T922.value
+        FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze)
+        left join ProbeSetData as T128 on T128.Id = ProbeSetXRef.DataId and T128.StrainId=128
+        left join ProbeSetData as T129 on T129.Id = ProbeSetXRef.DataId and T129.StrainId=129
+        left join ProbeSetData as T130 on T130.Id = ProbeSetXRef.DataId and T130.StrainId=130
+        left join ProbeSetData as T131 on T131.Id = ProbeSetXRef.DataId and T131.StrainId=131
+        left join ProbeSetData as T132 on T132.Id = ProbeSetXRef.DataId and T132.StrainId=132
+        left join ProbeSetData as T134 on T134.Id = ProbeSetXRef.DataId and T134.StrainId=134
+        left join ProbeSetData as T135 on T135.Id = ProbeSetXRef.DataId and T135.StrainId=135
+        left join ProbeSetData as T138 on T138.Id = ProbeSetXRef.DataId and T138.StrainId=138
+        left join ProbeSetData as T139 on T139.Id = ProbeSetXRef.DataId and T139.StrainId=139
+        left join ProbeSetData as T140 on T140.Id = ProbeSetXRef.DataId and T140.StrainId=140
+        left join ProbeSetData as T141 on T141.Id = ProbeSetXRef.DataId and T141.StrainId=141
+        left join ProbeSetData as T142 on T142.Id = ProbeSetXRef.DataId and T142.StrainId=142
+        left join ProbeSetData as T144 on T144.Id = ProbeSetXRef.DataId and T144.StrainId=144
+        left join ProbeSetData as T145 on T145.Id = ProbeSetXRef.DataId and T145.StrainId=145
+        left join ProbeSetData as T147 on T147.Id = ProbeSetXRef.DataId and T147.StrainId=147
+        left join ProbeSetData as T148 on T148.Id = ProbeSetXRef.DataId and T148.StrainId=148
+        left join ProbeSetData as T149 on T149.Id = ProbeSetXRef.DataId and T149.StrainId=149
+        left join ProbeSetData as T487 on T487.Id = ProbeSetXRef.DataId and T487.StrainId=487
+        left join ProbeSetData as T919 on T919.Id = ProbeSetXRef.DataId and T919.StrainId=919
+        left join ProbeSetData as T920 on T920.Id = ProbeSetXRef.DataId and T920.StrainId=920
+        left join ProbeSetData as T922 on T922.Id = ProbeSetXRef.DataId and T922.StrainId=922
+        WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id and
+        ProbeSetFreeze.Name = 'HC_M2_0606_P' and
+        ProbeSet.Id = ProbeSetXRef.ProbeSetId order by ProbeSet.Id
+        """
+
+
     def process_samples(self, start_vars, sample_names, excluded_samples):
         for sample in sample_names:
             if sample not in excluded_samples:
@@ -765,7 +791,7 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
                 if value.strip().lower() != 'x':
                     self.samples.append(str(sample))
                     self.vals.append(float(value))
-                    self.variances.append(variance)    
+                    #self.variances.append(variance)    
 
     def getSortByValue(self, calculationMethod):
 
@@ -942,32 +968,32 @@ Resorting this table <br>
                 query += "WHERE PublishXRef.InbredSetId = PublishFreeze.InbredSetId and PublishFreeze.Name = '%s'" % (db.name, )
             #XZ, 09/20/2008: extract literature correlation value together with gene expression values.
             #XZ, 09/20/2008: notice the difference between the code in next block.
-            elif tempTable:
-                # we can get a little performance out of selecting our LitCorr here
-                # but also we need to do this because we are unconcerned with probes that have no geneId associated with them
-                # as we would not have litCorr data.
-
-                if method == "3":
-                    query = "SELECT %s.Name, %s.value," %  (db.type,tempTable)
-                    dataStartPos = 2
-                if method == "4" or method == "5":
-                    query = "SELECT %s.Name, %s.Correlation, %s.PValue," %  (db.type,tempTable, tempTable)
-                    dataStartPos = 3
-
-                query += string.join(temp,', ')
-                query += ' FROM (%s, %sXRef, %sFreeze)' % (db.type, db.type, db.type)
-                if method == "3":
-                    query += ' LEFT JOIN %s ON %s.GeneId2=ProbeSet.GeneId ' % (tempTable,tempTable)
-                if method == "4" or method == "5":
-                    query += ' LEFT JOIN %s ON %s.Symbol=ProbeSet.Symbol ' % (tempTable,tempTable)
-                #XZ, 03/04/2009: Xiaodong changed Data to %sData and changed parameters from %(item,item, db.type,item,item) to %(db.type, item,item, db.type,item,item)
-                for item in StrainIdstep:
-                    query += 'left join %sData as T%s on T%s.Id = %sXRef.DataId and T%s.StrainId=%s\n' %(db.type, item,item, db.type,item,item)
-
-                if method == "3":
-                    query += "WHERE ProbeSet.GeneId IS NOT NULL AND %s.value IS NOT NULL AND %sXRef.%sFreezeId = %sFreeze.Id and %sFreeze.Name = '%s'  and %s.Id = %sXRef.%sId order by %s.Id" % (tempTable,db.type, db.type, db.type, db.type, db.name, db.type, db.type, db.type, db.type)
-                if method == "4" or method == "5":
-                    query += "WHERE ProbeSet.Symbol IS NOT NULL AND %s.Correlation IS NOT NULL AND %sXRef.%sFreezeId = %sFreeze.Id and %sFreeze.Name = '%s'  and %s.Id = %sXRef.%sId order by %s.Id" % (tempTable,db.type, db.type, db.type, db.type, db.name, db.type, db.type, db.type, db.type)
+            #elif tempTable:
+            #    # we can get a little performance out of selecting our LitCorr here
+            #    # but also we need to do this because we are unconcerned with probes that have no geneId associated with them
+            #    # as we would not have litCorr data.
+            #
+            #    if method == "3":
+            #        query = "SELECT %s.Name, %s.value," %  (db.type,tempTable)
+            #        dataStartPos = 2
+            #    if method == "4" or method == "5":
+            #        query = "SELECT %s.Name, %s.Correlation, %s.PValue," %  (db.type,tempTable, tempTable)
+            #        dataStartPos = 3
+            #
+            #    query += string.join(temp,', ')
+            #    query += ' FROM (%s, %sXRef, %sFreeze)' % (db.type, db.type, db.type)
+            #    if method == "3":
+            #        query += ' LEFT JOIN %s ON %s.GeneId2=ProbeSet.GeneId ' % (tempTable,tempTable)
+            #    if method == "4" or method == "5":
+            #        query += ' LEFT JOIN %s ON %s.Symbol=ProbeSet.Symbol ' % (tempTable,tempTable)
+            #    #XZ, 03/04/2009: Xiaodong changed Data to %sData and changed parameters from %(item,item, db.type,item,item) to %(db.type, item,item, db.type,item,item)
+            #    for item in StrainIdstep:
+            #        query += 'left join %sData as T%s on T%s.Id = %sXRef.DataId and T%s.StrainId=%s\n' %(db.type, item,item, db.type,item,item)
+            #
+            #    if method == "3":
+            #        query += "WHERE ProbeSet.GeneId IS NOT NULL AND %s.value IS NOT NULL AND %sXRef.%sFreezeId = %sFreeze.Id and %sFreeze.Name = '%s'  and %s.Id = %sXRef.%sId order by %s.Id" % (tempTable,db.type, db.type, db.type, db.type, db.name, db.type, db.type, db.type, db.type)
+            #    if method == "4" or method == "5":
+            #        query += "WHERE ProbeSet.Symbol IS NOT NULL AND %s.Correlation IS NOT NULL AND %sXRef.%sFreezeId = %sFreeze.Id and %sFreeze.Name = '%s'  and %s.Id = %sXRef.%sId order by %s.Id" % (tempTable,db.type, db.type, db.type, db.type, db.name, db.type, db.type, db.type, db.type)
             else:
                 query = "SELECT %s.Name," %  db.type
                 dataStartPos = 1
@@ -1258,11 +1284,14 @@ Resorting this table <br>
             return traits, new_vals
 
         else:
-            #_log.info("Using the slow method for correlation")
-            #
-            #_log.info("Fetching from database")
-            traits = self.fetchAllDatabaseData(species=self.dataset.species, GeneId=self.gene_id, GeneSymbol=self.trait.symbol, strains=self.sample_names, db=self.db, method=self.method, returnNumber=self.returnNumber, tissueProbeSetFreezeId= self.tissue_probeset_freeze_id)
-            #_log.info("Done fetching from database")
+            traits = self.fetchAllDatabaseData(species=self.dataset.species,
+                                               GeneId=self.gene_id,
+                                               GeneSymbol=self.trait.symbol,
+                                               strains=self.sample_names,
+                                               db=self.db,
+                                               method=self.method,
+                                               returnNumber=self.returnNumber,
+                                               tissueProbeSetFreezeId= self.tissue_probeset_freeze_id)
             totalTraits = len(traits) #XZ, 09/18/2008: total trait number
 
         return traits
@@ -1423,7 +1452,6 @@ Resorting this table <br>
                         method=self.method)
 
         return trait_list
-
 
     def calculateCorrOfAllTissueTrait(self, primaryTraitSymbol=None, TissueProbeSetFreezeId=None, method=None):
 
@@ -2104,3 +2132,31 @@ Resorting this table <br>
 
         return tblobj_body, worksheet, corrScript
 
+
+def calCorrelation(values_1, values_2):
+    N = Math.min(len(values_1), len(values_2))
+    X = []
+    Y = []
+    for i in range(N):
+        if values_1[i]!= None and values_2[i]!= None:
+            X.append(values_1[i])
+            Y.append(values_2[i])
+    NN = len(X)
+    if NN <6:
+        return (0.0,NN)
+    sx = reduce(lambda x,y:x+y,X,0.0)
+    sy = reduce(lambda x,y:x+y,Y,0.0)
+    x_mean = sx/NN
+    y_mean = sy/NN
+    xyd = 0.0
+    sxd = 0.0
+    syd = 0.0
+    for i in range(NN):
+        xyd += (X[i] - x_mean)*(Y[i] - y_mean)
+        sxd += (X[i] - x_mean)*(X[i] - x_mean)
+        syd += (Y[i] - y_mean)*(Y[i] - y_mean)
+    try:
+        corr = xyd/(sqrt(sxd)*sqrt(syd))
+    except:
+        corr = 0
+    return (corr, NN)
