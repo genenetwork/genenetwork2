@@ -208,7 +208,7 @@ class GeneralTrait:
         #            ''' % (self.cellid, self.name, self.dataset.name)
         #            
         #else:
-        results = self.dataset.retrieve_sample_data(self)
+        results = self.dataset.retrieve_sample_data(self.name)
 
         # Todo: is this necessary? If not remove
         self.data.clear()

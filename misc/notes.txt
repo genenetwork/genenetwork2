@@ -82,9 +82,8 @@ export TERM=screen
 To search for commands in history if necessary:
 history | grep "(whatever is being searched for)"
 
-Run web server:
-/usr/local/nginx/sbin/nginx
-/usr/sbin/nginx
+Reload web server:
+/usr/sbin/nginx -s reload
 
 Run server:
 python runserver.py

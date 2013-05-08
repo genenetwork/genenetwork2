@@ -23,6 +23,8 @@
 from __future__ import absolute_import, print_function, division
 import os
 import math
+import string
+import collections
 
 import json
 import itertools
@@ -49,22 +51,28 @@ def create_dataset(dataset_name):
     query = """
         SELECT DBType.Name
         FROM DBList, DBType
-        WHERE DBList.Name = '%s' and
+        WHERE DBList.Name = '{}' and
               DBType.Id = DBList.DBTypeId
-        """ % (escape(dataset_name))
-    print("query is: ", pf(query))
+        """.format(escape(dataset_name))
+    #print("query is: ", pf(query))
     dataset_type = g.db.execute(query).fetchone().Name
 
     #dataset_type = cursor.fetchone()[0]
-    print("[blubber] dataset_type:", pf(dataset_type))
+    #print("[blubber] dataset_type:", pf(dataset_type))
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     #dataset_class = getattr(data_set, dataset_ob)
-    print("dataset_ob:", dataset_ob)
-    print("DS_NAME_MAP:", pf(DS_NAME_MAP))
+    #print("dataset_ob:", dataset_ob)
+    #print("DS_NAME_MAP:", pf(DS_NAME_MAP))
 
     dataset_class = globals()[dataset_ob]
     return dataset_class(dataset_name)
+
+def mescape(*items):
+    """Multiple escape"""
+    escaped = [escape(item) for item in items]
+    print("escaped is:", escaped)
+    return escaped
 
 
 class Markers(object):
@@ -74,15 +82,21 @@ class Markers(object):
         self.markers = json.load(json_data_fh)
     
     def add_pvalues(self, p_values):
+        print("length of self.markers:", len(self.markers))
+        print("length of p_values:", len(p_values))
+        
         # THIS IS only needed for the case when we are limiting the number of p-values calculated
-        if len(self.markers) > len(p_values):
+        if len(self.markers) < len(p_values):
             self.markers = self.markers[:len(p_values)]
         
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
+            print("p_value is:", marker['p_value'])
             marker['lod_score'] = -math.log10(marker['p_value'])
             #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
             marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+        
+        
 
 
 class HumanMarkers(Markers):
@@ -93,9 +107,9 @@ class HumanMarkers(Markers):
         for line in marker_data_fh:
             splat = line.strip().split()
             marker = {}
-            marker['chr'] = splat[0]
+            marker['chr'] = int(splat[0])
             marker['name'] = splat[1]
-            marker['Mb'] = str(float(splat[3]) / 1000000)
+            marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
             
         #print("markers is: ", pf(self.markers))
@@ -116,8 +130,7 @@ class HumanMarkers(Markers):
         with Bench("deleting markers"):
             markers = []
             for marker in self.markers:
-                #if not float(marker['Mb']) <= 0 or not float(marker['chr']) == 0:
-                if float(marker['Mb']) > 0 and marker['chr'] != "0":
+                if not marker['Mb'] <= 0 and not marker['chr'] == 0:
                     markers.append(marker)
             self.markers = markers
         
@@ -349,6 +362,19 @@ class PhenotypeDataSet(DataSet):
         # (Urgently?) Need to write this
         pass
 
+    def get_trait_list(self):
+        query = """
+            select PublishXRef.Id
+            from PublishXRef, PublishFreeze
+            where PublishFreeze.InbredSetId=PublishXRef.InbredSetId
+            and PublishFreeze.Id = {}
+            """.format(escape(str(self.id)))
+        results = g.db.execute(query).fetchall()
+        trait_data = {}
+        for trait in results:
+            trait_data[trait[0]] = self.retrieve_sample_data(trait[0])
+        return trait_data
+
     def get_trait_info(self, trait_list, species = ''):
         for this_trait in trait_list:
             if not this_trait.haveinfo:
@@ -359,9 +385,7 @@ class PhenotypeDataSet(DataSet):
                 continue   # for now
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
                     description = this_trait.pre_publication_description
-            this_trait.description_display = description.decode('utf-8')
-            
-            
+            this_trait.description_display = description
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
@@ -419,7 +443,7 @@ class PhenotypeDataSet(DataSet):
                             PublishFreeze.Id = %d AND PublishData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    """ % (trait.name, self.id)
+                    """ % (trait, self.id)
         results = g.db.execute(query).fetchall()
         return results
 
@@ -459,6 +483,19 @@ class GenotypeDataSet(DataSet):
 
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
+    
+    def get_trait_list(self):
+        query = """
+            select Geno.Name
+            from Geno, GenoXRef
+            where GenoXRef.GenoId = Geno.Id
+            and GenoFreezeId = {}
+            """.format(escape(str(self.id)))
+        results = g.db.execute(query).fetchall()
+        trait_data = {}
+        for trait in results:
+            trait_data[trait[0]] = self.retrieve_sample_data(trait[0])
+        return trait_data
 
     def get_trait_info(self, trait_list, species=None):
         for this_trait in trait_list:
@@ -497,7 +534,7 @@ class GenotypeDataSet(DataSet):
                             GenoData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    """ % (webqtlDatabaseFunction.retrieve_species_id(self.group.name), trait.name, self.name)
+                    """ % (webqtlDatabaseFunction.retrieve_species_id(self.group.name), trait, self.name)
         results = g.db.execute(query).fetchall()
         return results
 
@@ -569,7 +606,95 @@ class MrnaAssayDataSet(DataSet):
 
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
+        
+    def get_trait_list_1(self):
+        query = """
+            select ProbeSet.Name
+            from ProbeSet, ProbeSetXRef
+            where ProbeSetXRef.ProbeSetId = ProbeSet.Id
+            and ProbeSetFreezeId = {}
+            """.format(escape(str(self.id)))
+        results = g.db.execute(query).fetchall()
+        print("After get_trait_list query")
+        trait_data = {}
+        for trait in results:
+            print("Retrieving sample_data for ", trait[0])
+            trait_data[trait[0]] = self.retrieve_sample_data(trait[0])
+        print("After retrieve_sample_data")
+        return trait_data
+    
+    def get_trait_data(self):
+        sample_ids = []
+        for sample in self.group.samplelist:
+            query = """
+                SELECT Strain.Id FROM Strain, Species
+                WHERE Strain.Name = '{}'
+                and Strain.SpeciesId=Species.Id
+                and Species.name = '{}'
+                """.format(*mescape(sample, self.group.species))
+            this_id = g.db.execute(query).fetchone()[0]
+            sample_ids.append('%d' % this_id)
+        print("sample_ids size: ", len(sample_ids))
 
+        # MySQL limits the number of tables that can be used in a join to 61,
+        # so we break the sample ids into smaller chunks
+        chunk_count = 50
+        n = len(sample_ids) / chunk_count
+        if len(sample_ids) % chunk_count:
+            n += 1
+        print("n: ", n)
+        #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
+        #tempTable = None
+        #if GeneId and db.type == "ProbeSet": 
+        #    if method == "3":
+        #        tempTable = self.getTempLiteratureTable(species=species,
+        #                                                input_species_geneid=GeneId,
+        #                                                returnNumber=returnNumber)
+        #
+        #    if method == "4" or method == "5":
+        #        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=GeneSymbol,
+        #                                        TissueProbeSetFreezeId=tissueProbeSetFreezeId,
+        #                                        method=method,
+        #                                        returnNumber=returnNumber)
+        trait_sample_data = []
+        for step in range(int(n)):
+            temp = []
+            sample_ids_step = sample_ids[step*chunk_count:min(len(sample_ids), (step+1)*chunk_count)]
+            for item in sample_ids_step:
+                temp.append('T%s.value' % item)
+            query = "SELECT {}.Name,".format(escape(self.type))
+            data_start_pos = 1
+            query += string.join(temp, ', ')
+            query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(self.type,
+                                                                     self.type,
+                                                                     self.type))
+            #XZ, 03/04/2009: Xiaodong changed Data to %sData and changed parameters from %(item,item, db.type,item,item) to %(db.type, item,item, db.type,item,item)
+            for item in sample_ids_step:
+                query += """
+                        left join {}Data as T{} on T{}.Id = {}XRef.DataId
+                        and T{}.StrainId={}\n
+                        """.format(*mescape(self.type, item, item, self.type, item, item))
+            query += """
+                    WHERE {}XRef.{}FreezeId = {}Freeze.Id
+                    and {}Freeze.Name = '{}'
+                    and {}.Id = {}XRef.{}Id
+                    order by {}.Id
+                    """.format(*mescape(self.type, self.type, self.type, self.type,
+                               self.name, self.type, self.type, self.type, self.type))
+            print("query: ", query)
+            results = g.db.execute(query).fetchall()
+            trait_sample_data.append(results)
+            
+        trait_count = len(trait_sample_data[0])
+        self.trait_data = collections.defaultdict(list)
+        # put all of the separate data together into a dictionary where the keys are
+        # trait names and values are lists of sample values
+        for j in range(trait_count):
+            trait_name = trait_sample_data[0][j][0]
+            for i in range(int(n)):
+                self.trait_data[trait_name] += trait_sample_data[i][j][data_start_pos:]
+
+    
     def get_trait_info(self, trait_list=None, species=''):
 
         #  Note: setting trait_list to [] is probably not a great idea.
@@ -693,9 +818,9 @@ class MrnaAssayDataSet(DataSet):
                             ProbeSetFreeze.Name = %s
                 """ % (escape(self.name), escape(self.dataset.name))
         results = g.db.execute(query).fetchone()
-
         return results[0]
     
+   
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
@@ -712,7 +837,7 @@ class MrnaAssayDataSet(DataSet):
                             ProbeSetData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    """ % (escape(trait.name), escape(self.name))
+                    """ % (escape(trait), escape(self.name))
         results = g.db.execute(query).fetchall()
         return results
 
