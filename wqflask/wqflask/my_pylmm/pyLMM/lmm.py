@@ -58,6 +58,10 @@ def run_human(pheno_vector,
 
     identifier = str(uuid.uuid4())
     
+    print("pheno_vector: ", pf(pheno_vector))
+    print("kinship_matrix: ", pf(kinship_matrix))
+    print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
+
     lmm_vars = pickle.dumps(dict(
         pheno_vector = pheno_vector,
         covariate_matrix = covariate_matrix,
@@ -70,12 +74,12 @@ def run_human(pheno_vector,
         pheno_vector = pheno_vector[keep]
         #print("pheno_vector shape is now: ", pf(pheno_vector.shape))
         covariate_matrix = covariate_matrix[keep,:]
-        print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
+        #print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
         #print("len(keep) is: ", pf(keep.shape))
         kinship_matrix = kinship_matrix[keep,:][:,keep]
 
     n = kinship_matrix.shape[0]
-    print("n is:", n)
+    #print("n is:", n)
     lmm_ob = LMM(pheno_vector,
                 kinship_matrix,
                 covariate_matrix)
@@ -86,7 +90,7 @@ def run_human(pheno_vector,
     p_values = []
     t_stats = []
 
-    print("input_file: ", plink_input_file)
+    #print("input_file: ", plink_input_file)
 
     with Bench("Opening and loading pickle file"):
         with gzip.open(plink_input_file, "rb") as input_file:
@@ -103,6 +107,8 @@ def run_human(pheno_vector,
 
         with Bench("Create list of inputs"):
             inputs = list(plink_input)
+            
+        print("len(genotypes): ", len(inputs))
 
         with Bench("Divide into chunks"):
             results = chunks.divide_into_chunks(inputs, 64)
@@ -116,7 +122,7 @@ def run_human(pheno_vector,
         
         timestamp = datetime.datetime.utcnow().isoformat()
 
-        print("Starting adding loop")
+        #print("Starting adding loop")
         for part, result in enumerate(results):
             #data = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             holder = pickle.dumps(dict(
@@ -126,10 +132,10 @@ def run_human(pheno_vector,
                 result = result
             ), pickle.HIGHEST_PROTOCOL)
             
-            print("Adding:", part)
+            #print("Adding:", part)
             Redis.rpush(key, zlib.compress(holder))
-        print("End adding loop")
-        print("***** Added to {} queue *****".format(key))
+        #print("End adding loop")
+        #print("***** Added to {} queue *****".format(key))
         for snp, this_id in plink_input:
             #with Bench("part before association"):
             if count > 2000:
@@ -156,6 +162,10 @@ def run_human(pheno_vector,
         
     return p_values, t_stats
 
+
+#class HumanAssociation(object):
+#    def __init__(self):
+#        
 
 def human_association(snp,
                       n,
