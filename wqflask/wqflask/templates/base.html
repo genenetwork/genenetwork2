@@ -14,9 +14,9 @@
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    
+
     {% block css %}
     {% endblock %}
 
@@ -57,13 +57,17 @@
                             <a href="/whats_new">News</a>
                         </li>
                         <li class="">
-                            <a href="./reference.html">References</a>
+                            <a href="/reference">References</a>
                         </li>
                         <li class="">
-                            <a href="./policies">Policies</a>
+                            <a href="/policies">Policies</a>
                         </li>
                         <li class="">
-                            <a href="./links">Links</a>
+                            <a href="/links">Links</a>
+                        </li>
+                        <li class="">
+                            <a href="/register" data-remote="/register"
+                               data-target="#utility" data-toggle="modal">Login</a>
                         </li>
                     </ul>
                 </div>
@@ -136,6 +140,22 @@
         </ul>
       </div>
     </footer>
+
+    <!--http://stackoverflow.com/questions/14045515/how-can-i-reuse-one-bootstrap-modal-div-->
+    <!-- Modal -->
+    <div id="utility" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 id="myModalLabel">Click outside modal to close it</h3>
+      </div>
+      <div class="modal-body">
+        <p>One fine body…this is getting replaced with content that comes from passed-in href</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
