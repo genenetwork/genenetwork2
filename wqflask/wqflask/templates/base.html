@@ -66,8 +66,13 @@
                             <a href="/links">Links</a>
                         </li>
                         <li class="">
-                            <a href="/register" data-remote="/register"
+                            {% if g.identity.name=="anon" %}
+                            <a href="/login" data-remote="/login"
                                data-target="#utility" data-toggle="modal">Login</a>
+                            {% else %}
+                            <a href="/logout" data-remote="/logout"
+                               data-target="#utility" data-toggle="modal">Logout</a>
+                            {% endif %}
                         </li>
                     </ul>
                 </div>
@@ -144,17 +149,17 @@
     <!--http://stackoverflow.com/questions/14045515/how-can-i-reuse-one-bootstrap-modal-div-->
     <!-- Modal -->
     <div id="utility" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3 id="myModalLabel">Click outside modal to close it</h3>
-      </div>
+      <!--<div class="modal-header">-->
+      <!--  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+      <!--  <h3 id="myModalLabel">Register</h3>-->
+      <!--</div>-->
       <div class="modal-body">
-        <p>One fine body…this is getting replaced with content that comes from passed-in href</p>
+        <p>.</p>
       </div>
-      <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-        <button class="btn btn-primary">Save changes</button>
-      </div>
+      <!--<div class="modal-footer">-->
+      <!--  <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>-->
+      <!--  <button class="btn btn-primary">Save changes</button>-->
+      <!--</div>-->
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>

@@ -35,6 +35,8 @@ from utility.benchmark import Bench
 
 from pprint import pformat as pf
 
+from wqflask import user_manager
+
 #import logging
 #logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
 #_log = logging.getLogger("correlation")
@@ -166,21 +168,21 @@ def marker_regression_page():
         'dataset',
         'suggestive'
     )
-    
+
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
-    
+
     version = "v14"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     with Bench("Loading cache"):
         result = Redis.get(key)
-    
+
     #print("************************ Starting result *****************")
     #print("result is [{}]: {}".format(type(result), result))
     #print("************************ Ending result ********************")
-    
+
     if result:
         print("Cache hit!!!")
         with Bench("Loading results"):
@@ -194,17 +196,17 @@ def marker_regression_page():
                                            indent="   ")
 
         result = template_vars.__dict__
-     
+
         #for item in template_vars.__dict__.keys():
         #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-        
+
         #causeerror
         Redis.set(key, pickle.dumps(result))
         Redis.expire(key, 60*60)
-        
+
     with Bench("Rendering template"):
         rendered_template = render_template("marker_regression.html", **result)
-    
+
     return rendered_template
 
 
@@ -233,6 +235,11 @@ def sharing_info_page():
 def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
+
+@app.route("/users")
+def manage_users():
+    template_vars = user_manager.UserManager()
+    return render_template("admin/user_manager.html", **template_vars.__dict__)
 
 
 def json_default_handler(obj):

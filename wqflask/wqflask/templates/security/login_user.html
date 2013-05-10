@@ -5,8 +5,13 @@
   {{ login_user_form.hidden_tag() }}
   {{ render_field_with_errors(login_user_form.email) }}
   {{ render_field_with_errors(login_user_form.password) }}
+
+  {% if security.recoverable %}
+      <a href="{{ url_for_security('forgot_password') }}">Forgot your password?</a><br/>
+  {% endif %}
+
   {{ render_field_with_errors(login_user_form.remember) }}
   {{ render_field(login_user_form.next) }}
   {{ render_field(login_user_form.submit) }}
 </form>
-{% include "security/_menu.html" %}
+<!--{% include "security/_menu.html" %}-->
