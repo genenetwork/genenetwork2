@@ -1,13 +1,23 @@
 {% from "security/_macros.html" import render_only_errors %}
 {% include "security/_messages.html" %}
 
+<h4>Don't have an account?</h4>
+
+<center>
+    <a href class="btn btn-info">Create a new account</a>
+</center>
+
+<hr />
+
+<h4>Already have an account?</h4>
+
+<h5>Sign in here</h5>
+
 <form class="form-horizontal" action="{{ url_for_security('login') }}"
       method="POST" name="login_user_form">
     {{ login_user_form.hidden_tag() }}
     <fieldset>
-        <legend>
-            Sign in
-        </legend>
+
 
         <div class="control-group">
             <label class="control-label" for="email">Email Address</label>
@@ -40,7 +50,7 @@
 
             <input id="next" name="next" type="hidden" value="">
 
-            <input class="btn" id="submit" name="submit" type="submit" value="Sign in">
+            <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
         </div>
   </fieldset>
 
