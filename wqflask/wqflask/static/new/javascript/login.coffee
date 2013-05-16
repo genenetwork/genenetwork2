@@ -1,10 +1,14 @@
 $ ->
-  $("a[data-target=#utility]").click (ev) ->
-    #  Based on http://stackoverflow.com/a/12513100/1175849
-    ev.preventDefault()
-    target = $(this).attr("href")
+    $(".modalize").colorbox()
 
-    # load the url and show modal on success
-    $("#utility .modal-body").load(target, ->
-        $("#utility").modal("show")
+    modal_replace = (event) ->
+        event.preventDefault()
+        console.log("in modal_replace:", $(this).attr("href"))
+        $.colorbox(
+            open: true
+            href: this.href
         )
+        return false
+
+
+    $(".modal_replace").on("click", modal_replace)

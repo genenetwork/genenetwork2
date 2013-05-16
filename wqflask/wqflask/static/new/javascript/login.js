@@ -2,14 +2,17 @@
 (function() {
 
   $(function() {
-    return $("a[data-target=#utility]").click(function(ev) {
-      var target;
-      ev.preventDefault();
-      target = $(this).attr("href");
-      return $("#utility .modal-body").load(target, function() {
-        return $("#utility").modal("show");
+    var modal_replace;
+    $(".modalize").colorbox();
+    modal_replace = function() {
+      console.log("in modal_replace:", $(this).attr("href"));
+      $.colorbox({
+        open: true,
+        href: this.href
       });
-    });
+      return false;
+    };
+    return $(".modal_replace").on("click", modal_replace);
   });
 
 }).call(this);
