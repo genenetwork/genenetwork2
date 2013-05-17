@@ -42,7 +42,7 @@ from utility import formatting
     #def __init__(self, key, result_fields):
     #    self.key = key
     #    self.result_fields = result_fields
-    
+
 
 class SearchResultPage(object):
     #maxReturn = 3000
@@ -91,7 +91,7 @@ class SearchResultPage(object):
 
         """
         self.trait_list = []
-        
+
         species = webqtlDatabaseFunction.retrieve_species(self.dataset.group.name)
         
         # result_set represents the results for each search term; a search of 
@@ -100,7 +100,7 @@ class SearchResultPage(object):
         for result in self.results:
             if not result:
                 continue
-            
+
             #### Excel file needs to be generated ####
 
             print("foo locals are:", locals())
@@ -128,13 +128,13 @@ class SearchResultPage(object):
         with Bench("Doing QuickSearch Query: "):
             dbresults = g.db.execute(query, no_parameters=True).fetchall()
         #print("results: ", pf(results))
-        
+
         self.results = collections.defaultdict(list)
-        
+
         type_dict = {'PublishXRef': 'phenotype',
                    'ProbeSetXRef': 'mrna_assay',
                    'GenoXRef': 'genotype'}
-        
+
         self.species_groups = {}
         for dbresult in dbresults:
             this_result = {}
@@ -156,9 +156,9 @@ class SearchResultPage(object):
             #if this_group not in self.species_groups[type_dict[dbresult.table_name]][this_species]:
             #    self.species_groups[type_dict[dbresult.table_name]][this_species].append(this_group)
             self.results[type_dict[dbresult.table_name]].append(this_result)
-            
+
         #print("results: ", pf(self.results['phenotype']))
-        
+
     #def get_group_species_tree(self):
     #    self.species_groups = collections.default_dict(list)
     #    for key in self.results:
