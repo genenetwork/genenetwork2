@@ -2,6 +2,8 @@
 {% include "security/_messages.html" %}
 
 <div style="padding: 20px;">
+    {{ g.identity}}
+
     <h4>Don't have an account?</h4>
 
     <center>
@@ -21,19 +23,20 @@
 
 
             <div class="control-group">
+                {{ render_only_errors(login_user_form.email) }}
                 <label class="control-label" for="email">Email Address</label>
                 <div class="controls">
                     <input id="email" class="focused" name="email" type="text" value="">
                 </div>
-                {{ render_only_errors(login_user_form.email) }}
             </div>
 
             <div class="control-group">
+                {{ render_only_errors(login_user_form.password) }}
                 <label class="control-label" for="password">Password</label>
                 <div class="controls">
                     <input id="password" name="password" type="password" value="">
+                    <br />
 
-                {{ render_only_errors(login_user_form.password) }}
                 {% if security.recoverable %}
 
                     <a href="{{ url_for_security('forgot_password') }}">Forgot your password?</a><br/>
