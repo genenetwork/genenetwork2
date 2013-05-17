@@ -1,60 +1,61 @@
 {% from "security/_macros.html" import render_only_errors %}
 {% include "security/_messages.html" %}
 
-<h4>Already have an account?</h4>
+<div style="padding: 20px;">
+    <h4>Already have an account?</h4>
 
-<center>
-    <a href="/login"
-       class="btn btn-info modal_replace">Sign in using existing account</a>
-</center>
+    <center>
+        <a href="/login"
+           class="btn btn-info modal_replace">Sign in using existing account</a>
+    </center>
 
-<hr />
+    <hr />
 
-<h4>Don't have an account?</h4>
+    <h4>Don't have an account?</h4>
 
-<h5>Register here</h5>
+    <h5>Register here</h5>
 
-<form class="form-horizontal" action="{{ url_for_security('register') }}"
-      method="POST" name="login_user_form">
-    {{ register_user_form.hidden_tag() }}
-    <fieldset>
+    <form class="form-horizontal" action="{{ url_for_security('register') }}"
+          method="POST" name="login_user_form">
+        {{ register_user_form.hidden_tag() }}
+        <fieldset>
 
 
-        <div class="control-group">
-            <label class="control-label" for="email">Email Address</label>
-            <div class="controls">
-                <input id="email" name="email" class="focused" type="text" value="">
+            <div class="control-group">
+                <label class="control-label" for="email">Email Address</label>
+                <div class="controls">
+                    <input id="email" name="email" class="focused" type="text" value="">
+                </div>
+                {{ render_only_errors(register_user_form.email) }}
             </div>
-            {{ render_only_errors(register_user_form.email) }}
-        </div>
 
-        <div class="control-group">
-            <label class="control-label" for="password">Password</label>
-            <div class="controls">
-                <input id="password" name="password" type="password" value="">
+            <div class="control-group">
+                <label class="control-label" for="password">Password</label>
+                <div class="controls">
+                    <input id="password" name="password" type="password" value="">
+                </div>
+                {{ render_only_errors(register_user_form.password) }}
             </div>
-            {{ render_only_errors(register_user_form.password) }}
-        </div>
 
-        {% if register_user_form.password_confirm %}
-        <div class="control-group">
-            <label class="control-label" for="password_confirm">Password</label>
-            <div class="controls">
-                <input id="password" name="password_confirm" type="password" value="">
+            {% if register_user_form.password_confirm %}
+            <div class="control-group">
+                <label class="control-label" for="password_confirm">Password</label>
+                <div class="controls">
+                    <input id="password" name="password_confirm" type="password" value="">
+                </div>
+                {{ render_only_errors(register_user_form.password_confirm) }}
             </div>
-            {{ render_only_errors(register_user_form.password_confirm) }}
+            {% endif %}
 
-        {% endif %}
-
-        <div class="control-group">
-            <div class="controls"">
-                <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
+            <div class="control-group">
+                <div class="controls"">
+                    <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
+                </div>
             </div>
-        </div>
 
-  </fieldset>
+        </fieldset>
 
-</form>
-
+    </form>
+</div>
 {% include "security/_scripts.html" %}
 <!--{% include "security/_menu.html" %}-->

@@ -2,17 +2,49 @@
 (function() {
 
   $(function() {
-    var modal_replace;
-    $(".modalize").colorbox();
-    modal_replace = function() {
+    var form_success, modal_replace, submit_form;
+    $(".modalize").colorbox({
+      onComplete: function() {
+        return $(".focused").focus();
+      }
+    });
+    modal_replace = function(event) {
+      event.preventDefault();
       console.log("in modal_replace:", $(this).attr("href"));
       $.colorbox({
         open: true,
-        href: this.href
+        href: this.href,
+        onComplete: function() {
+          return $(".focused").focus();
+        }
       });
       return false;
     };
-    return $(".modal_replace").on("click", modal_replace);
+    $(".modal_replace").on("click", modal_replace);
+    form_success = function(data) {
+      return $.colorbox({
+        open: true,
+        html: data,
+        onComplete: function() {
+          return $("form").on("submit", submit_form);
+        }
+      });
+    };
+    submit_form = function(event) {
+      var data, submit_to;
+      event.preventDefault();
+      submit_to = $(this).attr('action');
+      data = $(this).serialize();
+      console.log("submit_to is:", submit_to);
+      return $.ajax({
+        type: "POST",
+        url: submit_to,
+        data: data,
+        dataType: "html",
+        success: form_success
+      });
+    };
+    return $("form").on("submit", submit_form);
   });
 
 }).call(this);
