@@ -2,30 +2,19 @@
 (function() {
 
   $(function() {
-    var form_success, modal_replace, submit_form;
-    $(".modalize").on("click", function(event) {
-      console.log("modalizing!!!");
-      event.preventDefault();
-      return $.colorbox({
-        href: $(this).attr("href"),
-        onComplete: function() {
-          return $(".focused").focus();
-        }
-      });
-    });
-    modal_replace = function(event) {
+    var form_success, modalize, submit_form;
+    modalize = function(event) {
       event.preventDefault();
       console.log("in modal_replace:", $(this).attr("href"));
-      $.colorbox({
+      return $.colorbox({
         open: true,
         href: this.href,
         onComplete: function() {
           return $(".focused").focus();
         }
       });
-      return false;
     };
-    $(document).on("click", ".modal_replace", modal_replace);
+    $(document).on("click", ".modalize", modalize);
     form_success = function(data) {
       return $.colorbox({
         open: true,

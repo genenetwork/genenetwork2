@@ -1,21 +1,7 @@
 $ ->
-    #$(".modalize").colorbox(
-    #                        onComplete: ->
-    #                            $(".focused").focus()
-    #                        )
 
-    $(".modalize").on("click", (event) ->
-        console.log("modalizing!!!")
-        event.preventDefault()
-        $.colorbox(
-            href: $(this).attr("href")
-            onComplete: ->
-                $(".focused").focus()
-        )
 
-    )
-
-    modal_replace = (event) ->
+    modalize = (event) ->
         event.preventDefault()
         console.log("in modal_replace:", $(this).attr("href"))
         $.colorbox(
@@ -24,11 +10,11 @@ $ ->
             onComplete: ->
                 $(".focused").focus()
         )
-        return false
 
 
 
-    $(document).on("click", ".modal_replace", modal_replace)
+
+    $(document).on("click", ".modalize", modalize)
 
     form_success = (data) ->
         $.colorbox(
