@@ -12,6 +12,8 @@
 
 __version__ = '1.6.0'
 
+print "using internal flask security"
+
 from .core import Security, RoleMixin, UserMixin, AnonymousUser, current_user
 from .datastore import SQLAlchemyUserDatastore, MongoEngineUserDatastore, PeeweeUserDatastore
 from .decorators import auth_token_required, http_auth_required, \

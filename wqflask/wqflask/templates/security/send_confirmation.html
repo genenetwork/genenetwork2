@@ -1,9 +1,29 @@
-{% from "security/_macros.html" import render_field_with_errors, render_field %}
+{% from "security/_macros.html" import render_only_errors %}
 {% include "security/_messages.html" %}
-<h1>Resend confirmation instructions</h1>
-<form action="{{ url_for_security('send_confirmation') }}" method="POST" name="send_confirmation_form">
-  {{ send_confirmation_form.hidden_tag() }}
-  {{ render_field_with_errors(send_confirmation_form.email) }}
-  {{ render_field(send_confirmation_form.submit) }}
-</form>
-{% include "security/_menu.html" %}
+
+<div class="security_box">
+    <h4>Resend confirmation instructions</h4>
+
+    <form action="{{ url_for_security('send_confirmation') }}"
+          method="POST" name="send_confirmation_form">
+
+        <fieldset>
+            {{ send_confirmation_form.hidden_tag() }}
+
+             <div class="control-group">
+                <label class="control-label" for="email">Email Address</label>
+                <div class="controls">
+                    <input id="email" name="email" class="focused" type="text" value="">
+                </div>
+                {{ render_only_errors(send_confirmation_form.email) }}
+
+            </div>
+
+            <div class="control-group">
+                <div class="controls"">
+                    <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>

@@ -3,10 +3,15 @@
 
   $(function() {
     var form_success, modal_replace, submit_form;
-    $(".modalize").colorbox({
-      onComplete: function() {
-        return $(".focused").focus();
-      }
+    $(".modalize").on("click", function(event) {
+      console.log("modalizing!!!");
+      event.preventDefault();
+      return $.colorbox({
+        href: $(this).attr("href"),
+        onComplete: function() {
+          return $(".focused").focus();
+        }
+      });
     });
     modal_replace = function(event) {
       event.preventDefault();
@@ -20,7 +25,7 @@
       });
       return false;
     };
-    $(".modal_replace").on("click", modal_replace);
+    $(document).on("click", ".modal_replace", modal_replace);
     form_success = function(data) {
       return $.colorbox({
         open: true,
