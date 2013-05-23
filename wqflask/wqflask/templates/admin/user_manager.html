@@ -16,6 +16,7 @@
         <table class="table table-hover">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Email</th>
                     <th>Confirmed at</th>
                     <th>Active</th>
@@ -23,7 +24,10 @@
             </thead>
         {% for user in users %}
             <tr>
-                <td title="{{ user.__dict__ }}">{{ user.email }}</td>
+                <td title="{{ user.__dict__ }}">
+                    <a href="{{ url_for('manage_user', user_id=user.id) }}">{{ user.id }}</a>
+                </td>
+                <td>{{ user.email }}</td>
                 <td>{{ user.confirmed_at }}</td>
                 <td>{{ user.active }}</td>
             </tr>

@@ -239,10 +239,15 @@ def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
 
-@app.route("/users")
+@app.route("/manage/users")
 def manage_users():
-    template_vars = user_manager.UserManager()
+    template_vars = user_manager.UsersManager()
     return render_template("admin/user_manager.html", **template_vars.__dict__)
+
+@app.route("/manage/user")
+def manage_user():
+    template_vars = user_manager.UserManager(request.args)
+    return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
 
 
 def json_default_handler(obj):
