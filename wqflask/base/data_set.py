@@ -625,33 +625,24 @@ class MrnaAssayDataSet(DataSet):
         return trait_data
     
     def get_trait_data(self):
-        import pdb
-        pdb.set_trace()
-        #samplelist = []
-        #samplelist += self.group.samplelist
-        #samplelist += self.group.parlist
-        #samplelist += self.group.f1list
-        #self.samplelist = samplelist
-        
         self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
-        
         sample_ids = []
-        
         where_clause = ""
-        for sample in self.samplelist:
-            if len(where_clause):
-                where_clause += " or "
-            where_clause += """'{}'""".format(*mescape(sample))
+        #for sample in self.samplelist:
+        #    if len(where_clause):
+        #        where_clause += " or "
+        #    where_clause += "Strain.Name = '{}'".format(*mescape(sample))
             
         query = """
             SELECT Strain.Id, Strain.Name FROM Strain, Species
-            WHERE Strain.Name = '{}'
+            WHERE ({})
             and Strain.SpeciesId=Species.Id
             and Species.name = '{}'
-            """.format(*mescape(where_clause, self.group.species))
+            """.format(where_clause, *mescape(self.group.species))
+        print("raspberry query: ", query)
         result = g.db.execute(query).fetchall()
         
-        print("[blueberry] result is:", pf(result))
+        print("[blackberry] result is:", pf(result))
         #sample_ids.append('%d' % this_id)
 
         # MySQL limits the number of tables that can be used in a join to 61,
