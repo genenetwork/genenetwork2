@@ -37,6 +37,7 @@ import time
 #import pyXLWriter as xl
 import pp
 import math
+import collections
 
 from pprint import pformat as pf
 
@@ -285,15 +286,14 @@ class CorrelationResults(object):
         #                               name=start_vars['trait_id'],
         #                               cellid=None)                
         
-        print("start_vars: ", pf(start_vars))
+        #print("start_vars: ", pf(start_vars))
         
         helper_functions.get_species_dataset_trait(self, start_vars)
         self.dataset.group.read_genotype_file()
-        
-        self.samples = []   # Want only ones with values
-        self.vals = []
 
         corr_samples_group = start_vars['corr_samples_group']
+
+        self.sample_data = {}
 
         #The two if statements below append samples to the sample list based upon whether the user
         #selected Primary Samples Only, Other Samples Only, or All Samples
@@ -310,16 +310,24 @@ class CorrelationResults(object):
                                    self.dataset.group.f1list +
                                    self.dataset.group.samplelist)
             self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
-
-        #for i, sample in enumerate(self.samples):
-        #    print("{} : {}".format(sample, self.vals[i]))
-    
         self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
         self.target_dataset.get_trait_data()
-        print("trait_list: {}".format(pf(self.target_dataset.trait_data)))
         # Lei Yan todo
+        import pdb
+        pdb.set_trace()
+        correlation_data = collections.defaultdict(list)
         for trait, values in self.target_dataset.trait_data.iteritems():
-            correlation = calCorrelation(values, )
+            values_1 = []
+            values_2 = []
+            for index,sample in enumerate(self.target_dataset.samplelist):
+                target_value = values[index]
+                if sample in self.sample_data.keys():
+                    this_value = self.sample_data[sample]
+                    values_1.append(this_value)
+                    values_2.append(target_value)
+            correlation = calCorrelation(values_1, values_2)
+            correlation_data[trait] = correlation
+            print ('%s %s' % (trait, correlation))
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset
@@ -779,19 +787,28 @@ makeWebGestaltTree(thisForm, '%s', %d, 'edag_only.php');
         """
 
 
+    #def process_samples(self, start_vars, sample_names, excluded_samples):
+    #    for sample in sample_names:
+    #        if sample not in excluded_samples:
+    #            value = start_vars['value:' + sample]
+    #            variance = start_vars['variance:' + sample]
+    #            if variance.strip().lower() == 'x':
+    #                variance = 0
+    #            else:
+    #                variance = float(variance)
+    #            if value.strip().lower() != 'x':
+    #                self.samples.append(str(sample))
+    #                self.vals.append(float(value))
+    #                #self.variances.append(variance)
+
     def process_samples(self, start_vars, sample_names, excluded_samples):
         for sample in sample_names:
             if sample not in excluded_samples:
                 value = start_vars['value:' + sample]
-                variance = start_vars['variance:' + sample]
-                if variance.strip().lower() == 'x':
-                    variance = 0
+                if value.strip().lower() == 'x':
+                    self.sample_data[str(sample)] = None
                 else:
-                    variance = float(variance)
-                if value.strip().lower() != 'x':
-                    self.samples.append(str(sample))
-                    self.vals.append(float(value))
-                    #self.variances.append(variance)    
+                    self.sample_data[str(sample)] = float(value)
 
     def getSortByValue(self, calculationMethod):
 
@@ -2134,7 +2151,7 @@ Resorting this table <br>
 
 
 def calCorrelation(values_1, values_2):
-    N = Math.min(len(values_1), len(values_2))
+    N = min(len(values_1), len(values_2))
     X = []
     Y = []
     for i in range(N):

@@ -46,7 +46,7 @@ from pprint import pformat as pf
 DS_NAME_MAP = {}
 
 def create_dataset(dataset_name):
-    print("dataset_name:", dataset_name)
+    #print("dataset_name:", dataset_name)
 
     query = """
         SELECT DBType.Name
@@ -71,7 +71,7 @@ def create_dataset(dataset_name):
 def mescape(*items):
     """Multiple escape"""
     escaped = [escape(item) for item in items]
-    print("escaped is:", escaped)
+    #print("escaped is:", escaped)
     return escaped
 
 
@@ -235,6 +235,7 @@ class DataSet(object):
         self.retrieve_other_names()
         
         self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
+        self.group.read_genotype_file()
         self.species = species.TheSpecies(self)
 
 
@@ -624,17 +625,34 @@ class MrnaAssayDataSet(DataSet):
         return trait_data
     
     def get_trait_data(self):
+        import pdb
+        pdb.set_trace()
+        #samplelist = []
+        #samplelist += self.group.samplelist
+        #samplelist += self.group.parlist
+        #samplelist += self.group.f1list
+        #self.samplelist = samplelist
+        
+        self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
+        
         sample_ids = []
-        for sample in self.group.samplelist:
-            query = """
-                SELECT Strain.Id FROM Strain, Species
-                WHERE Strain.Name = '{}'
-                and Strain.SpeciesId=Species.Id
-                and Species.name = '{}'
-                """.format(*mescape(sample, self.group.species))
-            this_id = g.db.execute(query).fetchone()[0]
-            sample_ids.append('%d' % this_id)
-        print("sample_ids size: ", len(sample_ids))
+        
+        where_clause = ""
+        for sample in self.samplelist:
+            if len(where_clause):
+                where_clause += " or "
+            where_clause += """'{}'""".format(*mescape(sample))
+            
+        query = """
+            SELECT Strain.Id, Strain.Name FROM Strain, Species
+            WHERE Strain.Name = '{}'
+            and Strain.SpeciesId=Species.Id
+            and Species.name = '{}'
+            """.format(*mescape(where_clause, self.group.species))
+        result = g.db.execute(query).fetchall()
+        
+        print("[blueberry] result is:", pf(result))
+        #sample_ids.append('%d' % this_id)
 
         # MySQL limits the number of tables that can be used in a join to 61,
         # so we break the sample ids into smaller chunks
@@ -642,7 +660,6 @@ class MrnaAssayDataSet(DataSet):
         n = len(sample_ids) / chunk_count
         if len(sample_ids) % chunk_count:
             n += 1
-        print("n: ", n)
         #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
         #tempTable = None
         #if GeneId and db.type == "ProbeSet": 
@@ -681,10 +698,9 @@ class MrnaAssayDataSet(DataSet):
                     order by {}.Id
                     """.format(*mescape(self.type, self.type, self.type, self.type,
                                self.name, self.type, self.type, self.type, self.type))
-            print("query: ", query)
             results = g.db.execute(query).fetchall()
             trait_sample_data.append(results)
-            
+
         trait_count = len(trait_sample_data[0])
         self.trait_data = collections.defaultdict(list)
         # put all of the separate data together into a dictionary where the keys are
