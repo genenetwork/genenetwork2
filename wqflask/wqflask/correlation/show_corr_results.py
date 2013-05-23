@@ -312,9 +312,6 @@ class CorrelationResults(object):
             self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
         self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
         self.target_dataset.get_trait_data()
-        # Lei Yan todo
-        import pdb
-        pdb.set_trace()
         correlation_data = collections.defaultdict(list)
         for trait, values in self.target_dataset.trait_data.iteritems():
             values_1 = []
@@ -327,7 +324,7 @@ class CorrelationResults(object):
                     values_2.append(target_value)
             correlation = calCorrelation(values_1, values_2)
             correlation_data[trait] = correlation
-            print ('%s %s' % (trait, correlation))
+            print ('correlation result: %s %s' % (trait, correlation))
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset

@@ -38,6 +38,7 @@ from base import species
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
+from wqflask.my_pylmm.pyLMM import chunks
 
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
@@ -67,6 +68,13 @@ def create_dataset(dataset_name):
 
     dataset_class = globals()[dataset_ob]
     return dataset_class(dataset_name)
+
+def create_in_clause(items):
+    """Create an in clause for mysql"""
+    in_clause = ', '.join("'{}'".format(x) for x in mescape(*items))
+    in_clause = '( {} )'.format(in_clause)
+    return in_clause
+
 
 def mescape(*items):
     """Multiple escape"""
@@ -626,31 +634,45 @@ class MrnaAssayDataSet(DataSet):
     
     def get_trait_data(self):
         self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
-        sample_ids = []
-        where_clause = ""
-        #for sample in self.samplelist:
-        #    if len(where_clause):
-        #        where_clause += " or "
-        #    where_clause += "Strain.Name = '{}'".format(*mescape(sample))
-            
+        #query_samplelist = ', '.join("'{}'".format(x) for x in mescape(*samplelist))
+        #query_samplelist = '( ' + query_samplelist + ' )'
+        #query_samplelist = create_in(samplelist)
+       
+        print("self.samplelist is:", self.samplelist)
+       
         query = """
-            SELECT Strain.Id, Strain.Name FROM Strain, Species
-            WHERE ({})
+            SELECT Strain.Name, Strain.Id FROM Strain, Species
+            WHERE Strain.Name IN {}
             and Strain.SpeciesId=Species.Id
             and Species.name = '{}'
-            """.format(where_clause, *mescape(self.group.species))
-        print("raspberry query: ", query)
-        result = g.db.execute(query).fetchall()
+            """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
+        results = dict(g.db.execute(query).fetchall())
+        print("results are:", results)
+        print("type results are:", type(results))
         
-        print("[blackberry] result is:", pf(result))
-        #sample_ids.append('%d' % this_id)
+        #sample_ids = []
+        #for item in self.samplelist:
+        #    sample_ids.append(results[item])
+            
+        sample_ids = [results[item] for item in self.samplelist]
+        print("sample_ids are:", sample_ids)
+
+        #for sample in self.samplelist:
+        #    pass
+        
+        #for index in range(len(results)):
+        #    sample_ids.append(results[index][0])
 
         # MySQL limits the number of tables that can be used in a join to 61,
         # so we break the sample ids into smaller chunks
-        chunk_count = 50
-        n = len(sample_ids) / chunk_count
-        if len(sample_ids) % chunk_count:
-            n += 1
+        # Postgres doesn't have that limit, so we can get rid of this after we transition
+        chunk_size = 50
+        
+        number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
+
+        trait_sample_data = []
+        for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
+
         #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
         #tempTable = None
         #if GeneId and db.type == "ProbeSet": 
@@ -664,12 +686,14 @@ class MrnaAssayDataSet(DataSet):
         #                                        TissueProbeSetFreezeId=tissueProbeSetFreezeId,
         #                                        method=method,
         #                                        returnNumber=returnNumber)
-        trait_sample_data = []
-        for step in range(int(n)):
-            temp = []
-            sample_ids_step = sample_ids[step*chunk_count:min(len(sample_ids), (step+1)*chunk_count)]
-            for item in sample_ids_step:
-                temp.append('T%s.value' % item)
+        
+        #for step in range(int(n)):
+            #temp = []
+            #sample_ids_step = sample_ids[step*chunk_size:min(len(sample_ids), (step+1)*chunk_size)]
+            #for item in sample_ids_step:
+            #    temp.append('T%s.value' % item)
+                
+            temp = ['T%s.value' % item for item in sample_ids_step]
             query = "SELECT {}.Name,".format(escape(self.type))
             data_start_pos = 1
             query += string.join(temp, ', ')
