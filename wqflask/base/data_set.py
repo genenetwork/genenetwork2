@@ -78,7 +78,7 @@ def create_in_clause(items):
 
 def mescape(*items):
     """Multiple escape"""
-    escaped = [escape(item) for item in items]
+    escaped = [escape(str(item)) for item in items]
     #print("escaped is:", escaped)
     return escaped
 
@@ -634,12 +634,6 @@ class MrnaAssayDataSet(DataSet):
     
     def get_trait_data(self):
         self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
-        #query_samplelist = ', '.join("'{}'".format(x) for x in mescape(*samplelist))
-        #query_samplelist = '( ' + query_samplelist + ' )'
-        #query_samplelist = create_in(samplelist)
-       
-        print("self.samplelist is:", self.samplelist)
-       
         query = """
             SELECT Strain.Name, Strain.Id FROM Strain, Species
             WHERE Strain.Name IN {}
@@ -647,29 +641,13 @@ class MrnaAssayDataSet(DataSet):
             and Species.name = '{}'
             """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
         results = dict(g.db.execute(query).fetchall())
-        print("results are:", results)
-        print("type results are:", type(results))
-        
-        #sample_ids = []
-        #for item in self.samplelist:
-        #    sample_ids.append(results[item])
-            
         sample_ids = [results[item] for item in self.samplelist]
-        print("sample_ids are:", sample_ids)
-
-        #for sample in self.samplelist:
-        #    pass
-        
-        #for index in range(len(results)):
-        #    sample_ids.append(results[index][0])
 
         # MySQL limits the number of tables that can be used in a join to 61,
         # so we break the sample ids into smaller chunks
         # Postgres doesn't have that limit, so we can get rid of this after we transition
         chunk_size = 50
-        
         number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
-
         trait_sample_data = []
         for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
 
@@ -687,12 +665,6 @@ class MrnaAssayDataSet(DataSet):
         #                                        method=method,
         #                                        returnNumber=returnNumber)
         
-        #for step in range(int(n)):
-            #temp = []
-            #sample_ids_step = sample_ids[step*chunk_size:min(len(sample_ids), (step+1)*chunk_size)]
-            #for item in sample_ids_step:
-            #    temp.append('T%s.value' % item)
-                
             temp = ['T%s.value' % item for item in sample_ids_step]
             query = "SELECT {}.Name,".format(escape(self.type))
             data_start_pos = 1
@@ -722,10 +694,10 @@ class MrnaAssayDataSet(DataSet):
         # trait names and values are lists of sample values
         for j in range(trait_count):
             trait_name = trait_sample_data[0][j][0]
-            for i in range(int(n)):
+            for i in range(int(number_chunks)):
                 self.trait_data[trait_name] += trait_sample_data[i][j][data_start_pos:]
 
-    
+
     def get_trait_info(self, trait_list=None, species=''):
 
         #  Note: setting trait_list to [] is probably not a great idea.
