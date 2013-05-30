@@ -672,12 +672,13 @@ class MrnaAssayDataSet(DataSet):
             query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(self.type,
                                                                      self.type,
                                                                      self.type))
-            #XZ, 03/04/2009: Xiaodong changed Data to %sData and changed parameters from %(item,item, db.type,item,item) to %(db.type, item,item, db.type,item,item)
+
             for item in sample_ids_step:
                 query += """
                         left join {}Data as T{} on T{}.Id = {}XRef.DataId
                         and T{}.StrainId={}\n
                         """.format(*mescape(self.type, item, item, self.type, item, item))
+                        
             query += """
                     WHERE {}XRef.{}FreezeId = {}Freeze.Id
                     and {}Freeze.Name = '{}'
@@ -690,17 +691,19 @@ class MrnaAssayDataSet(DataSet):
 
         trait_count = len(trait_sample_data[0])
         self.trait_data = collections.defaultdict(list)
+        
         # put all of the separate data together into a dictionary where the keys are
         # trait names and values are lists of sample values
-        for j in range(trait_count):
-            trait_name = trait_sample_data[0][j][0]
-            for i in range(int(number_chunks)):
-                self.trait_data[trait_name] += trait_sample_data[i][j][data_start_pos:]
-
+        for trait_counter in range(trait_count):
+            trait_name = trait_sample_data[0][trait_counter][0]
+            for chunk_counter in range(int(number_chunks)):
+                self.trait_data[trait_name] += (
+                    trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
+    
 
     def get_trait_info(self, trait_list=None, species=''):
 
-        #  Note: setting trait_list to [] is probably not a great idea.
+        #  Note: setting trait_list to [] is probably not a great idea. 
         if not trait_list:
             trait_list = []
 
@@ -709,9 +712,7 @@ class MrnaAssayDataSet(DataSet):
             if not this_trait.haveinfo:
                 this_trait.retrieveInfo(QTL=1)
 
-            if this_trait.symbol:
-                pass
-            else:
+            if not this_trait.symbol:
                 this_trait.symbol = "N/A"
 
             #XZ, 12/08/2008: description
@@ -719,60 +720,56 @@ class MrnaAssayDataSet(DataSet):
             description_string = str(this_trait.description).strip()
             target_string = str(this_trait.probe_target_description).strip()
 
-            description_display = ''
-
             if len(description_string) > 1 and description_string != 'None':
                 description_display = description_string
             else:
                 description_display = this_trait.symbol
 
-            if len(description_display) > 1 and description_display != 'N/A' and len(target_string) > 1 and target_string != 'None':
+            if (len(description_display) > 1 and description_display != 'N/A' and
+                    len(target_string) > 1 and target_string != 'None'):
                 description_display = description_display + '; ' + target_string.strip()
 
             # Save it for the jinja2 template
             this_trait.description_display = description_display
-            #print("  xxxxdd [%s]: %s" % (type(this_trait.description_display), description_display))
 
             #XZ: trait_location_value is used for sorting
             trait_location_repr = 'N/A'
             trait_location_value = 1000000
 
             if this_trait.chr and this_trait.mb:
-                try:
-                    trait_location_value = int(this_trait.chr)*1000 + this_trait.mb
-                except:
-                    if this_trait.chr.upper() == 'X':
-                        trait_location_value = 20*1000 + this_trait.mb
-                    else:
-                        trait_location_value = ord(str(this_trait.chr).upper()[0])*1000 + this_trait.mb
+                #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
+                #This is so we can convert the location to a number used for sorting
+                trait_location_value = self.convert_location_to_value(this_trait.chr, this_trait.mb)
+                #try:
+                #    trait_location_value = int(this_trait.chr)*1000 + this_trait.mb
+                #except ValueError:
+                #    if this_trait.chr.upper() == 'X':
+                #        trait_location_value = 20*1000 + this_trait.mb
+                #    else:
+                #        trait_location_value = (ord(str(this_trait.chr).upper()[0])*1000 +
+                #                               this_trait.mb)
 
-                this_trait.location_repr = 'Chr %s: %.4f Mb' % (this_trait.chr, float(this_trait.mb) )
+                #ZS: Put this in function currently called "convert_location_to_value"
+                this_trait.location_repr = 'Chr %s: %.4f Mb' % (this_trait.chr,
+                                                                float(this_trait.mb))
                 this_trait.location_value = trait_location_value
-                #this_trait.trait_location_value = trait_location_value
 
-            #XZ, 01/12/08: This SQL query is much faster.
+            #Get mean expression value
             query = (
-"""select ProbeSetXRef.mean from ProbeSetXRef, ProbeSet
-    where ProbeSetXRef.ProbeSetFreezeId = %s and
-    ProbeSet.Id = ProbeSetXRef.ProbeSetId and
-    ProbeSet.Name = '%s'
+            """select ProbeSetXRef.mean from ProbeSetXRef, ProbeSet
+                where ProbeSetXRef.ProbeSetFreezeId = %s and
+                ProbeSet.Id = ProbeSetXRef.ProbeSetId and
+                ProbeSet.Name = '%s'
             """ % (escape(str(this_trait.dataset.id)),
                    escape(this_trait.name)))
 
             print("query is:", pf(query))
 
             result = g.db.execute(query).fetchone()
+            
+            mean = result[0] if result else 0
 
-            if result:
-                if result[0]:
-                    mean = result[0]
-                else:
-                    mean=0
-            else:
-                mean = 0
-
-            #XZ, 06/05/2009: It is neccessary to turn on nowrap
-            this_trait.mean = repr = "%2.3f" % mean
+            this_trait.mean = "%2.3f" % mean
 
             #LRS and its location
             this_trait.LRS_score_repr = 'N/A'
@@ -791,23 +788,39 @@ class MrnaAssayDataSet(DataSet):
                 result = self.cursor.fetchone()
 
                 if result:
-                    if result[0] and result[1]:
-                        LRS_Chr = result[0]
-                        LRS_Mb = result[1]
+                    #if result[0] and result[1]:
+                    #    lrs_chr = result[0]
+                    #    lrs_mb = result[1]
+                    lrs_chr, lrs_mb = result
+                    #XZ: LRS_location_value is used for sorting
+                    lrs_location_value = self.convert_location_to_value(lrs_chr, lrs_mb)
+                    
+                    #try:
+                    #    lrs_location_value = int(lrs_chr)*1000 + float(lrs_mb)
+                    #except:
+                    #    if lrs_chr.upper() == 'X':
+                    #        lrs_location_value = 20*1000 + float(lrs_mb)
+                    #    else:
+                    #        lrs_location_value = (ord(str(LRS_chr).upper()[0])*1000 +
+                    #                              float(lrs_mb))
 
-                        #XZ: LRS_location_value is used for sorting
-                        try:
-                            LRS_location_value = int(LRS_Chr)*1000 + float(LRS_Mb)
-                        except:
-                            if LRS_Chr.upper() == 'X':
-                                LRS_location_value = 20*1000 + float(LRS_Mb)
-                            else:
-                                LRS_location_value = ord(str(LRS_chr).upper()[0])*1000 + float(LRS_Mb)
+                    this_trait.LRS_score_repr = '%3.1f' % this_trait.lrs
+                    this_trait.LRS_score_value = this_trait.lrs
+                    this_trait.LRS_location_repr = 'Chr %s: %.4f Mb' % (lrs_chr, float(lrs_mb))
+      
 
-                        this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
-                        this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
-                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.4f Mb' % (LRS_Chr, float(LRS_Mb) )
-                        
+    def convert_location_to_value(chromosome, mb):
+        try:
+            location_value = int(chromosome)*1000 + float(mb)
+        except ValueError:
+            if chromosome.upper() == 'X':
+                location_value = 20*1000 + float(mb)
+            else:
+                location_value = (ord(str(chromosome).upper()[0])*1000 +
+                                  float(mb))
+        
+        return location_value
+
     def get_sequence(self):
         query = """
                     SELECT

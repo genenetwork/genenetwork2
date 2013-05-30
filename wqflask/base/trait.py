@@ -15,7 +15,7 @@ from pprint import pformat as pf
 
 from flask import Flask, g
 
-class GeneralTrait:
+class GeneralTrait(object):
     """
     Trait class defines a trait in webqtl, can be either Microarray,
     Published phenotype, genotype, or user input trait
@@ -78,7 +78,7 @@ class GeneralTrait:
                 #desc = self.handle_pca(desc)
                 stringy = desc
         return stringy
-    
+
 
 
     def display_name(self):

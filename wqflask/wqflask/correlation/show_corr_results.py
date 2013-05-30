@@ -30,7 +30,6 @@
 from __future__ import absolute_import, print_function, division
 
 import string
-from math import *
 import cPickle
 import os
 import time
@@ -106,6 +105,7 @@ class CorrelationResults(object):
             corr_samples_group = start_vars['corr_samples_group']
     
             self.sample_data = {}
+            self.corr_method = start_vars['corr_sample_method']
     
             #The two if statements below append samples to the sample list based upon whether the user
             #rselected Primary Samples Only, Other Samples Only, or All Samples
@@ -123,27 +123,31 @@ class CorrelationResults(object):
             #if statement if the user selected All Samples)
             if corr_samples_group != 'samples_primary':
                 self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
+                
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
             self.target_dataset.get_trait_data()
+            
             self.correlation_data = {}
             for trait, values in self.target_dataset.trait_data.iteritems():
-                trait_values = []
+                this_trait_values = []
                 target_values = []
                 for index, sample in enumerate(self.target_dataset.samplelist):
-                    target_value = values[index]
-                    if sample in self.sample_data.keys():
-                        this_value = self.sample_data[sample]
-                        trait_values.append(this_value)
-                        target_values.append(target_value)
-                (trait_values, target_values) = normalize_values(trait_values, target_values)
-                correlation = scipy.stats.pearsonr(trait_values, target_values)
-                #correlation = cal_correlation(trait_values, target_values)
-                self.correlation_data[trait] = correlation[0]
-                #print ('correlation result: %s %s' % (trait, correlation))
-        
-        for trait in self.correlation_data:
-            print("correlation: ", self.correlation_data[trait])
-        
+                    if sample in self.sample_data:
+                        sample_value = self.sample_data[sample]
+                        target_sample_value = values[index]
+                        this_trait_values.append(sample_value)
+                        target_values.append(target_sample_value)
+
+                this_trait_values, target_values = normalize_values(this_trait_values, target_values)
+                if self.corr_method == 'pearson':
+                    sample_r, sample_p = scipy.stats.pearsonr(this_trait_values, target_values)
+                else:
+                    sample_r, sample_p = scipy.stats.spearmanr(this_trait_values, target_values)
+                self.correlation_data[trait] = [sample_r, sample_p]
+            self.correlation_data = collections.OrderedDict(
+                sorted(self.correlation_data.items(),
+                        key=lambda t: -abs(t[1][0])))
+
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset
