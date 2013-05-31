@@ -80,7 +80,7 @@ def search_page():
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
-
+            
         if result:
             print("Cache hit!!!")
             with Bench("Loading results"):

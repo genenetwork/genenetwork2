@@ -105,7 +105,7 @@
                                         {% if result.result_fields['species'] == species %}
                                         <tr>
                                             <td>
-                                                <a href="http://gn2python.genenetwork.org/show_trait?trait_id={{ result.result_fields['name'] }}&dataset={{ result.result_fields['dataset'] }}"
+                                                <a href="http://gn2python.genenetwork.org/show_trait?trait_id={{ result.result_fields['name'] }}&dataset={{ result.result_fields['dataset'] }}">
                                                    {{ result.result_fields['name'] }}
                                                 </a>
                                             </td>
@@ -114,7 +114,7 @@
                                             <td>{{ result.result_fields['dataset_name'] }}</td>
                                             <td>{{ result.result_fields['symbol'] }}</td>
                                             <td>{{ result.result_fields['description'] }}</td>
-                                            <td>{{ result.result_fields['chr'] }} : {{ result['mb'] }}</td>
+                                            <td>Chr {{ result.result_fields['chr'] }}: {{ result.result_fields['mb'] }}</td>
                                             <td>{{ result.result_fields['mean'] }}</td>
                                             <td>{{ result.result_fields['lrs'] }}</td>
                                         </tr>
@@ -168,105 +168,6 @@
 
 {% endblock %}
 
-                {#
-                    <table id="pheno_results" class="table table-hover table-striped table-bordered">
-                        <thead>
-                            <tr>
-                            <th>Id</th>
-                            <th>Species</th>
-                            <th>Group</th>
-                            <th>Description</th>
-                            <th>LRS</th>
-                            <th>Year</th>
-                            <th>Authors</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for result in results.phenotype %}
-                            <tr>
-                                <td>{{ result.result_fields['phenotype_id'] }}</td>
-                                <td>{{ result.result_fields['species'] }}</td>
-                                <td>{{ result.result_fields['group_name'] }}</td>
-                                <td>{{ result.result_fields['description'] }}</td>
-                                <td>{{ result.result_fields['lrs'] }}</td>
-                                <td>
-                                    <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ result.result_fields['pubmed_id'] }}&dopt=Abstract">
-                                        {{ result.result_fields['year'] }}
-                                    </a>
-                                </td>
-                                <td>{{ result.result_fields['authors'] }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="tab-pane" id="tab2">
-                    <table id="mrna_assay_results" class="table table-hover table-striped table-bordered">
-                        <thead>
-                            <tr>
-                            <th>Record ID</th>
-                            <th>Species</th>
-                            <th>Group</th>
-                            <th>Data Set</th>
-                            <th>Symbol</th>
-                            <th>Description</th>
-                            <th>Location</th>
-                            <th>Mean Expr</th>
-                            <th>Max LRS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for result in results.mrna_assay %}
-                            <tr>
-                                <td>
-                                    <a href="http://gn2python.genenetwork.org/show_trait?trait_id={{ result.result_fields['name'] }}&dataset={{ result.result_fields['dataset'] }}"
-                                       {{ result.result_fields['name'] }}
-                                    </a>
-                                </td>
-                                <td>{{ result.result_fields['species'] }}</td>
-                                <td>{{ result.result_fields['group_name'] }}</td>
-                                <td>{{ result.result_fields['dataset_name'] }}</td>
-                                <td>{{ result.result_fields['symbol'] }}</td>
-                                <td>{{ result.result_fields['description'] }}</td>
-                                <td>{{ result.result_fields['chr'] }} : {{ result['mb'] }}</td>
-                                <td>{{ result.result_fields['mean'] }}</td>
-                                <td>{{ result.result_fields['lrs'] }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>                    
-                </div>
-                <div class="tab-pane" id="tab3">
-                    <table id="geno_results" class="table table-hover table-striped table-bordered">
-                        <thead>
-                            <tr>
-                            <th>Marker</th>
-                            <th>Species</th>
-                            <th>Group</th>
-                            <th>Data Set</th>
-                            <th>Location</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for result in results.genotype %}
-                            <tr>
-                                <td>
-                                    <a href="http://gn2python.genenetwork.org/show_trait?trait_id={{ result.result_fields['marker_name'] }}&dataset={{ result.result_fields['dataset'] }}">
-                                        {{ result.result_fields['marker_name'] }}
-                                    </a>
-                                </td>
-                                <td>{{ result.result_fields['species'] }}</td>
-                                <td>{{ result.result_fields['group_name'] }}</td>
-                                <td>{{ result.result_fields['dataset_name'] }}</td>
-                                <td>{{ result.result_fields['chr'] }} : {{ result.result_fields['mb'] }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>                     
-                </div>
-                #}
-
-
 {% block js %}  
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
@@ -274,9 +175,14 @@
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
-    
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
+            
+            $("div[id^='tab'").bind('click', function(){
+                tab_id = $(this).attr('id');
+                $("a[href^='"+tab_id+"']").first().trigger('click');
+            });
+            
             $('#species_level ul li:first').addClass('active');
             $('#trait_type_level ul li:first').addClass('active');
             console.time("Creating table");

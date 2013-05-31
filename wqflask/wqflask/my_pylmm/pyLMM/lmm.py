@@ -243,6 +243,8 @@ def run(pheno_vector,
     with Bench("LMM_ob fitting"):
         lmm_ob.fit()
 
+    print("genotype_matrix: ", genotype_matrix.shape)
+
     with Bench("Doing GWAS"):
         t_stats, p_values = GWAS(pheno_vector,
                                 genotype_matrix,
