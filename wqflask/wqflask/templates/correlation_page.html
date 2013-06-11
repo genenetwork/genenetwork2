@@ -24,14 +24,23 @@
                 <th>Sample rho</th>
                 <th>Sample p(rho)</th>
                 {% endif %}
+                <th>Symbol</th>
+                <th>Alias</th>
+                <th>Description</th>
+                <th>Location</th>
             </tr>
         </thead>
         <tbody>
-        {% for trait in correlation_data %}
+        {% for trait in correlation_data_slice %}
             <tr>
                 <td>{{ trait }}</td>
-                <td>{{ correlation_data[trait][0] }}</td>
-                <td>{{ correlation_data[trait][1] }}</td>
+                <td>{{ correlation_data_slice[trait].correlation }}</td>
+                <td>{{ correlation_data_slice[trait].p_value }}</td>
+                <td>{{ correlation_data_slice[trait].symbol }}</td>
+                <td>{{ correlation_data_slice[trait].alias }}</td>
+                <td>{{ correlation_data_slice[trait].description }}</td>
+                <td>Chr{{ correlation_data_slice[trait].chromosome }}: {{ correlation_data_slice[trait].mb }}</td>
+                {# <td>{{ correlation_data_slice[trait][2].__dict__ }}</td> #}
             </tr>
         {% endfor %}
         </tbody>

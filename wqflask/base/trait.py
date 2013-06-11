@@ -23,7 +23,7 @@ class GeneralTrait(object):
     """
 
     def __init__(self, **kw):
-        print("in GeneralTrait")
+        #print("in GeneralTrait")
         self.dataset = kw.get('dataset')           # database name
         self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
         self.cellid = kw.get('cellid')
@@ -269,7 +269,7 @@ class GeneralTrait(object):
                            escape(self.dataset.name),
                            escape(self.name))
             traitInfo = g.db.execute(query).fetchone()
-            print("traitInfo is: ", pf(traitInfo))
+            #print("traitInfo is: ", pf(traitInfo))
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif self.dataset.type == 'Geno':
@@ -287,7 +287,7 @@ class GeneralTrait(object):
                            escape(self.dataset.name),
                            escape(self.name))
             traitInfo = g.db.execute(query).fetchone()
-            print("traitInfo is: ", pf(traitInfo))
+            #print("traitInfo is: ", pf(traitInfo))
         else: #Temp type
             query = """SELECT %s FROM %s WHERE Name = %s
                                      """ % (string.join(self.dataset.display_fields,','),

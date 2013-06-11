@@ -809,7 +809,7 @@ class MrnaAssayDataSet(DataSet):
                     this_trait.LRS_location_repr = 'Chr %s: %.4f Mb' % (lrs_chr, float(lrs_mb))
       
 
-    def convert_location_to_value(chromosome, mb):
+    def convert_location_to_value(self, chromosome, mb):
         try:
             location_value = int(chromosome)*1000 + float(mb)
         except ValueError:

@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function
 import csv
 import StringIO  # Todo: Use cStringIO?
 
+import gc
+
 import cPickle as pickle
 
 import simplejson as json
@@ -252,3 +254,8 @@ def json_default_handler(obj):
     else:
         raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (
             type(obj), repr(obj))
+    
+    
+#@app.after_request
+#def after_request(response):
+#    gc.collect()
