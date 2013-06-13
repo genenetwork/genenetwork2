@@ -69,7 +69,7 @@ def data_sharing_page():
                             htmlfilelist=htmlfilelist)
 
 
-@app.route("/search")
+@app.route("/search", methods=('POST',))
 def search_page():
     print("in search_page")
     if 'info_database' in request.args:

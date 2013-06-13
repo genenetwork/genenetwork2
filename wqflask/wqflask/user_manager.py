@@ -32,3 +32,9 @@ class UserManager(object):
         #print("user is:", user)
         self.user = model.User.query.get(self.user_id)
         print("user is:", self.user)
+
+
+class RolesManager(object):
+    def __init__(self):
+        self.roles = model.Role.query.all()
+        print("Roles are:", self.roles)

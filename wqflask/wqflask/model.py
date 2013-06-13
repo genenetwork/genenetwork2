@@ -64,5 +64,4 @@ security = Security(app, user_datastore)
 
 db.metadata.create_all(db.engine)
 
-
-
+user_datastore.create_role(name="Genentech", description="Genentech Beta Project(testing)")
