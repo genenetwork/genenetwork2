@@ -92,6 +92,7 @@ def search_page():
                 result = pickle.loads(result)
         else:
             print("calling search_results.SearchResultPage")
+            print("request.args is", request.args)
             the_search = search_results.SearchResultPage(request.args)
             result = the_search.__dict__
             
