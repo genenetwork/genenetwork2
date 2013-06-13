@@ -106,7 +106,7 @@ class SearchResultPage(object):
 
             print("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = GeneralTrait(dataset=self.dataset.name, name=trait_id)
+            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id)
             this_trait.retrieve_info(QTL=True)
             self.trait_list.append(this_trait)
 

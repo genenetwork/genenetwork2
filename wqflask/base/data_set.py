@@ -90,8 +90,8 @@ class Markers(object):
         self.markers = json.load(json_data_fh)
     
     def add_pvalues(self, p_values):
-        print("length of self.markers:", len(self.markers))
-        print("length of p_values:", len(p_values))
+        #print("length of self.markers:", len(self.markers))
+        #print("length of p_values:", len(p_values))
         
         # THIS IS only needed for the case when we are limiting the number of p-values calculated
         if len(self.markers) < len(p_values):
@@ -161,7 +161,7 @@ class DatasetGroup(object):
         self.f1list = None
         self.parlist = None        
         self.get_f1_parent_strains()
-        print("parents/f1s: {}:{}".format(self.parlist, self.f1list))
+        #print("parents/f1s: {}:{}".format(self.parlist, self.f1list))
         
         self.species = webqtlDatabaseFunction.retrieve_species(self.name)
         
@@ -170,7 +170,7 @@ class DatasetGroup(object):
         
         
     def get_markers(self):
-        print("self.species is:", self.species)
+        #print("self.species is:", self.species)
         if self.species == "human":
             marker_class = HumanMarkers 
         else:
@@ -293,14 +293,14 @@ class DataSet(object):
             self.name,
             self.name,
             self.name))
-        print("query_args are:", query_args)
+        #print("query_args are:", query_args)
 
-        print("""
-                SELECT Id, Name, FullName, ShortName
-                FROM %s
-                WHERE public > %s AND
-                     (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-          """ % (query_args))
+        #print("""
+        #        SELECT Id, Name, FullName, ShortName
+        #        FROM %s
+        #        WHERE public > %s AND
+        #             (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
+        #  """ % (query_args))
 
         self.id, self.name, self.fullname, self.shortname = g.db.execute("""
                 SELECT Id, Name, FullName, ShortName
@@ -624,12 +624,12 @@ class MrnaAssayDataSet(DataSet):
             and ProbeSetFreezeId = {}
             """.format(escape(str(self.id)))
         results = g.db.execute(query).fetchall()
-        print("After get_trait_list query")
+        #print("After get_trait_list query")
         trait_data = {}
         for trait in results:
             print("Retrieving sample_data for ", trait[0])
             trait_data[trait[0]] = self.retrieve_sample_data(trait[0])
-        print("After retrieve_sample_data")
+        #print("After retrieve_sample_data")
         return trait_data
     
     def get_trait_data(self):
@@ -763,7 +763,7 @@ class MrnaAssayDataSet(DataSet):
             """ % (escape(str(this_trait.dataset.id)),
                    escape(this_trait.name)))
 
-            print("query is:", pf(query))
+            #print("query is:", pf(query))
 
             result = g.db.execute(query).fetchone()
             
@@ -926,7 +926,7 @@ class TempDataSet(DataSet):
 
 def geno_mrna_confidentiality(ob):
     dataset_table = ob.type + "Freeze"
-    print("dataset_table [%s]: %s" % (type(dataset_table), dataset_table))
+    #print("dataset_table [%s]: %s" % (type(dataset_table), dataset_table))
 
     query = '''SELECT Id, Name, FullName, confidentiality,
                         AuthorisedUsers FROM %s WHERE Name = %%s''' % (dataset_table)

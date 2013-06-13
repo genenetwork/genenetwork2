@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
 import string
+import resource
+
 
 from htmlgen import HTMLgen2 as HT
 
@@ -15,6 +17,10 @@ from pprint import pformat as pf
 
 from flask import Flask, g
 
+def print_mem(stage=""):
+    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    print("{}: {}".format(stage, mem/1024))
+
 class GeneralTrait(object):
     """
     Trait class defines a trait in webqtl, can be either Microarray,
@@ -23,8 +29,12 @@ class GeneralTrait(object):
     """
 
     def __init__(self, **kw):
-        #print("in GeneralTrait")
-        self.dataset = kw.get('dataset')           # database name
+        # xor assertion
+        assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. xor name";
+        if kw.get('dataset_name'):
+            self.dataset = create_dataset(kw.get('dataset_name'))
+        else:
+            self.dataset = kw.get('dataset')
         self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
         self.cellid = kw.get('cellid')
         self.identification = kw.get('identification', 'un-named trait')
@@ -39,8 +49,6 @@ class GeneralTrait(object):
                 # self.cellid is set to None above
             elif len(name2) == 3:
                 self.dataset, self.name, self.cellid = name2
-
-        self.dataset = create_dataset(self.dataset)
         
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
@@ -355,8 +363,17 @@ class GeneralTrait(object):
                     #traitQTL = self.cursor.fetchone()
                     if traitQTL:
                         self.locus, self.lrs, self.pvalue, self.mean = traitQTL
+                        if self.locus:
+                            result = g.db.execute("""
+                                select Geno.Chr, Geno.Mb from Geno, Species
+                                where Species.Name = '%s' and
+                                Geno.Name = '%s' and
+                                Geno.SpeciesId = Species.Id
+                                """, (species, self.locus)).fetchone()
+                            self.locus_chr = result[0]
+                            self.locus_mb = result[1]
                     else:
-                        self.locus = self.lrs = self.pvalue = self.mean = ""
+                        self.locus = self.locus_chr = self.locus_mb = self.lrs = self.pvalue = self.mean = ""
                 if self.dataset.type == 'Publish':
                     traitQTL = g.db.execute("""
                             SELECT

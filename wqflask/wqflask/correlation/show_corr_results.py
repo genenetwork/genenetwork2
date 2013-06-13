@@ -92,11 +92,6 @@ class CorrelationResults(object):
     #
     #RANK_ORDERS = {"1": 0, "2": 1, "3": 0, "4": 0, "5": 1}
 
-
-    #def error(self, message, *args, **kw):
-    #    heading = heading or self.PAGE_HEADING
-    #    return templatePage.error(heading = heading, detail = [message], error=error)
-
     def __init__(self, start_vars):
         # get trait list from db (database name)
         # calculate correlation with Base vector and targets
@@ -104,10 +99,8 @@ class CorrelationResults(object):
         #self.this_trait = GeneralTrait(dataset=self.dataset.name,
         #                               name=start_vars['trait_id'],
         #                               cellid=None)                
-        
         #print("start_vars: ", pf(start_vars))
         with Bench("Doing correlations"):
-            print_mem("At beginning")
             helper_functions.get_species_dataset_trait(self, start_vars)
             self.dataset.group.read_genotype_file()
     
@@ -138,7 +131,6 @@ class CorrelationResults(object):
 
 
             self.correlation_data = {}
-            print_mem("Before calculating correlations")
             for trait, values in self.target_dataset.trait_data.iteritems():
                 this_trait_values = []
                 target_values = []
@@ -150,63 +142,60 @@ class CorrelationResults(object):
                         target_values.append(target_sample_value)
 
                 this_trait_values, target_values = normalize_values(this_trait_values, target_values)
-                
+
                 if self.corr_method == 'pearson':
                     sample_r, sample_p = scipy.stats.pearsonr(this_trait_values, target_values)
                 else:
                     sample_r, sample_p = scipy.stats.spearmanr(this_trait_values, target_values)
-                    
+
                 self.correlation_data[trait] = [sample_r, sample_p]
-                
-            print_mem("After calculating correlations")
-            
+
             self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
                                                                    key=lambda t: -abs(t[1][0])))
-            
+
             self.correlation_data_slice = collections.OrderedDict()
-            
-            old_memory_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-            
+
             for trait_counter, trait in enumerate(self.correlation_data.keys()[:300]):
-                print_mem("In trait info loop")
-                print("\nTrait #:", trait_counter)
-                print_mem("Before trait_object")
-                trait_object = GeneralTrait(dataset=self.dataset.name, name=trait)
-                print_mem("After trait object")
-                trait_info = dict(
-                    correlation = float(self.correlation_data[trait][0]),
-                    p_value = float(self.correlation_data[trait][1]),
-                    symbol = trait_object.symbol,
-                    alias = trait_object.alias,
-                    description = trait_object.description,
-                    chromosome = trait_object.chr,
-                    mb = trait_object.mb
-                )
-                print_mem("Before deleting trait object")
-                del trait_object
-                print_mem("After deleting trait object")
-                gc.collect()
-                print_mem("After colleting garabage")
-                print("** trait_info:", pf(trait_info))
-                print("\n** Start trait_info")
-                counter = 1
-                for key, value in trait_info.iteritems():
-                    print("   <{}> [{}] {}: [{}] {}\n".format(
-                        counter, type(key), key, type(value), value))
-                    counter += 1
-                print("** Done trait_info")
+                trait_object = GeneralTrait(dataset=self.dataset, name=trait)
+                if self.dataset.type == 'ProbeSet':
+                    trait_info = collections.OrderedDict(
+                        correlation = float(self.correlation_data[trait][0]),
+                        p_value = float(self.correlation_data[trait][1]),
+                        symbol = trait_object.symbol,
+                        alias = trait_object.alias,
+                        description = trait_object.description,
+                        chromosome = trait_object.chr,
+                        mb = trait_object.mb
+                    )
+                    if hasattr(trait_object, 'mean'):
+                       trait_info[mean] = trait_object.mean
+                    if hasattr(trait_object, 'lrs'):
+                       trait_info[lrs] = trait_object.lrs
+                    if hasattr(trait_object, 'locus_chr'):
+                       trait_info[locus_chr] = trait_object.locus_chr
+                    if hasattr(trait_object, 'locus_mb'):
+                       trait_info[locus_mb] = trait_object.locus_mb
+                elif self.dataset.type == 'Geno':
+                    trait_info = collections.OrderedDict(
+                        correlation = float(self.correlation_data[trait][0]),
+                        p_value = float(self.correlation_data[trait][1]),
+                        symbol = trait_object.symbol,
+                        alias = trait_object.alias,
+                        description = trait_object.description,
+                        chromosome = trait_object.chr,
+                        mb = trait_object.mb
+                    )
+                else: # 'Publish'
+                    trait_info = collections.OrderedDict(
+                        correlation = float(self.correlation_data[trait][0]),
+                        p_value = float(self.correlation_data[trait][1]),
+                        symbol = trait_object.symbol,
+                        alias = trait_object.alias,
+                        description = trait_object.description,
+                        chromosome = trait_object.chr,
+                        mb = trait_object.mb
+                    )
                 self.correlation_data_slice[trait] = trait_info
-                #self.correlation_data_slice[trait].append(trait_object)
-                
-                new_memory_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-                print("Memory difference:", new_memory_usage-old_memory_usage)
-                old_memory_usage = new_memory_usage
-                print_mem("End of purple loop")
-                print("*************************** End purple ******** ")
-               
-            print_mem("After getting trait info")
-            print("Garbage colleting...")
-            gc.collect()
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset
