@@ -11,6 +11,8 @@ from utility import formatting
 
 app = Flask(__name__)
 
+app.config.SECURITY_PASSWORD_HASH='bcrypt'
+
 # See http://flask.pocoo.org/docs/config/#configuring-from-files
 app.config.from_object('cfg.default_settings')
 app.config.from_envvar('WQFLASK_SETTINGS')
