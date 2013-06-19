@@ -286,7 +286,6 @@ class GeneralTrait(object):
                            escape(self.dataset.name),
                            escape(self.name))
             trait_info = g.db.execute(query).fetchone()
-            #print("trait_info is: ", pf(trait_info))
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif self.dataset.type == 'Geno':
@@ -319,7 +318,6 @@ class GeneralTrait(object):
 
             #XZ: assign SQL query result to trait attributes.
             for i, field in enumerate(self.dataset.display_fields):
-                print("  mike: {} -> {} - {}".format(field, type(trait_info[i]), trait_info[i]))
                 setattr(self, field, trait_info[i])
 
             if self.dataset.type == 'Publish':
@@ -329,9 +327,6 @@ class GeneralTrait(object):
 
             self.homologeneid = None
             
-            print("self.geneid is:", self.geneid)
-            print("  type:", type(self.geneid))
-            print("self.dataset.group.name is:", self.dataset.group.name)
             if self.dataset.type == 'ProbeSet' and self.dataset.group and self.geneid:
                 #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
                 #XZ: So I have to test if geneid is number before execute the query.
@@ -356,7 +351,6 @@ class GeneralTrait(object):
                                 InbredSet.SpeciesId = Species.Id AND
                                 Species.TaxonomyId = Homologene.TaxonomyId
                         """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
-                print("-> query is:", query)
                 result = g.db.execute(query).fetchone()
                 #else:
                 #    result = None
@@ -388,7 +382,6 @@ class GeneralTrait(object):
                                 Geno.Name = '{}' and
                                 Geno.SpeciesId = Species.Id
                                 """.format(self.dataset.group.species, self.locus)
-                            print("query is:", query)
                             result = g.db.execute(query).fetchone()
                             self.locus_chr = result[0]
                             self.locus_mb = result[1]
