@@ -28,7 +28,7 @@ class GeneralTrait(object):
 
     """
 
-    def __init__(self, **kw):
+    def __init__(self, get_qtl_info=False, **kw):
         # xor assertion
         assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. xor name";
         if kw.get('dataset_name'):
@@ -41,6 +41,14 @@ class GeneralTrait(object):
         self.haveinfo = kw.get('haveinfo', False)
         self.sequence = kw.get('sequence')         # Blat sequence, available for ProbeSet
         self.data = kw.get('data', {})
+        
+        # Sets defaultst
+        self.locus = None
+        self.lrs = None
+        self.pvalue = None
+        self.mean = None
+        self.num_overlap = None
+        
 
         if kw.get('fullname'):
             name2 = value.split("::")
@@ -52,8 +60,9 @@ class GeneralTrait(object):
         
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
-        self.retrieve_info()
+        self.retrieve_info(get_qtl_info=get_qtl_info)
         self.retrieve_sample_data()
+        
 
 
     def get_name(self):
@@ -237,7 +246,7 @@ class GeneralTrait(object):
     #def items(self):
     #    return self.__dict__.items()
 
-    def retrieve_info(self, QTL=False):
+    def retrieve_info(self, get_qtl_info=False):
         assert self.dataset, "Dataset doesn't exist"
         if self.dataset.type == 'Publish':
             query = """
@@ -347,7 +356,7 @@ class GeneralTrait(object):
                 if result:
                     self.homologeneid = result[0]
 
-            if QTL:
+            if get_qtl_info:
                 if self.dataset.type == 'ProbeSet' and not self.cellid:
                     traitQTL = g.db.execute("""
                             SELECT

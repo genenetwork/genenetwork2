@@ -17,30 +17,37 @@
         <thead>
             <tr>
                 <th>Trait</th>
+                <th>Symbol</th>
+                <th>Alias</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Mean Expr</th>
+                <th>Max LRS</th>
+                <th>Max LRS Location</th>
                 {% if corr_method == 'pearson' %}
                 <th>Sample r</th>
+                <th>N Cases</th>
                 <th>Sample p(r)</th>
                 {% else %}
                 <th>Sample rho</th>
                 <th>Sample p(rho)</th>
                 {% endif %}
-                <th>Symbol</th>
-                <th>Alias</th>
-                <th>Description</th>
-                <th>Location</th>
             </tr>
         </thead>
         <tbody>
-        {% for trait in correlation_data_slice %}
+        {% for trait in correlation_results %}
             <tr>
-                <td>{{ trait }}</td>
-                <td>{{ correlation_data_slice[trait].correlation }}</td>
-                <td>{{ correlation_data_slice[trait].p_value }}</td>
-                <td>{{ correlation_data_slice[trait].symbol }}</td>
-                <td>{{ correlation_data_slice[trait].alias }}</td>
-                <td>{{ correlation_data_slice[trait].description }}</td>
-                <td>Chr{{ correlation_data_slice[trait].chromosome }}: {{ correlation_data_slice[trait].mb }}</td>
-                {# <td>{{ correlation_data_slice[trait][2].__dict__ }}</td> #}
+                <td>{{ trait.name }}</td>
+                <td>{{ trait.symbol }}</td>
+                <td>{{ trait.alias }}</td>
+                <td>{{ trait.description }}</td>
+                <td>Chr{{ trait.chr }}: {{ trait.mb }}</td>
+                <td>{{ trait.mean }}</td>
+                <td>{{ trait.lrs }}</td>
+                <td>Chr{{ trait.locus_chr }}: {{ trait.locus_mb }}</td>
+                <td>{{ trait.sample_r }}</td>
+                <td>{{ trait.num_overlap }}</td>
+                <td>{{ trait.sample_p }}</td>
             </tr>
         {% endfor %}
         </tbody>

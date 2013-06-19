@@ -13,19 +13,10 @@
 # This program is available from Source Forge: at GeneNetwork Project
 # (sourceforge.net/projects/genenetwork/).
 #
-# Contact Drs. Robert W. Williams and Xiaodong Zhou (2010)
-# at rwilliams@uthsc.edu and xzhou15@uthsc.edu
-#
+# Contact Dr. Robert W. Williams at rwilliams@uthsc.edu
 #
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
-#
-# Created by GeneNetwork Core Team 2010/08/10
-#
-# Last updated by NL 2011/02/11
-# Last updated by Christian Fernandez 2012/04/07
-# Refactored correlation calculation into smaller functions in preparation of
-# separating html from existing code
 
 from __future__ import absolute_import, print_function, division
 
@@ -34,7 +25,6 @@ import string
 import cPickle
 import os
 import time
-#import pyXLWriter as xl
 import pp
 import math
 import collections
@@ -103,29 +93,29 @@ class CorrelationResults(object):
         with Bench("Doing correlations"):
             helper_functions.get_species_dataset_trait(self, start_vars)
             self.dataset.group.read_genotype_file()
-    
+
             corr_samples_group = start_vars['corr_samples_group']
-    
+
             self.sample_data = {}
             self.corr_method = start_vars['corr_sample_method']
-    
+
             #The two if statements below append samples to the sample list based upon whether the user
             #rselected Primary Samples Only, Other Samples Only, or All Samples
-    
+
             primary_samples = (self.dataset.group.parlist +
                                    self.dataset.group.f1list +
                                    self.dataset.group.samplelist)
-    
+
             #If either BXD/whatever Only or All Samples, append all of that group's samplelist      
             if corr_samples_group != 'samples_other':
                 self.process_samples(start_vars, primary_samples, ())
-            
+
             #If either Non-BXD/whatever or All Samples, get all samples from this_trait.data and
             #exclude the primary samples (because they would have been added in the previous
             #if statement if the user selected All Samples)
             if corr_samples_group != 'samples_primary':
                 self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
-                
+
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
             self.target_dataset.get_trait_data()
 
@@ -141,61 +131,72 @@ class CorrelationResults(object):
                         this_trait_values.append(sample_value)
                         target_values.append(target_sample_value)
 
-                this_trait_values, target_values = normalize_values(this_trait_values, target_values)
+                this_trait_values, target_values, num_overlap = normalize_values(this_trait_values,
+                                                                                 target_values)
 
                 if self.corr_method == 'pearson':
                     sample_r, sample_p = scipy.stats.pearsonr(this_trait_values, target_values)
                 else:
                     sample_r, sample_p = scipy.stats.spearmanr(this_trait_values, target_values)
 
-                self.correlation_data[trait] = [sample_r, sample_p]
+                self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
 
             self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
                                                                    key=lambda t: -abs(t[1][0])))
 
-            self.correlation_data_slice = collections.OrderedDict()
+            self.correlation_results = []
+
+            #self.correlation_data_slice = collections.OrderedDict()
 
             for trait_counter, trait in enumerate(self.correlation_data.keys()[:300]):
-                trait_object = GeneralTrait(dataset=self.dataset, name=trait)
-                if self.dataset.type == 'ProbeSet':
-                    trait_info = collections.OrderedDict(
-                        correlation = float(self.correlation_data[trait][0]),
-                        p_value = float(self.correlation_data[trait][1]),
-                        symbol = trait_object.symbol,
-                        alias = trait_object.alias,
-                        description = trait_object.description,
-                        chromosome = trait_object.chr,
-                        mb = trait_object.mb
-                    )
-                    if hasattr(trait_object, 'mean'):
-                       trait_info[mean] = trait_object.mean
-                    if hasattr(trait_object, 'lrs'):
-                       trait_info[lrs] = trait_object.lrs
-                    if hasattr(trait_object, 'locus_chr'):
-                       trait_info[locus_chr] = trait_object.locus_chr
-                    if hasattr(trait_object, 'locus_mb'):
-                       trait_info[locus_mb] = trait_object.locus_mb
-                elif self.dataset.type == 'Geno':
-                    trait_info = collections.OrderedDict(
-                        correlation = float(self.correlation_data[trait][0]),
-                        p_value = float(self.correlation_data[trait][1]),
-                        symbol = trait_object.symbol,
-                        alias = trait_object.alias,
-                        description = trait_object.description,
-                        chromosome = trait_object.chr,
-                        mb = trait_object.mb
-                    )
-                else: # 'Publish'
-                    trait_info = collections.OrderedDict(
-                        correlation = float(self.correlation_data[trait][0]),
-                        p_value = float(self.correlation_data[trait][1]),
-                        symbol = trait_object.symbol,
-                        alias = trait_object.alias,
-                        description = trait_object.description,
-                        chromosome = trait_object.chr,
-                        mb = trait_object.mb
-                    )
-                self.correlation_data_slice[trait] = trait_info
+                trait_object = GeneralTrait(dataset=self.dataset, name=trait, get_qtl_info=True)
+                trait_object.sample_r = self.correlation_data[trait][0]
+                trait_object.sample_p = self.correlation_data[trait][1]
+                trait_object_num_overlap = self.correlation_data[trait][2]
+                self.correlation_results.append(trait_object)
+                
+                #self.correlation_data_slice[trait] = self.correlation_data[trait]
+                #self.correlation_data_slice[trait].append(trait_object)
+                #if self.dataset.type == 'ProbeSet':
+                #    trait_info = collections.OrderedDict(
+                #        correlation = float(self.correlation_data[trait][0]),
+                #        p_value = float(self.correlation_data[trait][1]),
+                #        symbol = trait_object.symbol,
+                #        alias = trait_object.alias,
+                #        description = trait_object.description,
+                #        chromosome = trait_object.chr,
+                #        mb = trait_object.mb
+                #    )
+                #    if trait_object.mean:
+                #        trait_info[mean] = trait_object.mean
+                #    if hasattr(trait_object, 'mean'):
+                #       trait_info[mean] = trait_object.mean
+                #    if hasattr(trait_object, 'lrs'):
+                #       trait_info[lrs] = trait_object.lrs
+                #    if hasattr(trait_object, 'locus_chr'):
+                #       trait_info[locus_chr] = trait_object.locus_chr
+                #    if hasattr(trait_object, 'locus_mb'):
+                #       trait_info[locus_mb] = trait_object.locus_mb
+                #elif self.dataset.type == 'Geno':
+                #    trait_info = collections.OrderedDict(
+                #        correlation = float(self.correlation_data[trait][0]),
+                #        p_value = float(self.correlation_data[trait][1]),
+                #        symbol = trait_object.symbol,
+                #        alias = trait_object.alias,
+                #        description = trait_object.description,
+                #        chromosome = trait_object.chr,
+                #        mb = trait_object.mb
+                #    )
+                #else: # 'Publish'
+                #    trait_info = collections.OrderedDict(
+                #        correlation = float(self.correlation_data[trait][0]),
+                #        p_value = float(self.correlation_data[trait][1]),
+                #        symbol = trait_object.symbol,
+                #        alias = trait_object.alias,
+                #        description = trait_object.description,
+                #        chromosome = trait_object.chr,
+                #        mb = trait_object.mb
+                #    )
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset
@@ -1067,8 +1068,9 @@ def normalize_values(values_1, values_2):
         if values_1[i]!= None and values_2[i]!= None:
             X.append(values_1[i])
             Y.append(values_2[i])
+    num_overlap = len(X)
             
-    return (X, Y)
+    return (X, Y, num_overlap)
 
 
 def cal_correlation(values_1, values_2):
