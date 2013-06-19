@@ -6,6 +6,8 @@ print("sys.path is:", sys.path)
 import csv
 import StringIO  # Todo: Use cStringIO?
 
+import gc
+
 import cPickle as pickle
 
 import simplejson as json

@@ -198,7 +198,8 @@ tidyp -m -i -w 100 index_page.html
 
 ===========================================
 
-ps -ax - View processes
+ps ax - View processes
+ps ux (the "u" is for user)
 
 kill (process #)
 

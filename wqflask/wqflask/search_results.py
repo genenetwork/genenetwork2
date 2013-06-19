@@ -42,7 +42,6 @@ from utility import formatting
     #def __init__(self, key, result_fields):
     #    self.key = key
     #    self.result_fields = result_fields
-    
 
 class SearchResultPage(object):
     #maxReturn = 3000
@@ -107,7 +106,7 @@ class SearchResultPage(object):
 
             print("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = GeneralTrait(dataset=self.dataset.name, name=trait_id)
+            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id)
             this_trait.retrieve_info(QTL=True)
             self.trait_list.append(this_trait)
 
