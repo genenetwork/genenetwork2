@@ -319,7 +319,7 @@ class GeneralTrait(object):
 
             #XZ: assign SQL query result to trait attributes.
             for i, field in enumerate(self.dataset.display_fields):
-                setattr(self, field, traitInfo[i])
+                setattr(self, field, str(traitInfo[i]))
 
             if self.dataset.type == 'Publish':
                 self.confidential = 0

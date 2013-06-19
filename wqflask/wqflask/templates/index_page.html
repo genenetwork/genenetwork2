@@ -9,7 +9,6 @@
         <div class="container">
             <h1>GeneNetwork</h1>
             <p class="lead">Open source bioinformatics for systems genetics</p>
-            <p>- Lei Yan</p>
         </div>
     </header>
 
@@ -33,7 +32,14 @@
                     </div>
                     <form method="get" action="/search"  name="SEARCHFORM">
                         <fieldset>
-                            <label for="quick">Search:</label>
+                            <div class="input-prepend">
+                                <select id="trait_type" name="trait_type" class="span2">
+                                    <option value="all">All</option>
+                                    <option value="mrna_assay">Molecular Assays</option>
+                                    <option value="phenotype">Phenotypes</option>
+                                    <option value="genotype">Genotypes</option>
+                                </select>
+                            </div>
                             <div class="input-append">
                                 <input class="input-xlarge"
                                     id="quick" name="q"
@@ -43,11 +49,9 @@
                                     class="btn btn-primary" value="Search">
                             </div>
                         </fieldset>
-                       
                     </form>
                 </section>
                 <section id="search">
-                    
                     <div class="page-header">
                         <h1>Select and search</h1>
                     </div>

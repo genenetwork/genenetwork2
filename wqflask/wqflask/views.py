@@ -78,17 +78,28 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        print("calling search_results.SearchResultPage")
-        the_search = search_results.SearchResultPage(request.args)
-        print("template_vars is:", pf(the_search.__dict__))
-        #print("trait_list is:", pf(the_search.__dict__['trait_list'][0].__dict__))
-        #for trait in the_search.trait_list:
-        #    print(" -", trait.description_display)
-
-        if the_search.quick:
-            return render_template("quick_search.html", **the_search.__dict__)
+        key = "search_results:v2:" + json.dumps(request.args, sort_keys=True)
+        print("key is:", pf(key))
+        with Bench("Loading cache"):
+            result = Redis.get(key)
+            
+        if result:
+            print("Cache hit!!!")
+            with Bench("Loading results"):
+                result = pickle.loads(result)
         else:
-            return render_template("search_result_page.html", **the_search.__dict__)
+            print("calling search_results.SearchResultPage")
+            the_search = search_results.SearchResultPage(request.args)
+            result = the_search.__dict__
+            
+            print("result: ", pf(result))
+            Redis.set(key, pickle.dumps(result))
+            Redis.expire(key, 60*60)
+
+        if result['quick']:
+            return render_template("quick_search.html", **result)
+        else:
+            return render_template("search_result_page.html", **result)
 
 
 @app.route("/whats_new")
@@ -173,9 +184,10 @@ def marker_regression_page():
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
-    
+
     version = "v14"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+    print("key is:", pf(key))
     with Bench("Loading cache"):
         result = Redis.get(key)
     

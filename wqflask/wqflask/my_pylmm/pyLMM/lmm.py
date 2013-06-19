@@ -28,6 +28,8 @@ from scipy import stats
 import pdb
 
 import gzip
+import zlib
+import datetime
 import cPickle as pickle
 import simplejson as json
 
@@ -37,6 +39,9 @@ from utility.benchmark import Bench
 from utility import temp_data
 
 from wqflask.my_pylmm.pyLMM import chunks
+
+import redis
+Redis = redis.Redis()
 
 #np.seterr('raise')
 
@@ -51,6 +56,20 @@ def run_human(pheno_vector,
     keep = True - v
     keep = keep.reshape((len(keep),))
 
+    identifier = str(uuid.uuid4())
+    
+    print("pheno_vector: ", pf(pheno_vector))
+    print("kinship_matrix: ", pf(kinship_matrix))
+    print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
+
+    lmm_vars = pickle.dumps(dict(
+        pheno_vector = pheno_vector,
+        covariate_matrix = covariate_matrix,
+        kinship_matrix = kinship_matrix
+    ))
+    Redis.hset(identifier, "lmm_vars", lmm_vars)
+    Redis.expire(identifier, 60*60)
+
     if v.sum():
         pheno_vector = pheno_vector[keep]
         #print("pheno_vector shape is now: ", pf(pheno_vector.shape))
@@ -60,16 +79,18 @@ def run_human(pheno_vector,
         kinship_matrix = kinship_matrix[keep,:][:,keep]
 
     n = kinship_matrix.shape[0]
+    #print("n is:", n)
     lmm_ob = LMM(pheno_vector,
                 kinship_matrix,
                 covariate_matrix)
     lmm_ob.fit()
 
+
     # Buffers for pvalues and t-stats
     p_values = []
     t_stats = []
 
-    print("input_file: ", plink_input_file)
+    #print("input_file: ", plink_input_file)
 
     with Bench("Opening and loading pickle file"):
         with gzip.open(plink_input_file, "rb") as input_file:
@@ -87,44 +108,64 @@ def run_human(pheno_vector,
         with Bench("Create list of inputs"):
             inputs = list(plink_input)
             
+        print("len(genotypes): ", len(inputs))
+
         with Bench("Divide into chunks"):
             results = chunks.divide_into_chunks(inputs, 64)
 
         result_store = []
-        identifier = uuid.uuid4()
-        for part, result in enumerate(results):
-            # todo: Don't use TempData here. Instead revert old one and store this stuff as a list
-            data_store = temp_data.TempData(identifier, "plink", part)
-            
-            data_store.store("data", pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
-            result_store.append(data_store)
 
-        for snp, this_id in plink_input:
-            with Bench("part before association"):
-                if count > 2000:
-                    break
-                count += 1
-
-                percent_complete = (float(count) / total_snps) * 100
-                #print("percent_complete: ", percent_complete)
-                loading_progress.store("percent_complete", percent_complete)
+        key = "plink_inputs"
         
-            with Bench("actual association"):
-                ps, ts = human_association(snp,
-                                           n,
-                                           keep,
-                                           lmm_ob,
-                                           pheno_vector,
-                                           covariate_matrix,
-                                           kinship_matrix,
-                                           refit)
+        # Todo: Delete below line when done testing
+        Redis.delete(key)
+        
+        timestamp = datetime.datetime.utcnow().isoformat()
 
-            with Bench("after association"):
-                p_values.append(ps)
-                t_stats.append(ts)
+        #print("Starting adding loop")
+        for part, result in enumerate(results):
+            #data = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+            holder = pickle.dumps(dict(
+                identifier = identifier,
+                part = part,
+                timestamp = timestamp,
+                result = result
+            ), pickle.HIGHEST_PROTOCOL)
+            
+            #print("Adding:", part)
+            Redis.rpush(key, zlib.compress(holder))
+        #print("End adding loop")
+        #print("***** Added to {} queue *****".format(key))
+        for snp, this_id in plink_input:
+            #with Bench("part before association"):
+            if count > 2000:
+                break
+            count += 1
+
+            percent_complete = (float(count) / total_snps) * 100
+            #print("percent_complete: ", percent_complete)
+            loading_progress.store("percent_complete", percent_complete)
+
+            #with Bench("actual association"):
+            ps, ts = human_association(snp,
+                                       n,
+                                       keep,
+                                       lmm_ob,
+                                       pheno_vector,
+                                       covariate_matrix,
+                                       kinship_matrix,
+                                       refit)
+
+            #with Bench("after association"):
+            p_values.append(ps)
+            t_stats.append(ts)
         
     return p_values, t_stats
 
+
+#class HumanAssociation(object):
+#    def __init__(self):
+#        
 
 def human_association(snp,
                       n,
@@ -201,6 +242,8 @@ def run(pheno_vector,
     
     with Bench("LMM_ob fitting"):
         lmm_ob.fit()
+
+    print("genotype_matrix: ", genotype_matrix.shape)
 
     with Bench("Doing GWAS"):
         t_stats, p_values = GWAS(pheno_vector,
@@ -304,7 +347,7 @@ def GWAS(pheno_vector,
     covariate_matrix - n x q covariate matrix
     restricted_max_likelihood - use restricted maximum likelihood
     refit - refit the variance component for each SNP
-      
+    
     """
     if kinship_eigen_vals == None:
         kinship_eigen_vals = []

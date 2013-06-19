@@ -78,8 +78,9 @@ class MarkerRegression(object):
             
             genotype_matrix = np.array(trimmed_genotype_data).T
             
-            print("pheno_vector is: ", pf(pheno_vector))
-            print("genotype_matrix is: ", pf(genotype_matrix))
+            print("pheno_vector: ", pf(pheno_vector))
+            print("genotype_matrix: ", pf(genotype_matrix))
+            print("genotype_matrix.shape: ", pf(genotype_matrix.shape))
             
             t_stats, p_values = lmm.run(
                 pheno_vector,

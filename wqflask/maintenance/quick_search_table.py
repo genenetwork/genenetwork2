@@ -1,17 +1,17 @@
-from __future__ import print_function, division, absolute_import
+"""Creates a table used for the quick search feature.
 
-"""
+One column contains the terms to match the user's search against. Another contains the result
+fields in json format
+
 Results will be returned for each of several trait types: mRNA assays, phenotypes, genotypes, and
 (maybe later) genes
 
-For each trait type, the results for each species should be given; for example, have a "Mouse" tab
-with the mouse traits in a table inside it
-
-This table will then list each trait, its dataset, and several columns determined by its trait type
-(phenotype, genotype, etc)
+For each trait type, the results for each species should be given This table will then list
+each trait, its dataset, and several columns determined by its trait type (phenotype, genotype, etc)
 
 """
 
+from __future__ import print_function, division, absolute_import
 
 import sys
 sys.path.append("../../..")
@@ -19,19 +19,17 @@ sys.path.append("../../..")
 import simplejson as json
 
 import sqlalchemy as sa
-from sqlalchemy.dialects import mysql
-from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-from pprint import pformat as pf
+#from pprint import pformat as pf
 
 import zach_settings as settings
 
 Engine = sa.create_engine(settings.SQLALCHEMY_DATABASE_URI,
                        #encoding='utf-8',
                        #client_encoding='utf-8',
-                       #echo="debug",
+                       #echo="debug",w
                        )
 
 Session = scoped_session(sessionmaker(bind=Engine)) #, extension=VersionedListener()))
@@ -41,6 +39,14 @@ Metadata = sa.MetaData()
 Metadata.bind = Engine
 
 class PublishXRef(Base):
+    """Class that corresponds with the PublishXRef table in the database.
+    
+    The PublishXRef table links phenotype traits and their publications.
+    
+    This class is used to add phenotype traits to the quick search table.
+    
+    """
+    
     __tablename__ = 'PublishXRef'
 
     Id = sa.Column(sa.Integer, primary_key=True)
@@ -56,15 +62,16 @@ class PublishXRef(Base):
 
     @classmethod
     def run(cls):
+        """Connects to database and inserts phenotype trait info into the Quicksearch table."""
         conn = Engine.connect()
         counter = 0
-        for ps in page_query(Session.query(cls)):   #all()
+        for pub_row in page_query(Session.query(cls)):   #all()
             values = {}
             values['table_name'] = cls.__tablename__
-            values['the_key'] = json.dumps([ps.Id, ps.InbredSetId])
-            values['terms'] = cls.get_unique_terms(ps.Id, ps.InbredSetId)
+            values['the_key'] = json.dumps([pub_row.Id, pub_row.InbredSetId])
+            values['terms'] = cls.get_unique_terms(pub_row.Id, pub_row.InbredSetId)
             print("terms is:", values['terms'])
-            values['result_fields'] = cls.get_result_fields(ps.Id, ps.InbredSetId)
+            values['result_fields'] = cls.get_result_fields(pub_row.Id, pub_row.InbredSetId)
             ins = QuickSearch.insert().values(**values)
             conn.execute(ins)
             counter += 1
@@ -72,6 +79,7 @@ class PublishXRef(Base):
 
     @staticmethod
     def get_unique_terms(publishxref_id, inbredset_id):
+        """Finds unique terms for each item in the PublishXRef table to match a query against"""
         results = Session.query(
                 "pre_publication_description",
                 "post_publication_description",
@@ -119,6 +127,7 @@ class PublishXRef(Base):
 
     @staticmethod
     def get_result_fields(publishxref_id, inbredset_id):
+        """Gets the result fields (columns) that appear on the result page as a json string"""
         results = Session.query(
                 "phenotype_id",
                 "species",
@@ -136,7 +145,7 @@ class PublishXRef(Base):
                 "Phenotype.Original_description as description, "
                 "PublishXRef.LRS as lrs, "
                 "PublishXRef.PublicationId as publication_id, "
-                "Publication.PubMed_ID"
+                "Publication.PubMed_ID as pubmed_id, "
                 "Publication.Year as year, "
                 "Publication.Authors as authors "
                 "FROM PublishXRef, "
@@ -150,17 +159,10 @@ class PublishXRef(Base):
                 "PublishXRef.PublicationId = Publication.Id and "
                 "InbredSet.Id = :inbredset_id and "
                 "Species.Id = InbredSet.SpeciesId ").params(publishxref_id=publishxref_id,
-                                                            inbredset_id=inbredset_id).all()                
-                #"InbredSet.SpeciesId = Species.Id and "
-                #"Geno.SpeciesId = Species.Id and "
-                #"Geno.Name = PublishXRef.Locus ").params(publishxref_id=publishxref_id,
-                #                                            inbredset_id=inbredset_id).all()
-        #for result in results:
-        #    print("****", result)
+                                                            inbredset_id=inbredset_id).all()
 
         assert len(set(result for result in results)) == 1, "Different results or no results"
 
-        #print("results are:", results)
         result = results[0]
         result = row2dict(result)
         try:
@@ -176,7 +178,16 @@ class PublishXRef(Base):
 
         return json_results
 
+
 class GenoXRef(Base):
+    """Class that corresponds with the GenoXRef table in the database.
+    
+    The GenoXRef table links genotype traits and their data.
+    
+    This class is used to add genotype traits to the quick search table.
+    
+    """
+    
     __tablename__ = 'GenoXRef'
     
     GenoFreezeId = sa.Column(sa.Integer, primary_key=True)
@@ -187,6 +198,7 @@ class GenoXRef(Base):
 
     @classmethod
     def run(cls):
+        """Connects to database and inserts genotype trait info into the Quicksearch table."""
         conn = Engine.connect()
         counter = 0
         for item in page_query(Session.query(cls)):   #all()
@@ -201,9 +213,10 @@ class GenoXRef(Base):
                 conn.execute(ins)
             counter += 1
             print("Done:", counter)
-    
+
     @staticmethod
     def get_unique_terms(geno_id):
+        """Finds unique terms for each item in the GenoXRef table to match a query against"""
         print("geno_id: ", geno_id)
         results = Session.query(
                 "name",
@@ -213,8 +226,6 @@ class GenoXRef(Base):
                 "Geno.Marker_Name as marker_name "
                 "FROM Geno "
                 "WHERE Geno.Id = :geno_id ").params(geno_id=geno_id).all()
-        
-        #print("results: ", pf(results))
         
         unique = set()
         if len(results):
@@ -234,12 +245,12 @@ class GenoXRef(Base):
                             continue 
                         
                         unique.add(token)
-        #print("\nUnique terms are: {}\n".format(unique))
         return " ".join(unique)
 
 
     @staticmethod
     def get_result_fields(geno_id, dataset_id):
+        """Gets the result fields (columns) that appear on the result page as a json string"""
         results = Session.query(
                 "name",
                 "marker_name",
@@ -271,11 +282,8 @@ class GenoXRef(Base):
                 "InbredSet.Id = GenoFreeze.InbredSetId and "
                 "InbredSet.SpeciesId = Species.Id ").params(geno_id=geno_id,
                                                                     dataset_id=dataset_id).all()
-        #for result in results:
-        #    print(result)
         assert len(set(result for result in results)) == 1, "Different results"
         
-        #print("results are:", results)
         result = results[0]
         result = row2dict(result)
         try:
@@ -292,6 +300,14 @@ class GenoXRef(Base):
         return json_results    
 
 class ProbeSetXRef(Base):
+    """Class that corresponds with the ProbeSetXRef table in the database.
+    
+    The ProbeSetXRef table links mRNA expression traits and their sample data.
+    
+    This class is used to add mRNA expression traits to the quick search table.
+    
+    """
+    
     __tablename__ = 'ProbeSetXRef'
     
     ProbeSetFreezeId = sa.Column(sa.Integer, primary_key=True)
@@ -310,16 +326,17 @@ class ProbeSetXRef(Base):
 
     @classmethod
     def run(cls):
+        """Connects to db and inserts mRNA expression trait info into the Quicksearch table."""
         conn = Engine.connect()
         counter = 0
-        for ps in page_query(Session.query(cls)):   #all()
+        for ps_row in page_query(Session.query(cls)):   #all()
             values = {}
             values['table_name'] = cls.__tablename__
-            values['the_key'] = json.dumps([ps.ProbeSetId, ps.ProbeSetFreezeId])
-            values['terms'] = cls.get_unique_terms(ps.ProbeSetId)
+            values['the_key'] = json.dumps([ps_row.ProbeSetId, ps_row.ProbeSetFreezeId])
+            values['terms'] = cls.get_unique_terms(ps_row.ProbeSetId)
             print("terms is:", values['terms'])
-            #values['species'] = get_species("ProbeSet", ps.Id)
-            values['result_fields'] = cls.get_result_fields(ps.ProbeSetId, ps.ProbeSetFreezeId)
+            values['result_fields'] = cls.get_result_fields(ps_row.ProbeSetId,
+                                                            ps_row.ProbeSetFreezeId)
             if values['result_fields'] == None:
                 continue
             ins = QuickSearch.insert().values(**values)
@@ -329,6 +346,7 @@ class ProbeSetXRef(Base):
     
     @staticmethod
     def get_unique_terms(probeset_id):
+        """Finds unique terms for each item in the ProbeSetXRef table to match a query against"""
         results = Session.query(
                 "name",
                 "symbol",
@@ -345,7 +363,6 @@ class ProbeSetXRef(Base):
         unique = set()
         if len(results):
             for item in results[0]:
-                #print("locals:", locals())
                 if not item:
                     continue
                 for token in item.split():
@@ -366,12 +383,12 @@ class ProbeSetXRef(Base):
                             continue 
                         
                         unique.add(token)
-            #print("\nUnique terms are: {}\n".format(unique))
             return " ".join(unique)
 
 
     @staticmethod
     def get_result_fields(probeset_id, dataset_id):
+        """Gets the result fields (columns) that appear on the result page as a json string"""
         print("probeset_id: ", probeset_id)
         print("dataset_id: ", dataset_id)
         results = Session.query(
@@ -420,14 +437,10 @@ class ProbeSetXRef(Base):
                 "ProbeFreeze.InbredSetId = InbredSet.Id and "
                 "InbredSet.SpeciesId = Species.Id ").params(probeset_id=probeset_id,
                                                                     dataset_id=dataset_id).all()
-        #for result in results:
-        #    print("-", result)
             
         if len(set(result for result in results)) != 1:
             return None
-        #assert len(set(result for result in results)) == 1, "Different results"
-        
-        #print("results are:", results)
+
         result = results[0]
         result = row2dict(result)
         try:
@@ -443,42 +456,48 @@ class ProbeSetXRef(Base):
 
         return json_results    
 
-
 QuickSearch = sa.Table("QuickSearch", Metadata,
+        # table_name is the table that item is inserted from
         sa.Column('table_name', sa.String(15),
-                  primary_key=True, nullable=False, autoincrement=False), # table that item is inserted from
+                  primary_key=True, nullable=False, autoincrement=False), 
         sa.Column('the_key', sa.String(30),
                   primary_key=True, nullable=False, autoincrement=False), # key in database table
         sa.Column('terms', sa.Text), # terms to compare search string with
-        sa.Column('result_fields', sa.Text)  # json
+        sa.Column('result_fields', sa.Text),  # json
+        mysql_engine = 'MyISAM',
                     )
 
-QuickSearch.drop(Engine, checkfirst=True)
-Metadata.create_all(Engine)
+#QuickSearch.drop(Engine, checkfirst=True)
+#Metadata.create_all(Engine)
 
 
 def row2dict(row):
-    """http://stackoverflow.com/a/2848519/1175849"""
+    """From http://stackoverflow.com/a/2848519/1175849"""
     return dict(zip(row.keys(), row))
 
 
-def page_query(q):
-    """http://stackoverflow.com/a/1217947/1175849"""
+def page_query(query):
+    """From http://stackoverflow.com/a/1217947/1175849"""
     offset = 0
     while True:
-        r = False
-        for elem in q.limit(1000).offset(offset):
-           r = True
-           yield elem
+        rrr = False
+        for elem in query.limit(1000).offset(offset):
+            rrr = True
+            yield elem
         offset += 1000
-        if not r:
+        if not rrr:
             break
 
 
 def main():
+    """Populate the QuickSearch table that is used with the quick search features.
+    
+    Add all items from the ProbeSetXRef, GenoXRef, and PublishXRef tables to the QuickSearch tables.
+    
+    """
     ProbeSetXRef.run()
-    GenoXRef.run()
-    PublishXRef.run()
+    #GenoXRef.run()
+    #PublishXRef.run()
 
 if __name__ == "__main__":
     main()

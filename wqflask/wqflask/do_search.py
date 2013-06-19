@@ -36,7 +36,7 @@ class DoSearch(object):
     def execute(self, query):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
-        print("in do_search query is:", pf(query))
+        #print("in do_search query is:", pf(query))
         results = g.db.execute(query, no_parameters=True).fetchall()
         #results = self.cursor.fetchall()
         return results
@@ -90,7 +90,7 @@ class QuickMrnaAssaySearch(DoSearch):
                     AGAINST ('%s' IN BOOLEAN MODE))
                             """ % (escape(self.search_term[0]))
 
-        print("final query is:", pf(query))
+        #print("final query is:", pf(query))
 
         return self.execute(query)
 
@@ -134,7 +134,7 @@ class MrnaAssaySearch(DoSearch):
                                     where_clause,
                                     escape(self.dataset.id)))        
 
-        print("query is:", pf(query))
+        #print("query is:", pf(query))
 
         return query
 
@@ -155,7 +155,7 @@ class MrnaAssaySearch(DoSearch):
                             """ % (escape(self.search_term[0]),
                             escape(str(self.dataset.id)))
 
-        print("final query is:", pf(query))
+        #print("final query is:", pf(query))
 
         return self.execute(query)
 

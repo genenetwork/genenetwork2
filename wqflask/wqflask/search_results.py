@@ -26,8 +26,7 @@ from MySQLdb import escape_string as escape
 from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
-from utility.THCell import THCell
-from utility.TDCell import TDCell
+from utility.benchmark import Bench
 from base.data_set import create_dataset
 from base.trait import GeneralTrait
 from wqflask import parser
@@ -74,6 +73,7 @@ class SearchResultPage(object):
             self.quick = True
             self.search_terms = kw['q']
             print("self.search_terms is: ", self.search_terms)
+            self.trait_type = kw['trait_type']
             self.quick_search()
         else:
             self.results = []
@@ -124,24 +124,53 @@ class SearchResultPage(object):
                     FROM QuickSearch
                     WHERE MATCH (terms)
                           AGAINST ('{}' IN BOOLEAN MODE) """.format(search_terms)
-        dbresults = g.db.execute(query, no_parameters=True).fetchall()
+        
+        with Bench("Doing QuickSearch Query: "):
+            dbresults = g.db.execute(query, no_parameters=True).fetchall()
         #print("results: ", pf(results))
         
         self.results = collections.defaultdict(list)
         
         type_dict = {'PublishXRef': 'phenotype',
-                   'ProbesetXRef': 'mrna_assay',
+                   'ProbeSetXRef': 'mrna_assay',
                    'GenoXRef': 'genotype'}
-
+        
+        self.species_groups = {}
+        
         for dbresult in dbresults:
             this_result = {}
             this_result['table_name'] = dbresult.table_name
-            this_result['key'] = dbresult.the_key
-            this_result['result_fields'] = json.loads(dbresult.result_fields)
+            if self.trait_type == type_dict[dbresult.table_name] or self.trait_type == 'all':
+                this_result['key'] = dbresult.the_key
+                this_result['result_fields'] = json.loads(dbresult.result_fields)
+                this_species = this_result['result_fields']['species']
+                this_group = this_result['result_fields']['group_name']
+                if this_species not in self.species_groups:
+                    self.species_groups[this_species] = {}
+                if type_dict[dbresult.table_name] not in self.species_groups[this_species]:
+                    self.species_groups[this_species][type_dict[dbresult.table_name]] = []
+                if this_group not in self.species_groups[this_species][type_dict[dbresult.table_name]]:
+                    self.species_groups[this_species][type_dict[dbresult.table_name]].append(this_group)
+                #if type_dict[dbresult.table_name] not in self.species_groups:
+                #    self.species_groups[type_dict[dbresult.table_name]] = {}
+                #if this_species not in self.species_groups[type_dict[dbresult.table_name]]:
+                #    self.species_groups[type_dict[dbresult.table_name]][this_species] = []
+                #if this_group not in self.species_groups[type_dict[dbresult.table_name]][this_species]:
+                #    self.species_groups[type_dict[dbresult.table_name]][this_species].append(this_group)
+                self.results[type_dict[dbresult.table_name]].append(this_result)
             
-            self.results[type_dict[dbresult.table_name]].append(this_result)
-            
-        print("results: ", pf(self.results['phenotype']))
+        import redis
+        Redis = redis.Redis()
+        
+        
+        
+    #def get_group_species_tree(self):
+    #    self.species_groups = collections.default_dict(list)
+    #    for key in self.results:
+    #        for item in self.results[key]:
+    #            self.species_groups[item['result_fields']['species']].append(
+    #                                        item['result_fields']['group_name'])
+
 
     #def quick_search(self):
     #    self.search_terms = parser.parse(self.search_terms)
@@ -209,6 +238,6 @@ class SearchResultPage(object):
                                     self.dataset,
                                     )
             self.results.extend(the_search.run())
-            print("in the search results are:", self.results)
+            #print("in the search results are:", self.results)
 
         self.header_fields = the_search.header_fields

@@ -394,7 +394,7 @@ class PhenotypeDataSet(DataSet):
                 continue   # for now
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
                     description = this_trait.pre_publication_description
-            this_trait.description_display = description
+            this_trait.description_display = unicode(description, "utf8")
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"

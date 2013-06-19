@@ -24,6 +24,10 @@ class CorrelationPlot(object):
         self.samples_1 = self.get_samples(self.dataset1, sample_names_1, self.trait1)
         self.samples_2 = self.get_samples(self.dataset2, sample_names_2, self.trait2)
 
+        coords = {}
+        for sample in self.samples_1:
+            coords[sample.name] = (sample.val)
+
 
     def get_sample_names(self, dataset):
         if dataset.group.parlist:
@@ -46,3 +50,4 @@ class CorrelationPlot(object):
                             header="%s Only" % (dataset.group.name))
 
         return samples
+        
