@@ -107,7 +107,7 @@ class SearchResultPage(object):
             print("foo locals are:", locals())
             trait_id = result[0]
             this_trait = GeneralTrait(dataset=self.dataset, name=trait_id)
-            this_trait.retrieve_info(QTL=True)
+            this_trait.retrieve_info(get_qtl_info=True)
             self.trait_list.append(this_trait)
 
         self.dataset.get_trait_info(self.trait_list, species)
