@@ -7,6 +7,9 @@ git pull origin flask(or whatever the branch is)
 Add all files in current directory branch to be staged to be committed
 git add -A
 
+Git push to my github repository
+git push https://github.com/zsloan/genenetwork.git flask
+
 
 Get the default path being used when a command is typed:
 which _______
