@@ -13,28 +13,21 @@
 # This program is available from Source Forge: at GeneNetwork Project
 # (sourceforge.net/projects/genenetwork/).
 #
-# Contact Drs. Robert W. Williams and Xiaodong Zhou (2010)
-# at rwilliams@uthsc.edu and xzhou15@uthsc.edu
-#
+# Contact Dr. Robert W. Williams at rwilliams@uthsc.edu
 #
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
-#
-# Created by GeneNetwork Core Team 2010/08/10
-#
-# Last updated by NL 2011/02/11
-# Last updated by Christian Fernandez 2012/04/07
-# Refactored correlation calculation into smaller functions in preparation of
-# separating html from existing code
 
 from __future__ import absolute_import, print_function, division
+
+import sys
+sys.path.append(".")
 
 import gc
 import string
 import cPickle
 import os
 import time
-#import pyXLWriter as xl
 import pp
 import math
 import collections
@@ -53,7 +46,7 @@ from utility.TDCell import TDCell
 from base.trait import GeneralTrait
 from base import data_set
 from base.templatePage import templatePage
-from utility import webqtlUtil, helper_functions
+from utility import webqtlUtil, helper_functions, corr_result_helpers
 from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlationFunction
@@ -103,99 +96,112 @@ class CorrelationResults(object):
         with Bench("Doing correlations"):
             helper_functions.get_species_dataset_trait(self, start_vars)
             self.dataset.group.read_genotype_file()
-    
+
             corr_samples_group = start_vars['corr_samples_group']
-    
+
             self.sample_data = {}
             self.corr_method = start_vars['corr_sample_method']
-    
+
             #The two if statements below append samples to the sample list based upon whether the user
             #rselected Primary Samples Only, Other Samples Only, or All Samples
-    
+
             primary_samples = (self.dataset.group.parlist +
                                    self.dataset.group.f1list +
                                    self.dataset.group.samplelist)
-    
+
             #If either BXD/whatever Only or All Samples, append all of that group's samplelist      
             if corr_samples_group != 'samples_other':
                 self.process_samples(start_vars, primary_samples, ())
-            
+
             #If either Non-BXD/whatever or All Samples, get all samples from this_trait.data and
             #exclude the primary samples (because they would have been added in the previous
             #if statement if the user selected All Samples)
             if corr_samples_group != 'samples_primary':
                 self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
-                
+
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
             self.target_dataset.get_trait_data()
 
 
             self.correlation_data = {}
             for trait, values in self.target_dataset.trait_data.iteritems():
-                this_trait_values = []
-                target_values = []
+                this_trait_vals = []
+                target_vals = []
                 for index, sample in enumerate(self.target_dataset.samplelist):
                     if sample in self.sample_data:
                         sample_value = self.sample_data[sample]
                         target_sample_value = values[index]
-                        this_trait_values.append(sample_value)
-                        target_values.append(target_sample_value)
+                        this_trait_vals.append(sample_value)
+                        target_vals.append(target_sample_value)
 
-                this_trait_values, target_values = normalize_values(this_trait_values, target_values)
+                this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
+                    this_trait_vals, target_vals)
+
+                print("num_overlap:", num_overlap)
 
                 if self.corr_method == 'pearson':
-                    sample_r, sample_p = scipy.stats.pearsonr(this_trait_values, target_values)
+                    sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
                 else:
-                    sample_r, sample_p = scipy.stats.spearmanr(this_trait_values, target_values)
+                    sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
 
-                self.correlation_data[trait] = [sample_r, sample_p]
+                self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
 
             self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
                                                                    key=lambda t: -abs(t[1][0])))
 
-            self.correlation_data_slice = collections.OrderedDict()
+            self.correlation_results = []
+
+            #self.correlation_data_slice = collections.OrderedDict()
 
             for trait_counter, trait in enumerate(self.correlation_data.keys()[:300]):
-                trait_object = GeneralTrait(dataset=self.dataset, name=trait)
-                if self.dataset.type == 'ProbeSet':
-                    trait_info = collections.OrderedDict(
-                        correlation = float(self.correlation_data[trait][0]),
-                        p_value = float(self.correlation_data[trait][1]),
-                        symbol = trait_object.symbol,
-                        alias = trait_object.alias,
-                        description = trait_object.description,
-                        chromosome = trait_object.chr,
-                        mb = trait_object.mb
-                    )
-                    if hasattr(trait_object, 'mean'):
-                       trait_info[mean] = trait_object.mean
-                    if hasattr(trait_object, 'lrs'):
-                       trait_info[lrs] = trait_object.lrs
-                    if hasattr(trait_object, 'locus_chr'):
-                       trait_info[locus_chr] = trait_object.locus_chr
-                    if hasattr(trait_object, 'locus_mb'):
-                       trait_info[locus_mb] = trait_object.locus_mb
-                elif self.dataset.type == 'Geno':
-                    trait_info = collections.OrderedDict(
-                        correlation = float(self.correlation_data[trait][0]),
-                        p_value = float(self.correlation_data[trait][1]),
-                        symbol = trait_object.symbol,
-                        alias = trait_object.alias,
-                        description = trait_object.description,
-                        chromosome = trait_object.chr,
-                        mb = trait_object.mb
-                    )
-                else: # 'Publish'
-                    trait_info = collections.OrderedDict(
-                        correlation = float(self.correlation_data[trait][0]),
-                        p_value = float(self.correlation_data[trait][1]),
-                        symbol = trait_object.symbol,
-                        alias = trait_object.alias,
-                        description = trait_object.description,
-                        chromosome = trait_object.chr,
-                        mb = trait_object.mb
-                    )
-                self.correlation_data_slice[trait] = trait_info
+                trait_object = GeneralTrait(dataset=self.dataset, name=trait, get_qtl_info=True)
+                trait_object.sample_r = self.correlation_data[trait][0]
+                trait_object.sample_p = self.correlation_data[trait][1]
+                trait_object_num_overlap = self.correlation_data[trait][2]
+                self.correlation_results.append(trait_object)
+                
+                #self.correlation_data_slice[trait] = self.correlation_data[trait]
+                #self.correlation_data_slice[trait].append(trait_object)
+                #if self.dataset.type == 'ProbeSet':
+                #    trait_info = collections.OrderedDict(
+                #        correlation = float(self.correlation_data[trait][0]),
+                #        p_value = float(self.correlation_data[trait][1]),
+                #        symbol = trait_object.symbol,
+                #        alias = trait_object.alias,
+                #        description = trait_object.description,
+                #        chromosome = trait_object.chr,
+                #        mb = trait_object.mb
+                #    )
+                #    if trait_object.mean:
+                #        trait_info[mean] = trait_object.mean
+                #    if hasattr(trait_object, 'mean'):
+                #       trait_info[mean] = trait_object.mean
+                #    if hasattr(trait_object, 'lrs'):
+                #       trait_info[lrs] = trait_object.lrs
+                #    if hasattr(trait_object, 'locus_chr'):
+                #       trait_info[locus_chr] = trait_object.locus_chr
+                #    if hasattr(trait_object, 'locus_mb'):
+                #       trait_info[locus_mb] = trait_object.locus_mb
+                #elif self.dataset.type == 'Geno':
+                #    trait_info = collections.OrderedDict(
+                #        correlation = float(self.correlation_data[trait][0]),
+                #        p_value = float(self.correlation_data[trait][1]),
+                #        symbol = trait_object.symbol,
+                #        alias = trait_object.alias,
+                #        description = trait_object.description,
+                #        chromosome = trait_object.chr,
+                #        mb = trait_object.mb
+                #    )
+                #else: # 'Publish'
+                #    trait_info = collections.OrderedDict(
+                #        correlation = float(self.correlation_data[trait][0]),
+                #        p_value = float(self.correlation_data[trait][1]),
+                #        symbol = trait_object.symbol,
+                #        alias = trait_object.alias,
+                #        description = trait_object.description,
+                #        chromosome = trait_object.chr,
+                #        mb = trait_object.mb
+                #    )
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset
@@ -939,162 +945,3 @@ class CorrelationResults(object):
 
         return traitList
 
-
-    def createExcelFileWithTitleAndFooter(self, workbook=None, identification=None, db=None, returnNumber=None):
-
-        worksheet = workbook.add_worksheet()
-
-        titleStyle = workbook.add_format(align = 'left', bold = 0, size=14, border = 1, border_color="gray")
-
-        ##Write title Info
-        # Modified by Hongqiang Li
-        worksheet.write([1, 0], "Citations: Please see %s/reference.html" % webqtlConfig.PORTADDR, titleStyle)
-        worksheet.write([1, 0], "Citations: Please see %s/reference.html" % webqtlConfig.PORTADDR, titleStyle)
-        worksheet.write([2, 0], "Trait : %s" % identification, titleStyle)
-        worksheet.write([3, 0], "Database : %s" % db.fullname, titleStyle)
-        worksheet.write([4, 0], "Date : %s" % time.strftime("%B %d, %Y", time.gmtime()), titleStyle)
-        worksheet.write([5, 0], "Time : %s GMT" % time.strftime("%H:%M ", time.gmtime()), titleStyle)
-        worksheet.write([6, 0], "Status of data ownership: Possibly unpublished data; please see %s/statusandContact.html for details on sources, ownership, and usage of these data." % webqtlConfig.PORTADDR, titleStyle)
-        #Write footer info
-        worksheet.write([9 + returnNumber, 0], "Funding for The GeneNetwork: NIAAA (U01AA13499, U24AA13513), NIDA, NIMH, and NIAAA (P20-DA21131), NCI MMHCC (U01CA105417), and NCRR (U01NR 105417)", titleStyle)
-        worksheet.write([10 + returnNumber, 0], "PLEASE RETAIN DATA SOURCE INFORMATION WHENEVER POSSIBLE", titleStyle)
-
-        return worksheet
-
-
-    def getTableHeaderForGeno(self, method=None, worksheet=None, newrow=None, headingStyle=None):
-
-        tblobj_header = []
-
-        if method in ["1","3","4"]:
-            tblobj_header = [[THCell(HT.TD(' ', Class="fs13 fwb ffl b1 cw cbrb"), sort=0),
-                              THCell(HT.TD('Record', HT.BR(), 'ID', HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text='Record ID', idx=1),
-                              THCell(HT.TD('Location', HT.BR(), 'Chr and Mb', HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text='Location (Chr and Mb)', idx=2),
-                              THCell(HT.TD(HT.Href(
-                                                   text = HT.Span('Sample',HT.BR(), 'r', HT.Sup('  ?', style="color:#f00"),HT.BR(), Class="fs13 fwb ffl cw"),
-                                                   target = '_blank',
-                                                   url = "/correlationAnnotation.html#genetic_r"),
-                                           Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="Sample r", idx=3),
-                              THCell(HT.TD('N',HT.BR(),'Cases',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="N Cases", idx=4),
-                              THCell(HT.TD(HT.Href(
-                                                   text = HT.Span('Sample',HT.BR(), 'p(r)', HT.Sup('  ?', style="color:#f00"),HT.BR(), Class="fs13 fwb ffl cw"),
-                                                   target = '_blank',
-                                                   url = "/correlationAnnotation.html#genetic_p_r"),
-                                           Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="Sample p(r)", idx=5)]]
-
-            for ncol, item in enumerate(['Record ID', 'Location (Chr, Mb)', 'Sample r', 'N Cases', 'Sample p(r)']):
-                worksheet.write([newrow, ncol], item, headingStyle)
-                worksheet.set_column([ncol, ncol], 2*len(item))
-        else:
-            tblobj_header = [[THCell(HT.TD(' ', Class="fs13 fwb ffl b1 cw cbrb"), sort=0),
-                              THCell(HT.TD('Record', HT.BR(), 'ID', HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text='Record ID', idx=1),
-                              THCell(HT.TD('Location', HT.BR(), 'Chr and Mb', HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text='Location (Chr and Mb)', idx=2),
-                              THCell(HT.TD(HT.Href(
-                                                   text = HT.Span('Sample',HT.BR(), 'rho', HT.Sup('  ?', style="color:#f00"),HT.BR(), Class="fs13 fwb ffl cw"),
-                                                   target = '_blank',
-                                                   url = "/correlationAnnotation.html#genetic_rho"),
-                                           Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="Sample rho", idx=3),
-                              THCell(HT.TD('N',HT.BR(),'Cases',HT.BR(), Class="fs13 fwb ffl b1 cw cbrb"), text="N Cases", idx=4),
-                              THCell(HT.TD(HT.Href(
-                                                   text = HT.Span('Sample',HT.BR(), 'p(rho)', HT.Sup('  ?', style="color:#f00"),HT.BR(), Class="fs13 fwb ffl cw"),
-                                                   target = '_blank',
-                                                   url = "/correlationAnnotation.html#genetic_p_rho"),
-                                           Class="fs13 fwb ffl b1 cw cbrb", nowrap='ON'), text="Sample p(rho)", idx=5)]]
-
-            for ncol, item in enumerate(['Record ID', 'Location (Chr, Mb)', 'Sample rho', 'N Cases', 'Sample p(rho)']):
-                worksheet.write([newrow, ncol], item, headingStyle)
-                worksheet.set_column([ncol, ncol], 2*len(item))
-
-
-        return tblobj_header, worksheet
-
-
-    def getTableBodyForGeno(self, traitList, formName=None, worksheet=None, newrow=None, corrScript=None):
-
-        tblobj_body = []
-
-        for thisTrait in traitList:
-            tr = []
-
-            trId = str(thisTrait)
-
-            corrScript.append('corrArray["%s"] = {corr:%1.4f};' % (trId, thisTrait.corr))
-
-            tr.append(TDCell(HT.TD(HT.Input(type="checkbox", Class="checkbox", name="searchResult",value=trId, onClick="highlight(this)"), nowrap="on", Class="fs12 fwn ffl b1 c222"), text=trId))
-
-            tr.append(TDCell(HT.TD(HT.Href(text=thisTrait.name,url="javascript:showTrait('%s', '%s')" % (formName, thisTrait.name), Class="fs12 fwn ffl"),align="left", Class="fs12 fwn ffl b1 c222"), text=thisTrait.name, val=thisTrait.name.upper()))
-
-            #XZ: trait_location_value is used for sorting
-            trait_location_repr = '--'
-            trait_location_value = 1000000
-
-            if thisTrait.chr and thisTrait.mb:
-                try:
-                    trait_location_value = int(thisTrait.chr)*1000 + thisTrait.mb
-                except:
-                    if thisTrait.chr.upper() == 'X':
-                        trait_location_value = 20*1000 + thisTrait.mb
-                    else:
-                        trait_location_value = ord(str(thisTrait.chr).upper()[0])*1000 + thisTrait.mb
-
-                trait_location_repr = 'Chr%s: %.6f' % (thisTrait.chr, float(thisTrait.mb) )
-
-            tr.append(TDCell(HT.TD(trait_location_repr, Class="fs12 fwn b1 c222", nowrap="on"), trait_location_repr, trait_location_value))
-
-
-            repr='%3.3f' % thisTrait.corr
-            tr.append(TDCell(HT.TD(HT.Href(text=repr, url="javascript:showCorrPlot('%s', '%s')" % (formName, thisTrait.name), Class="fs12 fwn ffl"), Class="fs12 fwn ffl b1 c222", nowrap='ON', align='right'),repr,abs(thisTrait.corr)))
-
-            repr = '%d' % thisTrait.nOverlap
-            tr.append(TDCell(HT.TD(repr, Class="fs12 fwn ffl b1 c222",align='right'),repr,thisTrait.nOverlap))
-
-            repr = webqtlUtil.SciFloat(thisTrait.corrPValue)
-            tr.append(TDCell(HT.TD(repr,nowrap='ON', Class="fs12 fwn ffl b1 c222", align='right'),repr,thisTrait.corrPValue))
-
-            tblobj_body.append(tr)
-
-            for ncol, item in enumerate([thisTrait.name, trait_location_repr, thisTrait.corr, thisTrait.nOverlap, thisTrait.corrPValue]):
-                worksheet.write([newrow, ncol], item)
-            newrow += 1
-
-        return tblobj_body, worksheet, corrScript
-
-def normalize_values(values_1, values_2):
-    N = min(len(values_1), len(values_2))
-    X = []
-    Y = []
-    for i in range(N):
-        if values_1[i]!= None and values_2[i]!= None:
-            X.append(values_1[i])
-            Y.append(values_2[i])
-            
-    return (X, Y)
-
-
-def cal_correlation(values_1, values_2):
-    N = min(len(values_1), len(values_2))
-    X = []
-    Y = []
-    for i in range(N):
-        if values_1[i]!= None and values_2[i]!= None:
-            X.append(values_1[i])
-            Y.append(values_2[i])
-    NN = len(X)
-    if NN <6:
-        return (0.0,NN)
-    sx = reduce(lambda x,y:x+y,X,0.0)
-    sy = reduce(lambda x,y:x+y,Y,0.0)
-    x_mean = sx/NN
-    y_mean = sy/NN
-    xyd = 0.0
-    sxd = 0.0
-    syd = 0.0
-    for i in range(NN):
-        xyd += (X[i] - x_mean)*(Y[i] - y_mean)
-        sxd += (X[i] - x_mean)*(X[i] - x_mean)
-        syd += (Y[i] - y_mean)*(Y[i] - y_mean)
-    try:
-        corr = xyd/(sqrt(sxd)*sqrt(syd))
-    except:
-        corr = 0
-    return (corr, NN)
