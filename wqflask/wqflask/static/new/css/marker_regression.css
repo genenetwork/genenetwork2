@@ -1,19 +1,31 @@
-.manhattan_plot_segment {
-    position:relative;
-    display:inline;
-    height: 400px;
-    width: 150px;
-    float: left;
-    clear: none;
+.manhattan_plot .y_axis path,
+.manhattan_plot .y_axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+.manhattan_plot .y_axis text {
+    font-family: sans-serif;
+    font-size: 14px;
 }
 
-.manhattan_plots {
-    clear: both;
+.manhattan_plot .x_axis path,
+.manhattan_plot .x_axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+.manhattan_plot .x_axis text {
+    text-anchor: end;
+    font-family: sans-serif;
+    font-size: 8px;
 }
 
-.permutation_histogram {
-    display: block;
-    height: 400px;
-    width: 900px;
-    clear: both;
+rect {
+    stroke: WhiteSmoke;
+    fill: lightgrey;
 }
+/*rect {
+    stroke: WhiteSmoke;
+    fill: Azure;
+}*/

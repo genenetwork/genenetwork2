@@ -10,6 +10,14 @@ def numify(number, singular=None, plural=None):
     >>> numify(9, 'book', 'books')
     'nine books'
 
+    You can add capitalize to change the capitalization
+    >>> numify(9, 'book', 'books').capitalize()
+    'Nine books'
+
+    Or capitalize every word using title
+    >>> numify(9, 'book', 'books').title()
+    'Nine Books'
+
     >>> numify(15)
     '15'
 
@@ -107,3 +115,8 @@ def commify(n):
     if cents:
         out += '.' + cents
     return out
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

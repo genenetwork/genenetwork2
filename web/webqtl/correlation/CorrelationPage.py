@@ -965,7 +965,7 @@ Resorting this table <br>
         if tempTable:
             self.cursor.execute( 'DROP TEMPORARY TABLE %s' % tempTable )
 
-	return traits
+        return traits
 
 
 

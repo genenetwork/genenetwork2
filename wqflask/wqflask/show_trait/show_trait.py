@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, division
 import string
 import os
 import cPickle
+import uuid
 #import pyXLWriter as xl
 
 from collections import OrderedDict
@@ -14,9 +15,9 @@ from htmlgen import HTMLgen2 as HT
 from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
-from utility import webqtlUtil, Plot, Bunch
+from utility import webqtlUtil, Plot, Bunch, helper_functions
 from base.trait import GeneralTrait
-from base.data_set import create_dataset
+from base import data_set
 from dbFunction import webqtlDatabaseFunction
 from base.templatePage import templatePage
 from basicStatistics import BasicStatisticsFunctions
@@ -38,26 +39,13 @@ class ShowTrait(object):
         print("in ShowTrait, kw are:", kw)
         self.trait_id = kw['trait_id']
         
-        self.dataset = create_dataset(kw['dataset'])
-
-        #self.cell_id = None
-
-
-        this_trait = GeneralTrait(dataset=self.dataset.name,
-                                  name=self.trait_id,
-                                  cellid=None)
-
+        helper_functions.get_species_dataset_trait(self, kw)
 
         self.dataset.group.read_genotype_file()
 
-        if not self.dataset.group.genotype:
-            self.read_data(include_f1=True) 
-
-      
         # Todo: Add back in the ones we actually need from below, as we discover we need them
         hddn = OrderedDict()
 
-    
         ## Some fields, like method, are defaulted to None; otherwise in IE the field can't be changed using jquery
         #hddn = OrderedDict(
         #        FormID = fmID,
@@ -98,27 +86,22 @@ class ShowTrait(object):
         #                                this_trait.mysqlid)
         #            heritability = self.cursor.fetchone()
 
-        #hddn['mappingMethodId'] = webqtlDatabaseFunction.getMappingMethod (cursor=self.cursor,
-        #                                                                   groupName=fd.group)
+        self.dispTraitInformation(kw, "", hddn, self.this_trait) #Display trait information + function buttons
 
-        self.dispTraitInformation(kw, "", hddn, this_trait) #Display trait information + function buttons
+        self.build_correlation_tools(self.this_trait)
 
-        #if this_trait == None:
-        #    this_trait = webqtlTrait(data=kw['allTraitData'], dataset=None)
-
-        self.build_correlation_tools(this_trait)
-
-        self.make_sample_lists(this_trait)
+        self.make_sample_lists(self.this_trait)
 
         if self.dataset.group.allsamples:
             hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
 
         hddn['trait_id'] = self.trait_id
-        hddn['dataset_name'] = self.dataset.name
+        hddn['dataset'] = self.dataset.name
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
-        self.this_trait = this_trait
         self.hddn = hddn
+        
+        self.temp_uuid = uuid.uuid4()
 
         self.sample_group_types = OrderedDict()
         self.sample_group_types['samples_primary'] = self.dataset.group.name + " Only"
@@ -128,28 +111,9 @@ class ShowTrait(object):
         print("sample_lists is:", pf(sample_lists))
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
-                        attribute_names = self.sample_groups[0].attributes)
-        print("js_data:", pf(js_data))
+                        attribute_names = self.sample_groups[0].attributes,
+                        temp_uuid = self.temp_uuid)
         self.js_data = js_data
-
-
-    #def get_this_trait(self):
-    #    this_trait = GeneralTrait(dataset=self.dataset.name,
-    #                             name=self.trait_id,
-    #                             cellid=self.cell_id)
-    #
-    #    ###identification, etc.
-    #    #self.identification = '%s : %s' % (self.dataset.shortname, self.trait_id)
-    #    #this_trait.returnURL = webqtlConfig.CGIDIR + webqtlConfig.SCRIPTFILE + '?FormID=showDatabase&database=%s\
-    #    #        &ProbeSetID=%s&group=%s&parentsf1=on' %(self.dataset, self.trait_id, self.dataset.group.name)
-    #    #
-    #    #if self.cell_id:
-    #    #    self.identification = '%s/%s'%(self.identification, self.cell_id)
-    #    #    this_trait.returnURL = '%s&CellID=%s' % (this_trait.returnURL, self.cell_id)
-    #
-    #    this_trait.retrieve_info()
-    #    this_trait.retrieve_sample_data()
-    #    return this_trait
 
 
     def read_data(self, include_f1=False):
@@ -158,8 +122,8 @@ class ShowTrait(object):
         #if incf1 == None:
         #    incf1 = []
 
-        if not self.genotype:
-            self.dataset.read_genotype_file()
+        #if not self.genotype:
+        #    self.dataset.read_genotype_file()
         if not samplelist:
             if include_f1:
                 samplelist = self.f1list + self.samplelist
@@ -322,13 +286,11 @@ class ShowTrait(object):
                     if snpurl:
                         snpBrowserButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % snpurl)
                         snpBrowserButton_img = HT.Image("/images/snp_icon.jpg", name="snpbrowser", alt=" View SNPs and Indels ", title=" View SNPs and Indels ", style="border:none;")
-                        #snpBrowserButton.append(snpBrowserButton_img)
                         snpBrowserText = "SNPs"
 
                 #XZ: Show GeneWiki for all species
                 geneWikiButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE) + "?FormID=geneWiki&symbol=%s" % this_trait.symbol))
                 geneWikiButton_img = HT.Image("/images/genewiki_icon.jpg", name="genewiki", alt=" Write or review comments about this gene ", title=" Write or review comments about this gene ", style="border:none;")
-                #geneWikiButton.append(geneWikiButton_img)
                 geneWikiText = 'GeneWiki'
 
                 #XZ: display similar traits in other selected datasets
@@ -337,15 +299,9 @@ class ShowTrait(object):
                         similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.symbol, _Species)
                         similarButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % similarUrl)
                         similarButton_img = HT.Image("/images/find_icon.jpg", name="similar", alt=" Find similar expression data ", title=" Find similar expression data ", style="border:none;")
-                        #similarButton.append(similarButton_img)
                         similarText = "Find"
                 else:
                     pass
-                #tbl.append(HT.TR(
-                        #HT.TD('Gene Symbol: ', Class="fwb fs13", valign="top", nowrap="on", width=90),
-                        #HT.TD(width=10, valign="top"),
-                        #HT.TD(HT.Span('%s' % this_trait.symbol, valign="top", Class="fs13 fsI"), valign="top", width=740)
-                        #))
             else:
                 tbl.append(HT.TR(
                         HT.TD('Gene Symbol: ', Class="fwb fs13", valign="top", nowrap="on"),
@@ -391,11 +347,6 @@ class ShowTrait(object):
                 for seqt in seqs:
                     if int(seqt[1][-1]) %2 == 1:
                         blatsequence += '%3EProbe_'+string.strip(seqt[1])+'%0A'+string.strip(seqt[0])+'%0A'
-                #--------
-                #XZ, 07/16/2009: targetsequence is not used, so I comment out this block
-                #targetsequence = this_trait.targetseq
-                #if targetsequence==None:
-                #       targetsequence = ""
 
                 #XZ: Pay attention to the parameter of version (rn, mm, hg). They need to be changed if necessary.
                 if _Species == "rat":
@@ -444,55 +395,6 @@ class ShowTrait(object):
                     #probeButton.append(probeButton_img)
                     probeText = "Probes"
 
-            #tSpan = HT.Span(Class="fs13")
-
-            #XZ: deal with blat score and blat specificity.
-            #if this_trait.probe_set_specificity or this_trait.probe_set_blat_score:
-            #    if this_trait.probe_set_specificity:
-            #        pass
-            #        #tSpan.append(HT.Href(url="/blatInfo.html", target="_blank", title="Values higher than 2 for the specificity are good", text="BLAT specificity", Class="non_bold"),": %.1f" % float(this_trait.probe_set_specificity), "&nbsp;"*3)
-            #    if this_trait.probe_set_blat_score:
-            #        pass
-            #        #tSpan.append("Score: %s" % int(this_trait.probe_set_blat_score), "&nbsp;"*2)
-
-            #onClick="openNewWin('/blatInfo.html')"
-
-            #tbl.append(HT.TR(
-            #        HT.TD('Target Score: ', Class="fwb fs13", valign="top", nowrap="on"),
-            #        HT.TD(width=10, valign="top"),
-            #        HT.TD(tSpan, valign="top")
-            #        ))
-
-            #tSpan = HT.Span(Class="fs13")
-            #tSpan.append(str(_Species).capitalize(), ", ", fd.group)
-            #
-            #tbl.append(HT.TR(
-            #        HT.TD('Species and Group: ', Class="fwb fs13", valign="top", nowrap="on"),
-            #        HT.TD(width=10, valign="top"),
-            #        HT.TD(tSpan, valign="top")
-            #        ))
-
-            #if this_trait.cellid:
-            #    self.cursor.execute("""
-            #                    select ProbeFreeze.Name from ProbeFreeze, ProbeSetFreeze
-            #                            where
-            #                    ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
-            #                    ProbeSetFreeze.Id = %d""" % this_trait.dataset.id)
-            #    probeDBName = self.cursor.fetchone()[0]
-            #    tbl.append(HT.TR(
-            #            HT.TD('Database: ', Class="fs13 fwb", valign="top", nowrap="on"),
-            #            HT.TD(width=10, valign="top"),
-            #            HT.TD(HT.Span('%s' % probeDBName, Class="non_bold"), valign="top")
-            #            ))
-            #else:
-                #tbl.append(HT.TR(
-                #        HT.TD('Database: ', Class="fs13 fwb", valign="top", nowrap="on"),
-                #        HT.TD(width=10, valign="top"),
-                #        HT.TD(HT.Href(text=this_trait.dataset.fullname, url = webqtlConfig.INFOPAGEHREF % this_trait.dataset.name,
-                #        target='_blank', Class="fs13 fwn non_bold"), valign="top")
-                #        ))
-                #pass
-
             this_trait.species = _Species  # We need this in the template, so we tuck it into this_trait
             this_trait.database = this_trait.get_database()
 
@@ -526,14 +428,6 @@ class ShowTrait(object):
                     hurl = HT.Href(text= 'HomoloGene', target='_blank',\
                             url=webqtlConfig.HOMOLOGENE_ID % this_trait.homologeneid, Class="fs14 fwn", title="Find similar genes in other species")
                     #tSpan.append(HT.Span(hurl, style=idStyle), "&nbsp;"*2)
-
-                #tbl.append(
-                #        HT.TR(HT.TD(colspan=3,height=6)),
-                #        HT.TR(
-                #        HT.TD('Resource Links: ', Class="fwb fs13", valign="top", nowrap="on"),
-                #        HT.TD(width=10, valign="top"),
-                #        HT.TD(tSpan, valign="top")
-                #        ))
 
             #XZ: Resource Links:
             if this_trait.symbol:
@@ -579,9 +473,7 @@ class ShowTrait(object):
                         #                                                                                  txen),
                         #        Class="fs14 fwn"), style=linkStyle)
                         #        , "&nbsp;"*2)
-                    #except:
-                    #    pass
-
+                        
                 #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
                 #tSpan.append(HT.Span(HT.Href(text= 'SymAtlas',target="mainFrame",\
                 #       url="http://symatlas.gnf.org/SymAtlas/bioentry?querytext=%s&query=14&species=%s&type=Expression" \
@@ -650,85 +542,69 @@ class ShowTrait(object):
                         #        title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
                         pass
 
-                #tbl.append(
-                #        HT.TR(HT.TD(colspan=3,height=6)),
-                #        HT.TR(
-                #        HT.TD(' '),
-                #        HT.TD(width=10, valign="top"),
-                #        HT.TD(tSpan, valign="top")))
-
-            #menuTable = HT.TableLite(cellpadding=2, Class="collap", width="620", id="target1")
-            #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(similarButton, align="center"),HT.TD(verifyButton, align="center"),HT.TD(geneWikiButton, align="center"),HT.TD(snpBrowserButton, align="center"),HT.TD(rnaseqButton, align="center"),HT.TD(probeButton, align="center"),HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-            #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(similarText, align="center"),HT.TD(verifyText, align="center"),HT.TD(geneWikiText, align="center"),HT.TD(snpBrowserText, align="center"),HT.TD(rnaseqText, align="center"),HT.TD(probeText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-
-
             #for zhou mi's cliques, need to be removed
             #if self.database[:6]  == 'BXDMic' and self.ProbeSetID in cliqueID:
             #       Info2Disp.append(HT.Strong('Clique Search: '),HT.Href(text='Search',\
             #               url ="http://compbio1.utmem.edu/clique_go/results.php?pid=%s&pval_1=0&pval_2=0.001" \
             #               % self.ProbeSetID,target='_blank',Class="normalsize"),HT.BR())
 
-            #linkTable.append(HT.TR(linkTD))
-            #Info2Disp.append(linkTable)
-            #title1Body.append(tbl, HT.BR(), menuTable)
-
         elif this_trait and this_trait.dataset and this_trait.dataset.type =='Publish': #Check if trait is phenotype
 
-            if this_trait.confidential:
-                pass
-                #tbl.append(HT.TR(
-                #                HT.TD('Pre-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                #                HT.TD(width=10, valign="top"),
-                #                HT.TD(HT.Span(this_trait.pre_publication_description, Class="fs13"), valign="top", width=740)
-                #                ))
-                if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
-                    #tbl.append(HT.TR(
-                    #                HT.TD('Post-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                    #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
-                    #                ))
-                    #tbl.append(HT.TR(
-                    #                HT.TD('Pre-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                    #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(this_trait.pre_publication_abbreviation, Class="fs13"), valign="top", width=740)
-                    #                ))
-                    #tbl.append(HT.TR(
-                    #                HT.TD('Post-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                    #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(this_trait.post_publication_abbreviation, Class="fs13"), valign="top", width=740)
-                    #                ))
-                    #tbl.append(HT.TR(
-                    #                HT.TD('Lab code: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                    #                HT.TD(width=10, valign="top"),
-                    #                HT.TD(HT.Span(this_trait.lab_code, Class="fs13"), valign="top", width=740)
-                    #                ))
-                    pass
-                #tbl.append(HT.TR(
-                #                HT.TD('Owner: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                #                HT.TD(width=10, valign="top"),
-                #                HT.TD(HT.Span(this_trait.owner, Class="fs13"), valign="top", width=740)
-                #                ))
-            else:
-                pass
-                #tbl.append(HT.TR(
-                #                HT.TD('Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
-                #                HT.TD(width=10, valign="top"),
-                #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
-                #                ))
-            #tbl.append(HT.TR(
-            #                HT.TD('Authors: ', Class="fs13 fwb",
-            #                        valign="top", nowrap="on", width=90),
-            #                HT.TD(width=10, valign="top"),
-            #                HT.TD(HT.Span(this_trait.authors, Class="fs13"),
-            #                        valign="top", width=740)
-            #                ))
-            #tbl.append(HT.TR(
-            #                HT.TD('Title: ', Class="fs13 fwb",
-            #                        valign="top", nowrap="on", width=90),
-            #                HT.TD(width=10, valign="top"),
-            #                HT.TD(HT.Span(this_trait.title, Class="fs13"),
-            #                        valign="top", width=740)
-            #                ))
+            #if this_trait.confidential:
+            #    pass
+            #    #tbl.append(HT.TR(
+            #    #                HT.TD('Pre-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #    #                HT.TD(width=10, valign="top"),
+            #    #                HT.TD(HT.Span(this_trait.pre_publication_description, Class="fs13"), valign="top", width=740)
+            #    #                ))
+            #    if webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
+            #        #tbl.append(HT.TR(
+            #        #                HT.TD('Post-publication Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #        #                HT.TD(width=10, valign="top"),
+            #        #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
+            #        #                ))
+            #        #tbl.append(HT.TR(
+            #        #                HT.TD('Pre-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #        #                HT.TD(width=10, valign="top"),
+            #        #                HT.TD(HT.Span(this_trait.pre_publication_abbreviation, Class="fs13"), valign="top", width=740)
+            #        #                ))
+            #        #tbl.append(HT.TR(
+            #        #                HT.TD('Post-publication Abbreviation: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #        #                HT.TD(width=10, valign="top"),
+            #        #                HT.TD(HT.Span(this_trait.post_publication_abbreviation, Class="fs13"), valign="top", width=740)
+            #        #                ))
+            #        #tbl.append(HT.TR(
+            #        #                HT.TD('Lab code: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #        #                HT.TD(width=10, valign="top"),
+            #        #                HT.TD(HT.Span(this_trait.lab_code, Class="fs13"), valign="top", width=740)
+            #        #                ))
+            #        pass
+            #    #tbl.append(HT.TR(
+            #    #                HT.TD('Owner: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #    #                HT.TD(width=10, valign="top"),
+            #    #                HT.TD(HT.Span(this_trait.owner, Class="fs13"), valign="top", width=740)
+            #    #                ))
+            #else:
+            #    pass
+            #    #tbl.append(HT.TR(
+            #    #                HT.TD('Phenotype: ', Class="fs13 fwb", valign="top", nowrap="on", width=90),
+            #    #                HT.TD(width=10, valign="top"),
+            #    #                HT.TD(HT.Span(this_trait.post_publication_description, Class="fs13"), valign="top", width=740)
+            #    #                ))
+            ##tbl.append(HT.TR(
+            ##                HT.TD('Authors: ', Class="fs13 fwb",
+            ##                        valign="top", nowrap="on", width=90),
+            ##                HT.TD(width=10, valign="top"),
+            ##                HT.TD(HT.Span(this_trait.authors, Class="fs13"),
+            ##                        valign="top", width=740)
+            ##                ))
+            ##tbl.append(HT.TR(
+            ##                HT.TD('Title: ', Class="fs13 fwb",
+            ##                        valign="top", nowrap="on", width=90),
+            ##                HT.TD(width=10, valign="top"),
+            ##                HT.TD(HT.Span(this_trait.title, Class="fs13"),
+            ##                        valign="top", width=740)
+            ##                ))
             if this_trait.journal:
                 journal = this_trait.journal
                 if this_trait.year:
@@ -753,12 +629,6 @@ class ShowTrait(object):
                 #                style = "background:#cddcff;padding:2"), valign="top", width=740)
                 #        ))
                 pass
-
-            #menuTable = HT.TableLite(cellpadding=2, Class="collap", width="150", id="target1")
-            #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-            #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-
-            #title1Body.append(tbl, HT.BR(), menuTable)
 
         elif this_trait and this_trait.dataset and this_trait.dataset.type == 'Geno': #Check if trait is genotype
 
@@ -805,41 +675,10 @@ class ShowTrait(object):
             #                        valign="top", width=740)
             #                ))
 
-            #menuTable = HT.TableLite(cellpadding=2, Class="collap", width="275", id="target1")
-            #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="center"),HT.TD(verifyButton, align="center"),HT.TD(rnaseqButton, align="center"), HT.TD(updateButton, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-            #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(verifyText, align="center"),HT.TD(rnaseqText, align="center"), HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-
-            #title1Body.append(tbl, HT.BR(), menuTable)
-
-        elif (this_trait == None or this_trait.dataset.type == 'Temp'): #if temporary trait (user-submitted trait or PCA trait)
-
-            #TempInfo = HT.Paragraph()
-            if this_trait != None:
-                if this_trait.description:
-                    pass
-                    #tbl.append(HT.TR(HT.TD(HT.Strong('Description: '),' %s ' % this_trait.description,HT.BR()), colspan=3, height=15))
-            else:
-                tbl.append(HT.TR(HT.TD(HT.Strong('Description: '),'not available',HT.BR(),HT.BR()), colspan=3, height=15))
-
-            if (updateText == "Edit"):
-                menuTable = HT.TableLite(cellpadding=2, Class="collap", width="150", id="target1")
-            else:
-                menuTable = HT.TableLite(cellpadding=2, Class="collap", width="80", id="target1")
-
-            #menuTable.append(HT.TR(HT.TD(addSelectionButton, align="right"),HT.TD(updateButton, align="right"), colspan=3, height=50, style="vertical-align:bottom;")       )
-            #menuTable.append(HT.TR(HT.TD(addSelectionText, align="center"),HT.TD(updateText, align="center"), colspan=3, height=50, style="vertical-align:bottom;"))
-            #
-            #title1Body.append(tbl, HT.BR(), menuTable)
-
-        else:
-            pass
-
 
     def dispBasicStatistics(self, fd, this_trait):
 
         #XZ, June 22, 2011: The definition and usage of primary_samples, other_samples, specialStrains, all_samples are not clear and hard to understand. But since they are only used in this function for draw graph purpose, they will not hurt the business logic outside. As of June 21, 2011, this function seems work fine, so no hurry to clean up. These parameters and code in this function should be cleaned along with fd.f1list, fd.parlist, fd.samplelist later.
-        #stats_row = HT.TR()
-        #stats_cell = HT.TD()
 
         # This should still be riset here - Sam - Nov. 2012
         if fd.genotype.type == "riset":
@@ -907,7 +746,6 @@ class ShowTrait(object):
             for sampleNameOrig in all_samples:
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
-                #try:
                 print("* type of this_trait:", type(this_trait))
                 print("  name:", this_trait.__class__.__name__)
                 print("  this_trait:", this_trait)
@@ -920,28 +758,16 @@ class ShowTrait(object):
                 print("  thisvar:", thisvar)
                 thisValFull = [sampleName, thisval, thisvar]
                 print("  thisValFull:", thisValFull)
-                #except:
-                #    continue
 
                 vals1.append(thisValFull)
-
-
-            #vals1 = [[sampleNameOrig.replace("_2nd_", ""),
-            #  this_trait.data[sampleName].val,
-            #  this_trait.data[sampleName].var]
-            #    for sampleNameOrig in all_samples]]
-            #
 
             #Using just the group sample
             for sampleNameOrig in primary_samples:
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
-                #try:
                 thisval = this_trait.data[sampleName].value
                 thisvar = this_trait.data[sampleName].variance
                 thisValFull = [sampleName,thisval,thisvar]
-                #except:
-                #    continue
 
                 vals2.append(thisValFull)
 
@@ -949,12 +775,9 @@ class ShowTrait(object):
             for sampleNameOrig in other_samples:
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
-                #try:
                 thisval = this_trait.data[sampleName].value
                 thisvar = this_trait.data[sampleName].variance
                 thisValFull = [sampleName,thisval,thisvar]
-                #except:
-                #    continue
 
                 vals3.append(thisValFull)
 
@@ -967,12 +790,9 @@ class ShowTrait(object):
             for sampleNameOrig in all_samples:
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
-                #try:
                 thisval = this_trait.data[sampleName].value
                 thisvar = this_trait.data[sampleName].variance
                 thisValFull = [sampleName,thisval,thisvar]
-                #except:
-                #    continue
 
                 vals.append(thisValFull)
 
@@ -983,8 +803,6 @@ class ShowTrait(object):
             if i == 0 and len(vals) < 4:
                 stats_container = HT.Div(id="stats_tabs", style="padding:10px;", Class="ui-tabs") #Needed for tabs; notice the "stats_script_text" below referring to this element
                 stats_container.append(HT.Div(HT.Italic("Fewer than 4 case data were entered. No statistical analysis has been attempted.")))
-                #stats_script_text = """$(function() { $("#stats_tabs").tabs();});"""
-                #stats_cell.append(stats_container)
                 break
             elif (i == 1 and len(primary_samples) < 4):
                 stats_container = HT.Div(id="stats_tabs%s" % i, Class="ui-tabs")
@@ -992,20 +810,12 @@ class ShowTrait(object):
             elif (i == 2 and len(other_samples) < 4):
                 stats_container = HT.Div(id="stats_tabs%s" % i, Class="ui-tabs")
                 stats_container.append(HT.Div(HT.Italic("Fewer than 4 non-" + fd.group + " case data were entered. No statistical analysis has been attempted.")))
-                #stats_script_text = """$(function() { $("#stats_tabs0").tabs(); $("#stats_tabs1").tabs(); $("#stats_tabs2").tabs();});"""
             else:
                 continue
             if len(vals) > 4:
                 stats_tab_list = [HT.Href(text="Basic Table", url="#statstabs-1", Class="stats_tab"),HT.Href(text="Probability Plot", url="#statstabs-5", Class="stats_tab"),
                                                   HT.Href(text="Bar Graph (by name)", url="#statstabs-3", Class="stats_tab"), HT.Href(text="Bar Graph (by rank)", url="#statstabs-4", Class="stats_tab"),
                                                   HT.Href(text="Box Plot", url="#statstabs-2", Class="stats_tab")]
-                #stats_tabs = HT.List(stats_tab_list)
-                #stats_container.append(stats_tabs)
-                #
-                #table_div = HT.Div(id="statstabs-1")
-                #table_container = HT.Paragraph()
-                #
-                #statsTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
 
                 if this_trait.dataset:
                     if this_trait.cellid:
@@ -1015,12 +825,6 @@ class ShowTrait(object):
                 else:
                     self.stats_data.append(BasicStatisticsFunctions.basicStatsTable(vals=vals))
 
-                #statsTable.append(HT.TR(HT.TD(statsTableCell)))
-
-                #table_container.append(statsTable)
-                #table_div.append(table_container)
-                #stats_container.append(table_div)
-                #
                 #normalplot_div = HT.Div(id="statstabs-5")
                 #normalplot_container = HT.Paragraph()
                 #normalplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
@@ -1038,49 +842,22 @@ class ShowTrait(object):
                     #normally distributed. Different symbols represent different groups.",HT.BR(),HT.BR(),
                     #"More about ", HT.Href(url="http://en.wikipedia.org/wiki/Normal_probability_plot",
                     #                 target="_blank", text="Normal Probability Plots"), " and more about interpreting these plots from the ", HT.Href(url="/glossary.html#normal_probability", target="_blank", text="glossary"))))
-                    #normalplot_container.append(normalplot)
-                    #normalplot_div.append(normalplot_container)
-                    #stats_container.append(normalplot_div)
 
                     #boxplot_div = HT.Div(id="statstabs-2")
                     #boxplot_container = HT.Paragraph()
                     #boxplot = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
                     #boxplot_img, boxplot_link = BasicStatisticsFunctions.plotBoxPlot(vals)
                     #boxplot.append(HT.TR(HT.TD(boxplot_img, HT.P(), boxplot_link, align="left")))
-                    #boxplot_container.append(boxplot)
-                    #boxplot_div.append(boxplot_container)
-                    #stats_container.append(boxplot_div)
-
 
                     #barName_div = HT.Div(id="statstabs-3")
                     #barName_container = HT.Paragraph()
                     #barName = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
                     #barName_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, group=fd.group, vals=vals, type="name")
-                    #barName.append(HT.TR(HT.TD(barName_img)))
-                    #barName_container.append(barName)
-                    #barName_div.append(barName_container)
-                    #stats_container.append(barName_div)
-                    #
+
                     #barRank_div = HT.Div(id="statstabs-4")
                     #barRank_container = HT.Paragraph()
                     #barRank = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
                     #barRank_img = BasicStatisticsFunctions.plotBarGraph(identification=fd.identification, group=fd.group, vals=vals, type="rank")
-                    #barRank.append(HT.TR(HT.TD(barRank_img)))
-                    #barRank_container.append(barRank)
-                    #barRank_div.append(barRank_container)
-                    #stats_container.append(barRank_div)
-
-            #    stats_cell.append(stats_container)
-            #
-            #stats_script.append(stats_script_text)
-            #
-            #submitTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target2")
-            #stats_row.append(stats_cell)
-
-            #submitTable.append(stats_row)
-            #submitTable.append(stats_script)
-
-            #title2Body.append(submitTable)
 
 
     def build_correlation_tools(self, this_trait):
@@ -1095,15 +872,6 @@ class ShowTrait(object):
             this_group = 'BXD'
 
         if this_group:
-            #sample_correlation = HT.Input(type='button',name='sample_corr', value=' Compute ', Class="button sample_corr")
-            #lit_correlation = HT.Input(type='button',name='lit_corr', value=' Compute ', Class="button lit_corr")
-            #tissue_correlation = HT.Input(type='button',name='tiss_corr', value=' Compute ', Class="button tiss_corr")
-            #methodText = HT.Span("Calculate:", Class="ffl fwb fs12")
-            #
-            #databaseText = HT.Span("Database:", Class="ffl fwb fs12")
-            #databaseMenu1 = HT.Select(name='database1')
-            #databaseMenu2 = HT.Select(name='database2')
-            #databaseMenu3 = HT.Select(name='database3')
 
             dataset_menu = []
             print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
@@ -1128,8 +896,6 @@ class ShowTrait(object):
             tissues = g.db.execute("SELECT Id, Name FROM Tissue order by Name")
             for item in tissues.fetchall():
                 tissue_id, tissue_name = item
-                #databaseMenuSub = HT.Optgroup(label = '%s ------' % tissue_name)
-                #dataset_sub_menu = []
                 data_sets = g.db.execute('''SELECT ProbeSetFreeze.FullName,ProbeSetFreeze.Name FROM ProbeSetFreeze, ProbeFreeze,
                 InbredSet WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeFreeze.TissueId = %s and
                 ProbeSetFreeze.public > %s and ProbeFreeze.InbredSetId = InbredSet.Id and InbredSet.Name like %s
@@ -1139,149 +905,15 @@ class ShowTrait(object):
                 if dataset_sub_menu:
                     dataset_menu.append(dict(tissue=tissue_name,
                                         datasets=dataset_sub_menu))
-                    #    ("**heading**", tissue_name))
-                    #dataset_menu.append(dataset_sub_menu)
 
             dataset_menu_selected = None
             if len(dataset_menu):
                 if this_trait and this_trait.dataset:
                     dataset_menu_selected = this_trait.dataset.name
 
-                #criteriaText = HT.Span("Return:", Class="ffl fwb fs12")
-
-                #criteriaMenu1 = HT.Select(name='criteria1', selected='500', onMouseOver="if (NS4 || IE4) activateEl('criterias', event);")
-
                 return_results_menu = (100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000)
                 return_results_menu_selected = 500
 
-                #criteriaMenu1.append(('top 100','100'))
-                #criteriaMenu1.append(('top 200','200'))
-                #criteriaMenu1.append(('top 500','500'))
-                #criteriaMenu1.append(('top 1000','1000'))
-                #criteriaMenu1.append(('top 2000','2000'))
-                #criteriaMenu1.append(('top 5000','5000'))
-                #criteriaMenu1.append(('top 10000','10000'))
-                #criteriaMenu1.append(('top 15000','15000'))
-                #criteriaMenu1.append(('top 20000','20000'))
-
-                #self.MDPRow1 = HT.TR(Class='mdp1')
-                #self.MDPRow2 = HT.TR(Class='mdp2')
-                #self.MDPRow3 = HT.TR(Class='mdp3')
-
-            #    correlationMenus1 = HT.TableLite(
-            #            HT.TR(HT.TD(databaseText), HT.TD(databaseMenu1, colspan="3")),
-            #            HT.TR(HT.TD(criteriaText), HT.TD(criteriaMenu1)),
-            #        self.MDPRow1, cellspacing=0, width="619px", cellpadding=2)
-            #    correlationMenus1.append(HT.Input(name='orderBy', value='2', type='hidden'))    # to replace the orderBy menu
-            #    correlationMenus2 = HT.TableLite(
-            #            HT.TR(HT.TD(databaseText), HT.TD(databaseMenu2, colspan="3")),
-            #            HT.TR(HT.TD(criteriaText), HT.TD(criteriaMenu2)),
-            #        self.MDPRow2, cellspacing=0, width="619px", cellpadding=2)
-            #    correlationMenus2.append(HT.Input(name='orderBy', value='2', type='hidden'))
-            #    correlationMenus3 = HT.TableLite(
-            #            HT.TR(HT.TD(databaseText), HT.TD(databaseMenu3, colspan="3")),
-            #            HT.TR(HT.TD(criteriaText), HT.TD(criteriaMenu3)),
-            #        self.MDPRow3, cellspacing=0, width="619px", cellpadding=2)
-            #    correlationMenus3.append(HT.Input(name='orderBy', value='2', type='hidden'))
-            #
-            #else:
-            #    correlationMenus = ""
-
-
-        #corr_row = HT.TR()
-        #corr_container = HT.Div(id="corr_tabs", Class="ui-tabs")
-        #
-        #if (this_trait.dataset != None and this_trait.dataset.type =='ProbeSet'):
-        #    corr_tab_list = [HT.Href(text='Sample r', url="#corrtabs-1"),
-        #                     HT.Href(text='Literature r',  url="#corrtabs-2"),
-        #                     HT.Href(text='Tissue r', url="#corrtabs-3")]
-        #else:
-        #    corr_tab_list = [HT.Href(text='Sample r', url="#corrtabs-1")]
-        #
-        #corr_tabs = HT.List(corr_tab_list)
-        #corr_container.append(corr_tabs)
-
-        #if correlationMenus1 or correlationMenus2 or correlationMenus3:
-            #sample_div = HT.Div(id="corrtabs-1")
-            #sample_container = HT.Span()
-            #
-            #sample_type = HT.Input(type="radio", name="sample_method", value="1", checked="checked")
-            #sample_type2 = HT.Input(type="radio", name="sample_method", value="2")
-            #
-            #sampleTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-            #sampleTD = HT.TD(correlationMenus1, HT.BR(),
-            #                           "Pearson", sample_type, "&nbsp;"*3, "Spearman Rank", sample_type2, HT.BR(), HT.BR(),
-            #                           sample_correlation, HT.BR(), HT.BR())
-            #
-            #sampleTD.append(HT.Span("The ",
-            #                        HT.Href(url="/correlationAnnotation.html#sample_r", target="_blank",
-            #                                text="Sample Correlation")," is computed between trait data and",
-            #                            " any ",HT.BR()," other traits in the sample database selected above. Use ",
-            #                            HT.Href(url="/glossary.html#Correlations", target="_blank", text="Spearman Rank"),
-            #                            HT.BR(),"when the sample size is small (<20) or when there are influential \
-            #                            outliers.", HT.BR(),Class="fs12"))
-
-            #sampleTable.append(sampleTD)
-
-            #sample_container.append(sampleTable)
-            #sample_div.append(sample_container)
-            #corr_container.append(sample_div)
-            #
-            #literature_div = HT.Div(id="corrtabs-2")
-            #literature_container = HT.Span()
-
-            #literatureTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-            #literatureTD = HT.TD(correlationMenus2,HT.BR(),lit_correlation, HT.BR(), HT.BR())
-            #literatureTD.append(HT.Span("The ", HT.Href(url="/correlationAnnotation.html", target="_blank",text="Literature Correlation"), " (Lit r) between this gene and all other genes is computed",HT.BR(),
-            #                            "using the ", HT.Href(url="https://grits.eecs.utk.edu/sgo/sgo.html", target="_blank", text="Semantic Gene Organizer"),
-            #                            " and human, rat, and mouse data from PubMed. ", HT.BR(),"Values are ranked by Lit r, \
-            #                            but Sample r and Tissue r are also displayed.", HT.BR(), HT.BR(),
-            #                            HT.Href(url="/glossary.html#Literature", target="_blank", text="More on using Lit r"), Class="fs12"))
-            #literatureTable.append(literatureTD)
-            #
-            #literature_container.append(literatureTable)
-            #literature_div.append(literature_container)
-            #
-            #if this_trait.dataset != None:
-            #    if (this_trait.dataset.type =='ProbeSet'):
-            #        corr_container.append(literature_div)
-            #
-            #tissue_div = HT.Div(id="corrtabs-3")
-            #tissue_container = HT.Span()
-            #
-            #tissue_type = HT.Input(type="radio", name="tissue_method", value="4", checked="checked")
-            #tissue_type2 = HT.Input(type="radio", name="tissue_method", value="5")
-            #
-            #tissueTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%")
-            #tissueTD = HT.TD(correlationMenus3,HT.BR(),
-            #                           "Pearson", tissue_type, "&nbsp;"*3, "Spearman Rank", tissue_type2, HT.BR(), HT.BR(),
-            #                           tissue_correlation, HT.BR(), HT.BR())
-            #tissueTD.append(HT.Span("The ", HT.Href(url="/webqtl/main.py?FormID=tissueCorrelation", target="_blank", text="Tissue Correlation"),
-            #" (Tissue r) estimates the similarity of expression of two genes",HT.BR()," or \
-            #transcripts across different cells, tissues, or organs (",HT.Href(url="/correlationAnnotation.html#tissue_r", target="_blank", text="glossary"),"). \
-            #Tissue correlations",HT.BR()," are generated by analyzing expression in multiple samples usually taken from \
-            #single cases.",HT.BR(),HT.Bold("Pearson")," and ",HT.Bold("Spearman Rank")," correlations have been computed for all pairs \
-            #of genes",HT.BR()," using data from mouse samples.",
-            #HT.BR(), Class="fs12"))
-            #tissueTable.append(tissueTD)
-            #
-            #tissue_container.append(tissueTable)
-            #tissue_div.append(tissue_container)
-            #if this_trait.dataset != None:
-            #    if (this_trait.dataset.type =='ProbeSet'):
-            #        corr_container.append(tissue_div)
-            #
-            #corr_row.append(HT.TD(corr_container))
-            #
-            #corr_script = HT.Script(language="Javascript")
-            #corr_script_text = """$(function() { $("#corr_tabs").tabs(); });"""
-            #corr_script.append(corr_script_text)
-            #
-            #submitTable = HT.TableLite(cellspacing=0, cellpadding=0, width="100%", Class="target4")
-            #submitTable.append(corr_row)
-            #submitTable.append(corr_script)
-            #
-            #title3Body.append(submitTable)
             self.corr_tools = dict(dataset_menu = dataset_menu,
                                           dataset_menu_selected = dataset_menu_selected,
                                           return_results_menu = return_results_menu,
@@ -1547,8 +1179,10 @@ class ShowTrait(object):
             all_samples_ordered = (self.dataset.group.parlist +
                                    self.dataset.group.f1list +
                                    self.dataset.group.samplelist)
-        else:
+        elif self.dataset.group.f1list:
             all_samples_ordered = self.dataset.group.f1list + self.dataset.group.samplelist
+        else:
+            all_samples_ordered = self.dataset.group.samplelist
 
         this_trait_samples = set(this_trait.data.keys())
 

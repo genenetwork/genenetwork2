@@ -8,16 +8,15 @@
     <header class="jumbotron subhead" id="overview">
         <div class="container">
             <h1>GeneNetwork</h1>
-            <p class="lead">Open source bioinformatics for systems genetics<br />
-            Brought to you by the University of Tennessee</p>
+            <p class="lead">Open source bioinformatics for systems genetics</p>
         </div>
     </header>
-
 
     <div class="container">
         <div class="row">
             <div class="span3 bs-docs-sidebar">
               <ul class="nav nav-list bs-docs-sidenav">
+                <li><a href="#quick-search"><i class="icon-chevron-right"></i> Quick Search</a></li>
                 <li><a href="#search"><i class="icon-chevron-right"></i> Search</a></li>
                 <li><a href="#getting-started"><i class="icon-chevron-right"></i> Getting started</a></li>
                 <li><a href="#advanced"><i class="icon-chevron-right"></i> Advanced commands</a></li>
@@ -27,32 +26,59 @@
             </div>
 
             <div class="span9">
+                <section id="quick-search">
+                    <div class="page-header">
+                        <h1>Quick search</h1>
+                    </div>
+                    
+                    <form method="get" action="/search"  name="SEARCHFORM">
+                        <fieldset>
+                            <div class="input-prepend">
+                                <select id="trait_type" name="trait_type" class="span2">
+                                    <option value="all">All</option>
+                                    <option value="mrna_assay">Molecular Assays</option>
+                                    <option value="phenotype">Phenotypes</option>
+                                    <option value="genotype">Genotypes</option>
+                                </select>
+                            </div>
+                            <div class="input-append">
+                                <input class="input-xlarge"
+                                    id="quick" name="q"
+                                    type="text" maxlength="500">
+
+                                <input id="btsearch" type="submit"
+                                    class="btn btn-primary" value="Search">
+                            </div>
+                        </fieldset>
+                    </form>
+                </section>
+                
                 <section id="search">
                     <div class="page-header">
                         <h1>Select and search</h1>
                     </div>
                     <form method="get" action="/search"  name="SEARCHFORM">
                         <fieldset>
-                            <!--<legend>Select and Search</legend>-->
                             <label for="species">Species:</label>
-                                <select name="species" id="species" class="input-xlarge ds_selector">
-                                </select>
+                            <select name="species" id="species" class="input-xlarge ds_selector">
+                            </select>
 
+
+                            <label for="group">Group: </label>
                             <div class="input-append">
-                                <label for="group">Group: </label>
-                                    <select name="group" id="group" class="input-xlarge ds_selector"></select>
-                                    <!--<i class="icon-question-sign"></i>-->
-                                    <input type="button" class="btn" value="Info" id="group_info" />
+                                <select name="group" id="group" class="input-xlarge ds_selector">
+                                </select>
+                                <!--<i class="icon-question-sign"></i>-->
+                                <input type="button" class="btn" value="Info" id="group_info" />
                             </div>
 
-
                             <label for="tissue">Type:</label>
-                                <select name="type" id="type" class="input-xlarge ds_selector"></select>
+                            <select name="type" id="type" class="input-xlarge ds_selector"></select>
 
+                            <label for="dataset">Dataset:</label>
                             <div class="input-append">
-                                <label for="dataset">Dataset:</label>
-                                    <select name="dataset" id="dataset" class="input-xlarge"></select>
-                                    <input type="button" class="btn" value="Info" id="dataset_info" />
+                                <select name="dataset" id="dataset" class="input-xlarge"></select>
+                                <input type="button" class="btn" value="Info" id="dataset_info" />
                             </div>
                             <!--  USER HELP   -->
 

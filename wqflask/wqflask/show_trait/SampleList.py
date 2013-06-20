@@ -4,7 +4,7 @@ from flask import Flask, g
 
 from base import webqtlCaseData
 from utility import webqtlUtil, Plot, Bunch
-from base.webqtlTrait import GeneralTrait
+from base.trait import GeneralTrait
 
 from pprint import pformat as pf
 

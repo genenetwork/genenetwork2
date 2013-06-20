@@ -52,19 +52,22 @@ ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Lucene/Details?sp
 SECUREDIR = GNROOT + 'secure/'
 COMMON_LIB = GNROOT + 'support/admin'
 HTMLPATH = GNROOT + 'web/'
+PYLMM_PATH = '/home/zas1024/'
+SNP_PATH = '/mnt/xvdf1/snps/' 
 IMGDIR = HTMLPATH +'image/'
 IMAGESPATH = HTMLPATH + 'images/'
 UPLOADPATH = IMAGESPATH + 'upload/'
-TMPDIR = '/tmp/'
+TMPDIR = HTMLPATH + 'tmp/'
 GENODIR = HTMLPATH + 'genotypes/'
+NEWGENODIR = HTMLPATH + 'new_genotypes/'
 GENO_ARCHIVE_DIR = GENODIR + 'archive/'
 TEXTDIR = HTMLPATH + 'ProbeSetFreeze_DataMatrix/'
 CMDLINEDIR = HTMLPATH + 'webqtl/cmdLine/'
 ChangableHtmlPath = GNROOT + 'web/'
 
 SITENAME = 'GN'
-PORTADDR = "http://132.192.47.32"
-BASEHREF = '<base href="http://132.192.47.32/">'
+PORTADDR = "http://50.16.251.170"
+BASEHREF = '<base href="http://50.16.251.170/">'
 INFOPAGEHREF = '/dbdoc/%s.html'
 GLOSSARYFILE = "/glossary.html"
 CGIDIR = '/webqtl/' #XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'

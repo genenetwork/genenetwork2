@@ -41,23 +41,7 @@
                             <input name="mapping_bootstraps" value="2000" type="text" />
                         </div>
                     </div>
-                    
-               
-                    {% if dataset.group.genotype.Mbmap %}
-                    <div class="control-group">
-                        <label class="control-label">Scale</label>
-                        <div class="controls">                      
-                        <label class="radio inline">
-                            <input type="radio" name="scale" id="scale" value="megabase" checked>
-                            Megabase
-                        </label>
-                        <label class="radio inline">
-                            <input type="radio" name="scale" id="scale" value="centimorgan">
-                            Centimorgan
-                        </label>
-                        </div>
-                    </div>
-                    {% endif %}
+
 
                     <div class="control-group">
                         <label class="control-label"><b>Composite Mapping</b></label>
@@ -111,26 +95,24 @@
                 </div>
                 
                 <div class="tab-pane" id="marker_regression">
-                    <div class="control-group" id="display_all_lrs">
-                        <label class="control-label">Display all LRS</label>
+                    <div class="control-group" id="display_all_div">
+                        <label class="control-label">Display all</label>
                         <div class="controls">                      
                             <label class="radio inline">
-                                <input type="radio" name="display_all_lrs"
-                                       id="display_all_lrs" value=True>
+                                <input type="radio" name="display_all" value="True" checked>
                                 Yes
                             </label>
                             <label class="radio inline">
-                                <input type="radio" name="display_all_lrs"
-                                       id="display_all_lrs" value=False checked>
+                                <input type="radio" name="display_all" value="False">
                                 No
                             </label>
                         </div>
-                    </div>                  
-                    <div class="control-group">
-                        <label for="suggestive_lrs" class="control-label"
-                               title="Control Locus">LRS greater than</label>
+                    </div>
+                    <div class="control-group" id="suggestive" >
+                        <label for="suggestive" class="control-label"
+                               title="Control Locus">LOD score greater than: </label>
                         <div class="controls">
-                            <input name="suggestive_lrs" id="suggestive_lrs" type="text" />
+                            <input name="suggestive" type="text" value="0"/>
                         </div>
                     </div>
                     
@@ -143,13 +125,14 @@
                     
                     <div class="control-group">
                         <div class="controls">
-                            <button class="btn btn-inverse submit_special"
+                            <button id="marker_regression_compute"
+                                    class="btn btn-inverse submit_special"
                                     data-url="/marker_regression"
                                     title="Compute Marker Regression">
                                 <i class="icon-ok-circle icon-white"></i> Compute
                             </button>
                         </div>
-                    </div>                    
+                    </div>
                     
                 </div>
 

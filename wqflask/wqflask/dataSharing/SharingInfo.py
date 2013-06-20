@@ -34,12 +34,12 @@ import requests
 from dbFunction import webqtlDatabaseFunction
 import SharingBody
 
-import logging
-logging.basicConfig(filename="/tmp/flask_gn_log", level=logging.INFO)
-
-_log = logging.getLogger("search")
-_ch = logging.StreamHandler()
-_log.addHandler(_ch)
+#import logging
+#logging.basicConfig(filename="/tmp/flask_gn_log", level=logging.INFO)
+#
+#_log = logging.getLogger("search")
+#_ch = logging.StreamHandler()
+#_log.addHandler(_ch)
 
 
 

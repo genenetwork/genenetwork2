@@ -1,17 +1,83 @@
 Clone code from git repository:
 git clone http://github.com/zsloan/genenetwork.git gene 
 
+Pull from branch in git repository:
+git pull origin flask(or whatever the branch is)
+
+Add all files in current directory branch to be staged to be committed
+git add -A
+
+Git push to my github repository
+git push https://github.com/zsloan/genenetwork.git flask
+
+
+Get the default path being used when a command is typed:
+which _______
+
+Change default path python looks at when importing
+export PYTHONPATH="/home/zas1024/gene/wqflask"
+
+Get the paths checked when a user types a command:
+echo $PATH
+
+Get all environment variables:
+set
+
+
+**** apt-get is an Ubuntu system-wide package manager, while pip is a Python-only system
+for python packages ****
+
+Upgrade system packages for security updates, etc:
+apt-get update
+apt-get upgrade
+
+**"apt-cache search" searches for text in the description for various packages, while
+"apt-file search" searches for files within the packages**
+
+Show information about given result item returned by apt-cache search:
+apt-cache show _______
+
+Search for package with a specified file that can be installed with apt-get
+apt-file search _______
+
+============================================
+
+Check which system packages are installed:
+dpkg -l | less
+
+============================================
+
+NEVER USE SUDO WITH PIP
+
+To fix error "mysql_config not found":
+sudo apt-get install libmysqlclient-dev
+
+Create requirements.txt file:
+pip freeze > requirements.txt (or whatever filename)
+
+Install from requirements.txt:
+pip install -r gene/wqflask/requirements.txt -t ve27
+
 ============================================
 
 To get server running:
 
 !If having seemingly inexplicable problems with imports, make sure I've started the environment!
 
+Note: Virtual environment is not activated when running as root
+
 Start up virtual environment:
 source ~/ve27/bin/activate
 
+Deactivate virtual environment:
+deactivate (just type deactivate)
+
 To set WQFLASK_SETTINGS environment variable:
-export WQFLASK_SETTINGS=~/gene/wqflask/cfg/zach_settings.py (or wherever file is located)
+export WQFLASK_SETTINGS=~/zach_settings.py (or wherever file is located)
+
+zach_settings.py is the local config file with the DB_URI
+default_settings.py is the config file with the configuration information that would apply
+to any running instance of GeneNetwork
 
 To change screen environment variable (if man not working or to get color, for example):
 export TERM=screen
@@ -19,15 +85,43 @@ export TERM=screen
 To search for commands in history if necessary:
 history | grep "(whatever is being searched for)"
 
-Run web server:
-/usr/local/nginx/sbin/nginx
+Reload web server:
+/usr/sbin/nginx -s reload
 
 Run server:
 python runserver.py
 
 ===========================================
 
+Update user password:
+use mysql;
+UPDATE user SET password=PASSWORD('whatever') WHERE user='webqtl';
+FLUSH PRIVILEGES;
+
+===========================================
+
+Redis things
+
+Restart redis server:
+sudo /etc/init.d/redis_6379 stop
+sudo /etc/init.d/redis_6379 start
+
+===========================================
+
+Run pylint:
+pylint file_name
+
+For options:
+pylint --help 
+
+===========================================
+
 Start screen session:
+
+If "no option -R":
+byobu-select-backend
+2. screen
+
 byobu -RD (to start)
 control-a then :multiuser on
 control-a then :acladd sam
@@ -75,14 +169,64 @@ ll h*: Finds items in the directory starting with h
 
 ===========================================
 
+du -hms * | sort -n : Gives size used by different directories
+-h: human readable
+-m: in megabytes (default)
+-s: summarize
+
+===========================================
+
+rm -rfv
+
+===========================================
+
+cp -a (archive; copies recursively and doesn't follow symbol links)
+   -i (interactive, prompts before overwrite)
+   -v (verbose)
+   -b (backup)
+   
+mv (same as above, but with no -a)
+
+===========================================
+
+Add user:
+sudo adduser
+Edit /etc/sudoers to give user root privileges
+
+
+===========================================
+
 tidyp - Improves/beautifies html code
 tidyp -m -i -w 100 index_page.html
 
 ===========================================
 
-ps -ax - View processes
+ps ax - View processes
+ps ux (the "u" is for user)
 
 kill (process #)
+
+===========================================
+
+Installing QTL Reaper
+
+wget http://downloads.sourceforge.net/project/qtlreaper/qtlreaper/1.1.1/qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb
+tar xvf qtlreaper-1.1.1.tar.gz (to unzip)
+python setup.py build
+python setup.py install
+
+===========================================
+
+Using Yolk
+
+Install Yolk:
+pip install yolk
+
+Check packages installed in this virtual environment:
+yolk -l
+
+Checks packages that have updates available:
+yolk -U
 
 ===========================================
 
@@ -91,4 +235,28 @@ Python stuff:
 Classes should always inherit "object"
 To iterate through dictionary items: for X, Y in MyDictionary.items():
 
+===========================================
 
+Create symbolic link:
+ln -s dir_to_link_to linking_dir
+
+===========================================
+
+Reboot server
+sudo reboot
+
+===========================================
+
+Using grep:
+
+grep -ir (search string) (directory)
+
+-i ignores case
+-r searches recursively through subdirectories of directory you specify
+
+===========================================
+
+MySQL Things -
+
+Create fulltext (MATCH AGAINST syntax) index:
+CREATE FULLTEXT INDEX __________ ON Table (Column);

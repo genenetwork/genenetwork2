@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}User Manager{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <header class="jumbotron subhead" id="overview">
+        <div class="container">
+            <h1>User Manager</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>User Manager</h1>
+        </div>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Confirmed at</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+        {% for user in users %}
+            <tr>
+                <td title="{{ user.__dict__ }}">
+                    <a href="{{ url_for('manage_user', user_id=user.id) }}">{{ user.id }}</a>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.confirmed_at }}</td>
+                <td>{{ user.active }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+
+
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}

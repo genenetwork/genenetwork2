@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
 import string
+import resource
+
 
 from htmlgen import HTMLgen2 as HT
 
@@ -15,22 +17,38 @@ from pprint import pformat as pf
 
 from flask import Flask, g
 
-class GeneralTrait:
+def print_mem(stage=""):
+    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    print("{}: {}".format(stage, mem/1024))
+
+class GeneralTrait(object):
     """
     Trait class defines a trait in webqtl, can be either Microarray,
     Published phenotype, genotype, or user input trait
 
     """
 
-    def __init__(self, **kw):
-        print("in GeneralTrait")
-        self.dataset = kw.get('dataset')           # database name
+    def __init__(self, get_qtl_info=False, **kw):
+        # xor assertion
+        assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. or name";
+        if kw.get('dataset_name'):
+            self.dataset = create_dataset(kw.get('dataset_name'))
+        else:
+            self.dataset = kw.get('dataset')
         self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
         self.cellid = kw.get('cellid')
         self.identification = kw.get('identification', 'un-named trait')
         self.haveinfo = kw.get('haveinfo', False)
         self.sequence = kw.get('sequence')         # Blat sequence, available for ProbeSet
         self.data = kw.get('data', {})
+        
+        # Sets defaultst
+        self.locus = None
+        self.lrs = None
+        self.pvalue = None
+        self.mean = None
+        self.num_overlap = None
+        
 
         if kw.get('fullname'):
             name2 = value.split("::")
@@ -39,13 +57,12 @@ class GeneralTrait:
                 # self.cellid is set to None above
             elif len(name2) == 3:
                 self.dataset, self.name, self.cellid = name2
-
-        self.dataset = create_dataset(self.dataset)
         
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
-        self.retrieve_info()
+        self.retrieve_info(get_qtl_info=get_qtl_info)
         self.retrieve_sample_data()
+        
 
 
     def get_name(self):
@@ -78,7 +95,7 @@ class GeneralTrait:
                 #desc = self.handle_pca(desc)
                 stringy = desc
         return stringy
-    
+
 
 
     def display_name(self):
@@ -208,7 +225,7 @@ class GeneralTrait:
         #            ''' % (self.cellid, self.name, self.dataset.name)
         #            
         #else:
-        results = self.dataset.retrieve_sample_data(self)
+        results = self.dataset.retrieve_sample_data(self.name)
 
         # Todo: is this necessary? If not remove
         self.data.clear()
@@ -229,7 +246,7 @@ class GeneralTrait:
     #def items(self):
     #    return self.__dict__.items()
 
-    def retrieve_info(self, QTL=False):
+    def retrieve_info(self, get_qtl_info=False):
         assert self.dataset, "Dataset doesn't exist"
         if self.dataset.type == 'Publish':
             query = """
@@ -251,7 +268,7 @@ class GeneralTrait:
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                             PublishFreeze.Id = %s
                     """ % (self.name, self.dataset.id)
-            traitInfo = g.db.execute(query).fetchone()
+            trait_info = g.db.execute(query).fetchone()
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
         #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
         elif self.dataset.type == 'ProbeSet':
@@ -268,8 +285,8 @@ class GeneralTrait:
                     """ % (escape(display_fields_string),
                            escape(self.dataset.name),
                            escape(self.name))
-            traitInfo = g.db.execute(query).fetchone()
-            print("traitInfo is: ", pf(traitInfo))
+            trait_info = g.db.execute(query).fetchone()
+            #print("trait_info is: ", pf(trait_info))
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif self.dataset.type == 'Geno':
@@ -286,23 +303,24 @@ class GeneralTrait:
                     """ % (escape(display_fields_string),
                            escape(self.dataset.name),
                            escape(self.name))
-            traitInfo = g.db.execute(query).fetchone()
-            print("traitInfo is: ", pf(traitInfo))
+            trait_info = g.db.execute(query).fetchone()
+            #print("trait_info is: ", pf(trait_info))
         else: #Temp type
             query = """SELECT %s FROM %s WHERE Name = %s
                                      """ % (string.join(self.dataset.display_fields,','),
                                             self.dataset.type, self.name)
-            traitInfo = g.db.execute(query).fetchone()
+            trait_info = g.db.execute(query).fetchone()
 
 
         #self.cursor.execute(query)
-        #traitInfo = self.cursor.fetchone()
-        if traitInfo:
+        #trait_info = self.cursor.fetchone()
+        if trait_info:
             self.haveinfo = True
 
             #XZ: assign SQL query result to trait attributes.
             for i, field in enumerate(self.dataset.display_fields):
-                setattr(self, field, traitInfo[i])
+                print("  mike: {} -> {} - {}".format(field, type(trait_info[i]), trait_info[i]))
+                setattr(self, field, trait_info[i])
 
             if self.dataset.type == 'Publish':
                 self.confidential = 0
@@ -310,55 +328,76 @@ class GeneralTrait:
                     self.confidential = 1
 
             self.homologeneid = None
+            
+            print("self.geneid is:", self.geneid)
+            print("  type:", type(self.geneid))
+            print("self.dataset.group.name is:", self.dataset.group.name)
             if self.dataset.type == 'ProbeSet' and self.dataset.group and self.geneid:
                 #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
                 #XZ: So I have to test if geneid is number before execute the query.
                 #XZ: The geneid values in database should be cleaned up.
-                try:
-                    junk = float(self.geneid)
-                    geneidIsNumber = 1
-                except:
-                    geneidIsNumber = 0
+                #try:
+                #    float(self.geneid)
+                #    geneidIsNumber = True
+                #except ValueError:
+                #    geneidIsNumber = False
 
-                if geneidIsNumber:
-                    query = """
-                            SELECT
-                                    HomologeneId
-                            FROM
-                                    Homologene, Species, InbredSet
-                            WHERE
-                                    Homologene.GeneId =%s AND
-                                    InbredSet.Name = '%s' AND
-                                    InbredSet.SpeciesId = Species.Id AND
-                                    Species.TaxonomyId = Homologene.TaxonomyId
-                            """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
-                    result = g.db.execute(query).fetchone()
-                else:
-                    result = None
+                #if geneidIsNumber:
+
+
+                query = """
+                        SELECT
+                                HomologeneId
+                        FROM
+                                Homologene, Species, InbredSet
+                        WHERE
+                                Homologene.GeneId =%s AND
+                                InbredSet.Name = '%s' AND
+                                InbredSet.SpeciesId = Species.Id AND
+                                Species.TaxonomyId = Homologene.TaxonomyId
+                        """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
+                print("-> query is:", query)
+                result = g.db.execute(query).fetchone()
+                #else:
+                #    result = None
 
                 if result:
                     self.homologeneid = result[0]
 
-            if QTL:
+            if get_qtl_info:
                 if self.dataset.type == 'ProbeSet' and not self.cellid:
-                    traitQTL = g.db.execute("""
+                    query = """
                             SELECT
                                     ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean
                             FROM
                                     ProbeSetXRef, ProbeSet
                             WHERE
                                     ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                    ProbeSet.Name = "%s" AND
-                                    ProbeSetXRef.ProbeSetFreezeId =%s
-                            """, (self.name, self.dataset.id)).fetchone()
+                                    ProbeSet.Name = "{}" AND
+                                    ProbeSetXRef.ProbeSetFreezeId ={}
+                            """.format(self.name, self.dataset.id)
+                    trait_qtl = g.db.execute(query).fetchone()
                     #self.cursor.execute(query)
-                    #traitQTL = self.cursor.fetchone()
-                    if traitQTL:
-                        self.locus, self.lrs, self.pvalue, self.mean = traitQTL
+                    #trait_qtl = self.cursor.fetchone()
+                    if trait_qtl:
+                        self.locus, self.lrs, self.pvalue, self.mean = trait_qtl
+                        if self.locus:
+                            query = """
+                                select Geno.Chr, Geno.Mb from Geno, Species
+                                where Species.Name = '{}' and
+                                Geno.Name = '{}' and
+                                Geno.SpeciesId = Species.Id
+                                """.format(self.dataset.group.species, self.locus)
+                            print("query is:", query)
+                            result = g.db.execute(query).fetchone()
+                            self.locus_chr = result[0]
+                            self.locus_mb = result[1]
                     else:
-                        self.locus = self.lrs = self.pvalue = self.mean = ""
+                        self.locus = self.locus_chr = self.locus_mb = self.lrs = self.pvalue = self.mean = ""
+                
+                
                 if self.dataset.type == 'Publish':
-                    traitQTL = g.db.execute("""
+                    trait_qtl = g.db.execute("""
                             SELECT
                                     PublishXRef.Locus, PublishXRef.LRS
                             FROM
@@ -369,9 +408,9 @@ class GeneralTrait:
                                     PublishFreeze.Id =%s
                             """, (self.name, self.dataset.id)).fetchone()
                     #self.cursor.execute(query)
-                    #traitQTL = self.cursor.fetchone()
-                    if traitQTL:
-                        self.locus, self.lrs = traitQTL
+                    #trait_qtl = self.cursor.fetchone()
+                    if trait_qtl:
+                        self.locus, self.lrs = trait_qtl
                     else:
                         self.locus = self.lrs = ""
         else:

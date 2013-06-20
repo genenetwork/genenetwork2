@@ -1,4 +1,3 @@
-
 /**
  * Create a new TR element (and it's TD children) for a row
  *  @param {object} oSettings dataTables settings object
@@ -27,7 +26,7 @@ function _fnCreateTr ( oSettings, iRow )
 
 		if ( oData._aData.DT_RowClass )
 		{
-			$(oData.nTr).addClass( oData._aData.DT_RowClass );
+			oData.nTr.className = oData._aData.DT_RowClass;
 		}
 
 		/* Process each column */
@@ -39,7 +38,7 @@ function _fnCreateTr ( oSettings, iRow )
 			/* Render if needed - if bUseRendered is true then we already have the rendered
 			 * value in the data source - so can just use that
 			 */
-			nTd.innerHTML = (typeof oCol.fnRender === 'function' && (!oCol.bUseRendered || oCol.mDataProp === null)) ?
+			nTd.innerHTML = (typeof oCol.fnRender === 'function' && (!oCol.bUseRendered || oCol.mData === null)) ?
 				_fnRender( oSettings, iRow, i ) :
 				_fnGetCellData( oSettings, iRow, i, 'display' );
 		
@@ -80,7 +79,7 @@ function _fnCreateTr ( oSettings, iRow )
 function _fnBuildHead( oSettings )
 {
 	var i, nTh, iLen, j, jLen;
-	var iThs = oSettings.nTHead.getElementsByTagName('th').length;
+	var iThs = $('th, td', oSettings.nTHead).length;
 	var iCorrector = 0;
 	var jqChildren;
 	
@@ -379,7 +378,7 @@ function _fnDraw( oSettings )
 				}
 			}
 			
-			/* Row callback functions - might want to manipule the row */
+			/* Row callback functions - might want to manipulate the row */
 			_fnCallbackFire( oSettings, 'aoRowCallback', null, 
 				[nRow, oSettings.aoData[ oSettings.aiDisplay[j] ]._aData, iRowCount, j] );
 			
@@ -691,10 +690,12 @@ function _fnAddOptionsHtml ( oSettings )
 function _fnDetectHeader ( aLayout, nThead )
 {
 	var nTrs = $(nThead).children('tr');
-	var nCell;
-	var i, j, k, l, iLen, jLen, iColShifted;
+	var nTr, nCell;
+	var i, k, l, iLen, jLen, iColShifted, iColumn, iColspan, iRowspan;
+	var bUnique;
 	var fnShiftCol = function ( a, i, j ) {
-		while ( a[i][j] ) {
+		var k = a[i];
+                while ( k[j] ) {
 			j++;
 		}
 		return j;
@@ -711,19 +712,18 @@ function _fnDetectHeader ( aLayout, nThead )
 	/* Calculate a layout array */
 	for ( i=0, iLen=nTrs.length ; i<iLen ; i++ )
 	{
-		var iColumn = 0;
+		nTr = nTrs[i];
+		iColumn = 0;
 		
 		/* For every cell in the row... */
-		for ( j=0, jLen=nTrs[i].childNodes.length ; j<jLen ; j++ )
-		{
-			nCell = nTrs[i].childNodes[j];
-
+		nCell = nTr.firstChild;
+		while ( nCell ) {
 			if ( nCell.nodeName.toUpperCase() == "TD" ||
 			     nCell.nodeName.toUpperCase() == "TH" )
 			{
 				/* Get the col and rowspan attributes from the DOM and sanitise them */
-				var iColspan = nCell.getAttribute('colspan') * 1;
-				var iRowspan = nCell.getAttribute('rowspan') * 1;
+				iColspan = nCell.getAttribute('colspan') * 1;
+				iRowspan = nCell.getAttribute('rowspan') * 1;
 				iColspan = (!iColspan || iColspan===0 || iColspan===1) ? 1 : iColspan;
 				iRowspan = (!iRowspan || iRowspan===0 || iRowspan===1) ? 1 : iRowspan;
 
@@ -732,6 +732,9 @@ function _fnDetectHeader ( aLayout, nThead )
 				 */
 				iColShifted = fnShiftCol( aLayout, i, iColumn );
 				
+				/* Cache calculation for unique columns */
+				bUnique = iColspan === 1 ? true : false;
+				
 				/* If there is col / rowspan, copy the information into the layout grid */
 				for ( l=0 ; l<iColspan ; l++ )
 				{
@@ -739,12 +742,13 @@ function _fnDetectHeader ( aLayout, nThead )
 					{
 						aLayout[i+k][iColShifted+l] = {
 							"cell": nCell,
-							"unique": iColspan == 1 ? true : false
+							"unique": bUnique
 						};
-						aLayout[i+k].nTr = nTrs[i];
+						aLayout[i+k].nTr = nTr;
 					}
 				}
 			}
+			nCell = nCell.nextSibling;
 		}
 	}
 }
@@ -755,7 +759,7 @@ function _fnDetectHeader ( aLayout, nThead )
  *  @param {object} oSettings dataTables settings object
  *  @param {node} nHeader automatically detect the layout from this node - optional
  *  @param {array} aLayout thead/tfoot layout from _fnDetectHeader - optional
- *  @returns array {node} aReturn list of unique ths
+ *  @returns array {node} aReturn list of unique th's
  *  @memberof DataTable#oApi
  */
 function _fnGetUniqueThs ( oSettings, nHeader, aLayout )

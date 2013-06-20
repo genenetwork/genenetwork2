@@ -1,11 +1,21 @@
 from __future__ import absolute_import, division, print_function
 
+import sys
+print("sys.path is:", sys.path)
+
 import csv
 import StringIO  # Todo: Use cStringIO?
+
+import gc
+
+import cPickle as pickle
 
 import simplejson as json
 #import json
 import yaml
+
+from redis import Redis
+Redis = Redis()
 
 import flask
 import sqlalchemy
@@ -13,19 +23,24 @@ import sqlalchemy
 
 from wqflask import app
 
-from flask import render_template, request, make_response, Response, Flask, g, config
+from flask import render_template, request, make_response, Response, Flask, g, config, jsonify
 
 from wqflask import search_results
+from base.data_set import DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
-from wqflask.correlation import CorrelationPage
+from wqflask.correlation import show_corr_results
+from utility import temp_data
 
 from wqflask.dataSharing import SharingInfo, SharingInfoPage
 
 from base import webqtlFormData
+from utility.benchmark import Bench
 
 from pprint import pformat as pf
+
+from wqflask import user_manager
 
 #import logging
 #logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
@@ -33,7 +48,6 @@ from pprint import pformat as pf
 
 @app.before_request
 def connect_db():
-    print("blue app.config:", app.config, pf(vars(app.config)))
     g.db = sqlalchemy.create_engine(app.config['DB_URI'])
 
 @app.route("/")
@@ -57,7 +71,7 @@ def data_sharing_page():
                             htmlfilelist=htmlfilelist)
 
 
-@app.route("/search")
+@app.route("/search", methods=('GET',))
 def search_page():
     print("in search_page")
     if 'info_database' in request.args:
@@ -69,14 +83,29 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        print("calling search_results.SearchResultPage")
-        the_search = search_results.SearchResultPage(request.args)
-        print("template_vars is:", pf(the_search.__dict__))
-        #print("trait_list is:", pf(the_search.__dict__['trait_list'][0].__dict__))
-        #for trait in the_search.trait_list:
-        #    print(" -", trait.description_display)
+        key = "search_results:v2:" + json.dumps(request.args, sort_keys=True)
+        print("key is:", pf(key))
+        with Bench("Loading cache"):
+            result = Redis.get(key)
+            
+        if result:
+            print("Cache hit!!!")
+            with Bench("Loading results"):
+                result = pickle.loads(result)
+        else:
+            print("calling search_results.SearchResultPage")
+            print("request.args is", request.args)
+            the_search = search_results.SearchResultPage(request.args)
+            result = the_search.__dict__
+            
+            print("result: ", pf(result))
+            Redis.set(key, pickle.dumps(result))
+            Redis.expire(key, 60*60)
 
-        return render_template("search_result_page.html", **the_search.__dict__)
+        if result['quick']:
+            return render_template("quick_search.html", **result)
+        else:
+            return render_template("search_result_page.html", **result)
 
 
 @app.route("/whats_new")
@@ -136,33 +165,74 @@ def show_trait_page():
     #fd = webqtlFormData.webqtlFormData(request.args)
     #print("stp y1:", pf(vars(fd)))
     template_vars = show_trait.ShowTrait(request.args)
-    print("js_data before dump:", template_vars.js_data)
+    #print("js_data before dump:", template_vars.js_data)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
     # Sorting the keys messes up the ordered dictionary, so don't do that
                                        #sort_keys=True)
 
-    print("js_data after dump:", template_vars.js_data)
-    print("show_trait template_vars:", pf(template_vars.__dict__))
+    #print("js_data after dump:", template_vars.js_data)
+    #print("show_trait template_vars:", pf(template_vars.__dict__))
     return render_template("show_trait.html", **template_vars.__dict__)
 
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
-    template_vars = marker_regression.MarkerRegression(request.form)
-    #print("js_data before dump:", template_vars.js_data)
-    template_vars.js_data = json.dumps(template_vars.js_data,
-                                       default=json_default_handler,
-                                       indent="   ")
-    print("[dub] js_data after dump:", template_vars.js_data)
-    #print("marker_regression template_vars:", pf(template_vars.__dict__))
-    return render_template("marker_regression.html", **template_vars.__dict__)
+    initial_start_vars = request.form
+    temp_uuid = initial_start_vars['temp_uuid']
+    wanted = (
+        'trait_id',
+        'dataset',
+        'suggestive'
+    )
+
+    start_vars = {}
+    for key, value in initial_start_vars.iteritems():
+        if key in wanted or key.startswith(('value:')):
+            start_vars[key] = value
+
+    version = "v14"
+    key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+    print("key is:", pf(key))
+    with Bench("Loading cache"):
+        result = Redis.get(key)
+
+    #print("************************ Starting result *****************")
+    #print("result is [{}]: {}".format(type(result), result))
+    #print("************************ Ending result ********************")
+
+    if result:
+        print("Cache hit!!!")
+        with Bench("Loading results"):
+            result = pickle.loads(result)
+    else:
+        print("Cache miss!!!")
+        template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
+
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
+
+        result = template_vars.__dict__
+
+        #for item in template_vars.__dict__.keys():
+        #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
+
+        #causeerror
+        Redis.set(key, pickle.dumps(result))
+        Redis.expire(key, 60*60)
+
+    with Bench("Rendering template"):
+        rendered_template = render_template("marker_regression.html", **result)
+
+    return rendered_template
+
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
-    print("In corr_compute, request.args is:", pf(request.form))
-    fd = webqtlFormData.webqtlFormData(request.form)
-    template_vars = CorrelationPage.CorrelationPage(fd)
+    print("In corr_compute, request.form is:", pf(request.form))
+    #fd = webqtlFormData.webqtlFormData(request.form)
+    template_vars = show_corr_results.CorrelationResults(request.form)
     return render_template("correlation_page.html", **template_vars.__dict__)
 
 @app.route("/int_mapping", methods=('POST',))
@@ -177,6 +247,22 @@ def sharing_info_page():
     fd = webqtlFormData.webqtlFormData(request.args)
     template_vars = SharingInfoPage.SharingInfoPage(fd)
     return template_vars
+
+
+@app.route("/get_temp_data")
+def get_temp_data():
+    temp_uuid = request.args['key']
+    return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
+
+@app.route("/manage/users")
+def manage_users():
+    template_vars = user_manager.UsersManager()
+    return render_template("admin/user_manager.html", **template_vars.__dict__)
+
+@app.route("/manage/user")
+def manage_user():
+    template_vars = user_manager.UserManager(request.args)
+    return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
 
 
 def json_default_handler(obj):

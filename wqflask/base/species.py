@@ -16,8 +16,7 @@ class TheSpecies(object):
         print("self.dataset is:", pf(self.dataset.__dict__))
         self.chromosomes = Chromosomes(self.dataset)
         self.genome_mb_length = self.chromosomes.get_genome_mb_length()
-        
-        
+
     #@property
     #def chromosomes(self):
     #    chromosomes = [("All", -1)]
@@ -31,7 +30,8 @@ class TheSpecies(object):
     #    return chromosomes
 
 class IndChromosome(object):
-    def __init__(self, length):
+    def __init__(self, name, length):
+        self.name = name
         self.length = length
         
     @property
@@ -50,7 +50,7 @@ class Chromosomes(object):
 
         results = g.db.execute("""
                 Select
-                        Chr_Length.Name, Length from Chr_Length, InbredSet
+                        Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, InbredSet
                 where
                         Chr_Length.SpeciesId = InbredSet.SpeciesId AND
                         InbredSet.Name = %s
@@ -59,10 +59,10 @@ class Chromosomes(object):
         print("bike:", results)
 
         for item in results:
-            self.chromosomes[item.Name] = IndChromosome(item.Length)
+            self.chromosomes[item.OrderId] = IndChromosome(item.Name, item.Length)
         
         self.set_mb_graph_interval()
-        self.get_cm_length_list()
+        #self.get_cm_length_list()
 
 
     def set_mb_graph_interval(self):

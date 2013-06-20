@@ -31,7 +31,7 @@ import pp
 import string
 
 from utility import webqtlUtil
-from base.webqtlTrait import GeneralTrait
+from base.trait import GeneralTrait
 from dbFunction import webqtlDatabaseFunction
 
 

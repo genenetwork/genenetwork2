@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Trait Data and Analysis{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+{% endblock %}
 {% block content %} <!-- Start of body -->
 
     <header class="jumbotron subhead" id="overview">
@@ -14,8 +19,10 @@
     <form method="post" action="/corr_compute" name="trait_page" id="trait_data_form"
     class="form-horizontal">
             {% for key in hddn %}
-                <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
+            <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
             {% endfor %}
+
+            <input type="hidden" name="temp_uuid" id="temp_uuid" value="{{ temp_uuid }}">
 
         <div class="container">
             <div class="page-header">
@@ -26,10 +33,11 @@
             </div>
             
             {% include 'show_trait_details.html' %}
-            {% include 'show_trait_statistics.html' %}
+        {#  {% include 'show_trait_statistics.html' %}    #}
             {% include 'show_trait_calculate_correlations.html' %}
             {% include 'show_trait_mapping_tools.html' %}
             {% include 'show_trait_edit_data.html' %}
+            {% include 'show_trait_progress_bar.html' %}
 
         </div>
     </form>
@@ -43,7 +51,8 @@
         js_data = {{ js_data | safe }}
     </script>
 
-    <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>-->
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
     <script type="text/javascript" src="/static/new/packages/ValidationPlugin/dist/jquery.validate.min.js"></script>
 
