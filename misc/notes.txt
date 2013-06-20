@@ -1,5 +1,3 @@
-fubar
-
 Clone code from git repository:
 git clone http://github.com/zsloan/genenetwork.git gene 
 
