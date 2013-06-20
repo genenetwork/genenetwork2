@@ -32,7 +32,14 @@
                     </div>
                     <form method="get" action="/search"  name="SEARCHFORM">
                         <fieldset>
-                            <label for="quick">Search:</label>
+                            <div class="input-prepend">
+                                <select id="trait_type" name="trait_type" class="span2">
+                                    <option value="all">All</option>
+                                    <option value="mrna_assay">Molecular Assays</option>
+                                    <option value="phenotype">Phenotypes</option>
+                                    <option value="genotype">Genotypes</option>
+                                </select>
+                            </div>
                             <div class="input-append">
                                 <input class="input-xlarge"
                                     id="quick" name="q"
@@ -42,7 +49,6 @@
                                     class="btn btn-primary" value="Search">
                             </div>
                         </fieldset>
-
                     </form>
                 </section>
                 <section id="search">

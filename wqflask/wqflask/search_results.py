@@ -73,8 +73,8 @@ class SearchResultPage(object):
             self.quick = True
             self.search_terms = kw['q']
             print("self.search_terms is: ", self.search_terms)
+            self.trait_type = kw['trait_type']
             self.quick_search()
-            self.get_group_species_tree()
         else:
             self.results = []
             #self.quick_search = False
@@ -124,7 +124,6 @@ class SearchResultPage(object):
                     FROM QuickSearch
                     WHERE MATCH (terms)
                           AGAINST ('{}' IN BOOLEAN MODE) """.format(search_terms)
-        #print("query is: ", query)
         
         with Bench("Doing QuickSearch Query: "):
             dbresults = g.db.execute(query, no_parameters=True).fetchall()
@@ -137,22 +136,33 @@ class SearchResultPage(object):
                    'GenoXRef': 'genotype'}
         
         self.species_groups = {}
+        
         for dbresult in dbresults:
             this_result = {}
             this_result['table_name'] = dbresult.table_name
-            this_result['key'] = dbresult.the_key
-            this_result['result_fields'] = json.loads(dbresult.result_fields)
-            this_species = this_result['result_fields']['species']
-            this_group = this_result['result_fields']['group_name']
-            if type_dict[dbresult.table_name] not in self.species_groups:
-                self.species_groups[type_dict[dbresult.table_name]] = {}
-            if this_species not in self.species_groups[type_dict[dbresult.table_name]]:
-                self.species_groups[type_dict[dbresult.table_name]][this_species] = collections.defaultdict(list)
-            if this_group not in self.species_groups[type_dict[dbresult.table_name]][this_species]:
-                self.species_groups[type_dict[dbresult.table_name]][this_species].append(this_group)
-            self.results[type_dict[dbresult.table_name]].append(this_result)
+            if self.trait_type == type_dict[dbresult.table_name] or self.trait_type == 'all':
+                this_result['key'] = dbresult.the_key
+                this_result['result_fields'] = json.loads(dbresult.result_fields)
+                this_species = this_result['result_fields']['species']
+                this_group = this_result['result_fields']['group_name']
+                if this_species not in self.species_groups:
+                    self.species_groups[this_species] = {}
+                if type_dict[dbresult.table_name] not in self.species_groups[this_species]:
+                    self.species_groups[this_species][type_dict[dbresult.table_name]] = []
+                if this_group not in self.species_groups[this_species][type_dict[dbresult.table_name]]:
+                    self.species_groups[this_species][type_dict[dbresult.table_name]].append(this_group)
+                #if type_dict[dbresult.table_name] not in self.species_groups:
+                #    self.species_groups[type_dict[dbresult.table_name]] = {}
+                #if this_species not in self.species_groups[type_dict[dbresult.table_name]]:
+                #    self.species_groups[type_dict[dbresult.table_name]][this_species] = []
+                #if this_group not in self.species_groups[type_dict[dbresult.table_name]][this_species]:
+                #    self.species_groups[type_dict[dbresult.table_name]][this_species].append(this_group)
+                self.results[type_dict[dbresult.table_name]].append(this_result)
             
-        #print("results: ", pf(self.results['phenotype']))
+        import redis
+        Redis = redis.Redis()
+        
+        
         
     #def get_group_species_tree(self):
     #    self.species_groups = collections.default_dict(list)

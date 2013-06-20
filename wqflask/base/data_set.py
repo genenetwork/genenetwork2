@@ -385,7 +385,7 @@ class PhenotypeDataSet(DataSet):
                 continue   # for now
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
                     description = this_trait.pre_publication_description
-            this_trait.description_display = description
+            this_trait.description_display = unicode(description, "utf8")
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
@@ -735,8 +735,10 @@ class MrnaAssayDataSet(DataSet):
             trait_location_value = 1000000
 
             if this_trait.chr and this_trait.mb:
+                print("this_trait.chr is:", this_trait.chr)
+                print("this_trait.mb is:", this_trait.mb)
                 try:
-                    trait_location_value = int(this_trait.chr)*1000 + this_trait.mb
+                    trait_location_value = float(this_trait.chr)*1000 + float(this_trait.mb)
                 except:
                     if this_trait.chr.upper() == 'X':
                         trait_location_value = 20*1000 + this_trait.mb
