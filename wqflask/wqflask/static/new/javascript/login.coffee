@@ -39,4 +39,4 @@ $ ->
         )
 
 
-    $("form").on("submit", submit_form)
+    $("#colorbox form").on("submit", submit_form)

@@ -38,7 +38,7 @@
         success: form_success
       });
     };
-    return $("form").on("submit", submit_form);
+    return $("#colorbox form").on("submit", submit_form);
   });
 
 }).call(this);
