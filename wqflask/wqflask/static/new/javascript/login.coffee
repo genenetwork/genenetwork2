@@ -13,8 +13,8 @@ $ ->
 
 
 
-
-    $(document).on("click", ".modalize", modalize)
+    $(document).one("click", ".modalize", modalize)
+    console.log("Modalized click!!!")
 
     form_success = (data) ->
         $.colorbox(

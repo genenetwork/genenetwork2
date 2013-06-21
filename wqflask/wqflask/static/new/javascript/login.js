@@ -14,7 +14,8 @@
         }
       });
     };
-    $(document).on("click", ".modalize", modalize);
+    $(document).one("click", ".modalize", modalize);
+    console.log("Modalized click!!!");
     form_success = function(data) {
       return $.colorbox({
         open: true,
