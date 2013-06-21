@@ -779,14 +779,14 @@ class MrnaAssayDataSet(DataSet):
 
             #Max LRS and its Locus location
             if this_trait.lrs and this_trait.locus:
-                self.cursor.execute("""
+                query = """
                     select Geno.Chr, Geno.Mb from Geno, Species
-                    where Species.Name = '%s' and
-                        Geno.Name = '%s' and
+                    where Species.Name = '{}' and
+                        Geno.Name = '{}' and
                         Geno.SpeciesId = Species.Id
-                """ % (species, this_trait.locus))
-                result = self.cursor.fetchone()
-
+                """.format(species, this_trait.locus)
+                result = g.db.execute(query).fetchone()
+                
                 if result:
                     #if result[0] and result[1]:
                     #    lrs_chr = result[0]
