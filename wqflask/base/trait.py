@@ -30,7 +30,7 @@ class GeneralTrait(object):
 
     def __init__(self, get_qtl_info=False, **kw):
         # xor assertion
-        assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. xor name";
+        assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. or name";
         if kw.get('dataset_name'):
             self.dataset = create_dataset(kw.get('dataset_name'))
         else:

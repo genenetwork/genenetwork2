@@ -42,7 +42,6 @@ from utility import formatting
     #def __init__(self, key, result_fields):
     #    self.key = key
     #    self.result_fields = result_fields
-    
 
 class SearchResultPage(object):
     #maxReturn = 3000
@@ -77,6 +76,7 @@ class SearchResultPage(object):
             self.quick_search()
         else:
             self.results = []
+            print("kw is:", kw)
             #self.quick_search = False
             self.search_terms = kw['search_terms']
             self.dataset = create_dataset(kw['dataset'])

@@ -1,5 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
+import sys
+print("sys.path is:", sys.path)
+
 import csv
 import StringIO  # Todo: Use cStringIO?
 
@@ -37,6 +40,8 @@ from utility.benchmark import Bench
 
 from pprint import pformat as pf
 
+from wqflask import user_manager
+
 #import logging
 #logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
 #_log = logging.getLogger("correlation")
@@ -66,7 +71,7 @@ def data_sharing_page():
                             htmlfilelist=htmlfilelist)
 
 
-@app.route("/search")
+@app.route("/search", methods=('GET',))
 def search_page():
     print("in search_page")
     if 'info_database' in request.args:
@@ -89,6 +94,7 @@ def search_page():
                 result = pickle.loads(result)
         else:
             print("calling search_results.SearchResultPage")
+            print("request.args is", request.args)
             the_search = search_results.SearchResultPage(request.args)
             result = the_search.__dict__
             
@@ -179,7 +185,7 @@ def marker_regression_page():
         'dataset',
         'suggestive'
     )
-    
+
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
@@ -190,11 +196,11 @@ def marker_regression_page():
     print("key is:", pf(key))
     with Bench("Loading cache"):
         result = Redis.get(key)
-    
+
     #print("************************ Starting result *****************")
     #print("result is [{}]: {}".format(type(result), result))
     #print("************************ Ending result ********************")
-    
+
     if result:
         print("Cache hit!!!")
         with Bench("Loading results"):
@@ -208,17 +214,17 @@ def marker_regression_page():
                                            indent="   ")
 
         result = template_vars.__dict__
-     
+
         #for item in template_vars.__dict__.keys():
         #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-        
+
         #causeerror
         Redis.set(key, pickle.dumps(result))
         Redis.expire(key, 60*60)
-        
+
     with Bench("Rendering template"):
         rendered_template = render_template("marker_regression.html", **result)
-    
+
     return rendered_template
 
 
@@ -248,6 +254,16 @@ def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
 
+@app.route("/manage/users")
+def manage_users():
+    template_vars = user_manager.UsersManager()
+    return render_template("admin/user_manager.html", **template_vars.__dict__)
+
+@app.route("/manage/user")
+def manage_user():
+    template_vars = user_manager.UserManager(request.args)
+    return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
+
 
 def json_default_handler(obj):
     '''Based on http://stackoverflow.com/a/2680060/1175849'''
@@ -266,8 +282,3 @@ def json_default_handler(obj):
     else:
         raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (
             type(obj), repr(obj))
-    
-    
-#@app.after_request
-#def after_request(response):
-#    gc.collect()
