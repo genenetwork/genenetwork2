@@ -167,8 +167,8 @@ class DatasetGroup(object):
         
         self.incparentsf1 = False
         self.allsamples = None
-        
-        
+
+
     def get_markers(self):
         #print("self.species is:", self.species)
         if self.species == "human":
@@ -221,6 +221,37 @@ class DatasetGroup(object):
 
         self.samplelist = list(genotype.prgy)
 
+
+class DataSets(object):
+    """Builds a list of DataSets"""
+    
+    def __init__(self):
+        self.datasets = list()
+        
+        type_dict = {'phenotype': 'PublishFreeze',
+                   'mrna_assay': 'ProbeSetFreeze',
+                   'genotype': 'GenoFreeze'}
+        
+        for dataset_type in type_dict:
+            query = "SELECT Name FROM {}".format(type_dict[dataset_type])
+            for result in g.db.execute(query).fetchall():
+                #The query at the beginning of this function isn't necessary here, but still would
+                #rather just reuse it
+                create_dataset(result.Name)
+        
+        
+        #query = """SELECT Name FROM ProbeSetFreeze
+        #           UNION
+        #           SELECT Name From PublishFreeze
+        #           UNION
+        #           SELECT Name From GenoFreeze"""
+        #
+        #for result in g.db.execute(query).fetchall():
+        #    dataset = DataSet(result.Name)
+        #    self.datasets.append(dataset)
+
+#ds = DataSets()
+#print("[orange] ds:", ds.datasets)
 
 class DataSet(object):
     """

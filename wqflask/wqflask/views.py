@@ -27,6 +27,7 @@ from flask import render_template, request, make_response, Response, Flask, g, c
 
 from wqflask import search_results
 from base.data_set import DataSet    # Used by YAML in marker_regression
+from base.data_set import DataSets 
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
@@ -53,6 +54,8 @@ def connect_db():
 @app.route("/")
 def index_page():
     print("Sending index_page")
+    ds = DataSets()
+    print("[orange] ds:", ds.datasets)
     return render_template("index_page.html")
 
 @app.route("/data_sharing")
