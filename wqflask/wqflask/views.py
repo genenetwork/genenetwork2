@@ -100,7 +100,7 @@ def search_page():
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
-            
+
         if result:
             print("Cache hit!!!")
             with Bench("Loading results"):
@@ -110,7 +110,7 @@ def search_page():
             print("request.args is", request.args)
             the_search = search_results.SearchResultPage(request.args)
             result = the_search.__dict__
-            
+
             print("result: ", pf(result))
             Redis.set(key, pickle.dumps(result))
             Redis.expire(key, 60*60)
@@ -262,10 +262,16 @@ def sharing_info_page():
     return template_vars
 
 
+# Take this out or secure it before going into production
 @app.route("/get_temp_data")
 def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
+
+
+@app.route("/thank_you")
+def thank_you():
+    return render_template("security/thank_you.html")
 
 @app.route("/manage/users")
 def manage_users():
