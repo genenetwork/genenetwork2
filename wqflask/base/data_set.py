@@ -27,7 +27,11 @@ import string
 import collections
 
 import json
+import cPickle as pickle
 import itertools
+
+from redis import Redis
+Redis = Redis()
 
 from flask import Flask, g
 
@@ -69,6 +73,19 @@ def create_dataset(dataset_name, dataset_type = None):
 
     dataset_class = globals()[dataset_ob]
     return dataset_class(dataset_name)
+
+def create_datasets_list():
+    key = "all_datasets"
+    result = Redis.get(key)
+    if result:
+        print("Cache hit!!!")
+        result = pickle.loads(result)
+    else:
+        with Bench("Creating DataSets object"):
+            ds = DataSets()
+        Redis.set(key, pickle.dumps(result))
+        Redis.expire(key, 2*60)
+
 
 def create_in_clause(items):
     """Create an in clause for mysql"""

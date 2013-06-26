@@ -27,7 +27,7 @@ from flask import render_template, request, make_response, Response, Flask, g, c
 
 from wqflask import search_results
 from base.data_set import DataSet    # Used by YAML in marker_regression
-from base.data_set import DataSets 
+from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
@@ -54,9 +54,18 @@ def connect_db():
 @app.route("/")
 def index_page():
     print("Sending index_page")
-    with Bench("Creating DataSets object"):
-        ds = DataSets()
-    print("[orange] ds:", ds.datasets)
+    create_datasets_list()
+    #key = "all_datasets"
+    #result = Redis.get(key)
+    #if result:
+    #    print("Cache hit!!!")
+    #    result = pickle.loads(result)
+    #else:
+    #    with Bench("Creating DataSets object"):
+    #        ds = DataSets()
+    #    Redis.set(key, pickle.dumps(result))
+    #    Redis.expire(key, 2*60)
+    #print("[orange] ds:", ds.datasets)
     return render_template("index_page.html")
 
 @app.route("/data_sharing")
