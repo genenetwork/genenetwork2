@@ -70,9 +70,9 @@
                         </li>
                         <li class="">
                             {% if g.identity.name=="anon" %}
-                            <a id="login" class="modalize" href="/login">Sign in</a>
+                            <a id="login_out" class="modalize" href="/login">Sign in</a>
                             {% else %}
-                            <a href="/logout">Sign out</a>
+                            <a id="login_out" href="/logout">Sign out</a>
                             {% endif %}
                         </li>
                     </ul>
