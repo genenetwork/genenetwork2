@@ -54,7 +54,8 @@ def connect_db():
 @app.route("/")
 def index_page():
     print("Sending index_page")
-    ds = DataSets()
+    with Bench("Creating DataSets object"):
+        ds = DataSets()
     print("[orange] ds:", ds.datasets)
     return render_template("index_page.html")
 

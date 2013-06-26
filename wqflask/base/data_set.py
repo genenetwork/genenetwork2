@@ -46,17 +46,18 @@ from pprint import pformat as pf
 # Used by create_database to instantiate objects
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name):
+def create_dataset(dataset_name, dataset_type = None):
     #print("dataset_name:", dataset_name)
 
-    query = """
-        SELECT DBType.Name
-        FROM DBList, DBType
-        WHERE DBList.Name = '{}' and
-              DBType.Id = DBList.DBTypeId
-        """.format(escape(dataset_name))
-    #print("query is: ", pf(query))
-    dataset_type = g.db.execute(query).fetchone().Name
+    if not dataset_type:
+        query = """
+            SELECT DBType.Name
+            FROM DBList, DBType
+            WHERE DBList.Name = '{}' and
+                  DBType.Id = DBList.DBTypeId
+            """.format(escape(dataset_name))
+        #print("query is: ", pf(query))
+        dataset_type = g.db.execute(query).fetchone().Name
 
     #dataset_type = cursor.fetchone()[0]
     #print("[blubber] dataset_type:", pf(dataset_type))
@@ -228,16 +229,17 @@ class DataSets(object):
     def __init__(self):
         self.datasets = list()
         
-        type_dict = {'phenotype': 'PublishFreeze',
-                   'mrna_assay': 'ProbeSetFreeze',
-                   'genotype': 'GenoFreeze'}
+        type_dict = {'Publish': 'PublishFreeze',
+                   'ProbeSet': 'ProbeSetFreeze',
+                   'Geno': 'GenoFreeze'}
         
         for dataset_type in type_dict:
             query = "SELECT Name FROM {}".format(type_dict[dataset_type])
             for result in g.db.execute(query).fetchall():
                 #The query at the beginning of this function isn't necessary here, but still would
                 #rather just reuse it
-                create_dataset(result.Name)
+                print("type: {}\tname: {}".format(dataset_type, result.Name))
+                create_dataset(result.Name, dataset_type)
         
         
         #query = """SELECT Name FROM ProbeSetFreeze
@@ -265,6 +267,8 @@ class DataSet(object):
         assert name, "Need a name"
         self.name = name
         self.id = None
+        self.shortname = None
+        self.fullname = None
         self.type = None
 
         self.setup()
@@ -324,7 +328,7 @@ class DataSet(object):
             self.name,
             self.name,
             self.name))
-        #print("query_args are:", query_args)
+        print("query_args are:", query_args)
 
         #print("""
         #        SELECT Id, Name, FullName, ShortName
@@ -332,17 +336,17 @@ class DataSet(object):
         #        WHERE public > %s AND
         #             (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
         #  """ % (query_args))
-
-        self.id, self.name, self.fullname, self.shortname = g.db.execute("""
-                SELECT Id, Name, FullName, ShortName
-                FROM %s
-                WHERE public > %s AND
-                     (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-          """ % (query_args)).fetchone()
-
-        #self.cursor.execute(query)
-        #self.id, self.name, self.fullname, self.shortname = self.cursor.fetchone()
         
+        try:
+            self.id, self.name, self.fullname, self.shortname = g.db.execute("""
+                    SELECT Id, Name, FullName, ShortName
+                    FROM %s
+                    WHERE public > %s AND
+                         (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
+              """ % (query_args)).fetchone()
+        except TypeError:
+            print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
+            pass
 
 class PhenotypeDataSet(DataSet):
     DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
@@ -971,6 +975,5 @@ def geno_mrna_confidentiality(ob):
      authorized_users) = result.fetchall()[0]
 
     if confidential:
-        # Allow confidential data later
-        NoConfindetialDataForYouTodaySorry
+        return True
 
