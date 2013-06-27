@@ -77,14 +77,31 @@ def create_dataset(dataset_name, dataset_type = None):
 def create_datasets_list():
     key = "all_datasets"
     result = Redis.get(key)
+    
     if result:
         print("Cache hit!!!")
-        result = pickle.loads(result)
+        datasets = pickle.loads(result)
+        
     else:
+        datasets = list()
         with Bench("Creating DataSets object"):
-            ds = DataSets()
-        Redis.set(key, pickle.dumps(result))
-        Redis.expire(key, 2*60)
+            type_dict = {'Publish': 'PublishFreeze',
+                         'ProbeSet': 'ProbeSetFreeze',
+                         'Geno': 'GenoFreeze'}
+        
+            for dataset_type in type_dict:
+                query = "SELECT Name FROM {}".format(type_dict[dataset_type])
+                for result in g.db.execute(query).fetchall():
+                    #The query at the beginning of this function isn't necessary here, but still would
+                    #rather just reuse it
+                    print("type: {}\tname: {}".format(dataset_type, result.Name))
+                    dataset = create_dataset(result.Name, dataset_type)
+                    datasets.append(dataset)
+            
+        Redis.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))
+        Redis.expire(key, 60*60)
+    
+    return datasets
 
 
 def create_in_clause(items):
@@ -240,24 +257,13 @@ class DatasetGroup(object):
         self.samplelist = list(genotype.prgy)
 
 
-class DataSets(object):
-    """Builds a list of DataSets"""
-    
-    def __init__(self):
-        self.datasets = list()
-        
-        type_dict = {'Publish': 'PublishFreeze',
-                   'ProbeSet': 'ProbeSetFreeze',
-                   'Geno': 'GenoFreeze'}
-        
-        for dataset_type in type_dict:
-            query = "SELECT Name FROM {}".format(type_dict[dataset_type])
-            for result in g.db.execute(query).fetchall():
-                #The query at the beginning of this function isn't necessary here, but still would
-                #rather just reuse it
-                print("type: {}\tname: {}".format(dataset_type, result.Name))
-                create_dataset(result.Name, dataset_type)
-        
+#class DataSets(object):
+#    """Builds a list of DataSets"""
+#    
+#    def __init__(self):
+#        self.datasets = list()
+#        
+
         
         #query = """SELECT Name FROM ProbeSetFreeze
         #           UNION

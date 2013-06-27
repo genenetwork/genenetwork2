@@ -54,7 +54,7 @@ def connect_db():
 @app.route("/")
 def index_page():
     print("Sending index_page")
-    create_datasets_list()
+    #create_datasets_list()
     #key = "all_datasets"
     #result = Redis.get(key)
     #if result:
@@ -63,7 +63,7 @@ def index_page():
     #else:
     #    with Bench("Creating DataSets object"):
     #        ds = DataSets()
-    #    Redis.set(key, pickle.dumps(result))
+    #    Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
     #    Redis.expire(key, 2*60)
     #print("[orange] ds:", ds.datasets)
     return render_template("index_page.html")
@@ -112,7 +112,7 @@ def search_page():
             result = the_search.__dict__
 
             print("result: ", pf(result))
-            Redis.set(key, pickle.dumps(result))
+            Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
             Redis.expire(key, 60*60)
 
         if result['quick']:
@@ -232,7 +232,7 @@ def marker_regression_page():
         #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
         #causeerror
-        Redis.set(key, pickle.dumps(result))
+        Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
         Redis.expire(key, 60*60)
 
     with Bench("Rendering template"):
@@ -282,6 +282,11 @@ def manage_users():
 def manage_user():
     template_vars = user_manager.UserManager(request.args)
     return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
+
+@app.route("/manage/groups")
+def manage_groups():
+    template_vars = user_manager.GroupsManager(request.args)
+    return render_template("admin/group_manager.html", **template_vars.__dict__)
 
 
 def json_default_handler(obj):

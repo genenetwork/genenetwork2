@@ -205,10 +205,10 @@ class CorrelationResults(object):
 
             
 
-            trait_list = self.getTissueCorrelationByList( primary_trait_symbol = self.this_trait.symbol,
-                                                        corr_results = self.correlation_results,
-                                                        TissueProbeSetFreezeId = 1,
-                                                        method=1)
+            #trait_list = self.getTissueCorrelationByList( primary_trait_symbol = self.this_trait.symbol,
+            #                                            corr_results = self.correlation_results,
+            #                                            TissueProbeSetFreezeId = 1,
+            #                                            method=1)
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset
