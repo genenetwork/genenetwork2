@@ -157,7 +157,7 @@ class CorrelationResults(object):
                 trait_object = GeneralTrait(dataset=self.dataset, name=trait, get_qtl_info=True)
                 trait_object.sample_r = self.correlation_data[trait][0]
                 trait_object.sample_p = self.correlation_data[trait][1]
-                trait_object_num_overlap = self.correlation_data[trait][2]
+                trait_object.num_overlap = self.correlation_data[trait][2]
                 self.correlation_results.append(trait_object)
                 
                 #self.correlation_data_slice[trait] = self.correlation_data[trait]
