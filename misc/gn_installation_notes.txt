@@ -58,6 +58,11 @@ pip install -r gene/wqflask/requirements.txt -t ve27
 
 ============================================
 
+Create trash directory:
+mkdir ~/.trash
+
+============================================
+
 Using dpkg
 
 Check which system packages are already installed:
