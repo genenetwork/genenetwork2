@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Group Manager{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <header class="jumbotron subhead" id="overview">
+        <div class="container">
+            <h1>Group Manager</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+
+        </div>
+        <form>
+            <div class="control-group">
+                <b>Group Name: </b>
+                <div class="input-append">
+                    <input type="text" name="group_name">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+
+            <table id="dataset_list" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Read</th>
+                        <th>Type</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Full Name</th>
+                    </tr>
+                </thead>
+            {% for dataset in datasets %}
+                <tr>
+                    <td><input type="checkbox" name="read" value="{{ dataset.type }}:{{ dataset.name }}"></td>
+                    <td>{{ dataset.type }}</td>
+                    <td>{{ dataset.id }}</td>
+                    <td>{{ dataset.name }}</td>
+                    <td>{{ dataset.fullname }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        </form>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}  
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+    
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function () {
+            console.time("Creating table");
+            $('#dataset_list').dataTable( {
+                "sDom": "Tftipr",
+                "oTableTools": {
+                    "aButtons": [
+                        "copy",
+                        "print",
+                        {
+                            "sExtends":    "collection",
+                            "sButtonText": 'Save <span class="caret" />',
+                            "aButtons":    [ "csv", "xls", "pdf" ]
+                        }
+                    ],
+                    "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
+                },
+                "iDisplayLength": 50,
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "bSortClasses": false
+            } );
+            console.timeEnd("Creating table");
+        });
+    </script>
+{% endblock %}

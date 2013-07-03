@@ -27,6 +27,7 @@ from flask import render_template, request, make_response, Response, Flask, g, c
 
 from wqflask import search_results
 from base.data_set import DataSet    # Used by YAML in marker_regression
+from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
@@ -53,6 +54,18 @@ def connect_db():
 @app.route("/")
 def index_page():
     print("Sending index_page")
+    #create_datasets_list()
+    #key = "all_datasets"
+    #result = Redis.get(key)
+    #if result:
+    #    print("Cache hit!!!")
+    #    result = pickle.loads(result)
+    #else:
+    #    with Bench("Creating DataSets object"):
+    #        ds = DataSets()
+    #    Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
+    #    Redis.expire(key, 2*60)
+    #print("[orange] ds:", ds.datasets)
     return render_template("index_page.html")
 
 @app.route("/data_sharing")
@@ -87,7 +100,7 @@ def search_page():
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
-            
+
         if result:
             print("Cache hit!!!")
             with Bench("Loading results"):
@@ -97,9 +110,9 @@ def search_page():
             print("request.args is", request.args)
             the_search = search_results.SearchResultPage(request.args)
             result = the_search.__dict__
-            
+
             print("result: ", pf(result))
-            Redis.set(key, pickle.dumps(result))
+            Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
             Redis.expire(key, 60*60)
 
         if result['quick']:
@@ -219,7 +232,7 @@ def marker_regression_page():
         #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
         #causeerror
-        Redis.set(key, pickle.dumps(result))
+        Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
         Redis.expire(key, 60*60)
 
     with Bench("Rendering template"):
@@ -249,10 +262,16 @@ def sharing_info_page():
     return template_vars
 
 
+# Take this out or secure it before going into production
 @app.route("/get_temp_data")
 def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
+
+
+@app.route("/thank_you")
+def thank_you():
+    return render_template("security/thank_you.html")
 
 @app.route("/manage/users")
 def manage_users():
@@ -263,6 +282,11 @@ def manage_users():
 def manage_user():
     template_vars = user_manager.UserManager(request.args)
     return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
+
+@app.route("/manage/groups")
+def manage_groups():
+    template_vars = user_manager.GroupsManager(request.args)
+    return render_template("admin/group_manager.html", **template_vars.__dict__)
 
 
 def json_default_handler(obj):

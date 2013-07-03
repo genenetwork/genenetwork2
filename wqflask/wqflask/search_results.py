@@ -162,8 +162,6 @@ class SearchResultPage(object):
         import redis
         Redis = redis.Redis()
         
-        
-        
     #def get_group_species_tree(self):
     #    self.species_groups = collections.default_dict(list)
     #    for key in self.results:

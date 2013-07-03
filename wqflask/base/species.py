@@ -56,6 +56,7 @@ class Chromosomes(object):
                         InbredSet.Name = %s
                 Order by OrderId
                 """, self.dataset.group.name).fetchall()
+        print("group: ", self.dataset.group.name)
         print("bike:", results)
 
         for item in results:
@@ -68,9 +69,14 @@ class Chromosomes(object):
     def set_mb_graph_interval(self):
         """Empirical megabase interval"""
         
+        if self.chromosomes:
+            self.mb_graph_interval = self.get_genome_mb_length()/(len(self.chromosomes)*12)
+        else:
+            self.mb_graph_interval = 1
+            
         #if self.chromosomes:
-        assert self.chromosomes, "Have to add some code back in apparently to set it to 1"
-        self.mb_graph_interval = self.get_genome_mb_length()/(len(self.chromosomes)*12)
+        #assert self.chromosomes, "Have to add some code back in apparently to set it to 1"
+        #self.mb_graph_interval = self.get_genome_mb_length()/(len(self.chromosomes)*12)
         #else:
             #self.mb_graph_interval = 1
 

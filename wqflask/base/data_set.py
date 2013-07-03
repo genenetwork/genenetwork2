@@ -27,7 +27,11 @@ import string
 import collections
 
 import json
+import cPickle as pickle
 import itertools
+
+from redis import Redis
+Redis = Redis()
 
 from flask import Flask, g
 
@@ -46,17 +50,18 @@ from pprint import pformat as pf
 # Used by create_database to instantiate objects
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name):
+def create_dataset(dataset_name, dataset_type = None):
     #print("dataset_name:", dataset_name)
 
-    query = """
-        SELECT DBType.Name
-        FROM DBList, DBType
-        WHERE DBList.Name = '{}' and
-              DBType.Id = DBList.DBTypeId
-        """.format(escape(dataset_name))
-    #print("query is: ", pf(query))
-    dataset_type = g.db.execute(query).fetchone().Name
+    if not dataset_type:
+        query = """
+            SELECT DBType.Name
+            FROM DBList, DBType
+            WHERE DBList.Name = '{}' and
+                  DBType.Id = DBList.DBTypeId
+            """.format(escape(dataset_name))
+        #print("query is: ", pf(query))
+        dataset_type = g.db.execute(query).fetchone().Name
 
     #dataset_type = cursor.fetchone()[0]
     #print("[blubber] dataset_type:", pf(dataset_type))
@@ -68,6 +73,36 @@ def create_dataset(dataset_name):
 
     dataset_class = globals()[dataset_ob]
     return dataset_class(dataset_name)
+
+def create_datasets_list():
+    key = "all_datasets"
+    result = Redis.get(key)
+    
+    if result:
+        print("Cache hit!!!")
+        datasets = pickle.loads(result)
+        
+    else:
+        datasets = list()
+        with Bench("Creating DataSets object"):
+            type_dict = {'Publish': 'PublishFreeze',
+                         'ProbeSet': 'ProbeSetFreeze',
+                         'Geno': 'GenoFreeze'}
+        
+            for dataset_type in type_dict:
+                query = "SELECT Name FROM {}".format(type_dict[dataset_type])
+                for result in g.db.execute(query).fetchall():
+                    #The query at the beginning of this function isn't necessary here, but still would
+                    #rather just reuse it
+                    print("type: {}\tname: {}".format(dataset_type, result.Name))
+                    dataset = create_dataset(result.Name, dataset_type)
+                    datasets.append(dataset)
+            
+        Redis.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))
+        Redis.expire(key, 60*60)
+    
+    return datasets
+
 
 def create_in_clause(items):
     """Create an in clause for mysql"""
@@ -167,8 +202,8 @@ class DatasetGroup(object):
         
         self.incparentsf1 = False
         self.allsamples = None
-        
-        
+
+
     def get_markers(self):
         #print("self.species is:", self.species)
         if self.species == "human":
@@ -222,6 +257,27 @@ class DatasetGroup(object):
         self.samplelist = list(genotype.prgy)
 
 
+#class DataSets(object):
+#    """Builds a list of DataSets"""
+#    
+#    def __init__(self):
+#        self.datasets = list()
+#        
+
+        
+        #query = """SELECT Name FROM ProbeSetFreeze
+        #           UNION
+        #           SELECT Name From PublishFreeze
+        #           UNION
+        #           SELECT Name From GenoFreeze"""
+        #
+        #for result in g.db.execute(query).fetchall():
+        #    dataset = DataSet(result.Name)
+        #    self.datasets.append(dataset)
+
+#ds = DataSets()
+#print("[orange] ds:", ds.datasets)
+
 class DataSet(object):
     """
     DataSet class defines a dataset in webqtl, can be either Microarray,
@@ -234,6 +290,8 @@ class DataSet(object):
         assert name, "Need a name"
         self.name = name
         self.id = None
+        self.shortname = None
+        self.fullname = None
         self.type = None
 
         self.setup()
@@ -293,7 +351,7 @@ class DataSet(object):
             self.name,
             self.name,
             self.name))
-        #print("query_args are:", query_args)
+        print("query_args are:", query_args)
 
         #print("""
         #        SELECT Id, Name, FullName, ShortName
@@ -301,17 +359,17 @@ class DataSet(object):
         #        WHERE public > %s AND
         #             (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
         #  """ % (query_args))
-
-        self.id, self.name, self.fullname, self.shortname = g.db.execute("""
-                SELECT Id, Name, FullName, ShortName
-                FROM %s
-                WHERE public > %s AND
-                     (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-          """ % (query_args)).fetchone()
-
-        #self.cursor.execute(query)
-        #self.id, self.name, self.fullname, self.shortname = self.cursor.fetchone()
         
+        try:
+            self.id, self.name, self.fullname, self.shortname = g.db.execute("""
+                    SELECT Id, Name, FullName, ShortName
+                    FROM %s
+                    WHERE public > %s AND
+                         (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
+              """ % (query_args)).fetchone()
+        except TypeError:
+            print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
+            pass
 
 class PhenotypeDataSet(DataSet):
     DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
@@ -940,6 +998,5 @@ def geno_mrna_confidentiality(ob):
      authorized_users) = result.fetchall()[0]
 
     if confidential:
-        # Allow confidential data later
-        NoConfindetialDataForYouTodaySorry
+        return True
 
