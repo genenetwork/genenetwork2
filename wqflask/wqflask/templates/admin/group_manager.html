@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <table class="table table-hover">
+            <table id="dataset_list" class="table table-hover">
                 <thead>
                     <tr>
                         <th>Read</th>
@@ -46,4 +46,38 @@
 
 <!-- End of body -->
 
+{% endblock %}
+
+{% block js %}  
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+    
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function () {
+            console.time("Creating table");
+            $('#dataset_list').dataTable( {
+                "sDom": "Tftipr",
+                "oTableTools": {
+                    "aButtons": [
+                        "copy",
+                        "print",
+                        {
+                            "sExtends":    "collection",
+                            "sButtonText": 'Save <span class="caret" />',
+                            "aButtons":    [ "csv", "xls", "pdf" ]
+                        }
+                    ],
+                    "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
+                },
+                "iDisplayLength": 50,
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "bSortClasses": false
+            } );
+            console.timeEnd("Creating table");
+        });
+    </script>
 {% endblock %}
