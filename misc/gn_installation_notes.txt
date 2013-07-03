@@ -1,6 +1,37 @@
+UFW - default firewall confirguation tool for Ubuntu; eases iptables firewall configuration
+
+Enable UFW:
+sudo ufw enable
+Check status of UFW:
+sudo ufw status verbose
+
+Limit ssh:
+sudo ufw limit ssh
+
+Enable http, https:
+sudo ufw allow http
+sudo ufw allow https
+
+===========================================
+
+http://evilrouters.net/2011/02/18/using-etckeeper-with-git-on-ubuntu/
+
+Install etckeeper:
+sudo apt-get install etckeeper
+
+Edit /etc/etckeeper/etckeeper.conf to comment out VCS="bzr" and comment in VCS="git"
+
+Initialize repository:
+sudo etckeeper init
+
+Do initial commit:
+sudo etckeeper commit "Initial commit."
+
+===========================================
+
 Get git:
 
-sudo apt-get install git-core
+sudo apt-get install git
 
 ===========================================
 
@@ -15,6 +46,11 @@ git pull origin flask(or whatever the branch is)
 
 Search for package with a specified file that can be installed with apt-get
 apt-file search _______
+
+============================================
+
+Install pip:
+sudo apt-get install python-pip
 
 Install from requirements.txt:
 pip install -r gene/wqflask/requirements.txt -t ve27

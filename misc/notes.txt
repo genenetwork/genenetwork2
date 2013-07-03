@@ -92,6 +92,15 @@ python runserver.py
 
 ===========================================
 
+UFW - default firewall confirguation tool for Ubuntu; eases iptables firewall configuration
+
+Enable UFW:
+sudo ufw enable
+Check status of UFW:
+sudo ufw status verbose
+
+===========================================
+
 Update user password:
 use mysql;
 UPDATE user SET password=PASSWORD('whatever') WHERE user='webqtl';
@@ -117,7 +126,7 @@ pylint --help
 
 Start screen session:
 
-If "no option -R":
+If "no option -R" or running for first time:
 byobu-select-backend
 2. screen
 

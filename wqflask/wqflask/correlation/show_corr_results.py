@@ -203,8 +203,6 @@ class CorrelationResults(object):
                 #        mb = trait_object.mb
                 #    )
 
-            
-
             #trait_list = self.getTissueCorrelationByList( primary_trait_symbol = self.this_trait.symbol,
             #                                            corr_results = self.correlation_results,
             #                                            TissueProbeSetFreezeId = 1,
