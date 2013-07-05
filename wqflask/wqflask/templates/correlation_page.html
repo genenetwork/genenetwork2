@@ -41,13 +41,13 @@
                 <td>{{ trait.symbol }}</td>
                 <td>{{ trait.alias }}</td>
                 <td>{{ trait.description }}</td>
-                <td>Chr{{ trait.chr }}: {{ trait.mb }}</td>
-                <td>{{ trait.mean }}</td>
-                <td>{{ trait.lrs }}</td>
-                <td>Chr{{ trait.locus_chr }}: {{ trait.locus_mb }}</td>
-                <td>{{ trait.sample_r }}</td>
+                <td>Chr{{ trait.chr }}:{{'%0.6f'|format(trait.mb)}}</td>
+                <td>{{'%0.3f'|format(trait.mean)}}</td>
+                <td>{{'%0.3f'|format(trait.lrs)}}</td>
+                <td>Chr{{ trait.locus_chr }}:{{'%0.6f'|format(trait.locus_mb)}}</td>
+                <td>{{'%0.3f'|format(trait.sample_r)}}</td>
                 <td>{{ trait.num_overlap }}</td>
-                <td>{{ trait.sample_p }}</td>
+                <td>{{'%0.3e'|format(trait.sample_p)}}</td>
             </tr>
         {% endfor %}
         </tbody>
