@@ -52,8 +52,23 @@ apt-file search _______
 Install pip:
 sudo apt-get install python-pip
 
-Install from requirements.txt:
-pip install -r gene/wqflask/requirements.txt -t ve27
+REMEMBER TO SOURCE VE BEFORE INSTALLING 
+
+Comment out in requirements.txt:
+Reaper
+numarray
+
+Install from requirements.txt (after activating virtualenv):
+pip install -r gene/misc/requirements.txt 
+
+When it hits error with install MySQL-Python, install libmysqlclient-dev:
+sudo apt-get install libmysqlclient-dev
+
+When hits error with numpy install python-dev:
+sudo apt-get install python-dev
+
+When hits error with scipy:
+sudo apt-get install libatlas-base-dev gfortran g++
 
 
 ============================================
@@ -116,10 +131,7 @@ Installing QTL Reaper
 wget http://downloads.sourceforge.net/project/qtlreaper/qtlreaper/1.1.1/qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb
 mv -v qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb qtlreaper-1.1.1.tar.gz
 tar xvf qtlreaper-1.1.1.tar.gz (to unzip)
-python setup.py build
-sudo mkdir /home/zas1024/ve27/include/python2.7/Reaper
-sudo chown /home/zas1024/ve27/include/python2.7/Reaper (or whereever the directory is; the problem
-involved the fact that doing "sudo python setup.py install" doesn't install within the virtualenv)
+mkdir /home/zas1024/ve27/include/python2.7/Reaper
 python setup.py install
 
 ===========================================
