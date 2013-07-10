@@ -49,30 +49,6 @@ apt-file search _______
 
 ============================================
 
-Install pip:
-sudo apt-get install python-pip
-
-REMEMBER TO SOURCE VE BEFORE INSTALLING 
-
-Comment out in requirements.txt:
-Reaper
-numarray
-
-Install from requirements.txt (after activating virtualenv):
-pip install -r gene/misc/requirements.txt 
-
-When it hits error with install MySQL-Python, install libmysqlclient-dev:
-sudo apt-get install libmysqlclient-dev
-
-When hits error with numpy install python-dev:
-sudo apt-get install python-dev
-
-When hits error with scipy:
-sudo apt-get install libatlas-base-dev gfortran g++
-
-
-============================================
-
 Create trash directory:
 mkdir ~/.trash
 
@@ -82,19 +58,6 @@ Using dpkg
 
 Check which system packages are already installed:
 dpkg -l | less
-
-===========================================
-
-Using Yolk
-
-Install Yolk:
-pip install yolk
-
-Check packages installed in this virtual environment:
-yolk -l
-
-Checks packages that have updates available:
-yolk -U
 
 ===========================================
 
@@ -109,20 +72,31 @@ source ~/ve27/bin/activate
 
 ===========================================
 
-Installing yaml
+Install libmysqlclient-dev (Mysql-Python dependency)
+sudo apt-get install libmysqlclient-dev
 
-Install libyaml-dev:
-sudo apt-get install libyaml-dev
+Install python-dev (numpy dependency)
+sudo apt-get install python-dev
 
-Install yaml:
-pip install pyyaml
+Install scipy dependencies:
+sudo apt-get install libatlas-base-dev gfortran g++
 
 ===========================================
 
-Install MySQL Client
+Install pip:
+sudo apt-get install python-pip
 
-To fix error "mysql_config not found" while installing packages with pip:
-sudo apt-get install libmysqlclient-dev
+REMEMBER TO SOURCE VE BEFORE INSTALLING 
+
+Comment out in requirements.txt:
+Reaper
+numarray
+
+Before installing from requirements.txt, install numpy separately:
+pip install numpy==1.7.0 (or whatever version we're using)
+
+Install from requirements.txt (after activating virtualenv):
+pip install -r gene/misc/requirements.txt
 
 ===========================================
 
@@ -142,6 +116,54 @@ wget http://downloads.sourceforge.net/project/numpy/Old%20Numarray/1.5.2/numarra
 mv -v numarray-1.5.2.tar.gz?r=http:%2F%2Fsourceforge.net%2Fprojects%2Fnumpy%2Ffiles%2FOld%20Numarray%2F1.5.2%2Fnumarray-1.5.2.tar.gz%2Fdownload numarray-1.5.2.tar.gz
 tar xvf numarray-1.5.2.tar.gz
 sudo python setup.py install
+
+===========================================
+
+Installing nginx
+
+sudo -s
+nginx=stable # use nginx=development for latest development version
+echo "deb http://ppa.launchpad.net/nginx/$nginx/ubuntu lucid main" > /etc/apt/sources.list.d/nginx-$nginx-lucid.list
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C300EE8C
+apt-get update 
+apt-get install nginx
+
+Create configuration file in ~/gene/wqflask/other_config/nginx_conf/ (modeled off of the others)
+Create symbolic link to config file in /etc/nginx/sites-enabled/:
+ln -s dir_to_link_to linking_dir
+
+Run nginx:
+sudo /usr/sbin/nginx
+
+============================================
+
+Using Yolk
+
+Install Yolk:
+pip install yolk
+
+Check packages installed in this virtual environment:
+yolk -l
+
+Checks packages that have updates available:
+yolk -U
+
+===========================================
+
+Installing yaml
+
+Install libyaml-dev:
+sudo apt-get install libyaml-dev
+
+Install yaml:
+pip install pyyaml
+
+===========================================
+
+Install MySQL Client
+
+To fix error "mysql_config not found" while installing packages with pip:
+sudo apt-get install libmysqlclient-dev
 
 ===========================================
 
