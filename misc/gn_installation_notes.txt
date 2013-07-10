@@ -137,6 +137,31 @@ sudo /usr/sbin/nginx
 
 ============================================
 
+Copy over zach_settings.py to /home/zas1024 directory (or whatever is home directory)
+
+export WQFLASK_SETTINGS=~/gene/wqflask/cfg/zach_settings.py (or wherever file is located)
+
+============================================
+
+Install MySQL Server
+
+sudo apt-get install mysql-server
+
+mkdir /mnt/big
+fdisk /dev/sdb
+m: for help
+n: new partion
+...
+w: write to table and exit
+
+Start MySQL server:
+service mysql start
+
+Stop MySQL server:
+service mysql stop
+
+============================================
+
 Using Yolk
 
 Install Yolk:
@@ -207,7 +232,7 @@ Start up virtual environment:
 source ~/ve27/bin/activate
 
 To set WQFLASK_SETTINGS environment variable:
-export WQFLASK_SETTINGS=~/gene/wqflask/cfg/zach_settings.py (or wherever file is located)
+export WQFLASK_SETTINGS=~/zach_settings.py (or wherever file is located)
 
 To change screen environment variable (if man not working or to get color, for example):
 export TERM=screen
