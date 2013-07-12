@@ -24,6 +24,7 @@
 #
 # Last updated by NL 2011/03/23
 
+from __future__ import absolute_import, print_function, division
 
 import math
 #import rpy2.robjects
@@ -31,10 +32,11 @@ import pp
 import string
 
 from utility import webqtlUtil
+from base.mrna_assay_tissue_data import MrnaAssayTissueData
 from base.trait import GeneralTrait
 from dbFunction import webqtlDatabaseFunction
 
-
+from flask import Flask, g
 
 #XZ: The input 'controls' is String. It contains the full name of control traits.
 #XZ: The input variable 'strainlst' is List. It contains the strain names of primary trait.
@@ -676,7 +678,7 @@ def batchCalTissueCorr(primaryTraitValue=[], SymbolValueDict={}, method='pearson
 # getGeneSymbolTissueValueDict to build dict to get CorrPvArray
 #Note: If there are multiple probesets for one gene, select the one with highest mean.
 ###########################################################################
-def getTissueProbeSetXRefInfo(cursor=None,GeneNameLst=[],TissueProbeSetFreezeId=0):
+def getTissueProbeSetXRefInfo(GeneNameLst=[],TissueProbeSetFreezeId=0):
     Symbols =""
     symbolList =[]
     geneIdDict ={}
@@ -720,7 +722,6 @@ def getTissueProbeSetXRefInfo(cursor=None,GeneNameLst=[],TissueProbeSetFreezeId=
                 '''% (TissueProbeSetFreezeId,Symbols)
 
     try:
-
         cursor.execute(query)
         results =cursor.fetchall()
         resultCount = len(results)
@@ -755,28 +756,43 @@ def getTissueProbeSetXRefInfo(cursor=None,GeneNameLst=[],TissueProbeSetFreezeId=
 #function: get one dictionary whose key is gene symbol and value is tissue expression data (list type).
 #Attention! All keys are lower case!
 ###########################################################################
-def getSymbolValuePairDict(cursor=None,symbolList=None,dataIdDict={}):
-    symbolList = map(string.lower, symbolList)
-    symbolValuepairDict={}
-    valueList=[]
+def get_symbol_value_pairs(tissue_data):
+    
+    id_list = [tissue_data[symbol.lower()].data_id for item in tissue_data]
 
-    for key in symbolList:
-        if dataIdDict.has_key(key):
-            DataId = dataIdDict[key]
+    symbol_value_pairs = {}
+    value_list=[]
 
-            valueQuery = "select value from TissueProbeSetData where Id=%s" % DataId
-            try :
-                cursor.execute(valueQuery)
-                valueResults = cursor.fetchall()
-                for item in valueResults:
-                    item =item[0]
-                    valueList.append(item)
-                symbolValuepairDict[key] = valueList
-                valueList=[]
-            except:
-                symbolValuepairDict[key] = None
+    query = """SELECT value, id
+               FROM TissueProbeSetData
+               WHERE Id IN {}""".format(create_in_clause(id_list))
 
-    return symbolValuepairDict
+    try :
+        results = g.db.execute(query).fetchall()
+        for result in results:
+            value_list.append(result.value)
+        symbol_value_pairs[symbol] = value_list
+    except:
+        symbol_value_pairs[symbol] = None
+
+    #for symbol in symbol_list:
+    #    if tissue_data.has_key(symbol):
+    #        data_id = tissue_data[symbol].data_id
+    #
+    #        query = """select value, id
+    #                   from TissueProbeSetData
+    #                   where Id={}""".format(escape(data_id))
+    #        try :
+    #            results = g.db.execute(query).fetchall()
+    #            for item in results:
+    #                item = item[0]
+    #                value_list.append(item)
+    #            symbol_value_pairs[symbol] = value_list
+    #            value_list=[]
+    #        except:
+    #            symbol_value_pairs[symbol] = None
+
+    return symbol_value_pairs
 
 
 ########################################################################################################
@@ -788,36 +804,51 @@ def getSymbolValuePairDict(cursor=None,symbolList=None,dataIdDict={}):
 #          then call getSymbolValuePairDict function and merge the results.
 ########################################################################################################
 
-def getGeneSymbolTissueValueDict(cursor=None,symbolList=None,dataIdDict={}):
-    limitNum=1000
-    count = len(symbolList)
+def get_trait_symbol_and_tissue_values(symbol_list=None):
+    SymbolValuePairDict={}
+    
+    tissue_data = MrnaAssayTissueData(gene_symbols=symbol_list)
 
-    SymbolValuePairDict = {}
-
-    if count !=0 and count <=limitNum:
-        SymbolValuePairDict = getSymbolValuePairDict(cursor=cursor,symbolList=symbolList,dataIdDict=dataIdDict)
-
-    elif count >limitNum:
-        SymbolValuePairDict={}
-        n = count/limitNum
-        start =0
-        stop =0
-
-        for i in range(n):
-            stop =limitNum*(i+1)
-            gList1 = symbolList[start:stop]
-            PairDict1 = getSymbolValuePairDict(cursor=cursor,symbolList=gList1,dataIdDict=dataIdDict)
-            start =limitNum*(i+1)
-
-            SymbolValuePairDict.update(PairDict1)
-
-        if stop < count:
-            stop = count
-            gList2 = symbolList[start:stop]
-            PairDict2 = getSymbolValuePairDict(cursor=cursor,symbolList=gList2,dataIdDict=dataIdDict)
-            SymbolValuePairDict.update(PairDict2)
-
-    return SymbolValuePairDict
+    #symbolList,
+    #geneIdDict,
+    #dataIdDict,
+    #ChrDict,
+    #MbDict,
+    #descDict,
+    #pTargetDescDict = getTissueProbeSetXRefInfo(
+    #                    GeneNameLst=GeneNameLst,TissueProbeSetFreezeId=TissueProbeSetFreezeId)
+    
+    if len(tissue_data.gene_symbols):
+        return get_symbol_value_pairs(tissue_data)
+        
+    #limit_num=1000
+    #count = len(symbol_list)
+    #
+    #symbol_value_pairs = {}
+    #
+    #if count !=0 and count <= limit_num:
+    #    symbol_value_pairs = getSymbolValuePairDict(cursor=cursor,symbolList=symbol_list,dataIdDict=dataIdDict)
+    #
+    #elif count > limit_num:
+    #    n = count/limit_num
+    #    start = 0
+    #    stop = 0
+    #
+    #    for i in range(n):
+    #        stop =limit_num*(i+1)
+    #        gList1 = symbolList[start:stop]
+    #        PairDict1 = getSymbolValuePairDict(cursor=cursor,symbolList=gList1,dataIdDict=dataIdDict)
+    #        start =limit_num*(i+1)
+    #
+    #        SymbolValuePairDict.update(PairDict1)
+    #
+    #    if stop < count:
+    #        stop = count
+    #        gList2 = symbolList[start:stop]
+    #        PairDict2 = getSymbolValuePairDict(cursor=cursor,symbolList=gList2,dataIdDict=dataIdDict)
+    #        SymbolValuePairDict.update(PairDict2)
+    #
+    #return SymbolValuePairDict
 
 ########################################################################################################
 #input: cursor, GeneNameLst (list), TissueProbeSetFreezeId(int)
@@ -827,12 +858,17 @@ def getGeneSymbolTissueValueDict(cursor=None,symbolList=None,dataIdDict={}):
 #          for CorrelationPage.py
 ########################################################################################################
 
-def getGeneSymbolTissueValueDictForTrait(cursor=None,GeneNameLst=[],TissueProbeSetFreezeId=0):
-    SymbolValuePairDict={}
-    symbolList,geneIdDict,dataIdDict,ChrDict,MbDict,descDict,pTargetDescDict = getTissueProbeSetXRefInfo(cursor=cursor,GeneNameLst=GeneNameLst,TissueProbeSetFreezeId=TissueProbeSetFreezeId)
-    if symbolList:
-        SymbolValuePairDict = getGeneSymbolTissueValueDict(cursor=cursor,symbolList=symbolList,dataIdDict=dataIdDict)
-    return SymbolValuePairDict
+#def get_trait_symbol_and_tissue_values(cursor=None,GeneNameLst=[],TissueProbeSetFreezeId=0):
+#    SymbolValuePairDict={}
+#    
+#    symbolList,geneIdDict,dataIdDict,ChrDict,MbDict,descDict,pTargetDescDict = getTissueProbeSetXRefInfo(
+#        cursor=cursor,GeneNameLst=GeneNameLst,TissueProbeSetFreezeId=TissueProbeSetFreezeId)
+#    
+#    if symbolList:
+#        SymbolValuePairDict = get_gene_symbol_and_tissue_values(symbolList=symbolList,
+#                                                                dataIdDict=dataIdDict)
+#    
+#    return SymbolValuePairDict
 
 ########################################################################################################
 #Input: cursor(cursor): MySQL connnection cursor;
