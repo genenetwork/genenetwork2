@@ -79,7 +79,13 @@ class SearchResultPage(object):
             print("kw is:", kw)
             #self.quick_search = False
             self.search_terms = kw['search_terms']
-            self.dataset = create_dataset(kw['dataset'])
+            if kw['type'] == "Phenotypes":
+                dataset_type = "Publish"
+            elif kw['type'] == "Genotypes":
+                dataset_type = "Geno"
+            else:
+                dataset_type = "ProbeSet"
+            self.dataset = create_dataset(kw['dataset'], dataset_type)
             self.search()
             self.gen_search_result()
 

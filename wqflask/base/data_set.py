@@ -48,31 +48,66 @@ from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
 # Used by create_database to instantiate objects
+# Each subclass will add to this
 DS_NAME_MAP = {}
 
 def create_dataset(dataset_name, dataset_type = None):
-    #print("dataset_name:", dataset_name)
-
+    
+    print("dataset_type:", dataset_type)
     if not dataset_type:
-        query = """
-            SELECT DBType.Name
-            FROM DBList, DBType
-            WHERE DBList.Name = '{}' and
-                  DBType.Id = DBList.DBTypeId
-            """.format(escape(dataset_name))
-        #print("query is: ", pf(query))
-        dataset_type = g.db.execute(query).fetchone().Name
+        dataset_type = Dataset_Getter(dataset_name)
+        #dataset_type = get_dataset_type_from_json(dataset_name)
 
-    #dataset_type = cursor.fetchone()[0]
-    #print("[blubber] dataset_type:", pf(dataset_type))
+        print("dataset_type is:", dataset_type)
+        #query = """
+        #    SELECT DBType.Name
+        #    FROM DBList, DBType
+        #    WHERE DBList.Name = '{}' and
+        #          DBType.Id = DBList.DBTypeId
+        #    """.format(escape(dataset_name))
+        #dataset_type = g.db.execute(query).fetchone().Name
+
 
     dataset_ob = DS_NAME_MAP[dataset_type]
-    #dataset_class = getattr(data_set, dataset_ob)
-    #print("dataset_ob:", dataset_ob)
-    #print("DS_NAME_MAP:", pf(DS_NAME_MAP))
-
     dataset_class = globals()[dataset_ob]
     return dataset_class(dataset_name)
+
+
+#def get_dataset_type_from_json(dataset_name):
+    
+class Dataset_Types(object):
+    
+    def __init__(self):
+        self.datasets = {}
+        file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
+        with open(file_name, 'r') as fh:
+            data = json.load(fh)
+        
+        print("*" * 70)
+        for species in data['datasets']:
+            for group in data['datasets'][species]:
+                for dataset_type in data['datasets'][species][group]:
+                    for dataset in data['datasets'][species][group][dataset_type]:
+                        print("dataset is:", dataset)
+                        
+                        short_dataset_name = dataset[0]
+                        if dataset_type == "Phenotypes":
+                            new_type = "Publish"
+                        elif dataset_type == "Genotypes":
+                            new_type = "Geno"
+                        else:
+                            new_type = "ProbeSet"
+                        self.datasets[short_dataset_name] = new_type
+                            
+    def __call__(self, name):
+        return self.datasets[name]
+    
+# Do the intensive work at startup one time only
+Dataset_Getter = Dataset_Types()
+
+#
+#print("Running at startup:", get_dataset_type_from_json("HBTRC-MLPFC_0611"))
+                    
 
 def create_datasets_list():
     key = "all_datasets"
@@ -212,7 +247,7 @@ class DatasetGroup(object):
             marker_class = Markers
 
         self.markers = marker_class(self.name)
-        
+
 
     def get_f1_parent_strains(self):
         try:
@@ -225,7 +260,7 @@ class DatasetGroup(object):
             self.f1list = [f1, f12]
         if maternal and paternal:
             self.parlist = [maternal, paternal]
-            
+
     def read_genotype_file(self):
         '''Read genotype from .geno file instead of database'''
         #if self.group == 'BXD300':
@@ -375,6 +410,9 @@ class PhenotypeDataSet(DataSet):
     DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
 
     def setup(self):
+        
+        print("IS A PHENOTYPEDATASET")
+        
         # Fields in the database table
         self.search_fields = ['Phenotype.Post_publication_description',
                             'Phenotype.Pre_publication_description',
@@ -445,14 +483,24 @@ class PhenotypeDataSet(DataSet):
     def get_trait_info(self, trait_list, species = ''):
         for this_trait in trait_list:
             if not this_trait.haveinfo:
-                this_trait.retrieveInfo(QTL=1)
+                this_trait.retrieve_info(get_qtl_info=True)
 
             description = this_trait.post_publication_description
+            
+            #If the dataset is confidential and the user has access to confidential
+            #phenotype traits, then display the pre-publication description instead
+            #of the post-publication description
             if this_trait.confidential:
                 continue   # for now
-                if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
+            
+                if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
+                        privilege=self.privilege,
+                        userName=self.userName,
+                        authorized_users=this_trait.authorized_users):
+                        
                     description = this_trait.pre_publication_description
-            this_trait.description_display = unicode(description, "utf8")
+            
+            this_trait.description_display = description
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"

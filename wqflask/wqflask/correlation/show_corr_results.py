@@ -52,6 +52,8 @@ import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlationFunction
 from utility.benchmark import Bench
 
+from MySQLdb import escape_string as escape
+
 from pprint import pformat as pf
 
 METHOD_SAMPLE_PEARSON = "1"
@@ -101,13 +103,14 @@ class CorrelationResults(object):
 
             self.sample_data = {}
             self.corr_method = start_vars['corr_sample_method']
+            self.return_number = 500
 
             #The two if statements below append samples to the sample list based upon whether the user
             #rselected Primary Samples Only, Other Samples Only, or All Samples
 
             primary_samples = (self.dataset.group.parlist +
-                                   self.dataset.group.f1list +
-                                   self.dataset.group.samplelist)
+                               self.dataset.group.f1list +
+                               self.dataset.group.samplelist)
 
             #If either BXD/whatever Only or All Samples, append all of that group's samplelist      
             if corr_samples_group != 'samples_other':
@@ -153,12 +156,14 @@ class CorrelationResults(object):
 
             #self.correlation_data_slice = collections.OrderedDict()
 
-            for trait_counter, trait in enumerate(self.correlation_data.keys()[:300]):
+            for trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 trait_object = GeneralTrait(dataset=self.dataset, name=trait, get_qtl_info=True)
                 trait_object.sample_r = self.correlation_data[trait][0]
                 trait_object.sample_p = self.correlation_data[trait][1]
-                trait_object_num_overlap = self.correlation_data[trait][2]
+                trait_object.num_overlap = self.correlation_data[trait][2]
                 self.correlation_results.append(trait_object)
+                
+            
                 
                 #self.correlation_data_slice[trait] = self.correlation_data[trait]
                 #self.correlation_data_slice[trait].append(trait_object)
@@ -202,11 +207,6 @@ class CorrelationResults(object):
                 #        chromosome = trait_object.chr,
                 #        mb = trait_object.mb
                 #    )
-
-            #trait_list = self.getTissueCorrelationByList( primary_trait_symbol = self.this_trait.symbol,
-            #                                            corr_results = self.correlation_results,
-            #                                            TissueProbeSetFreezeId = 1,
-            #                                            method=1)
 
         #XZ, 09/18/2008: get all information about the user selected database.
         #target_db_name = fd.corr_dataset
@@ -529,9 +529,13 @@ class CorrelationResults(object):
 
     #XZ, 09/23/2008: In tissue correlation tables, there is no record of GeneId1 == GeneId2
     #XZ, 09/24/2008: Note that the correlation value can be negative.
-    def getTempTissueCorrTable(self, primaryTraitSymbol="", TissueProbeSetFreezeId=0, method="", returnNumber=0):
+    def get_temp_tissue_corr_table(self,
+                                   tissue_probesetfreeze_id=0,
+                                   method="",
+                                   return_number=0):
+        
 
-        def cmpTissCorrAbsoluteValue(A, B):
+        def cmp_tisscorr_absolute_value(A, B):
             try:
                 if abs(A[1]) < abs(B[1]): return 1
                 elif abs(A[1]) == abs(B[1]):
@@ -540,26 +544,27 @@ class CorrelationResults(object):
             except:
                 return 0
 
-        symbolCorrDict, symbolPvalueDict = self.calculateCorrOfAllTissueTrait(primaryTraitSymbol=primaryTraitSymbol, TissueProbeSetFreezeId=TISSUE_MOUSE_DB, method=method)
+        symbol_corr_dict, symbol_pvalue_dict = self.calculate_corr_for_all_tissues(
+                                                                tissue_dataset_id=TISSUE_MOUSE_DB)
 
-        symbolCorrList = symbolCorrDict.items()
+        symbol_corr_list = symbol_corr_dict.items()
 
-        symbolCorrList.sort(cmpTissCorrAbsoluteValue)
-        symbolCorrList = symbolCorrList[0 : 2*returnNumber]
+        symbol_corr_list.sort(cmp_tisscorr_absolute_value)
+        symbol_corr_list = symbol_corr_list[0 : 2*return_number]
 
-        tmpTableName = webqtlUtil.genRandStr(prefix="TOPTISSUE")
+        tmp_table_name = webqtlUtil.genRandStr(prefix="TOPTISSUE")
 
-        q1 = 'CREATE TEMPORARY TABLE %s (Symbol varchar(100) PRIMARY KEY, Correlation float, PValue float)' % tmpTableName
+        q1 = 'CREATE TEMPORARY TABLE %s (Symbol varchar(100) PRIMARY KEY, Correlation float, PValue float)' % tmp_table_name
         self.cursor.execute(q1)
 
-        for one_pair in symbolCorrList:
+        for one_pair in symbol_corr_list:
             one_symbol = one_pair[0]
             one_corr = one_pair[1]
-            one_p_value = symbolPvalueDict[one_symbol]
+            one_p_value = symbol_pvalue_dict[one_symbol]
 
             self.cursor.execute( "INSERT INTO %s (Symbol, Correlation, PValue) VALUES ('%s',%f,%f)" % (tmpTableName, one_symbol, float(one_corr), float(one_p_value)) )
 
-        return tmpTableName
+        return tmp_table_name
 
 
     #XZ, 01/09/2009: This function was created by David Crowell. Xiaodong cleaned up and modified it.
@@ -589,37 +594,50 @@ class CorrelationResults(object):
         return litCorrDict
 
 
+    def fetch_tissue_correlations(self):
+        """Comments Possibly Out of Date!!!!!
+        
+        
+        Uses getTempTissueCorrTable to generate table of tissue correlations
+        
+        This function then gathers that data and pairs it with the TraitID string.
+        Takes as its arguments a formdata instance, and a database instance.
+        Returns a dictionary of 'TraitID':(tissueCorr, tissuePValue)
+        for the requested correlation
+        
+        Used when the user selects the tissue correlation method; i.e. not for the
+        column that is appended to all probeset trait correlation tables
+        
+        """
 
-    #XZ, 01/09/2009: Xiaodong created this function.
-    def fetchTissueCorrelations(self, db, primaryTraitSymbol="", TissueProbeSetFreezeId=0, method="", returnNumber = 0):
-        """Uses getTempTissueCorrTable to generate table of tissue correlations.  This function then gathers that data and
-        pairs it with the TraitID string.  Takes as its arguments a formdata instance, and a database instance.
-        Returns a dictionary of 'TraitID':(tissueCorr, tissuePValue) for the requested correlation"""
+        # table name string
+        temp_table = self.get_temp_tissue_corr_table(tissue_probesetfreeze_id=TISSUE_MOUSE_DB,
+                                                    method=method)
 
+        query = """SELECT ProbeSet.Name, {}.Correlation, {}.PValue
+                FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze)
+                LEFT JOIN {} ON {}.Symbol=ProbeSet.Symbol
+                WHERE ProbeSetFreeze.Name = '{}'
+                and ProbeSetFreeze.Id=ProbeSetXRef.ProbeSetFreezeId
+                and ProbeSet.Id = ProbeSetXRef.ProbeSetId
+                and ProbeSet.Symbol IS NOT NULL
+                and {}.Correlation IS NOT NULL""".format(dataset.mescape(
+                    temp_table, temp_table, temp_table, temp_table,
+                    self.dataset.name, temp_table))
 
-        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=primaryTraitSymbol, TissueProbeSetFreezeId=TISSUE_MOUSE_DB, method=method, returnNumber=returnNumber)
+        results = g.db.execute(query).fetchall()
 
-        query = "SELECT ProbeSet.Name, %s.Correlation, %s.PValue" %  (tempTable, tempTable)
-        query += ' FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze)'
-        query += ' LEFT JOIN %s ON %s.Symbol=ProbeSet.Symbol ' % (tempTable,tempTable)
-        query += "WHERE ProbeSetFreeze.Name = '%s' and ProbeSetFreeze.Id=ProbeSetXRef.ProbeSetFreezeId and ProbeSet.Id = ProbeSetXRef.ProbeSetId and ProbeSet.Symbol IS NOT NULL AND %s.Correlation IS NOT NULL" % (db.name, tempTable)
-
-        self.cursor.execute(query)
-        results = self.cursor.fetchall()
-
-        tissueCorrDict = {}
+        tissue_corr_dict = {}
 
         for entry in results:
-            traitName, tissueCorr, tissuePValue = entry
-            tissueCorrDict[traitName] = (tissueCorr, tissuePValue)
+            trait_name, tissue_corr, tissue_pvalue = entry
+            tissue_corr_dict[trait_name] = (tissue_corr, tissue_pvalue)
 
-        self.cursor.execute('DROP TEMPORARY TABLE %s' % tempTable)
+        g.db.execute('DROP TEMPORARY TABLE {}'.format(escape(temp_table)))
 
-        return tissueCorrDict
+        return tissue_corr_dict
 
 
-
-    #XZ, 01/13/2008
     def getLiteratureCorrelationByList(self, input_trait_mouse_geneid=None, species=None, traitList=None):
 
         tmpTableName = webqtlUtil.genRandStr(prefix="LITERATURE")
@@ -670,7 +688,7 @@ class CorrelationResults(object):
 
             use_tissue_corr = False
             if self.method in TISSUE_METHODS:
-                tissue_corrs = self.fetchTissueCorrelations(db=self.db, primaryTraitSymbol=self.trait_symbol, TissueProbeSetFreezeId=TISSUE_MOUSE_DB, method=self.method, returnNumber = self.returnNumber)
+                tissue_corrs = self.fetch_tissue_correlations(method=self.method, return_number = self.return_number)
                 use_tissue_corr = True
 
             DatabaseFileName = self.getFileName( target_db_name=self.target_db_name )
@@ -895,20 +913,28 @@ class CorrelationResults(object):
         return trait_list
         """
 
-    def calculateCorrOfAllTissueTrait(self, primaryTraitSymbol=None, TissueProbeSetFreezeId=None, method=None):
+    def calculate_corr_for_all_tissues(self, tissue_dataset_id=None):
 
-        symbolCorrDict = {}
-        symbolPvalueDict = {}
+        symbol_corr_dict = {}
+        symbol_pvalue_dict = {}
 
-        primaryTraitSymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=[primaryTraitSymbol], TissueProbeSetFreezeId=TISSUE_MOUSE_DB)
-        primaryTraitValue = primaryTraitSymbolValueDict.values()[0]
+        primary_trait_symbol_value_dict = correlation_function.make_gene_tissue_value_dict(
+                                                    GeneNameLst=[self.this_trait.symbol],
+                                                    TissueProbeSetFreezeId=tissue_dataset_id)
+        primary_trait_value = primary_trait_symbol_value_dict.values()[0]
 
-        SymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=[], TissueProbeSetFreezeId=TISSUE_MOUSE_DB)
+        symbol_value_dict = correlation_function.make_gene_tissue_value_dict(
+                                        gene_name_list=[],
+                                        tissue_dataset_id=tissue_dataset_id)
 
-        if method in ["2","5"]:
-            symbolCorrDict, symbolPvalueDict = correlationFunction.batchCalTissueCorr(primaryTraitValue,SymbolValueDict,method='spearman')
-        else:
-            symbolCorrDict, symbolPvalueDict = correlationFunction.batchCalTissueCorr(primaryTraitValue,SymbolValueDict)
+        symbol_corr_dict, symbol_pvalue_dict = correlation_function.batch_cal_tissue_corr(
+                primaryTraitValue,
+                SymbolValueDict,
+                method=self.corr_method)
+        #else:
+        #    symbol_corr_dict, symbol_pvalue_dict = correlation_function.batch_cal_tissue_corr(
+        #        primaryTraitValue,
+        #        SymbolValueDict)
 
 
         return (symbolCorrDict, symbolPvalueDict)
