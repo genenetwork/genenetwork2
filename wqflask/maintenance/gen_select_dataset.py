@@ -41,7 +41,6 @@ from pprint import pformat as pf
 
 from base import webqtlConfig
 
-
 # build MySql database connection
 Con = MySQLdb.Connect(db=webqtlConfig.DB_NAME,
                       host=webqtlConfig.MYSQL_SERVER,
@@ -148,6 +147,7 @@ def build_datasets(species, group, type_name):
 
 def main():
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
+    
     species = get_species()
     groups = get_groups(species)
     types = get_types(groups)

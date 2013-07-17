@@ -181,6 +181,46 @@ ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key
 
 ============================================
 
+Installing redis server
+
+In the dls directory:
+$ wget http://redis.googlecode.com/files/redis-2.6.14.tar.gz
+$ tar xzf redis-2.6.14.tar.gz
+$ cd redis-2.6.14
+$ make
+
+Run redis (from inside redis-2.6.14 directory):
+src/redis-server
+
+For the rest of the installation instructions, refer to:
+http://redis.io/topics/quickstart
+
+To continue installation (from the README):
+
+In order to install Redis binaries into /usr/local/bin just use:
+
+    % make install
+
+Make install will just install binaries in your system, but will not configure
+init scripts and configuration files in the appropriate place. This is not
+needed if you want just to play a bit with Redis, but if you are installing
+it the proper way for a production system, we have a script doing this
+for Ubuntu and Debian systems:
+
+    % cd utils
+    % ./install_server
+
+The script will ask you a few questions and will setup everything you need
+to run Redis properly as a background daemon that will start again on
+system reboots.
+
+In the redis config file (/etc/redis/6379.conf) uncomment the following line:
+bind 127.0.0.1
+
+This is so only the local computer has access
+
+============================================
+
 Using Yolk
 
 Install Yolk:

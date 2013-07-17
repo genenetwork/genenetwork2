@@ -64,12 +64,12 @@
             ],
             "Leaf": [
                [
-                  "B1LI0809M5",
-                  "Barley1 Leaf INOC TTKS (Aug09) MAS5"
-               ],
-               [
                   "B1LI0809R",
                   "Barley1 Leaf INOC TTKS (Aug09) RMA"
+               ],
+               [
+                  "B1LI0809M5",
+                  "Barley1 Leaf INOC TTKS (Aug09) MAS5"
                ],
                [
                   "B1MI0809M5",
@@ -114,12 +114,12 @@
                   "Barley1 Leaf MAS 5.0 SCRI (Dec06)"
                ],
                [
-                  "B30_K_1206_R",
-                  "Barley1 Leaf gcRMA SCRI (Dec06)"
-               ],
-               [
                   "B30_K_1206_Rn",
                   "Barley1 Leaf gcRMAn SCRI (Dec06)"
+               ],
+               [
+                  "B30_K_1206_R",
+                  "Barley1 Leaf gcRMA SCRI (Dec06)"
                ]
             ],
             "Phenotypes": [
@@ -212,12 +212,12 @@
          "AD-cases-controls-Myers": {
             "Brain": [
                [
-                  "GSE15222_F_N_RI_0409",
-                  "GSE15222 Human Brain Normal Myers (Apr09) RankInv"
-               ],
-               [
                   "GSE15222_F_A_RI_0409",
                   "GSE15222 Human Brain Alzheimer Myers (Apr09) RankInv"
+               ],
+               [
+                  "GSE15222_F_N_RI_0409",
+                  "GSE15222 Human Brain Normal Myers (Apr09) RankInv"
                ],
                [
                   "GSE15222_F_RI_0409",
@@ -548,12 +548,12 @@
                   "NCI Mammary LMT miRNA v2 (Apr09) RMA"
                ],
                [
-                  "MA_M_0704_M",
-                  "NCI Mammary mRNA M430 (July04) MAS5"
-               ],
-               [
                   "MA_M_0704_R",
                   "NCI Mammary mRNA M430 (July04) RMA"
+               ],
+               [
+                  "MA_M_0704_M",
+                  "NCI Mammary mRNA M430 (July04) MAS5"
                ]
             ],
             "Phenotypes": [
@@ -598,12 +598,12 @@
             ],
             "Liver": [
                [
-                  "LVF2_M_0704_M",
-                  "(B6 x BTBR)F2-ob/ob Liver mRNA M430 (Jul04) MAS5"
-               ],
-               [
                   "LVF2_M_0704_R",
                   "(B6 x BTBR)F2-ob/ob Liver mRNA M430 (Jul04) RMA"
+               ],
+               [
+                  "LVF2_M_0704_M",
+                  "(B6 x BTBR)F2-ob/ob Liver mRNA M430 (Jul04) MAS5"
                ]
             ],
             "Phenotypes": [
@@ -632,12 +632,12 @@
                   "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) PDNN"
                ],
                [
-                  "BRF2_M_0304_M",
-                  "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) MAS5"
-               ],
-               [
                   "BRF2_M_0304_R",
                   "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) RMA"
+               ],
+               [
+                  "BRF2_M_0304_M",
+                  "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) MAS5"
                ]
             ],
             "Genotypes": [
@@ -728,28 +728,28 @@
             ],
             "Striatum": [
                [
+                  "SA_M2_0905_R",
+                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
+               ],
+               [
                   "SA_M2_0905_M",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
                ],
                [
                   "SA_M2_0905_P",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
-               ],
-               [
-                  "SA_M2_0905_R",
-                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
                ]
             ]
          },
          "BHF2": {
             "Adipose": [
                [
-                  "UCLA_BHF2_ADIPOSE_FEMALE",
-                  "UCLA BHF2 Adipose Female mlratio"
-               ],
-               [
                   "UCLA_BHF2_ADIPOSE_MALE",
                   "UCLA BHF2 Adipose Male mlratio"
+               ],
+               [
+                  "UCLA_BHF2_ADIPOSE_FEMALE",
+                  "UCLA BHF2 Adipose Female mlratio"
                ],
                [
                   "UCLA_BHF2_ADIPOSE_0605",
@@ -758,12 +758,12 @@
             ],
             "Brain": [
                [
-                  "UCLA_BHF2_BRAIN_FEMALE",
-                  "UCLA BHF2 Brain Female mlratio"
-               ],
-               [
                   "UCLA_BHF2_BRAIN_MALE",
                   "UCLA BHF2 Brain Male mlratio"
+               ],
+               [
+                  "UCLA_BHF2_BRAIN_FEMALE",
+                  "UCLA BHF2 Brain Female mlratio"
                ],
                [
                   "UCLA_BHF2_BRAIN_0605",
@@ -778,12 +778,12 @@
             ],
             "Liver": [
                [
-                  "UCLA_BHF2_LIVER_FEMALE",
-                  "UCLA BHF2 Liver Female mlratio"
-               ],
-               [
                   "UCLA_BHF2_LIVER_MALE",
                   "UCLA BHF2 Liver Male mlratio"
+               ],
+               [
+                  "UCLA_BHF2_LIVER_FEMALE",
+                  "UCLA BHF2 Liver Female mlratio"
                ],
                [
                   "UCLA_BHF2_LIVER_0605",
@@ -792,12 +792,12 @@
             ],
             "Muscle": [
                [
-                  "UCLA_BHF2_MUSCLE_FEMALE",
-                  "UCLA BHF2 Muscle Female mlratio **"
-               ],
-               [
                   "UCLA_BHF2_MUSCLE_MALE",
                   "UCLA BHF2 Muscle Male mlratio **"
+               ],
+               [
+                  "UCLA_BHF2_MUSCLE_FEMALE",
+                  "UCLA BHF2 Muscle Female mlratio **"
                ],
                [
                   "UCLA_BHF2_MUSCLE_0605",
@@ -924,16 +924,16 @@
                   "UTHSC Brain mRNA U74Av2 (Nov05) PDNN"
                ],
                [
+                  "BR_U_0805_M",
+                  "UTHSC Brain mRNA U74Av2 (Aug05) MAS5"
+               ],
+               [
                   "BR_U_0805_R",
                   "UTHSC Brain mRNA U74Av2 (Aug05) RMA"
                ],
                [
                   "BR_U_0805_P",
                   "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
-               ],
-               [
-                  "BR_U_0805_M",
-                  "UTHSC Brain mRNA U74Av2 (Aug05) MAS5"
                ],
                [
                   "CB_M_0204_P",
@@ -956,16 +956,16 @@
             ],
             "Cerebellum": [
                [
+                  "CB_M_1004_M",
+                  "SJUT Cerebellum mRNA M430 (Oct04) MAS5"
+               ],
+               [
                   "CB_M_1004_R",
                   "SJUT Cerebellum mRNA M430 (Oct04) RMA"
                ],
                [
                   "CB_M_1004_P",
                   "SJUT Cerebellum mRNA M430 (Oct04) PDNN"
-               ],
-               [
-                  "CB_M_1004_M",
-                  "SJUT Cerebellum mRNA M430 (Oct04) MAS5"
                ],
                [
                   "CB_M_1003_M",
@@ -1132,12 +1132,12 @@
                   "Mouse Kidney M430v2 Sex Balanced (Aug06) PDNN"
                ],
                [
-                  "MA_M2_0706_R",
-                  "Mouse Kidney M430v2 (Jul06) RMA"
-               ],
-               [
                   "MA_M2_0706_P",
                   "Mouse Kidney M430v2 (Jul06) PDNN"
+               ],
+               [
+                  "MA_M2_0706_R",
+                  "Mouse Kidney M430v2 (Jul06) RMA"
                ]
             ],
             "Leucocytes": [
@@ -1156,16 +1156,16 @@
                   "GenEx BXD EtOH Liver Affy M430 2.0 (Sep12) MAS5 Both Sexes **"
                ],
                [
+                  "GenEx_BXD_liverSal_RMA_F_0211",
+                  "GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Females **"
+               ],
+               [
                   "GenEx_BXD_liverEt_M5F_0912",
                   "GenEx BXD EtOH Liver Affy M430 2.0 (Sep12) MAS5 Females **"
                ],
                [
                   "GenEx_BXD_liverEt_M5M_0912",
                   "GenEx BXD EtOH Liver Affy M430 2.0 (Sep12) MAS5 Males **"
-               ],
-               [
-                  "GenEx_BXD_liverSal_RMA_F_0211",
-                  "GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Females **"
                ],
                [
                   "GenEx_BXD_liverSal_RMA_M_0211",
@@ -1228,12 +1228,12 @@
             ],
             "Neocortex": [
                [
-                  "DevNeocortex_ILM6.2P3RInv_1111",
-                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv"
-               ],
-               [
                   "DevNeocortex_ILM6.2P14RInv_1111",
                   "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv"
+               ],
+               [
+                  "DevNeocortex_ILM6.2P3RInv_1111",
+                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv"
                ],
                [
                   "HQFNeoc_1210v2_RankInv",
@@ -1248,12 +1248,12 @@
                   "HQF BXD Neocortex ILM6v1.1 (Feb08) RankInv"
                ],
                [
-                  "DevNeocortex_ILM6.2P14RInv_1110",
-                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv"
-               ],
-               [
                   "DevNeocortex_ILM6.2P3RInv_1110",
                   "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
+               ],
+               [
+                  "DevNeocortex_ILM6.2P14RInv_1110",
+                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv"
                ]
             ],
             "Nucleus Accumbens": [
@@ -1294,16 +1294,16 @@
             ],
             "Prefrontal Cortex": [
                [
+                  "VCUEtOH_1206_R",
+                  "VCU BXD PFC EtOH M430 2.0 (Dec06) RMA"
+               ],
+               [
                   "VCUSal_1206_R",
                   "VCU BXD PFC Sal M430 2.0 (Dec06) RMA"
                ],
                [
                   "VCUSal_1006_R",
                   "VCU BXD PFC Et vs Sal M430 2.0 (Dec06) Sscore"
-               ],
-               [
-                  "VCUEtOH_1206_R",
-                  "VCU BXD PFC EtOH M430 2.0 (Dec06) RMA"
                ],
                [
                   "VCU_PF_Air_0111_R",
@@ -1448,16 +1448,16 @@
             ],
             "Ventral Tegmental Area": [
                [
+                  "VCUEtOH_0609_R",
+                  "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **"
+               ],
+               [
                   "VCUSal_0609_R",
                   "VCU BXD VTA Sal M430 2.0 (Jun09) RMA **"
                ],
                [
                   "VCUEtvsSal_0609_R",
                   "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) Sscore **"
-               ],
-               [
-                  "VCUEtOH_0609_R",
-                  "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **"
                ]
             ]
          },
@@ -1574,12 +1574,12 @@
             ],
             "Hippocampus": [
                [
-                  "HC_M2CB_1205_P",
-                  "Hippocampus Consortium M430v2 CXB (Dec05) PDNN"
-               ],
-               [
                   "HC_M2CB_1205_R",
                   "Hippocampus Consortium M430v2 CXB (Dec05) RMA"
+               ],
+               [
+                  "HC_M2CB_1205_P",
+                  "Hippocampus Consortium M430v2 CXB (Dec05) PDNN"
                ]
             ],
             "Phenotypes": [
@@ -1712,16 +1712,16 @@
             ],
             "Prefrontal Cortex": [
                [
+                  "VCUEtOH_0806_R",
+                  "VCU LXS PFC EtOH M430A 2.0 (Aug06) RMA **"
+               ],
+               [
                   "VCUSal_0806_R",
                   "VCU LXS PFC Sal M430A 2.0 (Aug06) RMA"
                ],
                [
                   "VCUEt_vs_Sal_0806_R",
                   "VCU LXS PFC Et vs Sal M430A 2.0 (Aug06) Sscore **"
-               ],
-               [
-                  "VCUEtOH_0806_R",
-                  "VCU LXS PFC EtOH M430A 2.0 (Aug06) RMA **"
                ]
             ]
          },
@@ -1734,12 +1734,12 @@
             ],
             "Hippocampus": [
                [
-                  "HC_M2_0606_MDP",
-                  "Hippocampus Consortium M430v2 (Jun06) RMA MDP"
-               ],
-               [
                   "UMUTAffyExon_0209_RMA_MDP",
                   "UMUTAffy Hippocampus Exon (Feb09) RMA MDP"
+               ],
+               [
+                  "HC_M2_0606_MDP",
+                  "Hippocampus Consortium M430v2 (Jun06) RMA MDP"
                ]
             ],
             "Liver": [

@@ -5,12 +5,12 @@
 MYSQL_SERVER = 'gn.cazhbciu2y1i.us-east-1.rds.amazonaws.com'
 DB_NAME = 'db_webqtl'
 DB_USER = 'webqtl'
-DB_PASSWD = 'f2ZypIflRM'
+DB_PASSWD = 'zK150dVzyvclGY5aCzavcK'
 
 MYSQL_UPDSERVER = 'gn.cazhbciu2y1i.us-east-1.rds.amazonaws.com'
 DB_UPDNAME = 'db_webqtl'
 DB_UPDUSER = 'webqtl'
-DB_UPDPASSWD = 'f2ZypIflRM'
+DB_UPDPASSWD = 'zK150dVzyvclGY5aCzavcK'
 
 GNROOT = '/home/zas1024/gene/'
 ROOT_URL = 'http://50.16.251.170'
