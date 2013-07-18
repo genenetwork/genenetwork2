@@ -29,25 +29,47 @@ It needs to be run manually when database has been changed.
 
 from __future__ import print_function, division
 
-import sys
+#from flask import config
+#
+#cdict = {}
+#config = config.Config(cdict).from_envvar('WQFLASK_SETTINGS')
+#print("cdict is:", cdict)
 
-sys.path.insert(0, "..")
+import our_settings
 
 import MySQLdb
 
 import simplejson as json
+import urlparse
+
+
+#import sqlalchemy as sa
 
 from pprint import pformat as pf
 
-from base import webqtlConfig
-
+#Engine = sa.create_engine(our_settings.SQLALCHEMY_DATABASE_URI)
 
 # build MySql database connection
-Con = MySQLdb.Connect(db=webqtlConfig.DB_NAME,
-                      host=webqtlConfig.MYSQL_SERVER,
-                      user=webqtlConfig.DB_USER,
-                      passwd=webqtlConfig.DB_PASSWD)
-Cursor = Con.cursor()
+
+#conn = Engine.connect()
+
+
+
+
+
+def parse_db_uri(db_uri):
+    """Converts a database URI to the db name, host name, user name, and password"""
+    
+    parsed_uri = urlparse.urlparse(our_settings.DB_URI)
+    
+    db_conn_info = dict(
+                        db = parsed_uri.path[1:],
+                        host = parsed_uri.hostname,
+                        user = parsed_uri.username,
+                        passwd = parsed_uri.password)
+    
+    return db_conn_info
+
 
 
 def get_species():
@@ -100,8 +122,8 @@ def build_types(species, group):
                        ProbeFreeze.TissueId = Tissue.Id and
                        ProbeFreeze.InbredSetId = InbredSet.Id and
                        ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                       ProbeSetFreeze.public > %s
-                       order by Tissue.Name""", (species, group, webqtlConfig.PUBLICTHRESH))
+                       ProbeSetFreeze.public > 0
+                       order by Tissue.Name""", (species, group))
     return Cursor.fetchall()
 
 
@@ -140,14 +162,17 @@ def build_datasets(species, group, type_name):
                     InbredSet.Name = %s and
                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = %s
                     and ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId =
-                    InbredSet.Id and ProbeSetFreeze.public > %s order by
+                    InbredSet.Id and ProbeSetFreeze.public > 0 order by
                     ProbeSetFreeze.CreateTime desc""", (
-                        species, group, type_name, webqtlConfig.PUBLICTHRESH))
+                        species, group, type_name))
         return Cursor.fetchall()
 
 
 def main():
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
+
+    parse_db_uri(our_settings.DB_URI)
+
     species = get_species()
     groups = get_groups(species)
     types = get_types(groups)
@@ -182,5 +207,7 @@ def _test_it():
     datasets = build_datasets("Mouse", "BXD", "Hippocampus")
     print("build_datasets:", pf(datasets))
 
-if __name__ == '__main__':
+if __name__ == '__main__':   
+    Conn = MySQLdb.Connect(**parse_db_uri(our_settings.DB_URI))
+    Cursor = Conn.cursor()
     main()

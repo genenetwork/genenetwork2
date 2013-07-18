@@ -162,6 +162,13 @@ service mysql stop
 
 ============================================
 
+Check RSA key:
+ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key
+
+03:2c:d7:01:01:f0:31:3a:c8:df:e4:98:62:2c:59:d2  root@penguin (RSA)
+
+============================================
+
 Using Yolk
 
 Install Yolk:
