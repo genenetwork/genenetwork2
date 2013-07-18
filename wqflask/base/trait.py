@@ -319,10 +319,9 @@ class GeneralTrait(object):
 
             #XZ: assign SQL query result to trait attributes.
             for i, field in enumerate(self.dataset.display_fields):
-                print("  mike: {} -> {} - {}".format(field, type(trait_info[i]), trait_info[i]))
+                #print("  mike: {} -> {} - {}".format(field, type(trait_info[i]), trait_info[i]))
                 holder = trait_info[i]
                 if isinstance(trait_info[i], basestring):
-                    print("is basestring")
                     holder = unicode(trait_info[i], "utf8")
                 setattr(self, field, holder)
 

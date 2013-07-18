@@ -798,10 +798,6 @@
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
                ],
                [
-                  "SA_M2_0905_R",
-                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
-               ],
-               [
                   "SA_M2_0905_M",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
                ],
@@ -1052,16 +1048,16 @@
             ],
             "Cerebellum mRNA": [
                [
-                  "CB_M_1004_M",
-                  "SJUT Cerebellum mRNA M430 (Oct04) MAS5"
-               ],
-               [
                   "CB_M_1004_R",
                   "SJUT Cerebellum mRNA M430 (Oct04) RMA"
                ],
                [
                   "CB_M_1004_P",
                   "SJUT Cerebellum mRNA M430 (Oct04) PDNN"
+               ],
+               [
+                  "CB_M_1004_M",
+                  "SJUT Cerebellum mRNA M430 (Oct04) MAS5"
                ],
                [
                   "CB_M_1003_M",
@@ -1552,10 +1548,6 @@
             ],
             "Prefrontal Cortex mRNA": [
                [
-                  "VCUEtOH_1206_R",
-                  "VCU BXD PFC EtOH M430 2.0 (Dec06) RMA"
-               ],
-               [
                   "VCUSal_1206_R",
                   "VCU BXD PFC Sal M430 2.0 (Dec06) RMA"
                ],
@@ -1725,10 +1717,6 @@
                ]
             ],
             "Ventral Tegmental Area mRNA": [
-               [
-                  "VCUEtOH_0609_R",
-                  "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **"
-               ],
                [
                   "VCUEtOH_0609_R",
                   "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **"
@@ -2013,10 +2001,6 @@
                ]
             ],
             "Prefrontal Cortex mRNA": [
-               [
-                  "VCUEtOH_0806_R",
-                  "VCU LXS PFC EtOH M430A 2.0 (Aug06) RMA **"
-               ],
                [
                   "VCUEtOH_0806_R",
                   "VCU LXS PFC EtOH M430A 2.0 (Aug06) RMA **"
@@ -2572,7 +2556,7 @@
             ],
             [
                "Leaf mRNA",
-               "Leaf mRNA mRNA"
+               "Leaf mRNA"
             ]
          ],
          "SXM": [
@@ -2586,11 +2570,11 @@
             ],
             [
                "Embryo mRNA",
-               "Embryo mRNA mRNA"
+               "Embryo mRNA"
             ],
             [
                "Leaf mRNA",
-               "Leaf mRNA mRNA"
+               "Leaf mRNA"
             ]
          ]
       },
@@ -2606,7 +2590,7 @@
             ],
             [
                "Whole Body mRNA",
-               "Whole Body mRNA mRNA"
+               "Whole Body mRNA"
             ]
          ],
          "Oregon-R_x_2b3": [
@@ -2620,7 +2604,7 @@
             ],
             [
                "Whole Body mRNA",
-               "Whole Body mRNA mRNA"
+               "Whole Body mRNA"
             ]
          ]
       },
@@ -2636,7 +2620,7 @@
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ]
          ],
          "AD-cases-controls-Myers": [
@@ -2650,7 +2634,7 @@
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ]
          ],
          "CANDLE": [
@@ -2664,11 +2648,11 @@
             ],
             [
                "Methylation",
-               "Methylation mRNA"
+               "Methylation"
             ],
             [
                "Newborn Cord Blood mRNA",
-               "Newborn Cord Blood mRNA mRNA"
+               "Newborn Cord Blood mRNA"
             ]
          ],
          "CEPH-2004": [
@@ -2682,7 +2666,7 @@
             ],
             [
                "Lymphoblast B-cell mRNA",
-               "Lymphoblast B-cell mRNA mRNA"
+               "Lymphoblast B-cell mRNA"
             ]
          ],
          "HB": [
@@ -2696,15 +2680,15 @@
             ],
             [
                "Cerebellum mRNA",
-               "Cerebellum mRNA mRNA"
+               "Cerebellum mRNA"
             ],
             [
                "Prefrontal Cortex mRNA",
-               "Prefrontal Cortex mRNA mRNA"
+               "Prefrontal Cortex mRNA"
             ],
             [
                "Primary Visual Cortex mRNA",
-               "Primary Visual Cortex mRNA mRNA"
+               "Primary Visual Cortex mRNA"
             ]
          ],
          "HLC": [
@@ -2718,7 +2702,7 @@
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "HLT": [
@@ -2732,7 +2716,7 @@
             ],
             [
                "Lung mRNA",
-               "Lung mRNA mRNA"
+               "Lung mRNA"
             ]
          ],
          "HSB": [
@@ -2746,67 +2730,67 @@
             ],
             [
                "Amygdala mRNA",
-               "Amygdala mRNA mRNA"
+               "Amygdala mRNA"
             ],
             [
                "Cerebellar Cortex mRNA",
-               "Cerebellar Cortex mRNA mRNA"
+               "Cerebellar Cortex mRNA"
             ],
             [
                "Dorsolateral Prefrontal Cortex mRNA",
-               "Dorsolateral Prefrontal Cortex mRNA mRNA"
+               "Dorsolateral Prefrontal Cortex mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Inferior Temporal Cortex mRNA",
-               "Inferior Temporal Cortex mRNA mRNA"
+               "Inferior Temporal Cortex mRNA"
             ],
             [
                "Medial Prefrontal Cortex mRNA",
-               "Medial Prefrontal Cortex mRNA mRNA"
+               "Medial Prefrontal Cortex mRNA"
             ],
             [
                "Mediodorsal Nucleus of Thalamus mRNA",
-               "Mediodorsal Nucleus of Thalamus mRNA mRNA"
+               "Mediodorsal Nucleus of Thalamus mRNA"
             ],
             [
                "Orbital Prefrontal Cortex mRNA",
-               "Orbital Prefrontal Cortex mRNA mRNA"
+               "Orbital Prefrontal Cortex mRNA"
             ],
             [
                "Posterior Inferior Parietal Cortex mRNA",
-               "Posterior Inferior Parietal Cortex mRNA mRNA"
+               "Posterior Inferior Parietal Cortex mRNA"
             ],
             [
                "Posterior Superior Temporal Cortex mRNA",
-               "Posterior Superior Temporal Cortex mRNA mRNA"
+               "Posterior Superior Temporal Cortex mRNA"
             ],
             [
                "Primary Auditory (A1) Cortex mRNA",
-               "Primary Auditory (A1) Cortex mRNA mRNA"
+               "Primary Auditory (A1) Cortex mRNA"
             ],
             [
                "Primary Motor (M1) Cortex mRNA",
-               "Primary Motor (M1) Cortex mRNA mRNA"
+               "Primary Motor (M1) Cortex mRNA"
             ],
             [
                "Primary Somatosensory (S1) Cortex mRNA",
-               "Primary Somatosensory (S1) Cortex mRNA mRNA"
+               "Primary Somatosensory (S1) Cortex mRNA"
             ],
             [
                "Primary Visual Cortex mRNA",
-               "Primary Visual Cortex mRNA mRNA"
+               "Primary Visual Cortex mRNA"
             ],
             [
                "Striatum mRNA",
-               "Striatum mRNA mRNA"
+               "Striatum mRNA"
             ],
             [
                "Ventrolateral Prefrontal Cortex mRNA",
-               "Ventrolateral Prefrontal Cortex mRNA mRNA"
+               "Ventrolateral Prefrontal Cortex mRNA"
             ]
          ]
       },
@@ -2822,23 +2806,23 @@
             ],
             [
                "Amygdala mRNA",
-               "Amygdala mRNA mRNA"
+               "Amygdala mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Nucleus Accumbens mRNA",
-               "Nucleus Accumbens mRNA mRNA"
+               "Nucleus Accumbens mRNA"
             ],
             [
                "Prefrontal Cortex mRNA",
-               "Prefrontal Cortex mRNA mRNA"
+               "Prefrontal Cortex mRNA"
             ]
          ]
       },
@@ -2854,7 +2838,7 @@
             ],
             [
                "Mammary Tumors mRNA",
-               "Mammary Tumors mRNA mRNA"
+               "Mammary Tumors mRNA"
             ]
          ],
          "AXBXA": [
@@ -2868,19 +2852,19 @@
             ],
             [
                "Bone Femur mRNA",
-               "Bone Femur mRNA mRNA"
+               "Bone Femur mRNA"
             ],
             [
                "Eye mRNA",
-               "Eye mRNA mRNA"
+               "Eye mRNA"
             ],
             [
                "Heart mRNA",
-               "Heart mRNA mRNA"
+               "Heart mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "B6BTBRF2": [
@@ -2894,7 +2878,7 @@
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "B6D2F2": [
@@ -2908,7 +2892,7 @@
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ]
          ],
          "B6D2F2-PSU": [
@@ -2922,7 +2906,7 @@
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ]
          ],
          "B6D2RI": [
@@ -2936,7 +2920,7 @@
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ]
          ],
          "BDF2-1999": [
@@ -2950,7 +2934,7 @@
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "BDF2-2005": [
@@ -2964,7 +2948,7 @@
             ],
             [
                "Striatum mRNA",
-               "Striatum mRNA mRNA"
+               "Striatum mRNA"
             ]
          ],
          "BHF2": [
@@ -2978,19 +2962,19 @@
             ],
             [
                "Adipose mRNA",
-               "Adipose mRNA mRNA"
+               "Adipose mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ]
          ],
          "BHHBF2": [
@@ -3004,19 +2988,19 @@
             ],
             [
                "Adipose mRNA",
-               "Adipose mRNA mRNA"
+               "Adipose mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ]
          ],
          "BXD": [
@@ -3030,119 +3014,119 @@
             ],
             [
                "Adrenal Gland mRNA",
-               "Adrenal Gland mRNA mRNA"
+               "Adrenal Gland mRNA"
             ],
             [
                "Amygdala mRNA",
-               "Amygdala mRNA mRNA"
+               "Amygdala mRNA"
             ],
             [
                "Bone Femur mRNA",
-               "Bone Femur mRNA mRNA"
+               "Bone Femur mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Cartilage mRNA",
-               "Cartilage mRNA mRNA"
+               "Cartilage mRNA"
             ],
             [
                "Cerebellum mRNA",
-               "Cerebellum mRNA mRNA"
+               "Cerebellum mRNA"
             ],
             [
                "Eye mRNA",
-               "Eye mRNA mRNA"
+               "Eye mRNA"
             ],
             [
                "Hematopoietic Cells mRNA",
-               "Hematopoietic Cells mRNA mRNA"
+               "Hematopoietic Cells mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Hypothalamus mRNA",
-               "Hypothalamus mRNA mRNA"
+               "Hypothalamus mRNA"
             ],
             [
                "Kidney mRNA",
-               "Kidney mRNA mRNA"
+               "Kidney mRNA"
             ],
             [
                "Leucocytes mRNA",
-               "Leucocytes mRNA mRNA"
+               "Leucocytes mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Liver Proteome",
-               "Liver Proteome mRNA"
+               "Liver Proteome"
             ],
             [
                "Lung mRNA",
-               "Lung mRNA mRNA"
+               "Lung mRNA"
             ],
             [
                "Midbrain mRNA",
-               "Midbrain mRNA mRNA"
+               "Midbrain mRNA"
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ],
             [
                "Neocortex mRNA",
-               "Neocortex mRNA mRNA"
+               "Neocortex mRNA"
             ],
             [
                "Nucleus Accumbens mRNA",
-               "Nucleus Accumbens mRNA mRNA"
+               "Nucleus Accumbens mRNA"
             ],
             [
                "Pituitary Gland mRNA",
-               "Pituitary Gland mRNA mRNA"
+               "Pituitary Gland mRNA"
             ],
             [
                "Popliteal Lymph Node mRNA",
-               "Popliteal Lymph Node mRNA mRNA"
+               "Popliteal Lymph Node mRNA"
             ],
             [
                "Prefrontal Cortex mRNA",
-               "Prefrontal Cortex mRNA mRNA"
+               "Prefrontal Cortex mRNA"
             ],
             [
                "Retina mRNA",
-               "Retina mRNA mRNA"
+               "Retina mRNA"
             ],
             [
                "Spleen mRNA",
-               "Spleen mRNA mRNA"
+               "Spleen mRNA"
             ],
             [
                "Striatum mRNA",
-               "Striatum mRNA mRNA"
+               "Striatum mRNA"
             ],
             [
                "T Cell (helper) mRNA",
-               "T Cell (helper) mRNA mRNA"
+               "T Cell (helper) mRNA"
             ],
             [
                "T Cell (regulatory) mRNA",
-               "T Cell (regulatory) mRNA mRNA"
+               "T Cell (regulatory) mRNA"
             ],
             [
                "Thymus mRNA",
-               "Thymus mRNA mRNA"
+               "Thymus mRNA"
             ],
             [
                "Ventral Tegmental Area mRNA",
-               "Ventral Tegmental Area mRNA mRNA"
+               "Ventral Tegmental Area mRNA"
             ]
          ],
          "BXH": [
@@ -3156,15 +3140,15 @@
             ],
             [
                "Bone Femur mRNA",
-               "Bone Femur mRNA mRNA"
+               "Bone Femur mRNA"
             ],
             [
                "Cartilage mRNA",
-               "Cartilage mRNA mRNA"
+               "Cartilage mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "C57BL-6JxC57BL-6NJF2": [
@@ -3188,19 +3172,19 @@
             ],
             [
                "Adipose mRNA",
-               "Adipose mRNA mRNA"
+               "Adipose mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ]
          ],
          "CXB": [
@@ -3214,11 +3198,11 @@
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Spleen mRNA",
-               "Spleen mRNA mRNA"
+               "Spleen mRNA"
             ]
          ],
          "HS": [
@@ -3232,15 +3216,15 @@
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Lung mRNA",
-               "Lung mRNA mRNA"
+               "Lung mRNA"
             ]
          ],
          "HS-CC": [
@@ -3254,7 +3238,7 @@
             ],
             [
                "Striatum mRNA",
-               "Striatum mRNA mRNA"
+               "Striatum mRNA"
             ]
          ],
          "LXS": [
@@ -3268,11 +3252,11 @@
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Prefrontal Cortex mRNA",
-               "Prefrontal Cortex mRNA mRNA"
+               "Prefrontal Cortex mRNA"
             ]
          ],
          "MDP": [
@@ -3286,19 +3270,19 @@
             ],
             [
                "Bone Femur mRNA",
-               "Bone Femur mRNA mRNA"
+               "Bone Femur mRNA"
             ],
             [
                "Dorsal Root Ganglia mRNA",
-               "Dorsal Root Ganglia mRNA mRNA"
+               "Dorsal Root Ganglia mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "NZBXFVB-N2": [
@@ -3312,7 +3296,7 @@
             ],
             [
                "Mammary Tumors mRNA",
-               "Mammary Tumors mRNA mRNA"
+               "Mammary Tumors mRNA"
             ]
          ],
          "SOTNOT-OHSU": [
@@ -3336,7 +3320,7 @@
             ],
             [
                "Anterior Cingulate Cortex mRNA",
-               "Anterior Cingulate Cortex mRNA mRNA"
+               "Anterior Cingulate Cortex mRNA"
             ]
          ]
       },
@@ -3362,27 +3346,27 @@
             ],
             [
                "Adrenal Gland mRNA",
-               "Adrenal Gland mRNA mRNA"
+               "Adrenal Gland mRNA"
             ],
             [
                "Heart mRNA",
-               "Heart mRNA mRNA"
+               "Heart mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Kidney mRNA",
-               "Kidney mRNA mRNA"
+               "Kidney mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Peritoneal Fat mRNA",
-               "Peritoneal Fat mRNA mRNA"
+               "Peritoneal Fat mRNA"
             ]
          ],
          "SRxSHRSPF2": [
@@ -3396,7 +3380,7 @@
             ],
             [
                "Eye mRNA",
-               "Eye mRNA mRNA"
+               "Eye mRNA"
             ]
          ]
       },

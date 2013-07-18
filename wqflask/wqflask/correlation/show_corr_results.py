@@ -140,8 +140,6 @@ class CorrelationResults(object):
                 this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
                     this_trait_vals, target_vals)
 
-                print("num_overlap:", num_overlap)
-
                 if self.corr_method == 'pearson':
                     sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
                 else:

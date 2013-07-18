@@ -245,6 +245,11 @@ To iterate through dictionary items: for X, Y in MyDictionary.items():
 
 ===========================================
 
+Change import path from command line
+export PYTHONPATH=~/gene/wqflask (or whatever)
+
+===========================================
+
 Create symbolic link:
 ln -s dir_to_link_to linking_dir
 
