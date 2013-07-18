@@ -798,6 +798,10 @@
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
                ],
                [
+                  "SA_M2_0905_R",
+                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
+               ],
+               [
                   "SA_M2_0905_M",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
                ],
@@ -1048,16 +1052,16 @@
             ],
             "Cerebellum mRNA": [
                [
+                  "CB_M_1004_M",
+                  "SJUT Cerebellum mRNA M430 (Oct04) MAS5"
+               ],
+               [
                   "CB_M_1004_R",
                   "SJUT Cerebellum mRNA M430 (Oct04) RMA"
                ],
                [
                   "CB_M_1004_P",
                   "SJUT Cerebellum mRNA M430 (Oct04) PDNN"
-               ],
-               [
-                  "CB_M_1004_M",
-                  "SJUT Cerebellum mRNA M430 (Oct04) MAS5"
                ],
                [
                   "CB_M_1003_M",
@@ -1548,6 +1552,10 @@
             ],
             "Prefrontal Cortex mRNA": [
                [
+                  "VCUEtOH_1206_R",
+                  "VCU BXD PFC EtOH M430 2.0 (Dec06) RMA"
+               ],
+               [
                   "VCUSal_1206_R",
                   "VCU BXD PFC Sal M430 2.0 (Dec06) RMA"
                ],
@@ -1717,6 +1725,10 @@
                ]
             ],
             "Ventral Tegmental Area mRNA": [
+               [
+                  "VCUEtOH_0609_R",
+                  "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **"
+               ],
                [
                   "VCUEtOH_0609_R",
                   "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **"
@@ -2001,6 +2013,10 @@
                ]
             ],
             "Prefrontal Cortex mRNA": [
+               [
+                  "VCUEtOH_0806_R",
+                  "VCU LXS PFC EtOH M430A 2.0 (Aug06) RMA **"
+               ],
                [
                   "VCUEtOH_0806_R",
                   "VCU LXS PFC EtOH M430A 2.0 (Aug06) RMA **"

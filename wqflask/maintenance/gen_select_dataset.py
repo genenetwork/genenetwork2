@@ -47,15 +47,6 @@ import urlparse
 
 from pprint import pformat as pf
 
-#Engine = sa.create_engine(our_settings.SQLALCHEMY_DATABASE_URI)
-
-# build MySql database connection
-
-#conn = Engine.connect()
-
-
-
-
 
 def parse_db_uri(db_uri):
     """Converts a database URI to the db name, host name, user name, and password"""
@@ -170,9 +161,13 @@ def build_datasets(species, group, type_name):
 
 def main():
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
+<<<<<<< HEAD
 
     parse_db_uri(our_settings.DB_URI)
 
+=======
+    
+>>>>>>> 1a3a456eb7635337a966913f2e2e75c8a89bb92e
     species = get_species()
     groups = get_groups(species)
     types = get_types(groups)
