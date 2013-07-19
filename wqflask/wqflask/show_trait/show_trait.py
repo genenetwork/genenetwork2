@@ -41,7 +41,7 @@ class ShowTrait(object):
         
         helper_functions.get_species_dataset_trait(self, kw)
 
-        self.dataset.group.read_genotype_file()
+        #self.dataset.group.read_genotype_file()
 
         # Todo: Add back in the ones we actually need from below, as we discover we need them
         hddn = OrderedDict()

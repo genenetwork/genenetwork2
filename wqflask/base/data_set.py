@@ -43,6 +43,8 @@ from utility import webqtlUtil
 from utility.benchmark import Bench
 from wqflask.my_pylmm.pyLMM import chunks
 
+from maintenance import get_group_samplelists
+
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
@@ -258,35 +260,25 @@ class DatasetGroup(object):
         if maternal and paternal:
             self.parlist = [maternal, paternal]
 
-    def get_sample_list(self):
-        genofilename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
-        genofile = open(genofilename, "r")
-        for line in genofile:
-            line = line.strip()
-            if line.startswith(("#", "@")):
-                continue
-            headline = line
-            break
-        headers = headline.split("\t")
-        if headers[3] == "Mb":
-            self.samplelist = headers[4:]
+
+    def get_samplelist(self):
+        key = "samplelist:v4:" + self.name
+        print("key is:", key)
+        with Bench("Loading cache"):
+            result = Redis.get(key)
+
+        if result:
+            print("Sample List Cache hit!!!")
+            print("Before unjsonifying {}: {}".format(type(result), result))
+            self.samplelist = json.loads(result)
+            print("  type: ", type(self.samplelist))
+            print("  self.samplelist: ", self.samplelist)
         else:
-            self.samplelist = headers[3:]
-
-        #if genotype_1.type == "group" and self.parlist:
-        #    genotype_2 = genotype_1.add(Mat=self.parlist[0], Pat=self.parlist[1])       #, F1=_f1)
-        #else:
-        #    genotype_2 = genotype_1 
-
-        #determine default genotype object
-        #if self.incparentsf1 and genotype_1.type != "intercross":
-        #    genotype = genotype_2
-        #else:
-        #    self.incparentsf1 = 0
-        #    genotype = genotype_1
-
-        #self.samplelist = list(genotype.prgy)
-    
+            print("Cache not hit")
+            self.samplelist = get_group_samplelists.get_samplelist(self.name + ".geno")
+            print("after get_samplelist")
+            Redis.set(key, json.dumps(self.samplelist))
+            Redis.expire(key, 60*5)
 
     def read_genotype_file(self):
         '''Read genotype from .geno file instead of database'''
@@ -374,7 +366,7 @@ class DataSet(object):
         self.retrieve_other_names()
         
         self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
-        self.group.read_genotype_file()
+        self.group.get_samplelist()
         self.species = species.TheSpecies(self)
 
 
