@@ -115,7 +115,7 @@ def build_types(species, group):
     (all types except phenotype/genotype are tissues)
      
     """
-    Cursor.execute("""select distinct Tissue.Name, Tissue.Name
+    Cursor.execute("""select distinct Tissue.Name, concat(Tissue.Name, ' mRNA')
                        from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
                        where Species.Name = %s and Species.Id = InbredSet.SpeciesId and
                        InbredSet.Name = %s and
@@ -191,6 +191,8 @@ def main():
                 types=types,
                 datasets=datasets,
                 )
+
+    print("data:", data)
 
     output_file = """../wqflask/static/new/javascript/dataset_menu_structure.json"""
 

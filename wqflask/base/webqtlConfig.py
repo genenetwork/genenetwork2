@@ -35,7 +35,7 @@ NCBI_LOCUSID = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrie
 UCSC_REFSEQ = "http://genome.cse.ucsc.edu/cgi-bin/hgGene?db=%s&hgg_gene=%s&hgg_chrom=chr%s&hgg_start=%s&hgg_end=%s"
 GENBANK_ID = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=Nucleotide&cmd=search&doptcmdl=DocSum&term=%s"
 OMIM_ID = "http://www.ncbi.nlm.nih.gov/omim/%s"
-UNIGEN_ID = "http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=%s&CID=%s"
+UNIGEN_ID = "http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=%s&CID=%s";
 HOMOLOGENE_ID = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&Cmd=DetailsSearch&Term=%s"
 PUBMEDLINK_URL = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=%s&dopt=Abstract"
 UCSC_POS = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=%s&db=%s&position=chr%s:%s-%s&pix=800&Submit=submit"
@@ -53,12 +53,12 @@ GNROOT = "/home/zas1024/gene/" # Will remove this and dependent items later
 SECUREDIR = GNROOT + 'secure/'
 COMMON_LIB = GNROOT + 'support/admin'
 HTMLPATH = GNROOT + 'web/'
-PYLMM_PATH = '/home/zas1024/plink/'
-SNP_PATH = '/home/zas1024/snps/' 
+PYLMM_PATH = '/home/zas1024/'
+SNP_PATH = '/mnt/xvdf1/snps/' 
 IMGDIR = HTMLPATH +'image/'
 IMAGESPATH = HTMLPATH + 'images/'
 UPLOADPATH = IMAGESPATH + 'upload/'
-TMPDIR = HTMLPATH + 'tmp/'
+TMPDIR = '/tmp/'
 GENODIR = HTMLPATH + 'genotypes/'
 NEWGENODIR = HTMLPATH + 'new_genotypes/'
 GENO_ARCHIVE_DIR = GENODIR + 'archive/'

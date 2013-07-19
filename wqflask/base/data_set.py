@@ -16,8 +16,6 @@
 # Contact Drs. Robert W. Williams and Xiaodong Zhou (2010)
 # at rwilliams@uthsc.edu and xzhou15@uthsc.edu
 #
-#we
-#
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 from __future__ import absolute_import, print_function, division
@@ -27,6 +25,7 @@ import string
 import collections
 
 import json
+import gzip
 import cPickle as pickle
 import itertools
 
@@ -52,8 +51,6 @@ from pprint import pformat as pf
 DS_NAME_MAP = {}
 
 def create_dataset(dataset_name, dataset_type = None):
-    
-    print("dataset_type:", dataset_type)
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
         #dataset_type = get_dataset_type_from_json(dataset_name)
@@ -129,7 +126,7 @@ def create_datasets_list():
                 for result in g.db.execute(query).fetchall():
                     #The query at the beginning of this function isn't necessary here, but still would
                     #rather just reuse it
-                    print("type: {}\tname: {}".format(dataset_type, result.Name))
+                    #print("type: {}\tname: {}".format(dataset_type, result.Name))
                     dataset = create_dataset(result.Name, dataset_type)
                     datasets.append(dataset)
             
@@ -261,6 +258,36 @@ class DatasetGroup(object):
         if maternal and paternal:
             self.parlist = [maternal, paternal]
 
+    def get_sample_list(self):
+        genofilename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
+        genofile = open(genofilename, "r")
+        for line in genofile:
+            line = line.strip()
+            if line.startswith(("#", "@")):
+                continue
+            headline = line
+            break
+        headers = headline.split("\t")
+        if headers[3] == "Mb":
+            self.samplelist = headers[4:]
+        else:
+            self.samplelist = headers[3:]
+
+        #if genotype_1.type == "group" and self.parlist:
+        #    genotype_2 = genotype_1.add(Mat=self.parlist[0], Pat=self.parlist[1])       #, F1=_f1)
+        #else:
+        #    genotype_2 = genotype_1 
+
+        #determine default genotype object
+        #if self.incparentsf1 and genotype_1.type != "intercross":
+        #    genotype = genotype_2
+        #else:
+        #    self.incparentsf1 = 0
+        #    genotype = genotype_1
+
+        #self.samplelist = list(genotype.prgy)
+    
+
     def read_genotype_file(self):
         '''Read genotype from .geno file instead of database'''
         #if self.group == 'BXD300':
@@ -275,7 +302,18 @@ class DatasetGroup(object):
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         full_filename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
-        genotype_1.read(full_filename)
+        if os.path.isfile(full_filename):
+            print("Reading file: ", full_filename)
+            genotype_1.read(full_filename)
+            print("File read")
+        else:
+            try:
+                full_filename = str(os.path.join(webqtlConfig.TMPDIR, self.name + '.geno'))
+                #print("Reading file")
+                genotype_1.read(full_filename)
+                #print("File read")
+            except IOError:
+                print("File doesn't exist!")
 
         if genotype_1.type == "group" and self.parlist:
             genotype_2 = genotype_1.add(Mat=self.parlist[0], Pat=self.parlist[1])       #, F1=_f1)
