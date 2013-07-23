@@ -237,6 +237,9 @@ def run(pheno_vector,
     with Bench("Calculate Kinship"):
         kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
     
+    print("kinship_matrix: ", pf(kinship_matrix))
+    print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
+    
     with Bench("Create LMM object"):
         lmm_ob = LMM(pheno_vector, kinship_matrix)
     

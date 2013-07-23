@@ -172,6 +172,14 @@ Setup accounts in MySQL (first need to delete anonymous/non-root accounts):
 #; GRANT ALL ON *.* TO 'yourusername'@'%' IDENTIFIED BY 'yourpassword';
 #; select * from user;
 
+Use Percona to optimise my.cfg file:
+https://tools.percona.com/wizard
+
+To check # CPUs:
+grep -c processor /proc/cpuinfo
+
+To check memory, can use htop
+
 ============================================
 
 Check RSA key:

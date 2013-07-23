@@ -71,9 +71,10 @@ class PublishXRef(Base):
             values['the_key'] = json.dumps([pub_row.Id, pub_row.InbredSetId])
             values['terms'] = cls.get_unique_terms(pub_row.Id, pub_row.InbredSetId)
             print("terms is:", values['terms'])
-            values['result_fields'] = cls.get_result_fields(pub_row.Id, pub_row.InbredSetId)
-            ins = QuickSearch.insert().values(**values)
-            conn.execute(ins)
+            if values['terms']:
+                values['result_fields'] = cls.get_result_fields(pub_row.Id, pub_row.InbredSetId)
+                ins = QuickSearch.insert().values(**values)
+                conn.execute(ins)
             counter += 1
             print("Done:", counter)
 
@@ -100,28 +101,30 @@ class PublishXRef(Base):
                                                             inbredset_id=inbredset_id).all()
 
         unique = set()
-        for item in results[0]:
-            #print("locals:", locals())
-            if not item:
-                continue
-            for token in item.split():
-                if token.startswith(('(','[')):
-                    token = token[1:]
-                if token.endswith((')', ']')):
-                    token = token[:-1]
-                if token.endswith(';'):
-                    token = token[:-1]
-                if len(token) > 2:
-                    try:
-                        # This hopefully ensures that the token is utf-8
-                        token = token.encode('utf-8')
-                        print(" ->", token)
-                    except UnicodeDecodeError:
-                        print("\n-- UDE \n")
-                        # Can't get it into utf-8, we won't use it
-                        continue 
-
-                    unique.add(token)
+        print("results: ", results)
+        if len(results):
+            for item in results[0]:
+                #print("locals:", locals())
+                if not item:
+                    continue
+                for token in item.split():
+                    if token.startswith(('(','[')):
+                        token = token[1:]
+                    if token.endswith((')', ']')):
+                        token = token[:-1]
+                    if token.endswith(';'):
+                        token = token[:-1]
+                    if len(token) > 2:
+                        try:
+                            # This hopefully ensures that the token is utf-8
+                            token = token.encode('utf-8')
+                            print(" ->", token)
+                        except UnicodeDecodeError:
+                            print("\n-- UDE \n")
+                            # Can't get it into utf-8, we won't use it
+                            continue 
+    
+                        unique.add(token)
         #print("\nUnique terms are: {}\n".format(unique))
         return " ".join(unique)            
 
@@ -467,8 +470,8 @@ QuickSearch = sa.Table("QuickSearch", Metadata,
         mysql_engine = 'MyISAM',
                     )
 
-#QuickSearch.drop(Engine, checkfirst=True)
-#Metadata.create_all(Engine)
+QuickSearch.drop(Engine, checkfirst=True)
+Metadata.create_all(Engine)
 
 
 def row2dict(row):
@@ -495,9 +498,10 @@ def main():
     Add all items from the ProbeSetXRef, GenoXRef, and PublishXRef tables to the QuickSearch tables.
     
     """
+
+    GenoXRef.run()
+    PublishXRef.run()
     ProbeSetXRef.run()
-    #GenoXRef.run()
-    #PublishXRef.run()
 
 if __name__ == "__main__":
     main()

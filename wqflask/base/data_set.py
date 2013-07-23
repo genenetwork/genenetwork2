@@ -435,6 +435,74 @@ class DataSet(object):
         except TypeError:
             print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass
+        
+    def get_trait_data(self):
+        self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
+        query = """
+            SELECT Strain.Name, Strain.Id FROM Strain, Species
+            WHERE Strain.Name IN {}
+            and Strain.SpeciesId=Species.Id
+            and Species.name = '{}'
+            """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
+        results = dict(g.db.execute(query).fetchall())
+        sample_ids = [results[item] for item in self.samplelist]
+
+        # MySQL limits the number of tables that can be used in a join to 61,
+        # so we break the sample ids into smaller chunks
+        # Postgres doesn't have that limit, so we can get rid of this after we transition
+        chunk_size = 50
+        number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
+        trait_sample_data = []
+        for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
+
+        #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
+        #tempTable = None
+        #if GeneId and db.type == "ProbeSet": 
+        #    if method == "3":
+        #        tempTable = self.getTempLiteratureTable(species=species,
+        #                                                input_species_geneid=GeneId,
+        #                                                returnNumber=returnNumber)
+        #
+        #    if method == "4" or method == "5":
+        #        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=GeneSymbol,
+        #                                        TissueProbeSetFreezeId=tissueProbeSetFreezeId,
+        #                                        method=method,
+        #                                        returnNumber=returnNumber)
+        
+            temp = ['T%s.value' % item for item in sample_ids_step]
+            query = "SELECT {}.Name,".format(escape(self.type))
+            data_start_pos = 1
+            query += string.join(temp, ', ')
+            query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(self.type,
+                                                                     self.type,
+                                                                     self.type))
+
+            for item in sample_ids_step:
+                query += """
+                        left join {}Data as T{} on T{}.Id = {}XRef.DataId
+                        and T{}.StrainId={}\n
+                        """.format(*mescape(self.type, item, item, self.type, item, item))
+                        
+            query += """
+                    WHERE {}XRef.{}FreezeId = {}Freeze.Id
+                    and {}Freeze.Name = '{}'
+                    and {}.Id = {}XRef.{}Id
+                    order by {}.Id
+                    """.format(*mescape(self.type, self.type, self.type, self.type,
+                               self.name, self.type, self.type, self.type, self.type))
+            results = g.db.execute(query).fetchall()
+            trait_sample_data.append(results)
+
+        trait_count = len(trait_sample_data[0])
+        self.trait_data = collections.defaultdict(list)
+        
+        # put all of the separate data together into a dictionary where the keys are
+        # trait names and values are lists of sample values
+        for trait_counter in range(trait_count):
+            trait_name = trait_sample_data[0][trait_counter][0]
+            for chunk_counter in range(int(number_chunks)):
+                self.trait_data[trait_name] += (
+                    trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
 
 class PhenotypeDataSet(DataSet):
     DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
@@ -768,73 +836,73 @@ class MrnaAssayDataSet(DataSet):
         #print("After retrieve_sample_data")
         return trait_data
     
-    def get_trait_data(self):
-        self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
-        query = """
-            SELECT Strain.Name, Strain.Id FROM Strain, Species
-            WHERE Strain.Name IN {}
-            and Strain.SpeciesId=Species.Id
-            and Species.name = '{}'
-            """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
-        results = dict(g.db.execute(query).fetchall())
-        sample_ids = [results[item] for item in self.samplelist]
-
-        # MySQL limits the number of tables that can be used in a join to 61,
-        # so we break the sample ids into smaller chunks
-        # Postgres doesn't have that limit, so we can get rid of this after we transition
-        chunk_size = 50
-        number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
-        trait_sample_data = []
-        for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
-
-        #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
-        #tempTable = None
-        #if GeneId and db.type == "ProbeSet": 
-        #    if method == "3":
-        #        tempTable = self.getTempLiteratureTable(species=species,
-        #                                                input_species_geneid=GeneId,
-        #                                                returnNumber=returnNumber)
-        #
-        #    if method == "4" or method == "5":
-        #        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=GeneSymbol,
-        #                                        TissueProbeSetFreezeId=tissueProbeSetFreezeId,
-        #                                        method=method,
-        #                                        returnNumber=returnNumber)
-        
-            temp = ['T%s.value' % item for item in sample_ids_step]
-            query = "SELECT {}.Name,".format(escape(self.type))
-            data_start_pos = 1
-            query += string.join(temp, ', ')
-            query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(self.type,
-                                                                     self.type,
-                                                                     self.type))
-
-            for item in sample_ids_step:
-                query += """
-                        left join {}Data as T{} on T{}.Id = {}XRef.DataId
-                        and T{}.StrainId={}\n
-                        """.format(*mescape(self.type, item, item, self.type, item, item))
-                        
-            query += """
-                    WHERE {}XRef.{}FreezeId = {}Freeze.Id
-                    and {}Freeze.Name = '{}'
-                    and {}.Id = {}XRef.{}Id
-                    order by {}.Id
-                    """.format(*mescape(self.type, self.type, self.type, self.type,
-                               self.name, self.type, self.type, self.type, self.type))
-            results = g.db.execute(query).fetchall()
-            trait_sample_data.append(results)
-
-        trait_count = len(trait_sample_data[0])
-        self.trait_data = collections.defaultdict(list)
-        
-        # put all of the separate data together into a dictionary where the keys are
-        # trait names and values are lists of sample values
-        for trait_counter in range(trait_count):
-            trait_name = trait_sample_data[0][trait_counter][0]
-            for chunk_counter in range(int(number_chunks)):
-                self.trait_data[trait_name] += (
-                    trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
+    #def get_trait_data(self):
+    #    self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
+    #    query = """
+    #        SELECT Strain.Name, Strain.Id FROM Strain, Species
+    #        WHERE Strain.Name IN {}
+    #        and Strain.SpeciesId=Species.Id
+    #        and Species.name = '{}'
+    #        """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
+    #    results = dict(g.db.execute(query).fetchall())
+    #    sample_ids = [results[item] for item in self.samplelist]
+    #
+    #    # MySQL limits the number of tables that can be used in a join to 61,
+    #    # so we break the sample ids into smaller chunks
+    #    # Postgres doesn't have that limit, so we can get rid of this after we transition
+    #    chunk_size = 50
+    #    number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
+    #    trait_sample_data = []
+    #    for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
+    #
+    #    #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
+    #    #tempTable = None
+    #    #if GeneId and db.type == "ProbeSet": 
+    #    #    if method == "3":
+    #    #        tempTable = self.getTempLiteratureTable(species=species,
+    #    #                                                input_species_geneid=GeneId,
+    #    #                                                returnNumber=returnNumber)
+    #    #
+    #    #    if method == "4" or method == "5":
+    #    #        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=GeneSymbol,
+    #    #                                        TissueProbeSetFreezeId=tissueProbeSetFreezeId,
+    #    #                                        method=method,
+    #    #                                        returnNumber=returnNumber)
+    #    
+    #        temp = ['T%s.value' % item for item in sample_ids_step]
+    #        query = "SELECT {}.Name,".format(escape(self.type))
+    #        data_start_pos = 1
+    #        query += string.join(temp, ', ')
+    #        query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(self.type,
+    #                                                                 self.type,
+    #                                                                 self.type))
+    #
+    #        for item in sample_ids_step:
+    #            query += """
+    #                    left join {}Data as T{} on T{}.Id = {}XRef.DataId
+    #                    and T{}.StrainId={}\n
+    #                    """.format(*mescape(self.type, item, item, self.type, item, item))
+    #                    
+    #        query += """
+    #                WHERE {}XRef.{}FreezeId = {}Freeze.Id
+    #                and {}Freeze.Name = '{}'
+    #                and {}.Id = {}XRef.{}Id
+    #                order by {}.Id
+    #                """.format(*mescape(self.type, self.type, self.type, self.type,
+    #                           self.name, self.type, self.type, self.type, self.type))
+    #        results = g.db.execute(query).fetchall()
+    #        trait_sample_data.append(results)
+    #
+    #    trait_count = len(trait_sample_data[0])
+    #    self.trait_data = collections.defaultdict(list)
+    #    
+    #    # put all of the separate data together into a dictionary where the keys are
+    #    # trait names and values are lists of sample values
+    #    for trait_counter in range(trait_count):
+    #        trait_name = trait_sample_data[0][trait_counter][0]
+    #        for chunk_counter in range(int(number_chunks)):
+    #            self.trait_data[trait_name] += (
+    #                trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
     
 
     def get_trait_info(self, trait_list=None, species=''):

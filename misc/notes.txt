@@ -269,6 +269,21 @@ grep -ir (search string) (directory)
 
 ===========================================
 
+Change owner/group:
+
+chown zas1024 somefile (change owner of somefile to zas1024)
+chown zas1024: somefile (change owner and group of somefile to zas1024)
+sudo chown root: somefile (change owner/group of somefile to root)
+
+Change permissions:
+
+chmod g-wr (remove write/read privileges for group)
+chmod g+w (add write privileges for group)
+chmod u+rwx (add read, write, and execute privileges for user)
+etc.
+
+===========================================
+
 MySQL Things -
 
 Create fulltext (MATCH AGAINST syntax) index:
