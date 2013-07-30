@@ -462,6 +462,7 @@ class LMM:
        x = True - np.isnan(Y)
        #pdb.set_trace()
        if not x.sum() == len(Y):
+          print("Removing %d missing values from Y\n" % ((True - x).sum()))
           if self.verbose: sys.stderr.write("Removing %d missing values from Y\n" % ((True - x).sum()))
           Y = Y[x]
           K = K[x,:][:,x]

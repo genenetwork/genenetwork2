@@ -321,3 +321,8 @@ Run server:
 python runserver.py
 
 ===========================================
+
+To do full upgrade (as opposed to apt-get upgrade)
+sudo aptitude full-upgrade
+
+===========================================

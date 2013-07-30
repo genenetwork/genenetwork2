@@ -400,7 +400,6 @@ class DataSet(object):
     #    return self._group
 
 
-
     def retrieve_other_names(self):
         """
         If the data set name parameter is not found in the 'Name' field of the data set table,
