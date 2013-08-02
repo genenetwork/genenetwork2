@@ -8,6 +8,8 @@ from base import webqtlConfig
 
 
 def process_genofiles(geno_dir=webqtlConfig.GENODIR):
+    print("Yabba")
+    #sys.exit("Dabba")
     os.chdir(geno_dir)
     for geno_file in glob.glob("*"):
         if geno_file.lower().endswith(('.geno', '.geno.gz')):

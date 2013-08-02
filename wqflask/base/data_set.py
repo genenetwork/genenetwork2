@@ -260,7 +260,6 @@ class DatasetGroup(object):
         if maternal and paternal:
             self.parlist = [maternal, paternal]
 
-
     def get_samplelist(self):
         key = "samplelist:v4:" + self.name
         print("key is:", key)
@@ -275,7 +274,10 @@ class DatasetGroup(object):
             print("  self.samplelist: ", self.samplelist)
         else:
             print("Cache not hit")
-            self.samplelist = get_group_samplelists.get_samplelist(self.name + ".geno")
+            try:
+                self.samplelist = get_group_samplelists.get_samplelist(self.name + ".geno")
+            except IOError:
+                self.samplelist = None
             print("after get_samplelist")
             Redis.set(key, json.dumps(self.samplelist))
             Redis.expire(key, 60*5)
