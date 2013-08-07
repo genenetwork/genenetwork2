@@ -288,3 +288,7 @@ MySQL Things -
 
 Create fulltext (MATCH AGAINST syntax) index:
 CREATE FULLTEXT INDEX __________ ON Table (Column);
+
+If <4 character searches not working:
+Add ft_min_word_len = 2 (to make te minimum characters 2) to config file
+Rebuild relevant tables with fulltext indexes with "REPAIR TABLE _______ QUICK"

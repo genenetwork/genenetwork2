@@ -436,7 +436,7 @@ class DataSet(object):
         except TypeError:
             print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass
-        
+
     def get_trait_data(self):
         self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
         query = """
@@ -470,11 +470,18 @@ class DataSet(object):
         #                                        method=method,
         #                                        returnNumber=returnNumber)
         
+            if self.type == "Publish":
+                dataset_type = "Phenotype"
+            else:
+                dataset_type = self.type
             temp = ['T%s.value' % item for item in sample_ids_step]
-            query = "SELECT {}.Name,".format(escape(self.type))
+            if self.type == "Publish":
+                query = "SELECT {}XRef.Id,".format(escape(self.type))
+            else:
+                query = "SELECT {}.Name,".format(escape(dataset_type))
             data_start_pos = 1
             query += string.join(temp, ', ')
-            query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(self.type,
+            query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
                                                                      self.type,
                                                                      self.type))
 
@@ -484,13 +491,22 @@ class DataSet(object):
                         and T{}.StrainId={}\n
                         """.format(*mescape(self.type, item, item, self.type, item, item))
                         
-            query += """
-                    WHERE {}XRef.{}FreezeId = {}Freeze.Id
-                    and {}Freeze.Name = '{}'
-                    and {}.Id = {}XRef.{}Id
-                    order by {}.Id
-                    """.format(*mescape(self.type, self.type, self.type, self.type,
-                               self.name, self.type, self.type, self.type, self.type))
+            if self.type == "Publish":
+                query += """
+                        WHERE {}XRef.InbredSetId = {}Freeze.InbredSetId
+                        and {}Freeze.Name = '{}'
+                        and {}.Id = {}XRef.PhenotypeId
+                        order by {}.Id
+                        """.format(*mescape(self.type, self.type, self.type, self.name,
+                                   dataset_type, self.type, dataset_type ))
+            else:
+                query += """
+                        WHERE {}XRef.{}FreezeId = {}Freeze.Id
+                        and {}Freeze.Name = '{}'
+                        and {}.Id = {}XRef.{}Id
+                        order by {}.Id
+                        """.format(*mescape(self.type, self.type, self.type, self.type,
+                                   self.name, dataset_type, self.type, self.type, dataset_type))
             results = g.db.execute(query).fetchall()
             trait_sample_data.append(results)
 

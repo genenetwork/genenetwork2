@@ -64,12 +64,12 @@
             ],
             "Leaf mRNA": [
                [
-                  "B1LI0809R",
-                  "Barley1 Leaf INOC TTKS (Aug09) RMA"
-               ],
-               [
                   "B1LI0809M5",
                   "Barley1 Leaf INOC TTKS (Aug09) MAS5"
+               ],
+               [
+                  "B1LI0809R",
+                  "Barley1 Leaf INOC TTKS (Aug09) RMA"
                ],
                [
                   "B1MI0809M5",
@@ -114,12 +114,12 @@
                   "Barley1 Leaf MAS 5.0 SCRI (Dec06)"
                ],
                [
-                  "B30_K_1206_Rn",
-                  "Barley1 Leaf gcRMAn SCRI (Dec06)"
-               ],
-               [
                   "B30_K_1206_R",
                   "Barley1 Leaf gcRMA SCRI (Dec06)"
+               ],
+               [
+                  "B30_K_1206_Rn",
+                  "Barley1 Leaf gcRMAn SCRI (Dec06)"
                ]
             ],
             "Phenotypes": [
@@ -212,12 +212,12 @@
          "AD-cases-controls-Myers": {
             "Brain mRNA": [
                [
-                  "GSE15222_F_A_RI_0409",
-                  "GSE15222 Human Brain Alzheimer Myers (Apr09) RankInv"
-               ],
-               [
                   "GSE15222_F_N_RI_0409",
                   "GSE15222 Human Brain Normal Myers (Apr09) RankInv"
+               ],
+               [
+                  "GSE15222_F_A_RI_0409",
+                  "GSE15222 Human Brain Alzheimer Myers (Apr09) RankInv"
                ],
                [
                   "GSE15222_F_RI_0409",
@@ -590,12 +590,12 @@
                   "NCI Mammary LMT miRNA v2 (Apr09) RMA"
                ],
                [
-                  "MA_M_0704_R",
-                  "NCI Mammary mRNA M430 (July04) RMA"
-               ],
-               [
                   "MA_M_0704_M",
                   "NCI Mammary mRNA M430 (July04) MAS5"
+               ],
+               [
+                  "MA_M_0704_R",
+                  "NCI Mammary mRNA M430 (July04) RMA"
                ]
             ],
             "Phenotypes": [
@@ -652,12 +652,12 @@
             ],
             "Liver mRNA": [
                [
-                  "LVF2_M_0704_R",
-                  "(B6 x BTBR)F2-ob/ob Liver mRNA M430 (Jul04) RMA"
-               ],
-               [
                   "LVF2_M_0704_M",
                   "(B6 x BTBR)F2-ob/ob Liver mRNA M430 (Jul04) MAS5"
+               ],
+               [
+                  "LVF2_M_0704_R",
+                  "(B6 x BTBR)F2-ob/ob Liver mRNA M430 (Jul04) RMA"
                ]
             ],
             "Phenotypes": [
@@ -670,6 +670,10 @@
          "B6D2F2": {
             "Brain mRNA": [
                [
+                  "BRF2_M_0805_P",
+                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
+               ],
+               [
                   "BRF2_M_0805_R",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
                ],
@@ -678,20 +682,16 @@
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) MAS5"
                ],
                [
-                  "BRF2_M_0805_P",
-                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
-               ],
-               [
                   "BRF2_M_0304_P",
                   "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) PDNN"
                ],
                [
-                  "BRF2_M_0304_R",
-                  "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) RMA"
-               ],
-               [
                   "BRF2_M_0304_M",
                   "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) MAS5"
+               ],
+               [
+                  "BRF2_M_0304_R",
+                  "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) RMA"
                ]
             ],
             "Genotypes": [
@@ -794,28 +794,28 @@
             ],
             "Striatum mRNA": [
                [
-                  "SA_M2_0905_R",
-                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
-               ],
-               [
                   "SA_M2_0905_M",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
                ],
                [
                   "SA_M2_0905_P",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
+               ],
+               [
+                  "SA_M2_0905_R",
+                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
                ]
             ]
          },
          "BHF2": {
             "Adipose mRNA": [
                [
-                  "UCLA_BHF2_ADIPOSE_MALE",
-                  "UCLA BHF2 Adipose Male mlratio"
-               ],
-               [
                   "UCLA_BHF2_ADIPOSE_FEMALE",
                   "UCLA BHF2 Adipose Female mlratio"
+               ],
+               [
+                  "UCLA_BHF2_ADIPOSE_MALE",
+                  "UCLA BHF2 Adipose Male mlratio"
                ],
                [
                   "UCLA_BHF2_ADIPOSE_0605",
@@ -824,12 +824,12 @@
             ],
             "Brain mRNA": [
                [
-                  "UCLA_BHF2_BRAIN_MALE",
-                  "UCLA BHF2 Brain Male mlratio"
-               ],
-               [
                   "UCLA_BHF2_BRAIN_FEMALE",
                   "UCLA BHF2 Brain Female mlratio"
+               ],
+               [
+                  "UCLA_BHF2_BRAIN_MALE",
+                  "UCLA BHF2 Brain Male mlratio"
                ],
                [
                   "UCLA_BHF2_BRAIN_0605",
@@ -844,12 +844,12 @@
             ],
             "Liver mRNA": [
                [
-                  "UCLA_BHF2_LIVER_MALE",
-                  "UCLA BHF2 Liver Male mlratio"
-               ],
-               [
                   "UCLA_BHF2_LIVER_FEMALE",
                   "UCLA BHF2 Liver Female mlratio"
+               ],
+               [
+                  "UCLA_BHF2_LIVER_MALE",
+                  "UCLA BHF2 Liver Male mlratio"
                ],
                [
                   "UCLA_BHF2_LIVER_0605",
@@ -858,12 +858,12 @@
             ],
             "Muscle mRNA": [
                [
-                  "UCLA_BHF2_MUSCLE_MALE",
-                  "UCLA BHF2 Muscle Male mlratio **"
-               ],
-               [
                   "UCLA_BHF2_MUSCLE_FEMALE",
                   "UCLA BHF2 Muscle Female mlratio **"
+               ],
+               [
+                  "UCLA_BHF2_MUSCLE_MALE",
+                  "UCLA BHF2 Muscle Male mlratio **"
                ],
                [
                   "UCLA_BHF2_MUSCLE_0605",
@@ -1000,12 +1000,12 @@
             ],
             "Brain mRNA": [
                [
-                  "UTHSC_BXD_WB_RNASeq1112",
-                  "UTHSC Mouse BXD Whole Brain RNA Sequence (Nov12) RPKM"
-               ],
-               [
                   "UTHSC_BXD_WB_RNASeqEx1112",
                   "UTHSC Mouse BXD Whole Brain RNA Sequence Exon Level (Nov12) RPKM"
+               ],
+               [
+                  "UTHSC_BXD_WB_RNASeq1112",
+                  "UTHSC Mouse BXD Whole Brain RNA Sequence (Nov12) RPKM"
                ],
                [
                   "BR_M2_1106_R",
@@ -1016,16 +1016,16 @@
                   "UTHSC Brain mRNA U74Av2 (Nov05) PDNN"
                ],
                [
+                  "BR_U_0805_P",
+                  "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
+               ],
+               [
                   "BR_U_0805_M",
                   "UTHSC Brain mRNA U74Av2 (Aug05) MAS5"
                ],
                [
                   "BR_U_0805_R",
                   "UTHSC Brain mRNA U74Av2 (Aug05) RMA"
-               ],
-               [
-                  "BR_U_0805_P",
-                  "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
                ],
                [
                   "CB_M_0204_P",
@@ -1138,6 +1138,10 @@
                   "Eye M430v2 WT Gpnmb (Sep08) RMA **"
                ],
                [
+                  "Eye_M2_0908_WTWT",
+                  "Eye M430v2 WT WT (Sep08) RMA **"
+               ],
+               [
                   "Eye_M2_0908_R_WT",
                   "Eye M430v2 WT Tyrp1 (Sep08) RMA **"
                ],
@@ -1148,10 +1152,6 @@
                [
                   "Eye_M2_0908_R_MT",
                   "Eye M430v2 Mutant Tyrp1 (Sep08) RMA **"
-               ],
-               [
-                  "Eye_M2_0908_WTWT",
-                  "Eye M430v2 WT WT (Sep08) RMA **"
                ],
                [
                   "BXD_GLA_0911",
@@ -1292,12 +1292,12 @@
             ],
             "Kidney mRNA": [
                [
-                  "MA_M2F_0706_R",
-                  "Mouse kidney M430v2 Female (Aug06) RMA"
-               ],
-               [
                   "MA_M2M_0706_R",
                   "Mouse kidney M430v2 Male (Aug06) RMA"
+               ],
+               [
+                  "MA_M2F_0706_R",
+                  "Mouse kidney M430v2 Female (Aug06) RMA"
                ],
                [
                   "MA_M2_0806_R",
@@ -1308,12 +1308,12 @@
                   "Mouse Kidney M430v2 Sex Balanced (Aug06) PDNN"
                ],
                [
-                  "MA_M2_0706_P",
-                  "Mouse Kidney M430v2 (Jul06) PDNN"
-               ],
-               [
                   "MA_M2_0706_R",
                   "Mouse Kidney M430v2 (Jul06) RMA"
+               ],
+               [
+                  "MA_M2_0706_P",
+                  "Mouse Kidney M430v2 (Jul06) PDNN"
                ]
             ],
             "Leucocytes mRNA": [
@@ -1462,12 +1462,12 @@
             ],
             "Neocortex mRNA": [
                [
-                  "DevNeocortex_ILM6.2P14RInv_1111",
-                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv"
-               ],
-               [
                   "DevNeocortex_ILM6.2P3RInv_1111",
                   "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv"
+               ],
+               [
+                  "DevNeocortex_ILM6.2P14RInv_1111",
+                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv"
                ],
                [
                   "HQFNeoc_1210v2_RankInv",
@@ -1482,12 +1482,12 @@
                   "HQF BXD Neocortex ILM6v1.1 (Feb08) RankInv"
                ],
                [
-                  "DevNeocortex_ILM6.2P3RInv_1110",
-                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
-               ],
-               [
                   "DevNeocortex_ILM6.2P14RInv_1110",
                   "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv"
+               ],
+               [
+                  "DevNeocortex_ILM6.2P3RInv_1110",
+                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
                ]
             ],
             "Nucleus Accumbens mRNA": [
@@ -1598,12 +1598,12 @@
                   "B6D2 ONC Retina (April 2012) RankInv **"
                ],
                [
-                  "HEIONCvsCRetILM6_0911",
-                  "HEI ONC vs Control Retina Illumina V6.2 (Sep11) RankInv **"
-               ],
-               [
                   "G2HEIONCRetILM6_0911",
                   "G2 HEI ONC Retina Illumina V6.2 (Sep11) RankInv **"
+               ],
+               [
+                  "HEIONCvsCRetILM6_0911",
+                  "HEI ONC vs Control Retina Illumina V6.2 (Sep11) RankInv **"
                ]
             ],
             "Spleen mRNA": [
@@ -1690,12 +1690,12 @@
                   "BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov11) RankInv **"
                ],
                [
-                  "DevStriatum_ILM6.2P14RInv_1110",
-                  "BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov10) RankInv **"
-               ],
-               [
                   "DevStriatum_ILM6.2P3RInv_1110",
                   "BIDMC/UTHSC Dev Striatum P3 ILMv6.2 (Nov10) RankInv **"
+               ],
+               [
+                  "DevStriatum_ILM6.2P14RInv_1110",
+                  "BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov10) RankInv **"
                ]
             ],
             "T Cell (helper) mRNA": [
@@ -1718,16 +1718,16 @@
             ],
             "Ventral Tegmental Area mRNA": [
                [
-                  "VCUEtOH_0609_R",
-                  "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **"
-               ],
-               [
                   "VCUSal_0609_R",
                   "VCU BXD VTA Sal M430 2.0 (Jun09) RMA **"
                ],
                [
                   "VCUEtvsSal_0609_R",
                   "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) Sscore **"
+               ],
+               [
+                  "VCUEtOH_0609_R",
+                  "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA **"
                ]
             ]
          },
@@ -1864,12 +1864,12 @@
             ],
             "Hippocampus mRNA": [
                [
-                  "HC_M2CB_1205_R",
-                  "Hippocampus Consortium M430v2 CXB (Dec05) RMA"
-               ],
-               [
                   "HC_M2CB_1205_P",
                   "Hippocampus Consortium M430v2 CXB (Dec05) PDNN"
+               ],
+               [
+                  "HC_M2CB_1205_R",
+                  "Hippocampus Consortium M430v2 CXB (Dec05) RMA"
                ]
             ],
             "Phenotypes": [
@@ -1974,6 +1974,14 @@
                   "Hippocampus Illumina (May07) RankInv"
                ],
                [
+                  "Illum_LXS_Hipp_NOE_1008",
+                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
+               ],
+               [
+                  "Illum_LXS_Hipp_RSS_1008",
+                  "Hippocampus Illumina RSS (Oct08) RankInv beta"
+               ],
+               [
                   "Illum_LXS_Hipp_NOS_1008",
                   "Hippocampus Illumina NOS (Oct08) RankInv beta"
                ],
@@ -1984,14 +1992,6 @@
                [
                   "Illum_LXS_Hipp_RSE_1008",
                   "Hippocampus Illumina RSE (Oct08) RankInv beta"
-               ],
-               [
-                  "Illum_LXS_Hipp_NOE_1008",
-                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
-               ],
-               [
-                  "Illum_LXS_Hipp_RSS_1008",
-                  "Hippocampus Illumina RSS (Oct08) RankInv beta"
                ]
             ],
             "Phenotypes": [
@@ -2002,16 +2002,16 @@
             ],
             "Prefrontal Cortex mRNA": [
                [
-                  "VCUEtOH_0806_R",
-                  "VCU LXS PFC EtOH M430A 2.0 (Aug06) RMA **"
-               ],
-               [
                   "VCUSal_0806_R",
                   "VCU LXS PFC Sal M430A 2.0 (Aug06) RMA"
                ],
                [
                   "VCUEt_vs_Sal_0806_R",
                   "VCU LXS PFC Et vs Sal M430A 2.0 (Aug06) Sscore **"
+               ],
+               [
+                  "VCUEtOH_0806_R",
+                  "VCU LXS PFC EtOH M430A 2.0 (Aug06) RMA **"
                ]
             ]
          },
@@ -2036,12 +2036,12 @@
             ],
             "Hippocampus mRNA": [
                [
-                  "UMUTAffyExon_0209_RMA_MDP",
-                  "UMUTAffy Hippocampus Exon (Feb09) RMA MDP"
-               ],
-               [
                   "HC_M2_0606_MDP",
                   "Hippocampus Consortium M430v2 (Jun06) RMA MDP"
+               ],
+               [
+                  "UMUTAffyExon_0209_RMA_MDP",
+                  "UMUTAffy Hippocampus Exon (Feb09) RMA MDP"
                ]
             ],
             "Liver mRNA": [
@@ -2556,7 +2556,7 @@
             ],
             [
                "Leaf mRNA",
-               "Leaf mRNA mRNA"
+               "Leaf mRNA"
             ]
          ],
          "SXM": [
@@ -2570,11 +2570,11 @@
             ],
             [
                "Embryo mRNA",
-               "Embryo mRNA mRNA"
+               "Embryo mRNA"
             ],
             [
                "Leaf mRNA",
-               "Leaf mRNA mRNA"
+               "Leaf mRNA"
             ]
          ]
       },
@@ -2590,7 +2590,7 @@
             ],
             [
                "Whole Body mRNA",
-               "Whole Body mRNA mRNA"
+               "Whole Body mRNA"
             ]
          ],
          "Oregon-R_x_2b3": [
@@ -2604,7 +2604,7 @@
             ],
             [
                "Whole Body mRNA",
-               "Whole Body mRNA mRNA"
+               "Whole Body mRNA"
             ]
          ]
       },
@@ -2620,7 +2620,7 @@
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ]
          ],
          "AD-cases-controls-Myers": [
@@ -2634,7 +2634,7 @@
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ]
          ],
          "CANDLE": [
@@ -2648,11 +2648,11 @@
             ],
             [
                "Methylation",
-               "Methylation mRNA"
+               "Methylation"
             ],
             [
                "Newborn Cord Blood mRNA",
-               "Newborn Cord Blood mRNA mRNA"
+               "Newborn Cord Blood mRNA"
             ]
          ],
          "CEPH-2004": [
@@ -2666,7 +2666,7 @@
             ],
             [
                "Lymphoblast B-cell mRNA",
-               "Lymphoblast B-cell mRNA mRNA"
+               "Lymphoblast B-cell mRNA"
             ]
          ],
          "HB": [
@@ -2680,15 +2680,15 @@
             ],
             [
                "Cerebellum mRNA",
-               "Cerebellum mRNA mRNA"
+               "Cerebellum mRNA"
             ],
             [
                "Prefrontal Cortex mRNA",
-               "Prefrontal Cortex mRNA mRNA"
+               "Prefrontal Cortex mRNA"
             ],
             [
                "Primary Visual Cortex mRNA",
-               "Primary Visual Cortex mRNA mRNA"
+               "Primary Visual Cortex mRNA"
             ]
          ],
          "HLC": [
@@ -2702,7 +2702,7 @@
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "HLT": [
@@ -2716,7 +2716,7 @@
             ],
             [
                "Lung mRNA",
-               "Lung mRNA mRNA"
+               "Lung mRNA"
             ]
          ],
          "HSB": [
@@ -2730,67 +2730,67 @@
             ],
             [
                "Amygdala mRNA",
-               "Amygdala mRNA mRNA"
+               "Amygdala mRNA"
             ],
             [
                "Cerebellar Cortex mRNA",
-               "Cerebellar Cortex mRNA mRNA"
+               "Cerebellar Cortex mRNA"
             ],
             [
                "Dorsolateral Prefrontal Cortex mRNA",
-               "Dorsolateral Prefrontal Cortex mRNA mRNA"
+               "Dorsolateral Prefrontal Cortex mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Inferior Temporal Cortex mRNA",
-               "Inferior Temporal Cortex mRNA mRNA"
+               "Inferior Temporal Cortex mRNA"
             ],
             [
                "Medial Prefrontal Cortex mRNA",
-               "Medial Prefrontal Cortex mRNA mRNA"
+               "Medial Prefrontal Cortex mRNA"
             ],
             [
                "Mediodorsal Nucleus of Thalamus mRNA",
-               "Mediodorsal Nucleus of Thalamus mRNA mRNA"
+               "Mediodorsal Nucleus of Thalamus mRNA"
             ],
             [
                "Orbital Prefrontal Cortex mRNA",
-               "Orbital Prefrontal Cortex mRNA mRNA"
+               "Orbital Prefrontal Cortex mRNA"
             ],
             [
                "Posterior Inferior Parietal Cortex mRNA",
-               "Posterior Inferior Parietal Cortex mRNA mRNA"
+               "Posterior Inferior Parietal Cortex mRNA"
             ],
             [
                "Posterior Superior Temporal Cortex mRNA",
-               "Posterior Superior Temporal Cortex mRNA mRNA"
+               "Posterior Superior Temporal Cortex mRNA"
             ],
             [
                "Primary Auditory (A1) Cortex mRNA",
-               "Primary Auditory (A1) Cortex mRNA mRNA"
+               "Primary Auditory (A1) Cortex mRNA"
             ],
             [
                "Primary Motor (M1) Cortex mRNA",
-               "Primary Motor (M1) Cortex mRNA mRNA"
+               "Primary Motor (M1) Cortex mRNA"
             ],
             [
                "Primary Somatosensory (S1) Cortex mRNA",
-               "Primary Somatosensory (S1) Cortex mRNA mRNA"
+               "Primary Somatosensory (S1) Cortex mRNA"
             ],
             [
                "Primary Visual Cortex mRNA",
-               "Primary Visual Cortex mRNA mRNA"
+               "Primary Visual Cortex mRNA"
             ],
             [
                "Striatum mRNA",
-               "Striatum mRNA mRNA"
+               "Striatum mRNA"
             ],
             [
                "Ventrolateral Prefrontal Cortex mRNA",
-               "Ventrolateral Prefrontal Cortex mRNA mRNA"
+               "Ventrolateral Prefrontal Cortex mRNA"
             ]
          ]
       },
@@ -2806,23 +2806,23 @@
             ],
             [
                "Amygdala mRNA",
-               "Amygdala mRNA mRNA"
+               "Amygdala mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Nucleus Accumbens mRNA",
-               "Nucleus Accumbens mRNA mRNA"
+               "Nucleus Accumbens mRNA"
             ],
             [
                "Prefrontal Cortex mRNA",
-               "Prefrontal Cortex mRNA mRNA"
+               "Prefrontal Cortex mRNA"
             ]
          ]
       },
@@ -2838,7 +2838,7 @@
             ],
             [
                "Mammary Tumors mRNA",
-               "Mammary Tumors mRNA mRNA"
+               "Mammary Tumors mRNA"
             ]
          ],
          "AXBXA": [
@@ -2852,19 +2852,19 @@
             ],
             [
                "Bone Femur mRNA",
-               "Bone Femur mRNA mRNA"
+               "Bone Femur mRNA"
             ],
             [
                "Eye mRNA",
-               "Eye mRNA mRNA"
+               "Eye mRNA"
             ],
             [
                "Heart mRNA",
-               "Heart mRNA mRNA"
+               "Heart mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "B6BTBRF2": [
@@ -2878,7 +2878,7 @@
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "B6D2F2": [
@@ -2892,7 +2892,7 @@
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ]
          ],
          "B6D2F2-PSU": [
@@ -2906,7 +2906,7 @@
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ]
          ],
          "B6D2RI": [
@@ -2920,7 +2920,7 @@
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ]
          ],
          "BDF2-1999": [
@@ -2934,7 +2934,7 @@
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "BDF2-2005": [
@@ -2948,7 +2948,7 @@
             ],
             [
                "Striatum mRNA",
-               "Striatum mRNA mRNA"
+               "Striatum mRNA"
             ]
          ],
          "BHF2": [
@@ -2962,19 +2962,19 @@
             ],
             [
                "Adipose mRNA",
-               "Adipose mRNA mRNA"
+               "Adipose mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ]
          ],
          "BHHBF2": [
@@ -2988,19 +2988,19 @@
             ],
             [
                "Adipose mRNA",
-               "Adipose mRNA mRNA"
+               "Adipose mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ]
          ],
          "BXD": [
@@ -3014,119 +3014,119 @@
             ],
             [
                "Adrenal Gland mRNA",
-               "Adrenal Gland mRNA mRNA"
+               "Adrenal Gland mRNA"
             ],
             [
                "Amygdala mRNA",
-               "Amygdala mRNA mRNA"
+               "Amygdala mRNA"
             ],
             [
                "Bone Femur mRNA",
-               "Bone Femur mRNA mRNA"
+               "Bone Femur mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Cartilage mRNA",
-               "Cartilage mRNA mRNA"
+               "Cartilage mRNA"
             ],
             [
                "Cerebellum mRNA",
-               "Cerebellum mRNA mRNA"
+               "Cerebellum mRNA"
             ],
             [
                "Eye mRNA",
-               "Eye mRNA mRNA"
+               "Eye mRNA"
             ],
             [
                "Hematopoietic Cells mRNA",
-               "Hematopoietic Cells mRNA mRNA"
+               "Hematopoietic Cells mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Hypothalamus mRNA",
-               "Hypothalamus mRNA mRNA"
+               "Hypothalamus mRNA"
             ],
             [
                "Kidney mRNA",
-               "Kidney mRNA mRNA"
+               "Kidney mRNA"
             ],
             [
                "Leucocytes mRNA",
-               "Leucocytes mRNA mRNA"
+               "Leucocytes mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Liver Proteome",
-               "Liver Proteome mRNA"
+               "Liver Proteome"
             ],
             [
                "Lung mRNA",
-               "Lung mRNA mRNA"
+               "Lung mRNA"
             ],
             [
                "Midbrain mRNA",
-               "Midbrain mRNA mRNA"
+               "Midbrain mRNA"
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ],
             [
                "Neocortex mRNA",
-               "Neocortex mRNA mRNA"
+               "Neocortex mRNA"
             ],
             [
                "Nucleus Accumbens mRNA",
-               "Nucleus Accumbens mRNA mRNA"
+               "Nucleus Accumbens mRNA"
             ],
             [
                "Pituitary Gland mRNA",
-               "Pituitary Gland mRNA mRNA"
+               "Pituitary Gland mRNA"
             ],
             [
                "Popliteal Lymph Node mRNA",
-               "Popliteal Lymph Node mRNA mRNA"
+               "Popliteal Lymph Node mRNA"
             ],
             [
                "Prefrontal Cortex mRNA",
-               "Prefrontal Cortex mRNA mRNA"
+               "Prefrontal Cortex mRNA"
             ],
             [
                "Retina mRNA",
-               "Retina mRNA mRNA"
+               "Retina mRNA"
             ],
             [
                "Spleen mRNA",
-               "Spleen mRNA mRNA"
+               "Spleen mRNA"
             ],
             [
                "Striatum mRNA",
-               "Striatum mRNA mRNA"
+               "Striatum mRNA"
             ],
             [
                "T Cell (helper) mRNA",
-               "T Cell (helper) mRNA mRNA"
+               "T Cell (helper) mRNA"
             ],
             [
                "T Cell (regulatory) mRNA",
-               "T Cell (regulatory) mRNA mRNA"
+               "T Cell (regulatory) mRNA"
             ],
             [
                "Thymus mRNA",
-               "Thymus mRNA mRNA"
+               "Thymus mRNA"
             ],
             [
                "Ventral Tegmental Area mRNA",
-               "Ventral Tegmental Area mRNA mRNA"
+               "Ventral Tegmental Area mRNA"
             ]
          ],
          "BXH": [
@@ -3140,15 +3140,15 @@
             ],
             [
                "Bone Femur mRNA",
-               "Bone Femur mRNA mRNA"
+               "Bone Femur mRNA"
             ],
             [
                "Cartilage mRNA",
-               "Cartilage mRNA mRNA"
+               "Cartilage mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "C57BL-6JxC57BL-6NJF2": [
@@ -3172,19 +3172,19 @@
             ],
             [
                "Adipose mRNA",
-               "Adipose mRNA mRNA"
+               "Adipose mRNA"
             ],
             [
                "Brain mRNA",
-               "Brain mRNA mRNA"
+               "Brain mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Muscle mRNA",
-               "Muscle mRNA mRNA"
+               "Muscle mRNA"
             ]
          ],
          "CXB": [
@@ -3198,11 +3198,11 @@
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Spleen mRNA",
-               "Spleen mRNA mRNA"
+               "Spleen mRNA"
             ]
          ],
          "HS": [
@@ -3216,15 +3216,15 @@
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Lung mRNA",
-               "Lung mRNA mRNA"
+               "Lung mRNA"
             ]
          ],
          "HS-CC": [
@@ -3238,7 +3238,7 @@
             ],
             [
                "Striatum mRNA",
-               "Striatum mRNA mRNA"
+               "Striatum mRNA"
             ]
          ],
          "LXS": [
@@ -3252,11 +3252,11 @@
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Prefrontal Cortex mRNA",
-               "Prefrontal Cortex mRNA mRNA"
+               "Prefrontal Cortex mRNA"
             ]
          ],
          "MDP": [
@@ -3270,19 +3270,19 @@
             ],
             [
                "Bone Femur mRNA",
-               "Bone Femur mRNA mRNA"
+               "Bone Femur mRNA"
             ],
             [
                "Dorsal Root Ganglia mRNA",
-               "Dorsal Root Ganglia mRNA mRNA"
+               "Dorsal Root Ganglia mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ]
          ],
          "NZBXFVB-N2": [
@@ -3296,7 +3296,7 @@
             ],
             [
                "Mammary Tumors mRNA",
-               "Mammary Tumors mRNA mRNA"
+               "Mammary Tumors mRNA"
             ]
          ],
          "SOTNOT-OHSU": [
@@ -3320,7 +3320,7 @@
             ],
             [
                "Anterior Cingulate Cortex mRNA",
-               "Anterior Cingulate Cortex mRNA mRNA"
+               "Anterior Cingulate Cortex mRNA"
             ]
          ]
       },
@@ -3346,27 +3346,27 @@
             ],
             [
                "Adrenal Gland mRNA",
-               "Adrenal Gland mRNA mRNA"
+               "Adrenal Gland mRNA"
             ],
             [
                "Heart mRNA",
-               "Heart mRNA mRNA"
+               "Heart mRNA"
             ],
             [
                "Hippocampus mRNA",
-               "Hippocampus mRNA mRNA"
+               "Hippocampus mRNA"
             ],
             [
                "Kidney mRNA",
-               "Kidney mRNA mRNA"
+               "Kidney mRNA"
             ],
             [
                "Liver mRNA",
-               "Liver mRNA mRNA"
+               "Liver mRNA"
             ],
             [
                "Peritoneal Fat mRNA",
-               "Peritoneal Fat mRNA mRNA"
+               "Peritoneal Fat mRNA"
             ]
          ],
          "SRxSHRSPF2": [
@@ -3380,7 +3380,7 @@
             ],
             [
                "Eye mRNA",
-               "Eye mRNA mRNA"
+               "Eye mRNA"
             ]
          ]
       },

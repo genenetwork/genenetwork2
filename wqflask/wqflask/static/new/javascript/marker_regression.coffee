@@ -15,6 +15,7 @@ $ ->
             console.time('Create coordinates')
             @create_coordinates()
             console.log("@x_coords: ", @x_coords)
+            console.log("@y_coords: ", @y_coords)
             console.timeEnd('Create coordinates')
             [@chr_lengths, @cumulative_chr_lengths] = @get_chr_lengths()
 
@@ -270,7 +271,7 @@ $ ->
                 .enter()
                 .append("circle")
                 .attr("cx", (d) =>
-                    return @x_buffer + ((@plot_width-@x_buffer) * d[0]/@x_max)
+                    return parseFloat(@x_buffer + ((@plot_width-@x_buffer) * d[0]/@x_max))
                 )
                 .attr("cy", (d) =>
                     return @plot_height - ((@plot_height-@y_buffer) * d[1]/@y_max)

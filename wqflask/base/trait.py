@@ -322,7 +322,7 @@ class GeneralTrait(object):
                 #print("  mike: {} -> {} - {}".format(field, type(trait_info[i]), trait_info[i]))
                 holder = trait_info[i]
                 if isinstance(trait_info[i], basestring):
-                    holder = unicode(trait_info[i], "utf8")
+                    holder = unicode(trait_info[i], "utf8", "ignore")
                 setattr(self, field, holder)
 
             if self.dataset.type == 'Publish':

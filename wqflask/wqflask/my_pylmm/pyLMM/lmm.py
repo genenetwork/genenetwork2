@@ -368,9 +368,9 @@ def GWAS(pheno_vector,
     if v.sum():
         keep = True - v
         pheno_vector = pheno_vector[keep]
-        genotype_matrix = genotype_matrix[keep,:]
-        covariate_matrix = covariate_matrix[keep,:]
-        kinship_matrix = kinship_matrix[keep,:][:,keep]
+        #genotype_matrix = genotype_matrix[keep,:]
+        #covariate_matrix = covariate_matrix[keep,:]
+        #kinship_matrix = kinship_matrix[keep,:][:,keep]
         kinship_eigen_vals = []
         kinship_eigen_vectors = []
 
@@ -465,7 +465,9 @@ class LMM:
           print("Removing %d missing values from Y\n" % ((True - x).sum()))
           if self.verbose: sys.stderr.write("Removing %d missing values from Y\n" % ((True - x).sum()))
           Y = Y[x]
-          K = K[x,:][:,x]
+          print("x: ", len(x))
+          print("K: ", K.shape)
+          #K = K[x,:][:,x]
           X0 = X0[x,:]
           Kva = []
           Kve = []
