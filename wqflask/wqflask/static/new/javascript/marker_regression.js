@@ -27,6 +27,8 @@
         this.x_buffer = this.plot_width / 30;
         this.y_buffer = this.plot_height / 20;
         this.x_max = this.total_length;
+        console.log("@x_max: ", this.x_max);
+        console.log("@x_buffer: ", this.x_buffer);
         this.y_max = d3.max(this.y_coords) * 1.2;
         this.svg = this.create_svg();
         this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
@@ -61,6 +63,7 @@
         */
 
         var chr_lengths, cumulative_chr_lengths, key, this_length, total_length;
+        console.log("@chromosomes: ", this.chromosomes);
         cumulative_chr_lengths = [];
         chr_lengths = [];
         total_length = 0;
@@ -70,6 +73,7 @@
           cumulative_chr_lengths.push(total_length + this_length);
           total_length += this_length;
         }
+        console.log("chr_lengths: ", chr_lengths);
         return [chr_lengths, cumulative_chr_lengths];
       };
 
@@ -80,19 +84,23 @@
         _ref = js_data.qtl_results;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           result = _ref[_i];
-          chr_length = this.chromosomes[result.chr];
+          if (result.chr === "X") {
+            chr_length = parseFloat(this.chromosomes[20]);
+          } else {
+            chr_length = parseFloat(this.chromosomes[result.chr]);
+          }
           if (!(_ref1 = result.chr, __indexOf.call(chr_seen, _ref1) >= 0)) {
             chr_seen.push(result.chr);
             chr_lengths.push(chr_length);
             if (result.chr !== "1") {
-              this.total_length += chr_lengths[chr_lengths.length - 2];
+              this.total_length += parseFloat(chr_lengths[chr_lengths.length - 2]);
             }
           }
           this.x_coords.push(this.total_length + parseFloat(result.Mb));
           this.y_coords.push(result.lod_score);
           this.marker_names.push(result.name);
         }
-        return this.total_length += chr_lengths[chr_lengths.length - 1];
+        return this.total_length += parseFloat(chr_lengths[chr_lengths.length - 1]);
       };
 
       Manhattan_Plot.prototype.show_marker_in_table = function(marker_info) {
@@ -248,7 +256,7 @@
       Manhattan_Plot.prototype.add_plot_points = function() {
         var _this = this;
         return this.svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
-          return parseFloat(_this.x_buffer + ((_this.plot_width - _this.x_buffer) * d[0] / _this.x_max));
+          return parseFloat(_this.x_buffer) + ((parseFloat(_this.plot_width) - parseFloat(_this.x_buffer)) * d[0] / parseFloat(_this.x_max));
         }).attr("cy", function(d) {
           return _this.plot_height - ((_this.plot_height - _this.y_buffer) * d[1] / _this.y_max);
         }).attr("r", 2).attr("id", function(d) {

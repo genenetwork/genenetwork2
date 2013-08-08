@@ -25,6 +25,8 @@ $ ->
             
             #@x_max = d3.max(@x_coords)
             @x_max = @total_length
+            console.log("@x_max: ", @x_max)
+            console.log("@x_buffer: ", @x_buffer)
             @y_max = d3.max(@y_coords) * 1.2
 
             @svg = @create_svg()
@@ -53,6 +55,8 @@ $ ->
             
             ###
             
+            console.log("@chromosomes: ", @chromosomes)
+            
             cumulative_chr_lengths = []
             chr_lengths = []
             total_length = 0
@@ -61,8 +65,8 @@ $ ->
                 chr_lengths.push(this_length)
                 cumulative_chr_lengths.push(total_length + this_length)
                 total_length += this_length
-                
-            #console.log("total length is:", total_length)
+
+            console.log("chr_lengths: ", chr_lengths)
 
             return [chr_lengths, cumulative_chr_lengths]
 
@@ -70,16 +74,20 @@ $ ->
             chr_lengths = []
             chr_seen = []
             for result in js_data.qtl_results
-                chr_length = @chromosomes[result.chr]
+                if result.chr == "X"
+                    chr_length = parseFloat(@chromosomes[20])
+                else
+                    chr_length = parseFloat(@chromosomes[result.chr])
                 if not(result.chr in chr_seen)
                     chr_seen.push(result.chr) 
                     chr_lengths.push(chr_length) 
                     if result.chr != "1"
-                        @total_length += chr_lengths[chr_lengths.length - 2]
+                        @total_length += parseFloat(chr_lengths[chr_lengths.length - 2])
                 @x_coords.push(@total_length + parseFloat(result.Mb))
                 @y_coords.push(result.lod_score)
                 @marker_names.push(result.name)
-            @total_length += chr_lengths[chr_lengths.length-1]
+            @total_length += parseFloat(chr_lengths[chr_lengths.length-1])
+            #console.log("chr_lengths: ", chr_lengths)
 
         show_marker_in_table: (marker_info) ->
             console.log("in show_marker_in_table")
@@ -271,7 +279,7 @@ $ ->
                 .enter()
                 .append("circle")
                 .attr("cx", (d) =>
-                    return parseFloat(@x_buffer + ((@plot_width-@x_buffer) * d[0]/@x_max))
+                    return parseFloat(@x_buffer) + ((parseFloat(@plot_width)-parseFloat(@x_buffer)) * d[0]/parseFloat(@x_max))
                 )
                 .attr("cy", (d) =>
                     return @plot_height - ((@plot_height-@y_buffer) * d[1]/@y_max)
