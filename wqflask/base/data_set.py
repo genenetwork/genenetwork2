@@ -168,7 +168,8 @@ class Markers(object):
         
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
-            print("p_value is:", marker['p_value'])
+            if math.isnan(marker['p_value']):
+                print("p_value is:", marker['p_value'])
             marker['lod_score'] = -math.log10(marker['p_value'])
             #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
             marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
@@ -436,7 +437,7 @@ class DataSet(object):
         except TypeError:
             print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass
-
+        
     def get_trait_data(self):
         self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
         query = """
@@ -493,12 +494,12 @@ class DataSet(object):
                         
             if self.type == "Publish":
                 query += """
-                        WHERE {}XRef.InbredSetId = {}Freeze.InbredSetId
+                        WHERE {}XRef.PublicationId = {}Freeze.Id
                         and {}Freeze.Name = '{}'
-                        and {}.Id = {}XRef.PhenotypeId
+                        and {}.Id = {}XRef.{}Id
                         order by {}.Id
-                        """.format(*mescape(self.type, self.type, self.type, self.name,
-                                   dataset_type, self.type, dataset_type ))
+                        """.format(*mescape(self.type, self.type, self.type, self.type,
+                                   self.name, dataset_type, self.type, self.type, dataset_type))
             else:
                 query += """
                         WHERE {}XRef.{}FreezeId = {}Freeze.Id
