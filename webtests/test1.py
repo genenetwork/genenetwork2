@@ -58,7 +58,7 @@ from selenium.webdriver.common.keys import Keys
 
 class Test(object):
     def __init__(self):
-        self.browser = webdriver.Firefox()
+        self.browser = webdriver.Chrome('/home/gn2/gn2/webtests/chromedriver')
 
     def get(self, url):
         self.browser.get(url)
