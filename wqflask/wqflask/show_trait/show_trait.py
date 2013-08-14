@@ -1204,6 +1204,7 @@ class ShowTrait(object):
                 other_sample_names.append(sample)
 
         if other_sample_names:
+            parent_f1_samples = None
             if self.dataset.group.parlist and self.dataset.group.f1list:
                 parent_f1_samples = self.dataset.group.parlist + self.dataset.group.f1list
 

@@ -48,7 +48,7 @@ Sleep a bunch because this can take a while
 
 Ensure that the correlation between Trait3 (HC_M2_0606_P::1457003_at) and Trait4 (HC_M2_0606_P::1422223_at) is 0.608
 >>> test.get_text('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/blockquote/table/tbody/tr[5]/td[5]/a/font''')
-text: 0.608
+text: 0.608\n71
 
 """
 

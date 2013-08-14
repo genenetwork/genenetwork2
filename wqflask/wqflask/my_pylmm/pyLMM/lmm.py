@@ -299,8 +299,8 @@ def calculate_kinship(genotype_matrix, temp_data):
     """
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
-    #print("n is:", n)
-    #print("m is:", m)
+    print("n is:", n)
+    print("m is:", m)
     keep = []
     for counter in range(m):
         #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
@@ -309,7 +309,7 @@ def calculate_kinship(genotype_matrix, temp_data):
         
         #Gets vector of values for column (no values in vector if not all values in col are numbers)
         marker_values = genotype_matrix[True - not_number, counter]
-        #print("type of marker_values is:", type(marker_values))
+        #print("marker_values is:", pf(marker_values))
         
         #Gets mean of values in vector
         values_mean = marker_values.mean()
@@ -325,7 +325,8 @@ def calculate_kinship(genotype_matrix, temp_data):
         temp_data.store("percent_complete", percent_complete)
         
     genotype_matrix = genotype_matrix[:,keep]
-    kinship_matrix = np.dot(genotype_matrix,genotype_matrix.T) * 1.0/float(m)
+    print("genotype_matrix: ", pf(genotype_matrix))
+    kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
     return kinship_matrix
 
 def GWAS(pheno_vector,
