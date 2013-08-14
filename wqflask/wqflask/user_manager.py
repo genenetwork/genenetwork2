@@ -13,6 +13,8 @@ from flask import Flask, g
 
 from pprint import pformat as pf
 
+from base.data_set import create_datasets_list
+
 #from app import db
 print("globals are:", globals())
 
@@ -32,6 +34,20 @@ class UserManager(object):
         #print("user is:", user)
         self.user = model.User.query.get(self.user_id)
         print("user is:", self.user)
+        datasets = create_datasets_list()
+        for dataset in datasets:
+            if not dataset.check_confidentiality():
+                continue
+            print("\n  Name:", dataset.name)
+            print("  Type:", dataset.type)
+            print("  ID:", dataset.id)
+            print("  Confidential:", dataset.check_confidentiality())
+        #print("   ---> self.datasets:", self.datasets)
+
+
+class GroupsManager(object):
+    def __init__(self, kw):
+        self.datasets = create_datasets_list()
 
 
 class RolesManager(object):

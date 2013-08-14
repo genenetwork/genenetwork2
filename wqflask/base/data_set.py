@@ -16,8 +16,6 @@
 # Contact Drs. Robert W. Williams and Xiaodong Zhou (2010)
 # at rwilliams@uthsc.edu and xzhou15@uthsc.edu
 #
-#we
-#
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 from __future__ import absolute_import, print_function, division
@@ -27,7 +25,12 @@ import string
 import collections
 
 import json
+import gzip
+import cPickle as pickle
 import itertools
+
+from redis import Redis
+Redis = Redis()
 
 from flask import Flask, g
 
@@ -40,34 +43,100 @@ from utility import webqtlUtil
 from utility.benchmark import Bench
 from wqflask.my_pylmm.pyLMM import chunks
 
+from maintenance import get_group_samplelists
+
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
 # Used by create_database to instantiate objects
+# Each subclass will add to this
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name):
-    #print("dataset_name:", dataset_name)
+def create_dataset(dataset_name, dataset_type = None):
+    if not dataset_type:
+        dataset_type = Dataset_Getter(dataset_name)
+        #dataset_type = get_dataset_type_from_json(dataset_name)
 
-    query = """
-        SELECT DBType.Name
-        FROM DBList, DBType
-        WHERE DBList.Name = '{}' and
-              DBType.Id = DBList.DBTypeId
-        """.format(escape(dataset_name))
-    #print("query is: ", pf(query))
-    dataset_type = g.db.execute(query).fetchone().Name
+        print("dataset_type is:", dataset_type)
+        #query = """
+        #    SELECT DBType.Name
+        #    FROM DBList, DBType
+        #    WHERE DBList.Name = '{}' and
+        #          DBType.Id = DBList.DBTypeId
+        #    """.format(escape(dataset_name))
+        #dataset_type = g.db.execute(query).fetchone().Name
 
-    #dataset_type = cursor.fetchone()[0]
-    #print("[blubber] dataset_type:", pf(dataset_type))
 
     dataset_ob = DS_NAME_MAP[dataset_type]
-    #dataset_class = getattr(data_set, dataset_ob)
-    #print("dataset_ob:", dataset_ob)
-    #print("DS_NAME_MAP:", pf(DS_NAME_MAP))
-
     dataset_class = globals()[dataset_ob]
     return dataset_class(dataset_name)
+
+
+#def get_dataset_type_from_json(dataset_name):
+    
+class Dataset_Types(object):
+    
+    def __init__(self):
+        self.datasets = {}
+        file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
+        with open(file_name, 'r') as fh:
+            data = json.load(fh)
+        
+        print("*" * 70)
+        for species in data['datasets']:
+            for group in data['datasets'][species]:
+                for dataset_type in data['datasets'][species][group]:
+                    for dataset in data['datasets'][species][group][dataset_type]:
+                        print("dataset is:", dataset)
+                        
+                        short_dataset_name = dataset[0]
+                        if dataset_type == "Phenotypes":
+                            new_type = "Publish"
+                        elif dataset_type == "Genotypes":
+                            new_type = "Geno"
+                        else:
+                            new_type = "ProbeSet"
+                        self.datasets[short_dataset_name] = new_type
+                            
+    def __call__(self, name):
+        return self.datasets[name]
+    
+# Do the intensive work at startup one time only
+Dataset_Getter = Dataset_Types()
+
+#
+#print("Running at startup:", get_dataset_type_from_json("HBTRC-MLPFC_0611"))
+                    
+
+def create_datasets_list():
+    key = "all_datasets"
+    result = Redis.get(key)
+    
+    if result:
+        print("Cache hit!!!")
+        datasets = pickle.loads(result)
+        
+    else:
+        datasets = list()
+        with Bench("Creating DataSets object"):
+            type_dict = {'Publish': 'PublishFreeze',
+                         'ProbeSet': 'ProbeSetFreeze',
+                         'Geno': 'GenoFreeze'}
+        
+            for dataset_type in type_dict:
+                query = "SELECT Name FROM {}".format(type_dict[dataset_type])
+                for result in g.db.execute(query).fetchall():
+                    #The query at the beginning of this function isn't necessary here, but still would
+                    #rather just reuse it
+                    #print("type: {}\tname: {}".format(dataset_type, result.Name))
+                    dataset = create_dataset(result.Name, dataset_type)
+                    datasets.append(dataset)
+            
+        Redis.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))
+        Redis.expire(key, 60*60)
+    
+    return datasets
+
 
 def create_in_clause(items):
     """Create an in clause for mysql"""
@@ -99,7 +168,8 @@ class Markers(object):
         
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
-            print("p_value is:", marker['p_value'])
+            if math.isnan(marker['p_value']):
+                print("p_value is:", marker['p_value'])
             marker['lod_score'] = -math.log10(marker['p_value'])
             #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
             marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
@@ -167,8 +237,8 @@ class DatasetGroup(object):
         
         self.incparentsf1 = False
         self.allsamples = None
-        
-        
+
+
     def get_markers(self):
         #print("self.species is:", self.species)
         if self.species == "human":
@@ -177,7 +247,7 @@ class DatasetGroup(object):
             marker_class = Markers
 
         self.markers = marker_class(self.name)
-        
+
 
     def get_f1_parent_strains(self):
         try:
@@ -190,7 +260,29 @@ class DatasetGroup(object):
             self.f1list = [f1, f12]
         if maternal and paternal:
             self.parlist = [maternal, paternal]
-            
+
+    def get_samplelist(self):
+        key = "samplelist:v4:" + self.name
+        print("key is:", key)
+        with Bench("Loading cache"):
+            result = Redis.get(key)
+
+        if result:
+            print("Sample List Cache hit!!!")
+            print("Before unjsonifying {}: {}".format(type(result), result))
+            self.samplelist = json.loads(result)
+            print("  type: ", type(self.samplelist))
+            print("  self.samplelist: ", self.samplelist)
+        else:
+            print("Cache not hit")
+            try:
+                self.samplelist = get_group_samplelists.get_samplelist(self.name + ".geno")
+            except IOError:
+                self.samplelist = None
+            print("after get_samplelist")
+            Redis.set(key, json.dumps(self.samplelist))
+            Redis.expire(key, 60*5)
+
     def read_genotype_file(self):
         '''Read genotype from .geno file instead of database'''
         #if self.group == 'BXD300':
@@ -205,7 +297,18 @@ class DatasetGroup(object):
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         full_filename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
-        genotype_1.read(full_filename)
+        if os.path.isfile(full_filename):
+            print("Reading file: ", full_filename)
+            genotype_1.read(full_filename)
+            print("File read")
+        else:
+            try:
+                full_filename = str(os.path.join(webqtlConfig.TMPDIR, self.name + '.geno'))
+                #print("Reading file")
+                genotype_1.read(full_filename)
+                #print("File read")
+            except IOError:
+                print("File doesn't exist!")
 
         if genotype_1.type == "group" and self.parlist:
             genotype_2 = genotype_1.add(Mat=self.parlist[0], Pat=self.parlist[1])       #, F1=_f1)
@@ -222,6 +325,27 @@ class DatasetGroup(object):
         self.samplelist = list(genotype.prgy)
 
 
+#class DataSets(object):
+#    """Builds a list of DataSets"""
+#    
+#    def __init__(self):
+#        self.datasets = list()
+#        
+
+        
+        #query = """SELECT Name FROM ProbeSetFreeze
+        #           UNION
+        #           SELECT Name From PublishFreeze
+        #           UNION
+        #           SELECT Name From GenoFreeze"""
+        #
+        #for result in g.db.execute(query).fetchall():
+        #    dataset = DataSet(result.Name)
+        #    self.datasets.append(dataset)
+
+#ds = DataSets()
+#print("[orange] ds:", ds.datasets)
+
 class DataSet(object):
     """
     DataSet class defines a dataset in webqtl, can be either Microarray,
@@ -234,6 +358,8 @@ class DataSet(object):
         assert name, "Need a name"
         self.name = name
         self.id = None
+        self.shortname = None
+        self.fullname = None
         self.type = None
 
         self.setup()
@@ -243,7 +369,7 @@ class DataSet(object):
         self.retrieve_other_names()
         
         self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
-        self.group.read_genotype_file()
+        self.group.get_samplelist()
         self.species = species.TheSpecies(self)
 
 
@@ -277,7 +403,6 @@ class DataSet(object):
     #    return self._group
 
 
-
     def retrieve_other_names(self):
         """
         If the data set name parameter is not found in the 'Name' field of the data set table,
@@ -293,7 +418,7 @@ class DataSet(object):
             self.name,
             self.name,
             self.name))
-        #print("query_args are:", query_args)
+        print("query_args are:", query_args)
 
         #print("""
         #        SELECT Id, Name, FullName, ShortName
@@ -301,22 +426,109 @@ class DataSet(object):
         #        WHERE public > %s AND
         #             (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
         #  """ % (query_args))
-
-        self.id, self.name, self.fullname, self.shortname = g.db.execute("""
-                SELECT Id, Name, FullName, ShortName
-                FROM %s
-                WHERE public > %s AND
-                     (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-          """ % (query_args)).fetchone()
-
-        #self.cursor.execute(query)
-        #self.id, self.name, self.fullname, self.shortname = self.cursor.fetchone()
         
+        try:
+            self.id, self.name, self.fullname, self.shortname = g.db.execute("""
+                    SELECT Id, Name, FullName, ShortName
+                    FROM %s
+                    WHERE public > %s AND
+                         (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
+              """ % (query_args)).fetchone()
+        except TypeError:
+            print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
+            pass
+        
+    def get_trait_data(self):
+        self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
+        query = """
+            SELECT Strain.Name, Strain.Id FROM Strain, Species
+            WHERE Strain.Name IN {}
+            and Strain.SpeciesId=Species.Id
+            and Species.name = '{}'
+            """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
+        results = dict(g.db.execute(query).fetchall())
+        sample_ids = [results[item] for item in self.samplelist]
+
+        # MySQL limits the number of tables that can be used in a join to 61,
+        # so we break the sample ids into smaller chunks
+        # Postgres doesn't have that limit, so we can get rid of this after we transition
+        chunk_size = 50
+        number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
+        trait_sample_data = []
+        for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
+
+        #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
+        #tempTable = None
+        #if GeneId and db.type == "ProbeSet": 
+        #    if method == "3":
+        #        tempTable = self.getTempLiteratureTable(species=species,
+        #                                                input_species_geneid=GeneId,
+        #                                                returnNumber=returnNumber)
+        #
+        #    if method == "4" or method == "5":
+        #        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=GeneSymbol,
+        #                                        TissueProbeSetFreezeId=tissueProbeSetFreezeId,
+        #                                        method=method,
+        #                                        returnNumber=returnNumber)
+        
+            if self.type == "Publish":
+                dataset_type = "Phenotype"
+            else:
+                dataset_type = self.type
+            temp = ['T%s.value' % item for item in sample_ids_step]
+            if self.type == "Publish":
+                query = "SELECT {}XRef.Id,".format(escape(self.type))
+            else:
+                query = "SELECT {}.Name,".format(escape(dataset_type))
+            data_start_pos = 1
+            query += string.join(temp, ', ')
+            query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
+                                                                     self.type,
+                                                                     self.type))
+
+            for item in sample_ids_step:
+                query += """
+                        left join {}Data as T{} on T{}.Id = {}XRef.DataId
+                        and T{}.StrainId={}\n
+                        """.format(*mescape(self.type, item, item, self.type, item, item))
+                        
+            if self.type == "Publish":
+                query += """
+                        WHERE {}XRef.PublicationId = {}Freeze.Id
+                        and {}Freeze.Name = '{}'
+                        and {}.Id = {}XRef.{}Id
+                        order by {}.Id
+                        """.format(*mescape(self.type, self.type, self.type, self.type,
+                                   self.name, dataset_type, self.type, self.type, dataset_type))
+            else:
+                query += """
+                        WHERE {}XRef.{}FreezeId = {}Freeze.Id
+                        and {}Freeze.Name = '{}'
+                        and {}.Id = {}XRef.{}Id
+                        order by {}.Id
+                        """.format(*mescape(self.type, self.type, self.type, self.type,
+                                   self.name, dataset_type, self.type, self.type, dataset_type))
+            results = g.db.execute(query).fetchall()
+            trait_sample_data.append(results)
+
+        trait_count = len(trait_sample_data[0])
+        self.trait_data = collections.defaultdict(list)
+        
+        # put all of the separate data together into a dictionary where the keys are
+        # trait names and values are lists of sample values
+        for trait_counter in range(trait_count):
+            trait_name = trait_sample_data[0][trait_counter][0]
+            for chunk_counter in range(int(number_chunks)):
+                self.trait_data[trait_name] += (
+                    trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
 
 class PhenotypeDataSet(DataSet):
     DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
 
     def setup(self):
+        
+        print("IS A PHENOTYPEDATASET")
+        
         # Fields in the database table
         self.search_fields = ['Phenotype.Post_publication_description',
                             'Phenotype.Pre_publication_description',
@@ -387,14 +599,24 @@ class PhenotypeDataSet(DataSet):
     def get_trait_info(self, trait_list, species = ''):
         for this_trait in trait_list:
             if not this_trait.haveinfo:
-                this_trait.retrieveInfo(QTL=1)
+                this_trait.retrieve_info(get_qtl_info=True)
 
             description = this_trait.post_publication_description
+            
+            #If the dataset is confidential and the user has access to confidential
+            #phenotype traits, then display the pre-publication description instead
+            #of the post-publication description
             if this_trait.confidential:
                 continue   # for now
-                if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=self.privilege, userName=self.userName, authorized_users=this_trait.authorized_users):
+            
+                if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
+                        privilege=self.privilege,
+                        userName=self.userName,
+                        authorized_users=this_trait.authorized_users):
+                        
                     description = this_trait.pre_publication_description
-            this_trait.description_display = unicode(description, "utf8")
+            
+            this_trait.description_display = description
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
@@ -632,73 +854,73 @@ class MrnaAssayDataSet(DataSet):
         #print("After retrieve_sample_data")
         return trait_data
     
-    def get_trait_data(self):
-        self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
-        query = """
-            SELECT Strain.Name, Strain.Id FROM Strain, Species
-            WHERE Strain.Name IN {}
-            and Strain.SpeciesId=Species.Id
-            and Species.name = '{}'
-            """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
-        results = dict(g.db.execute(query).fetchall())
-        sample_ids = [results[item] for item in self.samplelist]
-
-        # MySQL limits the number of tables that can be used in a join to 61,
-        # so we break the sample ids into smaller chunks
-        # Postgres doesn't have that limit, so we can get rid of this after we transition
-        chunk_size = 50
-        number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
-        trait_sample_data = []
-        for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
-
-        #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
-        #tempTable = None
-        #if GeneId and db.type == "ProbeSet": 
-        #    if method == "3":
-        #        tempTable = self.getTempLiteratureTable(species=species,
-        #                                                input_species_geneid=GeneId,
-        #                                                returnNumber=returnNumber)
-        #
-        #    if method == "4" or method == "5":
-        #        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=GeneSymbol,
-        #                                        TissueProbeSetFreezeId=tissueProbeSetFreezeId,
-        #                                        method=method,
-        #                                        returnNumber=returnNumber)
-        
-            temp = ['T%s.value' % item for item in sample_ids_step]
-            query = "SELECT {}.Name,".format(escape(self.type))
-            data_start_pos = 1
-            query += string.join(temp, ', ')
-            query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(self.type,
-                                                                     self.type,
-                                                                     self.type))
-
-            for item in sample_ids_step:
-                query += """
-                        left join {}Data as T{} on T{}.Id = {}XRef.DataId
-                        and T{}.StrainId={}\n
-                        """.format(*mescape(self.type, item, item, self.type, item, item))
-                        
-            query += """
-                    WHERE {}XRef.{}FreezeId = {}Freeze.Id
-                    and {}Freeze.Name = '{}'
-                    and {}.Id = {}XRef.{}Id
-                    order by {}.Id
-                    """.format(*mescape(self.type, self.type, self.type, self.type,
-                               self.name, self.type, self.type, self.type, self.type))
-            results = g.db.execute(query).fetchall()
-            trait_sample_data.append(results)
-
-        trait_count = len(trait_sample_data[0])
-        self.trait_data = collections.defaultdict(list)
-        
-        # put all of the separate data together into a dictionary where the keys are
-        # trait names and values are lists of sample values
-        for trait_counter in range(trait_count):
-            trait_name = trait_sample_data[0][trait_counter][0]
-            for chunk_counter in range(int(number_chunks)):
-                self.trait_data[trait_name] += (
-                    trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
+    #def get_trait_data(self):
+    #    self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
+    #    query = """
+    #        SELECT Strain.Name, Strain.Id FROM Strain, Species
+    #        WHERE Strain.Name IN {}
+    #        and Strain.SpeciesId=Species.Id
+    #        and Species.name = '{}'
+    #        """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
+    #    results = dict(g.db.execute(query).fetchall())
+    #    sample_ids = [results[item] for item in self.samplelist]
+    #
+    #    # MySQL limits the number of tables that can be used in a join to 61,
+    #    # so we break the sample ids into smaller chunks
+    #    # Postgres doesn't have that limit, so we can get rid of this after we transition
+    #    chunk_size = 50
+    #    number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
+    #    trait_sample_data = []
+    #    for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
+    #
+    #    #XZ, 09/24/2008: build one temporary table that only contains the records associated with the input GeneId 
+    #    #tempTable = None
+    #    #if GeneId and db.type == "ProbeSet": 
+    #    #    if method == "3":
+    #    #        tempTable = self.getTempLiteratureTable(species=species,
+    #    #                                                input_species_geneid=GeneId,
+    #    #                                                returnNumber=returnNumber)
+    #    #
+    #    #    if method == "4" or method == "5":
+    #    #        tempTable = self.getTempTissueCorrTable(primaryTraitSymbol=GeneSymbol,
+    #    #                                        TissueProbeSetFreezeId=tissueProbeSetFreezeId,
+    #    #                                        method=method,
+    #    #                                        returnNumber=returnNumber)
+    #    
+    #        temp = ['T%s.value' % item for item in sample_ids_step]
+    #        query = "SELECT {}.Name,".format(escape(self.type))
+    #        data_start_pos = 1
+    #        query += string.join(temp, ', ')
+    #        query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(self.type,
+    #                                                                 self.type,
+    #                                                                 self.type))
+    #
+    #        for item in sample_ids_step:
+    #            query += """
+    #                    left join {}Data as T{} on T{}.Id = {}XRef.DataId
+    #                    and T{}.StrainId={}\n
+    #                    """.format(*mescape(self.type, item, item, self.type, item, item))
+    #                    
+    #        query += """
+    #                WHERE {}XRef.{}FreezeId = {}Freeze.Id
+    #                and {}Freeze.Name = '{}'
+    #                and {}.Id = {}XRef.{}Id
+    #                order by {}.Id
+    #                """.format(*mescape(self.type, self.type, self.type, self.type,
+    #                           self.name, self.type, self.type, self.type, self.type))
+    #        results = g.db.execute(query).fetchall()
+    #        trait_sample_data.append(results)
+    #
+    #    trait_count = len(trait_sample_data[0])
+    #    self.trait_data = collections.defaultdict(list)
+    #    
+    #    # put all of the separate data together into a dictionary where the keys are
+    #    # trait names and values are lists of sample values
+    #    for trait_counter in range(trait_count):
+    #        trait_name = trait_sample_data[0][trait_counter][0]
+    #        for chunk_counter in range(int(number_chunks)):
+    #            self.trait_data[trait_name] += (
+    #                trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
     
 
     def get_trait_info(self, trait_list=None, species=''):
@@ -779,14 +1001,14 @@ class MrnaAssayDataSet(DataSet):
 
             #Max LRS and its Locus location
             if this_trait.lrs and this_trait.locus:
-                self.cursor.execute("""
+                query = """
                     select Geno.Chr, Geno.Mb from Geno, Species
-                    where Species.Name = '%s' and
-                        Geno.Name = '%s' and
+                    where Species.Name = '{}' and
+                        Geno.Name = '{}' and
                         Geno.SpeciesId = Species.Id
-                """ % (species, this_trait.locus))
-                result = self.cursor.fetchone()
-
+                """.format(species, this_trait.locus)
+                result = g.db.execute(query).fetchone()
+                
                 if result:
                     #if result[0] and result[1]:
                     #    lrs_chr = result[0]
@@ -940,6 +1162,5 @@ def geno_mrna_confidentiality(ob):
      authorized_users) = result.fetchall()[0]
 
     if confidential:
-        # Allow confidential data later
-        NoConfindetialDataForYouTodaySorry
+        return True
 

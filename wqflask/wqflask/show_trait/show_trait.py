@@ -41,7 +41,7 @@ class ShowTrait(object):
         
         helper_functions.get_species_dataset_trait(self, kw)
 
-        self.dataset.group.read_genotype_file()
+        #self.dataset.group.read_genotype_file()
 
         # Todo: Add back in the ones we actually need from below, as we discover we need them
         hddn = OrderedDict()
@@ -1204,10 +1204,12 @@ class ShowTrait(object):
                 other_sample_names.append(sample)
 
         if other_sample_names:
-            parent_f1_samples = self.dataset.group.parlist + self.dataset.group.f1list
+            if self.dataset.group.parlist and self.dataset.group.f1list:
+                parent_f1_samples = self.dataset.group.parlist + self.dataset.group.f1list
 
             other_sample_names.sort() #Sort other samples
-            other_sample_names = parent_f1_samples + other_sample_names
+            if parent_f1_samples:
+                other_sample_names = parent_f1_samples + other_sample_names
 
             other_samples = SampleList(dataset=self.dataset,
                                         sample_names=other_sample_names,
