@@ -7,7 +7,6 @@ title: GeneNetwork
 
 Choose the type
 >>> test.click_option('''//*[@id="tissue"]''', 'Liver mRNA')
-clicked: Liver mRNA
 
 Enter the Get Any
 >>> test.enter_text('''//*[@id="tfor"]''', 'grin2b')

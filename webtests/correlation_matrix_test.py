@@ -36,6 +36,7 @@ title: BXD Trait Collection
 Select all records
 >>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/a/img''')
 
+
 Click Matrix
 >>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr/td[2]/a/img''')
 

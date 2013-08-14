@@ -18,7 +18,12 @@ class Test(object):
 
     def click(self, xpath_selector):
         el = self.browser.find_element_by_xpath(xpath_selector)
-        text = el.text.strip() or el.get_attribute("value").strip()
+        if el.text:
+            text = el.text.strip()
+        elif el.get_attribute("value"):
+            text = el.get_attribute("value").strip()
+        else:
+            text = "Notext"
         el.click()
         print("clicked:", text)
         sleep(2)
