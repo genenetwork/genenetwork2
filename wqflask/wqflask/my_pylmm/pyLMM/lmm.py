@@ -396,7 +396,7 @@ def GWAS(pheno_vector,
             keep = True - v
             xs = x[keep,:]
             if xs.var() == 0:
-                p_values.append(np.nan)
+                p_values.append(0)
                 t_statistics.append(np.nan)
                 continue
 
@@ -413,7 +413,7 @@ def GWAS(pheno_vector,
             ts, ps, beta, betaVar = lmm_ob_2.association(xs, REML=restricted_max_likelihood)
         else:
             if x.var() == 0:
-                p_values.append(np.nan)
+                p_values.append(0)
                 t_statistics.append(np.nan)
                 continue
 
