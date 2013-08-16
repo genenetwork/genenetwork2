@@ -1,7 +1,6 @@
 """
 Test calculate correlations
 
->>> test = Test()
 >>> test.get("http://genenetwork.org")
 title: GeneNetwork
 
@@ -37,7 +36,7 @@ Another new window
 title: Correlation
 
 Sleep a bunch because this can take a while
->>> sleep(60)
+>>> sleep(25)
 
 Ensure the Sample rho is the exepcted 1.000 because it should be the same record
 >>> test.get_text('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/table/tbody/tr[2]/td/div/table/tbody/tr[2]/td[9]/a''')
@@ -45,10 +44,8 @@ text: 1.000
 
 """
 
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
-from browser_test import Test
+from browser_run import *
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+testmod()

@@ -1,7 +1,6 @@
 """
 Test calculate correlations
 
->>> test = Test()
 >>> test.get("http://genenetwork.org")
 title: GeneNetwork
 
@@ -49,10 +48,8 @@ text: 11.511
 
 """
 
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
-from browser_test import Test
+from browser_run import *
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+testmod()

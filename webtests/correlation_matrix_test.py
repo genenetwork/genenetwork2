@@ -2,7 +2,6 @@
 
 Test Correlation matrix
 
->>> test = Test()
 >>> test.get("http://genenetwork.org/")
 title: GeneNetwork
 
@@ -15,17 +14,29 @@ text: grin2b
 
 Search
 >>> test.click('//*[@id="btsearch"]')
+clicked: Search
 
-Select the first 4 records
+Add 1430675_at
 >>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/p/table/tbody/tr[3]/td/div/table/tbody/tr[2]/td/input''')
+clicked: HC_M2_0606_P::1430675_at
+
+Add 1442370_at
 >>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/p/table/tbody/tr[3]/td/div/table/tbody/tr[3]/td/input''')
+clicked: HC_M2_0606_P::1442370_at
+
+Add 1457003_at
 >>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/p/table/tbody/tr[3]/td/div/table/tbody/tr[4]/td/input''')
+clicked: HC_M2_0606_P::1457003_at
+
+Add 1422223_at
 >>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/p/table/tbody/tr[3]/td/div/table/tbody/tr[5]/td/input''')
+clicked: HC_M2_0606_P::1422223_at
 
 >>> sleep(5)
 
 Add to collection page
 >>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/p/table/tbody/tr[1]/td/table/tbody/tr[1]/td[4]/a''')
+clicked: Notext
 
 >>> sleep(5)
 
@@ -35,10 +46,11 @@ title: BXD Trait Collection
 
 Select all records
 >>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/a/img''')
-
+clicked: Notext
 
 Click Matrix
 >>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr/td[2]/a/img''')
+clicked: Notext
 
 Another new window
 >>> test.switch_window()
@@ -53,10 +65,8 @@ text: 0.608\n71
 
 """
 
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
-from browser_test import Test
+from browser_run import *
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+testmod()
