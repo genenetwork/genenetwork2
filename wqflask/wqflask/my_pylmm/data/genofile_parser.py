@@ -1,14 +1,24 @@
 #!/usr/bin/python
 
+"""
+Convert .geno files to json
+
+This file goes through all of the genofiles in the genofile directory (.geno)
+and converts them to json files that are used when running the marker regression
+code
+
+"""
+
 from __future__ import print_function, division, absolute_import
 import sys
 sys.path.append("..")
 import os
 import glob
 import traceback
+import gzip
 
-import numpy as np
-from pyLMM import lmm
+#import numpy as np
+#from pyLMM import lmm
 
 import simplejson as json
 
@@ -54,7 +64,11 @@ class ConvertGenoFile(object):
         self.configurations = {}
         #self.skipped_cols = 3
         
-        self.input_fh = open(self.input_file)
+        if self.input_file.endswith(".geno.gz"):
+            print("self.input_file: ", self.input_file)
+            self.input_fh = gzip.open(self.input_file)
+        else:
+            self.input_fh = open(self.input_file)
         
         with open(self.output_file, "w") as self.output_fh:
             #if self.file_type == "geno":
@@ -111,6 +125,8 @@ class ConvertGenoFile(object):
 
     def process_rows(self):
         for self.latest_row_pos, row in enumerate(self.input_fh):
+            if self.input_file.endswith(".geno.gz"):
+                print("row: ", row)
             self.latest_row_value = row
             # Take care of headers
             if not row.strip():
@@ -135,7 +151,9 @@ class ConvertGenoFile(object):
     @classmethod
     def process_all(cls, old_directory, new_directory):
         os.chdir(old_directory)
-        for input_file in glob.glob("*.geno"):
+        for input_file in glob.glob("*"):
+            if not input_file.endswith(('geno', '.geno.gz')):
+                continue
             group_name = input_file.split('.')[0]
             output_file = os.path.join(new_directory, group_name + ".json")
             print("%s -> %s" % (
