@@ -49,7 +49,7 @@ from base.templatePage import templatePage
 from utility import webqtlUtil, helper_functions, corr_result_helpers
 from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
-from wqflask.correlation import correlationFunction
+from wqflask.correlation import correlation_function
 from utility.benchmark import Bench
 
 from MySQLdb import escape_string as escape
