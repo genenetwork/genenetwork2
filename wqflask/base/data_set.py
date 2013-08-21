@@ -175,8 +175,6 @@ class Markers(object):
                 marker['lod_score'] = -math.log10(marker['p_value'])
                 #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
                 marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
-        
-        
 
 
 class HumanMarkers(Markers):
@@ -191,8 +189,6 @@ class HumanMarkers(Markers):
             marker['name'] = splat[1]
             marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
-            
-        #print("markers is: ", pf(self.markers))
 
 
     def add_pvalues(self, p_values):
