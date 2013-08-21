@@ -1,46 +1,35 @@
 """
-Test calculate correlations
+Test if JS is working on the show trait page
 
->>> test.get("http://genenetwork.org")
+>>> test.get("alexandria.uthsc.edu:89")
 title: GeneNetwork
 
+Choose the species
+>>> test.click_option('''//*[@id="species"]''', 'Human')
+
+Choose the group
+>>> test.click_option('''//*[@id="cross"]''', 'Human Brain Transcriptome (Yale/Kavli)')
+
 Choose the type
->>> test.click_option('''//*[@id="tissue"]''', 'Hippocampus mRNA')
+>>> test.click_option('''//*[@id="tissue"]''', 'Orbital Prefrontal Cortex mRNA')
 
 Enter the Get Any
 >>> test.enter_text('''//*[@id="tfor"]''', 'ssh')
-text: ssh
+text: shh
 
 Search
 >>> test.click('//*[@id="btsearch"]')
 clicked: Search
 
 Choose the first result
->>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/p/table/tbody/tr[3]/td/div/table/tbody/tr[2]/td[2]/a''')
-clicked: 1455854_a_at
+>>> test.click('''//*[@id="KIN_YSM_OFC_0711::3081205"]/td[2]/a''')
+clicked: 3081205
 
 A new window is created, so we switch to it
 >>> test.switch_window()
-title: Hippocampus M430v2 BXD 06/06 PDNN : 1455854_a_at: Display Trait
+title: KIN/YSM Human OFC Affy Hu-Exon 1.0 ST (Jul11) Quantile : 3081205: Display Trait
 
-Click on Calculate Correlations
->>> test.click('''//*[@id="title3"]''')
-clicked: Calculate Correlations
 
-Click on Compute
->>> test.click('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/p[6]/table/tbody/tr/td/div/div/span/table/tbody/tr/td/input[3]''')
-clicked: Compute
-
-Another new window
->>> test.switch_window()
-title: Correlation
-
-Sleep a bunch because this can take a while
->>> sleep(25)
-
-Ensure the Sample rho is the exepcted 1.000 because it should be the same record
->>> test.get_text('''/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/form/table/tbody/tr[2]/td/div/table/tbody/tr[2]/td[9]/a''')
-text: 1.000
 
 """
 
