@@ -1,4 +1,8 @@
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
+
+__all__ = ('sleep', 'testmod', 'test')
+
+from doctest import testmod
 
 from time import sleep
 
@@ -60,6 +64,5 @@ class Test(object):
         print("title:", self.browser.title)
 
 
-#if __name__ == '__main__':
-#    import doctest
-#    doctest.testmod()
+
+test = Test()
