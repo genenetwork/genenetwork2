@@ -29,12 +29,14 @@ A new window is created, so we switch to it
 >>> test.switch_window()
 title: KIN/YSM Human OFC Affy Hu-Exon 1.0 ST (Jul11) Quantile : 3081205: Display Trait
 
-
+Check that the Calculate Correlations tab is closed (if javascript isn't working, it will be open)
+>>> test.get_style('''//*[@id="sectionbody3"]''')
+style: "display: none;"
 
 """
 
 from __future__ import absolute_import, division, print_function
 
-from browser_test import *
+from browser_run import *
 
 testmod()

@@ -13,7 +13,8 @@ from selenium.webdriver.common.keys import Keys
 
 class Test(object):
     def __init__(self):
-        self.browser = webdriver.Chrome('/home/gn2/gn2/webtests/chromedriver')
+        #self.browser = webdriver.Chrome('/home/gn2/gn2/webtests/chromedriver')
+        self.browser = webdriver.Firefox()
 
     def get(self, url):
         self.browser.get(url)
@@ -52,6 +53,11 @@ class Test(object):
         el = self.browser.find_element_by_xpath(xpath_selector)
         text = el.text.strip() or el.get_attribute("value").strip()
         print("text:", text)
+        
+    def get_element_style(self, xpath_selector):
+        el = self.browser.find_element_by_xpath(xpath_selector)
+        style = el.get_attribute("style").strip()
+        print("style:", style)
 
     def switch_window(self):
         self.browser.switch_to_window(self.browser.window_handles[-1])
