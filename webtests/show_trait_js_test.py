@@ -14,7 +14,7 @@ Choose the type
 >>> test.click_option('''//*[@id="tissue"]''', 'Orbital Prefrontal Cortex mRNA')
 
 Enter the Get Any
->>> test.enter_text('''//*[@id="tfor"]''', 'ssh')
+>>> test.enter_text('''//*[@id="tfor"]''', 'shh')
 text: shh
 
 Search
@@ -30,7 +30,7 @@ A new window is created, so we switch to it
 title: KIN/YSM Human OFC Affy Hu-Exon 1.0 ST (Jul11) Quantile : 3081205: Display Trait
 
 Check that the Calculate Correlations tab is closed (if javascript isn't working, it will be open)
->>> test.get_style('''//*[@id="sectionbody3"]''')
+>>> test.get_element_style('''//*[@id="sectionbody3"]''')
 style: "display: none;"
 
 """
