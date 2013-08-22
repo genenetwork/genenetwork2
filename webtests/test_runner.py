@@ -4,9 +4,10 @@ import unittest
 import doctest
 import glob
 
-#tests = ("correlation_test",
-#         "correlation_matrix_test",
-#         "marker_regression_test")
+tests = ("correlation_test",
+         "correlation_matrix_test",
+         "marker_regression_test",
+         "show_trait_js_test")
 
 
 def main():

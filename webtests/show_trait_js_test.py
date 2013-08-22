@@ -31,7 +31,7 @@ title: KIN/YSM Human OFC Affy Hu-Exon 1.0 ST (Jul11) Quantile : 3081205: Display
 
 Check that the Calculate Correlations tab is closed (if javascript isn't working, it will be open)
 >>> test.get_element_style('''//*[@id="sectionbody3"]''')
-style: "display: none;"
+style: display: none;
 
 """
 
