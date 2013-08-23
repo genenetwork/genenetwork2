@@ -3,6 +3,9 @@ from __future__ import print_function, division, absolute_import
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin
 
+from flask_security.forms import TextField
+from flask_security.forms import RegisterForm
+
 from wqflask import app
 
 # Create database connection object
@@ -46,6 +49,10 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer(), primary_key=True)
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
+    
+    name = db.Column(db.Unicode(255))
+    organization = db.Column(db.Unicode(255))
+    
     active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
 
@@ -60,7 +67,12 @@ class User(db.Model, UserMixin):
 
 # Setup Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)
+
+class ExtendedRegisterForm(RegisterForm):
+    name = TextField('name')
+    organization = TextField('organization')
+
+security = Security(app, user_datastore, register_form=ExtendedRegisterForm)
 
 db.metadata.create_all(db.engine)
 

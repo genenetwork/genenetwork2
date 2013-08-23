@@ -25,6 +25,9 @@ app.logger.addHandler(file_handler)
 import logging_tree
 logging_tree.printout()
 
+import sys
+print("At startup, path is:", sys.path)
+
 #print("app.config is:", app.config)
 
 if __name__ == '__main__':

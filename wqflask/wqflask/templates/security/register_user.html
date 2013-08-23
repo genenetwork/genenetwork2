@@ -28,7 +28,21 @@
                 </div>
                 {{ render_only_errors(register_user_form.email) }}
             </div>
+            
+            <div class="control-group">
+                <label class="control-label" for="email">Name</label>
+                <div class="controls">
+                    <input id="name" name="name" type="text" value="">
+                </div>
+            </div>
 
+            <div class="control-group">
+                <label class="control-label" for="email">Organization</label>
+                <div class="controls">
+                    <input id="organization" name="organization" type="text" value="">
+                </div>
+            </div>
+            
             <div class="control-group">
                 <label class="control-label" for="password">Password</label>
                 <div class="controls">
@@ -49,7 +63,7 @@
 
             <div class="control-group">
                 <div class="controls"">
-                    <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
+                    <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Create account">
                 </div>
             </div>
 
