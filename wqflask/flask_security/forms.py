@@ -89,6 +89,8 @@ def valid_user_email(form, field):
 
 class Form(BaseForm):
     def __init__(self, *args, **kwargs):
+        print "in Form, args:", args
+        print "in Form, kwargs:", kwargs
         if current_app.testing:
             self.TIME_LIMIT = None
         super(Form, self).__init__(*args, **kwargs)
@@ -148,6 +150,7 @@ class RegisterFormMixin():
 
     def to_dict(form):
         def is_field_and_user_attr(member):
+            print "in ifaua:", member
             return isinstance(member, Field) and \
                 hasattr(_datastore.user_model, member.name)
 
