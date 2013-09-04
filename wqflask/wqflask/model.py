@@ -70,6 +70,7 @@ user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
 class ExtendedRegisterForm(RegisterForm):
     name = TextField('name')
+    #print("name is:", name['_name'], vars(name))
     organization = TextField('organization')
 
 security = Security(app, user_datastore, register_form=ExtendedRegisterForm)

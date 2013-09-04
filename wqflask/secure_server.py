@@ -1,4 +1,4 @@
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 from wqflask import app
 
@@ -28,21 +28,6 @@ logging_tree.printout()
 import sys
 print("At startup, path is:", sys.path)
 
-
-########
-def tracefunc(frame, event, arg, indent=[0]):
-    if event == "call":
-        indent[0] += 2
-        print("-" * indent[0] + "> call function", frame.f_code.co_name)
-    elif event == "return":
-        print("<" + "-" * indent[0], "exit function", frame.f_code.co_name)
-        indent[0] -= 2
-    return tracefunc
-
-import sys
-sys.settrace(tracefunc)
-##############
-
 #print("app.config is:", app.config)
 
 if __name__ == '__main__':
@@ -51,4 +36,4 @@ if __name__ == '__main__':
         port=app.config['SERVER_PORT'],
         use_debugger=False,
         threaded=True,
-        use_reloader=True)
+        use_reloader=False)

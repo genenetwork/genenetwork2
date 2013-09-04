@@ -50,6 +50,11 @@ from wqflask import user_manager
 @app.before_request
 def connect_db():
     g.db = sqlalchemy.create_engine(app.config['DB_URI'])
+    
+@app.before_request
+def trace_it():
+    from wqflask import tracer
+    tracer.turn_on()
 
 @app.route("/")
 def index_page():
