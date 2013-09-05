@@ -1,0 +1,61 @@
+<div class="security_box">
+
+    <h4>* Don't have an account?</h4>
+
+    <center>
+        <a href="/n/register" class="btn btn-info modalize">Create a new account</a>
+    </center>
+
+    <hr />
+
+    <h4>Already have an account?</h4>
+
+    <h5>Sign in here</h5>
+
+    <form class="form-horizontal" action="/n/login_submit"
+          method="POST" name="login_user_form">
+        <fieldset>
+
+
+            <div class="control-group">
+                <label class="control-label" for="email">Email Address</label>
+                <div class="controls">
+                    <input id="email" class="focused" name="email" type="text" value="">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="password">Password</label>
+                <div class="controls">
+                    <input id="password" name="password" type="password" value="">
+                    <br />
+                    <a href="{{ url_for_security('forgot_password') }}">Forgot your password?</a><br/>
+                </div>
+            </div>
+
+
+            <div class="control-group">
+                <div class="controls">
+                    <label class="checkbox">
+                        <input id="remember" name="remember" type="checkbox" value="y"> Remember me
+                    </label>
+                </div>
+
+
+            <div class="control-group">
+                <div class="controls">
+                    <input id="next" name="next" type="hidden" value="">
+
+                    <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
+                </div>
+
+
+            </div>
+      </fieldset>
+
+    </form>
+</div>
+
+
+{% include "new_security/_scripts.html" %}
+<!--{% include "security/_menu.html" %}-->
