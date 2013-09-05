@@ -51,10 +51,10 @@ from wqflask import user_manager
 def connect_db():
     g.db = sqlalchemy.create_engine(app.config['DB_URI'])
     
-@app.before_request
-def trace_it():
-    from wqflask import tracer
-    tracer.turn_on()
+#@app.before_request
+#def trace_it():
+#    from wqflask import tracer
+#    tracer.turn_on()
 
 @app.route("/")
 def index_page():
@@ -291,6 +291,14 @@ def manage_groups():
     template_vars = user_manager.GroupsManager(request.args)
     return render_template("admin/group_manager.html", **template_vars.__dict__)
 
+
+@app.route("/n/register")
+def new_register():
+    return render_template("new_security/register_user.html")
+
+@app.route("/n/login")
+def new_login():
+    return render_template("new_security/login_user.html")
 
 def json_default_handler(obj):
     '''Based on http://stackoverflow.com/a/2680060/1175849'''

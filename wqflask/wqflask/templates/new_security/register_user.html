@@ -1,66 +1,104 @@
-<div class="security_box">
-    <h4>* Already have an account?</h4>
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+    <header class="jumbotron subhead" id="overview">
+        <div class="container">
+            <h1>Register</h1>
+            <p class="lead">
+                It's easy and fast to make an account.
+            </p>
+        </div>
+    </header>
 
-    <center>
-        <a href="/n/login"
-           class="btn btn-info modalize">Sign in using existing account</a>
-    </center>
-
-    <hr />
-
-    <h4>Don't have an account?</h4>
-
-    <h5>Register here</h5>
-
-    <form class="form-horizontal" action="/n/register_submit"
-          method="POST" name="login_user_form">
-        <fieldset>
-
-
-            <div class="control-group">
-                <label class="control-label" for="email">Email Address</label>
-                <div class="controls">
-                    <input id="email" name="email" class="focused" type="text" value="">
-                </div>
-            </div>
+    <div class="container">
+        <div class="page-header">
+            <h1>Registration</h1>
+        </div>
+    
+        <div class="security_box">
+            <h4>Already have an account?</h4>
+        
             
-            <div class="control-group">
-                <label class="control-label" for="email">Name</label>
-                <div class="controls">
-                    <input id="name" name="name" type="text" value="">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label class="control-label" for="email">Organization</label>
-                <div class="controls">
-                    <input id="organization" name="organization" type="text" value="">
-                </div>
-            </div>
+            <a href="/n/login"
+                class="btn btn-info modalize">Sign in using existing account</a>
             
-            <div class="control-group">
-                <label class="control-label" for="password">Password</label>
-                <div class="controls">
-                    <input id="password" name="password" type="password" value="">
-                </div>
-            </div>
+        
+            <hr />
+        
+            <h4>Don't have an account?</h4>
+        
+            <h5>Register here</h5>
+        
+            <form class="form-horizontal" action="/n/register_submit" data-validate="parsley"
+                  method="POST" name="login_user_form">
+                <fieldset>
+        
+                    <div class="control-group">
+                        <label class="control-label" for="email">Email Address</label>
+                        <div class="controls">
+                            <input id="email" name="email" class="focused" type="text" value=""
+                                   data-trigger="change" data-required="true" data-type="email" data-maxlength="50">
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label" for="email">Full Name</label>
+                        <div class="controls">
+                            <input id="name" name="name" type="text" value=""
+                                   data-trigger="change" data-required="true" data-minlength="5" data-maxlength="50">
+                        </div>
+                    </div>
+        
+                    <div class="control-group">
+                        <label class="control-label" for="email">Organization</label>
+                        <div class="controls">
+                            <input id="organization" name="organization" type="text" value="" data-minlength="3" data-maxlength="50">
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label" for="password">Password</label>
+                        <div class="controls">
+                            <input id="password" name="password" type="password" value=""
+                                   data-trigger="change" data-required="true" data-minlength="6" data-maxlength="30">
+                        </div>
+                    </div>
+                    
+      
+                    <div class="control-group" style="display: none" id="password_alert">
+                        <div class="controls"">
+                            <span id="password_strength" class="alert"></span>
+                        </div>
+                    </div>
+             
+        
+                    <div class="control-group">
+                        <label class="control-label" for="password_confirm">Confirm Password</label>
+                        <div class="controls">
+                            <input id="password" name="password_confirm" type="password" value=""
+                                   data-trigger="change" data-required="true" data-equalto="#password">
+                        </div>
+                    </div>
+        
+                    <div class="control-group">
+                        <div class="controls"">
+                            <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Create account">
+                        </div>
+                    </div>
+        
+                </fieldset>
+        
+            </form>
+        </div>
+    </div>
 
-            <div class="control-group">
-                <label class="control-label" for="password_confirm">Confirm Password</label>
-                <div class="controls">
-                    <input id="password" name="password_confirm" type="password" value="">
-                </div>
-            </div>
+{% endblock %}
 
-            <div class="control-group">
-                <div class="controls"">
-                    <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Create account">
-                </div>
-            </div>
+{% block js %}  
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>-->
+    
+    {% include "new_security/_scripts.html" %}
+    <script type="text/javascript" src="/static/new/js_external/zxcvbn/zxcvbn-async.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/password_strength.js"></script>
+{% endblock %}
 
-        </fieldset>
-
-    </form>
-</div>
-{% include "security/_scripts.html" %}
-<!--{% include "security/_menu.html" %}-->
