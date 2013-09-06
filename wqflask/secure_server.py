@@ -36,4 +36,4 @@ if __name__ == '__main__':
         port=app.config['SERVER_PORT'],
         use_debugger=False,
         threaded=True,
-        use_reloader=False)
+        use_reloader=True)

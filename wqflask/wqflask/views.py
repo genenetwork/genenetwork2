@@ -23,7 +23,8 @@ import sqlalchemy
 
 from wqflask import app
 
-from flask import render_template, request, make_response, Response, Flask, g, config, jsonify
+from flask import (render_template, request, make_response, Response,
+                   Flask, g, config, jsonify, redirect, url_for)
 
 from wqflask import search_results
 from base.data_set import DataSet    # Used by YAML in marker_regression
@@ -292,9 +293,32 @@ def manage_groups():
     return render_template("admin/group_manager.html", **template_vars.__dict__)
 
 
-@app.route("/n/register")
+@app.route("/n/register", methods=('GET', 'POST'))
 def new_register():
-    return render_template("new_security/register_user.html")
+    params = None
+    errors = None
+    if request.form:
+        params = request.form
+    else:
+        params = request.args
+    if params:
+        result = user_manager.RegisterUser(params)
+        errors = result.errors
+    return render_template("new_security/register_user.html", values=params, errors=errors)
+
+#@app.route("/n/register_submit", methods=('POST',))
+#def register_submit():
+#    print("request.args are: ", request.args)
+#    result = user_manager.RegisterUser(request.form)
+#    if result.errors:
+#        print("Redirecting")
+#        # 307 preserves the post on the redirect (maybe)
+#        errors = result.errors
+#        #errors = json.dumps(errors)
+#        print("request.args are: ", request.args)
+#        return render_template("new_security/register_user.html", errors=errors, values=request.form)
+#        #return redirect(url_for('new_register', errors=errors), code=307)
+
 
 @app.route("/n/login")
 def new_login():

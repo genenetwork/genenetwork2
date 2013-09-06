@@ -28,15 +28,26 @@
             <h4>Don't have an account?</h4>
         
             <h5>Register here</h5>
-        
-            <form class="form-horizontal" action="/n/register_submit" data-validate="parsley"
+            
+            {% if errors %}
+                <div class="alert alert-error">  
+                    <strong>Please note:</strong>
+                    <ul>
+                        {% for error in errors %}
+                            <li>{{error}}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+           
+            <form class="form-horizontal" action="/n/register" data-validate="parsley"
                   method="POST" name="login_user_form">
                 <fieldset>
         
                     <div class="control-group">
                         <label class="control-label" for="email">Email Address</label>
                         <div class="controls">
-                            <input id="email" name="email" class="focused" type="text" value=""
+                            <input id="email_address" name="email_address" class="focused" type="text" value="{{values.email_address}}"
                                    data-trigger="change" data-required="true" data-type="email" data-maxlength="50">
                         </div>
                     </div>
@@ -44,7 +55,7 @@
                     <div class="control-group">
                         <label class="control-label" for="email">Full Name</label>
                         <div class="controls">
-                            <input id="name" name="name" type="text" value=""
+                            <input id="full_name" name="full_name" type="text" value="{{values.full_name}}"
                                    data-trigger="change" data-required="true" data-minlength="5" data-maxlength="50">
                         </div>
                     </div>
@@ -52,7 +63,7 @@
                     <div class="control-group">
                         <label class="control-label" for="email">Organization</label>
                         <div class="controls">
-                            <input id="organization" name="organization" type="text" value="" data-minlength="3" data-maxlength="50">
+                            <input id="organization" name="organization" type="text" value="{{values.organization}}" data-minlength="3" data-maxlength="50">
                         </div>
                     </div>
                     
@@ -62,8 +73,7 @@
                             <input id="password" name="password" type="password" value=""
                                    data-trigger="change" data-required="true" data-minlength="6" data-maxlength="30">
                         </div>
-                    </div>
-                    
+                    </div>           
       
                     <div class="control-group" style="display: none" id="password_alert">
                         <div class="controls"">
@@ -71,7 +81,6 @@
                         </div>
                     </div>
              
-        
                     <div class="control-group">
                         <label class="control-label" for="password_confirm">Confirm Password</label>
                         <div class="controls">

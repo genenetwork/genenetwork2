@@ -9,6 +9,8 @@ from __future__ import print_function, division, absolute_import
 
 from wqflask import model
 
+from utility import Bunch
+
 from flask import Flask, g
 
 from pprint import pformat as pf
@@ -43,6 +45,37 @@ class UserManager(object):
             print("  ID:", dataset.id)
             print("  Confidential:", dataset.check_confidentiality())
         #print("   ---> self.datasets:", self.datasets)
+        
+
+class RegisterUser(object):
+    def __init__(self, kw):
+        self.errors = []
+        user = Bunch()
+        
+        user.email_address = kw.get('email_address', '').strip()
+        if not (5 <= len(user.email_address) <= 50):
+            self.errors.append('Email Address needs to be between 5 and 50 characters.')
+            
+        user.full_name = kw.get('full_name', '').strip()
+        if not (5 <= len(user.full_name) <= 50):
+            self.errors.append('Full Name needs to be between 5 and 50 characters.')
+            
+        user.organization = kw.get('organization', '').strip()
+        if user.organization and not (5 <= len(user.organization) <= 50):
+            self.errors.append('Organization needs to be empty or between 5 and 50 characters.')
+
+        user.password = kw.get('password', '')
+        if not (6 <= len(user.password) <= 30):
+            self.errors.append('Password needs to be between 6 and 30 characters.')
+            
+        if kw.get('password_confirm') != user.password:
+            self.errors.append("Passwords don't match.")
+        
+        if self.errors:
+            return 
+        
+    
+
 
 
 class GroupsManager(object):
