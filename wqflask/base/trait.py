@@ -286,7 +286,6 @@ class GeneralTrait(object):
                            escape(self.dataset.name),
                            escape(self.name))
             trait_info = g.db.execute(query).fetchone()
-            #print("trait_info is: ", pf(trait_info))
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif self.dataset.type == 'Geno':
@@ -359,7 +358,6 @@ class GeneralTrait(object):
                                 InbredSet.SpeciesId = Species.Id AND
                                 Species.TaxonomyId = Homologene.TaxonomyId
                         """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
-                print("-> query is:", query)
                 result = g.db.execute(query).fetchone()
                 #else:
                 #    result = None
@@ -391,7 +389,6 @@ class GeneralTrait(object):
                                 Geno.Name = '{}' and
                                 Geno.SpeciesId = Species.Id
                                 """.format(self.dataset.group.species, self.locus)
-                            print("query is:", query)
                             result = g.db.execute(query).fetchone()
                             self.locus_chr = result[0]
                             self.locus_mb = result[1]

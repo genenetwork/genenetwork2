@@ -49,12 +49,14 @@ from base.templatePage import templatePage
 from utility import webqtlUtil, helper_functions, corr_result_helpers
 from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
-from wqflask.correlation import correlation_function
+from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
 
 from MySQLdb import escape_string as escape
 
 from pprint import pformat as pf
+
+from flask import Flask, g
 
 METHOD_SAMPLE_PEARSON = "1"
 METHOD_SAMPLE_RANK = "2"
@@ -159,6 +161,11 @@ class CorrelationResults(object):
                 trait_object.sample_r = self.correlation_data[trait][0]
                 trait_object.sample_p = self.correlation_data[trait][1]
                 trait_object.num_overlap = self.correlation_data[trait][2]
+                
+                # Set some sane defaults
+                trait_object.tissue_corr = None
+                trait_object.tissue_pvalue = None
+
                 self.correlation_results.append(trait_object)
                 
             
@@ -916,61 +923,63 @@ class CorrelationResults(object):
         symbol_corr_dict = {}
         symbol_pvalue_dict = {}
 
-        primary_trait_symbol_value_dict = correlation_function.make_gene_tissue_value_dict(
+        primary_trait_symbol_value_dict = correlation_functions.make_gene_tissue_value_dict(
                                                     GeneNameLst=[self.this_trait.symbol],
                                                     TissueProbeSetFreezeId=tissue_dataset_id)
         primary_trait_value = primary_trait_symbol_value_dict.values()[0]
 
-        symbol_value_dict = correlation_function.make_gene_tissue_value_dict(
+        symbol_value_dict = correlation_functions.make_gene_tissue_value_dict(
                                         gene_name_list=[],
                                         tissue_dataset_id=tissue_dataset_id)
 
-        symbol_corr_dict, symbol_pvalue_dict = correlation_function.batch_cal_tissue_corr(
+        symbol_corr_dict, symbol_pvalue_dict = correlation_functions.batch_cal_tissue_corr(
                 primaryTraitValue,
                 SymbolValueDict,
                 method=self.corr_method)
         #else:
-        #    symbol_corr_dict, symbol_pvalue_dict = correlation_function.batch_cal_tissue_corr(
+        #    symbol_corr_dict, symbol_pvalue_dict = correlation_functions.batch_cal_tissue_corr(
         #        primaryTraitValue,
         #        SymbolValueDict)
-
 
         return (symbolCorrDict, symbolPvalueDict)
 
 
+    def do_tissue_correlation_by_list(self, tissue_dataset_id):
 
-    #XZ, 10/13/2010
-    def getTissueCorrelationByList(self, primaryTraitSymbol=None, traitList=None, TissueProbeSetFreezeId=None, method=None):
+        trait_symbol_and_values = correlation_functions.get_trait_symbol_and_tissue_values(
+            gene_name_list = [self.this_trait.symbol])
 
-        primaryTraitSymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=[primaryTraitSymbol], TissueProbeSetFreezeId=TISSUE_MOUSE_DB)
+        if self.this_trait.symbol.lower() in trait_symbol_and_values:
+            primary_trait_value = trait_symbol_and_values[self.this_trait_symbol.lower()]
+            
+            #gene_symbol_list = []
+            #
+            #for trait in self.correlation_results:
+            #    if hasattr(trait, 'symbol'):
+            #        gene_symbol_list.append(trait.symbol)
+            
+            gene_symbol_list = [trait.symbol for trait in self.correlation_results if trait.symbol]
 
-        if primaryTraitSymbol.lower() in primaryTraitSymbolValueDict:
-            primaryTraitValue = primaryTraitSymbolValueDict[primaryTraitSymbol.lower()]
+            symbol_value_dict = correlation_functions.get_trait_gene_symbol_and_tissue_values(
+                                                    gene_symbol_list=gene_symbol_list)
 
-            geneSymbolList = []
+            for trait in self.correlation_results:
+                if trait.symbol and trait.symbol.lower() in symbol_value_dict:
+                    this_trait_value = symbol_value_dict[trait.symbol.lower()]
+                    
+                    result = correlation_functions.calZeroOrderCorrForTiss(primary_trait_value,
+                                                                          this_trait_value,
+                                                                          self.corr_method)
+ 
+                    trait.tissue_corr = result[0]
+                    trait.tissue_pvalue = result[2]
+        #        else:
+        #            trait.tissue_corr = None
+        #            trait.tissue_pvalue = None
+        #else:
+        #    for trait in self.correlation_results:
+        #        trait.tissue_corr = None
+        #        trait.tissue_pvalue = None
 
-            for thisTrait in traitList:
-                if hasattr(thisTrait, 'symbol'):
-                    geneSymbolList.append(thisTrait.symbol)
-
-            SymbolValueDict = correlationFunction.getGeneSymbolTissueValueDictForTrait(cursor=self.cursor, GeneNameLst=geneSymbolList, TissueProbeSetFreezeId=TISSUE_MOUSE_DB)
-
-            for thisTrait in traitList:
-                if hasattr(thisTrait, 'symbol') and thisTrait.symbol and thisTrait.symbol.lower() in SymbolValueDict:
-                    oneTraitValue = SymbolValueDict[thisTrait.symbol.lower()]
-                    if method in ["2","5"]:
-                        result = correlationFunction.calZeroOrderCorrForTiss( primaryTraitValue, oneTraitValue, method='spearman' )
-                    else:
-                        result = correlationFunction.calZeroOrderCorrForTiss( primaryTraitValue, oneTraitValue)
-                    thisTrait.tissueCorr = result[0]
-                    thisTrait.tissuePValue = result[2]
-                else:
-                    thisTrait.tissueCorr = None
-                    thisTrait.tissuePValue = None
-        else:
-            for thisTrait in traitList:
-                thisTrait.tissueCorr = None
-                thisTrait.tissuePValue = None
-
-        return traitList
+        #return self.correlation_results
 
