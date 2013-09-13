@@ -96,7 +96,7 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        key = "search_results:v2:" + json.dumps(request.args, sort_keys=True)
+        key = "search_results:v5:" + json.dumps(request.args, sort_keys=True)
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
@@ -261,13 +261,11 @@ def sharing_info_page():
     template_vars = SharingInfoPage.SharingInfoPage(fd)
     return template_vars
 
-
 # Take this out or secure it before going into production
 @app.route("/get_temp_data")
 def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
-
 
 @app.route("/thank_you")
 def thank_you():

@@ -1,6 +1,37 @@
+UFW - default firewall confirguation tool for Ubuntu; eases iptables firewall configuration
+
+Enable UFW:
+sudo ufw enable
+Check status of UFW:
+sudo ufw status verbose
+
+Limit ssh:
+sudo ufw limit ssh
+
+Enable http, https:
+sudo ufw allow http
+sudo ufw allow https
+
+===========================================
+
+http://evilrouters.net/2011/02/18/using-etckeeper-with-git-on-ubuntu/
+
+Install etckeeper:
+sudo apt-get install etckeeper
+
+Edit /etc/etckeeper/etckeeper.conf to comment out VCS="bzr" and comment in VCS="git"
+
+Initialize repository:
+sudo etckeeper init
+
+Do initial commit:
+sudo etckeeper commit "Initial commit."
+
+===========================================
+
 Get git:
 
-sudo apt-get install git-core
+sudo apt-get install git
 
 ===========================================
 
@@ -16,9 +47,10 @@ git pull origin flask(or whatever the branch is)
 Search for package with a specified file that can be installed with apt-get
 apt-file search _______
 
-Install from requirements.txt:
-pip install -r gene/wqflask/requirements.txt -t ve27
+============================================
 
+Create trash directory:
+mkdir ~/.trash
 
 ============================================
 
@@ -26,19 +58,6 @@ Using dpkg
 
 Check which system packages are already installed:
 dpkg -l | less
-
-===========================================
-
-Using Yolk
-
-Install Yolk:
-pip install yolk
-
-Check packages installed in this virtual environment:
-yolk -l
-
-Checks packages that have updates available:
-yolk -U
 
 ===========================================
 
@@ -50,6 +69,183 @@ virtualenv ve27
 
 Start up virtual environment:
 source ~/ve27/bin/activate
+
+===========================================
+
+Install libmysqlclient-dev (Mysql-Python dependency)
+sudo apt-get install libmysqlclient-dev
+
+Install python-dev (numpy dependency)
+sudo apt-get install python-dev
+
+Install scipy dependencies:
+sudo apt-get install libatlas-base-dev gfortran g++
+
+===========================================
+
+Install pip:
+sudo apt-get install python-pip
+
+REMEMBER TO SOURCE VE BEFORE INSTALLING 
+
+Comment out in requirements.txt:
+Reaper
+numarray
+
+Before installing from requirements.txt, install numpy separately:
+pip install numpy==1.7.0 (or whatever version we're using)
+
+Install from requirements.txt (after activating virtualenv):
+pip install -r gene/misc/requirements.txt
+
+===========================================
+
+Installing QTL Reaper
+
+wget http://downloads.sourceforge.net/project/qtlreaper/qtlreaper/1.1.1/qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb
+mv -v qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb qtlreaper-1.1.1.tar.gz
+tar xvf qtlreaper-1.1.1.tar.gz (to unzip)
+mkdir /home/zas1024/ve27/include/python2.7/Reaper
+python setup.py install
+
+===========================================
+
+Installing numarray 1.5.2
+
+wget http://downloads.sourceforge.net/project/numpy/Old%20Numarray/1.5.2/numarray-1.5.2.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnumpy%2Ffiles%2FOld%2520Numarray%2F1.5.2%2Fnumarray-1.5.2.tar.gz%2Fdownload&ts=1358978306&use_mirror=superb-dca2
+mv -v numarray-1.5.2.tar.gz?r=http:%2F%2Fsourceforge.net%2Fprojects%2Fnumpy%2Ffiles%2FOld%20Numarray%2F1.5.2%2Fnumarray-1.5.2.tar.gz%2Fdownload numarray-1.5.2.tar.gz
+tar xvf numarray-1.5.2.tar.gz
+sudo python setup.py install
+
+===========================================
+
+Installing nginx
+
+sudo -s
+nginx=stable # use nginx=development for latest development version
+echo "deb http://ppa.launchpad.net/nginx/$nginx/ubuntu lucid main" > /etc/apt/sources.list.d/nginx-$nginx-lucid.list
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C300EE8C
+apt-get update 
+apt-get install nginx
+
+Create configuration file in ~/gene/wqflask/other_config/nginx_conf/ (modeled off of the others)
+Create symbolic link to config file in /etc/nginx/sites-enabled/:
+ln -s dir_to_link_to linking_dir
+
+Run nginx:
+sudo /usr/sbin/nginx
+
+============================================
+
+Copy over zach_settings.py to /home/zas1024 directory (or whatever is home directory)
+
+export WQFLASK_SETTINGS=~/gene/wqflask/cfg/zach_settings.py (or wherever file is located)
+
+============================================
+
+Install MySQL Server
+
+sudo apt-get install mysql-server
+
+mkdir /mnt/big
+fdisk /dev/sdb
+m: for help
+n: new partion
+...
+w: write to table and exit
+
+Start MySQL server:
+service mysql start
+
+Stop MySQL server:
+service mysql stop
+
+Change root password:
+mysql> UPDATE mysql.user SET Password=PASSWORD('your password') WHERE User='root';
+
+Setup accounts in MySQL (first need to delete anonymous/non-root accounts):
+#; use mysql;
+#; select * from user;
+#; delete from user where Host!="localhost";
+#; delete from user where User!="root";
+#; update user set Password = Password('yourpassword') where User='root';
+#; GRANT ALL ON *.* TO 'yourusername'@'%' IDENTIFIED BY 'yourpassword';
+#; select * from user;
+
+Use Percona to optimise my.cfg file:
+https://tools.percona.com/wizard
+
+To check # CPUs:
+grep -c processor /proc/cpuinfo
+
+To check memory, can use htop
+
+============================================
+
+Check RSA key:
+ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key
+
+03:2c:d7:01:01:f0:31:3a:c8:df:e4:98:62:2c:59:d2  root@penguin (RSA)
+
+============================================
+
+Installing redis server
+
+In the dls directory:
+$ wget http://redis.googlecode.com/files/redis-2.6.14.tar.gz
+$ tar xzf redis-2.6.14.tar.gz
+$ cd redis-2.6.14
+$ make
+
+Run redis (from inside redis-2.6.14 directory):
+src/redis-server
+
+For the rest of the installation instructions, refer to:
+http://redis.io/topics/quickstart
+
+To continue installation (from the README):
+
+In order to install Redis binaries into /usr/local/bin just use:
+
+    % make install
+
+Make install will just install binaries in your system, but will not configure
+init scripts and configuration files in the appropriate place. This is not
+needed if you want just to play a bit with Redis, but if you are installing
+it the proper way for a production system, we have a script doing this
+for Ubuntu and Debian systems:
+
+    % cd utils
+    % ./install_server
+
+The script will ask you a few questions and will setup everything you need
+to run Redis properly as a background daemon that will start again on
+system reboots.
+
+In the redis config file (/etc/redis/6379.conf) uncomment the following line:
+bind 127.0.0.1
+
+This is so only the local computer has access
+
+============================================
+
+Check RSA key:
+ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key
+
+03:2c:d7:01:01:f0:31:3a:c8:df:e4:98:62:2c:59:d2  root@penguin (RSA)
+
+============================================
+
+Using Yolk
+
+Install Yolk:
+pip install yolk
+
+Check packages installed in this virtual environment:
+yolk -l
+
+Checks packages that have updates available:
+yolk -U
 
 ===========================================
 
@@ -67,28 +263,6 @@ Install MySQL Client
 
 To fix error "mysql_config not found" while installing packages with pip:
 sudo apt-get install libmysqlclient-dev
-
-===========================================
-
-Installing QTL Reaper
-
-wget http://downloads.sourceforge.net/project/qtlreaper/qtlreaper/1.1.1/qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb
-mv -v qtlreaper-1.1.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fqtlreaper%2Ffiles%2Flatest%2Fdownload&ts=1358975786&use_mirror=iweb qtlreaper-1.1.1.tar.gz
-tar xvf qtlreaper-1.1.1.tar.gz (to unzip)
-python setup.py build
-sudo mkdir /home/zas1024/ve27/include/python2.7/Reaper
-sudo chown /home/zas1024/ve27/include/python2.7/Reaper (or whereever the directory is; the problem
-involved the fact that doing "sudo python setup.py install" doesn't install within the virtualenv)
-python setup.py install
-
-===========================================
-
-Installing numarray 1.5.2
-
-wget http://downloads.sourceforge.net/project/numpy/Old%20Numarray/1.5.2/numarray-1.5.2.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnumpy%2Ffiles%2FOld%2520Numarray%2F1.5.2%2Fnumarray-1.5.2.tar.gz%2Fdownload&ts=1358978306&use_mirror=superb-dca2
-mv -v numarray-1.5.2.tar.gz?r=http:%2F%2Fsourceforge.net%2Fprojects%2Fnumpy%2Ffiles%2FOld%20Numarray%2F1.5.2%2Fnumarray-1.5.2.tar.gz%2Fdownload numarray-1.5.2.tar.gz
-tar xvf numarray-1.5.2.tar.gz
-sudo python setup.py install
 
 ===========================================
 
@@ -132,7 +306,7 @@ Start up virtual environment:
 source ~/ve27/bin/activate
 
 To set WQFLASK_SETTINGS environment variable:
-export WQFLASK_SETTINGS=~/gene/wqflask/cfg/zach_settings.py (or wherever file is located)
+export WQFLASK_SETTINGS=~/zach_settings.py (or wherever file is located)
 
 To change screen environment variable (if man not working or to get color, for example):
 export TERM=screen
@@ -145,5 +319,10 @@ Run web server:
 
 Run server:
 python runserver.py
+
+===========================================
+
+To do full upgrade (as opposed to apt-get upgrade)
+sudo aptitude full-upgrade
 
 ===========================================

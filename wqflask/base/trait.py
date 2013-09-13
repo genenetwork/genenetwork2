@@ -318,7 +318,11 @@ class GeneralTrait(object):
 
             #XZ: assign SQL query result to trait attributes.
             for i, field in enumerate(self.dataset.display_fields):
-                setattr(self, field, trait_info[i])
+                #print("  mike: {} -> {} - {}".format(field, type(trait_info[i]), trait_info[i]))
+                holder = trait_info[i]
+                if isinstance(trait_info[i], basestring):
+                    holder = unicode(trait_info[i], "utf8", "ignore")
+                setattr(self, field, holder)
 
             if self.dataset.type == 'Publish':
                 self.confidential = 0
@@ -327,6 +331,9 @@ class GeneralTrait(object):
 
             self.homologeneid = None
             
+            #print("self.geneid is:", self.geneid)
+            #print("  type:", type(self.geneid))
+            #print("self.dataset.group.name is:", self.dataset.group.name)
             if self.dataset.type == 'ProbeSet' and self.dataset.group and self.geneid:
                 #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
                 #XZ: So I have to test if geneid is number before execute the query.

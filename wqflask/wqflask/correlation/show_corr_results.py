@@ -49,7 +49,7 @@ from base.templatePage import templatePage
 from utility import webqtlUtil, helper_functions, corr_result_helpers
 from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
-from wqflask.correlation import correlationFunction
+from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
 
 from MySQLdb import escape_string as escape
@@ -142,8 +142,6 @@ class CorrelationResults(object):
                 this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
                     this_trait_vals, target_vals)
 
-                print("num_overlap:", num_overlap)
-
                 if self.corr_method == 'pearson':
                     sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
                 else:
@@ -169,6 +167,8 @@ class CorrelationResults(object):
                 trait_object.tissue_pvalue = None
 
                 self.correlation_results.append(trait_object)
+                
+            
                 
                 #self.correlation_data_slice[trait] = self.correlation_data[trait]
                 #self.correlation_data_slice[trait].append(trait_object)
@@ -549,9 +549,8 @@ class CorrelationResults(object):
             except:
                 return 0
 
-        symbol_corr_dict, symbol_pvalue_dict = self.calculate_corr_all_tissue_trait(
-            tissue_probesetfreeze_id=TISSUE_MOUSE_DB,
-            method=method)
+        symbol_corr_dict, symbol_pvalue_dict = self.calculate_corr_for_all_tissues(
+                                                                tissue_dataset_id=TISSUE_MOUSE_DB)
 
         symbol_corr_list = symbol_corr_dict.items()
 
@@ -604,12 +603,15 @@ class CorrelationResults(object):
         """Comments Possibly Out of Date!!!!!
         
         
-        Uses getTempTissueCorrTable to generate table of tissue correlations.
+        Uses getTempTissueCorrTable to generate table of tissue correlations
         
         This function then gathers that data and pairs it with the TraitID string.
         Takes as its arguments a formdata instance, and a database instance.
         Returns a dictionary of 'TraitID':(tissueCorr, tissuePValue)
         for the requested correlation
+        
+        Used when the user selects the tissue correlation method; i.e. not for the
+        column that is appended to all probeset trait correlation tables
         
         """
 
@@ -636,7 +638,7 @@ class CorrelationResults(object):
             trait_name, tissue_corr, tissue_pvalue = entry
             tissue_corr_dict[trait_name] = (tissue_corr, tissue_pvalue)
 
-        g.db.execute('DROP TEMPORARY TABLE {}'.format(escape(temp_table))
+        g.db.execute('DROP TEMPORARY TABLE {}'.format(escape(temp_table)))
 
         return tissue_corr_dict
 
@@ -916,39 +918,35 @@ class CorrelationResults(object):
         return trait_list
         """
 
-    def calculate_corr_all_tissue_trait(self, tissue_probesetfreeze_id=None, method=None):
+    def calculate_corr_for_all_tissues(self, tissue_dataset_id=None):
 
         symbol_corr_dict = {}
         symbol_pvalue_dict = {}
 
-        primary_trait_symbol_value_dict = correlation_function.
-            get_genesymbol_tissue_value_dict_trait(cursor=self.cursor,
-                                                   GeneNameLst=[primaryTraitSymbol],
-                                                   TissueProbeSetFreezeId=TISSUE_MOUSE_DB)
+        primary_trait_symbol_value_dict = correlation_functions.make_gene_tissue_value_dict(
+                                                    GeneNameLst=[self.this_trait.symbol],
+                                                    TissueProbeSetFreezeId=tissue_dataset_id)
         primary_trait_value = primary_trait_symbol_value_dict.values()[0]
 
-        symbol_value_dict = correlation_function.get_genesymbol_tissue_value_dict_trait(
-            cursor=self.cursor,
-            gene_name_list=[],
-            tissue_probeSetfreeze_id=TISSUE_MOUSE_DB)
+        symbol_value_dict = correlation_functions.make_gene_tissue_value_dict(
+                                        gene_name_list=[],
+                                        tissue_dataset_id=tissue_dataset_id)
 
-        if method in ["2","5"]:
-            symbol_corr_dict, symbol_pvalue_dict = correlation_function.batch_cal_tissue_corr(
+        symbol_corr_dict, symbol_pvalue_dict = correlation_functions.batch_cal_tissue_corr(
                 primaryTraitValue,
                 SymbolValueDict,
-                method='spearman')
-        else:
-            symbol_corr_dict, symbol_pvalue_dict = correlation_function.batch_cal_tissue_corr(
-                primaryTraitValue,
-                SymbolValueDict)
-
+                method=self.corr_method)
+        #else:
+        #    symbol_corr_dict, symbol_pvalue_dict = correlation_functions.batch_cal_tissue_corr(
+        #        primaryTraitValue,
+        #        SymbolValueDict)
 
         return (symbolCorrDict, symbolPvalueDict)
 
 
     def do_tissue_correlation_by_list(self, tissue_dataset_id):
 
-        trait_symbol_and_values = correlation_function.get_trait_symbol_and_tissue_values(
+        trait_symbol_and_values = correlation_functions.get_trait_symbol_and_tissue_values(
             gene_name_list = [self.this_trait.symbol])
 
         if self.this_trait.symbol.lower() in trait_symbol_and_values:
@@ -962,14 +960,14 @@ class CorrelationResults(object):
             
             gene_symbol_list = [trait.symbol for trait in self.correlation_results if trait.symbol]
 
-            symbol_value_dict = correlation_function.get_trait_gene_symbol_and_tissue_values(
+            symbol_value_dict = correlation_functions.get_trait_gene_symbol_and_tissue_values(
                                                     gene_symbol_list=gene_symbol_list)
 
             for trait in self.correlation_results:
                 if trait.symbol and trait.symbol.lower() in symbol_value_dict:
                     this_trait_value = symbol_value_dict[trait.symbol.lower()]
                     
-                    result = correlation_function.calZeroOrderCorrForTiss(primary_trait_value,
+                    result = correlation_functions.calZeroOrderCorrForTiss(primary_trait_value,
                                                                           this_trait_value,
                                                                           self.corr_method)
  

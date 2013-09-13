@@ -138,8 +138,8 @@ def run_human(pheno_vector,
         #print("***** Added to {} queue *****".format(key))
         for snp, this_id in plink_input:
             #with Bench("part before association"):
-            if count > 2000:
-                break
+            #if count > 2000:
+            #    break
             count += 1
 
             percent_complete = (float(count) / total_snps) * 100
@@ -237,6 +237,9 @@ def run(pheno_vector,
     with Bench("Calculate Kinship"):
         kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
     
+    print("kinship_matrix: ", pf(kinship_matrix))
+    print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
+    
     with Bench("Create LMM object"):
         lmm_ob = LMM(pheno_vector, kinship_matrix)
     
@@ -296,8 +299,8 @@ def calculate_kinship(genotype_matrix, temp_data):
     """
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
-    #print("n is:", n)
-    #print("m is:", m)
+    print("n is:", n)
+    print("m is:", m)
     keep = []
     for counter in range(m):
         #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
@@ -306,7 +309,7 @@ def calculate_kinship(genotype_matrix, temp_data):
         
         #Gets vector of values for column (no values in vector if not all values in col are numbers)
         marker_values = genotype_matrix[True - not_number, counter]
-        #print("type of marker_values is:", type(marker_values))
+        #print("marker_values is:", pf(marker_values))
         
         #Gets mean of values in vector
         values_mean = marker_values.mean()
@@ -322,7 +325,8 @@ def calculate_kinship(genotype_matrix, temp_data):
         temp_data.store("percent_complete", percent_complete)
         
     genotype_matrix = genotype_matrix[:,keep]
-    kinship_matrix = np.dot(genotype_matrix,genotype_matrix.T) * 1.0/float(m)
+    print("genotype_matrix: ", pf(genotype_matrix))
+    kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
     return kinship_matrix
 
 def GWAS(pheno_vector,
@@ -365,9 +369,9 @@ def GWAS(pheno_vector,
     if v.sum():
         keep = True - v
         pheno_vector = pheno_vector[keep]
-        genotype_matrix = genotype_matrix[keep,:]
-        covariate_matrix = covariate_matrix[keep,:]
-        kinship_matrix = kinship_matrix[keep,:][:,keep]
+        #genotype_matrix = genotype_matrix[keep,:]
+        #covariate_matrix = covariate_matrix[keep,:]
+        #kinship_matrix = kinship_matrix[keep,:][:,keep]
         kinship_eigen_vals = []
         kinship_eigen_vectors = []
 
@@ -392,7 +396,7 @@ def GWAS(pheno_vector,
             keep = True - v
             xs = x[keep,:]
             if xs.var() == 0:
-                p_values.append(np.nan)
+                p_values.append(0)
                 t_statistics.append(np.nan)
                 continue
 
@@ -409,7 +413,7 @@ def GWAS(pheno_vector,
             ts, ps, beta, betaVar = lmm_ob_2.association(xs, REML=restricted_max_likelihood)
         else:
             if x.var() == 0:
-                p_values.append(np.nan)
+                p_values.append(0)
                 t_statistics.append(np.nan)
                 continue
 
@@ -459,9 +463,12 @@ class LMM:
        x = True - np.isnan(Y)
        #pdb.set_trace()
        if not x.sum() == len(Y):
+          print("Removing %d missing values from Y\n" % ((True - x).sum()))
           if self.verbose: sys.stderr.write("Removing %d missing values from Y\n" % ((True - x).sum()))
           Y = Y[x]
-          K = K[x,:][:,x]
+          print("x: ", len(x))
+          print("K: ", K.shape)
+          #K = K[x,:][:,x]
           X0 = X0[x,:]
           Kva = []
           Kve = []

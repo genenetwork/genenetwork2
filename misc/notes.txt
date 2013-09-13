@@ -92,6 +92,15 @@ python runserver.py
 
 ===========================================
 
+UFW - default firewall confirguation tool for Ubuntu; eases iptables firewall configuration
+
+Enable UFW:
+sudo ufw enable
+Check status of UFW:
+sudo ufw status verbose
+
+===========================================
+
 Update user password:
 use mysql;
 UPDATE user SET password=PASSWORD('whatever') WHERE user='webqtl';
@@ -117,7 +126,7 @@ pylint --help
 
 Start screen session:
 
-If "no option -R":
+If "no option -R" or running for first time:
 byobu-select-backend
 2. screen
 
@@ -236,6 +245,11 @@ To iterate through dictionary items: for X, Y in MyDictionary.items():
 
 ===========================================
 
+Change import path from command line
+export PYTHONPATH=~/gene/wqflask (or whatever)
+
+===========================================
+
 Create symbolic link:
 ln -s dir_to_link_to linking_dir
 
@@ -255,7 +269,33 @@ grep -ir (search string) (directory)
 
 ===========================================
 
+Change owner/group:
+
+chown zas1024 somefile (change owner of somefile to zas1024)
+chown zas1024: somefile (change owner and group of somefile to zas1024)
+sudo chown root: somefile (change owner/group of somefile to root)
+
+Change permissions:
+
+chmod g-wr (remove write/read privileges for group)
+chmod g+w (add write privileges for group)
+chmod u+rwx (add read, write, and execute privileges for user)
+etc.
+
+===========================================
+
 MySQL Things -
 
 Create fulltext (MATCH AGAINST syntax) index:
 CREATE FULLTEXT INDEX __________ ON Table (Column);
+
+If <4 character searches not working:
+Add ft_min_word_len = 2 (to make te minimum characters 2) to config file
+Rebuild relevant tables with fulltext indexes with "REPAIR TABLE _______ QUICK"
+
+===========================================
+
+To delete all .pyc files (for example if there's some issue you're having trouble resolving):
+find . -name '*.pyc' -delete
+http://stackoverflow.com/questions/785519/how-do-i-remove-all-pyc-files-from-a-project
+

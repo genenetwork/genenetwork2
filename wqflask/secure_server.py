@@ -4,11 +4,9 @@ from wqflask import app
 
 from flask import Flask, render_template
 
-
 # Setup mail
 from flask.ext.mail import Mail
 mail = Mail(app)
-
 
 from wqflask.model import *
 
@@ -18,7 +16,6 @@ from wqflask.model import *
 #    db.create_all()
 #    user_datastore.create_user(email='matt@example.com', password='notebook')
 #    db.session.commit()
-
 
 import logging
 file_handler = logging.FileHandler(app.config['LOGFILE'])
