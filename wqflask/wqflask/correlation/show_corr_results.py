@@ -105,7 +105,7 @@ class CorrelationResults(object):
 
             self.sample_data = {}
             self.corr_method = start_vars['corr_sample_method']
-            self.return_number = 500
+            self.return_number = 50
 
             #The two if statements below append samples to the sample list based upon whether the user
             #rselected Primary Samples Only, Other Samples Only, or All Samples
@@ -158,15 +158,27 @@ class CorrelationResults(object):
 
             for trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 trait_object = GeneralTrait(dataset=self.dataset, name=trait, get_qtl_info=True)
+            
+                print("gene symbol: ", trait_object.symbol)
+                
                 trait_object.sample_r = self.correlation_data[trait][0]
                 trait_object.sample_p = self.correlation_data[trait][1]
                 trait_object.num_overlap = self.correlation_data[trait][2]
                 
+                #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
+                #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
+                
+                
+                
                 # Set some sane defaults
-                trait_object.tissue_corr = None
-                trait_object.tissue_pvalue = None
+                trait_object.tissue_corr = 0
+                trait_object.tissue_pvalue = 0
 
                 self.correlation_results.append(trait_object)
+            
+            self.do_tissue_correlation_by_list()
+            
+            print("self.correlation_results: ", pf(self.correlation_results))
                 
             
                 
@@ -183,7 +195,7 @@ class CorrelationResults(object):
                 #        mb = trait_object.mb
                 #    )
                 #    if trait_object.mean:
-                #        trait_info[mean] = trait_object.mean
+                   #def do_tissue_correlation_by_list(self, tissue_dataset_id):t_object.alias, #        trait_info[mean] = trait_object.mean
                 #    if hasattr(trait_object, 'mean'):
                 #       trait_info[mean] = trait_object.mean
                 #    if hasattr(trait_object, 'lrs'):
@@ -197,7 +209,8 @@ class CorrelationResults(object):
                 #        correlation = float(self.correlation_data[trait][0]),
                 #        p_value = float(self.correlation_data[trait][1]),
                 #        symbol = trait_object.symbol,
-                #        alias = trait_object.alias,
+                #        alias = trai
+    #def do_tissue_correlation_by_list(self, tissue_dataset_id):t_object.alias,
                 #        description = trait_object.description,
                 #        chromosome = trait_object.chr,
                 #        mb = trait_object.mb
@@ -637,7 +650,15 @@ class CorrelationResults(object):
         for entry in results:
             trait_name, tissue_corr, tissue_pvalue = entry
             tissue_corr_dict[trait_name] = (tissue_corr, tissue_pvalue)
-
+    #symbolList,
+    #geneIdDict,
+    #dataIdDict,
+    #ChrDict,
+    #MbDict,
+    #descDict,
+    #pTargetDescDict = getTissueProbeSetXRefInfo(
+    #                    GeneNameLst=GeneNameLst,TissueProbeSetFreezeId=TissueProbeSetFreezeId)
+    
         g.db.execute('DROP TEMPORARY TABLE {}'.format(escape(temp_table)))
 
         return tissue_corr_dict
@@ -944,13 +965,17 @@ class CorrelationResults(object):
         return (symbolCorrDict, symbolPvalueDict)
 
 
-    def do_tissue_correlation_by_list(self, tissue_dataset_id):
+    def do_tissue_correlation_by_list(self, tissue_dataset_id=1):
+        """Given a list of correlation results (self.correlation_results), gets the tissue correlation value for each"""
 
-        trait_symbol_and_values = correlation_functions.get_trait_symbol_and_tissue_values(
-            gene_name_list = [self.this_trait.symbol])
+        #Gets tissue expression values for the primary trait
+        primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
+            symbol_list = [self.this_trait.symbol])
+        
+        print("primary_trait_tissue_vals: ", pf(primary_trait_tissue_vals_dict))
 
-        if self.this_trait.symbol.lower() in trait_symbol_and_values:
-            primary_trait_value = trait_symbol_and_values[self.this_trait_symbol.lower()]
+        if self.this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
+            primary_trait_tissue_values = primary_trait_tissue_vals_dict[self.this_trait.symbol.lower()]
             
             #gene_symbol_list = []
             #
@@ -960,19 +985,25 @@ class CorrelationResults(object):
             
             gene_symbol_list = [trait.symbol for trait in self.correlation_results if trait.symbol]
 
-            symbol_value_dict = correlation_functions.get_trait_gene_symbol_and_tissue_values(
-                                                    gene_symbol_list=gene_symbol_list)
+            corr_result_tissue_vals_dict= correlation_functions.get_trait_symbol_and_tissue_values(
+                                                    symbol_list=gene_symbol_list)
+
+            print("corr_result_tissue_vals: ", pf(corr_result_tissue_vals_dict))
 
             for trait in self.correlation_results:
-                if trait.symbol and trait.symbol.lower() in symbol_value_dict:
-                    this_trait_value = symbol_value_dict[trait.symbol.lower()]
+                if trait.symbol and trait.symbol.lower() in corr_result_tissue_vals_dict:
+                    this_trait_tissue_values = corr_result_tissue_vals_dict[trait.symbol.lower()]
                     
-                    result = correlation_functions.calZeroOrderCorrForTiss(primary_trait_value,
-                                                                          this_trait_value,
+                    result = correlation_functions.cal_zero_order_corr_for_tiss(primary_trait_tissue_values,
+                                                                          this_trait_tissue_values,
                                                                           self.corr_method)
  
                     trait.tissue_corr = result[0]
                     trait.tissue_pvalue = result[2]
+                    
+                    #print("trait.tissue_corr / pvalue: ", str(trait.tissue_corr) + " :: " + str(trait.tissue_pvalue))
+                    
+
         #        else:
         #            trait.tissue_corr = None
         #            trait.tissue_pvalue = None

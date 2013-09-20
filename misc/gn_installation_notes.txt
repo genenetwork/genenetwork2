@@ -272,6 +272,12 @@ sudo apt-get install r-base-dev
 
 ===========================================
 
+Installing rpy2
+
+pip install rpy2
+
+===========================================
+
 Install Parallel Python (pp)
 
 wget http://www.parallelpython.com/downloads/pp/pp-1.6.3.tar.gz
@@ -303,7 +309,13 @@ To get server running:
 !If having seemingly inexplicable problems with imports, make sure I've started the environment!
 
 Start up virtual environment:
-source ~/ve27/bin/activate
+source ~/ve27/bin/activate==============
+
+Install requests
+
+pip install requests
+
+=======================
 
 To set WQFLASK_SETTINGS environment variable:
 export WQFLASK_SETTINGS=~/zach_settings.py (or wherever file is located)
