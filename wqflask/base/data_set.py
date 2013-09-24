@@ -1055,7 +1055,6 @@ class MrnaAssayDataSet(DataSet):
                 """ % (escape(self.name), escape(self.dataset.name))
         results = g.db.execute(query).fetchone()
         return results[0]
-    
    
     def retrieve_sample_data(self, trait):
         query = """
@@ -1076,6 +1075,19 @@ class MrnaAssayDataSet(DataSet):
                     """ % (escape(trait), escape(self.name))
         results = g.db.execute(query).fetchall()
         return results
+
+    def retrieve_gene_symbols(self):
+        query = """
+                    select ProbeSet.Name, ProbeSet.Symbol
+                    from ProbeSet,ProbeSetXRef
+                    where ProbeSetXRef.ProbeSetFreezeId = %s and
+                    ProbeSetXRef.ProbeSetId=ProbeSet.Id;
+                """ % (self.id)
+        results = g.db.execute(query).fetchall()
+        symbol_dict = {}
+        for item in results:
+            symbol_dict[item[0]] = item[1]
+        return symbol_dict
 
 
 class TempDataSet(DataSet):

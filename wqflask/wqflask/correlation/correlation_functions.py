@@ -805,8 +805,6 @@ def get_symbol_value_pairs(tissue_data):
 ########################################################################################################
 
 def get_trait_symbol_and_tissue_values(symbol_list=None):
-    SymbolValuePairDict={}
-    
     tissue_data = MrnaAssayTissueData(gene_symbols=symbol_list)
 
     if len(tissue_data.gene_symbols):
