@@ -2038,7 +2038,7 @@ class IntervalMappingPage(templatePage):
 					qtlresult = self.genotype.regression(strains = _strains, trait = _vals)
 
 			self.qtlresults.append(qtlresult)
-		
+
 		if not self.multipleInterval:
 			if self.controlLocus and self.selectedChr > -1:
 				self.genotype.chromosome = [self.genotype[self.selectedChr]]
