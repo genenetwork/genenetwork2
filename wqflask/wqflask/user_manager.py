@@ -65,8 +65,8 @@ class RegisterUser(object):
             self.errors.append('Organization needs to be empty or between 5 and 50 characters.')
 
         user.password = kw.get('password', '')
-        if not (6 <= len(user.password) <= 30):
-            self.errors.append('Password needs to be between 6 and 30 characters.')
+        if not (6 <= len(user.password)):
+            self.errors.append('Password needs to be at least 6 characters.')
             
         if kw.get('password_confirm') != user.password:
             self.errors.append("Passwords don't match.")
@@ -87,3 +87,13 @@ class RolesManager(object):
     def __init__(self):
         self.roles = model.Role.query.all()
         print("Roles are:", self.roles)
+
+
+#class Password(object):
+#    """To generate a master password: dd if=/dev/urandom bs=32 count=1 > master_salt"""
+#    
+#    master_salt = 
+
+
+
+
