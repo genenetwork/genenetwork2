@@ -4,8 +4,8 @@ import collections
 
 from flask import g
 
-from utility import dbtools
-from uitility import Bunch
+from utility import db_tools
+from utility import Bunch
 
 from MySQLdb import escape_string as escape
 
