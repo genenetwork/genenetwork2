@@ -70,7 +70,7 @@
                             <a href="/links">Links</a>
                         </li>
                         <li class="">
-                            {% if g.identity.name=="anon" %}
+                            {% if "g.identity.name"=="anon" %}
                             <a id="login_out" class="modalize" href="/n/register">Sign in</a>
                             {% else %}
                             <a id="login_out" href="/n/logout">Sign out</a>

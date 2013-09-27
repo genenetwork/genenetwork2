@@ -302,6 +302,7 @@ def new_register():
     else:
         params = request.args
     if params:
+        print("Attempting to register the user...")
         result = user_manager.RegisterUser(params)
         errors = result.errors
     return render_template("new_security/register_user.html", values=params, errors=errors)

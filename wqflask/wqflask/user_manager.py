@@ -7,6 +7,17 @@ from __future__ import print_function, division, absolute_import
 
 """
 
+import os
+import hashlib
+import datetime
+import time
+
+import simplejson as json
+
+import pbkdf2
+
+from wqflask.database import db_session
+
 from wqflask import model
 
 from utility import Bunch
@@ -50,32 +61,73 @@ class UserManager(object):
 class RegisterUser(object):
     def __init__(self, kw):
         self.errors = []
-        user = Bunch()
+        self.user = Bunch()
         
-        user.email_address = kw.get('email_address', '').strip()
-        if not (5 <= len(user.email_address) <= 50):
+        self.user.email_address = kw.get('email_address', '').strip()
+        if not (5 <= len(self.user.email_address) <= 50):
             self.errors.append('Email Address needs to be between 5 and 50 characters.')
             
-        user.full_name = kw.get('full_name', '').strip()
-        if not (5 <= len(user.full_name) <= 50):
+        self.user.full_name = kw.get('full_name', '').strip()
+        if not (5 <= len(self.user.full_name) <= 50):
             self.errors.append('Full Name needs to be between 5 and 50 characters.')
             
-        user.organization = kw.get('organization', '').strip()
-        if user.organization and not (5 <= len(user.organization) <= 50):
+        self.user.organization = kw.get('organization', '').strip()
+        if self.user.organization and not (5 <= len(self.user.organization) <= 50):
             self.errors.append('Organization needs to be empty or between 5 and 50 characters.')
 
-        user.password = kw.get('password', '')
-        if not (6 <= len(user.password)):
+        password = str(kw.get('password', ''))
+        if not (6 <= len(password)):
             self.errors.append('Password needs to be at least 6 characters.')
             
-        if kw.get('password_confirm') != user.password:
+        if kw.get('password_confirm') != password:
             self.errors.append("Passwords don't match.")
         
         if self.errors:
-            return 
+            return
+        
+        print("No errors!")
+        
+        self.set_password(password)
+        
+        new_user = model.User(**self.user.__dict__)
+        db_session.add(new_user)
+        db_session.commit()
         
     
+    def set_password(self, password):
+        pwfields = Bunch()
+        algo_string = "sha256"
+        algorithm = getattr(hashlib, algo_string)
+        pwfields.algorithm = "pbkdf2-" + algo_string
+        pwfields.salt = os.urandom(32)
+        
+        # lastpass did 100000 iterations in 2011 
+        pwfields.iterations = 100000   
+        pwfields.keylength = 24
+        
+        pwfields.created = datetime.datetime.utcnow()
+        # One more check on password length
+        assert len(password) >= 6, "Password shouldn't be so short here"
+        
+        print("pwfields:", vars(pwfields))
+        print("locals:", locals())
+        start_time = time.time()
+        pwfields.password = pbkdf2.pbkdf2_hex(password, pwfields.salt, pwfields.iterations, pwfields.keylength, algorithm)
+        print("Creating password took:", time.time() - start_time)
+        self.user.password = json.dumps(pwfields.__dict__, sort_keys=True)
 
+
+#def combined_salt(user_salt):
+#    """Combine the master salt with the user salt...we use two seperate salts so that if the database is compromised, the
+#    salts aren't immediately known"""
+#    secret_salt = app.confing['SECRET_SALT']
+#    assert len(user_salt) == 32
+#    assert len(secret_salt) == 32
+#    combined = ""
+#    for x, y in user_salt, secret_salt:
+#        combined = combined + x + y
+#    return combined
+    
 
 
 class GroupsManager(object):
