@@ -10,8 +10,14 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 from wqflask import app
 
+from sqlalchemy import Column, Integer, String, Table, ForeignKey, Unicode, Boolean, DateTime
+from sqlalchemy.orm import relationship, backref
+
+from wqflask.database import Base
+
 # Create database connection object
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
+
 
 # Is this right? -Sam
 #from sqlalchemy.ext.declarative import declarative_base
@@ -28,47 +34,48 @@ db = SQLAlchemy(app)
 #    """
 #    print("in get cls is:", cls)
 #    print("  key is {} : {}".format(type(key), key))
-#    query = db.Model.query(cls)
+#    query = Model.query(cls)
 #    print("query is: ", query)
 #    record = query.get(key)
 #    return record
 #
 #
-#print("db.Model is:", vars(db.Model))
-#db.Model.get = get
+#print("Model is:", vars(Model))
+#Model.get = get
 
 # Define models
-roles_users = db.Table('roles_users',
-        db.Column('user_id', db.Integer(), db.ForeignKey('user.the_id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.the_id')))
+#roles_users = Table('roles_users',
+#        Column('user_id', Integer(), ForeignKey('user.the_id')),
+#        Column('role_id', Integer(), ForeignKey('role.the_id')))
 
-class Role(db.Model):
-    the_id = db.Column(db.Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
-    name = db.Column(db.Unicode(80), unique=True, nullable=False)
-    description = db.Column(db.Unicode(255))
+class Role(Base):
+    __tablename__ = "role"
+    the_id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
+    name = Column(Unicode(80), unique=True, nullable=False)
+    description = Column(Unicode(255))
 
-class User(db.Model):
-    the_id = db.Column(db.Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
-    email_address = db.Column(db.Unicode(50), unique=True, nullable=False)
+class User(Base):
+    __tablename__ = "user"
+    the_id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
+    email_address = Column(Unicode(50), unique=True, nullable=False)
     
-    password = db.Column(db.Unicode(24), nullable=False)
-    salt = db.Column(db.Unicode(32), nullable=False)
-    password_info = db.Column(db.Unicode(50))
+    # Todo: Turn on strict mode for Mysql
+    password = Column(Unicode(500), nullable=False)
     
-    full_name = db.Column(db.Unicode(50))
-    organization = db.Column(db.Unicode(50))
+    full_name = Column(Unicode(50))
+    organization = Column(Unicode(50))
     
-    active = db.Column(db.Boolean())
-    confirmed_at = db.Column(db.DateTime())
+    active = Column(Boolean())
+    confirmed_at = Column(DateTime())
 
-    last_login_at = db.Column(db.DateTime())
-    current_login_at = db.Column(db.DateTime())
-    last_login_ip = db.Column(db.Unicode(39))
-    current_login_ip = db.Column(db.Unicode(39))
-    login_count = db.Column(db.Integer())
+    last_login_at = Column(DateTime())
+    current_login_at = Column(DateTime())
+    last_login_ip = Column(Unicode(39))
+    current_login_ip = Column(Unicode(39))
+    login_count = Column(Integer())
 
-    roles = db.relationship('Role', secondary=roles_users,
-                            backref=db.backref('users', lazy='dynamic'))
+    #roles = relationship('Role', secondary=roles_users,
+    #                        backref=backref('users', lazy='dynamic'))
 
 # Setup Flask-Security
 #user_datastore = SQLAlchemyUserDatastore(db, User, Role)
@@ -80,6 +87,5 @@ class User(db.Model):
 #
 #security = Security(app, user_datastore, register_form=ExtendedRegisterForm)
 
-db.metadata.create_all(db.engine)
 
 #user_datastore.create_role(name="Genentech", description="Genentech Beta Project(testing)")

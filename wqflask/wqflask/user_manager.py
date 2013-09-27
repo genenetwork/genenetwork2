@@ -14,7 +14,7 @@ import time
 
 import simplejson as json
 
-import pbkdf2
+from wqflask import pbkdf2
 
 from wqflask.database import db_session
 
@@ -100,12 +100,12 @@ class RegisterUser(object):
         algorithm = getattr(hashlib, algo_string)
         pwfields.algorithm = "pbkdf2-" + algo_string
         pwfields.salt = os.urandom(32)
-        
-        # lastpass did 100000 iterations in 2011 
+
+        # https://forums.lastpass.com/viewtopic.php?t=84104
         pwfields.iterations = 100000   
         pwfields.keylength = 24
         
-        pwfields.created = datetime.datetime.utcnow()
+        pwfields.created_ts = datetime.datetime.utcnow().isoformat()
         # One more check on password length
         assert len(password) >= 6, "Password shouldn't be so short here"
         
@@ -114,7 +114,12 @@ class RegisterUser(object):
         start_time = time.time()
         pwfields.password = pbkdf2.pbkdf2_hex(password, pwfields.salt, pwfields.iterations, pwfields.keylength, algorithm)
         print("Creating password took:", time.time() - start_time)
-        self.user.password = json.dumps(pwfields.__dict__, sort_keys=True)
+        self.user.password = json.dumps(pwfields.__dict__,
+                                        sort_keys=True,
+                                        # See http://stackoverflow.com/a/12312896
+                                        encoding="latin-1"
+                                       )
+        
 
 
 #def combined_salt(user_salt):

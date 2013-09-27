@@ -20,3 +20,6 @@ def init_db():
     #import yourapplication.models
     import wqflask.model
     Base.metadata.create_all(bind=engine)
+    
+    
+init_db()
