@@ -819,7 +819,7 @@ Resorting this table <br>
     #XZ, 12/12/2008: if the input geneid is 'None', return 0
     #XZ, 12/12/2008: if the input geneid has no corresponding mouse geneid, return 0
     def translateToMouseGeneID (self, species, geneid):
-        mouse_geneid = 0;
+        mouse_geneid = 0
 
         #if input geneid is None, return 0.
         if not geneid:

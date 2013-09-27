@@ -38,7 +38,7 @@ class MrnaAssayTissueData(object):
         # with highest mean value
         # Due to the limit size of TissueProbeSetFreezeId table in DB,
         # performance of inner join is acceptable.MrnaAssayTissueData(gene_symbols=symbol_list)
-        print("len(gene_symbols): ", len(gene_symbols))
+        #print("len(gene_symbols): ", len(gene_symbols))
         if len(gene_symbols) == 0:
             query +=  '''Symbol!='' and Symbol Is Not Null group by Symbol)
                 as x inner join TissueProbeSetXRef as t on t.Symbol = x.Symbol

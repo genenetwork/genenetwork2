@@ -28,11 +28,13 @@
                 <th>Sample r</th>
                 <th>N Cases</th>
                 <th>Sample p(r)</th>
+                <th>Lit Corr</th>
                 <th>Tissue r</th>
                 <th>Tissue p(r)</th>
                 {% else %}
                 <th>Sample rho</th>
                 <th>Sample p(rho)</th>
+                <th>Lit Corr</th>
                 <th>Tissue rho</th>
                 <th>Tissue p(rho)</th>
                 {% endif %}
@@ -42,7 +44,7 @@
         <tbody>
         {% for trait in correlation_results %}
             <tr>
-                <td>{{ trait.name }}</td>
+                <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
                 <td>{{ trait.symbol }}</td>
                 <td>{{ trait.alias }}</td>
                 <td>{{ trait.description }}</td>
@@ -53,6 +55,7 @@
                 <td>{{'%0.3f'|format(trait.sample_r)}}</td>
                 <td>{{ trait.num_overlap }}</td>
                 <td>{{'%0.3e'|format(trait.sample_p)}}</td>
+                <td>{{'%0.3f'|format(trait.lit_corr)}}</td>
                 <td>{{'%0.3f'|format(trait.tissue_corr)}}</td>
                 <td>{{'%0.3e'|format(trait.tissue_pvalue)}}</td>
             </tr>

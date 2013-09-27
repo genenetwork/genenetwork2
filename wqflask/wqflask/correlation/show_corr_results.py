@@ -133,58 +133,46 @@ class CorrelationResults(object):
 
             if self.corr_type == "tissue":
                 trait_symbol_dict = self.dataset.retrieve_gene_symbols()
-                trait_symbols = trait_symbol_dict.values
-                
-                tissue_corr_data = self.do_tissue_corr_for_all_traits(gene_symbol_list=trait_symbols)
+                tissue_corr_data = self.do_tissue_corr_for_all_traits(trait_gene_symbols = trait_symbol_dict)
+                #print("tissue_corr_data: ", pf(tissue_corr_data))
                 
                 for trait in tissue_corr_data.keys()[:self.return_number]:
-                    this_trait_vals = []
-                    target_vals = []
-                    for index, sample in enumerate(self.target_dataset.samplelist):
-                        if sample in self.sample_data:
-                            sample_value = self.sample_data[sample]
-                            target_sample_value = self.target_dataset.trait_data[trait][index]
-                            this_trait_vals.append(sample_value)
-                            target_vals.append(target_sample_value) 
-                            
-                    this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
-                        this_trait_vals, target_vals)
-                    
-                    if self.corr_method == 'pearson':
-                        sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
-                    else:
-                        sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
-                        
-                    self.correlation_data[trait] = [sample_r, sample_p, num_overlap]   
+                    self.get_sample_r_and_p_values(trait = trait, target_samples = self.target_dataset.trait_data[trait])
+                    #this_trait_vals = []
+                    #target_vals = []
+                    #for index, sample in enumerate(self.target_dataset.samplelist):
+                    #    if sample in self.sample_data:
+                    #        sample_value = self.sample_data[sample]
+                    #        target_sample_value = self.target_dataset.trait_data[trait][index]
+                    #        this_trait_vals.append(sample_value)
+                    #        target_vals.append(target_sample_value) 
+                    #        
+                    #this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
+                    #    this_trait_vals, target_vals)
+                    #
+                    #if self.corr_method == 'pearson':
+                    #    sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
+                    #else:
+                    #    sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
+                    #    
+                    #self.correlation_data[trait] = [sample_r, sample_p, num_overlap]   
  
+            elif self.corr_type == "lit":
+                trait_symbol_dict = self.dataset.retrieve_gene_symbols()
+                
             elif self.corr_type == "sample":
                 for trait, values in self.target_dataset.trait_data.iteritems():
-                    this_trait_vals = []
-                    target_vals = []
-                    for index, sample in enumerate(self.target_dataset.samplelist):
-                        if sample in self.sample_data:
-                            sample_value = self.sample_data[sample]
-                            target_sample_value = values[index]
-                            this_trait_vals.append(sample_value)
-                            target_vals.append(target_sample_value)
-    
-                    this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
-                        this_trait_vals, target_vals)
-    
-                    if self.corr_method == 'pearson':
-                        sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
-                    else:
-                        sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
-    
-                    self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
-    
+                    self.get_sample_r_and_p_values(trait = trait, target_samples = values)
+                    
                 self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
                                                                        key=lambda t: -abs(t[1][0])))
+
+            #print("correlation_data: ", pf(self.correlation_data))
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 trait_object = GeneralTrait(dataset=self.dataset, name=trait, get_qtl_info=True)
             
-                print("gene symbol: ", trait_object.symbol)
+                #print("gene symbol: ", trait_object.symbol)
                 
                 trait_object.sample_r = self.correlation_data[trait][0]
                 trait_object.sample_p = self.correlation_data[trait][1]
@@ -193,17 +181,20 @@ class CorrelationResults(object):
                 #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
                 #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
                 
-                if self.corr_method != "tissue":
+                if self.corr_type == "tissue":
+                    trait_object.tissue_corr = tissue_corr_data[trait][1]
+                    trait_object.tissue_pvalue = tissue_corr_data[trait][2]
+                else:
                     # Set some sane defaults
                     trait_object.tissue_corr = 0
                     trait_object.tissue_pvalue = 0
-                else:
-                    trait_object.tissue_corr = tissue_corr_data[trait][1]
-                    trait_object.tissue_pvalue = tissue_corr_data[trait][2]
                     
                 self.correlation_results.append(trait_object)
             
-            if self.corr_method != "tissue":
+            if self.corr_type != "lit":
+                self.do_lit_correlation_for_trait_list()
+            
+            if self.corr_type != "tissue":
                 self.do_tissue_correlation_for_trait_list()
             
             print("self.correlation_results: ", pf(self.correlation_results))
@@ -308,36 +299,138 @@ class CorrelationResults(object):
         #return self.correlation_results
 
 
-    def do_tissue_corr_for_all_traits(self, trait_symbols, tissue_dataset_id=1):
+    def do_tissue_corr_for_all_traits(self, trait_gene_symbols, tissue_dataset_id=1):
         #Gets tissue expression values for the primary trait
         primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
             symbol_list = [self.this_trait.symbol])
 
-        correlation_data = {}
         if self.this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
             primary_trait_tissue_values = primary_trait_tissue_vals_dict[self.this_trait.symbol.lower()]
 
+            #print("trait_gene_symbols: ", pf(trait_gene_symbols.values()))
             corr_result_tissue_vals_dict= correlation_functions.get_trait_symbol_and_tissue_values(
-                                                    symbol_list=trait_symbols.values)
+                                                    symbol_list=trait_gene_symbols.values())
 
-            print("corr_result_tissue_vals: ", pf(corr_result_tissue_vals_dict))
-
-            for trait, symbol in trait_symbols.iteritems():
-                if symbol.lower() in corr_result_tissue_vals_dict:
+            #print("corr_result_tissue_vals: ", pf(corr_result_tissue_vals_dict))
+            
+            #print("trait_gene_symbols: ", pf(trait_gene_symbols))
+            
+            tissue_corr_data = {}
+            for trait, symbol in trait_gene_symbols.iteritems():
+                if symbol and symbol.lower() in corr_result_tissue_vals_dict:
                     this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower()]
+                    #print("this_trait_tissue_values: ", pf(this_trait_tissue_values))
                     
                     result = correlation_functions.cal_zero_order_corr_for_tiss(primary_trait_tissue_values,
                                                                           this_trait_tissue_values,
                                                                           self.corr_method)
  
-                    correlation_results[trait] = [symbol, result[0], result[2]]
+                    tissue_corr_data[trait] = [symbol, result[0], result[2]]
                     
-                    correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
-                                                                   key=lambda t: -abs(t[1][1])))
-                    
-                    return correlation_data
-                    
+            tissue_corr_data = collections.OrderedDict(sorted(tissue_corr_data.items(),
+                                                           key=lambda t: -abs(t[1][1])))
             
+            return tissue_corr_data
+                    
+                    
+    def do_lit_correlation_for_trait_list(self):
+
+        input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), self.this_trait.geneid)
+
+        for trait in self.correlation_results:
+
+            if trait.geneid:
+                trait.mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), trait.geneid)
+            else:
+                trait.mouse_gene_id = None
+
+            if trait.mouse_gene_id and str(trait.mouse_gene_id).find(";") == -1:
+                result = g.db.execute(
+                    """SELECT value
+                       FROM LCorrRamin3
+                       WHERE GeneId1='%s' and
+                             GeneId2='%s'
+                    """ % (escape(trait.mouse_gene_id), escape(self.this_trait.geneid))
+                ).fetchone()
+                if not result:
+                    result = g.db.execute("""SELECT value
+                       FROM LCorrRamin3
+                       WHERE GeneId2='%s' and
+                             GeneId1='%s'
+                    """ % (escape(trait.mouse_gene_id), escape(input_trait_mouse_gene_id))
+                    ).fetchone()
+                
+                if result:
+                    lit_corr = result.value
+                     
+                if lit_corr:
+                    trait.lit_corr = lit_corr
+                else:
+                    trait.lit_corr = 0
+            else:
+                trait.lit_corr = 0
+    
+    
+    def convert_to_mouse_gene_id(self, species=None, gene_id=None):
+        """If the species is rat or human, translate the gene_id to the mouse geneid
+        
+        If there is no input gene_id or there's no corresponding mouse gene_id, return None
+        
+        """
+        if not gene_id:
+            return None
+        
+        mouse_gene_id = None
+        
+        if species == 'mouse':
+            mouse_gene_id = gene_id
+            
+        elif species == 'rat':
+            mouse_gene_id = g.db.execute(
+                """SELECT mouse
+                   FROM GeneIDXRef
+                   WHERE rat='%d'
+                """, escape(int(gene_id))).fetchone().mouse
+            
+        elif species == 'human':
+            mouse_gene_id = g.db.execute(
+                """SELECT mouse
+                   FROM GeneIDXRef
+                   WHERE human='%d'
+                """, escape(int(gene_id))).fetchone().mouse
+
+        #print("mouse_geneid:", mouse_geneid)
+        
+        return mouse_gene_id        
+    
+    def get_sample_r_and_p_values(self, trait, target_samples):
+        """Calculates the sample r (or rho) and p-value
+        
+        Given a primary trait and a target trait's sample values,
+        calculates either the pearson r or spearman rho and the p-value
+        using the corresponding scipy functions.
+        
+        """
+        
+        this_trait_vals = []
+        target_vals = []        
+        for index, sample in enumerate(self.target_dataset.samplelist):
+            if sample in self.sample_data:
+                sample_value = self.sample_data[sample]
+                target_sample_value = target_samples[index]
+                this_trait_vals.append(sample_value)
+                target_vals.append(target_sample_value)
+
+        this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
+            this_trait_vals, target_vals)
+
+        if self.corr_method == 'pearson':
+            sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
+        else:
+            sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
+
+        self.correlation_data[trait] = [sample_r, sample_p, num_overlap] 
+    
 
     def do_tissue_corr_for_all_traits_2(self):
         """Comments Possibly Out of Date!!!!!
@@ -506,39 +599,6 @@ class CorrelationResults(object):
                     self.sample_data[str(sample)] = None
                 else:
                     self.sample_data[str(sample)] = float(value)
-
-
-    #XZ, 12/12/2008: if the species is rat or human, translate the geneid to mouse geneid
-    #XZ, 12/12/2008: if the input geneid is 'None', return 0
-    #XZ, 12/12/2008: if the input geneid has no corresponding mouse geneid, return 0
-    def translateToMouseGeneID(self, species, geneid):
-        #mouse_geneid = 0
-
-        if not geneid:
-            return 0
-
-        #self.id, self.name, self.fullname, self.shortname = g.db.execute("""
-        #        SELECT Id, Name, FullName, ShortName
-        #        FROM %s
-        #        WHERE public > %s AND
-        #             (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-        #  """ % (query_args)).fetchone()
-
-        if species == 'mouse':
-            mouse_geneid = geneid
-        elif species == 'rat':
-            mouse_geneid = g.db.execute(
-                """SELECT mouse FROM GeneIDXRef WHERE rat='%d'""", int(geneid)).fetchone().mouse
-            #if record:
-            #    mouse_geneid = record[0]
-        elif species == 'human':
-            mouse_geneid = g.db.execute(
-                """SELECT mouse FROM GeneIDXRef WHERE human='%d'""", int(geneid)).fetchone().mouse
-            #if record:
-            #    mouse_geneid = record[0]
-        print("mouse_geneid:", mouse_geneid)
-        return mouse_geneid
-
 
 
 
@@ -750,44 +810,6 @@ class CorrelationResults(object):
 
         return litCorrDict
 
-
-
-    def getLiteratureCorrelationByList(self, input_trait_mouse_geneid=None, species=None, traitList=None):
-
-        tmpTableName = webqtlUtil.genRandStr(prefix="LITERATURE")
-
-        q1 = 'CREATE TEMPORARY TABLE %s (GeneId1 int(12) unsigned, GeneId2 int(12) unsigned PRIMARY KEY, value double)' % tmpTableName
-        q2 = 'INSERT INTO %s (GeneId1, GeneId2, value) SELECT GeneId1,GeneId2,value FROM LCorrRamin3 WHERE GeneId1=%s' % (tmpTableName, input_trait_mouse_geneid)
-        q3 = 'INSERT INTO %s (GeneId1, GeneId2, value) SELECT GeneId2,GeneId1,value FROM LCorrRamin3 WHERE GeneId2=%s AND GeneId1!=%s' % (tmpTableName, input_trait_mouse_geneid, input_trait_mouse_geneid)
-
-        for x in [q1,q2,q3]:
-            self.cursor.execute(x)
-
-        for thisTrait in traitList:
-            try:
-                if thisTrait.geneid:
-                    thisTrait.mouse_geneid = self.translateToMouseGeneID(species, thisTrait.geneid)
-                else:
-                    thisTrait.mouse_geneid = 0
-            except:
-                thisTrait.mouse_geneid = 0
-
-            if thisTrait.mouse_geneid and str(thisTrait.mouse_geneid).find(";") == -1:
-                try:
-                    self.cursor.execute("SELECT value FROM %s WHERE GeneId2 = %s" % (tmpTableName, thisTrait.mouse_geneid))
-                    result =  self.cursor.fetchone()
-                    if result:
-                        thisTrait.LCorr = result[0]
-                    else:
-                        thisTrait.LCorr = None
-                except:
-                    thisTrait.LCorr = None
-            else:
-                thisTrait.LCorr = None
-
-        self.cursor.execute("DROP TEMPORARY TABLE %s" % tmpTableName)
-
-        return traitList
 
     def get_traits(self, vals):
 
