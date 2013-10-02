@@ -10,7 +10,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 from wqflask import app
 
-from sqlalchemy import Column, Integer, String, Table, ForeignKey, Unicode, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Table, ForeignKey, Unicode, Boolean, DateTime, Text
 from sqlalchemy.orm import relationship, backref
 
 from wqflask.database import Base
@@ -60,7 +60,7 @@ class User(Base):
     email_address = Column(Unicode(50), unique=True, nullable=False)
     
     # Todo: Turn on strict mode for Mysql
-    password = Column(Unicode(500), nullable=False)
+    password = Column(Text, nullable=False)
     
     full_name = Column(Unicode(50))
     organization = Column(Unicode(50))

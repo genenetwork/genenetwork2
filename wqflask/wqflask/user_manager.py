@@ -12,7 +12,22 @@ import hashlib
 import datetime
 import time
 
+import uuid
+import hashlib
+import hmac
+
 import simplejson as json
+
+from redis import StrictRedis
+Redis = StrictRedis()
+
+
+from flask import Flask, g, render_template, url_for
+
+from wqflask import app
+
+
+from pprint import pformat as pf
 
 from wqflask import pbkdf2
 
@@ -22,9 +37,7 @@ from wqflask import model
 
 from utility import Bunch
 
-from flask import Flask, g
 
-from pprint import pformat as pf
 
 from base.data_set import create_datasets_list
 
@@ -89,21 +102,25 @@ class RegisterUser(object):
         
         self.set_password(password)
         
-        new_user = model.User(**self.user.__dict__)
-        db_session.add(new_user)
+        self.new_user = model.User(**self.user.__dict__)
+        db_session.add(self.new_user)
         db_session.commit()
+        
+        self.send_email_verification()
         
     
     def set_password(self, password):
         pwfields = Bunch()
-        algo_string = "sha256"
-        algorithm = getattr(hashlib, algo_string)
-        pwfields.algorithm = "pbkdf2-" + algo_string
+        
+        pwfields.algorithm = "pbkdf2"
+        pwfields.hashfunc = "sha256"
+        hashfunc = getattr(hashlib, pwfields.hashfunc)
+        
         pwfields.salt = os.urandom(32)
 
         # https://forums.lastpass.com/viewtopic.php?t=84104
         pwfields.iterations = 100000   
-        pwfields.keylength = 24
+        pwfields.keylength = 32
         
         pwfields.created_ts = datetime.datetime.utcnow().isoformat()
         # One more check on password length
@@ -111,16 +128,102 @@ class RegisterUser(object):
         
         print("pwfields:", vars(pwfields))
         print("locals:", locals())
+        
+        # On our computer it takes around 1.4 seconds
         start_time = time.time()
-        pwfields.password = pbkdf2.pbkdf2_hex(password, pwfields.salt, pwfields.iterations, pwfields.keylength, algorithm)
-        print("Creating password took:", time.time() - start_time)
+        pwfields.password = pbkdf2.pbkdf2_hex(password, pwfields.salt, pwfields.iterations, pwfields.keylength, hashfunc)
+        pwfields.encrypt_time =  round(time.time() - start_time, 3)
+        
+        print("Creating password took:", pwfields.encrypt_time)
+        
         self.user.password = json.dumps(pwfields.__dict__,
                                         sort_keys=True,
                                         # See http://stackoverflow.com/a/12312896
                                         encoding="latin-1"
                                        )
         
+    def send_email_verification(self):
+        verification_code = str(uuid.uuid4())
+        key = "verification_code:" + verification_code
+        
+        data = json.dumps(dict(the_id=self.new_user.the_id,
+                               timestamp=datetime.datetime.utcnow().isoformat())
+                          )
+                          
+        Redis.set(key, data)
+        two_days = 60 * 60 * 24 * 2
+        Redis.expire(key, two_days)  
+        to = self.user.email_address
+        subject = "GeneNetwork email verification"
+        body = render_template("email/verification.txt",
+                               verification_code = verification_code)
+        send_email(to, subject, body)
+        
 
+def verify_email(request):
+    print("in verify_email request.url is:", request.url)
+    verify_url_hmac(request.url)
+    verification_code = request.args['code']
+    data = Redis.get("verification_code:" + verification_code)
+    data = json.loads(data)
+    print("data is:", data)
+        
+    
+       
+################################# Sign and unsign #####################################
+
+def url_for_hmac(endpoint, **values):
+    """Like url_for but adds an hmac at the end to insure the url hasn't been tampered with"""
+
+    url = url_for(endpoint, **values)
+    
+    hm = actual_hmac_creation(url)
+    if '?' in url:
+        combiner = "&"
+    else:
+        combiner = "?"
+    return url + combiner + "hm=" + hm
+
+def verify_url_hmac(url):
+    """Pass in a url that was created with url_hmac and this assures it hasn't been tampered with"""
+    print("url passed in to verify is:", url)
+    # Verify parts are correct at the end - we expect to see &hm= or ?hm= followed by an hmac
+    assert url[-23:-20] == "hm=", "Unexpected url (stage 1)"
+    assert url[-24] in ["?", "&"], "Unexpected url (stage 2)"
+    hmac = url[-20:]
+    url = url[:-24]  # Url without any of the hmac stuff
+
+    #print("before urlsplit, url is:", url)
+    #url = divide_up_url(url)[1]
+    #print("after urlsplit, url is:", url)
+
+    hm = actual_hmac_creation(url)
+
+    assert hm == hmac, "Unexpected url (stage 3)"
+    
+def actual_hmac_creation(url):
+    """Helper function to create the actual hmac"""
+    
+    secret = app.config['SECRET_HMAC_CODE']
+
+    hmaced = hmac.new(secret, url, hashlib.sha1)
+    hm = hmaced.hexdigest()
+    # "Conventional wisdom is that you don't lose much in terms of security if you throw away up to half of the output."
+    # http://www.w3.org/QA/2009/07/hmac_truncation_in_xml_signatu.html
+    hm = hm[:20]
+    return hm
+
+app.jinja_env.globals.update(url_for_hmac=url_for_hmac)
+
+#######################################################################################
+        
+def send_email(to, subject, body):
+    msg = json.dumps(dict(From="no-reply@genenetwork.org",
+                     To=to,
+                     Subject=subject,
+                     Body=body))
+    Redis.rpush("mail_queue", msg)
+    
 
 #def combined_salt(user_salt):
 #    """Combine the master salt with the user salt...we use two seperate salts so that if the database is compromised, the

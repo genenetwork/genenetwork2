@@ -1,0 +1,8 @@
+Thank you for signing up for GeneNetwork.
+
+We need to verify your email address.
+
+To do that please click the following link, or cut and paste it into your browser window:
+
+{{ url_for_hmac("verify", code = verification_code, _external=True )}}
+

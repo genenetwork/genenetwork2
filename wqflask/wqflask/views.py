@@ -292,6 +292,11 @@ def manage_groups():
     template_vars = user_manager.GroupsManager(request.args)
     return render_template("admin/group_manager.html", **template_vars.__dict__)
 
+@app.route("/manage/verify")
+def verify():
+    user_manager.verify_email(request)
+    return "foo"
+
 
 @app.route("/n/register", methods=('GET', 'POST'))
 def new_register():
