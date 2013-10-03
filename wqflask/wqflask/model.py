@@ -13,7 +13,7 @@ from wqflask import app
 from sqlalchemy import Column, Integer, String, Table, ForeignKey, Unicode, Boolean, DateTime, Text
 from sqlalchemy.orm import relationship, backref
 
-from wqflask.database import Base
+from wqflask.database import Base, init_db
 
 # Create database connection object
 #db = SQLAlchemy(app)
@@ -50,13 +50,13 @@ from wqflask.database import Base
 
 class Role(Base):
     __tablename__ = "role"
-    the_id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
+    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
     name = Column(Unicode(80), unique=True, nullable=False)
     description = Column(Unicode(255))
 
 class User(Base):
     __tablename__ = "user"
-    the_id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
+    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
     email_address = Column(Unicode(50), unique=True, nullable=False)
     
     # Todo: Turn on strict mode for Mysql
@@ -65,17 +65,27 @@ class User(Base):
     full_name = Column(Unicode(50))
     organization = Column(Unicode(50))
     
-    active = Column(Boolean())
-    confirmed_at = Column(DateTime())
+    active = Column(Boolean(), nullable=False, default=True)
 
-    last_login_at = Column(DateTime())
-    current_login_at = Column(DateTime())
-    last_login_ip = Column(Unicode(39))
-    current_login_ip = Column(Unicode(39))
-    login_count = Column(Integer())
+    registration_info = Column(Text)   # json detailing when they were registered, etc.
+    
+    confirmed = Column(Text) # json detailing when they confirmed, etc.
+
+    #last_login_at = Column(DateTime())
+    #current_login_at = Column(DateTime())
+    #last_login_ip = Column(Unicode(39))
+    #current_login_ip = Column(Unicode(39))
+    #login_count = Column(Integer())
 
     #roles = relationship('Role', secondary=roles_users,
     #                        backref=backref('users', lazy='dynamic'))
+
+class Login(Base):
+    __tablename__ = "login"
+    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
+    user = Column(Unicode(36), ForeignKey('user.id'))
+    timestamp = Column(DateTime())
+    ip_address = Column(Unicode(39))
 
 # Setup Flask-Security
 #user_datastore = SQLAlchemyUserDatastore(db, User, Role)
@@ -89,3 +99,5 @@ class User(Base):
 
 
 #user_datastore.create_role(name="Genentech", description="Genentech Beta Project(testing)")
+
+

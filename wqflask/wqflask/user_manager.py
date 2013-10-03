@@ -22,7 +22,7 @@ from redis import StrictRedis
 Redis = StrictRedis()
 
 
-from flask import Flask, g, render_template, url_for
+from flask import Flask, g, render_template, url_for, request
 
 from wqflask import app
 
@@ -41,8 +41,11 @@ from utility import Bunch
 
 from base.data_set import create_datasets_list
 
-#from app import db
-print("globals are:", globals())
+
+
+def timestamp():
+    return datetime.datetime.utcnow().isoformat()
+
 
 
 class UsersManager(object):
@@ -54,7 +57,7 @@ class UsersManager(object):
 
 class UserManager(object):
     def __init__(self, kw):
-        self.user_id = int(kw['user_id'])
+        self.user_id = kw['user_id']
         print("In UserManager locals are:", pf(locals()))
         #self.user = model.User.get(user_id)
         #print("user is:", user)
@@ -73,6 +76,7 @@ class UserManager(object):
 
 class RegisterUser(object):
     def __init__(self, kw):
+        self.thank_you_mode = False
         self.errors = []
         self.user = Bunch()
         
@@ -102,11 +106,15 @@ class RegisterUser(object):
         
         self.set_password(password)
         
+        self.user.registration_info = json.dumps(basic_info(), sort_keys=True)
+        
         self.new_user = model.User(**self.user.__dict__)
         db_session.add(self.new_user)
         db_session.commit()
         
         self.send_email_verification()
+        
+        self.thank_you_mode = True
         
     
     def set_password(self, password):
@@ -122,7 +130,7 @@ class RegisterUser(object):
         pwfields.iterations = 100000   
         pwfields.keylength = 32
         
-        pwfields.created_ts = datetime.datetime.utcnow().isoformat()
+        pwfields.created_ts = timestamp()
         # One more check on password length
         assert len(password) >= 6, "Password shouldn't be so short here"
         
@@ -146,8 +154,8 @@ class RegisterUser(object):
         verification_code = str(uuid.uuid4())
         key = "verification_code:" + verification_code
         
-        data = json.dumps(dict(the_id=self.new_user.the_id,
-                               timestamp=datetime.datetime.utcnow().isoformat())
+        data = json.dumps(dict(id=self.new_user.id,
+                               timestamp=timestamp())
                           )
                           
         Redis.set(key, data)
@@ -158,15 +166,25 @@ class RegisterUser(object):
         body = render_template("email/verification.txt",
                                verification_code = verification_code)
         send_email(to, subject, body)
-        
+    
+    
+def basic_info():
+    return dict(timestamp = timestamp(),
+                ip_address = request.remote_addr,
+                user_agent = request.headers.get('User-Agent'))
 
-def verify_email(request):
+def verify_email():
     print("in verify_email request.url is:", request.url)
     verify_url_hmac(request.url)
     verification_code = request.args['code']
     data = Redis.get("verification_code:" + verification_code)
     data = json.loads(data)
     print("data is:", data)
+    user = model.User.query.get(data['id'])
+    user.confirmed = json.dumps(basic_info(), sort_keys=True)
+    db_session.commit()
+                                
+    
         
     
        

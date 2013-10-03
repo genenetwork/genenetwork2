@@ -267,15 +267,20 @@ def sharing_info_page():
     template_vars = SharingInfoPage.SharingInfoPage(fd)
     return template_vars
 
-# Take this out or secure it before going into production
+# Take this out or secure it before g[umlfoing into production
 @app.route("/get_temp_data")
 def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
 
-@app.route("/thank_you")
-def thank_you():
-    return render_template("security/thank_you.html")
+#@app.route("/thank_you")
+#def thank_you():
+#    return render_template("security/thank_you.html")
+
+@app.route("/manage/verify")
+def verify():
+    user_manager.verify_email()
+    return render_template("new_security/verified.html")
 
 @app.route("/manage/users")
 def manage_users():
@@ -292,10 +297,7 @@ def manage_groups():
     template_vars = user_manager.GroupsManager(request.args)
     return render_template("admin/group_manager.html", **template_vars.__dict__)
 
-@app.route("/manage/verify")
-def verify():
-    user_manager.verify_email(request)
-    return "foo"
+
 
 
 @app.route("/n/register", methods=('GET', 'POST'))
@@ -310,6 +312,11 @@ def new_register():
         print("Attempting to register the user...")
         result = user_manager.RegisterUser(params)
         errors = result.errors
+        
+        if result.thank_you_mode:
+            assert not errors, "Errors while in thank you mode? That seems wrong..."
+            return render_template("new_security/thank_you.html")
+       
     return render_template("new_security/register_user.html", values=params, errors=errors)
 
 #@app.route("/n/register_submit", methods=('POST',))

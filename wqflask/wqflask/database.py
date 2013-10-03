@@ -19,7 +19,8 @@ def init_db():
     # you will have to import them first before calling init_db()
     #import yourapplication.models
     import wqflask.model
+    print("Creating all..")
     Base.metadata.create_all(bind=engine)
-    
+    print("Done creating all...")
     
 init_db()
