@@ -25,8 +25,11 @@ app.logger.addHandler(file_handler)
 import logging_tree
 logging_tree.printout()
 
-import sys
-print("At startup, path is:", sys.path)
+#import sys
+#print("At startup, path is:", sys.path)
+
+from werkzeug.contrib.fixers import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 #print("app.config is:", app.config)
 

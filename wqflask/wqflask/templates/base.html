@@ -26,10 +26,39 @@
 
 </head>
 
+{% macro header(main, second) %}
+    <header class="jumbotron subhead" id="overview">
+        <div class="container">
+            <h1>Login</h1>
+            <p class="lead">
+               Gain access to GeneNetwork.
+            </p>               
+        </div>
+    </header>
+    
+    {{ flash_me() }}
+{% endmacro %}
+
+
+{% macro flash_me() -%}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <br />
+        <div class="container">
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+{% endmacro %}
+
 <body data-spy="scroll" data-target=".bs-docs-sidebar">
     <!-- Navbar
     ================================================== -->
+      
     <div class="navbar navbar-inverse navbar-fixed-top">
+        
         <div class="navbar-inner">
             <div class="container">
                 <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">

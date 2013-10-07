@@ -1,7 +1,9 @@
 from __future__ import print_function, division, absolute_import
 
 import uuid
+import datetime
 
+from flask import request
 from flask.ext.sqlalchemy import SQLAlchemy
 #from flask.ext.security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin
 
@@ -84,9 +86,15 @@ class Login(Base):
     __tablename__ = "login"
     id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
     user = Column(Unicode(36), ForeignKey('user.id'))
-    timestamp = Column(DateTime())
+    timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
     ip_address = Column(Unicode(39))
-
+    successful = Column(Boolean(), nullable=False)  # False if wrong password was entered
+    session_id = Column(Text)  # Set only if successfully logged in, otherwise should be blank
+    
+    def __init__(self, user):
+        self.user = user.id
+        self.ip_address = request.remote_addr
+        
 # Setup Flask-Security
 #user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 

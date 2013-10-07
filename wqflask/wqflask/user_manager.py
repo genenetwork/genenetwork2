@@ -15,6 +15,7 @@ import time
 import uuid
 import hashlib
 import hmac
+import base64
 
 import simplejson as json
 
@@ -22,7 +23,7 @@ from redis import StrictRedis
 Redis = StrictRedis()
 
 
-from flask import Flask, g, render_template, url_for, request
+from flask import Flask, g, render_template, url_for, request, make_response, redirect, flash
 
 from wqflask import app
 
@@ -35,7 +36,7 @@ from wqflask.database import db_session
 
 from wqflask import model
 
-from utility import Bunch
+from utility import Bunch, Struct
 
 
 
@@ -112,7 +113,9 @@ class RegisterUser(object):
         db_session.add(self.new_user)
         db_session.commit()
         
+        print("Adding verification email to queue")
         self.send_email_verification()
+        print("Added verification email to queue")
         
         self.thank_you_mode = True
         
@@ -122,9 +125,10 @@ class RegisterUser(object):
         
         pwfields.algorithm = "pbkdf2"
         pwfields.hashfunc = "sha256"
-        hashfunc = getattr(hashlib, pwfields.hashfunc)
+        #hashfunc = getattr(hashlib, pwfields.hashfunc)
         
-        pwfields.salt = os.urandom(32)
+        # Encoding it to base64 makes storing it in json much easier 
+        pwfields.salt = base64.b64encode(os.urandom(32))
 
         # https://forums.lastpass.com/viewtopic.php?t=84104
         pwfields.iterations = 100000   
@@ -136,18 +140,18 @@ class RegisterUser(object):
         
         print("pwfields:", vars(pwfields))
         print("locals:", locals())
+
+        enc_password = Password(password,
+                                pwfields.salt,
+                                pwfields.iterations,
+                                pwfields.keylength,
+                                pwfields.hashfunc)
         
-        # On our computer it takes around 1.4 seconds
-        start_time = time.time()
-        pwfields.password = pbkdf2.pbkdf2_hex(password, pwfields.salt, pwfields.iterations, pwfields.keylength, hashfunc)
-        pwfields.encrypt_time =  round(time.time() - start_time, 3)
-        
-        print("Creating password took:", pwfields.encrypt_time)
+        pwfields.password = enc_password.password
+        pwfields.encrypt_time = enc_password.encrypt_time
         
         self.user.password = json.dumps(pwfields.__dict__,
-                                        sort_keys=True,
-                                        # See http://stackoverflow.com/a/12312896
-                                        encoding="latin-1"
+                                        sort_keys=True,             
                                        )
         
     def send_email_verification(self):
@@ -166,7 +170,21 @@ class RegisterUser(object):
         body = render_template("email/verification.txt",
                                verification_code = verification_code)
         send_email(to, subject, body)
-    
+
+class Password(object):
+    def __init__(self, unencrypted_password, salt, iterations, keylength, hashfunc):
+        print("in Password __init__ locals are:", locals())
+        hashfunc = getattr(hashlib, hashfunc)
+        print("hashfunc is:", hashfunc)
+        # On our computer it takes around 1.4 seconds in 2013
+        start_time = time.time()
+        salt = base64.b64decode(salt)
+        print("now salt is:", salt)
+        self.password = pbkdf2.pbkdf2_hex(str(unencrypted_password),
+                                          salt, iterations, keylength, hashfunc)
+        self.encrypt_time = round(time.time() - start_time, 3)
+        print("Creating password took:", self.encrypt_time)
+        
     
 def basic_info():
     return dict(timestamp = timestamp(),
@@ -184,8 +202,54 @@ def verify_email():
     user.confirmed = json.dumps(basic_info(), sort_keys=True)
     db_session.commit()
                                 
-    
+def login():
+    params = request.form if request.form else request.args
+    print("in login params are:", params)
+    if not params:
+        return render_template("new_security/login_user.html")
+    else:
+        user = model.User.query.filter_by(email_address=params['email_address']).one()
+        submitted_password = params['password']
+        pwfields = Struct(json.loads(user.password))
+        encrypted = Password(submitted_password,
+                                      pwfields.salt,
+                                      pwfields.iterations,
+                                      pwfields.keylength,
+                                      pwfields.hashfunc)
+        print("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
+        valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
+        print("valid is:", valid)
         
+        login_rec = model.Login(user)
+        
+        
+        if valid:
+            login_rec.successful = True
+            login_rec.session_id = str(uuid.uuid4())
+            #session_id = "session_id:{}".format(login_rec.session_id)
+            session_id_signature = actual_hmac_creation(login_rec.session_id)
+            session_id_signed = login_rec.session_id + ":" + session_id_signature
+            
+            session = dict(login_time = time.time(),
+                           user_id = user.id,
+                           user_email_address = user.email_address)
+            
+            flash("Thank you for logging in.", "alert-success")
+            
+            Redis.hmset("session_id:" + login_rec.session_id, session)
+            
+            response = make_response(redirect('/'))
+            response.set_cookie('session_id', session_id_signed)
+        else:
+            login_rec.successful = False
+            flash("Invalid email-address or password. Please try again.", "alert-error")
+            response = make_response(redirect(url_for('login')))
+        db_session.add(login_rec)
+        db_session.commit()
+        return response
+        
+    def logout():
+        pass
     
        
 ################################# Sign and unsign #####################################
