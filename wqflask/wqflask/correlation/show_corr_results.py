@@ -133,7 +133,7 @@ class CorrelationResults(object):
 
             if self.corr_type == "tissue":
                 trait_symbol_dict = self.dataset.retrieve_gene_symbols()
-                tissue_corr_data = self.do_tissue_corr_for_all_traits(trait_gene_symbols = trait_symbol_dict)
+                tissue_corr_data = self.do_tissue_correlation_for_all_traits(trait_gene_symbols = trait_symbol_dict)
                 #print("tissue_corr_data: ", pf(tissue_corr_data))
                 
                 for trait in tissue_corr_data.keys()[:self.return_number]:
@@ -158,8 +158,12 @@ class CorrelationResults(object):
                     #self.correlation_data[trait] = [sample_r, sample_p, num_overlap]   
  
             elif self.corr_type == "lit":
-                trait_symbol_dict = self.dataset.retrieve_gene_symbols()
+                trait_geneid_dict = self.dataset.retrieve_gene_ids()
+                lit_corr_data = self.do_lit_correlation_for_all_traits(trait_gene_ids = trait_geneid_dict)
                 
+                for trait in lit_corr_data.keys()[:self.return_number]:
+                    self.get_sample_r_and_p_values(trait = trait, target_samples = self.target_dataset.trait_data[trait])
+                    
             elif self.corr_type == "sample":
                 for trait, values in self.target_dataset.trait_data.iteritems():
                     self.get_sample_r_and_p_values(trait = trait, target_samples = values)
@@ -181,13 +185,15 @@ class CorrelationResults(object):
                 #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
                 #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
                 
+                # Set some sane defaults
+                trait_object.tissue_corr = 0
+                trait_object.tissue_pvalue = 0
+                trait_object.lit_corr = 0
                 if self.corr_type == "tissue":
                     trait_object.tissue_corr = tissue_corr_data[trait][1]
                     trait_object.tissue_pvalue = tissue_corr_data[trait][2]
-                else:
-                    # Set some sane defaults
-                    trait_object.tissue_corr = 0
-                    trait_object.tissue_pvalue = 0
+                elif self.corr_type == "lit":    
+                    trait_object.lit_corr = lit_corr_data[trait][1]
                     
                 self.correlation_results.append(trait_object)
             
@@ -299,7 +305,7 @@ class CorrelationResults(object):
         #return self.correlation_results
 
 
-    def do_tissue_corr_for_all_traits(self, trait_gene_symbols, tissue_dataset_id=1):
+    def do_tissue_correlation_for_all_traits(self, trait_gene_symbols, tissue_dataset_id=1):
         #Gets tissue expression values for the primary trait
         primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
             symbol_list = [self.this_trait.symbol])
@@ -336,7 +342,7 @@ class CorrelationResults(object):
     def do_lit_correlation_for_trait_list(self):
 
         input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), self.this_trait.geneid)
-
+        
         for trait in self.correlation_results:
 
             if trait.geneid:
@@ -350,7 +356,7 @@ class CorrelationResults(object):
                        FROM LCorrRamin3
                        WHERE GeneId1='%s' and
                              GeneId2='%s'
-                    """ % (escape(trait.mouse_gene_id), escape(self.this_trait.geneid))
+                    """ % (escape(trait.mouse_gene_id), escape(input_trait_mouse_gene_id))
                 ).fetchone()
                 if not result:
                     result = g.db.execute("""SELECT value
@@ -361,9 +367,7 @@ class CorrelationResults(object):
                     ).fetchone()
                 
                 if result:
-                    lit_corr = result.value
-                     
-                if lit_corr:
+                    lit_corr = result.value 
                     trait.lit_corr = lit_corr
                 else:
                     trait.lit_corr = 0
@@ -371,6 +375,43 @@ class CorrelationResults(object):
                 trait.lit_corr = 0
     
     
+    def do_lit_correlation_for_all_traits(self, trait_gene_ids):
+        input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), self.this_trait.geneid)
+        
+        lit_corr_data = {}
+        for trait, gene_id in trait_gene_ids.iteritems():
+            mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), gene_id)
+
+            if mouse_gene_id and str(mouse_gene_id).find(";") == -1:
+                print("gene_symbols:", input_trait_mouse_gene_id + " / " + mouse_gene_id)
+                result = g.db.execute(
+                    """SELECT value
+                       FROM LCorrRamin3
+                       WHERE GeneId1='%s' and
+                             GeneId2='%s'
+                    """ % (escape(mouse_gene_id), escape(input_trait_mouse_gene_id))
+                ).fetchone()
+                if not result:
+                    result = g.db.execute("""SELECT value
+                       FROM LCorrRamin3
+                       WHERE GeneId2='%s' and
+                             GeneId1='%s'
+                    """ % (escape(mouse_gene_id), escape(input_trait_mouse_gene_id))
+                    ).fetchone()
+                if result:
+                    print("result:", result)
+                    lit_corr = result.value
+                    lit_corr_data[trait] = [gene_id, lit_corr]
+                else:
+                    lit_corr_data[trait] = [gene_id, 0]
+            else:
+                lit_corr_data[trait] = [gene_id, 0]
+        
+        lit_corr_data = collections.OrderedDict(sorted(lit_corr_data.items(),
+                                                           key=lambda t: -abs(t[1][1])))
+            
+        return lit_corr_data
+        
     def convert_to_mouse_gene_id(self, species=None, gene_id=None):
         """If the species is rat or human, translate the gene_id to the mouse geneid
         
