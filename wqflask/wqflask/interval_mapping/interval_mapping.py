@@ -12,6 +12,7 @@ import collections
 
 import numpy as np
 from scipy import linalg
+import rpy2.robjects
 
 import simplejson as json
 
@@ -83,6 +84,28 @@ class IntervalMapping(object):
         """Generates qtl results for plotting interval map"""
 
         self.dataset.group.get_markers()
+        self.dataset.read_genotype_file()
+
+        samples, values, variances = self.trait.export_informative()
+        if self.control_locus:
+            if self.weighted_regression:
+                qtl_result = self.dataset.genotype.regression(strains = samples,
+                                                              trait = values,
+                                                              variance = variances,
+                                                              control = self.control_locus)
+            else:
+                qtl_result = self.dataset.genotype.regression(strains = samples,
+                                                              trait = values,
+                                                              control = self.control_locus)
+        else:
+            if self.weighted_regression:
+                qtl_result = self.dataset.genotype.regression(strains = samples,
+                                                              trait = values,
+                                                              variance = variances)
+            else:
+                qtl_result = self.dataset.genotype.regression(strains = samples,
+                                                              trait = values)
+
 
         pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
 
@@ -107,6 +130,36 @@ class IntervalMapping(object):
         self.dataset.group.markers.add_pvalues(p_values)
         
         self.qtl_results = self.dataset.group.markers.markers
+
+    #def gen_qtl_results_2(self, tempdata):
+    #    """Generates qtl results for plotting interval map"""
+    #
+    #    self.dataset.group.get_markers()
+    #    self.dataset.read_genotype_file()
+    #
+    #    pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
+    #
+    #    #if self.dataset.group.species == "human":
+    #    #    p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
+    #    #else:
+    #    genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
+    #    
+    #    no_val_samples = self.identify_empty_samples()
+    #    trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
+    #    
+    #    genotype_matrix = np.array(trimmed_genotype_data).T
+    #    
+    #    t_stats, p_values = lmm.run(
+    #        pheno_vector,
+    #        genotype_matrix,
+    #        restricted_max_likelihood=True,
+    #        refit=False,
+    #        temp_data=tempdata
+    #    )
+    #    
+    #    self.dataset.group.markers.add_pvalues(p_values)
+    #    
+    #    self.qtl_results = self.dataset.group.markers.markers
 
 
     def identify_empty_samples(self):

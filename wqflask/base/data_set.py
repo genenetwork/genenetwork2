@@ -168,13 +168,13 @@ class Markers(object):
         
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
-            if marker['p_value'] == 0:
-                marker['lod_score'] = 0
-                marker['lrs_value'] = 0
-            else:
-                marker['lod_score'] = -math.log10(marker['p_value'])
-                #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
-                marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+            if math.isnan(marker['p_value']):
+                print("p_value is:", marker['p_value'])
+            marker['lod_score'] = -math.log10(marker['p_value'])
+            #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
+            marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+        
+        
 
 
 class HumanMarkers(Markers):
@@ -189,6 +189,8 @@ class HumanMarkers(Markers):
             marker['name'] = splat[1]
             marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
+            
+        #print("markers is: ", pf(self.markers))
 
 
     def add_pvalues(self, p_values):
@@ -315,10 +317,10 @@ class DatasetGroup(object):
 
         #determine default genotype object
         if self.incparentsf1 and genotype_1.type != "intercross":
-            genotype = genotype_2
+            self.genotype = genotype_2
         else:
             self.incparentsf1 = 0
-            genotype = genotype_1
+            self.genotype = genotype_1
 
         self.samplelist = list(genotype.prgy)
 
