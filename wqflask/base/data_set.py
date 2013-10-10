@@ -436,8 +436,13 @@ class DataSet(object):
             print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass
         
-    def get_trait_data(self):
-        self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
+    def get_trait_data(self, sample_list=None):
+        if sample_list:
+            self.samplelist = sample_list + self.group.parlist + self.group.f1list
+        else:
+            self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
+        
+        
         query = """
             SELECT Strain.Name, Strain.Id FROM Strain, Species
             WHERE Strain.Name IN {}
@@ -1085,16 +1090,8 @@ class MrnaAssayDataSet(DataSet):
                     ProbeSetXRef.ProbeSetId=ProbeSet.Id;
                 """ % (column_name, escape(str(self.id)))
         results = g.db.execute(query).fetchall()
-        print("in retrieve_genes results {}: {}".format(type(results), results))
         
         return dict(results)
-    
-        #return {item[0]: item[1] for item in results}
-        
-        #symbol_dict = {}
-        #for item in results:
-        #    symbol_dict[item[0]] = item[1]
-        #return symbol_dict
 
     #def retrieve_gene_symbols(self):
     #    query = """

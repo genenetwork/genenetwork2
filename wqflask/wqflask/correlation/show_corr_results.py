@@ -70,7 +70,7 @@ TISSUE_MOUSE_DB = 1
 
 def print_mem(stage=""):
     mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    print("{}: {}".format(stage, mem/1024))
+    #print("{}: {}".format(stage, mem/1024))
     
 
 class AuthException(Exception):
@@ -119,10 +119,14 @@ class CorrelationResults(object):
             #exclude the primary samples (because they would have been added in the previous
             #if statement if the user selected All Samples)
             if corr_samples_group != 'samples_primary':
+                if corr_samples_group == 'samples_other':
+                    primary_samples = [x for x in primary_samples if x not in (
+                                    self.dataset.group.parlist + self.dataset.group.f1list)]
+                print("primary_samples:", primary_samples)
                 self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
 
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
-            self.target_dataset.get_trait_data()
+            self.target_dataset.get_trait_data(self.sample_data.keys())
 
             self.correlation_results = []
 
@@ -180,7 +184,7 @@ class CorrelationResults(object):
             if self.corr_type != "tissue":
                 self.do_tissue_correlation_for_trait_list()
             
-            print("self.correlation_results: ", pf(self.correlation_results))
+            #print("self.correlation_results: ", pf(self.correlation_results))
                 
 
         #XZ, 09/18/2008: get all information about the user selected database.
@@ -241,8 +245,6 @@ class CorrelationResults(object):
         #Gets tissue expression values for the primary trait
         primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
             symbol_list = [self.this_trait.symbol])
-        
-        print("primary_trait_tissue_vals: ", pf(primary_trait_tissue_vals_dict))
 
         if self.this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
             primary_trait_tissue_values = primary_trait_tissue_vals_dict[self.this_trait.symbol.lower()]
@@ -257,8 +259,6 @@ class CorrelationResults(object):
 
             corr_result_tissue_vals_dict= correlation_functions.get_trait_symbol_and_tissue_values(
                                                     symbol_list=gene_symbol_list)
-
-            print("corr_result_tissue_vals: ", pf(corr_result_tissue_vals_dict))
 
             for trait in self.correlation_results:
                 if trait.symbol and trait.symbol.lower() in corr_result_tissue_vals_dict:
@@ -430,14 +430,14 @@ class CorrelationResults(object):
         
         """
         
+        print("len(self.sample_data):", len(self.sample_data))
+        
         this_trait_vals = []
         target_vals = []        
         for index, sample in enumerate(self.target_dataset.samplelist):
             if sample in self.sample_data:
                 sample_value = self.sample_data[sample]
-                print("sample_value:", sample_value)
                 target_sample_value = target_samples[index]
-                print("target_sample_value:", target_sample_value)
                 this_trait_vals.append(sample_value)
                 target_vals.append(target_sample_value)
 
@@ -995,7 +995,6 @@ class CorrelationResults(object):
                     values_2.append(target_value)
             correlation = calCorrelation(values_1, values_2)
             self.correlation_data[trait] = correlation
-            print ('correlation result: %s %s' % (trait, correlation))
 
         """
         correlations = []
