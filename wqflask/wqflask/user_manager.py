@@ -23,7 +23,8 @@ from redis import StrictRedis
 Redis = StrictRedis()
 
 
-from flask import Flask, g, render_template, url_for, request, make_response, redirect, flash
+from flask import (Flask, g, render_template, url_for, request, make_response,
+                   redirect, flash)
 
 from wqflask import app
 
@@ -48,6 +49,37 @@ def timestamp():
     return datetime.datetime.utcnow().isoformat()
 
 
+
+
+class UserSession(object):
+    cookie_name = 'session_id'
+    
+    def __init__(self):
+        cookie = request.cookies.get(self.cookie_name)
+        if not cookie:
+            self.logged_in = False
+            return
+        else:
+            session_id, separator, session_id_signature = cookie.partition(':')
+            assert len(session_id) == 36, "Is session_id a uuid?"
+            assert separator == ":", "Expected a : here"
+            assert session_id_signature == actual_hmac_creation(session_id), "Uh-oh, someone tampering with the cookie?"
+            self.redis_key = "session_id:" + session_id
+            print("self.redis_key is:", self.redis_key)
+            self.session_id = session_id
+            self.record = Redis.hgetall(self.redis_key)
+            print("record is:", self.record)
+            self.logged_in = True
+        
+        
+    def delete_session(self):
+        # And more importantly delete the redis record
+        Redis.delete(self.cookie_name)
+        print("At end of delete_session")
+        
+@app.before_request
+def before_request():
+    g.user_session = UserSession()
 
 class UsersManager(object):
     def __init__(self):
@@ -173,7 +205,6 @@ class RegisterUser(object):
 
 class Password(object):
     def __init__(self, unencrypted_password, salt, iterations, keylength, hashfunc):
-        print("in Password __init__ locals are:", locals())
         hashfunc = getattr(hashlib, hashfunc)
         print("hashfunc is:", hashfunc)
         # On our computer it takes around 1.4 seconds in 2013
@@ -229,6 +260,7 @@ def login():
             #session_id = "session_id:{}".format(login_rec.session_id)
             session_id_signature = actual_hmac_creation(login_rec.session_id)
             session_id_signed = login_rec.session_id + ":" + session_id_signature
+            print("session_id_signed:", session_id_signed)
             
             session = dict(login_time = time.time(),
                            user_id = user.id,
@@ -236,10 +268,12 @@ def login():
             
             flash("Thank you for logging in.", "alert-success")
             
-            Redis.hmset("session_id:" + login_rec.session_id, session)
+            key = "session_id:" + login_rec.session_id
+            print("Key when signing:", key)
+            Redis.hmset(key, session)
             
-            response = make_response(redirect('/'))
-            response.set_cookie('session_id', session_id_signed)
+            response = make_response(redirect(url_for('index_page')))
+            response.set_cookie(UserSession.cookie_name, session_id_signed)
         else:
             login_rec.successful = False
             flash("Invalid email-address or password. Please try again.", "alert-error")
@@ -247,9 +281,16 @@ def login():
         db_session.add(login_rec)
         db_session.commit()
         return response
-        
-    def logout():
-        pass
+ 
+@app.route("/n/logout")     
+def logout():
+    print("Logging out...")
+    UserSession().delete_session()
+    flash("You are now logged out. We hope you come back soon!")
+    response = make_response(redirect(url_for('index_page')))
+    # Delete the cookie
+    response.set_cookie(UserSession.cookie_name, '', expires=0)
+    return response
     
        
 ################################# Sign and unsign #####################################
@@ -283,12 +324,12 @@ def verify_url_hmac(url):
 
     assert hm == hmac, "Unexpected url (stage 3)"
     
-def actual_hmac_creation(url):
+def actual_hmac_creation(stringy):
     """Helper function to create the actual hmac"""
     
     secret = app.config['SECRET_HMAC_CODE']
 
-    hmaced = hmac.new(secret, url, hashlib.sha1)
+    hmaced = hmac.new(secret, stringy, hashlib.sha1)
     hm = hmaced.hexdigest()
     # "Conventional wisdom is that you don't lose much in terms of security if you throw away up to half of the output."
     # http://www.w3.org/QA/2009/07/hmac_truncation_in_xml_signatu.html

@@ -99,10 +99,10 @@
                             <a href="/links">Links</a>
                         </li>
                         <li class="">
-                            {% if "g.identity.name"=="anon" %}
-                            <a id="login_out" class="modalize" href="/n/register">Sign in</a>
+                            {% if g.user_session.logged_in %}
+                            <a id="login_out"  href="/n/logout">Sign out</a>
                             {% else %}
-                            <a id="login_out" href="/n/logout">Sign out</a>
+                            <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
                         </li>
                     </ul>
