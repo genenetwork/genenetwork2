@@ -1,4 +1,4 @@
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 from wqflask import app
 
@@ -24,6 +24,12 @@ app.logger.addHandler(file_handler)
 
 import logging_tree
 logging_tree.printout()
+
+#import sys
+#print("At startup, path is:", sys.path)
+
+from werkzeug.contrib.fixers import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 #print("app.config is:", app.config)
 

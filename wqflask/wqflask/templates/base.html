@@ -19,16 +19,46 @@
 
     <link rel="stylesheet" type="text/css" href="/static/packages/colorbox/example4/colorbox.css"  />
     <link rel="stylesheet" type="text/css" href="/static/new/css/main.css"  />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/parsley.css"  />
 
     {% block css %}
     {% endblock %}
 
 </head>
 
+{% macro header(main, second) %}
+    <header class="jumbotron subhead" id="overview">
+        <div class="container">
+            <h1>Login</h1>
+            <p class="lead">
+               Gain access to GeneNetwork.
+            </p>               
+        </div>
+    </header>
+    
+    {{ flash_me() }}
+{% endmacro %}
+
+
+{% macro flash_me() -%}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <br />
+        <div class="container">
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+{% endmacro %}
+
 <body data-spy="scroll" data-target=".bs-docs-sidebar">
     <!-- Navbar
     ================================================== -->
+      
     <div class="navbar navbar-inverse navbar-fixed-top">
+        
         <div class="navbar-inner">
             <div class="container">
                 <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -69,10 +99,10 @@
                             <a href="/links">Links</a>
                         </li>
                         <li class="">
-                            {% if g.identity.name=="anon" %}
-                            <a id="login_out" class="modalize" href="/login">Sign in</a>
+                            {% if g.user_session.logged_in %}
+                            <a id="login_out"  href="/n/logout">Sign out</a>
                             {% else %}
-                            <a id="login_out" href="/logout">Sign out</a>
+                            <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
                         </li>
                     </ul>
@@ -180,11 +210,12 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" type="text/javascript"></script>
 
     <script language="javascript" type="text/javascript" src="/static/packages/colorbox/jquery.colorbox.js"></script>
-    <script type="text/javascript" src="/static/new/javascript/login.js"></script>
+    <!--<script type="text/javascript" src="/static/new/javascript/login.js"></script>-->
+    
+    <script type="text/javascript" src="/static/new/js_external/parsley.min.js"></script>
+    
     {% block js %}
     {% endblock %}
-
-
 
 
 </body>

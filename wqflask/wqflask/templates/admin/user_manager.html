@@ -16,20 +16,20 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Email</th>
-                    <th>Confirmed at</th>
+                    <th>Organization</th>
                     <th>Active</th>
+                    <th>Confirmed</th>
                 </tr>
             </thead>
         {% for user in users %}
             <tr>
-                <td title="{{ user.__dict__ }}">
-                    <a href="{{ url_for('manage_user', user_id=user.id) }}">{{ user.id }}</a>
+                <td title="{{ user.id }}">
+                    <a href="{{ url_for('manage_user', user_id=user.id) }}">{{ user.email_address }}</a>
                 </td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.confirmed_at }}</td>
-                <td>{{ user.active }}</td>
+                <td>{{ user.organization }}</td>
+                <td>{{ 'Yes' if user.active else 'No' }}</td>
+                <td title="{{ user.confirmed }}">{{ 'True' if user.confirmed else 'False' }}</td>
             </tr>
         {% endfor %}
         </table>

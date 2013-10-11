@@ -207,6 +207,7 @@ def _get_serializer(app, name):
 
 def _get_state(app, datastore, **kwargs):
     for key, value in get_config(app).items():
+        print "in _get_state [{}]: {}".format(key, value)
         kwargs[key.lower()] = value
 
     kwargs.update(dict(

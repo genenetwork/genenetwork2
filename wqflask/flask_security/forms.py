@@ -89,6 +89,12 @@ def valid_user_email(form, field):
 
 class Form(BaseForm):
     def __init__(self, *args, **kwargs):
+        #print "importing tracer"
+        #from wqflask import tracer
+        #tracer.turn_on()
+        #print "imported tracer"
+        print "in Form, args:", args
+        print "in Form, kwargs:", kwargs
         if current_app.testing:
             self.TIME_LIMIT = None
         super(Form, self).__init__(*args, **kwargs)
@@ -148,10 +154,13 @@ class RegisterFormMixin():
 
     def to_dict(form):
         def is_field_and_user_attr(member):
+            print "in ifaua:", member
             return isinstance(member, Field) and \
                 hasattr(_datastore.user_model, member.name)
 
+        print("green:", vars(form))
         fields = inspect.getmembers(form, is_field_and_user_attr)
+        print("fields:" ,vars(form))
         return dict((key, value.data) for key, value in fields)
 
 

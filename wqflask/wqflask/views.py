@@ -23,7 +23,8 @@ import sqlalchemy
 
 from wqflask import app
 
-from flask import render_template, request, make_response, Response, Flask, g, config, jsonify
+from flask import (render_template, request, make_response, Response,
+                   Flask, g, config, jsonify, redirect, url_for)
 
 from wqflask import search_results
 from base.data_set import DataSet    # Used by YAML in marker_regression
@@ -50,6 +51,11 @@ from wqflask import user_manager
 @app.before_request
 def connect_db():
     g.db = sqlalchemy.create_engine(app.config['DB_URI'])
+    
+#@app.before_request
+#def trace_it():
+#    from wqflask import tracer
+#    tracer.turn_on()
 
 @app.route("/")
 def index_page():
@@ -261,15 +267,15 @@ def sharing_info_page():
     template_vars = SharingInfoPage.SharingInfoPage(fd)
     return template_vars
 
-# Take this out or secure it before going into production
+# Take this out or secure it before putting into production
 @app.route("/get_temp_data")
 def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
 
-@app.route("/thank_you")
-def thank_you():
-    return render_template("security/thank_you.html")
+
+###################################################################################################
+
 
 @app.route("/manage/users")
 def manage_users():
@@ -286,6 +292,55 @@ def manage_groups():
     template_vars = user_manager.GroupsManager(request.args)
     return render_template("admin/group_manager.html", **template_vars.__dict__)
 
+
+@app.route("/n/register", methods=('GET', 'POST'))
+def register():
+    params = None
+    errors = None
+
+    #if request.form:
+    #    params = request.form
+    #else:
+    #    params = request.args
+    
+    params = request.form if request.form else request.args
+    
+    if params:
+        print("Attempting to register the user...")
+        result = user_manager.RegisterUser(params)
+        errors = result.errors
+        
+        if result.thank_you_mode:
+            assert not errors, "Errors while in thank you mode? That seems wrong..."
+            return render_template("new_security/registered.html")
+       
+    return render_template("new_security/register_user.html", values=params, errors=errors)
+
+#@app.route("/n/register_submit", methods=('POST',))
+#def register_submit():
+#    print("request.args are: ", request.args)
+#    result = user_manager.RegisterUser(request.form)
+#    if result.errors:
+#        print("Redirecting")
+#        # 307 preserves the post on the redirect (maybe)
+#        errors = result.errors
+#        #errors = json.dumps(errors)
+#        print("request.args are: ", request.args)
+#        return render_template("new_security/register_user.html", errors=errors, values=request.form)
+#        #return redirect(url_for('new_register', errors=errors), code=307)
+
+
+@app.route("/n/login", methods=('GET', 'POST'))
+def login():
+    return user_manager.login()
+
+@app.route("/manage/verify")
+def verify():
+    user_manager.verify_email()
+    return render_template("new_security/verified.html")
+
+
+##########################################################################
 
 def json_default_handler(obj):
     '''Based on http://stackoverflow.com/a/2680060/1175849'''
