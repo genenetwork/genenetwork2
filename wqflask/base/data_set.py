@@ -438,8 +438,13 @@ class DataSet(object):
             print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass
         
-    def get_trait_data(self):
-        self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
+    def get_trait_data(self, sample_list=None):
+        if sample_list:
+            self.samplelist = sample_list + self.group.parlist + self.group.f1list
+        else:
+            self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
+        
+        
         query = """
             SELECT Strain.Name, Strain.Id FROM Strain, Species
             WHERE Strain.Name IN {}
@@ -1057,7 +1062,6 @@ class MrnaAssayDataSet(DataSet):
                 """ % (escape(self.name), escape(self.dataset.name))
         results = g.db.execute(query).fetchone()
         return results[0]
-    
    
     def retrieve_sample_data(self, trait):
         query = """
@@ -1078,6 +1082,47 @@ class MrnaAssayDataSet(DataSet):
                     """ % (escape(trait), escape(self.name))
         results = g.db.execute(query).fetchall()
         return results
+    
+    
+    def retrieve_genes(self, column_name):
+        query = """
+                    select ProbeSet.Name, ProbeSet.%s
+                    from ProbeSet,ProbeSetXRef
+                    where ProbeSetXRef.ProbeSetFreezeId = %s and
+                    ProbeSetXRef.ProbeSetId=ProbeSet.Id;
+                """ % (column_name, escape(str(self.id)))
+        results = g.db.execute(query).fetchall()
+        
+        return dict(results)
+
+    #def retrieve_gene_symbols(self):
+    #    query = """
+    #                select ProbeSet.Name, ProbeSet.Symbol, ProbeSet.GeneId
+    #                from ProbeSet,ProbeSetXRef
+    #                where ProbeSetXRef.ProbeSetFreezeId = %s and
+    #                ProbeSetXRef.ProbeSetId=ProbeSet.Id;
+    #            """ % (self.id)
+    #    results = g.db.execute(query).fetchall()
+    #    symbol_dict = {}
+    #    for item in results:
+    #        symbol_dict[item[0]] = item[1]
+    #    return symbol_dict
+    #
+    #def retrieve_gene_ids(self):
+    #    query = """
+    #                select ProbeSet.Name, ProbeSet.GeneId
+    #                from ProbeSet,ProbeSetXRef
+    #                where ProbeSetXRef.ProbeSetFreezeId = %s and
+    #                ProbeSetXRef.ProbeSetId=ProbeSet.Id;
+    #            """ % (self.id)
+    #    return process_and_run_query(query)
+    #    results = g.db.execute(query).fetchall()
+    #    symbol_dict = {}
+    #    for item in results:
+    #        symbol_dict[item[0]] = item[1]
+    #    return symbol_dict
+    
+    
 
 
 class TempDataSet(DataSet):

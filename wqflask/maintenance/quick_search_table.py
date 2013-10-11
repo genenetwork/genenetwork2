@@ -13,7 +13,7 @@ each trait, its dataset, and several columns determined by its trait type (pheno
 
 from __future__ import absolute_import, division, print_function
 
-# We do this here so we can use zach_settings
+	# We do this here so we can use zach_settings
 # Not to avoid other absoulte_imports
 import sys
 sys.path.append("../../..")

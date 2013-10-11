@@ -27,7 +27,7 @@
 from __future__ import absolute_import, print_function, division
 
 import math
-#import rpy2.robjects
+import rpy2.robjects
 import pp
 import string
 
@@ -494,7 +494,7 @@ pcor.rec <- function(x,y,z,method="p",na.rm=T){
 
 #XZ, April 30, 2010: The input primaryTrait and targetTrait are instance of webqtlTrait
 #XZ: The primaryTrait and targetTrait should have executed retrieveData function
-def calZeroOrderCorr (primaryTrait, targetTrait, method='pearson'):
+def calZeroOrderCorr(primaryTrait, targetTrait, method='pearson'):
 
     #primaryTrait.retrieveData()
 
@@ -560,7 +560,7 @@ def calZeroOrderCorr (primaryTrait, targetTrait, method='pearson'):
 #the same tissue order
 #####################################################################################
 
-def calZeroOrderCorrForTiss (primaryValue=[], targetValue=[], method='pearson'):
+def cal_zero_order_corr_for_tiss (primaryValue=[], targetValue=[], method='pearson'):
 
     R_primary = rpy2.robjects.FloatVector(range(len(primaryValue)))
     N = len(primaryValue)
@@ -805,10 +805,11 @@ def get_symbol_value_pairs(tissue_data):
 ########################################################################################################
 
 def get_trait_symbol_and_tissue_values(symbol_list=None):
-    SymbolValuePairDict={}
-    
     tissue_data = MrnaAssayTissueData(gene_symbols=symbol_list)
 
+    if len(tissue_data.gene_symbols):
+        return tissue_data.get_symbol_values_pairs()
+        
     #symbolList,
     #geneIdDict,
     #dataIdDict,
@@ -818,9 +819,6 @@ def get_trait_symbol_and_tissue_values(symbol_list=None):
     #pTargetDescDict = getTissueProbeSetXRefInfo(
     #                    GeneNameLst=GeneNameLst,TissueProbeSetFreezeId=TissueProbeSetFreezeId)
     
-    if len(tissue_data.gene_symbols):
-        return get_symbol_value_pairs(tissue_data)
-        
     #limit_num=1000
     #count = len(symbol_list)
     #
