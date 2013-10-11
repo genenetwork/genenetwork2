@@ -157,6 +157,7 @@ class UserDatastore(object):
         """Creates and returns a new user from the given parameters."""
 
         user = self.user_model(**self._prepare_create_user_args(**kwargs))
+        print "in abstraced create_user, user is:", user
         return self.put(user)
 
     def delete_user(self, user):
