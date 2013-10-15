@@ -17,6 +17,8 @@ import hashlib
 import hmac
 import base64
 
+import urlparse
+
 import simplejson as json
 
 from sqlalchemy import orm
@@ -140,7 +142,7 @@ class RegisterUser(object):
 
         print("No errors!")
 
-        self.set_password(password)
+        set_password(password, user)
 
         self.user.registration_info = json.dumps(basic_info(), sort_keys=True)
 
@@ -156,48 +158,49 @@ class RegisterUser(object):
         self.thank_you_mode = True
 
 
-    def set_password(self, password):
-        pwfields = Bunch()
+def set_password(password, user):
+    pwfields = Bunch()
 
-        pwfields.algorithm = "pbkdf2"
-        pwfields.hashfunc = "sha256"
-        #hashfunc = getattr(hashlib, pwfields.hashfunc)
+    pwfields.algorithm = "pbkdf2"
+    pwfields.hashfunc = "sha256"
+    #hashfunc = getattr(hashlib, pwfields.hashfunc)
 
-        # Encoding it to base64 makes storing it in json much easier
-        pwfields.salt = base64.b64encode(os.urandom(32))
+    # Encoding it to base64 makes storing it in json much easier
+    pwfields.salt = base64.b64encode(os.urandom(32))
 
-        # https://forums.lastpass.com/viewtopic.php?t=84104
-        pwfields.iterations = 100000
-        pwfields.keylength = 32
+    # https://forums.lastpass.com/viewtopic.php?t=84104
+    pwfields.iterations = 100000
+    pwfields.keylength = 32
 
-        pwfields.created_ts = timestamp()
-        # One more check on password length
-        assert len(password) >= 6, "Password shouldn't be so short here"
+    pwfields.created_ts = timestamp()
+    # One more check on password length
+    assert len(password) >= 6, "Password shouldn't be so short here"
 
-        print("pwfields:", vars(pwfields))
-        print("locals:", locals())
+    print("pwfields:", vars(pwfields))
+    print("locals:", locals())
 
-        enc_password = Password(password,
-                                pwfields.salt,
-                                pwfields.iterations,
-                                pwfields.keylength,
-                                pwfields.hashfunc)
+    enc_password = Password(password,
+                            pwfields.salt,
+                            pwfields.iterations,
+                            pwfields.keylength,
+                            pwfields.hashfunc)
 
-        pwfields.password = enc_password.password
-        pwfields.encrypt_time = enc_password.encrypt_time
+    pwfields.password = enc_password.password
+    pwfields.encrypt_time = enc_password.encrypt_time
 
-        self.user.password = json.dumps(pwfields.__dict__,
-                                        sort_keys=True,
-                                       )
+    user.password = json.dumps(pwfields.__dict__,
+                                    sort_keys=True,
+                                   )
+
 
 class VerificationEmail(object):
     template_name =  "email/verification.txt"
-    key_preface = "verification_code"
+    key_prefix = "verification_code"
     subject = "GeneNetwork email verification"
 
     def __init__(self, user):
         verification_code = str(uuid.uuid4())
-        key = self.key_preface + "verification_code:" + verification_code
+        key = self.key_prefix + ":" + verification_code
 
         data = json.dumps(dict(id=user.id,
                                timestamp=timestamp())
@@ -214,7 +217,7 @@ class VerificationEmail(object):
 
 class ForgotPasswordEmail(VerificationEmail):
     template_name = "email/forgot_password.txt"
-    key_preface = "forgot_password_code"
+    key_prefix = "forgot_password_code"
     subject = "GeneNetwork password reset"
 
 
@@ -239,16 +242,71 @@ def basic_info():
 
 @app.route("/manage/verify_email")
 def verify_email():
-    print("in verify_email request.url is:", request.url)
-    verify_url_hmac(request.url)
-    verification_code = request.args['code']
-    data = Redis.get("verification_code:" + verification_code)
-    data = json.loads(data)
-    print("data is:", data)
-    user = model.User.query.get(data['id'])
+    user = DecodeUser(VerificationEmail.key_prefix).user
     user.confirmed = json.dumps(basic_info(), sort_keys=True)
     db_session.commit()
 
+@app.route("/n/password_reset")
+def password_reset():
+    print("in password_reset request.url is:", request.url)
+
+    # We do this mainly just to assert that it's in proper form for displaying next page
+    # Really not necessary but doesn't hurt
+    user_encode = DecodeUser(ForgotPasswordEmail.key_prefix).reencode_standalone()
+
+    return render_template("new_security/password_reset.html", user_encode=user_encode)
+
+@app.route("/n/password_reset_step2", methods=('POST',))
+def password_reset_step2():
+    print("in password_reset request.url is:", request.url)
+
+    errors = []
+
+    user_encode = request.form['user_encode']
+    verification_code, separator, hmac = user_encode.partition(':')
+
+    hmac_verified = actual_hmac_creation(verification_code)
+    print("locals are:", locals())
+
+
+    assert hmac == hmac_verified, "Someone has been naughty"
+
+    user = DecodeUser.actual_get_user(ForgotPasswordEmail.key_prefix, verification_code)
+    print("user is:", user)
+
+    password = request.form['password']
+
+    set_password(password, user)
+    db_session.commit()
+
+    flash("Password changed successfully. You can now sign in.", "alert-info")
+    response = make_response(redirect(url_for('login')))
+
+    return response
+
+class DecodeUser(object):
+
+    def __init__(self, code_prefix):
+        verify_url_hmac(request.url)
+
+        #params = urlparse.parse_qs(url)
+
+        self.verification_code = request.args['code']
+        self.user = self.actual_get_user(code_prefix, self.verification_code)
+
+    def reencode_standalone(self):
+        hmac = actual_hmac_creation(self.verification_code)
+        return self.verification_code + ":" + hmac
+
+    @staticmethod
+    def actual_get_user(code_prefix, verification_code):
+        data = Redis.get(code_prefix + ":" + verification_code)
+        print("in get_coded_user, data is:", data)
+        data = json.loads(data)
+        print("data is:", data)
+        return model.User.query.get(data['id'])
+
+@app.route("/n/login", methods=('GET', 'POST'))
 def login():
     params = request.form if request.form else request.args
     print("in login params are:", params)
@@ -282,7 +340,7 @@ def login():
                            user_id = user.id,
                            user_email_address = user.email_address)
 
-            flash("Thank you for logging in.", "alert-success")
+            flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
 
             key = "session_id:" + login_rec.session_id
             print("Key when signing:", key)
@@ -324,10 +382,63 @@ def forgot_password_submit():
             email_address))
         return redirect(url_for("login"))
     ForgotPasswordEmail(user)
+    return render_template("new_security/forgot_password_step2.html",
+                            subject=ForgotPasswordEmail.subject)
 
-@app.route("/n/password_reset")
-def password_reset():
-    pass
+
+
+@app.route("/manage/users")
+def manage_users():
+    template_vars = UsersManager()
+    return render_template("admin/user_manager.html", **template_vars.__dict__)
+
+@app.route("/manage/user")
+def manage_user():
+    template_vars = UserManager(request.args)
+    return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
+
+@app.route("/manage/groups")
+def manage_groups():
+    template_vars = GroupsManager(request.args)
+    return render_template("admin/group_manager.html", **template_vars.__dict__)
+
+
+@app.route("/n/register", methods=('GET', 'POST'))
+def register():
+    params = None
+    errors = None
+
+    #if request.form:
+    #    params = request.form
+    #else:
+    #    params = request.args
+
+    params = request.form if request.form else request.args
+
+    if params:
+        print("Attempting to register the user...")
+        result = RegisterUser(params)
+        errors = result.errors
+
+        if result.thank_you_mode:
+            assert not errors, "Errors while in thank you mode? That seems wrong..."
+            return render_template("new_security/registered.html",
+                                   subject=VerificationEmail.subject)
+
+    return render_template("new_security/register_user.html", values=params, errors=errors)
+
+
+
+
+#@app.route("/n/login", methods=('GET', 'POST'))
+#def login():
+#    return user_manager.login()
+#
+#@app.route("/manage/verify")
+#def verify():
+#    user_manager.verify_email()
+#    return render_template("new_security/verified.html")
+
 
 
 ################################# Sign and unsign #####################################
