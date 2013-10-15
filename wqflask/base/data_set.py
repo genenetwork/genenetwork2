@@ -322,7 +322,7 @@ class DatasetGroup(object):
             self.incparentsf1 = 0
             self.genotype = genotype_1
 
-        self.samplelist = list(genotype.prgy)
+        self.samplelist = list(self.genotype.prgy)
 
 
 #class DataSets(object):
@@ -440,10 +440,12 @@ class DataSet(object):
         
     def get_trait_data(self, sample_list=None):
         if sample_list:
-            self.samplelist = sample_list + self.group.parlist + self.group.f1list
+            self.samplelist = sample_list
         else:
-            self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
-        
+            self.samplelist = self.group.samplelist
+            
+        if (self.group.parlist + self.group.f1list) in self.samplelist:
+            self.samplelist += self.group.parlist + self.group.f1list
         
         query = """
             SELECT Strain.Name, Strain.Id FROM Strain, Species
@@ -503,8 +505,8 @@ class DataSet(object):
                         and {}Freeze.Name = '{}'
                         and {}.Id = {}XRef.{}Id
                         order by {}.Id
-                        """.format(*mescape(self.type, self.type, self.type, self.type,
-                                   self.name, dataset_type, self.type, self.type, dataset_type))
+                        """.format(*mescape(self.type, self.type, self.type, self.name, 
+                                    dataset_type, self.type, dataset_type, dataset_type))
             else:
                 query += """
                         WHERE {}XRef.{}FreezeId = {}Freeze.Id
