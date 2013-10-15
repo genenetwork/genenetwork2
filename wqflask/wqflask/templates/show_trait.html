@@ -7,14 +7,9 @@
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>{{ this_trait.symbol}}</h1>
-            <p class="lead">
-                {{ this_trait.name }}: {{ this_trait.description_fmt }}
-            </p>
-        </div>
-    </header>
+    {{ header("{}".format(this_trait.symbol),
+        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
+
 
     <form method="post" action="/corr_compute" name="trait_page" id="trait_data_form"
     class="form-horizontal">

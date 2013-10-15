@@ -9,14 +9,8 @@
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>Marker Regression</h1>
-            <p class="lead">
-                {{ this_trait.name }}: {{ this_trait.description_fmt }}
-            </p>
-        </div>
-    </header>
+    {{ header("Marker Regression",
+        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
 
     <div class="container">
         <div>

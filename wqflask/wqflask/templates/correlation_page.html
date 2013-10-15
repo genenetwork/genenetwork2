@@ -6,12 +6,8 @@
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
 {% endblock %}
 {% block content %}
-
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>Correlation</h1>
-        </div>
-    </header>
+    
+    {{ header("Correlation", 'Trait: {} Dataset: {}'.format(this_trait.name, dataset.name)) }}
 
     <table id="corr_results" class="table table-hover table-striped table-bordered">
         <thead>
