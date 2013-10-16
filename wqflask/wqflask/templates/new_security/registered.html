@@ -1,21 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
 {% block content %}
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>Thank you</h1>
-            <p class="lead">
-                Thanks for verifying.
-            </p>
-        </div>
-    </header>
+     {{ header("Almost Done", "Thanks for registering")}
 
     <div class="container">
         <div class="page-header">
             <h3>One last step</h3>
         </div>
-    
-        <p>You will receive an email with the subject <strong>"{{ subject }}"</strong>.</p>
+
+        <p>You will receive an email with the subject <strong>{{ subject }}</strong>.</p>
 
         <p>You must click the link in the email to complete registration.</p>
 

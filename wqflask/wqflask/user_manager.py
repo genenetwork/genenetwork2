@@ -1,6 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
-"""Access things in template like this:
+"""Used to Access things in template like this:
+(BUT NOW OUT OF DATE)
 
     x: {{ g.identity.name }}
     security: {{ security.__dict__ }}
@@ -142,7 +143,7 @@ class RegisterUser(object):
 
         print("No errors!")
 
-        set_password(password, user)
+        set_password(password, self.user)
 
         self.user.registration_info = json.dumps(basic_info(), sort_keys=True)
 
@@ -228,7 +229,6 @@ class Password(object):
         # On our computer it takes around 1.4 seconds in 2013
         start_time = time.time()
         salt = base64.b64decode(salt)
-        print("now salt is:", salt)
         self.password = pbkdf2.pbkdf2_hex(str(unencrypted_password),
                                           salt, iterations, keylength, hashfunc)
         self.encrypt_time = round(time.time() - start_time, 3)
@@ -328,7 +328,15 @@ def login():
         login_rec = model.Login(user)
 
 
-        if valid:
+        if valid and not user.confirmed:
+            # User needs to confirm before we log them in...
+            flash("You still need to verify your email address."
+                  "We've resent the verification email. "
+                  "Please check your email and follow the instructions.", "alert-error")
+
+            VerificationEmail(user)
+            return redirect((url_for('login')))
+        elif valid:
             login_rec.successful = True
             login_rec.session_id = str(uuid.uuid4())
             #session_id = "session_id:{}".format(login_rec.session_id)
@@ -408,10 +416,6 @@ def register():
     params = None
     errors = None
 
-    #if request.form:
-    #    params = request.form
-    #else:
-    #    params = request.args
 
     params = request.form if request.form else request.args
 
@@ -496,17 +500,6 @@ def send_email(to, subject, body):
     Redis.rpush("mail_queue", msg)
 
 
-#def combined_salt(user_salt):
-#    """Combine the master salt with the user salt...we use two seperate salts so that if the database is compromised, the
-#    salts aren't immediately known"""
-#    secret_salt = app.confing['SECRET_SALT']
-#    assert len(user_salt) == 32
-#    assert len(secret_salt) == 32
-#    combined = ""
-#    for x, y in user_salt, secret_salt:
-#        combined = combined + x + y
-#    return combined
-
 
 
 class GroupsManager(object):
@@ -518,9 +511,3 @@ class RolesManager(object):
     def __init__(self):
         self.roles = model.Role.query.all()
         print("Roles are:", self.roles)
-
-
-#class Password(object):
-#    """To generate a master password: dd if=/dev/urandom bs=32 count=1 > master_salt"""
-#
-#    master_salt =
