@@ -32,6 +32,7 @@ from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
+from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
 from utility import temp_data
 
@@ -243,6 +244,50 @@ def marker_regression_page():
 
     with Bench("Rendering template"):
         rendered_template = render_template("marker_regression.html", **result)
+
+    return rendered_template
+
+@app.route("/interval_mapping", methods=('POST',))
+def interval_mapping_page():
+    initial_start_vars = request.form
+    temp_uuid = initial_start_vars['temp_uuid']
+    wanted = (
+        'trait_id',
+        'dataset',
+        'suggestive'
+    )
+
+    start_vars = {}
+    for key, value in initial_start_vars.iteritems():
+        if key in wanted or key.startswith(('value:')):
+            start_vars[key] = value
+
+    version = "v1"
+    key = "interval_mapping:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+    print("key is:", pf(key))
+    with Bench("Loading cache"):
+        result = Redis.get(key)
+
+    if result:
+        print("Cache hit!!!")
+        with Bench("Loading results"):
+            result = pickle.loads(result)
+    else:
+        print("Cache miss!!!")
+        template_vars = interval_mapping.IntervalMapping(start_vars, temp_uuid)
+
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
+
+        result = template_vars.__dict__
+        
+        #causeerror
+        Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
+        Redis.expire(key, 60*60)
+
+    with Bench("Rendering template"):
+        rendered_template = render_template("interval_mapping.html", **result)
 
     return rendered_template
 

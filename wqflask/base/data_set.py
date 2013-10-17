@@ -168,13 +168,13 @@ class Markers(object):
         
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
-            if marker['p_value'] == 0:
-                marker['lod_score'] = 0
-                marker['lrs_value'] = 0
-            else:
-                marker['lod_score'] = -math.log10(marker['p_value'])
-                #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
-                marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+            if math.isnan(marker['p_value']):
+                print("p_value is:", marker['p_value'])
+            marker['lod_score'] = -math.log10(marker['p_value'])
+            #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
+            marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+        
+        
 
 
 class HumanMarkers(Markers):
@@ -189,6 +189,8 @@ class HumanMarkers(Markers):
             marker['name'] = splat[1]
             marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
+            
+        #print("markers is: ", pf(self.markers))
 
 
     def add_pvalues(self, p_values):
@@ -315,12 +317,12 @@ class DatasetGroup(object):
 
         #determine default genotype object
         if self.incparentsf1 and genotype_1.type != "intercross":
-            genotype = genotype_2
+            self.genotype = genotype_2
         else:
             self.incparentsf1 = 0
-            genotype = genotype_1
+            self.genotype = genotype_1
 
-        self.samplelist = list(genotype.prgy)
+        self.samplelist = list(self.genotype.prgy)
 
 
 #class DataSets(object):
@@ -438,10 +440,12 @@ class DataSet(object):
         
     def get_trait_data(self, sample_list=None):
         if sample_list:
-            self.samplelist = sample_list + self.group.parlist + self.group.f1list
+            self.samplelist = sample_list
         else:
-            self.samplelist = self.group.samplelist + self.group.parlist + self.group.f1list
-        
+            self.samplelist = self.group.samplelist
+            
+        if (self.group.parlist + self.group.f1list) in self.samplelist:
+            self.samplelist += self.group.parlist + self.group.f1list
         
         query = """
             SELECT Strain.Name, Strain.Id FROM Strain, Species
@@ -501,8 +505,8 @@ class DataSet(object):
                         and {}Freeze.Name = '{}'
                         and {}.Id = {}XRef.{}Id
                         order by {}.Id
-                        """.format(*mescape(self.type, self.type, self.type, self.type,
-                                   self.name, dataset_type, self.type, self.type, dataset_type))
+                        """.format(*mescape(self.type, self.type, self.type, self.name, 
+                                    dataset_type, self.type, dataset_type, dataset_type))
             else:
                 query += """
                         WHERE {}XRef.{}FreezeId = {}Freeze.Id

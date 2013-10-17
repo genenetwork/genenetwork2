@@ -90,6 +90,9 @@ Reload web server:
 Run server:
 python runserver.py
 
+Run sendmail.py
+python send_mail.py
+
 ===========================================
 
 UFW - default firewall confirguation tool for Ubuntu; eases iptables firewall configuration

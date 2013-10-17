@@ -2,14 +2,9 @@
 {% block title %}QuickSearch Results{% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>QuickSearch Results</h1>
-            <p class="lead">
-                GeneNetwork found {{ numify(results|count, "record", "records") }}.
-            </p>
-        </div>
-    </header>
+
+    {{ header("QuickSearch Results",
+        'GeneNetwork found {}.'.format(numify(results|count, "record", "records"))) }}
 
     <div class="container">
         <div class="page-header">
