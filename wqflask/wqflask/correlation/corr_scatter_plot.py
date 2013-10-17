@@ -20,9 +20,12 @@ class CorrScatterPlot(object):
         for sample in self.trait_2.data.keys():
             vals_2.append(self.trait_2.data[sample].value)
             
-        vals_1, vals_2, num_overlap = corr_result_helpers.normalize_values(vals_1, vals_2)
+        samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(
+                                                self.trait_1.data, self.trait_2.data)
         
         self.js_data = dict(
-            vals_1 = vals_1,
-            vals_2 = vals_2
+            samples_1 = samples_1,
+            samples_2 = samples_2
         )
+        
+        print("Self.js_data:", self.js_data)

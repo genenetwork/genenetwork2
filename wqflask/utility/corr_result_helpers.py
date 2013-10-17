@@ -25,6 +25,32 @@ def normalize_values(a_values, b_values):
     return a_new, b_new, num_overlap
 
 
+def common_keys(a_samples, b_samples):
+    """
+    >>> a = dict(BXD1 = 9.113, BXD2 = 9.825, BXD14 = 8.985, BXD15 = 9.300)
+    >>> b = dict(BXD1 = 9.723, BXD3 = 9.825, BXD14 = 9.124, BXD16 = 9.300)
+    >>> sorted(common_keys(a, b))
+    ['BXD1', 'BXD14']
+    """
+    return set(a_samples.keys()).intersection(set(b_samples.keys()))
+
+
+def normalize_values_with_samples(a_samples, b_samples):
+    common_samples = common_keys(a_samples, b_samples)
+    
+    a_new = {}
+    b_new = {}
+    for sample in common_samples:
+        a_new[sample] = a_samples[sample]
+        b_new[sample] = b_samples[sample]
+        
+    num_overlap = len(a_new)
+    assert num_overlap == len(b_new), "Lengths should be the same"
+    
+    return a_new, b_new, num_overlap
+
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

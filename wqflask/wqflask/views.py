@@ -32,8 +32,9 @@ from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
-from wqflask.interval_mapping import interval_mapping
+#from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
+from wqflask.correlation import corr_scatter_plot
 from utility import temp_data
 
 from wqflask.dataSharing import SharingInfo, SharingInfoPage
