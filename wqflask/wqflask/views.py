@@ -246,13 +246,17 @@ def marker_regression_page():
 
     return rendered_template
 
-
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
     print("In corr_compute, request.form is:", pf(request.form))
     #fd = webqtlFormData.webqtlFormData(request.form)
     template_vars = show_corr_results.CorrelationResults(request.form)
     return render_template("correlation_page.html", **template_vars.__dict__)
+
+@app.route("/corr_scatter_plot")
+def corr_scatter_plot_page():
+    template_vars = corr_scatter_plot.CorrScatterPlot(request.args)
+    return render_template("corr_scatter_plot.html", **template_vars.__dict__)
 
 @app.route("/int_mapping", methods=('POST',))
 def interval_mapping_page():

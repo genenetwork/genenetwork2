@@ -52,7 +52,7 @@
                 <td>{{'%0.3f'|format(trait.mean)}}</td>
                 <td>{{'%0.3f'|format(trait.lrs)}}</td>
                 <td>Chr{{ trait.locus_chr }}:{{'%0.6f'|format(trait.locus_mb)}}</td>
-                <td>{{'%0.3f'|format(trait.sample_r)}}</td>
+                <td><a href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}&">{{'%0.3f'|format(trait.sample_r)}}</a></td>
                 <td>{{ trait.num_overlap }}</td>
                 <td>{{'%0.3e'|format(trait.sample_p)}}</td>
                 <td>{{'%0.3f'|format(trait.lit_corr)}}</td>
