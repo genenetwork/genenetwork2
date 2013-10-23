@@ -51,7 +51,10 @@ def collections_add():
 
 @app.route("/collections/new")
 def collections_new():
-    new_collection = request.args['new_collection']
+    uc = model.UserCollection()
+    uc.name = request.args['new_collection']
+    print("user_session:", g.user_session.__dict__)
+    uc.user = g.user_session.record['user_id']
     unprocessed_traits = request.args['traits']
     print("unprocessed_traits are:", unprocessed_traits)
     unprocessed_traits = unprocessed_traits.split(",")
@@ -64,5 +67,12 @@ def collections_new():
         assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
         traits.add(str(data))
 
+    uc.members = json.dumps(list(traits))
     print("traits are:", traits)
-    return "Created: " + new_collection
+
+    db_session.add(uc)
+    db_session.commit()
+
+
+
+    return "Created: " + uc.name
