@@ -3,6 +3,8 @@ from __future__ import print_function, division, absolute_import
 import uuid
 import datetime
 
+import simplejson as json
+
 from flask import request
 from flask.ext.sqlalchemy import SQLAlchemy
 #from flask.ext.security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin
@@ -60,18 +62,48 @@ class User(Base):
     __tablename__ = "user"
     id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
     email_address = Column(Unicode(50), unique=True, nullable=False)
-    
+
     # Todo: Turn on strict mode for Mysql
     password = Column(Text, nullable=False)
-    
+
     full_name = Column(Unicode(50))
     organization = Column(Unicode(50))
-    
+
     active = Column(Boolean(), nullable=False, default=True)
 
     registration_info = Column(Text)   # json detailing when they were registered, etc.
-    
+
     confirmed = Column(Text) # json detailing when they confirmed, etc.
+
+    logins = relationship("Login",
+                          order_by="desc(Login.timestamp)",
+                          lazy='dynamic' # Necessary for filter in login_count
+                          )
+
+    @property
+    def login_count(self):
+        return self.logins.filter_by(successful=True).count()
+        #return self.query.filter
+        #return len(self.logins)
+        #return 8
+        #return len(self.logins.query.filter(User.logins.has(successful=True)))
+
+    @property
+    def confirmed_at(self):
+        if self.confirmed:
+            confirmed_info = json.loads(self.confirmed)
+            return confirmed_info['timestamp']
+        else:
+            return None
+
+    @property
+    def most_recent_login(self):
+        try:
+            return self.logins[0]
+        except IndexError:
+            return None
+
+
 
     #last_login_at = Column(DateTime())
     #current_login_at = Column(DateTime())
@@ -90,11 +122,11 @@ class Login(Base):
     ip_address = Column(Unicode(39))
     successful = Column(Boolean(), nullable=False)  # False if wrong password was entered
     session_id = Column(Text)  # Set only if successfully logged in, otherwise should be blank
-    
+
     def __init__(self, user):
         self.user = user.id
         self.ip_address = request.remote_addr
-        
+
 # Setup Flask-Security
 #user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
@@ -107,5 +139,3 @@ class Login(Base):
 
 
 #user_datastore.create_role(name="Genentech", description="Genentech Beta Project(testing)")
-
-

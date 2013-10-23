@@ -1,0 +1,15 @@
+<div id="myModal">
+    <div class="modal-header">
+        <h3 id="myModalLabel">Add to collection</h3>
+    </div>
+    <form action="/collections/new">
+        <input type="hidden" name="traits" value="{{ traits }}" />
+        <fieldset>
+            <legend>Create a new collection</legend>
+            <label>New collection name</label>
+            <input type="text" name="new_collection" placeholder="Name of new collection...">
+            <span class="help-block">Type the name of the new collection.</span>
+            <button type="submit" class="btn">Create and add traits</button>
+        </fieldset>
+</form>
+</div>

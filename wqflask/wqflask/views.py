@@ -43,6 +43,7 @@ from utility.benchmark import Bench
 from pprint import pformat as pf
 
 from wqflask import user_manager
+from wqflask import collect
 
 #import logging
 #logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)

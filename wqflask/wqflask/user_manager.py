@@ -246,6 +246,14 @@ def verify_email():
     user.confirmed = json.dumps(basic_info(), sort_keys=True)
     db_session.commit()
 
+    # As long as they have access to the email account
+    # We might as well log them in
+
+    session_id_signed = successful_login(user)
+    response = make_response(render_template("new_security/thank_you.html"))
+    response.set_cookie(UserSession.cookie_name, session_id_signed)
+    return response
+
 @app.route("/n/password_reset")
 def password_reset():
     print("in password_reset request.url is:", request.url)
@@ -325,44 +333,50 @@ def login():
         valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
         print("valid is:", valid)
 
-        login_rec = model.Login(user)
-
-
         if valid and not user.confirmed:
-            # User needs to confirm before we log them in...
-            flash("You still need to verify your email address."
-                  "We've resent the verification email. "
-                  "Please check your email and follow the instructions.", "alert-error")
-
             VerificationEmail(user)
-            return redirect((url_for('login')))
-        elif valid:
-            login_rec.successful = True
-            login_rec.session_id = str(uuid.uuid4())
-            #session_id = "session_id:{}".format(login_rec.session_id)
-            session_id_signature = actual_hmac_creation(login_rec.session_id)
-            session_id_signed = login_rec.session_id + ":" + session_id_signature
-            print("session_id_signed:", session_id_signed)
+            return render_template("new_security/verification_still_needed.html",
+                                   subject=VerificationEmail.subject)
 
-            session = dict(login_time = time.time(),
-                           user_id = user.id,
-                           user_email_address = user.email_address)
 
+        if valid:
+            session_id_signed = successful_login(user)
             flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
-
-            key = "session_id:" + login_rec.session_id
-            print("Key when signing:", key)
-            Redis.hmset(key, session)
-
             response = make_response(redirect(url_for('index_page')))
             response.set_cookie(UserSession.cookie_name, session_id_signed)
         else:
-            login_rec.successful = False
+            unsuccessful_login(user)
             flash("Invalid email-address or password. Please try again.", "alert-error")
             response = make_response(redirect(url_for('login')))
-        db_session.add(login_rec)
-        db_session.commit()
+
         return response
+
+
+def successful_login(user):
+    login_rec = model.Login(user)
+    login_rec.successful = True
+    login_rec.session_id = str(uuid.uuid4())
+    #session_id = "session_id:{}".format(login_rec.session_id)
+    session_id_signature = actual_hmac_creation(login_rec.session_id)
+    session_id_signed = login_rec.session_id + ":" + session_id_signature
+    print("session_id_signed:", session_id_signed)
+
+    session = dict(login_time = time.time(),
+                   user_id = user.id,
+                   user_email_address = user.email_address)
+
+    key = "session_id:" + login_rec.session_id
+    print("Key when signing:", key)
+    Redis.hmset(key, session)
+    db_session.add(login_rec)
+    db_session.commit()
+    return session_id_signed
+
+def unsuccessful_login(user):
+    login_rec = model.Login(user)
+    login_rec.successful = False
+    db_session.add(login_rec)
+    db_session.commit()
 
 @app.route("/n/logout")
 def logout():
@@ -459,6 +473,11 @@ def url_for_hmac(endpoint, **values):
         combiner = "?"
     return url + combiner + "hm=" + hm
 
+def data_hmac(stringy):
+    """Takes arbitray data string and appends :hmac so we know data hasn't been tampered with"""
+    return stringy + ":" + actual_hmac_creation(stringy)
+
+
 def verify_url_hmac(url):
     """Pass in a url that was created with url_hmac and this assures it hasn't been tampered with"""
     print("url passed in to verify is:", url)
@@ -488,7 +507,8 @@ def actual_hmac_creation(stringy):
     hm = hm[:20]
     return hm
 
-app.jinja_env.globals.update(url_for_hmac=url_for_hmac)
+app.jinja_env.globals.update(url_for_hmac=url_for_hmac,
+                             data_hmac=data_hmac)
 
 #######################################################################################
 

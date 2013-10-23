@@ -10,7 +10,7 @@
 
     <div class="container">
         <div class="page-header">
-            <h1>{{ user.email }} <small>User #{{ user.id }}</small></h1>
+            <h1 title="{{ user.id }}">{{ user.email_address }}</h1>
 
             <span class="badge">{{ numify(user.login_count, "login", "logins").capitalize() }}</span>
 
@@ -30,12 +30,12 @@
                     <th>Value</th>
                 </tr>
             </thead>-->
-            
+
             <tr>
                 <td>Name</td>
-                <td>{{ user.name }}</td>
+                <td>{{ user.full_name }}</td>
             </tr>
-            
+
             <tr>
                 <td>Organization</td>
                 <td>{{ user.organization }}</td>
@@ -44,19 +44,28 @@
 
             <tr>
                 <td>Confirmed</td>
-                <td>{{ user.confirmed_at }}</td>
+
+                {% if user.confirmed_at %}
+                <td>{{ timeago(user.confirmed_at) }}</td>
+                {% else %}
+                <td><span class="label label-warning">Unconfirmed</span></td>
+                {% endif %}
             </tr>
 
             <tr>
-                <td>Current login</td>
-                <td>{{ user.current_login_at }} from {{ user.current_login_ip }}</td>
+                <td>Most recent login</td>
+                {% if user.most_recent_login %}
+                <td>{{ timeago(user.most_recent_login.timestamp) }} from {{ user.most_recent_login.ip_address }}</td>
+                {% else %}
+                <td><span class="label label-warning">Never</span></td>
+                {% endif %}
             </tr>
 
-            <tr>
+<!--            <tr>
                 <td>Last login</td>
                 <td>{{ user.last_login_at }} from {{ user.last_login_ip }}</td>
             </tr>
-
+-->
     <!--        <tr>
                 <td>Number of logins</td>
                 <td>{{ user.login_count }}</td>
@@ -69,4 +78,13 @@
 
 <!-- End of body -->
 
+{% endblock %}
+
+{% block js %}
+
+    <script type="text/javascript" src="/static/packages/smart-time-ago/lib/timeago.js"></script>
+    <script>
+        $('body').timeago();
+    </script>
+    
 {% endblock %}

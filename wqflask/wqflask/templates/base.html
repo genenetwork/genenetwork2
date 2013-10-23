@@ -32,10 +32,10 @@
             <h1>{{ main }}</h1>
             <p class="lead">
                {{ second }}
-            </p>               
+            </p>
         </div>
     </header>
-    
+
     {{ flash_me() }}
 {% endmacro %}
 
@@ -53,12 +53,17 @@
     {% endwith %}
 {% endmacro %}
 
+{% macro timeago(timestamp) %}
+<time class="timeago" datetime="{{ timestamp }}">{{ timestamp }}</time>
+{% endmacro %}
+
+
 <body data-spy="scroll" data-target=".bs-docs-sidebar">
     <!-- Navbar
     ================================================== -->
-      
+
     <div class="navbar navbar-inverse navbar-fixed-top">
-        
+
         <div class="navbar-inner">
             <div class="container">
                 <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -211,9 +216,9 @@
 
     <script language="javascript" type="text/javascript" src="/static/packages/colorbox/jquery.colorbox.js"></script>
     <!--<script type="text/javascript" src="/static/new/javascript/login.js"></script>-->
-    
+
     <script type="text/javascript" src="/static/new/js_external/parsley.min.js"></script>
-    
+
     {% block js %}
     {% endblock %}
 
