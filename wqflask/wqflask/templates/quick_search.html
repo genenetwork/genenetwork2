@@ -3,15 +3,14 @@
 {% block content %}
 <!-- Start of body -->
 
-    {{ header("QuickSearch Results",
-        'GeneNetwork found {}.'.format(numify(results|count, "record", "records"))) }}
+    {{ header("QuickSearch Results") }}
 
     <div class="container">
         <div class="page-header">
             <h1>Your Search</h1>
         </div>
 
-        <p>We across all data sets to find all records that match:</p>
+        <p>We searched across all data sets to find all records that match:</p>
 
         <ul>
             {% if search_terms %}
@@ -276,7 +275,7 @@
             console.time("Creating table");
             $('#pheno_results, #mrna_assay_results, #geno_results').dataTable( {
                 //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "sDom": "lTftipr",
+                //"sDom": "lTftipr",
                 "oTableTools": {
                     "aButtons": [
                         "copy",

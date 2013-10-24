@@ -1,0 +1,16 @@
+<div>
+    <br>
+    <h2>Charts and Figures</h2>
+    <div class="well form-horizontal">
+        <select class="stats_samples_group">
+            {% for group, pretty_group in sample_group_types.items() %}
+                <option value="{{ group }}">{{ pretty_group }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" id="update_bar_chart">Sort By Value</button>
+        <div id="bar_chart_container">
+            <div id="bar_chart"></div>
+        </div>
+        
+    </div>
+</div>
