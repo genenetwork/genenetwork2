@@ -382,6 +382,7 @@ class GeneralTrait(object):
                     #trait_qtl = self.cursor.fetchone()
                     if trait_qtl:
                         self.locus, self.lrs, self.pvalue, self.mean = trait_qtl
+                        print("self.locus:", self.locus)
                         if self.locus:
                             query = """
                                 select Geno.Chr, Geno.Mb from Geno, Species
@@ -390,8 +391,9 @@ class GeneralTrait(object):
                                 Geno.SpeciesId = Species.Id
                                 """.format(self.dataset.group.species, self.locus)
                             result = g.db.execute(query).fetchone()
-                            self.locus_chr = result[0]
-                            self.locus_mb = result[1]
+                            if result:
+                                self.locus_chr = result[0]
+                                self.locus_mb = result[1]
                     else:
                         self.locus = self.locus_chr = self.locus_mb = self.lrs = self.pvalue = self.mean = ""
                 

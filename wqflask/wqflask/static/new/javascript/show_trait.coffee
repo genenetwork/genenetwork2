@@ -83,6 +83,10 @@ $ ->
             @create_scales()
             @create_graph()
             
+            d3.select("#color_attribute").on("change", =>
+                
+            )
+            
             d3.select("#update_bar_chart").on("click", =>
                 if $("#update_bar_chart").html() == 'Sort By Value' 
                     $("#update_bar_chart").html('Sort By Name')
@@ -99,10 +103,14 @@ $ ->
                         .attr("height", (d) =>
                             return @plot_height - @y_scale(d[1])
                         )
+                        .select("title")
+                        .text((d) =>
+                            return d[1]
+                        )
                     sorted_sample_names = (sample[0] for sample in @sorted_samples())
                     x_scale = d3.scale.ordinal()
                         .domain(sorted_sample_names)
-                        .rangeRoundBands([0, @plot_width], .1)
+                        .rangeBands([0, @plot_width], .1)
                     $('.x.axis').remove()
                     @add_x_axis(x_scale)
                 else
@@ -117,17 +125,24 @@ $ ->
                         .attr("height", (d) =>
                             return @plot_height - @y_scale(d)
                         )
+                        .select("title")
+                        .text((d) =>
+                            return d
+                        )
                     x_scale = d3.scale.ordinal()
                         .domain(@sample_names)
-                        .rangeRoundBands([0, @plot_width], .1)
+                        .rangeBands([0, @plot_width], .1)
                     $('.x.axis').remove()
                     @add_x_axis(x_scale)
-                    
             )
 
         get_samples: () ->
             @sample_names = (sample.name for sample in @sample_list when sample.value != null)
             @sample_vals = (sample.value for sample in @sample_list when sample.value != null)
+            attributes = (key for key of @sample_list[0]["extra_attributes"])
+            console.log("attributes:", attributes)
+            if attributes.length > 0
+                alert("TEST")
             
         create_svg: () ->
             svg = d3.select("#bar_chart")
@@ -143,7 +158,7 @@ $ ->
         create_scales: () ->
             @x_scale = d3.scale.ordinal()
                 .domain(@sample_names)
-                .rangeRoundBands([0, @plot_width], .1)
+                .rangeBands([0, @plot_width], .1)
 
             @y_scale = d3.scale.linear()
                 .domain([@y_min * 0.75, @y_max])

@@ -138,7 +138,7 @@ class SampleList(object):
                                                 StrainId = %s AND
                                                 CaseAttributeId = %s
                                         group by CaseAttributeXRef.CaseAttributeId""", (
-                                            self.this_trait.db.id, sample_id, str(attribute)))
+                                            self.this_trait.dataset.id, sample_id, str(attribute)))
 
                 attribute_value = result.fetchone().Value #Trait-specific attributes, if any
 

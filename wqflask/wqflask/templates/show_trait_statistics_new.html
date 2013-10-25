@@ -7,6 +7,16 @@
                 <option value="{{ group }}">{{ pretty_group }}</option>
             {% endfor %}
         </select>
+        {% if sample_groups[0].attributes %}
+        <div class="input-append">
+            <select id="color_attribute" size=1>
+              {% for attribute in sample_groups[0].attributes %}
+              <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
+                  {{ sample_groups[0].attributes[attribute].name }}</option>
+              {% endfor %}
+            </select>
+        </div>
+        {% endif %}
         <button type="button" id="update_bar_chart">Sort By Value</button>
         <div id="bar_chart_container">
             <div id="bar_chart"></div>

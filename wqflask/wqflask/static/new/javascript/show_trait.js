@@ -92,6 +92,7 @@
         this.plot_height -= this.y_buffer;
         this.create_scales();
         this.create_graph();
+        d3.select("#color_attribute").on("change", function() {});
         d3.select("#update_bar_chart").on("click", function() {
           var sortItems, sorted_sample_names, x_scale;
           if ($("#update_bar_chart").html() === 'Sort By Value') {
@@ -103,6 +104,8 @@
               return _this.y_scale(d[1]);
             }).attr("height", function(d) {
               return _this.plot_height - _this.y_scale(d[1]);
+            }).select("title").text(function(d) {
+              return d[1];
             });
             sorted_sample_names = (function() {
               var _i, _len, _ref, _results;
@@ -114,7 +117,7 @@
               }
               return _results;
             }).call(_this);
-            x_scale = d3.scale.ordinal().domain(sorted_sample_names).rangeRoundBands([0, _this.plot_width], .1);
+            x_scale = d3.scale.ordinal().domain(sorted_sample_names).rangeBands([0, _this.plot_width], .1);
             $('.x.axis').remove();
             return _this.add_x_axis(x_scale);
           } else {
@@ -123,8 +126,10 @@
               return _this.y_scale(d);
             }).attr("height", function(d) {
               return _this.plot_height - _this.y_scale(d);
+            }).select("title").text(function(d) {
+              return d;
             });
-            x_scale = d3.scale.ordinal().domain(_this.sample_names).rangeRoundBands([0, _this.plot_width], .1);
+            x_scale = d3.scale.ordinal().domain(_this.sample_names).rangeBands([0, _this.plot_width], .1);
             $('.x.axis').remove();
             return _this.add_x_axis(x_scale);
           }
@@ -132,7 +137,7 @@
       }
 
       Histogram.prototype.get_samples = function() {
-        var sample;
+        var attributes, key, sample;
         this.sample_names = (function() {
           var _i, _len, _ref, _results;
           _ref = this.sample_list;
@@ -145,7 +150,7 @@
           }
           return _results;
         }).call(this);
-        return this.sample_vals = (function() {
+        this.sample_vals = (function() {
           var _i, _len, _ref, _results;
           _ref = this.sample_list;
           _results = [];
@@ -157,6 +162,18 @@
           }
           return _results;
         }).call(this);
+        attributes = (function() {
+          var _results;
+          _results = [];
+          for (key in this.sample_list[0]["extra_attributes"]) {
+            _results.push(key);
+          }
+          return _results;
+        }).call(this);
+        console.log("attributes:", attributes);
+        if (attributes.length > 0) {
+          return alert("TEST");
+        }
       };
 
       Histogram.prototype.create_svg = function() {
@@ -166,7 +183,7 @@
       };
 
       Histogram.prototype.create_scales = function() {
-        this.x_scale = d3.scale.ordinal().domain(this.sample_names).rangeRoundBands([0, this.plot_width], .1);
+        this.x_scale = d3.scale.ordinal().domain(this.sample_names).rangeBands([0, this.plot_width], .1);
         return this.y_scale = d3.scale.linear().domain([this.y_min * 0.75, this.y_max]).range([this.plot_height, this.y_buffer]);
       };
 
