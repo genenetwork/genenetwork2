@@ -92,7 +92,26 @@
         this.plot_height -= this.y_buffer;
         this.create_scales();
         this.create_graph();
-        d3.select("#color_attribute").on("change", function() {});
+        d3.select("#color_attribute").on("change", function() {
+          var attribute;
+          attribute = $("#color_attribute").val();
+          console.log("attribute:", attribute);
+          if ($("#update_bar_chart").html() === 'Sort By Name') {
+            return _this.svg.selectAll(".bar").data(_this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
+              var attr_color_dict;
+              attr_color_dict = _this.get_attr_color_dict();
+              return attr_color_dict[attribute][d[2][attribute]];
+            }).select("title").text(function(d) {
+              return d[1];
+            });
+          } else {
+            return _this.svg.selectAll(".bar").data(_this.sample_attr_vals).transition().duration(1000).style("fill", function(d) {
+              var attr_color_dict;
+              attr_color_dict = _this.get_attr_color_dict();
+              return attr_color_dict[attribute][d[attribute]];
+            });
+          }
+        });
         d3.select("#update_bar_chart").on("click", function() {
           var sortItems, sorted_sample_names, x_scale;
           if ($("#update_bar_chart").html() === 'Sort By Value') {
@@ -104,7 +123,7 @@
               return _this.y_scale(d[1]);
             }).attr("height", function(d) {
               return _this.plot_height - _this.y_scale(d[1]);
-            }).select("title").text(function(d) {
+            }).style("fill", "steelblue").select("title").text(function(d) {
               return d[1];
             });
             sorted_sample_names = (function() {
@@ -126,7 +145,7 @@
               return _this.y_scale(d);
             }).attr("height", function(d) {
               return _this.plot_height - _this.y_scale(d);
-            }).select("title").text(function(d) {
+            }).style("fill", "steelblue").select("title").text(function(d) {
               return d;
             });
             x_scale = d3.scale.ordinal().domain(_this.sample_names).rangeBands([0, _this.plot_width], .1);
@@ -136,8 +155,27 @@
         });
       }
 
+      Histogram.prototype.get_attr_color_dict = function() {
+        var attr_color_dict, attribute_info, color, i, key, this_color_dict, value, _i, _len, _ref, _ref1;
+        color = d3.scale.category20();
+        attr_color_dict = {};
+        _ref = js_data.attribute_names;
+        for (key in _ref) {
+          if (!__hasProp.call(_ref, key)) continue;
+          attribute_info = _ref[key];
+          this_color_dict = {};
+          _ref1 = attribute_info.distinct_values;
+          for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
+            value = _ref1[i];
+            this_color_dict[value] = color(i);
+          }
+          attr_color_dict[attribute_info.name] = this_color_dict;
+        }
+        return attr_color_dict;
+      };
+
       Histogram.prototype.get_samples = function() {
-        var attributes, key, sample;
+        var attr_vals, attribute, key, sample, _i, _j, _len, _len1, _ref, _ref1;
         this.sample_names = (function() {
           var _i, _len, _ref, _results;
           _ref = this.sample_list;
@@ -162,7 +200,7 @@
           }
           return _results;
         }).call(this);
-        attributes = (function() {
+        this.attributes = (function() {
           var _results;
           _results = [];
           for (key in this.sample_list[0]["extra_attributes"]) {
@@ -170,10 +208,22 @@
           }
           return _results;
         }).call(this);
-        console.log("attributes:", attributes);
-        if (attributes.length > 0) {
-          return alert("TEST");
+        console.log("attributes:", this.attributes);
+        this.sample_attr_vals = [];
+        if (this.attributes.length > 0) {
+          _ref = this.sample_list;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            sample = _ref[_i];
+            attr_vals = {};
+            _ref1 = this.attributes;
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              attribute = _ref1[_j];
+              attr_vals[attribute] = sample["extra_attributes"][attribute];
+            }
+            this.sample_attr_vals.push(attr_vals);
+          }
         }
+        return console.log("sample_attr_vals:", this.sample_attr_vals);
       };
 
       Histogram.prototype.create_svg = function() {
@@ -210,7 +260,7 @@
 
       Histogram.prototype.add_bars = function() {
         var _this = this;
-        return this.svg.selectAll(".bar").data(_.zip(this.sample_names, this.sample_vals)).enter().append("rect").attr("class", "bar").attr("x", function(d) {
+        return this.svg.selectAll(".bar").data(_.zip(this.sample_names, this.sample_vals)).enter().append("rect").style("fill", "steelblue").attr("class", "bar").attr("x", function(d) {
           return _this.x_scale(d[0]);
         }).attr("width", this.x_scale.rangeBand()).attr("y", function(d) {
           return _this.y_scale(d[1]);
@@ -224,7 +274,11 @@
       Histogram.prototype.sorted_samples = function() {
         var sample_list, sorted,
           _this = this;
-        sample_list = _.zip(this.sample_names, this.sample_vals);
+        if (this.sample_attr_vals.length > 0) {
+          sample_list = _.zip(this.sample_names, this.sample_vals, this.sample_attr_vals);
+        } else {
+          sample_list = _.zip(this.sample_names, this.sample_vals);
+        }
         sorted = _.sortBy(sample_list, function(sample) {
           return sample[1];
         });
