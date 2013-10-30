@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}View Collection{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    {{ header(uc.name,
+        'This collection has {}.'.format(numify(results|count, "record", "records"))) }}
+
+    <div class="bs-docs-example">
+    <table class="table table-hover" id='trait_table'>
+        <thead>
+            <tr>
+                <th>Dataset</th>
+                <th>Traid ID</th>
+                <th>Symbol</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Mean</th>
+                <th>N</th>
+                <th>Max LRS</th>
+                <th>Max LRS Location</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for this_trait in trait_obs %}
+            <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
+                <TD>
+                    <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
+                           VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
+                </TD>
+                <TD>
+                    <a href="{{ url_for('show_trait_page',
+                            trait_id = this_trait.name,
+                            dataset = this_trait.dataset.name
+                            )}}">
+                        {{ this_trait.name }}
+                    </a>
+                </TD>
+                {% if this_trait.dataset.type == 'ProbeSet' %}
+                    <TD>{{ this_trait.symbol }}</TD>
+                    <TD>{{ this_trait.description_display }}</TD>
+                    <TD>{{ this_trait.location_repr }}</TD>
+                    <TD>{{ this_trait.mean }}</TD>
+                    <TD>{{ this_trait.LRS_score_repr }}</TD>
+                    <TD>{{ this_trait.LRS_location_repr }}</TD>
+                {% elif this_trait.dataset.type == 'Publish' %}
+                    <TD>{{ this_trait.description_display }}</TD>
+                    <TD>{{ this_trait.authors }}</TD>
+                    <TD>
+                        <a href="{{ this_trait.pubmed_link }}">
+                            {{ this_trait.pubmed_text }}
+                        </a>
+                    </TD>
+                    <TD>{{ this_trait.LRS_score_repr }}</TD>
+                    <TD>{{ this_trait.LRS_location_repr }}</TD>
+                {% elif this_trait.dataset.type == 'Geno' %}
+                    <TD>{{ this_trait.location_repr }}</TD>
+                {% endif %}
+            </TR>
+        {% endfor %}
+        </tbody>
+
+    </table>
+
+    <br />
+
+    <button class="btn" id="select_all"><i class="icon-ok"></i> Select All</button>
+    <button class="btn" id="deselect_all"><i class="icon-remove"></i> Deselect All</button>
+    <button class="btn" id="invert"><i class="icon-resize-vertical"></i> Invert</button>
+    <button class="btn" id="add"><i class="icon-plus-sign"></i> Add</button>
+    <button class="btn btn-primary pull-right"><i class="icon-download icon-white"></i> Download Table</button>
+</div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+{% endblock %}
