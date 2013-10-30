@@ -77,6 +77,23 @@ class UserSession(object):
             print("record is:", self.record)
             self.logged_in = True
 
+    @property
+    def user_id(self):
+        """Shortcut to the user_id"""
+        return self.record['user_id']
+
+    @property
+    def user_ob(self):
+        """Actual sqlalchemy record"""
+        # Only look it up once if needed, then store it
+        try:
+            # Already did this before
+            return self.db_object
+        except AttributeError:
+            # Doesn't exist so we'll create it
+            self.db_object = model.User.query.get(self.user_id)
+            return self.db_object
+
 
     def delete_session(self):
         # And more importantly delete the redis record

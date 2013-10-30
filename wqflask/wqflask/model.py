@@ -50,6 +50,10 @@ class User(Base):
                           lazy='dynamic' # Necessary for filter in login_count
                           )
 
+    user_collections = relationship("UserCollection",
+                          order_by="asc(UserCollection.name)",
+                          )
+
     @property
     def login_count(self):
         return self.logins.filter_by(successful=True).count()
@@ -98,3 +102,6 @@ class UserCollection(Base):
     created_timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
     changed_timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
     members = Column(Text)  # We're going to store them as a json list
+
+    # This index ensures a user doesn't have more than one collection with the same name
+    __table_args__ = (Index('usercollection_index', "user", "name"), )
