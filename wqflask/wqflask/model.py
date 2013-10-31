@@ -10,7 +10,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 from wqflask import app
 
-from sqlalchemy import Column, Integer, String, Table, ForeignKey, Unicode, Boolean, DateTime, Text
+from sqlalchemy import (Column, Integer, String, Table, ForeignKey, Unicode, Boolean, DateTime,
+                        Text, Index)
 from sqlalchemy.orm import relationship, backref
 
 from wqflask.database import Base, init_db
@@ -98,10 +99,17 @@ class UserCollection(Base):
     __tablename__ = "user_collection"
     id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
     user = Column(Unicode(36), ForeignKey('user.id'))
-    name = Column(Text)
+
+    # I'd prefer this to not have a length, but for the index below it needs one
+    name = Column(Unicode(50))
     created_timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
     changed_timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
     members = Column(Text)  # We're going to store them as a json list
 
     # This index ensures a user doesn't have more than one collection with the same name
     __table_args__ = (Index('usercollection_index', "user", "name"), )
+
+    @property
+    def num_members(self):
+        print("members are:", json.loads(self.members))
+        return len(json.loads(self.members))

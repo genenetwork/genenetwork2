@@ -46,7 +46,7 @@
                 <td>Confirmed</td>
 
                 {% if user.confirmed_at %}
-                <td>{{ timeago(user.confirmed_at) }}</td>
+                <td>{{ timeago(user.confirmed_at + "Z") }}</td>
                 {% else %}
                 <td><span class="label label-warning">Unconfirmed</span></td>
                 {% endif %}
@@ -55,7 +55,7 @@
             <tr>
                 <td>Most recent login</td>
                 {% if user.most_recent_login %}
-                <td>{{ timeago(user.most_recent_login.timestamp) }} from {{ user.most_recent_login.ip_address }}</td>
+                <td>{{ timeago(user.most_recent_login.timestamp.isoformat() + "Z") }} from {{ user.most_recent_login.ip_address }}</td>
                 {% else %}
                 <td><span class="label label-warning">Never</span></td>
                 {% endif %}
@@ -86,5 +86,5 @@
     <script>
         $('body').timeago();
     </script>
-    
+
 {% endblock %}

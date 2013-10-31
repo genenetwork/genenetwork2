@@ -40,6 +40,7 @@ from utility import Bunch, Struct
 from wqflask import user_manager
 
 
+from base import trait
 
 
 
@@ -116,4 +117,37 @@ def create_new():
     db_session.add(uc)
     db_session.commit()
 
-    return "Created: " + uc.name
+    print("Created: " + uc.name)
+    return redirect(url_for('view_collection', uc_id=uc.id))
+
+@app.route("/collections/list")
+def list_collections():
+    user_collections = g.user_session.user_ob.user_collections
+    return render_template("collections/list.html",
+                           user_collections = user_collections,
+                           )
+
+
+
+@app.route("/collections/view")
+def view_collection():
+    params = request.args
+    uc_id = params['uc_id']
+    uc = model.UserCollection.query.get(uc_id)
+    traits = json.loads(uc.members)
+
+    print("in view_collection traits are:", traits)
+
+    trait_obs = []
+
+    for atrait in traits:
+        name, dataset_name = atrait.split(':')
+
+        trait_ob = trait.GeneralTrait(name=name, dataset_name=dataset_name)
+        trait_ob.get_info()
+        trait_obs.append(trait_ob)
+
+    return render_template("collections/view.html",
+                           trait_obs=trait_obs,
+                           uc = uc,
+                           )
