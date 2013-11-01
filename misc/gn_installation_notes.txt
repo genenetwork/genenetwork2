@@ -304,6 +304,12 @@ sudo apt-get install colordiff
 
 ==========================================
 
+Install NTP (network time protocol)
+
+sudo apt-get install ntp
+
+==========================================
+
 To get server running:
 
 !If having seemingly inexplicable problems with imports, make sure I've started the environment!

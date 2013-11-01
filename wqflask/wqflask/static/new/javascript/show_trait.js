@@ -95,25 +95,31 @@
         d3.select("#color_attribute").on("change", function() {
           var attribute;
           attribute = $("#color_attribute").val();
-          console.log("attribute:", attribute);
           if ($("#update_bar_chart").html() === 'Sort By Name') {
             return _this.svg.selectAll(".bar").data(_this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
-              var attr_color_dict;
-              attr_color_dict = _this.get_attr_color_dict();
-              return attr_color_dict[attribute][d[2][attribute]];
+              if (attribute === "None") {
+                return "steelblue";
+              } else {
+                return _this.attr_color_dict[attribute][d[2][attribute]];
+              }
             }).select("title").text(function(d) {
               return d[1];
             });
           } else {
-            return _this.svg.selectAll(".bar").data(_this.sample_attr_vals).transition().duration(1000).style("fill", function(d) {
-              var attr_color_dict;
-              attr_color_dict = _this.get_attr_color_dict();
-              return attr_color_dict[attribute][d[attribute]];
+            return _this.svg.selectAll(".bar").data(_this.samples).transition().duration(1000).style("fill", function(d) {
+              if (attribute === "None") {
+                return "steelblue";
+              } else {
+                return _this.attr_color_dict[attribute][d[2][attribute]];
+              }
             });
           }
         });
         d3.select("#update_bar_chart").on("click", function() {
-          var sortItems, sorted_sample_names, x_scale;
+          var attribute, sortItems, sorted_sample_names, x_scale;
+          if (_this.attributes.length > 0) {
+            attribute = $("#color_attribute").val();
+          }
           if ($("#update_bar_chart").html() === 'Sort By Value') {
             $("#update_bar_chart").html('Sort By Name');
             sortItems = function(a, b) {
@@ -123,7 +129,13 @@
               return _this.y_scale(d[1]);
             }).attr("height", function(d) {
               return _this.plot_height - _this.y_scale(d[1]);
-            }).style("fill", "steelblue").select("title").text(function(d) {
+            }).style("fill", function(d) {
+              if (_this.attributes.length > 0) {
+                return _this.attr_color_dict[attribute][d[2][attribute]];
+              } else {
+                return "steelblue";
+              }
+            }).select("title").text(function(d) {
               return d[1];
             });
             sorted_sample_names = (function() {
@@ -141,12 +153,18 @@
             return _this.add_x_axis(x_scale);
           } else {
             $("#update_bar_chart").html('Sort By Value');
-            _this.svg.selectAll(".bar").data(_this.sample_vals).transition().duration(1000).attr("y", function(d) {
-              return _this.y_scale(d);
+            _this.svg.selectAll(".bar").data(_this.samples).transition().duration(1000).attr("y", function(d) {
+              return _this.y_scale(d[1]);
             }).attr("height", function(d) {
-              return _this.plot_height - _this.y_scale(d);
-            }).style("fill", "steelblue").select("title").text(function(d) {
-              return d;
+              return _this.plot_height - _this.y_scale(d[1]);
+            }).style("fill", function(d) {
+              if (_this.attributes.length > 0) {
+                return _this.attr_color_dict[attribute][d[2][attribute]];
+              } else {
+                return "steelblue";
+              }
+            }).select("title").text(function(d) {
+              return d[1];
             });
             x_scale = d3.scale.ordinal().domain(_this.sample_names).rangeBands([0, _this.plot_width], .1);
             $('.x.axis').remove();
@@ -156,10 +174,11 @@
       }
 
       Histogram.prototype.get_attr_color_dict = function() {
-        var attr_color_dict, attribute_info, color, i, key, this_color_dict, value, _i, _len, _ref, _ref1;
+        var attribute_info, color, i, key, this_color_dict, value, _i, _len, _ref, _ref1, _results;
         color = d3.scale.category20();
-        attr_color_dict = {};
+        this.attr_color_dict = {};
         _ref = js_data.attribute_names;
+        _results = [];
         for (key in _ref) {
           if (!__hasProp.call(_ref, key)) continue;
           attribute_info = _ref[key];
@@ -169,9 +188,9 @@
             value = _ref1[i];
             this_color_dict[value] = color(i);
           }
-          attr_color_dict[attribute_info.name] = this_color_dict;
+          _results.push(this.attr_color_dict[attribute_info.name] = this_color_dict);
         }
-        return attr_color_dict;
+        return _results;
       };
 
       Histogram.prototype.get_samples = function() {
@@ -223,7 +242,9 @@
             this.sample_attr_vals.push(attr_vals);
           }
         }
-        return console.log("sample_attr_vals:", this.sample_attr_vals);
+        this.samples = _.zip(this.sample_names, this.sample_vals, this.sample_attr_vals);
+        this.get_attr_color_dict();
+        return console.log("samples:", this.samples);
       };
 
       Histogram.prototype.create_svg = function() {
@@ -260,7 +281,7 @@
 
       Histogram.prototype.add_bars = function() {
         var _this = this;
-        return this.svg.selectAll(".bar").data(_.zip(this.sample_names, this.sample_vals)).enter().append("rect").style("fill", "steelblue").attr("class", "bar").attr("x", function(d) {
+        return this.svg.selectAll(".bar").data(this.samples).enter().append("rect").style("fill", "steelblue").attr("class", "bar").attr("x", function(d) {
           return _this.x_scale(d[0]);
         }).attr("width", this.x_scale.rangeBand()).attr("y", function(d) {
           return _this.y_scale(d[1]);
@@ -274,11 +295,7 @@
       Histogram.prototype.sorted_samples = function() {
         var sample_list, sorted,
           _this = this;
-        if (this.sample_attr_vals.length > 0) {
-          sample_list = _.zip(this.sample_names, this.sample_vals, this.sample_attr_vals);
-        } else {
-          sample_list = _.zip(this.sample_names, this.sample_vals);
-        }
+        sample_list = _.zip(this.sample_names, this.sample_vals, this.sample_attr_vals);
         sorted = _.sortBy(sample_list, function(sample) {
           return sample[1];
         });

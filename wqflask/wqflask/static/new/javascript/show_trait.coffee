@@ -85,15 +85,16 @@ $ ->
             
             d3.select("#color_attribute").on("change", =>
                 attribute = $("#color_attribute").val()
-                console.log("attribute:", attribute)
                 if $("#update_bar_chart").html() == 'Sort By Name' 
                     @svg.selectAll(".bar")
                         .data(@sorted_samples())
                         .transition()
                         .duration(1000)
                         .style("fill", (d) =>
-                            attr_color_dict = @get_attr_color_dict()
-                            return attr_color_dict[attribute][d[2][attribute]]
+                            if attribute == "None"
+                                return "steelblue"
+                            else
+                                return @attr_color_dict[attribute][d[2][attribute]]
                         )
                         .select("title")
                         .text((d) =>
@@ -101,17 +102,21 @@ $ ->
                         )
                 else
                     @svg.selectAll(".bar")
-                        .data(@sample_attr_vals)
+                        .data(@samples)
                         .transition()
                         .duration(1000)
                         .style("fill", (d) =>
-                            attr_color_dict = @get_attr_color_dict()
-                            return attr_color_dict[attribute][d[attribute]]
+                            if attribute == "None"
+                                return "steelblue"
+                            else
+                                return @attr_color_dict[attribute][d[2][attribute]]
                         )
             )
         
         
             d3.select("#update_bar_chart").on("click", =>
+                if @attributes.length > 0
+                    attribute = $("#color_attribute").val()
                 if $("#update_bar_chart").html() == 'Sort By Value' 
                     $("#update_bar_chart").html('Sort By Name')
                     sortItems = (a, b) ->
@@ -127,7 +132,12 @@ $ ->
                         .attr("height", (d) =>
                             return @plot_height - @y_scale(d[1])
                         )
-                        .style("fill", "steelblue")
+                        .style("fill", (d) =>
+                            if @attributes.length > 0
+                                return @attr_color_dict[attribute][d[2][attribute]]
+                            else
+                                return "steelblue"
+                        )
                         .select("title")
                         .text((d) =>
                             return d[1]
@@ -141,19 +151,24 @@ $ ->
                 else
                     $("#update_bar_chart").html('Sort By Value')
                     @svg.selectAll(".bar")
-                        .data(@sample_vals)
+                        .data(@samples)
                         .transition()
                         .duration(1000)
                         .attr("y", (d) =>
-                            return @y_scale(d)
+                            return @y_scale(d[1])
                         )
                         .attr("height", (d) =>
-                            return @plot_height - @y_scale(d)
+                            return @plot_height - @y_scale(d[1])
                         )
-                        .style("fill", "steelblue")
+                        .style("fill", (d) =>
+                            if @attributes.length > 0
+                                return @attr_color_dict[attribute][d[2][attribute]]
+                            else
+                                return "steelblue"
+                        )
                         .select("title")
                         .text((d) =>
-                            return d
+                            return d[1]
                         )
                     x_scale = d3.scale.ordinal()
                         .domain(@sample_names)
@@ -164,14 +179,12 @@ $ ->
 
         get_attr_color_dict: () ->
             color = d3.scale.category20()
-            attr_color_dict = {}
+            @attr_color_dict = {}
             for own key, attribute_info of js_data.attribute_names
                 this_color_dict = {}
                 for value, i in attribute_info.distinct_values
                     this_color_dict[value] = color(i)
-                attr_color_dict[attribute_info.name] = this_color_dict
-                
-            return attr_color_dict
+                @attr_color_dict[attribute_info.name] = this_color_dict
             
             
             
@@ -188,7 +201,9 @@ $ ->
                     for attribute in @attributes
                         attr_vals[attribute] = sample["extra_attributes"][attribute]
                     @sample_attr_vals.push(attr_vals)
-            console.log("sample_attr_vals:", @sample_attr_vals)
+            @samples = _.zip(@sample_names, @sample_vals, @sample_attr_vals)
+            @get_attr_color_dict()
+            console.log("samples:", @samples)
             
         create_svg: () ->
             svg = d3.select("#bar_chart")
@@ -253,7 +268,7 @@ $ ->
 
         add_bars: () ->
             @svg.selectAll(".bar")
-                .data(_.zip(@sample_names, @sample_vals))
+                .data(@samples)
               .enter().append("rect")
                 .style("fill", "steelblue")
                 .attr("class", "bar")
@@ -273,10 +288,10 @@ $ ->
                 )
 
         sorted_samples: () ->
-            if @sample_attr_vals.length > 0
-                sample_list = _.zip(@sample_names, @sample_vals, @sample_attr_vals)
-            else
-                sample_list = _.zip(@sample_names, @sample_vals)
+            #if @sample_attr_vals.length > 0
+            sample_list = _.zip(@sample_names, @sample_vals, @sample_attr_vals)
+            #else
+            #    sample_list = _.zip(@sample_names, @sample_vals)
             sorted = _.sortBy(sample_list, (sample) =>
                 return sample[1]
             )
