@@ -105,7 +105,7 @@
                         </li>
                         <li class="">
                             {% if g.user_session.logged_in %}
-                            <a id="login_out"  href="/n/logout">Sign out</a>
+                            <a id="login_out" title="Signed in as {{ g.user_session.user_ob.name_and_org }}." href="/n/logout">Sign out</a>
                             {% else %}
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}

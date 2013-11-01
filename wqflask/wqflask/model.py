@@ -23,11 +23,11 @@ from wqflask.database import Base, init_db
 #        Column('user_id', Integer(), ForeignKey('user.the_id')),
 #        Column('role_id', Integer(), ForeignKey('role.the_id')))
 
-class Role(Base):
-    __tablename__ = "role"
-    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
-    name = Column(Unicode(80), unique=True, nullable=False)
-    description = Column(Unicode(255))
+#class Role(Base):
+#    __tablename__ = "role"
+#    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
+#    name = Column(Unicode(80), unique=True, nullable=False)
+#    description = Column(Unicode(255))
 
 class User(Base):
     __tablename__ = "user"
@@ -46,14 +46,26 @@ class User(Base):
 
     confirmed = Column(Text) # json detailing when they confirmed, etc.
 
+    superuser = Column(Text) # json detailing when they became a superuser, otherwise empty
+                             # if not superuser
+
     logins = relationship("Login",
                           order_by="desc(Login.timestamp)",
-                          lazy='dynamic' # Necessary for filter in login_count
+                          lazy='dynamic', # Necessary for filter in login_count
+                          foreign_keys="Login.user",
                           )
 
     user_collections = relationship("UserCollection",
                           order_by="asc(UserCollection.name)",
                           )
+
+    @property
+    def name_and_org(self):
+        """Nice shortcut for printing out who the user is"""
+        if self.organization:
+            return "{} from {}".format(self.full_name, self.organization)
+        else:
+            return self.full_name
 
     @property
     def login_count(self):
@@ -65,6 +77,23 @@ class User(Base):
         if self.confirmed:
             confirmed_info = json.loads(self.confirmed)
             return confirmed_info['timestamp']
+        else:
+            return None
+
+    @property
+    def superuser_info(self):
+        if self.superuser:
+            return json.loads(self.superuser)
+        else:
+            return None
+
+    @property
+    def crowner(self):
+        """If made superuser, returns object of person who did the crowning"""
+        if self.superuser:
+            superuser_info = json.loads(self.superuser)
+            crowner = User.query.get(superuser_info['crowned_by'])
+            return crowner
         else:
             return None
 
@@ -88,6 +117,9 @@ class Login(Base):
     ip_address = Column(Unicode(39))
     successful = Column(Boolean(), nullable=False)  # False if wrong password was entered
     session_id = Column(Text)  # Set only if successfully logged in, otherwise should be blank
+
+    # Set to user who assumes identity if this was a login for debugging purposes by a superuser
+    assumed_by = Column(Unicode(36), ForeignKey('user.id'))
 
     def __init__(self, user):
         self.user = user.id

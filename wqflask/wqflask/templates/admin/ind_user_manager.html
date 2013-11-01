@@ -2,11 +2,6 @@
 {% block title %}User Manager{% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>User Manager</h1>
-        </div>
-    </header>
 
     <div class="container">
         <div class="page-header">
@@ -21,7 +16,7 @@
             {% endif %}
         </div>
 
-
+        {{ flash_me() }}
 
         <table class="table table-hover">
 <!--        <thead>
@@ -53,6 +48,25 @@
             </tr>
 
             <tr>
+                <td>Superuser</td>
+
+                {% if user.superuser %}
+                <td>Made supervisor {{ timeago(user.superuser_info['timestamp'] + "Z") }} by
+                {{ user.crowner.name_and_org }}.
+                </td>
+                {% else %}
+                <td>
+                    <span>
+                        <a class="btn btn-danger btn-small" href={{"/manage/make_superuser?user_id={}".format(user.id)}}>
+                            Make Superuser
+                        </a>
+                    </span>
+                </td>
+                {% endif %}
+            </tr>
+
+
+            <tr>
                 <td>Most recent login</td>
                 {% if user.most_recent_login %}
                 <td>{{ timeago(user.most_recent_login.timestamp.isoformat() + "Z") }} from {{ user.most_recent_login.ip_address }}</td>
@@ -70,6 +84,13 @@
                 <td>Number of logins</td>
                 <td>{{ user.login_count }}</td>
             </tr>-->
+            <tr>
+                <td colspan="2">
+                    <a class="btn btn-danger btn-small" href={{"/manage/assume_identity?user_id={}".format(user.id)}}>
+                        Become this user for debugging
+                    </a>
+                </td>
+            </tr>
 
         </table>
 

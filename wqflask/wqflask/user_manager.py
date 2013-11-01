@@ -30,7 +30,7 @@ Redis = redis.StrictRedis()
 
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash)
+                   redirect, flash, abort)
 
 from wqflask import app
 
@@ -357,22 +357,28 @@ def login():
 
 
         if valid:
-            session_id_signed = successful_login(user)
-            flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
-            response = make_response(redirect(url_for('index_page')))
-            response.set_cookie(UserSession.cookie_name, session_id_signed)
+            return actual_login(user)
+
         else:
             unsuccessful_login(user)
             flash("Invalid email-address or password. Please try again.", "alert-error")
             response = make_response(redirect(url_for('login')))
 
-        return response
+            return response
 
+def actual_login(user, assumed_by=None):
+    """The meat of the logging in process"""
+    session_id_signed = successful_login(user, assumed_by)
+    flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
+    response = make_response(redirect(url_for('index_page')))
+    response.set_cookie(UserSession.cookie_name, session_id_signed)
+    return response
 
-def successful_login(user):
+def successful_login(user, assumed_by=None):
     login_rec = model.Login(user)
     login_rec.successful = True
     login_rec.session_id = str(uuid.uuid4())
+    login_rec.assumed_by = assumed_by
     #session_id = "session_id:{}".format(login_rec.session_id)
     session_id_signature = actual_hmac_creation(login_rec.session_id)
     session_id_signed = login_rec.session_id + ":" + session_id_signature
@@ -424,22 +430,60 @@ def forgot_password_submit():
     return render_template("new_security/forgot_password_step2.html",
                             subject=ForgotPasswordEmail.subject)
 
+@app.errorhandler(401)
+def unauthorized(error):
+    return redirect(url_for('login'))
+
+def super_only():
+    try:
+        superuser = g.user_session.user_ob.superuser
+    except AttributeError:
+        superuser = False
+    if not superuser:
+        flash("You must be a superuser to access that page.", "alert-error")
+        abort(401)
+
 
 
 @app.route("/manage/users")
 def manage_users():
+    super_only()
     template_vars = UsersManager()
     return render_template("admin/user_manager.html", **template_vars.__dict__)
 
 @app.route("/manage/user")
 def manage_user():
+    super_only()
     template_vars = UserManager(request.args)
     return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
 
 @app.route("/manage/groups")
 def manage_groups():
+    super_only()
     template_vars = GroupsManager(request.args)
     return render_template("admin/group_manager.html", **template_vars.__dict__)
+
+@app.route("/manage/make_superuser")
+def make_superuser():
+    super_only()
+    params = request.args
+    user_id = params['user_id']
+    user = model.User.query.get(user_id)
+    superuser_info = basic_info()
+    superuser_info['crowned_by'] = g.user_session.user_id
+    user.superuser = json.dumps(superuser_info, sort_keys=True)
+    db_session.commit()
+    flash("We've made {} a superuser!".format(user.name_and_org))
+    return redirect(url_for("manage_users"))
+
+@app.route("/manage/assume_identity")
+def assume_identity():
+    super_only()
+    params = request.args
+    user_id = params['user_id']
+    user = model.User.query.get(user_id)
+    assumed_by = g.user_session.user_id
+    return actual_login(user, assumed_by)
 
 
 @app.route("/n/register", methods=('GET', 'POST'))
