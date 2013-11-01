@@ -44,6 +44,7 @@ from utility.benchmark import Bench
 from pprint import pformat as pf
 
 from wqflask import user_manager
+from wqflask import collect
 
 #import logging
 #logging.basicConfig(filename="/tmp/gn_log", level=logging.INFO)
@@ -52,7 +53,7 @@ from wqflask import user_manager
 @app.before_request
 def connect_db():
     g.db = sqlalchemy.create_engine(app.config['DB_URI'])
-    
+
 #@app.before_request
 #def trace_it():
 #    from wqflask import tracer
@@ -320,68 +321,6 @@ def get_temp_data():
 
 ###################################################################################################
 
-
-@app.route("/manage/users")
-def manage_users():
-    template_vars = user_manager.UsersManager()
-    return render_template("admin/user_manager.html", **template_vars.__dict__)
-
-@app.route("/manage/user")
-def manage_user():
-    template_vars = user_manager.UserManager(request.args)
-    return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
-
-@app.route("/manage/groups")
-def manage_groups():
-    template_vars = user_manager.GroupsManager(request.args)
-    return render_template("admin/group_manager.html", **template_vars.__dict__)
-
-
-@app.route("/n/register", methods=('GET', 'POST'))
-def register():
-    params = None
-    errors = None
-
-    #if request.form:
-    #    params = request.form
-    #else:
-    #    params = request.args
-    
-    params = request.form if request.form else request.args
-    
-    if params:
-        print("Attempting to register the user...")
-        result = user_manager.RegisterUser(params)
-        errors = result.errors
-        
-        if result.thank_you_mode:
-            assert not errors, "Errors while in thank you mode? That seems wrong..."
-            return render_template("new_security/registered.html")
-       
-    return render_template("new_security/register_user.html", values=params, errors=errors)
-
-#@app.route("/n/register_submit", methods=('POST',))
-#def register_submit():
-#    print("request.args are: ", request.args)
-#    result = user_manager.RegisterUser(request.form)
-#    if result.errors:
-#        print("Redirecting")
-#        # 307 preserves the post on the redirect (maybe)
-#        errors = result.errors
-#        #errors = json.dumps(errors)
-#        print("request.args are: ", request.args)
-#        return render_template("new_security/register_user.html", errors=errors, values=request.form)
-#        #return redirect(url_for('new_register', errors=errors), code=307)
-
-
-@app.route("/n/login", methods=('GET', 'POST'))
-def login():
-    return user_manager.login()
-
-@app.route("/manage/verify")
-def verify():
-    user_manager.verify_email()
-    return render_template("new_security/verified.html")
 
 
 ##########################################################################

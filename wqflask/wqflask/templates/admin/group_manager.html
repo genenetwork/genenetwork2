@@ -2,11 +2,7 @@
 {% block title %}Group Manager{% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>Group Manager</h1>
-        </div>
-    </header>
+     {{ header("List of groups", "" )}}
 
     <div class="container">
         <div class="page-header">
@@ -48,13 +44,13 @@
 
 {% endblock %}
 
-{% block js %}  
+{% block js %}
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
-    
+
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");

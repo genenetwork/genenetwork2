@@ -1,14 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Register{% endblock %}
+{% block title %}Verification{% endblock %}
 {% block content %}
-     {{ header("Almost Done", "Thanks for registering") }}
+     {{ header("Verification", "You still need to verify") }}
 
     <div class="container">
         <div class="page-header">
-            <h3>One last step</h3>
+            <h3>Verification of e-mail address</h3>
         </div>
+        <h4>You still need to verify your e-mail address before you can sign in.</h4>
 
-        <p>You will receive an email with the subject <strong>{{ subject }}</strong>.</p>
+        <p>We've resent the verificaiton email.
+
+        <p>Please check for an email with the subject <strong>{{ subject }}</strong>.</p>
 
         <p>You must click the link in the email to complete registration.</p>
 

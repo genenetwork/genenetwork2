@@ -2,11 +2,8 @@
 {% block title %}User Manager{% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>User Manager</h1>
-        </div>
-    </header>
+    {{ header("List of users", "" )}}
+
 
     <div class="container">
         <div class="page-header">
@@ -20,6 +17,7 @@
                     <th>Organization</th>
                     <th>Active</th>
                     <th>Confirmed</th>
+                    <th>Superuser</th>
                 </tr>
             </thead>
         {% for user in users %}
@@ -30,6 +28,7 @@
                 <td>{{ user.organization }}</td>
                 <td>{{ 'Yes' if user.active else 'No' }}</td>
                 <td title="{{ user.confirmed }}">{{ 'True' if user.confirmed else 'False' }}</td>
+                <td title="{{ user.superuser }}">{{ 'True' if user.superuser else 'False' }}</td>
             </tr>
         {% endfor %}
         </table>
