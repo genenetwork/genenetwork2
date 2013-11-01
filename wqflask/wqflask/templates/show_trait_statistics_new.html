@@ -10,7 +10,7 @@
         </select>
         {% endif %}
         {% if sample_groups[0].attributes %}
-        <div class="input-append">
+        <div class="input-append">r
             <select id="color_attribute" size=1>
                 <option value="None">None</option>
                 {% for attribute in sample_groups[0].attributes %}
@@ -21,9 +21,11 @@
         </div>
         {% endif %}
         <button type="button" id="update_bar_chart">Sort By Value</button>
+        <button type="button" id="color_by_trait">Color by Trait</button>
         <div id="bar_chart_container">
             <div id="bar_chart"></div>
         </div>
         
     </div>
+    <div id="collections_holder"></div>
 </div>
