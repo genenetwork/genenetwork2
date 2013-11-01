@@ -58,7 +58,7 @@ def timestamp():
 
 
 class UserSession(object):
-    cookie_name = 'session_id'
+    cookie_name = 'session_id_v2'
 
     def __init__(self):
         cookie = request.cookies.get(self.cookie_name)
@@ -70,7 +70,7 @@ class UserSession(object):
             assert len(session_id) == 36, "Is session_id a uuid?"
             assert separator == ":", "Expected a : here"
             assert session_id_signature == actual_hmac_creation(session_id), "Uh-oh, someone tampering with the cookie?"
-            self.redis_key = "session_id:" + session_id
+            self.redis_key = self.cookie_name + ":" + session_id
             print("self.redis_key is:", self.redis_key)
             self.session_id = session_id
             self.record = Redis.hgetall(self.redis_key)
@@ -266,7 +266,7 @@ def verify_email():
     # As long as they have access to the email account
     # We might as well log them in
 
-    session_id_signed = successful_login(user)
+    session_id_signed = LoginUser().successful_login(user)
     response = make_response(render_template("new_security/thank_you.html"))
     response.set_cookie(UserSession.cookie_name, session_id_signed)
     return response
@@ -333,73 +333,99 @@ class DecodeUser(object):
 
 @app.route("/n/login", methods=('GET', 'POST'))
 def login():
-    params = request.form if request.form else request.args
-    print("in login params are:", params)
-    if not params:
-        return render_template("new_security/login_user.html")
-    else:
-        user = model.User.query.filter_by(email_address=params['email_address']).one()
-        submitted_password = params['password']
-        pwfields = Struct(json.loads(user.password))
-        encrypted = Password(submitted_password,
-                                      pwfields.salt,
-                                      pwfields.iterations,
-                                      pwfields.keylength,
-                                      pwfields.hashfunc)
-        print("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
-        valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
-        print("valid is:", valid)
-
-        if valid and not user.confirmed:
-            VerificationEmail(user)
-            return render_template("new_security/verification_still_needed.html",
-                                   subject=VerificationEmail.subject)
+    lu = LoginUser()
+    return lu.standard_login()
 
 
-        if valid:
-            return actual_login(user)
+class LoginUser(object):
+    remember_time = 60 * 60 * 24 * 30 # One month in seconds
 
+    def __init__(self):
+        self.remember_me = False
+
+    def standard_login(self):
+        """Login through the normal form"""
+        params = request.form if request.form else request.args
+        print("in login params are:", params)
+        if not params:
+            return render_template("new_security/login_user.html")
         else:
-            unsuccessful_login(user)
-            flash("Invalid email-address or password. Please try again.", "alert-error")
-            response = make_response(redirect(url_for('login')))
+            user = model.User.query.filter_by(email_address=params['email_address']).one()
+            submitted_password = params['password']
+            pwfields = Struct(json.loads(user.password))
+            encrypted = Password(submitted_password,
+                                          pwfields.salt,
+                                          pwfields.iterations,
+                                          pwfields.keylength,
+                                          pwfields.hashfunc)
+            print("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
+            valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
+            print("valid is:", valid)
 
-            return response
+            if valid and not user.confirmed:
+                VerificationEmail(user)
+                return render_template("new_security/verification_still_needed.html",
+                                       subject=VerificationEmail.subject)
 
-def actual_login(user, assumed_by=None):
-    """The meat of the logging in process"""
-    session_id_signed = successful_login(user, assumed_by)
-    flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
-    response = make_response(redirect(url_for('index_page')))
-    response.set_cookie(UserSession.cookie_name, session_id_signed)
-    return response
 
-def successful_login(user, assumed_by=None):
-    login_rec = model.Login(user)
-    login_rec.successful = True
-    login_rec.session_id = str(uuid.uuid4())
-    login_rec.assumed_by = assumed_by
-    #session_id = "session_id:{}".format(login_rec.session_id)
-    session_id_signature = actual_hmac_creation(login_rec.session_id)
-    session_id_signed = login_rec.session_id + ":" + session_id_signature
-    print("session_id_signed:", session_id_signed)
+            if valid:
+                if params.get('remember'):
+                    print("I will remember you")
+                    self.remember_me = True
 
-    session = dict(login_time = time.time(),
-                   user_id = user.id,
-                   user_email_address = user.email_address)
+                return self.actual_login(user)
 
-    key = "session_id:" + login_rec.session_id
-    print("Key when signing:", key)
-    Redis.hmset(key, session)
-    db_session.add(login_rec)
-    db_session.commit()
-    return session_id_signed
+            else:
+                self.unsuccessful_login(user)
+                flash("Invalid email-address or password. Please try again.", "alert-error")
+                response = make_response(redirect(url_for('login')))
 
-def unsuccessful_login(user):
-    login_rec = model.Login(user)
-    login_rec.successful = False
-    db_session.add(login_rec)
-    db_session.commit()
+                return response
+
+    def actual_login(self, user, assumed_by=None):
+        """The meat of the logging in process"""
+        session_id_signed = self.successful_login(user, assumed_by)
+        flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
+        response = make_response(redirect(url_for('index_page')))
+        if self.remember_me:
+            max_age = self.remember_time
+        else:
+            max_age = None
+
+        response.set_cookie(UserSession.cookie_name, session_id_signed, max_age=max_age)
+        return response
+
+    def successful_login(self, user, assumed_by=None):
+        login_rec = model.Login(user)
+        login_rec.successful = True
+        login_rec.session_id = str(uuid.uuid4())
+        login_rec.assumed_by = assumed_by
+        #session_id = "session_id:{}".format(login_rec.session_id)
+        session_id_signature = actual_hmac_creation(login_rec.session_id)
+        session_id_signed = login_rec.session_id + ":" + session_id_signature
+        print("session_id_signed:", session_id_signed)
+
+        session = dict(login_time = time.time(),
+                       user_id = user.id,
+                       user_email_address = user.email_address)
+
+        key = UserSession.cookie_name + ":" + login_rec.session_id
+        print("Key when signing:", key)
+        Redis.hmset(key, session)
+        if self.remember_me:
+            expire_time = self.remember_time
+        else:
+            expire_time = 60 * 60 * 24 * 2 # two days
+        Redis.expire(key, expire_time)
+        db_session.add(login_rec)
+        db_session.commit()
+        return session_id_signed
+
+    def unsuccessful_login(self, user):
+        login_rec = model.Login(user)
+        login_rec.successful = False
+        db_session.add(login_rec)
+        db_session.commit()
 
 @app.route("/n/logout")
 def logout():
@@ -483,7 +509,7 @@ def assume_identity():
     user_id = params['user_id']
     user = model.User.query.get(user_id)
     assumed_by = g.user_session.user_id
-    return actual_login(user, assumed_by)
+    return LoginUser().actual_login(user, assumed_by=assumed_by)
 
 
 @app.route("/n/register", methods=('GET', 'POST'))

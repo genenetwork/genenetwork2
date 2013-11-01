@@ -51,7 +51,7 @@
                 <td>Superuser</td>
 
                 {% if user.superuser %}
-                <td>Made supervisor {{ timeago(user.superuser_info['timestamp'] + "Z") }} by
+                <td>Made a superuser {{ timeago(user.superuser_info['timestamp'] + "Z") }} by
                 {{ user.crowner.name_and_org }}.
                 </td>
                 {% else %}
