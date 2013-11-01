@@ -252,6 +252,10 @@ class Bar_Chart
     color_by_trait: () ->
         console.log("Before load")
         $('#collections_holder').load('/collections/list #collections_list')
+        $.colorbox(
+            inline: true
+            href: "#collections_holder"
+        )
         console.log("After load")
         #$.colorbox({href:"/collections/list"})
         #$.get(

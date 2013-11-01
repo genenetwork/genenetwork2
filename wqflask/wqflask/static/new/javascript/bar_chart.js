@@ -258,6 +258,10 @@
     Bar_Chart.prototype.color_by_trait = function() {
       console.log("Before load");
       $('#collections_holder').load('/collections/list #collections_list');
+      $.colorbox({
+        inline: true,
+        href: "#collections_holder"
+      });
       return console.log("After load");
     };
 
