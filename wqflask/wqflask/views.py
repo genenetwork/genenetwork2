@@ -302,6 +302,9 @@ def corr_compute_page():
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():
     template_vars = corr_scatter_plot.CorrScatterPlot(request.args)
+    template_vars.js_data = json.dumps(template_vars.js_data,
+                                       default=json_default_handler,
+                                       indent="   ")
     return render_template("corr_scatter_plot.html", **template_vars.__dict__)
 
 @app.route("/int_mapping", methods=('POST',))

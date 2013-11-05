@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/packages/jqplot/jquery.jqplot.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/corr_scatter_plot.css" />
+{% endblock %}
+
+{% block content %}
+<div id='scatter_plot'></div>
+{% endblock %}
+
+{% block js %}
+    <script>
+       js_data = {{ js_data | safe }}
+    </script>
+    <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/new/javascript/corr_scatter_plot.js"></script>
+{% endblock %}
