@@ -56,7 +56,26 @@
   ];
 
   $(function() {
-    var block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, reset_samples_table, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var attribute_names, block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values;
+    sample_lists = js_data.sample_lists;
+    attribute_names = js_data.attribute_names;
+    sample_group_types = js_data.sample_group_types;
+    new Bar_Chart(sample_lists[0], attribute_names);
+    $('.stats_samples_group').change(function() {
+      var all_samples, group;
+      $('#bar_chart').remove();
+      $('#bar_chart_container').append('<div id="bar_chart"></div>');
+      group = $(this).val();
+      console.log("group:", group);
+      if (group === "samples_primary") {
+        return new Bar_Chart(sample_lists[0]);
+      } else if (group === "samples_other") {
+        return new Bar_Chart(sample_lists[1]);
+      } else if (group === "samples_all") {
+        all_samples = sample_lists[0].concat(sample_lists[1]);
+        return new HBar_Chart(all_samples);
+      }
+    });
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];
@@ -77,7 +96,6 @@
       console.log("the_id:", id);
       in_box = $(id).html;
       current_value = parseFloat($(in_box)).toFixed(decimal_places);
-      console.log("urgh:", category, value_type);
       the_value = sample_sets[category][value_type]();
       console.log("After running sample_sets, the_value is:", the_value);
       if (decimal_places > 0) {
@@ -127,7 +145,6 @@
       for (_i = 0, _len = tables.length; _i < _len; _i++) {
         table = tables[_i];
         rows = $("#" + table).find('tr');
-        console.log("[fuji3] rows:", rows);
         for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
           row = rows[_j];
           name = $(row).find('.edit_sample_sample_name').html();

@@ -56,15 +56,32 @@ Stat_Table_Rows = [
                     url: "/glossary.html#Interquartile"
                     digits: 2
                 }
-
         ]
 
 $ ->
+
+    sample_lists = js_data.sample_lists
+    attribute_names = js_data.attribute_names
+    sample_group_types = js_data.sample_group_types
+
+    new Bar_Chart(sample_lists[0], attribute_names)
+
+    $('.stats_samples_group').change ->
+        $('#bar_chart').remove()
+        $('#bar_chart_container').append('<div id="bar_chart"></div>')
+        group = $(this).val()
+        console.log("group:", group)
+        if group == "samples_primary"
+            new Bar_Chart(sample_lists[0])
+        else if group == "samples_other"
+            new Bar_Chart(sample_lists[1])
+        else if group == "samples_all"
+            all_samples = sample_lists[0].concat sample_lists[1]
+            new HBar_Chart(all_samples)
+    
     hide_tabs = (start) ->
         for x in [start..10]
             $("#stats_tabs" + x).hide()
-
-    #hide_tabs(1)
 
     # Changes stats table between all, bxd only and non-bxd, etc.
     stats_mdp_change = ->
@@ -81,7 +98,6 @@ $ ->
 
         current_value = parseFloat($(in_box)).toFixed(decimal_places)
 
-        console.log("urgh:", category, value_type)
         the_value = sample_sets[category][value_type]()
         console.log("After running sample_sets, the_value is:", the_value)
         if decimal_places > 0
@@ -121,7 +137,6 @@ $ ->
         tables = ['samples_primary', 'samples_other']
         for table in tables
             rows = $("#" + table).find('tr')
-            console.log("[fuji3] rows:", rows)
             for row in rows
                 name = $(row).find('.edit_sample_sample_name').html()
                 name = $.trim(name)
@@ -178,7 +193,6 @@ $ ->
         table = header + the_rows
         console.log("table is:", table)
         $("#stats_table").append(table)
-
 
 
     process_id = (values...) ->

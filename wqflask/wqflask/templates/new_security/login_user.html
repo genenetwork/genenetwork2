@@ -2,82 +2,81 @@
 {% block title %}Register{% endblock %}
 {% block content %}
 
-    {{ header("Login", "Gain access to GeneNetwork.") }}
+    {{ header("Sign in", "Gain access to GeneNetwork") }}
 
     <div class="container">
         <div class="page-header">
             <h1>Login</h1>
         </div>
-    
+
 
         <div class="security_box">
-        
+
             <h4>Don't have an account?</h4>
-        
-            
+
+
             <a href="/n/register" class="btn btn-info modalize">Create a new account</a>
-            
-        
+
+
             <hr />
-        
+
             <h4>Already have an account?</h4>
-        
+
             <h5>Sign in here</h5>
-            
-           
-        
+
+
+
             <form class="form-horizontal" action="/n/login"
                   method="POST" name="login_user_form">
                 <fieldset>
-        
-        
+
+
                     <div class="control-group">
                         <label class="control-label" for="email_address">Email Address</label>
                         <div class="controls">
                             <input id="email_address" class="focused" name="email_address" type="text" value="">
                         </div>
                     </div>
-        
+
                     <div class="control-group">
                         <label class="control-label" for="password">Password</label>
                         <div class="controls">
                             <input id="password" name="password" type="password" value="">
                             <br />
-                            <a href="url_for_security('forgot_password')">Forgot your password?</a><br/>
+                            <a href="/n/forgot_password">Forgot your password?</a><br/>
                         </div>
                     </div>
-        
-        
+
+
                     <div class="control-group">
                         <div class="controls">
                             <label class="checkbox">
                                 <input id="remember" name="remember" type="checkbox" value="y"> Remember me
                             </label>
                         </div>
-        
-        
+
+
                     <div class="control-group">
                         <div class="controls">
                             <input id="next" name="next" type="hidden" value="">
-        
+
                             <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
                         </div>
-        
-        
+
+
                     </div>
               </fieldset>
-        
+
             </form>
         </div>
         </div>
     </div>
-        
+
   {% endblock %}
 
-{% block js %}  
+{% block js %}
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>-->
-    
+
     {% include "new_security/_scripts.html" %}
 
 {% endblock %}
-   

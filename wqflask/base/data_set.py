@@ -224,6 +224,7 @@ class DatasetGroup(object):
     """
     def __init__(self, dataset):
         """This sets self.group and self.group_id"""
+        print("dataset name:", dataset.name)
         self.name, self.id = g.db.execute(dataset.query_for_group).fetchone()
         if self.name == 'BXD300':
             self.name = "BXD"

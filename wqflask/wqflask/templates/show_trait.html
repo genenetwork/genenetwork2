@@ -2,6 +2,7 @@
 {% block title %}Trait Data and Analysis{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
 {% endblock %}
@@ -28,7 +29,7 @@
             </div>
             
             {% include 'show_trait_details.html' %}
-        {#  {% include 'show_trait_statistics.html' %}    #}
+            {% include 'show_trait_statistics_new.html' %}
             {% include 'show_trait_calculate_correlations.html' %}
             {% include 'show_trait_mapping_tools.html' %}
             {% include 'show_trait_edit_data.html' %}
@@ -52,6 +53,7 @@
     <script type="text/javascript" src="/static/new/packages/ValidationPlugin/dist/jquery.validate.min.js"></script>
 
     <script type="text/javascript" src="/static/new/javascript/stats.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/bar_chart.js"></script>
     <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>
     <script type="text/javascript" src="/static/new/javascript/show_trait_mapping_tools.js"></script>
     <script type="text/javascript" src="/static/new/javascript/validation.js"></script>

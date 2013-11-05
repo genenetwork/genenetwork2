@@ -1,32 +1,26 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
 {% block content %}
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>Thank you</h1>
-            <p class="lead">
-                Thanks for verifying.
-            </p>
-        </div>
-    </header>
+    {{ header("Thank you", "Thanks for verifying") }}
 
     <div class="container">
         <div class="page-header">
             <h3>You are done registering</h3>
         </div>
-    
+
         <p>Enjoy using the site.</p>
-        
-        <p>Go to the <a href="{{ url_for("index_page") }}">homepage</a></p>.
+
+        <br />
+
+        <a class="btn btn-primary" href="{{ url_for("index_page") }}">Go to the homepage</a>
     </div>
 
 {% endblock %}
 
-{% block js %}  
+{% block js %}
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>-->
-    
+
     {% include "new_security/_scripts.html" %}
     <script type="text/javascript" src="/static/new/js_external/zxcvbn/zxcvbn-async.js"></script>
     <script type="text/javascript" src="/static/new/javascript/password_strength.js"></script>
 {% endblock %}
-

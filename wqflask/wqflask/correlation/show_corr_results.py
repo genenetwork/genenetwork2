@@ -102,6 +102,7 @@ class CorrelationResults(object):
             self.sample_data = {}
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
+            self.get_formatted_corr_type()
             self.return_number = 50
 
             #The two if statements below append samples to the sample list based upon whether the user
@@ -238,6 +239,20 @@ class CorrelationResults(object):
         #_log.info("Done doing correlation calculation")
 
 ############################################################################################################################################
+
+    def get_formatted_corr_type(self):
+        self.formatted_corr_type = ""
+        if self.corr_type == "lit":
+            self.formatted_corr_type += "Literature Correlation "
+        elif self.corr_type == "tissue":
+            self.formatted_corr_type += "Tissue Correlation "
+        elif self.corr_type == "sample":
+            self.formatted_corr_type += "Genetic Correlation "
+        
+        if self.corr_method == "pearson":
+            self.formatted_corr_type += "(Pearson's r)"
+        elif self.corr_method == "spearman":
+            self.formatted_corr_type += "(Spearman's rho)"
 
     def do_tissue_correlation_for_trait_list(self, tissue_dataset_id=1):
         """Given a list of correlation results (self.correlation_results), gets the tissue correlation value for each"""

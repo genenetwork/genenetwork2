@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Your Collections{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    {{ header("Your Collections",
+        'You have {}.'.format(numify(user_collections|count, "collection", "collections"))) }}
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Collections owned by {{ g.user_session.user_ob.full_name }}</h1>
+        </div>
+
+        <div class="bs-docs-example" id="collections_list">
+        <table class="table table-hover" id='trait_table'>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Created</th>
+                    <th>Last Changed</th>
+                    <th># Records</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for uc in user_collections %}
+                <tr>
+                    <td><a href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
+                    <td>{{ timeago(uc.created_timestamp.isoformat() + "Z") }}</td>
+                    <td>{{ timeago(uc.changed_timestamp.isoformat() + "Z") }}</td>
+                    <td>{{ uc.num_members }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        </div>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+
+    <script type="text/javascript" src="/static/packages/smart-time-ago/lib/timeago.js"></script>
+    <script>
+        $('body').timeago();
+    </script>
+
+{% endblock %}
