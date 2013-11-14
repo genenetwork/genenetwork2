@@ -5,21 +5,25 @@ i = 0;
 for (var samplename in samples_1){
 	sample1 = samples_1[samplename];
 	sample2 = samples_2[samplename];
-	data[i] = [sample1.value, sample2.value];
-	i++;
+	data[i++] = [sample1.value, sample2.value];
 }
    
-    var margin = {top: 20, right: 15, bottom: 60, left: 60}
-      , width = 800 - margin.left - margin.right
-      , height = 600 - margin.top - margin.bottom;
+    var margin = {top: 100, right: 15, bottom: 60, left: 60};
+    var width = js_data.width - margin.left - margin.right;
+    var height = js_data.height - margin.top - margin.bottom;
+      
+    minx = d3.min(data, function(d){return d[0];})*0.95;
+    maxx = d3.max(data, function(d){return d[0];})*1.05;
+    miny = d3.min(data, function(d){return d[1];})*0.95;
+    maxy = d3.max(data, function(d){return d[1];})*1.05;
     
     var x = d3.scale.linear()
-              .domain([d3.min(data, function(d){return d[0];})*0.95, d3.max(data, function(d) { return d[0]; })*1.05])
-              .range([ 0, width ]);
+              .domain([minx, maxx])
+              .range([0, width]);
     
     var y = d3.scale.linear()
-    	      .domain([d3.min(data, function(d){return d[1];})*0.95, d3.max(data, function(d) { return d[1]; })*1.05])
-    	      .range([ height, 0 ]);
+    	      .domain([miny, maxy])
+    	      .range([height, 0]);
  
     var chart = d3.select('#scatter_plot')
 	.append('svg:svg')
@@ -54,10 +58,58 @@ for (var samplename in samples_1){
 	.call(yAxis);
 
     var g = main.append("svg:g"); 
-    
+	
     g.selectAll("scatter-dots")
       .data(data)
       .enter().append("svg:circle")
-          .attr("cx", function (d,i) { return x(d[0]); } )
+          .attr("cx", function (d) { return x(d[0]); } )
           .attr("cy", function (d) { return y(d[1]); } )
-          .attr("r", 6);
+		  .attr("fill", js_data.circle_color)
+          .attr("r", js_data.circle_radius);
+          
+    main.append('line')
+        .attr('x1', x(minx))
+        .attr('y1', y(js_data.slope*minx+js_data.intercept))
+        .attr('x2', x(maxx*0.995))
+        .attr('y2', y(js_data.slope*maxx*0.995+js_data.intercept))
+        .style('stroke', js_data.line_color)
+        .style('stroke-width', js_data.line_width);
+        
+    chart.append("text")
+      .attr("x", width/2)
+      .attr("y", margin.top/2-25)
+      .text("Sample Correlation Scatterplot");
+      
+    text = "";
+    text += "N=" + js_data.num_overlap;
+    chart.append("text")
+      .attr("x", margin.left)
+      .attr("y", margin.top/2-5)
+      .text(text);
+    
+    text = "";
+    text += "r=" + js_data.r_value + "\t";
+    text += "p(r)=" + js_data.p_value;
+    chart.append("text")
+      .attr("x", margin.left)
+      .attr("y", margin.top/2+15)
+      .text(text);
+    
+    text = "";
+    text += "slope=" + js_data.slope + "\t";
+    text += "intercept=" + js_data.intercept;
+    chart.append("text")
+      .attr("x", margin.left)
+      .attr("y", margin.top/2+35)
+      .text(text);
+      
+    chart.append("text")
+      .attr("x", width/2)
+      .attr("y", height+margin.top+35)
+      .text(js_data.trait_1);
+      
+    chart.append("text")
+      .attr("x", 20)
+      .attr("y", height/2+margin.top+30)
+      .attr('transform', 'rotate(-90 20,' + (height/2+margin.top+30) + ')')
+      .text(js_data.trait_2);
