@@ -1,19 +1,17 @@
 root = exports ? this
 
 class Bar_Chart
-    constructor: (@sample_list, @attribute_names) ->
+    constructor: (@sample_list, @sample_group) ->
         @get_samples()
         console.log("sample names:", @sample_names)
+        if @sample_attr_vals.length > 0
+            @get_distinct_attr_vals()
+            @get_attr_color_dict()
         
         #Used to calculate the bottom margin so sample names aren't cut off
         longest_sample_name = d3.max(sample.length for sample in @sample_names)
         
-        @margin =
-            top: 20
-            right: 20
-            bottom: longest_sample_name * 7
-            left: 40
-            
+        @margin = {top: 20, right: 20, bottom: longest_sample_name * 7, left: 40}
         @plot_width = @sample_vals.length * 15 - @margin.left - @margin.right
         @plot_height = 500 - @margin.top - @margin.bottom
 
@@ -57,6 +55,7 @@ class Bar_Chart
                         else
                             return @attr_color_dict[attribute][d[2][attribute]]
                     )
+            @add_legend(attribute, @distinct_attr_vals[attribute])
         )
     
     
@@ -79,7 +78,7 @@ class Bar_Chart
                         return @plot_height - @y_scale(d[1])
                     )
                     .style("fill", (d) =>
-                        if @attributes.length > 0 && attribute != "None"
+                        if @attributes.length > 0
                             return @attr_color_dict[attribute][d[2][attribute]]
                         else
                             return "steelblue"
@@ -107,7 +106,7 @@ class Bar_Chart
                         return @plot_height - @y_scale(d[1])
                     )
                     .style("fill", (d) =>
-                        if @attributes.length > 0 && attribute != "None"
+                        if @attributes.length > 0
                             return @attr_color_dict[attribute][d[2][attribute]]
                         else
                             return "steelblue"
@@ -122,23 +121,33 @@ class Bar_Chart
                 $('.x.axis').remove()
                 @add_x_axis(x_scale)
         )
-        
-        d3.select("#color_by_trait").on("click", =>
-            @color_by_trait()
-        )
 
     get_attr_color_dict: () ->
-        color = d3.scale.category20()
         @attr_color_dict = {}
-        console.log("attribute_names:", @attribute_names)
-        for own key, attribute_info of @attribute_names
+        console.log("distinct_attr_vals:", @distinct_attr_vals)
+        for own key, distinct_vals of @distinct_attr_vals
             this_color_dict = {}
-            for value, i in attribute_info.distinct_values
-                this_color_dict[value] = color(i)
-            @attr_color_dict[attribute_info.name] = this_color_dict
-        
-        
-        
+            if distinct_vals.length < 10
+                color = d3.scale.category10()
+                for value, i in distinct_vals
+                    this_color_dict[value] = color(i)
+            else
+                console.log("distinct_values:", distinct_vals)
+                if _.every(distinct_vals, (d) =>
+                    if isNaN(d)
+                        return false
+                    else
+                        return true
+                )
+                    color_range = d3.scale.linear()
+                                    .domain([d3.min(distinct_vals),
+                                            d3.max(distinct_vals)])
+                                    .range([0,4])
+                    for value, i in distinct_vals
+                        console.log("color_range(value):", color_range(parseInt(value)))
+                        this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)))
+                        #this_color_dict[value] = "rgb(0, 0, " + color_range(parseInt(value)) + ")"
+            @attr_color_dict[key] = this_color_dict
 
     get_samples: () ->
         @sample_names = (sample.name for sample in @sample_list when sample.value != null)
@@ -153,8 +162,16 @@ class Bar_Chart
                     attr_vals[attribute] = sample["extra_attributes"][attribute]
                 @sample_attr_vals.push(attr_vals)
         @samples = _.zip(@sample_names, @sample_vals, @sample_attr_vals)
-        @get_attr_color_dict()
-        console.log("samples:", @samples)
+
+    get_distinct_attr_vals: () ->
+        @distinct_attr_vals = {}
+        for sample in @sample_attr_vals
+            for attribute of sample
+                if not @distinct_attr_vals[attribute]
+                    @distinct_attr_vals[attribute] = []
+                if sample[attribute] not in @distinct_attr_vals[attribute]
+                    @distinct_attr_vals[attribute].push(sample[attribute])
+        #console.log("distinct_attr_vals:", @distinct_attr_vals)
         
     create_svg: () ->
         svg = d3.select("#bar_chart")
@@ -248,6 +265,41 @@ class Bar_Chart
         )
         console.log("sorted:", sorted)
         return sorted
+
+    add_legend: (attribute, distinct_vals) ->
+        legend = @svg.append("g")
+            .attr("class", "legend")
+            .attr("height", 100)
+            .attr("width", 100)
+            .attr('transform', 'translate(-20,50)')
+            
+        legend_rect = legend.selectAll('rect')
+                        .data(distinct_vals)
+                        .enter()
+                        .append("rect")
+                        .attr("x", @plot_width - 65)
+                        .attr("width", 10)
+                        .attr("height", 10)
+                        .attr("y", (d, i) =>
+                            return i * 20
+                        )
+                        .style("fill", (d) =>
+                            console.log("TEST:", @attr_color_dict[attribute][d])
+                            return @attr_color_dict[attribute][d]
+                        )
+        
+        legend_text = legend.selectAll('text')
+                        .data(distinct_vals)
+                        .enter()
+                        .append("text")
+                        .attr("x", @plot_width - 52)
+                        .attr("y", (d, i) =>
+                            return i*20 + 9    
+                        )
+                        .text((d) =>
+                            return d
+                        )
+
     
     color_by_trait: () ->
         console.log("Before load")

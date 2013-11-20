@@ -2,30 +2,58 @@
     <br>
     <h2>Charts and Figures</h2>
     <div class="well form-horizontal">
-        {% if sample_groups|length > 1 %}
-        <select class="stats_samples_group">
-            {% for group, pretty_group in sample_group_types.items() %}
-                <option value="{{ group }}">{{ pretty_group }}</option>
-            {% endfor %}
-        </select>
-        {% endif %}
-        {% if sample_groups[0].attributes %}
-        <div class="input-append">
-            <select id="color_attribute" size=1>
-                <option value="None">None</option>
-                {% for attribute in sample_groups[0].attributes %}
-                <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
-                    {{ sample_groups[0].attributes[attribute].name }}</option>
-                {% endfor %}
-            </select>
+        <div class="tabbable"> <!-- Only required for left/right tabs -->
+            <ul class="nav nav-pills">
+                <li class="active">
+                    <a href="#bar_chart_tab" data-toggle="tab">Bar Chart</a>
+                </li>
+                <li>
+                    <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="bar_chart_tab">
+                    {% if sample_groups|length > 1 %}
+                    <select class="bar_chart_samples_group">
+                        {% for group, pretty_group in sample_group_types.items() %}
+                            <option value="{{ group }}">{{ pretty_group }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    {% if sample_groups[0].attributes %}
+                    <div class="input-append">
+                        <select id="color_attribute" size=1>
+                            <option value="None">None</option>
+                            {% for attribute in sample_groups[0].attributes %}
+                            <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
+                                {{ sample_groups[0].attributes[attribute].name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <button type="button" id="update_bar_chart">Sort By Value</button>
+                    <button type="button" id="color_by_trait">Color by Trait</button>
+                    <div id="bar_chart_container">
+                        <div id="bar_chart"></div>
+                    </div>
+                </div>
+                <div class="tab-pane active" id="box_plot_tab">
+                    {% if sample_groups|length > 1 %}
+                    <select class="box_plot_samples_group">
+                        {% for group, pretty_group in sample_group_types.items() %}
+                            <option value="{{ group }}">{{ pretty_group }}</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
+                    {% endif %}
+                    <div id="box_plot_container">
+                        <div id="box_plot"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endif %}
-        <button type="button" id="update_bar_chart">Sort By Value</button>
-        <button type="button" id="color_by_trait">Color by Trait</button>
-        <div id="bar_chart_container">
-            <div id="bar_chart"></div>
-        </div>
-        
     </div>
-    <div id="collections_holder"></div>
+    <div id="collections_holder_wrapper" style="display:none;">
+        <div id="collections_holder"></div>
+    </div>
 </div>
