@@ -121,6 +121,10 @@ class Bar_Chart
                 $('.x.axis').remove()
                 @add_x_axis(x_scale)
         )
+        
+        d3.select("#color_by_trait").on("click", =>
+            @color_by_trait()
+        )
 
     get_attr_color_dict: () ->
         @attr_color_dict = {}
@@ -299,20 +303,15 @@ class Bar_Chart
                         .text((d) =>
                             return d
                         )
-
-    
+                        
     color_by_trait: () ->
-        console.log("Before load")
-        $('#collections_holder').load('/collections/list #collections_list')
-        $.colorbox(
-            inline: true
-            href: "#collections_holder"
+        $('#collections_holder').load('/collections/list #collections_list', =>
+            $.colorbox(
+                inline: true
+                href: "#collections_holder"
+            )
         )
-        console.log("After load")
-        #$.colorbox({href:"/collections/list"})
-        #$.get(
-        #    url: /collections/list
-        #    
-        #)
+
+        
     
 root.Bar_Chart = Bar_Chart

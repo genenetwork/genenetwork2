@@ -32,7 +32,7 @@ from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
-#from wqflask.interval_mapping import interval_mapping
+from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
 from wqflask.correlation import corr_scatter_plot
 from utility import temp_data
@@ -256,7 +256,11 @@ def interval_mapping_page():
     wanted = (
         'trait_id',
         'dataset',
-        'suggestive'
+        'chromosome',
+        'num_permutations',
+        'do_bootstraps',
+        'default_control_locus',
+        'control_locus'
     )
 
     start_vars = {}
@@ -308,10 +312,10 @@ def corr_scatter_plot_page():
                                        indent="   ")
     return render_template("corr_scatter_plot.html", **template_vars.__dict__)
 
-@app.route("/int_mapping", methods=('POST',))
-def interval_mapping_page():
-    template_vars = interval_mapping.IntervalMapping(request.args)
-    return render_template("interval_mapping.html", **template_vars.__dict__)
+#@app.route("/int_mapping", methods=('POST',))
+#def interval_mapping_page():
+#    template_vars = interval_mapping.IntervalMapping(request.args)
+#    return render_template("interval_mapping.html", **template_vars.__dict__)
 
 # Todo: Can we simplify this? -Sam
 def sharing_info_page():

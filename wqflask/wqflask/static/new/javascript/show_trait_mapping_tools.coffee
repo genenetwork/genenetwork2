@@ -52,6 +52,32 @@ $ ->
         )
         return false
 
+    $("#interval_mapping_compute").click(() =>
+        $("#progress_bar_container").modal()
+        url = "/interval_mapping"
+        form_data = $('#trait_data_form').serialize()
+        console.log("form_data is:", form_data)
+        $.ajax(
+            type: "POST"
+            url: url
+            data: form_data
+            error: (xhr, ajaxOptions, thrownError) =>
+                alert("Sorry, an error occurred")
+                console.log(xhr)
+                clearInterval(this.my_timer)
+                $('#progress_bar_container').modal('hide')
+                $("body").html("We got an error.")        
+            success: (data) =>
+                clearInterval(this.my_timer)
+                $('#progress_bar_container').modal('hide')
+                $("body").html(data)
+        )
+        console.log("settingInterval")
+
+        this.my_timer = setInterval(get_progress, 1000)
+        return false
+    )
+
     $('#suggestive').hide()
 
     $('input[name=display_all]').change(() =>

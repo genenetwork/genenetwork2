@@ -37,6 +37,8 @@ class IntervalMapping(object):
 
     def __init__(self, start_vars, temp_uuid):
 
+        print("TESTING!!!")
+
         #Currently only getting trait data for one trait, but will need
         #to change this to accept multiple traits once the collection page is implemented
         helper_functions.get_species_dataset_trait(self, start_vars)
@@ -50,6 +52,8 @@ class IntervalMapping(object):
             value = start_vars['value:' + sample]
             self.samples.append(str(sample))
             self.vals.append(value)
+ 
+        print("start_vars:", start_vars)
  
         self.set_options(start_vars)
  
@@ -69,24 +73,24 @@ class IntervalMapping(object):
     def set_options(self, start_vars):
         """Sets various options (physical/genetic mapping, # permutations, which chromosome"""
         
-        self.plot_scale = start_vars['scale']
+        #self.plot_scale = start_vars['scale']
         #if self.plotScale == 'physic' and not fd.genotype.Mbmap:
         #    self.plotScale = 'morgan'
         self.num_permutations = start_vars['num_permutations']
-        self.do_bootstrap = start_vars['do_bootstrap']
-        self.control_locus = start_vars['control_locus']
-        self.selected_chr = start_vars['selected_chr']
-        self.weighted_regression = start_vars['weighted']
-        self.lrs_lod = start_vars['lrs_lod']
+        #self.do_bootstrap = start_vars['do_bootstrap']
+        #self.control_locus = start_vars['control_locus']
+        self.selected_chr = start_vars['chromosome']
+        #self.weighted_regression = start_vars['weighted']
+        #self.lrs_lod = start_vars['lrs_lod']
 
 
     def gen_qtl_results(self, tempdata):
         """Generates qtl results for plotting interval map"""
 
         self.dataset.group.get_markers()
-        self.dataset.read_genotype_file()
+        self.dataset.group.read_genotype_file()
 
-        samples, values, variances = self.trait.export_informative()
+        samples, values, variances = self.this_trait.export_informative()
         if self.control_locus:
             if self.weighted_regression:
                 self.qtl_results = self.dataset.genotype.regression(strains = samples,
