@@ -20,6 +20,7 @@
                         <label for="chromosome" class="control-label">Chromosome</label>
                         <div class="controls">
                             <select name="chromosome">
+                                <option value="-1">All</option>
                                 {% for name, value in dataset.species.chromosomes.chromosomes.items() %}
                                 <option value="{{ value }}">{{ name }}</option>
                                 {% endfor %}

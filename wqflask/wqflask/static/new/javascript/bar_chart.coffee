@@ -276,7 +276,7 @@ class Bar_Chart
             .attr("height", 100)
             .attr("width", 100)
             .attr('transform', 'translate(-20,50)')
-            
+
         legend_rect = legend.selectAll('rect')
                         .data(distinct_vals)
                         .enter()
@@ -305,13 +305,12 @@ class Bar_Chart
                         )
                         
     color_by_trait: () ->
-        $('#collections_holder').load('/collections/list #collections_list', =>
+        $('#collections_holder').load('/collections/list?color_by_trait #collections_list', =>
             $.colorbox(
                 inline: true
                 href: "#collections_holder"
             )
         )
 
-        
-    
+
 root.Bar_Chart = Bar_Chart

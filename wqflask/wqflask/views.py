@@ -213,7 +213,7 @@ def marker_regression_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v14"
+    version = "v1"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -237,8 +237,10 @@ def marker_regression_page():
 
         result = template_vars.__dict__
 
-        #for item in template_vars.__dict__.keys():
-        #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
+        print("DATASET:", pf(result['dataset']))
+
+        for item in template_vars.__dict__.keys():
+            print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
         #causeerror
         Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
@@ -268,7 +270,7 @@ def interval_mapping_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v1"
+    version = "v7"
     key = "interval_mapping:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -287,6 +289,9 @@ def interval_mapping_page():
                                            indent="   ")
 
         result = template_vars.__dict__
+        
+        for item in template_vars.__dict__.keys():
+            print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
         
         #causeerror
         Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))

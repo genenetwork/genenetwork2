@@ -322,7 +322,7 @@
 
     Bar_Chart.prototype.color_by_trait = function() {
       var _this = this;
-      return $('#collections_holder').load('/collections/list #collections_list', function() {
+      return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', function() {
         return $.colorbox({
           inline: true,
           href: "#collections_holder"

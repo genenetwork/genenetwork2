@@ -154,7 +154,7 @@ class GeneralTrait(object):
                 result.append(None)
         return result
 
-    def export_informative(self, incVar=0):
+    def export_informative(self, include_variance=0):
         """
         export informative sample
         mostly used in qtl regression
@@ -163,12 +163,12 @@ class GeneralTrait(object):
         samples = []
         vals = []
         the_vars = []
-        for sample, value in self.data.items():
-            if value.val != None:
-                if not incVar or value.var != None:
-                    samples.append(sample)
-                    vals.append(value.val)
-                    the_vars.append(value.var)
+        for sample_name, sample_data in self.data.items():
+            if sample_data.value != None:
+                if not include_variance or sample_data.variance != None:
+                    samples.append(sample_name)
+                    vals.append(sample_data.value)
+                    the_vars.append(sample_data.variance)
         return  samples, vals, the_vars
 
 
@@ -235,11 +235,19 @@ class GeneralTrait(object):
         # Todo: is this necessary? If not remove
         self.data.clear()
 
+        if self.dataset.group.parlist:
+            all_samples_ordered = (self.dataset.group.parlist +
+                                   self.dataset.group.f1list +
+                                   self.dataset.group.samplelist)
+        elif self.dataset.group.f1list:
+            all_samples_ordered = self.dataset.group.f1list + self.dataset.group.samplelist
+        else:
+            all_samples_ordered = self.dataset.group.samplelist
+
         if results:
             for item in results:
-                #name, value, variance, num_cases = item
+                name, value, variance, num_cases = item
                 if not samplelist or (samplelist and name in samplelist):
-                    name = item[0]
                     self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
 
     #def keys(self):
