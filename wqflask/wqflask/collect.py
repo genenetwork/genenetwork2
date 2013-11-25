@@ -23,7 +23,7 @@ Redis = redis.StrictRedis()
 
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash)
+                   redirect, flash, jsonify)
 
 from wqflask import app
 
@@ -122,16 +122,18 @@ def create_new():
 
 @app.route("/collections/list")
 def list_collections():
+    params = request.args
     user_collections = g.user_session.user_ob.user_collections
     return render_template("collections/list.html",
+                           params = params,
                            user_collections = user_collections,
                            )
-
 
 
 @app.route("/collections/view")
 def view_collection():
     params = request.args
+    print("params in view collection:", params)
     uc_id = params['uc_id']
     uc = model.UserCollection.query.get(uc_id)
     traits = json.loads(uc.members)
@@ -139,6 +141,7 @@ def view_collection():
     print("in view_collection traits are:", traits)
 
     trait_obs = []
+    json_version = []
 
     for atrait in traits:
         name, dataset_name = atrait.split(':')
@@ -146,8 +149,16 @@ def view_collection():
         trait_ob = trait.GeneralTrait(name=name, dataset_name=dataset_name)
         trait_ob.get_info()
         trait_obs.append(trait_ob)
+        
+        json_version.append(dict(name=trait_ob.name))
+                                 #dis=trait_ob.description))
 
-    return render_template("collections/view.html",
-                           trait_obs=trait_obs,
-                           uc = uc,
+    collection_info = dict(trait_obs=trait_obs,
+                           uc =     uc)
+    if "json" in params:
+        print("json_version:", json_version)
+        return json.dumps(json_version)
+    else:
+        return render_template("collections/view.html",
+                           **collection_info
                            )

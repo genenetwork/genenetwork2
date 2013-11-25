@@ -20,6 +20,7 @@
                         <label for="chromosome" class="control-label">Chromosome</label>
                         <div class="controls">
                             <select name="chromosome">
+                                <option value="-1">All</option>
                                 {% for name, value in dataset.species.chromosomes.chromosomes.items() %}
                                 <option value="{{ value }}">{{ name }}</option>
                                 {% endfor %}
@@ -30,7 +31,7 @@
                     <div class="control-group">
                         <label for="mapping_permutations" class="control-label">Permutations (n)</label>
                         <div class="controls">
-                            <input name="num_perm1" value="2000" type="text" />
+                            <input name="num_permutations" value="2000" type="text" />
                         </div>
                     </div>
     
@@ -85,7 +86,8 @@
 
                     <div class="control-group">
                         <div class="controls">
-                            <button class="btn btn-inverse submit_special"
+                            <button id="interval_mapping_compute"
+                                    class="btn btn-inverse submit_special"
                                     data-url="/interval_mapping"
                                     title="Compute Interval Mapping">
                                 <i class="icon-ok-circle icon-white"></i> Compute
@@ -116,12 +118,12 @@
                         </div>
                     </div>
                     
-                    <div class="control-group">
+<!--                    <div class="control-group">
                         <label for="marker_reg_permutations" class="control-label">Permutations (n)</label>
                         <div class="controls">
                             <input name="num_perm" value="2000" type="text" />
                         </div>
-                    </div>                    
+                    </div>           -->         
                     
                     <div class="control-group">
                         <div class="controls">

@@ -125,6 +125,9 @@
           return _this.add_x_axis(x_scale);
         }
       });
+      d3.select("#color_by_trait").on("click", function() {
+        return _this.color_by_trait();
+      });
     }
 
     Bar_Chart.prototype.get_attr_color_dict = function() {
@@ -318,13 +321,13 @@
     };
 
     Bar_Chart.prototype.color_by_trait = function() {
-      console.log("Before load");
-      $('#collections_holder').load('/collections/list #collections_list');
-      $.colorbox({
-        inline: true,
-        href: "#collections_holder"
+      var _this = this;
+      return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', function() {
+        return $.colorbox({
+          inline: true,
+          href: "#collections_holder"
+        });
       });
-      return console.log("After load");
     };
 
     return Bar_Chart;

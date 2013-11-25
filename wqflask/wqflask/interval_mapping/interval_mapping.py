@@ -37,6 +37,8 @@ class IntervalMapping(object):
 
     def __init__(self, start_vars, temp_uuid):
 
+        print("TESTING!!!")
+
         #Currently only getting trait data for one trait, but will need
         #to change this to accept multiple traits once the collection page is implemented
         helper_functions.get_species_dataset_trait(self, start_vars)
@@ -51,6 +53,8 @@ class IntervalMapping(object):
             self.samples.append(str(sample))
             self.vals.append(value)
  
+        print("start_vars:", start_vars)
+ 
         self.set_options(start_vars)
  
         self.gen_qtl_results(tempdata)
@@ -60,64 +64,105 @@ class IntervalMapping(object):
         for key in self.species.chromosomes.chromosomes.keys():
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
+        #print("self.qtl_results:", self.qtl_results)
+        
         self.js_data = dict(
-            lrs_lod = self.lrs_lod,
             chromosomes = chromosome_mb_lengths,
             qtl_results = self.qtl_results,
+            #lrs_lod = self.lrs_lod,
         )
 
     def set_options(self, start_vars):
         """Sets various options (physical/genetic mapping, # permutations, which chromosome"""
         
-        self.plot_scale = start_vars['scale']
+        #self.plot_scale = start_vars['scale']
         #if self.plotScale == 'physic' and not fd.genotype.Mbmap:
         #    self.plotScale = 'morgan'
-        self.num_permutations = start_vars['num_permutations']
-        self.do_bootstrap = start_vars['do_bootstrap']
-        self.control_locus = start_vars['control_locus']
-        self.selected_chr = start_vars['selected_chr']
-        self.weighted_regression = start_vars['weighted']
-        self.lrs_lod = start_vars['lrs_lod']
+        self.num_permutations = int(start_vars['num_permutations'])
+        #self.do_bootstrap = start_vars['do_bootstrap']
+        self.selected_chr = start_vars['chromosome']
+        if 'control_locus' in start_vars:
+            self.control_locus = start_vars['control_locus']
+        else:
+            self.control_locus = None
+        #self.weighted_regression = start_vars['weighted']
+        #self.lrs_lod = start_vars['lrs_lod']
 
 
     def gen_qtl_results(self, tempdata):
         """Generates qtl results for plotting interval map"""
 
         self.dataset.group.get_markers()
-        self.dataset.read_genotype_file()
+        genotype = self.dataset.group.read_genotype_file()
 
-        samples, values, variances = self.trait.export_informative()
+        samples, values, variances = self.this_trait.export_informative()
+
+        trimmed_samples = []
+        trimmed_values = []
+        for i in range(0, len(samples)):
+            if samples[i] in self.dataset.group.samplelist:
+                trimmed_samples.append(samples[i])
+                trimmed_values.append(values[i])
+
+        #if self.weighted_regression:
+        #    self.lrs_array = self.genotype.permutation(strains = trimmed_samples,
+        #                                                         trait = trimmed_values, 
+        #                                                         variance = _vars,
+        #                                                         nperm=self.num_permutations)
+        #else:
+        self.lrs_array = genotype.permutation(strains = trimmed_samples,
+                                                   trait = trimmed_values, 
+                                                   nperm= self.num_permutations)
+        self.suggestive = self.lrs_array[int(self.num_permutations*0.37-1)]
+        self.significant = self.lrs_array[int(self.num_permutations*0.95-1)]
+
+        print("samples:", trimmed_samples)
+
         if self.control_locus:
-            if self.weighted_regression:
-                self.qtl_results = self.dataset.genotype.regression(strains = samples,
-                                                              trait = values,
-                                                              variance = variances,
-                                                              control = self.control_locus)
-            else:
-                self.qtl_results = self.dataset.genotype.regression(strains = samples,
-                                                              trait = values,
-                                                              control = self.control_locus)
+            #if self.weighted_regression:
+            #    self.qtl_results = self.dataset.genotype.regression(strains = samples,
+            #                                                  trait = values,
+            #                                                  variance = variances,
+            #                                                  control = self.control_locus)
+            #else:
+            #reaper_results = self.dataset.group.genotype.regression(strains = trimmed_samples,
+            #                                              trait = trimmed_values,
+            #                                              control = self.control_locus)
+            reaper_results = genotype.regression(strains = trimmed_samples,
+                                                          trait = trimmed_values,
+                                                          control = self.control_locus)
         else:
-            if self.weighted_regression:
-                self.qtl_results = self.dataset.genotype.regression(strains = samples,
-                                                              trait = values,
-                                                              variance = variances)
-            else:
-                self.qtl_results = self.dataset.genotype.regression(strains = samples,
-                                                              trait = values)
+            #if self.weighted_regression:
+            #    self.qtl_results = self.dataset.genotype.regression(strains = samples,
+            #                                                  trait = values,
+            #                                                  variance = variances)
+            #else:
+            print("strains:", trimmed_samples)
+            print("trait:", trimmed_values)
+            #reaper_results = self.dataset.group.genotype.regression(strains = trimmed_samples,
+            #                                              trait = trimmed_values)
+            reaper_results = genotype.regression(strains = trimmed_samples,
+                                                          trait = trimmed_values)
 
+        #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+        self.qtl_results = []
+        for qtl in reaper_results:
+            reaper_locus = qtl.locus
+            locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
+            qtl = {"lrs": qtl.lrs, "locus": locus, "additive": qtl.additive}
+            self.qtl_results.append(qtl)
 
         #pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
 
         #if self.dataset.group.species == "human":
         #    p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
         #else:
-        genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-        
-        no_val_samples = self.identify_empty_samples()
-        trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
-        
-        genotype_matrix = np.array(trimmed_genotype_data).T
+        #genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
+        #
+        #no_val_samples = self.identify_empty_samples()
+        #trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
+        #
+        #genotype_matrix = np.array(trimmed_genotype_data).T
         
         #t_stats, p_values = lmm.run(
         #    pheno_vector,
