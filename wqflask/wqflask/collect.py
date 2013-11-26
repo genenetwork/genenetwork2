@@ -150,8 +150,15 @@ def view_collection():
         trait_ob.get_info()
         trait_obs.append(trait_ob)
         
-        json_version.append(dict(name=trait_ob.name))
-                                 #dis=trait_ob.description))
+        json_version.append(trait_ob.jsonable())
+        #json_version.append(dict(name=trait_ob.name,
+        #                         description=trait_ob.description_display,
+        #                         location=trait_ob.location_repr,
+        #                         mean=trait_ob.mean,
+        #                         lrs_score=trait_ob.LRS_score_repr,
+        #                         lrs_location=trait_ob.LRS_location_repr))
+        #                         dis=trait_ob.description))
+        #json_version.append(trait_ob.__dict__th)
 
     collection_info = dict(trait_obs=trait_obs,
                            uc =     uc)

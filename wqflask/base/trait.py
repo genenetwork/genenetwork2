@@ -43,7 +43,7 @@ class GeneralTrait(object):
         self.sequence = kw.get('sequence')         # Blat sequence, available for ProbeSet
         self.data = kw.get('data', {})
 
-        # Sets defaultst
+        # Sets defaults
         self.locus = None
         self.lrs = None
         self.pvalue = None
@@ -63,6 +63,16 @@ class GeneralTrait(object):
         # So we could add a simple if statement to short-circuit this if necessary
         self.retrieve_info(get_qtl_info=get_qtl_info)
         self.retrieve_sample_data()
+        
+        
+    def jsonable(self):
+        """Return a dict suitable for using as json
+        
+        Actual turning into json doesn't happen here though"""
+        return dict(name=self.name,
+                    description=self.description_display,
+                    mean=self.mean)
+
 
     def get_info(self):
         """For lots of traits just use get_trait_info in dataset instead...that will be way

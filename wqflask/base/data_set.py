@@ -629,7 +629,7 @@ class PhenotypeDataSet(DataSet):
                         
                     description = this_trait.pre_publication_description
             
-            this_trait.description_display = description
+            this_trait.description_display = description.strip()
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
