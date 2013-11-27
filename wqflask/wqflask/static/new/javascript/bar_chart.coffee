@@ -291,7 +291,7 @@ class Bar_Chart
                             console.log("TEST:", @attr_color_dict[attribute][d])
                             return @attr_color_dict[attribute][d]
                         )
-        
+
         legend_text = legend.selectAll('text')
                         .data(distinct_vals)
                         .enter()
@@ -303,13 +303,19 @@ class Bar_Chart
                         .text((d) =>
                             return d
                         )
-                        
+
     color_by_trait: () ->
         $('#collections_holder').load('/collections/list?color_by_trait #collections_list', =>
             $.colorbox(
                 inline: true
                 href: "#collections_holder"
             )
+            #Removes the links from the collection names, because clicking them would leave the page
+            #instead of loading the list of traits in the colorbox
+            $('a.collection_name').attr( 'onClick', 'return false' )
+            #$('.collection_name').each (index, element) =>
+            #    console.log("contents:", $(element).contents())
+            #    $(element).contents().unwrap()
         )
 
 

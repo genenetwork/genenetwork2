@@ -323,10 +323,11 @@
     Bar_Chart.prototype.color_by_trait = function() {
       var _this = this;
       return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', function() {
-        return $.colorbox({
+        $.colorbox({
           inline: true,
           href: "#collections_holder"
         });
+        return $('a.collection_name').attr('onClick', 'return false');
       });
     };
 
