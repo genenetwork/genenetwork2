@@ -12,10 +12,13 @@ from base.data_set import create_dataset
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 
+from wqflask import app
+
+import simplejson as json
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
-from flask import Flask, g
+from flask import Flask, g, request
 
 def print_mem(stage=""):
     mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
@@ -70,6 +73,7 @@ class GeneralTrait(object):
         
         Actual turning into json doesn't happen here though"""
         return dict(name=self.name,
+                    dataset=self.dataset.name,
                     description=self.description_display,
                     mean=self.mean)
 
@@ -626,3 +630,22 @@ class GeneralTrait(object):
                 ZValue = 0.5*log((1.0+self.correlation)/(1.0-self.correlation))
                 ZValue = ZValue*sqrt(self.overlap-3)
                 self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))
+
+
+
+@app.route("/trait/get_sample_data")
+def get_sample_data():
+    params = request.args
+    trait = params['trait']
+    dataset = params['dataset']
+    
+    trait_ob = GeneralTrait(name=trait, dataset_name=dataset)
+    
+    return json.dumps({key: value.value for key, value in trait_ob.data.iteritems() })
+    
+    #jsonable_sample_data = {}
+    #for sample in trait_ob.data.iteritems():
+    #    jsonable_sample_data[sample] = trait_ob.data[sample].value
+    #
+    #return jsonable_sample_data
+    
