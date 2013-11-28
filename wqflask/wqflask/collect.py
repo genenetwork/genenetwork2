@@ -36,6 +36,7 @@ from wqflask.database import db_session
 from wqflask import model
 
 from utility import Bunch, Struct
+from utility.formatting import numify
 
 from wqflask import user_manager
 
@@ -77,16 +78,28 @@ def add_to_existing():
     print("     type(params):", type(params))
     uc = model.UserCollection.query.get(params['existing_collection'])
     members = set(json.loads(uc.members))
+    len_before = len(members)
 
     traits = process_traits(params['traits'])
 
-    uc.members = json.dumps(list(members | traits))
+    members_now = list(members | traits)
+    len_now = len(members_now)
+    uc.members = json.dumps(members_now)
 
     uc.changed_timestamp = datetime.datetime.utcnow()
 
     db_session.commit()
 
-    return "added to existing, now set is:" + str(uc.members)
+    print("added to existing, now set is:" + str(uc.members))
+
+    new_length = len_now - len_before
+    if new_length:
+        flash("We've added {} to your collection.".format(
+            numify(new_length, 'new trait', 'new traits')))
+    else:
+        flash("No new traits were added.")
+
+    return redirect(url_for('view_collection', uc_id=uc.id))
 
 def process_traits(unprocessed_traits):
     print("unprocessed_traits are:", unprocessed_traits)
@@ -149,7 +162,7 @@ def view_collection():
         trait_ob = trait.GeneralTrait(name=name, dataset_name=dataset_name)
         trait_ob.get_info()
         trait_obs.append(trait_ob)
-        
+
         json_version.append(trait_ob.jsonable())
         #json_version.append(dict(name=trait_ob.name,
         #                         description=trait_ob.description_display,
