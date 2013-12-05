@@ -123,7 +123,7 @@ class Bar_Chart
         )
         
         d3.select("#color_by_trait").on("click", =>
-            @color_by_trait()
+            @open_trait_selection()
             
         )
 
@@ -138,6 +138,8 @@ class Bar_Chart
                     this_color_dict[value] = color(i)
             else
                 console.log("distinct_values:", distinct_vals)
+                #Check whether all values are numbers, and if they are get a corresponding
+                #color gradient
                 if _.every(distinct_vals, (d) =>
                     if isNaN(d)
                         return false
@@ -147,12 +149,23 @@ class Bar_Chart
                     color_range = d3.scale.linear()
                                     .domain([d3.min(distinct_vals),
                                             d3.max(distinct_vals)])
-                                    .range([0,4])
+                                    .range([0,255])
                     for value, i in distinct_vals
                         console.log("color_range(value):", color_range(parseInt(value)))
-                        this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)))
+                        this_color_dict[value] = d3.rgb(color_range(parseInt(value)),0, 0)
+                        #this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)))
                         #this_color_dict[value] = "rgb(0, 0, " + color_range(parseInt(value)) + ")"
             @attr_color_dict[key] = this_color_dict
+
+    convert_into_colors: (values) ->
+        color_range = d3.scale.linear()
+                        .domain([d3.min(values),
+                                d3.max(values)])
+                        .range([0,255])
+        for value, i in values
+            console.log("color_range(value):", color_range(parseInt(value)))
+            this_color_dict[value] = d3.rgb(color_range(parseInt(value)),0, 0)
+            #this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)))
 
     get_samples: () ->
         @sample_names = (sample.name for sample in @sample_list when sample.value != null)
@@ -305,7 +318,7 @@ class Bar_Chart
                             return d
                         )
 
-    color_by_trait: () ->
+    open_trait_selection: () ->
         $('#collections_holder').load('/collections/list?color_by_trait #collections_list', =>
             $.colorbox(
                 inline: true
@@ -318,6 +331,26 @@ class Bar_Chart
             #    console.log("contents:", $(element).contents())
             #    $(element).contents().unwrap()
         )
+    
+    color_by_trait: (trait_sample_data) ->
+        console.log("BXD1:", trait_sample_data["BXD1"])
+        console.log("trait_sample_data:", trait_sample_data)
+        trimmed_samples = @trim_values(trait_sample_data)
+        @get_distinct_values(trimmed_samples)
+    
+    trim_values: (trait_sample_data) ->
+        trimmed_samples = {}
+        for sample in @sample_names
+            if sample of trait_sample_data
+                trimmed_samples[sample] = trait_sample_data[sample]
+        console.log("trimmed_samples:", trimmed_samples)
+        return trimmed_samples
 
+    get_distinct_values: (samples) ->
+        distinct_values = _.uniq(_.values(samples))
+        #distinct_values = []
+        #for sample in samples
+        #    if samples[sample] in distinct_values
+        console.log("distinct_values:", distinct_values)
 
 root.Bar_Chart = Bar_Chart

@@ -1,3 +1,5 @@
+root = exports ? this
+
 console.log("start_b")
 
 # this is our isNumber, do not confuse with the underscore.js one
@@ -62,7 +64,8 @@ $ ->
     sample_lists = js_data.sample_lists
     sample_group_types = js_data.sample_group_types
 
-    new Bar_Chart(sample_lists[0])
+    root.bar_chart = new Bar_Chart(sample_lists[0])
+    
     new Box_Plot(sample_lists[0])
 
 

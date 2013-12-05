@@ -126,7 +126,7 @@
         }
       });
       d3.select("#color_by_trait").on("click", function() {
-        return _this.color_by_trait();
+        return _this.open_trait_selection();
       });
     }
 
@@ -156,15 +156,27 @@
               return true;
             }
           })) {
-            color_range = d3.scale.linear().domain([d3.min(distinct_vals), d3.max(distinct_vals)]).range([0, 4]);
+            color_range = d3.scale.linear().domain([d3.min(distinct_vals), d3.max(distinct_vals)]).range([0, 255]);
             for (i = _j = 0, _len1 = distinct_vals.length; _j < _len1; i = ++_j) {
               value = distinct_vals[i];
               console.log("color_range(value):", color_range(parseInt(value)));
-              this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)));
+              this_color_dict[value] = d3.rgb(color_range(parseInt(value)), 0, 0);
             }
           }
         }
         _results.push(this.attr_color_dict[key] = this_color_dict);
+      }
+      return _results;
+    };
+
+    Bar_Chart.prototype.convert_into_colors = function(values) {
+      var color_range, i, value, _i, _len, _results;
+      color_range = d3.scale.linear().domain([d3.min(values), d3.max(values)]).range([0, 255]);
+      _results = [];
+      for (i = _i = 0, _len = values.length; _i < _len; i = ++_i) {
+        value = values[i];
+        console.log("color_range(value):", color_range(parseInt(value)));
+        _results.push(this_color_dict[value] = d3.rgb(color_range(parseInt(value)), 0, 0));
       }
       return _results;
     };
@@ -320,7 +332,7 @@
       });
     };
 
-    Bar_Chart.prototype.color_by_trait = function() {
+    Bar_Chart.prototype.open_trait_selection = function() {
       var _this = this;
       return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', function() {
         $.colorbox({
@@ -329,6 +341,34 @@
         });
         return $('a.collection_name').attr('onClick', 'return false');
       });
+    };
+
+    Bar_Chart.prototype.color_by_trait = function(trait_sample_data) {
+      var trimmed_samples;
+      console.log("BXD1:", trait_sample_data["BXD1"]);
+      console.log("trait_sample_data:", trait_sample_data);
+      trimmed_samples = this.trim_values(trait_sample_data);
+      return this.get_distinct_values(trimmed_samples);
+    };
+
+    Bar_Chart.prototype.trim_values = function(trait_sample_data) {
+      var sample, trimmed_samples, _i, _len, _ref;
+      trimmed_samples = {};
+      _ref = this.sample_names;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sample = _ref[_i];
+        if (sample in trait_sample_data) {
+          trimmed_samples[sample] = trait_sample_data[sample];
+        }
+      }
+      console.log("trimmed_samples:", trimmed_samples);
+      return trimmed_samples;
+    };
+
+    Bar_Chart.prototype.get_distinct_values = function(samples) {
+      var distinct_values;
+      distinct_values = _.uniq(_.values(samples));
+      return console.log("distinct_values:", distinct_values);
     };
 
     return Bar_Chart;

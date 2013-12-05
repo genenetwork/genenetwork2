@@ -39,7 +39,7 @@
   };
 
   color_by_trait = function(trait_sample_data, textStatus, jqXHR) {
-    return root.trait_sample_data = trait_sample_data;
+    return root.bar_chart.color_by_trait(trait_sample_data);
   };
 
   process_traits = function(trait_data, textStatus, jqXHR) {

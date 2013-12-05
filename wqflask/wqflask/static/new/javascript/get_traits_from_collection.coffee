@@ -32,9 +32,9 @@ trait_click = () ->
       )
 
 color_by_trait =  (trait_sample_data, textStatus, jqXHR) ->
-    root.trait_sample_data = trait_sample_data
+    #trait_sample_data = trait_sample_data
     #console.log('in color_by_trait:', trait_sample_data)
-    
+    root.bar_chart.color_by_trait(trait_sample_data)
 
 process_traits = (trait_data, textStatus, jqXHR) ->
     console.log('in process_traits with trait_data:', trait_data)
