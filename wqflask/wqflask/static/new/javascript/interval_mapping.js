@@ -205,7 +205,7 @@
         var _this = this;
         return this.svg.selectAll("line").data(this.cumulative_chr_lengths, function(d) {
           return d;
-        }).enter().append("line").attr("x1", this.x_scale).attr("x2", this.x_scale).attr("y1", this.y_buffer).attr("y2", this.plot_height).style("stroke", "#ccc");
+        }).enter().append("line").attr("y1", this.y_buffer).attr("y2", this.plot_height).attr("x1", this.x_scale).attr("x2", this.x_scale).style("stroke", "#ccc");
       };
 
       Interval_Map.prototype.fill_chr_areas = function() {
@@ -220,7 +220,7 @@
           }
         }).attr("y", this.y_buffer).attr("width", function(d) {
           return _this.x_scale(d[0]);
-        }).attr("height", this.plot_height - this.y_buffer);
+        }).attr("height", this.plot_height - this.y_buffer).attr("fill", "white");
       };
 
       Interval_Map.prototype.add_chr_labels = function() {
@@ -237,12 +237,12 @@
           return d[0];
         }).attr("x", function(d) {
           return _this.x_scale(d[2] - d[1] / 2);
-        }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("fill", "grey");
+        }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px");
       };
 
       Interval_Map.prototype.connect_markers = function() {
         var _this = this;
-        return this.svg.selectAll("path").data(this.plot_coordinates).enter().attr("x1", function(d, i) {
+        return this.svg.selectAll("line").data(this.plot_coordinates).enter().append("line").attr("x1", function(d, i) {
           if (i === 0) {
             return _this.x_buffer;
           } else {
@@ -258,7 +258,7 @@
           return parseFloat(_this.x_buffer) + ((parseFloat(_this.plot_width) - parseFloat(_this.x_buffer)) * d[0] / parseFloat(_this.x_max));
         }).attr("y2", function(d) {
           return _this.plot_height - ((_this.plot_height - _this.y_buffer) * d[1] / _this.y_max);
-        });
+        }).style("stroke", "black");
       };
 
       return Interval_Map;

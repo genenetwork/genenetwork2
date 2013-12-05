@@ -215,10 +215,10 @@ $ ->
                 )
                 .enter()
                 .append("line")
-                .attr("x1", @x_scale)
-                .attr("x2", @x_scale)
                 .attr("y1", @y_buffer)
                 .attr("y2", @plot_height)
+                .attr("x1", @x_scale)
+                .attr("x2", @x_scale)
                 .style("stroke", "#ccc")
                 
         fill_chr_areas: () ->
@@ -239,7 +239,8 @@ $ ->
                 .attr("width", (d) =>
                     return @x_scale(d[0])
                 )
-                .attr("height", @plot_height-@y_buffer)                
+                .attr("height", @plot_height-@y_buffer)
+                .attr("fill", "white")
 
         add_chr_labels: () ->
             chr_names = []
@@ -263,12 +264,13 @@ $ ->
                 .attr("text-anchor", "middle")
                 .attr("font-family", "sans-serif")
                 .attr("font-size", "18px")
-                .attr("fill", "grey")
+                #.attr("fill", "grey")
 
         connect_markers: () ->
-            @svg.selectAll("path")
+            @svg.selectAll("line")
                 .data(@plot_coordinates)
                 .enter()
+                .append("line")
                 .attr("x1", (d, i) =>
                     if i == 0
                         return @x_buffer
@@ -287,6 +289,7 @@ $ ->
                 .attr("y2", (d) =>
                     return @plot_height - ((@plot_height-@y_buffer) * d[1]/@y_max)
                 )
+                .style("stroke", "black")
 
     console.time('Create manhattan plot')
     new Interval_Map(600, 1200)

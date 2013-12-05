@@ -124,6 +124,7 @@ class Bar_Chart
         
         d3.select("#color_by_trait").on("click", =>
             @color_by_trait()
+            
         )
 
     get_attr_color_dict: () ->
