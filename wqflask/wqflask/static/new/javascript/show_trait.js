@@ -61,6 +61,7 @@
     var block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values;
     sample_lists = js_data.sample_lists;
     sample_group_types = js_data.sample_group_types;
+    $("#update_bar_chart.btn-group").button();
     root.bar_chart = new Bar_Chart(sample_lists[0]);
     new Box_Plot(sample_lists[0]);
     $('.bar_chart_samples_group').change(function() {

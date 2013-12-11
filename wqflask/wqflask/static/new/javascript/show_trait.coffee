@@ -64,10 +64,9 @@ $ ->
     sample_lists = js_data.sample_lists
     sample_group_types = js_data.sample_group_types
 
+    $("#update_bar_chart.btn-group").button()
     root.bar_chart = new Bar_Chart(sample_lists[0])
-    
     new Box_Plot(sample_lists[0])
-
 
     $('.bar_chart_samples_group').change ->
         $('#bar_chart').remove()
@@ -80,7 +79,8 @@ $ ->
         else if group == "samples_all"
             all_samples = sample_lists[0].concat sample_lists[1]
             new Bar_Chart(all_samples)
-            
+        #$(".btn-group").button()
+
     $('.box_plot_samples_group').change ->
         $('#box_plot').remove()
         $('#box_plot_container').append('<div id="box_plot"></div>')

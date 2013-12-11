@@ -30,10 +30,14 @@
                             {% endfor %}
                         </select>
                     </div>
-                    {% endif %}
-                    <button type="button" class="btn" id="update_bar_chart">
+                {% endif %}
+                    <div id="update_bar_chart" class="btn-group" data-toggle="buttons-radio">
+                      <button type="button" class="btn btn-default update_bar_chart active" value="name">Sort By Name</button>
+                      <button type="button" class="btn btn-default update_bar_chart" value="value">Sort By Value</button>
+                    </div>
+<!--                    <button type="button" class="btn" id="update_bar_chart">
                         <i class="icon-resize-vertical"></i> Sort By Value
-                    </button>
+                    </button>-->
                     <button type="button" class="btn" id="color_by_trait">
                         <i class="icon-tint"></i> Color by Trait
                     </button>

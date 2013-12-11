@@ -6,7 +6,7 @@ class Bar_Chart
         console.log("sample names:", @sample_names)
         if @sample_attr_vals.length > 0
             @get_distinct_attr_vals()
-            @get_attr_color_dict()
+            @get_attr_color_dict(@distinct_attr_vals)
         
         #Used to calculate the bottom margin so sample names aren't cut off
         longest_sample_name = d3.max(sample.length for sample in @sample_names)
@@ -29,6 +29,7 @@ class Bar_Chart
         
         d3.select("#color_attribute").on("change", =>
             attribute = $("#color_attribute").val()
+            console.log("attr_color_dict:", @attr_color_dict)
             if $("#update_bar_chart").html() == 'Sort By Name' 
                 @svg.selectAll(".bar")
                     .data(@sorted_samples())
@@ -57,13 +58,17 @@ class Bar_Chart
                     )
             @add_legend(attribute, @distinct_attr_vals[attribute])
         )
-    
-    
-        d3.select("#update_bar_chart").on("click", =>
+        
+        
+        d3.select(".update_bar_chart").on("click", =>
+            sort_by = $('.update_bar_chart.active').val()
+            console.log("sort_by: ", sort_by)
             if @attributes.length > 0
                 attribute = $("#color_attribute").val()
-            if $("#update_bar_chart").html() == 'Sort By Value' 
-                $("#update_bar_chart").html('Sort By Name')
+            if sort_by = "value"
+                console.log("sorting by value")
+            #if $("#update_bar_chart").html() == 'Sort By Value' 
+                #$("#update_bar_chart").html('Sort By Name')
                 sortItems = (a, b) ->
                     return a[1] - b[1]
 
@@ -72,6 +77,7 @@ class Bar_Chart
                     .transition()
                     .duration(1000)
                     .attr("y", (d) =>
+
                         return @y_scale(d[1])
                     )
                     .attr("height", (d) =>
@@ -94,7 +100,8 @@ class Bar_Chart
                 $('.x.axis').remove()
                 @add_x_axis(x_scale)
             else
-                $("#update_bar_chart").html('Sort By Value')
+                console.log("sorting by name")
+                #$("#update_bar_chart").html('Sort By Value')
                 @svg.selectAll(".bar")
                     .data(@samples)
                     .transition()
@@ -127,10 +134,10 @@ class Bar_Chart
             
         )
 
-    get_attr_color_dict: () ->
+    get_attr_color_dict: (vals) ->
         @attr_color_dict = {}
-        console.log("distinct_attr_vals:", @distinct_attr_vals)
-        for own key, distinct_vals of @distinct_attr_vals
+        console.log("vals:", vals)
+        for own key, distinct_vals of vals
             this_color_dict = {}
             if distinct_vals.length < 10
                 color = d3.scale.category10()
@@ -151,8 +158,8 @@ class Bar_Chart
                                             d3.max(distinct_vals)])
                                     .range([0,255])
                     for value, i in distinct_vals
-                        console.log("color_range(value):", color_range(parseInt(value)))
-                        this_color_dict[value] = d3.rgb(color_range(parseInt(value)),0, 0)
+                        console.log("color_range(value):", parseInt(color_range(value)))
+                        this_color_dict[value] = d3.rgb(parseInt(color_range(value)),0, 0)
                         #this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)))
                         #this_color_dict[value] = "rgb(0, 0, " + color_range(parseInt(value)) + ")"
             @attr_color_dict[key] = this_color_dict
@@ -336,7 +343,31 @@ class Bar_Chart
         console.log("BXD1:", trait_sample_data["BXD1"])
         console.log("trait_sample_data:", trait_sample_data)
         trimmed_samples = @trim_values(trait_sample_data)
-        @get_distinct_values(trimmed_samples)
+        distinct_values = {}
+        distinct_values["collection_trait"] = @get_distinct_values(trimmed_samples)
+        @get_attr_color_dict(distinct_values)
+        if $("#update_bar_chart").html() == 'Sort By Name' 
+            @svg.selectAll(".bar")
+                .data(@sorted_samples())
+                .transition()
+                .duration(1000)
+                .style("fill", (d) =>
+                    return @attr_color_dict["collection_trait"][trimmed_samples[d[0]]]
+                )
+                .select("title")
+                .text((d) =>
+                    return d[1]
+                )
+        else
+            @svg.selectAll(".bar")
+                .data(@samples)
+                .transition()
+                .duration(1000)
+                .style("fill", (d) =>
+                    return @attr_color_dict["collection_trait"][trimmed_samples[d[0]]]
+                )
+        
+        
     
     trim_values: (trait_sample_data) ->
         trimmed_samples = {}
@@ -348,9 +379,10 @@ class Bar_Chart
 
     get_distinct_values: (samples) ->
         distinct_values = _.uniq(_.values(samples))
+        console.log("distinct_values:", distinct_values)
+        return distinct_values
         #distinct_values = []
         #for sample in samples
         #    if samples[sample] in distinct_values
-        console.log("distinct_values:", distinct_values)
 
 root.Bar_Chart = Bar_Chart
