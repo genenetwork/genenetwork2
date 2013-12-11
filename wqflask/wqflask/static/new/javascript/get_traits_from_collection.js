@@ -38,6 +38,8 @@
     });
   };
 
+  $.colorbox.close();
+
   color_by_trait = function(trait_sample_data, textStatus, jqXHR) {
     return root.bar_chart.color_by_trait(trait_sample_data);
   };

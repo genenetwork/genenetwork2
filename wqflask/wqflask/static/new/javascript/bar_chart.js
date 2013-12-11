@@ -70,63 +70,58 @@
         }
         return _this.add_legend(attribute, _this.distinct_attr_vals[attribute]);
       });
-      d3.select(".update_bar_chart").on("click", function() {
-        var attribute, sortItems, sort_by, sorted_sample_names, x_scale;
-        sort_by = $('.update_bar_chart.active').val();
-        console.log("sort_by: ", sort_by);
-        if (_this.attributes.length > 0) {
-          attribute = $("#color_attribute").val();
-        }
-        if (sort_by = "value") {
-          console.log("sorting by value");
-          sortItems = function(a, b) {
-            return a[1] - b[1];
-          };
-          _this.svg.selectAll(".bar").data(_this.sorted_samples()).transition().duration(1000).attr("y", function(d) {
-            return _this.y_scale(d[1]);
-          }).attr("height", function(d) {
-            return _this.plot_height - _this.y_scale(d[1]);
-          }).style("fill", function(d) {
-            if (_this.attributes.length > 0) {
-              return _this.attr_color_dict[attribute][d[2][attribute]];
-            } else {
-              return "steelblue";
-            }
-          }).select("title").text(function(d) {
-            return d[1];
-          });
-          sorted_sample_names = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this.sorted_samples();
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              sample = _ref[_i];
-              _results.push(sample[0]);
-            }
-            return _results;
-          }).call(_this);
-          x_scale = d3.scale.ordinal().domain(sorted_sample_names).rangeBands([0, _this.plot_width], .1);
-          $('.x.axis').remove();
-          return _this.add_x_axis(x_scale);
-        } else {
-          console.log("sorting by name");
-          _this.svg.selectAll(".bar").data(_this.samples).transition().duration(1000).attr("y", function(d) {
-            return _this.y_scale(d[1]);
-          }).attr("height", function(d) {
-            return _this.plot_height - _this.y_scale(d[1]);
-          }).style("fill", function(d) {
-            if (_this.attributes.length > 0) {
-              return _this.attr_color_dict[attribute][d[2][attribute]];
-            } else {
-              return "steelblue";
-            }
-          }).select("title").text(function(d) {
-            return d[1];
-          });
-          x_scale = d3.scale.ordinal().domain(_this.sample_names).rangeBands([0, _this.plot_width], .1);
-          $('.x.axis').remove();
-          return _this.add_x_axis(x_scale);
-        }
+      $(".sort_by_value").on("click", function() {
+        var sortItems, sorted_sample_names, x_scale;
+        console.log("sorting by value");
+        sortItems = function(a, b) {
+          return a[1] - b[1];
+        };
+        _this.svg.selectAll(".bar").data(_this.sorted_samples()).transition().duration(1000).attr("y", function(d) {
+          return _this.y_scale(d[1]);
+        }).attr("height", function(d) {
+          return _this.plot_height - _this.y_scale(d[1]);
+        }).style("fill", function(d) {
+          if (_this.attributes.length > 0) {
+            return _this.attr_color_dict[attribute][d[2][attribute]];
+          } else {
+            return "steelblue";
+          }
+        }).select("title").text(function(d) {
+          return d[1];
+        });
+        sorted_sample_names = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this.sorted_samples();
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            sample = _ref[_i];
+            _results.push(sample[0]);
+          }
+          return _results;
+        }).call(_this);
+        x_scale = d3.scale.ordinal().domain(sorted_sample_names).rangeBands([0, _this.plot_width], .1);
+        $('.x.axis').remove();
+        return _this.add_x_axis(x_scale);
+      });
+      $(".sort_by_name").on("click", function() {
+        var x_scale;
+        console.log("sorting by name");
+        _this.svg.selectAll(".bar").data(_this.samples).transition().duration(1000).attr("y", function(d) {
+          return _this.y_scale(d[1]);
+        }).attr("height", function(d) {
+          return _this.plot_height - _this.y_scale(d[1]);
+        }).style("fill", function(d) {
+          if (_this.attributes.length > 0) {
+            return _this.attr_color_dict[attribute][d[2][attribute]];
+          } else {
+            return "steelblue";
+          }
+        }).select("title").text(function(d) {
+          return d[1];
+        });
+        x_scale = d3.scale.ordinal().domain(_this.sample_names).rangeBands([0, _this.plot_width], .1);
+        $('.x.axis').remove();
+        return _this.add_x_axis(x_scale);
       });
       d3.select("#color_by_trait").on("click", function() {
         return _this.open_trait_selection();

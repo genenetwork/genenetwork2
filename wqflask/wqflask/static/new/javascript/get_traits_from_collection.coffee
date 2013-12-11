@@ -30,6 +30,7 @@ trait_click = () ->
         url: this_trait_url,
         success: color_by_trait
       )
+    $.colorbox.close()
 
 color_by_trait =  (trait_sample_data, textStatus, jqXHR) ->
     #trait_sample_data = trait_sample_data
