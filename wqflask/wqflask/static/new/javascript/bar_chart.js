@@ -13,6 +13,7 @@
         _this = this;
       this.sample_list = sample_list;
       this.sample_group = sample_group;
+      this.sort_by = "name";
       this.get_samples();
       console.log("sample names:", this.sample_names);
       if (this.sample_attr_vals.length > 0) {
@@ -46,87 +47,84 @@
       this.create_scales();
       this.create_graph();
       d3.select("#color_attribute").on("change", function() {
-        var attribute;
-        attribute = $("#color_attribute").val();
+        _this.attribute = $("#color_attribute").val();
         console.log("attr_color_dict:", _this.attr_color_dict);
-        if ($("#update_bar_chart").html() === 'Sort By Name') {
+        if (_this.sort_by = "name") {
           _this.svg.selectAll(".bar").data(_this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
-            if (attribute === "None") {
+            if (_this.attribute === "None") {
               return "steelblue";
             } else {
-              return _this.attr_color_dict[attribute][d[2][attribute]];
+              return _this.attr_color_dict[_this.attribute][d[2][_this.attribute]];
             }
           }).select("title").text(function(d) {
             return d[1];
           });
         } else {
           _this.svg.selectAll(".bar").data(_this.samples).transition().duration(1000).style("fill", function(d) {
-            if (attribute === "None") {
+            if (_this.attribute === "None") {
               return "steelblue";
             } else {
-              return _this.attr_color_dict[attribute][d[2][attribute]];
+              return _this.attr_color_dict[_this.attribute][d[2][_this.attribute]];
             }
           });
         }
-        return _this.add_legend(attribute, _this.distinct_attr_vals[attribute]);
+        return _this.add_legend(_this.attribute, _this.distinct_attr_vals[_this.attribute]);
       });
       $(".sort_by_value").on("click", function() {
-        var sortItems, sorted_sample_names, x_scale;
         console.log("sorting by value");
-        sortItems = function(a, b) {
-          return a[1] - b[1];
-        };
-        _this.svg.selectAll(".bar").data(_this.sorted_samples()).transition().duration(1000).attr("y", function(d) {
-          return _this.y_scale(d[1]);
-        }).attr("height", function(d) {
-          return _this.plot_height - _this.y_scale(d[1]);
-        }).style("fill", function(d) {
-          if (_this.attributes.length > 0) {
-            return _this.attr_color_dict[attribute][d[2][attribute]];
-          } else {
-            return "steelblue";
-          }
-        }).select("title").text(function(d) {
-          return d[1];
-        });
-        sorted_sample_names = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.sorted_samples();
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            sample = _ref[_i];
-            _results.push(sample[0]);
-          }
-          return _results;
-        }).call(_this);
-        x_scale = d3.scale.ordinal().domain(sorted_sample_names).rangeBands([0, _this.plot_width], .1);
-        $('.x.axis').remove();
-        return _this.add_x_axis(x_scale);
+        _this.sort_by = "value";
+        if (_this.attributes.length > 0) {
+          _this.attribute = $("#color_attribute").val();
+        }
+        return _this.rebuild_bar_graph(_this.sorted_samples());
       });
       $(".sort_by_name").on("click", function() {
-        var x_scale;
         console.log("sorting by name");
-        _this.svg.selectAll(".bar").data(_this.samples).transition().duration(1000).attr("y", function(d) {
-          return _this.y_scale(d[1]);
-        }).attr("height", function(d) {
-          return _this.plot_height - _this.y_scale(d[1]);
-        }).style("fill", function(d) {
-          if (_this.attributes.length > 0) {
-            return _this.attr_color_dict[attribute][d[2][attribute]];
-          } else {
-            return "steelblue";
-          }
-        }).select("title").text(function(d) {
-          return d[1];
-        });
-        x_scale = d3.scale.ordinal().domain(_this.sample_names).rangeBands([0, _this.plot_width], .1);
-        $('.x.axis').remove();
-        return _this.add_x_axis(x_scale);
+        _this.sort_by = "name";
+        if (_this.attributes.length > 0) {
+          _this.attribute = $("#color_attribute").val();
+        }
+        return _this.rebuild_bar_graph(_this.samples);
       });
       d3.select("#color_by_trait").on("click", function() {
         return _this.open_trait_selection();
       });
     }
+
+    Bar_Chart.prototype.rebuild_bar_graph = function(samples) {
+      var sample, sample_names, x_scale,
+        _this = this;
+      console.log("samples:", samples);
+      this.svg.selectAll(".bar").data(samples).transition().duration(1000).attr("y", function(d) {
+        return _this.y_scale(d[1]);
+      }).attr("height", function(d) {
+        return _this.plot_height - _this.y_scale(d[1]);
+      }).select("title").text(function(d) {
+        return d[1];
+      }).style("fill", function(d) {
+        if (_this.attributes.length > 0 && _this.attribute !== "None") {
+          console.log("@attribute:", _this.attribute);
+          console.log("d[2]", d[2]);
+          console.log("the_color:", _this.attr_color_dict[_this.attribute][d[2][_this.attribute]]);
+          return _this.attr_color_dict[_this.attribute][d[2][_this.attribute]];
+        } else {
+          return "steelblue";
+        }
+      });
+      sample_names = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = samples.length; _i < _len; _i++) {
+          sample = samples[_i];
+          _results.push(sample[0]);
+        }
+        return _results;
+      })();
+      console.log("sample_names2:", sample_names);
+      x_scale = d3.scale.ordinal().domain(sample_names).rangeBands([0, this.plot_width], .1);
+      $('.x.axis').remove();
+      return this.add_x_axis(x_scale);
+    };
 
     Bar_Chart.prototype.get_attr_color_dict = function(vals) {
       var color, color_range, distinct_vals, i, key, this_color_dict, value, _i, _j, _len, _len1, _results,
