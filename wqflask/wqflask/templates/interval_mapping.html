@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Interval Mapping{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/packages/jqplot/jquery.jqplot.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/interval_mapping.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
@@ -31,7 +30,9 @@
                 <tr>
                     <td>Index</td>
                     <td>LRS Score</td>
+                    {% if method == "qtl_reaper" %}
                     <td>Additive Effect</td>
+                    {% endif %}
                     <td>Chr</td>
                     <td>Mb</td>
                     <td>Locus</td>
@@ -41,11 +42,13 @@
                 {% for marker in qtl_results %}
                 <tr>
                     <td>{{ loop.index }}</td>
-                    <td>{{ marker.lrs|float }}</td>
+                    <td>{{ marker.lrs_value|float }}</td>
+                    {% if method == "qtl_reaper" %}
                     <td>{{ marker.additive|float }}</td>
-                    <td>{{ marker.locus.chr|int }}</td>
-                    <td>{{ marker.locus.Mb|float  }}</td>
-                    <td>{{ marker.locus.name }}</td>
+                    {% endif %}
+                    <td>{{ marker.chr|int }}</td>
+                    <td>{{ marker.Mb|float  }}</td>
+                    <td>{{ marker.name }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -63,7 +66,7 @@
     </script>
 
     <!--[if lt IE 9]>
-        <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>
+<!--        <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>-->
     <![endif]-->
     <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/interval_mapping.js"></script>

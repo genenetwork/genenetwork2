@@ -258,6 +258,7 @@ def interval_mapping_page():
     wanted = (
         'trait_id',
         'dataset',
+        'mapping_method',
         'chromosome',
         'num_permutations',
         'do_bootstraps',

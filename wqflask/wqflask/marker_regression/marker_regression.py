@@ -91,7 +91,6 @@ class MarkerRegression(object):
             )
         
         self.dataset.group.markers.add_pvalues(p_values)
-
         self.qtl_results = self.dataset.group.markers.markers
 
 

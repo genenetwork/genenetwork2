@@ -66,30 +66,30 @@ $ ->
                 chr_lengths.push(this_length)
                 cumulative_chr_lengths.push(total_length + this_length)
                 total_length += this_length
-
+    
             console.log("chr_lengths: ", chr_lengths)
-
+    
             return [chr_lengths, cumulative_chr_lengths]
-
+    
         create_coordinates: () -> 
             chr_lengths = []
             chr_seen = []
             for result in js_data.qtl_results
-                if result.locus.chr == "X"
+                if result.chr == "X"
                     chr_length = parseFloat(@chromosomes[20])
                 else
-                    chr_length = parseFloat(@chromosomes[result.locus.chr])
-                if not(result.locus.chr in chr_seen)
-                    chr_seen.push(result.locus.chr) 
+                    chr_length = parseFloat(@chromosomes[result.chr])
+                if not(result.chr in chr_seen)
+                    chr_seen.push(result.chr) 
                     chr_lengths.push(chr_length) 
-                    if result.locus.chr != "1"
+                    if result.chr != "1"
                         @total_length += parseFloat(chr_lengths[chr_lengths.length - 2])
-                @x_coords.push(@total_length + parseFloat(result.locus.Mb))
-                @y_coords.push(result.lrs)
-                @marker_names.push(result.locus.name)
+                @x_coords.push(@total_length + parseFloat(result.Mb))
+                @y_coords.push(result.lrs_value)
+                @marker_names.push(result.name)
             @total_length += parseFloat(chr_lengths[chr_lengths.length-1])
             #console.log("chr_lengths: ", chr_lengths)
-
+    
         create_svg: () ->
             svg = d3.select("#interval_map")
                 .append("svg")
@@ -98,7 +98,7 @@ $ ->
                 .attr("height", @plot_height+@y_buffer)
             
             return svg
-
+    
         create_graph: () ->
             @add_border()
             @add_x_axis()
@@ -107,13 +107,13 @@ $ ->
             @fill_chr_areas()
             @add_chr_labels()
             @connect_markers()
-
+    
         add_border: () ->
             border_coords = [[@y_buffer, @plot_height, @x_buffer, @x_buffer],
                              [@y_buffer, @plot_height, @plot_width, @plot_width],
                              [@y_buffer, @y_buffer, @x_buffer, @plot_width],
                              [@plot_height, @plot_height, @x_buffer, @plot_width]]
-
+    
             @svg.selectAll("line")
                 .data(border_coords)
                 .enter()
@@ -131,16 +131,16 @@ $ ->
                     return d[3]
                 )             
                 .style("stroke", "#000")
-
+    
         create_scales: () ->
             @x_scale = d3.scale.linear()
                 .domain([0, d3.max(@x_coords)])
                 .range([@x_buffer, @plot_width])
-
+    
             @y_scale = d3.scale.linear()
                 .domain([0, @y_max])
                 .range([@plot_height, @y_buffer])
-
+    
         create_x_axis_tick_values: () ->
             tick_vals = []
             for val in [25..@cumulative_chr_lengths[0]] when val%25 == 0
@@ -159,13 +159,13 @@ $ ->
                     
             #console.log("tick_vals:", tick_vals)
             return tick_vals
-
+    
         add_x_axis: () ->
             xAxis = d3.svg.axis()
                     .scale(@x_scale)
                     .orient("bottom")
                     .tickValues(@create_x_axis_tick_values())
-
+    
             next_chr = 1
             tmp_tick_val = 0
             xAxis.tickFormat((d) =>
@@ -183,7 +183,7 @@ $ ->
                         tick_val = tmp_tick_val
                 return (tick_val)
             )
-
+    
             @svg.append("g")
                 .attr("class", "x_axis")
                 .attr("transform", "translate(0," + @plot_height + ")")
@@ -196,7 +196,7 @@ $ ->
                     )
                     #.attr("dy", "-1.0em")                        
                                     
-
+    
         add_y_axis: () ->
             yAxis = d3.svg.axis()
                     .scale(@y_scale)
@@ -207,7 +207,7 @@ $ ->
                 .attr("class", "y_axis")
                 .attr("transform", "translate(" + @x_buffer + ",0)")
                 .call(yAxis)
-
+    
         add_chr_lines: () ->
             @svg.selectAll("line")
                 .data(@cumulative_chr_lengths, (d) =>
@@ -241,7 +241,7 @@ $ ->
                 )
                 .attr("height", @plot_height-@y_buffer)
                 .attr("fill", "white")
-
+    
         add_chr_labels: () ->
             chr_names = []
             for key of @chromosomes
@@ -265,7 +265,7 @@ $ ->
                 .attr("font-family", "sans-serif")
                 .attr("font-size", "18px")
                 #.attr("fill", "grey")
-
+    
         connect_markers: () ->
             @svg.selectAll("line")
                 .data(@plot_coordinates)
@@ -290,7 +290,8 @@ $ ->
                     return @plot_height - ((@plot_height-@y_buffer) * d[1]/@y_max)
                 )
                 .style("stroke", "black")
-
-    console.time('Create manhattan plot')
+    
+    console.time('Create interval map')
+    console.log("TESTING")
     new Interval_Map(600, 1200)
-    console.timeEnd('Create manhattan plot')
+    console.timeEnd('Create interval map')

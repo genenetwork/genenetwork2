@@ -49,10 +49,10 @@ $ ->
 
         get_chr_lengths: () ->
             ###
-            Gets a list of both individual and cumulative (the position of one on the graph
-            is its own length plus the lengths of all preceding chromosomes) lengths in order
-            to draw the vertical lines separating chromosomes and the chromosome labels
-            
+            #Gets a list of both individual and cumulative (the position of one on the graph
+            #is its own length plus the lengths of all preceding chromosomes) lengths in order
+            #to draw the vertical lines separating chromosomes and the chromosome labels
+            #
             ###
             
             console.log("@chromosomes: ", @chromosomes)

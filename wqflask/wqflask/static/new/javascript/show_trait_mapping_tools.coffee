@@ -53,6 +53,7 @@ $ ->
         return false
 
     $("#interval_mapping_compute").click(() =>
+        console.log("In interval mapping")
         $("#progress_bar_container").modal()
         url = "/interval_mapping"
         form_data = $('#trait_data_form').serialize()
@@ -118,8 +119,12 @@ $ ->
 
     composite_mapping_fields = ->
         $(".composite_fields").toggle()
+    mapping_method_fields = ->
+        $(".mapping_method_fields").toggle()
+        
 
     $("#use_composite_choice").change(composite_mapping_fields)
+    $("#mapping_method_choice").change(mapping_method_fields)
 
 
     #### Todo: Redo below so its like submit_special and requires no js hardcoding
