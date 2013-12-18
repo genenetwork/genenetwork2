@@ -104,7 +104,7 @@ $ ->
             defaults =
                 species: "mouse"
                 group: "BXD"
-                type: "Hippocampus"
+                type: "Hippocampus mRNA"
                 dataset: "HC_M2_0606_P"
 
         for item in [['species', 'group']
