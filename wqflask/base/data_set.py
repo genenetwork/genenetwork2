@@ -318,12 +318,17 @@ class DatasetGroup(object):
 
         #determine default genotype object
         if self.incparentsf1 and genotype_1.type != "intercross":
-            self.genotype = genotype_2
+            #self.genotype = genotype_2
+            genotype = genotype_2
         else:
             self.incparentsf1 = 0
-            self.genotype = genotype_1
+            #self.genotype = genotype_1
+            genotype = genotype_1
 
-        self.samplelist = list(self.genotype.prgy)
+        #self.samplelist = list(self.genotype.prgy)
+        self.samplelist = list(genotype.prgy)
+        
+        return genotype
 
 
 #class DataSets(object):
@@ -624,7 +629,7 @@ class PhenotypeDataSet(DataSet):
                         
                     description = this_trait.pre_publication_description
             
-            this_trait.description_display = description
+            this_trait.description_display = description.strip()
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
@@ -1084,6 +1089,7 @@ class MrnaAssayDataSet(DataSet):
                             Strain.Name
                     """ % (escape(trait), escape(self.name))
         results = g.db.execute(query).fetchall()
+        print("RETRIEVED RESULTS HERE:", results)
         return results
     
     

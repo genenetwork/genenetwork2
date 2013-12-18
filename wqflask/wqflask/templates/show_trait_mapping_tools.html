@@ -17,9 +17,20 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="interval_mapping">
                     <div class="control-group">
+                        <label for="mapping_method" class="control-label">Mapping Method</label>
+                        <div class="controls" id="mapping_method_choice">
+                            <select name="mapping_method">
+                                <option value="qtl_reaper">H&K Regression</option>
+                                <option value="pylmm">Linear Mixed</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
                         <label for="chromosome" class="control-label">Chromosome</label>
                         <div class="controls">
                             <select name="chromosome">
+                                <option value="-1">All</option>
                                 {% for name, value in dataset.species.chromosomes.chromosomes.items() %}
                                 <option value="{{ value }}">{{ name }}</option>
                                 {% endfor %}
@@ -27,14 +38,14 @@
                         </div>
                     </div>
     
-                    <div class="control-group">
+                    <div class="control-group mapping_method_fields">
                         <label for="mapping_permutations" class="control-label">Permutations (n)</label>
                         <div class="controls">
-                            <input name="num_perm1" value="2000" type="text" />
+                            <input name="num_permutations" value="2000" type="text" />
                         </div>
                     </div>
     
-                    <div class="control-group">
+                    <div class="control-group mapping_method_fields">
                         <label for="mapping_bootstraps" class="control-label"
                                title="Bootstrapping Resamples">Bootstrap (n)</label>
                         <div class="controls">
@@ -43,7 +54,7 @@
                     </div>
 
 
-                    <div class="control-group">
+                    <div class="control-group mapping_method_fields">
                         <label class="control-label"><b>Composite Mapping</b></label>
                         <div class="controls" id="use_composite_choice">                      
                             <label class="radio inline">
@@ -85,7 +96,8 @@
 
                     <div class="control-group">
                         <div class="controls">
-                            <button class="btn btn-inverse submit_special"
+                            <button id="interval_mapping_compute"
+                                    class="btn btn-inverse submit_special"
                                     data-url="/interval_mapping"
                                     title="Compute Interval Mapping">
                                 <i class="icon-ok-circle icon-white"></i> Compute
@@ -116,12 +128,12 @@
                         </div>
                     </div>
                     
-                    <div class="control-group">
+<!--                    <div class="control-group">
                         <label for="marker_reg_permutations" class="control-label">Permutations (n)</label>
                         <div class="controls">
                             <input name="num_perm" value="2000" type="text" />
                         </div>
-                    </div>                    
+                    </div>           -->         
                     
                     <div class="control-group">
                         <div class="controls">

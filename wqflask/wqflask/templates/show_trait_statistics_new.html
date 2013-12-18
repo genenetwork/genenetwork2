@@ -30,9 +30,23 @@
                             {% endfor %}
                         </select>
                     </div>
-                    {% endif %}
-                    <button type="button" id="update_bar_chart">Sort By Value</button>
-                    <button type="button" id="color_by_trait">Color by Trait</button>
+                {% endif %}
+                    <div id="update_bar_chart" class="btn-group">
+                      <button type="button" class="btn btn-default sort_by_name" value="name">
+                        <i class="icon-resize-horizontal"></i> Sort By Name
+                      </button>
+                      <button type="button" class="btn btn-default sort_by_value" value="value">
+                        <i class="icon-signal"></i> Sort By Value
+                      </button>
+                    </div>
+<!--                    <button type="button" class="btn" id="update_bar_chart">
+                        <i class="icon-resize-vertical"></i> Sort By Value
+                    </button>-->
+                    <div class="btn-group">
+                        <button type="button" class="btn" id="color_by_trait">
+                            <i class="icon-tint"></i> Color by Trait
+                        </button>
+                    </div>
                     <div id="bar_chart_container">
                         <div id="bar_chart"></div>
                     </div>
@@ -56,4 +70,5 @@
     <div id="collections_holder_wrapper" style="display:none;">
         <div id="collections_holder"></div>
     </div>
+   
 </div>

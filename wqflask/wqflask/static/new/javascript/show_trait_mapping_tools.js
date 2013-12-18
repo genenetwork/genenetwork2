@@ -5,7 +5,7 @@
   root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   $(function() {
-    var composite_mapping_fields, get_progress, submit_special, toggle_enable_disable, update_time_remaining,
+    var composite_mapping_fields, get_progress, mapping_method_fields, submit_special, toggle_enable_disable, update_time_remaining,
       _this = this;
     submit_special = function() {
       var url;
@@ -62,6 +62,34 @@
       });
       return false;
     };
+    $("#interval_mapping_compute").click(function() {
+      var form_data, url;
+      console.log("In interval mapping");
+      $("#progress_bar_container").modal();
+      url = "/interval_mapping";
+      form_data = $('#trait_data_form').serialize();
+      console.log("form_data is:", form_data);
+      $.ajax({
+        type: "POST",
+        url: url,
+        data: form_data,
+        error: function(xhr, ajaxOptions, thrownError) {
+          alert("Sorry, an error occurred");
+          console.log(xhr);
+          clearInterval(_this.my_timer);
+          $('#progress_bar_container').modal('hide');
+          return $("body").html("We got an error.");
+        },
+        success: function(data) {
+          clearInterval(_this.my_timer);
+          $('#progress_bar_container').modal('hide');
+          return $("body").html(data);
+        }
+      });
+      console.log("settingInterval");
+      _this.my_timer = setInterval(get_progress, 1000);
+      return false;
+    });
     $('#suggestive').hide();
     $('input[name=display_all]').change(function() {
       console.log("check");
@@ -101,7 +129,11 @@
     composite_mapping_fields = function() {
       return $(".composite_fields").toggle();
     };
+    mapping_method_fields = function() {
+      return $(".mapping_method_fields").toggle();
+    };
     $("#use_composite_choice").change(composite_mapping_fields);
+    $("#mapping_method_choice").change(mapping_method_fields);
     toggle_enable_disable = function(elem) {
       return $(elem).prop("disabled", !$(elem).prop("disabled"));
     };

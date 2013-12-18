@@ -12,10 +12,13 @@ from base.data_set import create_dataset
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 
+from wqflask import app
+
+import simplejson as json
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
-from flask import Flask, g
+from flask import Flask, g, request
 
 def print_mem(stage=""):
     mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
@@ -43,7 +46,7 @@ class GeneralTrait(object):
         self.sequence = kw.get('sequence')         # Blat sequence, available for ProbeSet
         self.data = kw.get('data', {})
 
-        # Sets defaultst
+        # Sets defaults
         self.locus = None
         self.lrs = None
         self.pvalue = None
@@ -63,6 +66,17 @@ class GeneralTrait(object):
         # So we could add a simple if statement to short-circuit this if necessary
         self.retrieve_info(get_qtl_info=get_qtl_info)
         self.retrieve_sample_data()
+        
+        
+    def jsonable(self):
+        """Return a dict suitable for using as json
+        
+        Actual turning into json doesn't happen here though"""
+        return dict(name=self.name,
+                    dataset=self.dataset.name,
+                    description=self.description_display,
+                    mean=self.mean)
+
 
     def get_info(self):
         """For lots of traits just use get_trait_info in dataset instead...that will be way
@@ -154,7 +168,7 @@ class GeneralTrait(object):
                 result.append(None)
         return result
 
-    def export_informative(self, incVar=0):
+    def export_informative(self, include_variance=0):
         """
         export informative sample
         mostly used in qtl regression
@@ -163,12 +177,12 @@ class GeneralTrait(object):
         samples = []
         vals = []
         the_vars = []
-        for sample, value in self.data.items():
-            if value.val != None:
-                if not incVar or value.var != None:
-                    samples.append(sample)
-                    vals.append(value.val)
-                    the_vars.append(value.var)
+        for sample_name, sample_data in self.data.items():
+            if sample_data.value != None:
+                if not include_variance or sample_data.variance != None:
+                    samples.append(sample_name)
+                    vals.append(sample_data.value)
+                    the_vars.append(sample_data.variance)
         return  samples, vals, the_vars
 
 
@@ -235,11 +249,19 @@ class GeneralTrait(object):
         # Todo: is this necessary? If not remove
         self.data.clear()
 
+        if self.dataset.group.parlist:
+            all_samples_ordered = (self.dataset.group.parlist +
+                                   self.dataset.group.f1list +
+                                   self.dataset.group.samplelist)
+        elif self.dataset.group.f1list:
+            all_samples_ordered = self.dataset.group.f1list + self.dataset.group.samplelist
+        else:
+            all_samples_ordered = self.dataset.group.samplelist
+
         if results:
             for item in results:
-                #name, value, variance, num_cases = item
+                name, value, variance, num_cases = item
                 if not samplelist or (samplelist and name in samplelist):
-                    name = item[0]
                     self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
 
     #def keys(self):
@@ -608,3 +630,22 @@ class GeneralTrait(object):
                 ZValue = 0.5*log((1.0+self.correlation)/(1.0-self.correlation))
                 ZValue = ZValue*sqrt(self.overlap-3)
                 self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))
+
+
+
+@app.route("/trait/get_sample_data")
+def get_sample_data():
+    params = request.args
+    trait = params['trait']
+    dataset = params['dataset']
+    
+    trait_ob = GeneralTrait(name=trait, dataset_name=dataset)
+    
+    return json.dumps({key: value.value for key, value in trait_ob.data.iteritems() })
+    
+    #jsonable_sample_data = {}
+    #for sample in trait_ob.data.iteritems():
+    #    jsonable_sample_data[sample] = trait_ob.data[sample].value
+    #
+    #return jsonable_sample_data
+    

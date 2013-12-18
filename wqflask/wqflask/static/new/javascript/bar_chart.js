@@ -13,11 +13,12 @@
         _this = this;
       this.sample_list = sample_list;
       this.sample_group = sample_group;
+      this.sort_by = "name";
       this.get_samples();
       console.log("sample names:", this.sample_names);
       if (this.sample_attr_vals.length > 0) {
         this.get_distinct_attr_vals();
-        this.get_attr_color_dict();
+        this.get_attr_color_dict(this.distinct_attr_vals);
       }
       longest_sample_name = d3.max((function() {
         var _i, _len, _ref, _results;
@@ -46,97 +47,94 @@
       this.create_scales();
       this.create_graph();
       d3.select("#color_attribute").on("change", function() {
-        var attribute;
-        attribute = $("#color_attribute").val();
-        if ($("#update_bar_chart").html() === 'Sort By Name') {
+        _this.attribute = $("#color_attribute").val();
+        console.log("attr_color_dict:", _this.attr_color_dict);
+        if (_this.sort_by = "name") {
           _this.svg.selectAll(".bar").data(_this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
-            if (attribute === "None") {
+            if (_this.attribute === "None") {
               return "steelblue";
             } else {
-              return _this.attr_color_dict[attribute][d[2][attribute]];
+              return _this.attr_color_dict[_this.attribute][d[2][_this.attribute]];
             }
           }).select("title").text(function(d) {
             return d[1];
           });
         } else {
           _this.svg.selectAll(".bar").data(_this.samples).transition().duration(1000).style("fill", function(d) {
-            if (attribute === "None") {
+            if (_this.attribute === "None") {
               return "steelblue";
             } else {
-              return _this.attr_color_dict[attribute][d[2][attribute]];
+              return _this.attr_color_dict[_this.attribute][d[2][_this.attribute]];
             }
           });
         }
-        return _this.add_legend(attribute, _this.distinct_attr_vals[attribute]);
+        return _this.add_legend(_this.attribute, _this.distinct_attr_vals[_this.attribute]);
       });
-      d3.select("#update_bar_chart").on("click", function() {
-        var attribute, sortItems, sorted_sample_names, x_scale;
+      $(".sort_by_value").on("click", function() {
+        console.log("sorting by value");
+        _this.sort_by = "value";
         if (_this.attributes.length > 0) {
-          attribute = $("#color_attribute").val();
+          _this.attribute = $("#color_attribute").val();
         }
-        if ($("#update_bar_chart").html() === 'Sort By Value') {
-          $("#update_bar_chart").html('Sort By Name');
-          sortItems = function(a, b) {
-            return a[1] - b[1];
-          };
-          _this.svg.selectAll(".bar").data(_this.sorted_samples()).transition().duration(1000).attr("y", function(d) {
-            return _this.y_scale(d[1]);
-          }).attr("height", function(d) {
-            return _this.plot_height - _this.y_scale(d[1]);
-          }).style("fill", function(d) {
-            if (_this.attributes.length > 0) {
-              return _this.attr_color_dict[attribute][d[2][attribute]];
-            } else {
-              return "steelblue";
-            }
-          }).select("title").text(function(d) {
-            return d[1];
-          });
-          sorted_sample_names = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this.sorted_samples();
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              sample = _ref[_i];
-              _results.push(sample[0]);
-            }
-            return _results;
-          }).call(_this);
-          x_scale = d3.scale.ordinal().domain(sorted_sample_names).rangeBands([0, _this.plot_width], .1);
-          $('.x.axis').remove();
-          return _this.add_x_axis(x_scale);
-        } else {
-          $("#update_bar_chart").html('Sort By Value');
-          _this.svg.selectAll(".bar").data(_this.samples).transition().duration(1000).attr("y", function(d) {
-            return _this.y_scale(d[1]);
-          }).attr("height", function(d) {
-            return _this.plot_height - _this.y_scale(d[1]);
-          }).style("fill", function(d) {
-            if (_this.attributes.length > 0) {
-              return _this.attr_color_dict[attribute][d[2][attribute]];
-            } else {
-              return "steelblue";
-            }
-          }).select("title").text(function(d) {
-            return d[1];
-          });
-          x_scale = d3.scale.ordinal().domain(_this.sample_names).rangeBands([0, _this.plot_width], .1);
-          $('.x.axis').remove();
-          return _this.add_x_axis(x_scale);
+        return _this.rebuild_bar_graph(_this.sorted_samples());
+      });
+      $(".sort_by_name").on("click", function() {
+        console.log("sorting by name");
+        _this.sort_by = "name";
+        if (_this.attributes.length > 0) {
+          _this.attribute = $("#color_attribute").val();
         }
+        return _this.rebuild_bar_graph(_this.samples);
+      });
+      d3.select("#color_by_trait").on("click", function() {
+        return _this.open_trait_selection();
       });
     }
 
-    Bar_Chart.prototype.get_attr_color_dict = function() {
-      var color, color_range, distinct_vals, i, key, this_color_dict, value, _i, _j, _len, _len1, _ref, _results,
+    Bar_Chart.prototype.rebuild_bar_graph = function(samples) {
+      var sample, sample_names, x_scale,
+        _this = this;
+      console.log("samples:", samples);
+      this.svg.selectAll(".bar").data(samples).transition().duration(1000).attr("y", function(d) {
+        return _this.y_scale(d[1]);
+      }).attr("height", function(d) {
+        return _this.plot_height - _this.y_scale(d[1]);
+      }).select("title").text(function(d) {
+        return d[1];
+      }).style("fill", function(d) {
+        if (_this.attributes.length > 0 && _this.attribute !== "None") {
+          console.log("@attribute:", _this.attribute);
+          console.log("d[2]", d[2]);
+          console.log("the_color:", _this.attr_color_dict[_this.attribute][d[2][_this.attribute]]);
+          return _this.attr_color_dict[_this.attribute][d[2][_this.attribute]];
+        } else {
+          return "steelblue";
+        }
+      });
+      sample_names = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = samples.length; _i < _len; _i++) {
+          sample = samples[_i];
+          _results.push(sample[0]);
+        }
+        return _results;
+      })();
+      console.log("sample_names2:", sample_names);
+      x_scale = d3.scale.ordinal().domain(sample_names).rangeBands([0, this.plot_width], .1);
+      $('.x.axis').remove();
+      return this.add_x_axis(x_scale);
+    };
+
+    Bar_Chart.prototype.get_attr_color_dict = function(vals) {
+      var color, color_range, distinct_vals, i, key, this_color_dict, value, _i, _j, _len, _len1, _results,
         _this = this;
       this.attr_color_dict = {};
-      console.log("distinct_attr_vals:", this.distinct_attr_vals);
-      _ref = this.distinct_attr_vals;
+      console.log("vals:", vals);
       _results = [];
-      for (key in _ref) {
-        if (!__hasProp.call(_ref, key)) continue;
-        distinct_vals = _ref[key];
+      for (key in vals) {
+        if (!__hasProp.call(vals, key)) continue;
+        distinct_vals = vals[key];
         this_color_dict = {};
         if (distinct_vals.length < 10) {
           color = d3.scale.category10();
@@ -153,15 +151,27 @@
               return true;
             }
           })) {
-            color_range = d3.scale.linear().domain([d3.min(distinct_vals), d3.max(distinct_vals)]).range([0, 4]);
+            color_range = d3.scale.linear().domain([d3.min(distinct_vals), d3.max(distinct_vals)]).range([0, 255]);
             for (i = _j = 0, _len1 = distinct_vals.length; _j < _len1; i = ++_j) {
               value = distinct_vals[i];
-              console.log("color_range(value):", color_range(parseInt(value)));
-              this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)));
+              console.log("color_range(value):", parseInt(color_range(value)));
+              this_color_dict[value] = d3.rgb(parseInt(color_range(value)), 0, 0);
             }
           }
         }
         _results.push(this.attr_color_dict[key] = this_color_dict);
+      }
+      return _results;
+    };
+
+    Bar_Chart.prototype.convert_into_colors = function(values) {
+      var color_range, i, value, _i, _len, _results;
+      color_range = d3.scale.linear().domain([d3.min(values), d3.max(values)]).range([0, 255]);
+      _results = [];
+      for (i = _i = 0, _len = values.length; _i < _len; i = ++_i) {
+        value = values[i];
+        console.log("color_range(value):", color_range(parseInt(value)));
+        _results.push(this_color_dict[value] = d3.rgb(color_range(parseInt(value)), 0, 0));
       }
       return _results;
     };
@@ -317,14 +327,58 @@
       });
     };
 
-    Bar_Chart.prototype.color_by_trait = function() {
-      console.log("Before load");
-      $('#collections_holder').load('/collections/list #collections_list');
-      $.colorbox({
-        inline: true,
-        href: "#collections_holder"
+    Bar_Chart.prototype.open_trait_selection = function() {
+      var _this = this;
+      return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', function() {
+        $.colorbox({
+          inline: true,
+          href: "#collections_holder"
+        });
+        return $('a.collection_name').attr('onClick', 'return false');
       });
-      return console.log("After load");
+    };
+
+    Bar_Chart.prototype.color_by_trait = function(trait_sample_data) {
+      var distinct_values, trimmed_samples,
+        _this = this;
+      console.log("BXD1:", trait_sample_data["BXD1"]);
+      console.log("trait_sample_data:", trait_sample_data);
+      trimmed_samples = this.trim_values(trait_sample_data);
+      distinct_values = {};
+      distinct_values["collection_trait"] = this.get_distinct_values(trimmed_samples);
+      this.get_attr_color_dict(distinct_values);
+      if ($("#update_bar_chart").html() === 'Sort By Name') {
+        return this.svg.selectAll(".bar").data(this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
+          return _this.attr_color_dict["collection_trait"][trimmed_samples[d[0]]];
+        }).select("title").text(function(d) {
+          return d[1];
+        });
+      } else {
+        return this.svg.selectAll(".bar").data(this.samples).transition().duration(1000).style("fill", function(d) {
+          return _this.attr_color_dict["collection_trait"][trimmed_samples[d[0]]];
+        });
+      }
+    };
+
+    Bar_Chart.prototype.trim_values = function(trait_sample_data) {
+      var sample, trimmed_samples, _i, _len, _ref;
+      trimmed_samples = {};
+      _ref = this.sample_names;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sample = _ref[_i];
+        if (sample in trait_sample_data) {
+          trimmed_samples[sample] = trait_sample_data[sample];
+        }
+      }
+      console.log("trimmed_samples:", trimmed_samples);
+      return trimmed_samples;
+    };
+
+    Bar_Chart.prototype.get_distinct_values = function(samples) {
+      var distinct_values;
+      distinct_values = _.uniq(_.values(samples));
+      console.log("distinct_values:", distinct_values);
+      return distinct_values;
     };
 
     return Bar_Chart;

@@ -5,6 +5,7 @@
     {{ header("Your Collections",
         'You have {}.'.format(numify(user_collections|count, "collection", "collections"))) }}
 
+
     <div class="container">
         <div class="page-header">
             <h1>Collections owned by {{ g.user_session.user_ob.full_name }}</h1>
@@ -23,8 +24,8 @@
 
             <tbody>
             {% for uc in user_collections %}
-                <tr>
-                    <td><a href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
+                <tr class="collection_line">
+                    <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
                     <td>{{ timeago(uc.created_timestamp.isoformat() + "Z") }}</td>
                     <td>{{ timeago(uc.changed_timestamp.isoformat() + "Z") }}</td>
                     <td>{{ uc.num_members }}</td>
@@ -33,6 +34,10 @@
             </tbody>
         </table>
 
+        {# if "color_by_trait" in params #}
+<!--        <script type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>-->
+        {# endif #}
+        
         </div>
     </div>
 
@@ -41,10 +46,8 @@
 {% endblock %}
 
 {% block js %}
-
     <script type="text/javascript" src="/static/packages/smart-time-ago/lib/timeago.js"></script>
     <script>
         $('body').timeago();
     </script>
-
 {% endblock %}

@@ -28,6 +28,7 @@ for python packages ****
 
 Upgrade system packages for security updates, etc:
 apt-get update
+apt-get dist-upgrade (can probably be used in place of apt-get upgrade)
 apt-get upgrade
 
 **"apt-cache search" searches for text in the description for various packages, while

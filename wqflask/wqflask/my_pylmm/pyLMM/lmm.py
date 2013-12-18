@@ -107,8 +107,6 @@ def run_human(pheno_vector,
 
         with Bench("Create list of inputs"):
             inputs = list(plink_input)
-            
-        print("len(genotypes): ", len(inputs))
 
         with Bench("Divide into chunks"):
             results = chunks.divide_into_chunks(inputs, 64)

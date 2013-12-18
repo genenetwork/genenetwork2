@@ -49,7 +49,8 @@ from utility import Bunch, Struct
 
 from base.data_set import create_datasets_list
 
-
+THREE_DAYS = 60 * 60 * 24 * 3
+#THREE_DAYS = 45
 
 def timestamp():
     return datetime.datetime.utcnow().isoformat()
@@ -74,6 +75,27 @@ class UserSession(object):
             print("self.redis_key is:", self.redis_key)
             self.session_id = session_id
             self.record = Redis.hgetall(self.redis_key)
+
+
+            if not self.record:
+                # This will occur, for example, when the browser has been left open over a long
+                # weekend and the site hasn't been visited by the user
+                self.logged_in = False
+                
+                ########### Grrr...this won't work because of the way flask handles cookies
+                # Delete the cookie
+                #response = make_response(redirect(url_for('login')))
+                #response.set_cookie(self.cookie_name, '', expires=0)
+                #flash(
+                #   "Due to inactivity your session has expired. If you'd like please login again.")
+                #return response
+                return 
+                
+            if Redis.ttl(self.redis_key) < THREE_DAYS:
+                # (Almost) everytime the user does something we extend the session_id in Redis...
+                print("Extending ttl...")
+                Redis.expire(self.redis_key, THREE_DAYS)
+            
             print("record is:", self.record)
             self.logged_in = True
 
@@ -225,8 +247,8 @@ class VerificationEmail(object):
                           )
 
         Redis.set(key, data)
-        two_days = 60 * 60 * 24 * 2
-        Redis.expire(key, two_days)
+        #two_days = 60 * 60 * 24 * 2
+        Redis.expire(key, THREE_DAYS)
         to = user.email_address
         subject = self.subject
         body = render_template(self.template_name,
@@ -415,7 +437,7 @@ class LoginUser(object):
         if self.remember_me:
             expire_time = self.remember_time
         else:
-            expire_time = 60 * 60 * 24 * 2 # two days
+            expire_time = THREE_DAYS
         Redis.expire(key, expire_time)
         db_session.add(login_rec)
         db_session.commit()
