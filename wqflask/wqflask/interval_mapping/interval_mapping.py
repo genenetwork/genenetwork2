@@ -37,8 +37,6 @@ class IntervalMapping(object):
 
     def __init__(self, start_vars, temp_uuid):
 
-        print("TESTING!!!")
-
         #Currently only getting trait data for one trait, but will need
         #to change this to accept multiple traits once the collection page is implemented
         helper_functions.get_species_dataset_trait(self, start_vars)
@@ -57,7 +55,11 @@ class IntervalMapping(object):
  
         self.set_options(start_vars)
  
-        self.gen_qtl_results(tempdata)
+        if self.method == "qtl_reaper":
+            self.gen_reaper_results(tempdata)
+        else:
+            self.gen_pylmm_results(tempdata)
+        #self.gen_qtl_results(tempdata)
 
         #Get chromosome lengths for drawing the interval map plot
         chromosome_mb_lengths = {}
@@ -78,6 +80,7 @@ class IntervalMapping(object):
         #self.plot_scale = start_vars['scale']
         #if self.plotScale == 'physic' and not fd.genotype.Mbmap:
         #    self.plotScale = 'morgan'
+        self.method = start_vars['mapping_method']
         self.num_permutations = int(start_vars['num_permutations'])
         #self.do_bootstrap = start_vars['do_bootstrap']
         self.selected_chr = start_vars['chromosome']
@@ -125,9 +128,6 @@ class IntervalMapping(object):
             #                                                  variance = variances,
             #                                                  control = self.control_locus)
             #else:
-            #reaper_results = self.dataset.group.genotype.regression(strains = trimmed_samples,
-            #                                              trait = trimmed_values,
-            #                                              control = self.control_locus)
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                           trait = trimmed_values,
                                                           control = self.control_locus)
@@ -139,8 +139,6 @@ class IntervalMapping(object):
             #else:
             print("strains:", trimmed_samples)
             print("trait:", trimmed_values)
-            #reaper_results = self.dataset.group.genotype.regression(strains = trimmed_samples,
-            #                                              trait = trimmed_values)
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                           trait = trimmed_values)
 
@@ -152,29 +150,70 @@ class IntervalMapping(object):
             qtl = {"lrs": qtl.lrs, "locus": locus, "additive": qtl.additive}
             self.qtl_results.append(qtl)
 
-        #pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
 
-        #if self.dataset.group.species == "human":
-        #    p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
-        #else:
-        #genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-        #
-        #no_val_samples = self.identify_empty_samples()
-        #trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
-        #
-        #genotype_matrix = np.array(trimmed_genotype_data).T
+    def gen_reaper_results(self, tempdata):
+        genotype = self.dataset.group.read_genotype_file()
+
+        samples, values, variances = self.this_trait.export_informative()
+
+        trimmed_samples = []
+        trimmed_values = []
+        for i in range(0, len(samples)):
+            if samples[i] in self.dataset.group.samplelist:
+                trimmed_samples.append(samples[i])
+                trimmed_values.append(values[i])
+                
+        self.lrs_array = genotype.permutation(strains = trimmed_samples,
+                                                   trait = trimmed_values, 
+                                                   nperm= self.num_permutations)
+        self.suggestive = self.lrs_array[int(self.num_permutations*0.37-1)]
+        self.significant = self.lrs_array[int(self.num_permutations*0.95-1)]
+
+        print("samples:", trimmed_samples)
+
+        if self.control_locus:
+            reaper_results = genotype.regression(strains = trimmed_samples,
+                                                          trait = trimmed_values,
+                                                          control = self.control_locus)
+        else:
+            reaper_results = genotype.regression(strains = trimmed_samples,
+                                                          trait = trimmed_values)
+
+        #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+        self.qtl_results = []
+        for qtl in reaper_results:
+            reaper_locus = qtl.locus
+            locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
+            qtl = {"lrs_value": qtl.lrs, "chr":reaper_locus.chr, "Mb":reaper_locus.Mb,
+                   "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive}
+            self.qtl_results.append(qtl)
+            
+    def gen_pylmm_results(self, tempdata):
+        print("USING PYLMM")
+        self.dataset.group.get_markers()
         
-        #t_stats, p_values = lmm.run(
-        #    pheno_vector,
-        #    genotype_matrix,
-        #    restricted_max_likelihood=True,
-        #    refit=False,
-        #    temp_data=tempdata
-        #)
-        
-        #self.dataset.group.markers.add_pvalues(p_values)
-        
-        #self.qtl_results = self.dataset.group.markers.markers
+        pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
+        if self.dataset.group.species == "human":
+            p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
+        else:
+            genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
+
+            no_val_samples = self.identify_empty_samples()
+            trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
+            
+            genotype_matrix = np.array(trimmed_genotype_data).T
+            
+            t_stats, p_values = lmm.run(
+                pheno_vector,
+                genotype_matrix,
+                restricted_max_likelihood=True,
+                refit=False,
+                temp_data=tempdata
+            )
+            
+            print("p_values:", p_values)
+            self.dataset.group.markers.add_pvalues(p_values)
+            self.qtl_results = self.dataset.group.markers.markers
 
     def gen_qtl_results_2(self, tempdata):
         """Generates qtl results for plotting interval map"""

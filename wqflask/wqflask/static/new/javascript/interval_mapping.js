@@ -85,21 +85,21 @@
         _ref = js_data.qtl_results;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           result = _ref[_i];
-          if (result.locus.chr === "X") {
+          if (result.chr === "X") {
             chr_length = parseFloat(this.chromosomes[20]);
           } else {
-            chr_length = parseFloat(this.chromosomes[result.locus.chr]);
+            chr_length = parseFloat(this.chromosomes[result.chr]);
           }
-          if (!(_ref1 = result.locus.chr, __indexOf.call(chr_seen, _ref1) >= 0)) {
-            chr_seen.push(result.locus.chr);
+          if (!(_ref1 = result.chr, __indexOf.call(chr_seen, _ref1) >= 0)) {
+            chr_seen.push(result.chr);
             chr_lengths.push(chr_length);
-            if (result.locus.chr !== "1") {
+            if (result.chr !== "1") {
               this.total_length += parseFloat(chr_lengths[chr_lengths.length - 2]);
             }
           }
-          this.x_coords.push(this.total_length + parseFloat(result.locus.Mb));
-          this.y_coords.push(result.lrs);
-          this.marker_names.push(result.locus.name);
+          this.x_coords.push(this.total_length + parseFloat(result.Mb));
+          this.y_coords.push(result.lrs_value);
+          this.marker_names.push(result.name);
         }
         return this.total_length += parseFloat(chr_lengths[chr_lengths.length - 1]);
       };
@@ -205,7 +205,7 @@
         var _this = this;
         return this.svg.selectAll("line").data(this.cumulative_chr_lengths, function(d) {
           return d;
-        }).enter().append("line").attr("x1", this.x_scale).attr("x2", this.x_scale).attr("y1", this.y_buffer).attr("y2", this.plot_height).style("stroke", "#ccc");
+        }).enter().append("line").attr("y1", this.y_buffer).attr("y2", this.plot_height).attr("x1", this.x_scale).attr("x2", this.x_scale).style("stroke", "#ccc");
       };
 
       Interval_Map.prototype.fill_chr_areas = function() {
@@ -220,7 +220,7 @@
           }
         }).attr("y", this.y_buffer).attr("width", function(d) {
           return _this.x_scale(d[0]);
-        }).attr("height", this.plot_height - this.y_buffer);
+        }).attr("height", this.plot_height - this.y_buffer).attr("fill", "white");
       };
 
       Interval_Map.prototype.add_chr_labels = function() {
@@ -237,12 +237,12 @@
           return d[0];
         }).attr("x", function(d) {
           return _this.x_scale(d[2] - d[1] / 2);
-        }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("fill", "grey");
+        }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px");
       };
 
       Interval_Map.prototype.connect_markers = function() {
         var _this = this;
-        return this.svg.selectAll("path").data(this.plot_coordinates).enter().attr("x1", function(d, i) {
+        return this.svg.selectAll("line").data(this.plot_coordinates).enter().append("line").attr("x1", function(d, i) {
           if (i === 0) {
             return _this.x_buffer;
           } else {
@@ -258,15 +258,16 @@
           return parseFloat(_this.x_buffer) + ((parseFloat(_this.plot_width) - parseFloat(_this.x_buffer)) * d[0] / parseFloat(_this.x_max));
         }).attr("y2", function(d) {
           return _this.plot_height - ((_this.plot_height - _this.y_buffer) * d[1] / _this.y_max);
-        });
+        }).style("stroke", "black");
       };
 
       return Interval_Map;
 
     })();
-    console.time('Create manhattan plot');
+    console.time('Create interval map');
+    console.log("TESTING");
     new Interval_Map(600, 1200);
-    return console.timeEnd('Create manhattan plot');
+    return console.timeEnd('Create interval map');
   });
 
 }).call(this);

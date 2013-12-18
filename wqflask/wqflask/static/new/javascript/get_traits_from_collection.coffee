@@ -1,9 +1,11 @@
+root = exports ? this
 
 console.log("before get_traits_from_collection")
 
 # Going to be used to hold collection list
 # So we can repopulate it when the back button is clicked
 collection_list = null
+this_trait_data = null
 
 collection_click = () ->
     console.log("Clicking on:", $(this))
@@ -16,7 +18,7 @@ collection_click = () ->
         url: this_collection_url,
         success: process_traits
       )
-    
+
 trait_click = () ->
     console.log("Clicking on:", $(this))
     trait = $(this).find('.trait').text()
@@ -28,9 +30,12 @@ trait_click = () ->
         url: this_trait_url,
         success: color_by_trait
       )
+    $.colorbox.close()
 
 color_by_trait =  (trait_sample_data, textStatus, jqXHR) ->
-    console.log('in color_by_trait:', trait_sample_data)
+    #trait_sample_data = trait_sample_data
+    #console.log('in color_by_trait:', trait_sample_data)
+    root.bar_chart.color_by_trait(trait_sample_data)
 
 process_traits = (trait_data, textStatus, jqXHR) ->
     console.log('in process_traits with trait_data:', trait_data)
@@ -65,3 +70,4 @@ $ ->
     $(document).on("click", ".collection_line", collection_click)
     $(document).on("click", ".trait_line", trait_click)
     $(document).on("click", "#back_to_collections", back_to_collections)
+    

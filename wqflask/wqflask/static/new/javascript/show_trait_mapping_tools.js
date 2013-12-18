@@ -5,7 +5,7 @@
   root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   $(function() {
-    var composite_mapping_fields, get_progress, submit_special, toggle_enable_disable, update_time_remaining,
+    var composite_mapping_fields, get_progress, mapping_method_fields, submit_special, toggle_enable_disable, update_time_remaining,
       _this = this;
     submit_special = function() {
       var url;
@@ -64,6 +64,7 @@
     };
     $("#interval_mapping_compute").click(function() {
       var form_data, url;
+      console.log("In interval mapping");
       $("#progress_bar_container").modal();
       url = "/interval_mapping";
       form_data = $('#trait_data_form').serialize();
@@ -128,7 +129,11 @@
     composite_mapping_fields = function() {
       return $(".composite_fields").toggle();
     };
+    mapping_method_fields = function() {
+      return $(".mapping_method_fields").toggle();
+    };
     $("#use_composite_choice").change(composite_mapping_fields);
+    $("#mapping_method_choice").change(mapping_method_fields);
     toggle_enable_disable = function(elem) {
       return $(elem).prop("disabled", !$(elem).prop("disabled"));
     };

@@ -57,9 +57,10 @@
 
       Manhattan_Plot.prototype.get_chr_lengths = function() {
         /*
-        Gets a list of both individual and cumulative (the position of one on the graph
-        is its own length plus the lengths of all preceding chromosomes) lengths in order
-        to draw the vertical lines separating chromosomes and the chromosome labels
+        #Gets a list of both individual and cumulative (the position of one on the graph
+        #is its own length plus the lengths of all preceding chromosomes) lengths in order
+        #to draw the vertical lines separating chromosomes and the chromosome labels
+        #
         */
 
         var chr_lengths, cumulative_chr_lengths, key, this_length, total_length;
