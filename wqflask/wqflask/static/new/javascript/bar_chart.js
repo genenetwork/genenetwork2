@@ -102,7 +102,11 @@
       }).select("title").text(function(d) {
         return d[1];
       }).style("fill", function(d) {
-        if (_this.attributes.length > 0 && _this.attribute !== "None") {
+        if (_this.attributes.length === 0) {
+          console.log("SAMPLE:", d[0]);
+          console.log("CHECKING:", _this.trait_color_dict[d[0]]);
+          return _this.trait_color_dict[d[0]];
+        } else if (_this.attributes.length > 0 && _this.attribute !== "None") {
           console.log("@attribute:", _this.attribute);
           console.log("d[2]", d[2]);
           console.log("the_color:", _this.attr_color_dict[_this.attribute][d[2][_this.attribute]]);
@@ -160,6 +164,48 @@
           }
         }
         _results.push(this.attr_color_dict[key] = this_color_dict);
+      }
+      return _results;
+    };
+
+    Bar_Chart.prototype.get_trait_color_dict = function(samples, vals) {
+      var color, color_range, distinct_vals, i, key, sample, this_color_dict, value, _i, _j, _len, _len1, _results,
+        _this = this;
+      this.trait_color_dict = {};
+      console.log("vals:", vals);
+      for (key in vals) {
+        if (!__hasProp.call(vals, key)) continue;
+        distinct_vals = vals[key];
+        this_color_dict = {};
+        if (distinct_vals.length < 10) {
+          color = d3.scale.category10();
+          for (i = _i = 0, _len = distinct_vals.length; _i < _len; i = ++_i) {
+            value = distinct_vals[i];
+            this_color_dict[value] = color(i);
+          }
+        } else {
+          console.log("distinct_values:", distinct_vals);
+          if (_.every(distinct_vals, function(d) {
+            if (isNaN(d)) {
+              return false;
+            } else {
+              return true;
+            }
+          })) {
+            color_range = d3.scale.linear().domain([d3.min(distinct_vals), d3.max(distinct_vals)]).range([0, 255]);
+            for (i = _j = 0, _len1 = distinct_vals.length; _j < _len1; i = ++_j) {
+              value = distinct_vals[i];
+              console.log("color_range(value):", parseInt(color_range(value)));
+              this_color_dict[value] = d3.rgb(parseInt(color_range(value)), 0, 0);
+            }
+          }
+        }
+      }
+      _results = [];
+      for (sample in samples) {
+        if (!__hasProp.call(samples, sample)) continue;
+        value = samples[sample];
+        _results.push(this.trait_color_dict[sample] = this_color_dict[value]);
       }
       return _results;
     };
@@ -346,16 +392,17 @@
       trimmed_samples = this.trim_values(trait_sample_data);
       distinct_values = {};
       distinct_values["collection_trait"] = this.get_distinct_values(trimmed_samples);
-      this.get_attr_color_dict(distinct_values);
+      this.get_trait_color_dict(trimmed_samples, distinct_values);
+      console.log("TRAIT_COLOR_DICT:", this.trait_color_dict);
       if ($("#update_bar_chart").html() === 'Sort By Name') {
         return this.svg.selectAll(".bar").data(this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
-          return _this.attr_color_dict["collection_trait"][trimmed_samples[d[0]]];
+          return _this.trait_color_dict[d[0]];
         }).select("title").text(function(d) {
           return d[1];
         });
       } else {
         return this.svg.selectAll(".bar").data(this.samples).transition().duration(1000).style("fill", function(d) {
-          return _this.attr_color_dict["collection_trait"][trimmed_samples[d[0]]];
+          return _this.trait_color_dict[d[0]];
         });
       }
     };

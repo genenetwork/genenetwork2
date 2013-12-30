@@ -93,12 +93,12 @@ class ConvertGenoFile(object):
             this_marker = Marker()
             this_marker.name = row_items[1]
             this_marker.chr = row_items[0]
-            this_marker.cM = row_items[2]
+            #this_marker.cM = row_items[2]
             if self.mb_exists:
-                this_marker.Mb = row_items[3]
-                genotypes = row_items[4:]
-            else:
+                this_marker.Mb = row_items[2]
                 genotypes = row_items[3:]
+            else:
+                genotypes = row_items[2:]
             for item_count, genotype in enumerate(genotypes):
                 if genotype.upper() in self.configurations:
                     this_marker.genotypes.append(self.configurations[genotype.upper()])
@@ -186,8 +186,10 @@ if __name__=="__main__":
     Old_Geno_Directory = """/home/zas1024/gene/web/genotypes/"""
     New_Geno_Directory = """/home/zas1024/gene/web/new_genotypes/"""
     #Input_File = """/home/zas1024/gene/web/genotypes/BXD.geno"""
-    #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps""" 
-    ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
+    #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
+    convertob = ConvertGenoFile("/home/zas1024/gene/web/genotypes/HSNIH.geno.gz", "/home/zas1024/gene/web/new_genotypes/HSNIH.json")
+    convertob.convert()
+    #ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
     #ConvertGenoFiles(Geno_Directory)
     
     #process_csv(Input_File, Output_File)
