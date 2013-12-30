@@ -58,25 +58,33 @@ def collections_add():
 
 @app.route("/collections/new")
 def collections_new():
-    print("request.args in collections_new are:", request.args)
-    if "create_new" in request.args:
-        return create_new()
-    elif "add_to_existing" in request.args:
-        return add_to_existing()
-    elif "continue" in request.args:
-        return unnamed()
+    params = request.args
+    print("request.args in collections_new are:", params)
+
+    collection_name = params['new_collection']
+
+    if "create_new" in params:
+        return create_new(collection_name)
+    elif "add_to_existing" in params:
+        return add_traits(params, collection_name)
+    elif "default" in params:
+        return add_traits(params, "default")
+
     else:
         CauseAnError
 
 
-def unnamed():
-    return "unnamed"
 
-def add_to_existing():
-    params = request.args
+def add_traits(params, collection_name):
     print("---> params are:", params.keys())
     print("     type(params):", type(params))
-    uc = model.UserCollection.query.get(params['existing_collection'])
+    if collection_name=="default":
+        uc = g.user_session.user_ob.get_collection_by_name("default")
+        # Doesn't exist so we'll create it
+        if not uc:
+            return create_new("default")
+    else:
+        uc = model.UserCollection.query.get(params['existing_collection'])
     members = set(json.loads(uc.members))
     len_before = len(members)
 
@@ -114,10 +122,10 @@ def process_traits(unprocessed_traits):
         traits.add(str(data))
     return traits
 
-def create_new():
+def create_new(collection_name):
     params = request.args
     uc = model.UserCollection()
-    uc.name = params['new_collection']
+    uc.name = collection_name
     print("user_session:", g.user_session.__dict__)
     uc.user = g.user_session.user_id
     unprocessed_traits = params['traits']

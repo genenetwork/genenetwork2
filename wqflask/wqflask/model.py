@@ -57,7 +57,15 @@ class User(Base):
 
     user_collections = relationship("UserCollection",
                           order_by="asc(UserCollection.name)",
+                          lazy='dynamic',
                           )
+
+    def get_collection_by_name(self, collection_name):
+        try:
+            collect = self.user_collections.filter_by(name=collection_name).one()
+        except  sqlalchemy.orm.exc.NoResultFound:
+            collect = None
+        return collect
 
     @property
     def name_and_org(self):
