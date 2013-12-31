@@ -10,6 +10,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 from wqflask import app
 
+import sqlalchemy
+
 from sqlalchemy import (Column, Integer, String, Table, ForeignKey, Unicode, Boolean, DateTime,
                         Text, Index)
 from sqlalchemy.orm import relationship, backref
@@ -153,3 +155,7 @@ class UserCollection(Base):
     def num_members(self):
         print("members are:", json.loads(self.members))
         return len(json.loads(self.members))
+
+
+    def members_as_set(self):
+        return set(json.loads(self.members))

@@ -9,7 +9,16 @@
         <div class="page-header">
             <h1>Your Collection</h1>
             <h2>{{ uc.name }}</h2>
+
+            <form action="/collections/delete" method="post">
+                <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
+                <input type="submit"
+                       class="btn btn-small btn-danger"
+                       value="Delete this collection" />
+            </form>
         </div>
+
+
 
         <div class="bs-docs-example">
         <table class="table table-hover" id='trait_table'>
@@ -58,7 +67,8 @@
         <button class="btn" id="select_all"><i class="icon-ok"></i> Select All</button>
         <button class="btn" id="deselect_all"><i class="icon-remove"></i> Deselect All</button>
         <button class="btn" id="invert"><i class="icon-resize-vertical"></i> Invert</button>
-        <button class="btn" id="add"><i class="icon-plus-sign"></i> Add</button>
+        <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Add Record to Other Collection</button>
+        <button class="btn" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Remove Record</button>
         <button class="btn btn-primary pull-right"><i class="icon-download icon-white"></i> Download Table</button>
         </div>
     </div>
