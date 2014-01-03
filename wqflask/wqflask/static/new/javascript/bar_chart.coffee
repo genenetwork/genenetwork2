@@ -132,7 +132,6 @@ class Bar_Chart
 
         d3.select("#color_by_trait").on("click", =>
             @open_trait_selection()
-            
         )
 
     rebuild_bar_graph: (samples) ->
@@ -141,6 +140,20 @@ class Bar_Chart
             .data(samples)
             .transition()
             .duration(1000)
+            .style("fill", (d) =>
+                if @attributes.length == 0 and @trait_color_dict?
+                    console.log("SAMPLE:", d[0])
+                    console.log("CHECKING:", @trait_color_dict[d[0]])
+                    #return "steelblue"
+                    return @trait_color_dict[d[0]]
+                else if @attributes.length > 0 and @attribute != "None"
+                    console.log("@attribute:", @attribute)
+                    console.log("d[2]", d[2])
+                    console.log("the_color:", @attr_color_dict[@attribute][d[2][@attribute]])
+                    return @attr_color_dict[@attribute][d[2][@attribute]]
+                else
+                    return "steelblue"
+            )
             .attr("y", (d) =>
                 return @y_scale(d[1])
             )
@@ -150,19 +163,6 @@ class Bar_Chart
             .select("title")
             .text((d) =>
                 return d[1]
-            )
-            .style("fill", (d) =>
-                if @attributes.length == 0
-                    console.log("SAMPLE:", d[0])
-                    console.log("CHECKING:", @trait_color_dict[d[0]])
-                    return @trait_color_dict[d[0]]
-                else if @attributes.length > 0 and @attribute != "None"
-                    console.log("@attribute:", @attribute)
-                    console.log("d[2]", d[2])
-                    console.log("the_color:", @attr_color_dict[@attribute][d[2][@attribute]])
-                    return @attr_color_dict[@attribute][d[2][@attribute]]
-                else
-                    return "steelblue"
             )
             #.style("fill", (d) =>
             #    return @trait_color_dict[d[0]]
@@ -419,29 +419,34 @@ class Bar_Chart
         #@get_attr_color_dict(distinct_values)
         @get_trait_color_dict(trimmed_samples, distinct_values)
         console.log("TRAIT_COLOR_DICT:", @trait_color_dict)
-        if $("#update_bar_chart").html() == 'Sort By Name' 
-            @svg.selectAll(".bar")
-                .data(@sorted_samples())
-                .transition()
-                .duration(1000)
-                .style("fill", (d) =>
-                    return @trait_color_dict[d[0]]
-                    #return @attr_color_dict["collection_trait"][trimmed_samples[d[0]]]
-                )
-                .select("title")
-                .text((d) =>
-                    return d[1]
-                )
-        else
+        console.log("SAMPLES:", @samples)
+        if @sort_by = "value"
             @svg.selectAll(".bar")
                 .data(@samples)
                 .transition()
                 .duration(1000)
                 .style("fill", (d) =>
+                    console.log("this color:", @trait_color_dict[d[0]])
                     return @trait_color_dict[d[0]]
-                    #return @attr_color_dict["collection_trait"][trimmed_samples[d[0]]]
                 )
+                .select("title")
+                .text((d) =>
+                    return d[1]
+                )            
 
+        else
+            @svg.selectAll(".bar")
+                .data(@sorted_samples())
+                .transition()
+                .duration(1000)
+                .style("fill", (d) =>
+                    console.log("this color:", @trait_color_dict[d[0]])
+                    return @trait_color_dict[d[0]]
+                )
+                .select("title")
+                .text((d) =>
+                    return d[1]
+                )            
 
     trim_values: (trait_sample_data) ->
         trimmed_samples = {}

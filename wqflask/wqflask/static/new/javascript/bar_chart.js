@@ -95,14 +95,8 @@
       var sample, sample_names, x_scale,
         _this = this;
       console.log("samples:", samples);
-      this.svg.selectAll(".bar").data(samples).transition().duration(1000).attr("y", function(d) {
-        return _this.y_scale(d[1]);
-      }).attr("height", function(d) {
-        return _this.plot_height - _this.y_scale(d[1]);
-      }).select("title").text(function(d) {
-        return d[1];
-      }).style("fill", function(d) {
-        if (_this.attributes.length === 0) {
+      this.svg.selectAll(".bar").data(samples).transition().duration(1000).style("fill", function(d) {
+        if (_this.attributes.length === 0 && (_this.trait_color_dict != null)) {
           console.log("SAMPLE:", d[0]);
           console.log("CHECKING:", _this.trait_color_dict[d[0]]);
           return _this.trait_color_dict[d[0]];
@@ -114,6 +108,12 @@
         } else {
           return "steelblue";
         }
+      }).attr("y", function(d) {
+        return _this.y_scale(d[1]);
+      }).attr("height", function(d) {
+        return _this.plot_height - _this.y_scale(d[1]);
+      }).select("title").text(function(d) {
+        return d[1];
       });
       sample_names = (function() {
         var _i, _len, _results;
@@ -394,15 +394,20 @@
       distinct_values["collection_trait"] = this.get_distinct_values(trimmed_samples);
       this.get_trait_color_dict(trimmed_samples, distinct_values);
       console.log("TRAIT_COLOR_DICT:", this.trait_color_dict);
-      if ($("#update_bar_chart").html() === 'Sort By Name') {
-        return this.svg.selectAll(".bar").data(this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
+      console.log("SAMPLES:", this.samples);
+      if (this.sort_by = "value") {
+        return this.svg.selectAll(".bar").data(this.samples).transition().duration(1000).style("fill", function(d) {
+          console.log("this color:", _this.trait_color_dict[d[0]]);
           return _this.trait_color_dict[d[0]];
         }).select("title").text(function(d) {
           return d[1];
         });
       } else {
-        return this.svg.selectAll(".bar").data(this.samples).transition().duration(1000).style("fill", function(d) {
+        return this.svg.selectAll(".bar").data(this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
+          console.log("this color:", _this.trait_color_dict[d[0]]);
           return _this.trait_color_dict[d[0]];
+        }).select("title").text(function(d) {
+          return d[1];
         });
       }
     };

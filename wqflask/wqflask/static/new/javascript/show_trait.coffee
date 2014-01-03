@@ -66,6 +66,7 @@ $ ->
 
     $("#update_bar_chart.btn-group").button()
     root.bar_chart = new Bar_Chart(sample_lists[0])
+    root.histogram = new Histogram(sample_lists[0])
     new Box_Plot(sample_lists[0])
 
     $('.bar_chart_samples_group').change ->
@@ -73,13 +74,12 @@ $ ->
         $('#bar_chart_container').append('<div id="bar_chart"></div>')
         group = $(this).val()
         if group == "samples_primary"
-            new Bar_Chart(sample_lists[0])
+            root.bar_chart = new Bar_Chart(sample_lists[0])
         else if group == "samples_other"
-            new Bar_Chart(sample_lists[1])
+            root.bar_chart = new Bar_Chart(sample_lists[1])
         else if group == "samples_all"
             all_samples = sample_lists[0].concat sample_lists[1]
-            new Bar_Chart(all_samples)
-        #$(".btn-group").button()
+            root.bar_chart = new Bar_Chart(all_samples)
 
     $('.box_plot_samples_group').change ->
         $('#box_plot').remove()
@@ -93,10 +93,11 @@ $ ->
             all_samples = sample_lists[0].concat sample_lists[1]
             new Box_Plot(all_samples)
 
-    
+
     hide_tabs = (start) ->
         for x in [start..10]
             $("#stats_tabs" + x).hide()
+
 
     # Changes stats table between all, bxd only and non-bxd, etc.
     stats_mdp_change = ->
@@ -104,7 +105,6 @@ $ ->
         hide_tabs(0)
         $("#stats_tabs" + selected).show()
 
-    #$(".stats_mdp").change(stats_mdp_change)
 
     change_stats_value = (sample_sets, category, value_type, decimal_places)->
         id = "#" + process_id(category, value_type)
@@ -130,12 +130,9 @@ $ ->
         if title_value
             $(id).attr('title', title_value)
 
+
     update_stat_values = (sample_sets)->
         for category in ['samples_primary', 'samples_other', 'samples_all']
-            #change_stats_value(sample_sets, category, "n_of_samples", 0)
-
-            #for stat in ["mean", "median", "std_dev", "std_error", "min", "max"]
-            #for stat in (row.vn for row in Stat_Table_Rows)
             for row in Stat_Table_Rows
                 console.log("Calling change_stats_value")
                 change_stats_value(sample_sets, category, row.vn, row.digits)

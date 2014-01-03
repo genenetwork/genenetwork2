@@ -106,8 +106,8 @@ class ConvertGenoFile(object):
                     this_marker.genotypes.append("NA")
                 
             #print("this_marker is:", pf(this_marker.__dict__))   
-                
-            self.markers.append(this_marker.__dict__)
+            if this_marker.chr == "5":
+                self.markers.append(this_marker.__dict__)
 
         with open(self.output_file, 'w') as fh:
             json.dump(self.markers, fh, indent="   ", sort_keys=True)

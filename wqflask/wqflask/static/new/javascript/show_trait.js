@@ -63,6 +63,7 @@
     sample_group_types = js_data.sample_group_types;
     $("#update_bar_chart.btn-group").button();
     root.bar_chart = new Bar_Chart(sample_lists[0]);
+    root.histogram = new Histogram(sample_lists[0]);
     new Box_Plot(sample_lists[0]);
     $('.bar_chart_samples_group').change(function() {
       var all_samples, group;
@@ -70,12 +71,12 @@
       $('#bar_chart_container').append('<div id="bar_chart"></div>');
       group = $(this).val();
       if (group === "samples_primary") {
-        return new Bar_Chart(sample_lists[0]);
+        return root.bar_chart = new Bar_Chart(sample_lists[0]);
       } else if (group === "samples_other") {
-        return new Bar_Chart(sample_lists[1]);
+        return root.bar_chart = new Bar_Chart(sample_lists[1]);
       } else if (group === "samples_all") {
         all_samples = sample_lists[0].concat(sample_lists[1]);
-        return new Bar_Chart(all_samples);
+        return root.bar_chart = new Bar_Chart(all_samples);
       }
     });
     $('.box_plot_samples_group').change(function() {
