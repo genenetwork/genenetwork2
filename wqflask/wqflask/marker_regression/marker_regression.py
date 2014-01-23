@@ -48,7 +48,7 @@ class MarkerRegression(object):
             self.samples.append(str(sample))
             self.vals.append(value)
  
-        self.gen_data(tempdata)
+        self.qtl_results = self.gen_data(tempdata)
 
         #Get chromosome lengths for drawing the manhattan plot
         chromosome_mb_lengths = {}
@@ -78,9 +78,9 @@ class MarkerRegression(object):
             
             genotype_matrix = np.array(trimmed_genotype_data).T
             
-            print("pheno_vector: ", pf(pheno_vector))
-            print("genotype_matrix: ", pf(genotype_matrix))
-            print("genotype_matrix.shape: ", pf(genotype_matrix.shape))
+            #print("pheno_vector: ", pf(pheno_vector))
+            #print("genotype_matrix: ", pf(genotype_matrix))
+            #print("genotype_matrix.shape: ", pf(genotype_matrix.shape))
             
             t_stats, p_values = lmm.run(
                 pheno_vector,
@@ -89,9 +89,10 @@ class MarkerRegression(object):
                 refit=False,
                 temp_data=tempdata
             )
+            #print("p_values:", p_values)
         
         self.dataset.group.markers.add_pvalues(p_values)
-        self.qtl_results = self.dataset.group.markers.markers
+        return self.dataset.group.markers.markers
 
 
     def gen_human_results(self, pheno_vector, tempdata):

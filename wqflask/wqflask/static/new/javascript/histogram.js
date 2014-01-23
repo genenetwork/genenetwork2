@@ -11,7 +11,7 @@
       this.sample_group = sample_group;
       this.sort_by = "name";
       this.format_count = d3.format(",.0f");
-      this.get_samples();
+      this.get_sample_vals();
       this.margin = {
         top: 10,
         right: 30,
@@ -32,21 +32,9 @@
       this.create_graph();
     }
 
-    Histogram.prototype.get_samples = function() {
-      var attr_vals, attribute, key, sample, _i, _j, _len, _len1, _ref, _ref1;
-      this.sample_names = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.sample_list;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          sample = _ref[_i];
-          if (sample.value !== null) {
-            _results.push(sample.name);
-          }
-        }
-        return _results;
-      }).call(this);
-      this.sample_vals = (function() {
+    Histogram.prototype.get_sample_vals = function() {
+      var sample;
+      return this.sample_vals = (function() {
         var _i, _len, _ref, _results;
         _ref = this.sample_list;
         _results = [];
@@ -58,30 +46,6 @@
         }
         return _results;
       }).call(this);
-      this.attributes = (function() {
-        var _results;
-        _results = [];
-        for (key in this.sample_list[0]["extra_attributes"]) {
-          _results.push(key);
-        }
-        return _results;
-      }).call(this);
-      console.log("attributes:", this.attributes);
-      this.sample_attr_vals = [];
-      if (this.attributes.length > 0) {
-        _ref = this.sample_list;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          sample = _ref[_i];
-          attr_vals = {};
-          _ref1 = this.attributes;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            attribute = _ref1[_j];
-            attr_vals[attribute] = sample["extra_attributes"][attribute];
-          }
-          this.sample_attr_vals.push(attr_vals);
-        }
-      }
-      return this.samples = _.zip(this.sample_names, this.sample_vals, this.sample_attr_vals);
     };
 
     Histogram.prototype.create_svg = function() {
@@ -91,12 +55,13 @@
     };
 
     Histogram.prototype.create_x_scale = function() {
+      console.log("min/max:", d3.min(this.sample_vals) + "," + d3.max(this.sample_vals));
       return this.x_scale = d3.scale.linear().domain([d3.min(this.sample_vals), d3.max(this.sample_vals)]).range([0, this.plot_width]);
     };
 
     Histogram.prototype.get_histogram_data = function() {
       console.log("sample_vals:", this.sample_vals);
-      this.histogram_data = d3.layout.histogram().bins(this.x_scale.ticks(10))(this.sample_vals);
+      this.histogram_data = d3.layout.histogram().bins(this.x_scale.ticks(20))(this.sample_vals);
       return console.log("histogram_data:", this.histogram_data[0]);
     };
 
@@ -120,14 +85,27 @@
       return this.svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + this.plot_height + ")").call(x_axis);
     };
 
+    Histogram.prototype.add_y_axis = function() {
+      var y_axis;
+      return y_axis = d3.svg.axis().scale(this.y_scale).orient("left").ticks(5);
+    };
+
     Histogram.prototype.add_bars = function() {
-      var _this = this;
-      return this.svg.selectAll(".bar").data(this.histogram_data).enter().append("g").attr("class", "bar").attr("transform", function(d) {
-        return "translate(" + _this.margin.left + "," + _this.margin.top + ")";
-      }).append("rect").attr("x", 1).attr("width", this.x_scale(this.histogram_data[0].dx) - 1).attr("height", function(d) {
+      var bar,
+        _this = this;
+      console.log("bar_width:", this.x_scale(this.histogram_data[0].dx));
+      bar = this.svg.selectAll(".bar").data(this.histogram_data).enter().append("g").attr("class", "bar").attr("transform", function(d) {
+        return "translate(" + _this.x_scale(d.x) + "," + _this.y_scale(d.y) + ")";
+      });
+      bar.append("rect").attr("x", 1).attr("width", (this.x_scale(this.histogram_data[1].x) - this.x_scale(this.histogram_data[0].x)) - 1).attr("height", function(d) {
         return _this.plot_height - _this.y_scale(d.y);
-      }).append("text").attr("dy", ".75em").attr("y", 6).attr("x", this.x_scale(this.histogram_data[0].dx) / 2).attr("text-anchor", "middle").text(function(d) {
-        return _this.format_count(d.y);
+      });
+      return bar.append("text").attr("dy", ".75em").attr("y", 6).attr("x", (this.x_scale(this.histogram_data[1].x) - this.x_scale(this.histogram_data[0].x)) / 2).attr("text-anchor", "middle").style("fill", "#fff").text(function(d) {
+        var bar_height;
+        bar_height = _this.plot_height - _this.y_scale(d.y);
+        if (bar_height > 20) {
+          return _this.format_count(d.y);
+        }
       });
     };
 

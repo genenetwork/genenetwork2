@@ -136,7 +136,7 @@ def run_human(pheno_vector,
         #print("***** Added to {} queue *****".format(key))
         for snp, this_id in plink_input:
             #with Bench("part before association"):
-            #if count > 2000:
+            #if count > 1000:
             #    break
             count += 1
 

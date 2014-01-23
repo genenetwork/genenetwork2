@@ -64,7 +64,8 @@ $ ->
     sample_lists = js_data.sample_lists
     sample_group_types = js_data.sample_group_types
 
-    $("#update_bar_chart.btn-group").button()
+    #if $("#update_bar_chart").length
+    #    $("#update_bar_chart.btn-group").button()
     root.bar_chart = new Bar_Chart(sample_lists[0])
     root.histogram = new Histogram(sample_lists[0])
     new Box_Plot(sample_lists[0])

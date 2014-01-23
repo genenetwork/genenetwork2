@@ -20,7 +20,6 @@
         this.marker_names = [];
         console.time('Create coordinates');
         this.create_coordinates();
-        console.log("@x_coords: ", this.x_coords);
         console.log("@y_coords: ", this.y_coords);
         console.timeEnd('Create coordinates');
         _ref = this.get_chr_lengths(), this.chr_lengths = _ref[0], this.cumulative_chr_lengths = _ref[1];
@@ -31,6 +30,7 @@
         console.log("@x_buffer: ", this.x_buffer);
         this.y_max = d3.max(this.y_coords) * 1.2;
         this.svg = this.create_svg();
+        console.log("svg created");
         this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
         this.plot_height -= this.y_buffer;
         this.create_scales();
@@ -93,13 +93,15 @@
           if (!(_ref1 = result.chr, __indexOf.call(chr_seen, _ref1) >= 0)) {
             chr_seen.push(result.chr);
             chr_lengths.push(chr_length);
-            if (result.chr !== "1") {
+            if (result.chr !== 1) {
               this.total_length += parseFloat(chr_lengths[chr_lengths.length - 2]);
             }
           }
-          this.x_coords.push(this.total_length + parseFloat(result.Mb));
-          this.y_coords.push(result.lod_score);
-          this.marker_names.push(result.name);
+          if (result.lod_score > 2) {
+            this.x_coords.push(this.total_length + parseFloat(result.Mb));
+            this.y_coords.push(result.lod_score);
+            this.marker_names.push(result.name);
+          }
         }
         return this.total_length += parseFloat(chr_lengths[chr_lengths.length - 1]);
       };
@@ -150,8 +152,12 @@
       };
 
       Manhattan_Plot.prototype.create_scales = function() {
-        this.x_scale = d3.scale.linear().domain([0, d3.max(this.x_coords)]).range([this.x_buffer, this.plot_width]);
-        return this.y_scale = d3.scale.linear().domain([0, this.y_max]).range([this.plot_height, this.y_buffer]);
+        console.log("@chromosomes[24]:", this.chromosomes['24']);
+        console.log("@chromosomes[23]:", this.chromosomes['23']);
+        console.log("@total_length:", this.total_length);
+        console.log("d3.max(@xcoords):", d3.max(this.x_coords));
+        this.x_scale = d3.scale.linear().domain([0, this.total_length + this.chromosomes['24']]).range([this.x_buffer, this.plot_width]);
+        return this.y_scale = d3.scale.linear().domain([2, this.y_max]).range([this.plot_height, this.y_buffer]);
       };
 
       Manhattan_Plot.prototype.create_x_axis_tick_values = function() {
@@ -224,9 +230,9 @@
 
       Manhattan_Plot.prototype.fill_chr_areas = function() {
         var _this = this;
-        return this.svg.selectAll("rect.chr_fill_area_1").data(_.zip(this.chr_lengths, this.cumulative_chr_lengths), function(d) {
+        return this.svg.selectAll("rect.chr_fill_area").data(_.zip(this.chr_lengths, this.cumulative_chr_lengths), function(d) {
           return d;
-        }).enter().append("rect").attr("class", "chr_fill_area_1").attr("x", function(d, i) {
+        }).enter().append("rect").attr("class", "chr_fill_area").attr("x", function(d, i) {
           if (i === 0) {
             return _this.x_scale(0);
           } else {
@@ -234,7 +240,7 @@
           }
         }).attr("y", this.y_buffer).attr("width", function(d) {
           return _this.x_scale(d[0]);
-        }).attr("height", this.plot_height - this.y_buffer);
+        }).attr("height", this.plot_height - this.y_buffer).attr("fill", "none");
       };
 
       Manhattan_Plot.prototype.add_chr_labels = function() {
@@ -257,9 +263,9 @@
       Manhattan_Plot.prototype.add_plot_points = function() {
         var _this = this;
         return this.svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
-          return parseFloat(_this.x_buffer) + ((parseFloat(_this.plot_width) - parseFloat(_this.x_buffer)) * d[0] / parseFloat(_this.x_max));
+          return _this.x_scale(d[0]);
         }).attr("cy", function(d) {
-          return _this.plot_height - ((_this.plot_height - _this.y_buffer) * d[1] / _this.y_max);
+          return _this.y_scale(d[1]);
         }).attr("r", 2).attr("id", function(d) {
           return "point_" + String(d[2]);
         }).classed("circle", true).on("mouseover", function(d) {

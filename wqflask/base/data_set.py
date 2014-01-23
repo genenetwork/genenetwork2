@@ -185,6 +185,7 @@ class HumanMarkers(Markers):
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
+            print("splat:", splat)
             marker = {}
             marker['chr'] = int(splat[0])
             marker['name'] = splat[1]
@@ -204,6 +205,7 @@ class HumanMarkers(Markers):
         #    #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
         #    marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
         
+        print("p_values2:", p_values)
         super(HumanMarkers, self).add_pvalues(p_values)
         
         with Bench("deleting markers"):

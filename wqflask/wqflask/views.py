@@ -243,7 +243,12 @@ def marker_regression_page():
             print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
         #causeerror
-        Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
+        
+        #qtl_length = len(result['js_data']['qtl_results'])
+        #print("qtl_length:", qtl_length)
+        pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+        print("pickled result length:", len(pickled_result))
+        Redis.set(key, pickled_result)
         Redis.expire(key, 60*60)
 
     with Bench("Rendering template"):

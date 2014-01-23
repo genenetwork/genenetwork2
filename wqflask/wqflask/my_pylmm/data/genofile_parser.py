@@ -106,7 +106,7 @@ class ConvertGenoFile(object):
                     this_marker.genotypes.append("NA")
                 
             #print("this_marker is:", pf(this_marker.__dict__))   
-            if this_marker.chr == "5":
+            if this_marker.chr == "14":
                 self.markers.append(this_marker.__dict__)
 
         with open(self.output_file, 'w') as fh:
@@ -125,8 +125,8 @@ class ConvertGenoFile(object):
 
     def process_rows(self):
         for self.latest_row_pos, row in enumerate(self.input_fh):
-            if self.input_file.endswith(".geno.gz"):
-                print("row: ", row)
+            #if self.input_file.endswith(".geno.gz"):
+            #    print("row: ", row)
             self.latest_row_value = row
             # Take care of headers
             if not row.strip():

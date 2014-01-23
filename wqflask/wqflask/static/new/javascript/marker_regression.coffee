@@ -14,7 +14,7 @@ $ ->
             @marker_names = []
             console.time('Create coordinates')
             @create_coordinates()
-            console.log("@x_coords: ", @x_coords)
+            #console.log("@x_coords: ", @x_coords)
             console.log("@y_coords: ", @y_coords)
             console.timeEnd('Create coordinates')
             [@chr_lengths, @cumulative_chr_lengths] = @get_chr_lengths()
@@ -30,7 +30,10 @@ $ ->
             @y_max = d3.max(@y_coords) * 1.2
 
             @svg = @create_svg()
+            console.log("svg created")
             @plot_coordinates = _.zip(@x_coords, @y_coords, @marker_names)
+            #console.log("coordinates:", @plot_coordinates)
+            
             
             @plot_height -= @y_buffer
             @create_scales()
@@ -73,6 +76,7 @@ $ ->
         create_coordinates: () -> 
             chr_lengths = []
             chr_seen = []
+            #console.log("total_length2:", @total_length)
             for result in js_data.qtl_results
                 if result.chr == "X"
                     chr_length = parseFloat(@chromosomes[20])
@@ -80,12 +84,16 @@ $ ->
                     chr_length = parseFloat(@chromosomes[result.chr])
                 if not(result.chr in chr_seen)
                     chr_seen.push(result.chr) 
-                    chr_lengths.push(chr_length) 
-                    if result.chr != "1"
+                    chr_lengths.push(chr_length)
+                    #console.log("result.chr:", result.chr)
+                    if result.chr != 1
                         @total_length += parseFloat(chr_lengths[chr_lengths.length - 2])
-                @x_coords.push(@total_length + parseFloat(result.Mb))
-                @y_coords.push(result.lod_score)
-                @marker_names.push(result.name)
+                #console.log("total_length3:", @total_length)
+                #console.log("Mb:", result.Mb)
+                if result.lod_score > 2
+                    @x_coords.push(@total_length + parseFloat(result.Mb))
+                    @y_coords.push(result.lod_score)
+                    @marker_names.push(result.name)
             @total_length += parseFloat(chr_lengths[chr_lengths.length-1])
             #console.log("chr_lengths: ", chr_lengths)
 
@@ -141,12 +149,19 @@ $ ->
                 .style("stroke", "#000")
 
         create_scales: () ->
+            #@x_scale = d3.scale.linear()
+            #    .domain([0, d3.max(@x_coords)])
+            #    .range([@x_buffer, @plot_width])
+            console.log("@chromosomes[24]:", @chromosomes['24'])
+            console.log("@chromosomes[23]:", @chromosomes['23'])
+            console.log("@total_length:", @total_length)
+            console.log("d3.max(@xcoords):", d3.max(@x_coords))
             @x_scale = d3.scale.linear()
-                .domain([0, d3.max(@x_coords)])
+                .domain([0, (@total_length + @chromosomes['24'])])
                 .range([@x_buffer, @plot_width])
 
             @y_scale = d3.scale.linear()
-                .domain([0, @y_max])
+                .domain([2, @y_max])
                 .range([@plot_height, @y_buffer])
 
         create_x_axis_tick_values: () ->
@@ -230,13 +245,13 @@ $ ->
                 .style("stroke", "#ccc")
                 
         fill_chr_areas: () ->
-            @svg.selectAll("rect.chr_fill_area_1")
+            @svg.selectAll("rect.chr_fill_area")
                 .data(_.zip(@chr_lengths, @cumulative_chr_lengths), (d) =>
                     return d
                 )
                 .enter()
                 .append("rect")
-                .attr("class", "chr_fill_area_1")
+                .attr("class", "chr_fill_area")
                 .attr("x", (d, i) =>
                     if i == 0
                         return @x_scale(0)
@@ -247,7 +262,8 @@ $ ->
                 .attr("width", (d) =>
                     return @x_scale(d[0])
                 )
-                .attr("height", @plot_height-@y_buffer)                
+                .attr("height", @plot_height-@y_buffer)
+                .attr("fill", "none")
 
         add_chr_labels: () ->
             chr_names = []
@@ -279,10 +295,10 @@ $ ->
                 .enter()
                 .append("circle")
                 .attr("cx", (d) =>
-                    return parseFloat(@x_buffer) + ((parseFloat(@plot_width)-parseFloat(@x_buffer)) * d[0]/parseFloat(@x_max))
+                    return @x_scale(d[0])
                 )
                 .attr("cy", (d) =>
-                    return @plot_height - ((@plot_height-@y_buffer) * d[1]/@y_max)
+                    return @y_scale(d[1])
                 )
                 .attr("r", 2)
                 .attr("id", (d) =>

@@ -82,75 +82,73 @@
         <div>
             <h3>{{ sample_type.header }}</h3>
 
-            <table class="table table-hover table-striped"  {# Todo: Enable sorting on table #}
+            <table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped table-bordered"
                    id="samples_{{ sample_type.sample_group_type }}">
-                <tr>
-                    <th>Index</th>
-
-                    <th>Sample</th>
-
-                    <th>Value</th>
-                    {% if sample_type.se_exists() %}
-                    <th>&nbsp;</th>
-
-                    <th>SE</th>
-                    {% endif %}
-
-                    {% for attribute in sample_type.attributes|sort() %}
-                    <th>
-                        {{ sample_type.attributes[attribute].name }}
-                    </th>
+                <thead>
+                    <tr>
+                        <td>Index</td>
+                        <td>Sample</td>
+                        <td>Value</td>
+                        {% if sample_type.se_exists() %}
+                        <td>&nbsp;</td>
+                        <td>SE</td>
+                        {% endif %}
+                        {% for attribute in sample_type.attributes|sort() %}
+                        <td>
+                            {{ sample_type.attributes[attribute].name }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sample in sample_type.sample_list %}
+                    <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
+                        <td class="column_name-Index">
+                            {{ loop.index }}
+                            <input type="checkbox" name="selectCheck"
+                                   class="checkbox edit_sample_checkbox"
+                                   value="{{ sample.name }}" checked="checked">
+                        </td>
+        
+                        <td class="column_name-Sample">
+                            <span class="edit_sample_sample_name">
+                                {{ sample.name }}
+                             </span>
+                        </td>
+        
+                        {# Todo: Add IDs #}
+                        <td class="column_name-Value">
+                          <input type="text" data-value="{{ sample.display_value }}" name="{{ 'value:' + sample.name }}"
+                                 class="trait_value_input edit_sample_value"
+                                 value="{{ sample.display_value }}"
+                                 size=8 maxlength=8
+                          >
+                        </td>
+        
+                        {% if sample_type.se_exists() %}
+                        <td>
+                          ±
+                        </td>
+        
+                        {# Todo: Add IDs #}
+                        <td class="column_name-SE">
+                          <input type="text" data-value="{{ sample.display_variance }}" name="{{ 'variance:' + sample.name}}"
+                                 class="trait_value_input edit_sample_se"
+                                 value="{{ sample.display_variance }}"
+                                 size=8 maxlength=8
+                          >
+                        </td>
+                        {% endif %}
+        
+                        {# Loop through each attribute type and input value #}
+                        {% for attribute in sample_type.attributes|sort() %}
+                        <td class="std_cell column_name-{{ sample_type.attributes[attribute].name.replace(' ', '_') }}">
+                          {{ sample.extra_attributes[sample_type.attributes[attribute].name] }}
+                        </td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-
-                {% for sample in sample_type.sample_list %}
-                <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
-                <td class="column_name-Index">
-                    {{ loop.index }}
-                    <input type="checkbox" name="selectCheck"
-                           class="checkbox edit_sample_checkbox"
-                           value="{{ sample.name }}" checked="checked">
-                </td>
-
-                <td class="column_name-Sample">
-                    <span class="edit_sample_sample_name">
-                        {{ sample.name }}
-                     </span>
-                </td>
-
-                {# Todo: Add IDs #}
-                <td class="column_name-Value">
-                  <input type="text" data-value="{{ sample.display_value }}" name="{{ 'value:' + sample.name }}"
-                         class="trait_value_input edit_sample_value"
-                         value="{{ sample.display_value }}"
-                         size=8 maxlength=8
-                  >
-                </td>
-
-                {% if sample_type.se_exists() %}
-                <td>
-                  ±
-                </td>
-
-                {# Todo: Add IDs #}
-                <td class="column_name-SE">
-                  <input type="text" data-value="{{ sample.display_variance }}" name="{{ 'variance:' + sample.name}}"
-                         class="trait_value_input edit_sample_se"
-                         value="{{ sample.display_variance }}"
-                         size=8 maxlength=8
-                  >
-                </td>
-                {% endif %}
-
-                {# Loop through each attribute type and input value #}
-                {% for attribute in sample_type.attributes|sort() %}
-                <td class="std_cell column_name-{{ sample_type.attributes[attribute].name.replace(' ', '_') }}">
-                  {{ sample.extra_attributes[sample_type.attributes[attribute].name] }}
-                </td>
-                {% endfor %}
-              </tr>
-              {% endfor %}
-
+                </tbody>
             </table>
         </div>
         {% endfor %}
