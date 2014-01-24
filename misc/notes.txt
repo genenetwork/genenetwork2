@@ -273,6 +273,10 @@ grep -ir (search string) (directory)
 
 ===========================================
 
+Use argparse to deal with command line arguments (instead of argv)
+
+===========================================
+
 Change owner/group:
 
 chown zas1024 somefile (change owner of somefile to zas1024)
