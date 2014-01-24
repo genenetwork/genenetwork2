@@ -41,11 +41,12 @@
 {% block js %}
     <script>
 		js_data = {{ js_data | safe }};
-	</script>
+    </script>
     <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 	<script language="javascript" type="text/javascript" src="http://bgrins.github.io/spectrum/spectrum.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 	<script language="javascript" type="text/javascript" src="/static/new/javascript/corr_scatter_plot.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/new/javascript/show_corr.js"></script>
     <script>
 		$("#circle_color").spectrum({
 			color: "{{circle_color}}",
