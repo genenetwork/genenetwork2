@@ -1,0 +1,3 @@
+BXD
+genotype, phenotype, mRNA expression
+correlation
