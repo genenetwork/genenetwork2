@@ -50,9 +50,9 @@ def fetch():
     print "get %d phenotypes" % (len(results))
     for phenotyperow in results:
         publishxrefid = phenotyperow[0]
-        original_description = phenotyperow[1]
-        pre_publication_description = phenotyperow[2]
-        post_publication_description = phenotyperow[3]
+        original_description = clearspaces(phenotyperow[1])
+        pre_publication_description = clearspaces(phenotyperow[2])
+        post_publication_description = clearspaces(phenotyperow[3])
         phenotypesfile.write("%s\t%s\t%s\t%s\t" % (publishxrefid, original_description, pre_publication_description, post_publication_description))
         sql = """
             SELECT Strain.Name, PublishData.value
@@ -71,10 +71,24 @@ def fetch():
             strainname = strainname.lower()
             value = strainvalue[1]
             strainvaluedic[strainname] = value
-        print strainvaluedic
-        break
+        for strain in strains:
+            if strain in strainvaluedic:
+                phenotypesfile.write(str(strainvaluedic[strain]))
+            else:
+                phenotypesfile.write('x')
+            phenotypesfile.write('\t')
+        phenotypesfile.write('\n')
+        phenotypesfile.flush()
     # release
     phenotypesfile.close()
+
+def clearspaces(s):
+    if s:
+        s = re.sub('\s+', ' ', s)
+        s = s.strip()
+        return s
+    else:
+        return None
     
 # main
 if __name__ == "__main__":
