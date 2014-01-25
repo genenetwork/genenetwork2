@@ -35,15 +35,31 @@ def fetch():
     #
     sql = """
         SELECT PublishXRef.`Id`, Phenotype.`Original_description`, Phenotype.`Pre_publication_description`, Phenotype.`Post_publication_description`
-        FROM PublishXRef, Phenotype
+        FROM (PublishXRef, Phenotype)
         WHERE PublishXRef.`PhenotypeId`=Phenotype.`Id`
         AND PublishXRef.`InbredSetId`=%s
         """
     cursor.execute(sql, (inbredsetid))
     results = cursor.fetchall()
-    print "get %d phenotypes" % len(results)
-    for row in results:
-        print row
+    print "get %d phenotypes" % (len(results))
+    for phenotyperow in results:
+        publishxrefid = phenotyperow[0]
+        original_description = phenotyperow[1]
+        pre_publication_description = phenotyperow[2]
+        post_publication_description = phenotyperow[3]
+        sql = """
+            SELECT Strain.Name, PublishData.value
+            FROM (PublishXRef, PublishData, Strain)
+            WHERE PublishXRef.`InbredSetId`=%s
+            AND PublishXRef.Id=%s
+            AND PublishXRef.DataId=PublishData.Id
+            AND PublishData.StrainId=Strain.Id
+        """
+        cursor.execute(sql, (inbredsetid, publishxrefid))
+        results = cursor.fetchall()
+        print "get %d values" % (len(results))
+        for strainvalue in results:
+            print strainvalue
         break
     
 # main
