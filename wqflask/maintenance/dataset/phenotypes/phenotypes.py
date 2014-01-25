@@ -36,7 +36,9 @@ def fetch():
         strains.append(strain)
     print "get %d strains: %s" % (len(strains), strains)
     phenotypesfile.write('\t'.join([strain.upper() for strain in strains]))
-    #
+    phenotypesfile.write('\n')
+    phenotypesfile.flush()
+    # phenotypes
     sql = """
         SELECT PublishXRef.`Id`, Phenotype.`Original_description`, Phenotype.`Pre_publication_description`, Phenotype.`Post_publication_description`
         FROM (PublishXRef, Phenotype)
@@ -51,6 +53,7 @@ def fetch():
         original_description = phenotyperow[1]
         pre_publication_description = phenotyperow[2]
         post_publication_description = phenotyperow[3]
+        phenotypesfile.write("%s\t%s\t%s\t%s\t" % (publishxrefid, original_description, pre_publication_description, post_publication_description))
         sql = """
             SELECT Strain.Name, PublishData.value
             FROM (PublishXRef, PublishData, Strain)
@@ -62,8 +65,13 @@ def fetch():
         cursor.execute(sql, (inbredsetid, publishxrefid))
         results = cursor.fetchall()
         print "get %d values" % (len(results))
+        strainvaluedic = {}
         for strainvalue in results:
-            print strainvalue
+            strainname = strainvalue[0]
+            strainname = strainname.lower()
+            value = strainvalue[1]
+            strainvaluedic[strainname] = value
+        print strainvaluedic
         break
     # release
     phenotypesfile.close()
