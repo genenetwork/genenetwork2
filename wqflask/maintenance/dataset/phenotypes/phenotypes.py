@@ -9,6 +9,9 @@ import MySQLdb
 def fetch():
     # parameters
     inbredsetid = 1
+    phenotypesfile = open('bxdphenotypes.txt', 'w+')
+    #
+    phenotypesfile.write("id\tOriginal_description\tPre_publication_description\tPost_publication_description\t")
     # open db
     host = 'localhost'
     user = 'webqtl'
@@ -32,6 +35,7 @@ def fetch():
         strain = strain.lower()
         strains.append(strain)
     print "get %d strains: %s" % (len(strains), strains)
+    phenotypesfile.write('\t'.join([strain.upper() for strain in strains]))
     #
     sql = """
         SELECT PublishXRef.`Id`, Phenotype.`Original_description`, Phenotype.`Pre_publication_description`, Phenotype.`Post_publication_description`
@@ -61,6 +65,8 @@ def fetch():
         for strainvalue in results:
             print strainvalue
         break
+    # release
+    phenotypesfile.close()
     
 # main
 if __name__ == "__main__":
