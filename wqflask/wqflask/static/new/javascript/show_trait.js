@@ -123,6 +123,7 @@
       console.log("*-* the_value:", the_value);
       console.log("*-* current_value:", current_value);
       if (the_value !== current_value) {
+        console.log("object:", $(id).html(the_value));
         $(id).html(the_value).effect("highlight");
       }
       if (title_value) {

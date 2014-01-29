@@ -158,6 +158,11 @@ def create_snp_iterator_file(group):
     with gzip.open(snp_file_base, "wb") as fh:
         pickle.dump(data, fh, pickle.HIGHEST_PROTOCOL)
 
+#if __name__ == '__main__':
+#    import cPickle as pickle
+#    import gzip
+#    create_snp_iterator_file("HLC")
+    
 if __name__ == '__main__':
     import cPickle as pickle
     import gzip

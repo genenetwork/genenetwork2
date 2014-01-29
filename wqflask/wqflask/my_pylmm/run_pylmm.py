@@ -28,7 +28,7 @@ from base.species import TheSpecies
         if dataset.group.species == "human":
             p_values, t_stats = gen_human_results(pheno_vector, tempdata)
         else:
-            genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
+            genotype_data = [marker['genotypes'] for marker in dataset.group.markers.markers]
             
             no_val_samples = self.identify_empty_samples()
             trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)

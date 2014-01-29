@@ -39,13 +39,15 @@
             </thead>
             <tbody>
                 {% for marker in qtl_results %}
-                <tr>
-                    <td>{{loop.index}}</td>
-                    <td>{{marker.lod_score}}</td>
-                    <td>{{marker.chr}}</td>
-                    <td>{{marker.Mb}}</td>
-                    <td>{{marker.name}}</td>
-                </tr>
+                    {% if marker.lod_score > 2 %}
+                    <tr>
+                        <td>{{loop.index}}</td>
+                        <td>{{marker.lod_score}}</td>
+                        <td>{{marker.chr}}</td>
+                        <td>{{marker.Mb}}</td>
+                        <td>{{marker.name}}</td>
+                    </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>

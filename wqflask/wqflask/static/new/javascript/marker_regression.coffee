@@ -14,7 +14,7 @@ $ ->
             @marker_names = []
             console.time('Create coordinates')
             @create_coordinates()
-            #console.log("@x_coords: ", @x_coords)
+            console.log("@x_coords: ", @x_coords)
             console.log("@y_coords: ", @y_coords)
             console.timeEnd('Create coordinates')
             [@chr_lengths, @cumulative_chr_lengths] = @get_chr_lengths()
@@ -85,8 +85,10 @@ $ ->
                 if not(result.chr in chr_seen)
                     chr_seen.push(result.chr) 
                     chr_lengths.push(chr_length)
-                    #console.log("result.chr:", result.chr)
+                    console.log("result.chr:", result.chr)
+                    console.log("total_length:", @total_length)
                     if result.chr != 1
+                        console.log("plus:", chr_lengths.length - 2)
                         @total_length += parseFloat(chr_lengths[chr_lengths.length - 2])
                 #console.log("total_length3:", @total_length)
                 #console.log("Mb:", result.Mb)
@@ -120,7 +122,7 @@ $ ->
             @add_x_axis()
             @add_y_axis()
             @add_chr_lines()
-            @fill_chr_areas()
+            #@fill_chr_areas()
             @add_chr_labels()
             @add_plot_points()
 
@@ -152,14 +154,18 @@ $ ->
             #@x_scale = d3.scale.linear()
             #    .domain([0, d3.max(@x_coords)])
             #    .range([@x_buffer, @plot_width])
-            console.log("@chromosomes[24]:", @chromosomes['24'])
-            console.log("@chromosomes[23]:", @chromosomes['23'])
-            console.log("@total_length:", @total_length)
-            console.log("d3.max(@xcoords):", d3.max(@x_coords))
-            @x_scale = d3.scale.linear()
-                .domain([0, (@total_length + @chromosomes['24'])])
-                .range([@x_buffer, @plot_width])
-
+            if '24' of @chromosomes
+                console.log("@chromosomes[24]:", @chromosomes['24'])
+                console.log("@chromosomes[23]:", @chromosomes['23'])
+                console.log("@total_length:", @total_length)
+                console.log("d3.max(@xcoords):", d3.max(@x_coords))
+                @x_scale = d3.scale.linear()
+                    .domain([0, (@total_length + @chromosomes['24'])])
+                    .range([@x_buffer, @plot_width])
+            else
+                @x_scale = d3.scale.linear()
+                    .domain([0, (@total_length + @chromosomes['20'])])
+                    .range([@x_buffer, @plot_width])
             @y_scale = d3.scale.linear()
                 .domain([2, @y_max])
                 .range([@plot_height, @y_buffer])
@@ -244,26 +250,61 @@ $ ->
                 .attr("y2", @plot_height)
                 .style("stroke", "#ccc")
                 
+                
         fill_chr_areas: () ->
+            console.log("cumu_chr_lengths:", @cumulative_chr_lengths)
+            console.log("example:", @x_scale(@cumulative_chr_lengths[0]))
             @svg.selectAll("rect.chr_fill_area")
                 .data(_.zip(@chr_lengths, @cumulative_chr_lengths), (d) =>
                     return d
                 )
                 .enter()
                 .append("rect")
-                .attr("class", "chr_fill_area")
-                .attr("x", (d, i) =>
+                .attr("x", (d) =>
                     if i == 0
                         return @x_scale(0)
                     else
-                        return @x_scale(@cumulative_chr_lengths[i-1])
+                        return @x_scale(d[1])
                 )
                 .attr("y", @y_buffer)
                 .attr("width", (d) =>
                     return @x_scale(d[0])
                 )
                 .attr("height", @plot_height-@y_buffer)
-                .attr("fill", "none")
+                #.attr("fill", (d, i) =>
+                #    if i%2
+                #        return "whitesmoke"
+                #    else
+                #        return "none"
+                #)
+                
+        fill_chr_areas2: () ->
+            console.log("cumu_chr_lengths:", @cumulative_chr_lengths)
+            console.log("example:", @x_scale(@cumulative_chr_lengths[0]))
+            @svg.selectAll("rect.chr_fill_area")
+                .data(_.zip(@chr_lengths, @cumulative_chr_lengths), (d) =>
+                    return d
+                )
+                .enter()
+                .append("rect")
+                .attr("x", (d) =>
+                    if i == 0
+                        return @x_scale(0)
+                    else
+                        return @x_scale(d[1])
+                )
+                .attr("y", @y_buffer)
+                .attr("width", (d) =>
+                    return @x_scale(d[0])
+                )
+                .attr("height", @plot_height-@y_buffer)
+                .attr("fill", (d, i) =>
+                    return "whitesmoke"
+                    #if i%2
+                    #    return "whitesmoke"
+                    #else
+                    #    return "none"
+                )
 
         add_chr_labels: () ->
             chr_names = []
@@ -277,7 +318,12 @@ $ ->
                 .enter()
                 .append("text")
                 .text((d) =>
-                    return d[0]
+                    if d[0] == "23"
+                        return "X"
+                    else if d[0] == "24"
+                        return "X/Y"
+                    else
+                        return d[0]
                 )
                 .attr("x", (d) =>
                     return @x_scale(d[2] - d[1]/2)
@@ -287,7 +333,7 @@ $ ->
                 .attr("text-anchor", "middle")
                 .attr("font-family", "sans-serif")
                 .attr("font-size", "18px")
-                .attr("fill", "grey")
+                .attr("fill", "black")
 
         add_plot_points: () ->
             @svg.selectAll("circle")

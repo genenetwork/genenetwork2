@@ -20,6 +20,7 @@
         this.marker_names = [];
         console.time('Create coordinates');
         this.create_coordinates();
+        console.log("@x_coords: ", this.x_coords);
         console.log("@y_coords: ", this.y_coords);
         console.timeEnd('Create coordinates');
         _ref = this.get_chr_lengths(), this.chr_lengths = _ref[0], this.cumulative_chr_lengths = _ref[1];
@@ -93,7 +94,10 @@
           if (!(_ref1 = result.chr, __indexOf.call(chr_seen, _ref1) >= 0)) {
             chr_seen.push(result.chr);
             chr_lengths.push(chr_length);
+            console.log("result.chr:", result.chr);
+            console.log("total_length:", this.total_length);
             if (result.chr !== 1) {
+              console.log("plus:", chr_lengths.length - 2);
               this.total_length += parseFloat(chr_lengths[chr_lengths.length - 2]);
             }
           }
@@ -131,7 +135,6 @@
         this.add_x_axis();
         this.add_y_axis();
         this.add_chr_lines();
-        this.fill_chr_areas();
         this.add_chr_labels();
         return this.add_plot_points();
       };
@@ -152,11 +155,15 @@
       };
 
       Manhattan_Plot.prototype.create_scales = function() {
-        console.log("@chromosomes[24]:", this.chromosomes['24']);
-        console.log("@chromosomes[23]:", this.chromosomes['23']);
-        console.log("@total_length:", this.total_length);
-        console.log("d3.max(@xcoords):", d3.max(this.x_coords));
-        this.x_scale = d3.scale.linear().domain([0, this.total_length + this.chromosomes['24']]).range([this.x_buffer, this.plot_width]);
+        if ('24' in this.chromosomes) {
+          console.log("@chromosomes[24]:", this.chromosomes['24']);
+          console.log("@chromosomes[23]:", this.chromosomes['23']);
+          console.log("@total_length:", this.total_length);
+          console.log("d3.max(@xcoords):", d3.max(this.x_coords));
+          this.x_scale = d3.scale.linear().domain([0, this.total_length + this.chromosomes['24']]).range([this.x_buffer, this.plot_width]);
+        } else {
+          this.x_scale = d3.scale.linear().domain([0, this.total_length + this.chromosomes['20']]).range([this.x_buffer, this.plot_width]);
+        }
         return this.y_scale = d3.scale.linear().domain([2, this.y_max]).range([this.plot_height, this.y_buffer]);
       };
 
@@ -230,17 +237,38 @@
 
       Manhattan_Plot.prototype.fill_chr_areas = function() {
         var _this = this;
+        console.log("cumu_chr_lengths:", this.cumulative_chr_lengths);
+        console.log("example:", this.x_scale(this.cumulative_chr_lengths[0]));
         return this.svg.selectAll("rect.chr_fill_area").data(_.zip(this.chr_lengths, this.cumulative_chr_lengths), function(d) {
           return d;
-        }).enter().append("rect").attr("class", "chr_fill_area").attr("x", function(d, i) {
+        }).enter().append("rect").attr("x", function(d) {
           if (i === 0) {
             return _this.x_scale(0);
           } else {
-            return _this.x_scale(_this.cumulative_chr_lengths[i - 1]);
+            return _this.x_scale(d[1]);
           }
         }).attr("y", this.y_buffer).attr("width", function(d) {
           return _this.x_scale(d[0]);
-        }).attr("height", this.plot_height - this.y_buffer).attr("fill", "none");
+        }).attr("height", this.plot_height - this.y_buffer);
+      };
+
+      Manhattan_Plot.prototype.fill_chr_areas2 = function() {
+        var _this = this;
+        console.log("cumu_chr_lengths:", this.cumulative_chr_lengths);
+        console.log("example:", this.x_scale(this.cumulative_chr_lengths[0]));
+        return this.svg.selectAll("rect.chr_fill_area").data(_.zip(this.chr_lengths, this.cumulative_chr_lengths), function(d) {
+          return d;
+        }).enter().append("rect").attr("x", function(d) {
+          if (i === 0) {
+            return _this.x_scale(0);
+          } else {
+            return _this.x_scale(d[1]);
+          }
+        }).attr("y", this.y_buffer).attr("width", function(d) {
+          return _this.x_scale(d[0]);
+        }).attr("height", this.plot_height - this.y_buffer).attr("fill", function(d, i) {
+          return "whitesmoke";
+        });
       };
 
       Manhattan_Plot.prototype.add_chr_labels = function() {
@@ -254,10 +282,16 @@
         return this.svg.selectAll("text").data(chr_info, function(d) {
           return d;
         }).enter().append("text").text(function(d) {
-          return d[0];
+          if (d[0] === "23") {
+            return "X";
+          } else if (d[0] === "24") {
+            return "X/Y";
+          } else {
+            return d[0];
+          }
         }).attr("x", function(d) {
           return _this.x_scale(d[2] - d[1] / 2);
-        }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("fill", "grey");
+        }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("fill", "black");
       };
 
       Manhattan_Plot.prototype.add_plot_points = function() {

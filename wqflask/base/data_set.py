@@ -169,7 +169,6 @@ class Markers(object):
         for marker, p_value in itertools.izip(self.markers, p_values):
             marker['p_value'] = p_value
             if math.isnan(marker['p_value']) or marker['p_value'] <= 0:
-                print("p_value is:", marker['p_value'])
                 marker['lod_score'] = 0
                 marker['lrs_value'] = 0
             else:
