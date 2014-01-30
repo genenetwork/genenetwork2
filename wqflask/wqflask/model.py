@@ -62,6 +62,25 @@ class User(Base):
                           lazy='dynamic',
                           )
 
+    def display_num_collections(self):
+        """
+        Returns the number of collections or a blank string if there are zero.
+
+
+        Because this is so unimportant...we wrap the whole thing in a try/expect...last thing we
+        want is a webpage not to be displayed because of an error here
+
+        Importand TODO: use redis to cache this, don't want to be constantly computing it
+
+        """
+        try:
+            num = len(list(self.user_collections))
+            return display_collapsible(num)
+        except Exception as why:
+            print("Couldn't display_num_collections:", why)
+            return ""
+
+
     def get_collection_by_name(self, collection_name):
         try:
             collect = self.user_collections.filter_by(name=collection_name).one()
@@ -156,6 +175,17 @@ class UserCollection(Base):
         print("members are:", json.loads(self.members))
         return len(json.loads(self.members))
 
+    #@property
+    #def display_num_members(self):
+    #    return display_collapsible(self.num_members)
+
 
     def members_as_set(self):
         return set(json.loads(self.members))
+
+
+def display_collapsible(number):
+    if number:
+        return number
+    else:
+        return ""

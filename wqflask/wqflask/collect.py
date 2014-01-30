@@ -48,12 +48,19 @@ from base import trait
 
 @app.route("/collections/add")
 def collections_add():
-    user_collections = g.user_session.user_ob.user_collections
-    print("user_collections are:", user_collections)
-    return render_template("collections/add.html",
-                           traits=request.args['traits'],
-                           user_collections = user_collections,
-                           )
+    traits=request.args['traits'],
+
+    if g.user_session.logged_in:
+        user_collections = g.user_session.user_ob.user_collections
+        print("user_collections are:", user_collections)
+        return render_template("collections/add.html",
+                               traits=traits,
+                               user_collections = user_collections,
+                               )
+    else:
+        return render_template("collections/add_anonymous.html",
+                               traits=traits
+                               )
 
 
 @app.route("/collections/new")
