@@ -22,6 +22,7 @@ import urlparse
 
 import simplejson as json
 
+import sqlalchemy
 from sqlalchemy import orm
 
 #from redis import StrictRedis
@@ -188,7 +189,15 @@ class RegisterUser(object):
 
         self.new_user = model.User(**self.user.__dict__)
         db_session.add(self.new_user)
-        db_session.commit()
+
+        try:
+            db_session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            # This exception is thrown if the email address is already in the database
+            # To do: Perhaps put a link to sign in using an existing account here
+            self.errors.append("An account with this email address already exists. "
+                               "Click the button above to sign in using an existing account.")
+            return
 
         print("Adding verification email to queue")
         #self.send_email_verification()
@@ -372,37 +381,44 @@ class LoginUser(object):
         if not params:
             return render_template("new_security/login_user.html")
         else:
-            user = model.User.query.filter_by(email_address=params['email_address']).one()
-            submitted_password = params['password']
-            pwfields = Struct(json.loads(user.password))
-            encrypted = Password(submitted_password,
-                                          pwfields.salt,
-                                          pwfields.iterations,
-                                          pwfields.keylength,
-                                          pwfields.hashfunc)
-            print("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
-            valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
-            print("valid is:", valid)
-
-            if valid and not user.confirmed:
-                VerificationEmail(user)
-                return render_template("new_security/verification_still_needed.html",
-                                       subject=VerificationEmail.subject)
-
-
-            if valid:
-                if params.get('remember'):
-                    print("I will remember you")
-                    self.remember_me = True
-
-                return self.actual_login(user)
-
+            try:
+                user = model.User.query.filter_by(email_address=params['email_address']).one()
+            except sqlalchemy.orm.exc.NoResultFound:
+                print("No account exists for that email address")
+                valid = False
+                user = None
             else:
-                self.unsuccessful_login(user)
-                flash("Invalid email-address or password. Please try again.", "alert-error")
-                response = make_response(redirect(url_for('login')))
+                submitted_password = params['password']
+                pwfields = Struct(json.loads(user.password))
+                encrypted = Password(submitted_password,
+                                              pwfields.salt,
+                                              pwfields.iterations,
+                                              pwfields.keylength,
+                                              pwfields.hashfunc)
+                print("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
+                valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
+                print("valid is:", valid)
 
-                return response
+        if valid and not user.confirmed:
+            VerificationEmail(user)
+            return render_template("new_security/verification_still_needed.html",
+                                   subject=VerificationEmail.subject)
+
+
+        if valid:
+            if params.get('remember'):
+                print("I will remember you")
+                self.remember_me = True
+
+            return self.actual_login(user)
+
+        else:
+            if user:
+                self.unsuccessful_login(user)
+            flash("Invalid email-address or password. Please try again.", "alert-error")
+            response = make_response(redirect(url_for('login')))
+
+            return response
 
     def actual_login(self, user, assumed_by=None):
         """The meat of the logging in process"""
