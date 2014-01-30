@@ -117,8 +117,8 @@ class MarkerRegression(object):
             Redis.expire(key, 60*60)
             print("before printing command")
 
-            command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py {} {}'.format(key,
-                                                                                              "non-human")
+            command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+                                                                                                                    "other")
             print("command is:", command)
             print("after printing command")
 
@@ -128,11 +128,9 @@ class MarkerRegression(object):
             #lmm.run(key)
             
             json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
-            results = json.load(json_results)
-            t_stats = results['t_stats']
+            results = json.loads(json_results[1])
             p_values = results['p_values']
-            
-            print("p_values:", p_values)
+            t_stats = results['t_stats']
             
             #t_stats, p_values = lmm.run(
             #    pheno_vector,
@@ -169,7 +167,7 @@ class MarkerRegression(object):
                     temp_uuid = temp_uuid,
                         
                     # meta data
-                    timestamp = datetime.datetime.isoformat(),
+                    timestamp = datetime.datetime.now().isoformat(),
                     )
         
         print("After creating params")
@@ -180,14 +178,20 @@ class MarkerRegression(object):
 
         print("Before creating the command")
 
-        command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py {} {}'.format(key,
-                                                                                          "non-human")
+        command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+                                                                                                                "human")
         
         print("command is:", command)
         
         os.system(command)
+        
+        json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
+        results = json.loads(json_results[1])
+        t_stats = results['t_stats']
+        p_values = results['p_values']
+        
 
-        p_values, t_stats = lmm.run_human(key)
+        #p_values, t_stats = lmm.run_human(key)
 
         #p_values, t_stats = lmm.run_human(
         #        pheno_vector,

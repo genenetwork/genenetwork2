@@ -38,13 +38,18 @@ import simplejson as json
 
 from pprint import pformat as pf
 
+from redis import Redis
+Redis = Redis()
+
+import sys
+sys.path.append("/home/zas1024/gene/wqflask/")
+print("sys.path2:", sys.path)
+
 from utility.benchmark import Bench
 from utility import temp_data
 
 from wqflask.my_pylmm.pyLMM import chunks
 
-from redis import Redis
-Redis = Redis()
 
 #np.seterr('raise')
 
@@ -68,17 +73,17 @@ def run_human(pheno_vector,
 
     identifier = str(uuid.uuid4())
     
-    print("pheno_vector: ", pf(pheno_vector))
-    print("kinship_matrix: ", pf(kinship_matrix))
-    print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
+    #print("pheno_vector: ", pf(pheno_vector))
+    #print("kinship_matrix: ", pf(kinship_matrix))
+    #print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
 
-    lmm_vars = pickle.dumps(dict(
-        pheno_vector = pheno_vector,
-        covariate_matrix = covariate_matrix,
-        kinship_matrix = kinship_matrix
-    ))
-    Redis.hset(identifier, "lmm_vars", lmm_vars)
-    Redis.expire(identifier, 60*60)
+    #lmm_vars = pickle.dumps(dict(
+    #    pheno_vector = pheno_vector,
+    #    covariate_matrix = covariate_matrix,
+    #    kinship_matrix = kinship_matrix
+    #))
+    #Redis.hset(identifier, "lmm_vars", lmm_vars)
+    #Redis.expire(identifier, 60*60)
 
     if v.sum():
         pheno_vector = pheno_vector[keep]
@@ -696,44 +701,44 @@ class LMM:
        pl.ylabel("Probability of data")
        pl.title(title)
 
-    def main():
-        parser = argparse.ArgumentParser(description='Run pyLMM')
-        parser.add_argument('-k', '--key')
-        
-        opts = parser.parse_args()
-        
-        key = opts.key
-        
-        json_params = Redis.get(key)
-        
-        params = json.loads(json_params)
-        print("params:", params)
+def main():
+    parser = argparse.ArgumentParser(description='Run pyLMM')
+    parser.add_argument('-k', '--key')
+    parser.add_argument('-s', '--species')
     
-        is_human = params['human']
+    opts = parser.parse_args()
+    
+    key = opts.key
+    species = opts.species
+    
+    json_params = Redis.get(key)
+    
+    params = json.loads(json_params)
+    print("params:", params)
+    
+    tempdata = temp_data.TempData(params['temp_uuid'])
+    if species == "human" :
+        ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
+                  covariate_matrix = np.array(params['covariate_matrix']),
+                  plink_input_file = params['input_file_name'],
+                  kinship_matrix = np.array(params['kinship_matrix']),
+                  refit = params['refit'],
+                  tempdata = tempdata)
+    else:
+        ps, ts = run_other(pheno_vector = np.array(params['pheno_vector']),
+                  genotype_matrix = np.array(params['genotype_matrix']),
+                  restricted_max_likelihood = params['restricted_max_likelihood'],
+                  refit = params['refit'],
+                  tempdata = tempdata)
         
-        tempdata = temp_data.TempData(params['temp_uuid'])
-        if is_human:
-            ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
-                      covariate_matrix = np.array(params['covariate_matrix']),
-                      plink_input_file = params['input_file_name'],
-                      kinship_matrix = np.array(params['kinship_matrix']),
-                      refit = params['refit'],
-                      tempdata = tempdata)
-        else:
-            ps, ts = run_other(pheno_vector = np.array(params['pheno_vector']),
-                      genotype_matrix = np.array(params['genotype_matrix']),
-                      restricted_max_likelihood = params['restricted_max_likelihood'],
-                      refit = params['refit'],
-                      tempdata = tempdata)
-            
-        results_key = "pylmm:results:" + params['temp_uuid']
+    results_key = "pylmm:results:" + params['temp_uuid']
 
-        json_results = json.dumps(dict(p_values = ps,
-                                       t_stats = ts))
-        
-        #Pushing json_results into a list where it is the only item because blpop needs a list
-        Redis.rpush(results_key, json_results)
-        Redis.expire(results_key, 60*60)
+    json_results = json.dumps(dict(p_values = ps,
+                                   t_stats = ts))
+    
+    #Pushing json_results into a list where it is the only item because blpop needs a list
+    Redis.rpush(results_key, json_results)
+    Redis.expire(results_key, 60*60)
 
 if __name__ == '__main__':
     main()
