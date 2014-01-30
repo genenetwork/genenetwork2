@@ -19,6 +19,7 @@ from __future__ import absolute_import, print_function, division
 
 import sys
 import time
+import argparse
 import uuid
 
 import numpy as np
@@ -26,6 +27,8 @@ from scipy import linalg
 from scipy import optimize
 from scipy import stats
 import pdb
+
+import simplejson as json
 
 import gzip
 import zlib
@@ -40,17 +43,24 @@ from utility import temp_data
 
 from wqflask.my_pylmm.pyLMM import chunks
 
-import redis
-Redis = redis.Redis()
+from redis import Redis
+Redis = Redis()
 
 #np.seterr('raise')
+
+#def run_human(pheno_vector,
+#            covariate_matrix,
+#            plink_input_file,
+#            kinship_matrix,
+#            refit=False,
+#            loading_progress=None):
 
 def run_human(pheno_vector,
             covariate_matrix,
             plink_input_file,
             kinship_matrix,
             refit=False,
-            loading_progress=None):
+            tempdata=None):
 
     v = np.isnan(pheno_vector)
     keep = True - v
@@ -142,7 +152,7 @@ def run_human(pheno_vector,
 
             percent_complete = (float(count) / total_snps) * 100
             #print("percent_complete: ", percent_complete)
-            loading_progress.store("percent_complete", percent_complete)
+            tempdata.store("percent_complete", percent_complete)
 
             #with Bench("actual association"):
             ps, ts = human_association(snp,
@@ -218,11 +228,17 @@ def human_association(snp,
     return ps, ts
 
 
-def run(pheno_vector,
+#def run(pheno_vector,
+#        genotype_matrix,
+#        restricted_max_likelihood=True,
+#        refit=False,
+#        temp_data=None):
+    
+def run_other(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
         refit=False,
-        temp_data=None):
+        tempdata=None):
     """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
     
     restricted_max_likelihood -- whether to use restricted max likelihood; True or False
@@ -232,8 +248,10 @@ def run(pheno_vector,
     
     """
     
+    
+    print("In run_other")
     with Bench("Calculate Kinship"):
-        kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
+        kinship_matrix = calculate_kinship(genotype_matrix, tempdata)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -252,7 +270,7 @@ def run(pheno_vector,
                                 kinship_matrix,
                                 restricted_max_likelihood=True,
                                 refit=False,
-                                temp_data=temp_data)
+                                temp_data=tempdata)
     Bench().report()
     return t_stats, p_values
 
@@ -677,3 +695,48 @@ class LMM:
        pl.xlabel("Heritability")
        pl.ylabel("Probability of data")
        pl.title(title)
+
+    def main():
+        parser = argparse.ArgumentParser(description='Run pyLMM')
+        parser.add_argument('-k', '--key')
+        
+        opts = parser.parse_args()
+        
+        key = opts.key
+        
+        json_params = Redis.get(key)
+        
+        params = json.loads(json_params)
+        print("params:", params)
+    
+        is_human = params['human']
+        
+        tempdata = temp_data.TempData(params['temp_uuid'])
+        if is_human:
+            ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
+                      covariate_matrix = np.array(params['covariate_matrix']),
+                      plink_input_file = params['input_file_name'],
+                      kinship_matrix = np.array(params['kinship_matrix']),
+                      refit = params['refit'],
+                      tempdata = tempdata)
+        else:
+            ps, ts = run_other(pheno_vector = np.array(params['pheno_vector']),
+                      genotype_matrix = np.array(params['genotype_matrix']),
+                      restricted_max_likelihood = params['restricted_max_likelihood'],
+                      refit = params['refit'],
+                      tempdata = tempdata)
+            
+        results_key = "pylmm:results:" + params['temp_uuid']
+
+        json_results = json.dumps(dict(p_values = ps,
+                                       t_stats = ts))
+        
+        #Pushing json_results into a list where it is the only item because blpop needs a list
+        Redis.rpush(results_key, json_results)
+        Redis.expire(results_key, 60*60)
+
+if __name__ == '__main__':
+    main()
+
+
+

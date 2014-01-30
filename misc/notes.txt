@@ -273,7 +273,9 @@ grep -ir (search string) (directory)
 
 ===========================================
 
-Use argparse to deal with command line arguments (instead of argv)
+Command line arguments:
+
+Use argparse to deal with command line arguments (instead of argv or optparse)
 
 ===========================================
 

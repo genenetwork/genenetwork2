@@ -184,7 +184,7 @@ class HumanMarkers(Markers):
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
-            print("splat:", splat)
+            #print("splat:", splat)
             marker = {}
             marker['chr'] = int(splat[0])
             marker['name'] = splat[1]
