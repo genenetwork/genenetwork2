@@ -13,7 +13,7 @@ def fetch():
     inbredsetid = 1
     phenotypesfile = open('bxdphenotypes.txt', 'w+')
     #
-    phenotypesfile.write("id\tOriginal_description\tPre_publication_description\tPost_publication_description\t")
+    phenotypesfile.write("ID\tAuthors\tOriginal_description\tPre_publication_description\tPost_publication_description\t")
     # open db
     cursor = utilities.get_cursor()
     # get strain list
@@ -52,7 +52,7 @@ def fetch():
         original_description = clearspaces(phenotyperow[2])
         pre_publication_description = clearspaces(phenotyperow[3])
         post_publication_description = clearspaces(phenotyperow[4])
-        phenotypesfile.write("%s\t%s\t%s\t%s\t" % (publishxrefid, authors, original_description, pre_publication_description, post_publication_description))
+        phenotypesfile.write("%s\t%s\t%s\t%s\t%s\t" % (publishxrefid, authors, original_description, pre_publication_description, post_publication_description))
         sql = """
             SELECT Strain.Name, PublishData.value
             FROM (PublishXRef, PublishData, Strain)
