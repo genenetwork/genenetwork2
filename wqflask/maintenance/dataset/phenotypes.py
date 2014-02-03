@@ -6,6 +6,8 @@ import os
 import re
 import MySQLdb
 
+import utilities
+
 def fetch():
     # parameters
     inbredsetid = 1
@@ -13,12 +15,7 @@ def fetch():
     #
     phenotypesfile.write("id\tOriginal_description\tPre_publication_description\tPost_publication_description\t")
     # open db
-    host = 'localhost'
-    user = 'webqtl'
-    passwd = 'webqtl'
-    db = 'db_webqtl'
-    con = MySQLdb.Connect(db=db, user=user, passwd=passwd, host=host)
-    cursor = con.cursor()
+    cursor = utilities.get_cursor()
     # get strain list
     strains = []
     sql = """
@@ -40,20 +37,22 @@ def fetch():
     phenotypesfile.flush()
     # phenotypes
     sql = """
-        SELECT PublishXRef.`Id`, Phenotype.`Original_description`, Phenotype.`Pre_publication_description`, Phenotype.`Post_publication_description`
-        FROM (PublishXRef, Phenotype)
-        WHERE PublishXRef.`PhenotypeId`=Phenotype.`Id`
-        AND PublishXRef.`InbredSetId`=%s
+        SELECT PublishXRef.`Id`, Publication.`Authors`, Phenotype.`Original_description`, Phenotype.`Pre_publication_description`, Phenotype.`Post_publication_description`
+        FROM (PublishXRef, Phenotype, Publication)
+        WHERE PublishXRef.`InbredSetId`=%s
+        AND PublishXRef.`PhenotypeId`=Phenotype.`Id`
+        AND PublishXRef.`PublicationId`=Publication.`Id`
         """
     cursor.execute(sql, (inbredsetid))
     results = cursor.fetchall()
     print "get %d phenotypes" % (len(results))
     for phenotyperow in results:
         publishxrefid = phenotyperow[0]
-        original_description = clearspaces(phenotyperow[1])
-        pre_publication_description = clearspaces(phenotyperow[2])
-        post_publication_description = clearspaces(phenotyperow[3])
-        phenotypesfile.write("%s\t%s\t%s\t%s\t" % (publishxrefid, original_description, pre_publication_description, post_publication_description))
+        authors = clearspaces(phenotyperow[1])
+        original_description = clearspaces(phenotyperow[2])
+        pre_publication_description = clearspaces(phenotyperow[3])
+        post_publication_description = clearspaces(phenotyperow[4])
+        phenotypesfile.write("%s\t%s\t%s\t%s\t" % (publishxrefid, authors, original_description, pre_publication_description, post_publication_description))
         sql = """
             SELECT Strain.Name, PublishData.value
             FROM (PublishXRef, PublishData, Strain)
