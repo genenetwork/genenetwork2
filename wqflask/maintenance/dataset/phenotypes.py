@@ -13,7 +13,7 @@ def fetch():
     inbredsetid = 1
     phenotypesfile = open('bxdphenotypes.txt', 'w+')
     #
-    phenotypesfile.write("ID\tAuthors\tOriginal_description\tPre_publication_description\tPost_publication_description\t")
+    phenotypesfile.write("id\tAuthors\tOriginal_description\tPre_publication_description\tPost_publication_description\t")
     # open db
     cursor = utilities.get_cursor()
     # get strain list
