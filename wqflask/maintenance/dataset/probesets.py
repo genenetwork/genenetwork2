@@ -1,6 +1,7 @@
 import sys
 
 import utilities
+import genotypes
 
 def get_probesetxref(probesetfreezeid):
     cursor = utilities.get_cursor()
@@ -47,7 +48,7 @@ def get_probesetxref_probesetfreezeid(locus, probesetfreezeid):
 def get_probesetxref_inbredsetid(locus, inbredsetid):
     cursor = utilities.get_cursor()
     sql = """
-        SELECT ProbeSetXRef.`ProbeSetId`
+        SELECT ProbeSetXRef.`ProbeSetId`, ProbeSetXRef.`mean`, ProbeSetXRef.`LRS`, ProbeSetXRef.`Locus`
         FROM (ProbeSetXRef, ProbeSetFreeze, ProbeFreeze)
         WHERE ProbeSetXRef.`ProbeSetFreezeId`=ProbeSetFreeze.`Id`
         AND ProbeSetFreeze.`ProbeFreezeId`=ProbeFreeze.`Id`
@@ -64,8 +65,19 @@ def get_normalized_probeset(locus, inbredsetid):
         normalized_probeset = []
         probesetid = probesetxref[0]
         probeset = get_probeset(probesetid)
-        normalized_probeset.append(probeset)
+        normalized_probeset.append(probeset[1])
+        normalized_probeset.append(probeset[2])
+        normalized_probeset.append(probeset[3])
+        normalized_probeset.append(probeset[4])
+        normalized_probeset.append(probeset[5])
+        normalized_probeset.append(probeset[6])
+        normalized_probeset.append(probesetxref[1])
+        normalized_probeset.append(probesetxref[2])
+        locus = probesetxref[3]
+        geno = genotypes.get_geno(inbredsetid=inbredsetid, name=locus)
+        normalized_probeset.append(geno[2])
+        normalized_probeset.append(geno[3])
         normalized_probesets.append(normalized_probeset)
-    print normalized_probesets
+    print normalized_probesets[:2]
 
 get_normalized_probeset(locus="rs3663871", inbredsetid=1)
