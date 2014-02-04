@@ -1,4 +1,5 @@
 import MySQLdb
+import re
 
 def get_cursor():
     host = 'localhost'
@@ -8,3 +9,11 @@ def get_cursor():
     con = MySQLdb.Connect(db=db, host=host, user=user, passwd=passwd)
     cursor = con.cursor()
     return cursor
+    
+def clearspaces(s):
+    if s:
+        s = re.sub('\s+', ' ', s)
+        s = s.strip()
+        return s
+    else:
+        return None

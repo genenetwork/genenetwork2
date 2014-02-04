@@ -1,11 +1,7 @@
-import sys
-sys.path.append('.')
-sys.path.append('..')
-
-from utilities import db
+import utilities
 
 def get_probesetfreeze(inbredsetid):
-    cursor = db.get_cursor()
+    cursor = utilities.get_cursor()
     sql = """
         SELECT ProbeSetFreeze.`Id`, ProbeSetFreeze.`Name`, ProbeSetFreeze.`FullName`
         FROM ProbeSetFreeze, ProbeFreeze
@@ -14,4 +10,14 @@ def get_probesetfreeze(inbredsetid):
         """
     cursor.execute(sql, (inbredsetid))
     return cursor.fetchall()
+
+def get_probesetfreeze(probesetfreezeid):
+    cursor = utilities.get_cursor()
+    sql = """
+        SELECT ProbeSetFreeze.`Id`, ProbeSetFreeze.`Name`, ProbeSetFreeze.`FullName`
+        FROM ProbeSetFreeze
+        WHERE ProbeSetFreeze.`Id`=%s
+        """
+    cursor.execute(sql, (probesetfreezeid))
+    return cursor.fetchone()
     

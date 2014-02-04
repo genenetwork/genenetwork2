@@ -1,10 +1,6 @@
 # Author:               Lei Yan
 
 # import
-import sys
-import os
-import re
-import MySQLdb
 
 import utilities
 
@@ -48,10 +44,10 @@ def fetch():
     print "get %d phenotypes" % (len(results))
     for phenotyperow in results:
         publishxrefid = phenotyperow[0]
-        authors = clearspaces(phenotyperow[1])
-        original_description = clearspaces(phenotyperow[2])
-        pre_publication_description = clearspaces(phenotyperow[3])
-        post_publication_description = clearspaces(phenotyperow[4])
+        authors = utilities.clearspaces(phenotyperow[1])
+        original_description = utilities.clearspaces(phenotyperow[2])
+        pre_publication_description = utilities.clearspaces(phenotyperow[3])
+        post_publication_description = utilities.clearspaces(phenotyperow[4])
         phenotypesfile.write("%s\t%s\t%s\t%s\t%s\t" % (publishxrefid, authors, original_description, pre_publication_description, post_publication_description))
         sql = """
             SELECT Strain.Name, PublishData.value
@@ -80,14 +76,6 @@ def fetch():
         phenotypesfile.flush()
     # release
     phenotypesfile.close()
-
-def clearspaces(s):
-    if s:
-        s = re.sub('\s+', ' ', s)
-        s = s.strip()
-        return s
-    else:
-        return None
     
 # main
 if __name__ == "__main__":
