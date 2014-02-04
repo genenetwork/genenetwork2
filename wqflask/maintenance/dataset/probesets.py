@@ -1,11 +1,9 @@
 import sys
-sys.path.append('.')
-sys.path.append('..')
 
-from utilities import db
+import utilities
 
-def fetch_probesetxref(probesetfreezeid):
-    cursor = db.get_cursor()
+def get_probesetxref(probesetfreezeid):
+    cursor = utilities.get_cursor()
     sql = """
         SELECT ProbeSetXRef.`ProbeSetId`, ProbeSetXRef.`DataId`
         FROM ProbeSetXRef
@@ -14,8 +12,8 @@ def fetch_probesetxref(probesetfreezeid):
     cursor.execute(sql, (probesetfreezeid))
     return cursor.fetchall()
     
-def fetch_probeset(probesetid):
-    cursor = db.get_cursor()
+def get_probeset(probesetid):
+    cursor = utilities.get_cursor()
     sql = """
         SELECT *
         FROM ProbeSet
@@ -24,8 +22,8 @@ def fetch_probeset(probesetid):
     cursor.execute(sql, (probesetid))
     return cursor.fetchone()
     
-def fetch_probesetdata(probesetdataid):
-    cursor = db.get_cursor()
+def get_probesetdata(probesetdataid):
+    cursor = utilities.get_cursor()
     sql = """
         SELECT Strain.`Id`, Strain.`Name`, ProbeSetData.`value`
         FROM ProbeSetData, Strain
@@ -35,11 +33,28 @@ def fetch_probesetdata(probesetdataid):
     cursor.execute(sql, (probesetdataid))
     return cursor.fetchall()
 
-results = fetch_probesetxref(112)
-for row in results:
-    print row
-    probesetid = row[0]
-    probesetdataid = row[1]
-    print fetch_probeset(probesetid)
-    print fetch_probesetdata(probesetdataid)
-    break
+def get_probesetxref_probesetfreezeid(locus, probesetfreezeid):
+    cursor = utilities.get_cursor()
+    sql = """
+        SELECT ProbeSetXRef.`ProbeSetId`
+        FROM ProbeSetXRef
+        WHERE ProbeSetXRef.`ProbeSetFreezeId`=%s
+        AND ProbeSetXRef.`Locus` LIKE %s
+        """
+    cursor.execute(sql, (probesetfreezeid, locus))
+    return cursor.fetchall()
+    
+def get_probesetxref_inbredsetid(locus, inbredsetid):
+    cursor = utilities.get_cursor()
+    sql = """
+        SELECT ProbeSetXRef.`ProbeSetId`
+        FROM (ProbeSetXRef, ProbeSetFreeze, ProbeFreeze)
+        WHERE ProbeSetXRef.`ProbeSetFreezeId`=ProbeSetFreeze.`Id`
+        AND ProbeSetFreeze.`ProbeFreezeId`=ProbeFreeze.`Id`
+        AND ProbeFreeze.`InbredSetId`=%s
+        AND ProbeSetXRef.`Locus` LIKE %s
+        """
+    cursor.execute(sql, (inbredsetid, locus))
+    return cursor.fetchall()
+
+print get_probesetxref_inbredsetid(locus="rs3663871", inbredsetid=1)
