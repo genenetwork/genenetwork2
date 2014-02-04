@@ -15,7 +15,7 @@ def get_probesetxref(probesetfreezeid):
 def get_probeset(probesetid):
     cursor = utilities.get_cursor()
     sql = """
-        SELECT *
+        SELECT ProbeSet.`Id`, ProbeSet.`Name`, ProbeSet.`Symbol`, ProbeSet.`description`, ProbeSet.`Probe_Target_Description`, ProbeSet.`Chr`, ProbeSet.`Mb`
         FROM ProbeSet
         WHERE ProbeSet.`Id`=%s
         """
@@ -57,4 +57,15 @@ def get_probesetxref_inbredsetid(locus, inbredsetid):
     cursor.execute(sql, (inbredsetid, locus))
     return cursor.fetchall()
 
-print get_probesetxref_inbredsetid(locus="rs3663871", inbredsetid=1)
+def get_normalized_probeset(locus, inbredsetid):
+    normalized_probesets = []
+    probesetxrefs = get_probesetxref_inbredsetid(locus, inbredsetid)
+    for probesetxref in probesetxrefs:
+        normalized_probeset = []
+        probesetid = probesetxref[0]
+        probeset = get_probeset(probesetid)
+        normalized_probeset.append(probeset)
+        normalized_probesets.append(normalized_probeset)
+    print normalized_probesets
+
+get_normalized_probeset(locus="rs3663871", inbredsetid=1)
