@@ -89,6 +89,7 @@ def get_normalized_probeset(locus, inbredsetid):
         normalized_probeset.append(geno[3])
         #
         normalized_probesets.append(normalized_probeset)
+    return normalized_probesets
 
 locus="rs3663871"
 inbredsetid=1
@@ -98,6 +99,6 @@ file = open('probesets_%s.txt' % (locus), 'w+')
 file.write("GN dataset ID\t\n")
 file.flush()
 for row in results:
-    file.write(row[0])
+    file.write(str(row[0]))
     file.flush()
 file.close()
