@@ -10,10 +10,10 @@ def get_cursor():
     cursor = con.cursor()
     return cursor
     
-def clearspaces(s):
+def clearspaces(s, default=None):
     if s:
         s = re.sub('\s+', ' ', s)
         s = s.strip()
         return s
     else:
-        return None
+        return default
