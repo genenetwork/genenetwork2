@@ -115,7 +115,6 @@ def bxd_correlations():
                 dic2 = probesetdata
                 keys, values1, values2 = utilities.overlap(dic1, dic2)
                 rs = calculate.correlation(values1, values2)
-                print rs
                 #
                 outputfile.write("%s\t" % len(keys))
                 outputfile.write("%s\t" % rs[0][0])
