@@ -17,3 +17,11 @@ def clearspaces(s, default=None):
         return s
     else:
         return default
+        
+def to_dic(keys, values):
+    dic = {}
+    for i in range(len(keys)):
+        key = keys[i]
+        value = values[i]
+        dic[key] = value
+    return dic

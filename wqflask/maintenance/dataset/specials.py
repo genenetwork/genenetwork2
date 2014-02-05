@@ -105,6 +105,9 @@ def bxd_correlations():
                 outputfile.write("%s\t" % probesetid)
                 outputfile.write("%s\t" % probesetname)
                 outputfile.write("%s\t" % genoname)
+                #
+                
+                #
                 outputfile.write("%s\t" % "Overlap Number")
                 outputfile.write("%s\t" % "Pearson r")
                 outputfile.write("%s\t" % "Pearson p")
