@@ -46,10 +46,27 @@ def bxd_correlations():
         print "Get %d probesetxrefs" % (len(probesetxrefs))
         #
         for probesetxref in probesetxrefs:
+            #
             probesetid = probesetxref[0]
             probesetdataid = probesetxref[1]
             probeset = probesets.get_probeset(probesetid)
+            ProbeSetId = probeset[0]
+            ProbeSetName = probeset[1]
+            # Geno Name       Overlap Number  Pearson r       Pearson p       Spearman r      Spearman p
             probesetdata = probesets.get_probesetdata(probesetdataid)
+            #
+            for geno in genos:
+                genoname = geno['locus']
+                outputfile.write("%s\t" % probeSetid)
+                outputfile.write("%s\t" % ProbeSetName)
+                outputfile.write("%s\t" % GenoName)
+                outputfile.write("%s\t" % "Overlap Number")
+                outputfile.write("%s\t" % "Pearson r")
+                outputfile.write("%s\t" % "Pearson p")
+                outputfile.write("%s\t" % "Spearman r")
+                outputfile.write("%s\t" % "Spearman p")
+                outputfile.write("\n")
+                outputfile.flush()
         #
         outputfile.close()
         
