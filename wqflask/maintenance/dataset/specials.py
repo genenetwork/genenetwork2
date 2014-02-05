@@ -2,6 +2,7 @@ import utilities
 import datastructure
 import genotypes
 import probesets
+import calculate
 
 """
 For:    Rob, GeneNetwork
@@ -113,17 +114,14 @@ def bxd_correlations():
                 dic1 = geno['dicvalues']
                 dic2 = probesetdata
                 keys, values1, values2 = utilities.overlap(dic1, dic2)
-                
-                print keys
-                print values1
-                print values2
-                return 
+                rs = calculate.correlation(values1, values2)
+                print rs
                 #
-                outputfile.write("%s\t" % "Overlap Number")
-                outputfile.write("%s\t" % "Pearson r")
-                outputfile.write("%s\t" % "Pearson p")
-                outputfile.write("%s\t" % "Spearman r")
-                outputfile.write("%s\t" % "Spearman p")
+                outputfile.write("%s\t" % len(keys))
+                outputfile.write("%s\t" % rs[0][0])
+                outputfile.write("%s\t" % rs[0][1])
+                outputfile.write("%s\t" % rs[1][0])
+                outputfile.write("%s\t" % rs[1][1])
                 outputfile.write("\n")
                 outputfile.flush()
         #
