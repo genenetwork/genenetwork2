@@ -1,1 +1,0 @@
-/usr/bin/python ../code/genotypes_load.py conf.ini

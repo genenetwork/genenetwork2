@@ -1,6 +1,6 @@
 import utilities
 
-def get_probesetfreeze(inbredsetid):
+def get_probesetfreezes(inbredsetid):
     cursor = utilities.get_cursor()
     sql = """
         SELECT ProbeSetFreeze.`Id`, ProbeSetFreeze.`Name`, ProbeSetFreeze.`FullName`
