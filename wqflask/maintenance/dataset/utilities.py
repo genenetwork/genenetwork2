@@ -25,3 +25,14 @@ def to_dic(keys, values):
         value = values[i]
         dic[key] = value
     return dic
+
+def overlap(dic1, dic2):
+    keys = []
+    values1 = []
+    values2 = []
+    for key in dic1.keys():
+        if key in dic2:
+            keys.append(key)
+            values1.append(dic1[key])
+            values2.append(dic2[key])
+    return keys, values1, values2
