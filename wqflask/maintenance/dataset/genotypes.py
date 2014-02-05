@@ -24,13 +24,16 @@ def load_genos(file):
         cells = line.split()
         if line.startswith("Chr"):
             strains = cells[4:]
+            strains = [strain.lower() for strain in strains]
             continue
         genotype = {}
         genotype['chr'] = cells[0]
         genotype['locus'] = cells[1]
         genotype['cm'] = cells[2]
         genotype['mb'] = cells[3]
-        genotype['values'] = cells[4:]
+        values = cells[4:]
+        genotype['values'] = values
+        genotype['dicvalues'] = utilities.to_dic(strains, values)
         genotypes.append(genotype)
     return strains, genotypes
     
