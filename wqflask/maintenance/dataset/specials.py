@@ -1,3 +1,4 @@
+import utilities
 import datastructure
 import genotypes
 import probesets
@@ -6,7 +7,7 @@ import probesets
 For:    Rob, GeneNetwork
 Date:   2014-02-04
 Function:
-    For BXD group, fetch probesets with given locus.
+    For BXD group, fetch probesets with given locus (mapping info).
 
 locus="rs3663871"
 """
@@ -65,10 +66,11 @@ def bxd_correlations():
     t = genotypes.load_genos(genofile)
     genostrains = t[0]
     genos = t[1]
-    print "Get %d genos" % (len(genos))
+    print "From geno file, get %d strains" % (len(genostrains))
+    print "From geno file, get %d genos" % (len(genos))
     #
     probesetfreezes = datastructure.get_probesetfreezes(inbredsetid)
-    print "Get %d probesetfreezes" % (len(probesetfreezes))
+    print "From DB, get %d probesetfreezes" % (len(probesetfreezes))
     #
     for probesetfreeze in probesetfreezes:
         #
@@ -99,6 +101,11 @@ def bxd_correlations():
             probeset = probesets.get_probeset(probesetid)
             probesetname = probeset[1]
             probesetdata = probesets.get_probesetdata(probesetdataid)
+            print probesetdata
+            probesetdata = zip(*probesetdata)
+            probesetdata = utilities.to_dic([strain.lower() for strain in probesetdata[1]], probesetdata[2])
+            print probesetdata
+            return
             #
             for geno in genos:
                 genoname = geno['locus']
