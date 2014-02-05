@@ -32,7 +32,10 @@ def overlap(dic1, dic2):
     values2 = []
     for key in dic1.keys():
         if key in dic2:
-            keys.append(key)
-            values1.append(dic1[key])
-            values2.append(dic2[key])
+            value1 = dic1[key]
+            value2 = dic2[key]
+            if value1 and value2:
+                keys.append(key)
+                values1.append(value1)
+                values2.append(value2)
     return keys, values1, values2
