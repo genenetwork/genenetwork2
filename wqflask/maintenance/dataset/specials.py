@@ -65,6 +65,7 @@ def bxd_correlations():
     t = genotypes.load_genos(genofile)
     genostrains = t[0]
     genos = t[1]
+    print "Get %d genos" % (len(genos))
     #
     probesetfreezes = datastructure.get_probesetfreezes(inbredsetid)
     print "Get %d probesetfreezes" % (len(probesetfreezes))
