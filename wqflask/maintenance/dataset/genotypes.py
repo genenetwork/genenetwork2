@@ -32,8 +32,17 @@ def load_genos(file):
         genotype['cm'] = cells[2]
         genotype['mb'] = cells[3]
         values = cells[4:]
+        values = [to_number(value) for value in values]
         genotype['values'] = values
         genotype['dicvalues'] = utilities.to_dic(strains, values)
         genotypes.append(genotype)
     return strains, genotypes
     
+def to_number(char):
+    dic = {
+        'b': -1,
+        'd': 1,
+        'h': 0,
+        'u': None,
+        }
+    return dic.get(char.lower(), None)

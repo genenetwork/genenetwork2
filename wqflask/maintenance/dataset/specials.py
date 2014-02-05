@@ -101,11 +101,8 @@ def bxd_correlations():
             probeset = probesets.get_probeset(probesetid)
             probesetname = probeset[1]
             probesetdata = probesets.get_probesetdata(probesetdataid)
-            print probesetdata
             probesetdata = zip(*probesetdata)
             probesetdata = utilities.to_dic([strain.lower() for strain in probesetdata[1]], probesetdata[2])
-            print probesetdata
-            return
             #
             for geno in genos:
                 genoname = geno['locus']
@@ -113,7 +110,14 @@ def bxd_correlations():
                 outputfile.write("%s\t" % probesetname)
                 outputfile.write("%s\t" % genoname)
                 #
+                dic1 = geno['dicvalues']
+                dic2 = probesetdata
+                keys, values1, values2 = utilities.overlap(dic1, dic2)
                 
+                print keys
+                print values1
+                print values2
+                return 
                 #
                 outputfile.write("%s\t" % "Overlap Number")
                 outputfile.write("%s\t" % "Pearson r")
