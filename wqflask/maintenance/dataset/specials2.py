@@ -54,9 +54,9 @@ def bxd_correlations():
     probesetfreezes = datastructure.get_probesetfreezes(inbredsetid)
     print "From DB, get %d probesetfreezes" % (len(probesetfreezes))
     for probesetfreeze in probesetfreezes:
-        correlations(genos, probesetfreeze)
+        correlations(outputdir=outputdir, genos=genos, probesetfreeze=probesetfreeze)
     
-def correlations(genos, probesetfreeze):
+def correlations(outputdir, genos, probesetfreeze):
     print probesetfreeze
     probesetfreezeid = probesetfreeze[0]
     probesetfreezename = probesetfreeze[1]
@@ -107,3 +107,33 @@ def correlations(genos, probesetfreeze):
             outputfile.flush()
     #
     outputfile.close()
+    
+"""
+For:    Ash
+Date:   2014-02-10
+Function:
+    For BXD group, calculate correlations with genotypes and probesets.
+    given probesetfreezes
+"""
+def bxd_correlations_givenprobesetfreezes(probesetfreezesfile):
+    #
+    inbredsetid = 1
+    genofile = "/home/leiyan/gn/web/genotypes/BXD.geno"
+    outputdir = "/home/leiyan/gn2/wqflask/maintenance/dataset/datadir/20140205_Ash_correlations/output"
+    #
+    t = genotypes.load_genos(genofile)
+    genostrains = t[0]
+    genos = t[1]
+    print "From geno file, get %d strains" % (len(genostrains))
+    print "From geno file, get %d genos" % (len(genos))
+    #
+    file = open(probesetfreezesfile, 'r')
+    for line in file:
+        line = line.strip()
+        cells = line.split()
+        probesetfreezeid = cells[0]
+        probesetfreeze = datastructure.get_probesetfreeze(probesetfreezeid)
+        correlations(outputdir=outputdir, genos=genos, probesetfreeze=probesetfreeze)
+    file.close()
+
+bxd_correlations_givenprobesetfreezes('/home/leiyan/gn2/wqflask/maintenance/dataset/datadir/20140205_Ash_correlations/output/probesetfreezes_filter.txt')
