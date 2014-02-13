@@ -95,6 +95,9 @@ def generate_probesets(probesetfreezesfile, outputdir):
             probesetdata = zip(*probesetdata)
             probesetdata = utilities.to_dic([strain.lower() for strain in probesetdata[1]], probesetdata[2])
             #
+            outputfile.write("%s\t" % probesetid)
+            outputfile.write("%s\t" % probesetname)
+            #
             for strain in strains:
                 strainname = strain[1]
                 strainname = strainname.lower()
