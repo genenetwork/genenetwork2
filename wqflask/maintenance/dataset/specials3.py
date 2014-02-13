@@ -79,6 +79,7 @@ def generate_probesets(probesetfreezesfile, outputdir):
         outputfile = open("%s/%d_%s.txt" % (outputdir, probesetfreezeid, probesetfreezename), "w+")
         outputfile.write("%s\t" % "ProbeSet Id")
         outputfile.write("%s\t" % "ProbeSet Name")
+        outputfile.write('\t'.join([strain[1].upper() for strain in strains]))
         outputfile.write("\n")
         outputfile.flush()
         #
@@ -86,15 +87,24 @@ def generate_probesets(probesetfreezesfile, outputdir):
         print probesetfreeze
         print len(probesetxrefs)
         for probesetxref in probesetxrefs:
-            pass
-        #
-        probesetid = probesetxref[0]
-        probesetdataid = probesetxref[1]
-        probeset = probesets.get_probeset(probesetid)
-        probesetname = probeset[1]
-        probesetdata = probesets.get_probesetdata(probesetdataid)
-        probesetdata = zip(*probesetdata)
-        probesetdata = utilities.to_dic([strain.lower() for strain in probesetdata[1]], probesetdata[2])
+            probesetid = probesetxref[0]
+            probesetdataid = probesetxref[1]
+            probeset = probesets.get_probeset(probesetid)
+            probesetname = probeset[1]
+            probesetdata = probesets.get_probesetdata(probesetdataid)
+            probesetdata = zip(*probesetdata)
+            probesetdata = utilities.to_dic([strain.lower() for strain in probesetdata[1]], probesetdata[2])
+            #
+            for strain in strains:
+                strainname = strain[1]
+                strainname = strainname.lower()
+                if strainname in probesetdata:
+                    value = probesetdata[strainname]
+                else:
+                    value = 'x'
+                outputfile.write("%s\t" % value)
+            outputfile.write("\n")
+            outputfile.flush()
         #
         outputfile.close()
     file.close()
