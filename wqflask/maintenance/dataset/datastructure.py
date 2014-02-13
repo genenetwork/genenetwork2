@@ -21,3 +21,15 @@ def get_probesetfreeze(probesetfreezeid):
     cursor.execute(sql, (probesetfreezeid))
     return cursor.fetchone()
     
+def get_strains(inbredsetid):
+    cursor = utilities.get_cursor()
+    sql = """
+        SELECT Strain.`Id`, Strain.`Name`
+        FROM StrainXRef, Strain
+        WHERE StrainXRef.`InbredSetId`=%s
+        AND StrainXRef.`StrainId`=Strain.`Id`
+        ORDER BY StrainXRef.`OrderId`
+        """
+    cursor.execute(sql, (inbredsetid))
+    return cursor.fetchall()
+    
