@@ -32,4 +32,15 @@ def get_strains(inbredsetid):
         """
     cursor.execute(sql, (inbredsetid))
     return cursor.fetchall()
-    
+
+def get_inbredset(probesetfreezeid):
+    cursor = utilities.get_cursor()
+    sql = """
+        SELECT InbredSet.`Id`, InbredSet.`Name`, InbredSet.`FullName`
+        FROM InbredSet, ProbeFreeze, ProbeSetFreeze
+        WHERE InbredSet.`Id`=ProbeFreeze.`InbredSetId`
+        AND ProbeFreeze.`Id`=ProbeSetFreeze.`ProbeFreezeId`
+        AND ProbeSetFreeze.`Id`=%s
+        """
+    cursor.execute(sql, (probesetfreezeid))
+    return cursor.fetchone()
