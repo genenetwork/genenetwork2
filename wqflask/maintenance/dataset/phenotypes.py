@@ -1,7 +1,3 @@
-# Author:               Lei Yan
-
-# import
-
 import utilities
 
 def fetch():
@@ -76,8 +72,29 @@ def fetch():
         phenotypesfile.flush()
     # release
     phenotypesfile.close()
-    
-# main
-if __name__ == "__main__":
-    fetch()
-    print "exit successfully"
+
+def delete(publishxrefid, inbredsetid):
+    cursor = utilities.get_cursor()
+    sql = """
+        DELETE Phenotype
+        FROM PublishXRef,Phenotype
+        WHERE PublishXRef.`Id`=%s
+        AND PublishXRef.`InbredSetId`=%s
+        AND PublishXRef.`PhenotypeId`=Phenotype.`Id`
+        """
+    cursor.execute(sql, (publishxrefid, inbredsetid))
+    sql = """
+        DELETE PublishData
+        FROM PublishXRef,PublishData
+        WHERE PublishXRef.`Id`=%s
+        AND PublishXRef.`InbredSetId`=%s
+        AND PublishXRef.`DataId`=PublishData.`Id`
+        """
+    cursor.execute(sql, (publishxrefid, inbredsetid))
+    sql = """
+        DELETE PublishXRef
+        FROM PublishXRef
+        WHERE PublishXRef.`Id`=%s
+        AND PublishXRef.`InbredSetId`=%s
+        """
+    cursor.execute(sql, (publishxrefid, inbredsetid))
