@@ -9,8 +9,8 @@ def get_cursor():
     db = 'db_webqtl'
     con = MySQLdb.Connect(db=db, host=host, user=user, passwd=passwd)
     cursor = con.cursor()
-    return cursor
-    
+    return cursor, con
+
 def clearspaces(s, default=None):
     if s:
         s = re.sub('\s+', ' ', s)

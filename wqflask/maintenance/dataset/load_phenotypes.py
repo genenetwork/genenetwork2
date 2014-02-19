@@ -11,7 +11,7 @@ def main(argv):
         print "\t%s" % (str(item))
     # var
     inbredsetid = config.get('config', 'inbredsetid')
-    cursor = utilities.get_cursor()
+    cursor, con = utilities.get_cursor()
     print "inbredsetid: %s" % inbredsetid
     # datafile
     datafile = open(config.get('config', 'datafile'), 'r')
@@ -45,20 +45,21 @@ def main(argv):
             Phenotype.`Units`=%s
             """
         cursor.execute(sql, (
-            metarow[1],
-            metarow[2],
-            metarow[3],
-            metarow[4],
-            metarow[5],
-            metarow[6],
-            metarow[7],
-            metarow[8],
-            metarow[9],
-            metarow[18]
+            utilities.to_db_string_null(metarow[1]),
+            utilities.to_db_string_null(metarow[2]),
+            utilities.to_db_string_null(metarow[3]),
+            utilities.to_db_string_null(metarow[4]),
+            utilities.to_db_string_null(metarow[5]),
+            utilities.to_db_string_null(metarow[6]),
+            utilities.to_db_string_null(metarow[7]),
+            utilities.to_db_string_null(metarow[8]),
+            utilities.to_db_string_null(metarow[9]),
+            utilities.to_db_string_null(metarow[18])
             ))
-        re = cursor.rowcount
-        print "INSERT INTO Phenotype: %d record" % re
-        
+        rowcount = cursor.rowcount
+        phenotypeid = con.insert_id()
+        print "INSERT INTO Phenotype: %d record: %d" % (rowcount, phenotypeid)
+
 if __name__ == "__main__":
     print "command line arguments:\n\t%s" % sys.argv
     main(sys.argv)
