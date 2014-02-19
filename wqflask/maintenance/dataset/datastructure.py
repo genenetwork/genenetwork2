@@ -44,3 +44,17 @@ def get_inbredset(probesetfreezeid):
         """
     cursor.execute(sql, (probesetfreezeid))
     return cursor.fetchone()
+
+def get_nextdataid_phenotype():
+    cursor = utilities.get_cursor()
+    sql = """
+        SELECT PublishData.`Id`
+        FROM PublishData
+        ORDER BY PublishData.`Id` DESC
+        LIMIT 1
+        """
+    cursor.execute(sql)
+    re = cursor.fetchone()
+    dataid = re[0]
+    dataid += 1
+    return dataid

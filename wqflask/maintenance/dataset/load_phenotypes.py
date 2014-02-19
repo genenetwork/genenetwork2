@@ -11,6 +11,7 @@ def main(argv):
         print "\t%s" % (str(item))
     # var
     inbredsetid = config.get('config', 'inbredsetid')
+    dataid = utilities.get_nextdataid_phenotype()
     cursor, con = utilities.get_cursor()
     print "inbredsetid: %s" % inbredsetid
     # datafile
