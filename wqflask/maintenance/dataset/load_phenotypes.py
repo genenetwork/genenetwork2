@@ -59,6 +59,48 @@ def main(argv):
         rowcount = cursor.rowcount
         phenotypeid = con.insert_id()
         print "INSERT INTO Phenotype: %d record: %d" % (rowcount, phenotypeid)
+        # Publication
+        publicationid = None # reset
+        pubmed_id = utilities.to_db_string_null(metarow[0])
+        if pubmed_id:
+            sql = """
+                SELECT Publication.`Id`
+                FROM Publication
+                WHERE Publication.`PubMed_ID`=%s
+                """
+            cursor.execute(sql, (pubmed_id))
+            re = cursor.fetchone()
+            if re:
+                publicationid = re[0]
+                print "get Publication record: %d" % publicationid
+        if not publicationid:
+            sql = """
+                INSERT INTO Publication
+                SET
+                Publication.`PubMed_ID`=%s,
+                Publication.`Abstract`=%s,
+                Publication.`Authors`=%s,
+                Publication.`Title`=%s,
+                Publication.`Journal`=%s,
+                Publication.`Volume`=%s,
+                Publication.`Pages`=%s,
+                Publication.`Month`=%s,
+                Publication.`Year`=%s
+                """
+            cursor.execute(sql, (
+                utilities.to_db_string_null(metarow[0]),
+                utilities.to_db_string_null(metarow[12]),
+                utilities.to_db_string_null(metarow[10]),
+                utilities.to_db_string_null(metarow[11]),
+                utilities.to_db_string_null(metarow[13]),
+                utilities.to_db_string_null(metarow[14]),
+                utilities.to_db_string_null(metarow[15]),
+                utilities.to_db_string_null(metarow[16]),
+                utilities.to_db_string_null(metarow[17]),
+                ))
+            rowcount = cursor.rowcount
+            publicationid = con.insert_id()
+            print "INSERT INTO Publication: %d record: %d" % (rowcount, publicationid)
 
 if __name__ == "__main__":
     print "command line arguments:\n\t%s" % sys.argv
