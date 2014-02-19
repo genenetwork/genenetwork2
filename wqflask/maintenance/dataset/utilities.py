@@ -1,5 +1,6 @@
 import MySQLdb
 import re
+import ConfigParser
 
 def get_cursor():
     host = 'localhost'
@@ -39,3 +40,8 @@ def overlap(dic1, dic2):
                 values1.append(value1)
                 values2.append(value2)
     return keys, values1, values2
+
+def get_config(configfile):
+    config = ConfigParser.ConfigParser()
+    config.read(configfile)
+    return config
