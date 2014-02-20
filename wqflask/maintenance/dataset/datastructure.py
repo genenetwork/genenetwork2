@@ -58,8 +58,9 @@ def get_nextdataid_phenotype():
     dataid = re[0]
     dataid += 1
     return dataid
-    
+
 def insert_strain(speciesid, strainname):
+    cursor = utilities.get_cursor()
     sql = """
         INSERT INTO Strain
         SET
@@ -70,15 +71,16 @@ def insert_strain(speciesid, strainname):
     cursor.execute(sql, (strainname, strainname, speciesid))
 
 def get_strain(speciesid, strainname):
+    cursor = utilities.get_cursor()
     sql = """
         SELECT Strain.`Id`, Strain.`Name`
         FROM Strain
         WHERE Strain.`SpeciesId`=%s
         AND Strain.`Name` LIKE %s
         """
-    cursor.execute(sql1, (speciesid, strainname))
+    cursor.execute(sql, (speciesid, strainname))
     return cursor.fetchone()
-        
+
 def get_strain_sure(speciesid, strainname):
     strain = get_strain(speciesid, strainname)
     if not strain:
@@ -86,5 +88,8 @@ def get_strain_sure(speciesid, strainname):
         strain = get_strain(speciesid, strainname)
     return strain
 
-def get_strains_bynames(strainnames)
-    
+def get_strains_bynames(speciesid, strainnames):
+    strains = []
+    for strainname in strainnames:
+        strains.append(get_strain_sure(speciesid, strainname))
+    return strains
