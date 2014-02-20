@@ -98,7 +98,7 @@ def main(argv):
             cursor.execute(sql, (
                 utilities.to_db_string(metarow[0], None),
                 utilities.to_db_string(metarow[12], None),
-                utilities.to_db_string(metarow[10], None),
+                utilities.to_db_string(metarow[10], ""),
                 utilities.to_db_string(metarow[11], None),
                 utilities.to_db_string(metarow[13], None),
                 utilities.to_db_string(metarow[14], None),
