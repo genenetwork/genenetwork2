@@ -41,29 +41,47 @@ def overlap(dic1, dic2):
                 values2.append(value2)
     return keys, values1, values2
 
-def to_db_string_null(s):
+def to_db_string(s, default):
     if s:
         s = s.strip()
         if len(s) == 0:
-            return None
+            return default
         elif s == 'x':
-            return None
+            return default
         else:
             return s
     else:
-        return None
+        return default
 
-def to_db_string_empty(s):
+def to_db_float(s, default):
     if s:
         s = s.strip()
         if len(s) == 0:
-            return ''
+            return default
         elif s == 'x':
-            return ''
+            return default
         else:
-            return s
+            try:
+                return float(s)
+            except:
+                return default
     else:
-        return ''
+        return default
+        
+def to_db_int(s, default):
+    if s:
+        s = s.strip()
+        if len(s) == 0:
+            return default
+        elif s == 'x':
+            return default
+        else:
+            try:
+                return int(s)
+            except:
+                return default
+    else:
+        return default
 
 def get_config(configfile):
     config = ConfigParser.ConfigParser()
