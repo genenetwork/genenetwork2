@@ -151,9 +151,10 @@ def main(argv):
             PublishXRef.`InbredSetId`=%s,
             PublishXRef.`PhenotypeId`=%s,
             PublishXRef.`PublicationId`=%s,
-            PublishXRef.`DataId`=%s
+            PublishXRef.`DataId`=%s,
+            PublishXRef.`comments`=%s
             """
-        cursor.execute(sql, (inbredsetid, phenotypeid, publicationid, dataid))
+        cursor.execute(sql, (inbredsetid, phenotypeid, publicationid, dataid, ""))
         rowcount = cursor.rowcount
         publishxrefid = con.insert_id()
         print "INSERT INTO PublishXRef: %d record: %d" % (rowcount, publishxrefid)
