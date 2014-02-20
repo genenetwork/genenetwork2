@@ -110,7 +110,40 @@ def main(argv):
             publicationid = con.insert_id()
             print "INSERT INTO Publication: %d record: %d" % (rowcount, publicationid)
         # data
-        
+        for index, strain in enumerate(strains):
+            #
+            strainid = strain[0]
+            value   = utilities.to_db_float(datarow_value[index+1], None)
+            se      = utilities.to_db_float(datarow_se[index+1], None)
+            n       = utilities.to_db_int(datarow_n[index+1], None)
+            #
+            if value:
+                sql = """
+                    INSERT INTO PublishData
+                    SET
+                    PublishData.`Id`=%s,
+                    PublishData.`StrainId`=%s,
+                    PublishData.`value`=%s
+                    """
+                cursor.execute(sql, (dataid, strainid, value))
+            if se:
+                sql = """
+                    INSERT INTO PublishSE
+                    SET
+                    PublishSE.`DataId`=%s,
+                    PublishSE.`StrainId`=%s,
+                    PublishSE.`error`=%s
+                    """
+                cursor.execute(sql, (dataid, strainid, se))
+            if n:
+                sql = """
+                    INSERT INTO NStrain
+                    SET
+                    NStrain.`DataId`=%s,
+                    NStrain.`StrainId`=%s,
+                    NStrain.`count`=%s
+                    """
+                cursor.execute(sql, (dataid, strainid, n))
 
 if __name__ == "__main__":
     print "command line arguments:\n\t%s" % sys.argv
