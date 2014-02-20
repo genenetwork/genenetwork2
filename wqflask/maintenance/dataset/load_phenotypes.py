@@ -61,7 +61,7 @@ def main(argv):
             utilities.to_db_string(metarow[6], None),
             utilities.to_db_string(metarow[7], None),
             utilities.to_db_string(metarow[8], None),
-            utilities.to_db_string(metarow[9], None),
+            utilities.to_db_string(metarow[9], ""),
             utilities.to_db_string(metarow[18], None),
             ))
         rowcount = cursor.rowcount
