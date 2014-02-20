@@ -53,23 +53,23 @@ def main(argv):
             Phenotype.`Units`=%s
             """
         cursor.execute(sql, (
-            utilities.to_db_string_null(metarow[1]),
-            utilities.to_db_string_null(metarow[2]),
-            utilities.to_db_string_null(metarow[3]),
-            utilities.to_db_string_null(metarow[4]),
-            utilities.to_db_string_null(metarow[5]),
-            utilities.to_db_string_null(metarow[6]),
-            utilities.to_db_string_null(metarow[7]),
-            utilities.to_db_string_null(metarow[8]),
-            utilities.to_db_string_null(metarow[9]),
-            utilities.to_db_string_null(metarow[18])
+            utilities.to_db_string(metarow[1], None),
+            utilities.to_db_string(metarow[2], None),
+            utilities.to_db_string(metarow[3], None),
+            utilities.to_db_string(metarow[4], None),
+            utilities.to_db_string(metarow[5], None),
+            utilities.to_db_string(metarow[6], None),
+            utilities.to_db_string(metarow[7], None),
+            utilities.to_db_string(metarow[8], None),
+            utilities.to_db_string(metarow[9], None),
+            utilities.to_db_string(metarow[18], None),
             ))
         rowcount = cursor.rowcount
         phenotypeid = con.insert_id()
         print "INSERT INTO Phenotype: %d record: %d" % (rowcount, phenotypeid)
         # Publication
         publicationid = None # reset
-        pubmed_id = utilities.to_db_string_null(metarow[0])
+        pubmed_id = utilities.to_db_string(metarow[0], None)
         if pubmed_id:
             sql = """
                 SELECT Publication.`Id`
@@ -96,15 +96,15 @@ def main(argv):
                 Publication.`Year`=%s
                 """
             cursor.execute(sql, (
-                utilities.to_db_string_null(metarow[0]),
-                utilities.to_db_string_null(metarow[12]),
-                utilities.to_db_string_null(metarow[10]),
-                utilities.to_db_string_null(metarow[11]),
-                utilities.to_db_string_null(metarow[13]),
-                utilities.to_db_string_null(metarow[14]),
-                utilities.to_db_string_null(metarow[15]),
-                utilities.to_db_string_null(metarow[16]),
-                utilities.to_db_string_null(metarow[17]),
+                utilities.to_db_string(metarow[0], None),
+                utilities.to_db_string(metarow[12], None),
+                utilities.to_db_string(metarow[10], None),
+                utilities.to_db_string(metarow[11], None),
+                utilities.to_db_string(metarow[13], None),
+                utilities.to_db_string(metarow[14], None),
+                utilities.to_db_string(metarow[15], None),
+                utilities.to_db_string(metarow[16], None),
+                utilities.to_db_string(metarow[17], None),
                 ))
             rowcount = cursor.rowcount
             publicationid = con.insert_id()
