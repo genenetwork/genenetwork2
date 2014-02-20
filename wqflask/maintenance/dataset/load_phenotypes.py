@@ -144,6 +144,23 @@ def main(argv):
                     NStrain.`count`=%s
                     """
                 cursor.execute(sql, (dataid, strainid, n))
+        # PublishXRef
+        sql = """
+            INSERT INTO PublishXRef
+            SET
+            PublishXRef.`InbredSetId`=%s,
+            PublishXRef.`PhenotypeId`=%s,
+            PublishXRef.`PublicationId`=%s,
+            PublishXRef.`DataId`=%s
+            """
+        cursor.execute(sql, (inbredsetid, phenotypeid, publicationid, dataid))
+        rowcount = cursor.rowcount
+        publishxrefid = con.insert_id()
+        print "INSERT INTO PublishXRef: %d record: %d" % (rowcount, publishxrefid)
+        # for loop next
+        dataid += 1
+    # release
+    con.close()
 
 if __name__ == "__main__":
     print "command line arguments:\n\t%s" % sys.argv
