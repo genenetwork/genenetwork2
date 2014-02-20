@@ -2,6 +2,7 @@ import sys
 import csv
 
 import utilities
+import datastructure
 
 def main(argv):
     # config
@@ -11,14 +12,21 @@ def main(argv):
         print "\t%s" % (str(item))
     # var
     inbredsetid = config.get('config', 'inbredsetid')
-    dataid = utilities.get_nextdataid_phenotype()
-    cursor, con = utilities.get_cursor()
     print "inbredsetid: %s" % inbredsetid
+    species = datastructure.get_species(inbredsetid)
+    speciesid = species[0]
+    print "speciesid: %s" % speciesid
+    dataid = datastructure.get_nextdataid_phenotype()
+    print "next data id: %s" % dataid
+    cursor, con = utilities.get_cursor()
     # datafile
     datafile = open(config.get('config', 'datafile'), 'r')
     phenotypedata = csv.reader(datafile, delimiter='\t', quotechar='"')
     phenotypedata_head = phenotypedata.next()
     print "phenotypedata head:\n\t%s" % phenotypedata_head
+    strainnames = phenotypedata_head[1:]
+    strains = datastructure.get_strains_bynames(speciesid, strainnames)
+    print "%s" % strains
     # metafile
     metafile = open(config.get('config', 'metafile'), 'r')
     phenotypemeta = csv.reader(metafile, delimiter='\t', quotechar='"')
@@ -102,6 +110,8 @@ def main(argv):
             rowcount = cursor.rowcount
             publicationid = con.insert_id()
             print "INSERT INTO Publication: %d record: %d" % (rowcount, publicationid)
+        # data
+        
 
 if __name__ == "__main__":
     print "command line arguments:\n\t%s" % sys.argv

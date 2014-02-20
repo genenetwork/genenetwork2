@@ -1,7 +1,7 @@
 import utilities
 
 def get_probesetfreezes(inbredsetid):
-    cursor = utilities.get_cursor()
+    cursor, con = utilities.get_cursor()
     sql = """
         SELECT ProbeSetFreeze.`Id`, ProbeSetFreeze.`Name`, ProbeSetFreeze.`FullName`
         FROM ProbeSetFreeze, ProbeFreeze
@@ -12,7 +12,7 @@ def get_probesetfreezes(inbredsetid):
     return cursor.fetchall()
 
 def get_probesetfreeze(probesetfreezeid):
-    cursor = utilities.get_cursor()
+    cursor, con = utilities.get_cursor()
     sql = """
         SELECT ProbeSetFreeze.`Id`, ProbeSetFreeze.`Name`, ProbeSetFreeze.`FullName`
         FROM ProbeSetFreeze
@@ -22,7 +22,7 @@ def get_probesetfreeze(probesetfreezeid):
     return cursor.fetchone()
     
 def get_strains(inbredsetid):
-    cursor = utilities.get_cursor()
+    cursor, con = utilities.get_cursor()
     sql = """
         SELECT Strain.`Id`, Strain.`Name`
         FROM StrainXRef, Strain
@@ -34,7 +34,7 @@ def get_strains(inbredsetid):
     return cursor.fetchall()
 
 def get_inbredset(probesetfreezeid):
-    cursor = utilities.get_cursor()
+    cursor, con = utilities.get_cursor()
     sql = """
         SELECT InbredSet.`Id`, InbredSet.`Name`, InbredSet.`FullName`
         FROM InbredSet, ProbeFreeze, ProbeSetFreeze
@@ -44,9 +44,20 @@ def get_inbredset(probesetfreezeid):
         """
     cursor.execute(sql, (probesetfreezeid))
     return cursor.fetchone()
+    
+def get_species(inbredsetid):
+    cursor, con = utilities.get_cursor()
+    sql = """
+        SELECT Species.`Id`, Species.`Name`, Species.`MenuName`, Species.`FullName`
+        FROM InbredSet, Species
+        WHERE InbredSet.`Id`=%s
+        AND InbredSet.`SpeciesId`=Species.`Id`
+        """
+    cursor.execute(sql, (inbredsetid))
+    return cursor.fetchone()
 
 def get_nextdataid_phenotype():
-    cursor = utilities.get_cursor()
+    cursor, con = utilities.get_cursor()
     sql = """
         SELECT PublishData.`Id`
         FROM PublishData
@@ -60,7 +71,7 @@ def get_nextdataid_phenotype():
     return dataid
 
 def insert_strain(speciesid, strainname):
-    cursor = utilities.get_cursor()
+    cursor, con = utilities.get_cursor()
     sql = """
         INSERT INTO Strain
         SET
@@ -71,7 +82,7 @@ def insert_strain(speciesid, strainname):
     cursor.execute(sql, (strainname, strainname, speciesid))
 
 def get_strain(speciesid, strainname):
-    cursor = utilities.get_cursor()
+    cursor, con = utilities.get_cursor()
     sql = """
         SELECT Strain.`Id`, Strain.`Name`
         FROM Strain
