@@ -31,6 +31,7 @@ def main(argv):
     phenotypemeta = csv.reader(metafile, delimiter='\t', quotechar='"')
     phenotypemeta_head = phenotypemeta.next()
     print "phenotypemeta head:\n\t%s" % phenotypemeta_head
+    print
     # load
     for metarow in phenotypemeta:
         #
@@ -160,6 +161,7 @@ def main(argv):
         print "INSERT INTO PublishXRef: %d record: %d" % (rowcount, publishxrefid)
         # for loop next
         dataid += 1
+        print
     # release
     con.close()
 
