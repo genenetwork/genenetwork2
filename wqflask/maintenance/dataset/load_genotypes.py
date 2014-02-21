@@ -1,3 +1,8 @@
+import sys
+import re
+
+import utilities
+
 def main(argv):
     # config
     config = utilities.get_config(argv[1])
@@ -21,11 +26,10 @@ def main(argv):
                 kv = re.split(':|=', item)
                 metadic[kv[0].strip()] = kv[1].strip()
             continue
-        if line.startswith("Chr"):
-            print "[meta dictionary]"
-            for k,v in metadic.items():
-                print "%s: %s" % (k, v)
-            print
+        if line.lower().startswith("chr"):
+            print "geno meta:"
+            for k, v in metadic.items():
+                print "\t%s: %s" % (k, v)
             continue
         cells = line.split()
         Chr = cells[0]
@@ -33,7 +37,6 @@ def main(argv):
         cM = cells[2]
         Mb = cells[3]
         print len(cells)
-        ?
     return
 
     # open db
@@ -183,7 +186,7 @@ def main(argv):
     file_geno.close()
     con.close()
 
-# main
 if __name__ == "__main__":
+    print "command line arguments:\n\t%s" % sys.argv
     main(sys.argv)
     print "exit successfully"
