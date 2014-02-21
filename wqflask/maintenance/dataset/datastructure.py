@@ -95,7 +95,7 @@ def get_strain(speciesid, strainname):
 def get_strain_sure(speciesid, strainname):
     strain = get_strain(speciesid, strainname)
     if not strain:
-        insert_strain(speciesid, strainame)
+        insert_strain(speciesid, strainname)
         strain = get_strain(speciesid, strainname)
     return strain
 
