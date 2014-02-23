@@ -117,8 +117,7 @@ def main(argv):
             """
         cursor.execute(sql, (genofreezeid, genoid, dataid, cm, 'N'))
         rowcount = cursor.rowcount
-        genoxrefid = con.insert_id()
-        print "INSERT INTO GenoXRef: %d record: %d" % (rowcount, genoxrefid)
+        print "INSERT INTO GenoXRef: %d record" % (rowcount)
         # for loop next
         dataid += 1
         print
