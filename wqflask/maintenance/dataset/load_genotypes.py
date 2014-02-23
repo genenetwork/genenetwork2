@@ -19,6 +19,9 @@ def main(argv):
     genofreeze = datastructure.get_genofreeze_byinbredsetid(inbredsetid)
     genofreezeid = genofreeze[0]
     print "genofreezeid: %s" % genofreezeid
+    dataid = datastructure.get_nextdataid_genotype()
+    print "next data id: %s" % dataid
+    cursor, con = utilities.get_cursor()
     genofile = open(config.get('config', 'genofile'), 'r')
     metadic = {}
     # parse genofile
@@ -43,7 +46,7 @@ def main(argv):
             #
             print "geno file head:\n\t%s" % line
             strainnames = line.split()[4:]
-            strains = datastructure.get_strains_bynames(speciesid, strainnames)
+            strains = datastructure.get_strains_bynames(inbredsetid=inbredsetid, strainnames=strainnames, updatestrainxref="yes")
             continue
         # geno line
         cells = line.split()
@@ -55,68 +58,7 @@ def main(argv):
         print values
     return
 
-    sql = """
-        SELECT Id
-        FROM GenoData
-        ORDER BY Id DESC
-        LIMIT 1
-        """
-    cursor.execute(sql)
-    results = cursor.fetchall()
-    dataid = results[0][0]
-    print "speciesid: %s"        % (speciesid)
-    print "inbredsetid: %s"        % (inbredsetid)
-    print "genofreezeid: %s"    % (genofreezeid)
-    print "dataid start: %s"        % (dataid+1)
-    # samples
-    line = file_geno.readline()
-    sample_names = line.split()[4:]
-    sample_ids = []
-    print "get %d samples from file:\n%s" % (len(sample_names), sample_names)
-    for sample_name in sample_names:
-        sql = """
-            select Id
-            from Strain
-            where SpeciesId=%s
-            and Name like %s
-            """
-        cursor.execute(sql, (speciesid, sample_name))
-        results = cursor.fetchall()
-        if results:
-            sample_ids.append(results[0][0])
-        else:
-            print "insert sample %s" % (sample_name)
-            sql = """
-                INSERT INTO Strain
-                SET
-                    SpeciesId=%s,
-                    Name=%s,
-                    Name2=%s
-                """
-            cursor.execute(sql, (speciesid, sample_name, sample_name))
-            sampleid = con.insert_id()
-            sample_ids.append(sampleid)
-            #
-            sql = """
-                SELECT OrderId
-                FROM StrainXRef
-                where InbredSetId=%s
-                ORDER BY OrderId DESC
-                LIMIT 1 
-                """
-            cursor.execute(sql, (inbredsetid))
-            results = cursor.fetchall()
-            orderid = results[0][0] + 1
-            #
-            sql = """
-                INSERT INTO StrainXRef
-                SET
-                    InbredSetId=%s,
-                    StrainId=%s,
-                    OrderId=%s,
-                    Used_for_mapping=%s
-                """
-            cursor.execute(sql, (inbredsetid, sampleid, orderid, "N"))
+            
     print "load %d samples from DB:" % (len(sample_names))
     for i in range(len(sample_names)):
         print "%s\t%s" % (sample_names[i], sample_ids[i])

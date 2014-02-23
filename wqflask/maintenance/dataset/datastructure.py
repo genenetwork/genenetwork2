@@ -94,7 +94,8 @@ def get_nextdataid_phenotype():
     dataid += 1
     return dataid
 
-def insert_strain(speciesid, strainname):
+def insert_strain(inbredsetid, strainname, updatestrainxref=None):
+    speciesid = get_species(inbredsetid)
     cursor, con = utilities.get_cursor()
     sql = """
         INSERT INTO Strain
@@ -104,8 +105,32 @@ def insert_strain(speciesid, strainname):
         Strain.`SpeciesId`=%s
         """
     cursor.execute(sql, (strainname, strainname, speciesid))
+    strainid = con.insert_id()
+    if updatestrainxref:
+        sql = """
+            SELECT StrainXRef.`OrderId`
+            FROM StrainXRef
+            where StrainXRef.`InbredSetId`=%s
+            ORDER BY StrainXRef.`OrderId` DESC
+            LIMIT 1
+            """
+        cursor.execute(sql, (inbredsetid))
+        re = cursor.fetchone()
+        orderid = re[0] + 1
+        #
+        sql = """
+            INSERT INTO StrainXRef
+            SET
+            StrainXRef.`InbredSetId`=%s,
+            StrainXRef.`StrainId`=%s,
+            StrainXRef.`OrderId`=%s,
+            StrainXRef.`Used_for_mapping`=%s,
+            StrainXRef.`PedigreeStatus`=%s
+            """
+        cursor.execute(sql, (inbredsetid, strainid, orderid, "N", None))
 
-def get_strain(speciesid, strainname):
+def get_strain(inbredsetid, strainname):
+    speciesid = get_species(inbredsetid)
     cursor, con = utilities.get_cursor()
     sql = """
         SELECT Strain.`Id`, Strain.`Name`
@@ -116,15 +141,15 @@ def get_strain(speciesid, strainname):
     cursor.execute(sql, (speciesid, strainname))
     return cursor.fetchone()
 
-def get_strain_sure(speciesid, strainname):
-    strain = get_strain(speciesid, strainname)
+def get_strain_sure(inbredsetid, strainname, updatestrainxref=None):
+    strain = get_strain(inbredsetid, strainname)
     if not strain:
-        insert_strain(speciesid, strainname)
-        strain = get_strain(speciesid, strainname)
+        insert_strain(inbredsetid, strainname, updatestrainxref)
+        strain = get_strain(inbredsetid, strainname)
     return strain
 
-def get_strains_bynames(speciesid, strainnames):
+def get_strains_bynames(inbredsetid, strainnames, updatestrainxref=None):
     strains = []
     for strainname in strainnames:
-        strains.append(get_strain_sure(speciesid, strainname))
+        strains.append(get_strain_sure(inbredsetid, strainname, updatestrainxref))
     return strains

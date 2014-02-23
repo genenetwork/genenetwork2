@@ -25,7 +25,7 @@ def main(argv):
     phenotypedata_head = phenotypedata.next()
     print "phenotypedata head:\n\t%s" % phenotypedata_head
     strainnames = phenotypedata_head[1:]
-    strains = datastructure.get_strains_bynames(speciesid, strainnames)
+    strains = datastructure.get_strains_bynames(inbredsetid=inbredsetid, strainnames=strainnames, updatestrainxref=None)
     # metafile
     metafile = open(config.get('config', 'metafile'), 'r')
     phenotypemeta = csv.reader(metafile, delimiter='\t', quotechar='"')
