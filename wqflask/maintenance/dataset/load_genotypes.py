@@ -2,6 +2,7 @@ import sys
 import re
 
 import utilities
+import datastructure
 
 def main(argv):
     # config
@@ -10,6 +11,7 @@ def main(argv):
     for item in config.items('config'):
         print "\t%s" % (str(item))
     # variables
+    speciesid = config.get('config', 'speciesid')
     genofile = open(config.get('config', 'genofile'), 'r')
     metadic = {}
     # parse genofile
@@ -27,9 +29,14 @@ def main(argv):
                 metadic[kv[0].strip()] = kv[1].strip()
             continue
         if line.lower().startswith("chr"):
-            print "geno meta:"
+            #
+            print "geno file meta:"
             for k, v in metadic.items():
                 print "\t%s: %s" % (k, v)
+            #
+            print "geno file head:\n\t%s" % line
+            strainnames = line.split()[4:]
+            strains = datastructure.get_strains_bynames(speciesid, strainnames)
             continue
         cells = line.split()
         Chr = cells[0]
