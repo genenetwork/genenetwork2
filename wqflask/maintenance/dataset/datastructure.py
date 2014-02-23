@@ -95,7 +95,7 @@ def get_nextdataid_phenotype():
     return dataid
 
 def insert_strain(inbredsetid, strainname, updatestrainxref=None):
-    speciesid = get_species(inbredsetid)
+    speciesid = get_species(inbredsetid)[0]
     cursor, con = utilities.get_cursor()
     sql = """
         INSERT INTO Strain
@@ -130,7 +130,7 @@ def insert_strain(inbredsetid, strainname, updatestrainxref=None):
         cursor.execute(sql, (inbredsetid, strainid, orderid, "N", None))
 
 def get_strain(inbredsetid, strainname):
-    speciesid = get_species(inbredsetid)
+    speciesid = get_species(inbredsetid)[0]
     cursor, con = utilities.get_cursor()
     sql = """
         SELECT Strain.`Id`, Strain.`Name`
