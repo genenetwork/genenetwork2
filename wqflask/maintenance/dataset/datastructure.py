@@ -55,6 +55,16 @@ def get_species(inbredsetid):
         """
     cursor.execute(sql, (inbredsetid))
     return cursor.fetchone()
+    
+def get_genofreeze_byinbredsetid(inbredsetid):
+    cursor, con = utilities.get_cursor()
+    sql = """
+        SELECT GenoFreeze.`Id`, GenoFreeze.`Name`, GenoFreeze.`FullName`, GenoFreeze.`InbredSetId`
+        FROM GenoFreeze
+        WHERE GenoFreeze.`InbredSetId`=%s
+        """
+    cursor.execute(sql, (inbredsetid))
+    return cursor.fetchone()
 
 def get_nextdataid_phenotype():
     cursor, con = utilities.get_cursor()

@@ -38,12 +38,14 @@ def main(argv):
             strainnames = line.split()[4:]
             strains = datastructure.get_strains_bynames(speciesid, strainnames)
             continue
+        # geno line
         cells = line.split()
-        Chr = cells[0]
-        Locus = cells[1]
-        cM = cells[2]
-        Mb = cells[3]
-        print len(cells)
+        chr = cells[0]
+        locus = cells[1]
+        cm = cells[2]
+        mb = cells[3]
+        values = cells[4:]
+        print values
     return
 
     # open db
