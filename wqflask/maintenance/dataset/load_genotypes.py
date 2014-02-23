@@ -48,89 +48,79 @@ def main(argv):
             strainnames = line.split()[4:]
             strains = datastructure.get_strains_bynames(inbredsetid=inbredsetid, strainnames=strainnames, updatestrainxref="yes")
             continue
-        # geno line
+        # geno file line
         cells = line.split()
         chr = cells[0]
         locus = cells[1]
         cm = cells[2]
         mb = cells[3]
         values = cells[4:]
-        print values
-    return
-
-            
-    print "load %d samples from DB:" % (len(sample_names))
-    for i in range(len(sample_names)):
-        print "%s\t%s" % (sample_names[i], sample_ids[i])
-    # parse geno file
-    index = 0
-    for line in file_geno:
-        index += 1
-        if index % 1000 == 0:
-            print index
-        items = line.split()
-        chr = items[0]
-        name = items[1]
-        cm = items[2]
-        mb = items[3]
-        values = items[4:]
         # geno
         sql = """
-            SELECT Id
+            SELECT Geno.`Id`
             FROM Geno
-            WHERE SpeciesId=%s
-            AND Name like %s
+            WHERE Geno.`SpeciesId`=%s
+            AND Geno.`Name` like %s
             """
-        cursor.execute(sql, (speciesid, name))
-        results = cursor.fetchall()
-        if results:
-            genoid = results[0][0]
+        cursor.execute(sql, (speciesid, locus))
+        result = cursor.fetchone()
+        if result:
+            genoid = result[0]
+            print "get geno record: %d" % genoid
         else:
-            print "insert geno %s" % (name)
             sql = """
                 INSERT INTO Geno
                 SET
-                    SpeciesId=%s,
-                    Name=%s,
-                    Marker_Name=%s,
-                    Chr=%s,
-                    Mb=%s
+                Geno.`SpeciesId`=%s,
+                Geno.`Name`=%s,
+                Geno.`Marker_Name`=%s,
+                Geno.`Chr`=%s,
+                Geno.`Mb`=%s
                 """
-            cursor.execute(sql, (speciesid, name, name, chr, mb))
+            cursor.execute(sql, (speciesid, locus, locus, chr, mb))
+            rowcount = cursor.rowcount
             genoid = con.insert_id()
+            print "INSERT INTO Geno: %d record: %d" % (rowcount, genoid)
         # genodata
-        dataid += 1
-        for i in range(len(values)):
-            sample_id = sample_ids[i]
-            try:
-                value = int(values[i])
-            except ValueError:
+        for index, strain in enumerate(strains):
+            strainid = strain[0]
+            value = utilities.to_db_string(values[index], None)
+            if not value:
                 continue
-            if not value in [-1, 0, 1]:
-                print sample_id, value
+            value = config.get('config', "genovalue_" + value)
+            try:
+                number = int(value)
+            except:
+                continue
+            if not number in [-1, 0, 1]:
                 continue
             sql = """
                 INSERT INTO GenoData
                 SET
-                    Id=%s,
-                    StrainId=%s,
-                    value=%s
+                GenoData.`Id`=%s,
+                GenoData.`StrainId`=%s,
+                GenoData.`value`=%s
                 """
-            cursor.execute(sql, (dataid, sample_id, value))
+            cursor.execute(sql, (dataid, strainid, number))
         # genoxref
         sql = """
             INSERT INTO GenoXRef
             SET
-                GenoFreezeId=%s,
-                GenoId=%s,
-                DataId=%s,
-                cM=%s,
-                Used_for_mapping=%s
+            GenoXRef.`GenoFreezeId`=%s,
+            GenoXRef.`GenoId`=%s,
+            GenoXRef.`DataId`=%s,
+            GenoXRef.`cM`=%s,
+            GenoXRef.`Used_for_mapping`=%s
             """
         cursor.execute(sql, (genofreezeid, genoid, dataid, cm, 'N'))
-    print "Insert %d genoxref" % (index)
-    # close
-    file_geno.close()
+        rowcount = cursor.rowcount
+        genoxrefid = con.insert_id()
+        print "INSERT INTO GenoXRef: %d record: %d" % (rowcount, genoxrefid)
+        # for loop next
+        dataid += 1
+        print
+    # release
+    genofile.close()
     con.close()
 
 if __name__ == "__main__":
