@@ -11,7 +11,14 @@ def main(argv):
     for item in config.items('config'):
         print "\t%s" % (str(item))
     # variables
-    speciesid = config.get('config', 'speciesid')
+    inbredsetid = config.get('config', 'inbredsetid')
+    print "inbredsetid: %s" % inbredsetid
+    species = datastructure.get_species(inbredsetid)
+    speciesid = species[0]
+    print "speciesid: %s" % speciesid
+    genofreeze = datastructure.get_genofreeze_byinbredsetid(inbredsetid)
+    genofreezeid = genofreeze[0]
+    print "genofreezeid: %s" % genofreezeid
     genofile = open(config.get('config', 'genofile'), 'r')
     metadic = {}
     # parse genofile
