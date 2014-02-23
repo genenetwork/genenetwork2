@@ -47,6 +47,7 @@ def main(argv):
                 print "\t%s: %s" % (k, v)
             #
             print "geno file head:\n\t%s" % line
+            print
             strainnames = line.split()[4:]
             strains = datastructure.get_strains_bynames(inbredsetid=inbredsetid, strainnames=strainnames, updatestrainxref="yes")
             continue
