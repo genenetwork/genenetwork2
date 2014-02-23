@@ -55,17 +55,6 @@ def main(argv):
         print values
     return
 
-    # open db
-    host = 'localhost'
-    user = 'webqtl'
-    passwd = 'webqtl'
-    db = 'db_webqtl'
-    con = MySQLdb.Connect(db=db, user=user, passwd=passwd, host=host)
-    cursor = con.cursor()
-    # var
-    speciesid = int(argv[2])
-    inbredsetid = int(argv[3])
-    genofreezeid = int(argv[4])
     sql = """
         SELECT Id
         FROM GenoData

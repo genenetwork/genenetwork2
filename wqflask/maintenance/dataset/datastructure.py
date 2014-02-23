@@ -66,6 +66,20 @@ def get_genofreeze_byinbredsetid(inbredsetid):
     cursor.execute(sql, (inbredsetid))
     return cursor.fetchone()
 
+def get_nextdataid_genotype():
+    cursor, con = utilities.get_cursor()
+    sql = """
+        SELECT GenoData.`Id`
+        FROM GenoData
+        ORDER BY GenoData.`Id` DESC
+        LIMIT 1
+        """
+    cursor.execute(sql)
+    re = cursor.fetchone()
+    dataid = re[0]
+    dataid += 1
+    return dataid
+    
 def get_nextdataid_phenotype():
     cursor, con = utilities.get_cursor()
     sql = """
