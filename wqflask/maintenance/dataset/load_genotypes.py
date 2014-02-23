@@ -22,8 +22,10 @@ def main(argv):
     dataid = datastructure.get_nextdataid_genotype()
     print "next data id: %s" % dataid
     cursor, con = utilities.get_cursor()
+    # genofile
     genofile = open(config.get('config', 'genofile'), 'r')
     metadic = {}
+    print
     # parse genofile
     for line in genofile:
         line = line.strip()
