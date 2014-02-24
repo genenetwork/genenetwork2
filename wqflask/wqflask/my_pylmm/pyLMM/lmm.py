@@ -277,7 +277,7 @@ def run_other(pheno_vector,
                                 refit=False,
                                 temp_data=tempdata)
     Bench().report()
-    return t_stats, p_values
+    return p_values, t_stats
 
 
 def matrixMult(A,B):

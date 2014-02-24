@@ -75,6 +75,7 @@ class Histogram
                 .scale(@y_scale)
                 .orient("left")
                 .ticks(5)
+                
     add_bars: () ->
         console.log("bar_width:", @x_scale(@histogram_data[0].dx))
         bar = @svg.selectAll(".bar")

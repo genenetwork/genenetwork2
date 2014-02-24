@@ -54,6 +54,7 @@ class MarkerRegression(object):
  
         #self.qtl_results = self.gen_data(tempdata)
         self.qtl_results = self.gen_data(str(temp_uuid))
+        self.lod_cutoff = self.get_lod_score_cutoff()
 
         #Get chromosome lengths for drawing the manhattan plot
         chromosome_mb_lengths = {}
@@ -142,6 +143,9 @@ class MarkerRegression(object):
             #print("p_values:", p_values)
 
         self.dataset.group.markers.add_pvalues(p_values)
+        
+        self.get_lod_score_cutoff()
+        
         return self.dataset.group.markers.markers
 
 
@@ -202,6 +206,17 @@ class MarkerRegression(object):
         #    )
 
         return p_values, t_stats
+
+    def get_lod_score_cutoff(self):
+        high_qtl_count = 0
+        for marker in self.dataset.group.markers.markers:
+            if marker['lod_score'] > 2:
+                high_qtl_count += 1
+                
+        if high_qtl_count > 10000:
+            return 1
+        else:
+            return 2
 
     def identify_empty_samples(self):
         no_val_samples = []
