@@ -44,7 +44,7 @@ from wqflask.database import db_session
 
 from wqflask import model
 
-from utility import Bunch, Struct
+from utility import Bunch, Struct, after
 
 
 
@@ -57,7 +57,33 @@ def timestamp():
     return datetime.datetime.utcnow().isoformat()
 
 
+class AnonUser(object):
+    cookie_name = 'anon_user_v1'
+    
+    def __init__(self):
+        self.cookie = request.cookies.get(self.cookie_name)
+        if self.cookie:
+            self.anon_id = verify_cookie(cookie)
+        else:
+            self.anon_id, self.cookie = create_signed_cookie()
+        after.set_cookie(self.cookie_name, self.cookie)
 
+
+
+def verify_cookie(cookie):
+    the_uuid, separator, the_signature = cookie.partition(':')
+    assert len(the_uuid) == 36, "Is session_id a uuid?"
+    assert separator == ":", "Expected a : here"
+    assert the_signature == actual_hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
+    return the_uuid
+
+
+def create_signed_cookie():
+    the_uuid = str(uuid.uuid4())
+    signature = actual_hmac_creation(the_uuid)
+    uuid_signed = the_id + ":" + signature
+    print("uuid_signed:", uuid_signed)
+    return the_uuid, uuid_signed
 
 class UserSession(object):
     cookie_name = 'session_id_v2'
@@ -68,10 +94,8 @@ class UserSession(object):
             self.logged_in = False
             return
         else:
-            session_id, separator, session_id_signature = cookie.partition(':')
-            assert len(session_id) == 36, "Is session_id a uuid?"
-            assert separator == ":", "Expected a : here"
-            assert session_id_signature == actual_hmac_creation(session_id), "Uh-oh, someone tampering with the cookie?"
+            session_id = verify_cookie(cookie)
+
             self.redis_key = self.cookie_name + ":" + session_id
             print("self.redis_key is:", self.redis_key)
             self.session_id = session_id
@@ -90,8 +114,8 @@ class UserSession(object):
                 #flash(
                 #   "Due to inactivity your session has expired. If you'd like please login again.")
                 #return response
-                return 
-                
+                return
+
             if Redis.ttl(self.redis_key) < THREE_DAYS:
                 # (Almost) everytime the user does something we extend the session_id in Redis...
                 print("Extending ttl...")

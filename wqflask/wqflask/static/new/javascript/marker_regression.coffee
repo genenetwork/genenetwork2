@@ -253,9 +253,8 @@ class Manhattan_Plot
                 .attr("transform", (d) =>
                     return "translate(-12,0) rotate(-90)"
                 )
-                #.attr("dy", "-1.0em")                        
-                                
- 
+                #.attr("dy", "-1.0em")
+
     add_y_axis: () ->
         @yAxis = d3.svg.axis()
             .scale(@y_scale)
@@ -266,7 +265,7 @@ class Manhattan_Plot
             .attr("class", "y_axis")
             .attr("transform", "translate(" + @x_buffer + ",0)")
             .call(@yAxis)
-            
+
     add_axis_labels: () ->
         @svg.append("text")
             .attr("transform","rotate(-90)")

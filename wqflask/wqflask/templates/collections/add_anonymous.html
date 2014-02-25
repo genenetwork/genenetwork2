@@ -10,9 +10,8 @@
     <div class="modal-body">
         <form action="/collections/new" data-validate="parsley" id="add_form">
             <input type="hidden" name="traits" value="{{ traits }}" />
-            <button type="submit" name="Default" class="btn btn-large btn-block btn-primary">Continue without signing in</button>
-            <button type="submit" name="create_new" class="btn btn-large btn-block">Sign in or create an account</button>
-
+            <button type="submit" name="anonymous_add" class="btn btn-large btn-block btn-primary">Continue without signing in</button>
+            <button type="submit" name="sign_in" class="btn btn-large btn-block">Sign in or create an account</button>
         </form>
     </div>
 </div>
