@@ -48,36 +48,51 @@ from base import trait
 
 @app.route("/collections/add")
 def collections_add():
-    user_collections = g.user_session.user_ob.user_collections
-    print("user_collections are:", user_collections)
-    return render_template("collections/add.html",
-                           traits=request.args['traits'],
-                           user_collections = user_collections,
-                           )
+    traits=request.args['traits'],
+
+    if g.user_session.logged_in:
+        user_collections = g.user_session.user_ob.user_collections
+        print("user_collections are:", user_collections)
+        return render_template("collections/add.html",
+                               traits=traits,
+                               user_collections = user_collections,
+                               )
+    else:
+        return render_template("collections/add_anonymous.html",
+                               traits=traits
+                               )
 
 
 @app.route("/collections/new")
 def collections_new():
-    print("request.args in collections_new are:", request.args)
-    if "create_new" in request.args:
-        return create_new()
-    elif "add_to_existing" in request.args:
-        return add_to_existing()
-    elif "continue" in request.args:
-        return unnamed()
+    params = request.args
+    print("request.args in collections_new are:", params)
+
+    collection_name = params['new_collection']
+
+    if "create_new" in params:
+        return create_new(collection_name)
+    elif "add_to_existing" in params:
+        return add_traits(params, collection_name)
+    elif "Default" in params:
+        return add_traits(params, "Default")
+
     else:
         CauseAnError
 
 
-def unnamed():
-    return "unnamed"
 
-def add_to_existing():
-    params = request.args
+def add_traits(params, collection_name):
     print("---> params are:", params.keys())
     print("     type(params):", type(params))
-    uc = model.UserCollection.query.get(params['existing_collection'])
-    members = set(json.loads(uc.members))
+    if collection_name=="Default":
+        uc = g.user_session.user_ob.get_collection_by_name("Default")
+        # Doesn't exist so we'll create it
+        if not uc:
+            return create_new("Default")
+    else:
+        uc = model.UserCollection.query.get(params['existing_collection'])
+    members =  uc.members_as_set() #set(json.loads(uc.members))
     len_before = len(members)
 
     traits = process_traits(params['traits'])
@@ -103,7 +118,8 @@ def add_to_existing():
 
 def process_traits(unprocessed_traits):
     print("unprocessed_traits are:", unprocessed_traits)
-    unprocessed_traits = unprocessed_traits.split(",")
+    if isinstance(unprocessed_traits, basestring):
+        unprocessed_traits = unprocessed_traits.split(",")
     traits = set()
     for trait in unprocessed_traits:
         data, _separator, hmac = trait.rpartition(':')
@@ -114,10 +130,10 @@ def process_traits(unprocessed_traits):
         traits.add(str(data))
     return traits
 
-def create_new():
+def create_new(collection_name):
     params = request.args
     uc = model.UserCollection()
-    uc.name = params['new_collection']
+    uc.name = collection_name
     print("user_session:", g.user_session.__dict__)
     uc.user = g.user_session.user_id
     unprocessed_traits = params['traits']
@@ -136,11 +152,52 @@ def create_new():
 @app.route("/collections/list")
 def list_collections():
     params = request.args
-    user_collections = g.user_session.user_ob.user_collections
+    user_collections = list(g.user_session.user_ob.user_collections)
+    print("user_collections are:", user_collections)
     return render_template("collections/list.html",
                            params = params,
                            user_collections = user_collections,
                            )
+
+
+@app.route("/collections/remove", methods=('POST',))
+def remove_traits():
+    params = request.form
+    print("params are:", params)
+    uc_id = params['uc_id']
+    uc = model.UserCollection.query.get(uc_id)
+    traits_to_remove = params.getlist('traits[]')
+    print("traits_to_remove are:", traits_to_remove)
+    traits_to_remove = process_traits(traits_to_remove)
+    print("\n\n  after processing, traits_to_remove:", traits_to_remove)
+    all_traits = uc.members_as_set()
+    print("  all_traits:", all_traits)
+    members_now = all_traits - traits_to_remove
+    print("  members_now:", members_now)
+    print("Went from {} to {} members in set.".format(len(all_traits), len(members_now)))
+    uc.members = json.dumps(list(members_now))
+    uc.changed_timestamp = datetime.datetime.utcnow()
+    db_session.commit()
+
+    # We need to return something so we'll return this...maybe in the future
+    # we can use it to check the results
+    return str(len(members_now))
+
+
+
+@app.route("/collections/delete", methods=('POST',))
+def delete_collection():
+    params = request.form
+    uc_id = params['uc_id']
+    uc = model.UserCollection.query.get(uc_id)
+    # Todo: For now having the id is good enough since it's so unique
+    # But might want to check ownership in the future
+    collection_name = uc.name
+    db_session.delete(uc)
+    db_session.commit()
+    flash("We've deletet the collection: {}.".format(collection_name), "alert-info")
+
+    return redirect(url_for('list_collections'))
 
 
 @app.route("/collections/view")
