@@ -255,7 +255,7 @@ class Manhattan_Plot
                 )
                 #.attr("dy", "-1.0em")                        
                                 
-
+ 
     add_y_axis: () ->
         @yAxis = d3.svg.axis()
             .scale(@y_scale)
