@@ -30,7 +30,7 @@ import redis
 Redis = redis.StrictRedis()
 
 
-from flask import (Flask, g, render_template, url_for, request, make_response,
+from flask import (Flask, g, render_template, url_for, request, make_response, 
                    redirect, flash, abort)
 
 from wqflask import app
@@ -66,8 +66,11 @@ class AnonUser(object):
             self.anon_id = verify_cookie(cookie)
         else:
             self.anon_id, self.cookie = create_signed_cookie()
-        after.set_cookie(self.cookie_name, self.cookie)
-
+            
+        @after.after_this_request
+        def set_cookie(response):
+            response.set_cookie(self.cookie_name, self.cookie)
+            
 
 
 def verify_cookie(cookie):
@@ -81,7 +84,7 @@ def verify_cookie(cookie):
 def create_signed_cookie():
     the_uuid = str(uuid.uuid4())
     signature = actual_hmac_creation(the_uuid)
-    uuid_signed = the_id + ":" + signature
+    uuid_signed = the_uuid + ":" + signature
     print("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
 

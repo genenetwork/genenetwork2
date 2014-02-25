@@ -342,6 +342,12 @@ def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
 
+@app.after_request
+def call_after_request_callbacks(response):
+    for callback in getattr(g, 'after_request_callbacks', ()):
+        callback(response)
+    return response
+
 
 ###################################################################################################
 

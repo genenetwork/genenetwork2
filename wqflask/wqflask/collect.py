@@ -48,7 +48,7 @@ from base import trait
 
 @app.route("/collections/add")
 def collections_add():
-    traits=request.args['traits'],
+    traits=request.args['traits']
 
     if g.user_session.logged_in:
         user_collections = g.user_session.user_ob.user_collections
@@ -68,19 +68,25 @@ def collections_new():
     params = request.args
     print("request.args in collections_new are:", params)
 
+    if "anonymous_add" in params:
+        return add_anon_traits(params)
+
     collection_name = params['new_collection']
 
     if "create_new" in params:
         return create_new(collection_name)
     elif "add_to_existing" in params:
         return add_traits(params, collection_name)
-    elif "Default" in params:
-        return add_traits(params, "Default")
-
     else:
         CauseAnError
 
 
+def add_anon_traits(params):
+    # Todo: assert user isn't logged in
+    anon_id = user_manager.AnonUser().anon_id
+    traits = process_traits(params['traits'])
+    print("anon traits:", traits)
+    
 
 def add_traits(params, collection_name):
     print("---> params are:", params.keys())
@@ -122,6 +128,7 @@ def process_traits(unprocessed_traits):
         unprocessed_traits = unprocessed_traits.split(",")
     traits = set()
     for trait in unprocessed_traits:
+        print("trait is:", trait)
         data, _separator, hmac = trait.rpartition(':')
         data = data.strip()
         print("data is:", data)
