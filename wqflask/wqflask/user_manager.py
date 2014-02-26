@@ -63,14 +63,15 @@ class AnonUser(object):
     def __init__(self):
         self.cookie = request.cookies.get(self.cookie_name)
         if self.cookie:
-            self.anon_id = verify_cookie(cookie)
+            print("already is cookie")
+            self.anon_id = verify_cookie(self.cookie)
         else:
+            print("creating new cookie")
             self.anon_id, self.cookie = create_signed_cookie()
             
         @after.after_this_request
         def set_cookie(response):
             response.set_cookie(self.cookie_name, self.cookie)
-            
 
 
 def verify_cookie(cookie):

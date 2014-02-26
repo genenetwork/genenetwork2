@@ -74,19 +74,38 @@ def collections_new():
     collection_name = params['new_collection']
 
     if "create_new" in params:
+        print("in create_new")
         return create_new(collection_name)
     elif "add_to_existing" in params:
+        print("in add to existing")
         return add_traits(params, collection_name)
     else:
+        print("ELSE")
         CauseAnError
 
 
 def add_anon_traits(params):
     # Todo: assert user isn't logged in
     anon_id = user_manager.AnonUser().anon_id
-    traits = process_traits(params['traits'])
-    print("anon traits:", traits)
+    print("anon_id is:", anon_id)
     
+    key = "anon_collection:v1:" + anon_id
+    
+    len_before = len(Redis.smembers(key))
+    traits = process_traits(params['traits'])
+    
+    print("redis key is:", key)
+    Redis.expire(key, 60*60*72)
+    for trait in traits:
+        Redis.sadd(key, trait)
+    #print("set members:", Redis.smembers(key))
+    
+    len_now = len(Redis.smembers(key))
+    new_length = len_now - len_before
+    print("new_length:", new_length)
+    #print("anon traits:", traits)
+    
+    return redirect(url_for('view_collection', key=key))
 
 def add_traits(params, collection_name):
     print("---> params are:", params.keys())
@@ -211,9 +230,16 @@ def delete_collection():
 def view_collection():
     params = request.args
     print("params in view collection:", params)
-    uc_id = params['uc_id']
-    uc = model.UserCollection.query.get(uc_id)
-    traits = json.loads(uc.members)
+    
+    if "uc_id" in params:
+        uc_id = params['uc_id']
+        uc = model.UserCollection.query.get(uc_id)
+        traits = json.loads(uc.members)
+    else:
+        anon_id = params['key']
+        uc = model.AnonCollection
+        traits = Redis.smembers(anon_id)
+        print("the traits are:", traits)
 
     print("in view_collection traits are:", traits)
 
@@ -236,9 +262,9 @@ def view_collection():
         #                         lrs_location=trait_ob.LRS_location_repr))
         #                         dis=trait_ob.description))
         #json_version.append(trait_ob.__dict__th)
-
+        
     collection_info = dict(trait_obs=trait_obs,
-                           uc =     uc)
+                           uc = uc)
     if "json" in params:
         print("json_version:", json_version)
         return json.dumps(json_version)
