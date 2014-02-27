@@ -237,7 +237,7 @@ def view_collection():
         traits = json.loads(uc.members)
     else:
         anon_id = params['key']
-        uc = model.AnonCollection
+        uc = model.AnonCollection(anon_id = anon_id)
         traits = Redis.smembers(anon_id)
         print("the traits are:", traits)
 

@@ -189,3 +189,9 @@ def display_collapsible(number):
         return number
     else:
         return ""
+
+
+def user_uuid():
+    """Unique cookie for a user"""
+    user_uuid = request.cookies.get('user_uuid')
+    
