@@ -1,31 +1,48 @@
+#Do whatever else is needed with the Marker object
+#Probably create Genofile object as well
+#Make sure rest of code works with params object (though
+#everything in the params object should probably just be the parameters of
+#the Genofile object)
+
+
+from __future__ import absolute_import, print_function, division
+
 import sys
 import re
+import argparse
 
 import utilities
 import datastructure
 
-def main(argv):
+def main():
+    parser = argparse.ArgumentParser(description='Load Genotypes')
+    parser.add_argument('-c', '--config')
+    opts = parser.parse_args()
+    config = opts.config
     # config
-    config = utilities.get_config(argv[1])
-    print "config:"
+    config = utilities.get_config(config)
+    print("config:")
     for item in config.items('config'):
-        print "\t%s" % (str(item))
+        print("\t", str(item))
+    parse_genofile(fetch_parameters(config))
+
+def fetch_parameters(config):
     # variables
-    inbredsetid = config.get('config', 'inbredsetid')
-    print "inbredsetid: %s" % inbredsetid
-    species = datastructure.get_species(inbredsetid)
-    speciesid = species[0]
-    print "speciesid: %s" % speciesid
-    genofreeze = datastructure.get_genofreeze_byinbredsetid(inbredsetid)
-    genofreezeid = genofreeze[0]
-    print "genofreezeid: %s" % genofreezeid
-    dataid = datastructure.get_nextdataid_genotype()
-    print "next data id: %s" % dataid
-    cursor, con = utilities.get_cursor()
+    params = {}
+    params['inbredsetid'] = config.get('config', 'inbredsetid')
+    species = datastructure.get_species(params['inbredsetid'])
+    params["speciesid"] = species[0]
+    genofreeze = datastructure.get_genofreeze_byinbredsetid(params['inbredsetid'])
+    params['genofreezeid'] = genofreeze[0]
+    params['dataid'] = datastructure.get_nextdataid_genotype()
+    params['genofile'] = config.get('config', 'genofile')
+    return params
+    
+def parse_genofile(params):
     # genofile
-    genofile = open(config.get('config', 'genofile'), 'r')
+    genofile = open(params['genofile'], 'r')
     metadic = {}
-    print
+    print()
     # parse genofile
     for line in genofile:
         line = line.strip()
@@ -42,90 +59,112 @@ def main(argv):
             continue
         if line.lower().startswith("chr"):
             #
-            print "geno file meta:"
+            print("geno file meta:")
             for k, v in metadic.items():
-                print "\t%s: %s" % (k, v)
+                print("\t{}: {}".format(k, v))
             #
-            print "geno file head:\n\t%s" % line
-            print
+            print("geno file head:\n\t{}\n".format(line))
             strainnames = line.split()[4:]
             strains = datastructure.get_strains_bynames(inbredsetid=inbredsetid, strainnames=strainnames, updatestrainxref="yes")
             continue
         # geno file line
-        cells = line.split()
-        chr = cells[0]
-        locus = cells[1]
-        cm = cells[2]
-        mb = cells[3]
-        values = cells[4:]
-        # geno
-        sql = """
-            SELECT Geno.`Id`
-            FROM Geno
-            WHERE Geno.`SpeciesId`=%s
-            AND Geno.`Name` like %s
-            """
-        cursor.execute(sql, (speciesid, locus))
-        result = cursor.fetchone()
-        if result:
-            genoid = result[0]
-            print "get geno record: %d" % genoid
-        else:
-            sql = """
-                INSERT INTO Geno
-                SET
-                Geno.`SpeciesId`=%s,
-                Geno.`Name`=%s,
-                Geno.`Marker_Name`=%s,
-                Geno.`Chr`=%s,
-                Geno.`Mb`=%s
-                """
-            cursor.execute(sql, (speciesid, locus, locus, chr, mb))
-            rowcount = cursor.rowcount
-            genoid = con.insert_id()
-            print "INSERT INTO Geno: %d record: %d" % (rowcount, genoid)
-        # genodata
-        for index, strain in enumerate(strains):
-            strainid = strain[0]
-            value = utilities.to_db_string(values[index], None)
-            if not value:
-                continue
-            value = config.get('config', "genovalue_" + value)
-            try:
-                number = int(value)
-            except:
-                continue
-            if not number in [-1, 0, 1]:
-                continue
-            sql = """
-                INSERT INTO GenoData
-                SET
-                GenoData.`Id`=%s,
-                GenoData.`StrainId`=%s,
-                GenoData.`value`=%s
-                """
-            cursor.execute(sql, (dataid, strainid, number))
-        # genoxref
-        sql = """
-            INSERT INTO GenoXRef
-            SET
-            GenoXRef.`GenoFreezeId`=%s,
-            GenoXRef.`GenoId`=%s,
-            GenoXRef.`DataId`=%s,
-            GenoXRef.`cM`=%s,
-            GenoXRef.`Used_for_mapping`=%s
-            """
-        cursor.execute(sql, (genofreezeid, genoid, dataid, cm, 'N'))
-        rowcount = cursor.rowcount
-        print "INSERT INTO GenoXRef: %d record" % (rowcount)
-        # for loop next
+        marker = Marker(line)
+        #
+        genoid = check_or_insert_geno(params, marker)
+        if check_genoxref(params):
+            continue
+        insert_genodata(params)
+        insert_genoxref(params)
         dataid += 1
-        print
-    # release
     genofile.close()
-    con.close()
+    
+    
+class Marker(object):
+    def __init__(self, line):
+        self.cells = line.split()
+        self.chromosome = cells[0]
+        self.locus = cells[1]
+        self.cm = cells[2]
+        self.mb = cells[3]
+        self.values = cells[4:]
+        
+def check_or_insert_geno(params, marker):
+    cursor, con = utilities.get_cursor()
+    sql = """
+        SELECT Geno.`Id`
+        FROM Geno
+        WHERE Geno.`SpeciesId`=%s
+        AND Geno.`Name` like %s
+        """
+    cursor.execute(sql, (speciesid, locus))
+    result = cursor.fetchone()
+    if result:
+        genoid = result[0]
+        print("get geno record: %d" % genoid)
+    else:
+        sql = """
+            INSERT INTO Geno
+            SET
+            Geno.`SpeciesId`=%s,
+            Geno.`Name`=%s,
+            Geno.`Marker_Name`=%s,
+            Geno.`Chr`=%s,
+            Geno.`Mb`=%s
+            """
+        cursor.execute(sql, (speciesid, locus, locus, chr, mb))
+        rowcount = cursor.rowcount
+        genoid = con.insert_id()
+        print("INSERT INTO Geno: %d record: %d" % (rowcount, genoid))
+    return genoid
+
+def check_GenoXRef():
+    sql = """
+        select GenoXRef.*
+        from GenoXRef
+        where GenoXRef.`GenoFreezeId`=%s
+        AND GenoXRef.`GenoId`=%s
+        """
+    cursor.execute(sql, (genofreezeid, genoid))
+    rowcount = cursor.rowcount
+    return rowcount
+    
+def insert_genodata():
+    for index, strain in enumerate(strains):
+        strainid = strain[0]
+        value = utilities.to_db_string(values[index], None)
+        if not value:
+            continue
+        value = config.get('config', "genovalue_" + value)
+        try:
+            number = int(value)
+        except:
+            continue
+        if not number in [-1, 0, 1]:
+            continue
+        sql = """
+            INSERT INTO GenoData
+            SET
+            GenoData.`Id`=%s,
+            GenoData.`StrainId`=%s,
+            GenoData.`value`=%s
+            """
+        cursor.execute(sql, (dataid, strainid, number))
+
+def insert_genoxref():
+    sql = """
+        INSERT INTO GenoXRef
+        SET
+        GenoXRef.`GenoFreezeId`=%s,
+        GenoXRef.`GenoId`=%s,
+        GenoXRef.`DataId`=%s,
+        GenoXRef.`cM`=%s,
+        GenoXRef.`Used_for_mapping`=%s
+        """
+    cursor.execute(sql, (genofreezeid, genoid, dataid, cm, 'N'))
+    rowcount = cursor.rowcount
+    print("INSERT INTO GenoXRef: %d record" % (rowcount))
 
 if __name__ == "__main__":
-    print "command line arguments:\n\t%s" % sys.argv
-    main(sys.argv)
-    print "exit successfully"
+    print("command line arguments:\n\t%s" % sys.argv)
+    main()
+    print("exit successfully")
