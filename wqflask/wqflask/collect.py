@@ -44,6 +44,65 @@ from wqflask import user_manager
 from base import trait
 
 
+class AnonCollection(object):
+    """User is not logged in"""
+    def __init__(self):
+        self.anon_user = user_manager.AnonUser()
+        self.key = "anon_collection:v1:{}".format(self.anon_user.anon_id)
+    
+    
+    def add_traits(params, collection_name):
+        assert collection_name == "Default", "Unexpected collection name for anonymous user"
+        traits = process_traits(params['traits'])
+        len_before = len(Redis.smembers)
+        Redis.sadd(self.key, traits)
+        Redis.expire(self.key, 60 * 60 * 24 * 3)
+        len_now = len(Redis.smembers)
+        report_change(len_before, len_now)
+        
+    
+    
+class UserCollection(object):
+    """User is logged in"""
+    
+    def add_traits(params, collection_name):
+        print("---> params are:", params.keys())
+        print("     type(params):", type(params))
+        if collection_name=="Default":
+            uc = g.user_session.user_ob.get_collection_by_name("Default")
+            # Doesn't exist so we'll create it
+            if not uc:
+                return create_new("Default")
+        else:
+            uc = model.UserCollection.query.get(params['existing_collection'])
+        members =  uc.members_as_set() #set(json.loads(uc.members))
+        len_before = len(members)
+    
+        traits = process_traits(params['traits'])
+    
+        members_now = list(members | traits)
+        len_now = len(members_now)
+        uc.members = json.dumps(members_now)
+    
+        uc.changed_timestamp = datetime.datetime.utcnow()
+    
+        db_session.commit()
+    
+        print("added to existing, now set is:" + str(uc.members))
+        report_change(len_before, len_now)
+        
+        # Probably have to change that
+        return redirect(url_for('view_collection', uc_id=uc.id))
+    
+def report_change(len_before, len_now):
+    new_length = len_now - len_before
+    if new_length:
+        flash("We've added {} to your collection.".format(
+            numify(new_length, 'new trait', 'new traits')))
+    else:
+        flash("No new traits were added.")
+
+    
 
 
 @app.route("/collections/add")
@@ -84,62 +143,7 @@ def collections_new():
         CauseAnError
 
 
-def add_anon_traits(params):
-    # Todo: assert user isn't logged in
-    anon_id = user_manager.AnonUser().anon_id
-    print("anon_id is:", anon_id)
-    
-    key = "anon_collection:v1:" + anon_id
-    
-    len_before = len(Redis.smembers(key))
-    traits = process_traits(params['traits'])
-    
-    print("redis key is:", key)
-    Redis.expire(key, 60*60*72)
-    for trait in traits:
-        Redis.sadd(key, trait)
-    #print("set members:", Redis.smembers(key))
-    
-    len_now = len(Redis.smembers(key))
-    new_length = len_now - len_before
-    print("new_length:", new_length)
-    #print("anon traits:", traits)
-    
-    return redirect(url_for('view_collection', key=key))
 
-def add_traits(params, collection_name):
-    print("---> params are:", params.keys())
-    print("     type(params):", type(params))
-    if collection_name=="Default":
-        uc = g.user_session.user_ob.get_collection_by_name("Default")
-        # Doesn't exist so we'll create it
-        if not uc:
-            return create_new("Default")
-    else:
-        uc = model.UserCollection.query.get(params['existing_collection'])
-    members =  uc.members_as_set() #set(json.loads(uc.members))
-    len_before = len(members)
-
-    traits = process_traits(params['traits'])
-
-    members_now = list(members | traits)
-    len_now = len(members_now)
-    uc.members = json.dumps(members_now)
-
-    uc.changed_timestamp = datetime.datetime.utcnow()
-
-    db_session.commit()
-
-    print("added to existing, now set is:" + str(uc.members))
-
-    new_length = len_now - len_before
-    if new_length:
-        flash("We've added {} to your collection.".format(
-            numify(new_length, 'new trait', 'new traits')))
-    else:
-        flash("No new traits were added.")
-
-    return redirect(url_for('view_collection', uc_id=uc.id))
 
 def process_traits(unprocessed_traits):
     print("unprocessed_traits are:", unprocessed_traits)
@@ -188,6 +192,7 @@ def list_collections():
 
 @app.route("/collections/remove", methods=('POST',))
 def remove_traits():
+
     params = request.form
     print("params are:", params)
     uc_id = params['uc_id']
@@ -208,7 +213,6 @@ def remove_traits():
     # We need to return something so we'll return this...maybe in the future
     # we can use it to check the results
     return str(len(members_now))
-
 
 
 @app.route("/collections/delete", methods=('POST',))

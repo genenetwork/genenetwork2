@@ -1,40 +1,39 @@
-#The TraitCollection class with encompass the UserCollection (collections
-#created by registered and logged in users) and AnonCollection (collections created by users who
-#aren't logged in) class. The former will represent and act on a database table while the latter
-#will store its trait information in Redis
-
-
-from __future__ import print_function, division, absolute_import
-
-import uuid
-import datetime
-
-import simplejson as json
-
-from flask import request
-from flask.ext.sqlalchemy import SQLAlchemy
-
-from wqflask import app
-
-import sqlalchemy
-
-from sqlalchemy import (Column, Integer, String, Table, ForeignKey, Unicode, Boolean, DateTime,
-                        Text, Index)
-from sqlalchemy.orm import relationship, backref
-
-#from redis import StrictRedis
-import redis
-Redis = redis.StrictRedis()
-
-from wqflask.database import Base, init_db
-
 class TraitCollection(object):
-
-
-class AnonCollection(TraitCollection):
     
+    def __init__(self, is_anon=False):
+        self.is_anon = is_anon
+        
+        
+    @app.route("/collections/remove", methods=('POST',))
+    def remove_traits():
+        if is_anon:
+            AnonCollection.remove_traits()
+        else:
+            UserCollection.remove_traits()
+            
+        params = request.form
+        print("params are:", params)
+        uc_id = params['uc_id']
+        uc = model.UserCollection.query.get(uc_id)
+        traits_to_remove = params.getlist('traits[]')
+        print("traits_to_remove are:", traits_to_remove)
+        traits_to_remove = process_traits(traits_to_remove)
+        print("\n\n  after processing, traits_to_remove:", traits_to_remove)
+        all_traits = uc.members_as_set()
+        print("  all_traits:", all_traits)
+        members_now = all_traits - traits_to_remove
+        print("  members_now:", members_now)
+        print("Went from {} to {} members in set.".format(len(all_traits), len(members_now)))
+        uc.members = json.dumps(list(members_now))
+        uc.changed_timestamp = datetime.datetime.utcnow()
+        db_session.commit()
+    
+        # We need to return something so we'll return this...maybe in the future
+        # we can use it to check the results
+        return str(len(members_now))
+
     def __init__(self, anon_id)
-        self.anon_id = anon_id
+        self.anon_key = anon_key
         self.collection_members = Redis.smembers(self.anon_id)
         print("self.collection_members is:", self.collection_members)
         self.num_members = len(self.collection_members)
@@ -52,15 +51,3 @@ class AnonCollection(TraitCollection):
         # We need to return something so we'll return this...maybe in the future
         # we can use it to check the results
         return str(len(members_now))
-
-    @property
-    def num_members(self):
-        print("members are:", json.loads(self.members))
-        return len(json.loads(self.members))
-
-    #@property
-    #def display_num_members(self):
-    #    return display_collapsible(self.num_members)
-
-    def members_as_set(self):
-        return set(json.loads(self.members))
