@@ -714,7 +714,9 @@ def main():
     json_params = Redis.get(key)
     
     params = json.loads(json_params)
-    print("params:", params)
+    #print("params:", params)
+    
+    #print("kinship_matrix:", params['kinship_matrix'])
     
     tempdata = temp_data.TempData(params['temp_uuid'])
     if species == "human" :

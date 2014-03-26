@@ -2,16 +2,24 @@
 {% block title %}View Collection{% endblock %}
 {% block content %}
 <!-- Start of body -->
-    {{ header(uc.name,
-        'This collection has {}.'.format(numify(trait_obs|count, "record", "records"))) }}
-
+    {% if uc %}
+        {{ header(uc.name,
+            'This collection has {}.'.format(numify(trait_obs|count, "record", "records"))) }}
+    {% else %}
+        {{ header('Your Collection',
+            'This collection has {}.'.format(numify(trait_obs|count, "record", "records"))) }}
+    {% endif %}
     <div class="container">
         <div class="page-header">
             <h1>Your Collection</h1>
+            {% if uc %}
             <h2>{{ uc.name }}</h2>
+            {% endif %}
 
             <form action="/collections/delete" method="post">
+                {% if uc %}
                 <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
+                {% endif %}
                 <input type="submit"
                        class="btn btn-small btn-danger"
                        value="Delete this collection" />

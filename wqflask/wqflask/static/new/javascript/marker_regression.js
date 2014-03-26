@@ -9,11 +9,12 @@
 
     function Manhattan_Plot(plot_height, plot_width) {
       var _ref;
-      this.plot_height = plot_height;
-      this.plot_width = plot_width;
+      this.plot_height = plot_height != null ? plot_height : 600;
+      this.plot_width = plot_width != null ? plot_width : 1200;
       this.qtl_results = js_data.qtl_results;
       console.log("qtl_results are:", this.qtl_results);
       this.chromosomes = js_data.chromosomes;
+      console.log("chromosomes are:", this.chromosomes);
       this.total_length = 0;
       this.max_chr = this.get_max_chr();
       this.x_coords = [];
@@ -32,6 +33,7 @@
       console.log("@x_max: ", this.x_max);
       console.log("@x_buffer: ", this.x_buffer);
       this.y_max = d3.max(this.y_coords) * 1.2;
+      this.y_threshold = this.get_lod_threshold();
       this.svg = this.create_svg();
       console.log("svg created");
       this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
@@ -68,7 +70,6 @@
       */
 
       var chr_lengths, cumulative_chr_lengths, key, this_length, total_length;
-      console.log("@chromosomes: ", this.chromosomes);
       cumulative_chr_lengths = [];
       chr_lengths = [];
       total_length = 0;
@@ -110,10 +111,11 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         result = _ref[_i];
         if (result.chr === "X") {
-          chr_length = parseFloat(this.chromosomes[20]);
+          chr_length = parseFloat(this.chromosomes[13]);
         } else {
           chr_length = parseFloat(this.chromosomes[result.chr]);
         }
+        console.log("chr_seen is", chr_seen);
         if (!(_ref1 = result.chr, __indexOf.call(chr_seen, _ref1) >= 0)) {
           chr_seen.push(result.chr);
           chr_lengths.push(chr_length);
@@ -121,6 +123,7 @@
           console.log("total_length:", this.total_length);
           if (parseInt(result.chr) !== 1) {
             console.log("plus:", chr_lengths.length - 2);
+            console.log("chr_lengths.length", chr_lengths.length);
             this.total_length += parseFloat(chr_lengths[chr_lengths.length - 2]);
           }
         }
@@ -157,6 +160,7 @@
       this.add_y_axis();
       this.add_axis_labels();
       this.add_chr_lines();
+      this.fill_chr_areas();
       this.add_chr_labels();
       return this.add_plot_points();
     };
@@ -266,33 +270,21 @@
       console.log("example:", this.x_scale(this.cumulative_chr_lengths[0]));
       return this.svg.selectAll("rect.chr_fill_area").data(_.zip(this.chr_lengths, this.cumulative_chr_lengths), function(d) {
         return d;
-      }).enter().append("rect").attr("x", function(d) {
-        if (i === 0) {
-          return _this.x_scale(0);
+      }).enter().append("rect").attr("x", function(d, i) {
+        return _this.x_scale(d[1] - d[0]);
+      }).attr("y", this.y_buffer + 2).attr("width", function(d, i) {
+        var ending, starting, width;
+        starting = _this.x_scale(d[1] - d[0]);
+        ending = _this.x_scale(_this.cumulative_chr_lengths[i]);
+        width = ending - starting;
+        console.log("width:", d[0]);
+        return width;
+      }).attr("height", this.plot_height - this.y_buffer - 3).attr("fill", function(d, i) {
+        if ((i + 1) % 2) {
+          return "none";
         } else {
-          return _this.x_scale(d[1]);
+          return "whitesmoke";
         }
-      }).attr("y", this.y_buffer).attr("width", function(d) {
-        return _this.x_scale(d[0]);
-      }).attr("height", this.plot_height - this.y_buffer);
-    };
-
-    Manhattan_Plot.prototype.fill_chr_areas2 = function() {
-      var _this = this;
-      console.log("cumu_chr_lengths:", this.cumulative_chr_lengths);
-      console.log("example:", this.x_scale(this.cumulative_chr_lengths[0]));
-      return this.svg.selectAll("rect.chr_fill_area").data(_.zip(this.chr_lengths, this.cumulative_chr_lengths), function(d) {
-        return d;
-      }).enter().append("rect").attr("x", function(d) {
-        if (i === 0) {
-          return _this.x_scale(0);
-        } else {
-          return _this.x_scale(d[1]);
-        }
-      }).attr("y", this.y_buffer).attr("width", function(d) {
-        return _this.x_scale(d[0]);
-      }).attr("height", this.plot_height - this.y_buffer).attr("fill", function(d, i) {
-        return "whitesmoke";
       });
     };
 
@@ -316,7 +308,7 @@
         }
       }).attr("x", function(d) {
         return _this.x_scale(d[2] - d[1] / 2);
-      }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("fill", "black").on("click", function(d) {
+      }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("cursor", "pointer").attr("fill", "black").on("click", function(d) {
         var this_chr;
         this_chr = d;
         return _this.redraw_plot(d);
@@ -329,18 +321,44 @@
         return _this.x_scale(d[0]);
       }).attr("cy", function(d) {
         return _this.y_scale(d[1]);
-      }).attr("r", 2).attr("id", function(d) {
+      }).attr("r", function(d) {
+        if (d[1] > 2) {
+          return 3;
+        } else {
+          return 2;
+        }
+      }).attr("fill", function(d) {
+        if (d[1] > 2) {
+          return "white";
+        } else {
+          return "black";
+        }
+      }).attr("stroke", "black").attr("stroke-width", "1").attr("id", function(d) {
         return "point_" + String(d[2]);
       }).classed("circle", true).on("mouseover", function(d) {
         var this_id;
         console.log("d3.event is:", d3.event);
         console.log("d is:", d);
         this_id = "point_" + String(d[2]);
-        return d3.select("#" + this_id).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow").call(_this.show_marker_in_table(d));
+        return d3.select("#" + this_id).classed("d3_highlight", true).attr("r", 5).attr("stroke", "none").attr("fill", "blue").call(_this.show_marker_in_table(d));
       }).on("mouseout", function(d) {
         var this_id;
         this_id = "point_" + String(d[2]);
-        return d3.select("#" + this_id).classed("d3_highlight", false).attr("r", 2).attr("fill", "black");
+        return d3.select("#" + this_id).classed("d3_highlight", false).attr("r", function(d) {
+          if (d[1] > 2) {
+            return 3;
+          } else {
+            return 2;
+          }
+        }).attr("fill", function(d) {
+          if (d[1] > 2) {
+            return "white";
+          } else {
+            return "black";
+          }
+        }).attr("stroke", "black").attr("stroke-width", "1");
+      }).append("svg:title").text(function(d) {
+        return d[2];
       });
     };
 
@@ -369,6 +387,8 @@
 
   })();
 
-  root.Manhattan_Plot = new Manhattan_Plot(600, 1200);
+  root.Manhattan_Plot = Manhattan_Plot;
+
+  new Manhattan_Plot(600, 1200);
 
 }).call(this);

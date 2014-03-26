@@ -1,10 +1,11 @@
 root = exports ? this
 
 class Manhattan_Plot
-    constructor: (@plot_height, @plot_width) ->
+    constructor: (@plot_height = 600, @plot_width = 1200) ->
         @qtl_results = js_data.qtl_results
         console.log("qtl_results are:", @qtl_results)
         @chromosomes = js_data.chromosomes
+        console.log("chromosomes are:", @chromosomes)
 
         @total_length = 0
 
@@ -30,6 +31,8 @@ class Manhattan_Plot
         console.log("@x_max: ", @x_max)
         console.log("@x_buffer: ", @x_buffer)
         @y_max = d3.max(@y_coords) * 1.2
+
+        @y_threshold = @get_lod_threshold()
 
         @svg = @create_svg()
         console.log("svg created")
@@ -61,8 +64,6 @@ class Manhattan_Plot
         #to draw the vertical lines separating chromosomes and the chromosome labels
         #
         ###
-        
-        console.log("@chromosomes: ", @chromosomes)
         
         cumulative_chr_lengths = []
         chr_lengths = []
@@ -97,9 +98,10 @@ class Manhattan_Plot
         chr_seen = []
         for result in js_data.qtl_results
             if result.chr == "X"
-                chr_length = parseFloat(@chromosomes[20])
+                chr_length = parseFloat(@chromosomes[13])
             else
                 chr_length = parseFloat(@chromosomes[result.chr])
+            console.log("chr_seen is", chr_seen)
             if not(result.chr in chr_seen)
                 chr_seen.push(result.chr) 
                 chr_lengths.push(chr_length)
@@ -107,6 +109,7 @@ class Manhattan_Plot
                 console.log("total_length:", @total_length)
                 if parseInt(result.chr) != 1
                     console.log("plus:", chr_lengths.length - 2)
+                    console.log("chr_lengths.length", chr_lengths.length)
                     @total_length += parseFloat(chr_lengths[chr_lengths.length - 2])
             if result.lod_score > @y_axis_filter
                 @x_coords.push(@total_length + parseFloat(result.Mb))
@@ -151,9 +154,10 @@ class Manhattan_Plot
         @add_y_axis()
         @add_axis_labels()
         @add_chr_lines()
-        #@fill_chr_areas()
+        @fill_chr_areas()
         @add_chr_labels()
         @add_plot_points()
+        
         #@create_zoom_pane()
 
     add_border: () ->
@@ -298,51 +302,52 @@ class Manhattan_Plot
             )
             .enter()
             .append("rect")
-            .attr("x", (d) =>
-                if i == 0
-                    return @x_scale(0)
-                else
-                    return @x_scale(d[1])
+            .attr("x", (d, i) =>
+                return @x_scale(d[1] - d[0])
             )
-            .attr("y", @y_buffer)
-            .attr("width", (d) =>
-                return @x_scale(d[0])
+            .attr("y", @y_buffer + 2)
+            .attr("width", (d, i) =>
+                starting = @x_scale(d[1] - d[0])
+                ending = @x_scale(@cumulative_chr_lengths[i])
+                width = ending - starting
+                console.log("width:", d[0])
+                return width
             )
-            .attr("height", @plot_height-@y_buffer)
-            #.attr("fill", (d, i) =>
-            #    if i%2
-            #        return "whitesmoke"
-            #    else
-            #        return "none"
-            #)
-            
-    fill_chr_areas2: () ->
-        console.log("cumu_chr_lengths:", @cumulative_chr_lengths)
-        console.log("example:", @x_scale(@cumulative_chr_lengths[0]))
-        @svg.selectAll("rect.chr_fill_area")
-            .data(_.zip(@chr_lengths, @cumulative_chr_lengths), (d) =>
-                return d
-            )
-            .enter()
-            .append("rect")
-            .attr("x", (d) =>
-                if i == 0
-                    return @x_scale(0)
-                else
-                    return @x_scale(d[1])
-            )
-            .attr("y", @y_buffer)
-            .attr("width", (d) =>
-                return @x_scale(d[0])
-            )
-            .attr("height", @plot_height-@y_buffer)
+            .attr("height", @plot_height-@y_buffer-3)
             .attr("fill", (d, i) =>
-                return "whitesmoke"
-                #if i%2
-                #    return "whitesmoke"
-                #else
-                #    return "none"
+                if (i+1)%2
+                    return "none"
+                else
+                    return "whitesmoke"
             )
+            
+    #fill_chr_areas2: () ->
+    #    console.log("cumu_chr_lengths:", @cumulative_chr_lengths)
+    #    console.log("example:", @x_scale(@cumulative_chr_lengths[0]))
+    #    @svg.selectAll("rect.chr_fill_area")
+    #        .data(_.zip(@chr_lengths, @cumulative_chr_lengths), (d) =>
+    #            return d
+    #        )
+    #        .enter()
+    #        .append("rect")
+    #        .attr("x", (d) =>
+    #            if i == 0
+    #                return @x_scale(0)
+    #            else
+    #                return @x_scale(d[1])
+    #        )
+    #        .attr("y", @y_buffer)
+    #        .attr("width", (d) =>
+    #            return @x_scale(d[0])
+    #        )
+    #        .attr("height", @plot_height-@y_buffer)
+    #        .attr("fill", (d, i) =>
+    #            return "whitesmoke"
+    #            #if i%2
+    #            #    return "whitesmoke"
+    #            #else
+    #            #    return "none"
+    #        )
 
     add_chr_labels: () ->
         chr_names = []
@@ -372,6 +377,7 @@ class Manhattan_Plot
             .attr("text-anchor", "middle")
             .attr("font-family", "sans-serif")
             .attr("font-size", "18px")
+            .attr("cursor", "pointer")
             .attr("fill", "black")
             .on("click", (d) =>
                 this_chr = d
@@ -389,7 +395,20 @@ class Manhattan_Plot
             .attr("cy", (d) =>
                 return @y_scale(d[1])
             )
-            .attr("r", 2)
+            .attr("r", (d) =>
+                if d[1] > 2
+                    return 3
+                else
+                    return 2
+            )
+            .attr("fill", (d) =>
+                if d[1] > 2
+                    return "white"
+                else
+                    return "black"
+            )
+            .attr("stroke", "black")
+            .attr("stroke-width", "1")
             .attr("id", (d) =>
                 return "point_" + String(d[2])
             )
@@ -400,15 +419,32 @@ class Manhattan_Plot
                 this_id = "point_" + String(d[2])
                 d3.select("#" + this_id).classed("d3_highlight", true)
                     .attr("r", 5)
-                    .attr("fill", "yellow")
+                    .attr("stroke", "none")
+                    .attr("fill", "blue")
                     .call(@show_marker_in_table(d))
             )
             .on("mouseout", (d) =>
                 this_id = "point_" + String(d[2])
                 d3.select("#" + this_id).classed("d3_highlight", false)
-                    .attr("r", 2)
-                    .attr("fill", "black")
+                    .attr("r", (d) =>
+                        if d[1] > 2
+                            return 3
+                        else
+                            return 2
+                    )
+                    .attr("fill", (d) =>
+                        if d[1] > 2
+                            return "white"
+                        else
+                            return "black"
+                    )
+                    .attr("stroke", "black")
+                    .attr("stroke-width", "1")
             )
+            .append("svg:title")
+                .text((d) =>
+                    return d[2]
+                )
             
     redraw_plot: (chr_ob) ->
         console.log("chr_name is:", chr_ob[0])
@@ -434,9 +470,7 @@ class Manhattan_Plot
       @svg.select("path.area").attr("d", area);
       @svg.select("path.line").attr("d", line);
     
-
-    #console.time('Create manhattan plot')
-    #new Manhattan_Plot(600, 1200)
-    #console.timeEnd('Create manhattan plot')
     
-root.Manhattan_Plot = new Manhattan_Plot(600, 1200)
+root.Manhattan_Plot = Manhattan_Plot
+
+new Manhattan_Plot(600, 1200)

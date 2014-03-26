@@ -29,6 +29,8 @@ class Chr_Manhattan_Plot
         @x_max = d3.max(@x_coords)
         @y_max = d3.max(@y_coords) * 1.2
     
+        @y_threshold = @get_lod_threshold()
+    
         @svg = @create_svg()
 
         @plot_coordinates = _.zip(@x_coords, @y_coords, @marker_names)
@@ -100,11 +102,20 @@ class Chr_Manhattan_Plot
         @y_scale = d3.scale.linear()
             .domain([@y_axis_filter, @y_max])
             .range([@plot_height, @y_buffer])
+            
+    get_lod_threshold: () ->
+        if @y_max/2 > 2
+            return @y_max/2
+        else
+            return 2
+        
 
     create_graph: () ->
         @add_border()
         @add_x_axis()
         @add_y_axis()
+        @add_title()
+        @add_back_button()
         @add_plot_points()
 
     add_border: () ->
@@ -164,7 +175,35 @@ class Chr_Manhattan_Plot
             .attr("class", "y_axis")
             .attr("transform", "translate(" + @x_buffer + ",0)")
             .call(@yAxis)
-            
+
+    add_title: () ->
+        @svg.append("text")
+            .attr("class", "title")
+            .text("Chr " + @chr[0])
+            .attr("x", (d) =>
+                return (@plot_width + @x_buffer)/2
+            )
+            .attr("y", @y_buffer + 20)
+            .attr("dx", "0em")
+            .attr("text-anchor", "middle")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "18px")
+            .attr("fill", "black")
+
+    add_back_button: () ->
+        @svg.append("text")
+            .attr("class", "back")
+            .text("Return to full view")
+            .attr("x", @x_buffer*2)
+            .attr("y", @y_buffer/2)
+            .attr("dx", "0em")
+            .attr("text-anchor", "middle")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "18px")
+            .attr("cursor", "pointer")
+            .attr("fill", "black")
+            .on("click", @return_to_full_view)
+
     add_plot_points: () ->
         @plot_point = @svg.selectAll("circle")
             .data(@plot_coordinates)
@@ -176,7 +215,20 @@ class Chr_Manhattan_Plot
             .attr("cy", (d) =>
                 return @y_scale(d[1])
             )
-            .attr("r", 2)
+            .attr("r", (d) =>
+                if d[1] > 2
+                    return 3
+                else
+                    return 2
+            )
+            .attr("fill", (d) =>
+                if d[1] > 2
+                    return "white"
+                else
+                    return "black"
+            )
+            .attr("stroke", "black")
+            .attr("stroke-width", "1")
             .attr("id", (d) =>
                 return "point_" + String(d[2])
             )
@@ -187,16 +239,37 @@ class Chr_Manhattan_Plot
                 this_id = "point_" + String(d[2])
                 d3.select("#" + this_id).classed("d3_highlight", true)
                     .attr("r", 5)
-                    .attr("fill", "yellow")
+                    .attr("stroke", "none")
+                    .attr("fill", "blue")
                     .call(@show_marker_in_table(d))
             )
             .on("mouseout", (d) =>
                 this_id = "point_" + String(d[2])
                 d3.select("#" + this_id).classed("d3_highlight", false)
-                    .attr("r", 2)
-                    .attr("fill", "black")
-                    #.call(@show_marker_in_table())
+                    .attr("r", (d) =>
+                        if d[1] > 2
+                            return 3
+                        else
+                            return 2
+                    )
+                    .attr("fill", (d) =>
+                        if d[1] > 2
+                            return "white"
+                        else
+                            return "black"
+                    )
+                    .attr("stroke", "black")
+                    .attr("stroke-width", "1")
             )
+            .append("svg:title")
+                .text((d) =>
+                    return d[2]
+                )
+
+    return_to_full_view: () ->
+        $('#manhattan_plot').remove()
+        $('#manhattan_plot_container').append('<div id="manhattan_plot"></div>')
+        root.manhattan_plot = new root.Manhattan_Plot
 
     show_marker_in_table: (marker_info) ->
         console.log("in show_marker_in_table")

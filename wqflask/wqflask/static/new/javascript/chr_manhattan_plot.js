@@ -29,6 +29,7 @@
       this.y_buffer = this.plot_height / 20;
       this.x_max = d3.max(this.x_coords);
       this.y_max = d3.max(this.y_coords) * 1.2;
+      this.y_threshold = this.get_lod_threshold();
       this.svg = this.create_svg();
       this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
       console.log("coordinates:", this.plot_coordinates);
@@ -125,10 +126,20 @@
       return this.y_scale = d3.scale.linear().domain([this.y_axis_filter, this.y_max]).range([this.plot_height, this.y_buffer]);
     };
 
+    Chr_Manhattan_Plot.prototype.get_lod_threshold = function() {
+      if (this.y_max / 2 > 2) {
+        return this.y_max / 2;
+      } else {
+        return 2;
+      }
+    };
+
     Chr_Manhattan_Plot.prototype.create_graph = function() {
       this.add_border();
       this.add_x_axis();
       this.add_y_axis();
+      this.add_title();
+      this.add_back_button();
       return this.add_plot_points();
     };
 
@@ -164,25 +175,68 @@
       return this.svg.append("g").attr("class", "y_axis").attr("transform", "translate(" + this.x_buffer + ",0)").call(this.yAxis);
     };
 
+    Chr_Manhattan_Plot.prototype.add_title = function() {
+      var _this = this;
+      return this.svg.append("text").attr("class", "title").text("Chr " + this.chr[0]).attr("x", function(d) {
+        return (_this.plot_width + _this.x_buffer) / 2;
+      }).attr("y", this.y_buffer + 20).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("fill", "black");
+    };
+
+    Chr_Manhattan_Plot.prototype.add_back_button = function() {
+      return this.svg.append("text").attr("class", "back").text("Return to full view").attr("x", this.x_buffer * 2).attr("y", this.y_buffer / 2).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("cursor", "pointer").attr("fill", "black").on("click", this.return_to_full_view);
+    };
+
     Chr_Manhattan_Plot.prototype.add_plot_points = function() {
       var _this = this;
       return this.plot_point = this.svg.selectAll("circle").data(this.plot_coordinates).enter().append("circle").attr("cx", function(d) {
         return _this.x_scale(d[0]);
       }).attr("cy", function(d) {
         return _this.y_scale(d[1]);
-      }).attr("r", 2).attr("id", function(d) {
+      }).attr("r", function(d) {
+        if (d[1] > 2) {
+          return 3;
+        } else {
+          return 2;
+        }
+      }).attr("fill", function(d) {
+        if (d[1] > 2) {
+          return "white";
+        } else {
+          return "black";
+        }
+      }).attr("stroke", "black").attr("stroke-width", "1").attr("id", function(d) {
         return "point_" + String(d[2]);
       }).classed("circle", true).on("mouseover", function(d) {
         var this_id;
         console.log("d3.event is:", d3.event);
         console.log("d is:", d);
         this_id = "point_" + String(d[2]);
-        return d3.select("#" + this_id).classed("d3_highlight", true).attr("r", 5).attr("fill", "yellow").call(_this.show_marker_in_table(d));
+        return d3.select("#" + this_id).classed("d3_highlight", true).attr("r", 5).attr("stroke", "none").attr("fill", "blue").call(_this.show_marker_in_table(d));
       }).on("mouseout", function(d) {
         var this_id;
         this_id = "point_" + String(d[2]);
-        return d3.select("#" + this_id).classed("d3_highlight", false).attr("r", 2).attr("fill", "black");
+        return d3.select("#" + this_id).classed("d3_highlight", false).attr("r", function(d) {
+          if (d[1] > 2) {
+            return 3;
+          } else {
+            return 2;
+          }
+        }).attr("fill", function(d) {
+          if (d[1] > 2) {
+            return "white";
+          } else {
+            return "black";
+          }
+        }).attr("stroke", "black").attr("stroke-width", "1");
+      }).append("svg:title").text(function(d) {
+        return d[2];
       });
+    };
+
+    Chr_Manhattan_Plot.prototype.return_to_full_view = function() {
+      $('#manhattan_plot').remove();
+      $('#manhattan_plot_container').append('<div id="manhattan_plot"></div>');
+      return root.manhattan_plot = new root.Manhattan_Plot;
     };
 
     Chr_Manhattan_Plot.prototype.show_marker_in_table = function(marker_info) {

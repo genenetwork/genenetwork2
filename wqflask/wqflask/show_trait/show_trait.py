@@ -1190,6 +1190,20 @@ class ShowTrait(object):
 
         print("-*- primary_samplelist is:", pf(primary_sample_names))
 
+        other_sample_names = []
+        for sample in this_trait.data.keys():
+            if sample not in all_samples_ordered:
+                all_samples_ordered.append(sample)
+                other_sample_names.append(sample)
+
+        other_sample_names, all_samples_ordered = get_samplelist_from_trait_data(this_trait,
+                                                                                 all_samples_ordered)
+        
+        
+        print("species:", self.dataset.group.species)
+        if self.dataset.group.species == "human":
+            primary_sample_names += other_sample_names
+            
         primary_samples = SampleList(dataset = self.dataset,
                                         sample_names=primary_sample_names,
                                         this_trait=this_trait,
@@ -1197,13 +1211,8 @@ class ShowTrait(object):
                                         header="%s Only" % (self.dataset.group.name))
         print("primary_samples is: ", pf(primary_samples))
 
-        other_sample_names = []
-        for sample in this_trait.data.keys():
-            if sample not in all_samples_ordered:
-                all_samples_ordered.append(sample)
-                other_sample_names.append(sample)
-
-        if other_sample_names:
+        print("other_sample_names2:", other_sample_names)
+        if other_sample_names and self.dataset.group.species != "human":
             parent_f1_samples = None
             if self.dataset.group.parlist and self.dataset.group.f1list:
                 parent_f1_samples = self.dataset.group.parlist + self.dataset.group.f1list
@@ -1211,6 +1220,8 @@ class ShowTrait(object):
             other_sample_names.sort() #Sort other samples
             if parent_f1_samples:
                 other_sample_names = parent_f1_samples + other_sample_names
+
+            print("other_sample_names:", other_sample_names)
 
             other_samples = SampleList(dataset=self.dataset,
                                         sample_names=other_sample_names,
@@ -1227,3 +1238,13 @@ class ShowTrait(object):
         #        or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
         #    print("hjs")
         self.dataset.group.allsamples = all_samples_ordered
+
+
+def get_samplelist_from_trait_data(this_trait, all_samples_ordered):
+    other_sample_names = []
+    for sample in this_trait.data.keys():
+        if sample not in all_samples_ordered:
+            all_samples_ordered.append(sample)
+            other_sample_names.append(sample)
+            
+    return other_sample_names, all_samples_ordered
