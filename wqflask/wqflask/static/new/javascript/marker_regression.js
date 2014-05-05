@@ -33,7 +33,6 @@
       console.log("@x_max: ", this.x_max);
       console.log("@x_buffer: ", this.x_buffer);
       this.y_max = d3.max(this.y_coords) * 1.2;
-      this.y_threshold = this.get_lod_threshold();
       this.svg = this.create_svg();
       console.log("svg created");
       this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
@@ -58,6 +57,7 @@
           }
         }
       }
+      console.log("max_chr", max_chr);
       return max_chr;
     };
 
@@ -115,7 +115,6 @@
         } else {
           chr_length = parseFloat(this.chromosomes[result.chr]);
         }
-        console.log("chr_seen is", chr_seen);
         if (!(_ref1 = result.chr, __indexOf.call(chr_seen, _ref1) >= 0)) {
           chr_seen.push(result.chr);
           chr_lengths.push(chr_length);
@@ -144,7 +143,7 @@
 
       if (marker_info) {
         marker_name = marker_info[2];
-        return $("#qtl_results_filter").find("input:first").val(marker_name).change();
+        return $("#qtl_results_filter").find("input:first").val(marker_name).trigger('change');
       }
     };
 
@@ -181,6 +180,7 @@
     };
 
     Manhattan_Plot.prototype.create_scales = function() {
+      console.log("y_axis_filter:", this.y_axis_filter);
       if ('24' in this.chromosomes) {
         console.log("@chromosomes[24]:", this.chromosomes['24']);
         console.log("@chromosomes[23]:", this.chromosomes['23']);
@@ -299,12 +299,20 @@
       return this.svg.selectAll("text").data(chr_info, function(d) {
         return d;
       }).enter().append("text").attr("class", "chr_label").text(function(d) {
-        if (d[0] === "23") {
-          return "X";
-        } else if (d[0] === "24") {
-          return "X/Y";
-        } else {
-          return d[0];
+        if (_this.max_chr === "24") {
+          if (d[0] === 23) {
+            return "X";
+          } else if (d[0] === "24") {
+            return "X/Y";
+          } else {
+            return d[0];
+          }
+        } else if (_this.max_chr === 19) {
+          if (d[0] === "20") {
+            return "X";
+          } else {
+            return d[0];
+          }
         }
       }).attr("x", function(d) {
         return _this.x_scale(d[2] - d[1] / 2);
@@ -322,13 +330,13 @@
       }).attr("cy", function(d) {
         return _this.y_scale(d[1]);
       }).attr("r", function(d) {
-        if (d[1] > 2) {
+        if (d[1] > 3) {
           return 3;
         } else {
           return 2;
         }
       }).attr("fill", function(d) {
-        if (d[1] > 2) {
+        if (d[1] > 3) {
           return "white";
         } else {
           return "black";

@@ -26,6 +26,7 @@ from base.trait import GeneralTrait
 from base import data_set
 from base import species
 from base import webqtlConfig
+from utility import webqtlUtil
 from wqflask.my_pylmm.data import prep_data
 from wqflask.my_pylmm.pyLMM import lmm
 from wqflask.my_pylmm.pyLMM import input
@@ -52,9 +53,23 @@ class MarkerRegression(object):
             self.samples.append(str(sample))
             self.vals.append(value)
  
-        #self.qtl_results = self.gen_data(tempdata)
-        self.qtl_results = self.gen_data(str(temp_uuid))
+        self.mapping_method = start_vars['method']
+        print("self.mapping_method:", self.mapping_method)
+ 
+        if self.mapping_method == "gemma":
+            qtl_results = self.run_gemma()
+        elif self.mapping_method == "pylmm":
+            #self.qtl_results = self.gen_data(tempdata)
+            qtl_results = self.gen_data(str(temp_uuid))
+        
         self.lod_cutoff = self.get_lod_score_cutoff()
+        self.filtered_markers = []
+        for marker in qtl_results:
+            #if marker['lod_score'] > self.lod_cutoff:
+            if marker['lod_score'] > 1:
+                self.filtered_markers.append(marker)
+                
+        print("filtered_markers:", self.filtered_markers)
 
         #Get chromosome lengths for drawing the manhattan plot
         chromosome_mb_lengths = {}
@@ -63,10 +78,79 @@ class MarkerRegression(object):
         
         self.js_data = dict(
             chromosomes = chromosome_mb_lengths,
-            qtl_results = self.qtl_results,
+            qtl_results = self.filtered_markers,
         )
 
+    def run_gemma(self):
+        """Generates p-values for each marker using GEMMA"""
+        
+        #filename = webqtlUtil.genRandStr("{}_{}_".format(self.dataset.group.name, self.this_trait.name))
+        self.gen_pheno_txt_file()
 
+        os.chdir("/home/zas1024/gene/web/gemma")
+
+        gemma_command = './gemma -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
+                                                                                                 self.dataset.group.name,
+                                                                                                 self.dataset.group.name,
+                                                                                                 self.dataset.group.name)
+        print("gemma_command:" + gemma_command)
+        
+        os.system(gemma_command)
+        
+        included_markers, p_values = self.parse_gemma_output()
+        
+        self.dataset.group.get_specified_markers(markers = included_markers)
+        
+        #for marker in self.dataset.group.markers.markers:
+        #    if marker['name'] not in included_markers:
+        #        print("marker:", marker)
+        #        self.dataset.group.markers.markers.remove(marker)
+        #        #del self.dataset.group.markers.markers[marker]
+        
+        self.dataset.group.markers.add_pvalues(p_values)
+
+        return self.dataset.group.markers.markers
+
+
+    def parse_gemma_output(self):
+        included_markers = []
+        p_values = []
+        with open("/home/zas1024/gene/web/gemma/output/{}_output.assoc.txt".format(self.dataset.group.name)) as output_file:
+            for line in output_file:
+                if line.startswith("chr"):
+                    continue
+                else:
+                    included_markers.append(line.split("\t")[1])
+                    p_values.append(float(line.split("\t")[10]))
+                    #p_values[line.split("\t")[1]] = float(line.split("\t")[10])
+        print("p_values: ", p_values)
+        return included_markers, p_values
+
+    def gen_pheno_txt_file(self):
+        """Generates phenotype file for GEMMA"""
+        
+        #with open("/home/zas1024/gene/web/gemma/tmp_pheno/{}.txt".format(filename), "w") as outfile:
+        #    for sample, i in enumerate(self.samples):
+        #        print("sample:" + str(i))
+        #        print("self.vals[i]:" + str(self.vals[sample]))
+        #        outfile.write(str(i) + "\t" + str(self.vals[sample]) + "\n")
+                
+        with open("/home/zas1024/gene/web/gemma/{}.fam".format(self.dataset.group.name), "w") as outfile:
+            for i, sample in enumerate(self.samples):
+                outfile.write(str(sample) + " " + str(sample) + " 0 0 0 " + str(self.vals[i]) + "\n")
+
+    #def gen_plink_for_gemma(self, filename):
+    #    
+    #    make_bed = "/home/zas1024/plink/plink --file /home/zas1024/plink/%s --noweb --no-fid --no-parents --no-sex --no-pheno --pheno %s%s.txt --out %s%s --make-bed" % (webqtlConfig.HTMLPATH,
+    #                                                                                                                                             webqtlConfig.HTMLPATH,
+    #                                                                                                                                             self.dataset.group.name,
+    #                                                                                                                                             webqtlConfig.TMPDIR,
+    #                                                                                                                                             filename,
+    #                                                                                                                                             webqtlConfig.TMPDIR,
+    #                                                                                                                                             filename)
+    #
+    #
+    
     #def gen_data(self, tempdata):
     def gen_data(self, temp_uuid):
         """Generates p-values for each marker"""
@@ -84,6 +168,8 @@ class MarkerRegression(object):
 
         if self.dataset.group.species == "human":
             p_values, t_stats = self.gen_human_results(pheno_vector, key, temp_uuid)
+            #p_values = self.trim_results(p_values)
+            
         else:
             genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
             
@@ -130,7 +216,9 @@ class MarkerRegression(object):
             
             json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
             results = json.loads(json_results[1])
-            p_values = results['p_values']
+            p_values = [float(result) for result in results['p_values']]
+            print("p_values:", p_values)
+            #p_values = self.trim_results(p_values)
             t_stats = results['t_stats']
             
             #t_stats, p_values = lmm.run(
@@ -148,6 +236,13 @@ class MarkerRegression(object):
         
         return self.dataset.group.markers.markers
 
+    def trim_results(self, p_values):
+        print("len_p_values:", len(p_values))
+        if len(p_values) > 500:
+            p_values.sort(reverse=True)
+            trimmed_values = p_values[:500]
+        
+        return trimmed_values
 
     #def gen_human_results(self, pheno_vector, tempdata):
     def gen_human_results(self, pheno_vector, key, temp_uuid):
@@ -210,13 +305,13 @@ class MarkerRegression(object):
     def get_lod_score_cutoff(self):
         high_qtl_count = 0
         for marker in self.dataset.group.markers.markers:
-            if marker['lod_score'] > 2:
+            if marker['lod_score'] > 1:
                 high_qtl_count += 1
-                
-        if high_qtl_count > 10000:
+
+        if high_qtl_count > 1000:
             return 1
         else:
-            return 2
+            return 0
 
     def identify_empty_samples(self):
         no_val_samples = []

@@ -42,7 +42,7 @@
 
     Box_Plot.prototype.create_svg = function() {
       var svg;
-      svg = d3.box().whiskers(this.inter_quartile_range(1.5)).width(this.plot_width).height(this.plot_height).domain([this.min, this.max]);
+      svg = d3.box().whiskers(this.inter_quartile_range(1.5)).width(this.plot_width - 30).height(this.plot_height - 30).domain([this.min, this.max]);
       return svg;
     };
 

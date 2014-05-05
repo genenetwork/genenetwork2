@@ -40,7 +40,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for marker in qtl_results %}
+                {% for marker in filtered_markers %}
                     {% if marker.lod_score > lod_cutoff %}
                     <tr>
                         <td>{{loop.index}}</td>

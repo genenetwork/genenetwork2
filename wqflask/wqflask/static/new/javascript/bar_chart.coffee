@@ -1,7 +1,7 @@
 root = exports ? this
 
 class Bar_Chart
-    constructor: (@sample_list, @sample_group) ->
+    constructor: (@sample_list) ->
         @sort_by = "name"
         @get_samples()
         console.log("sample names:", @sample_names)
@@ -13,7 +13,7 @@ class Bar_Chart
         longest_sample_name = d3.max(sample.length for sample in @sample_names)
         
         @margin = {top: 20, right: 20, bottom: longest_sample_name * 7, left: 40}
-        @plot_width = @sample_vals.length * 15 - @margin.left - @margin.right
+        @plot_width = @sample_vals.length * 16 - @margin.left - @margin.right
         @plot_height = 500 - @margin.top - @margin.bottom
 
         @x_buffer = @plot_width/20
@@ -173,7 +173,7 @@ class Bar_Chart
         x_scale = d3.scale.ordinal()
             .domain(sample_names)
             .rangeBands([0, @plot_width], .1)
-        $('.x.axis').remove()
+        $('.bar_chart').find('.x.axis').remove()
         @add_x_axis(x_scale)
 
     get_attr_color_dict: (vals) ->
@@ -283,7 +283,7 @@ class Bar_Chart
     create_scales: () ->
         @x_scale = d3.scale.ordinal()
             .domain(@sample_names)
-            .rangeBands([0, @plot_width], .1)
+            .rangeBands([0, @plot_width], 0.3)
 
         @y_scale = d3.scale.linear()
             .domain([@y_min * 0.75, @y_max])
@@ -350,6 +350,7 @@ class Bar_Chart
             .text((d) =>
                 return d[1]
             )
+            
 
     sorted_samples: () ->
         #if @sample_attr_vals.length > 0

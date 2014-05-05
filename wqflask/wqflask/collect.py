@@ -189,7 +189,7 @@ def collections_new():
         return create_new(collection_name)
     elif "add_to_existing" in params:
         print("in add to existing")
-        return add_traits(params, collection_name)
+        return UserCollection().add_traits(params, collection_name)
     else:
         print("ELSE")
         CauseAnError

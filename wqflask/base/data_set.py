@@ -23,6 +23,7 @@ import os
 import math
 import string
 import collections
+import codecs
 
 import json
 import gzip
@@ -156,18 +157,30 @@ class Markers(object):
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
     def __init__(self, name):
         json_data_fh = open(os.path.join(webqtlConfig.NEWGENODIR + name + '.json'))
-        self.markers = json.load(json_data_fh)
+        markers = json.load(json_data_fh)
+    
+        for marker in markers:
+            if (marker['chr'] != "X") and (marker['chr'] != "Y"):
+                marker['chr'] = int(marker['chr'])
+            else:
+                marker['chr'] = 19
+            marker['Mb'] = float(marker['Mb'])
+            
+        self.markers = markers
+        print("self.markers:", self.markers)
     
     def add_pvalues(self, p_values):
-        #print("length of self.markers:", len(self.markers))
-        #print("length of p_values:", len(p_values))
+        print("length of self.markers:", len(self.markers))
+        print("length of p_values:", len(p_values))
         
         # THIS IS only needed for the case when we are limiting the number of p-values calculated
         if len(self.markers) < len(p_values):
             self.markers = self.markers[:len(p_values)]
         
         for marker, p_value in itertools.izip(self.markers, p_values):
-            marker['p_value'] = p_value
+            if not p_value:
+                continue
+            marker['p_value'] = float(p_value)
             if math.isnan(marker['p_value']) or marker['p_value'] <= 0:
                 marker['lod_score'] = 0
                 marker['lrs_value'] = 0
@@ -179,16 +192,25 @@ class Markers(object):
 
 class HumanMarkers(Markers):
     
-    def __init__(self, name):
+    def __init__(self, name, specified_markers = []):
         marker_data_fh = open(os.path.join(webqtlConfig.PYLMM_PATH + name + '.bim'))
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
             #print("splat:", splat)
-            marker = {}
-            marker['chr'] = int(splat[0])
-            marker['name'] = splat[1]
-            marker['Mb'] = float(splat[3]) / 1000000
+            if len(specified_markers) > 0:
+                if splat[1] in specified_markers:
+                    marker = {}
+                    marker['chr'] = int(splat[0])
+                    marker['name'] = splat[1]
+                    marker['Mb'] = float(splat[3]) / 1000000
+                else:
+                    continue
+            else:
+                marker = {}
+                marker['chr'] = int(splat[0])
+                marker['name'] = splat[1]
+                marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
             
         #print("markers is: ", pf(self.markers))
@@ -241,6 +263,8 @@ class DatasetGroup(object):
         self.incparentsf1 = False
         self.allsamples = None
 
+    def get_specified_markers(self, markers = []):
+        self.markers = HumanMarkers(self.name, markers)
 
     def get_markers(self):
         #print("self.species is:", self.species)
@@ -954,8 +978,8 @@ class MrnaAssayDataSet(DataSet):
 
             #XZ, 12/08/2008: description
             #XZ, 06/05/2009: Rob asked to add probe target description
-            description_string = str(this_trait.description).strip()
-            target_string = str(this_trait.probe_target_description).strip()
+            description_string = unicode(str(this_trait.description).strip(codecs.BOM_UTF8), 'utf-8')
+            target_string = unicode(str(this_trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
             if len(description_string) > 1 and description_string != 'None':
                 description_display = description_string

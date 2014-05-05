@@ -50,13 +50,19 @@
 
     Histogram.prototype.create_svg = function() {
       var svg;
-      svg = d3.select("#histogram").append("svg").attr("class", "bar_chart").attr("width", this.plot_width + this.margin.left + this.margin.right).attr("height", this.plot_height + this.margin.top + this.margin.bottom).append("g").attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+      svg = d3.select("#histogram").append("svg").attr("class", "histogram").attr("width", this.plot_width + this.margin.left + this.margin.right).attr("height", this.plot_height + this.margin.top + this.margin.bottom).append("g").attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
       return svg;
     };
 
     Histogram.prototype.create_x_scale = function() {
+      var min_domain;
       console.log("min/max:", d3.min(this.sample_vals) + "," + d3.max(this.sample_vals));
-      return this.x_scale = d3.scale.linear().domain([d3.min(this.sample_vals), d3.max(this.sample_vals)]).range([0, this.plot_width]);
+      if (d3.min(this.sample_vals) < 0) {
+        min_domain = d3.min(this.sample_vals);
+      } else {
+        min_domain = 0;
+      }
+      return this.x_scale = d3.scale.linear().domain([min_domain, parseFloat(d3.max(this.sample_vals))]).range([0, this.plot_width]);
     };
 
     Histogram.prototype.get_histogram_data = function() {
@@ -97,10 +103,10 @@
       bar = this.svg.selectAll(".bar").data(this.histogram_data).enter().append("g").attr("class", "bar").attr("transform", function(d) {
         return "translate(" + _this.x_scale(d.x) + "," + _this.y_scale(d.y) + ")";
       });
-      bar.append("rect").attr("x", 1).attr("width", (this.x_scale(this.histogram_data[1].x) - this.x_scale(this.histogram_data[0].x)) - 1).attr("height", function(d) {
+      bar.append("rect").attr("x", 1).attr("width", this.x_scale(this.histogram_data[0].x + this.histogram_data[0].dx) - 1).attr("height", function(d) {
         return _this.plot_height - _this.y_scale(d.y);
       });
-      return bar.append("text").attr("dy", ".75em").attr("y", 6).attr("x", (this.x_scale(this.histogram_data[1].x) - this.x_scale(this.histogram_data[0].x)) / 2).attr("text-anchor", "middle").style("fill", "#fff").text(function(d) {
+      return bar.append("text").attr("dy", ".75em").attr("y", 6).attr("x", this.x_scale(this.histogram_data[0].dx) / 2).attr("text-anchor", "middle").style("fill", "#fff").text(function(d) {
         var bar_height;
         bar_height = _this.plot_height - _this.y_scale(d.y);
         if (bar_height > 20) {

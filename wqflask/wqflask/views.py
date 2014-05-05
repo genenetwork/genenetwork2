@@ -35,6 +35,7 @@ from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
 from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
+from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from utility import temp_data
 
@@ -206,6 +207,7 @@ def marker_regression_page():
     wanted = (
         'trait_id',
         'dataset',
+        'method',
         'suggestive'
     )
 
@@ -315,6 +317,12 @@ def corr_compute_page():
     #fd = webqtlFormData.webqtlFormData(request.form)
     template_vars = show_corr_results.CorrelationResults(request.form)
     return render_template("correlation_page.html", **template_vars.__dict__)
+
+@app.route("/corr_matrix", methods=('POST',))
+def corr_matrix_page():
+    print("In corr_matrix, request.form is:", pf(request.form))
+    template_vars = show_corr_matrix.CorrelationMatrix(request.form)
+    return render_template("correlation_matrix.html", **template_vars.__dict__)
 
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():

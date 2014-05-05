@@ -32,7 +32,7 @@ class Manhattan_Plot
         console.log("@x_buffer: ", @x_buffer)
         @y_max = d3.max(@y_coords) * 1.2
 
-        @y_threshold = @get_lod_threshold()
+        #@y_threshold = @get_lod_threshold()
 
         @svg = @create_svg()
         console.log("svg created")
@@ -55,6 +55,8 @@ class Manhattan_Plot
             if not _.isNaN(chr) 
                 if chr > max_chr
                     max_chr = chr
+                    
+        console.log("max_chr", max_chr)
         return max_chr
 
     get_chr_lengths: () ->
@@ -101,7 +103,6 @@ class Manhattan_Plot
                 chr_length = parseFloat(@chromosomes[13])
             else
                 chr_length = parseFloat(@chromosomes[result.chr])
-            console.log("chr_seen is", chr_seen)
             if not(result.chr in chr_seen)
                 chr_seen.push(result.chr) 
                 chr_lengths.push(chr_length)
@@ -122,7 +123,7 @@ class Manhattan_Plot
         ### Searches for the select marker in the results table below ###
         if marker_info
             marker_name = marker_info[2]
-            $("#qtl_results_filter").find("input:first").val(marker_name).change()
+            $("#qtl_results_filter").find("input:first").val(marker_name).trigger('change')
         #else
         #    marker_name = ""
         #$("#qtl_results_filter").find("input:first").val(marker_name).change()
@@ -188,6 +189,7 @@ class Manhattan_Plot
         #@x_scale = d3.scale.linear()
         #    .domain([0, d3.max(@x_coords)])
         #    .range([@x_buffer, @plot_width])
+        console.log("y_axis_filter:", @y_axis_filter)
         if '24' of @chromosomes
             console.log("@chromosomes[24]:", @chromosomes['24'])
             console.log("@chromosomes[23]:", @chromosomes['23'])
@@ -362,12 +364,18 @@ class Manhattan_Plot
             .append("text")
             .attr("class", "chr_label")
             .text((d) =>
-                if d[0] == "23"
-                    return "X"
-                else if d[0] == "24"
-                    return "X/Y"
-                else
-                    return d[0]
+                if @max_chr == "24"
+                    if d[0] == 23
+                        return "X"
+                    else if d[0] == "24"
+                        return "X/Y"
+                    else
+                        return d[0]
+                else if @max_chr == 19
+                    if d[0] == "20"
+                        return "X"
+                    else
+                        return d[0]
             )
             .attr("x", (d) =>
                 return @x_scale(d[2] - d[1]/2)
@@ -396,13 +404,13 @@ class Manhattan_Plot
                 return @y_scale(d[1])
             )
             .attr("r", (d) =>
-                if d[1] > 2
+                if d[1] > 3
                     return 3
                 else
                     return 2
             )
             .attr("fill", (d) =>
-                if d[1] > 2
+                if d[1] > 3
                     return "white"
                 else
                     return "black"

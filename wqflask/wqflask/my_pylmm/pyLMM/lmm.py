@@ -87,14 +87,16 @@ def run_human(pheno_vector,
 
     if v.sum():
         pheno_vector = pheno_vector[keep]
-        #print("pheno_vector shape is now: ", pf(pheno_vector.shape))
+        print("pheno_vector shape is now: ", pf(pheno_vector.shape))
         covariate_matrix = covariate_matrix[keep,:]
-        #print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
-        #print("len(keep) is: ", pf(keep.shape))
+        print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
+        print("keep is: ", pf(keep.shape))
         kinship_matrix = kinship_matrix[keep,:][:,keep]
 
+    print("kinship_matrix:", pf(kinship_matrix))
+
     n = kinship_matrix.shape[0]
-    #print("n is:", n)
+    print("n is:", n)
     lmm_ob = LMM(pheno_vector,
                 kinship_matrix,
                 covariate_matrix)
@@ -212,6 +214,9 @@ def human_association(snp,
 
         filtered_pheno = pheno_vector[keeps]
         filtered_covariate_matrix = covariate_matrix[keeps,:]
+        
+        print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
+        print("keeps is: ", pf(keeps.shape))
         filtered_kinship_matrix = kinship_matrix[keeps,:][:,keeps]
         filtered_lmm_ob = lmm.LMM(filtered_pheno,filtered_kinship_matrix,X0=filtered_covariate_matrix)
         if refit:
@@ -467,7 +472,7 @@ class LMM:
           is not done consistently.
  
     """
-    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=False):
+    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=True):
  
        """
        The constructor takes a phenotype vector or array of size n.
@@ -495,6 +500,8 @@ class LMM:
           Kve = []
        self.nonmissing = x
  
+       print("this K is:", pf(K))
+ 
        if len(Kva) == 0 or len(Kve) == 0:
           if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
           begin = time.time()
@@ -505,8 +512,8 @@ class LMM:
        self.K = K
        self.Kva = Kva
        self.Kve = Kve
-       #print("self.Kva is: ", pf(self.Kva))
-       #print("self.Kve is: ", pf(self.Kve))
+       print("self.Kva is: ", pf(self.Kva))
+       print("self.Kve is: ", pf(self.Kve))
        self.Y = Y
        self.X0 = X0
        self.N = self.K.shape[0]

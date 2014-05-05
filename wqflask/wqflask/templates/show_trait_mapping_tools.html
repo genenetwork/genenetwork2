@@ -9,6 +9,9 @@
                 <li>
                     <a href="#marker_regression" data-toggle="tab">Marker Regression</a>
                 </li>
+                <li>
+                    <a href="#gemma" data-toggle="tab">GEMMA</a>
+                </li>
                 <!--<li>
                     <a href="#pair_scan" data-toggle="tab">Pair Scan</a>
                 </li>-->
@@ -141,6 +144,48 @@
                                     class="btn btn-inverse submit_special"
                                     data-url="/marker_regression"
                                     title="Compute Marker Regression">
+                                <i class="icon-ok-circle icon-white"></i> Compute
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="tab-pane" id="gemma">
+                    <div class="control-group" id="display_all_div">
+                        <label class="control-label">Display all</label>
+                        <div class="controls">                      
+                            <label class="radio inline">
+                                <input type="radio" name="display_all" value="True" checked>
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="display_all" value="False">
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    <div class="control-group" id="suggestive" >
+                        <label for="suggestive" class="control-label"
+                               title="Control Locus">LOD score greater than: </label>
+                        <div class="controls">
+                            <input name="suggestive" type="text" value="0"/>
+                        </div>
+                    </div>
+                    <div class="control-group" id="suggestive" >
+                        <label for="maf" class="control-label"
+                               title="Control Locus">Minor allele threshold: </label>
+                        <div class="controls">
+                            <input name="maf" type="text" value="0.01"/>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="controls">
+                            <button id="gemma_compute"
+                                    class="btn btn-inverse submit_special"
+                                    data-url="/marker_regression"
+                                    title="Compute using GEMMA">
                                 <i class="icon-ok-circle icon-white"></i> Compute
                             </button>
                         </div>

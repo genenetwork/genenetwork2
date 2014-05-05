@@ -31,7 +31,7 @@ class Histogram
     create_svg: () ->
         svg = d3.select("#histogram")
           .append("svg")
-            .attr("class", "bar_chart")
+            .attr("class", "histogram")
             .attr("width", @plot_width + @margin.left + @margin.right)
             .attr("height", @plot_height + @margin.top + @margin.bottom)
           .append("g")
@@ -41,8 +41,12 @@ class Histogram
 
     create_x_scale: () ->
         console.log("min/max:", d3.min(@sample_vals) + "," + d3.max(@sample_vals))
+        if (d3.min(@sample_vals) < 0)
+            min_domain = d3.min(@sample_vals)
+        else
+            min_domain = 0
         @x_scale = d3.scale.linear()
-            .domain([d3.min(@sample_vals), d3.max(@sample_vals)])
+            .domain([min_domain, parseFloat(d3.max(@sample_vals))])
             .range([0, @plot_width]) 
 
     get_histogram_data: () ->
@@ -87,14 +91,14 @@ class Histogram
         
         bar.append("rect")
             .attr("x", 1)
-            .attr("width", (@x_scale(@histogram_data[1].x) - @x_scale(@histogram_data[0].x)) - 1)
+            .attr("width", @x_scale(@histogram_data[0].x + @histogram_data[0].dx) - 1)
             .attr("height", (d) =>
                 return @plot_height - @y_scale(d.y)
             )
         bar.append("text")
             .attr("dy", ".75em")
             .attr("y", 6)
-            .attr("x", (@x_scale(@histogram_data[1].x) - @x_scale(@histogram_data[0].x))/2)
+            .attr("x", @x_scale(@histogram_data[0].dx)/2)
             .attr("text-anchor", "middle")
             .style("fill", "#fff")
             .text((d) =>

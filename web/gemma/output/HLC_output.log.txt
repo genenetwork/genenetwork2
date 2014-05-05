@@ -1,0 +1,28 @@
+##
+## GEMMA Version = 0.94
+##
+## Command Line Input = -bfile HLC -k output_HLC.cXX.txt -lmm 1 -o HLC_output 
+##
+## Summary Statistics:
+## number of total individuals = 427
+## number of analyzed individuals = 427
+## number of covariates = 1
+## number of phenotypes = 1
+## number of total SNPs = 358499
+## number of analyzed SNPs = 273349
+## REMLE log-likelihood in the null model = -3121.45
+## MLE log-likelihood in the null model = -3127.35
+## pve estimate in the null model = 0.830303
+## se(pve) in the null model = 0.108674
+## vg estimate in the null model = 347865
+## ve estimate in the null model = 23515.2
+## beta estimate in the null model =   454.076
+## se(beta) =   7.42097
+##
+## Computation Time:
+## total computation time = 2.67 min 
+## computation time break down: 
+##      time on eigen-decomposition = 0.0015 min 
+##      time on calculating UtX = 0.4125 min 
+##      time on optimization = 2.10517 min 
+##

@@ -151,6 +151,100 @@ class MarkerRegressionPage(templatePage):
 				detail = ['There is no association with marker that meets this criteria. Please provide a less stringend threshold. The minimun p-value is %s.'%minPvalue]
 				self.error(heading=heading,detail=detail)
 				return
+			
+		if self.mappingMethodId == '5': # For GEMMA
+			
+			traitInfoList = string.split(string.strip(fd.identification),':') 
+			probesetName = string.strip(traitInfoList[-1]) 
+			plinkOutputFileName= webqtlUtil.genRandStr("%s_%s_"%(fd.RISet,probesetName))			
+
+			# get related values from fd.allTraitData; the format of 'allTraitValueDict'is {strainName1: value=-0.2...}
+			fd.readData()
+			allTraitValueDict = fd.allTraitData
+			
+			#automatically generate pheno txt file for PLINK
+			self.genPhenoTxtFileForPlink(phenoFileName=plinkOutputFileName,RISetName=fd.RISet,probesetName=probesetName, valueDict=allTraitValueDict)
+			# os.system full path is required for input and output files; specify missing value is -9999
+			gemma_command = './%sgemma/gemma -bfile %s -k %s.kin -lmm 1 -o %s_output' % (webqtlConfig.HTMLPATH, fd.RISet, fd.RISet, fd.RISet)
+			#plink_command = '%splink/plink --noweb --ped %splink/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %splink/%s.map --pheno %s/%s.txt --pheno-name %s --missing-phenotype -9999 --out %s%s --assoc ' % (webqtlConfig.HTMLPATH, webqtlConfig.HTMLPATH,  fd.RISet, webqtlConfig.HTMLPATH, fd.RISet, webqtlConfig.TMPDIR, plinkOutputFileName, probesetName, webqtlConfig.TMPDIR, plinkOutputFileName)
+
+			os.system(gemma_command)
+
+			if fd.identification:
+				heading2 = HT.Paragraph('Trait ID: %s' % fd.identification)
+				heading2.__setattr__("class","subtitle")
+				self.dict['title'] = '%s: Genome Association' % fd.identification
+			else:
+				heading2 = ""
+				self.dict['title'] = 'Genome Association'
+			
+			if fd.traitInfo:
+				symbol,chromosome,MB = string.split(fd.traitInfo,'\t')
+				heading3 = HT.Paragraph('[ ',HT.Strong(HT.Italic('%s' % symbol,id="green")),' on Chr %s @ %s Mb ]' % (chromosome,MB))
+			else:
+				heading3 = ""			
+			
+			heading = HT.Paragraph('Trait Data Entered for %s Set' % fd.RISet)
+			heading.__setattr__("class","title")
+			
+			# header info part:Trait Data Entered for HLC Set & Trait ID: 
+			headerdiv = HT.TR(HT.TD(heading, heading2,heading3, width='45%',valign='top', align='left', bgColor='#eeeeee'))
+
+			self.ChrList=ChrList  # get chr name from '1' to 'X'
+			self.ChrLengthMbList = ChrLengthMbList
+
+			# build plink result dict based on chr, key is chr name, value is in list type including Snpname, bp and pvalue info
+			plinkResultDict={}
+			count,minPvalue,plinkResultDict =self.getPlinkResultDict(outputFileName=plinkOutputFileName,thresholdPvalue=self.pValue,ChrOrderIdNameDict=ChrOrderIdNameDict)
+
+			# if can not find results which are matched with assigned p-value, system info will show up
+			if count >0:	
+				
+				#for genome association report table
+				reportTable=""
+				# sortable table object
+				resultstable,tblobj,bottomInfo = self.GenReportForPLINK(ChrNameOrderIdDict=ChrNameOrderIdDict, RISet=fd.RISet,plinkResultDict=plinkResultDict,thresholdPvalue=self.pValue,chrList=self.ChrList)	
+				
+				# creat object for result table for sort function
+				objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
+				cPickle.dump(tblobj, objfile)
+				objfile.close()	
+
+				sortby = ("Index", "up")
+				reportTable =HT.Div(webqtlUtil.genTableObj(tblobj=tblobj, file=filename, sortby=sortby, tableID = "sortable", addIndex = "0"), Id="sortable") 	
+				
+				descriptionTable =  HT.TableLite(border=0, cellpadding=0, cellspacing=0)
+				descriptionTable.append(HT.TR(HT.TD(reportTable, colspan=3)))
+				descriptionTable.append(HT.TR(HT.TD(HT.BR(),HT.BR())))			
+				descriptionTable.append(bottomInfo)	
+				
+				# get each chr's length
+				self.ChrLengthMbList = map(lambda x: x/1000000.0, self.ChrLengthMbList) # change unit from bp to mb
+				self.ChrLengthMbSum = reduce(lambda x, y:x+y, self.ChrLengthMbList, 0.0)# get total length of all chrs
+				if self.ChrLengthMbList:
+					self.GraphInterval = self.ChrLengthMbSum/(len(self.ChrLengthMbList)*12) #Empirical Mb interval
+				else:
+					self.GraphInterval = 1
+
+				# for human data, there's no CM value	
+				self.ChrLengthCMList = []
+				self.ChrLengthCMSum = 0	   
+				
+				# begin: common part with human data
+				intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
+				gifmap = self.plotIntMappingForPLINK(fd, intCanvas, startMb = self.startMb, endMb = self.endMb, plinkResultDict=plinkResultDict) 
+				
+				intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='png')
+				intImg=HT.Image('/image/'+filename+'.png', border=0, usemap='#WebQTLImageMap')
+
+				TD_LR = HT.TR(HT.TD(HT.Blockquote(gifmap,intImg, HT.P()), bgColor='#eeeeee', height = 200))					
+				self.dict['body'] = str(headerdiv)+str(TD_LR)+str(resultstable)+str(HT.TR(HT.TD(descriptionTable)))
+
+			else: 
+				heading = "Genome Association"
+				detail = ['There is no association with marker that meets this criteria. Please provide a less stringend threshold. The minimun p-value is %s.'%minPvalue]
+				self.error(heading=heading,detail=detail)
+				return
 				
 		elif self.mappingMethodId == '1': # QTLreaper result	
 			if not fd.genotype:
@@ -1458,6 +1552,9 @@ class MarkerRegressionPage(templatePage):
 			leftOffset = xLeftOffset+(nCol-1)*200
 			canvas.drawPolygon(((leftOffset+6, startPosY-6), (leftOffset, startPosY+6), (leftOffset+12, startPosY+6)), edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
 			canvas.drawString("Sequence Site", (leftOffset+15), (startPosY+5), smallLabelFont, self.TOP_RIGHT_INFO_COLOR)
+
+
+
 
 	# build dict based on plink result, key is chr, value is list of [snp,BP,pValue] 		
 	def getPlinkResultDict(self,outputFileName='',thresholdPvalue=-1,ChrOrderIdNameDict={}):
