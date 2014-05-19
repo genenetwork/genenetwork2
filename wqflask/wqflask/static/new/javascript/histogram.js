@@ -55,14 +55,10 @@
     };
 
     Histogram.prototype.create_x_scale = function() {
-      var min_domain;
+      var x0;
       console.log("min/max:", d3.min(this.sample_vals) + "," + d3.max(this.sample_vals));
-      if (d3.min(this.sample_vals) < 0) {
-        min_domain = d3.min(this.sample_vals);
-      } else {
-        min_domain = 0;
-      }
-      return this.x_scale = d3.scale.linear().domain([min_domain, parseFloat(d3.max(this.sample_vals))]).range([0, this.plot_width]);
+      x0 = Math.max(-d3.min(this.sample_vals), d3.max(this.sample_vals));
+      return this.x_scale = d3.scale.linear().domain([d3.min(this.sample_vals), d3.max(this.sample_vals)]).range([0, this.plot_width]).nice();
     };
 
     Histogram.prototype.get_histogram_data = function() {
@@ -82,6 +78,7 @@
 
     Histogram.prototype.create_graph = function() {
       this.add_x_axis();
+      this.add_y_axis();
       return this.add_bars();
     };
 
@@ -92,8 +89,9 @@
     };
 
     Histogram.prototype.add_y_axis = function() {
-      var y_axis;
-      return y_axis = d3.svg.axis().scale(this.y_scale).orient("left").ticks(5);
+      var yAxis;
+      yAxis = d3.svg.axis().scale(this.y_scale).orient("left").ticks(5);
+      return this.svg.append("g").attr("class", "y axis").call(yAxis).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end");
     };
 
     Histogram.prototype.add_bars = function() {

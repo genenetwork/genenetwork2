@@ -204,6 +204,7 @@ $ ->
                 name = $.trim(name)
                 real_value = $(row).find('.edit_sample_value').val()
                 console.log("real_value:", real_value)
+                
                 checkbox = $(row).find(".edit_sample_checkbox")
                 checked = $(checkbox).attr('checked')
 

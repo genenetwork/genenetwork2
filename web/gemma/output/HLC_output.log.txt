@@ -10,19 +10,19 @@
 ## number of phenotypes = 1
 ## number of total SNPs = 358499
 ## number of analyzed SNPs = 273349
-## REMLE log-likelihood in the null model = -3121.45
-## MLE log-likelihood in the null model = -3127.35
-## pve estimate in the null model = 0.830303
-## se(pve) in the null model = 0.108674
-## vg estimate in the null model = 347865
-## ve estimate in the null model = 23515.2
-## beta estimate in the null model =   454.076
-## se(beta) =   7.42097
+## REMLE log-likelihood in the null model = -4252.51
+## MLE log-likelihood in the null model = -4261.76
+## pve estimate in the null model = 0.314624
+## se(pve) in the null model = 0.403683
+## vg estimate in the null model = 2.61389e+07
+## ve estimate in the null model = 1.88332e+07
+## beta estimate in the null model =   5107.48
+## se(beta) =   210.014
 ##
 ## Computation Time:
-## total computation time = 2.67 min 
+## total computation time = 2.5965 min 
 ## computation time break down: 
 ##      time on eigen-decomposition = 0.0015 min 
-##      time on calculating UtX = 0.4125 min 
-##      time on optimization = 2.10517 min 
+##      time on calculating UtX = 0.414167 min 
+##      time on optimization = 2.03267 min 
 ##

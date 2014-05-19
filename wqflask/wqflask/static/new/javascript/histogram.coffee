@@ -41,13 +41,15 @@ class Histogram
 
     create_x_scale: () ->
         console.log("min/max:", d3.min(@sample_vals) + "," + d3.max(@sample_vals))
-        if (d3.min(@sample_vals) < 0)
-            min_domain = d3.min(@sample_vals)
-        else
-            min_domain = 0
+        x0 = Math.max(-d3.min(@sample_vals), d3.max(@sample_vals))
+        #if (d3.min(@sample_vals) < 0)
+        #    min_domain = d3.min(@sample_vals)
+        #else
+        #    min_domain = 0
         @x_scale = d3.scale.linear()
-            .domain([min_domain, parseFloat(d3.max(@sample_vals))])
-            .range([0, @plot_width]) 
+            .domain([d3.min(@sample_vals), d3.max(@sample_vals)])
+            .range([0, @plot_width])
+            .nice()
 
     get_histogram_data: () ->
         console.log("sample_vals:", @sample_vals)
@@ -62,6 +64,7 @@ class Histogram
 
     create_graph: () ->
         @add_x_axis()
+        @add_y_axis()
         @add_bars()
 
     add_x_axis: () ->
@@ -74,11 +77,32 @@ class Histogram
             .attr("transform", "translate(0," + @plot_height + ")")
             .call(x_axis)
             
+    #add_y_axis: () ->
+    #    y_axis = d3.svg.axis()
+    #            .scale(@y_scale)
+    #            .orient("left")
+    #            .ticks(5)
+    #            
+    #    @svg.append("g")
+    #        .attr("class", "y axis")
+    #        #.attr("transform", "translate(0," + @plot_width + ")")
+    #        .call(y_axis)
+            
+            
     add_y_axis: () ->
-        y_axis = d3.svg.axis()
+        yAxis = d3.svg.axis()
                 .scale(@y_scale)
                 .orient("left")
                 .ticks(5)
+
+        @svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+          .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
                 
     add_bars: () ->
         console.log("bar_width:", @x_scale(@histogram_data[0].dx))

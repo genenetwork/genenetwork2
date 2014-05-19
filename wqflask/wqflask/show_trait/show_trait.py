@@ -98,7 +98,10 @@ class ShowTrait(object):
         hddn['trait_id'] = self.trait_id
         hddn['dataset'] = self.dataset.name
         hddn['method'] = "pylmm"
-
+        hddn['mapping_display_all'] = True
+        hddn['suggestive'] = 0
+        hddn['maf'] = 0.01
+    
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
         

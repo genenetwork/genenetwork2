@@ -58,6 +58,8 @@ class MarkerRegression(object):
  
         if self.mapping_method == "gemma":
             qtl_results = self.run_gemma()
+        elif self.mapping_method == "plink":
+            qtl_results = self.run_plink()
         elif self.mapping_method == "pylmm":
             #self.qtl_results = self.gen_data(tempdata)
             qtl_results = self.gen_data(str(temp_uuid))
@@ -150,6 +152,10 @@ class MarkerRegression(object):
     #                                                                                                                                             filename)
     #
     #
+    
+    def run_plink(self):
+    
+        os.chdir("/home/zas1024/plink")
     
     #def gen_data(self, tempdata):
     def gen_data(self, temp_uuid):

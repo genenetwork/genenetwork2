@@ -56,6 +56,9 @@ $ ->
         console.log("In interval mapping")
         $("#progress_bar_container").modal()
         url = "/interval_mapping"
+        $('input[name=method]').val("reaper")
+        $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'))
+        $('input[name=suggestive]').val($('input[name=suggestive_reaper]'))
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         $.ajax(
@@ -116,9 +119,41 @@ $ ->
         return false
     )
 
+    $("#plink_compute").click(() =>
+        url = "/marker_regression"
+        $('input[name=method]').val("plink")
+        $('input[name=mapping_display_all]').val($('input[name=display_all_plink]'))
+        $('input[name=suggestive]').val($('input[name=suggestive_plink]'))
+        $('input[name=maf]').val($('input[name=maf_plink]'))
+        form_data = $('#trait_data_form').serialize()
+        console.log("form_data is:", form_data)
+        $.ajax(
+            type: "POST"
+            url: url
+            data: form_data
+            error: (xhr, ajaxOptions, thrownError) =>
+                alert("Sorry, an error occurred")
+                console.log(xhr)
+                clearInterval(this.my_timer)
+                $('#progress_bar_container').modal('hide')
+                $("body").html("We got an error.")        
+            success: (data) =>
+                clearInterval(this.my_timer)
+                $('#progress_bar_container').modal('hide')
+                $("body").html(data)
+        )
+        console.log("settingInterval")
+
+        this.my_timer = setInterval(get_progress, 1000)
+        return false
+    )
+
     $("#gemma_compute").click(() =>
         url = "/marker_regression"
         $('input[name=method]').val("gemma")
+        $('input[name=mapping_display_all]').val($('input[name=display_all_gemma]'))
+        $('input[name=suggestive]').val($('input[name=suggestive_gemma]'))
+        $('input[name=maf]').val($('input[name=maf_gemma]'))
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         $.ajax(
