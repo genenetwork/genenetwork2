@@ -73,12 +73,12 @@ class Chr_Manhattan_Plot
                 high_qtl_count += 1
         console.log("high_qtl_count:", high_qtl_count)
         
-        if high_qtl_count > 10000
-            @y_axis_filter = 2
-        else if high_qtl_count > 1000
-            @y_axis_filter = 1
-        else
-            @y_axis_filter = 0
+        #if high_qtl_count > 10000
+        @y_axis_filter = 2
+        #else if high_qtl_count > 1000
+        #    @y_axis_filter = 1
+        #else
+        #    @y_axis_filter = 0
 
     create_coordinates: () ->
         for result in @these_results
@@ -108,7 +108,6 @@ class Chr_Manhattan_Plot
             return @y_max/2
         else
             return 2
-        
 
     create_graph: () ->
         @add_border()
@@ -216,16 +215,16 @@ class Chr_Manhattan_Plot
                 return @y_scale(d[1])
             )
             .attr("r", (d) =>
-                if d[1] > 2
-                    return 3
-                else
-                    return 2
+                #if d[1] > 2
+                #    return 3
+                #else
+                return 2
             )
             .attr("fill", (d) =>
-                if d[1] > 2
-                    return "white"
-                else
-                    return "black"
+                #if d[1] > 2
+                #    return "white"
+                #else
+                return "black"
             )
             .attr("stroke", "black")
             .attr("stroke-width", "1")
@@ -247,16 +246,16 @@ class Chr_Manhattan_Plot
                 this_id = "point_" + String(d[2])
                 d3.select("#" + this_id).classed("d3_highlight", false)
                     .attr("r", (d) =>
-                        if d[1] > 2
-                            return 3
-                        else
-                            return 2
+                        #if d[1] > 2
+                        #    return 3
+                        #else
+                        return 2
                     )
                     .attr("fill", (d) =>
-                        if d[1] > 2
-                            return "white"
-                        else
-                            return "black"
+                        #if d[1] > 2
+                        #    return "white"
+                        #else
+                        return "black"
                     )
                     .attr("stroke", "black")
                     .attr("stroke-width", "1")

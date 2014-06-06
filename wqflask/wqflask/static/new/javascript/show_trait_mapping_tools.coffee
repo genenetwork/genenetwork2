@@ -120,6 +120,7 @@ $ ->
     )
 
     $("#plink_compute").click(() =>
+        $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("plink")
         $('input[name=mapping_display_all]').val($('input[name=display_all_plink]'))
@@ -135,11 +136,11 @@ $ ->
                 alert("Sorry, an error occurred")
                 console.log(xhr)
                 clearInterval(this.my_timer)
-                $('#progress_bar_container').modal('hide')
+                $('#static_progress_bar_container').modal('hide')
                 $("body").html("We got an error.")        
             success: (data) =>
                 clearInterval(this.my_timer)
-                $('#progress_bar_container').modal('hide')
+                $('#static_progress_bar_container').modal('hide')
                 $("body").html(data)
         )
         console.log("settingInterval")
@@ -149,6 +150,7 @@ $ ->
     )
 
     $("#gemma_compute").click(() =>
+        $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("gemma")
         $('input[name=mapping_display_all]').val($('input[name=display_all_gemma]'))
@@ -164,11 +166,11 @@ $ ->
                 alert("Sorry, an error occurred")
                 console.log(xhr)
                 clearInterval(this.my_timer)
-                $('#progress_bar_container').modal('hide')
+                $('#static_progress_bar_container').modal('hide')
                 $("body").html("We got an error.")        
             success: (data) =>
                 clearInterval(this.my_timer)
-                $('#progress_bar_container').modal('hide')
+                $('#static_progress_bar_container').modal('hide')
                 $("body").html(data)
         )
         console.log("settingInterval")

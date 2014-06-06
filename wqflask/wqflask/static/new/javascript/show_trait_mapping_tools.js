@@ -132,6 +132,7 @@
     });
     $("#plink_compute").click(function() {
       var form_data, url;
+      $("#static_progress_bar_container").modal();
       url = "/marker_regression";
       $('input[name=method]').val("plink");
       $('input[name=mapping_display_all]').val($('input[name=display_all_plink]'));
@@ -147,12 +148,12 @@
           alert("Sorry, an error occurred");
           console.log(xhr);
           clearInterval(_this.my_timer);
-          $('#progress_bar_container').modal('hide');
+          $('#static_progress_bar_container').modal('hide');
           return $("body").html("We got an error.");
         },
         success: function(data) {
           clearInterval(_this.my_timer);
-          $('#progress_bar_container').modal('hide');
+          $('#static_progress_bar_container').modal('hide');
           return $("body").html(data);
         }
       });
@@ -162,6 +163,7 @@
     });
     $("#gemma_compute").click(function() {
       var form_data, url;
+      $("#static_progress_bar_container").modal();
       url = "/marker_regression";
       $('input[name=method]').val("gemma");
       $('input[name=mapping_display_all]').val($('input[name=display_all_gemma]'));
@@ -177,12 +179,12 @@
           alert("Sorry, an error occurred");
           console.log(xhr);
           clearInterval(_this.my_timer);
-          $('#progress_bar_container').modal('hide');
+          $('#static_progress_bar_container').modal('hide');
           return $("body").html("We got an error.");
         },
         success: function(data) {
           clearInterval(_this.my_timer);
-          $('#progress_bar_container').modal('hide');
+          $('#static_progress_bar_container').modal('hide');
           return $("body").html(data);
         }
       });

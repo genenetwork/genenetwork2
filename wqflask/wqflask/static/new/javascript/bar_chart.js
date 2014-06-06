@@ -35,7 +35,8 @@
         bottom: longest_sample_name * 7,
         left: 40
       };
-      this.plot_width = this.sample_vals.length * 16 - this.margin.left - this.margin.right;
+      this.plot_width = this.sample_vals.length * 20 - this.margin.left - this.margin.right;
+      this.range = this.sample_vals.length * 20;
       this.plot_height = 500 - this.margin.top - this.margin.bottom;
       this.x_buffer = this.plot_width / 20;
       this.y_buffer = this.plot_height / 20;
@@ -124,7 +125,7 @@
         return _results;
       })();
       console.log("sample_names2:", sample_names);
-      x_scale = d3.scale.ordinal().domain(sample_names).rangeBands([0, this.plot_width], .1);
+      x_scale = d3.scale.ordinal().domain(sample_names).rangeRoundBands([0, this.range], 0.1, 0);
       $('.bar_chart').find('.x.axis').remove();
       return this.add_x_axis(x_scale);
     };
@@ -306,7 +307,7 @@
     };
 
     Bar_Chart.prototype.create_scales = function() {
-      this.x_scale = d3.scale.ordinal().domain(this.sample_names).rangeBands([0, this.plot_width], 0.3);
+      this.x_scale = d3.scale.ordinal().domain(this.sample_names).rangeRoundBands([0, this.range], 0.1, 0);
       return this.y_scale = d3.scale.linear().domain([this.y_min * 0.75, this.y_max]).range([this.plot_height, this.y_buffer]);
     };
 

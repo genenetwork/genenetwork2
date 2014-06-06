@@ -19,6 +19,8 @@ class MrnaAssayTissueData(object):
         if self.gene_symbols == None:
             self.gene_symbols = []
         
+        print("self.gene_symbols:", self.gene_symbols)
+        
         self.data = collections.defaultdict(Bunch)
             
         #self.gene_id_dict ={}
@@ -28,7 +30,7 @@ class MrnaAssayTissueData(object):
         #self.desc_dict = {}
         #self.probe_target_desc_dict = {}
         
-        query =  '''select t.Symbol, t.GeneId, t.DataId,t.Chr, t.Mb, t.description, t.Probe_Target_Description
+        query =  '''select t.Symbol, t.GeneId, t.DataId, t.Chr, t.Mb, t.description, t.Probe_Target_Description
                         from (
                         select Symbol, max(Mean) as maxmean
                         from TissueProbeSetXRef
@@ -53,6 +55,7 @@ class MrnaAssayTissueData(object):
                     '''.format(in_clause)
 
         results = g.db.execute(query).fetchall()
+        
         for result in results:
             symbol = result[0]
             if symbol in gene_symbols:
@@ -66,7 +69,7 @@ class MrnaAssayTissueData(object):
                 self.data[symbol].description = result.description
                 self.data[symbol].probe_target_description = result.Probe_Target_Description
 
-        #print("self.data: ", pf(self.data))
+        print("self.data: ", pf(self.data))
 
     ###########################################################################
     #Input: cursor, symbolList (list), dataIdDict(Dict)
@@ -79,12 +82,16 @@ class MrnaAssayTissueData(object):
     def get_symbol_values_pairs(self):
         id_list = [self.data[symbol].data_id for symbol in self.data]
 
+        print("id_list:", id_list)
+
         symbol_values_dict = {}
         
         query = """SELECT TissueProbeSetXRef.Symbol, TissueProbeSetData.value
                    FROM TissueProbeSetXRef, TissueProbeSetData
                    WHERE TissueProbeSetData.Id IN {} and
                          TissueProbeSetXRef.DataId = TissueProbeSetData.Id""".format(db_tools.create_in_clause(id_list))
+        
+        print("TISSUE QUERY:", query)
         
         results = g.db.execute(query).fetchall()
         for result in results:

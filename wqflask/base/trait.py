@@ -40,6 +40,7 @@ class GeneralTrait(object):
         else:
             self.dataset = kw.get('dataset')
         self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
+        print("THE NAME IS:", self.name)
         self.cellid = kw.get('cellid')
         self.identification = kw.get('identification', 'un-named trait')
         self.haveinfo = kw.get('haveinfo', False)
@@ -295,6 +296,9 @@ class GeneralTrait(object):
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                             PublishFreeze.Id = %s
                     """ % (self.name, self.dataset.id)
+            
+            print("query is:", query)        
+        
             trait_info = g.db.execute(query).fetchone()
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
         #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.

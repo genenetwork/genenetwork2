@@ -93,8 +93,13 @@ class CorrelationResults(object):
         # get trait list from db (database name)
         # calculate correlation with Base vector and targets
         
+        print("TESTING...")
+        
         with Bench("Doing correlations"):
             helper_functions.get_species_dataset_trait(self, start_vars)
+            
+            print("TRAIT SYMBOL:", self.this_trait.symbol)
+            
             self.dataset.group.read_genotype_file()
 
             corr_samples_group = start_vars['corr_samples_group']
@@ -108,9 +113,11 @@ class CorrelationResults(object):
             #The two if statements below append samples to the sample list based upon whether the user
             #rselected Primary Samples Only, Other Samples Only, or All Samples
 
-            primary_samples = (self.dataset.group.parlist +
-                               self.dataset.group.f1list +
-                               self.dataset.group.samplelist)
+            primary_samples = self.dataset.group.samplelist
+            if self.dataset.group.parlist != None:
+                primary_samples += self.dataset.group.parlist
+            if self.dataset.group.f1list != None:
+                primary_samples += self.dataset.group.f1list
 
             #If either BXD/whatever Only or All Samples, append all of that group's samplelist
             if corr_samples_group != 'samples_other':
@@ -156,6 +163,7 @@ class CorrelationResults(object):
 
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
+                print("trait name:", trait)
                 trait_object = GeneralTrait(dataset=self.dataset, name=trait, get_qtl_info=True)
                 
                 (trait_object.sample_r,
@@ -329,8 +337,8 @@ class CorrelationResults(object):
                                                            key=lambda t: -abs(t[1][1])))
             
             return tissue_corr_data
-                    
-                    
+
+
     def do_lit_correlation_for_trait_list(self):
 
         input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), self.this_trait.geneid)
@@ -348,14 +356,14 @@ class CorrelationResults(object):
                        FROM LCorrRamin3
                        WHERE GeneId1='%s' and
                              GeneId2='%s'
-                    """ % (escape(trait.mouse_gene_id), escape(input_trait_mouse_gene_id))
+                    """ % (escape(str(trait.mouse_gene_id)), escape(str(input_trait_mouse_gene_id)))
                 ).fetchone()
                 if not result:
                     result = g.db.execute("""SELECT value
                        FROM LCorrRamin3
                        WHERE GeneId2='%s' and
                              GeneId1='%s'
-                    """ % (escape(trait.mouse_gene_id), escape(input_trait_mouse_gene_id))
+                    """ % (escape(str(trait.mouse_gene_id)), escape(str(input_trait_mouse_gene_id)))
                     ).fetchone()
                 
                 if result:
@@ -419,20 +427,30 @@ class CorrelationResults(object):
             mouse_gene_id = gene_id
             
         elif species == 'rat':
-            mouse_gene_id = g.db.execute(
-                """SELECT mouse
+            
+            query = """SELECT mouse
                    FROM GeneIDXRef
-                   WHERE rat='%d'
-                """, escape(int(gene_id))).fetchone().mouse
+                   WHERE rat='%s'""" % escape(gene_id)
+            
+            print("GENE_ID QUERY: ", query)
+            
+            result = g.db.execute(query).fetchone()
+            if result != None:
+                mouse_gene_id = result.mouse
             
         elif species == 'human':
-            mouse_gene_id = g.db.execute(
-                """SELECT mouse
+           
+            query = """SELECT mouse
                    FROM GeneIDXRef
-                   WHERE human='%d'
-                """, escape(int(gene_id))).fetchone().mouse
+                   WHERE human='%s'""" % escape(gene_id)
+            
+            print("GENE_ID QUERY: ", query)
+            
+            result = g.db.execute(query).fetchone()
+            if result != None:
+                mouse_gene_id = result.mouse
 
-        #print("mouse_geneid:", mouse_geneid)
+        print("mouse_geneid:", mouse_gene_id)
         
         return mouse_gene_id        
     
@@ -455,6 +473,8 @@ class CorrelationResults(object):
                 target_sample_value = target_samples[index]
                 this_trait_vals.append(sample_value)
                 target_vals.append(target_sample_value)
+
+        print("trait:", trait)
 
         this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
             this_trait_vals, target_vals)
@@ -1010,6 +1030,7 @@ class CorrelationResults(object):
                     values_2.append(target_value)
             correlation = calCorrelation(values_1, values_2)
             self.correlation_data[trait] = correlation
+        
 
         """
         correlations = []

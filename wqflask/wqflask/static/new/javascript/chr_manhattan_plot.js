@@ -93,13 +93,7 @@
         }
       }
       console.log("high_qtl_count:", high_qtl_count);
-      if (high_qtl_count > 10000) {
-        return this.y_axis_filter = 2;
-      } else if (high_qtl_count > 1000) {
-        return this.y_axis_filter = 1;
-      } else {
-        return this.y_axis_filter = 0;
-      }
+      return this.y_axis_filter = 2;
     };
 
     Chr_Manhattan_Plot.prototype.create_coordinates = function() {
@@ -193,17 +187,9 @@
       }).attr("cy", function(d) {
         return _this.y_scale(d[1]);
       }).attr("r", function(d) {
-        if (d[1] > 2) {
-          return 3;
-        } else {
-          return 2;
-        }
+        return 2;
       }).attr("fill", function(d) {
-        if (d[1] > 2) {
-          return "white";
-        } else {
-          return "black";
-        }
+        return "black";
       }).attr("stroke", "black").attr("stroke-width", "1").attr("id", function(d) {
         return "point_" + String(d[2]);
       }).classed("circle", true).on("mouseover", function(d) {
@@ -216,17 +202,9 @@
         var this_id;
         this_id = "point_" + String(d[2]);
         return d3.select("#" + this_id).classed("d3_highlight", false).attr("r", function(d) {
-          if (d[1] > 2) {
-            return 3;
-          } else {
-            return 2;
-          }
+          return 2;
         }).attr("fill", function(d) {
-          if (d[1] > 2) {
-            return "white";
-          } else {
-            return "black";
-          }
+          return "black";
         }).attr("stroke", "black").attr("stroke-width", "1");
       }).append("svg:title").text(function(d) {
         return d[2];

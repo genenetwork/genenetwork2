@@ -5,6 +5,8 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
@@ -17,7 +19,7 @@
                 Whole Genome Mapping
             </h2>
         </div>
-        <div id="interval_map" class="interval_map">
+        <div id="topchart">
             
         </div>
         <div>
@@ -69,7 +71,10 @@
 <!--        <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>-->
     <![endif]-->
     <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/interval_mapping.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/interval_map_new.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>

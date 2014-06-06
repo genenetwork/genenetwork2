@@ -131,7 +131,10 @@ class UserSession(object):
     @property
     def user_id(self):
         """Shortcut to the user_id"""
-        return self.record['user_id']
+        if 'user_id' in self.record:
+            return self.record['user_id']
+        else:
+            return ''
 
     @property
     def user_ob(self):

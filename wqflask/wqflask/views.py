@@ -279,7 +279,7 @@ def interval_mapping_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v7"
+    version = "v11"
     key = "interval_mapping:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):

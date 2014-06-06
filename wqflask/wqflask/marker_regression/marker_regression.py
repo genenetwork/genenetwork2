@@ -22,6 +22,8 @@ import simplejson as json
 from redis import Redis
 Redis = Redis()
 
+from flask import Flask, g
+
 from base.trait import GeneralTrait
 from base import data_set
 from base import species
@@ -60,18 +62,20 @@ class MarkerRegression(object):
             qtl_results = self.run_gemma()
         elif self.mapping_method == "plink":
             qtl_results = self.run_plink()
+            #print("qtl_results:", pf(qtl_results))
         elif self.mapping_method == "pylmm":
             #self.qtl_results = self.gen_data(tempdata)
             qtl_results = self.gen_data(str(temp_uuid))
         
-        self.lod_cutoff = self.get_lod_score_cutoff()
+        self.lod_cutoff = 2
         self.filtered_markers = []
         for marker in qtl_results:
-            #if marker['lod_score'] > self.lod_cutoff:
-            if marker['lod_score'] > 1:
+            if marker['chr'] > 0:
                 self.filtered_markers.append(marker)
+            #if marker['lod_score'] > self.lod_cutoff:
+
                 
-        print("filtered_markers:", self.filtered_markers)
+        #print("filtered_markers:", self.filtered_markers)
 
         #Get chromosome lengths for drawing the manhattan plot
         chromosome_mb_lengths = {}
@@ -85,6 +89,8 @@ class MarkerRegression(object):
 
     def run_gemma(self):
         """Generates p-values for each marker using GEMMA"""
+        
+        self.dataset.group.get_markers()
         
         #filename = webqtlUtil.genRandStr("{}_{}_".format(self.dataset.group.name, self.this_trait.name))
         self.gen_pheno_txt_file()
@@ -156,6 +162,205 @@ class MarkerRegression(object):
     def run_plink(self):
     
         os.chdir("/home/zas1024/plink")
+        
+        self.dataset.group.get_markers()
+        
+        plink_output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
+        
+        self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
+        
+        plink_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, webqtlConfig.TMPDIR, plink_output_filename)
+        
+        os.system(plink_command)
+
+        count, p_values = self.parse_plink_output(plink_output_filename)
+        #gemma_command = './gemma -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
+        #                                                                                         self.dataset.group.name,
+        #                                                                                         self.dataset.group.name,
+        #                                                                                         self.dataset.group.name)
+        #print("gemma_command:" + gemma_command)
+        #
+        #os.system(gemma_command)
+        #
+        #included_markers, p_values = self.parse_gemma_output()
+        #
+        #self.dataset.group.get_specified_markers(markers = included_markers)
+        
+        #for marker in self.dataset.group.markers.markers:
+        #    if marker['name'] not in included_markers:
+        #        print("marker:", marker)
+        #        self.dataset.group.markers.markers.remove(marker)
+        #        #del self.dataset.group.markers.markers[marker]
+        
+        print("p_values:", pf(p_values))
+        
+        self.dataset.group.markers.add_pvalues(p_values)
+
+        return self.dataset.group.markers.markers
+    
+    
+    def gen_pheno_txt_file_plink(self, pheno_filename = ''):
+        ped_sample_list = self.get_samples_from_ped_file()	
+        output_file = open("%s%s.txt" % (webqtlConfig.TMPDIR, pheno_filename), "wb")
+        header = 'FID\tIID\t%s\n' % self.this_trait.name
+        output_file.write(header)
+    
+        new_value_list = []
+        
+        #if valueDict does not include some strain, value will be set to -9999 as missing value
+        for i, sample in enumerate(ped_sample_list):
+            try:
+                value = self.vals[i]
+                value = str(value).replace('value=','')
+                value = value.strip()
+            except:
+                value = -9999
+    
+            new_value_list.append(value)
+            
+            
+        new_line = ''
+        for i, sample in enumerate(ped_sample_list):
+            j = i+1
+            value = new_value_list[i]
+            new_line += '%s\t%s\t%s\n'%(sample, sample, value)
+            
+            if j%1000 == 0:
+                output_file.write(newLine)
+                new_line = ''
+        
+        if new_line:
+            output_file.write(new_line)
+            
+        output_file.close()
+    
+    # get strain name from ped file in order
+    def get_samples_from_ped_file(self):
+        
+        os.chdir("/home/zas1024/plink")
+        
+        ped_file= open("{}.ped".format(self.dataset.group.name),"r")
+        line = ped_file.readline()
+        sample_list=[]
+        
+        while line:
+            lineList = string.split(string.strip(line), '\t')
+            lineList = map(string.strip, lineList)
+            
+            sample_name = lineList[0]
+            sample_list.append(sample_name)
+            
+            line = ped_file.readline()
+        
+        return sample_list
+    
+    ################################################################
+    # Generate Chr list, Chr OrderId and Retrieve Length Information 
+    ################################################################		
+    #def getChrNameOrderIdLength(self,RISet=''):
+    #    try:
+    #        query = """
+    #            Select
+    #                Chr_Length.Name,Chr_Length.OrderId,Length from Chr_Length, InbredSet
+    #            where
+    #                Chr_Length.SpeciesId = InbredSet.SpeciesId AND
+    #                InbredSet.Name = '%s' 
+    #            Order by OrderId
+    #            """ % (self.dataset.group.name)
+    #        results =g.db.execute(query).fetchall()
+    #        ChrList=[]
+    #        ChrLengthMbList=[]
+    #        ChrNameOrderIdDict={}
+    #        ChrOrderIdNameDict={}
+    #        
+    #        for item in results:
+    #            ChrList.append(item[0])
+    #            ChrNameOrderIdDict[item[0]]=item[1] # key is chr name, value is orderId
+    #            ChrOrderIdNameDict[item[1]]=item[0] # key is orderId, value is chr name
+    #            ChrLengthMbList.append(item[2])				
+    #            
+    #    except:
+    #        ChrList=[]
+    #        ChrNameOrderIdDict={}
+    #        ChrLengthMbList=[]
+    #        
+    #    return ChrList,ChrNameOrderIdDict,ChrOrderIdNameDict,ChrLengthMbList
+    
+    
+    def parse_plink_output(self, output_filename):
+        plink_results={}
+    
+        threshold_p_value = 0.01
+    
+        result_fp = open("%s%s.qassoc"% (webqtlConfig.TMPDIR, output_filename), "rb")
+        
+        header_line = result_fp.readline()# read header line
+        line = result_fp.readline()
+        
+        value_list = [] # initialize value list, this list will include snp, bp and pvalue info
+        p_value_dict = {}
+        count = 0
+        
+        while line:
+            #convert line from str to list
+            line_list = self.build_line_list(line=line)
+    
+            # only keep the records whose chromosome name is in db
+            if self.species.chromosomes.chromosomes.has_key(int(line_list[0])) and line_list[-1] and line_list[-1].strip()!='NA':
+    
+                chr_name = self.species.chromosomes.chromosomes[int(line_list[0])]
+                snp = line_list[1]
+                BP = line_list[2]
+                p_value = float(line_list[-1])
+                if threshold_p_value >= 0 and threshold_p_value <= 1:
+                    if p_value < threshold_p_value:
+                        p_value_dict[snp] = p_value
+                
+                if plink_results.has_key(chr_name):
+                    value_list = plink_results[chr_name]
+                    
+                    # pvalue range is [0,1]
+                    if threshold_p_value >=0 and threshold_p_value <= 1:
+                        if p_value < threshold_p_value:
+                            value_list.append((snp, BP, p_value))
+                            count += 1
+                    
+                    plink_results[chr_name] = value_list
+                    value_list = []
+                else:
+                    if threshold_p_value >= 0 and threshold_p_value <= 1:
+                        if p_value < threshold_p_value:
+                            value_list.append((snp, BP, p_value))
+                            count += 1
+
+                    if value_list:
+                        plink_results[chr_name] = value_list
+
+                    value_list=[]
+
+                line = result_fp.readline()
+            else:
+                line = result_fp.readline()
+
+        #if p_value_list:
+        #    min_p_value = min(p_value_list)
+        #else:
+        #    min_p_value = 0
+            
+        return count, p_value_dict
+    
+    ######################################################
+    # input: line: str,one line read from file
+    # function: convert line from str to list; 
+    # output: lineList list
+    #######################################################
+    def build_line_list(self, line=None):
+        
+        line_list = string.split(string.strip(line),' ')# irregular number of whitespaces between columns
+        line_list = [item for item in line_list if item <>'']
+        line_list = map(string.strip, line_list)
+    
+        return line_list
     
     #def gen_data(self, tempdata):
     def gen_data(self, temp_uuid):
@@ -238,7 +443,7 @@ class MarkerRegression(object):
 
         self.dataset.group.markers.add_pvalues(p_values)
         
-        self.get_lod_score_cutoff()
+        #self.get_lod_score_cutoff()
         
         return self.dataset.group.markers.markers
 
@@ -309,6 +514,7 @@ class MarkerRegression(object):
         return p_values, t_stats
 
     def get_lod_score_cutoff(self):
+        print("INSIDE GET LOD CUTOFF")
         high_qtl_count = 0
         for marker in self.dataset.group.markers.markers:
             if marker['lod_score'] > 1:

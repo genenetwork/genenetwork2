@@ -167,28 +167,56 @@ class Markers(object):
             marker['Mb'] = float(marker['Mb'])
             
         self.markers = markers
-        print("self.markers:", self.markers)
+        #print("self.markers:", self.markers)
     
     def add_pvalues(self, p_values):
         print("length of self.markers:", len(self.markers))
         print("length of p_values:", len(p_values))
         
-        # THIS IS only needed for the case when we are limiting the number of p-values calculated
-        if len(self.markers) < len(p_values):
-            self.markers = self.markers[:len(p_values)]
-        
-        for marker, p_value in itertools.izip(self.markers, p_values):
-            if not p_value:
-                continue
-            marker['p_value'] = float(p_value)
-            if math.isnan(marker['p_value']) or marker['p_value'] <= 0:
-                marker['lod_score'] = 0
-                marker['lrs_value'] = 0
-            else:
-                marker['lod_score'] = -math.log10(marker['p_value'])
-                #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
-                marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+        if type(p_values) is list:
+            # THIS IS only needed for the case when we are limiting the number of p-values calculated
+            #if len(self.markers) > len(p_values):
+            #    self.markers = self.markers[:len(p_values)]
+            
+            for marker, p_value in itertools.izip(self.markers, p_values):
+                if not p_value:
+                    continue
+                marker['p_value'] = float(p_value)
+                if math.isnan(marker['p_value']) or marker['p_value'] <= 0:
+                    marker['lod_score'] = 0
+                    marker['lrs_value'] = 0
+                else:
+                    marker['lod_score'] = -math.log10(marker['p_value'])
+                    #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
+                    marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+        elif type(p_values) is dict:
+            filtered_markers = []
+            for marker in self.markers:
+                #print("marker[name]", marker['name'])
+                #print("p_values:", p_values)
+                if marker['name'] in p_values:
+                    #print("marker {} IS in p_values".format(i))
+                    marker['p_value'] = p_values[marker['name']]
+                    if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
+                        marker['lod_score'] = 0
+                        marker['lrs_value'] = 0
+                    else:
+                        marker['lod_score'] = -math.log10(marker['p_value'])
+                        #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
+                        marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+                    filtered_markers.append(marker)
+                #else:
+                    #print("marker {} NOT in p_values".format(i))
+                    #self.markers.remove(marker)
+                    #del self.markers[i]
+            self.markers = filtered_markers
+            
 
+        #for i, marker in enumerate(self.markers):
+        #    if not 'p_value' in marker:
+        #        #print("self.markers[i]", self.markers[i])
+        #        del self.markers[i]
+        #        #self.markers.remove(self.markers[i])
 
 class HumanMarkers(Markers):
     
@@ -226,15 +254,15 @@ class HumanMarkers(Markers):
         #    #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
         #    marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
         
-        print("p_values2:", p_values)
+        #print("p_values2:", pf(p_values))
         super(HumanMarkers, self).add_pvalues(p_values)
         
-        with Bench("deleting markers"):
-            markers = []
-            for marker in self.markers:
-                if not marker['Mb'] <= 0 and not marker['chr'] == 0:
-                    markers.append(marker)
-            self.markers = markers
+        #with Bench("deleting markers"):
+        #    markers = []
+        #    for marker in self.markers:
+        #        if not marker['Mb'] <= 0 and not marker['chr'] == 0:
+        #            markers.append(marker)
+        #    self.markers = markers
         
     
 
@@ -254,7 +282,7 @@ class DatasetGroup(object):
             self.name = "BXD"
         
         self.f1list = None
-        self.parlist = None        
+        self.parlist = None
         self.get_f1_parent_strains()
         #print("parents/f1s: {}:{}".format(self.parlist, self.f1list))
         
@@ -476,8 +504,9 @@ class DataSet(object):
         else:
             self.samplelist = self.group.samplelist
             
-        if (self.group.parlist + self.group.f1list) in self.samplelist:
-            self.samplelist += self.group.parlist + self.group.f1list
+        if self.group.parlist != None and self.group.f1list != None:
+            if (self.group.parlist + self.group.f1list) in self.samplelist:
+                self.samplelist += self.group.parlist + self.group.f1list
         
         query = """
             SELECT Strain.Name, Strain.Id FROM Strain, Species
@@ -547,7 +576,11 @@ class DataSet(object):
                         order by {}.Id
                         """.format(*mescape(self.type, self.type, self.type, self.type,
                                    self.name, dataset_type, self.type, self.type, dataset_type))
+                        
+            #print("trait data query: ", query)
+            
             results = g.db.execute(query).fetchall()
+            #print("query results:", results)
             trait_sample_data.append(results)
 
         trait_count = len(trait_sample_data[0])

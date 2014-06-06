@@ -13,7 +13,8 @@ class Bar_Chart
         longest_sample_name = d3.max(sample.length for sample in @sample_names)
         
         @margin = {top: 20, right: 20, bottom: longest_sample_name * 7, left: 40}
-        @plot_width = @sample_vals.length * 16 - @margin.left - @margin.right
+        @plot_width = @sample_vals.length * 20 - @margin.left - @margin.right
+        @range = @sample_vals.length * 20
         @plot_height = 500 - @margin.top - @margin.bottom
 
         @x_buffer = @plot_width/20
@@ -172,7 +173,7 @@ class Bar_Chart
         console.log("sample_names2:", sample_names)
         x_scale = d3.scale.ordinal()
             .domain(sample_names)
-            .rangeBands([0, @plot_width], .1)
+            .rangeRoundBands([0, @range], 0.1, 0)
         $('.bar_chart').find('.x.axis').remove()
         @add_x_axis(x_scale)
 
@@ -283,7 +284,7 @@ class Bar_Chart
     create_scales: () ->
         @x_scale = d3.scale.ordinal()
             .domain(@sample_names)
-            .rangeBands([0, @plot_width], 0.3)
+            .rangeRoundBands([0, @range], 0.1, 0)
 
         @y_scale = d3.scale.linear()
             .domain([@y_min * 0.75, @y_max])
