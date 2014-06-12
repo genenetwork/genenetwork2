@@ -44,7 +44,8 @@ lodchart = () ->
         data[lodvarname] = (Math.abs(x) for x in data[lodvarname]) # take absolute values
         data['additive'] = (Math.abs(x) for x in data['additive'])
         ylim = ylim ? [0, d3.max(data[lodvarname])]
-        additive_ylim = additive_ylim ? [0, d3.max(data['additive'])]
+        if data['additive'].length > 0
+            additive_ylim = additive_ylim ? [0, d3.max(data['additive'])]
         lodvarnum = data.lodnames.indexOf(lodvarname)
   
         # Select the svg element, if it exists.
@@ -71,13 +72,15 @@ lodchart = () ->
   
         yscale.domain(ylim)
               .range([height+margin.top, margin.top+margin.inner])
-              
-        additive_yscale.domain(additive_ylim)
-              .range([height+margin.top, margin.top+margin.inner + height/2])
+        
+        if data['additive'].length > 0
+            additive_yscale.domain(additive_ylim)
+                  .range([height+margin.top, margin.top+margin.inner + height/2])
   
         # if yticks not provided, use nyticks to choose pretty ones
         yticks = yticks ? yscale.ticks(nyticks)
-        additive_yticks = additive_yticks ? additive_yscale.ticks(nyticks)
+        if data['additive'].length > 0
+            additive_yticks = additive_yticks ? additive_yscale.ticks(nyticks)
   
         # reorganize lod,pos by chromosomes
         data = reorgLodData(data, lodvarname)
@@ -152,35 +155,36 @@ lodchart = () ->
              .text(ylab)
              .attr("transform", if rotate_ylab then "rotate(270,#{margin.left-axispos.ytitle},#{margin.top+height/2})" else "")
   
+        if data['additive'].length > 0
         rotate_additive_ylab = rotate_additive_ylab ? (additive_ylab.length > 1)
-        additive_yaxis = g.append("g").attr("class", "y axis")
-        additive_yaxis.selectAll("empty")
-             .data(additive_yticks)
-             .enter()
-             .append("line")
-             .attr("y1", (d) -> additive_yscale(d))
-             .attr("y2", (d) -> additive_yscale(d))
-             .attr("x1", margin.left + width)
-             .attr("x2", margin.left + width - 7)
-             .attr("fill", "none")
-             .attr("stroke", "white")
-             .attr("stroke-width", 1)
-             .style("pointer-events", "none")
-    
-        additive_yaxis.selectAll("empty")
-             .data(additive_yticks)
-             .enter()
-             .append("text")
-             .attr("y", (d) -> additive_yscale(d))
-             .attr("x", (d) -> margin.left + width + axispos.ylabel + 20)
-             .attr("fill", "green")
-             .text((d) -> formatAxis(additive_yticks)(d))
-             
-        additive_yaxis.append("text").attr("class", "title")
-             .attr("y", margin.top+1.5*height)
-             .attr("x", margin.left + width + axispos.ytitle)
-             .text(additive_ylab)
-             .attr("transform", if rotate_additive_ylab then "rotate(270,#{margin.left + width + axispos.ytitle}, #{margin.top+height*1.5})" else "")
+            additive_yaxis = g.append("g").attr("class", "y axis")
+            additive_yaxis.selectAll("empty")
+                 .data(additive_yticks)
+                 .enter()
+                 .append("line")
+                 .attr("y1", (d) -> additive_yscale(d))
+                 .attr("y2", (d) -> additive_yscale(d))
+                 .attr("x1", margin.left + width)
+                 .attr("x2", margin.left + width - 7)
+                 .attr("fill", "none")
+                 .attr("stroke", "white")
+                 .attr("stroke-width", 1)
+                 .style("pointer-events", "none")
+        
+            additive_yaxis.selectAll("empty")
+                 .data(additive_yticks)
+                 .enter()
+                 .append("text")
+                 .attr("y", (d) -> additive_yscale(d))
+                 .attr("x", (d) -> margin.left + width + axispos.ylabel + 20)
+                 .attr("fill", "green")
+                 .text((d) -> formatAxis(additive_yticks)(d))
+                 
+            additive_yaxis.append("text").attr("class", "title")
+                 .attr("y", margin.top+1.5*height)
+                 .attr("x", margin.left + width + axispos.ytitle)
+                 .text(additive_ylab)
+                 .attr("transform", if rotate_additive_ylab then "rotate(270,#{margin.left + width + axispos.ytitle}, #{margin.top+height*1.5})" else "")
   
   
         suggestive_bar = g.append("g").attr("class", "suggestive")
@@ -217,10 +221,11 @@ lodchart = () ->
               .x((d) -> xscale[chr](d))
               .y((d,i) -> yscale(data.lodByChr[chr][i][lodcolumn]))
               
-        additivecurve = (chr, lodcolumn) ->
-            d3.svg.line()
-              .x((d) -> xscale[chr](d))
-              .y((d,i) -> additive_yscale(data.additiveByChr[chr][i][lodcolumn]))
+        if data['additive'].length > 0
+            additivecurve = (chr, lodcolumn) ->
+                d3.svg.line()
+                  .x((d) -> xscale[chr](d))
+                  .y((d,i) -> additive_yscale(data.additiveByChr[chr][i][lodcolumn]))
   
         curves = g.append("g").attr("id", "curves")
   
@@ -338,11 +343,12 @@ lodchart = () ->
       ylim = value
       chart
       
-    chart.additive_ylim = (value) ->
-      return additive_ylim unless arguments.length
-      additive_ylim = value
-      chart
-  
+    if data['additive'].length > 0
+        chart.additive_ylim = (value) ->
+          return additive_ylim unless arguments.length
+          additive_ylim = value
+          chart
+      
     chart.nyticks = (value) ->
       return nyticks unless arguments.length
       nyticks = value
@@ -431,8 +437,9 @@ lodchart = () ->
     chart.yscale = () ->
       return yscale
     
-    chart.additive_yscale = () ->
-      return additive_yscale
+    if data['additive'].length > 0
+        chart.additive_yscale = () ->
+          return additive_yscale
   
     chart.xscale = () ->
       return xscale
@@ -440,8 +447,9 @@ lodchart = () ->
     chart.lodcurve = () ->
       return lodcurve
     
-    chart.additivecurve = () ->
-      return additivecurve
+    if data['additive'].length > 0
+        chart.additivecurve = () ->
+          return additivecurve
   
     chart.markerSelect = () ->
       return markerSelect
@@ -470,7 +478,8 @@ reorgLodData = (data, lodvarname=null) ->
         if data.chr[j] == chr
           data.posByChr[chr].push(pos)
           data.lodnames = [data.lodnames] unless Array.isArray(data.lodnames)
-          additiveval = (data['additive'][j] for lodcolumn in data.lodnames)
+          if data['additive'].length > 0
+            additiveval = (data['additive'][j] for lodcolumn in data.lodnames)
           lodval = (data[lodcolumn][j] for lodcolumn in data.lodnames)
           data.additiveByChr[chr].push(additiveval)
           data.lodByChr[chr].push(lodval)

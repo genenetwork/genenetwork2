@@ -58,7 +58,8 @@
   ];
 
   $(function() {
-    var block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, populate_sample_attributes_values_dropdown, process_id, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, open_trait_selection, populate_sample_attributes_values_dropdown, process_id, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values,
+      _this = this;
     sample_lists = js_data.sample_lists;
     sample_group_types = js_data.sample_group_types;
     root.bar_chart = new Bar_Chart(sample_lists[0]);
@@ -92,6 +93,19 @@
         return new Box_Plot(all_samples);
       }
     });
+    d3.select("#select_compare_trait").on("click", function() {
+      return open_trait_selection();
+    });
+    open_trait_selection = function() {
+      var _this = this;
+      return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', function() {
+        $.colorbox({
+          inline: true,
+          href: "#collections_holder"
+        });
+        return $('a.collection_name').attr('onClick', 'return false');
+      });
+    };
     hide_tabs = function(start) {
       var x, _i, _results;
       _results = [];

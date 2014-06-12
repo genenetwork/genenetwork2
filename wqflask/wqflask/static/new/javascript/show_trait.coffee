@@ -95,6 +95,21 @@ $ ->
             new Box_Plot(all_samples)
 
 
+    d3.select("#select_compare_trait").on("click", =>
+        open_trait_selection()
+    )
+    
+    open_trait_selection = () ->
+        $('#collections_holder').load('/collections/list?color_by_trait #collections_list', =>
+            $.colorbox(
+                inline: true
+                href: "#collections_holder"
+            )
+            #Removes the links from the collection names, because clicking them would leave the page
+            #instead of loading the list of traits in the colorbox
+            $('a.collection_name').attr( 'onClick', 'return false' )
+        )
+
     hide_tabs = (start) ->
         for x in [start..10]
             $("#stats_tabs" + x).hide()
@@ -231,7 +246,6 @@ $ ->
             console.log("Found Show Outliers")
             $('#show_hide_outliers').val("Hide Outliers")
             console.log("Should be now Hide Outliers")
-
 
     ##Calculate Correlations Code
 

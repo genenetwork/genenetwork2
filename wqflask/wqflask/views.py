@@ -270,6 +270,7 @@ def interval_mapping_page():
         'chromosome',
         'num_permutations',
         'do_bootstraps',
+        'display_additive',
         'default_control_locus',
         'control_locus'
     )
@@ -330,7 +331,7 @@ def corr_scatter_plot_page():
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
-    return render_template("corr_scatter_plot.html", **template_vars.__dict__)
+    return render_template("corr_scatterplot.html", **template_vars.__dict__)
 
 #@app.route("/int_mapping", methods=('POST',))
 #def interval_mapping_page():

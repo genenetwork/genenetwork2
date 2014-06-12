@@ -1,5 +1,3 @@
-root = exports ? this
-
 console.log("before get_traits_from_collection")
 
 # Going to be used to hold collection list
@@ -28,9 +26,68 @@ trait_click = () ->
     $.ajax(
         dataType: "json",
         url: this_trait_url,
-        success: color_by_trait
+        success: get_trait_data
       )
     $.colorbox.close()
+
+get_trait_data = (trait_sample_data, textStatus, jqXHR) ->
+    trait_list = $('input[name=compare_traits]')
+    console.log("trait_list:", trait_list.val())
+    console.log("trait_sample_data:", trait_sample_data)
+    samples = $('input[name=allsamples]').val().split(" ")
+    vals = []
+    
+    for sample in samples
+        if sample in Object.keys(trait_sample_data)
+            vals.push(parseFloat(trait_sample_data[sample]))
+        else
+            vals.push(null)
+
+    #console.log("sorted_samples:", samples)
+    #console.log("sorted_vals:", vals)
+    
+    if $('input[name=samples]').length < 1
+        $('#hidden_inputs').append('<input type="hidden" name="samples" value="[' + samples.toString() + ']" />')
+    $('#hidden_inputs').append('<input type="hidden" name="vals" value="[' + vals.toString() + ']" />')
+
+    this_trait_vals = get_this_trait_vals(samples)
+
+    #json_data = assemble_into_json(this_trait_vals_json)
+    
+    #console.log("json_data[1]:", json_data[1])
+    
+    console.log("THE LENGTH IS:", $('input[name=vals]').length)
+    if $('input[name=vals]').length == 1
+        create_scatterplot(samples, [this_trait_vals, vals])
+    
+
+
+get_this_trait_vals = (samples) ->
+    this_trait_vals = []
+    for sample in samples
+        this_val = parseFloat($("input[name='value:"+sample+"']").val())
+        if !isNaN(this_val)
+            this_trait_vals.push(this_val)
+        else
+            this_trait_vals.push(null)
+    console.log("this_trait_vals:", this_trait_vals)
+    
+    this_vals_json = '[' + this_trait_vals.toString() + ']'
+        
+    return this_trait_vals
+
+assemble_into_json = (this_trait_vals) ->
+    num_traits = $('input[name=vals]').length
+    samples = $('input[name=samples]').val()
+    json_ids = samples
+    
+    json_data = '[' + this_trait_vals
+
+    $('input[name=vals]').each (index, element) =>
+        json_data += ',' + $(element).val()
+    json_data += ']'
+
+    return [json_ids, json_data]
 
 color_by_trait =  (trait_sample_data, textStatus, jqXHR) ->
     #trait_sample_data = trait_sample_data

@@ -10,6 +10,9 @@
                 <li>
                     <a href="#bar_chart_tab" data-toggle="tab">Bar Chart</a>
                 </li>
+                <li>
+                    <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
+                </li>
 <!--                <li>
                     <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
                 </li>-->
@@ -25,7 +28,7 @@
                     <br><br>
                     {% endif %}
                     <div id="histogram_container">
-                        <div id="histogram"></div>
+                        <div id="histogram" class="barchart"></div>
                     </div>
                 </div>
                 <div class="tab-pane" id="bar_chart_tab">
@@ -64,7 +67,7 @@
                         </button>
                     </div>
                     <div id="bar_chart_container">
-                        <div id="bar_chart"></div>
+                        <div id="bar_chart" class="barchart"></div>
                     </div>
                 </div>
 <!--                <div class="tab-pane" id="box_plot_tab">
@@ -80,6 +83,18 @@
                         <div id="box_plot"></div>
                     </div>
                 </div>-->
+                <div class="tab-pane" id="scatterplot_matrix">
+                    
+                    <div class="btn-group">
+                        <button type="button" class="btn" id="select_compare_trait">
+                            <i class="icon-th-large"></i> Select Trait
+                        </button>
+                    </div>
+                    <div id="scatterplot_container">
+                        <div id="comparison_scatterplot" class="qtlcharts"></div>
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>

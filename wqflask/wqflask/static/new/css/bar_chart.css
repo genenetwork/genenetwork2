@@ -1,5 +1,5 @@
-.axis path,
-.axis line {
+.barchart .axis path,
+.barchart .axis line {
   fill: none;
   stroke: #000;
   shape-rendering: crispEdges;

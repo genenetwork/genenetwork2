@@ -1,8 +1,10 @@
+root = exports ? this
+
 scatterplot = () ->
     width = 800
-    height = 500
+    height = 600
     margin = {left:60, top:40, right:40, bottom: 40, inner:5}
-    axispos = {xtitle:25, ytitle:30, xlabel:5, ylabel:5}
+    axispos = {xtitle:25, ytitle:45, xlabel:5, ylabel:5}
     titlepos = 20
     xNA = {handle:true, force:false, width:15, gap:10}
     yNA = {handle:true, force:false, width:15, gap:10}
@@ -16,7 +18,7 @@ scatterplot = () ->
     pointcolor = null
     pointstroke = "black"
     pointsize = 3 # default = no visible points at markers
-    title = ""
+    title = "Correlation Scatterplot"
     xlab = "X"
     ylab = "Y"
     rotate_ylab = null
@@ -25,7 +27,7 @@ scatterplot = () ->
     xvar = 0
     yvar = 1
     pointsSelect = null
-    dataByInd = true
+    dataByInd = false
   
     ## the main function
     chart = (selection) ->
@@ -38,10 +40,15 @@ scatterplot = () ->
           x = data.data[xvar]
           y = data.data[yvar]
   
+        console.log("x:", x)
+        console.log("y:", y)
+  
         # grab indID if it's there
         # if no indID, create a vector of them
         indID = data?.indID ? null
         indID = indID ? [1..x.length]
+  
+        console.log("indID:", indID)
   
         # groups of colors
         group = data?.group ? (1 for i in x)
@@ -216,6 +223,16 @@ scatterplot = () ->
                    .direction('e')
                    .offset([0,10])
         svg.call(indtip)
+  
+        #g.append("line")
+        #        .attr("x1")
+        #
+        #g.append("line")
+        #  .attr("x1", xscale(minx))
+        #  .attr("x2", xscale(maxx*0.995))
+        #  .attr("y2", yscale(slope*maxx*0.995+intercept))
+        #  .style("stroke", "black")
+        #  .style("stroke-width", 2);
   
         points = g.append("g").attr("id", "points")
         pointsSelect =
@@ -405,3 +422,5 @@ scatterplot = () ->
   
     # return the chart function
     chart
+    
+root.scatterplot = scatterplot

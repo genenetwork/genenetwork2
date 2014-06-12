@@ -98,6 +98,10 @@ class IntervalMapping(object):
         self.num_permutations = int(start_vars['num_permutations'])
         #self.do_bootstrap = start_vars['do_bootstrap']
         self.selected_chr = start_vars['chromosome']
+        if start_vars['display_additive'] == "yes":
+            self.additive = True
+        else:
+            self.additive = False
         if 'control_locus' in start_vars:
             self.control_locus = start_vars['control_locus']
         else:
@@ -169,7 +173,8 @@ class IntervalMapping(object):
             self.json_data['pos'].append(reaper_locus.Mb)
             self.json_data['lod.hk'].append(qtl.lrs)
             self.json_data['markernames'].append(reaper_locus.name)
-            self.json_data['additive'].append(qtl.additive)
+            if self.additive:
+                self.json_data['additive'].append(qtl.additive)
             locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
             qtl = {"lrs": qtl.lrs, "locus": locus, "additive": qtl.additive}
             self.qtl_results.append(qtl)
@@ -220,7 +225,8 @@ class IntervalMapping(object):
             self.json_data['pos'].append(reaper_locus.Mb)
             self.json_data['lod.hk'].append(qtl.lrs)
             self.json_data['markernames'].append(reaper_locus.name)
-            self.json_data['additive'].append(qtl.additive)
+            if self.additive:
+                self.json_data['additive'].append(qtl.additive)
             locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
             qtl = {"lrs_value": qtl.lrs, "chr":reaper_locus.chr, "Mb":reaper_locus.Mb,
                    "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive}
