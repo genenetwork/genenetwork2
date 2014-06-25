@@ -1552,13 +1552,21 @@ class DataEditingPage(templatePage):
 		attribute_ids = []
 		attribute_names = []
 		try:
+			
+			if thisTrait.db.type=='ProbeSet':
 			#ZS: Id values for this trait's extra attributes; used to create "Exclude" dropdown and query for attribute values and create
-			self.cursor.execute("""SELECT CaseAttribute.Id, CaseAttribute.Name
-                                			FROM CaseAttribute, CaseAttributeXRef
-                                          	WHERE CaseAttributeXRef.ProbeSetFreezeId = '%s' AND
-                                          		CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
-                                                 	group by CaseAttributeXRef.CaseAttributeId""" % (str(thisTrait.db.id)))
-
+				self.cursor.execute("""SELECT CaseAttribute.Id, CaseAttribute.Name
+												FROM CaseAttribute, CaseAttributeXRef
+												WHERE CaseAttributeXRef.ProbeSetFreezeId = '%s' AND
+													CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
+														group by CaseAttributeXRef.CaseAttributeId""" % (str(thisTrait.db.id)))
+			elif thisTrait.db.type=='Publish':
+				self.cursor.execute("""SELECT CaseAttribute.Id, CaseAttribute.Name
+												FROM CaseAttribute, CaseAttributeXRef
+												WHERE CaseAttributeXRef.PublishFreezeId = '%s' AND
+													CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
+														group by CaseAttributeXRef.CaseAttributeId""" % (str(thisTrait.db.id)))
+				
 			exclude_menu = HT.Select(name="exclude_menu")
 			dropdown_menus = [] #ZS: list of dropdown menus with the distinct values of each attribute (contained in DIVs so the style parameter can be edited and they can be hidden) 
 

@@ -164,6 +164,7 @@ class Markers(object):
                 marker['chr'] = int(marker['chr'])
             else:
                 marker['chr'] = 19
+            print("Mb:", marker['Mb'])
             marker['Mb'] = float(marker['Mb'])
             
         self.markers = markers
@@ -670,6 +671,7 @@ class PhenotypeDataSet(DataSet):
 
     def get_trait_info(self, trait_list, species = ''):
         for this_trait in trait_list:
+            
             if not this_trait.haveinfo:
                 this_trait.retrieve_info(get_qtl_info=True)
 
@@ -679,6 +681,7 @@ class PhenotypeDataSet(DataSet):
             #phenotype traits, then display the pre-publication description instead
             #of the post-publication description
             if this_trait.confidential:
+                this_trait.description_display = ""
                 continue   # for now
             
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
@@ -688,7 +691,12 @@ class PhenotypeDataSet(DataSet):
                         
                     description = this_trait.pre_publication_description
             
-            this_trait.description_display = description.strip()
+            if len(description) > 0:
+                this_trait.description_display = description.strip()
+            else:
+                this_trait.description_display = ""
+
+            print("this_trait.description_display is:", this_trait.description_display)
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"

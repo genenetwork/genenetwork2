@@ -56,7 +56,8 @@ class MarkerRegression(object):
             self.vals.append(value)
  
         self.mapping_method = start_vars['method']
-        print("self.mapping_method:", self.mapping_method)
+        self.maf = start_vars['maf'] # Minor allele frequency
+        print("self.maf:", self.maf)
  
         if self.mapping_method == "gemma":
             qtl_results = self.run_gemma()
@@ -64,9 +65,12 @@ class MarkerRegression(object):
             qtl_results = self.run_plink()
             #print("qtl_results:", pf(qtl_results))
         elif self.mapping_method == "pylmm":
+            print("RUNNING PYLMM")
             #self.qtl_results = self.gen_data(tempdata)
             qtl_results = self.gen_data(str(temp_uuid))
-        
+        else:
+            print("RUNNING NOTHING")
+            
         self.lod_cutoff = 2
         self.filtered_markers = []
         for marker in qtl_results:
@@ -83,6 +87,9 @@ class MarkerRegression(object):
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
         self.js_data = dict(
+            this_trait = self.this_trait.name,
+            data_set = self.dataset.name,
+            maf = self.maf,
             chromosomes = chromosome_mb_lengths,
             qtl_results = self.filtered_markers,
         )
@@ -169,7 +176,7 @@ class MarkerRegression(object):
         
         self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
         
-        plink_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, webqtlConfig.TMPDIR, plink_output_filename)
+        plink_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
         
         os.system(plink_command)
 
@@ -382,6 +389,7 @@ class MarkerRegression(object):
             #p_values = self.trim_results(p_values)
             
         else:
+            print("NOW CWD IS:", os.getcwd())
             genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
             
             no_val_samples = self.identify_empty_samples()
@@ -410,7 +418,7 @@ class MarkerRegression(object):
                         )
             
             json_params = json.dumps(params)
-            print("json_params:", json_params)
+            #print("json_params:", json_params)
             Redis.set(key, json_params)
             Redis.expire(key, 60*60)
             print("before printing command")

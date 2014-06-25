@@ -7,14 +7,17 @@
 
   Manhattan_Plot = (function() {
 
-    function Manhattan_Plot(plot_height, plot_width) {
+    function Manhattan_Plot(height, width) {
       var _ref;
-      this.plot_height = plot_height != null ? plot_height : 600;
-      this.plot_width = plot_width != null ? plot_width : 1200;
+      this.height = height != null ? height : 800;
+      this.width = width != null ? width : 1200;
       this.qtl_results = js_data.qtl_results;
       console.log("qtl_results are:", this.qtl_results);
       this.chromosomes = js_data.chromosomes;
       console.log("chromosomes are:", this.chromosomes);
+      this.this_trait = js_data.this_trait;
+      this.data_set = js_data.data_set;
+      this.maf = js_data.maf;
       this.total_length = 0;
       this.max_chr = this.get_max_chr();
       this.x_coords = [];
@@ -27,8 +30,9 @@
       console.log("@y_coords: ", this.y_coords);
       console.timeEnd('Create coordinates');
       _ref = this.get_chr_lengths(), this.chr_lengths = _ref[0], this.cumulative_chr_lengths = _ref[1];
-      this.x_buffer = this.plot_width / 30;
-      this.y_buffer = this.plot_height / 20;
+      this.x_buffer = this.width / 30;
+      this.y_buffer = this.height / 20;
+      this.legend_buffer = 30;
       this.x_max = this.total_length;
       console.log("@x_max: ", this.x_max);
       console.log("@x_buffer: ", this.x_buffer);
@@ -37,7 +41,7 @@
       console.log("svg created");
       this.plot_coordinates = _.zip(this.x_coords, this.y_coords, this.marker_names);
       console.log("coordinates:", this.plot_coordinates);
-      this.plot_height -= this.y_buffer;
+      this.height -= this.y_buffer;
       this.create_scales();
       console.time('Create graph');
       this.create_graph();
@@ -94,7 +98,7 @@
         }
       }
       console.log("high_qtl_count:", high_qtl_count);
-      return this.y_axis_filter = 2;
+      return this.y_axis_filter = 0;
     };
 
     Manhattan_Plot.prototype.create_coordinates = function() {
@@ -143,11 +147,12 @@
 
     Manhattan_Plot.prototype.create_svg = function() {
       var svg;
-      svg = d3.select("#manhattan_plot").append("svg").attr("class", "manhattan_plot").attr("width", this.plot_width + this.x_buffer).attr("height", this.plot_height + this.y_buffer).append("g");
+      svg = d3.select("#manhattan_plot").append("svg").attr("class", "manhattan_plot").attr("width", this.width + this.x_buffer).attr("height", this.height + this.y_buffer).append("g");
       return svg;
     };
 
     Manhattan_Plot.prototype.create_graph = function() {
+      this.create_legend();
       this.add_border();
       this.add_x_axis();
       this.add_y_axis();
@@ -158,10 +163,15 @@
       return this.add_plot_points();
     };
 
+    Manhattan_Plot.prototype.create_legend = function() {
+      this.svg.append("text").attr("class", "legend").text("Trait: " + this.this_trait + " : " + this.data_set).attr("x", this.x_buffer).attr("y", 20).attr("dx", "0em").attr("text-anchor", "left").attr("font-family", "sans-serif").attr("font-size", "16px").attr("fill", "black");
+      return this.svg.append("text").attr("class", "legend").text("MAF: " + this.maf).attr("x", this.x_buffer).attr("y", 38).attr("dx", "0em").attr("text-anchor", "left").attr("font-family", "sans-serif").attr("font-size", "16px").attr("fill", "black");
+    };
+
     Manhattan_Plot.prototype.add_border = function() {
       var border_coords,
         _this = this;
-      border_coords = [[this.y_buffer, this.plot_height, this.x_buffer, this.x_buffer], [this.y_buffer, this.plot_height, this.plot_width, this.plot_width], [this.y_buffer, this.y_buffer, this.x_buffer, this.plot_width], [this.plot_height, this.plot_height, this.x_buffer, this.plot_width]];
+      border_coords = [[this.y_buffer + this.legend_buffer, this.height, this.x_buffer, this.x_buffer], [this.y_buffer + this.legend_buffer, this.height, this.width, this.width], [this.y_buffer + this.legend_buffer, this.y_buffer + this.legend_buffer, this.x_buffer, this.width], [this.height, this.height, this.x_buffer, this.width]];
       return this.svg.selectAll("line").data(border_coords).enter().append("line").attr("y1", function(d) {
         return d[0];
       }).attr("y2", function(d) {
@@ -180,11 +190,11 @@
         console.log("@chromosomes[23]:", this.chromosomes['23']);
         console.log("@total_length:", this.total_length);
         console.log("d3.max(@xcoords):", d3.max(this.x_coords));
-        this.x_scale = d3.scale.linear().domain([0, this.total_length + this.chromosomes['24']]).range([this.x_buffer, this.plot_width]);
+        this.x_scale = d3.scale.linear().domain([0, this.total_length + this.chromosomes['24']]).range([this.x_buffer, this.width]);
       } else {
-        this.x_scale = d3.scale.linear().domain([0, this.total_length + this.chromosomes['20']]).range([this.x_buffer, this.plot_width]);
+        this.x_scale = d3.scale.linear().domain([0, this.total_length + this.chromosomes['20']]).range([this.x_buffer, this.width]);
       }
-      return this.y_scale = d3.scale.linear().domain([this.y_axis_filter, this.y_max]).range([this.plot_height, this.y_buffer]);
+      return this.y_scale = d3.scale.linear().domain([this.y_axis_filter, this.y_max]).range([this.height, this.y_buffer + this.legend_buffer]);
     };
 
     Manhattan_Plot.prototype.create_x_axis_tick_values = function() {
@@ -237,7 +247,7 @@
         }
         return tick_val;
       });
-      return this.svg.append("g").attr("class", "x_axis").attr("transform", "translate(0," + this.plot_height + ")").call(this.xAxis).selectAll("text").attr("text-anchor", "right").attr("dx", "-1.6em").attr("transform", function(d) {
+      return this.svg.append("g").attr("class", "x_axis").attr("transform", "translate(0," + this.height + ")").call(this.xAxis).selectAll("text").attr("text-anchor", "right").attr("dx", "-1.6em").attr("transform", function(d) {
         return "translate(-12,0) rotate(-90)";
       });
     };
@@ -248,14 +258,14 @@
     };
 
     Manhattan_Plot.prototype.add_axis_labels = function() {
-      return this.svg.append("text").attr("transform", "rotate(-90)").attr("y", 0 - (this.plot_height / 2)).attr("x", this.x_buffer).attr("dy", "1em").style("text-anchor", "middle").text("LOD Score");
+      return this.svg.append("text").attr("transform", "rotate(-90)").attr("y", 0 - (this.height / 2)).attr("x", this.x_buffer).attr("dy", "1em").style("text-anchor", "middle").text("LOD Score");
     };
 
     Manhattan_Plot.prototype.add_chr_lines = function() {
       var _this = this;
       return this.svg.selectAll("line").data(this.cumulative_chr_lengths, function(d) {
         return d;
-      }).enter().append("line").attr("x1", this.x_scale).attr("x2", this.x_scale).attr("y1", this.y_buffer).attr("y2", this.plot_height).style("stroke", "#ccc");
+      }).enter().append("line").attr("x1", this.x_scale).attr("x2", this.x_scale).attr("y1", this.y_buffer + this.legend_buffer).attr("y2", this.height).style("stroke", "#ccc");
     };
 
     Manhattan_Plot.prototype.fill_chr_areas = function() {
@@ -266,14 +276,14 @@
         return d;
       }).enter().append("rect").attr("x", function(d, i) {
         return _this.x_scale(d[1] - d[0]);
-      }).attr("y", this.y_buffer + 2).attr("width", function(d, i) {
+      }).attr("y", this.y_buffer + this.legend_buffer + 2).attr("width", function(d, i) {
         var ending, starting, width;
         starting = _this.x_scale(d[1] - d[0]);
         ending = _this.x_scale(_this.cumulative_chr_lengths[i]);
         width = ending - starting;
         console.log("width:", d[0]);
         return width;
-      }).attr("height", this.plot_height - this.y_buffer - 3).attr("fill", function(d, i) {
+      }).attr("height", this.height - this.y_buffer - this.legend_buffer - 3).attr("fill", function(d, i) {
         if ((i + 1) % 2) {
           return "none";
         } else {
@@ -310,7 +320,7 @@
         }
       }).attr("x", function(d) {
         return _this.x_scale(d[2] - d[1] / 2);
-      }).attr("y", this.plot_height * 0.1).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("cursor", "pointer").attr("fill", "black").on("click", function(d) {
+      }).attr("y", this.height * 0.1 + this.legend_buffer).attr("dx", "0em").attr("text-anchor", "middle").attr("font-family", "sans-serif").attr("font-size", "18px").attr("cursor", "pointer").attr("fill", "black").on("click", function(d) {
         var this_chr;
         this_chr = d;
         return _this.redraw_plot(d);
@@ -359,7 +369,7 @@
     Manhattan_Plot.prototype.create_zoom_pane = function() {
       var zoom;
       zoom = d3.behavior.zoom().on("zoom", draw);
-      return this.svg.append("rect").attr("class", "pane").attr("width", this.plot_width).attr("height", this.plot_height).call(zoom);
+      return this.svg.append("rect").attr("class", "pane").attr("width", this.width).attr("height", this.height).call(zoom);
     };
 
     Manhattan_Plot.prototype.draw = function() {

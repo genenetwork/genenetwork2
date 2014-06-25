@@ -13,7 +13,7 @@ from pprint import pformat as pf
 class TheSpecies(object):
     def __init__(self, dataset):
         self.dataset = dataset
-        print("self.dataset is:", pf(self.dataset.__dict__))
+        #print("self.dataset is:", pf(self.dataset.__dict__))
         self.chromosomes = Chromosomes(self.dataset)
         self.genome_mb_length = self.chromosomes.get_genome_mb_length()
 
@@ -56,8 +56,8 @@ class Chromosomes(object):
                         InbredSet.Name = %s
                 Order by OrderId
                 """, self.dataset.group.name).fetchall()
-        print("group: ", self.dataset.group.name)
-        print("bike:", results)
+        #print("group: ", self.dataset.group.name)
+        #print("bike:", results)
 
         for item in results:
             self.chromosomes[item.OrderId] = IndChromosome(item.Name, item.Length)

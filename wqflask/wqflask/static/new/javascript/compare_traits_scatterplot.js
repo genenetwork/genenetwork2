@@ -6,7 +6,7 @@
 
   root.create_scatterplot = function(json_ids, json_data) {
     var data, h, halfh, halfw, indID, margin, mychart, totalh, totalw, w;
-    console.log("TESTING TESTING2");
+    console.log("TESTING2");
     h = 400;
     w = 500;
     margin = {
@@ -34,10 +34,14 @@
     });
   };
 
-  root.create_scatterplots = function(json_ids, json_data) {
-    var brush, brushend, brushmove, brushstart, chart, h, halfh, halfw, i, margin, mychart, svg, totalh, totalw, w, xscale, xshift, xvar, yscale, yshift, yvar, _i, _j, _results;
-    h = 400;
-    w = 500;
+  root.create_scatterplots = function(trait_names, json_ids, json_data) {
+    var brush, brushend, brushmove, brushstart, chart, data, h, halfh, halfw, i, indID, margin, mychart, num_traits, svg, totalh, totalw, w, xscale, xshift, xvar, yscale, yshift, yvar, _i, _j, _k, _ref, _ref1, _ref2, _results;
+    console.log("json_data:", json_data);
+    console.log("trait_names:", trait_names);
+    num_traits = json_data.length;
+    console.log("num_traits:", num_traits);
+    h = 300;
+    w = 400;
     margin = {
       left: 60,
       top: 40,
@@ -46,28 +50,39 @@
       inner: 5
     };
     halfh = h + margin.top + margin.bottom;
-    totalh = halfh * 2;
+    totalh = halfh * (num_traits - 1);
     halfw = w + margin.left + margin.right;
-    totalw = halfw * 2;
-    xvar = [1, 2, 2];
-    yvar = [0, 0, 1];
-    xshift = [0, halfw, halfw];
-    yshift = [0, 0, halfh];
-    svg = d3.select("div#chart2").append("svg").attr("height", totalh).attr("width", totalw);
+    totalw = halfw;
+    xvar = [];
+    yvar = [];
+    xshift = [];
+    yshift = [];
+    for (i = _i = 0, _ref = num_traits - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      xvar.push(i);
+      yvar.push(0);
+      xshift.push(0);
+      yshift.push(halfh * i);
+    }
+    console.log("xvar:", xvar);
+    console.log("yvar:", yvar);
+    svg = d3.select("div#comparison_scatterplot").append("svg").attr("height", totalh).attr("width", totalw);
     mychart = [];
     chart = [];
-    for (i = _i = 0; _i <= 2; i = ++_i) {
-      mychart[i] = scatterplot().xvar(xvar[i]).yvar(yvar[i]).nxticks(6).height(h).width(w).margin(margin).pointsize(4).xlab("X" + (xvar[i] + 1)).ylab("X" + (yvar[i] + 1)).title("X" + (yvar[i] + 1) + " vs. X" + (xvar[i] + 1));
-      chart[i] = svg.append("g").attr("id", "chart" + i).attr("transform", "translate(" + xshift[i] + "," + yshift[i] + ")");
-      chart[i].datum({
-        data: data
-      }).call(mychart[i]);
+    for (i = _j = 1, _ref1 = num_traits - 1; 1 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 1 <= _ref1 ? ++_j : --_j) {
+      mychart[i - 1] = scatterplot().xvar(xvar[i]).yvar(yvar[i]).nxticks(6).height(h).width(w).margin(margin).pointsize(4).xlab("" + trait_names[i - 1]).ylab("" + trait_names[0]).title("" + trait_names[0] + " vs. " + trait_names[i - 1]);
+      data = json_data;
+      indID = json_ids;
+      chart[i - 1] = svg.append("g").attr("id", "chart" + (i - 1)).attr("transform", "translate(" + xshift[i] + "," + yshift[i - 1] + ")");
+      chart[i - 1].datum({
+        data: data,
+        indID: indID
+      }).call(mychart[i - 1]);
     }
     brush = [];
     brushstart = function(i) {
       return function() {
-        var j, _j;
-        for (j = _j = 0; _j <= 2; j = ++_j) {
+        var j, _k, _ref2;
+        for (j = _k = 0, _ref2 = num_traits - 2; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
           if (j !== i) {
             chart[j].call(brush[j].clear());
           }
@@ -99,7 +114,7 @@
     xscale = d3.scale.linear().domain([margin.left, margin.left + w]).range([margin.left, margin.left + w]);
     yscale = d3.scale.linear().domain([margin.top, margin.top + h]).range([margin.top, margin.top + h]);
     _results = [];
-    for (i = _j = 0; _j <= 2; i = ++_j) {
+    for (i = _k = 0, _ref2 = num_traits - 2; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; i = 0 <= _ref2 ? ++_k : --_k) {
       brush[i] = d3.svg.brush().x(xscale).y(yscale).on("brushstart", brushstart(i)).on("brush", brushmove(i)).on("brushend", brushend);
       _results.push(chart[i].call(brush[i]));
     }

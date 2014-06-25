@@ -1,12 +1,17 @@
 root = exports ? this
 
 class Manhattan_Plot
-    constructor: (@plot_height = 600, @plot_width = 1200) ->
+    constructor: (@height = 800, @width = 1200) ->
         @qtl_results = js_data.qtl_results
         console.log("qtl_results are:", @qtl_results)
         @chromosomes = js_data.chromosomes
         console.log("chromosomes are:", @chromosomes)
-
+        
+        #For the description in the legend
+        @this_trait = js_data.this_trait
+        @data_set = js_data.data_set
+        @maf = js_data.maf #Minor allele frequency
+        
         @total_length = 0
 
         @max_chr = @get_max_chr()
@@ -23,8 +28,9 @@ class Manhattan_Plot
         [@chr_lengths, @cumulative_chr_lengths] = @get_chr_lengths()
 
         # Buffer to allow for the ticks/labels to be drawn
-        @x_buffer = @plot_width/30
-        @y_buffer = @plot_height/20
+        @x_buffer = @width/30
+        @y_buffer = @height/20
+        @legend_buffer = 30 #Height minus buffer for legend
         
         #@x_max = d3.max(@x_coords)
         @x_max = @total_length
@@ -40,7 +46,7 @@ class Manhattan_Plot
         @plot_coordinates = _.zip(@x_coords, @y_coords, @marker_names)
         console.log("coordinates:", @plot_coordinates)
         
-        @plot_height -= @y_buffer
+        @height -= @y_buffer
 
         @create_scales()
 
@@ -88,7 +94,7 @@ class Manhattan_Plot
         console.log("high_qtl_count:", high_qtl_count)
         
         #if high_qtl_count > 10000
-        @y_axis_filter = 2
+        @y_axis_filter = 0
         #else if high_qtl_count > 1000
         #    @y_axis_filter = 1
         #else
@@ -132,8 +138,8 @@ class Manhattan_Plot
         svg = d3.select("#manhattan_plot")
             .append("svg")
             .attr("class", "manhattan_plot")
-            .attr("width", @plot_width+@x_buffer)
-            .attr("height", @plot_height+@y_buffer)
+            .attr("width", @width+@x_buffer)
+            .attr("height", @height+@y_buffer)
             .append("g")
             #.call(d3.behavior.zoom().x(@x_scale).y(@y_scale).scaleExtent([1,8]).on("zoom", () ->
             #    @svg.selectAll("circle")
@@ -150,6 +156,7 @@ class Manhattan_Plot
     #    return "translate(" + @x_scale(d[0]) + "," + @y_scale(d[1]) + ")"
 
     create_graph: () ->
+        @create_legend()
         @add_border()
         @add_x_axis()
         @add_y_axis()
@@ -161,11 +168,35 @@ class Manhattan_Plot
         
         #@create_zoom_pane()
 
+    create_legend: () ->
+        @svg.append("text")
+            .attr("class", "legend")
+            .text("Trait: " + @this_trait + " : " + @data_set)
+            .attr("x", @x_buffer)
+            .attr("y", 20)
+            .attr("dx", "0em")
+            .attr("text-anchor", "left")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "16px")
+            .attr("fill", "black")
+            
+        @svg.append("text")
+            .attr("class", "legend")
+            .text("MAF: " + @maf)
+            .attr("x", @x_buffer)
+            .attr("y", 38)
+            .attr("dx", "0em")
+            .attr("text-anchor", "left")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "16px")
+            .attr("fill", "black")
+            
+
     add_border: () ->
-        border_coords = [[@y_buffer, @plot_height, @x_buffer, @x_buffer],
-                         [@y_buffer, @plot_height, @plot_width, @plot_width],
-                         [@y_buffer, @y_buffer, @x_buffer, @plot_width],
-                         [@plot_height, @plot_height, @x_buffer, @plot_width]]
+        border_coords = [[@y_buffer + @legend_buffer, @height, @x_buffer, @x_buffer],
+                         [@y_buffer + @legend_buffer, @height, @width, @width],
+                         [@y_buffer + @legend_buffer, @y_buffer + @legend_buffer, @x_buffer, @width],
+                         [@height, @height, @x_buffer, @width]]
 
         @svg.selectAll("line")
             .data(border_coords)
@@ -188,7 +219,7 @@ class Manhattan_Plot
     create_scales: () ->
         #@x_scale = d3.scale.linear()
         #    .domain([0, d3.max(@x_coords)])
-        #    .range([@x_buffer, @plot_width])
+        #    .range([@x_buffer, @width])
         console.log("y_axis_filter:", @y_axis_filter)
         if '24' of @chromosomes
             console.log("@chromosomes[24]:", @chromosomes['24'])
@@ -197,14 +228,14 @@ class Manhattan_Plot
             console.log("d3.max(@xcoords):", d3.max(@x_coords))
             @x_scale = d3.scale.linear()
                 .domain([0, (@total_length + @chromosomes['24'])])
-                .range([@x_buffer, @plot_width])
+                .range([@x_buffer, @width])
         else
             @x_scale = d3.scale.linear()
                 .domain([0, (@total_length + @chromosomes['20'])])
-                .range([@x_buffer, @plot_width])
+                .range([@x_buffer, @width])
         @y_scale = d3.scale.linear()
             .domain([@y_axis_filter, @y_max])
-            .range([@plot_height, @y_buffer])
+            .range([@height, @y_buffer + @legend_buffer])
 
     create_x_axis_tick_values: () ->
         tick_vals = []
@@ -251,7 +282,7 @@ class Manhattan_Plot
 
         @svg.append("g")
             .attr("class", "x_axis")
-            .attr("transform", "translate(0," + @plot_height + ")")
+            .attr("transform", "translate(0," + @height + ")")
             .call(@xAxis)
             .selectAll("text")
                 .attr("text-anchor", "right")
@@ -275,7 +306,7 @@ class Manhattan_Plot
     add_axis_labels: () ->
         @svg.append("text")
             .attr("transform","rotate(-90)")
-            .attr("y", 0 - (@plot_height / 2))
+            .attr("y", 0 - (@height / 2))
             .attr("x", @x_buffer)
             .attr("dy", "1em")
             .style("text-anchor", "middle")
@@ -290,8 +321,8 @@ class Manhattan_Plot
             .append("line")
             .attr("x1", @x_scale)
             .attr("x2", @x_scale)
-            .attr("y1", @y_buffer)
-            .attr("y2", @plot_height)
+            .attr("y1", @y_buffer + @legend_buffer)
+            .attr("y2", @height)
             .style("stroke", "#ccc")
             
             
@@ -307,7 +338,7 @@ class Manhattan_Plot
             .attr("x", (d, i) =>
                 return @x_scale(d[1] - d[0])
             )
-            .attr("y", @y_buffer + 2)
+            .attr("y", @y_buffer + @legend_buffer + 2)
             .attr("width", (d, i) =>
                 starting = @x_scale(d[1] - d[0])
                 ending = @x_scale(@cumulative_chr_lengths[i])
@@ -315,7 +346,7 @@ class Manhattan_Plot
                 console.log("width:", d[0])
                 return width
             )
-            .attr("height", @plot_height-@y_buffer-3)
+            .attr("height", @height-@y_buffer - @legend_buffer-3)
             .attr("fill", (d, i) =>
                 if (i+1)%2
                     return "none"
@@ -342,7 +373,7 @@ class Manhattan_Plot
     #        .attr("width", (d) =>
     #            return @x_scale(d[0])
     #        )
-    #        .attr("height", @plot_height-@y_buffer)
+    #        .attr("height", @height-@y_buffer)
     #        .attr("fill", (d, i) =>
     #            return "whitesmoke"
     #            #if i%2
@@ -380,7 +411,7 @@ class Manhattan_Plot
             .attr("x", (d) =>
                 return @x_scale(d[2] - d[1]/2)
             )
-            .attr("y", @plot_height * 0.1)
+            .attr("y", @height * 0.1 + @legend_buffer)
             .attr("dx", "0em")
             .attr("text-anchor", "middle")
             .attr("font-family", "sans-serif")
@@ -468,8 +499,8 @@ class Manhattan_Plot
             
         @svg.append("rect")
             .attr("class", "pane")
-            .attr("width", @plot_width)
-            .attr("height", @plot_height)
+            .attr("width", @width)
+            .attr("height", @height)
             .call(zoom)
     
     draw: () ->

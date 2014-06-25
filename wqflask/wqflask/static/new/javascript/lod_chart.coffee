@@ -156,7 +156,7 @@ lodchart = () ->
              .attr("transform", if rotate_ylab then "rotate(270,#{margin.left-axispos.ytitle},#{margin.top+height/2})" else "")
   
         if data['additive'].length > 0
-        rotate_additive_ylab = rotate_additive_ylab ? (additive_ylab.length > 1)
+            rotate_additive_ylab = rotate_additive_ylab ? (additive_ylab.length > 1)
             additive_yaxis = g.append("g").attr("class", "y axis")
             additive_yaxis.selectAll("empty")
                  .data(additive_yticks)
@@ -343,11 +343,11 @@ lodchart = () ->
       ylim = value
       chart
       
-    if data['additive'].length > 0
-        chart.additive_ylim = (value) ->
-          return additive_ylim unless arguments.length
-          additive_ylim = value
-          chart
+    #if data['additive'].length > 0
+    chart.additive_ylim = (value) ->
+      return additive_ylim unless arguments.length
+      additive_ylim = value
+      chart
       
     chart.nyticks = (value) ->
       return nyticks unless arguments.length
@@ -437,9 +437,9 @@ lodchart = () ->
     chart.yscale = () ->
       return yscale
     
-    if data['additive'].length > 0
-        chart.additive_yscale = () ->
-          return additive_yscale
+    #if data['additive'].length > 0
+    chart.additive_yscale = () ->
+      return additive_yscale
   
     chart.xscale = () ->
       return xscale
@@ -447,9 +447,9 @@ lodchart = () ->
     chart.lodcurve = () ->
       return lodcurve
     
-    if data['additive'].length > 0
-        chart.additivecurve = () ->
-          return additivecurve
+    #if data['additive'].length > 0
+    chart.additivecurve = () ->
+      return additivecurve
   
     chart.markerSelect = () ->
       return markerSelect

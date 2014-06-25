@@ -1193,6 +1193,7 @@ class ShowTrait(object):
 
         primary_sample_names = all_samples_ordered
 
+        print("self.dataset.group", pf(self.dataset.group.__dict__))
         print("-*- primary_samplelist is:", pf(primary_sample_names))
 
         other_sample_names = []

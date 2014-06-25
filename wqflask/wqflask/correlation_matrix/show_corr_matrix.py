@@ -66,30 +66,118 @@ class CorrelationMatrix(object):
         
         self.get_trait_db_obs(trait_db_list)
         
-        self.corr_results = {}
+        #self.corr_results = {}
+        #for trait_db in self.trait_list:
+        #    this_trait = trait_db[0]
+        #    this_db = trait_db[1]
+        #    
+        #    this_db_samples = this_db.group.samplelist
+        #    this_sample_data = this_trait.data
+        #    print("this_sample_data", len(this_sample_data))
+        #    
+        #    corr_result_row = {}
+        #
+        #    for target in self.trait_list:
+        #        target_trait = target[0]
+        #        target_db = target[1]
+        #        target_samples = target_db.group.samplelist
+        #        
+        #        if this_trait == target_trait and this_db == target_db:
+        #            corr_result_row[this_trait.name] = {'sample_r': 1,
+        #                                                'sample_p': 0,
+        #                                                'num_overlap': len(target_samples),
+        #                                                'this_trait': this_trait.name,
+        #                                                'this_db': this_trait.dataset.name,
+        #                                                'target_trait': this_trait.name,
+        #                                                'target_db': this_trait.dataset.name}
+        #            continue
+        #
+        #        target_sample_data = target_trait.data
+        #        print("target_samples", len(target_samples))
+        #        
+        #        this_trait_vals = []
+        #        target_vals = []
+        #        for index, sample in enumerate(target_samples):
+        #            
+        #            if (sample in this_sample_data) and (sample in target_sample_data):
+        #                sample_value = this_sample_data[sample].value
+        #                target_sample_value = target_sample_data[sample].value
+        #                this_trait_vals.append(sample_value)
+        #                target_vals.append(target_sample_value)
+        #
+        #        #print("this_trait_vals:", this_trait_vals)
+        #        #print("target_vals:", target_vals)
+        #
+        #        this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
+        #        this_trait_vals, target_vals)
+        #        
+        #        sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
+        #
+        #        corr_matrix_cell = {"sample_r": sample_r,
+        #                            "sample_p": sample_p,
+        #                            "num_overlap": num_overlap,
+        #                            "this_trait": this_trait.name,
+        #                            "this_db": this_trait.dataset.name,
+        #                            "target_trait": target_trait.name,
+        #                            "target_db": target_trait.dataset.name}
+        #        
+        #        corr_result_row[target_trait.name] = corr_matrix_cell
+        #        
+        #    self.corr_results[this_trait.name] = corr_result_row
+
+        self.all_sample_list = []
+        self.traits = []
+        for trait_db in self.trait_list:
+            this_trait = trait_db[0]
+            self.traits.append(this_trait.name)
+            this_sample_data = this_trait.data
+            
+            for sample in this_sample_data:
+                if sample not in self.all_sample_list:
+                    self.all_sample_list.append(sample)
+
+        self.sample_data = []
+        for trait_db in self.trait_list:
+            this_trait = trait_db[0]
+            this_sample_data = this_trait.data
+            
+            #self.sample_data[this_trait.name] = []
+            this_trait_vals = []
+            for sample in self.all_sample_list:
+                if sample in this_sample_data:
+                    this_trait_vals.append(this_sample_data[sample].value)
+                    #self.sample_data[this_trait.name].append(this_sample_data[sample].value)
+                else:
+                    this_trait_vals.append('')
+                    #self.sample_data[this_trait.name].append('')
+            self.sample_data.append(this_trait_vals)
+
+        self.corr_results = []
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
             this_db = trait_db[1]
             
             this_db_samples = this_db.group.samplelist
+            
+            #for sample in this_db_samples:
+            #    if sample not in self.samples:
+            #        self.samples.append(sample)
+            
             this_sample_data = this_trait.data
             print("this_sample_data", len(this_sample_data))
             
-            corr_result_row = {}
-
+            #for sample in this_sample_data:
+            #    if sample not in self.all_sample_list:
+            #        self.all_sample_list.append(sample)
+            
+            corr_result_row = []
             for target in self.trait_list:
                 target_trait = target[0]
                 target_db = target[1]
-		target_samples = target_db.group.samplelist
+                target_samples = target_db.group.samplelist
                 
                 if this_trait == target_trait and this_db == target_db:
-                    corr_result_row[this_trait.name] = {'sample_r': 1,
-                                                        'sample_p': 0,
-                                                        'num_overlap': len(target_samples),
-							'this_trait': this_trait.name,
-							'this_db': this_trait.dataset.name,
-                                                        'target_trait': this_trait.name,
-                                                        'target_db': this_trait.dataset.name}
+                    corr_result_row.append(1)
                     continue
 
                 target_sample_data = target_trait.data
@@ -113,19 +201,38 @@ class CorrelationMatrix(object):
                 
                 sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
 
-                corr_matrix_cell = {'sample_r': sample_r,
-                                    'sample_p': sample_p,
-                                    'num_overlap': num_overlap,
-				    'this_trait': this_trait.name,
-                                    'this_db': this_trait.dataset.name,
-                                    'target_trait': target_trait.name,
-                                    'target_db': target_trait.dataset.name}
+                corr_result_row.append(sample_r)
                 
-                corr_result_row[target_trait.name] = corr_matrix_cell
-                
-            self.corr_results[this_trait.name] = corr_result_row
-            
-        print("corr_results:", pf(self.corr_results))
+            self.corr_results.append(corr_result_row)
+
+        #self.sample_data = {}
+        #for trait_db in self.trait_list:
+        #    this_trait = trait_db[0]
+        #
+        #    this_sample_data = this_trait.data
+        #    
+        #    self.sample_data[this_trait.name] = []
+        #    for sample in self.all_sample_list:
+        #        if sample in this_sample_data:
+        #            self.sample_data[this_trait.name].append(this_sample_data[sample].value)
+        #        else:
+        #            self.sample_data[this_trait.name].append('')
+
+        print("corr_results:", pf(self.traits))
+
+        groups = []
+        for sample in self.all_sample_list:
+            groups.append(1)
+
+        self.js_data = dict(traits = self.traits,
+                            groups = groups,
+                            cols = range(len(self.traits)),
+                            rows = range(len(self.traits)),
+                            samples = self.all_sample_list,
+                            sample_data = self.sample_data,
+                            corr_results = self.corr_results,)
+        
+        
         
     def get_trait_db_obs(self, trait_db_list):
     

@@ -123,9 +123,9 @@ $ ->
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("plink")
-        $('input[name=mapping_display_all]').val($('input[name=display_all_plink]'))
-        $('input[name=suggestive]').val($('input[name=suggestive_plink]'))
-        $('input[name=maf]').val($('input[name=maf_plink]'))
+        $('input[name=mapping_display_all]').val($('input[name=display_all_plink]').val())
+        $('input[name=suggestive]').val($('input[name=suggestive_plink]').val())
+        $('input[name=maf]').val($('input[name=maf_plink]').val())
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         $.ajax(
@@ -153,9 +153,9 @@ $ ->
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("gemma")
-        $('input[name=mapping_display_all]').val($('input[name=display_all_gemma]'))
-        $('input[name=suggestive]').val($('input[name=suggestive_gemma]'))
-        $('input[name=maf]').val($('input[name=maf_gemma]'))
+        $('input[name=mapping_display_all]').val($('input[name=display_all_gemma]').val())
+        $('input[name=suggestive]').val($('input[name=suggestive_gemma]').val())
+        $('input[name=maf]').val($('input[name=maf_gemma]').val())
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         $.ajax(

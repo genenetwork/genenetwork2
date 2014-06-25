@@ -94,7 +94,11 @@
       }
     });
     d3.select("#select_compare_trait").on("click", function() {
+      $('.qtlcharts').empty();
       return open_trait_selection();
+    });
+    d3.select("#clear_compare_trait").on("click", function() {
+      return $('.qtlcharts').empty();
     });
     open_trait_selection = function() {
       var _this = this;

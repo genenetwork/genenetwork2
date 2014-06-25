@@ -44,6 +44,7 @@ class ConvertGenoFile(object):
         self.output_file = output_file
         
         self.mb_exists = False
+        self.cm_exists = False
         self.markers = []
         
         self.latest_row_pos = None
@@ -94,7 +95,10 @@ class ConvertGenoFile(object):
             this_marker.name = row_items[1]
             this_marker.chr = row_items[0]
             #this_marker.cM = row_items[2]
-            if self.mb_exists:
+            if self.cm_exists and self.mb_exists:
+                this_marker.Mb = row_items[3]
+                genotypes = row_items[4:]
+            elif self.mb_exists:
                 this_marker.Mb = row_items[2]
                 genotypes = row_items[3:]
             else:
@@ -106,8 +110,8 @@ class ConvertGenoFile(object):
                     this_marker.genotypes.append("NA")
                 
             #print("this_marker is:", pf(this_marker.__dict__))   
-            if this_marker.chr == "14":
-                self.markers.append(this_marker.__dict__)
+            #if this_marker.chr == "14":
+            self.markers.append(this_marker.__dict__)
 
         with open(self.output_file, 'w') as fh:
             json.dump(self.markers, fh, indent="   ", sort_keys=True)
@@ -136,6 +140,8 @@ class ConvertGenoFile(object):
             if row.startswith('Chr'):
                 if 'Mb' in row.split():
                     self.mb_exists = True
+                if 'cM' in row.split():
+                    self.cm_exists = True
                 continue
             if row.startswith('@'):
                 key, _separater, value = row.partition(':')
@@ -187,7 +193,7 @@ if __name__=="__main__":
     New_Geno_Directory = """/home/zas1024/gene/web/new_genotypes/"""
     #Input_File = """/home/zas1024/gene/web/genotypes/BXD.geno"""
     #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
-    convertob = ConvertGenoFile("/home/zas1024/gene/web/genotypes/HSNIH.geno.gz", "/home/zas1024/gene/web/new_genotypes/HSNIH.json")
+    convertob = ConvertGenoFile("/home/zas1024/gene/web/genotypes/Linsenbardt-Boehm.geno", "/home/zas1024/gene/web/new_genotypes/Linsenbardt-Boehm.json")
     convertob.convert()
     #ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
     #ConvertGenoFiles(Geno_Directory)

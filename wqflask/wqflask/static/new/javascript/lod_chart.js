@@ -77,7 +77,9 @@
           return _results;
         })();
         ylim = ylim != null ? ylim : [0, d3.max(data[lodvarname])];
-        additive_ylim = additive_ylim != null ? additive_ylim : [0, d3.max(data['additive'])];
+        if (data['additive'].length > 0) {
+          additive_ylim = additive_ylim != null ? additive_ylim : [0, d3.max(data['additive'])];
+        }
         lodvarnum = data.lodnames.indexOf(lodvarname);
         svg = d3.select(this).selectAll("svg").data([data]);
         gEnter = svg.enter().append("svg").append("g");
@@ -85,9 +87,13 @@
         g = svg.select("g");
         g.append("rect").attr("x", margin.left).attr("y", margin.top).attr("height", height).attr("width", width).attr("fill", darkrect).attr("stroke", "none");
         yscale.domain(ylim).range([height + margin.top, margin.top + margin.inner]);
-        additive_yscale.domain(additive_ylim).range([height + margin.top, margin.top + margin.inner + height / 2]);
+        if (data['additive'].length > 0) {
+          additive_yscale.domain(additive_ylim).range([height + margin.top, margin.top + margin.inner + height / 2]);
+        }
         yticks = yticks != null ? yticks : yscale.ticks(nyticks);
-        additive_yticks = additive_yticks != null ? additive_yticks : additive_yscale.ticks(nyticks);
+        if (data['additive'].length > 0) {
+          additive_yticks = additive_yticks != null ? additive_yticks : additive_yscale.ticks(nyticks);
+        }
         data = reorgLodData(data, lodvarname);
         data = chrscales(data, width, chrGap, margin.left, pad4heatmap);
         xscale = data.xscale;
@@ -129,21 +135,23 @@
           return formatAxis(yticks)(d);
         });
         yaxis.append("text").attr("class", "title").attr("y", margin.top + height / 2).attr("x", margin.left - axispos.ytitle).text(ylab).attr("transform", rotate_ylab ? "rotate(270," + (margin.left - axispos.ytitle) + "," + (margin.top + height / 2) + ")" : "");
-        rotate_additive_ylab = rotate_additive_ylab != null ? rotate_additive_ylab : additive_ylab.length > 1;
-        additive_yaxis = g.append("g").attr("class", "y axis");
-        additive_yaxis.selectAll("empty").data(additive_yticks).enter().append("line").attr("y1", function(d) {
-          return additive_yscale(d);
-        }).attr("y2", function(d) {
-          return additive_yscale(d);
-        }).attr("x1", margin.left + width).attr("x2", margin.left + width - 7).attr("fill", "none").attr("stroke", "white").attr("stroke-width", 1).style("pointer-events", "none");
-        additive_yaxis.selectAll("empty").data(additive_yticks).enter().append("text").attr("y", function(d) {
-          return additive_yscale(d);
-        }).attr("x", function(d) {
-          return margin.left + width + axispos.ylabel + 20;
-        }).attr("fill", "green").text(function(d) {
-          return formatAxis(additive_yticks)(d);
-        });
-        additive_yaxis.append("text").attr("class", "title").attr("y", margin.top + 1.5 * height).attr("x", margin.left + width + axispos.ytitle).text(additive_ylab).attr("transform", rotate_additive_ylab ? "rotate(270," + (margin.left + width + axispos.ytitle) + ", " + (margin.top + height * 1.5) + ")" : "");
+        if (data['additive'].length > 0) {
+          rotate_additive_ylab = rotate_additive_ylab != null ? rotate_additive_ylab : additive_ylab.length > 1;
+          additive_yaxis = g.append("g").attr("class", "y axis");
+          additive_yaxis.selectAll("empty").data(additive_yticks).enter().append("line").attr("y1", function(d) {
+            return additive_yscale(d);
+          }).attr("y2", function(d) {
+            return additive_yscale(d);
+          }).attr("x1", margin.left + width).attr("x2", margin.left + width - 7).attr("fill", "none").attr("stroke", "white").attr("stroke-width", 1).style("pointer-events", "none");
+          additive_yaxis.selectAll("empty").data(additive_yticks).enter().append("text").attr("y", function(d) {
+            return additive_yscale(d);
+          }).attr("x", function(d) {
+            return margin.left + width + axispos.ylabel + 20;
+          }).attr("fill", "green").text(function(d) {
+            return formatAxis(additive_yticks)(d);
+          });
+          additive_yaxis.append("text").attr("class", "title").attr("y", margin.top + 1.5 * height).attr("x", margin.left + width + axispos.ytitle).text(additive_ylab).attr("transform", rotate_additive_ylab ? "rotate(270," + (margin.left + width + axispos.ytitle) + ", " + (margin.top + height * 1.5) + ")" : "");
+        }
         suggestive_bar = g.append("g").attr("class", "suggestive");
         suggestive_bar.selectAll("empty").data([data.suggestive]).enter().append("line").attr("y1", function(d) {
           return yscale(d);
@@ -163,13 +171,15 @@
             return yscale(data.lodByChr[chr][i][lodcolumn]);
           });
         };
-        additivecurve = function(chr, lodcolumn) {
-          return d3.svg.line().x(function(d) {
-            return xscale[chr](d);
-          }).y(function(d, i) {
-            return additive_yscale(data.additiveByChr[chr][i][lodcolumn]);
-          });
-        };
+        if (data['additive'].length > 0) {
+          additivecurve = function(chr, lodcolumn) {
+            return d3.svg.line().x(function(d) {
+              return xscale[chr](d);
+            }).y(function(d, i) {
+              return additive_yscale(data.additiveByChr[chr][i][lodcolumn]);
+            });
+          };
+        }
         curves = g.append("g").attr("id", "curves");
         _ref = data.chrnames;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -434,16 +444,18 @@
           if (!Array.isArray(data.lodnames)) {
             data.lodnames = [data.lodnames];
           }
-          additiveval = (function() {
-            var _k, _len2, _ref2, _results;
-            _ref2 = data.lodnames;
-            _results = [];
-            for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-              lodcolumn = _ref2[_k];
-              _results.push(data['additive'][j]);
-            }
-            return _results;
-          })();
+          if (data['additive'].length > 0) {
+            additiveval = (function() {
+              var _k, _len2, _ref2, _results;
+              _ref2 = data.lodnames;
+              _results = [];
+              for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                lodcolumn = _ref2[_k];
+                _results.push(data['additive'][j]);
+              }
+              return _results;
+            })();
+          }
           lodval = (function() {
             var _k, _len2, _ref2, _results;
             _ref2 = data.lodnames;

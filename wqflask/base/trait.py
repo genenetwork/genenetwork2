@@ -645,7 +645,7 @@ def get_sample_data():
     
     trait_ob = GeneralTrait(name=trait, dataset_name=dataset)
     
-    return json.dumps({key: value.value for key, value in trait_ob.data.iteritems() })
+    return json.dumps([trait, {key: value.value for key, value in trait_ob.data.iteritems() }])
     
     #jsonable_sample_data = {}
     #for sample in trait_ob.data.iteritems():

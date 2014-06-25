@@ -208,7 +208,8 @@ def marker_regression_page():
         'trait_id',
         'dataset',
         'method',
-        'suggestive'
+        'suggestive',
+        'maf'
     )
 
     start_vars = {}
@@ -323,6 +324,10 @@ def corr_compute_page():
 def corr_matrix_page():
     print("In corr_matrix, request.form is:", pf(request.form))
     template_vars = show_corr_matrix.CorrelationMatrix(request.form)
+    template_vars.js_data = json.dumps(template_vars.js_data,
+                                       default=json_default_handler,
+                                       indent="   ")
+    
     return render_template("correlation_matrix.html", **template_vars.__dict__)
 
 @app.route("/corr_scatter_plot")
