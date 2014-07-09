@@ -1,34 +1,40 @@
 {% extends "base.html" %}
-{% block title %}Marker Regression{% endblock %}
+{% block title %}Interval Mapping{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/packages/jqplot/jquery.jqplot.min.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
+<!--    <link rel="stylesheet" type="text/css" href="/static/new/css/interval_mapping.css" />-->
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
-    {{ header("Marker Regression",
+    {{ header("Mapping",
         '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
 
     <div class="container">
         <div>
             <h2>
-                Manhattan Plot
+                Whole Genome Mapping
             </h2>
+            <form id="exportform" action="export" method="post">
+              <input type="hidden" id="data" name="data" value="">
+              <input type="hidden" id="filename" name="filename" value="">
+              <input type="submit" id="export" value="Download SVG">
+            </form>
+<!--            <button id="export_pdf" class="btn">Export PDF</button>-->
         </div>
-        <div id="manhattan_plot_container" class="manhattan_plot_container">
-            <div id="manhattan_plot" class="manhattan_plots">
+        <div id="chart_container">
+            <div class="qtlcharts" id="topchart">
                 
             </div>
         </div>
         <div>
             <h2>
-                Genome Association Results
+                Results
             </h2>
         </div>
-
         <table cellpadding="0" cellspacing="0" border="0" id="qtl_results" class="table table-hover table-striped table-bordered">
             <thead>
                 <tr>
@@ -53,6 +59,7 @@
                 {% endfor %}
             </tbody>
         </table>
+    
     </div>
 
     <!-- End of body -->
@@ -68,15 +75,23 @@
 <!--        <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>-->
     <![endif]-->
     <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+<!--    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/FileSaver.js/FileSaver.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/Blob.js/BlobBuilder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.standard_fonts_metrics.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.from_html.js"></script>-->
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_manhattan_plot.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/manhattan_plot.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_manhattan_plot.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_manhattan_plot.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/marker_regression.js"></script>
 
-    
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");

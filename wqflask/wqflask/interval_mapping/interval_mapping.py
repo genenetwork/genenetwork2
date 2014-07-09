@@ -58,18 +58,18 @@ class IntervalMapping(object):
  
         self.json_data = {}
  
-        if self.method == "qtl_reaper":
-            self.json_data['lodnames'] = ['lod.hk']
-            self.gen_reaper_results(tempdata)
-        else:
-            self.gen_pylmm_results(tempdata)
+        #if self.method == "qtl_reaper":
+        self.json_data['lodnames'] = ['lod.hk']
+        self.gen_reaper_results(tempdata)
+        #else:
+        #    self.gen_pylmm_results(tempdata)
         #self.gen_qtl_results(tempdata)
 
         #Get chromosome lengths for drawing the interval map plot
         chromosome_mb_lengths = {}
         self.json_data['chrnames'] = []
         for key in self.species.chromosomes.chromosomes.keys():
-            self.json_data['chrnames'].append(self.species.chromosomes.chromosomes[key].name)
+            self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
             
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
@@ -94,10 +94,10 @@ class IntervalMapping(object):
         #self.plot_scale = start_vars['scale']
         #if self.plotScale == 'physic' and not fd.genotype.Mbmap:
         #    self.plotScale = 'morgan'
-        self.method = start_vars['mapping_method']
+        #self.method = start_vars['mapping_method']
         self.num_permutations = int(start_vars['num_permutations'])
         #self.do_bootstrap = start_vars['do_bootstrap']
-        self.selected_chr = start_vars['chromosome']
+        #self.selected_chr = start_vars['chromosome']
         if start_vars['display_additive'] == "yes":
             self.additive = True
         else:

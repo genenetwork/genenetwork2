@@ -1,4 +1,4 @@
-create_interval_map = ->
+create_manhattan_plot = ->
     h = 500
     w = 1200
     margin = {left:60, top:40, right:40, bottom: 40, inner:5}
@@ -35,8 +35,8 @@ create_interval_map = ->
                     d3.select(this)
                       .transition().duration(500).attr("r", r*3)
                       .transition().duration(500).attr("r", r)
-
-create_interval_map()
+                  
+create_manhattan_plot()
 
 $("#export").click =>
     #Get d3 SVG element
@@ -55,37 +55,3 @@ $("#export").click =>
     form.find("#filename").val(filename)
     form.submit()
 
-# two LOD charts within one SVG
-#d3.json "data.json", (data) ->
-#  mychart_em = lodchart().lodvarname("lod.em")
-#                         .height(h)
-#                         .width(w)
-#                         .margin(margin)
-#                         .ylab("LOD score (by EM)")
-#                         .pointsize(1)
-#                         .nyticks(9)
-#                         .title("Standard interval mapping")
-#  mychart_hk = lodchart().lodvarname("lod.hk")
-#                         .height(h)
-#                         .width(w)
-#                         .margin(margin)
-#                         .ylab("LOD score (by H-K)")
-#                         .linecolor("Crimson")
-#                         .yticks([0, 1, 2, 4, 6, 8])
-#                         .title("Haley-Knott regression")
-#
-#  svg = d3.select("div#bottomchart")
-#          .append("svg")
-#          .attr("height", totalh)
-#          .attr("width", totalw)
-#
-#  chart1 = svg.append("g").attr("id", "chart1")
-#
-#  chart2 = svg.append("g").attr("id", "chart2")
-#              .attr("transform", "translate(0, #{halfh})")
-#
-#  chart1.datum(data)
-#    .call(mychart_em)
-#
-#  chart2.datum(data)
-#    .call(mychart_hk)

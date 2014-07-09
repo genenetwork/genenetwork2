@@ -2,7 +2,7 @@
 var chrscales, formatAxis, lodchart, maxdiff, reorgLodData;
 
 lodchart = function() {
-  var additive_ylab, additive_ylim, additive_yscale, additive_yticks, additivelinecolor, axispos, chart, chrGap, chrSelect, darkrect, height, lightrect, linewidth, lodcurve, lodlinecolor, lodvarname, margin, markerSelect, nyticks, pad4heatmap, pointcolor, pointsAtMarkers, pointsize, pointstroke, rotate_ylab, significantcolor, suggestivecolor, title, titlepos, width, xlab, xscale, ylab, ylim, yscale, yticks;
+  var axispos, chart, chrGap, chrSelect, darkrect, height, lightrect, linewidth, lodcurve, lodlinecolor, lodvarname, margin, markerSelect, nyticks, pad4heatmap, pointcolor, pointhover, pointsAtMarkers, pointsize, pointstroke, rotate_ylab, title, titlepos, width, xlab, xscale, ylab, ylim, yscale, yticks;
   width = 800;
   height = 500;
   margin = {
@@ -20,28 +20,22 @@ lodchart = function() {
   };
   titlepos = 20;
   ylim = null;
-  additive_ylim = null;
   nyticks = 5;
   yticks = null;
-  additive_yticks = null;
   chrGap = 8;
   darkrect = "#F1F1F9";
   lightrect = "#FBFBFF";
   lodlinecolor = "darkslateblue";
-  additivelinecolor = "red";
   linewidth = 2;
-  suggestivecolor = "gainsboro";
-  significantcolor = "#EBC7C7";
-  pointcolor = "#E9CFEC";
-  pointsize = 0;
+  pointcolor = "darkslateblue";
+  pointhover = "#E9CFEC";
+  pointsize = 2;
   pointstroke = "black";
   title = "";
   xlab = "Chromosome";
-  ylab = "LRS score";
-  additive_ylab = "Additive Effect";
+  ylab = "LOD score";
   rotate_ylab = null;
   yscale = d3.scale.linear();
-  additive_yscale = d3.scale.linear();
   xscale = null;
   pad4heatmap = false;
   lodcurve = null;
@@ -51,7 +45,7 @@ lodchart = function() {
   pointsAtMarkers = true;
   chart = function(selection) {
     return selection.each(function(data) {
-      var additive_yaxis, additivecurve, chr, curves, g, gEnter, hiddenpoints, lodvarnum, markerpoints, markertip, redraw_plot, rotate_additive_ylab, suggestive_bar, svg, titlegrp, x, xaxis, yaxis, _i, _j, _len, _len1, _ref, _ref1;
+      var g, gEnter, hiddenpoints, lodvarnum, markerpoints, markertip, redraw_plot, svg, titlegrp, x, xaxis, yaxis;
       console.log("data:", data);
       lodvarname = lodvarname != null ? lodvarname : data.lodnames[0];
       data[lodvarname] = (function() {
@@ -64,20 +58,7 @@ lodchart = function() {
         }
         return _results;
       })();
-      data['additive'] = (function() {
-        var _i, _len, _ref, _results;
-        _ref = data['additive'];
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          x = _ref[_i];
-          _results.push(Math.abs(x));
-        }
-        return _results;
-      })();
       ylim = ylim != null ? ylim : [0, d3.max(data[lodvarname])];
-      if (data['additive'].length > 0) {
-        additive_ylim = additive_ylim != null ? additive_ylim : [0, d3.max(data['additive'])];
-      }
       lodvarnum = data.lodnames.indexOf(lodvarname);
       svg = d3.select(this).selectAll("svg").data([data]);
       gEnter = svg.enter().append("svg").append("g");
@@ -85,13 +66,7 @@ lodchart = function() {
       g = svg.select("g");
       g.append("rect").attr("x", margin.left).attr("y", margin.top).attr("height", height).attr("width", width).attr("fill", darkrect).attr("stroke", "none");
       yscale.domain(ylim).range([height + margin.top, margin.top + margin.inner]);
-      if (data['additive'].length > 0) {
-        additive_yscale.domain(additive_ylim).range([height + margin.top, margin.top + margin.inner + height / 2]);
-      }
       yticks = yticks != null ? yticks : yscale.ticks(nyticks);
-      if (data['additive'].length > 0) {
-        additive_yticks = additive_yticks != null ? additive_yticks : additive_yscale.ticks(nyticks);
-      }
       data = reorgLodData(data, lodvarname);
       data = chrscales(data, width, chrGap, margin.left, pad4heatmap);
       xscale = data.xscale;
@@ -116,7 +91,7 @@ lodchart = function() {
         return redraw_plot(d);
       });
       xaxis = g.append("g").attr("class", "x axis");
-      xaxis.selectAll("empty").data(data.chrnames).enter().append("text").text(function(d) {
+      xaxis.selectAll("empty").data(data.chrnames).enter().append("text").attr("class", "chr_label").text(function(d) {
         return d[0];
       }).attr("x", function(d, i) {
         return (data.chrStart[i] + data.chrEnd[i]) / 2;
@@ -130,7 +105,7 @@ lodchart = function() {
         console.log("chr_length is:", chr_ob[1]);
         $('#topchart').remove();
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>');
-        return chr_plot = new Chr_Interval_Map(600, 1200, chr_ob);
+        return chr_plot = new Chr_Manhattan_Plot(600, 1200, chr_ob);
       };
       rotate_ylab = rotate_ylab != null ? rotate_ylab : ylab.length > 1;
       yaxis = g.append("g").attr("class", "y axis");
@@ -145,64 +120,6 @@ lodchart = function() {
         return formatAxis(yticks)(d);
       });
       yaxis.append("text").attr("class", "title").attr("y", margin.top + height / 2).attr("x", margin.left - axispos.ytitle).text(ylab).attr("transform", rotate_ylab ? "rotate(270," + (margin.left - axispos.ytitle) + "," + (margin.top + height / 2) + ")" : "");
-      if (data['additive'].length > 0) {
-        rotate_additive_ylab = rotate_additive_ylab != null ? rotate_additive_ylab : additive_ylab.length > 1;
-        additive_yaxis = g.append("g").attr("class", "y axis");
-        additive_yaxis.selectAll("empty").data(additive_yticks).enter().append("line").attr("y1", function(d) {
-          return additive_yscale(d);
-        }).attr("y2", function(d) {
-          return additive_yscale(d);
-        }).attr("x1", margin.left + width).attr("x2", margin.left + width - 7).attr("fill", "none").attr("stroke", "white").attr("stroke-width", 1).style("pointer-events", "none");
-        additive_yaxis.selectAll("empty").data(additive_yticks).enter().append("text").attr("y", function(d) {
-          return additive_yscale(d);
-        }).attr("x", function(d) {
-          return margin.left + width + axispos.ylabel + 20;
-        }).attr("fill", "green").text(function(d) {
-          return formatAxis(additive_yticks)(d);
-        });
-        additive_yaxis.append("text").attr("class", "title").attr("y", margin.top + 1.5 * height).attr("x", margin.left + width + axispos.ytitle).text(additive_ylab).attr("transform", rotate_additive_ylab ? "rotate(270," + (margin.left + width + axispos.ytitle) + ", " + (margin.top + height * 1.5) + ")" : "");
-      }
-      suggestive_bar = g.append("g").attr("class", "suggestive");
-      suggestive_bar.selectAll("empty").data([data.suggestive]).enter().append("line").attr("y1", function(d) {
-        return yscale(d);
-      }).attr("y2", function(d) {
-        return yscale(d);
-      }).attr("x1", margin.left).attr("x2", margin.left + width).attr("fill", "none").attr("stroke", suggestivecolor).attr("stroke-width", 5).style("pointer-events", "none");
-      suggestive_bar = g.append("g").attr("class", "significant");
-      suggestive_bar.selectAll("empty").data([data.significant]).enter().append("line").attr("y1", function(d) {
-        return yscale(d);
-      }).attr("y2", function(d) {
-        return yscale(d);
-      }).attr("x1", margin.left).attr("x2", margin.left + width).attr("fill", "none").attr("stroke", significantcolor).attr("stroke-width", 5).style("pointer-events", "none");
-      lodcurve = function(chr, lodcolumn) {
-        return d3.svg.line().x(function(d) {
-          return xscale[chr](d);
-        }).y(function(d, i) {
-          return yscale(data.lodByChr[chr][i][lodcolumn]);
-        });
-      };
-      if (data['additive'].length > 0) {
-        additivecurve = function(chr, lodcolumn) {
-          return d3.svg.line().x(function(d) {
-            return xscale[chr](d);
-          }).y(function(d, i) {
-            return additive_yscale(data.additiveByChr[chr][i][lodcolumn]);
-          });
-        };
-      }
-      curves = g.append("g").attr("id", "curves");
-      _ref = data.chrnames;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        chr = _ref[_i];
-        curves.append("path").datum(data.posByChr[chr[0]]).attr("d", lodcurve(chr[0], lodvarnum)).attr("stroke", lodlinecolor).attr("fill", "none").attr("stroke-width", linewidth).style("pointer-events", "none");
-      }
-      if (data['additive'].length > 0) {
-        _ref1 = data.chrnames;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          chr = _ref1[_j];
-          curves.append("path").datum(data.posByChr[chr[0]]).attr("d", additivecurve(chr[0], lodvarnum)).attr("stroke", additivelinecolor).attr("fill", "none").attr("stroke-width", 1).style("pointer-events", "none");
-        }
-      }
       if (pointsize > 0) {
         markerpoints = g.append("g").attr("id", "markerpoints_visible");
         markerpoints.selectAll("empty").data(data.markers).enter().append("circle").attr("cx", function(d) {
@@ -230,7 +147,7 @@ lodchart = function() {
           return yscale(d.lod);
         }).attr("id", function(d) {
           return d.name;
-        }).attr("r", d3.max([pointsize * 2, 3])).attr("opacity", 0).attr("fill", pointcolor).attr("stroke", pointstroke).attr("stroke-width", "1").on("mouseover.paneltip", function(d) {
+        }).attr("r", d3.max([pointsize * 2, 3])).attr("opacity", 0).attr("fill", pointhover).attr("stroke", pointstroke).attr("stroke-width", "1").on("mouseover.paneltip", function(d) {
           d3.select(this).attr("opacity", 1);
           return markertip.show(d);
         }).on("mouseout.paneltip", function() {
@@ -279,13 +196,6 @@ lodchart = function() {
       return ylim;
     }
     ylim = value;
-    return chart;
-  };
-  chart.additive_ylim = function(value) {
-    if (!arguments.length) {
-      return additive_ylim;
-    }
-    additive_ylim = value;
     return chart;
   };
   chart.nyticks = function(value) {
@@ -343,6 +253,13 @@ lodchart = function() {
       return pointcolor;
     }
     pointcolor = value;
+    return chart;
+  };
+  chart.pointhover = function(value) {
+    if (!arguments.length) {
+      return pointhover;
+    }
+    pointhover = value;
     return chart;
   };
   chart.pointsize = function(value) {
@@ -411,17 +328,8 @@ lodchart = function() {
   chart.yscale = function() {
     return yscale;
   };
-  chart.additive_yscale = function() {
-    return additive_yscale;
-  };
   chart.xscale = function() {
     return xscale;
-  };
-  chart.lodcurve = function() {
-    return lodcurve;
-  };
-  chart.additivecurve = function() {
-    return additivecurve;
   };
   chart.markerSelect = function() {
     return markerSelect;
@@ -433,19 +341,17 @@ lodchart = function() {
 };
 
 reorgLodData = function(data, lodvarname) {
-  var additiveval, chr, i, j, lodcolumn, lodval, marker, pos, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+  var chr, i, j, lodcolumn, lodval, marker, pos, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
   if (lodvarname == null) {
     lodvarname = null;
   }
   data.posByChr = {};
   data.lodByChr = {};
-  data.additiveByChr = {};
   _ref = data.chrnames;
   for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
     chr = _ref[i];
     data.posByChr[chr[0]] = [];
     data.lodByChr[chr[0]] = [];
-    data.additiveByChr[chr[0]] = [];
     _ref1 = data.pos;
     for (j = _j = 0, _len1 = _ref1.length; _j < _len1; j = ++_j) {
       pos = _ref1[j];
@@ -453,18 +359,6 @@ reorgLodData = function(data, lodvarname) {
         data.posByChr[chr[0]].push(pos);
         if (!Array.isArray(data.lodnames)) {
           data.lodnames = [data.lodnames];
-        }
-        if (data['additive'].length > 0) {
-          additiveval = (function() {
-            var _k, _len2, _ref2, _results;
-            _ref2 = data.lodnames;
-            _results = [];
-            for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-              lodcolumn = _ref2[_k];
-              _results.push(data['additive'][j]);
-            }
-            return _results;
-          })();
         }
         lodval = (function() {
           var _k, _len2, _ref2, _results;
@@ -476,7 +370,6 @@ reorgLodData = function(data, lodvarname) {
           }
           return _results;
         })();
-        data.additiveByChr[chr[0]].push(additiveval);
         data.lodByChr[chr[0]].push(lodval);
       }
     }

@@ -47,6 +47,9 @@ class MarkerRegression(object):
 
         #tempdata = temp_data.TempData(temp_uuid)
         
+        self.json_data = {}
+        self.json_data['lodnames'] = ['lod.hk']
+        
         self.samples = [] # Want only ones with values
         self.vals = []
 
@@ -59,6 +62,7 @@ class MarkerRegression(object):
         self.maf = start_vars['maf'] # Minor allele frequency
         print("self.maf:", self.maf)
  
+        self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             qtl_results = self.run_gemma()
         elif self.mapping_method == "plink":
@@ -71,22 +75,38 @@ class MarkerRegression(object):
         else:
             print("RUNNING NOTHING")
             
-        self.lod_cutoff = 2
+        self.lod_cutoff = 2    
         self.filtered_markers = []
         for marker in qtl_results:
-            if marker['chr'] > 0:
-                self.filtered_markers.append(marker)
-            #if marker['lod_score'] > self.lod_cutoff:
+            if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                if 'lod_score' in marker:
+                    self.filtered_markers.append(marker)
 
-                
-        #print("filtered_markers:", self.filtered_markers)
 
-        #Get chromosome lengths for drawing the manhattan plot
+        self.json_data['chr'] = []
+        self.json_data['pos'] = []
+        self.json_data['lod.hk'] = []
+        self.json_data['markernames'] = []
+
+        #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+        self.qtl_results = []
+        for qtl in self.filtered_markers:
+            print("lod score is:", qtl['lod_score'])
+            self.json_data['chr'].append(str(qtl['chr']))
+            self.json_data['pos'].append(qtl['Mb'])
+            self.json_data['lod.hk'].append(str(qtl['lod_score']))
+            self.json_data['markernames'].append(qtl['name'])
+
+        #Get chromosome lengths for drawing the interval map plot
         chromosome_mb_lengths = {}
+        self.json_data['chrnames'] = []
         for key in self.species.chromosomes.chromosomes.keys():
+            self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
+            
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
         self.js_data = dict(
+            json_data = self.json_data,
             this_trait = self.this_trait.name,
             data_set = self.dataset.name,
             maf = self.maf,
@@ -96,8 +116,6 @@ class MarkerRegression(object):
 
     def run_gemma(self):
         """Generates p-values for each marker using GEMMA"""
-        
-        self.dataset.group.get_markers()
         
         #filename = webqtlUtil.genRandStr("{}_{}_".format(self.dataset.group.name, self.this_trait.name))
         self.gen_pheno_txt_file()
@@ -169,8 +187,6 @@ class MarkerRegression(object):
     def run_plink(self):
     
         os.chdir("/home/zas1024/plink")
-        
-        self.dataset.group.get_markers()
         
         plink_output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
         
@@ -372,8 +388,6 @@ class MarkerRegression(object):
     #def gen_data(self, tempdata):
     def gen_data(self, temp_uuid):
         """Generates p-values for each marker"""
-
-        self.dataset.group.get_markers()
 
         pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
 

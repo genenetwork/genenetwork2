@@ -1,4 +1,4 @@
-class Chr_Manhattan_Plot
+class Chr_Interval_Map
     constructor: (@plot_height, @plot_width, @chr) ->
         @qtl_results = js_data.qtl_results
         console.log("qtl_results are:", @qtl_results)
@@ -67,7 +67,7 @@ class Chr_Manhattan_Plot
     get_qtl_count: () ->
         high_qtl_count = 0
         for result in @these_results
-            if result.lod_score > 1
+            if result.lrs_value > 1
                 high_qtl_count += 1
         console.log("high_qtl_count:", high_qtl_count)
         
@@ -81,19 +81,20 @@ class Chr_Manhattan_Plot
     create_coordinates: () ->
         for result in @these_results
             @x_coords.push(parseFloat(result.Mb))
-            @y_coords.push(result.lod_score)
+            @y_coords.push(result.lrs_value)
             @marker_names.push(result.name)
             
     create_svg: () ->
         svg = d3.select("#topchart")
             .append("svg")
-            .attr("class", "chr_manhattan_plot")
+            .attr("class", "chr_interval_map")
             .attr("width", @plot_width+@x_buffer)
             .attr("height", @plot_height+@y_buffer)
             .append("g")
         return svg
 
     create_scales: () ->
+        console.log("chr[1] is:", @chr[1])
         @x_scale = d3.scale.linear()
             .domain([0, @chr[1]])
             .range([@x_buffer, @plot_width])
@@ -113,7 +114,7 @@ class Chr_Manhattan_Plot
         @add_y_axis()
         @add_title()
         @add_back_button()
-        @add_plot_points()
+        @add_path()
 
     add_border: () ->
         border_coords = [[@y_buffer, @plot_height, @x_buffer, @x_buffer],
@@ -201,73 +202,85 @@ class Chr_Manhattan_Plot
             .attr("fill", "black")
             .on("click", @return_to_full_view)
 
+    add_path: () ->
+        line_function = d3.svg.line()
+                            .x( (d) => return @x_scale(d[0]))
+                            .y( (d) => return @y_scale(d[1]))
+                            .interpolate("linear")
+                            
+        line_graph = @svg.append("path")
+                        .attr("d", line_function(@plot_coordinates))
+                        .attr("stroke", "blue")
+                        .attr("stroke-width", 1)
+                        .attr("fill", "none")
 
-    add_plot_points: () ->
-        @plot_point = @svg.selectAll("circle")
-            .data(@plot_coordinates)
-            .enter()
-            .append("circle")
-            .attr("cx", (d) =>
-                return @x_scale(d[0])
-            )
-            .attr("cy", (d) =>
-                return @y_scale(d[1])
-            )
-            .attr("r", (d) =>
-                #if d[1] > 2
-                #    return 3
-                #else
-                return 2
-            )
-            .attr("fill", (d) =>
-                #if d[1] > 2
-                #    return "white"
-                #else
-                return "black"
-            )
-            .attr("stroke", "black")
-            .attr("stroke-width", "1")
-            .attr("id", (d) =>
-                return "point_" + String(d[2])
-            )
-            .classed("circle", true)
-            .on("mouseover", (d) =>
-                console.log("d3.event is:", d3.event)
-                console.log("d is:", d)
-                this_id = "point_" + String(d[2])
-                d3.select("#" + this_id).classed("d3_highlight", true)
-                    .attr("r", 5)
-                    .attr("stroke", "none")
-                    .attr("fill", "blue")
-                    .call(@show_marker_in_table(d))
-            )
-            .on("mouseout", (d) =>
-                this_id = "point_" + String(d[2])
-                d3.select("#" + this_id).classed("d3_highlight", false)
-                    .attr("r", (d) =>
-                        #if d[1] > 2
-                        #    return 3
-                        #else
-                        return 2
-                    )
-                    .attr("fill", (d) =>
-                        #if d[1] > 2
-                        #    return "white"
-                        #else
-                        return "black"
-                    )
-                    .attr("stroke", "black")
-                    .attr("stroke-width", "1")
-            )
-            .append("svg:title")
-                .text((d) =>
-                    return d[2]
-                )
+
+    #add_plot_points: () ->
+    #    @plot_point = @svg.selectAll("circle")
+    #        .data(@plot_coordinates)
+    #        .enter()
+    #        .append("circle")
+    #        .attr("cx", (d) =>
+    #            return @x_scale(d[0])
+    #        )
+    #        .attr("cy", (d) =>
+    #            return @y_scale(d[1])
+    #        )
+    #        .attr("r", (d) =>
+    #            #if d[1] > 2
+    #            #    return 3
+    #            #else
+    #            return 2
+    #        )
+    #        .attr("fill", (d) =>
+    #            #if d[1] > 2
+    #            #    return "white"
+    #            #else
+    #            return "black"
+    #        )
+    #        .attr("stroke", "black")
+    #        .attr("stroke-width", "1")
+    #        .attr("id", (d) =>
+    #            return "point_" + String(d[2])
+    #        )
+    #        .classed("circle", true)
+    #        .on("mouseover", (d) =>
+    #            console.log("d3.event is:", d3.event)
+    #            console.log("d is:", d)
+    #            this_id = "point_" + String(d[2])
+    #            d3.select("#" + this_id).classed("d3_highlight", true)
+    #                .attr("r", 5)
+    #                .attr("stroke", "none")
+    #                .attr("fill", "blue")
+    #                .call(@show_marker_in_table(d))
+    #        )
+    #        .on("mouseout", (d) =>
+    #            this_id = "point_" + String(d[2])
+    #            d3.select("#" + this_id).classed("d3_highlight", false)
+    #                .attr("r", (d) =>
+    #                    #if d[1] > 2
+    #                    #    return 3
+    #                    #else
+    #                    return 2
+    #                )
+    #                .attr("fill", (d) =>
+    #                    #if d[1] > 2
+    #                    #    return "white"
+    #                    #else
+    #                    return "black"
+    #                )
+    #                .attr("stroke", "black")
+    #                .attr("stroke-width", "1")
+    #        )
+    #        .append("svg:title")
+    #            .text((d) =>
+    #                return d[2]
+    #            )
 
     return_to_full_view: () ->
         $('#topchart').remove()
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
-        create_manhattan_plot()
+        create_interval_map()
 
     show_marker_in_table: (marker_info) ->
         console.log("in show_marker_in_table")

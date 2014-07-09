@@ -47,7 +47,7 @@ $("#export").click =>
     console.log("svg_xml:", svg_xml)
         
     #Set filename
-    filename = "manhattan_plot_" + js_data.this_trait
+    filename = "interval_map_" + js_data.this_trait
 
     #Make a form with the SVG data
     form = $("#exportform")

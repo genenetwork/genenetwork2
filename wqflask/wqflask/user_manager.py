@@ -164,7 +164,6 @@ class UsersManager(object):
         print("Users are:", self.users)
 
 
-
 class UserManager(object):
     def __init__(self, kw):
         self.user_id = kw['user_id']

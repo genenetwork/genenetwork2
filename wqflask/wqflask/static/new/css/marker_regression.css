@@ -1,22 +1,22 @@
-.manhattan_plot .y_axis path,
-.manhattan_plot .y_axis line {
+.chr_manhattan_plot .y_axis path,
+.chr_manhattan_plot .y_axis line {
     fill: none;
     stroke: black;
     shape-rendering: crispEdges;
 }
-.manhattan_plot .y_axis text {
+.chr_manhattan_plot .y_axis text {
     font-family: sans-serif;
     font-size: 14px;
 }
 
-.manhattan_plot .x_axis path,
-.manhattan_plot .x_axis line {
+.chr_manhattan_plot .x_axis path,
+.chr_manhattan_plot .x_axis line {
     fill: none;
     stroke: black;
     shape-rendering: crispEdges;
 }
 
-.manhattan_plot .x_axis text {
+.chr_manhattan_plot .x_axis text {
     text-anchor: end;
     font-family: sans-serif;
     font-size: 10px;

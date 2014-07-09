@@ -96,8 +96,9 @@ class ConvertGenoFile(object):
             this_marker.chr = row_items[0]
             #this_marker.cM = row_items[2]
             if self.cm_exists and self.mb_exists:
-                this_marker.Mb = row_items[3]
-                genotypes = row_items[4:]
+                #print("cm and mb exists")
+                this_marker.Mb = row_items[2]
+                genotypes = row_items[3:]
             elif self.mb_exists:
                 this_marker.Mb = row_items[2]
                 genotypes = row_items[3:]
@@ -193,7 +194,7 @@ if __name__=="__main__":
     New_Geno_Directory = """/home/zas1024/gene/web/new_genotypes/"""
     #Input_File = """/home/zas1024/gene/web/genotypes/BXD.geno"""
     #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
-    convertob = ConvertGenoFile("/home/zas1024/gene/web/genotypes/Linsenbardt-Boehm.geno", "/home/zas1024/gene/web/new_genotypes/Linsenbardt-Boehm.json")
+    convertob = ConvertGenoFile("/home/zas1024/gene/web/genotypes/HSNIH.geno", "/home/zas1024/gene/web/new_genotypes/HSNIH.json")
     convertob.convert()
     #ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
     #ConvertGenoFiles(Geno_Directory)

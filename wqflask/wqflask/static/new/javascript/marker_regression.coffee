@@ -1,6 +1,11 @@
 root = exports ? this
 
 class Manhattan_Plot
+
+    darkrect = "#F1F1F9"
+    lightrect = "#FBFBFF"
+    hoverrect = "#E9CFEC"
+
     constructor: (@height = 800, @width = 1200) ->
         @qtl_results = js_data.qtl_results
         console.log("qtl_results are:", @qtl_results)
@@ -100,7 +105,7 @@ class Manhattan_Plot
         #else
         #    @y_axis_filter = 0
 
-            
+
     create_coordinates: () -> 
         chr_lengths = []
         chr_seen = []
@@ -335,6 +340,8 @@ class Manhattan_Plot
             )
             .enter()
             .append("rect")
+            .attr("id", (d, i) =>
+                return "chr_fill_area_" + i)
             .attr("x", (d, i) =>
                 return @x_scale(d[1] - d[0])
             )
@@ -349,10 +356,27 @@ class Manhattan_Plot
             .attr("height", @height-@y_buffer - @legend_buffer-3)
             .attr("fill", (d, i) =>
                 if (i+1)%2
-                    return "none"
+                    return darkrect
                 else
-                    return "whitesmoke"
+                    return lightrect
             )
+            .on("mouseover", (d, i) =>
+                this_id = "chr_fill_area_" + i
+                console.log("this_id:", this_id)
+                d3.select("#" + this_id)
+                    .attr("fill", hoverrect)
+            )
+            .on("mouseout", (d, i) =>
+                this_id = "chr_fill_area_" + i
+                d3.select("#" + this_id)
+                    .attr("fill", () =>
+                        if (i+1)%2
+                            return darkrect
+                        else
+                            return lightrect
+                    )
+            )
+            
             
     #fill_chr_areas2: () ->
     #    console.log("cumu_chr_lengths:", @cumulative_chr_lengths)
@@ -419,7 +443,6 @@ class Manhattan_Plot
             .attr("cursor", "pointer")
             .attr("fill", "black")
             .on("click", (d) =>
-                this_chr = d
                 @redraw_plot(d)
             )
 

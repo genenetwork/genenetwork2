@@ -5,28 +5,22 @@ lodchart = () ->
     axispos = {xtitle:25, ytitle:30, xlabel:5, ylabel:5}
     titlepos = 20
     ylim = null
-    additive_ylim = null
     nyticks = 5
     yticks = null
-    additive_yticks = null
     chrGap = 8
     darkrect = "#F1F1F9"
     lightrect = "#FBFBFF" 
     lodlinecolor = "darkslateblue"
-    additivelinecolor = "red"
     linewidth = 2
-    suggestivecolor = "gainsboro"
-    significantcolor = "#EBC7C7"
-    pointcolor = "#E9CFEC" # pink
-    pointsize = 0 # default = no visible points at markers
+    pointcolor = "darkslateblue" # pink
+    pointhover = "#E9CFEC" # pink
+    pointsize = 2 # default = no visible points at markers
     pointstroke = "black"
     title = ""
     xlab = "Chromosome"
-    ylab = "LRS score"
-    additive_ylab = "Additive Effect"
+    ylab = "LOD score"
     rotate_ylab = null
     yscale = d3.scale.linear()
-    additive_yscale = d3.scale.linear()
     xscale = null
     pad4heatmap = false
     lodcurve = null
@@ -38,15 +32,12 @@ lodchart = () ->
     ## the main function
     chart = (selection) ->
       selection.each (data) ->
-        
+          
         console.log("data:", data)
-        
+          
         lodvarname = lodvarname ? data.lodnames[0]
         data[lodvarname] = (Math.abs(x) for x in data[lodvarname]) # take absolute values
-        data['additive'] = (Math.abs(x) for x in data['additive'])
         ylim = ylim ? [0, d3.max(data[lodvarname])]
-        if data['additive'].length > 0
-            additive_ylim = additive_ylim ? [0, d3.max(data['additive'])]
         lodvarnum = data.lodnames.indexOf(lodvarname)
   
         # Select the svg element, if it exists.
@@ -73,15 +64,9 @@ lodchart = () ->
   
         yscale.domain(ylim)
               .range([height+margin.top, margin.top+margin.inner])
-        
-        if data['additive'].length > 0
-            additive_yscale.domain(additive_ylim)
-                  .range([height+margin.top, margin.top+margin.inner + height/2])
   
         # if yticks not provided, use nyticks to choose pretty ones
         yticks = yticks ? yscale.ticks(nyticks)
-        if data['additive'].length > 0
-            additive_yticks = additive_yticks ? additive_yscale.ticks(nyticks)
   
         # reorganize lod,pos by chromosomes
         data = reorgLodData(data, lodvarname)
@@ -120,6 +105,7 @@ lodchart = () ->
              .data(data.chrnames)
              .enter()
              .append("text")
+             .attr("class", "chr_label")
              .text((d) -> d[0])
              .attr("x", (d,i) -> (data.chrStart[i]+data.chrEnd[i])/2)
              .attr("y", margin.top+height+axispos.xlabel)
@@ -127,19 +113,19 @@ lodchart = () ->
              .on("click", (d) ->
                  redraw_plot(d)
               )   
-             
+
         xaxis.append("text").attr("class", "title")
              .attr("y", margin.top+height+axispos.xtitle)
              .attr("x", margin.left+width/2)
              .text(xlab)
-
   
         redraw_plot = (chr_ob) ->
              console.log("chr_name is:", chr_ob[0])
              console.log("chr_length is:", chr_ob[1])
              $('#topchart').remove()
              $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
-             chr_plot = new Chr_Interval_Map(600, 1200, chr_ob)
+             chr_plot = new Chr_Manhattan_Plot(600, 1200, chr_ob)
+        
   
         # y-axis
         rotate_ylab = rotate_ylab ? (ylab.length > 1)
@@ -172,98 +158,84 @@ lodchart = () ->
              .text(ylab)
              .attr("transform", if rotate_ylab then "rotate(270,#{margin.left-axispos.ytitle},#{margin.top+height/2})" else "")
   
-        if data['additive'].length > 0
-            rotate_additive_ylab = rotate_additive_ylab ? (additive_ylab.length > 1)
-            additive_yaxis = g.append("g").attr("class", "y axis")
-            additive_yaxis.selectAll("empty")
-                 .data(additive_yticks)
-                 .enter()
-                 .append("line")
-                 .attr("y1", (d) -> additive_yscale(d))
-                 .attr("y2", (d) -> additive_yscale(d))
-                 .attr("x1", margin.left + width)
-                 .attr("x2", margin.left + width - 7)
-                 .attr("fill", "none")
-                 .attr("stroke", "white")
-                 .attr("stroke-width", 1)
-                 .style("pointer-events", "none")
-        
-            additive_yaxis.selectAll("empty")
-                 .data(additive_yticks)
-                 .enter()
-                 .append("text")
-                 .attr("y", (d) -> additive_yscale(d))
-                 .attr("x", (d) -> margin.left + width + axispos.ylabel + 20)
-                 .attr("fill", "green")
-                 .text((d) -> formatAxis(additive_yticks)(d))
-                 
-            additive_yaxis.append("text").attr("class", "title")
-                 .attr("y", margin.top+1.5*height)
-                 .attr("x", margin.left + width + axispos.ytitle)
-                 .text(additive_ylab)
-                 .attr("transform", if rotate_additive_ylab then "rotate(270,#{margin.left + width + axispos.ytitle}, #{margin.top+height*1.5})" else "")
-  
-  
-        suggestive_bar = g.append("g").attr("class", "suggestive")
-        suggestive_bar.selectAll("empty")
-             .data([data.suggestive])
-             .enter()
-             .append("line")
-             .attr("y1", (d) -> yscale(d))
-             .attr("y2", (d) -> yscale(d))
-             .attr("x1", margin.left)
-             .attr("x2", margin.left+width)
-             .attr("fill", "none")
-             .attr("stroke", suggestivecolor)
-             .attr("stroke-width", 5)
-             .style("pointer-events", "none")
-
-        suggestive_bar = g.append("g").attr("class", "significant")
-        suggestive_bar.selectAll("empty")
-             .data([data.significant])
-             .enter()
-             .append("line")
-             .attr("y1", (d) -> yscale(d))
-             .attr("y2", (d) -> yscale(d))
-             .attr("x1", margin.left)
-             .attr("x2", margin.left+width)
-             .attr("fill", "none")
-             .attr("stroke", significantcolor)
-             .attr("stroke-width", 5)
-             .style("pointer-events", "none")
-  
         # lod curves by chr
-        lodcurve = (chr, lodcolumn) ->
-            d3.svg.line()
-              .x((d) -> xscale[chr](d))
-              .y((d,i) -> yscale(data.lodByChr[chr][i][lodcolumn]))
+        #lodcurve = (chr, lodcolumn) ->
+        #    d3.svg.line()
+        #      .x((d) -> xscale[chr](d))
+        #      .y((d,i) -> yscale(data.lodByChr[chr][i][lodcolumn]))
               
-        if data['additive'].length > 0
-            additivecurve = (chr, lodcolumn) ->
-                d3.svg.line()
-                  .x((d) -> xscale[chr](d))
-                  .y((d,i) -> additive_yscale(data.additiveByChr[chr][i][lodcolumn]))
+          #add_plot_points: () ->
+          #    @plot_point = @svg.selectAll("circle")
+          #        .data(@plot_coordinates)
+          #        .enter()
+          #        .append("circle")
+          #        .attr("cx", (d) =>
+          #            return @x_scale(d[0])
+          #        )
+          #        .attr("cy", (d) =>
+          #            return @y_scale(d[1])
+          #        )
+          #        .attr("r", (d) =>
+          #            #if d[1] > 3
+          #            #    return 3
+          #            #else
+          #            return 2
+          #        )
+          #        .attr("fill", (d) =>
+          #            #if d[1] > 3
+          #            #    return "white"
+          #            #else
+          #            return "black"
+          #        )
+          #        .attr("stroke", "black")
+          #        .attr("stroke-width", "1")
+          #        .attr("id", (d) =>
+          #            return "point_" + String(d[2])
+          #        )
+          #        .classed("circle", true)
+          #        .on("mouseover", (d) =>
+          #            console.log("d3.event is:", d3.event)
+          #            console.log("d is:", d)
+          #            this_id = "point_" + String(d[2])
+          #            d3.select("#" + this_id).classed("d3_highlight", true)
+          #                .attr("r", 5)
+          #                .attr("stroke", "none")
+          #                .attr("fill", "blue")
+          #                .call(@show_marker_in_table(d))
+          #        )
+          #        .on("mouseout", (d) =>
+          #            this_id = "point_" + String(d[2])
+          #            d3.select("#" + this_id).classed("d3_highlight", false)
+          #                .attr("r", (d) =>
+          #                    #if d[1] > 2
+          #                    #    return 3
+          #                    #else
+          #                    return 2
+          #                )
+          #                .attr("fill", (d) =>
+          #                    #if d[1] > 2
+          #                    #    return "white"
+          #                    #else
+          #                    return "black"
+          #                )
+          #                .attr("stroke", "black")
+          #                .attr("stroke-width", "1")
+          #        )
+          #        .append("svg:title")
+          #            .text((d) =>
+          #                return d[2]
+          #            )
   
-        curves = g.append("g").attr("id", "curves")
+        #curves = g.append("g").attr("id", "curves")
   
-        for chr in data.chrnames
-          curves.append("path")
-                .datum(data.posByChr[chr[0]])
-                .attr("d", lodcurve(chr[0], lodvarnum))
-                .attr("stroke", lodlinecolor)
-                .attr("fill", "none")
-                .attr("stroke-width", linewidth)
-                .style("pointer-events", "none")
-        
-        if data['additive'].length > 0
-            for chr in data.chrnames
-                curves.append("path")
-                      .datum(data.posByChr[chr[0]])
-                      .attr("d", additivecurve(chr[0], lodvarnum))
-                      .attr("stroke", additivelinecolor)
-                      .attr("fill", "none")
-                      .attr("stroke-width", 1)
-                      .style("pointer-events", "none")
+        #for chr in data.chrnames
+        #  curves.append("path")
+        #        .datum(data.posByChr[chr])
+        #        .attr("d", lodcurve(chr, lodvarnum))
+        #        .attr("stroke", lodlinecolor)
+        #        .attr("fill", "none")
+        #        .attr("stroke-width", linewidth)
+        #        .style("pointer-events", "none")
   
         # points at markers
         if pointsize > 0
@@ -297,7 +269,7 @@ lodchart = () ->
          .attr("fill", "none")
          .attr("stroke", "black")
          .attr("stroke-width", "none")
-  
+         
         if pointsAtMarkers
           # these hidden points are what gets selected...a bit larger
           hiddenpoints = g.append("g").attr("id", "markerpoints_hidden")
@@ -320,7 +292,7 @@ lodchart = () ->
                         .attr("id", (d) -> d.name)
                         .attr("r", d3.max([pointsize*2, 3]))
                         .attr("opacity", 0)
-                        .attr("fill", pointcolor)
+                        .attr("fill", pointhover)
                         .attr("stroke", pointstroke)
                         .attr("stroke-width", "1")
                         .on "mouseover.paneltip", (d) ->
@@ -329,8 +301,6 @@ lodchart = () ->
                         .on "mouseout.paneltip", ->
                            d3.select(this).attr("opacity", 0)
                                           .call(markertip.hide)
-  
-
   
     ## configuration parameters
     chart.width = (value) ->
@@ -361,12 +331,6 @@ lodchart = () ->
     chart.ylim = (value) ->
       return ylim unless arguments.length
       ylim = value
-      chart
-      
-    #if data['additive'].length > 0
-    chart.additive_ylim = (value) ->
-      return additive_ylim unless arguments.length
-      additive_ylim = value
       chart
       
     chart.nyticks = (value) ->
@@ -407,6 +371,11 @@ lodchart = () ->
     chart.pointcolor = (value) ->
       return pointcolor unless arguments.length
       pointcolor = value
+      chart
+  
+    chart.pointhover = (value) ->
+      return pointhover unless arguments.length
+      pointhover = value
       chart
   
     chart.pointsize = (value) ->
@@ -456,20 +425,12 @@ lodchart = () ->
   
     chart.yscale = () ->
       return yscale
-    
-    #if data['additive'].length > 0
-    chart.additive_yscale = () ->
-      return additive_yscale
   
     chart.xscale = () ->
       return xscale
   
-    chart.lodcurve = () ->
-      return lodcurve
-    
-    #if data['additive'].length > 0
-    chart.additivecurve = () ->
-      return additivecurve
+    #chart.lodcurve = () ->
+    #  return lodcurve
   
     chart.markerSelect = () ->
       return markerSelect
@@ -480,26 +441,22 @@ lodchart = () ->
     # return the chart function
     chart
 
+
 # reorganize lod/pos by chromosome
 # lodvarname==null    -> case for multiple LOD columns (lodheatmap)
 # lodvarname provided -> case for one LOD column (lodchart)
 reorgLodData = (data, lodvarname=null) ->
     data.posByChr = {}
     data.lodByChr = {}
-    data.additiveByChr = {}
     
     for chr,i in data.chrnames
       data.posByChr[chr[0]] = []
       data.lodByChr[chr[0]] = []
-      data.additiveByChr[chr[0]] = []
       for pos, j in data.pos
         if data.chr[j] == chr[0]
           data.posByChr[chr[0]].push(pos)
           data.lodnames = [data.lodnames] unless Array.isArray(data.lodnames)
-          if data['additive'].length > 0
-            additiveval = (data['additive'][j] for lodcolumn in data.lodnames)
           lodval = (data[lodcolumn][j] for lodcolumn in data.lodnames)
-          data.additiveByChr[chr[0]].push(additiveval)
           data.lodByChr[chr[0]].push(lodval)
 
     

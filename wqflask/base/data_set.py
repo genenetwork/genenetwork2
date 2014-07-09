@@ -162,13 +162,14 @@ class Markers(object):
         for marker in markers:
             if (marker['chr'] != "X") and (marker['chr'] != "Y"):
                 marker['chr'] = int(marker['chr'])
-            else:
-                marker['chr'] = 19
+            #else:
+            #    marker['chr'] = 20
             print("Mb:", marker['Mb'])
             marker['Mb'] = float(marker['Mb'])
             
         self.markers = markers
         #print("self.markers:", self.markers)
+    
     
     def add_pvalues(self, p_values):
         print("length of self.markers:", len(self.markers))

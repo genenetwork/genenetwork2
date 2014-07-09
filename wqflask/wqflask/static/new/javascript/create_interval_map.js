@@ -44,7 +44,7 @@ $("#export").click((function(_this) {
     svg = $("#topchart").find("svg")[0];
     svg_xml = (new XMLSerializer).serializeToString(svg);
     console.log("svg_xml:", svg_xml);
-    filename = "manhattan_plot_" + js_data.this_trait;
+    filename = "interval_map_" + js_data.this_trait;
     form = $("#exportform");
     form.find("#data").val(svg_xml);
     form.find("#filename").val(filename);
