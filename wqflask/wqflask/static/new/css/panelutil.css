@@ -30,7 +30,7 @@ div.qtlcharts .x.axis text.title {
   fill: slateblue;
 }
 
-div.qtlcharts line.axis.grid {
+/*div.qtlcharts line.axis.grid {
   fill: none;
   stroke-width: 1;
   pointer-events: none;
@@ -48,7 +48,7 @@ div.qtlcharts line.y.axis.grid {
 div.qtlcharts .extent {
   fill: #cac;
   opacity: 0.3;
-}
+}*/
 
 div.qtlcharts circle.selected {
   fill: hotpink;

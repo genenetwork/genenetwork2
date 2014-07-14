@@ -91,14 +91,14 @@ lodchart = function() {
         return redraw_plot(d);
       });
       xaxis = g.append("g").attr("class", "x axis");
-      xaxis.selectAll("empty").data(data.chrnames).enter().append("text").attr("class", "chr_label").text(function(d) {
+      xaxis.selectAll("empty").data(data.chrnames).enter().append("text").text(function(d) {
         return d[0];
       }).attr("x", function(d, i) {
         return (data.chrStart[i] + data.chrEnd[i]) / 2;
-      }).attr("y", margin.top + height + axispos.xlabel).attr("cursor", "pointer").on("click", function(d) {
+      }).attr("y", margin.top + height + axispos.xlabel).attr("dominant-baseline", "hanging").attr("text-anchor", "middle").attr("cursor", "pointer").on("click", function(d) {
         return redraw_plot(d);
       });
-      xaxis.append("text").attr("class", "title").attr("y", margin.top + height + axispos.xtitle).attr("x", margin.left + width / 2).text(xlab);
+      xaxis.append("text").attr("class", "title").attr("y", margin.top + height + axispos.xtitle).attr("x", margin.left + width / 2).attr("fill", "slateblue").text(xlab);
       redraw_plot = function(chr_ob) {
         var chr_plot;
         console.log("chr_name is:", chr_ob[0]);
@@ -116,10 +116,10 @@ lodchart = function() {
       }).attr("x1", margin.left).attr("x2", margin.left + 7).attr("fill", "none").attr("stroke", "white").attr("stroke-width", 1).style("pointer-events", "none");
       yaxis.selectAll("empty").data(yticks).enter().append("text").attr("y", function(d) {
         return yscale(d);
-      }).attr("x", margin.left - axispos.ylabel).attr("fill", "blue").text(function(d) {
+      }).attr("x", margin.left - axispos.ylabel).attr("fill", "blue").attr("dominant-baseline", "middle").attr("text-anchor", "end").text(function(d) {
         return formatAxis(yticks)(d);
       });
-      yaxis.append("text").attr("class", "title").attr("y", margin.top + height / 2).attr("x", margin.left - axispos.ytitle).text(ylab).attr("transform", rotate_ylab ? "rotate(270," + (margin.left - axispos.ytitle) + "," + (margin.top + height / 2) + ")" : "");
+      yaxis.append("text").attr("class", "title").attr("y", margin.top + height / 2).attr("x", margin.left - axispos.ytitle).text(ylab).attr("transform", rotate_ylab ? "rotate(270," + (margin.left - axispos.ytitle) + "," + (margin.top + height / 2) + ")" : "").attr("text-anchor", "middle").attr("fill", "slateblue");
       if (pointsize > 0) {
         markerpoints = g.append("g").attr("id", "markerpoints_visible");
         markerpoints.selectAll("empty").data(data.markers).enter().append("circle").attr("cx", function(d) {

@@ -65,6 +65,8 @@ class MarkerRegression(object):
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             qtl_results = self.run_gemma()
+        elif self.mapping_method == "rqtl":
+            qtl_results = self.run_rqtl()
         elif self.mapping_method == "plink":
             qtl_results = self.run_plink()
             #print("qtl_results:", pf(qtl_results))
@@ -183,6 +185,11 @@ class MarkerRegression(object):
     #                                                                                                                                             filename)
     #
     #
+    
+    #def run_rqtl(self):
+    #    os.chdir("/home/zas1024/plink")
+    #    
+    
     
     def run_plink(self):
     

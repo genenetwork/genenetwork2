@@ -51,3 +51,17 @@ $("#export").click((function(_this) {
     return form.submit();
   };
 })(this));
+
+$("#export_pdf").click((function(_this) {
+  return function() {
+    var filename, form, svg, svg_xml;
+    svg = $("#topchart").find("svg")[0];
+    svg_xml = (new XMLSerializer).serializeToString(svg);
+    console.log("svg_xml:", svg_xml);
+    filename = "manhattan_plot_" + js_data.this_trait;
+    form = $("#exportpdfform");
+    form.find("#data").val(svg_xml);
+    form.find("#filename").val(filename);
+    return form.submit();
+  };
+})(this));

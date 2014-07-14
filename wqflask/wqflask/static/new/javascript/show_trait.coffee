@@ -1,6 +1,6 @@
-root = exports ? this
-
 console.log("start_b")
+
+#root = exports ? this
 
 # this is our isNumber, do not confuse with the underscore.js one
 is_number = (o) ->

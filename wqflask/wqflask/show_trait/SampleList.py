@@ -6,6 +6,8 @@ from base import webqtlCaseData
 from utility import webqtlUtil, Plot, Bunch
 from base.trait import GeneralTrait
 
+import numpy as np
+from scipy import stats
 from pprint import pformat as pf
 
 class SampleList(object):
@@ -71,6 +73,15 @@ class SampleList(object):
     def __repr__(self):
         return "<SampleList> --> %s" % (pf(self.__dict__))
 
+    def get_z_scores(self):
+        values = [sample.value for sample in self.sample_list if sample.value != None]
+        numpy_array = np.array(values)
+        z_scores = stats.zscore(numpy_array)
+        
+        for i, sample in enumerate(self.sample_list):
+            if sample.value:
+                sample.z_score = z_scores[i]
+        
     def do_outliers(self):
         values = [sample.value for sample in self.sample_list if sample.value != None]
         upper_bound, lower_bound = Plot.find_outliers(values)

@@ -97,6 +97,7 @@ class ShowTrait(object):
 
         hddn['trait_id'] = self.trait_id
         hddn['dataset'] = self.dataset.name
+        hddn['use_outliers'] = False
         hddn['method'] = "pylmm"
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
