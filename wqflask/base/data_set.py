@@ -23,6 +23,7 @@ import os
 import math
 import string
 import collections
+import codecs
 
 import json
 import gzip
@@ -156,38 +157,90 @@ class Markers(object):
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
     def __init__(self, name):
         json_data_fh = open(os.path.join(webqtlConfig.NEWGENODIR + name + '.json'))
-        self.markers = json.load(json_data_fh)
+        markers = json.load(json_data_fh)
+    
+        for marker in markers:
+            if (marker['chr'] != "X") and (marker['chr'] != "Y"):
+                marker['chr'] = int(marker['chr'])
+            #else:
+            #    marker['chr'] = 20
+            print("Mb:", marker['Mb'])
+            marker['Mb'] = float(marker['Mb'])
+            
+        self.markers = markers
+        #print("self.markers:", self.markers)
+    
     
     def add_pvalues(self, p_values):
-        #print("length of self.markers:", len(self.markers))
-        #print("length of p_values:", len(p_values))
+        print("length of self.markers:", len(self.markers))
+        print("length of p_values:", len(p_values))
         
-        # THIS IS only needed for the case when we are limiting the number of p-values calculated
-        if len(self.markers) < len(p_values):
-            self.markers = self.markers[:len(p_values)]
-        
-        for marker, p_value in itertools.izip(self.markers, p_values):
-            marker['p_value'] = p_value
-            if math.isnan(marker['p_value']):
-                print("p_value is:", marker['p_value'])
-            marker['lod_score'] = -math.log10(marker['p_value'])
-            #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
-            marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
-        
-        
+        if type(p_values) is list:
+            # THIS IS only needed for the case when we are limiting the number of p-values calculated
+            #if len(self.markers) > len(p_values):
+            #    self.markers = self.markers[:len(p_values)]
+            
+            for marker, p_value in itertools.izip(self.markers, p_values):
+                if not p_value:
+                    continue
+                marker['p_value'] = float(p_value)
+                if math.isnan(marker['p_value']) or marker['p_value'] <= 0:
+                    marker['lod_score'] = 0
+                    marker['lrs_value'] = 0
+                else:
+                    marker['lod_score'] = -math.log10(marker['p_value'])
+                    #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
+                    marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+        elif type(p_values) is dict:
+            filtered_markers = []
+            for marker in self.markers:
+                #print("marker[name]", marker['name'])
+                #print("p_values:", p_values)
+                if marker['name'] in p_values:
+                    #print("marker {} IS in p_values".format(i))
+                    marker['p_value'] = p_values[marker['name']]
+                    if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
+                        marker['lod_score'] = 0
+                        marker['lrs_value'] = 0
+                    else:
+                        marker['lod_score'] = -math.log10(marker['p_value'])
+                        #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
+                        marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+                    filtered_markers.append(marker)
+                #else:
+                    #print("marker {} NOT in p_values".format(i))
+                    #self.markers.remove(marker)
+                    #del self.markers[i]
+            self.markers = filtered_markers
+            
 
+        #for i, marker in enumerate(self.markers):
+        #    if not 'p_value' in marker:
+        #        #print("self.markers[i]", self.markers[i])
+        #        del self.markers[i]
+        #        #self.markers.remove(self.markers[i])
 
 class HumanMarkers(Markers):
     
-    def __init__(self, name):
+    def __init__(self, name, specified_markers = []):
         marker_data_fh = open(os.path.join(webqtlConfig.PYLMM_PATH + name + '.bim'))
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
-            marker = {}
-            marker['chr'] = int(splat[0])
-            marker['name'] = splat[1]
-            marker['Mb'] = float(splat[3]) / 1000000
+            #print("splat:", splat)
+            if len(specified_markers) > 0:
+                if splat[1] in specified_markers:
+                    marker = {}
+                    marker['chr'] = int(splat[0])
+                    marker['name'] = splat[1]
+                    marker['Mb'] = float(splat[3]) / 1000000
+                else:
+                    continue
+            else:
+                marker = {}
+                marker['chr'] = int(splat[0])
+                marker['name'] = splat[1]
+                marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
             
         #print("markers is: ", pf(self.markers))
@@ -203,14 +256,15 @@ class HumanMarkers(Markers):
         #    #Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
         #    marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
         
+        #print("p_values2:", pf(p_values))
         super(HumanMarkers, self).add_pvalues(p_values)
         
-        with Bench("deleting markers"):
-            markers = []
-            for marker in self.markers:
-                if not marker['Mb'] <= 0 and not marker['chr'] == 0:
-                    markers.append(marker)
-            self.markers = markers
+        #with Bench("deleting markers"):
+        #    markers = []
+        #    for marker in self.markers:
+        #        if not marker['Mb'] <= 0 and not marker['chr'] == 0:
+        #            markers.append(marker)
+        #    self.markers = markers
         
     
 
@@ -230,7 +284,7 @@ class DatasetGroup(object):
             self.name = "BXD"
         
         self.f1list = None
-        self.parlist = None        
+        self.parlist = None
         self.get_f1_parent_strains()
         #print("parents/f1s: {}:{}".format(self.parlist, self.f1list))
         
@@ -239,6 +293,8 @@ class DatasetGroup(object):
         self.incparentsf1 = False
         self.allsamples = None
 
+    def get_specified_markers(self, markers = []):
+        self.markers = HumanMarkers(self.name, markers)
 
     def get_markers(self):
         #print("self.species is:", self.species)
@@ -450,8 +506,9 @@ class DataSet(object):
         else:
             self.samplelist = self.group.samplelist
             
-        if (self.group.parlist + self.group.f1list) in self.samplelist:
-            self.samplelist += self.group.parlist + self.group.f1list
+        if self.group.parlist != None and self.group.f1list != None:
+            if (self.group.parlist + self.group.f1list) in self.samplelist:
+                self.samplelist += self.group.parlist + self.group.f1list
         
         query = """
             SELECT Strain.Name, Strain.Id FROM Strain, Species
@@ -521,7 +578,11 @@ class DataSet(object):
                         order by {}.Id
                         """.format(*mescape(self.type, self.type, self.type, self.type,
                                    self.name, dataset_type, self.type, self.type, dataset_type))
+                        
+            #print("trait data query: ", query)
+            
             results = g.db.execute(query).fetchall()
+            #print("query results:", results)
             trait_sample_data.append(results)
 
         trait_count = len(trait_sample_data[0])
@@ -611,6 +672,7 @@ class PhenotypeDataSet(DataSet):
 
     def get_trait_info(self, trait_list, species = ''):
         for this_trait in trait_list:
+            
             if not this_trait.haveinfo:
                 this_trait.retrieve_info(get_qtl_info=True)
 
@@ -620,6 +682,7 @@ class PhenotypeDataSet(DataSet):
             #phenotype traits, then display the pre-publication description instead
             #of the post-publication description
             if this_trait.confidential:
+                this_trait.description_display = ""
                 continue   # for now
             
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
@@ -629,7 +692,12 @@ class PhenotypeDataSet(DataSet):
                         
                     description = this_trait.pre_publication_description
             
-            this_trait.description_display = description.strip()
+            if len(description) > 0:
+                this_trait.description_display = description.strip()
+            else:
+                this_trait.description_display = ""
+
+            print("this_trait.description_display is:", this_trait.description_display)
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
@@ -952,8 +1020,8 @@ class MrnaAssayDataSet(DataSet):
 
             #XZ, 12/08/2008: description
             #XZ, 06/05/2009: Rob asked to add probe target description
-            description_string = str(this_trait.description).strip()
-            target_string = str(this_trait.probe_target_description).strip()
+            description_string = unicode(str(this_trait.description).strip(codecs.BOM_UTF8), 'utf-8')
+            target_string = unicode(str(this_trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
             if len(description_string) > 1 and description_string != 'None':
                 description_display = description_string

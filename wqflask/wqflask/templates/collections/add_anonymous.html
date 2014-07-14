@@ -1,0 +1,21 @@
+<div id="myModal">
+    <div class="modal-header">
+        <h3>Add to collection</h3>
+        <br />
+        <div>
+            <p>We can add this to a temporary collection for you.</p>
+            <p>For the most features you'll want to sign in or create an account.</p>
+        </div>
+    </div>
+    <div class="modal-body">
+        <form action="/collections/new" data-validate="parsley" id="add_form">
+            <input type="hidden" name="traits" value="{{ traits }}" />
+            <button type="submit" name="anonymous_add" class="btn btn-large btn-block btn-primary">Continue without signing in</button>
+            <button type="submit" name="sign_in" class="btn btn-large btn-block">Sign in or create an account</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    $('#add_form').parsley();
+</script>

@@ -104,6 +104,14 @@
                             <a href="/links">Links</a>
                         </li>
                         <li class="">
+                            <a href="/collections/list">Collections
+                                {% if g.user_session.user_ob %}
+                                <span class="badge badge-info">{{ g.user_session.user_ob.display_num_collections() }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+
+                        <li class="">
                             {% if g.user_session.logged_in %}
                             <a id="login_out" title="Signed in as {{ g.user_session.user_ob.name_and_org }}." href="/n/logout">Sign out</a>
                             {% else %}

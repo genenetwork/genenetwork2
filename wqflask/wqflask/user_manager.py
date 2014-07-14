@@ -22,6 +22,7 @@ import urlparse
 
 import simplejson as json
 
+import sqlalchemy
 from sqlalchemy import orm
 
 #from redis import StrictRedis
@@ -29,7 +30,7 @@ import redis
 Redis = redis.StrictRedis()
 
 
-from flask import (Flask, g, render_template, url_for, request, make_response,
+from flask import (Flask, g, render_template, url_for, request, make_response, 
                    redirect, flash, abort)
 
 from wqflask import app
@@ -43,7 +44,7 @@ from wqflask.database import db_session
 
 from wqflask import model
 
-from utility import Bunch, Struct
+from utility import Bunch, Struct, after
 
 
 
@@ -56,7 +57,37 @@ def timestamp():
     return datetime.datetime.utcnow().isoformat()
 
 
+class AnonUser(object):
+    cookie_name = 'anon_user_v1'
+    
+    def __init__(self):
+        self.cookie = request.cookies.get(self.cookie_name)
+        if self.cookie:
+            print("already is cookie")
+            self.anon_id = verify_cookie(self.cookie)
+        else:
+            print("creating new cookie")
+            self.anon_id, self.cookie = create_signed_cookie()
+            
+        @after.after_this_request
+        def set_cookie(response):
+            response.set_cookie(self.cookie_name, self.cookie)
 
+
+def verify_cookie(cookie):
+    the_uuid, separator, the_signature = cookie.partition(':')
+    assert len(the_uuid) == 36, "Is session_id a uuid?"
+    assert separator == ":", "Expected a : here"
+    assert the_signature == actual_hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
+    return the_uuid
+
+
+def create_signed_cookie():
+    the_uuid = str(uuid.uuid4())
+    signature = actual_hmac_creation(the_uuid)
+    uuid_signed = the_uuid + ":" + signature
+    print("uuid_signed:", uuid_signed)
+    return the_uuid, uuid_signed
 
 class UserSession(object):
     cookie_name = 'session_id_v2'
@@ -67,10 +98,8 @@ class UserSession(object):
             self.logged_in = False
             return
         else:
-            session_id, separator, session_id_signature = cookie.partition(':')
-            assert len(session_id) == 36, "Is session_id a uuid?"
-            assert separator == ":", "Expected a : here"
-            assert session_id_signature == actual_hmac_creation(session_id), "Uh-oh, someone tampering with the cookie?"
+            session_id = verify_cookie(cookie)
+
             self.redis_key = self.cookie_name + ":" + session_id
             print("self.redis_key is:", self.redis_key)
             self.session_id = session_id
@@ -89,8 +118,8 @@ class UserSession(object):
                 #flash(
                 #   "Due to inactivity your session has expired. If you'd like please login again.")
                 #return response
-                return 
-                
+                return
+
             if Redis.ttl(self.redis_key) < THREE_DAYS:
                 # (Almost) everytime the user does something we extend the session_id in Redis...
                 print("Extending ttl...")
@@ -102,7 +131,10 @@ class UserSession(object):
     @property
     def user_id(self):
         """Shortcut to the user_id"""
-        return self.record['user_id']
+        if 'user_id' in self.record:
+            return self.record['user_id']
+        else:
+            return ''
 
     @property
     def user_ob(self):
@@ -130,7 +162,6 @@ class UsersManager(object):
     def __init__(self):
         self.users = model.User.query.all()
         print("Users are:", self.users)
-
 
 
 class UserManager(object):
@@ -188,7 +219,15 @@ class RegisterUser(object):
 
         self.new_user = model.User(**self.user.__dict__)
         db_session.add(self.new_user)
-        db_session.commit()
+
+        try:
+            db_session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            # This exception is thrown if the email address is already in the database
+            # To do: Perhaps put a link to sign in using an existing account here
+            self.errors.append("An account with this email address already exists. "
+                               "Click the button above to sign in using an existing account.")
+            return
 
         print("Adding verification email to queue")
         #self.send_email_verification()
@@ -372,37 +411,44 @@ class LoginUser(object):
         if not params:
             return render_template("new_security/login_user.html")
         else:
-            user = model.User.query.filter_by(email_address=params['email_address']).one()
-            submitted_password = params['password']
-            pwfields = Struct(json.loads(user.password))
-            encrypted = Password(submitted_password,
-                                          pwfields.salt,
-                                          pwfields.iterations,
-                                          pwfields.keylength,
-                                          pwfields.hashfunc)
-            print("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
-            valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
-            print("valid is:", valid)
-
-            if valid and not user.confirmed:
-                VerificationEmail(user)
-                return render_template("new_security/verification_still_needed.html",
-                                       subject=VerificationEmail.subject)
-
-
-            if valid:
-                if params.get('remember'):
-                    print("I will remember you")
-                    self.remember_me = True
-
-                return self.actual_login(user)
-
+            try:
+                user = model.User.query.filter_by(email_address=params['email_address']).one()
+            except sqlalchemy.orm.exc.NoResultFound:
+                print("No account exists for that email address")
+                valid = False
+                user = None
             else:
-                self.unsuccessful_login(user)
-                flash("Invalid email-address or password. Please try again.", "alert-error")
-                response = make_response(redirect(url_for('login')))
+                submitted_password = params['password']
+                pwfields = Struct(json.loads(user.password))
+                encrypted = Password(submitted_password,
+                                              pwfields.salt,
+                                              pwfields.iterations,
+                                              pwfields.keylength,
+                                              pwfields.hashfunc)
+                print("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
+                valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
+                print("valid is:", valid)
 
-                return response
+        if valid and not user.confirmed:
+            VerificationEmail(user)
+            return render_template("new_security/verification_still_needed.html",
+                                   subject=VerificationEmail.subject)
+
+
+        if valid:
+            if params.get('remember'):
+                print("I will remember you")
+                self.remember_me = True
+
+            return self.actual_login(user)
+
+        else:
+            if user:
+                self.unsuccessful_login(user)
+            flash("Invalid email-address or password. Please try again.", "alert-error")
+            response = make_response(redirect(url_for('login')))
+
+            return response
 
     def actual_login(self, user, assumed_by=None):
         """The meat of the logging in process"""

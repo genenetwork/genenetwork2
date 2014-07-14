@@ -99,7 +99,7 @@ def get_groups(species):
 def get_types(groups):
     """Build types list"""
     types = {}
-    print("Groups: ", pf(groups))
+    #print("Groups: ", pf(groups))
     for species, group_dict in groups.iteritems():
         types[species] = {}
         for group_name, _group_full_name in group_dict:
@@ -118,15 +118,15 @@ def build_types(species, group):
      
     """
     
-    print("""select distinct Tissue.Name
-                       from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
-                       where Species.Name = '{}' and Species.Id = InbredSet.SpeciesId and
-                       InbredSet.Name = '{}' and
-                       ProbeFreeze.TissueId = Tissue.Id and
-                       ProbeFreeze.InbredSetId = InbredSet.Id and
-                       ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                       ProbeSetFreeze.public > 0
-                       order by Tissue.Name""".format(species, group))
+    #print("""select distinct Tissue.Name
+    #                   from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
+    #                   where Species.Name = '{}' and Species.Id = InbredSet.SpeciesId and
+    #                   InbredSet.Name = '{}' and
+    #                   ProbeFreeze.TissueId = Tissue.Id and
+    #                   ProbeFreeze.InbredSetId = InbredSet.Id and
+    #                   ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+    #                   ProbeSetFreeze.public > 0
+    #                   order by Tissue.Name""".format(species, group))
     Cursor.execute("""select distinct Tissue.Name
                        from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
                        where Species.Name = %s and Species.Id = InbredSet.SpeciesId and
@@ -150,7 +150,7 @@ def get_datasets(types):
     for species, group_dict in types.iteritems():
         datasets[species] = {}
         for group, type_list in group_dict.iteritems():
-            print("type_list: ", type_list)
+            #print("type_list: ", type_list)
             datasets[species][group] = {}
             for type_name in type_list:
                 datasets[species][group][type_name[0]] = build_datasets(species, group, type_name[0])
@@ -174,14 +174,14 @@ def build_datasets(species, group, type_name):
     if dataset_value:
         return [(dataset_value, dataset_text)]
     else:
-        print("""select ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
-                    ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
-                    Species.Name = '{}' and Species.Id = InbredSet.SpeciesId and
-                    InbredSet.Name = '{}' and
-                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '{}'
-                    and ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId =
-                    InbredSet.Id and ProbeSetFreeze.public > 0 order by
-                    ProbeSetFreeze.CreateTime desc""".format(species, group, type_name))
+        #print("""select ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
+        #            ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
+        #            Species.Name = '{}' and Species.Id = InbredSet.SpeciesId and
+        #            InbredSet.Name = '{}' and
+        #            ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '{}'
+        #            and ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId =
+        #            InbredSet.Id and ProbeSetFreeze.public > 0 order by
+        #            ProbeSetFreeze.CreateTime desc""".format(species, group, type_name))
         Cursor.execute("""select ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
                     Species.Name = %s and Species.Id = InbredSet.SpeciesId and
@@ -200,6 +200,7 @@ def main():
 
     species = get_species()
     groups = get_groups(species)
+    print("groups:", groups)
     types = get_types(groups)
     datasets = get_datasets(types)
 
@@ -217,22 +218,22 @@ def main():
                 datasets=datasets,
                 )
 
-    print("data:", data)
+    #print("data:", data)
 
     output_file = """../wqflask/static/new/javascript/dataset_menu_structure.json"""
 
     with open(output_file, 'w') as fh:
         json.dump(data, fh, indent="   ", sort_keys=True)
 
-    print("\nWrote file to:", output_file)
+    #print("\nWrote file to:", output_file)
 
 
 def _test_it():
     """Used for internal testing only"""
     types = build_types("Mouse", "BXD")
-    print("build_types:", pf(types))
+    #print("build_types:", pf(types))
     datasets = build_datasets("Mouse", "BXD", "Hippocampus")
-    print("build_datasets:", pf(datasets))
+    #print("build_datasets:", pf(datasets))
 
 if __name__ == '__main__':   
     Conn = MySQLdb.Connect(**parse_db_uri(our_settings.DB_URI))

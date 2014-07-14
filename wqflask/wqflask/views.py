@@ -14,8 +14,9 @@ import simplejson as json
 #import json
 import yaml
 
-from redis import Redis
-Redis = Redis()
+#Switching from Redis to StrictRedis; might cause some issues
+import redis
+Redis = redis.StrictRedis()
 
 import flask
 import sqlalchemy
@@ -34,6 +35,7 @@ from wqflask.show_trait import export_trait_data
 from wqflask.marker_regression import marker_regression
 from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
+from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from utility import temp_data
 
@@ -205,7 +207,9 @@ def marker_regression_page():
     wanted = (
         'trait_id',
         'dataset',
-        'suggestive'
+        'method',
+        'suggestive',
+        'maf'
     )
 
     start_vars = {}
@@ -243,13 +247,28 @@ def marker_regression_page():
             print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
         #causeerror
-        Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
+        
+        #qtl_length = len(result['js_data']['qtl_results'])
+        #print("qtl_length:", qtl_length)
+        pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+        print("pickled result length:", len(pickled_result))
+        Redis.set(key, pickled_result)
         Redis.expire(key, 60*60)
 
     with Bench("Rendering template"):
         rendered_template = render_template("marker_regression.html", **result)
 
     return rendered_template
+
+@app.route("/export", methods = ('POST',))
+def export():
+    print("request.form:", request.form)
+    svg_xml = request.form.get("data", "Invalid data")
+    filename = request.form.get("filename", "manhattan_plot_snp")
+    response = Response(svg_xml, mimetype="image/svg+xml")
+    response.headers["Content-Disposition"] = "attchment; filename=%s"%filename
+    return response
+
 
 @app.route("/interval_mapping", methods=('POST',))
 def interval_mapping_page():
@@ -262,6 +281,7 @@ def interval_mapping_page():
         'chromosome',
         'num_permutations',
         'do_bootstraps',
+        'display_additive',
         'default_control_locus',
         'control_locus'
     )
@@ -271,7 +291,7 @@ def interval_mapping_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v7"
+    version = "v11"
     key = "interval_mapping:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -310,13 +330,23 @@ def corr_compute_page():
     template_vars = show_corr_results.CorrelationResults(request.form)
     return render_template("correlation_page.html", **template_vars.__dict__)
 
+@app.route("/corr_matrix", methods=('POST',))
+def corr_matrix_page():
+    print("In corr_matrix, request.form is:", pf(request.form))
+    template_vars = show_corr_matrix.CorrelationMatrix(request.form)
+    template_vars.js_data = json.dumps(template_vars.js_data,
+                                       default=json_default_handler,
+                                       indent="   ")
+    
+    return render_template("correlation_matrix.html", **template_vars.__dict__)
+
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():
     template_vars = corr_scatter_plot.CorrScatterPlot(request.args)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
-    return render_template("corr_scatter_plot.html", **template_vars.__dict__)
+    return render_template("corr_scatterplot.html", **template_vars.__dict__)
 
 #@app.route("/int_mapping", methods=('POST',))
 #def interval_mapping_page():
@@ -336,6 +366,7 @@ def sharing_info_page():
 def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
+
 
 
 ###################################################################################################

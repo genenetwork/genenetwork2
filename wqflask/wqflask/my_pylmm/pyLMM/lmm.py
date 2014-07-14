@@ -19,6 +19,7 @@ from __future__ import absolute_import, print_function, division
 
 import sys
 import time
+import argparse
 import uuid
 
 import numpy as np
@@ -26,6 +27,8 @@ from scipy import linalg
 from scipy import optimize
 from scipy import stats
 import pdb
+
+import simplejson as json
 
 import gzip
 import zlib
@@ -35,22 +38,34 @@ import simplejson as json
 
 from pprint import pformat as pf
 
+from redis import Redis
+Redis = Redis()
+
+import sys
+sys.path.append("/home/zas1024/gene/wqflask/")
+print("sys.path2:", sys.path)
+
 from utility.benchmark import Bench
 from utility import temp_data
 
 from wqflask.my_pylmm.pyLMM import chunks
 
-import redis
-Redis = redis.Redis()
 
 #np.seterr('raise')
+
+#def run_human(pheno_vector,
+#            covariate_matrix,
+#            plink_input_file,
+#            kinship_matrix,
+#            refit=False,
+#            loading_progress=None):
 
 def run_human(pheno_vector,
             covariate_matrix,
             plink_input_file,
             kinship_matrix,
             refit=False,
-            loading_progress=None):
+            tempdata=None):
 
     v = np.isnan(pheno_vector)
     keep = True - v
@@ -58,28 +73,30 @@ def run_human(pheno_vector,
 
     identifier = str(uuid.uuid4())
     
-    print("pheno_vector: ", pf(pheno_vector))
-    print("kinship_matrix: ", pf(kinship_matrix))
-    print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
+    #print("pheno_vector: ", pf(pheno_vector))
+    #print("kinship_matrix: ", pf(kinship_matrix))
+    #print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
 
-    lmm_vars = pickle.dumps(dict(
-        pheno_vector = pheno_vector,
-        covariate_matrix = covariate_matrix,
-        kinship_matrix = kinship_matrix
-    ))
-    Redis.hset(identifier, "lmm_vars", lmm_vars)
-    Redis.expire(identifier, 60*60)
+    #lmm_vars = pickle.dumps(dict(
+    #    pheno_vector = pheno_vector,
+    #    covariate_matrix = covariate_matrix,
+    #    kinship_matrix = kinship_matrix
+    #))
+    #Redis.hset(identifier, "lmm_vars", lmm_vars)
+    #Redis.expire(identifier, 60*60)
 
     if v.sum():
         pheno_vector = pheno_vector[keep]
-        #print("pheno_vector shape is now: ", pf(pheno_vector.shape))
+        print("pheno_vector shape is now: ", pf(pheno_vector.shape))
         covariate_matrix = covariate_matrix[keep,:]
-        #print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
-        #print("len(keep) is: ", pf(keep.shape))
+        print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
+        print("keep is: ", pf(keep.shape))
         kinship_matrix = kinship_matrix[keep,:][:,keep]
 
+    print("kinship_matrix:", pf(kinship_matrix))
+
     n = kinship_matrix.shape[0]
-    #print("n is:", n)
+    print("n is:", n)
     lmm_ob = LMM(pheno_vector,
                 kinship_matrix,
                 covariate_matrix)
@@ -136,13 +153,13 @@ def run_human(pheno_vector,
         #print("***** Added to {} queue *****".format(key))
         for snp, this_id in plink_input:
             #with Bench("part before association"):
-            #if count > 2000:
+            #if count > 1000:
             #    break
             count += 1
 
             percent_complete = (float(count) / total_snps) * 100
             #print("percent_complete: ", percent_complete)
-            loading_progress.store("percent_complete", percent_complete)
+            tempdata.store("percent_complete", percent_complete)
 
             #with Bench("actual association"):
             ps, ts = human_association(snp,
@@ -197,6 +214,9 @@ def human_association(snp,
 
         filtered_pheno = pheno_vector[keeps]
         filtered_covariate_matrix = covariate_matrix[keeps,:]
+        
+        print("kinship_matrix shape is: ", pf(kinship_matrix.shape))
+        print("keeps is: ", pf(keeps.shape))
         filtered_kinship_matrix = kinship_matrix[keeps,:][:,keeps]
         filtered_lmm_ob = lmm.LMM(filtered_pheno,filtered_kinship_matrix,X0=filtered_covariate_matrix)
         if refit:
@@ -218,11 +238,17 @@ def human_association(snp,
     return ps, ts
 
 
-def run(pheno_vector,
+#def run(pheno_vector,
+#        genotype_matrix,
+#        restricted_max_likelihood=True,
+#        refit=False,
+#        temp_data=None):
+    
+def run_other(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
         refit=False,
-        temp_data=None):
+        tempdata=None):
     """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
     
     restricted_max_likelihood -- whether to use restricted max likelihood; True or False
@@ -232,8 +258,10 @@ def run(pheno_vector,
     
     """
     
+    
+    print("In run_other")
     with Bench("Calculate Kinship"):
-        kinship_matrix = calculate_kinship(genotype_matrix, temp_data)
+        kinship_matrix = calculate_kinship(genotype_matrix, tempdata)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -252,9 +280,9 @@ def run(pheno_vector,
                                 kinship_matrix,
                                 restricted_max_likelihood=True,
                                 refit=False,
-                                temp_data=temp_data)
+                                temp_data=tempdata)
     Bench().report()
-    return t_stats, p_values
+    return p_values, t_stats
 
 
 def matrixMult(A,B):
@@ -444,7 +472,7 @@ class LMM:
           is not done consistently.
  
     """
-    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=False):
+    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=True):
  
        """
        The constructor takes a phenotype vector or array of size n.
@@ -472,6 +500,8 @@ class LMM:
           Kve = []
        self.nonmissing = x
  
+       print("this K is:", pf(K))
+ 
        if len(Kva) == 0 or len(Kve) == 0:
           if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
           begin = time.time()
@@ -482,8 +512,8 @@ class LMM:
        self.K = K
        self.Kva = Kva
        self.Kve = Kve
-       #print("self.Kva is: ", pf(self.Kva))
-       #print("self.Kve is: ", pf(self.Kve))
+       print("self.Kva is: ", pf(self.Kva))
+       print("self.Kve is: ", pf(self.Kve))
        self.Y = Y
        self.X0 = X0
        self.N = self.K.shape[0]
@@ -677,3 +707,50 @@ class LMM:
        pl.xlabel("Heritability")
        pl.ylabel("Probability of data")
        pl.title(title)
+
+def main():
+    parser = argparse.ArgumentParser(description='Run pyLMM')
+    parser.add_argument('-k', '--key')
+    parser.add_argument('-s', '--species')
+    
+    opts = parser.parse_args()
+    
+    key = opts.key
+    species = opts.species
+    
+    json_params = Redis.get(key)
+    
+    params = json.loads(json_params)
+    #print("params:", params)
+    
+    #print("kinship_matrix:", params['kinship_matrix'])
+    
+    tempdata = temp_data.TempData(params['temp_uuid'])
+    if species == "human" :
+        ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
+                  covariate_matrix = np.array(params['covariate_matrix']),
+                  plink_input_file = params['input_file_name'],
+                  kinship_matrix = np.array(params['kinship_matrix']),
+                  refit = params['refit'],
+                  tempdata = tempdata)
+    else:
+        ps, ts = run_other(pheno_vector = np.array(params['pheno_vector']),
+                  genotype_matrix = np.array(params['genotype_matrix']),
+                  restricted_max_likelihood = params['restricted_max_likelihood'],
+                  refit = params['refit'],
+                  tempdata = tempdata)
+        
+    results_key = "pylmm:results:" + params['temp_uuid']
+
+    json_results = json.dumps(dict(p_values = ps,
+                                   t_stats = ts))
+    
+    #Pushing json_results into a list where it is the only item because blpop needs a list
+    Redis.rpush(results_key, json_results)
+    Redis.expire(results_key, 60*60)
+
+if __name__ == '__main__':
+    main()
+
+
+

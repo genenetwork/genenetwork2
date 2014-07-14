@@ -64,8 +64,10 @@ $ ->
     sample_lists = js_data.sample_lists
     sample_group_types = js_data.sample_group_types
 
-    $("#update_bar_chart.btn-group").button()
+    #if $("#update_bar_chart").length
+    #    $("#update_bar_chart.btn-group").button()
     root.bar_chart = new Bar_Chart(sample_lists[0])
+    root.histogram = new Histogram(sample_lists[0])
     new Box_Plot(sample_lists[0])
 
     $('.bar_chart_samples_group').change ->
@@ -73,13 +75,12 @@ $ ->
         $('#bar_chart_container').append('<div id="bar_chart"></div>')
         group = $(this).val()
         if group == "samples_primary"
-            new Bar_Chart(sample_lists[0])
+            root.bar_chart = new Bar_Chart(sample_lists[0])
         else if group == "samples_other"
-            new Bar_Chart(sample_lists[1])
+            root.bar_chart = new Bar_Chart(sample_lists[1])
         else if group == "samples_all"
             all_samples = sample_lists[0].concat sample_lists[1]
-            new Bar_Chart(all_samples)
-        #$(".btn-group").button()
+            root.bar_chart = new Bar_Chart(all_samples)
 
     $('.box_plot_samples_group').change ->
         $('#box_plot').remove()
@@ -93,10 +94,30 @@ $ ->
             all_samples = sample_lists[0].concat sample_lists[1]
             new Box_Plot(all_samples)
 
+    d3.select("#select_compare_trait").on("click", =>
+        $('.qtlcharts').empty()
+        open_trait_selection()
+    )
     
+    d3.select("#clear_compare_trait").on("click", =>
+        $('.qtlcharts').empty()
+    )
+    
+    open_trait_selection = () ->
+        $('#collections_holder').load('/collections/list?color_by_trait #collections_list', =>
+            $.colorbox(
+                inline: true
+                href: "#collections_holder"
+            )
+            #Removes the links from the collection names, because clicking them would leave the page
+            #instead of loading the list of traits in the colorbox
+            $('a.collection_name').attr( 'onClick', 'return false' )
+        )
+
     hide_tabs = (start) ->
         for x in [start..10]
             $("#stats_tabs" + x).hide()
+
 
     # Changes stats table between all, bxd only and non-bxd, etc.
     stats_mdp_change = ->
@@ -104,7 +125,6 @@ $ ->
         hide_tabs(0)
         $("#stats_tabs" + selected).show()
 
-    #$(".stats_mdp").change(stats_mdp_change)
 
     change_stats_value = (sample_sets, category, value_type, decimal_places)->
         id = "#" + process_id(category, value_type)
@@ -124,18 +144,16 @@ $ ->
         console.log("*-* the_value:", the_value)
         console.log("*-* current_value:", current_value)
         if the_value != current_value
+            console.log("object:", $(id).html(the_value))
             $(id).html(the_value).effect("highlight")
 
         # We go ahead and always change the title value if we have it
         if title_value
             $(id).attr('title', title_value)
 
+
     update_stat_values = (sample_sets)->
         for category in ['samples_primary', 'samples_other', 'samples_all']
-            #change_stats_value(sample_sets, category, "n_of_samples", 0)
-
-            #for stat in ["mean", "median", "std_dev", "std_error", "min", "max"]
-            #for stat in (row.vn for row in Stat_Table_Rows)
             for row in Stat_Table_Rows
                 console.log("Calling change_stats_value")
                 change_stats_value(sample_sets, category, row.vn, row.digits)
@@ -205,6 +223,7 @@ $ ->
                 name = $.trim(name)
                 real_value = $(row).find('.edit_sample_value').val()
                 console.log("real_value:", real_value)
+                
                 checkbox = $(row).find(".edit_sample_checkbox")
                 checked = $(checkbox).attr('checked')
 
@@ -231,7 +250,6 @@ $ ->
             console.log("Found Show Outliers")
             $('#show_hide_outliers').val("Hide Outliers")
             console.log("Should be now Hide Outliers")
-
 
     ##Calculate Correlations Code
 

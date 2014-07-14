@@ -2,9 +2,10 @@
 {% block title %}Trait Data and Analysis{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/interval_mapping.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
 {% endblock %}
@@ -16,9 +17,11 @@
 
     <form method="post" action="/corr_compute" name="trait_page" id="trait_data_form"
     class="form-horizontal">
+            <div id="hidden_inputs">
             {% for key in hddn %}
-            <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
+                <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
             {% endfor %}
+            </div>
 
             <input type="hidden" name="temp_uuid" id="temp_uuid" value="{{ temp_uuid }}">
 
@@ -52,15 +55,120 @@
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/colorbrewer.js"></script>
     <script type="text/javascript" src="/static/new/packages/ValidationPlugin/dist/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
 
     <script type="text/javascript" src="/static/new/javascript/stats.js"></script>
     <script type="text/javascript" src="/static/new/javascript/box.js"></script>
-    <script type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>    
     <script type="text/javascript" src="/static/new/javascript/bar_chart.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/histogram.js"></script>
     <script type="text/javascript" src="/static/new/javascript/box_plot.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/scatterplot.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/compare_traits_scatterplot.js"></script>  
     
     <script type="text/javascript" src="/static/new/javascript/show_trait_mapping_tools.js"></script>
     <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
     <script type="text/javascript" src="/static/new/javascript/validation.js"></script>
+    
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            
+           function getValue(x) {
+                if (x.indexOf('input') >= 0) {
+                    if ($(x).val() == 'x') {
+                        return 0
+                    }
+                    else {
+                       return parseFloat($(x).val());
+                    }
+                }
+                return parseFloat(x);
+            }
+            
+            jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
+                var x = getValue(a);
+                var y = getValue(b);
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            };
+            
+            jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
+                var x = getValue(a);
+                var y = getValue(b);
+                return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+            };
+            
+            $(document).ready( function () {
+                console.time("Creating table");
+                
+                {% if sample_groups[0].se_exists() %}
+                    $('#samples_primary, #samples_other').dataTable( {
+                        //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
+                        "aoColumns": [
+                            { "sType": "natural" },
+                            null,
+                            { "sType": "cust-txt" },
+                            { "bSortable": false },
+                            { "sType": "cust-txt" }
+                        ],
+                        "sDom": "ftr",
+                        "oTableTools": {
+                            "aButtons": [
+                                "copy",
+                                "print",
+                                {
+                                    "sExtends":    "collection",
+                                    "sButtonText": 'Save <span class="caret" />',
+                                    "aButtons":    [ "csv", "xls", "pdf" ]
+                                }
+                            ],
+                            "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
+                        },
+                        "bPaginate": false,
+                        "bLengthChange": true,
+                        "bDeferRender": true,
+                        "bSortClasses": false
+                    } );
+                    console.timeEnd("Creating table");
+
+                {% else %}
+        
+            
+                    console.time("Creating table");
+                    
+                    $('#samples_primary, #samples_other').dataTable( {
+                        //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
+                        "aoColumns": [
+                            { "sType": "natural" },
+                            null,
+                            { "sType": "cust-txt" }
+                        ],
+                        "sDom": "ftr",
+                        "oTableTools": {
+                            "aButtons": [
+                                "copy",
+                                "print",
+                                {
+                                    "sExtends":    "collection",
+                                    "sButtonText": 'Save <span class="caret" />',
+                                    "aButtons":    [ "csv", "xls", "pdf" ]
+                                }
+                            ],
+                            "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
+                        },
+                        "bPaginate": false,
+                        "bLengthChange": true,
+                        "bDeferRender": true,
+                        "bSortClasses": false
+                    } );
+                    console.timeEnd("Creating table");
+                {% endif %}
+            });
+        </script>
+    
 {% endblock %}

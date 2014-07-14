@@ -21,8 +21,8 @@ class Box_Plot
     create_svg: () ->
         svg = d3.box()
             .whiskers(@inter_quartile_range(1.5))
-            .width(@plot_width)
-            .height(@plot_height)
+            .width(@plot_width - 30)
+            .height(@plot_height - 30)
             .domain([@min, @max])
         return svg
                     

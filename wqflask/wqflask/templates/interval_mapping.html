@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Interval Mapping{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/css/interval_mapping.css" />
+<!--    <link rel="stylesheet" type="text/css" href="/static/new/css/interval_mapping.css" />-->
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/interval_mapping.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
@@ -16,9 +19,16 @@
             <h2>
                 Whole Genome Mapping
             </h2>
+            <form id="exportform" action="export" method="post">
+              <input type="hidden" id="data" name="data" value="">
+              <input type="hidden" id="filename" name="filename" value="">
+              <input type="submit" id="export" value="Download SVG">
+            </form>
         </div>
-        <div id="interval_map" class="interval_map">
-            
+        <div id="chart_container">
+            <div class="qtlcharts" id="topchart">
+                
+            </div>
         </div>
         <div>
             <h2>
@@ -30,12 +40,10 @@
                 <tr>
                     <td>Index</td>
                     <td>LRS Score</td>
-                    {% if method == "qtl_reaper" %}
-                    <td>Additive Effect</td>
-                    {% endif %}
                     <td>Chr</td>
                     <td>Mb</td>
                     <td>Locus</td>
+                    <td>Additive Effect</td>
                 </tr>
             </thead>
             <tbody>
@@ -43,12 +51,10 @@
                 <tr>
                     <td>{{ loop.index }}</td>
                     <td>{{ marker.lrs_value|float }}</td>
-                    {% if method == "qtl_reaper" %}
-                    <td>{{ marker.additive|float }}</td>
-                    {% endif %}
                     <td>{{ marker.chr|int }}</td>
                     <td>{{ marker.Mb|float  }}</td>
                     <td>{{ marker.name }}</td>
+                    <td>{{ marker.additive|float }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -69,7 +75,11 @@
 <!--        <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>-->
     <![endif]-->
     <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/interval_mapping.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_interval_map.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_interval_map.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
@@ -77,7 +87,6 @@
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
-    
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");

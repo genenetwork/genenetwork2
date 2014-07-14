@@ -51,18 +51,27 @@ class CorrScatterPlot(object):
         self.line_width = line_width
         
         samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(self.trait_1.data, self.trait_2.data)
+        
+        self.data = []
+        self.indIDs = samples_1.keys()
         vals_1 = []
         for sample in samples_1.keys():
             vals_1.append(samples_1[sample].value)
+        self.data.append(vals_1)
         vals_2 = []
         for sample in samples_2.keys():
             vals_2.append(samples_2[sample].value)
+        self.data.append(vals_2)
+
         x = np.array(vals_1)
         y = np.array(vals_2)
         slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+        
         self.js_data = dict(
-            trait_1 = self.trait_1.dataset.name + ": " + self.trait_1.name,
-            trait_2 = self.trait_2.dataset.name + ": " + self.trait_2.name,
+            data = self.data,
+            indIDs = self.indIDs,
+            trait_1 = self.trait_1.dataset.name + ": " + str(self.trait_1.name),
+            trait_2 = self.trait_2.dataset.name + ": " + str(self.trait_2.name),
             samples_1 = samples_1,
             samples_2 = samples_2,
             num_overlap = num_overlap,

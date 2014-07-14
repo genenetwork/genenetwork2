@@ -25,6 +25,7 @@
             <table id="corr_results" class="table table-hover table-striped table-bordered">
                 <thead>
                     <tr>
+                    {% if dataset.type == 'ProbeSet' %}
                         <th>Trait</th>
                         <th>Symbol</th>
                         <th>Description</th>
@@ -47,11 +48,27 @@
                         <th>Tissue rho</th>
                         <th>Tissue p(rho)</th>
                         {% endif %}
+                    {% elif dataset.type == "Publish" %}
+                        <th>Record ID</th>
+                        <th>Phenotype</th>
+                        <th>Authors</th>
+                        <th>Year</th>
+                        {% if corr_method == 'pearson' %}
+                        <th>Sample r</th>
+                        <th>N Cases</th>
+                        <th>Sample p(r)</th>
+                        {% else %}
+                        <th>Sample rho</th>
+                        <th>N Cases</th>
+                        <th>Sample p(rho)</th>
+                        {% endif %}
+                    {% endif %}
                     </tr>
                 </thead>
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
+                    {% if dataset.type == 'ProbeSet' %}
                         <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
                         <td>{{ trait.symbol }}</td>
                         <td>{{ trait.description }} <br><br> <b>Aliases</b>: {{ trait.alias }}</td>
@@ -65,6 +82,15 @@
                         <td>{{'%0.3f'|format(trait.lit_corr)}}</td>
                         <td>{{'%0.3f'|format(trait.tissue_corr)}}</td>
                         <td>{{'%0.3e'|format(trait.tissue_pvalue)}}</td>
+                    {% elif dataset.type == "Publish" %}
+                        <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
+                        <td>{{ trait.post_publication_description }}</td>
+                        <td>{{ trait.authors }}</td>
+                        <td>{{ trait.year }}</td>
+                        <td><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
+                        <td>{{ trait.num_overlap }}</td>
+                        <td>{{'%0.3e'|format(trait.sample_p)}}</td>
+                    {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>

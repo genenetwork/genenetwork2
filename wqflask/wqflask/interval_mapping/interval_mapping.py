@@ -23,6 +23,7 @@ from base.trait import GeneralTrait
 from base import data_set
 from base import species
 from base import webqtlConfig
+from utility import webqtlUtil
 from wqflask.my_pylmm.data import prep_data
 from wqflask.my_pylmm.pyLMM import lmm
 from wqflask.my_pylmm.pyLMM import input
@@ -55,22 +56,35 @@ class IntervalMapping(object):
  
         self.set_options(start_vars)
  
-        if self.method == "qtl_reaper":
-            self.gen_reaper_results(tempdata)
-        else:
-            self.gen_pylmm_results(tempdata)
+        self.json_data = {}
+ 
+        #if self.method == "qtl_reaper":
+        self.json_data['lodnames'] = ['lod.hk']
+        self.gen_reaper_results(tempdata)
+        #else:
+        #    self.gen_pylmm_results(tempdata)
         #self.gen_qtl_results(tempdata)
 
         #Get chromosome lengths for drawing the interval map plot
         chromosome_mb_lengths = {}
+        self.json_data['chrnames'] = []
         for key in self.species.chromosomes.chromosomes.keys():
+            self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
+            
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
         #print("self.qtl_results:", self.qtl_results)
         
+        print("JSON DATA:", self.json_data)
+        
+        #os.chdir(webqtlConfig.TMPDIR)
+        json_filename = webqtlUtil.genRandStr(prefix="intmap_")
+        json.dumps(self.json_data, webqtlConfig.TMPDIR + json_filename)
+        
         self.js_data = dict(
             chromosomes = chromosome_mb_lengths,
             qtl_results = self.qtl_results,
+            json_data = self.json_data
             #lrs_lod = self.lrs_lod,
         )
 
@@ -80,10 +94,14 @@ class IntervalMapping(object):
         #self.plot_scale = start_vars['scale']
         #if self.plotScale == 'physic' and not fd.genotype.Mbmap:
         #    self.plotScale = 'morgan'
-        self.method = start_vars['mapping_method']
+        #self.method = start_vars['mapping_method']
         self.num_permutations = int(start_vars['num_permutations'])
         #self.do_bootstrap = start_vars['do_bootstrap']
-        self.selected_chr = start_vars['chromosome']
+        #self.selected_chr = start_vars['chromosome']
+        if start_vars['display_additive'] == "yes":
+            self.additive = True
+        else:
+            self.additive = False
         if 'control_locus' in start_vars:
             self.control_locus = start_vars['control_locus']
         else:
@@ -144,8 +162,19 @@ class IntervalMapping(object):
 
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         self.qtl_results = []
+        self.json_data['chr'] = []
+        self.json_data['pos'] = []
+        self.json_data['lod.hk'] = []
+        self.json_data['additive'] = []
+        self.json_data['markernames'] = []
         for qtl in reaper_results:
             reaper_locus = qtl.locus
+            self.json_data['chr'].append(reaper_locus.chr)
+            self.json_data['pos'].append(reaper_locus.Mb)
+            self.json_data['lod.hk'].append(qtl.lrs)
+            self.json_data['markernames'].append(reaper_locus.name)
+            if self.additive:
+                self.json_data['additive'].append(qtl.additive)
             locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
             qtl = {"lrs": qtl.lrs, "locus": locus, "additive": qtl.additive}
             self.qtl_results.append(qtl)
@@ -166,8 +195,11 @@ class IntervalMapping(object):
         self.lrs_array = genotype.permutation(strains = trimmed_samples,
                                                    trait = trimmed_values, 
                                                    nperm= self.num_permutations)
+        
         self.suggestive = self.lrs_array[int(self.num_permutations*0.37-1)]
         self.significant = self.lrs_array[int(self.num_permutations*0.95-1)]
+        self.json_data['suggestive'] = self.suggestive
+        self.json_data['significant'] = self.significant
 
         print("samples:", trimmed_samples)
 
@@ -179,10 +211,22 @@ class IntervalMapping(object):
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                           trait = trimmed_values)
 
+        self.json_data['chr'] = []
+        self.json_data['pos'] = []
+        self.json_data['lod.hk'] = []
+        self.json_data['additive'] = []
+        self.json_data['markernames'] = []
+
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         self.qtl_results = []
         for qtl in reaper_results:
             reaper_locus = qtl.locus
+            self.json_data['chr'].append(reaper_locus.chr)
+            self.json_data['pos'].append(reaper_locus.Mb)
+            self.json_data['lod.hk'].append(qtl.lrs)
+            self.json_data['markernames'].append(reaper_locus.name)
+            if self.additive:
+                self.json_data['additive'].append(qtl.additive)
             locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
             qtl = {"lrs_value": qtl.lrs, "chr":reaper_locus.chr, "Mb":reaper_locus.Mb,
                    "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive}

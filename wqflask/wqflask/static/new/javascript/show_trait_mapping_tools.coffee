@@ -56,6 +56,9 @@ $ ->
         console.log("In interval mapping")
         $("#progress_bar_container").modal()
         url = "/interval_mapping"
+        $('input[name=method]').val("reaper")
+        $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'))
+        $('input[name=suggestive]').val($('input[name=suggestive_reaper]'))
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         $.ajax(
@@ -92,6 +95,7 @@ $ ->
     $("#marker_regression_compute").click(() =>
         $("#progress_bar_container").modal()
         url = "/marker_regression"
+        $('input[name=method]').val("pylmm")
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         $.ajax(
@@ -107,6 +111,66 @@ $ ->
             success: (data) =>
                 clearInterval(this.my_timer)
                 $('#progress_bar_container').modal('hide')
+                $("body").html(data)
+        )
+        console.log("settingInterval")
+
+        this.my_timer = setInterval(get_progress, 1000)
+        return false
+    )
+
+    $("#plink_compute").click(() =>
+        $("#static_progress_bar_container").modal()
+        url = "/marker_regression"
+        $('input[name=method]').val("plink")
+        $('input[name=mapping_display_all]').val($('input[name=display_all_plink]').val())
+        $('input[name=suggestive]').val($('input[name=suggestive_plink]').val())
+        $('input[name=maf]').val($('input[name=maf_plink]').val())
+        form_data = $('#trait_data_form').serialize()
+        console.log("form_data is:", form_data)
+        $.ajax(
+            type: "POST"
+            url: url
+            data: form_data
+            error: (xhr, ajaxOptions, thrownError) =>
+                alert("Sorry, an error occurred")
+                console.log(xhr)
+                clearInterval(this.my_timer)
+                $('#static_progress_bar_container').modal('hide')
+                $("body").html("We got an error.")        
+            success: (data) =>
+                clearInterval(this.my_timer)
+                $('#static_progress_bar_container').modal('hide')
+                $("body").html(data)
+        )
+        console.log("settingInterval")
+
+        this.my_timer = setInterval(get_progress, 1000)
+        return false
+    )
+
+    $("#gemma_compute").click(() =>
+        $("#static_progress_bar_container").modal()
+        url = "/marker_regression"
+        $('input[name=method]').val("gemma")
+        $('input[name=mapping_display_all]').val($('input[name=display_all_gemma]').val())
+        $('input[name=suggestive]').val($('input[name=suggestive_gemma]').val())
+        $('input[name=maf]').val($('input[name=maf_gemma]').val())
+        form_data = $('#trait_data_form').serialize()
+        console.log("form_data is:", form_data)
+        $.ajax(
+            type: "POST"
+            url: url
+            data: form_data
+            error: (xhr, ajaxOptions, thrownError) =>
+                alert("Sorry, an error occurred")
+                console.log(xhr)
+                clearInterval(this.my_timer)
+                $('#static_progress_bar_container').modal('hide')
+                $("body").html("We got an error.")        
+            success: (data) =>
+                clearInterval(this.my_timer)
+                $('#static_progress_bar_container').modal('hide')
                 $("body").html(data)
         )
         console.log("settingInterval")

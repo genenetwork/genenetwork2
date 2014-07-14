@@ -7,8 +7,16 @@
                     <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
                 </li>
                 <li>
-                    <a href="#marker_regression" data-toggle="tab">Marker Regression</a>
+                    <a href="#pylmm" data-toggle="tab">pyLMM</a>
                 </li>
+                {% if dataset.group.species == 'human' %}
+                <li>
+                    <a href="#plink" data-toggle="tab">PLINK</a>
+                </li>
+                <li>
+                    <a href="#gemma" data-toggle="tab">GEMMA</a>
+                </li>
+                {% endif %}
                 <!--<li>
                     <a href="#pair_scan" data-toggle="tab">Pair Scan</a>
                 </li>-->
@@ -16,7 +24,7 @@
 
             <div class="tab-content">
                 <div class="tab-pane active" id="interval_mapping">
-                    <div class="control-group">
+<!--                <div class="control-group">
                         <label for="mapping_method" class="control-label">Mapping Method</label>
                         <div class="controls" id="mapping_method_choice">
                             <select name="mapping_method">
@@ -36,7 +44,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                    </div>
+                    </div>-->
     
                     <div class="control-group mapping_method_fields">
                         <label for="mapping_permutations" class="control-label">Permutations (n)</label>
@@ -52,9 +60,24 @@
                             <input name="mapping_bootstraps" value="2000" type="text" />
                         </div>
                     </div>
-
-
+                    
                     <div class="control-group mapping_method_fields">
+                        <label class="control-label">Display Additive Effect</label>
+                        <div class="controls" id="display_additive_effect">                      
+                            <label class="radio inline">
+                                <input type="radio" name="display_additive"
+                                       id="display_dditive" value="yes" checked>
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="display_additive"
+                                       id="display_additive" value="no">
+                                No
+                            </label>
+                        </div>
+                    </div>
+
+<!--                    <div class="control-group mapping_method_fields">
                         <label class="control-label"><b>Composite Mapping</b></label>
                         <div class="controls" id="use_composite_choice">                      
                             <label class="radio inline">
@@ -92,7 +115,7 @@
                             <input name="control_locus" placeholder="rs12345" id="control_locus"
                                     type="text" disabled />
                         </div>
-                    </div>
+                    </div>-->
 
                     <div class="control-group">
                         <div class="controls">
@@ -106,34 +129,34 @@
                     </div>
                 </div>
                 
-                <div class="tab-pane" id="marker_regression">
+                <div class="tab-pane" id="pylmm">
                     <div class="control-group" id="display_all_div">
                         <label class="control-label">Display all</label>
                         <div class="controls">                      
                             <label class="radio inline">
-                                <input type="radio" name="display_all" value="True" checked>
+                                <input type="radio" name="display_all_pylmm" value="True" checked>
                                 Yes
                             </label>
                             <label class="radio inline">
-                                <input type="radio" name="display_all" value="False">
+                                <input type="radio" name="display_all_pylmm" value="False">
                                 No
                             </label>
                         </div>
                     </div>
                     <div class="control-group" id="suggestive" >
-                        <label for="suggestive" class="control-label"
+                        <label for="suggestive_reaper" class="control-label"
                                title="Control Locus">LOD score greater than: </label>
                         <div class="controls">
-                            <input name="suggestive" type="text" value="0"/>
+                            <input name="suggestive_reaper" type="text" value="0"/>
                         </div>
                     </div>
                     
-<!--                    <div class="control-group">
+<!--                <div class="control-group">
                         <label for="marker_reg_permutations" class="control-label">Permutations (n)</label>
                         <div class="controls">
                             <input name="num_perm" value="2000" type="text" />
                         </div>
-                    </div>           -->         
+                    </div>           -->
                     
                     <div class="control-group">
                         <div class="controls">
@@ -147,7 +170,91 @@
                     </div>
                     
                 </div>
-
+                
+                {% if dataset.group.species == 'human' %}
+                <div class="tab-pane" id="plink">
+                    <div class="control-group" id="display_all_div">
+                        <label class="control-label">Display all</label>
+                        <div class="controls">                      
+                            <label class="radio inline">
+                                <input type="radio" name="display_all_plink" value="True" checked>
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="display_all_plink" value="False">
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    <div class="control-group" id="suggestive" >
+                        <label for="suggestive_plink" class="control-label"
+                               title="Control Locus">LOD score greater than: </label>
+                        <div class="controls">
+                            <input name="suggestive_plink" type="text" value="0"/>
+                        </div>
+                    </div>
+                    <div class="control-group" id="suggestive" >
+                        <label for="maf_plink" class="control-label"
+                               title="Control Locus">Minor allele threshold: </label>
+                        <div class="controls">
+                            <input name="maf_plink" type="text" value="0.01"/>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="controls">
+                            <button id="plink_compute"
+                                    class="btn btn-inverse submit_special"
+                                    data-url="/marker_regression"
+                                    title="Compute using PLINK">
+                                <i class="icon-ok-circle icon-white"></i> Compute
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="tab-pane" id="gemma">
+                    <div class="control-group" id="display_all_div">
+                        <label class="control-label">Display all</label>
+                        <div class="controls">                      
+                            <label class="radio inline">
+                                <input type="radio" name="display_all_gemma" value="True" checked>
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="display_all_gemma" value="False">
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    <div class="control-group" id="suggestive" >
+                        <label for="suggestive_gemma" class="control-label"
+                               title="Control Locus">LOD score greater than: </label>
+                        <div class="controls">
+                            <input name="suggestive_gemma" type="text" value="0"/>
+                        </div>
+                    </div>
+                    <div class="control-group" id="suggestive" >
+                        <label for="maf_gemma" class="control-label"
+                               title="Control Locus">Minor allele threshold: </label>
+                        <div class="controls">
+                            <input name="maf_gemma" type="text" value="0.01"/>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="controls">
+                            <button id="gemma_compute"
+                                    class="btn btn-inverse submit_special"
+                                    data-url="/marker_regression"
+                                    title="Compute using GEMMA">
+                                <i class="icon-ok-circle icon-white"></i> Compute
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
