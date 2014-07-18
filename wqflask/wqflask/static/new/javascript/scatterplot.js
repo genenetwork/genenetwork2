@@ -55,7 +55,7 @@ scatterplot = function() {
   dataByInd = false;
   chart = function(selection) {
     return selection.each(function(data) {
-      var g, gEnter, group, i, indID, indtip, na_value, ngroup, panelheight, paneloffset, panelwidth, points, svg, titlegrp, x, xaxis, xrange, xs, y, yaxis, yrange, ys, _i, _ref, _ref1, _ref2, _results;
+      var g, gEnter, group, i, indID, indtip, maxx, minx, na_value, ngroup, panelheight, paneloffset, panelwidth, points, svg, titlegrp, x, xaxis, xrange, xs, y, yaxis, yrange, ys, _i, _ref, _ref1, _ref2, _results;
       if (dataByInd) {
         x = data.data.map(function(d) {
           return d[xvar];
@@ -162,6 +162,8 @@ scatterplot = function() {
           }
         });
       }
+      minx = xlim[0];
+      maxx = xlim[1];
       yticks = yticks != null ? yticks : ys.ticks(nyticks);
       xticks = xticks != null ? xticks : xs.ticks(nxticks);
       titlegrp = g.append("g").attr("class", "title").append("text").attr("x", margin.left + width / 2).attr("y", margin.top - titlepos).text(title);
@@ -200,6 +202,9 @@ scatterplot = function() {
         return indID[i];
       }).direction('e').offset([0, 10]);
       svg.call(indtip);
+      if (js_data.slope && js_data.intercept) {
+        g.append("line").attr("x1", xscale(minx) - margin.inner).attr('y1', yscale(js_data.slope * minx + js_data.intercept)).attr("x2", xscale(maxx * 1) + margin.inner).attr("y2", yscale(slope * maxx * 1 + intercept)).style("stroke", "black").style("stroke-width", 2);
+      }
       points = g.append("g").attr("id", "points");
       pointsSelect = points.selectAll("empty").data(d3.range(x.length)).enter().append("circle").attr("cx", function(d, i) {
         return xscale(x[i]);

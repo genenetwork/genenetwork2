@@ -12,21 +12,19 @@ totalw = halfw*2
 #d3.json "data.json", (data) ->
 mychart = scatterplot().xvar(0)
                        .yvar(1)
-                       .xlab(js_data.trait_1)
-                       .ylab(js_data.trait_2)
                        .height(h)
                        .width(w)
                        .margin(margin)
 
-data = js_data.data
-indID = js_data.indIDs
-slope = js_data.slope
-intercept = js_data.intercept
+data = js_data.probability_plot_data
+#indID = js_data.indIDs
+#slope = js_data.slope
+#intercept = js_data.intercept
 
 console.log("THE DATA IS:", data)
 
-d3.select("div#chart1")
-  .datum({data:data, indID:indID, slope:slope, intercept:intercept})
+d3.select("div#prob_plot")
+  .datum({data:data})
   .call(mychart)
 
 # animate points

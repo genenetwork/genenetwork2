@@ -98,8 +98,6 @@ class CorrelationResults(object):
         with Bench("Doing correlations"):
             helper_functions.get_species_dataset_trait(self, start_vars)
             
-            print("TRAIT SYMBOL:", self.this_trait.symbol)
-            
             self.dataset.group.read_genotype_file()
 
             corr_samples_group = start_vars['corr_samples_group']
@@ -108,7 +106,7 @@ class CorrelationResults(object):
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
             self.get_formatted_corr_type()
-            self.return_number = 50
+            self.return_number = int(start_vars['corr_return_results'])
 
             #The two if statements below append samples to the sample list based upon whether the user
             #rselected Primary Samples Only, Other Samples Only, or All Samples
@@ -134,6 +132,7 @@ class CorrelationResults(object):
                 self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
 
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
+            # print("self.sample_data.keys: %s" % self.sample_data.keys)
             self.target_dataset.get_trait_data(self.sample_data.keys())
 
             self.correlation_results = []
@@ -155,6 +154,7 @@ class CorrelationResults(object):
                     self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
                     
             elif self.corr_type == "sample":
+                # print("self.target_dataset.trait_data: %d" % len(self.target_dataset.trait_data))
                 for trait, values in self.target_dataset.trait_data.iteritems():
                     self.get_sample_r_and_p_values(trait, values)
                     
@@ -463,7 +463,7 @@ class CorrelationResults(object):
         
         """
         
-        print("len(self.sample_data):", len(self.sample_data))
+        # print("len(self.sample_data):", len(self.sample_data))
         
         this_trait_vals = []
         target_vals = []        
@@ -474,7 +474,9 @@ class CorrelationResults(object):
                 this_trait_vals.append(sample_value)
                 target_vals.append(target_sample_value)
 
-        print("trait:", trait)
+        # print("trait:", trait)
+        print("this_trait_vals: %s" % this_trait_vals)
+        print("target_vals: %s" % target_vals)
 
         this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
             this_trait_vals, target_vals)
@@ -485,8 +487,6 @@ class CorrelationResults(object):
             sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
 
         self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
-        
-    
 
     def do_tissue_corr_for_all_traits_2(self):
         """Comments Possibly Out of Date!!!!!

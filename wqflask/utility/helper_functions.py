@@ -19,3 +19,18 @@ def get_species_dataset_trait(self, start_vars):
     #if read_genotype:
     #self.dataset.group.read_genotype_file()
     #self.genotype = self.dataset.group.genotype
+
+
+def get_trait_db_obs(self, trait_db_list):
+
+    self.trait_list = []
+    for i, trait_db in enumerate(trait_db_list):
+        if i == (len(trait_db_list) - 1):
+            break
+        trait_name, dataset_name = trait_db.split(":")
+        #print("dataset_name:", dataset_name)
+        dataset_ob = data_set.create_dataset(dataset_name)
+        trait_ob = GeneralTrait(dataset=dataset_ob,
+                               name=trait_name,
+                               cellid=None)
+        self.trait_list.append((trait_ob, dataset_ob))

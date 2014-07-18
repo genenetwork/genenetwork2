@@ -11,6 +11,9 @@
                     <a href="#bar_chart_tab" data-toggle="tab">Bar Chart</a>
                 </li>
                 <li>
+                    <a href="#probability_plot" data-toggle="tab">Probability Plot</a>
+                </li>
+                <li>
                     <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
                 </li>
 <!--                <li>
@@ -70,6 +73,11 @@
                         <div id="bar_chart" class="barchart"></div>
                     </div>
                 </div>
+                <div class="tab-pane" id="probability_plot">
+                    <div id="probability_plot_container">
+                        <div id="prob_plot" class="qtlcharts"></div>
+                    </div>
+                </div>
 <!--                <div class="tab-pane" id="box_plot_tab">
                     {% if sample_groups|length > 1 %}
                     <select class="box_plot_samples_group">
@@ -97,7 +105,6 @@
                         <div id="comparison_scatterplot" class="qtlcharts"></div>
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>

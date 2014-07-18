@@ -563,12 +563,15 @@ class DataSet(object):
                         """.format(*mescape(self.type, item, item, self.type, item, item))
                         
             if self.type == "Publish":
+                #query += """
+                #        WHERE {}XRef.InbredSetId = '{}'
+                #        """.format(*mescape(self.type, self.group.name))
+                
                 query += """
-                        WHERE {}XRef.PublicationId = {}Freeze.Id
-                        and {}Freeze.Name = '{}'
+                        WHERE {}XRef.InbredSetId = '{}'
                         and {}.Id = {}XRef.{}Id
                         order by {}.Id
-                        """.format(*mescape(self.type, self.type, self.type, self.name, 
+                        """.format(*mescape(self.type, self.group.name, 
                                     dataset_type, self.type, dataset_type, dataset_type))
             else:
                 query += """
@@ -579,10 +582,10 @@ class DataSet(object):
                         """.format(*mescape(self.type, self.type, self.type, self.type,
                                    self.name, dataset_type, self.type, self.type, dataset_type))
                         
-            #print("trait data query: ", query)
+            print("trait data query: ", query)
             
             results = g.db.execute(query).fetchall()
-            #print("query results:", results)
+            print("query results:", results)
             trait_sample_data.append(results)
 
         trait_count = len(trait_sample_data[0])
