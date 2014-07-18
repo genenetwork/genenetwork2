@@ -64,66 +64,7 @@ class CorrelationMatrix(object):
     def __init__(self, start_vars):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
         
-        self.get_trait_db_obs(trait_db_list)
-        
-        #self.corr_results = {}
-        #for trait_db in self.trait_list:
-        #    this_trait = trait_db[0]
-        #    this_db = trait_db[1]
-        #    
-        #    this_db_samples = this_db.group.samplelist
-        #    this_sample_data = this_trait.data
-        #    print("this_sample_data", len(this_sample_data))
-        #    
-        #    corr_result_row = {}
-        #
-        #    for target in self.trait_list:
-        #        target_trait = target[0]
-        #        target_db = target[1]
-        #        target_samples = target_db.group.samplelist
-        #        
-        #        if this_trait == target_trait and this_db == target_db:
-        #            corr_result_row[this_trait.name] = {'sample_r': 1,
-        #                                                'sample_p': 0,
-        #                                                'num_overlap': len(target_samples),
-        #                                                'this_trait': this_trait.name,
-        #                                                'this_db': this_trait.dataset.name,
-        #                                                'target_trait': this_trait.name,
-        #                                                'target_db': this_trait.dataset.name}
-        #            continue
-        #
-        #        target_sample_data = target_trait.data
-        #        print("target_samples", len(target_samples))
-        #        
-        #        this_trait_vals = []
-        #        target_vals = []
-        #        for index, sample in enumerate(target_samples):
-        #            
-        #            if (sample in this_sample_data) and (sample in target_sample_data):
-        #                sample_value = this_sample_data[sample].value
-        #                target_sample_value = target_sample_data[sample].value
-        #                this_trait_vals.append(sample_value)
-        #                target_vals.append(target_sample_value)
-        #
-        #        #print("this_trait_vals:", this_trait_vals)
-        #        #print("target_vals:", target_vals)
-        #
-        #        this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
-        #        this_trait_vals, target_vals)
-        #        
-        #        sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
-        #
-        #        corr_matrix_cell = {"sample_r": sample_r,
-        #                            "sample_p": sample_p,
-        #                            "num_overlap": num_overlap,
-        #                            "this_trait": this_trait.name,
-        #                            "this_db": this_trait.dataset.name,
-        #                            "target_trait": target_trait.name,
-        #                            "target_db": target_trait.dataset.name}
-        #        
-        #        corr_result_row[target_trait.name] = corr_matrix_cell
-        #        
-        #    self.corr_results[this_trait.name] = corr_result_row
+        helper_functions.get_trait_db_obs(trait_db_list)
 
         self.all_sample_list = []
         self.traits = []

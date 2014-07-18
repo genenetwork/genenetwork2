@@ -32,6 +32,7 @@ from base.data_set import DataSet    # Used by YAML in marker_regression
 from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
+from wqflask.heatmap import heatmap
 from wqflask.marker_regression import marker_regression
 from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
@@ -351,6 +352,16 @@ def corr_matrix_page():
                                        indent="   ")
     
     return render_template("correlation_matrix.html", **template_vars.__dict__)
+
+@app.route("/heatmap", methods=('POST',))
+def heatmap_page():
+    print("In heatmap, request.form is:", pf(request.form))
+    template_vars = heatmap.Heatmap(request.form)
+    template_vars.js_data = json.dumps(template_vars.js_data,
+                                       default=json_default_handler,
+                                       indent="   ")
+    
+    return render_template("heatmap.html", **template_vars.__dict__)
 
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():
