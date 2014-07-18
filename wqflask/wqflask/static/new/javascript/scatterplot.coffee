@@ -42,6 +42,7 @@ scatterplot = () ->
   
         console.log("x:", x)
         console.log("y:", y)
+
   
         # grab indID if it's there
         # if no indID, create a vector of them
@@ -142,6 +143,9 @@ scatterplot = () ->
                 .range([height+margin.top-yNA.width/2].concat yrange)
           y = y.map (e) -> if e? then e else na_value
   
+        minx = xlim[0]
+        maxx = xlim[1]
+  
         # if yticks not provided, use nyticks to choose pretty ones
         yticks = yticks ? ys.ticks(nyticks)
         xticks = xticks ? xs.ticks(nxticks)
@@ -223,16 +227,16 @@ scatterplot = () ->
                    .direction('e')
                    .offset([0,10])
         svg.call(indtip)
-  
-        #g.append("line")
-        #        .attr("x1")
-        #
-        #g.append("line")
-        #  .attr("x1", xscale(minx))
-        #  .attr("x2", xscale(maxx*0.995))
-        #  .attr("y2", yscale(slope*maxx*0.995+intercept))
-        #  .style("stroke", "black")
-        #  .style("stroke-width", 2);
+
+        
+        if js_data.slope and js_data.intercept
+          g.append("line")
+            .attr("x1", xscale(minx) - margin.inner)
+            .attr('y1', yscale(js_data.slope*minx+js_data.intercept))
+            .attr("x2", xscale(maxx*1) + margin.inner)
+            .attr("y2", yscale(slope*maxx*1+intercept))
+            .style("stroke", "black")
+            .style("stroke-width", 2)
   
         points = g.append("g").attr("id", "points")
         pointsSelect =

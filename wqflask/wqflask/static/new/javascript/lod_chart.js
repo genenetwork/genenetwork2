@@ -120,10 +120,10 @@ lodchart = function() {
         return d[0];
       }).attr("x", function(d, i) {
         return (data.chrStart[i] + data.chrEnd[i]) / 2;
-      }).attr("y", margin.top + height + axispos.xlabel).attr("cursor", "pointer").on("click", function(d) {
+      }).attr("y", margin.top + height + axispos.xlabel).attr("dominant-baseline", "hanging").attr("text-anchor", "middle").attr("cursor", "pointer").on("click", function(d) {
         return redraw_plot(d);
       });
-      xaxis.append("text").attr("class", "title").attr("y", margin.top + height + axispos.xtitle).attr("x", margin.left + width / 2).text(xlab);
+      xaxis.append("text").attr("class", "title").attr("y", margin.top + height + axispos.xtitle).attr("x", margin.left + width / 2).attr("fill", "slateblue").text(xlab);
       redraw_plot = function(chr_ob) {
         var chr_plot;
         console.log("chr_name is:", chr_ob[0]);
@@ -141,10 +141,10 @@ lodchart = function() {
       }).attr("x1", margin.left).attr("x2", margin.left + 7).attr("fill", "none").attr("stroke", "white").attr("stroke-width", 1).style("pointer-events", "none");
       yaxis.selectAll("empty").data(yticks).enter().append("text").attr("y", function(d) {
         return yscale(d);
-      }).attr("x", margin.left - axispos.ylabel).attr("fill", "blue").text(function(d) {
+      }).attr("x", margin.left - axispos.ylabel).attr("fill", "blue").attr("dominant-baseline", "middle").attr("text-anchor", "end").text(function(d) {
         return formatAxis(yticks)(d);
       });
-      yaxis.append("text").attr("class", "title").attr("y", margin.top + height / 2).attr("x", margin.left - axispos.ytitle).text(ylab).attr("transform", rotate_ylab ? "rotate(270," + (margin.left - axispos.ytitle) + "," + (margin.top + height / 2) + ")" : "");
+      yaxis.append("text").attr("class", "title").attr("y", margin.top + height / 2).attr("x", margin.left - axispos.ytitle).text(ylab).attr("transform", rotate_ylab ? "rotate(270," + (margin.left - axispos.ytitle) + "," + (margin.top + height / 2) + ")" : "").attr("text-anchor", "middle").attr("fill", "slateblue");
       if (data['additive'].length > 0) {
         rotate_additive_ylab = rotate_additive_ylab != null ? rotate_additive_ylab : additive_ylab.length > 1;
         additive_yaxis = g.append("g").attr("class", "y axis");
@@ -157,10 +157,10 @@ lodchart = function() {
           return additive_yscale(d);
         }).attr("x", function(d) {
           return margin.left + width + axispos.ylabel + 20;
-        }).attr("fill", "green").text(function(d) {
+        }).attr("fill", "green").attr("dominant-baseline", "middle").attr("text-anchor", "end").text(function(d) {
           return formatAxis(additive_yticks)(d);
         });
-        additive_yaxis.append("text").attr("class", "title").attr("y", margin.top + 1.5 * height).attr("x", margin.left + width + axispos.ytitle).text(additive_ylab).attr("transform", rotate_additive_ylab ? "rotate(270," + (margin.left + width + axispos.ytitle) + ", " + (margin.top + height * 1.5) + ")" : "");
+        additive_yaxis.append("text").attr("class", "title").attr("y", margin.top + 1.5 * height).attr("x", margin.left + width + axispos.ytitle).text(additive_ylab).attr("transform", rotate_additive_ylab ? "rotate(270," + (margin.left + width + axispos.ytitle) + ", " + (margin.top + height * 1.5) + ")" : "").attr("text-anchor", "middle").attr("fill", "green");
       }
       suggestive_bar = g.append("g").attr("class", "suggestive");
       suggestive_bar.selectAll("empty").data([data.suggestive]).enter().append("line").attr("y1", function(d) {

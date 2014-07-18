@@ -105,10 +105,11 @@ lodchart = () ->
              .data(data.chrnames)
              .enter()
              .append("text")
-             .attr("class", "chr_label")
              .text((d) -> d[0])
              .attr("x", (d,i) -> (data.chrStart[i]+data.chrEnd[i])/2)
              .attr("y", margin.top+height+axispos.xlabel)
+             .attr("dominant-baseline", "hanging")
+             .attr("text-anchor", "middle")
              .attr("cursor", "pointer")
              .on("click", (d) ->
                  redraw_plot(d)
@@ -117,16 +118,18 @@ lodchart = () ->
         xaxis.append("text").attr("class", "title")
              .attr("y", margin.top+height+axispos.xtitle)
              .attr("x", margin.left+width/2)
+             .attr("fill", "slateblue")
              .text(xlab)
-  
+
+
         redraw_plot = (chr_ob) ->
              console.log("chr_name is:", chr_ob[0])
              console.log("chr_length is:", chr_ob[1])
              $('#topchart').remove()
              $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
              chr_plot = new Chr_Manhattan_Plot(600, 1200, chr_ob)
-        
-  
+
+
         # y-axis
         rotate_ylab = rotate_ylab ? (ylab.length > 1)
         yaxis = g.append("g").attr("class", "y axis")
@@ -150,6 +153,8 @@ lodchart = () ->
              .attr("y", (d) -> yscale(d))
              .attr("x", margin.left-axispos.ylabel)
              .attr("fill", "blue")
+             .attr("dominant-baseline", "middle")
+             .attr("text-anchor", "end")
              .text((d) -> formatAxis(yticks)(d))
              
         yaxis.append("text").attr("class", "title")
@@ -157,86 +162,10 @@ lodchart = () ->
              .attr("x", margin.left-axispos.ytitle)
              .text(ylab)
              .attr("transform", if rotate_ylab then "rotate(270,#{margin.left-axispos.ytitle},#{margin.top+height/2})" else "")
-  
-        # lod curves by chr
-        #lodcurve = (chr, lodcolumn) ->
-        #    d3.svg.line()
-        #      .x((d) -> xscale[chr](d))
-        #      .y((d,i) -> yscale(data.lodByChr[chr][i][lodcolumn]))
-              
-          #add_plot_points: () ->
-          #    @plot_point = @svg.selectAll("circle")
-          #        .data(@plot_coordinates)
-          #        .enter()
-          #        .append("circle")
-          #        .attr("cx", (d) =>
-          #            return @x_scale(d[0])
-          #        )
-          #        .attr("cy", (d) =>
-          #            return @y_scale(d[1])
-          #        )
-          #        .attr("r", (d) =>
-          #            #if d[1] > 3
-          #            #    return 3
-          #            #else
-          #            return 2
-          #        )
-          #        .attr("fill", (d) =>
-          #            #if d[1] > 3
-          #            #    return "white"
-          #            #else
-          #            return "black"
-          #        )
-          #        .attr("stroke", "black")
-          #        .attr("stroke-width", "1")
-          #        .attr("id", (d) =>
-          #            return "point_" + String(d[2])
-          #        )
-          #        .classed("circle", true)
-          #        .on("mouseover", (d) =>
-          #            console.log("d3.event is:", d3.event)
-          #            console.log("d is:", d)
-          #            this_id = "point_" + String(d[2])
-          #            d3.select("#" + this_id).classed("d3_highlight", true)
-          #                .attr("r", 5)
-          #                .attr("stroke", "none")
-          #                .attr("fill", "blue")
-          #                .call(@show_marker_in_table(d))
-          #        )
-          #        .on("mouseout", (d) =>
-          #            this_id = "point_" + String(d[2])
-          #            d3.select("#" + this_id).classed("d3_highlight", false)
-          #                .attr("r", (d) =>
-          #                    #if d[1] > 2
-          #                    #    return 3
-          #                    #else
-          #                    return 2
-          #                )
-          #                .attr("fill", (d) =>
-          #                    #if d[1] > 2
-          #                    #    return "white"
-          #                    #else
-          #                    return "black"
-          #                )
-          #                .attr("stroke", "black")
-          #                .attr("stroke-width", "1")
-          #        )
-          #        .append("svg:title")
-          #            .text((d) =>
-          #                return d[2]
-          #            )
-  
-        #curves = g.append("g").attr("id", "curves")
-  
-        #for chr in data.chrnames
-        #  curves.append("path")
-        #        .datum(data.posByChr[chr])
-        #        .attr("d", lodcurve(chr, lodvarnum))
-        #        .attr("stroke", lodlinecolor)
-        #        .attr("fill", "none")
-        #        .attr("stroke-width", linewidth)
-        #        .style("pointer-events", "none")
-  
+             .attr("text-anchor", "middle")
+             .attr("fill", "slateblue")
+
+
         # points at markers
         if pointsize > 0
           markerpoints = g.append("g").attr("id", "markerpoints_visible")

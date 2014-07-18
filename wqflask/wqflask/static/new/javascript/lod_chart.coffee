@@ -123,6 +123,8 @@ lodchart = () ->
              .text((d) -> d[0])
              .attr("x", (d,i) -> (data.chrStart[i]+data.chrEnd[i])/2)
              .attr("y", margin.top+height+axispos.xlabel)
+             .attr("dominant-baseline", "hanging")
+             .attr("text-anchor", "middle")
              .attr("cursor", "pointer")
              .on("click", (d) ->
                  redraw_plot(d)
@@ -131,6 +133,7 @@ lodchart = () ->
         xaxis.append("text").attr("class", "title")
              .attr("y", margin.top+height+axispos.xtitle)
              .attr("x", margin.left+width/2)
+             .attr("fill", "slateblue")
              .text(xlab)
 
   
@@ -164,6 +167,8 @@ lodchart = () ->
              .attr("y", (d) -> yscale(d))
              .attr("x", margin.left-axispos.ylabel)
              .attr("fill", "blue")
+             .attr("dominant-baseline", "middle")
+             .attr("text-anchor", "end")
              .text((d) -> formatAxis(yticks)(d))
              
         yaxis.append("text").attr("class", "title")
@@ -171,6 +176,8 @@ lodchart = () ->
              .attr("x", margin.left-axispos.ytitle)
              .text(ylab)
              .attr("transform", if rotate_ylab then "rotate(270,#{margin.left-axispos.ytitle},#{margin.top+height/2})" else "")
+             .attr("text-anchor", "middle")
+             .attr("fill", "slateblue")
   
         if data['additive'].length > 0
             rotate_additive_ylab = rotate_additive_ylab ? (additive_ylab.length > 1)
@@ -195,6 +202,8 @@ lodchart = () ->
                  .attr("y", (d) -> additive_yscale(d))
                  .attr("x", (d) -> margin.left + width + axispos.ylabel + 20)
                  .attr("fill", "green")
+                 .attr("dominant-baseline", "middle")
+                 .attr("text-anchor", "end")
                  .text((d) -> formatAxis(additive_yticks)(d))
                  
             additive_yaxis.append("text").attr("class", "title")
@@ -202,7 +211,8 @@ lodchart = () ->
                  .attr("x", margin.left + width + axispos.ytitle)
                  .text(additive_ylab)
                  .attr("transform", if rotate_additive_ylab then "rotate(270,#{margin.left + width + axispos.ytitle}, #{margin.top+height*1.5})" else "")
-  
+                 .attr("text-anchor", "middle")
+                 .attr("fill", "green")
   
         suggestive_bar = g.append("g").attr("class", "suggestive")
         suggestive_bar.selectAll("empty")

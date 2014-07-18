@@ -2,6 +2,7 @@
 {% block title %}Trait Data and Analysis{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
@@ -66,6 +67,7 @@
     <script type="text/javascript" src="/static/new/javascript/histogram.js"></script>
     <script type="text/javascript" src="/static/new/javascript/box_plot.js"></script>
     <script type="text/javascript" src="/static/new/javascript/scatterplot.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/draw_probability_plot.js"></script>  
     <script type="text/javascript" src="/static/new/javascript/compare_traits_scatterplot.js"></script>  
     
     <script type="text/javascript" src="/static/new/javascript/show_trait_mapping_tools.js"></script>
@@ -107,7 +109,7 @@
                 console.time("Creating table");
                 
                 {% if sample_groups[0].se_exists() %}
-                    $('#samples_primary, #samples_other').dataTable( {
+                    $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'yellow').dataTable( {
                         //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
                         "aoColumns": [
                             { "sType": "natural" },

@@ -1,4 +1,4 @@
-create_interval_map = ->
+create_interval_map = () ->
     h = 500
     w = 1200
     margin = {left:60, top:40, right:40, bottom: 40, inner:5}
@@ -39,6 +39,7 @@ create_interval_map = ->
 create_interval_map()
 
 $("#export").click =>
+    
     #Get d3 SVG element
     svg = $("#topchart").find("svg")[0]
     
@@ -51,6 +52,29 @@ $("#export").click =>
 
     #Make a form with the SVG data
     form = $("#exportform")
+    form.find("#data").val(svg_xml)
+    form.find("#filename").val(filename)
+    form.submit()
+    
+
+$("#export_pdf").click =>
+    
+    #$('#topchart').remove()
+    #$('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
+    #create_interval_map()
+    
+    #Get d3 SVG element
+    svg = $("#topchart").find("svg")[0]
+    
+    #Extract SVG text string
+    svg_xml = (new XMLSerializer).serializeToString(svg)
+    console.log("svg_xml:", svg_xml)
+        
+    #Set filename
+    filename = "interval_map_pdf"
+
+    #Make a form with the SVG data
+    form = $("#exportpdfform")
     form.find("#data").val(svg_xml)
     form.find("#filename").val(filename)
     form.submit()

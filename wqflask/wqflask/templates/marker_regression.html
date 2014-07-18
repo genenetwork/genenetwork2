@@ -18,10 +18,15 @@
             <h2>
                 Whole Genome Mapping
             </h2>
-            <form id="exportform" action="export" method="post">
+            <form style ='float: left; padding: 5px;' id="exportform" action="export" method="post">
               <input type="hidden" id="data" name="data" value="">
               <input type="hidden" id="filename" name="filename" value="">
               <input type="submit" id="export" value="Download SVG">
+            </form>
+            <form style ='float: left; padding: 5px;' id="exportpdfform" action="export_pdf" method="post">
+              <input type="hidden" id="data" name="data" value="">
+              <input type="hidden" id="filename" name="filename" value="">
+              <input type="submit" id="export_pdf" value="Download PDF">
             </form>
 <!--            <button id="export_pdf" class="btn">Export PDF</button>-->
         </div>

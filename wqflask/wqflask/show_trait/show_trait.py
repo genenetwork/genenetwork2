@@ -97,6 +97,7 @@ class ShowTrait(object):
 
         hddn['trait_id'] = self.trait_id
         hddn['dataset'] = self.dataset.name
+        hddn['use_outliers'] = False
         hddn['method'] = "pylmm"
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
@@ -114,12 +115,24 @@ class ShowTrait(object):
         self.sample_group_types['samples_all'] = "All Cases"
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
+        
+        probability_plot_data = []
+        sample_vals = []
+        sample_z_scores = []
+        for sample_list in sample_lists:
+            for sample in sample_list:
+                sample_vals.append(sample.value)
+                sample_z_scores.append(sample.z_score)
+        probability_plot_data.append(sample_z_scores)        
+        probability_plot_data.append(sample_vals)
+
+        
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
+                        probability_plot_data = probability_plot_data,
                         attribute_names = self.sample_groups[0].attributes,
                         temp_uuid = self.temp_uuid)
         self.js_data = js_data
-
 
     def read_data(self, include_f1=False):
         '''read user input data or from trait data and analysis form'''
