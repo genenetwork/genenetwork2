@@ -564,7 +564,7 @@ class DataSet(object):
                         
             if self.type == "Publish":
                 query += """
-                        WHERE {}XRef.PublicationId = {}Freeze.Id
+                        WHERE {}XRef.InbredSetId = {}Freeze.InbredSetId
                         and {}Freeze.Name = '{}'
                         and {}.Id = {}XRef.{}Id
                         order by {}.Id

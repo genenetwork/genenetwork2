@@ -98,8 +98,6 @@ class CorrelationResults(object):
         with Bench("Doing correlations"):
             helper_functions.get_species_dataset_trait(self, start_vars)
             
-            print("TRAIT SYMBOL:", self.this_trait.symbol)
-            
             self.dataset.group.read_genotype_file()
 
             corr_samples_group = start_vars['corr_samples_group']
@@ -108,7 +106,7 @@ class CorrelationResults(object):
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
             self.get_formatted_corr_type()
-            self.return_number = 50
+            self.return_number = int(start_vars['corr_return_results'])
 
             #The two if statements below append samples to the sample list based upon whether the user
             #rselected Primary Samples Only, Other Samples Only, or All Samples
@@ -485,8 +483,6 @@ class CorrelationResults(object):
             sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
 
         self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
-        
-    
 
     def do_tissue_corr_for_all_traits_2(self):
         """Comments Possibly Out of Date!!!!!
