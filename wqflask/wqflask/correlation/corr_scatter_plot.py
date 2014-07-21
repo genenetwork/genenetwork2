@@ -29,7 +29,7 @@ class CorrScatterPlot(object):
         try:
             circle_color = params['circle_color']
         except:
-            circle_color = 'steelblue'
+            circle_color = '#3D85C6'
         self.circle_color = circle_color
         
         try:
@@ -41,7 +41,7 @@ class CorrScatterPlot(object):
         try:
             line_color = params['line_color']
         except:
-            line_color = 'red'
+            line_color = '#FF0000'
         self.line_color = line_color
         
         try:

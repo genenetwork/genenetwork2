@@ -1,1 +1,1 @@
-../../../zach_settings.py
+../../../lei_settings.py
