@@ -116,7 +116,7 @@ class SampleList(object):
         for i, sample in enumerate([sample for sample in self.sample_list if sample.value != None]):
             print("sample is:", sample)
             sample.z_score = z_scores[i]
-            sample.value = values[i]
+            sample.prob_plot_value = values[i]
         
     def do_outliers(self):
         values = [sample.value for sample in self.sample_list if sample.value != None]

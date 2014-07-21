@@ -121,7 +121,7 @@ class ShowTrait(object):
         sample_z_scores = []
         for sample_list in sample_lists:
             for sample in sample_list:
-                sample_vals.append(sample.value)
+                sample_vals.append(sample.prob_plot_value)
                 sample_z_scores.append(sample.z_score)
         probability_plot_data.append(sample_z_scores)        
         probability_plot_data.append(sample_vals)

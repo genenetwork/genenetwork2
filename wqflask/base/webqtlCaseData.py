@@ -34,6 +34,7 @@ class webqtlCaseData(object):
         self.value = value                  # Trait Value
         self.variance = variance            # Trait Variance
         self.num_cases = num_cases          # Number of individuals/cases
+        self.prob_plot_value = None         # Ordered value for probability plot; this is sort of wrong but not sure how else to do this
         self.z_score = None
         self.extra_attributes = None
         self.this_id = None   # Set a sane default (can't be just "id" cause that's a reserved word)
