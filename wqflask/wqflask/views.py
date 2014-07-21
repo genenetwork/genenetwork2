@@ -9,6 +9,7 @@ import StringIO  # Todo: Use cStringIO?
 import gc
 
 import cPickle as pickle
+import uuid
 
 import simplejson as json
 #import json
@@ -201,6 +202,47 @@ def show_trait_page():
     #print("show_trait template_vars:", pf(template_vars.__dict__))
     return render_template("show_trait.html", **template_vars.__dict__)
 
+@app.route("/heatmap", methods=('POST',))
+def heatmap_page():
+    print("In heatmap, request.form is:", pf(request.form))
+    
+    start_vars = request.form
+    temp_uuid = uuid.uuid4()
+    
+    version = "v1"
+    key = "heatmap:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+    print("key is:", pf(key))
+    with Bench("Loading cache"):
+        result = Redis.get(key)
+        
+    if result:
+        print("Cache hit!!!")
+        with Bench("Loading results"):
+            result = pickle.loads(result)
+    
+    else:
+        print("Cache miss!!!")
+    
+        template_vars = heatmap.Heatmap(request.form, temp_uuid)
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
+        
+        result = template_vars.__dict__
+    
+        for item in template_vars.__dict__.keys():
+            print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
+    
+        pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+        print("pickled result length:", len(pickled_result))
+        Redis.set(key, pickled_result)
+        Redis.expire(key, 60*60)
+    
+    with Bench("Rendering template"):
+        rendered_template = render_template("heatmap.html", **result)
+    
+    return rendered_template
+
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
     initial_start_vars = request.form
@@ -218,7 +260,7 @@ def marker_regression_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v1"
+    version = "v3"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -352,16 +394,6 @@ def corr_matrix_page():
                                        indent="   ")
     
     return render_template("correlation_matrix.html", **template_vars.__dict__)
-
-@app.route("/heatmap", methods=('POST',))
-def heatmap_page():
-    print("In heatmap, request.form is:", pf(request.form))
-    template_vars = heatmap.Heatmap(request.form)
-    template_vars.js_data = json.dumps(template_vars.js_data,
-                                       default=json_default_handler,
-                                       indent="   ")
-    
-    return render_template("heatmap.html", **template_vars.__dict__)
 
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():

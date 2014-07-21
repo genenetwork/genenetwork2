@@ -3,7 +3,7 @@
 lodheatmap = () ->
     width = 1200
     height = 600
-    margin = {left:60, top:40, right:40, bottom: 40}
+    margin = {left:100, top:40, right:40, bottom: 40}
     axispos = {xtitle:25, ytitle:30, xlabel:5, ylabel:5}
     chrGap = 8
     titlepos = 20

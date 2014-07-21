@@ -428,6 +428,9 @@ class MarkerRegression(object):
             #            "refit": False,
             #            "temp_data": tempdata}
             
+            print("genotype_matrix:", str(genotype_matrix.tolist()))
+            print("pheno_vector:", str(pheno_vector.tolist()))
+            
             params = dict(pheno_vector = pheno_vector.tolist(),
                         genotype_matrix = genotype_matrix.tolist(),
                         restricted_max_likelihood = True,

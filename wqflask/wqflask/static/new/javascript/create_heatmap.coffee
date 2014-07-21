@@ -1,12 +1,18 @@
-h = 700
-w = 1000
+create_heatmap = () ->
 
-# Example: simplest use
-d3.json "data.json", (data) ->
+    h = 700
+    w = 1000
+
     mychart = lodheatmap().height(h)
                           .width(w)
-                          .zthresh(1.0)
+                          .zthresh(0.5)
+
+    data = js_data.json_data
+
+    console.log("data:", data)
 
     d3.select("div#chart")
       .datum(data)
       .call(mychart)
+      
+create_heatmap()
