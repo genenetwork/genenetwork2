@@ -186,10 +186,18 @@ class MarkerRegression(object):
     #
     #
     
-    #def run_rqtl(self):
-    #    os.chdir("/home/zas1024/plink")
-    #    
-    
+    def run_rqtl(self):
+        os.chdir("/home/zas1024/plink")
+        
+        output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
+        
+        self.gen_pheno_txt_file_plink(pheno_filename = output_filename)
+        
+        rqtl_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
+        
+        os.system(rqtl_command)
+        
+        count, p_values = self.parse_rqtl_output(plink_output_filename)
     
     def run_plink(self):
     
@@ -316,6 +324,9 @@ class MarkerRegression(object):
     #        
     #    return ChrList,ChrNameOrderIdDict,ChrOrderIdNameDict,ChrLengthMbList
     
+    
+    def parse_rqtl_output(self, output_filename):
+        return True
     
     def parse_plink_output(self, output_filename):
         plink_results={}

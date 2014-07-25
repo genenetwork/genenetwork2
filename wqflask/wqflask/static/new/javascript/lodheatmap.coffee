@@ -8,7 +8,7 @@ lodheatmap = () ->
     chrGap = 8
     titlepos = 20
     rectcolor = d3.rgb(230, 230, 230)
-    colors = ["slateblue", "white", "crimson"]
+    colors = ["slateblue", "black", "yellow"]
     title = ""
     xlab = "Chromosome"
     ylab = ""
@@ -33,7 +33,9 @@ lodheatmap = () ->
             rectHeight = yscale(0)-yscale(1)
 
             xLR = {}
+            console.log("data.chrnames:", data.chrnames)
             for chr in data.chrnames
+                console.log("chr is:", chr)
                 xLR[chr] = getLeftRight(data.posByChr[chr])
       
             # z-axis (color) limits; if not provided, make symmetric about 0

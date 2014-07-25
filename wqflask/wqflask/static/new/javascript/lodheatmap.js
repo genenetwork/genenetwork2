@@ -20,7 +20,7 @@ lodheatmap = function() {
   chrGap = 8;
   titlepos = 20;
   rectcolor = d3.rgb(230, 230, 230);
-  colors = ["slateblue", "white", "crimson"];
+  colors = ["slateblue", "black", "yellow"];
   title = "";
   xlab = "Chromosome";
   ylab = "";
@@ -41,9 +41,11 @@ lodheatmap = function() {
       yscale.domain([-0.5, nlod - 0.5]).range([margin.top + height, margin.top]);
       rectHeight = yscale(0) - yscale(1);
       xLR = {};
+      console.log("data.chrnames:", data.chrnames);
       _ref = data.chrnames;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         chr = _ref[_i];
+        console.log("chr is:", chr);
         xLR[chr] = getLeftRight(data.posByChr[chr]);
       }
       zmin = 0;

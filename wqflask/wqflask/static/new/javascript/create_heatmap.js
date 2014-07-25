@@ -3,9 +3,9 @@ var create_heatmap;
 
 create_heatmap = function() {
   var data, h, mychart, w;
-  h = 700;
-  w = 1000;
-  mychart = lodheatmap().height(h).width(w).zthresh(0.5);
+  h = 500;
+  w = 1200;
+  mychart = lodheatmap().height(h).width(w);
   data = js_data.json_data;
   console.log("data:", data);
   return d3.select("div#chart").datum(data).call(mychart);

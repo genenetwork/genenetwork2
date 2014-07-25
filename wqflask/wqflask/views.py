@@ -209,7 +209,7 @@ def heatmap_page():
     start_vars = request.form
     temp_uuid = uuid.uuid4()
     
-    version = "v1"
+    version = "v4"
     key = "heatmap:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):

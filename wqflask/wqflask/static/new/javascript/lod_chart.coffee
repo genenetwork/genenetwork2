@@ -43,9 +43,11 @@ lodchart = () ->
         
         lodvarname = lodvarname ? data.lodnames[0]
         data[lodvarname] = (Math.abs(x) for x in data[lodvarname]) # take absolute values
-        data['additive'] = (Math.abs(x) for x in data['additive'])
+        if 'additive' of data
+            data['additive'] = (Math.abs(x) for x in data['additive'])
         ylim = ylim ? [0, d3.max(data[lodvarname])]
-        if data['additive'].length > 0
+        if 'additive' of data
+        #if data['additive'].length > 0
             additive_ylim = additive_ylim ? [0, d3.max(data['additive'])]
         lodvarnum = data.lodnames.indexOf(lodvarname)
   
@@ -74,13 +76,15 @@ lodchart = () ->
         yscale.domain(ylim)
               .range([height+margin.top, margin.top+margin.inner])
         
-        if data['additive'].length > 0
+        #if data['additive'].length > 0
+        if 'additive' of data
             additive_yscale.domain(additive_ylim)
                   .range([height+margin.top, margin.top+margin.inner + height/2])
   
         # if yticks not provided, use nyticks to choose pretty ones
         yticks = yticks ? yscale.ticks(nyticks)
-        if data['additive'].length > 0
+        #if data['additive'].length > 0
+        if 'additive' of data
             additive_yticks = additive_yticks ? additive_yscale.ticks(nyticks)
   
         # reorganize lod,pos by chromosomes
@@ -179,7 +183,8 @@ lodchart = () ->
              .attr("text-anchor", "middle")
              .attr("fill", "slateblue")
   
-        if data['additive'].length > 0
+        #if data['additive'].length > 0
+        if 'additive' of data
             rotate_additive_ylab = rotate_additive_ylab ? (additive_ylab.length > 1)
             additive_yaxis = g.append("g").attr("class", "y axis")
             additive_yaxis.selectAll("empty")
@@ -214,33 +219,34 @@ lodchart = () ->
                  .attr("text-anchor", "middle")
                  .attr("fill", "green")
   
-        suggestive_bar = g.append("g").attr("class", "suggestive")
-        suggestive_bar.selectAll("empty")
-             .data([data.suggestive])
-             .enter()
-             .append("line")
-             .attr("y1", (d) -> yscale(d))
-             .attr("y2", (d) -> yscale(d))
-             .attr("x1", margin.left)
-             .attr("x2", margin.left+width)
-             .attr("fill", "none")
-             .attr("stroke", suggestivecolor)
-             .attr("stroke-width", 5)
-             .style("pointer-events", "none")
-
-        suggestive_bar = g.append("g").attr("class", "significant")
-        suggestive_bar.selectAll("empty")
-             .data([data.significant])
-             .enter()
-             .append("line")
-             .attr("y1", (d) -> yscale(d))
-             .attr("y2", (d) -> yscale(d))
-             .attr("x1", margin.left)
-             .attr("x2", margin.left+width)
-             .attr("fill", "none")
-             .attr("stroke", significantcolor)
-             .attr("stroke-width", 5)
-             .style("pointer-events", "none")
+        if 'suggestive' of data
+            suggestive_bar = g.append("g").attr("class", "suggestive")
+            suggestive_bar.selectAll("empty")
+                 .data([data.suggestive])
+                 .enter()
+                 .append("line")
+                 .attr("y1", (d) -> yscale(d))
+                 .attr("y2", (d) -> yscale(d))
+                 .attr("x1", margin.left)
+                 .attr("x2", margin.left+width)
+                 .attr("fill", "none")
+                 .attr("stroke", suggestivecolor)
+                 .attr("stroke-width", 5)
+                 .style("pointer-events", "none")
+    
+            suggestive_bar = g.append("g").attr("class", "significant")
+            suggestive_bar.selectAll("empty")
+                 .data([data.significant])
+                 .enter()
+                 .append("line")
+                 .attr("y1", (d) -> yscale(d))
+                 .attr("y2", (d) -> yscale(d))
+                 .attr("x1", margin.left)
+                 .attr("x2", margin.left+width)
+                 .attr("fill", "none")
+                 .attr("stroke", significantcolor)
+                 .attr("stroke-width", 5)
+                 .style("pointer-events", "none")
   
         # lod curves by chr
         lodcurve = (chr, lodcolumn) ->
@@ -248,7 +254,8 @@ lodchart = () ->
               .x((d) -> xscale[chr](d))
               .y((d,i) -> yscale(data.lodByChr[chr][i][lodcolumn]))
               
-        if data['additive'].length > 0
+        #if data['additive'].length > 0
+        if 'additive' of data
             additivecurve = (chr, lodcolumn) ->
                 d3.svg.line()
                   .x((d) -> xscale[chr](d))
@@ -256,16 +263,17 @@ lodchart = () ->
   
         curves = g.append("g").attr("id", "curves")
   
-        for chr in data.chrnames
-          curves.append("path")
-                .datum(data.posByChr[chr[0]])
-                .attr("d", lodcurve(chr[0], lodvarnum))
-                .attr("stroke", lodlinecolor)
-                .attr("fill", "none")
-                .attr("stroke-width", linewidth)
-                .style("pointer-events", "none")
+        #for chr in data.chrnames
+        #  curves.append("path")
+        #        .datum(data.posByChr[chr[0]])
+        #        .attr("d", lodcurve(chr[0], lodvarnum))
+        #        .attr("stroke", lodlinecolor)
+        #        .attr("fill", "none")
+        #        .attr("stroke-width", linewidth)
+        #        .style("pointer-events", "none")
         
-        if data['additive'].length > 0
+        #if data['additive'].length > 0
+        if 'additive' of data
             for chr in data.chrnames
                 curves.append("path")
                       .datum(data.posByChr[chr[0]])
@@ -493,95 +501,96 @@ lodchart = () ->
 # reorganize lod/pos by chromosome
 # lodvarname==null    -> case for multiple LOD columns (lodheatmap)
 # lodvarname provided -> case for one LOD column (lodchart)
-reorgLodData = (data, lodvarname=null) ->
-    data.posByChr = {}
-    data.lodByChr = {}
-    data.additiveByChr = {}
-    
-    for chr,i in data.chrnames
-      data.posByChr[chr[0]] = []
-      data.lodByChr[chr[0]] = []
-      data.additiveByChr[chr[0]] = []
-      for pos, j in data.pos
-        if data.chr[j] == chr[0]
-          data.posByChr[chr[0]].push(pos)
-          data.lodnames = [data.lodnames] unless Array.isArray(data.lodnames)
-          if data['additive'].length > 0
-            additiveval = (data['additive'][j] for lodcolumn in data.lodnames)
-          lodval = (data[lodcolumn][j] for lodcolumn in data.lodnames)
-          data.additiveByChr[chr[0]].push(additiveval)
-          data.lodByChr[chr[0]].push(lodval)
-
-    
-    if lodvarname?
-      data.markers = []
-      for marker,i in data.markernames
-        if marker != ""
-          data.markers.push({name:marker, chr:data.chr[i], pos:data.pos[i], lod:data[lodvarname][i]})
-    
-    data
+#reorgLodData = (data, lodvarname=null) ->
+#    data.posByChr = {}
+#    data.lodByChr = {}
+#    data.additiveByChr = {}
+#    
+#    for chr,i in data.chrnames
+#      data.posByChr[chr[0]] = []
+#      data.lodByChr[chr[0]] = []
+#      data.additiveByChr[chr[0]] = []
+#      for pos, j in data.pos
+#        if data.chr[j] == chr[0]
+#          data.posByChr[chr[0]].push(pos)
+#          data.lodnames = [data.lodnames] unless Array.isArray(data.lodnames)
+#          if 'additive' of data  
+#          #if data['additive'].length > 0
+#            additiveval = (data['additive'][j] for lodcolumn in data.lodnames)
+#          lodval = (data[lodcolumn][j] for lodcolumn in data.lodnames)
+#          data.additiveByChr[chr[0]].push(additiveval)
+#          data.lodByChr[chr[0]].push(lodval)
+#
+#    
+#    if lodvarname?
+#      data.markers = []
+#      for marker,i in data.markernames
+#        if marker != ""
+#          data.markers.push({name:marker, chr:data.chr[i], pos:data.pos[i], lod:data[lodvarname][i]})
+#    
+#    data
 
 
 # calculate chromosome start/end + scales, for heat map
-chrscales = (data, width, chrGap, leftMargin, pad4heatmap) ->
-    # start and end of chromosome positions
-    chrStart = []
-    chrEnd = []
-    chrLength = []
-    totalChrLength = 0
-    maxd = 0
-    for chr in data.chrnames
-      d = maxdiff(data.posByChr[chr[0]])
-      maxd = d if d > maxd
-  
-      rng = d3.extent(data.posByChr[chr[0]])
-      chrStart.push(rng[0])
-      chrEnd.push(rng[1])
-      L = rng[1] - rng[0]
-      chrLength.push(L)
-      totalChrLength += L
-  
-    # adjust lengths for heatmap
-    if pad4heatmap
-      data.recwidth = maxd
-      chrStart = chrStart.map (x) -> x-maxd/2
-      chrEnd = chrEnd.map (x) -> x+maxd/2
-      chrLength = chrLength.map (x) -> x+maxd
-      totalChrLength += (chrLength.length*maxd)
-  
-    # break up x axis into chromosomes by length, with gaps
-    data.chrStart = []
-    data.chrEnd = []
-    cur = leftMargin
-    cur += chrGap/2 unless pad4heatmap
-    data.xscale = {}
-    for chr,i in data.chrnames
-      data.chrStart.push(cur)
-      w = Math.round((width-chrGap*(data.chrnames.length-pad4heatmap))/totalChrLength*chrLength[i])
-      data.chrEnd.push(cur + w)
-      cur = data.chrEnd[i] + chrGap
-      # x-axis scales, by chromosome
-      data.xscale[chr[0]] = d3.scale.linear()
-                           .domain([chrStart[i], chrEnd[i]])
-                           .range([data.chrStart[i], data.chrEnd[i]])
-  
-    # return data with new stuff added
-    data
+#chrscales = (data, width, chrGap, leftMargin, pad4heatmap) ->
+#    # start and end of chromosome positions
+#    chrStart = []
+#    chrEnd = []
+#    chrLength = []
+#    totalChrLength = 0
+#    maxd = 0
+#    for chr in data.chrnames
+#      d = maxdiff(data.posByChr[chr[0]])
+#      maxd = d if d > maxd
+#  
+#      rng = d3.extent(data.posByChr[chr[0]])
+#      chrStart.push(rng[0])
+#      chrEnd.push(rng[1])
+#      L = rng[1] - rng[0]
+#      chrLength.push(L)
+#      totalChrLength += L
+#  
+#    # adjust lengths for heatmap
+#    if pad4heatmap
+#      data.recwidth = maxd
+#      chrStart = chrStart.map (x) -> x-maxd/2
+#      chrEnd = chrEnd.map (x) -> x+maxd/2
+#      chrLength = chrLength.map (x) -> x+maxd
+#      totalChrLength += (chrLength.length*maxd)
+#  
+#    # break up x axis into chromosomes by length, with gaps
+#    data.chrStart = []
+#    data.chrEnd = []
+#    cur = leftMargin
+#    cur += chrGap/2 unless pad4heatmap
+#    data.xscale = {}
+#    for chr,i in data.chrnames
+#      data.chrStart.push(cur)
+#      w = Math.round((width-chrGap*(data.chrnames.length-pad4heatmap))/totalChrLength*chrLength[i])
+#      data.chrEnd.push(cur + w)
+#      cur = data.chrEnd[i] + chrGap
+#      # x-axis scales, by chromosome
+#      data.xscale[chr[0]] = d3.scale.linear()
+#                           .domain([chrStart[i], chrEnd[i]])
+#                           .range([data.chrStart[i], data.chrEnd[i]])
+#  
+#    # return data with new stuff added
+#    data
     
 # maximum difference between adjacent values in a vector
-maxdiff = (x) ->
-    return null if x.length < 2
-    result = x[1] - x[0]
-    return result if x.length < 3
-    for i in [2...x.length]
-      d = x[i] - x[i-1]
-      result = d if d > result
-    result
-    
-# determine rounding of axis labels
-formatAxis = (d) ->
-    d = d[1] - d[0]
-    ndig = Math.floor( Math.log(d % 10) / Math.log(10) )
-    ndig = 0 if ndig > 0
-    ndig = Math.abs(ndig)
-    d3.format(".#{ndig}f")
+#maxdiff = (x) ->
+#    return null if x.length < 2
+#    result = x[1] - x[0]
+#    return result if x.length < 3
+#    for i in [2...x.length]
+#      d = x[i] - x[i-1]
+#      result = d if d > result
+#    result
+#    
+## determine rounding of axis labels
+#formatAxis = (d) ->
+#    d = d[1] - d[0]
+#    ndig = Math.floor( Math.log(d % 10) / Math.log(10) )
+#    ndig = 0 if ndig > 0
+#    ndig = Math.abs(ndig)
+#    d3.format(".#{ndig}f")
