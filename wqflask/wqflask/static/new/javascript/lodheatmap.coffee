@@ -33,10 +33,14 @@ lodheatmap = () ->
             rectHeight = yscale(0)-yscale(1)
 
             xLR = {}
-            console.log("data.chrnames:", data.chrnames)
+            #console.log("data.posByChr:", data.posByChr["2"])
+            #console.log("data.chrnames:", data.chrnames)
             for chr in data.chrnames
-                console.log("chr is:", chr)
-                xLR[chr] = getLeftRight(data.posByChr[chr])
+                #console.log("posByChr:", data.posByChr)
+                #console.log("chr is:", chr)
+                xLR[chr[0]] = getLeftRight(data.posByChr[chr[0]])
+      
+            #console.log("xLR:", xLR)
       
             # z-axis (color) limits; if not provided, make symmetric about 0
             zmin = 0
@@ -54,7 +58,9 @@ lodheatmap = () ->
             zthresh = zthresh ? zmin - 1
 
             data.cells = []
-            for chr in data.chrnames
+            for chr_ob in data.chrnames
+                chr = chr_ob[0]
+                #console.log("xLR[chr]:", xLR[chr])
                 for pos, i in data.posByChr[chr]
                     for lod,j in data.lodByChr[chr][i]
                         if lod >= zthresh or lod <= -zthresh
@@ -78,7 +84,7 @@ lodheatmap = () ->
              .data(data.chrnames)
              .enter()
              .append("rect")
-             .attr("id", (d) -> "box#{d}")
+             .attr("id", (d) -> "box#{d[0]}")
              .attr("x", (d,i) -> data.chrStart[i])
              .attr("y", (d) -> margin.top)
              .attr("height", height)
@@ -101,7 +107,7 @@ lodheatmap = () ->
                  .append("text")
                  .attr("x", (d,i) -> (data.chrStart[i] + data.chrEnd[i])/2)
                  .attr("y", margin.top+height+axispos.xlabel)
-                 .text((d) -> d)
+                 .text((d) -> d[0])
             xaxis.append("text").attr("class", "title")
                  .attr("x", margin.left+width/2)
                  .attr("y", margin.top+height+axispos.xtitle)

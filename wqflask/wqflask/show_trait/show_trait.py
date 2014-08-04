@@ -90,6 +90,10 @@ class ShowTrait(object):
 
         self.build_correlation_tools(self.this_trait)
 
+        #Get nearest marker for composite mapping
+        self.nearest_marker, self.nearest_marker_db = get_nearest_marker(self.this_trait)
+    
+
         self.make_sample_lists(self.this_trait)
 
         if self.dataset.group.allsamples:
@@ -101,6 +105,9 @@ class ShowTrait(object):
         hddn['method'] = "pylmm"
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
+        hddn['num_perm'] = 0
+        hddn['control_marker'] = self.nearest_marker
+        hddn['control_marker_db'] = self.nearest_marker_db
         hddn['maf'] = 0.01
         hddn['compare_traits'] = []
     
@@ -1267,3 +1274,21 @@ def get_samplelist_from_trait_data(this_trait, all_samples_ordered):
             other_sample_names.append(sample)
             
     return other_sample_names, all_samples_ordered
+
+def get_nearest_marker(this_trait):
+    this_chr = this_trait.chr
+    this_mb = this_trait.mb
+    query = """SELECT ProbeSet.Name, ProbeSetFreeze.Name
+               FROM ProbeSet, ProbeSetXRef, ProbeSetFreeze
+               WHERE ProbeSet.Chr = '{}' AND
+                     ProbeSet.Id=ProbeSetXRef.ProbeSetId AND
+                     ProbeSetXRef.ProbeSetFreezeId=ProbeSetFreeze.Id AND
+                     ProbeSetFreeze.Name='{}'
+               ORDER BY ABS( Mb - {}) LIMIT 2""".format(this_trait.chr, this_trait.dataset.name, this_trait.mb)
+    print("query:", query)
+
+    result = g.db.execute(query).fetchall()
+
+    return result[1][0], result[1][1]
+    
+    

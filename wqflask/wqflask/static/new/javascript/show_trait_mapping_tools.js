@@ -130,6 +130,19 @@ $(function() {
       return do_ajax_post(url, form_data);
     };
   })(this));
+  $("#rqtl_geno_compute").click((function(_this) {
+    return function() {
+      var form_data, url;
+      $("#progress_bar_container").modal();
+      url = "/marker_regression";
+      $('input[name=method]').val("rqtl_geno");
+      $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
+      $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
+      form_data = $('#trait_data_form').serialize();
+      console.log("form_data is:", form_data);
+      return do_ajax_post(url, form_data);
+    };
+  })(this));
   $("#plink_compute").click((function(_this) {
     return function() {
       var form_data, url;

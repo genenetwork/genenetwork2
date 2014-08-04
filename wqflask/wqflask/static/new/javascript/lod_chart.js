@@ -51,8 +51,7 @@ lodchart = function() {
   pointsAtMarkers = true;
   chart = function(selection) {
     return selection.each(function(data) {
-      var additive_yaxis, additivecurve, chr, curves, g, gEnter, hiddenpoints, lodvarnum, markerpoints, markertip, redraw_plot, rotate_additive_ylab, suggestive_bar, svg, titlegrp, x, xaxis, yaxis, _i, _len, _ref;
-      console.log("data:", data);
+      var additive_yaxis, chr, curves, g, gEnter, hiddenpoints, lodvarnum, markerpoints, markertip, redraw_plot, rotate_additive_ylab, suggestive_bar, svg, titlegrp, x, xaxis, yaxis, _i, _len, _ref;
       lodvarname = lodvarname != null ? lodvarname : data.lodnames[0];
       data[lodvarname] = (function() {
         var _i, _len, _ref, _results;
@@ -128,8 +127,6 @@ lodchart = function() {
       xaxis.append("text").attr("class", "title").attr("y", margin.top + height + axispos.xtitle).attr("x", margin.left + width / 2).attr("fill", "slateblue").text(xlab);
       redraw_plot = function(chr_ob) {
         var chr_plot;
-        console.log("chr_name is:", chr_ob[0]);
-        console.log("chr_length is:", chr_ob[1]);
         $('#topchart').remove();
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>');
         return chr_plot = new Chr_Interval_Map(600, 1200, chr_ob);
@@ -185,22 +182,11 @@ lodchart = function() {
           return yscale(data.lodByChr[chr][i][lodcolumn]);
         });
       };
-      if ('additive' in data) {
-        additivecurve = function(chr, lodcolumn) {
-          return d3.svg.line().x(function(d) {
-            return xscale[chr](d);
-          }).y(function(d, i) {
-            return additive_yscale(data.additiveByChr[chr][i][lodcolumn]);
-          });
-        };
-      }
       curves = g.append("g").attr("id", "curves");
-      if ('additive' in data) {
-        _ref = data.chrnames;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          chr = _ref[_i];
-          curves.append("path").datum(data.posByChr[chr[0]]).attr("d", additivecurve(chr[0], lodvarnum)).attr("stroke", additivelinecolor).attr("fill", "none").attr("stroke-width", 1).style("pointer-events", "none");
-        }
+      _ref = data.chrnames;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        chr = _ref[_i];
+        curves.append("path").datum(data.posByChr[chr[0]]).attr("d", lodcurve(chr[0], lodvarnum)).attr("stroke", lodlinecolor).attr("fill", "none").attr("stroke-width", linewidth).style("pointer-events", "none");
       }
       if (pointsize > 0) {
         markerpoints = g.append("g").attr("id", "markerpoints_visible");

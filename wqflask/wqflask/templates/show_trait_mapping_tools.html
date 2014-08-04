@@ -9,6 +9,9 @@
                 <li>
                     <a href="#pylmm" data-toggle="tab">pyLMM</a>
                 </li>
+                <li>
+                    <a href="#rqtl_geno" data-toggle="tab">rqtl</a>
+                </li>
                 {% if dataset.group.species == 'human' %}
                 <li>
                     <a href="#plink" data-toggle="tab">PLINK</a>
@@ -49,7 +52,7 @@
                     <div class="control-group mapping_method_fields">
                         <label for="mapping_permutations" class="control-label">Permutations (n)</label>
                         <div class="controls">
-                            <input name="num_permutations" value="2000" type="text" />
+                            <input name="num_perm_reaper" value="2000" type="text" />
                         </div>
                     </div>
     
@@ -66,7 +69,7 @@
                         <div class="controls" id="display_additive_effect">                      
                             <label class="radio inline">
                                 <input type="radio" name="display_additive"
-                                       id="display_dditive" value="yes" checked>
+                                       id="display_additive" value="yes" checked>
                                 Yes
                             </label>
                             <label class="radio inline">
@@ -162,6 +165,33 @@
                     <div class="control-group">
                         <div class="controls">
                             <button id="marker_regression_compute"
+                                    class="btn btn-inverse submit_special"
+                                    data-url="/marker_regression"
+                                    title="Compute Marker Regression">
+                                <i class="icon-ok-circle icon-white"></i> Compute
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="tab-pane" id="rqtl_geno">
+                    
+                    <div class="control-group">
+                        <label for="num_perm_rqtl_geno" class="control-label">Permutations (n)</label>
+                        <div class="controls">
+                            <input name="num_perm_rqtl_geno" value="0" type="text" />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="control_rqtl_geno" class="control-label">Control Marker</label>
+                        <div class="controls">
+                            <input name="control_rqtl_geno" value="{{ nearest_marker }}" type="text" />
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="controls">
+                            <button id="rqtl_geno_compute"
                                     class="btn btn-inverse submit_special"
                                     data-url="/marker_regression"
                                     title="Compute Marker Regression">

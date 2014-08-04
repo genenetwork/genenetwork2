@@ -33,7 +33,7 @@ lodheatmap = function() {
   cellSelect = null;
   chart = function(selection) {
     return selection.each(function(data) {
-      var cells, celltip, chr, extent, g, gEnter, i, j, lod, lodcol, nlod, pos, rectHeight, svg, titlegrp, xLR, xaxis, yaxis, zmax, zmin, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4;
+      var cells, celltip, chr, chr_ob, extent, g, gEnter, i, j, lod, lodcol, nlod, pos, rectHeight, svg, titlegrp, xLR, xaxis, yaxis, zmax, zmin, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4;
       data = reorgLodData(data);
       data = chrscales(data, width, chrGap, margin.left, true);
       xscale = data.xscale;
@@ -41,12 +41,10 @@ lodheatmap = function() {
       yscale.domain([-0.5, nlod - 0.5]).range([margin.top + height, margin.top]);
       rectHeight = yscale(0) - yscale(1);
       xLR = {};
-      console.log("data.chrnames:", data.chrnames);
       _ref = data.chrnames;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         chr = _ref[_i];
-        console.log("chr is:", chr);
-        xLR[chr] = getLeftRight(data.posByChr[chr]);
+        xLR[chr[0]] = getLeftRight(data.posByChr[chr[0]]);
       }
       zmin = 0;
       zmax = 0;
@@ -73,7 +71,8 @@ lodheatmap = function() {
       data.cells = [];
       _ref2 = data.chrnames;
       for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-        chr = _ref2[_k];
+        chr_ob = _ref2[_k];
+        chr = chr_ob[0];
         _ref3 = data.posByChr[chr];
         for (i = _l = 0, _len3 = _ref3.length; _l < _len3; i = ++_l) {
           pos = _ref3[i];
@@ -98,7 +97,7 @@ lodheatmap = function() {
       svg.attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom);
       g = svg.select("g");
       g.append("g").attr("id", "boxes").selectAll("empty").data(data.chrnames).enter().append("rect").attr("id", function(d) {
-        return "box" + d;
+        return "box" + d[0];
       }).attr("x", function(d, i) {
         return data.chrStart[i];
       }).attr("y", function(d) {
@@ -111,7 +110,7 @@ lodheatmap = function() {
       xaxis.selectAll("empty").data(data.chrnames).enter().append("text").attr("x", function(d, i) {
         return (data.chrStart[i] + data.chrEnd[i]) / 2;
       }).attr("y", margin.top + height + axispos.xlabel).text(function(d) {
-        return d;
+        return d[0];
       });
       xaxis.append("text").attr("class", "title").attr("x", margin.left + width / 2).attr("y", margin.top + height + axispos.xtitle).text(xlab);
       rotate_ylab = rotate_ylab != null ? rotate_ylab : ylab.length > 1;

@@ -12,6 +12,7 @@ import os
 import collections
 import uuid
 
+import rpy2.robjects as robjects
 import numpy as np
 from scipy import linalg
 
@@ -60,13 +61,20 @@ class MarkerRegression(object):
  
         self.mapping_method = start_vars['method']
         self.maf = start_vars['maf'] # Minor allele frequency
-        print("self.maf:", self.maf)
+        #print("self.maf:", self.maf)
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             qtl_results = self.run_gemma()
-        elif self.mapping_method == "rqtl":
-            qtl_results = self.run_rqtl()
+        elif self.mapping_method == "rqtl_plink":
+            qtl_results = self.run_rqtl_plink()
+        elif self.mapping_method == "rqtl_geno":
+            self.num_perm = start_vars['num_perm']
+            self.control = start_vars['control_marker']
+            self.control_db = start_vars['control_marker_db']
+            print("doing rqtl_geno")
+            qtl_results = self.run_rqtl_geno()
+            print("qtl_results:", qtl_results)
         elif self.mapping_method == "plink":
             qtl_results = self.run_plink()
             #print("qtl_results:", pf(qtl_results))
@@ -79,11 +87,13 @@ class MarkerRegression(object):
             
         self.lod_cutoff = 2    
         self.filtered_markers = []
+        highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
         for marker in qtl_results:
             if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                    highest_chr = marker['chr']
                 if 'lod_score' in marker:
                     self.filtered_markers.append(marker)
-
 
         self.json_data['chr'] = []
         self.json_data['pos'] = []
@@ -94,7 +104,11 @@ class MarkerRegression(object):
         self.qtl_results = []
         for qtl in self.filtered_markers:
             print("lod score is:", qtl['lod_score'])
-            self.json_data['chr'].append(str(qtl['chr']))
+            if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
+                print("changing to X")
+                self.json_data['chr'].append("X")
+            else:
+                self.json_data['chr'].append(str(qtl['chr']))
             self.json_data['pos'].append(qtl['Mb'])
             self.json_data['lod.hk'].append(str(qtl['lod_score']))
             self.json_data['markernames'].append(qtl['name'])
@@ -104,8 +118,9 @@ class MarkerRegression(object):
         self.json_data['chrnames'] = []
         for key in self.species.chromosomes.chromosomes.keys():
             self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
-            
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
+        
+        print("json_data:", self.json_data)
         
         self.js_data = dict(
             json_data = self.json_data,
@@ -186,7 +201,7 @@ class MarkerRegression(object):
     #
     #
     
-    def run_rqtl(self):
+    def run_rqtl_plink(self):
         os.chdir("/home/zas1024/plink")
         
         output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
@@ -199,6 +214,103 @@ class MarkerRegression(object):
         
         count, p_values = self.parse_rqtl_output(plink_output_filename)
     
+    def run_rqtl_geno(self):
+        robjects.packages.importr("qtl")
+        robjects.r('the_cross <- read.cross(format="csvr", dir="/home/zas1024/PLINK2RQTL/test", file="BXD.csvr")')
+        robjects.r('the_cross <- calc.genoprob(the_cross)')
+        pheno_as_string = "c("
+        #for i, val in enumerate(self.vals):
+        #    if val == "x":
+        #        new_val == "NULL"
+        #    else:
+        #        new_val = val
+        #    if i < (len(self.vals) - 1):
+        #        pheno_as_string += str(new_val) + ","
+        #    else: pheno_as_string += str(new_val)
+        null_pos = []
+        for i, val in enumerate(self.vals):
+            if val == "x":
+                null_pos.append(i)
+                if i < (len(self.vals) - 1):
+                    pheno_as_string +=  "NA,"
+                else:
+                    pheno_as_string += "NA"
+            else:
+                if i < (len(self.vals) - 1):
+                    pheno_as_string += str(val) + ","
+                else:
+                    pheno_as_string += str(val)
+            
+        pheno_as_string += ")"
+        
+        print("self.control:", self.control)
+        if self.control != "":
+            print("self.control_db:", self.control_db)
+            control_trait = GeneralTrait(name=str(self.control), dataset_name=str(self.control_db))
+            control_vals = []
+            for sample in self.dataset.group.samplelist:
+                if sample in control_trait.data:
+                    control_vals.append(control_trait.data[sample].value)
+                else:
+                    control_vals.append("x")
+            print("control_vals:", control_vals)
+            control_as_string = "c("
+            for j, val2 in enumerate(control_vals):
+                if val2 == "x":
+                    if j < (len(control_vals) - 1):
+                        control_as_string +=  "NA,"
+                    else:
+                        control_as_string += "NA"
+                else:
+                    if j < (len(control_vals) - 1):
+                        control_as_string += str(val2) + ","
+                    else:
+                        control_as_string += str(val2)
+                #if i < (len(control_vals) - 1):
+                #    control_as_string += str(new_val2) + ","
+                #else:
+                #    control_as_string += str(new_val2)
+            control_as_string += ")"
+            print("control_as_string:", control_as_string)
+        
+            r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', n.perm='+self.num_perm+', addcovar='+control_as_string+')'
+            
+            if self.num_perm > 0:
+                thresholds = robjects.r(r_string)
+                print("thresholds:", thresholds)
+            
+            #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', addcovar='+control_as_string+')'
+            print("r_string:", r_string)
+        else:
+        #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', n.perm='+self.num_perm+')'
+            r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+')'
+            
+        print("r_string:", r_string)
+        result_data_frame = robjects.r(r_string)
+        #print("results:", result_data_frame)
+
+        qtl_results = self.process_rqtl_results(result_data_frame)
+        
+        return qtl_results
+    
+    def process_rqtl_results(self, result):
+        qtl_results = []
+        
+        output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
+        print("output", output)
+        
+        
+        for i, line in enumerate(result.iter_row()):
+            marker = {}
+            marker['name'] = result.rownames[i]
+            marker['chr'] = output[i][0]
+            marker['Mb'] = output[i][1]
+            marker['lod_score'] = output[i][2]
+            
+            qtl_results.append(marker)
+            
+        return qtl_results
+
     def run_plink(self):
     
         os.chdir("/home/zas1024/plink")
@@ -271,6 +383,41 @@ class MarkerRegression(object):
             output_file.write(new_line)
             
         output_file.close()
+        
+    def gen_pheno_txt_file_rqtl(self, pheno_filename = ''):
+        ped_sample_list = self.get_samples_from_ped_file()	
+        output_file = open("%s%s.txt" % (webqtlConfig.TMPDIR, pheno_filename), "wb")
+        header = 'FID\tIID\t%s\n' % self.this_trait.name
+        output_file.write(header)
+    
+        new_value_list = []
+        
+        #if valueDict does not include some strain, value will be set to -9999 as missing value
+        for i, sample in enumerate(ped_sample_list):
+            try:
+                value = self.vals[i]
+                value = str(value).replace('value=','')
+                value = value.strip()
+            except:
+                value = -9999
+    
+            new_value_list.append(value)
+            
+            
+        new_line = ''
+        for i, sample in enumerate(ped_sample_list):
+            j = i+1
+            value = new_value_list[i]
+            new_line += '%s\t%s\t%s\n'%(sample, sample, value)
+            
+            if j%1000 == 0:
+                output_file.write(newLine)
+                new_line = ''
+        
+        if new_line:
+            output_file.write(new_line)
+            
+        output_file.close()
     
     # get strain name from ped file in order
     def get_samples_from_ped_file(self):
@@ -291,42 +438,6 @@ class MarkerRegression(object):
             line = ped_file.readline()
         
         return sample_list
-    
-    ################################################################
-    # Generate Chr list, Chr OrderId and Retrieve Length Information 
-    ################################################################		
-    #def getChrNameOrderIdLength(self,RISet=''):
-    #    try:
-    #        query = """
-    #            Select
-    #                Chr_Length.Name,Chr_Length.OrderId,Length from Chr_Length, InbredSet
-    #            where
-    #                Chr_Length.SpeciesId = InbredSet.SpeciesId AND
-    #                InbredSet.Name = '%s' 
-    #            Order by OrderId
-    #            """ % (self.dataset.group.name)
-    #        results =g.db.execute(query).fetchall()
-    #        ChrList=[]
-    #        ChrLengthMbList=[]
-    #        ChrNameOrderIdDict={}
-    #        ChrOrderIdNameDict={}
-    #        
-    #        for item in results:
-    #            ChrList.append(item[0])
-    #            ChrNameOrderIdDict[item[0]]=item[1] # key is chr name, value is orderId
-    #            ChrOrderIdNameDict[item[1]]=item[0] # key is orderId, value is chr name
-    #            ChrLengthMbList.append(item[2])				
-    #            
-    #    except:
-    #        ChrList=[]
-    #        ChrNameOrderIdDict={}
-    #        ChrLengthMbList=[]
-    #        
-    #    return ChrList,ChrNameOrderIdDict,ChrOrderIdNameDict,ChrLengthMbList
-    
-    
-    def parse_rqtl_output(self, output_filename):
-        return True
     
     def parse_plink_output(self, output_filename):
         plink_results={}

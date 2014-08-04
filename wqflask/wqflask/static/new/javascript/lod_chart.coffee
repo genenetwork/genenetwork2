@@ -39,7 +39,7 @@ lodchart = () ->
     chart = (selection) ->
       selection.each (data) ->
         
-        console.log("data:", data)
+        #console.log("data:", data)
         
         lodvarname = lodvarname ? data.lodnames[0]
         data[lodvarname] = (Math.abs(x) for x in data[lodvarname]) # take absolute values
@@ -142,8 +142,8 @@ lodchart = () ->
 
   
         redraw_plot = (chr_ob) ->
-             console.log("chr_name is:", chr_ob[0])
-             console.log("chr_length is:", chr_ob[1])
+             #console.log("chr_name is:", chr_ob[0])
+             #console.log("chr_length is:", chr_ob[1])
              $('#topchart').remove()
              $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
              chr_plot = new Chr_Interval_Map(600, 1200, chr_ob)
@@ -254,35 +254,34 @@ lodchart = () ->
               .x((d) -> xscale[chr](d))
               .y((d,i) -> yscale(data.lodByChr[chr][i][lodcolumn]))
               
-        #if data['additive'].length > 0
-        if 'additive' of data
-            additivecurve = (chr, lodcolumn) ->
-                d3.svg.line()
-                  .x((d) -> xscale[chr](d))
-                  .y((d,i) -> additive_yscale(data.additiveByChr[chr][i][lodcolumn]))
+        #if 'additive' of data
+        #    additivecurve = (chr, lodcolumn) ->
+        #        d3.svg.line()
+        #          .x((d) -> xscale[chr](d))
+        #          .y((d,i) -> additive_yscale(data.additiveByChr[chr][i][lodcolumn]))
   
         curves = g.append("g").attr("id", "curves")
   
-        #for chr in data.chrnames
-        #  curves.append("path")
-        #        .datum(data.posByChr[chr[0]])
-        #        .attr("d", lodcurve(chr[0], lodvarnum))
-        #        .attr("stroke", lodlinecolor)
-        #        .attr("fill", "none")
-        #        .attr("stroke-width", linewidth)
-        #        .style("pointer-events", "none")
+        for chr in data.chrnames
+          curves.append("path")
+                .datum(data.posByChr[chr[0]])
+                .attr("d", lodcurve(chr[0], lodvarnum))
+                .attr("stroke", lodlinecolor)
+                .attr("fill", "none")
+                .attr("stroke-width", linewidth)
+                .style("pointer-events", "none")
         
-        #if data['additive'].length > 0
-        if 'additive' of data
-            for chr in data.chrnames
-                curves.append("path")
-                      .datum(data.posByChr[chr[0]])
-                      .attr("d", additivecurve(chr[0], lodvarnum))
-                      .attr("stroke", additivelinecolor)
-                      .attr("fill", "none")
-                      .attr("stroke-width", 1)
-                      .style("pointer-events", "none")
-  
+        ##if data['additive'].length > 0
+        #if 'additive' of data
+        #    for chr in data.chrnames
+        #        curves.append("path")
+        #              .datum(data.posByChr[chr[0]])
+        #              .attr("d", additivecurve(chr[0], lodvarnum))
+        #              .attr("stroke", additivelinecolor)
+        #              .attr("fill", "none")
+        #              .attr("stroke-width", 1)
+        #              .style("pointer-events", "none")
+        #
         # points at markers
         if pointsize > 0
           markerpoints = g.append("g").attr("id", "markerpoints_visible")

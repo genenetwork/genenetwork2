@@ -63,7 +63,14 @@ class Heatmap(object):
         
         self.all_sample_list = []
         self.traits = []
+        
+        chrnames = []
+        self.species = species.TheSpecies(dataset=self.trait_list[0][1])
+        for key in self.species.chromosomes.chromosomes.keys():
+            chrnames.append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
+        
         for trait_db in self.trait_list:
+                
             this_trait = trait_db[0]
             self.traits.append(this_trait.name)
             this_sample_data = this_trait.data
@@ -91,7 +98,7 @@ class Heatmap(object):
         self.gen_reaper_results()
         #self.gen_pylmm_results()
             
-        chrnames = []
+        #chrnames = []
         lodnames = []
         chr_pos = []
         pos = []
@@ -101,8 +108,9 @@ class Heatmap(object):
             lodnames.append(trait)
         
         for marker in self.dataset.group.markers.markers:
-            if marker['chr'] not in chrnames:
-                chrnames.append(marker['chr'])
+            #if marker['chr'] not in chrnames:
+            #    chr_ob = [marker['chr'], "filler"]
+            #    chrnames.append(chr_ob)
             chr_pos.append(marker['chr'])
             pos.append(marker['Mb'])
             markernames.append(marker['name'])

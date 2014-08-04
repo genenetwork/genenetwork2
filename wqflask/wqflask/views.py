@@ -209,7 +209,7 @@ def heatmap_page():
     start_vars = request.form
     temp_uuid = uuid.uuid4()
     
-    version = "v4"
+    version = "v5"
     key = "heatmap:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -252,7 +252,10 @@ def marker_regression_page():
         'dataset',
         'method',
         'suggestive',
-        'maf'
+        'num_perm',
+        'maf',
+        'control_marker',
+        'control_marker_db'
     )
 
     start_vars = {}
@@ -260,7 +263,7 @@ def marker_regression_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v3"
+    version = "v4"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -296,7 +299,7 @@ def marker_regression_page():
         pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
         print("pickled result length:", len(pickled_result))
         Redis.set(key, pickled_result)
-        Redis.expire(key, 60*60)
+        Redis.expire(key, 1*60)
 
     with Bench("Rendering template"):
         rendered_template = render_template("marker_regression.html", **result)
@@ -346,7 +349,7 @@ def interval_mapping_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v11"
+    version = "v4"
     key = "interval_mapping:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):

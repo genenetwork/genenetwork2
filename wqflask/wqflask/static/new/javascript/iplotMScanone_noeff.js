@@ -68,7 +68,7 @@ iplotMScanone_noeff = function(lod_data, times, chartOpts) {
     _results = [];
     for (_i = 0, _len = _ref21.length; _i < _len; _i++) {
       chr = _ref21[_i];
-      _results.push(lodchart_curves.append("path").datum(lod_data.posByChr[chr]).attr("d", lodcurve(chr, lodcolumn)).attr("stroke", linecolor).attr("fill", "none").attr("stroke-width", linewidth).style("pointer-events", "none"));
+      _results.push(lodchart_curves.append("path").datum(lod_data.posByChr[chr[0]]).attr("d", lodcurve(chr[0], lodcolumn)).attr("stroke", linecolor).attr("fill", "none").attr("stroke-width", linewidth).style("pointer-events", "none"));
     }
     return _results;
   };

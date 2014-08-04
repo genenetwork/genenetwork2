@@ -90,8 +90,8 @@ iplotMScanone_noeff = (lod_data, times, chartOpts) ->
         lodchart_curves = g_lodchart.append("g").attr("id", "lodcurves")
         for chr in lod_data.chrnames
             lodchart_curves.append("path")
-                           .datum(lod_data.posByChr[chr])
-                           .attr("d", lodcurve(chr, lodcolumn))
+                           .datum(lod_data.posByChr[chr[0]])
+                           .attr("d", lodcurve(chr[0], lodcolumn))
                            .attr("stroke", linecolor)
                            .attr("fill", "none")
                            .attr("stroke-width", linewidth)

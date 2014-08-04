@@ -169,7 +169,12 @@ class IntervalMapping(object):
         self.json_data['markernames'] = []
         for qtl in reaper_results:
             reaper_locus = qtl.locus
-            self.json_data['chr'].append(reaper_locus.chr)
+            #if reaper_locus.chr == "20":
+            #    print("changing to X")
+            #    self.json_data['chr'].append("X")
+            #else:
+            #    self.json_data['chr'].append(reaper_locus.chr)
+            ##self.json_data['chr'].append(reaper_locus.chr)
             self.json_data['pos'].append(reaper_locus.Mb)
             self.json_data['lod.hk'].append(qtl.lrs)
             self.json_data['markernames'].append(reaper_locus.name)
