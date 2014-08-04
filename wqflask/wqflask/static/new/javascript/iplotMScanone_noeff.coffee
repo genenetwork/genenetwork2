@@ -87,6 +87,7 @@ iplotMScanone_noeff = (lod_data, times, chartOpts) ->
     # plot lod curves for selected lod column
     lodchart_curves = null
     plotLodCurve = (lodcolumn) ->
+        g_lodchart.selectAll("g#curves").remove()
         lodchart_curves = g_lodchart.append("g").attr("id", "lodcurves")
         for chr in lod_data.chrnames
             lodchart_curves.append("path")

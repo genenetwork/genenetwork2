@@ -63,6 +63,7 @@ iplotMScanone_noeff = function(lod_data, times, chartOpts) {
   lodchart_curves = null;
   plotLodCurve = function(lodcolumn) {
     var chr, _i, _len, _ref21, _results;
+    g_lodchart.selectAll("g#curves").remove();
     lodchart_curves = g_lodchart.append("g").attr("id", "lodcurves");
     _ref21 = lod_data.chrnames;
     _results = [];
