@@ -137,6 +137,7 @@ $(function() {
       url = "/marker_regression";
       $('input[name=method]').val("rqtl_geno");
       $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
+      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val());
       $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
       form_data = $('#trait_data_form').serialize();
       console.log("form_data is:", form_data);

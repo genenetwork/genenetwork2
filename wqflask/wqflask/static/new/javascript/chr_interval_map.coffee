@@ -214,69 +214,6 @@ class Chr_Interval_Map
                         .attr("stroke-width", 1)
                         .attr("fill", "none")
 
-
-    #add_plot_points: () ->
-    #    @plot_point = @svg.selectAll("circle")
-    #        .data(@plot_coordinates)
-    #        .enter()
-    #        .append("circle")
-    #        .attr("cx", (d) =>
-    #            return @x_scale(d[0])
-    #        )
-    #        .attr("cy", (d) =>
-    #            return @y_scale(d[1])
-    #        )
-    #        .attr("r", (d) =>
-    #            #if d[1] > 2
-    #            #    return 3
-    #            #else
-    #            return 2
-    #        )
-    #        .attr("fill", (d) =>
-    #            #if d[1] > 2
-    #            #    return "white"
-    #            #else
-    #            return "black"
-    #        )
-    #        .attr("stroke", "black")
-    #        .attr("stroke-width", "1")
-    #        .attr("id", (d) =>
-    #            return "point_" + String(d[2])
-    #        )
-    #        .classed("circle", true)
-    #        .on("mouseover", (d) =>
-    #            console.log("d3.event is:", d3.event)
-    #            console.log("d is:", d)
-    #            this_id = "point_" + String(d[2])
-    #            d3.select("#" + this_id).classed("d3_highlight", true)
-    #                .attr("r", 5)
-    #                .attr("stroke", "none")
-    #                .attr("fill", "blue")
-    #                .call(@show_marker_in_table(d))
-    #        )
-    #        .on("mouseout", (d) =>
-    #            this_id = "point_" + String(d[2])
-    #            d3.select("#" + this_id).classed("d3_highlight", false)
-    #                .attr("r", (d) =>
-    #                    #if d[1] > 2
-    #                    #    return 3
-    #                    #else
-    #                    return 2
-    #                )
-    #                .attr("fill", (d) =>
-    #                    #if d[1] > 2
-    #                    #    return "white"
-    #                    #else
-    #                    return "black"
-    #                )
-    #                .attr("stroke", "black")
-    #                .attr("stroke-width", "1")
-    #        )
-    #        .append("svg:title")
-    #            .text((d) =>
-    #                return d[2]
-    #            )
-
     return_to_full_view: () ->
         $('#topchart').remove()
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')

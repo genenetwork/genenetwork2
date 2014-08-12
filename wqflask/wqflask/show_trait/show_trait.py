@@ -91,8 +91,10 @@ class ShowTrait(object):
         self.build_correlation_tools(self.this_trait)
 
         #Get nearest marker for composite mapping
-        self.nearest_marker, self.nearest_marker_db = get_nearest_marker(self.this_trait)
-    
+
+        if self.dataset.type != "Geno":
+            self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
+            self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
 
         self.make_sample_lists(self.this_trait)
 
@@ -106,8 +108,9 @@ class ShowTrait(object):
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
-        hddn['control_marker'] = self.nearest_marker
-        hddn['control_marker_db'] = self.nearest_marker_db
+        hddn['manhattan_plot'] = False
+        if self.dataset.type != "Geno":
+            hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
         hddn['maf'] = 0.01
         hddn['compare_traits'] = []
     
@@ -1275,20 +1278,23 @@ def get_samplelist_from_trait_data(this_trait, all_samples_ordered):
             
     return other_sample_names, all_samples_ordered
 
-def get_nearest_marker(this_trait):
-    this_chr = this_trait.chr
-    this_mb = this_trait.mb
-    query = """SELECT ProbeSet.Name, ProbeSetFreeze.Name
-               FROM ProbeSet, ProbeSetXRef, ProbeSetFreeze
-               WHERE ProbeSet.Chr = '{}' AND
-                     ProbeSet.Id=ProbeSetXRef.ProbeSetId AND
-                     ProbeSetXRef.ProbeSetFreezeId=ProbeSetFreeze.Id AND
-                     ProbeSetFreeze.Name='{}'
-               ORDER BY ABS( Mb - {}) LIMIT 2""".format(this_trait.chr, this_trait.dataset.name, this_trait.mb)
+def get_nearest_marker(this_trait, this_db):
+    this_chr = this_trait.locus_chr
+    print("this_chr:", this_chr)
+    this_mb = this_trait.locus_mb
+    print("this_mb:", this_mb)
+    query = """SELECT Geno.Name
+               FROM Geno, GenoXRef, GenoFreeze
+               WHERE Geno.Chr = '{}' AND
+                     GenoXRef.GenoId = Geno.Id AND
+                     GenoFreeze.Id = GenoXRef.GenoFreezeId AND
+                     GenoFreeze.Name = '{}'
+               ORDER BY ABS( Geno.Mb - {}) LIMIT 2""".format(this_chr, this_db.group.name+"Geno", this_mb)
     print("query:", query)
 
     result = g.db.execute(query).fetchall()
+    print("result:", result)
 
-    return result[1][0], result[1][1]
+    return result[0][0], result[1][0]
     
     

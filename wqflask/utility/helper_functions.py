@@ -13,7 +13,8 @@ def get_species_dataset_trait(self, start_vars):
     print("After creating species")
     self.this_trait = GeneralTrait(dataset=self.dataset,
                                    name=start_vars['trait_id'],
-                                   cellid=None)
+                                   cellid=None,
+                                   get_qtl_info=True)
     print("After creating trait")
 
     #if read_genotype:

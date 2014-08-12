@@ -95,7 +95,7 @@ class IntervalMapping(object):
         #if self.plotScale == 'physic' and not fd.genotype.Mbmap:
         #    self.plotScale = 'morgan'
         #self.method = start_vars['mapping_method']
-        self.num_permutations = int(start_vars['num_permutations'])
+        self.num_permutations = int(start_vars['num_perm'])
         #self.do_bootstrap = start_vars['do_bootstrap']
         #self.selected_chr = start_vars['chromosome']
         if start_vars['display_additive'] == "yes":

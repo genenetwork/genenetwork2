@@ -71,7 +71,10 @@ class MarkerRegression(object):
         elif self.mapping_method == "rqtl_geno":
             self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
-            self.control_db = start_vars['control_marker_db']
+            if start_vars['manhattan_plot'] == "true":
+                self.manhattan_plot = True
+            else:
+                self.manhattan_plot = False
             print("doing rqtl_geno")
             qtl_results = self.run_rqtl_geno()
             print("qtl_results:", qtl_results)
@@ -122,11 +125,13 @@ class MarkerRegression(object):
         
         print("json_data:", self.json_data)
         
+
         self.js_data = dict(
             json_data = self.json_data,
             this_trait = self.this_trait.name,
             data_set = self.dataset.name,
             maf = self.maf,
+            manhattan_plot = self.manhattan_plot,
             chromosomes = chromosome_mb_lengths,
             qtl_results = self.filtered_markers,
         )
@@ -218,6 +223,7 @@ class MarkerRegression(object):
         robjects.packages.importr("qtl")
         robjects.r('the_cross <- read.cross(format="csvr", dir="/home/zas1024/PLINK2RQTL/test", file="BXD.csvr")')
         robjects.r('the_cross <- calc.genoprob(the_cross)')
+        
         pheno_as_string = "c("
         #for i, val in enumerate(self.vals):
         #    if val == "x":
@@ -243,47 +249,59 @@ class MarkerRegression(object):
             
         pheno_as_string += ")"
         
-        print("self.control:", self.control)
-        if self.control != "":
-            print("self.control_db:", self.control_db)
-            control_trait = GeneralTrait(name=str(self.control), dataset_name=str(self.control_db))
-            control_vals = []
-            for sample in self.dataset.group.samplelist:
-                if sample in control_trait.data:
-                    control_vals.append(control_trait.data[sample].value)
-                else:
-                    control_vals.append("x")
-            print("control_vals:", control_vals)
-            control_as_string = "c("
-            for j, val2 in enumerate(control_vals):
-                if val2 == "x":
-                    if j < (len(control_vals) - 1):
-                        control_as_string +=  "NA,"
-                    else:
-                        control_as_string += "NA"
-                else:
-                    if j < (len(control_vals) - 1):
-                        control_as_string += str(val2) + ","
-                    else:
-                        control_as_string += str(val2)
-                #if i < (len(control_vals) - 1):
-                #    control_as_string += str(new_val2) + ","
-                #else:
-                #    control_as_string += str(new_val2)
-            control_as_string += ")"
-            print("control_as_string:", control_as_string)
+        robjects.r('the_cross$pheno <- cbind(pull.pheno(the_cross), the_pheno = '+ pheno_as_string +')')
         
-            r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', n.perm='+self.num_perm+', addcovar='+control_as_string+')'
+        print("self.control:", self.control)
+        
+        if self.control != "":
+            control_markers = self.control.split(",")
+            control_string = ""
+            for i, control in enumerate(control_markers):
+                control_trait = GeneralTrait(name=str(control), dataset_name=str(self.dataset.group.name + "Geno"))
+                control_vals = []
+                for sample in self.dataset.group.samplelist:
+                    if sample in control_trait.data:
+                        control_vals.append(control_trait.data[sample].value)
+                    else:
+                        control_vals.append("x")
+                print("control_vals:", control_vals)
+                control_as_string = "c("
+                for j, val2 in enumerate(control_vals):
+                    if val2 == "x":
+                        if j < (len(control_vals) - 1):
+                            control_as_string +=  "NA,"
+                        else:
+                            control_as_string += "NA"
+                    else:
+                        if j < (len(control_vals) - 1):
+                            control_as_string += str(val2) + ","
+                        else:
+                            control_as_string += str(val2)
+                    #if i < (len(control_vals) - 1):
+                    #    control_as_string += str(new_val2) + ","
+                    #else:
+                    #    control_as_string += str(new_val2)
+                control_as_string += ")"
+                print("control_as_string:", control_as_string)
+                if i < (len(control_markers)-1):
+                    control_string += control_as_string + ","
+                else:
+                    control_string += control_as_string
+                    
+            robjects.r('covariates <- cbind( '+ control_string +')')
+            
+            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.perm='+self.num_perm+', addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
+            print("r_string:", r_string)
             
             if self.num_perm > 0:
                 thresholds = robjects.r(r_string)
                 print("thresholds:", thresholds)
             
             #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', addcovar='+control_as_string+')'
-            print("r_string:", r_string)
+            
         else:
         #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', n.perm='+self.num_perm+')'
-            r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+')'
+            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.perm='+self.num_perm+')'
             
         print("r_string:", r_string)
         result_data_frame = robjects.r(r_string)

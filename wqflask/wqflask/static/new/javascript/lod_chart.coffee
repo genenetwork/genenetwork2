@@ -4,6 +4,7 @@ lodchart = () ->
     margin = {left:60, top:40, right:40, bottom: 40, inner:5}
     axispos = {xtitle:25, ytitle:30, xlabel:5, ylabel:5}
     titlepos = 20
+    manhattanPlot = false
     ylim = null
     additive_ylim = null
     nyticks = 5
@@ -34,12 +35,17 @@ lodchart = () ->
     markerSelect = null
     chrSelect = null
     pointsAtMarkers = true
+    
   
     ## the main function
     chart = (selection) ->
       selection.each (data) ->
         
         #console.log("data:", data)
+        
+        if manhattanPlot == true
+            pointcolor = "darkslateblue"
+            pointsize = 2
         
         lodvarname = lodvarname ? data.lodnames[0]
         data[lodvarname] = (Math.abs(x) for x in data[lodvarname]) # take absolute values
@@ -115,6 +121,7 @@ lodchart = () ->
                       lightrect)
                    .attr("stroke", "none")
                    .on("click", (d) ->
+                      console.log("d is:", d)
                       redraw_plot(d)
                     )   
   
@@ -146,7 +153,7 @@ lodchart = () ->
              #console.log("chr_length is:", chr_ob[1])
              $('#topchart').remove()
              $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
-             chr_plot = new Chr_Interval_Map(600, 1200, chr_ob)
+             chr_plot = new Chr_Manhattan_Plot(600, 1200, chr_ob)
   
         # y-axis
         rotate_ylab = rotate_ylab ? (ylab.length > 1)
@@ -247,43 +254,46 @@ lodchart = () ->
                  .attr("stroke", significantcolor)
                  .attr("stroke-width", 5)
                  .style("pointer-events", "none")
-  
-        # lod curves by chr
-        lodcurve = (chr, lodcolumn) ->
-            d3.svg.line()
-              .x((d) -> xscale[chr](d))
-              .y((d,i) -> yscale(data.lodByChr[chr][i][lodcolumn]))
-              
-        #if 'additive' of data
-        #    additivecurve = (chr, lodcolumn) ->
-        #        d3.svg.line()
-        #          .x((d) -> xscale[chr](d))
-        #          .y((d,i) -> additive_yscale(data.additiveByChr[chr][i][lodcolumn]))
-  
-        curves = g.append("g").attr("id", "curves")
-  
-        for chr in data.chrnames
-          curves.append("path")
-                .datum(data.posByChr[chr[0]])
-                .attr("d", lodcurve(chr[0], lodvarnum))
-                .attr("stroke", lodlinecolor)
-                .attr("fill", "none")
-                .attr("stroke-width", linewidth)
-                .style("pointer-events", "none")
+                 
+        if manhattanPlot == false
+            # lod curves by chr
+            lodcurve = (chr, lodcolumn) ->
+                d3.svg.line()
+                  .x((d) -> xscale[chr](d))
+                  .y((d,i) -> yscale(data.lodByChr[chr][i][lodcolumn]))
+                  
+            #if 'additive' of data
+            #    additivecurve = (chr, lodcolumn) ->
+            #        d3.svg.line()
+            #          .x((d) -> xscale[chr](d))
+            #          .y((d,i) -> additive_yscale(data.additiveByChr[chr][i][lodcolumn]))
+      
+            curves = g.append("g").attr("id", "curves")
+      
+            for chr in data.chrnames
+              curves.append("path")
+                    .datum(data.posByChr[chr[0]])
+                    .attr("d", lodcurve(chr[0], lodvarnum))
+                    .attr("stroke", lodlinecolor)
+                    .attr("fill", "none")
+                    .attr("stroke-width", linewidth)
+                    .style("pointer-events", "none")
+            
+            ##if data['additive'].length > 0
+            #if 'additive' of data
+            #    for chr in data.chrnames
+            #        curves.append("path")
+            #              .datum(data.posByChr[chr[0]])
+            #              .attr("d", additivecurve(chr[0], lodvarnum))
+            #              .attr("stroke", additivelinecolor)
+            #              .attr("fill", "none")
+            #              .attr("stroke-width", 1)
+            #              .style("pointer-events", "none")
         
-        ##if data['additive'].length > 0
-        #if 'additive' of data
-        #    for chr in data.chrnames
-        #        curves.append("path")
-        #              .datum(data.posByChr[chr[0]])
-        #              .attr("d", additivecurve(chr[0], lodvarnum))
-        #              .attr("stroke", additivelinecolor)
-        #              .attr("fill", "none")
-        #              .attr("stroke-width", 1)
-        #              .style("pointer-events", "none")
-        #
         # points at markers
+        console.log("before pointsize")
         if pointsize > 0
+            console.log("pointsize > 0 !!!")
           markerpoints = g.append("g").attr("id", "markerpoints_visible")
           markerpoints.selectAll("empty")
                       .data(data.markers)
@@ -347,8 +357,6 @@ lodchart = () ->
                            d3.select(this).attr("opacity", 0)
                                           .call(markertip.hide)
   
-
-  
     ## configuration parameters
     chart.width = (value) ->
       return width unless arguments.length
@@ -373,6 +381,11 @@ lodchart = () ->
     chart.axispos = (value) ->
       return axispos unless arguments.length
       axispos = value
+      chart
+      
+    chart.manhattanPlot = (value) ->
+      return manhattanPlot unless arguments.length
+      manhattanPlot = value
       chart
   
     chart.ylim = (value) ->
@@ -481,8 +494,9 @@ lodchart = () ->
     chart.xscale = () ->
       return xscale
   
-    chart.lodcurve = () ->
-      return lodcurve
+    if manhattanPlot == false
+        chart.lodcurve = () ->
+          return lodcurve
     
     #if data['additive'].length > 0
     chart.additivecurve = () ->
@@ -497,99 +511,3 @@ lodchart = () ->
     # return the chart function
     chart
 
-# reorganize lod/pos by chromosome
-# lodvarname==null    -> case for multiple LOD columns (lodheatmap)
-# lodvarname provided -> case for one LOD column (lodchart)
-#reorgLodData = (data, lodvarname=null) ->
-#    data.posByChr = {}
-#    data.lodByChr = {}
-#    data.additiveByChr = {}
-#    
-#    for chr,i in data.chrnames
-#      data.posByChr[chr[0]] = []
-#      data.lodByChr[chr[0]] = []
-#      data.additiveByChr[chr[0]] = []
-#      for pos, j in data.pos
-#        if data.chr[j] == chr[0]
-#          data.posByChr[chr[0]].push(pos)
-#          data.lodnames = [data.lodnames] unless Array.isArray(data.lodnames)
-#          if 'additive' of data  
-#          #if data['additive'].length > 0
-#            additiveval = (data['additive'][j] for lodcolumn in data.lodnames)
-#          lodval = (data[lodcolumn][j] for lodcolumn in data.lodnames)
-#          data.additiveByChr[chr[0]].push(additiveval)
-#          data.lodByChr[chr[0]].push(lodval)
-#
-#    
-#    if lodvarname?
-#      data.markers = []
-#      for marker,i in data.markernames
-#        if marker != ""
-#          data.markers.push({name:marker, chr:data.chr[i], pos:data.pos[i], lod:data[lodvarname][i]})
-#    
-#    data
-
-
-# calculate chromosome start/end + scales, for heat map
-#chrscales = (data, width, chrGap, leftMargin, pad4heatmap) ->
-#    # start and end of chromosome positions
-#    chrStart = []
-#    chrEnd = []
-#    chrLength = []
-#    totalChrLength = 0
-#    maxd = 0
-#    for chr in data.chrnames
-#      d = maxdiff(data.posByChr[chr[0]])
-#      maxd = d if d > maxd
-#  
-#      rng = d3.extent(data.posByChr[chr[0]])
-#      chrStart.push(rng[0])
-#      chrEnd.push(rng[1])
-#      L = rng[1] - rng[0]
-#      chrLength.push(L)
-#      totalChrLength += L
-#  
-#    # adjust lengths for heatmap
-#    if pad4heatmap
-#      data.recwidth = maxd
-#      chrStart = chrStart.map (x) -> x-maxd/2
-#      chrEnd = chrEnd.map (x) -> x+maxd/2
-#      chrLength = chrLength.map (x) -> x+maxd
-#      totalChrLength += (chrLength.length*maxd)
-#  
-#    # break up x axis into chromosomes by length, with gaps
-#    data.chrStart = []
-#    data.chrEnd = []
-#    cur = leftMargin
-#    cur += chrGap/2 unless pad4heatmap
-#    data.xscale = {}
-#    for chr,i in data.chrnames
-#      data.chrStart.push(cur)
-#      w = Math.round((width-chrGap*(data.chrnames.length-pad4heatmap))/totalChrLength*chrLength[i])
-#      data.chrEnd.push(cur + w)
-#      cur = data.chrEnd[i] + chrGap
-#      # x-axis scales, by chromosome
-#      data.xscale[chr[0]] = d3.scale.linear()
-#                           .domain([chrStart[i], chrEnd[i]])
-#                           .range([data.chrStart[i], data.chrEnd[i]])
-#  
-#    # return data with new stuff added
-#    data
-    
-# maximum difference between adjacent values in a vector
-#maxdiff = (x) ->
-#    return null if x.length < 2
-#    result = x[1] - x[0]
-#    return result if x.length < 3
-#    for i in [2...x.length]
-#      d = x[i] - x[i-1]
-#      result = d if d > result
-#    result
-#    
-## determine rounding of axis labels
-#formatAxis = (d) ->
-#    d = d[1] - d[0]
-#    ndig = Math.floor( Math.log(d % 10) / Math.log(10) )
-#    ndig = 0 if ndig > 0
-#    ndig = Math.abs(ndig)
-#    d3.format(".#{ndig}f")

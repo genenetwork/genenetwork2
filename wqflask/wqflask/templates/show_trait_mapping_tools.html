@@ -135,14 +135,14 @@
                 
                 <div class="tab-pane" id="pylmm">
                     <div class="control-group" id="display_all_div">
-                        <label class="control-label">Display all</label>
+                        <label class="control-label">Manhattan Plot</label>
                         <div class="controls">                      
                             <label class="radio inline">
-                                <input type="radio" name="display_all_pylmm" value="True" checked>
+                                <input type="radio" name="manhattan_plot_pylmm" value=true checked>
                                 Yes
                             </label>
                             <label class="radio inline">
-                                <input type="radio" name="display_all_pylmm" value="False">
+                                <input type="radio" name="manhattan_plot_pylmm" value=false>
                                 No
                             </label>
                         </div>
@@ -185,9 +185,27 @@
                     <div class="control-group">
                         <label for="control_rqtl_geno" class="control-label">Control Marker</label>
                         <div class="controls">
-                            <input name="control_rqtl_geno" value="{{ nearest_marker }}" type="text" />
+                            {% if dataset.type == 'ProbeSet' %}
+                            <input name="control_rqtl_geno" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" />
+                            {% else %}
+                            <input name="control_rqtl_geno" value="" type="text" />
+                            {% endif %}
                         </div>
                     </div>
+                    <div class="control-group mapping_method_fields">
+                        <label class="control-label">Manhattan Plot</label>
+                        <div class="controls">                      
+                            <label class="radio inline">
+                                <input type="radio" name="manhattan_plot_rqtl" value=true checked>
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="manhattan_plot_rqtl" value=false>
+                                No
+                            </label>
+                        </div>
+                    </div>
+
                     
                     <div class="control-group">
                         <div class="controls">
@@ -199,7 +217,7 @@
                             </button>
                         </div>
                     </div>
-                    
+       
                 </div>
                 
                 {% if dataset.group.species == 'human' %}

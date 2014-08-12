@@ -49,13 +49,7 @@ $(function() {
       for (_k = 0, _len2 = buttons.length; _k < _len2; _k++) {
         item = buttons[_k];
         console.log("  processing item:", item);
-        text = $(item).html();
-        if (text.indexOf("Records") === -1) {
-          text = text.replace("Record", "Records");
-          _results.push($(item).html(text));
-        } else {
-          _results.push(void 0);
-        }
+        _results.push(text = $(item).html());
       }
       return _results;
     } else {
@@ -64,9 +58,7 @@ $(function() {
       for (_l = 0, _len3 = buttons.length; _l < _len3; _l++) {
         item = buttons[_l];
         console.log("  processing item:", item);
-        text = $(item).html();
-        text = text.replace("Records", "Record");
-        _results1.push($(item).html(text));
+        _results1.push(text = $(item).html());
       }
       return _results1;
     }

@@ -254,6 +254,7 @@ def marker_regression_page():
         'suggestive',
         'num_perm',
         'maf',
+        'manhattan_plot',
         'control_marker',
         'control_marker_db'
     )
@@ -337,7 +338,7 @@ def interval_mapping_page():
         'dataset',
         'mapping_method',
         'chromosome',
-        'num_permutations',
+        'num_perm',
         'do_bootstraps',
         'display_additive',
         'default_control_locus',

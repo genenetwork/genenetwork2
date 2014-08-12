@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Search Results{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+{% endblock %}
 {% block content %}
 <!-- Start of body -->
     {{ header("Search Results",
@@ -27,7 +32,7 @@
         Check records below and click Add button to add to selection.</p>
 
         <div class="bs-docs-example">
-            <table class="table table-hover" id='trait_table'>
+            <table class="table table-hover table-striped" id='trait_table'>
                 <thead>
                     <tr>
                     {% for header in header_fields %}
@@ -78,7 +83,8 @@
             </table>
 
             <br />
-
+            <br />
+            
             <button class="btn" id="select_all"><i class="icon-ok"></i> Select All</button>
             <button class="btn" id="deselect_all"><i class="icon-remove"></i> Deselect All</button>
             <button class="btn" id="invert"><i class="icon-resize-vertical"></i> Invert</button>
@@ -95,4 +101,24 @@
 
 {% block js %}
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function () {
+            console.time("Creating table");
+            $('#trait_table').dataTable( {
+                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
+                "sDom": "lftipr",
+                "iDisplayLength": 50,
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "bSortClasses": false
+            } );
+            console.timeEnd("Creating table");
+        });
+    </script>
+    
 {% endblock %}

@@ -44,16 +44,16 @@ $ ->
             for item in buttons
                 console.log("  processing item:", item)
                 text = $(item).html()
-                if text.indexOf("Records") == -1
-                    text = text.replace("Record", "Records")
-                    $(item).html(text)
+                #if text.indexOf("Records") == -1
+                #    text = text.replace("Record", "Records")
+                #    $(item).html(text)
         else
             console.log("in loop")
             for item in buttons
                 console.log("  processing item:", item)
                 text = $(item).html()
-                text = text.replace("Records", "Record")
-                $(item).html(text)
+                #text = text.replace("Records", "Record")
+                #$(item).html(text)
 
 
     # remove is only used by collections view

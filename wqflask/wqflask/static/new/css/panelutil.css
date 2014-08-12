@@ -43,12 +43,12 @@ div.qtlcharts line.x.axis.grid {
 
 div.qtlcharts line.y.axis.grid {
   stroke: white;
-}
+}*/
 
 div.qtlcharts .extent {
   fill: #cac;
   opacity: 0.3;
-}*/
+}
 
 div.qtlcharts circle.selected {
   fill: hotpink;

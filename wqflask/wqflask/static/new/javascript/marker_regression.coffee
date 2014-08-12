@@ -1,6 +1,6 @@
 root = exports ? this
 
-class Manhattan_Plot
+class Lod_Chart
 
     darkrect = "#F1F1F9"
     lightrect = "#FBFBFF"
@@ -376,35 +376,6 @@ class Manhattan_Plot
                             return lightrect
                     )
             )
-            
-            
-    #fill_chr_areas2: () ->
-    #    console.log("cumu_chr_lengths:", @cumulative_chr_lengths)
-    #    console.log("example:", @x_scale(@cumulative_chr_lengths[0]))
-    #    @svg.selectAll("rect.chr_fill_area")
-    #        .data(_.zip(@chr_lengths, @cumulative_chr_lengths), (d) =>
-    #            return d
-    #        )
-    #        .enter()
-    #        .append("rect")
-    #        .attr("x", (d) =>
-    #            if i == 0
-    #                return @x_scale(0)
-    #            else
-    #                return @x_scale(d[1])
-    #        )
-    #        .attr("y", @y_buffer)
-    #        .attr("width", (d) =>
-    #            return @x_scale(d[0])
-    #        )
-    #        .attr("height", @height-@y_buffer)
-    #        .attr("fill", (d, i) =>
-    #            return "whitesmoke"
-    #            #if i%2
-    #            #    return "whitesmoke"
-    #            #else
-    #            #    return "none"
-    #        )
 
     add_chr_labels: () ->
         chr_names = []
@@ -533,6 +504,6 @@ class Manhattan_Plot
       @svg.select("path.line").attr("d", line);
     
     
-root.Manhattan_Plot = Manhattan_Plot
+#root.LodChart = Lod_Chart
 
-new Manhattan_Plot(600, 1200)
+new Lod_Chart(600, 1200)

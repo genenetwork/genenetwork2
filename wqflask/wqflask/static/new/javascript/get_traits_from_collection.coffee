@@ -109,9 +109,10 @@ get_trait_data = (trait_data, textStatus, jqXHR) ->
     #console.log("json_data[1]:", json_data[1])
     
     console.log("THE LENGTH IS:", $('input[name=vals]').length)
-    if $('input[name=vals]').length == 1
-        create_scatterplot(samples, [this_trait_vals, vals])
+    #if $('input[name=vals]').length == 1
+    #    create_scatterplot(samples, [this_trait_vals, vals])
 
+    color_by_trait(trait_sample_data)
 
 get_this_trait_vals = (samples) ->
     this_trait_vals = []
@@ -142,7 +143,7 @@ assemble_into_json = (this_trait_vals) ->
 
 color_by_trait =  (trait_sample_data, textStatus, jqXHR) ->
     #trait_sample_data = trait_sample_data
-    #console.log('in color_by_trait:', trait_sample_data)
+    console.log('in color_by_trait:', trait_sample_data)
     root.bar_chart.color_by_trait(trait_sample_data)
 
 process_traits = (trait_data, textStatus, jqXHR) ->

@@ -2,7 +2,7 @@
 var lodchart;
 
 lodchart = function() {
-  var additive_ylab, additive_ylim, additive_yscale, additive_yticks, additivelinecolor, axispos, chart, chrGap, chrSelect, darkrect, height, lightrect, linewidth, lodcurve, lodlinecolor, lodvarname, margin, markerSelect, nyticks, pad4heatmap, pointcolor, pointsAtMarkers, pointsize, pointstroke, rotate_ylab, significantcolor, suggestivecolor, title, titlepos, width, xlab, xscale, ylab, ylim, yscale, yticks;
+  var additive_ylab, additive_ylim, additive_yscale, additive_yticks, additivelinecolor, axispos, chart, chrGap, chrSelect, darkrect, height, lightrect, linewidth, lodcurve, lodlinecolor, lodvarname, manhattanPlot, margin, markerSelect, nyticks, pad4heatmap, pointcolor, pointsAtMarkers, pointsize, pointstroke, rotate_ylab, significantcolor, suggestivecolor, title, titlepos, width, xlab, xscale, ylab, ylim, yscale, yticks;
   width = 800;
   height = 500;
   margin = {
@@ -19,6 +19,7 @@ lodchart = function() {
     ylabel: 5
   };
   titlepos = 20;
+  manhattanPlot = false;
   ylim = null;
   additive_ylim = null;
   nyticks = 5;
@@ -52,6 +53,10 @@ lodchart = function() {
   chart = function(selection) {
     return selection.each(function(data) {
       var additive_yaxis, chr, curves, g, gEnter, hiddenpoints, lodvarnum, markerpoints, markertip, redraw_plot, rotate_additive_ylab, suggestive_bar, svg, titlegrp, x, xaxis, yaxis, _i, _len, _ref;
+      if (manhattanPlot === true) {
+        pointcolor = "darkslateblue";
+        pointsize = 2;
+      }
       lodvarname = lodvarname != null ? lodvarname : data.lodnames[0];
       data[lodvarname] = (function() {
         var _i, _len, _ref, _results;
@@ -114,6 +119,7 @@ lodchart = function() {
         }
         return lightrect;
       }).attr("stroke", "none").on("click", function(d) {
+        console.log("d is:", d);
         return redraw_plot(d);
       });
       xaxis = g.append("g").attr("class", "x axis");
@@ -129,7 +135,7 @@ lodchart = function() {
         var chr_plot;
         $('#topchart').remove();
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>');
-        return chr_plot = new Chr_Interval_Map(600, 1200, chr_ob);
+        return chr_plot = new Chr_Manhattan_Plot(600, 1200, chr_ob);
       };
       rotate_ylab = rotate_ylab != null ? rotate_ylab : ylab.length > 1;
       yaxis = g.append("g").attr("class", "y axis");
@@ -175,27 +181,31 @@ lodchart = function() {
           return yscale(d);
         }).attr("x1", margin.left).attr("x2", margin.left + width).attr("fill", "none").attr("stroke", significantcolor).attr("stroke-width", 5).style("pointer-events", "none");
       }
-      lodcurve = function(chr, lodcolumn) {
-        return d3.svg.line().x(function(d) {
-          return xscale[chr](d);
-        }).y(function(d, i) {
-          return yscale(data.lodByChr[chr][i][lodcolumn]);
-        });
-      };
-      curves = g.append("g").attr("id", "curves");
-      _ref = data.chrnames;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        chr = _ref[_i];
-        curves.append("path").datum(data.posByChr[chr[0]]).attr("d", lodcurve(chr[0], lodvarnum)).attr("stroke", lodlinecolor).attr("fill", "none").attr("stroke-width", linewidth).style("pointer-events", "none");
+      if (manhattanPlot === false) {
+        lodcurve = function(chr, lodcolumn) {
+          return d3.svg.line().x(function(d) {
+            return xscale[chr](d);
+          }).y(function(d, i) {
+            return yscale(data.lodByChr[chr][i][lodcolumn]);
+          });
+        };
+        curves = g.append("g").attr("id", "curves");
+        _ref = data.chrnames;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          chr = _ref[_i];
+          curves.append("path").datum(data.posByChr[chr[0]]).attr("d", lodcurve(chr[0], lodvarnum)).attr("stroke", lodlinecolor).attr("fill", "none").attr("stroke-width", linewidth).style("pointer-events", "none");
+        }
       }
+      console.log("before pointsize");
       if (pointsize > 0) {
-        markerpoints = g.append("g").attr("id", "markerpoints_visible");
-        markerpoints.selectAll("empty").data(data.markers).enter().append("circle").attr("cx", function(d) {
-          return xscale[d.chr](d.pos);
-        }).attr("cy", function(d) {
-          return yscale(d.lod);
-        }).attr("r", pointsize).attr("fill", pointcolor).attr("stroke", pointstroke).attr("pointer-events", "hidden");
+        console.log("pointsize > 0 !!!");
       }
+      markerpoints = g.append("g").attr("id", "markerpoints_visible");
+      markerpoints.selectAll("empty").data(data.markers).enter().append("circle").attr("cx", function(d) {
+        return xscale[d.chr](d.pos);
+      }).attr("cy", function(d) {
+        return yscale(d.lod);
+      }).attr("r", pointsize).attr("fill", pointcolor).attr("stroke", pointstroke).attr("pointer-events", "hidden");
       titlegrp = g.append("g").attr("class", "title").append("text").attr("x", margin.left + width / 2).attr("y", margin.top - titlepos).text(title);
       g.append("rect").attr("x", margin.left).attr("y", margin.top).attr("height", height).attr("width", function() {
         if (pad4heatmap) {
@@ -257,6 +267,13 @@ lodchart = function() {
       return axispos;
     }
     axispos = value;
+    return chart;
+  };
+  chart.manhattanPlot = function(value) {
+    if (!arguments.length) {
+      return manhattanPlot;
+    }
+    manhattanPlot = value;
     return chart;
   };
   chart.ylim = function(value) {
@@ -402,9 +419,11 @@ lodchart = function() {
   chart.xscale = function() {
     return xscale;
   };
-  chart.lodcurve = function() {
-    return lodcurve;
-  };
+  if (manhattanPlot === false) {
+    chart.lodcurve = function() {
+      return lodcurve;
+    };
+  }
   chart.additivecurve = function() {
     return additivecurve;
   };

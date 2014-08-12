@@ -109,7 +109,8 @@
                 console.time("Creating table");
                 
                 {% if sample_groups[0].se_exists() %}
-                    $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'yellow').dataTable( {
+                    $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'yellow')
+                    $('#samples_primary, #samples_other').dataTable( {
                         //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
                         "aoColumns": [
                             { "sType": "natural" },

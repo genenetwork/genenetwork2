@@ -111,9 +111,7 @@ get_trait_data = function(trait_data, textStatus, jqXHR) {
   $('#hidden_inputs').append('<input type="hidden" name="vals" value="[' + vals.toString() + ']" />');
   this_trait_vals = get_this_trait_vals(samples);
   console.log("THE LENGTH IS:", $('input[name=vals]').length);
-  if ($('input[name=vals]').length === 1) {
-    return create_scatterplot(samples, [this_trait_vals, vals]);
-  }
+  return color_by_trait(trait_sample_data);
 };
 
 get_this_trait_vals = function(samples) {
@@ -149,6 +147,7 @@ assemble_into_json = function(this_trait_vals) {
 };
 
 color_by_trait = function(trait_sample_data, textStatus, jqXHR) {
+  console.log('in color_by_trait:', trait_sample_data);
   return root.bar_chart.color_by_trait(trait_sample_data);
 };
 
