@@ -17,6 +17,9 @@ class Lod_Chart
         @data_set = js_data.data_set
         @maf = js_data.maf #Minor allele frequency
         
+        @suggestive = js_data.suggestive
+        @significant = js_data.significant
+        
         @total_length = 0
 
         @max_chr = @get_max_chr()

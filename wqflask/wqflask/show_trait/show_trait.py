@@ -92,7 +92,7 @@ class ShowTrait(object):
 
         #Get nearest marker for composite mapping
 
-        if self.dataset.type != "Geno":
+        if self.dataset.type != "Geno" and self.dataset.type != "Publish":
             self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
             self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
 
@@ -109,8 +109,10 @@ class ShowTrait(object):
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
         hddn['manhattan_plot'] = False
-        if self.dataset.type != "Geno":
+        if self.dataset.type != "Geno" and self.dataset.type != "Publish":
             hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
+        else:
+            hddn['control_marker'] = ""
         hddn['maf'] = 0.01
         hddn['compare_traits'] = []
     
@@ -489,10 +491,14 @@ class ShowTrait(object):
 
                     #self.cursor.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = '%s'" % this_trait.symbol)
                     #try:
-                    this_chr, txst, txen = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
-                    if this_chr and txst and txen and this_trait.refseq_transcriptid :
-                        txst = int(txst*1000000)
-                        txen = int(txen*1000000)
+                    print("this_trait.symbol:", this_trait.symbol)
+                    result = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
+                    if result != None:
+                        this_chr, txst, txen = result[0], result[1], result[2]
+                    #this_chr, txst, txen = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
+                        if this_chr and txst and txen and this_trait.refseq_transcriptid :
+                            txst = int(txst*1000000)
+                            txen = int(txen*1000000)
                         #tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
                         #        title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('mm9',
                         #                                                                                  this_trait.refseq_transcriptid,

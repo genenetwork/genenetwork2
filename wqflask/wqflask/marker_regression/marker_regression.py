@@ -61,6 +61,8 @@ class MarkerRegression(object):
  
         self.mapping_method = start_vars['method']
         self.maf = start_vars['maf'] # Minor allele frequency
+        self.suggestive = ""
+        self.significant = ""
         #print("self.maf:", self.maf)
  
         self.dataset.group.get_markers()
@@ -102,6 +104,9 @@ class MarkerRegression(object):
         self.json_data['pos'] = []
         self.json_data['lod.hk'] = []
         self.json_data['markernames'] = []
+
+        self.json_data['suggestive'] = self.suggestive
+        self.json_data['significant'] = self.significant
 
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         self.qtl_results = []
@@ -293,23 +298,41 @@ class MarkerRegression(object):
             r_string = 'scanone(the_cross, pheno.col="the_pheno", n.perm='+self.num_perm+', addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
             print("r_string:", r_string)
             
-            if self.num_perm > 0:
+            if int(self.num_perm) > 0:
                 thresholds = robjects.r(r_string)
-                print("thresholds:", thresholds)
-            
+                self.suggestive, self.significant = self.process_rqtl_perm_results(results)
+                r_string = 'scanone(the_cross, pheno.col="the_pheno", addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
+                
             #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', addcovar='+control_as_string+')'
             
         else:
         #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', n.perm='+self.num_perm+')'
             r_string = 'scanone(the_cross, pheno.col="the_pheno", n.perm='+self.num_perm+')'
+            if int(self.num_perm) > 0:
+                results = robjects.r(r_string)
+                self.suggestive, self.significant = self.process_rqtl_perm_results(results)
+                r_string = 'scanone(the_cross, pheno.col="the_pheno")'
             
         print("r_string:", r_string)
         result_data_frame = robjects.r(r_string)
         #print("results:", result_data_frame)
 
         qtl_results = self.process_rqtl_results(result_data_frame)
-        
+
         return qtl_results
+    
+    def process_rqtl_perm_results(self, results):
+
+        perm_vals = []
+        for line in str(results).split("\n")[1:(int(self.num_perm)+1)]:
+            print("line:", line.split())
+            perm_vals.append(float(line.split()[1]))
+        
+        self.suggestive = np.percentile(np.array(perm_vals), 67)
+        self.significant = np.percentile(np.array(perm_vals), 95)
+        
+        return self.suggestive, self.significant
+            
     
     def process_rqtl_results(self, result):
         qtl_results = []

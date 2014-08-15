@@ -12,7 +12,7 @@ create_interval_map = () ->
                         .height(h)
                         .width(w)
                         .margin(margin)
-    
+                            
     data = js_data.json_data
     
     d3.select("div#topchart")

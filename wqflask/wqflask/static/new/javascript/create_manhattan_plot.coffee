@@ -14,6 +14,7 @@ create_manhattan_plot = ->
                         .height(h)
                         .width(w)
                         .margin(margin)
+                        .ylab("LOD score")
                         .manhattanPlot(js_data.manhattan_plot)
                         
     data = js_data.json_data
