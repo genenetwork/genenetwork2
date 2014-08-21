@@ -61,6 +61,18 @@
                         <th>N Cases</th>
                         <th>Sample p(rho)</th>
                         {% endif %}
+                    {% elif target_dataset.type == "Geno" %}
+                        <th>Record ID</th>
+                        <th>Location</th>
+                        {% if corr_method == 'pearson' %}
+                        <th>Sample r</th>
+                        <th>N Cases</th>
+                        <th>Sample p(r)</th>
+                        {% else %}
+                        <th>Sample rho</th>
+                        <th>N Cases</th>
+                        <th>Sample p(rho)</th>
+                        {% endif %}
                     {% endif %}
                     </tr>
                 </thead>
@@ -71,7 +83,7 @@
                         <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
                         <td>{{ trait.symbol }}</td>
                         <td>{{ trait.description }} <br><br> <b>Aliases</b>: {{ trait.alias }}</td>
-                        <td>Chr{{ trait.chr }}: {{'%0.3f'|format(trait.mb) }}</td>
+                        <td>Chr{{ trait.chr }}: {{'%0.6f'|format(trait.mb) }}</td>
                         <td>{{'%0.3f'|format(trait.mean)}}</td>
                         <td>{{'%0.3f'|format(trait.lrs)}}</td>
                         <td>Chr{{ trait.locus_chr }}: {{'%0.3f'|format(trait.locus_mb) }}</td>
@@ -86,6 +98,12 @@
                         <td>{{ trait.post_publication_description }}</td>
                         <td>{{ trait.authors }}</td>
                         <td>{{ trait.year }}</td>
+                        <td><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
+                        <td>{{ trait.num_overlap }}</td>
+                        <td>{{'%0.3e'|format(trait.sample_p)}}</td>
+                    {% elif target_dataset.type == "Geno" %}
+                        <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
+                        <td>Chr{{ trait.chr }}: {{'%0.6f'|format(trait.mb) }}</td>
                         <td><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
                         <td>{{ trait.num_overlap }}</td>
                         <td>{{'%0.3e'|format(trait.sample_p)}}</td>
