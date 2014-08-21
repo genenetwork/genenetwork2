@@ -164,7 +164,7 @@ class CorrelationResults(object):
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 print("trait name:", trait)
-                trait_object = GeneralTrait(dataset=self.dataset, name=trait, get_qtl_info=True)
+                trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True)
                 
                 (trait_object.sample_r,
                 trait_object.sample_p,
@@ -473,10 +473,6 @@ class CorrelationResults(object):
                 target_sample_value = target_samples[index]
                 this_trait_vals.append(sample_value)
                 target_vals.append(target_sample_value)
-
-        # print("trait:", trait)
-        print("this_trait_vals: %s" % this_trait_vals)
-        print("target_vals: %s" % target_vals)
 
         this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
             this_trait_vals, target_vals)

@@ -24,7 +24,7 @@
             <table id="corr_results" class="table table-hover table-striped table-bordered">
                 <thead>
                     <tr>
-                    {% if dataset.type == 'ProbeSet' %}
+                    {% if target_dataset.type == 'ProbeSet' %}
                         <th>Trait</th>
                         <th>Symbol</th>
                         <th>Description</th>
@@ -47,7 +47,7 @@
                         <th>Tissue rho</th>
                         <th>Tissue p(rho)</th>
                         {% endif %}
-                    {% elif dataset.type == "Publish" %}
+                    {% elif target_dataset.type == "Publish" %}
                         <th>Record ID</th>
                         <th>Phenotype</th>
                         <th>Authors</th>
@@ -67,7 +67,7 @@
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                    {% if dataset.type == 'ProbeSet' %}
+                    {% if target_dataset.type == 'ProbeSet' %}
                         <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
                         <td>{{ trait.symbol }}</td>
                         <td>{{ trait.description }} <br><br> <b>Aliases</b>: {{ trait.alias }}</td>
@@ -81,7 +81,7 @@
                         <td>{{'%0.3f'|format(trait.lit_corr)}}</td>
                         <td>{{'%0.3f'|format(trait.tissue_corr)}}</td>
                         <td>{{'%0.3e'|format(trait.tissue_pvalue)}}</td>
-                    {% elif dataset.type == "Publish" %}
+                    {% elif target_dataset.type == "Publish" %}
                         <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
                         <td>{{ trait.post_publication_description }}</td>
                         <td>{{ trait.authors }}</td>

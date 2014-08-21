@@ -579,10 +579,10 @@ class DataSet(object):
                         """.format(*mescape(self.type, self.type, self.type, self.type,
                                    self.name, dataset_type, self.type, self.type, dataset_type))
                         
-            print("trait data query: ", query)
+            #print("trait data query: ", query)
             
             results = g.db.execute(query).fetchall()
-            print("query results:", results)
+            #print("query results:", results)
             trait_sample_data.append(results)
 
         trait_count = len(trait_sample_data[0])

@@ -315,7 +315,7 @@ class GeneralTrait(object):
                             ProbeSet.Name = '%s'
                     """ % (escape(display_fields_string),
                            escape(self.dataset.name),
-                           escape(self.name))
+                           escape(str(self.name)))
             trait_info = g.db.execute(query).fetchone()
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
@@ -340,10 +340,6 @@ class GeneralTrait(object):
                                      """ % (string.join(self.dataset.display_fields,','),
                                             self.dataset.type, self.name)
             trait_info = g.db.execute(query).fetchone()
-
-
-        #self.cursor.execute(query)
-        #trait_info = self.cursor.fetchone()
         if trait_info:
             self.haveinfo = True
 
@@ -440,8 +436,6 @@ class GeneralTrait(object):
                                     PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                                     PublishFreeze.Id =%s
                             """, (self.name, self.dataset.id)).fetchone()
-                    #self.cursor.execute(query)
-                    #trait_qtl = self.cursor.fetchone()
                     if trait_qtl:
                         self.locus, self.lrs = trait_qtl
                     else:
