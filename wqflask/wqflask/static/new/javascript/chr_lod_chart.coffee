@@ -1,6 +1,7 @@
-class Chr_Manhattan_Plot
+class Chr_Lod_Chart
 
     constructor: (@plot_height, @plot_width, @chr, manhattanPlot) ->
+        @manhattanPlot = manhattanPlot
         @qtl_results = js_data.qtl_results
         console.log("qtl_results are:", @qtl_results)
         console.log("chr is:", @chr)
@@ -114,7 +115,7 @@ class Chr_Manhattan_Plot
         @add_y_axis()
         @add_title()
         @add_back_button()
-        if manhattanPlot
+        if @manhattanPlot
             @add_plot_points()
         else
             @add_path()

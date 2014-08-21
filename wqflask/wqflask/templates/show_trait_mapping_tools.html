@@ -80,6 +80,20 @@
                         </div>
                     </div>
 
+                    <div class="control-group mapping_method_fields">
+                        <label class="control-label">Manhattan Plot</label>
+                        <div class="controls">                      
+                            <label class="radio inline">
+                                <input type="radio" name="manhattan_plot_reaper" value=true>
+                                Yes
+                            </label>
+                            <label class="radio inline">
+                                <input type="radio" name="manhattan_plot_reaper" value=false checked>
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    
 <!--                    <div class="control-group mapping_method_fields">
                         <label class="control-label"><b>Composite Mapping</b></label>
                         <div class="controls" id="use_composite_choice">                      
@@ -179,11 +193,11 @@
                     <div class="control-group">
                         <label for="num_perm_rqtl_geno" class="control-label">Permutations (n)</label>
                         <div class="controls">
-                            <input name="num_perm_rqtl_geno" value="0" type="text" />
+                            <input name="num_perm_rqtl_geno" value="500" type="text" />
                         </div>
                     </div>
                     <div class="control-group">
-                        <label for="control_rqtl_geno" class="control-label">Control Marker</label>
+                        <label for="control_rqtl_geno" class="control-label">Control Marker(s)</label>
                         <div class="controls">
                             {% if dataset.type == 'ProbeSet' %}
                             <input name="control_rqtl_geno" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" />

@@ -5,6 +5,7 @@ lodchart = () ->
     axispos = {xtitle:25, ytitle:30, xlabel:5, ylabel:5}
     titlepos = 20
     manhattanPlot = false
+    additive = false
     ylim = null
     additive_ylim = null
     nyticks = 5
@@ -49,27 +50,26 @@ lodchart = () ->
         
         lodvarname = lodvarname ? data.lodnames[0]
         data[lodvarname] = (Math.abs(x) for x in data[lodvarname]) # take absolute values
-        if 'additive' of data
+        ylim = ylim ? [0, d3.max(data[lodvarname])]    
+        if additive
             data['additive'] = (Math.abs(x) for x in data['additive'])
-        ylim = ylim ? [0, d3.max(data[lodvarname])]
-        if 'additive' of data
-        #if data['additive'].length > 0
-            additive_ylim = additive_ylim ? [0, d3.max(data['additive'])]
+            additive_ylim = additive_ylim ? [0, d3.max(data['additive'])]   
+
         lodvarnum = data.lodnames.indexOf(lodvarname)
-  
+
         # Select the svg element, if it exists.
         svg = d3.select(this).selectAll("svg").data([data])
-  
+
         # Otherwise, create the skeletal chart.
         gEnter = svg.enter().append("svg").append("g")
-  
+
         # Update the outer dimensions.
         svg.attr("width", width+margin.left+margin.right)
            .attr("height", height+margin.top+margin.bottom)
-  
+
         # Update the inner dimensions.
         g = svg.select("g")
-  
+
         # box
         g.append("rect")
          .attr("x", margin.left)
@@ -78,23 +78,22 @@ lodchart = () ->
          .attr("width", width)
          .attr("fill", darkrect)
          .attr("stroke", "none")
-  
+
         yscale.domain(ylim)
               .range([height+margin.top, margin.top+margin.inner])
-        
-        #if data['additive'].length > 0
-        if 'additive' of data
-            additive_yscale.domain(additive_ylim)
-                  .range([height+margin.top, margin.top+margin.inner + height/2])
-  
+
         # if yticks not provided, use nyticks to choose pretty ones
         yticks = yticks ? yscale.ticks(nyticks)
+
         #if data['additive'].length > 0
-        if 'additive' of data
+        if additive
+            additive_yscale.domain(additive_ylim)
+                  .range([height+margin.top, margin.top+margin.inner + height/2])
+                  
             additive_yticks = additive_yticks ? additive_yscale.ticks(nyticks)
   
         # reorganize lod,pos by chromosomes
-        data = reorgLodData(data, lodvarname)
+        reorgLodData(data, lodvarname)
   
         # add chromosome scales (for x-axis)
         data = chrscales(data, width, chrGap, margin.left, pad4heatmap)
@@ -153,7 +152,7 @@ lodchart = () ->
              #console.log("chr_length is:", chr_ob[1])
              $('#topchart').remove()
              $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
-             chr_plot = new Chr_Manhattan_Plot(600, 1200, chr_ob)
+             chr_plot = new Chr_Lod_Chart(600, 1200, chr_ob, manhattanPlot)
   
         # y-axis
         rotate_ylab = rotate_ylab ? (ylab.length > 1)
@@ -191,7 +190,7 @@ lodchart = () ->
              .attr("fill", "slateblue")
   
         #if data['additive'].length > 0
-        if 'additive' of data
+        if additive
             rotate_additive_ylab = rotate_additive_ylab ? (additive_ylab.length > 1)
             additive_yaxis = g.append("g").attr("class", "y axis")
             additive_yaxis.selectAll("empty")
@@ -262,11 +261,11 @@ lodchart = () ->
                   .x((d) -> xscale[chr](d))
                   .y((d,i) -> yscale(data.lodByChr[chr][i][lodcolumn]))
                   
-            #if 'additive' of data
-            #    additivecurve = (chr, lodcolumn) ->
-            #        d3.svg.line()
-            #          .x((d) -> xscale[chr](d))
-            #          .y((d,i) -> additive_yscale(data.additiveByChr[chr][i][lodcolumn]))
+            if additive
+                additivecurve = (chr, lodcolumn) ->
+                    d3.svg.line()
+                      .x((d) -> xscale[chr](d))
+                      .y((d,i) -> additive_yscale(data.additiveByChr[chr][i][lodcolumn]))
       
             curves = g.append("g").attr("id", "curves")
       
@@ -279,16 +278,15 @@ lodchart = () ->
                     .attr("stroke-width", linewidth)
                     .style("pointer-events", "none")
             
-            ##if data['additive'].length > 0
-            #if 'additive' of data
-            #    for chr in data.chrnames
-            #        curves.append("path")
-            #              .datum(data.posByChr[chr[0]])
-            #              .attr("d", additivecurve(chr[0], lodvarnum))
-            #              .attr("stroke", additivelinecolor)
-            #              .attr("fill", "none")
-            #              .attr("stroke-width", 1)
-            #              .style("pointer-events", "none")
+            if additive
+                for chr in data.chrnames
+                    curves.append("path")
+                          .datum(data.posByChr[chr[0]])
+                          .attr("d", additivecurve(chr[0], lodvarnum))
+                          .attr("stroke", additivelinecolor)
+                          .attr("fill", "none")
+                          .attr("stroke-width", 1)
+                          .style("pointer-events", "none")
         
         # points at markers
         console.log("before pointsize")
@@ -486,6 +484,9 @@ lodchart = () ->
   
     chart.yscale = () ->
       return yscale
+    
+    chart.additive = () ->
+      return additive
     
     #if data['additive'].length > 0
     chart.additive_yscale = () ->

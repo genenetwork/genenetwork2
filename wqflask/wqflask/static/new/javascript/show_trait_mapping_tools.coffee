@@ -93,7 +93,7 @@ $ ->
         url = "/interval_mapping"
         
         $('input[name=method]').val("reaper")
-        
+        $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val())
         $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'))
         $('input[name=suggestive]').val($('input[name=suggestive_reaper]'))
         form_data = $('#trait_data_form').serialize()
@@ -142,6 +142,7 @@ $ ->
         $("#progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("pylmm")
+        $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_pylmm]:checked').val())
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         

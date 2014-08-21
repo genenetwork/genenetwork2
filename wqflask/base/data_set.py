@@ -697,8 +697,6 @@ class PhenotypeDataSet(DataSet):
             else:
                 this_trait.description_display = ""
 
-            print("this_trait.description_display is:", this_trait.description_display)
-
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
 

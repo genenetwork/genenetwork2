@@ -60,6 +60,10 @@ class MarkerRegression(object):
             self.vals.append(value)
  
         self.mapping_method = start_vars['method']
+        if start_vars['manhattan_plot'] == "true":
+            self.manhattan_plot = True
+        else:
+            self.manhattan_plot = False
         self.maf = start_vars['maf'] # Minor allele frequency
         self.suggestive = ""
         self.significant = ""
@@ -73,10 +77,7 @@ class MarkerRegression(object):
         elif self.mapping_method == "rqtl_geno":
             self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
-            if start_vars['manhattan_plot'] == "true":
-                self.manhattan_plot = True
-            else:
-                self.manhattan_plot = False
+
             print("doing rqtl_geno")
             qtl_results = self.run_rqtl_geno()
             print("qtl_results:", qtl_results)
@@ -227,8 +228,10 @@ class MarkerRegression(object):
     def run_rqtl_geno(self):
         robjects.packages.importr("qtl")
         robjects.r('the_cross <- read.cross(format="csvr", dir="/home/zas1024/PLINK2RQTL/test", file="BXD.csvr")')
-        robjects.r('the_cross <- calc.genoprob(the_cross)')
-        
+        if self.manhattan_plot:
+            robjects.r('the_cross <- calc.genoprob(the_cross)')
+        else:
+            robjects.r('the_cross <- calc.genoprob(the_cross, step=1, stepwidth="max")')
         pheno_as_string = "c("
         #for i, val in enumerate(self.vals):
         #    if val == "x":
@@ -295,23 +298,23 @@ class MarkerRegression(object):
                     
             robjects.r('covariates <- cbind( '+ control_string +')')
             
-            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.perm='+self.num_perm+', addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
+            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, n.perm='+self.num_perm+', addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
             print("r_string:", r_string)
             
             if int(self.num_perm) > 0:
                 thresholds = robjects.r(r_string)
                 self.suggestive, self.significant = self.process_rqtl_perm_results(results)
-                r_string = 'scanone(the_cross, pheno.col="the_pheno", addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
+                r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
                 
             #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', addcovar='+control_as_string+')'
             
         else:
         #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', n.perm='+self.num_perm+')'
-            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.perm='+self.num_perm+')'
-            if int(self.num_perm) > 0:
+            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, n.perm='+self.num_perm+')'
+            if self.num_perm.isdigit() and int(self.num_perm) > 0:
                 results = robjects.r(r_string)
                 self.suggestive, self.significant = self.process_rqtl_perm_results(results)
-                r_string = 'scanone(the_cross, pheno.col="the_pheno")'
+                r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16)'
             
         print("r_string:", r_string)
         result_data_frame = robjects.r(r_string)

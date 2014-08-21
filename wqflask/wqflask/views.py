@@ -339,6 +339,7 @@ def interval_mapping_page():
         'mapping_method',
         'chromosome',
         'num_perm',
+        'manhattan_plot',
         'do_bootstraps',
         'display_additive',
         'default_control_locus',
@@ -350,7 +351,7 @@ def interval_mapping_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v4"
+    version = "v1"
     key = "interval_mapping:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
