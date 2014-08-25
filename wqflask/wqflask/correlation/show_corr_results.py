@@ -187,10 +187,10 @@ class CorrelationResults(object):
                     trait_object.lit_corr = lit_corr_data[trait][1]
                 self.correlation_results.append(trait_object)
             
-            if self.corr_type != "lit" and self.dataset.type == "ProbeSet":
+            if self.corr_type != "lit" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
                 self.do_lit_correlation_for_trait_list()
             
-            if self.corr_type != "tissue" and self.dataset.type == "ProbeSet":
+            if self.corr_type != "tissue" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
                 self.do_tissue_correlation_for_trait_list()
             
             #print("self.correlation_results: ", pf(self.correlation_results))
