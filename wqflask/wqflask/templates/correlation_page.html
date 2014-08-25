@@ -83,7 +83,7 @@
                         <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
                         <td>{{ trait.symbol }}</td>
                         <td>{{ trait.description }} <br><br> <b>Aliases</b>: {{ trait.alias }}</td>
-                        <td>Chr{{ trait.chr }}: {{'%0.6f'|format(trait.mb) }}</td>
+                        <td>Chr{{ trait.chr }}: {{'%0.6f'|format(trait.mb) if trait.mb != None }}</td>
                         <td>{{'%0.3f'|format(trait.mean)}}</td>
                         <td>{{'%0.3f'|format(trait.lrs)}}</td>
                         <td>Chr{{ trait.locus_chr }}: {{'%0.3f'|format(trait.locus_mb) }}</td>
