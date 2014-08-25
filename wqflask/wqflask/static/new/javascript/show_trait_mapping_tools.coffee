@@ -142,6 +142,7 @@ $ ->
         $("#progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("pylmm")
+        $('input[name=num_perm]').val($('input[name=num_perm_pylmm]').val())
         $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_pylmm]:checked').val())
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)

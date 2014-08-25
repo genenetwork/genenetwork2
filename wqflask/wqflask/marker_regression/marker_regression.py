@@ -6,6 +6,7 @@ from base import data_set  #import create_dataset
 from pprint import pformat as pf
 
 import string
+import math
 import sys
 import datetime
 import os
@@ -86,7 +87,9 @@ class MarkerRegression(object):
             #print("qtl_results:", pf(qtl_results))
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
-            #self.qtl_results = self.gen_data(tempdata)
+            self.num_perm = start_vars['num_perm']
+            if int(self.num_perm) > 0:
+	         self.run_permutations(str(temp_uuid))
             qtl_results = self.gen_data(str(temp_uuid))
         else:
             print("RUNNING NOTHING")
@@ -558,7 +561,68 @@ class MarkerRegression(object):
     
         return line_list
     
-    #def gen_data(self, tempdata):
+    
+    def run_permutations(self, temp_uuid):
+        """Runs permutations and gets significant and suggestive LOD scores"""
+
+        top_lod_scores = []
+	
+        print("self.num_perm:", self.num_perm)
+
+        for permutation in range(int(self.num_perm)):
+
+            pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
+            np.random.shuffle(pheno_vector)
+
+            key = "pylmm:input:" + temp_uuid
+        
+            if self.dataset.group.species == "human":
+                p_values, t_stats = self.gen_human_results(pheno_vector, key, temp_uuid)
+            else:
+                genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
+                
+                no_val_samples = self.identify_empty_samples()
+                trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
+                
+                genotype_matrix = np.array(trimmed_genotype_data).T
+    
+                params = dict(pheno_vector = pheno_vector.tolist(),
+                            genotype_matrix = genotype_matrix.tolist(),
+                            restricted_max_likelihood = True,
+                            refit = False,
+                            temp_uuid = temp_uuid,
+                            
+                            # meta data
+                            timestamp = datetime.datetime.now().isoformat(),
+                            )
+                
+                json_params = json.dumps(params)
+                Redis.set(key, json_params)
+                Redis.expire(key, 60*60)
+    
+                command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+                                                                                                                        "other")
+    
+                os.system(command)
+    
+                
+                json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
+                results = json.loads(json_results[1])
+                p_values = [float(result) for result in results['p_values']]
+                
+                lowest_p_value = 1
+                for p_value in p_values:
+                    if p_value < lowest_p_value:
+                        lowest_p_value = p_value
+                
+                print("lowest_p_value:", lowest_p_value)        
+                top_lod_scores.append(-math.log10(lowest_p_value))
+
+        print("top_lod_scores:", top_lod_scores)
+
+        self.suggestive = np.percentile(top_lod_scores, 67)
+        self.significant = np.percentile(top_lod_scores, 95)
+
     def gen_data(self, temp_uuid):
         """Generates p-values for each marker"""
 
