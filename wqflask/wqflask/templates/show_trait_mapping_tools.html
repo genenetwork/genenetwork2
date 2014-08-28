@@ -151,8 +151,12 @@
                     <div class="control-group mapping_method_fields">
                         <label for="mapping_permutations" class="control-label">Permutations (n)</label>
                         <div class="controls">
-                            <input name="num_perm_pylmm" value="2000" type="text" />
+                            <input name="num_perm_pylmm" value="20" type="text" />
                         </div>
+
+                    </div>
+                    <div id="permutations_alert" class="alert alert-error" style="display:none;">
+                        Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
                     </div>
                     <div class="control-group" id="display_all_div">
                         <label class="control-label">Manhattan Plot</label>

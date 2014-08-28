@@ -27,5 +27,16 @@ $ ->
             console.log("input isn't valid")
             $('#remove_samples_invalid').show()
 
+    validate_pylmm_permutation = ->
+        ###
+        Check if number of permutations is high (and will take long to compute)
+        ###
+        input = $('input[name=num_perm_pylmm]').val()
+        console.log("input:", input)
+        if input > 20
+            $('#permutations_alert').show()
+        else
+            $('#permutations_alert').hide()
 
+    $('input[name=num_perm_pylmm]').change(validate_pylmm_permutation)
     $('#remove_samples_field').change(validate_remove_samples)
