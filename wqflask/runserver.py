@@ -28,6 +28,7 @@ import logging_tree
 logging_tree.printout()
 
 app.run(host='0.0.0.0',
+        port=5002,
         use_debugger=False,
         threaded=True,
         use_reloader=True)

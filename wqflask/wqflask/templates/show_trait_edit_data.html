@@ -119,6 +119,7 @@
                         {# Todo: Add IDs #}
                         <td class="column_name-Value">
                           <input type="text" data-value="{{ sample.display_value }}" name="{{ 'value:' + sample.name }}"
+                                 style="text-align:right;"
                                  class="trait_value_input edit_sample_value"
                                  value="{{ sample.display_value }}"
                                  size=8 maxlength=8
@@ -133,6 +134,7 @@
                         {# Todo: Add IDs #}
                         <td class="column_name-SE">
                           <input type="text" data-value="{{ sample.display_variance }}" name="{{ 'variance:' + sample.name}}"
+                                 style="text-align:right;"
                                  class="trait_value_input edit_sample_se"
                                  value="{{ sample.display_variance }}"
                                  size=8 maxlength=8

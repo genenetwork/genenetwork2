@@ -50,6 +50,7 @@ table.dataTable tr.outlier td{ background-color: #FFFF00; }
 .dataTables_wrapper {
 	position: relative;
 	clear: both;
+       float: left;
 	*zoom: 1;
 }
 
