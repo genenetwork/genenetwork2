@@ -268,6 +268,7 @@ def remove_traits():
 @app.route("/collections/delete", methods=('POST',))
 def delete_collection():
     params = request.form
+    print("params:", params)
     uc_id = params['uc_id']
     uc = model.UserCollection.query.get(uc_id)
     # Todo: For now having the id is good enough since it's so unique
@@ -316,9 +317,9 @@ def view_collection():
         #                         dis=trait_ob.description))
         #json_version.append(trait_ob.__dict__th)
         
-    #collection_info = dict(trait_obs=trait_obs,
-    #                       uc = uc)
-    collection_info = dict(trait_obs=trait_obs)
+    collection_info = dict(trait_obs=trait_obs,
+                           uc = uc)
+    #collection_info = dict(trait_obs=trait_obs)
     if "json" in params:
         print("json_version:", json_version)
         return json.dumps(json_version)
