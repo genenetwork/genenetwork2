@@ -13,7 +13,7 @@
                     <a href="#rqtl_geno" data-toggle="tab">rqtl</a>
                 </li>
                 {% if dataset.group.species == 'human' %}
-                <li>
+                <li>self.this_trait.locus_chr != "" and 
                     <a href="#plink" data-toggle="tab">PLINK</a>
                 </li>
                 <li>
@@ -209,7 +209,7 @@
                     <div class="control-group">
                         <label for="control_rqtl_geno" class="control-label">Control Marker(s)</label>
                         <div class="controls">
-                            {% if dataset.type == 'ProbeSet' %}
+                            {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
                             <input name="control_rqtl_geno" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" />
                             {% else %}
                             <input name="control_rqtl_geno" value="" type="text" />
