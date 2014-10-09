@@ -92,7 +92,8 @@ class ShowTrait(object):
 
         #Get nearest marker for composite mapping
 
-        if self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
+        print("self.dataset.type:", self.dataset.type)
+        if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
             self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
             self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
 
@@ -109,7 +110,7 @@ class ShowTrait(object):
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
         hddn['manhattan_plot'] = False
-        if self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
+        if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
             hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
         else:
             hddn['control_marker'] = ""
