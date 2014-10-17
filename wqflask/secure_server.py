@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
 
     app.run(host='0.0.0.0',
-        port=app.config['SERVER_PORT'],
+        port=5002,
         use_debugger=False,
         threaded=True,
         use_reloader=True)

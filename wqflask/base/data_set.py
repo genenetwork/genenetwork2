@@ -699,6 +699,8 @@ class PhenotypeDataSet(DataSet):
 
             if not this_trait.year.isdigit():
                 this_trait.pubmed_text = "N/A"
+            else:
+                this_trait.pubmed_text = this_trait.year
 
             if this_trait.pubmed_id:
                 this_trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % this_trait.pubmed_id
