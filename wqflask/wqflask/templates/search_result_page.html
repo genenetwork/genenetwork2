@@ -110,12 +110,57 @@
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script type="text/javascript" charset="utf-8">
+        function getValue(x) {
+            if (x.indexOf('input') >= 0) {
+                if ($(x).val() == 'x') {
+                    return 0
+                }
+                else {
+                   return parseFloat($(x).val());
+                }
+            }
+            return parseFloat(x);
+        }
+            
+        jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
+            var x = getValue(a);
+            var y = getValue(b);
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        };
+            
+        jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
+            var x = getValue(a);
+            var y = getValue(b);
+            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+        };
+
         $(document).ready( function () {
             console.time("Creating table");
             $('#trait_table').dataTable( {
                 //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "sDom": "lftipr",
-                "iDisplayLength": 50,
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "sType": "natural" },
+                    { "sType": "natural", 
+                      "sWidth": "35%"  },
+                    { "sType": "natural",
+                      "sWidth": "20%"  },
+                    { "sType": "natural" },
+                    { "sType": "cust-txt" },
+                    { "sType": "natural" },
+                ],
+                "columns": [
+                    { "width": "50%" },
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                ],
+                "sDom": "ftir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false

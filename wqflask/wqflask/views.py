@@ -145,6 +145,18 @@ def whats_new_page():
         print("\nnews_item is: %s\n" % (news_item))
     return render_template("whats_new.html", news_items=news_items)
 
+@app.route("/reference")
+def reference_page():
+    return render_template("reference.html")
+
+@app.route("/policies")
+def policies_page():
+    return render_template("policies.html")
+
+@app.route("/links")
+def links_page():
+    return render_template("links.html")
+
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""

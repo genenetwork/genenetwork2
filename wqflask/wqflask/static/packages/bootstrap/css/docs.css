@@ -27,7 +27,8 @@ h3 code {
 -------------------------------------------------- */
 
 body > .navbar {
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 /* Change the docs' brand */
@@ -89,7 +90,7 @@ hr.soften {
 ------------------------- */
 .jumbotron {
   position: relative;
-  padding: 40px 0;
+  padding: 0px 0;
   color: #fff;
   text-align: center;
   text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 30px rgba(0,0,0,.075);
@@ -112,7 +113,7 @@ hr.soften {
   line-height: 1;
 }
 .jumbotron p {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 300;
   line-height: 30px;
   margin-bottom: 30px;
@@ -238,7 +239,7 @@ hr.soften {
   border-bottom: 1px solid #ddd;
 }
 .subhead h1 {
-  font-size: 60px;
+  font-size: 40px;
 }
 .subhead p {
   margin-bottom: 20px;
@@ -925,7 +926,7 @@ form.bs-docs-example {
 
   /* Downsize the jumbotrons */
   .jumbotron h1 {
-    font-size: 60px;
+    font-size: 40px;
   }
   .jumbotron p,
   .jumbotron .btn {

@@ -299,6 +299,23 @@ class ForgotPasswordEmail(VerificationEmail):
     key_prefix = "forgot_password_code"
     subject = "GeneNetwork password reset"
 
+    def __init__(self, user):
+        verification_code = str(uuid.uuid4())
+        key = self.key_prefix + ":" + verification_code
+
+        data = json.dumps(dict(id=user.id,
+                               timestamp=timestamp())
+                          )
+
+        Redis.set(key, data)
+        #two_days = 60 * 60 * 24 * 2
+        Redis.expire(key, THREE_DAYS)
+        to = user.email_address
+        subject = self.subject
+        body = render_template(self.template_name,
+                               verification_code = verification_code)
+        send_email(to, subject, body)
+
 
 class Password(object):
     def __init__(self, unencrypted_password, salt, iterations, keylength, hashfunc):
