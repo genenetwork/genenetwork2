@@ -145,6 +145,10 @@ def whats_new_page():
         print("\nnews_item is: %s\n" % (news_item))
     return render_template("whats_new.html", news_items=news_items)
 
+@app.route("/testhtmleditor")
+def testhtmleditor_page():
+    return render_template("testhtmleditor.html")
+
 @app.route("/reference")
 def reference_page():
     return render_template("reference.html")
