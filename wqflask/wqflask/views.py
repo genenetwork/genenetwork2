@@ -149,6 +149,10 @@ def whats_new_page():
 def testhtmleditor_page():
     return render_template("testhtmleditor.html")
 
+@app.route("/environments")
+def environments():
+    return render_template("environments.html")
+
 @app.route("/reference")
 def reference_page():
     return render_template("reference.html")
