@@ -1,10 +1,10 @@
 <div>
-    <br>
-    <h2>Charts and Figures</h2>
-    <div class="well form-horizontal">
         <div class="tabbable"> <!-- Only required for left/right tabs -->
             <ul class="nav nav-pills">
                 <li class="active">
+                    <a href="#stats_tab" data-toggle="tab">Basic Statistics</a>
+                </li>
+                <li>
                     <a href="#histogram_tab" data-toggle="tab">Histogram</a>
                 </li>
                 <li>
@@ -16,61 +16,71 @@
                 <li>
                     <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
                 </li>
-<!--                <li>
+                <!--<li>
                     <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
                 </li>-->
             </ul>
+
             <div class="tab-content">
-                <div class="tab-pane active" id="histogram_tab">
-                    {% if sample_groups|length > 1 %}
-                    <select class="histogram_samples_group">
-                        {% for group, pretty_group in sample_group_types.items() %}
-                            <option value="{{ group }}">{{ pretty_group }}</option>
-                        {% endfor %}
-                    </select>
-                    <br><br>
-                    {% endif %}
-                    <div id="histogram_container">
-                        <div id="histogram" class="barchart"></div>
+                <div class="tab-pane active" id="stats_tab">
+                    <div style="padding: 20px" class="form-horizontal">
+                        <div class="well">
+                            <h3>Stats</h3>
+                            <table id="stats_table" class="table table-hover"></table>
+                        </div>
                     </div>
-                </div>
-                <div class="tab-pane" id="bar_chart_tab">
-                    {% if sample_groups|length > 1 %}
-                    <select class="bar_chart_samples_group">
-                        {% for group, pretty_group in sample_group_types.items() %}
-                            <option value="{{ group }}">{{ pretty_group }}</option>
-                        {% endfor %}
-                    </select>
-                    {% endif %}
-                    {% if sample_groups[0].attributes %}
-                    <div class="input-append">
-                        <select id="color_attribute" size=1>
-                            <option value="None">None</option>
-                            {% for attribute in sample_groups[0].attributes %}
-                            <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
-                                {{ sample_groups[0].attributes[attribute].name }}</option>
+                </div>   
+                <div class="tab-pane" id="histogram_tab">
+                    <div style="padding: 20px" class="form-horizontal">
+                        {% if sample_groups|length == 1 %}
+                        <select class="histogram_samples_group">
+                            {% for group, pretty_group in sample_group_types.items() %}
+                                <option value="{{ group }}">{{ pretty_group }}</option>
                             {% endfor %}
                         </select>
+                        <br><br>
+                        {% endif %}
+                        <div id="histogram_container">
+                            <div id="histogram" class="barchart"></div>
+                        </div>
                     </div>
-                {% endif %}
-                    <div id="update_bar_chart" class="btn-group">
-                      <button type="button" class="btn btn-default sort_by_name" value="name">
-                        <i class="icon-resize-horizontal"></i> Sort By Name
-                      </button>
-                      <button type="button" class="btn btn-default sort_by_value" value="value">
-                        <i class="icon-signal"></i> Sort By Value
-                      </button>
-                    </div>
-<!--                    <button type="button" class="btn" id="update_bar_chart">
-                        <i class="icon-resize-vertical"></i> Sort By Value
-                    </button>-->
-                    <div class="btn-group">
-                        <button type="button" class="btn" id="color_by_trait">
-                            <i class="icon-tint"></i> Color by Trait
-                        </button>
-                    </div>
-                    <div id="bar_chart_container">
-                        <div id="bar_chart" class="barchart"></div>
+                </div>   
+                <div class="tab-pane" id="bar_chart_tab">
+                    <div style="padding: 20px" class="form-horizontal">
+                        {% if sample_groups|length == 1 %}
+                        <select class="bar_chart_samples_group">
+                            {% for group, pretty_group in sample_group_types.items() %}
+                                <option value="{{ group }}">{{ pretty_group }}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                        {% if sample_groups[0].attributes %}
+                        <div class="input-append">
+                            <select id="color_attribute" size="1">
+                                <option value="None">None</option>
+                                {% for attribute in sample_groups[0].attributes %}
+                                <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
+                                    {{ sample_groups[0].attributes[attribute].name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        <div id="update_bar_chart" class="btn-group">
+                            <button type="button" class="btn btn-default sort_by_name" value="name">
+                            <i class="icon-resize-horizontal"></i> Sort By Name
+                            </button>
+                            <button type="button" class="btn btn-default sort_by_value" value="value">
+                            <i class="icon-signal"></i> Sort By Value
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default" id="color_by_trait">
+                                <i class="icon-tint"></i> Color by Trait
+                            </button>
+                        </div>
+                        <div id="bar_chart_container">
+                            <div id="bar_chart" class="barchart"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="tab-pane" id="probability_plot">
@@ -94,10 +104,10 @@
                 <div class="tab-pane" id="scatterplot_matrix">
                     
                     <div class="btn-group">
-                        <button type="button" class="btn" id="select_compare_trait">
+                        <button type="button" class="btn btn-default" id="select_compare_trait">
                             <i class="icon-th-large"></i> Select Traits
                         </button>
-                        <button type="button" class="btn" id="clear_compare_trait">
+                        <button type="button" class="btn btn-default" id="clear_compare_trait">
                             <i class="icon-trash"></i> Clear
                         </button>
                     </div>
@@ -107,7 +117,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    <!--</div>-->
     <div id="collections_holder_wrapper" style="display:none;">
         <div id="collections_holder"></div>
     </div>

@@ -1,6 +1,4 @@
 <div>
-    <h2>Mapping Tools</h2>
-    <div class="well form-horizontal">
         <div class="tabbable"> <!-- Only required for left/right tabs -->
             <ul class="nav nav-pills">
                 <li class="active">
@@ -27,119 +25,53 @@
 
             <div class="tab-content">
                 <div class="tab-pane active" id="interval_mapping">
-<!--                <div class="control-group">
-                        <label for="mapping_method" class="control-label">Mapping Method</label>
-                        <div class="controls" id="mapping_method_choice">
-                            <select name="mapping_method">
-                                <option value="qtl_reaper">H&K Regression</option>
-                                <option value="pylmm">Linear Mixed</option>
-                            </select>
+                    <div style="padding: 20px" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapping_permutations" class="col-sm-1 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                                <input name="num_perm_reaper" value="2000" type="text" class="form-control">
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label for="chromosome" class="control-label">Chromosome</label>
-                        <div class="controls">
-                            <select name="chromosome">
-                                <option value="-1">All</option>
-                                {% for name, value in dataset.species.chromosomes.chromosomes.items() %}
-                                <option value="{{ value }}">{{ name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>-->
     
-                    <div class="control-group mapping_method_fields">
-                        <label for="mapping_permutations" class="control-label">Permutations (n)</label>
-                        <div class="controls">
-                            <input name="num_perm_reaper" value="2000" type="text" />
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapping_bootstraps" class="col-sm-1 control-label" title="Bootstrapping Resamples">Bootstrap</label>
+                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                                <input name="mapping_bootstraps" value="2000" type="text" class="form-control">
+                            </div>
                         </div>
-                    </div>
-    
-                    <div class="control-group mapping_method_fields">
-                        <label for="mapping_bootstraps" class="control-label"
-                               title="Bootstrapping Resamples">Bootstrap (n)</label>
-                        <div class="controls">
-                            <input name="mapping_bootstraps" value="2000" type="text" />
-                        </div>
-                    </div>
                     
-                    <div class="control-group mapping_method_fields">
-                        <label class="control-label">Display Additive Effect</label>
-                        <div class="controls" id="display_additive_effect">                      
-                            <label class="radio inline">
-                                <input type="radio" name="display_additive"
-                                       id="display_additive" value="yes" checked>
-                                Yes
-                            </label>
-                            <label class="radio inline">
-                                <input type="radio" name="display_additive"
-                                       id="display_additive" value="no">
-                                No
-                            </label>
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-sm-2 control-label">Display Additive Effect</label>
+                            <div class="col-sm-4 controls" id="display_additive_effect">                      
+                                <label class="radio-inline">
+                                    <input type="radio" name="display_additive" id="display_additive" value="yes" checked="">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="display_additive" id="display_additive" value="no">
+                                    No
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="control-group mapping_method_fields">
-                        <label class="control-label">Manhattan Plot</label>
-                        <div class="controls">                      
-                            <label class="radio inline">
-                                <input type="radio" name="manhattan_plot_reaper" value=true>
-                                Yes
-                            </label>
-                            <label class="radio inline">
-                                <input type="radio" name="manhattan_plot_reaper" value=false checked>
-                                No
-                            </label>
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-sm-2 control-label">Manhattan Plot</label>
+                            <div class="col-sm-4 controls">                      
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_reaper" value="true">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_reaper" value="false" checked="">
+                                    No
+                               </label>
+                            </div>
                         </div>
                     </div>
-                    
-<!--                    <div class="control-group mapping_method_fields">
-                        <label class="control-label"><b>Composite Mapping</b></label>
-                        <div class="controls" id="use_composite_choice">                      
-                            <label class="radio inline">
-                                <input type="radio" name="use_composite"
-                                       id="use_composite" value="yes">
-                                Yes
-                            </label>
-                            <label class="radio inline">
-                                <input type="radio" name="use_composite"
-                                       id="use_composite" value="no" checked>
-                                No
-                            </label>
-                        </div>
-                    </div>
-                    <div class="control-group composite_fields" style="display: none;"
-                         id="choose_closet_control">
-                        <label class="control-label">Use Closest Marker</label>
-                        <div class="controls">                      
-                            <label class="radio inline">
-                                <input type="radio" name="default_control_locus"
-                                       id="default_control_locus" value="yes" checked>
-                                Yes
-                            </label>
-                            <label class="radio inline">
-                                <input type="radio" name="default_control_locus"
-                                       id="default_control_locus" value="no">
-                                No
-                            </label>
-                        </div>
-                    </div>
-                    <div class="control-group composite_fields" style="display: none;">
-                        <label for="control_locus" class="control-label"
-                               title="Control Locus">Control Locus</label>
-                        <div class="controls">
-                            <input name="control_locus" placeholder="rs12345" id="control_locus"
-                                    type="text" disabled />
-                        </div>
-                    </div>-->
-
-                    <div class="control-group">
-                        <div class="controls">
-                            <button id="interval_mapping_compute"
-                                    class="btn btn-inverse submit_special"
-                                    data-url="/interval_mapping"
-                                    title="Compute Interval Mapping">
+                    <div class="form-group">
+                        <label for="interval_mapping_submit" class="col-sm-1 control-label"></label>
+                        <div style="margin-left:35px;" class="col-sm-4 controls">
+                            <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/interval_mapping" title="Compute Interval Mapping">
                                 <i class="icon-ok-circle icon-white"></i> Compute
                             </button>
                         </div>
@@ -148,187 +80,142 @@
                 </div>
                 
                 <div class="tab-pane" id="pylmm">
-                    <div class="control-group mapping_method_fields">
-                        <label for="mapping_permutations" class="control-label">Permutations (n)</label>
-                        <div class="controls">
-                            <input name="num_perm_pylmm" value="20" type="text" />
+                    <div style="padding: 20px" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapping_permutations" class="col-sm-1 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                                <input name="num_perm_pylmm" value="2000" type="text" class="form-control">
+                            </div>
                         </div>
-
-                    </div>
-                    <div id="permutations_alert" class="alert alert-error" style="display:none;">
-                        Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
-                    </div>
-                    <div class="control-group" id="display_all_div">
-                        <label class="control-label">Manhattan Plot</label>
-                        <div class="controls">                      
-                            <label class="radio inline">
-                                <input type="radio" name="manhattan_plot_pylmm" value=true checked>
-                                Yes
-                            </label>
-                            <label class="radio inline">
-                                <input type="radio" name="manhattan_plot_pylmm" value=false>
-                                No
-                            </label>
+                        <div id="permutations_alert" class="alert alert-error alert-warning" style="display:none;">
+                            Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
                         </div>
-                    </div>
-                    <div class="control-group" id="suggestive" >
-                        <label for="suggestive_reaper" class="control-label"
-                               title="Control Locus">LOD score greater than: </label>
-                        <div class="controls">
-                            <input name="suggestive_reaper" type="text" value="0"/>
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-sm-1 control-label">Manhattan Plot</label>
+                            <div style="margin-left:20px;" class="col-sm-4 controls">                      
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_pylmm" value="true">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_pylmm" value="false" checked="">
+                                    No
+                               </label>
+                            </div>
                         </div>
+                        <!--<div class="form-group" id="suggestive">
+                            <label for="suggestive_reaper" class="control-label" title="Control Locus">LOD score greater than: </label>
+                            <div class="controls">
+                                <input name="suggestive_reaper" type="text" value="0" class="form-control">
+                            </div>
+                        </div>-->
                     </div>
                     
-<!--                <div class="control-group">
-                        <label for="marker_reg_permutations" class="control-label">Permutations (n)</label>
-                        <div class="controls">
-                            <input name="num_perm" value="2000" type="text" />
-                        </div>
-                    </div>           -->
-                    
-                    <div class="control-group">
-                        <div class="controls">
-                            <button id="marker_regression_compute"
-                                    class="btn btn-inverse submit_special"
-                                    data-url="/marker_regression"
-                                    title="Compute Marker Regression">
-                                <i class="icon-ok-circle icon-white"></i> Compute
+                    <div class="form-group">
+                        <label for="marker_regression_submit" class="col-sm-1 control-label"></label>
+                        <div style="margin-left:20px;" class="col-sm-4 controls">
+                            <button id="pylmm_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
+                                Compute
                             </button>
                         </div>
                     </div>
+                    <div id="alert_placeholder"></div>
                     
                 </div>
                 <div class="tab-pane" id="rqtl_geno">
                     
-                    <div class="control-group">
-                        <label for="num_perm_rqtl_geno" class="control-label">Permutations (n)</label>
-                        <div class="controls">
-                            <input name="num_perm_rqtl_geno" value="500" type="text" />
+                    <div style="padding: 20px" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapping_permutations" class="col-sm-1 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                                <input name="num_perm_rqtl_geno" value="500" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div id="permutations_alert" class="alert alert-error alert-warning" style="display:none;">
+                            Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapping_permutations" class="col-sm-1 control-label">Control&nbsp;for</label>
+                            <div style="margin-left: 20px;" class="col-sm-2 controls">
+                                {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
+                                <input name="control_rqtl_geno" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" />
+                                {% else %}
+                                <input name="control_rqtl_geno" value="" type="text" />
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-sm-1 control-label">Manhattan&nbsp;Plot</label>
+                            <div style="margin-left:20px;" class="col-sm-4 controls">                      
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_rqtl" value="true">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_rqtl" value="false" checked="">
+                                    No
+                               </label>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label for="control_rqtl_geno" class="control-label">Control Marker(s)</label>
-                        <div class="controls">
-                            {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
-                            <input name="control_rqtl_geno" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" />
-                            {% else %}
-                            <input name="control_rqtl_geno" value="" type="text" />
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="control-group mapping_method_fields">
-                        <label class="control-label">Manhattan Plot</label>
-                        <div class="controls">                      
-                            <label class="radio inline">
-                                <input type="radio" name="manhattan_plot_rqtl" value=true checked>
-                                Yes
-                            </label>
-                            <label class="radio inline">
-                                <input type="radio" name="manhattan_plot_rqtl" value=false>
-                                No
-                            </label>
-                        </div>
-                    </div>
-
                     
-                    <div class="control-group">
-                        <div class="controls">
-                            <button id="rqtl_geno_compute"
-                                    class="btn btn-inverse submit_special"
-                                    data-url="/marker_regression"
-                                    title="Compute Marker Regression">
+                    <div class="form-group">
+                        <label for="marker_regression_submit" class="col-sm-1 control-label"></label>
+                        <div style="margin-left:20px;" class="col-sm-4 controls">
+                            <button id="rqtl_geno_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
                                 <i class="icon-ok-circle icon-white"></i> Compute
                             </button>
                         </div>
                     </div>
+                    <div id="alert_placeholder"></div>
        
                 </div>
                 
                 {% if dataset.group.species == 'human' %}
                 <div class="tab-pane" id="plink">
-                    <div class="control-group" id="display_all_div">
-                        <label class="control-label">Display all</label>
-                        <div class="controls">                      
-                            <label class="radio inline">
-                                <input type="radio" name="display_all_plink" value="True" checked>
-                                Yes
-                            </label>
-                            <label class="radio inline">
-                                <input type="radio" name="display_all_plink" value="False">
-                                No
-                            </label>
-                        </div>
-                    </div>
-                    <div class="control-group" id="suggestive" >
-                        <label for="suggestive_plink" class="control-label"
-                               title="Control Locus">LOD score greater than: </label>
-                        <div class="controls">
-                            <input name="suggestive_plink" type="text" value="0"/>
-                        </div>
-                    </div>
-                    <div class="control-group" id="suggestive" >
-                        <label for="maf_plink" class="control-label"
-                               title="Control Locus">Minor allele threshold: </label>
-                        <div class="controls">
-                            <input name="maf_plink" type="text" value="0.01"/>
+                    <div style="padding: 20px" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="maf_plink" class="col-sm-2 control-label">Minor allele threshold</label>
+                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                                <input name="maf_plink" value="0.01" type="text" class="form-control">
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="control-group">
-                        <div class="controls">
-                            <button id="plink_compute"
-                                    class="btn btn-inverse submit_special"
-                                    data-url="/marker_regression"
-                                    title="Compute using PLINK">
-                                <i class="icon-ok-circle icon-white"></i> Compute
+                    <div class="form-group">
+                        <label for="gemma_compute" class="col-sm-1 control-label"></label>
+                        <div style="margin-left:20px;" class="col-sm-4 controls">
+                            <button id="gemma_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
+                                Compute
                             </button>
                         </div>
                     </div>
+                    <div id="alert_placeholder"></div>
                     
                 </div>
                 
                 <div class="tab-pane" id="gemma">
-                    <div class="control-group" id="display_all_div">
-                        <label class="control-label">Display all</label>
-                        <div class="controls">                      
-                            <label class="radio inline">
-                                <input type="radio" name="display_all_gemma" value="True" checked>
-                                Yes
-                            </label>
-                            <label class="radio inline">
-                                <input type="radio" name="display_all_gemma" value="False">
-                                No
-                            </label>
-                        </div>
-                    </div>
-                    <div class="control-group" id="suggestive" >
-                        <label for="suggestive_gemma" class="control-label"
-                               title="Control Locus">LOD score greater than: </label>
-                        <div class="controls">
-                            <input name="suggestive_gemma" type="text" value="0"/>
-                        </div>
-                    </div>
-                    <div class="control-group" id="suggestive" >
-                        <label for="maf_gemma" class="control-label"
-                               title="Control Locus">Minor allele threshold: </label>
-                        <div class="controls">
-                            <input name="maf_gemma" type="text" value="0.01"/>
+                    <div style="padding: 20px" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="maf_gemma" class="col-sm-2 control-label">Minor allele threshold</label>
+                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                                <input name="maf_gemma" value="0.01" type="text" class="form-control">
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="control-group">
-                        <div class="controls">
-                            <button id="gemma_compute"
-                                    class="btn btn-inverse submit_special"
-                                    data-url="/marker_regression"
-                                    title="Compute using GEMMA">
-                                <i class="icon-ok-circle icon-white"></i> Compute
+                    <div class="form-group">
+                        <label for="plink_compute" class="col-sm-1 control-label"></label>
+                        <div style="margin-left:20px;" class="col-sm-4 controls">
+                            <button id="plink_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
+                                Compute
                             </button>
                         </div>
                     </div>
-                </div>
+                    <div id="alert_placeholder"></div>
+                    
+                </div>                
                 {% endif %}
             </div>
         </div>
-    </div>
 </div>

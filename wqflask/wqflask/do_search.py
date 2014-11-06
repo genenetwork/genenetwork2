@@ -47,7 +47,7 @@ class DoSearch(object):
 
     def mescape(self, *items):
         """Multiple escape"""
-        escaped = [escape(item) for item in items]
+        escaped = [escape(str(item)) for item in items]
         print("escaped is:", escaped)
         return tuple(escaped)
 
@@ -132,7 +132,7 @@ class MrnaAssaySearch(DoSearch):
                     and ProbeSetXRef.ProbeSetFreezeId = %s
                             """ % (escape(from_clause),
                                     where_clause,
-                                    escape(self.dataset.id)))
+                                    escape(str(self.dataset.id))))
 
         #print("query is:", pf(query))
 
@@ -373,8 +373,8 @@ class WikiSearch(MrnaAssaySearch):
             and GeneRIF.versionId=0 and GeneRIF.display>0
             and (GeneRIF.comment REGEXP '%s' or GeneRIF.initial = '%s')
                 """ % (self.dataset.type,
-                       "[[:<:]]"+self.search_term+"[[:>:]]",
-                       self.search_term)
+                       "[[:<:]]"+self.search_term[0]+"[[:>:]]",
+                       self.search_term[0])
 
         from_clause = ", GeneRIF "
         query = self.compile_final_query(from_clause, where_clause)
@@ -448,6 +448,7 @@ class LrsSearch(MrnaAssaySearch):
             print("self.sub_clause is:", pf(self.sub_clause))
         else:
             # Deal with >, <, >=, and <=
+            print("self.search_term is:", self.search_term)
             self.sub_clause = """ %sXRef.LRS %s %s and """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
                                                                         self.search_term[0])

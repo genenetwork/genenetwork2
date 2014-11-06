@@ -31,7 +31,15 @@
         <p>To study a record, click on its ID below.<br />
         Check records below and click Add button to add to selection.</p>
 
-        <div class="bs-docs-example">
+        <div>
+            <br />
+            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+            <button class="btn btn-default" id="add"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+            <button class="btn btn-primary pull-right"><span class="glyphicon glyphicon-download"></span> Download Table</button>
+            <br />
+            <br />
             <table class="table table-hover table-striped" id='trait_table'>
                 <thead>
                     <tr>
@@ -81,18 +89,6 @@
                 </tbody>
 
             </table>
-
-            <br />
-            <br />
-	     <br />
-
-            <div style="clear:both">
-                <button class="btn" id="select_all"><i class="icon-ok"></i> Select All</button>
-                <button class="btn" id="deselect_all"><i class="icon-remove"></i> Deselect All</button>
-                <button class="btn" id="invert"><i class="icon-resize-vertical"></i> Invert</button>
-                <button class="btn" id="add"><i class="icon-plus-sign"></i> Add</button>
-                <button class="btn btn-primary pull-right"><i class="icon-download icon-white"></i> Download Table</button>
-            </div>
         </div>
     </div>
 
@@ -134,20 +130,36 @@
             return ((x < y) ? 1 : ((x > y) ? -1 : 0));
         };
 
+
         $(document).ready( function () {
+            
+	     /*num_columns = $('#trait_table').find('tr:first th').length;
+
+            nul_cols = []
+	     for (i=0; i<num_columns - 1, i++) {
+                $('#trait_table > tbody > tr').each(function() {
+                    if ($(this).find('td:eq(i)').html()){
+                        continue;
+                    }
+                });
+                nul_cols.push(i)
+	     }*/
+
             console.time("Creating table");
+            {% if dataset.type == 'ProbeSet' %}
             $('#trait_table').dataTable( {
                 //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
                 "aoColumns": [
                     { "bSortable": false },
                     { "sType": "natural" },
-                    { "sType": "natural", 
-                      "sWidth": "35%"  },
+                    { "sType": "natural" },
                     { "sType": "natural",
-                      "sWidth": "20%"  },
+                      "sWidth": "35%"  },
                     { "sType": "natural" },
                     { "sType": "cust-txt" },
-                    { "sType": "natural" },
+                    { "sType": "cust-txt" },
+                    { "sType": "natural",
+                      "sWidth": "15%"  }
                 ],
                 "columns": [
                     { "width": "50%" },
@@ -165,8 +177,41 @@
                 "bDeferRender": true,
                 "bSortClasses": false
             } );
+
+            {% elif dataset.type == 'Publish' %}
+            $('#trait_table').dataTable( {
+                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "sType": "natural" },
+                    { "sType": "natural", 
+                      "sWidth": "35%"  },
+                    { "sType": "natural",
+                      "sWidth": "20%"  },
+                    { "sType": "natural" },
+                    { "sType": "cust-txt" },
+                    { "sType": "natural" }
+                ],
+                "columns": [
+                    { "width": "50%" },
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                ],
+                "sDom": "ftir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "bSortClasses": false
+            } );
+            {% endif %}
             console.timeEnd("Creating table");
         });
+        
     </script>
     
 {% endblock %}

@@ -306,7 +306,7 @@ class MarkerRegression(object):
             
             if int(self.num_perm) > 0:
                 thresholds = robjects.r(r_string)
-                self.suggestive, self.significant = self.process_rqtl_perm_results(results)
+                self.suggestive, self.significant = self.process_rqtl_perm_results(thresholds)
                 r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
                 
             #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', addcovar='+control_as_string+')'

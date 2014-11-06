@@ -96,6 +96,9 @@ class ShowTrait(object):
         if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
             self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
             self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
+        else:
+            self.nearest_marker1 = ""
+            self.nearest_marker2 = ""
 
         self.make_sample_lists(self.this_trait)
 

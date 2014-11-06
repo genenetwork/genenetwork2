@@ -1,9 +1,4 @@
-# http://stackoverflow.com/a/4215132/1175849
-#root = exports ? this
-
-$ ->
-    
-    submit_special = ->
+submit_special = ->
         # Add submit_special class plus a data-url field to any button
         # And it will submit to that url
         # No js changes necessary
@@ -15,7 +10,7 @@ $ ->
         $("#trait_data_form").attr("action", url);
         $("#trait_data_form").submit()
 
-    update_time_remaining = (percent_complete) ->
+update_time_remaining = (percent_complete) ->
         now = new Date()
         period = now.getTime() - root.start_time
         console.log("period is:", period)
@@ -29,7 +24,7 @@ $ ->
             else
                 $('#time_remaining').text(minutes_remaining + " minutes remaining")
 
-    get_progress = ->
+get_progress = ->
         console.log("temp_uuid:", $("#temp_uuid").val())
         temp_uuid = $("#temp_uuid").val()
         params = { key:temp_uuid }
@@ -53,12 +48,12 @@ $ ->
         )
         return false
 
-    ##Block Outliers Code
-    block_outliers = ->
+##Block Outliers Code
+block_outliers = ->
         $('.outlier').each (_index, element) =>
             $(element).find('.trait_value_input').val('x')
             
-    do_ajax_post = (url, form_data) ->
+do_ajax_post = (url, form_data) ->
         $.ajax(
             type: "POST"
             url: url
@@ -79,11 +74,11 @@ $ ->
         this.my_timer = setInterval(get_progress, 1000)
         return false
 
-    showalert = (message,alerttype) ->
+showalert = (message,alerttype) ->
       $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + '"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>')
     
 
-    $("#interval_mapping_compute").click(() =>
+$("#interval_mapping_compute").click(() =>
         showalert("One or more outliers exist in this data set. Please review values before mapping. \
                   Including outliers when mapping may lead to misleading results. \
                   We recommend <A HREF=\"http://en.wikipedia.org/wiki/Winsorising\">winsorising</A> the outliers \
@@ -126,19 +121,19 @@ $ ->
         #
         #this.my_timer = setInterval(get_progress, 1000)
         #return false
-    )
+)
 
-    $('#suggestive').hide()
+$('#suggestive').hide()
 
-    $('input[name=display_all]').change(() =>
+$('input[name=display_all]').change(() =>
         console.log("check")
         if $('input[name=display_all]:checked').val() == "False"
             $('#suggestive').show()
         else
             $('#suggestive').hide()
-    )
+)
 
-    $("#marker_regression_compute").click(() =>
+$("#pylmm_compute").click(() =>
         $("#progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("pylmm")
@@ -171,11 +166,11 @@ $ ->
         #
         #this.my_timer = setInterval(get_progress, 1000)
         #return false
-    )
+)
     
     
     
-    $("#rqtl_geno_compute").click(() =>
+$("#rqtl_geno_compute").click(() =>
         $("#progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("rqtl_geno")
@@ -209,13 +204,13 @@ $ ->
         #
         #this.my_timer = setInterval(get_progress, 1000)
         #return false
-    )
+)
 
 
-    $("#plink_compute").click(() =>
+$("#plink_compute").click(() =>
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
-        $('input[nsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssegbame=method]').val("plink")
+        $('input[name=method]').val("plink")
         $('input[name=mapping_display_all]').val($('input[name=display_all_plink]').val())
         $('input[name=suggestive]').val($('input[name=suggestive_plink]').val())
         $('input[name=maf]').val($('input[name=maf_plink]').val())
@@ -243,9 +238,9 @@ $ ->
         #
         #this.my_timer = setInterval(get_progress, 1000)
         #return false
-    )
+)
 
-    $("#gemma_compute").click(() =>
+$("#gemma_compute").click(() =>
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("gemma")
@@ -276,28 +271,28 @@ $ ->
         #
         #this.my_timer = setInterval(get_progress, 1000)
         #return false
-    )
+)
 
-    #$(".submit_special").click(submit_special)
+#$(".submit_special").click(submit_special)
 
-    composite_mapping_fields = ->
+composite_mapping_fields = ->
         $(".composite_fields").toggle()
-    mapping_method_fields = ->
+mapping_method_fields = ->
         $(".mapping_method_fields").toggle()
         
 
-    $("#use_composite_choice").change(composite_mapping_fields)
-    $("#mapping_method_choice").change(mapping_method_fields)
+$("#use_composite_choice").change(composite_mapping_fields)
+$("#mapping_method_choice").change(mapping_method_fields)
 
 
-    #### Todo: Redo below so its like submit_special and requires no js hardcoding
-    toggle_enable_disable = (elem) ->
+#### Todo: Redo below so its like submit_special and requires no js hardcoding
+toggle_enable_disable = (elem) ->
         $(elem).prop("disabled", !$(elem).prop("disabled"))
     
-    $("#choose_closet_control").change(->
+$("#choose_closet_control").change(->
         toggle_enable_disable("#control_locus")
-    )
+)
     
-    $("#display_all_lrs").change(->
+$("#display_all_lrs").change(->
         toggle_enable_disable("#suggestive_lrs")
-    );
+);

@@ -35,12 +35,65 @@
             </div>
             
             {% include 'show_trait_details.html' %}
-            {% include 'show_trait_statistics_new.html' %}
-            {% include 'show_trait_calculate_correlations.html' %}
-            {% include 'show_trait_mapping_tools.html' %}
-            {% include 'show_trait_edit_data.html' %}
-            {% include 'show_trait_progress_bar.html' %}
-
+            <div class="panel-group" id="accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                Statistics
+                            </a>
+                        </h3>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            {% include 'show_trait_statistics_new.html' %}
+                        </div>
+                    </div>
+                </div>                
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                Calculate Correlations
+                            </a>
+                        </h3>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            {% include 'show_trait_calculate_correlations.html' %}
+                        </div>
+                    </div>
+                </div>                
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                                Mapping Tools
+                            </a>
+                        </h3>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            {% include 'show_trait_mapping_tools.html' %}
+                        </div>
+                    </div>
+                </div>                
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+                                Review and Edit Data
+                            </a>
+                        </h3>
+                    </div>
+                    <div id="collapseFour" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            {% include 'show_trait_edit_data.html' %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+ 
         </div>
     </form>
 
@@ -51,6 +104,7 @@
 {% block js %}
     <script>
         js_data = {{ js_data | safe }}
+        $('.collapse').collapse()
     </script>
 
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
@@ -75,6 +129,7 @@
     <script type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
     <script type="text/javascript" src="/static/new/javascript/validation.js"></script>
     
+    <script language="javascript" type="text/javascript" src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
