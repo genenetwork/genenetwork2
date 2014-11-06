@@ -232,12 +232,16 @@ def create_new(collection_name):
 @app.route("/collections/list")
 def list_collections():
     params = request.args
-    user_collections = list(g.user_session.user_ob.user_collections)
-    print("user_collections are:", user_collections)
-    return render_template("collections/list.html",
-                           params = params,
-                           user_collections = user_collections,
-                           )
+    try:
+        user_collections = list(g.user_session.user_ob.user_collections)
+        print("user_collections are:", user_collections)
+        return render_template("collections/list.html",
+                               params = params,
+                               user_collections = user_collections,
+                               )
+    except:
+        return render_template("collections/not_logged_in.html",
+                                params = params)
 
 
 @app.route("/collections/remove", methods=('POST',))
