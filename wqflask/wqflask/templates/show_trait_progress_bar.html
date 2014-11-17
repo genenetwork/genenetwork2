@@ -1,17 +1,40 @@
-<div id="progress_bar_container" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="progress_bar" aria-hidden="true">
-  <div class="modal-header">
-    <h3 id="progress_bar">Loading...</h3>
-  </div>
-    <div class="modal-body">
-        <div class="progress active">
-            <div id="marker_regression_progress" class="bar"></div>
+<div id="progress_bar_container" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="progress_bar" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="progress_bar">Loading...</h3>
+      </div>
+      <div class="modal-body">
+        <div class="progress">
+          <div id="marker_regression_progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;">
+          </div>
         </div>
         <div id="time_remaining">
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
-<div id="static_progress_bar_container" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="progress_bar" aria-hidden="true">
+<div id="static_progress_bar_container" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="progress_bar" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="progress_bar">Loading... (Estimated time ~10-15m)</h3>
+      </div>
+      <div class="modal-body">
+        <div class="progress progress-striped active">
+          <div id="marker_regression_progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:100%;">
+          </div>
+        </div>
+        <div id="time_remaining">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--<div id="static_progress_bar_container" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="progress_bar" aria-hidden="true">
   <div class="modal-header">
     <h3 id="progress_bar">Loading... (Estimated time ~10-15m)</h3>
   </div>
@@ -22,4 +45,4 @@
         <div id="time_remaining">
         </div>
     </div>
-</div>
+</div>-->
