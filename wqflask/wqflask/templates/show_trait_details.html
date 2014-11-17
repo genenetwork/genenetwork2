@@ -19,11 +19,11 @@
             BLAT Specifity
         </a>
     </dt>
-    <dd>{{ "%s" % (this_trait.probe_set_specificity) }}</dd>
+    <dd>{{ "%0.3f" | format(this_trait.probe_set_specificity|float) }}</dd>
     {% endif %}
     {% if this_trait.probe_set_blat_score %}
     <dt>BLAT Score</dt>
-    <dd>{{ "%s" % (this_trait.probe_set_blat_score) }}</dd>
+    <dd>{{ "%0.3f" | format(this_trait.probe_set_blat_score|float) }}</dd>
     {% endif %}
 </dl>
 

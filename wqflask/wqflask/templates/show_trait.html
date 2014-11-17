@@ -18,13 +18,13 @@
 
     <form method="post" action="/corr_compute" name="trait_page" id="trait_data_form"
     class="form-horizontal">
-            <div id="hidden_inputs">
-            {% for key in hddn %}
-                <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
-            {% endfor %}
-            </div>
+        <div id="hidden_inputs">
+        {% for key in hddn %}
+            <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
+        {% endfor %}
+        </div>
 
-            <input type="hidden" name="temp_uuid" id="temp_uuid" value="{{ temp_uuid }}">
+        <input type="hidden" name="temp_uuid" id="temp_uuid" value="{{ temp_uuid }}">
 
         <div class="container">
             <div class="page-header">
@@ -81,18 +81,19 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true">
                                 Review and Edit Data
                             </a>
                         </h3>
                     </div>
-                    <div id="collapseFour" class="panel-collapse collapse in">
+                    <div id="collapseFour" class="panel-collapse collapse" aria-expanded="true">
                         <div class="panel-body">
                             {% include 'show_trait_edit_data.html' %}
                         </div>
                     </div>
                 </div>
             </div>
+            {% include 'show_trait_progress_bar.html' %}
  
         </div>
     </form>
@@ -134,7 +135,7 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
-        <script type="text/javascript" charset="utf-8">
+    <script type="text/javascript" charset="utf-8">
             
            function getValue(x) {
                 if (x.indexOf('input') >= 0) {
@@ -227,6 +228,6 @@
                     console.timeEnd("Creating table");
                 {% endif %}
             });
-        </script>
+    </script>
     
 {% endblock %}

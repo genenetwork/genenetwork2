@@ -132,7 +132,9 @@ $('input[name=display_all]').change((function(_this) {
 $("#pylmm_compute").click((function(_this) {
   return function() {
     var form_data, url;
-    $("#progress_bar_container").modal();
+    $("#progress_bar_container").modal({
+      show: true
+    });
     url = "/marker_regression";
     $('input[name=method]').val("pylmm");
     $('input[name=num_perm]').val($('input[name=num_perm_pylmm]').val());

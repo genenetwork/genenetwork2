@@ -513,7 +513,7 @@ class MarkerRegression(object):
                 p_value = float(line_list[-1])
                 if threshold_p_value >= 0 and threshold_p_value <= 1:
                     if p_value < threshold_p_value:
-                        p_value_dict[snp] = p_value
+                        p_value_dict[snp] = float(p_value)
                 
                 if plink_results.has_key(chr_name):
                     value_list = plink_results[chr_name]
