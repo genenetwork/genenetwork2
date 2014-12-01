@@ -29,6 +29,7 @@ from flask import (render_template, request, make_response, Response,
                    Flask, g, config, jsonify, redirect, url_for)
 
 from wqflask import search_results
+from wqflask import docs
 from base.data_set import DataSet    # Used by YAML in marker_regression
 from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
@@ -133,9 +134,17 @@ def search_page():
         else:
             return render_template("search_result_page.html", **result)
 
+@app.route("/testhtmleditor")
+def testhtmleditor_page():
+    return render_template("testhtmleditor.html")
 
-@app.route("/whats_new")
-def whats_new_page():
+@app.route("/help")
+def help():
+    doc = docs.Docs("help")
+    return render_template("docs.html", **doc.__dict__)
+
+@app.route("/news")
+def news():
     #variables = whats_new.whats_new()
     with open("/home/sam/gene/wqflask/wqflask/yaml_data/whats_new.yaml") as fh:
         contents = fh.read()
@@ -145,17 +154,25 @@ def whats_new_page():
         print("\nnews_item is: %s\n" % (news_item))
     return render_template("whats_new.html", news_items=news_items)
 
-@app.route("/reference")
-def reference_page():
-    return render_template("reference.html")
+@app.route("/references")
+def references():
+    doc = docs.Docs("references")
+    return render_template("docs.html", **doc.__dict__)
 
 @app.route("/policies")
-def policies_page():
-    return render_template("policies.html")
+def policies():
+    doc = docs.Docs("policies")
+    return render_template("docs.html", **doc.__dict__)
 
 @app.route("/links")
-def links_page():
-    return render_template("links.html")
+def links():
+    doc = docs.Docs("links")
+    return render_template("docs.html", **doc.__dict__)
+
+@app.route("/environments")
+def environments():
+    doc = docs.Docs("environments")
+    return render_template("docs.html", **doc.__dict__)
 
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_excel():
