@@ -35,6 +35,9 @@ import resource
 
 import scipy
 
+from rpy2.robjects.packages import importr
+import rpy2.robjects as robjects
+
 from pprint import pformat as pf
 
 from htmlgen import HTMLgen2 as HT
@@ -64,7 +67,7 @@ class CorrelationMatrix(object):
     def __init__(self, start_vars):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
         
-        helper_functions.get_trait_db_obs(trait_db_list)
+        helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.all_sample_list = []
         self.traits = []
@@ -94,6 +97,7 @@ class CorrelationMatrix(object):
             self.sample_data.append(this_trait_vals)
 
         self.corr_results = []
+        self.corr_rseults_for_pca = []
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
             this_db = trait_db[1]
@@ -134,9 +138,6 @@ class CorrelationMatrix(object):
                         this_trait_vals.append(sample_value)
                         target_vals.append(target_sample_value)
         
-                #print("this_trait_vals:", this_trait_vals)
-                #print("target_vals:", target_vals)
-        
                 this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
                 this_trait_vals, target_vals)
                 
@@ -146,24 +147,13 @@ class CorrelationMatrix(object):
                 
             self.corr_results.append(corr_result_row)
 
-        #self.sample_data = {}
-        #for trait_db in self.trait_list:
-        #    this_trait = trait_db[0]
-        #
-        #    this_sample_data = this_trait.data
-        #    
-        #    self.sample_data[this_trait.name] = []
-        #    for sample in self.all_sample_list:
-        #        if sample in this_sample_data:
-        #            self.sample_data[this_trait.name].append(this_sample_data[sample].value)
-        #        else:
-        #            self.sample_data[this_trait.name].append('')
-
-        print("corr_results:", pf(self.traits))
+        print("corr_results:", pf(self.corr_results))
 
         groups = []
         for sample in self.all_sample_list:
             groups.append(1)
+
+        pca = self.calculate_pca(self.corr_results, range(len(self.traits)))
 
         self.js_data = dict(traits = self.traits,
                             groups = groups,
@@ -192,9 +182,19 @@ class CorrelationMatrix(object):
         #print("trait_list:", self.trait_list)
 
         
-        
-        
-        
+    def calculate_pca(self, corr_results, cols): 
+        base = importr('base')
+        stats = importr('stats')        
+        print("checking:", pf(stats.rnorm(100)))
+
+        corr_results_to_list = robjects.FloatVector([item for sublist in corr_results for item in sublist])
+        print("corr_results:",  pf(corr_results_to_list))
+
+        m = robjects.r.matrix(corr_results_to_list, nrow=len(cols))
+        pca = stats.princomp(m, cor = "TRUE")
+        print("pca:", pca)
+
+        return pca
         
         
         

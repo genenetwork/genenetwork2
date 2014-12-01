@@ -7,6 +7,7 @@ from flask import render_template
 import os
 import cPickle
 import re
+import uuid
 from math import *
 import time
 #import pyXLWriter as xl
@@ -66,6 +67,9 @@ class SearchResultPage(object):
         #else:
 
         self.quick = False
+
+        self.uc_id = uuid.uuid4()
+        print("uc_id:", self.uc_id)
 
         if 'q' in kw:
             self.results = {}

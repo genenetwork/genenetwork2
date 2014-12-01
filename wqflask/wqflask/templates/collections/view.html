@@ -17,14 +17,16 @@
             {% endif %}
 
             <div class="form-group">
+            {% if uc %}
             <form action="/collections/delete" method="post">
                 {% if uc %}
                 <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
                 {% endif %}
-                <div class="col-sm-2 controls">
+                <div class="col-xs-3 controls">
                     <input type="submit" class="btn btn-danger" value="Delete this collection" />
                 </div>
             </form>
+            {% endif %}
             <form action="/corr_matrix" method="post">
                 {% if uc %}
                 <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
@@ -33,8 +35,8 @@
                 {% for this_trait in trait_obs %}
                     {{ this_trait.name }}:{{ this_trait.dataset.name }},
                 {% endfor %}" >
-                <div class="col-sm-2 controls">
-                    <input type="submit" class="btn" value="Correlation Matrix" />
+                <div class="col-xs-2 controls">
+                    <input type="submit" class="btn btn-primary" value="Correlation Matrix" />
                 </div>
             </form>
             <form action="/heatmap" method="post">
@@ -45,8 +47,8 @@
                 {% for this_trait in trait_obs %}
                     {{ this_trait.name }}:{{ this_trait.dataset.name }},
                 {% endfor %}" >
-                <div class="col-sm-2 controls">
-                    <input type="submit" class="btn" value="Heatmap" />
+                <div class="col-xs-2 controls">
+                    <input type="submit" class="btn btn-primary" value="Heatmap" />
                 </div>
             </form>
             </div>

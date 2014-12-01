@@ -56,7 +56,7 @@ class AnonCollection(object):
     """User is not logged in"""
     def __init__(self):
         self.anon_user = user_manager.AnonUser()
-        self.key = "anon_collection:v4:{}".format(self.anon_user.anon_id)
+        self.key = "anon_collection:v5:{}".format(self.anon_user.anon_id)
     
     def add_traits(self, params, collection_name):
         assert collection_name == "Default", "Unexpected collection name for anonymous user"
@@ -73,15 +73,15 @@ class AnonCollection(object):
         
     def remove_traits(self, params):
         traits_to_remove = params.getlist('traits[]')
-        print("traits_to_remove:", traits_to_remove)
+        print("traits_to_remove:", process_traits(traits_to_remove))
         len_before = len(Redis.smembers(self.key))
         Redis.srem(self.key, traits_to_remove)
+        print("currently in redis:", Redis.smembers(self.key))
         len_now = len(Redis.smembers(self.key))
-        print("Went from {} to {} members in set.".format(len(self.collection_members), len(members_now)))
 
         # We need to return something so we'll return this...maybe in the future
         # we can use it to check the results
-        return str(len(members_now))
+        return str(len_now)
     
     def get_traits(self):
         traits = Redis.smembers(self.key)
@@ -240,8 +240,9 @@ def list_collections():
                                user_collections = user_collections,
                                )
     except:
-        return render_template("collections/not_logged_in.html",
-                                params = params)
+        return redirect(url_for('view_collection'))
+        #return render_template("collections/view_anonymous.html",
+        #                        params = params)
 
 
 @app.route("/collections/remove", methods=('POST',))
@@ -249,20 +250,25 @@ def remove_traits():
 
     params = request.form
     print("params are:", params)
-    uc_id = params['uc_id']
-    uc = model.UserCollection.query.get(uc_id)
-    traits_to_remove = params.getlist('traits[]')
-    print("traits_to_remove are:", traits_to_remove)
-    traits_to_remove = process_traits(traits_to_remove)
-    print("\n\n  after processing, traits_to_remove:", traits_to_remove)
-    all_traits = uc.members_as_set()
-    print("  all_traits:", all_traits)
-    members_now = all_traits - traits_to_remove
-    print("  members_now:", members_now)
-    print("Went from {} to {} members in set.".format(len(all_traits), len(members_now)))
-    uc.members = json.dumps(list(members_now))
-    uc.changed_timestamp = datetime.datetime.utcnow()
-    db_session.commit()
+
+    if "uc_id" in params:
+        uc_id = params['uc_id']
+        uc = model.UserCollection.query.get(uc_id)
+        traits_to_remove = params.getlist('traits[]')
+        print("traits_to_remove are:", traits_to_remove)
+        traits_to_remove = process_traits(traits_to_remove)
+        print("\n\n  after processing, traits_to_remove:", traits_to_remove)
+        all_traits = uc.members_as_set()
+        print("  all_traits:", all_traits)
+        members_now = all_traits - traits_to_remove
+        print("  members_now:", members_now)
+        print("Went from {} to {} members in set.".format(len(all_traits), len(members_now)))
+        uc.members = json.dumps(list(members_now))
+        uc.changed_timestamp = datetime.datetime.utcnow()
+        db_session.commit()
+    else:
+        members_now = AnonCollection().remove_traits(params)
+             
 
     # We need to return something so we'll return this...maybe in the future
     # we can use it to check the results
@@ -285,10 +291,11 @@ def delete_collection():
     return redirect(url_for('list_collections'))
 
 
+
 @app.route("/collections/view")
 def view_collection():
     params = request.args
-    print("params in view collection:", params)
+    print("PARAMS in view collection:", params)
     
     if "uc_id" in params:
         uc_id = params['uc_id']
@@ -320,10 +327,12 @@ def view_collection():
         #                         lrs_location=trait_ob.LRS_location_repr))
         #                         dis=trait_ob.description))
         #json_version.append(trait_ob.__dict__th)
-        
-    collection_info = dict(trait_obs=trait_obs,
+       
+    if "uc_id" in params: 
+        collection_info = dict(trait_obs=trait_obs,
                            uc = uc)
-    #collection_info = dict(trait_obs=trait_obs)
+    else:
+        collection_info = dict(trait_obs=trait_obs)
     if "json" in params:
         print("json_version:", json_version)
         return json.dumps(json_version)

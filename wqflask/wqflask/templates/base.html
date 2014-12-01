@@ -5,11 +5,10 @@
 <head>
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %} GeneNetwork</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.min.css" />
-    <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap-responsive.min.css" />
+    <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
+    <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/non-responsive.css" />
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/docs.css" />
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -27,7 +26,7 @@
 </head>
 
 {% macro header(main, second) %}
-    <header class="jumbotron subhead" id="overview">
+    <header class="jumbotron subhead" id="overview" >
         <div class="container">
             <h1>{{ main }}</h1>
             <p class="lead">
@@ -58,13 +57,12 @@
 {% endmacro %}
 
 
-<body data-spy="scroll" data-target=".bs-docs-sidebar">
+<body style="width: 98% !important;">
     <!-- Navbar
     ================================================== -->
 
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 
-        <!--<div class="navbar-inner">-->
             <div class="container">
                 <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="navbar-header">
@@ -72,7 +70,7 @@
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="nav-collapse collapse in">
+                <div>
                     <ul class="nav navbar-nav">
                         <li class="">
                             <a href="/">Home</a>
@@ -110,7 +108,6 @@
                     </ul>
                 </div>
             </div>
-        <!--</div>-->
     </div>
 
     {% block content %}{% endblock %}
