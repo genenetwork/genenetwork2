@@ -27,7 +27,7 @@ h3 code {
 -------------------------------------------------- */
 
 body > .navbar {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
 }
 
@@ -91,10 +91,10 @@ hr.soften {
 .jumbotron {
   position: relative;
   padding: 0px 0;
-  color: #fff;
+  color: #336699;
   text-align: center;
   text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 30px rgba(0,0,0,.075);
-  background: #336699; /* Old browsers */
+  background: #d5d5d5; /* Old browsers */
 
 }
 .jumbotron h1 {
@@ -112,14 +112,14 @@ hr.soften {
 
 /* Link styles (used on .masthead-links as well) */
 .jumbotron a {
-  color: #fff;
+  color: #336699;
   color: rgba(255,255,255,.5);
   -webkit-transition: all .2s ease-in-out;
      -moz-transition: all .2s ease-in-out;
           transition: all .2s ease-in-out;
 }
 .jumbotron a:hover {
-  color: #fff;
+  color: #336699;
   text-shadow: 0 0 10px rgba(255,255,255,.25);
 }
 
