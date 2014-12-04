@@ -1,0 +1,48 @@
+<div id="myModal">
+    <div class="modal-header">
+        <h3>Add to collection</h3>
+        <p>You have three choices: Use your default collection, create a new named collection,
+        or add the traits to an existing collection.</p>
+    </div>
+    <div class="modal-body">
+        <form action="/collections/new" data-validate="parsley" id="add_form">
+            <fieldset>
+                <legend>Use your default collection</legend>
+                <span class="help-block">Choose this if you're in a hurry or don't plan on using the collection again.</span>
+                <span class="help-block"><em></em>If you are unsure this is probably the option you want.</em></span>
+                <button type="submit" name="Default" class="btn">Continue</button>
+            </fieldset>
+            <hr />
+
+
+            <input type="hidden" name="traits" value="{{ traits }}" />
+            <fieldset>
+                <legend>Or create a new named collection</legend>
+                <label>New collection name</label>
+                <input type="text" name="new_collection" placeholder="Name of new collection..."
+                    data-trigger="change" data-minlength="5" data-maxlength="50">
+                <span class="help-block">Type the name of the new collection.</span>
+                <button type="submit" name="create_new" class="btn">Create and add traits</button>
+            </fieldset>
+
+            <hr />
+            <fieldset>
+                <legend>Or add to an existing collection</legend>
+                <label>Existing collection name</label>
+
+                <select name="existing_collection" class="form-control">
+                {% for col in user_collections %}
+                    <option value="{{ col.id }}">{{ col.name }}</option>
+                {% endfor %}
+                </select>
+                <br />
+
+                <button type="submit" name="add_to_existing" class="btn">Add to existing collection</button>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+<script>
+    $('#add_form').parsley();
+</script>
