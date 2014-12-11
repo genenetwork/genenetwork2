@@ -12,7 +12,7 @@
 
 body {
   position: relative;
-  padding-top: 40px;
+  padding-top: 0px;
 }
 
 /* Code in headings */
@@ -36,7 +36,7 @@ body > .navbar .brand {
   padding-right: 0;
   padding-left: 0;
   margin-left: 20px;
-  float: right;
+  float: left;
   font-weight: bold;
   color: #336699;
   text-shadow: 0 1px 0 rgba(255,255,255,.1), 0 0 30px rgba(255,255,255,.125);
@@ -92,7 +92,7 @@ hr.soften {
   position: relative;
   padding: 0px 0;
   color: #336699;
-  text-align: center;
+  text-align: left;
   text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 30px rgba(0,0,0,.075);
   background: #d5d5d5; /* Old browsers */
 
@@ -931,7 +931,7 @@ form.bs-docs-example {
   /* center align subhead text like the masthead */
   .subhead h1,
   .subhead p {
-    text-align: center;
+    text-align: left;
   }
 
   /* Marketing on home */

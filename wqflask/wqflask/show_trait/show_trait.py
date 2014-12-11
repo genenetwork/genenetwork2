@@ -37,9 +37,14 @@ class ShowTrait(object):
 
     def __init__(self, kw):
         print("in ShowTrait, kw are:", kw)
-        self.trait_id = kw['trait_id']
         
-        helper_functions.get_species_dataset_trait(self, kw)
+        if kw['trait_id'] != None:
+            self.temp_trait = False
+            self.trait_id = kw['trait_id']
+            helper_functions.get_species_dataset_trait(self, kw)
+        else:
+            self.temp_trait = True
+            self.create_temp_trait()
 
         #self.dataset.group.read_genotype_file()
 
