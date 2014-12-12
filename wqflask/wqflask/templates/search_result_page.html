@@ -11,9 +11,6 @@
         'GeneNetwork found {}.'.format(numify(results|count, "record", "records"))) }}
 
     <div class="container">
-        <div class="page-header">
-            <h1>Your Search</h1>
-        </div>
 
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
@@ -71,8 +68,9 @@
                             <TD>{{ this_trait.description_display }}</TD>
                             <TD>{{ this_trait.location_repr }}</TD>
                             <TD>{{ this_trait.mean }}</TD>
-                            <TD>{{ this_trait.LRS_score_repr }}</TD>
+                            <TD align="right">{{ this_trait.LRS_score_repr }}</TD>
                             <TD>{{ this_trait.LRS_location_repr }}</TD>
+                            <TD>{{ this_trait.additive }}</TD>
                         {% elif dataset.type == 'Publish' %}
                             <TD>{{ this_trait.description_display }}</TD>
                             <TD>{{ this_trait.authors }}</TD>
@@ -83,6 +81,7 @@
                             </TD>
                             <TD>{{ this_trait.LRS_score_repr }}</TD>
                             <TD>{{ this_trait.LRS_location_repr }}</TD>
+                            <TD>{{ this_trait.additive }}</TD>
                         {% elif dataset.type == 'Geno' %}
                             <TD>{{ this_trait.location_repr }}</TD>
                         {% endif %}
@@ -157,11 +156,14 @@
                     { "sType": "natural" },
                     { "sType": "natural",
                       "sWidth": "35%"  },
-                    { "sType": "natural" },
-                    { "sType": "cust-txt" },
+                    { "sType": "natural",
+                      "sWidth": "15%"  },
                     { "sType": "cust-txt" },
                     { "sType": "natural",
-                      "sWidth": "15%"  }
+                      "sWidth": "10%"  },
+                    { "sType": "natural",
+                      "sWidth": "15%"  },
+                    { "sType": "cust-txt" }
                 ],
                 "columns": [
                     { "width": "50%" },

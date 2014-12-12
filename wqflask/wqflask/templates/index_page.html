@@ -3,12 +3,14 @@
 {% block content %}
 <!-- Start of body -->
 
+<!--
     <header class="jumbotron subhead" id="overview">
         <div class="container">
             <h1>GeneNetwork</h1>
             <p class="lead">Open source bioinformatics for systems genetics</p>   
         </div>
     </header>
+-->
 
     <div class="container-fluid">
         
@@ -16,7 +18,91 @@
         
         <div class="row" style="width: 1200px !important;">
 
-            <div style="float:right;" class="col-xs-5 col-xs-5" style="width: 600px !important;">
+            <div class="col-xs-5 col-xs-5">
+                <section id="search">
+                    <div class="page-header">
+                        <h1>Select and search</h1>
+                    </div>
+                    <form method="get" action="/search" name="SEARCHFORM">
+                        <fieldset>
+                            <div style="padding: 20px" class="form-horizontal">
+
+                                <div class="form-group">
+                                    <label for="species" class="col-xs-1 control-label" style="width: 65px !important;">Species:</label>
+                                    <div class="col-xs-4 controls">
+                                        <select name="species" id="species" class="form-control selectpicker span3" style="width: 300px !important;"></select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="group" class="col-xs-1 control-label" style="width: 65px !important;">Group:</label>
+                                    <div class="col-xs-4 controls input-append">
+                                        <select name="group" id="group" class="form-control selectpicker span3" style="width: 300px !important;"></select>
+                                        <i class="icon-question-sign"></i>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="tissue" class="col-xs-1 control-label" style="width: 65px !important;">Type:</label>
+                                    <div class="col-xs-4 controls">
+                                        <select name="type" id="type" class="form-control selectpicker span3" style="width: 300px !important;"></select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="dataset" class="col-xs-1 control-label" style="width: 65px !important;">Dataset:</label>
+                                    <div class="col-xs-4 controls input-append">
+                                        <select name="dataset" id="dataset" class="form-control selectpicker span5" style="width: 450px !important;"></select>
+                                        <i class="icon-question-sign"></i>
+                                    </div>
+                                </div>
+
+                                <!--  USER HELP   -->
+                                <!--<p >Databases marked with <b>**</b>-->
+                                <!--      suffix are not public yet.<br>-->
+                                <!--     Access requires <a href="/account.html" target=-->
+                                <!--      "_blank" class="fs14">user login</a>.</p>-->
+                                <!--  GET ANY  SEARCH -->
+
+                                <div class="form-group">
+                                    <label for="tfor" class="col-xs-1 control-label" style="width: 65px !important;">Search:</label>
+                                    <div class="col-xs-10 controls">
+                                        <textarea name="search_terms" rows="2" class="form-control search-query" style="width: 450px !important;" id="tfor"></textarea>
+                                    </div>
+                                </div>
+
+                                <!--  GET ANY HELP   -->
+
+                                <p>Enter terms, genes, ID numbers in the
+                                  <b>Search</b> field<br>
+                                  Use <b>*</b> or <b>?</b> wildcards (Cyp*a?,
+                                  synap*)<br>
+                                  Use <b>quotes</b> for terms such as <i>"tyrosine
+                                  kinase"</i></p>
+
+                                <!--  SEARCH, MAKE DEFAULT, ADVANCED SEARCH -->
+
+                                <div class="form-group">
+
+                                    <div class="col-xs-3 controls" style="width: 100px !important;">
+                                        <input id="btsearch" type="submit" class="btn btn-primary form-control" value="Search">
+                                    </div>
+                                    <div class="col-xs-4 controls" style="width: 150px !important;">
+                                        <input id="make_default" type="submit" class="btn btn-default form-control" value="Make Default">
+                                    </div>
+                                    <div class="col-xs-5 controls" style="width: 200px !important;">
+                                        <input type="submit" class="btn btn-default form-control" value="Advanced Search">
+                                    </div>
+                                </div>
+
+                                <input type="hidden" name="FormID" value="searchResult" class="form-control">
+                                <!--!<input type="hidden" name="RISet" value="BXD">-->
+                            </div>
+                        </fieldset>
+                    </form>
+                </section>
+            </div>
+            <div style="padding-left:120px" class="col-xs-6" style="width: 600px !important;">
                 <section id="advanced">
                     <div class="page-header">
                         <h1>Advanced commands</h1>
@@ -178,89 +264,6 @@
                     user guide</a>.</h5>
 
                 </section>-->
-            </div>
-            <div class="col-xs-5 col-xs-5">
-                <section id="search">
-                    <div class="page-header">
-                        <h1>Select and search</h1>
-                    </div>
-                    <form method="get" action="/search" name="SEARCHFORM">
-                        <fieldset>
-                            <div style="padding: 20px" class="form-horizontal">
-                                <div class="form-group">
-                                    <label for="species" class="col-xs-1 control-label" style="width: 65px !important;">Species:</label>
-                                    <div class="col-xs-4 controls">
-                                        <select name="species" id="species" class="form-control selectpicker span3" style="width: 300px !important;"></select>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="group" class="col-xs-1 control-label" style="width: 65px !important;">Group:</label>
-                                    <div class="col-xs-4 controls input-append">
-                                        <select name="group" id="group" class="form-control selectpicker span3" style="width: 300px !important;"></select>
-                                        <i class="icon-question-sign"></i>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="tissue" class="col-xs-1 control-label" style="width: 65px !important;">Type:</label>
-                                    <div class="col-xs-4 controls">
-                                        <select name="type" id="type" class="form-control selectpicker span3" style="width: 300px !important;"></select>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="dataset" class="col-xs-1 control-label" style="width: 65px !important;">Dataset:</label>
-                                    <div class="col-xs-4 controls input-append">
-                                        <select name="dataset" id="dataset" class="form-control selectpicker span5" style="width: 450px !important;"></select>
-                                        <i class="icon-question-sign"></i>
-                                    </div>
-                                </div>
-
-                                <!--  USER HELP   -->
-                                <!--<p >Databases marked with <b>**</b>-->
-                                <!--      suffix are not public yet.<br>-->
-                                <!--     Access requires <a href="/account.html" target=-->
-                                <!--      "_blank" class="fs14">user login</a>.</p>-->
-                                <!--  GET ANY  SEARCH -->
-
-                                <div class="form-group">
-                                    <label for="tfor" class="col-xs-1 control-label" style="width: 65px !important;">Search:</label>
-                                    <div class="col-xs-10 controls">
-                                        <textarea name="search_terms" rows="2" class="form-control search-query" style="width: 450px !important;" id="tfor"></textarea>
-                                    </div>
-                                </div>
-
-                                <!--  GET ANY HELP   -->
-
-                                <p>Enter terms, genes, ID numbers in the
-                                  <b>Search</b> field<br>
-                                  Use <b>*</b> or <b>?</b> wildcards (Cyp*a?,
-                                  synap*)<br>
-                                  Use <b>quotes</b> for terms such as <i>"tyrosine
-                                  kinase"</i></p>
-
-                                <!--  SEARCH, MAKE DEFAULT, ADVANCED SEARCH -->
-
-                                <div class="form-group">
-
-                                    <div class="col-xs-3 controls" style="width: 100px !important;">
-                                        <input id="btsearch" type="submit" class="btn btn-primary form-control" value="Search">
-                                    </div>
-                                    <div class="col-xs-4 controls" style="width: 150px !important;">
-                                        <input id="make_default" type="submit" class="btn btn-default form-control" value="Make Default">
-                                    </div>
-                                    <div class="col-xs-5 controls" style="width: 200px !important;">
-                                        <input type="submit" class="btn btn-default form-control" value="Advanced Search">
-                                    </div>
-                                </div>
-
-                                <input type="hidden" name="FormID" value="searchResult" class="form-control">
-                                <!--!<input type="hidden" name="RISet" value="BXD">-->
-                            </div>
-                        </fieldset>
-                    </form>
-                </section>
             </div>
         </div>
     </div>

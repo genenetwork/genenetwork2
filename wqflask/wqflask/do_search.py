@@ -118,7 +118,8 @@ class MrnaAssaySearch(DoSearch):
                      'Location',
                      'Mean',
                      'Max LRS',
-                     'Max LRS Location']
+                     'Max LRS Location',
+                     'Additive Effect']
 
     def compile_final_query(self, from_clause = '', where_clause = ''):
         """Generates the final query string"""
@@ -188,7 +189,8 @@ class PhenotypeSearch(DoSearch):
                      'Authors',
                      'Year',
                      'Max LRS',
-                     'Max LRS Location']
+                     'Max LRS Location',
+                     'Additive Effect']
 
     def get_fields_clause(self):
         """Generate clause for WHERE portion of query"""

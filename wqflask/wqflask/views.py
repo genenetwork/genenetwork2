@@ -110,7 +110,7 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        key = "search_results:v5:" + json.dumps(request.args, sort_keys=True)
+        key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)

@@ -6,7 +6,7 @@
 
 /* Account for fixed navbar */
 body {
-  min-width: 970px;
+  min-width: 1200px;
   padding-top: 70px;
   padding-bottom: 30px;
 }
@@ -28,7 +28,7 @@ body {
 
 /* Reset the container */
 .container {
-  width: 970px;
+  width: 1200px;
   max-width: none !important;
 }
 
@@ -57,10 +57,6 @@ body {
 }
 .navbar-collapse {
   border-top: 0;
-}
-
-.navbar-brand {
-  margin-left: -15px;
 }
 
 /* Always apply the floated nav */

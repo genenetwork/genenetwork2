@@ -2,8 +2,8 @@
     <div style="padding: 20px" class="form-horizontal">
         
         <div class="form-group">
-            <label for="corr_method" class="col-sm-1 control-label">Method</label>
-            <div class="col-sm-2 controls">
+            <label for="corr_method" class="col-xs-1 control-label">Method</label>
+            <div class="col-xs-2 controls">
                 <select name="corr_type" class="form-control">
                     <option value="sample">Sample r</option>
                     <option value="lit">Literature r</option>
@@ -13,8 +13,8 @@
         </div>
         
         <div class="form-group">
-            <label for="corr_dataset" class="col-sm-1 control-label">Database</label>
-            <div class="col-sm-6 controls">
+            <label for="corr_dataset" class="col-xs-1 control-label">Database</label>
+            <div class="col-xs-6 controls">
                 <select name="corr_dataset" class="form-control">
                     {% for tissue in corr_tools.dataset_menu %}
                         {% if tissue.tissue %}
@@ -37,8 +37,8 @@
         </div>
         
         <div class="form-group">
-            <label for="corr_return_results" class="col-sm-1 control-label">Return</label>
-            <div class="col-sm-2 controls">
+            <label for="corr_return_results" class="col-xs-1 control-label">Return</label>
+            <div class="col-xs-2 controls">
                 <select name="corr_return_results" class="form-control">
                     {% for return_result in corr_tools.return_results_menu %}
                         <option value="{{ return_result }}" 
@@ -53,8 +53,8 @@
         </div>
         
         <div class="form-group">
-            <label for="corr_samples_group" class="col-sm-1 control-label">Samples</label>
-            <div class="col-sm-2 controls">
+            <label for="corr_samples_group" class="col-xs-1 control-label">Samples</label>
+            <div class="col-xs-2 controls">
                 <select name="corr_samples_group" class="form-control">
                     {% for group, pretty_group in sample_group_types.items() %}
                         <option value="{{ group }}">{{ pretty_group }}</option>
@@ -64,8 +64,8 @@
         </div>
             
         <div class="form-group">
-            <label for="corr_sample_method" class="col-sm-1 control-label">Type</label>
-            <div class="col-sm-2 controls">
+            <label for="corr_sample_method" class="col-xs-1 control-label">Type</label>
+            <div class="col-xs-2 controls">
                 <select name="corr_sample_method" class="form-control">
                     <option value="pearson">Pearson</option>
                     <option value="spearman">Spearman Rank</option>
@@ -74,8 +74,8 @@
         </div>
         
         <div class="form-group">
-            <label for="corr_sample_method" class="col-sm-1 control-label"></label>
-            <div class="col-sm-4 controls">
+            <label for="corr_sample_method" class="col-xs-1 control-label"></label>
+            <div class="col-xs-4 controls">
                 <button class="btn submit_special btn-primary" data-url="/corr_compute" title="Compute Correlation">
                     <i class="icon-ok-circle icon-white"></i> Compute
                 </button>
@@ -83,8 +83,8 @@
         </div>
 
         <div class="form-group">
-            <label for="descriptions" class="col-sm-1 control-label"></label>
-            <div class="col-sm-6 controls">
+            <label for="descriptions" class="col-xs-1 control-label"></label>
+            <div class="col-xs-6 controls">
             <span id="sample_r_desc" class="correlation_desc fs12">
                 The <a href="/correlationAnnotation.html#sample_r" target="_blank">Sample Correlation</a>
                 is computed

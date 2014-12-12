@@ -315,6 +315,7 @@ def view_collection():
         name, dataset_name = atrait.split(':')
 
         trait_ob = trait.GeneralTrait(name=name, dataset_name=dataset_name)
+        trait_ob.retrieve_info(get_qtl_info=True)
         trait_ob.get_info()
         trait_obs.append(trait_ob)
 

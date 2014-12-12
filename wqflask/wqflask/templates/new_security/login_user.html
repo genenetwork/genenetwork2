@@ -2,8 +2,6 @@
 {% block title %}Register{% endblock %}
 {% block content %}
 
-    {{ header("Sign in", "Gain access to GeneNetwork") }}
-
     <div class="container">
         <div class="page-header">
             <h1>Login</h1>
@@ -20,24 +18,21 @@
 
             <hr />
 
-            <h4>Already have an account?</h4>
-
-            <h5>Sign in here</h5>
-
+            <h4>Already have an account? Sign in here.</h4>
 
 
             <form class="form-horizontal" action="/n/login" method="POST" name="login_user_form">
                  <fieldset>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="email_address">Email&nbsp;Address</label>
-                        <div class="col-sm-3 controls">
+                        <label class="col-xs-2 control-label" for="email_address">Email&nbsp;Address</label>
+                        <div class="col-xs-10">
                             <input id="email_address" class="focused" name="email_address" type="text" value="">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="password">Password</label>
-                        <div class="col-sm-3 controls">
+                        <label class="col-xs-2 control-label" for="password">Password</label>
+                        <div class="col-xs-3 controls">
                             <input id="password" name="password" type="password" value="">
                             <br />
                             <a href="/n/forgot_password">Forgot your password?</a><br/>
@@ -46,8 +41,8 @@
 
 
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="remember"></label>
-                        <div class="col-sm-3 controls">
+                        <label class="col-xs-2 control-label" for="remember"></label>
+                        <div class="col-xs-3 controls">
                             <label class="checkbox">
                                 <input id="remember" name="remember" type="checkbox" value="y"> Remember me
                             </label>
@@ -55,8 +50,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="submit"></label>
-                        <div class="col-sm-3 controls">
+                        <label class="col-xs-2 control-label" for="submit"></label>
+                        <div class="col-xs-3 controls">
                             <input id="next" name="next" type="hidden" value="">
                             <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
                         </div>

@@ -639,7 +639,8 @@ class PhenotypeDataSet(DataSet):
                             'Authors',
                             'Year',
                             'Max LRS',
-                            'Max LRS Location']
+                            'Max LRS Location',
+                            'Add. Effect']
 
         self.type = 'Publish'
 
@@ -899,7 +900,8 @@ class MrnaAssayDataSet(DataSet):
                              'Location',
                              'Mean Expr',
                              'Max LRS',
-                             'Max LRS Location']
+                             'Max LRS Location',
+                             'Add. Effect']
 
         # Todo: Obsolete or rename this field
         self.type = 'ProbeSet'

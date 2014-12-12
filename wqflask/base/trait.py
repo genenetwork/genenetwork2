@@ -396,7 +396,7 @@ class GeneralTrait(object):
                 if self.dataset.type == 'ProbeSet' and not self.cellid:
                     query = """
                             SELECT
-                                    ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean
+                                    ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean, ProbeSetXRef.additive
                             FROM
                                     ProbeSetXRef, ProbeSet
                             WHERE
@@ -409,7 +409,7 @@ class GeneralTrait(object):
                     #trait_qtl = self.cursor.fetchone()
                     if trait_qtl:
                         print("trait_qtl:", trait_qtl)
-                        self.locus, self.lrs, self.pvalue, self.mean = trait_qtl
+                        self.locus, self.lrs, self.pvalue, self.mean, self.additive= trait_qtl
                         print("self.locus:", self.locus)
                         if self.locus:
                             query = """
@@ -425,13 +425,13 @@ class GeneralTrait(object):
                         else:
                             self.locus = self.locus_chr = self.locus_mb = ""
                     else:
-                        self.locus = self.locus_chr = self.locus_mb = self.lrs = self.pvalue = self.mean = ""
+                        self.locus = self.locus_chr = self.locus_mb = self.lrs = self.pvalue = self.mean = self.additive = ""
 
 
                 if self.dataset.type == 'Publish':
                     trait_qtl = g.db.execute("""
                             SELECT
-                                    PublishXRef.Locus, PublishXRef.LRS
+                                    PublishXRef.Locus, PublishXRef.LRS, PublishXRef.additive
                             FROM
                                     PublishXRef, PublishFreeze
                             WHERE
@@ -440,9 +440,9 @@ class GeneralTrait(object):
                                     PublishFreeze.Id =%s
                             """, (self.name, self.dataset.id)).fetchone()
                     if trait_qtl:
-                        self.locus, self.lrs = trait_qtl
+                        self.locus, self.lrs, self.additive = trait_qtl
                     else:
-                        self.locus = self.lrs = ""
+                        self.locus = self.lrs = self.additive = ""
         else:
             raise KeyError, `self.name`+' information is not found in the database.'
 

@@ -27,22 +27,22 @@
                 <div class="tab-pane active" id="interval_mapping">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-sm-1 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                            <label for="mapping_permutations" class="col-xs-1 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-xs-2 controls">
                                 <input name="num_perm_reaper" value="2000" type="text" class="form-control">
                             </div>
                         </div>
     
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_bootstraps" class="col-sm-1 control-label" title="Bootstrapping Resamples">Bootstrap</label>
-                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                            <label for="mapping_bootstraps" class="col-xs-1 control-label" title="Bootstrapping Resamples">Bootstrap</label>
+                            <div style="margin-left: 20px;" class="col-xs-2 controls">
                                 <input name="mapping_bootstraps" value="2000" type="text" class="form-control">
                             </div>
                         </div>
                     
                         <div class="mapping_method_fields form-group">
-                            <label class="col-sm-2 control-label">Display Additive Effect</label>
-                            <div class="col-sm-4 controls" id="display_additive_effect">                      
+                            <label class="col-xs-2 control-label">Display Additive Effect</label>
+                            <div class="col-xs-4 controls" id="display_additive_effect">                      
                                 <label class="radio-inline">
                                     <input type="radio" name="display_additive" id="display_additive" value="yes" checked="">
                                     Yes
@@ -55,8 +55,8 @@
                         </div>
 
                         <div class="mapping_method_fields form-group">
-                            <label class="col-sm-2 control-label">Manhattan Plot</label>
-                            <div class="col-sm-4 controls">                      
+                            <label class="col-xs-2 control-label">Manhattan Plot</label>
+                            <div class="col-xs-4 controls">                      
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_reaper" value="true">
                                     Yes
@@ -69,8 +69,8 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="interval_mapping_submit" class="col-sm-1 control-label"></label>
-                        <div style="margin-left:35px;" class="col-sm-4 controls">
+                        <label for="interval_mapping_submit" class="col-xs-1 control-label"></label>
+                        <div style="margin-left:35px;" class="col-xs-4 controls">
                             <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/interval_mapping" title="Compute Interval Mapping">
                                 <i class="icon-ok-circle icon-white"></i> Compute
                             </button>
@@ -82,8 +82,8 @@
                 <div class="tab-pane" id="pylmm">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-sm-1 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                            <label for="mapping_permutations" class="col-xs-1 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-xs-2 controls">
                                 <input name="num_perm_pylmm" value="2000" type="text" class="form-control">
                             </div>
                         </div>
@@ -91,8 +91,8 @@
                             Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label class="col-sm-1 control-label">Manhattan Plot</label>
-                            <div style="margin-left:20px;" class="col-sm-4 controls">                      
+                            <label class="col-xs-1 control-label">Manhattan Plot</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">                      
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_pylmm" value="true">
                                     Yes
@@ -112,8 +112,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="marker_regression_submit" class="col-sm-1 control-label"></label>
-                        <div style="margin-left:20px;" class="col-sm-4 controls">
+                        <label for="marker_regression_submit" class="col-xs-1 control-label"></label>
+                        <div style="margin-left:20px;" class="col-xs-4 controls">
                             <button id="pylmm_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
@@ -126,8 +126,8 @@
                     
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-sm-1 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                            <label for="mapping_permutations" class="col-xs-1 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-xs-2 controls">
                                 <input name="num_perm_rqtl_geno" value="500" type="text" class="form-control">
                             </div>
                         </div>
@@ -135,8 +135,8 @@
                             Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-sm-1 control-label">Control&nbsp;for</label>
-                            <div style="margin-left: 20px;" class="col-sm-2 controls">
+                            <label for="mapping_permutations" class="col-xs-1 control-label">Control&nbsp;for</label>
+                            <div style="margin-left: 20px;" class="col-xs-2 controls">
                                 {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
                                 <input name="control_rqtl_geno" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" />
                                 {% else %}
@@ -145,8 +145,8 @@
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label class="col-sm-1 control-label">Manhattan&nbsp;Plot</label>
-                            <div style="margin-left:20px;" class="col-sm-4 controls">                      
+                            <label class="col-xs-1 control-label">Manhattan&nbsp;Plot</label>
+                            <div style="margin-left:35px;" class="col-xs-4 controls">                      
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_rqtl" value="true">
                                     Yes
@@ -160,8 +160,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="marker_regression_submit" class="col-sm-1 control-label"></label>
-                        <div style="margin-left:20px;" class="col-sm-4 controls">
+                        <label for="marker_regression_submit" class="col-xs-1 control-label"></label>
+                        <div style="margin-left:20px;" class="col-xs-4 controls">
                             <button id="rqtl_geno_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
                                 <i class="icon-ok-circle icon-white"></i> Compute
                             </button>
@@ -175,16 +175,16 @@
                 <div class="tab-pane" id="plink">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="maf_plink" class="col-sm-2 control-label">Minor allele threshold</label>
-                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                            <label for="maf_plink" class="col-xs-2 control-label">Minor allele threshold</label>
+                            <div style="margin-left: 20px;" class="col-xs-1 controls">
                                 <input name="maf_plink" value="0.01" type="text" class="form-control">
                             </div>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="gemma_compute" class="col-sm-1 control-label"></label>
-                        <div style="margin-left:20px;" class="col-sm-4 controls">
+                        <label for="gemma_compute" class="col-xs-1 control-label"></label>
+                        <div style="margin-left:20px;" class="col-xs-4 controls">
                             <button id="gemma_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
@@ -197,16 +197,16 @@
                 <div class="tab-pane" id="gemma">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="maf_gemma" class="col-sm-2 control-label">Minor allele threshold</label>
-                            <div style="margin-left: 20px;" class="col-sm-1 controls">
+                            <label for="maf_gemma" class="col-xs-2 control-label">Minor allele threshold</label>
+                            <div style="margin-left: 20px;" class="col-xs-1 controls">
                                 <input name="maf_gemma" value="0.01" type="text" class="form-control">
                             </div>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="plink_compute" class="col-sm-1 control-label"></label>
-                        <div style="margin-left:20px;" class="col-sm-4 controls">
+                        <label for="plink_compute" class="col-xs-1 control-label"></label>
+                        <div style="margin-left:20px;" class="col-xs-4 controls">
                             <button id="plink_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
