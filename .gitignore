@@ -4,3 +4,4 @@
 *.bak
 *~
 web/new_genotypes/HSNIH.json
+wqflask/secure_server.py
