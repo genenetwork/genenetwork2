@@ -134,9 +134,10 @@ def search_page():
         else:
             return render_template("search_result_page.html", **result)
 
-@app.route("/testhtmleditor")
-def testhtmleditor_page():
-    return render_template("testhtmleditor.html")
+@app.route("/docedit")
+def docedit():
+    doc = docs.Docs(request.args['entry'])
+    return render_template("docedit.html", **doc.__dict__)
 
 @app.route("/help")
 def help():
