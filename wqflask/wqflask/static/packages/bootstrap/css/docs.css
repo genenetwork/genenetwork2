@@ -27,7 +27,7 @@ h3 code {
 -------------------------------------------------- */
 
 body > .navbar {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
 }
 
@@ -98,16 +98,16 @@ hr.soften {
 
 }
 .jumbotron h1 {
-  font-size: 80px;
+  font-size: 60px;
   font-weight: bold;
   letter-spacing: -1px;
   line-height: 1;
 }
 .jumbotron p {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 300;
-  line-height: 30px;
-  margin-bottom: 30px;
+  line-height: 20px;
+  margin-bottom: 10px;
 }
 
 /* Link styles (used on .masthead-links as well) */
@@ -230,10 +230,10 @@ hr.soften {
   border-bottom: 1px solid #ddd;
 }
 .subhead h1 {
-  font-size: 40px;
+  font-size: 30px;
 }
 .subhead p {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 .subhead .navbar {
   display: none;

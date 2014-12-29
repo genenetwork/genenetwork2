@@ -13,7 +13,7 @@ body {
 
 /* Finesse the page header spacing */
 .page-header {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
 }
 .page-header .lead {
   margin-bottom: 10px;
@@ -68,7 +68,7 @@ body {
   float: left;
 }
 .navbar-nav > li > a {
-  padding: 15px;
+  padding: 5px;
 }
 
 /* Redeclare since we override the float above */

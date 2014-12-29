@@ -1038,7 +1038,7 @@ h2,
 .h2,
 h3,
 .h3 {
-  margin-top: 20px;
+  margin-top: 10px;
   margin-bottom: 10px;
 }
 h1 small,
@@ -1080,27 +1080,27 @@ h6 .small,
 }
 h1,
 .h1 {
-  font-size: 36px;
+  font-size: 30px;
 }
 h2,
 .h2 {
-  font-size: 30px;
+  font-size: 24px;
 }
 h3,
 .h3 {
-  font-size: 24px;
+  font-size: 18px;
 }
 h4,
 .h4 {
-  font-size: 18px;
+  font-size: 14px;
 }
 h5,
 .h5 {
-  font-size: 14px;
+  font-size: 12px;
 }
 h6,
 .h6 {
-  font-size: 12px;
+  font-size: 10px;
 }
 p {
   margin: 0 0 10px;
@@ -2884,7 +2884,7 @@ fieldset[disabled] .btn-default.active {
 }
 .btn-primary {
   color: #fff;
-  background-color: #428bca;
+  background-color: #369;
   border-color: #357ebd;
 }
 .btn-primary:hover,
@@ -3872,7 +3872,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 .navbar {
   position: relative;
-  min-height: 50px;
+  min-height: 30px;
   border: 1px solid transparent;
 }
 /*
@@ -3987,10 +3987,10 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 .navbar-brand {
   float: left;
-  height: 50px;
-  padding: 15px 15px;
-  font-size: 18px;
-  line-height: 20px;
+  height: 30px;
+  padding: 6px 15px;
+  font-size: 15px;
+  line-height: 18px;
 }
 .navbar-brand:hover,
 .navbar-brand:focus {
@@ -4738,8 +4738,8 @@ a.thumbnail.active {
   color: #333;
 }
 .alert {
-  padding: 15px;
-  margin-bottom: 20px;
+  padding: 10px;
+  margin-bottom: 5px;
   border: 1px solid transparent;
   border-radius: 4px;
 }

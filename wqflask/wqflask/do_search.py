@@ -96,7 +96,7 @@ class QuickMrnaAssaySearch(DoSearch):
 
 
 class MrnaAssaySearch(DoSearch):
-    """A search within an mRNA expression dataset"""
+    """A search within an expression dataset, including mRNA, protein, SNP, but not phenotype or metabolites"""
 
     DoSearch.search_types['ProbeSet'] = "MrnaAssaySearch"
 
@@ -358,7 +358,7 @@ class RifSearch(MrnaAssaySearch):
     def run(self):
         where_clause = """( %s.symbol = GeneRIF_BASIC.symbol and
             MATCH (GeneRIF_BASIC.comment)
-            AGAINST ('+%s' IN BOOLEAN MODE)) """ % (self.dataset.type, self.search_term)
+            AGAINST ('+%s' IN BOOLEAN MODE)) """ % (self.dataset.type, self.search_term[0])
 
         from_clause = ", GeneRIF_BASIC "
         query = self.compile_final_query(from_clause, where_clause)
@@ -375,8 +375,8 @@ class WikiSearch(MrnaAssaySearch):
             and GeneRIF.versionId=0 and GeneRIF.display>0
             and (GeneRIF.comment REGEXP '%s' or GeneRIF.initial = '%s')
                 """ % (self.dataset.type,
-                       "[[:<:]]"+self.search_term[0]+"[[:>:]]",
-                       self.search_term[0])
+                       "[[:<:]]"+str(self.search_term[0])+"[[:>:]]",
+                       str(self.search_term[0]))
 
         from_clause = ", GeneRIF "
         query = self.compile_final_query(from_clause, where_clause)
@@ -390,7 +390,7 @@ class GoSearch(MrnaAssaySearch):
 
     def run(self):
         field = 'GOterm.acc'
-        go_id = 'GO:' + ('0000000'+self.search_term)[-7:]
+        go_id = 'GO:' + ('0000000'+self.search_term[0])[-7:]
 
         statements = ("""%s.symbol=GOgene_product.symbol and
            GOassociation.gene_product_id=GOgene_product.id and
@@ -651,8 +651,9 @@ class PositionSearch(DoSearch):
                                                               self.dataset.type,
                                                               max(self.mb_min, self.mb_max))
 
-    def real_run(self):
+    def run(self):
 
+        self.setup()
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
         return self.execute(self.query)

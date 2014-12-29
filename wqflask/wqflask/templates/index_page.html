@@ -16,7 +16,7 @@
         
         {{ flash_me() }}
         
-        <div class="row" style="width: 1200px !important;">
+        <div class="row" style="width: 1400px !important;">
 
             <div class="col-xs-5 col-xs-5">
                 <section id="search">
@@ -72,15 +72,20 @@
                                 </div>
 
                                 <!--  GET ANY HELP   -->
+                                <div class="form-group">
+                                    <label for="tfor" class="col-xs-1 control-label" style="width: 65px !important;"></label>
+                                    <div class="col-xs-10 controls">
+                                        <p>Enter terms, genes, ID numbers in the
+                                           <b>Search</b> field<br>
+                                           Use <b>*</b> or <b>?</b> wildcards (Cyp*a?,
+                                           synap*)<br>
+                                           Use <b>quotes</b> for terms such as <i>"tyrosine
+                                           kinase"</i></p>
+                                    </div>
+                                </div>
 
-                                <p>Enter terms, genes, ID numbers in the
-                                  <b>Search</b> field<br>
-                                  Use <b>*</b> or <b>?</b> wildcards (Cyp*a?,
-                                  synap*)<br>
-                                  Use <b>quotes</b> for terms such as <i>"tyrosine
-                                  kinase"</i></p>
 
-                                <!--  SEARCH, MAKE DEFAULT, ADVANCED SEARCH -->
+                                <!--  SEARCH, MAKE DEFAULT -->
 
                                 <div class="form-group">
 
@@ -89,9 +94,6 @@
                                     </div>
                                     <div class="col-xs-4 controls" style="width: 150px !important;">
                                         <input id="make_default" type="submit" class="btn btn-default form-control" value="Make Default">
-                                    </div>
-                                    <div class="col-xs-5 controls" style="width: 200px !important;">
-                                        <input type="submit" class="btn btn-default form-control" value="Advanced Search">
                                     </div>
                                 </div>
 
@@ -113,12 +115,16 @@
                     <p>To try them out copy these examples into the search field:</p>
 
                       <ul>
-                        <li><b>POSITION=(chr1 25 30)</b> finds genes, markers, or transcripts on
+                        <!--<li><b>POSITION=(chr1 25 30)</b> finds genes, markers, or transcripts on
                         chromosome 1 between 25 and 30 Mb.</li>
 
                         <li><b>MEAN=(15 16) LRS=(23 46)</b> in the <b>Combined</b> field finds
                         highly expressed genes (15 to 16 log2 units) AND with peak <a href="http://www.genenetwork.org/glossary.html#L" target="_blank">LRS</a>
-                        linkage between 23 and 46.</li>
+                        linkage between 23 and 46.</li>-->
+
+                        <li><b>MEAN=(15 16)</b> finds highly expressed genes (15 to 16 log2 units).</li>
+
+                        <li><b>LRS=(23 46)</b> finds genes with peak <a href="http://www.genenetwork.org/glossary.html#L" target="_blank">LRS</a> linkage between 23 and 46.</li>
 
                         <li><b>RIF=mitochondrial</b> searches RNA databases for <a href="http://www.ncbi.nlm.nih.gov/projects/GeneRIF/GeneRIFhelp.html" target="_blank">
                         GeneRIF</a> links.</li>
@@ -127,7 +133,7 @@
                         GeneWiki</a> for genes that you or other users have annotated
                         with the word <i>nicotine</i>.</li>
 
-                        <li><b>GO:0045202</b> searches for synapse-associated genes listed in the
+                        <!--<li><b>GO:0045202</b> searches for synapse-associated genes listed in the
                         <a href="http://www.godatabase.org/cgi-bin/amigo/go.cgi" target="_blank">
                             Gene Ontology</a>.</li>
 
@@ -139,9 +145,10 @@
                         <li><b>RIF=diabetes LRS=(9 999 Chr2 100 105) transLRS=(9 999 10)</b>
                         finds diabetes-associated transcripts with peak <a href="http://www.genenetwork.org/glossary.html#E" target="_blank">
                         trans eQTLs</a> on Chr 2 between 100 and 105 Mb with LRS
-                        scores between 9 and 999.</li>
+                        scores between 9 and 999.</li>-->
                       </ul>
                 </section>
+                <!--
                 <section id="tour-info">
                     <div class="page-header">
                         <h1>Tour and more info</h1>
@@ -167,6 +174,7 @@
                       and advice on their use and citation.</p>
 
                 </section>
+                -->
 
                 <section id="websites">
                     <div class="page-header">
@@ -214,17 +222,6 @@
                         <li><a href="http://genenetwork.epfl.ch/" target="_blank">
                         Switzerland</a> at the EPFL</li>
                     </ul>
-                    <h3>History and archive</h3>
-
-                    <p>The
-                    <a href="http://artemis.uthsc.edu" target="_blank">
-                        time machine</a>
-                    has earlier versions that correspond to specific publication dates.
-                    </p>
-
-                    <h3>The next generation</h3>
-                       <p>Try the <a href="http://alexandria.uthsc.edu/" target="_blank">
-                      development</a> site to explore experimental data and features.</p>
                 </section>
 
                 <!--<section id="getting-started">

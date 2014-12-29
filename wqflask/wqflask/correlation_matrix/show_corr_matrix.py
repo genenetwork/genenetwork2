@@ -193,7 +193,7 @@ class CorrelationMatrix(object):
         m = robjects.r.matrix(corr_results_to_list, nrow=len(cols))
         eigen = base.eigen(m)
         print("eigen:", eigen)
-        #pca = stats.princomp(m, cor = "TRUE")
+        pca = stats.princomp(m, cor = "TRUE")
         print("pca:", pca)
 
         return pca
