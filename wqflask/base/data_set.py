@@ -640,7 +640,7 @@ class PhenotypeDataSet(DataSet):
                             'Year',
                             'Max LRS',
                             'Max LRS Location',
-                            'Add. Effect']
+                            'Add. Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a>']
 
         self.type = 'Publish'
 
@@ -901,7 +901,7 @@ class MrnaAssayDataSet(DataSet):
                              'Mean Expr',
                              'Max LRS',
                              'Max LRS Location',
-                             'Add. Effect']
+                             'Add. Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a>']
 
         # Todo: Obsolete or rename this field
         self.type = 'ProbeSet'

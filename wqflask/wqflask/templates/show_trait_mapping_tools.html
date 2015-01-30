@@ -1,5 +1,7 @@
 <div>
+    <div class="col-xs-6">
         <div class="tabbable"> <!-- Only required for left/right tabs -->
+        
             <ul class="nav nav-pills">
                 <li class="active">
                     <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
@@ -27,22 +29,22 @@
                 <div class="tab-pane active" id="interval_mapping">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-xs-1 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-xs-2 controls">
+                            <label for="mapping_permutations" class="col-xs-2 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 <input name="num_perm_reaper" value="2000" type="text" class="form-control">
                             </div>
                         </div>
     
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_bootstraps" class="col-xs-1 control-label" title="Bootstrapping Resamples">Bootstrap</label>
-                            <div style="margin-left: 20px;" class="col-xs-2 controls">
+                            <label for="mapping_bootstraps" class="col-xs-2 control-label" title="Bootstrapping Resamples">Bootstrap</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 <input name="mapping_bootstraps" value="2000" type="text" class="form-control">
                             </div>
                         </div>
                     
                         <div class="mapping_method_fields form-group">
-                            <label class="col-xs-2 control-label">Display Additive Effect</label>
-                            <div class="col-xs-4 controls" id="display_additive_effect">                      
+                            <label style="text-align:left;" class="col-xs-12 control-label">Display Additive Effect</label>
+                            <div class="col-xs-12 controls" id="display_additive_effect">                      
                                 <label class="radio-inline">
                                     <input type="radio" name="display_additive" id="display_additive" value="yes" checked="">
                                     Yes
@@ -55,8 +57,8 @@
                         </div>
 
                         <div class="mapping_method_fields form-group">
-                            <label class="col-xs-2 control-label">Manhattan Plot</label>
-                            <div class="col-xs-4 controls">                      
+                            <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
+                            <div class="col-xs-12 controls">                      
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_reaper" value="true">
                                     Yes
@@ -67,16 +69,14 @@
                                </label>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="interval_mapping_submit" class="col-xs-1 control-label"></label>
-                        <div style="margin-left:35px;" class="col-xs-4 controls">
-                            <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/interval_mapping" title="Compute Interval Mapping">
-                                <i class="icon-ok-circle icon-white"></i> Compute
-                            </button>
+                        <div class="form-group">
+                            <div style="padding-left:15px;" class="controls">
+                                <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/interval_mapping" title="Compute Interval Mapping">
+                                    <i class="icon-ok-circle icon-white"></i> Open Mapping Tool
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div id="alert_placeholder"></div>
                 </div>
                 
                 <div class="tab-pane" id="pylmm">
@@ -119,8 +119,7 @@
                             </button>
                         </div>
                     </div>
-                    <div id="alert_placeholder"></div>
-                    
+
                 </div>
                 <div class="tab-pane" id="rqtl_geno">
                     
@@ -167,7 +166,6 @@
                             </button>
                         </div>
                     </div>
-                    <div id="alert_placeholder"></div>
        
                 </div>
                 
@@ -190,8 +188,6 @@
                             </button>
                         </div>
                     </div>
-                    <div id="alert_placeholder"></div>
-                    
                 </div>
                 
                 <div class="tab-pane" id="gemma">
@@ -212,10 +208,23 @@
                             </button>
                         </div>
                     </div>
-                    <div id="alert_placeholder"></div>
-                    
                 </div>                
                 {% endif %}
             </div>
         </div>
+    </div>
+    <div class="col-xs-6"> 
+        <dl>
+             <dt>Interval Mapping</dt>
+             <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.</dd>
+             <dt>pyLMM</dt>
+             <dd>pyLMM is a fast and lightweight linear mixed-model (LMM) solver for use in genome-wide association studies (GWAS).</dd>
+             <dt>R/qtl</dt>
+             <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
+        </dl>
+    </div>
+    <div id="alert_placeholder"></div>
+    <div id="mapping_result_holder_wrapper" style="display:none;">
+        <div id="mapping_result_holder"></div>
+    </div>
 </div>

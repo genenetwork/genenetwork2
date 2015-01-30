@@ -69,9 +69,9 @@
                     <th>Description</th>
                     <th>Location</th>
                     <th>Mean</th>
-                    <th>Max LRS</th>
+                    <th>Max LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
                     <th>Max LRS Location</th>
-                    <th>Additive Effect</th>
+                    <th>Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
                 </tr>
             </thead>
 
@@ -119,6 +119,13 @@
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript">
         $(document).ready( function () {
+
+            $('#trait_table tr').click(function(event) {
+                if (event.target.type !== 'checkbox') {
+                    $(':checkbox', this).trigger('click');
+                }
+            });
+
             console.time("Creating table");
             $('#trait_table').dataTable( {
                 "aoColumns": [
@@ -130,7 +137,7 @@
                       "sWidth": "15%"  },
                     { "sType": "cust-txt" },
                     { "sType": "natural",
-                      "sWidth": "10%"  },
+                      "sWidth": "12%"  },
                     { "sType": "natural",
                       "sWidth": "15%"  },
                     { "sType": "cust-txt" }
@@ -143,7 +150,7 @@
                     null,
                     null
                 ],
-                "sDom": "ftir",
+                "sDom": "tir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,

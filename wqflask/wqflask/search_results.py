@@ -233,11 +233,6 @@ class SearchResultPage(object):
                 
             print("search_type is:", pf(search_type))
 
-            # This is throwing an error when a_search['key'] is None, so I changed above    
-            #search_type = string.upper(a_search['key'])
-            #if not search_type:
-            #    search_type = self.dataset.type
-
             search_ob = do_search.DoSearch.get_search(search_type)
             search_class = getattr(do_search, search_ob)
             print("search_class is: ", pf(search_class))

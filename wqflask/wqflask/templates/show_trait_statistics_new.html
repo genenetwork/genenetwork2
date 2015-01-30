@@ -78,10 +78,28 @@
                                 <i class="icon-tint"></i> Color by Trait
                             </button>
                         </div>
-                        <div id="bar_chart_container">
+                    </div>
+                        <div class="row" style="height: 0px">
+                          <div id="bar_chart_legend" style="margin-left: 900px; margin-top:50px; positive: relative;">
+                            <span id="legend-left"></span>
+                            <span id="legend-colors">
+                            <!--
+                              <svg height="10" width="90">
+                                <rect x="0" width="15" height="10" style="fill: rgb(0, 0, 0);"></rect>
+                                <rect x="15" width="15" height="10" style="fill: rgb(50, 0, 0);"></rect>
+                                <rect x="30" width="15" height="10" style="fill: rgb(100, 0, 0);"></rect>
+                                <rect x="45" width="15" height="10" style="fill: rgb(150, 0, 0);"></rect>
+                                <rect x="60" width="15" height="10" style="fill: rgb(200, 0, 0);"></rect>
+                                <rect x="75" width="15" height="10" style="fill: rgb(255, 0, 0);"></rect>
+                              </svg>
+                            -->
+                            </span>
+                            <span id="legend-right"></span>
+                          </div>
+                        </div>
+                        <div style="margin-left: 20px; margin-right: 20px;" class="row" id="bar_chart_container">
                             <div id="bar_chart" class="barchart"></div>
                         </div>
-                    </div>
                 </div>
                 <div class="tab-pane" id="probability_plot">
                     <div id="probability_plot_container">

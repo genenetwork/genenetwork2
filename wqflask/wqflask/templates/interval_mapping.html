@@ -1,5 +1,3 @@
-{% extends "base.html" %}
-{% block title %}Interval Mapping{% endblock %}
 {% block css %}
 <!--    <link rel="stylesheet" type="text/css" href="/static/new/css/interval_mapping.css" />-->
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
@@ -10,10 +8,8 @@
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
-    {{ header("Mapping",
-        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
 
-    <div class="container">
+    <div id="mapping_results" class="container">
         <div>
             <h2>
                 Whole Genome Mapping

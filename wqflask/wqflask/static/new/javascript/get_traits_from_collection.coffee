@@ -57,9 +57,51 @@ submit_click = () ->
                 this_trait_vals.push(null)
         all_vals.push(this_trait_vals)
     
-    create_scatterplots(trait_names, samples, all_vals)
+    trait_vals_csv = create_trait_data_csv(selected_traits)
+    scatter_matrix = new ScatterMatrix(trait_vals_csv)
+    scatter_matrix.render()
+
+
+    #create_scatterplots(trait_names, samples, all_vals)
     
     $.colorbox.close()
+
+create_trait_data_csv = (selected_traits) ->
+    trait_names = []
+    trait_names.push($('input[name=trait_id]').val())
+    samples = $('input[name=allsamples]').val().split(" ")
+    all_vals = []
+    this_trait_vals = get_this_trait_vals(samples)
+    all_vals.push(this_trait_vals)
+
+    for trait in Object.keys(selected_traits)
+        trait_names.push(trait)
+        
+        this_trait_vals = []
+        for sample in samples
+            if sample in Object.keys(selected_traits[trait])
+                this_trait_vals.push(parseFloat(selected_traits[trait][sample]))
+            else
+                this_trait_vals.push(null)
+        all_vals.push(this_trait_vals)
+
+    console.log("all_vals:", all_vals)
+
+    trait_vals_csv = trait_names.join(",")
+    trait_vals_csv += "\n"
+    
+    for sample, index in samples
+        if all_vals[0][index] == null
+            continue
+        sample_vals = []
+        for trait in all_vals
+            sample_vals.push(trait[index])
+        trait_vals_csv += sample_vals.join(",")
+        trait_vals_csv += "\n"
+
+    #console.log("trait_vals_csv:", trait_vals_csv)
+        
+    return trait_vals_csv
 
 trait_click = () ->
     console.log("Clicking on:", $(this))
