@@ -370,13 +370,24 @@ class WikiSearch(MrnaAssaySearch):
 
     DoSearch.search_types['WIKI'] =  "WikiSearch"
 
-    def run(self):
+    def get_where_clause(self):
         where_clause = """%s.symbol = GeneRIF.symbol
             and GeneRIF.versionId=0 and GeneRIF.display>0
             and (GeneRIF.comment REGEXP '%s' or GeneRIF.initial = '%s')
                 """ % (self.dataset.type,
                        "[[:<:]]"+str(self.search_term[0])+"[[:>:]]",
-                       str(self.search_term[0]))
+                       str(self.search_term[0])) 
+        return where_clause
+
+    def run(self):
+        #where_clause = """%s.symbol = GeneRIF.symbol
+        #    and GeneRIF.versionId=0 and GeneRIF.display>0
+        #    and (GeneRIF.comment REGEXP '%s' or GeneRIF.initial = '%s')
+        #        """ % (self.dataset.type,
+        #               "[[:<:]]"+str(self.search_term[0])+"[[:>:]]",
+        #               str(self.search_term[0]))
+
+        where_clause = self.get_where_clause()
 
         from_clause = ", GeneRIF "
         query = self.compile_final_query(from_clause, where_clause)

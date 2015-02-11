@@ -212,9 +212,9 @@ class SearchResultPage(object):
     #
     #    #search_gene
     #    #search_geno
-    #    #searhch_pheno
+    #    #search_pheno
     #    #search_mrn
-    #    #searhc_publish
+    #    #search_publish
 
 
     def search(self):

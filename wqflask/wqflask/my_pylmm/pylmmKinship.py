@@ -23,10 +23,12 @@
 #NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from optparse import OptionParser,OptionGroup
-usage = """usage: %prog [options] --[t | b | p]file plinkFileBase outfile
+import sys
+import pdb
 
-NOTE: The current running version only supports binary PED files (PLINK).  It is simple to convert between ped or tped and bed using PLINK.  Sorry for the inconvinience.
+from optparse import OptionParser,OptionGroup
+usage = """usage: %prog [options] --[tfile | bfile] plinkFileBase outfile
+
 """
 
 parser = OptionParser(usage=usage)
@@ -34,15 +36,20 @@ parser = OptionParser(usage=usage)
 basicGroup = OptionGroup(parser, "Basic Options")
 #advancedGroup = OptionGroup(parser, "Advanced Options")
 
-basicGroup.add_option("--pfile", dest="pfile",
-                  help="The base for a PLINK ped file")
+#basicGroup.add_option("--pfile", dest="pfile",
+#                  help="The base for a PLINK ped file")
 basicGroup.add_option("--tfile", dest="tfile",
                   help="The base for a PLINK tped file")
 basicGroup.add_option("--bfile", dest="bfile",
                   help="The base for a PLINK binary ped file")
+basicGroup.add_option("--emmaSNP", dest="emmaFile", default=None,
+                  help="For backwards compatibility with emma, we allow for \"EMMA\" file formats.  This is just a text file with individuals on the rows and snps on the columns.")
+basicGroup.add_option("--emmaNumSNPs", dest="numSNPs", type="int", default=0,
+		     help="When providing the emmaSNP file you need to specify how many snps are in the file")
 
 basicGroup.add_option("-e", "--efile", dest="saveEig", help="Save eigendecomposition to this file.")
 basicGroup.add_option("-n", default=1000,dest="computeSize", type="int", help="The maximum number of SNPs to read into memory at once (default 1000).  This is important when there is a large number of SNPs, because memory could be an issue.")
+basicGroup.add_option("-t", "--nthreads", dest="numThreads", help="maximum number of threads to use")
 
 basicGroup.add_option("-v", "--verbose",
                   action="store_true", dest="verbose", default=False,
@@ -52,68 +59,128 @@ parser.add_option_group(basicGroup)
 #parser.add_option_group(advancedGroup)
 
 (options, args) = parser.parse_args()
-if len(args) != 1: parser.error("Incorrect number of arguments")
+if len(args) != 1: 
+   parser.print_help()
+   sys.exit()
+
 outFile = args[0]
 
 import sys
 import os
 import numpy as np
 from scipy import linalg
-from pyLMM.lmm import calculate_kinship
-from pyLMM import input
+from pylmm.lmm import calculateKinship
+from pylmm import input
+import multiprocessing as mp # Multiprocessing is part of the Python stdlib
+import Queue 
 
-if not options.pfile and not options.tfile and not options.bfile: 
-   parser.error("You must provide at least one PLINK input file base")
+if not options.tfile and not options.bfile and not options.emmaFile: 
+   parser.error("You must provide at least one PLINK input file base (--tfile or --bfile) or an emma formatted file (--emmaSNP).")
 
+numThreads = None
+if options.numThreads:
+   numThreads = int(options.numThreads)
+   
 if options.verbose: sys.stderr.write("Reading PLINK input...\n")
 if options.bfile: IN = input.plink(options.bfile,type='b')
 elif options.tfile: IN = input.plink(options.tfile,type='t')
-elif options.pfile: IN = input.plink(options.pfile,type='p')
-else: parser.error("You must provide at least one PLINK input file base")
+#elif options.pfile: IN = input.plink(options.pfile,type='p')
+elif options.emmaFile: 
+   if not options.numSNPs: parser.error("You must provide the number of SNPs when specifying an emma formatted file.")
+   IN = input.plink(options.emmaFile,type='emma')
+else: parser.error("You must provide at least one PLINK input file base (--tfile or --bfile) or an emma formatted file (--emmaSNP).")
+
+def compute_W(job):
+   """
+   Read 1000 SNPs at a time into matrix and return the result
+   """
+   n = len(IN.indivs)
+   m = options.computeSize
+   W = np.ones((n,m)) * np.nan # W matrix has dimensions individuals x SNPs (initially all NaNs)
+   for j in range(0,options.computeSize):
+      row = job*m + j
+      if row >= IN.numSNPs:
+         W = W[:,range(0,j)]
+         break
+      snp,id = IN.next()
+      if snp.var() == 0:
+         continue
+      W[:,j] = snp  # set row to list of SNPs
+   return W
+
+def compute_dgemm(job,W):
+   """
+   Compute Kinship(W)*j
+
+   For every set of SNPs dgemm is used to multiply matrices T(W)*W
+   """
+   res = None
+   try:
+      res = linalg.fblas.dgemm(alpha=1.,a=W.T,b=W.T,trans_a=True,trans_b=False)
+   except AttributeError:
+      res = np.dot(W,W.T) 
+   compute_dgemm.q.put([job,res])
+   return job
+
+def f_init(q):
+    compute_dgemm.q = q
 
 n = len(IN.indivs)
-m = options.computeSize
-W = np.ones((n,m)) * np.nan
+# m = options.computeSize
+# jobsize=m
 
 IN.getSNPIterator()
-i = 0
-K = None
-while i < IN.numSNPs:
-    j = 0
-    while j < options.computeSize and i < IN.numSNPs:
-        snp,id = IN.next()
-        if snp.var() == 0:
-            i += 1
-            continue
-        W[:,j] = snp
+# Annoying hack to get around the fact that it is expensive to determine the number of SNPs in an emma file
+if options.emmaFile: IN.numSNPs = options.numSNPs
+# i = 0
 
-        i += 1
-        j += 1
-    if j < options.computeSize: W = W[:,range(0,j)] 
+# mp.set_start_method('spawn')
+q = mp.Queue()
+p = mp.Pool(numThreads, f_init, [q])
+iterations = IN.numSNPs/options.computeSize+1
+# jobs = range(0,8) # range(0,iterations)
 
-    if options.verbose:
-        sys.stderr.write("Processing first %d SNPs\n" % i)
-    if K == None: 
-        try: 
-            K = linalg.fblas.dgemm(alpha=1.,a=W.T,b=W.T,trans_a=True,trans_b=False) # calculateKinship(W) * j
-        except AttributeError:
-            K = np.dot(W,W.T) 
-    else:
-        try: 
-            K_j = linalg.fblas.dgemm(alpha=1.,a=W.T,b=W.T,trans_a=True,trans_b=False) # calculateKinship(W) * j
-        except AttributeError:
-            K_j = np.dot(W,W.T)
-        K = K + K_j
+results = []
 
+K = np.zeros((n,n))  # The Kinship matrix has dimension individuals x individuals
+
+completed = 0
+
+# for job in range(8):
+for job in range(iterations):
+   if options.verbose:
+      sys.stderr.write("Processing job %d first %d SNPs\n" % (job, ((job+1)*options.computeSize)))
+   W = compute_W(job)
+   results.append(p.apply_async(compute_dgemm, (job,W)))   
+   # Do we have a result?
+   try: 
+     j,x = q.get_nowait()
+     if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+     K_j = x
+     # print j,K_j[:,0]
+     K = K + K_j
+     completed += 1
+   except Queue.Empty:
+     pass
+
+for job in range(len(results)-completed):
+   j,x = q.get()
+   if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+   K_j = x
+   # print j,K_j[:,0]
+   K = K + K_j
+        
 K = K / float(IN.numSNPs)
 if options.verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
 np.savetxt(outFile,K)
 
 if options.saveEig:
-    if options.verbose:
-        sys.stderr.write("Obtaining Eigendecomposition\n")
-    Kva,Kve = linalg.eigh(K)
-    if options.verbose:
-        sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
-    np.savetxt(outFile+".kva",Kva)
-    np.savetxt(outFile+".kve",Kve)
+   if options.verbose: sys.stderr.write("Obtaining Eigendecomposition\n")
+   Kva,Kve = linalg.eigh(K)
+   if options.verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
+   np.savetxt(outFile+".kva",Kva)
+   np.savetxt(outFile+".kve",Kve)
+      
+
+
+
