@@ -5,11 +5,11 @@
 {% block content %}
 <div class="container">
 	<h3>{{title}}</h3>
-	<table class="table table-hover table-striped">
+	<table class="table table-hover table-striped" style="width: 600px;">
 		<tbody>
 		{% for newsitem in newslist %}
 			<tr>
-				<td style="width: 100px;">
+				<td style="width: 90px; text-wrap:none;" nowrap>
 					<span style="font-weight: bold;">{{newsitem.date}}</span>
 				</td>
 				<td>{{newsitem.details|safe}}</td>
