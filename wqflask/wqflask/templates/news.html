@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<div class="container">
+	<h3>{{title}}</h3>
+	<table class="table table-hover table-striped">
+		<tbody>
+		{% for newsitem in newslist %}
+			<tr>
+				<td style="width: 100px;">
+					<span style="font-weight: bold;">{{newsitem.date}}</span>
+				</td>
+				<td>{{newsitem.details|safe}}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
