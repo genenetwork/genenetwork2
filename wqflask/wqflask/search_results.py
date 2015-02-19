@@ -221,6 +221,34 @@ class SearchResultPage(object):
         self.search_terms = parser.parse(self.search_terms)
         print("After parsing:", self.search_terms)
 
+        if len(self.search_terms) > 1:
+            combined_where_clause = ""
+            for i, a_search in enumerate(self.search_terms):
+                print("[kodak] item is:", pf(a_search))
+                search_term = a_search['search_term']
+                search_operator = a_search['separator']
+                if a_search['key']:
+                    search_type = a_search['key'].upper()
+                else:
+                    # We fall back to the dataset type as the key to get the right object
+                    search_type = self.dataset.type
+                
+                print("search_type is:", pf(search_type))
+
+                search_ob = do_search.DoSearch.get_search(search_type) 
+                search_class = getattr(do_search, search_ob)     
+                the_search = search_class(search_term,
+                                        search_operator,
+                                        self.dataset,
+                                        )
+                
+                where_clause = the_search.get_where_clause()
+                combined_where_clause += "(" + where_clause + ")"
+                if (i+1) < len(self.search_terms):
+                    combined_where_clause += "AND"
+            print("combined_where_clause:", combined_where_clause)
+
+
         for a_search in self.search_terms:
             print("[kodak] item is:", pf(a_search))
             search_term = a_search['search_term']

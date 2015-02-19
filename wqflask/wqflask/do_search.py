@@ -139,11 +139,8 @@ class MrnaAssaySearch(DoSearch):
 
         return query
 
-    def run(self):
-        """Generates and runs a simple search of an mRNA expression dataset"""
-
-        print("Running ProbeSetSearch")
-        query = self.base_query + """WHERE (MATCH (ProbeSet.Name,
+    def get_where_clause(self):
+        where_clause = """(MATCH (ProbeSet.Name,
                     ProbeSet.description,
                     ProbeSet.symbol,
                     alias,
@@ -155,6 +152,15 @@ class MrnaAssaySearch(DoSearch):
                     and ProbeSetXRef.ProbeSetFreezeId = %s
                             """ % (escape(self.search_term[0]),
                             escape(str(self.dataset.id)))
+
+        return where_clause
+
+    def run(self):
+        """Generates and runs a simple search of an mRNA expression dataset"""
+
+        print("Running ProbeSetSearch")
+        where_clause = self.get_where_clause()
+        query = self.base_query + "WHERE " + where_clause
 
         #print("final query is:", pf(query))
 
@@ -433,11 +439,8 @@ class LrsSearch(MrnaAssaySearch):
 
     DoSearch.search_types['LRS'] = 'LrsSearch'
 
-    def run(self):
-
+    def get_where_clause(self):
         self.search_term = [float(value) for value in self.search_term]
-
-        self.from_clause = ", Geno"
 
         if self.search_operator == "=":
             assert isinstance(self.search_term, (list, tuple))
@@ -466,14 +469,56 @@ class LrsSearch(MrnaAssaySearch):
                                                                         self.search_operator,
                                                                         self.search_term[0])
 
-        self.where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
+        where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
                                         Geno.SpeciesId = %s  and
                                         %s.Chr = Geno.Chr
                                         """ % self.mescape(self.dataset.type,
                                                self.species_id,
                                                self.dataset.type)
 
-        print("where_clause is:", pf(self.where_clause))
+        return where_clause
+
+    def run(self):
+
+        self.from_clause = ", Geno"
+
+        #self.search_term = [float(value) for value in self.search_term]
+        #
+        #if self.search_operator == "=":
+        #    assert isinstance(self.search_term, (list, tuple))
+        #    self.lrs_min, self.lrs_max = self.search_term[:2]
+        #
+        #    self.sub_clause = """ %sXRef.LRS > %s and
+        #                     %sXRef.LRS < %s and """ % self.mescape(self.dataset.type,
+        #                                                        min(self.lrs_min, self.lrs_max),
+        #                                                        self.dataset.type,
+        #                                                        max(self.lrs_min, self.lrs_max))
+        #
+        #    if len(self.search_term) > 2:
+        #        self.chr_num = self.search_term[2]
+        #        self.sub_clause += """ Geno.Chr = %s and """ % (escape(self.chr_num))
+        #        if len(self.search_term) == 5:
+        #            self.mb_low, self.mb_high = self.search_term[3:]
+        #            self.sub_clause += """ Geno.Mb > %s and
+        #                                          Geno.Mb < %s and
+        #                                    """ % self.mescape(min(self.mb_low, self.mb_high),
+        #                                                       max(self.mb_low, self.mb_high))
+        #    print("self.sub_clause is:", pf(self.sub_clause))
+        #else:
+        #    # Deal with >, <, >=, and <=
+        #    print("self.search_term is:", self.search_term)
+        #    self.sub_clause = """ %sXRef.LRS %s %s and """ % self.mescape(self.dataset.type,
+        #                                                                self.search_operator,
+        #                                                                self.search_term[0])
+        # 
+        #self.where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
+        #                                Geno.SpeciesId = %s  and
+        #                                %s.Chr = Geno.Chr
+        #                                """ % self.mescape(self.dataset.type,
+        #                                       self.species_id,
+        #                                       self.dataset.type)
+
+        self.where_clause = self.get_where_clause()
 
         self.query = self.compile_final_query(self.from_clause, self.where_clause)
 
@@ -586,25 +631,46 @@ class MeanSearch(MrnaAssaySearch):
 
     DoSearch.search_types['MEAN'] = "MeanSearch"
 
-    def run(self):
-
+    def get_where_clause(self):
         self.search_term = [float(value) for value in self.search_term]
 
         if self.search_operator == "=":
             assert isinstance(self.search_term, (list, tuple))
             self.mean_min, self.mean_max = self.search_term[:2]
 
-            self.where_clause = """ %sXRef.mean > %s and
+            where_clause = """ %sXRef.mean > %s and
                              %sXRef.mean < %s """ % self.mescape(self.dataset.type,
                                                                 min(self.mean_min, self.mean_max),
                                                                 self.dataset.type,
                                                                 max(self.mean_min, self.mean_max))
         else:
             # Deal with >, <, >=, and <=
-            self.where_clause = """ %sXRef.mean %s %s """ % self.mescape(self.dataset.type,
+            where_clause = """ %sXRef.mean %s %s """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
-                                                                        self.search_term[0])
+                                                                        self.search_term[0])        
 
+        return where_clause
+
+    def run(self):
+
+        #self.search_term = [float(value) for value in self.search_term]
+        #
+        #if self.search_operator == "=":
+        #    assert isinstance(self.search_term, (list, tuple))
+        #    self.mean_min, self.mean_max = self.search_term[:2]
+        #
+        #    self.where_clause = """ %sXRef.mean > %s and
+        #                     %sXRef.mean < %s """ % self.mescape(self.dataset.type,
+        #                                                        min(self.mean_min, self.mean_max),
+        #                                                        self.dataset.type,
+        #                                                        max(self.mean_min, self.mean_max))
+        #else:
+        #    # Deal with >, <, >=, and <=
+        #    self.where_clause = """ %sXRef.mean %s %s """ % self.mescape(self.dataset.type,
+        #                                                                self.search_operator,
+        #                                                                self.search_term[0])
+
+        self.where_clause = self.get_where_clause()
         print("where_clause is:", pf(self.where_clause))
 
         self.query = self.compile_final_query(where_clause = self.where_clause)
