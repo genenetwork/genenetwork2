@@ -45,11 +45,16 @@ import sys
 sys.path.append("/home/zas1024/gene/wqflask/")
 print("sys.path2:", sys.path)
 
-from utility.benchmark import Bench
-from utility import temp_data
+has_gn2=True
 
-from wqflask.my_pylmm.pyLMM import chunks
-
+try:
+    from utility.benchmark import Bench
+    from utility import temp_data
+    from wqflask.my_pylmm.pyLMM import chunks
+except ImportError:
+    print("WARNING: Standalone version\n")
+    has_gn2=False
+    pass
 
 #np.seterr('raise')
 
@@ -288,6 +293,7 @@ def run_other(pheno_vector,
 def matrixMult(A,B):
 
     # If there is no fblas then we will revert to np.dot()
+
     try:
         linalg.fblas
     except AttributeError:
@@ -708,7 +714,7 @@ class LMM:
        pl.ylabel("Probability of data")
        pl.title(title)
 
-def main():
+def gn2_main():
     parser = argparse.ArgumentParser(description='Run pyLMM')
     parser.add_argument('-k', '--key')
     parser.add_argument('-s', '--species')
@@ -750,7 +756,10 @@ def main():
     Redis.expire(results_key, 60*60)
 
 if __name__ == '__main__':
-    main()
+    if has_gn2:
+        gn2_main()
+    else:
+        cli_main()
 
 
 
