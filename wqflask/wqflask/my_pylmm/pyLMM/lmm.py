@@ -714,6 +714,7 @@ class LMM:
        pl.ylabel("Probability of data")
        pl.title(title)
 
+# This is the main function used by Genenetwork2 (with environment)
 def gn2_main():
     parser = argparse.ArgumentParser(description='Run pyLMM')
     parser.add_argument('-k', '--key')
@@ -755,6 +756,15 @@ def gn2_main():
     Redis.rpush(results_key, json_results)
     Redis.expire(results_key, 60*60)
 
+# This is the main version used without Genenetwork2's environment
+def cli_main():
+    ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
+                       covariate_matrix = np.array(params['covariate_matrix']),
+                       plink_input_file = params['input_file_name'],
+                       kinship_matrix = np.array(params['kinship_matrix']),
+                       refit = params['refit'],
+                       tempdata = tempdata)
+        
 if __name__ == '__main__':
     if has_gn2:
         gn2_main()
