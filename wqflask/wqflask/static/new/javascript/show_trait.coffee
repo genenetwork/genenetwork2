@@ -95,12 +95,12 @@ $ ->
             new Box_Plot(all_samples)
 
     d3.select("#select_compare_trait").on("click", =>
-        $('.qtlcharts').empty()
+        $('.scatter-matrix-container').remove()
         open_trait_selection()
     )
     
     d3.select("#clear_compare_trait").on("click", =>
-        $('.qtlcharts').empty()
+        $('.scatter-matrix-container').remove()
     )
     
     open_trait_selection = () ->

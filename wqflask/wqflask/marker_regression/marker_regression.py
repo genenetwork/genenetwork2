@@ -720,6 +720,7 @@ class MarkerRegression(object):
     #def gen_human_results(self, pheno_vector, tempdata):
     def gen_human_results(self, pheno_vector, key, temp_uuid):
         file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
+        print("file_base:", file_base)
 
         plink_input = input.plink(file_base, type='b')
         input_file_name = os.path.join(webqtlConfig.SNP_PATH, self.dataset.group.name + ".snps.gz")

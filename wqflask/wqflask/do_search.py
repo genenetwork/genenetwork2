@@ -38,7 +38,6 @@ class DoSearch(object):
         query = self.normalize_spaces(query)
         print("in do_search query is:", pf(query))
         results = g.db.execute(query, no_parameters=True).fetchall()
-        #results = self.cursor.fetchall()
         return results
 
     #def escape(self, stringy):
@@ -154,6 +153,28 @@ class MrnaAssaySearch(DoSearch):
                             escape(str(self.dataset.id)))
 
         return where_clause
+
+    def run_combined(self, from_clause, where_clause):
+        """Generates and runs a combined search of an mRNA expression dataset"""
+
+        print("Running ProbeSetSearch")
+        #query = self.base_query + from_clause + " WHERE " + where_clause
+
+        from_clause = self.normalize_spaces(from_clause)
+
+        query = (self.base_query +
+            """%s
+                WHERE %s
+                    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
+                    and ProbeSetXRef.ProbeSetFreezeId = %s
+                            """ % (escape(from_clause),
+                                    where_clause,
+                                    escape(str(self.dataset.id))))
+
+        print("final query is:", pf(query))
+
+        
+        return self.execute(query)
 
     def run(self):
         """Generates and runs a simple search of an mRNA expression dataset"""
@@ -439,6 +460,12 @@ class LrsSearch(MrnaAssaySearch):
 
     DoSearch.search_types['LRS'] = 'LrsSearch'
 
+    def get_from_clause(self):
+        if self.search_operator == "=":
+            return ", Geno"
+        else:
+            return ""
+
     def get_where_clause(self):
         self.search_term = [float(value) for value in self.search_term]
 
@@ -454,7 +481,7 @@ class LrsSearch(MrnaAssaySearch):
 
             if len(self.search_term) > 2:
                 self.chr_num = self.search_term[2]
-                self.sub_clause += """ Geno.Chr = %s and """ % (escape(self.chr_num))
+                self.sub_clause += """ Geno.Chr = %s and """ % (self.chr_num)
                 if len(self.search_term) == 5:
                     self.mb_low, self.mb_high = self.search_term[3:]
                     self.sub_clause += """ Geno.Mb > %s and
@@ -462,25 +489,33 @@ class LrsSearch(MrnaAssaySearch):
                                             """ % self.mescape(min(self.mb_low, self.mb_high),
                                                                max(self.mb_low, self.mb_high))
             print("self.sub_clause is:", pf(self.sub_clause))
+
+            #%s.Chr = Geno.Chr
+            where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
+                                                    Geno.SpeciesId = %s
+                                                    """ % self.mescape(self.dataset.type,
+                                                           self.species_id)
         else:
             # Deal with >, <, >=, and <=
             print("self.search_term is:", self.search_term)
-            self.sub_clause = """ %sXRef.LRS %s %s and """ % self.mescape(self.dataset.type,
+            self.sub_clause = """ %sXRef.LRS %s %s """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
                                                                         self.search_term[0])
-
-        where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
-                                        Geno.SpeciesId = %s  and
-                                        %s.Chr = Geno.Chr
-                                        """ % self.mescape(self.dataset.type,
-                                               self.species_id,
-                                               self.dataset.type)
+            where_clause = self.sub_clause
+        
 
         return where_clause
 
+    def get_final_query(self):
+        self.from_clause = self.get_from_clause()
+        self.where_clause = self.get_where_clause()
+        self.query = self.compile_final_query(self.from_clause, self.where_clause)
+
+        return self.query
+
     def run(self):
 
-        self.from_clause = ", Geno"
+        self.from_clause = self.get_from_clause()
 
         #self.search_term = [float(value) for value in self.search_term]
         #
@@ -651,6 +686,14 @@ class MeanSearch(MrnaAssaySearch):
 
         return where_clause
 
+    def get_final_query(self):
+        self.where_clause = self.get_where_clause()
+        print("where_clause is:", pf(self.where_clause))
+
+        self.query = self.compile_final_query(where_clause = self.where_clause)
+        
+        return self.query
+
     def run(self):
 
         #self.search_term = [float(value) for value in self.search_term]
@@ -682,14 +725,11 @@ class RangeSearch(MrnaAssaySearch):
 
     DoSearch.search_types['RANGE'] = "RangeSearch"
 
-    def run(self):
-
-        self.search_term = [float(value) for value in self.search_term]
-
+    def get_where_clause(self):
         if self.search_operator == "=":
             assert isinstance(self.search_term, (list, tuple))
             self.range_min, self.range_max = self.search_term[:2]
-            self.where_clause = """ (SELECT Pow(2, max(value) -min(value))
+            where_clause = """ (SELECT Pow(2, max(value) -min(value))
                                      FROM ProbeSetData
                                      WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s AND
                                     (SELECT Pow(2, max(value) -min(value))
@@ -699,12 +739,38 @@ class RangeSearch(MrnaAssaySearch):
                                                        max(self.range_min, self.range_max))
         else:
             # Deal with >, <, >=, and <=
-            self.where_clause = """ (SELECT Pow(2, max(value) -min(value))
+            where_clause = """ (SELECT Pow(2, max(value) -min(value))
                                      FROM ProbeSetData
                                      WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s
                                     """ % (escape(self.search_term[0]))
 
-        print("where_clause is:", pf(self.where_clause))
+        print("where_clause is:", pf(where_clause))
+
+        return where_clause
+
+    def run(self):
+
+        #self.search_term = [float(value) for value in self.search_term]
+        # 
+        #if self.search_operator == "=":
+        #    assert isinstance(self.search_term, (list, tuple))
+        #    self.range_min, self.range_max = self.search_term[:2]
+        #    self.where_clause = """ (SELECT Pow(2, max(value) -min(value))
+        #                             FROM ProbeSetData
+        #                             WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s AND
+        #                            (SELECT Pow(2, max(value) -min(value))
+        #                             FROM ProbeSetData
+        #                             WHERE ProbeSetData.Id = ProbeSetXRef.dataId) < %s
+        #                            """ % self.mescape(min(self.range_min, self.range_max),
+        #                                               max(self.range_min, self.range_max))
+        #else:
+        #    # Deal with >, <, >=, and <=
+        #    self.where_clause = """ (SELECT Pow(2, max(value) -min(value))
+        #                             FROM ProbeSetData
+        #                             WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s
+        #                            """ % (escape(self.search_term[0]))
+        
+        self.where_clause = self.get_where_clause()
 
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
