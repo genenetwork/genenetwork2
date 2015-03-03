@@ -762,7 +762,7 @@ def gn2_main():
     Redis.expire(results_key, 60*60)
         
 if __name__ == '__main__':
-    print "WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!"
+    print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
     if has_gn2:
         gn2_main()
     else:
