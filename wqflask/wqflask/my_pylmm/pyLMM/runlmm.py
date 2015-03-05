@@ -55,6 +55,7 @@ if len(args) != 1:
 cmd = args[0]
 print "Command: ",cmd
 
+
 if options.kinship:
     K1 = []
     print options.kinship
@@ -68,3 +69,8 @@ if options.kinship:
             ns = np.genfromtxt(row[1:])
             K1.append(ns) # <--- slow
     K = np.array(K1)
+
+if cmd == 'parse':
+  pass
+else:
+  raise Exception("Unknown command")
