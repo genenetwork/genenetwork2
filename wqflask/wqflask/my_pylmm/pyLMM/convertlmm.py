@@ -23,7 +23,6 @@ import numpy as np
 # from lmm import LMM, run_other
 import input
 
-
 usage = """
 python convertlmm.py [--kinship] infile 
 
