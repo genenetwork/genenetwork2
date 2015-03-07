@@ -38,6 +38,8 @@ python convertlmm.py [--kinship kfile]
 option_parser = OptionParser(usage=usage)
 option_parser.add_option("--kinship", dest="kinship",
                   help="Parse a kinship file. This is an nxn plain text file and can be computed with the pylmmKinship program")
+option_parser.add_option("--plink", dest="plink",
+                  help="Parse a phenotype file (PLINK style)")
 # option_parser.add_option("--kinship",action="store_false", dest="kinship", default=True,
 #                   help="Parse a kinship file. This is an nxn plain text file and can be computed with the pylmmKinship program.")
 option_parser.add_option("--prefix", dest="prefix",
@@ -51,23 +53,73 @@ option_parser.add_option("-v", "--verbose",
 
 (options, args) = option_parser.parse_args()
 
+writer = None
+
+def msg(s):
+    sys.stderr.write("INFO: ")
+    sys.stderr.write(s)
+    sys.stderr.write("\n")
+    
+def wr(s):
+    if writer:
+        writer.write(s)
+    else:
+        sys.stdout.write(s)
+
+def wrln(s):
+    wr(s)
+    wr("\n")
+            
 if options.kinship:
     is_header = True
     count = 0
-    sys.stderr.write("Converting "+options.kinship+"\n")
+    msg("Converting "+options.kinship)
+    if options.prefix:
+        writer = open(options.prefix+".kin","w")
     for line in open(options.kinship,'r'):
         count += 1
         if is_header:
             size = len(line.split())
-            print "# Kinship format version 1.0"
-            print "# Size=",size
+            wrln("# Kinship format version 1.0")
+            wrln("# Size="+str(size))
             for i in range(size):
-                sys.stdout.write("\t"+str(i+1))
-            sys.stdout.write("\n")
+                wr("\t"+str(i+1))
+            wr("\n")
             is_header = False
-        sys.stdout.write(str(count))
-        sys.stdout.write("\t")
-        sys.stdout.write("\t".join(line.split()))
-        sys.stdout.write("\n")
+        wr(str(count))
+        wr("\t")
+        wr("\t".join(line.split()))
+        wr("\n")
+    msg(str(count)+" lines written")
 
-sys.stderr.write("Converting done\n")
+if options.plink:
+    # Because plink does not track size we need to read the whole thing first
+    msg("Converting "+options.plink)
+    phenos = []
+    count = 0
+    count_pheno = None
+    for line in open(options.plink,'r'):
+        count += 1
+        list = line.split()
+        pcount = len(list)-2
+        assert(pcount > 0)
+        if count_pheno == None:
+            count_pheno = pcount
+        assert(count_pheno == pcount)
+        row = [list[0]]+list[2:]
+        phenos.append(row)
+
+    if options.prefix:
+        writer = open(options.prefix+".pheno","w")
+    wrln("# Phenotype format version 1.0")
+    wrln("# Individuals = "+str(count))
+    wrln("# Phenotypes = "+str(count_pheno))
+    for i in range(count_pheno):
+        wr("\t"+str(i+1))
+        wr("\n")
+    for i in range(count):
+        wr("\t".join(phenos[i]))
+        wr("\n")
+    msg(str(count)+" lines written")
+            
+msg("Converting done")
