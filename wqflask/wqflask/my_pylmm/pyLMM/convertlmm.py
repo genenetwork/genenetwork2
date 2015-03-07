@@ -24,33 +24,38 @@ import numpy as np
 import input
 
 usage = """
-python convertlmm.py [--kinship] infile 
+python convertlmm.py [--kinship kfile] 
 
   Convert files for runlmm.py processing. Writes to stdout.
 
   try --help for more information
 """
 
-parser = OptionParser(usage=usage)
-# parser.add_option("-f", "--file", dest="input file",
-#                   help="In", metavar="FILE")
-parser.add_option("--kinship",action="store_false", dest="kinship", default=True,
-                  help="Parse a kinship file. This is an nxn plain text file and can be computed with the pylmmKinship program.")
-parser.add_option("-q", "--quiet",
+# if len(args) == 0:
+#     print usage
+#     sys.exit(1)
+
+option_parser = OptionParser(usage=usage)
+option_parser.add_option("--kinship", dest="kinship",
+                  help="Parse a kinship file. This is an nxn plain text file and can be computed with the pylmmKinship program")
+# option_parser.add_option("--kinship",action="store_false", dest="kinship", default=True,
+#                   help="Parse a kinship file. This is an nxn plain text file and can be computed with the pylmmKinship program.")
+option_parser.add_option("--prefix", dest="prefix",
+                  help="Output prefix for output file(s)")
+option_parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
+option_parser.add_option("-v", "--verbose",
+                  action="store_true", dest="verbose", default=False,
+                  help="Print extra info")
 
-(options, args) = parser.parse_args()
-
-if len(args) == 0:
-    print usage
-    sys.exit(1)
+(options, args) = option_parser.parse_args()
 
 if options.kinship:
     is_header = True
-    assert(len(args)==1)
     count = 0
-    for line in open(args[0],'r'):
+    sys.stderr.write("Converting "+options.kinship+"\n")
+    for line in open(options.kinship,'r'):
         count += 1
         if is_header:
             size = len(line.split())
@@ -64,3 +69,5 @@ if options.kinship:
         sys.stdout.write("\t")
         sys.stdout.write("\t".join(line.split()))
         sys.stdout.write("\n")
+
+sys.stderr.write("Converting done\n")
