@@ -24,7 +24,7 @@ import numpy as np
 import input
 
 usage = """
-python convertlmm.py [--plink] [--prefix basename] [--kinship kfile] [--pheno] [--geno]
+python convertlmm.py [--plink] [--prefix out_basename] [--kinship kfile] [--pheno pname] [--geno gname]
 
   Convert files for runlmm.py processing. Writes to stdout by default.
 
@@ -42,7 +42,7 @@ option_parser.add_option("--pheno", dest="pheno",
                          help="Parse a phenotype file (use with --plink only)")
 option_parser.add_option("--geno", dest="geno",
                          help="Parse a genotype file (use with --plink only)")
-option_parser.add_option("--plink", dest="plink", default=False,
+option_parser.add_option("--plink", dest="plink", action="store_true", default=False,
                   help="Parse PLINK style")
 # option_parser.add_option("--kinship",action="store_false", dest="kinship", default=True,
 #                   help="Parse a kinship file. This is an nxn plain text file and can be computed with the pylmmKinship program.")
@@ -78,6 +78,7 @@ if options.kinship:
     is_header = True
     count = 0
     msg("Converting "+options.kinship)
+    writer = None
     if options.prefix:
         writer = open(options.prefix+".kin","w")
     for line in open(options.kinship,'r'):
@@ -94,17 +95,17 @@ if options.kinship:
         wr("\t")
         wr("\t".join(line.split()))
         wr("\n")
-    msg(str(count)+" lines written")
+    msg(str(count)+" kinship lines written")
 
 if options.pheno:
     if not options.plink:
         raise Exception("Use --plink switch")
     # Because plink does not track size we need to read the whole thing first
-    msg("Converting "+options.plink)
+    msg("Converting "+options.pheno)
     phenos = []
     count = 0
     count_pheno = None
-    for line in open(options.plink,'r'):
+    for line in open(options.pheno,'r'):
         count += 1
         list = line.split()
         pcount = len(list)-2
@@ -115,6 +116,7 @@ if options.pheno:
         row = [list[0]]+list[2:]
         phenos.append(row)
 
+    writer = None
     if options.prefix:
         writer = open(options.prefix+".pheno","w")
     wrln("# Phenotype format version 1.0")
@@ -126,7 +128,7 @@ if options.pheno:
     for i in range(count):
         wr("\t".join(phenos[i]))
         wr("\n")
-    msg(str(count)+" lines written")
+    msg(str(count)+" pheno lines written")
 
     
 msg("Converting done")
