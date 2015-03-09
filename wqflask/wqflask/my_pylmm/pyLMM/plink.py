@@ -39,7 +39,7 @@
 #     1 mm37-1-3187481  0 3187481 1 2
 
 import struct
-import numpy as np
+# import numpy as np
 
 def readbim(fn):
     res = []
@@ -73,7 +73,7 @@ def readbed(fn,inds,func=None):
               '00': 0.0, \
               '10': 0.5, \
               '11': 1.0, \
-              '01': np.nan \
+              '01': float('nan') \
            }
   
         G = []
@@ -85,7 +85,7 @@ def readbed(fn,inds,func=None):
             L = [D[y] for y in [a,b,c,d]]
             G += L
         G = G[:inds]
-        G = np.array(G)
+        # G = np.array(G)
         return G
 
     bytes = inds / 4 + (inds % 4 and 1 or 0)
