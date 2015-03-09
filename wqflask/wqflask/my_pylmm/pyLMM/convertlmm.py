@@ -150,8 +150,10 @@ if options.geno:
     wrln("# Phenotypes = "+str(len(num_snps)))
 
     def out(i,x):
-        # print(i,x)
-        pass
+        wr(str(i)+"\t")
+        for v in x:
+          wr("\t".join(str(v)))
+        wr("\n")
         
     snps = plink.readbed(options.geno+'.bed',num_inds, out)
     # for i in range(num_snps):
