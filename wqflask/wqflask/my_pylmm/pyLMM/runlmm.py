@@ -41,7 +41,9 @@ parser = OptionParser(usage=usage)
 # parser.add_option("-f", "--file", dest="input file",
 #                   help="In", metavar="FILE")
 parser.add_option("--kinship",dest="kinship",
-                  help="Kinship file format")
+                  help="Kinship file format 1.0")
+parser.add_option("--pheno",dest="pheno",
+                  help="Phenotype file format 1.0")
 parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
@@ -67,3 +69,19 @@ if options.kinship:
             ns = np.genfromtxt(row[1:])
             K1.append(ns) # <--- slow
     K = np.array(K1)
+
+if options.pheno:
+    Y1 = []
+    print options.pheno
+    with open(options.pheno,'r') as tsvin:
+        assert(tsvin.readline().strip() == "# Phenotype format version 1.0")
+        tsvin.readline()
+        tsvin.readline()
+        tsvin.readline()
+        tsv = csv.reader(tsvin, delimiter='\t')
+        for row in tsv:
+            ns = np.genfromtxt(row[1:])
+            Y1.append(ns) # <--- slow
+    Y = np.array(Y1)
+
+print Y
