@@ -24,9 +24,9 @@ import numpy as np
 import input
 
 usage = """
-python convertlmm.py [--kinship kfile] 
+python convertlmm.py [--plink] [--prefix basename] [--kinship kfile] [--pheno] [--geno]
 
-  Convert files for runlmm.py processing. Writes to stdout.
+  Convert files for runlmm.py processing. Writes to stdout by default.
 
   try --help for more information
 """
@@ -38,8 +38,12 @@ python convertlmm.py [--kinship kfile]
 option_parser = OptionParser(usage=usage)
 option_parser.add_option("--kinship", dest="kinship",
                   help="Parse a kinship file. This is an nxn plain text file and can be computed with the pylmmKinship program")
-option_parser.add_option("--plink", dest="plink",
-                  help="Parse a phenotype file (PLINK style)")
+option_parser.add_option("--pheno", dest="pheno",
+                         help="Parse a phenotype file (use with --plink only)")
+option_parser.add_option("--geno", dest="geno",
+                         help="Parse a genotype file (use with --plink only)")
+option_parser.add_option("--plink", dest="plink", default=False,
+                  help="Parse PLINK style")
 # option_parser.add_option("--kinship",action="store_false", dest="kinship", default=True,
 #                   help="Parse a kinship file. This is an nxn plain text file and can be computed with the pylmmKinship program.")
 option_parser.add_option("--prefix", dest="prefix",
@@ -92,7 +96,9 @@ if options.kinship:
         wr("\n")
     msg(str(count)+" lines written")
 
-if options.plink:
+if options.pheno:
+    if not options.plink:
+        raise Exception("Use --plink switch")
     # Because plink does not track size we need to read the whole thing first
     msg("Converting "+options.plink)
     phenos = []
@@ -121,5 +127,6 @@ if options.plink:
         wr("\t".join(phenos[i]))
         wr("\n")
     msg(str(count)+" lines written")
-            
+
+    
 msg("Converting done")
