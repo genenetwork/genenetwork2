@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 from optparse import OptionParser
 import sys
 import os
@@ -144,10 +145,10 @@ if options.geno:
     snps = plink.readbim(options.geno+'.bim')
     msg("Converting geno "+options.geno+'.bed')
 
-    def out(i,x):
-        print i,x
+    # def out(i,x):
+    #     print i,x
         
-    snps = plink.readbed(options.geno+'.bed',num_inds, out)
+    snps = plink.readbed(options.geno+'.bed',num_inds, lambda i,x: print(i,x))
     msg(str(count)+" geno lines written (with "+str(snps)+" snps)")
    
 msg("Converting done")
