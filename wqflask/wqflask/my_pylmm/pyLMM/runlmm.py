@@ -44,6 +44,8 @@ parser.add_option("--kinship",dest="kinship",
                   help="Kinship file format 1.0")
 parser.add_option("--pheno",dest="pheno",
                   help="Phenotype file format 1.0")
+parser.add_option("--geno",dest="geno",
+                  help="Genotype file format 1.0")
 parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
@@ -84,4 +86,20 @@ if options.pheno:
             Y1.append(ns) # <--- slow
     Y = np.array(Y1)
 
-print Y
+if options.geno:
+    G1 = []
+    print options.geno
+    with open(options.geno,'r') as tsvin:
+        assert(tsvin.readline().strip() == "# Genotype format version 1.0")
+        tsvin.readline()
+        tsvin.readline()
+        tsvin.readline()
+        tsvin.readline()
+        tsv = csv.reader(tsvin, delimiter='\t')
+        for row in tsv:
+            print(row)
+            # ns = np.genfromtxt(row[1:])
+            G1.append(ns) # <--- slow
+    G = np.array(G1)
+
+print G

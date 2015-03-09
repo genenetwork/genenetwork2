@@ -148,20 +148,26 @@ if options.geno:
     wrln("# Genotype format version 1.0")
     wrln("# Individuals = "+str(num_inds))
     wrln("# Phenotypes = "+str(len(num_snps)))
-    for i in range(len(num_snps)):
+    for i in range(num_inds):
         wr("\t"+str(i+1))
-        wr("\n")
+    wr("\n")
 
     m = []
     def out(i,x):
-        wr(str(i)+"\t")
-        wr("\t".join(x))
-        wr("\n")
+        # wr(str(i)+"\t")
+        # wr("\t".join(x))
+        # wr("\n")
+        m.append(x)
         
-    snps = plink.readbed(options.geno+'.bed',num_inds, ('A','H','B','NA'), out)
-    # for i in range(count):
-    #     wr("\t".join(phenos[i]))
-    #     wr("\n")
+    snps = plink.readbed(options.geno+'.bed',num_inds, ('A','H','B','-'), out)
+
+    msg("Write transposed genotype matrix")
+    for g in range(len(num_snps)):
+        wr(str(g+1)+"\t")
+        for i in range(num_inds):
+            wr(m[g][i])
+        wr("\n")
+            
     msg(str(count)+" geno lines written (with "+str(snps)+" snps)")
    
 msg("Converting done")
