@@ -66,25 +66,26 @@ def readbim(fn):
 # http://pngu.mgh.harvard.edu/~purcell/plink2/formats.html#fam
 # http://pngu.mgh.harvard.edu/~purcell/plink2/formats.html#bim
 
-def readbed(fn,inds,func=None):
+def readbed(fn,inds,encoding,func=None):
 
     # For every SNP block fetch the individual genotypes using values
     # 0.0 and 1.0 for homozygous and 0.5 for heterozygous alleles
     def fetchGenotypes(X):
-        D = { \
-              '00': 0.0, \
-              '10': 0.5, \
-              '11': 1.0, \
-              '01': float('nan') \
-           }
-  
+        # D = { \
+        #      '00': 0.0, \
+        #      '10': 0.5, \
+        #      '11': 1.0, \
+        #      '01': float('nan') \
+        #   }
+
+        Didx = { '00': 0, '10': 1, '11': 2, '01': 3 }
         G = []
         for x in X:
             if not len(x) == 10:
                 xx = x[2:]
                 x = '0b' + '0'*(8 - len(xx)) + xx
             a,b,c,d = (x[8:],x[6:8],x[4:6],x[2:4]) 
-            L = [D[y] for y in [a,b,c,d]]
+            L = [encoding[Didx[y]] for y in [a,b,c,d]]
             G += L
         G = G[:inds]
         # G = np.array(G)
