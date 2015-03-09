@@ -47,6 +47,8 @@ def readbim(fn):
         list = line.split()
         if len([True for e in list if e == 'nan']) == 0:
           res.append( (list[0],list[1],int(list[2]),int(list[3]),int(list[4]),int(list[5])) )
+        else:
+          res.append( (list[0],list[1],list[2],float('nan'),float('nan'),float('nan')) )
     return res
 
 # .bed (PLINK binary biallelic genotype table)

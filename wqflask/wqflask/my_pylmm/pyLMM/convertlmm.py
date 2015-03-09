@@ -136,19 +136,30 @@ if options.pheno:
     msg(str(count)+" pheno lines written")
 
 if options.geno:
+    msg("Converting geno "+options.geno+'.bed')
     if not options.plink:
         raise Exception("Use --plink switch")
     if not num_inds:
         raise Exception("Can not figure out the number of individuals, use --pheno or --kinship")    
-    # msg("Converting geno "+options.geno)
+    num_snps = plink.readbim(options.geno+'.bim')
+    writer = None
+    if options.prefix:
+        writer = open(options.prefix+".geno","w")
+    wrln("# Genotype format version 1.0")
+    wrln("# Individuals = "+str(num_inds))
+    wrln("# Phenotypes = "+str(len(num_snps)))
 
-    snps = plink.readbim(options.geno+'.bim')
-    msg("Converting geno "+options.geno+'.bed')
-
-    # def out(i,x):
-    #     print i,x
+    def out(i,x):
+        # print(i,x)
+        pass
         
-    snps = plink.readbed(options.geno+'.bed',num_inds, lambda i,x: print(i,x))
+    snps = plink.readbed(options.geno+'.bed',num_inds, out)
+    # for i in range(num_snps):
+    #     wr("\t"+str(i+1))
+    #     wr("\n")
+    # for i in range(count):
+    #     wr("\t".join(phenos[i]))
+    #     wr("\n")
     msg(str(count)+" geno lines written (with "+str(snps)+" snps)")
    
 msg("Converting done")
