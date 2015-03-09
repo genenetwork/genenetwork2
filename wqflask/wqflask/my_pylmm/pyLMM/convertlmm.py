@@ -151,8 +151,8 @@ if options.geno:
 
     def out(i,x):
         wr(str(i)+"\t")
-        for v in x:
-          wr("\t".join(str(v)))
+        lst = [str(v) for v in x]
+        wr("\t".join(lst))
         wr("\n")
         
     snps = plink.readbed(options.geno+'.bed',num_inds, out)
