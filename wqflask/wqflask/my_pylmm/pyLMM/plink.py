@@ -51,19 +51,24 @@ def readbim(fn):
 
 # .bed (PLINK binary biallelic genotype table)
 # 
-# Primary representation of genotype calls at biallelic variants. Must be accompanied by .bim and .fam files.
+# Primary representation of genotype calls at biallelic variants. Must
+# be accompanied by .bim and .fam files. Basically contains num SNP
+# blocks containing IND (compressed 4 IND into a byte)
+#
+# Since it is a biallelic format it supports for every individual
+# whether the first allele is homozygous (b00), the second allele is
+# homozygous (b11), it is heterozygous (b10) or that it is missing
+# (b01).
+
 # http://pngu.mgh.harvard.edu/~purcell/plink2/formats.html#bed
 # http://pngu.mgh.harvard.edu/~purcell/plink2/formats.html#fam
 # http://pngu.mgh.harvard.edu/~purcell/plink2/formats.html#bim
 
-def readbed(fn,inds,snps):
-    bytes = inds / 4 + (inds % 4 and 1 or 0)
-    format = 'c'*bytes
-    f = open(fn,'rb')
-    magic = f.read(3)
-    assert( ":".join("{:02x}".format(ord(c)) for c in magic) == "6c:1b:01")
+def readbed(fn,inds,func=None):
 
-    def formatBinaryGenotypes(X):
+    # For every SNP block fetch the individual genotypes using values
+    # 0.0 and 1.0 for homozygous and 0.5 for heterozygous alleles
+    def fetchGenotypes(X):
         D = { \
               '00': 0.0, \
               '10': 0.5, \
@@ -71,15 +76,6 @@ def readbed(fn,inds,snps):
               '01': np.nan \
            }
   
-        D_tped = { \
-              '00': '1 1', \
-              '10': '1 2', \
-              '11': '2 2', \
-              '01': '0 0' \
-           }
-  
-        #D = D_tped
-              
         G = []
         for x in X:
             if not len(x) == 10:
@@ -88,19 +84,21 @@ def readbed(fn,inds,snps):
             a,b,c,d = (x[8:],x[6:8],x[4:6],x[2:4]) 
             L = [D[y] for y in [a,b,c,d]]
             G += L
-        # only take the leading values because whatever is left should be null
         G = G[:inds]
         G = np.array(G)
-        # if normalize:
-        #     G = self.normalizeGenotype(G)
         return G
 
-    def next():
-        X = f.read(bytes)
-        XX = [bin(ord(x)) for x in struct.unpack(format,X)]
-        # snp = 0
-        # snp = self.snpFileHandle.readline().strip().split()[1]
-        return formatBinaryGenotypes(XX)
-
-    for x in range(snps):
-        print next()
+    bytes = inds / 4 + (inds % 4 and 1 or 0)
+    format = 'c'*bytes
+    count = 0
+    with open(fn,'rb') as f:
+        magic = f.read(3)
+        assert( ":".join("{:02x}".format(ord(c)) for c in magic) == "6c:1b:01")
+        while True:
+            count += 1
+            X = f.read(bytes)
+            if not X:
+                return(count-1)
+            XX = [bin(ord(x)) for x in struct.unpack(format,X)]
+            xs = fetchGenotypes(XX)
+            func(count,xs)

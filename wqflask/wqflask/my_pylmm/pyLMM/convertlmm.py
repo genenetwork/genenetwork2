@@ -59,6 +59,7 @@ option_parser.add_option("-v", "--verbose",
 (options, args) = option_parser.parse_args()
 
 writer = None
+num_inds = None
 
 def msg(s):
     sys.stderr.write("INFO: ")
@@ -96,6 +97,7 @@ if options.kinship:
         wr("\t")
         wr("\t".join(line.split()))
         wr("\n")
+    num_inds = count
     msg(str(count)+" kinship lines written")
 
 if options.pheno:
@@ -129,14 +131,23 @@ if options.pheno:
     for i in range(count):
         wr("\t".join(phenos[i]))
         wr("\n")
+    num_inds = count
     msg(str(count)+" pheno lines written")
 
 if options.geno:
     if not options.plink:
         raise Exception("Use --plink switch")
+    if not num_inds:
+        raise Exception("Can not figure out the number of individuals, use --pheno or --kinship")    
     # msg("Converting geno "+options.geno)
-    # plink.readbim(options.geno+'.bim')
+
+    snps = plink.readbim(options.geno+'.bim')
     msg("Converting geno "+options.geno+'.bed')
-    plink.readbed(options.geno+'.bed',1000,8)
-    
+
+    def out(i,x):
+        print i,x
+        
+    snps = plink.readbed(options.geno+'.bed',num_inds, out)
+    msg(str(count)+" geno lines written (with "+str(snps)+" snps)")
+   
 msg("Converting done")
