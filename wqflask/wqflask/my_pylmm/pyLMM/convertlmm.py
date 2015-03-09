@@ -21,7 +21,8 @@ import sys
 import os
 import numpy as np
 # from lmm import LMM, run_other
-import input
+# import input
+import plink
 
 usage = """
 python convertlmm.py [--plink] [--prefix out_basename] [--kinship kfile] [--pheno pname] [--geno gname]
@@ -77,7 +78,7 @@ def wrln(s):
 if options.kinship:
     is_header = True
     count = 0
-    msg("Converting "+options.kinship)
+    msg("Converting kinship "+options.kinship)
     writer = None
     if options.prefix:
         writer = open(options.prefix+".kin","w")
@@ -101,7 +102,7 @@ if options.pheno:
     if not options.plink:
         raise Exception("Use --plink switch")
     # Because plink does not track size we need to read the whole thing first
-    msg("Converting "+options.pheno)
+    msg("Converting pheno "+options.pheno)
     phenos = []
     count = 0
     count_pheno = None
@@ -130,5 +131,12 @@ if options.pheno:
         wr("\n")
     msg(str(count)+" pheno lines written")
 
+if options.geno:
+    if not options.plink:
+        raise Exception("Use --plink switch")
+    # msg("Converting geno "+options.geno)
+    # plink.readbim(options.geno+'.bim')
+    msg("Converting geno "+options.geno+'.bed')
+    plink.readbed(options.geno+'.bed',1000,8)
     
 msg("Converting done")
