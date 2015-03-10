@@ -18,12 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from optparse import OptionParser
-import sys
-import os
-import numpy as np
-# from lmm import LMM, run_other
-import csv
-
+import tsvreader
 
 usage = """
 python runlmm.py [options] command
@@ -37,6 +32,7 @@ python runlmm.py [options] command
 
   try --help for more information
 """
+
 
 parser = OptionParser(usage=usage)
 # parser.add_option("-f", "--file", dest="input file",
@@ -61,54 +57,10 @@ cmd = args[0]
 print "Command: ",cmd
 
 if options.kinship:
-    K1 = []
-    print options.kinship
-    with open(options.kinship,'r') as tsvin:
-        assert(tsvin.readline().strip() == "# Kinship format version 1.0")
-        tsvin.readline()
-        tsvin.readline()
-        tsv = csv.reader(tsvin, delimiter='\t')
-        for row in tsv:
-            ns = np.genfromtxt(row[1:])
-            K1.append(ns) # <--- slow
-    K = np.array(K1)
+    k = tsvreader.kinship()
 
 if options.pheno:
-    Y1 = []
-    print options.pheno
-    with open(options.pheno,'r') as tsvin:
-        assert(tsvin.readline().strip() == "# Phenotype format version 1.0")
-        tsvin.readline()
-        tsvin.readline()
-        tsvin.readline()
-        tsv = csv.reader(tsvin, delimiter='\t')
-        for row in tsv:
-            ns = np.genfromtxt(row[1:])
-            Y1.append(ns) # <--- slow
-    Y = np.array(Y1)
+    y = tsvreader.pheno()
 
 if options.geno:
-    G1 = []
-    hab_mapper = {'A':0,'H':1,'B':2,'-':3}
-    pylmm_mapper = [ 0.0, 0.5, 1.0, float('nan') ]
-
-    print options.geno
-    with open(options.geno,'r') as tsvin:
-        assert(tsvin.readline().strip() == "# Genotype format version 1.0")
-        tsvin.readline()
-        tsvin.readline()
-        tsvin.readline()
-        tsvin.readline()
-        tsv = csv.reader(tsvin, delimiter='\t')
-        for row in tsv:
-            # print(row)
-            id = row[0]
-            gs = list(row[1])
-            # print id,gs
-            gs2 = [pylmm_mapper[hab_mapper[g]] for g in gs]
-            # print id,gs2
-            # ns = np.genfromtxt(row[1:])
-            G1.append(gs2) # <--- slow
-    G = np.array(G1)
-
-print G
+    g = tsvreader.geno()
