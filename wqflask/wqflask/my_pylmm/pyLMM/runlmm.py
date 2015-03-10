@@ -19,6 +19,7 @@
 
 from optparse import OptionParser
 import tsvreader
+from lmm import gn2_load_redis
 
 usage = """
 python runlmm.py [options] command
@@ -29,6 +30,7 @@ python runlmm.py [options] command
   Current commands are:
 
     parse        : only parse input files
+    redis        : use Redis to call into GN2
 
   try --help for more information
 """
@@ -58,12 +60,15 @@ print "Command: ",cmd
 
 if options.kinship:
     k = tsvreader.kinship(options.kinship)
-    print len(k)
+    print k.shape
 
 if options.pheno:
     y = tsvreader.pheno(options.pheno)
-    print len(y)
+    print y.shape
 
 if options.geno:
     g = tsvreader.geno(options.geno)
-    print len(g)
+    print g.shape
+
+if cmd == 'redis':
+    gn2_load_redis('testrun','other',k,y,g.T)

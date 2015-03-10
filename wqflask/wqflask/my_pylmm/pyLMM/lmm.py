@@ -719,23 +719,11 @@ class LMM:
        pl.ylabel("Probability of data")
        pl.title(title)
 
-# This is the main function used by Genenetwork2 (with environment)
-def gn2_main():
-    parser = argparse.ArgumentParser(description='Run pyLMM')
-    parser.add_argument('-k', '--key')
-    parser.add_argument('-s', '--species')
-    
-    opts = parser.parse_args()
-    
-    key = opts.key
-    species = opts.species
-    
+
+def gn2_redis(key,species):
     json_params = Redis.get(key)
     
     params = json.loads(json_params)
-    #print("params:", params)
-    
-    #print("kinship_matrix:", params['kinship_matrix'])
     
     tempdata = temp_data.TempData(params['temp_uuid'])
     if species == "human" :
@@ -760,7 +748,38 @@ def gn2_main():
     #Pushing json_results into a list where it is the only item because blpop needs a list
     Redis.rpush(results_key, json_results)
     Redis.expire(results_key, 60*60)
-        
+
+# This is the main function used by Genenetwork2 (with environment)
+def gn2_main():
+    parser = argparse.ArgumentParser(description='Run pyLMM')
+    parser.add_argument('-k', '--key')
+    parser.add_argument('-s', '--species')
+    
+    opts = parser.parse_args()
+    
+    key = opts.key
+    species = opts.species
+
+    gn2_redis(key,species)
+
+def gn2_load_redis(key,species,kinship,pheno,geno):
+    print("Loading Redis from parsed data")
+    params = dict(pheno_vector = pheno.tolist(),
+                  genotype_matrix = geno.tolist(),
+                  restricted_max_likelihood = True,
+                  refit = False,
+                  temp_uuid = "testrun_temp_uuid",
+                        
+                  # meta data
+                  timestamp = datetime.datetime.now().isoformat(),
+    )
+            
+    json_params = json.dumps(params)
+    Redis.set(key, json_params)
+    Redis.expire(key, 60*60)
+
+    gn2_redis(key,species)
+    
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
     if has_gn2:
