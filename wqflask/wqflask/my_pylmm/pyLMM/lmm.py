@@ -727,9 +727,9 @@ def gn2_redis(key,species):
     
     tempdata = temp_data.TempData(params['temp_uuid'])
 
-    print('kinship', np.array(params['kinship_matrix'][0:10][0:10]))
-    print('pheno', params['pheno_vector'][0:10])
-    print('geno', params['genotype_matrix'][0:10][0:10])
+    print('kinship', np.array(params['kinship_matrix']))
+    print('pheno', np.array(params['pheno_vector']))
+    print('geno', np.array(params['genotype_matrix']))
     
     if species == "human" :
         ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
