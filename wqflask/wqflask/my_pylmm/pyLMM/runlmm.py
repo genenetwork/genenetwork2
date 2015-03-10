@@ -18,7 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from optparse import OptionParser
+import sys
 import tsvreader
+import numpy as np
 from lmm import gn2_load_redis
 
 usage = """
@@ -70,5 +72,26 @@ if options.geno:
     g = tsvreader.geno(options.geno)
     print g.shape
 
+def normalizeGenotype(G):
+    x = True - np.isnan(G)
+    m = G[x].mean()
+    s = np.sqrt(G[x].var())
+    G[np.isnan(G)] = m
+    if s == 0: G = G - m
+    else: G = (G - m) / s
+    return G
+
+gT = normalizeGenotype(g.T)
+
+# Remove individuals with missing phenotypes
+v = np.isnan(y)
+keep = True - v
+if v.sum():
+   if options.verbose: sys.stderr.write("Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
+   y  = y[keep]
+   gT = gT[keep,:]
+   k = k[keep,:][:,keep]
+
 if cmd == 'redis':
-    gn2_load_redis('testrun','other',k,y,g.T)
+    ps, ts = gn2_load_redis('testrun','other',k,y,gT)
+    print ps[0:10],ps[-10:]

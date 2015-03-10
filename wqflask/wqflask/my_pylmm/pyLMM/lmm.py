@@ -726,6 +726,11 @@ def gn2_redis(key,species):
     params = json.loads(json_params)
     
     tempdata = temp_data.TempData(params['temp_uuid'])
+
+    print('kinship', np.array(params['kinship_matrix'][0:10][0:10]))
+    print('pheno', params['pheno_vector'][0:10])
+    print('geno', params['genotype_matrix'][0:10][0:10])
+    
     if species == "human" :
         ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
                   covariate_matrix = np.array(params['covariate_matrix']),
@@ -748,6 +753,7 @@ def gn2_redis(key,species):
     #Pushing json_results into a list where it is the only item because blpop needs a list
     Redis.rpush(results_key, json_results)
     Redis.expire(results_key, 60*60)
+    return ps, ts
 
 # This is the main function used by Genenetwork2 (with environment)
 def gn2_main():
@@ -766,6 +772,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno):
     print("Loading Redis from parsed data")
     params = dict(pheno_vector = pheno.tolist(),
                   genotype_matrix = geno.tolist(),
+                  kinship_matrix= kinship.tolist(),
                   restricted_max_likelihood = True,
                   refit = False,
                   temp_uuid = "testrun_temp_uuid",
@@ -778,7 +785,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    gn2_redis(key,species)
+    return gn2_redis(key,species)
     
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
