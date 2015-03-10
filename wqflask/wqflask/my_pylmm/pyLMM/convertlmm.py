@@ -61,6 +61,8 @@ option_parser.add_option("-v", "--verbose",
 
 writer = None
 num_inds = None
+snp_names = []
+ind_names = []
 
 def msg(s):
     sys.stderr.write("INFO: ")
@@ -77,29 +79,6 @@ def wrln(s):
     wr(s)
     wr("\n")
             
-if options.kinship:
-    is_header = True
-    count = 0
-    msg("Converting kinship "+options.kinship)
-    writer = None
-    if options.prefix:
-        writer = open(options.prefix+".kin","w")
-    for line in open(options.kinship,'r'):
-        count += 1
-        if is_header:
-            size = len(line.split())
-            wrln("# Kinship format version 1.0")
-            wrln("# Size="+str(size))
-            for i in range(size):
-                wr("\t"+str(i+1))
-            wr("\n")
-            is_header = False
-        wr(str(count))
-        wr("\t")
-        wr("\t".join(line.split()))
-        wr("\n")
-    num_inds = count
-    msg(str(count)+" kinship lines written")
 
 if options.pheno:
     if not options.plink:
@@ -135,19 +114,44 @@ if options.pheno:
     num_inds = count
     msg(str(count)+" pheno lines written")
 
+if options.kinship:
+    is_header = True
+    count = 0
+    msg("Converting kinship "+options.kinship)
+    writer = None
+    if options.prefix:
+        writer = open(options.prefix+".kin","w")
+    for line in open(options.kinship,'r'):
+        count += 1
+        if is_header:
+            size = len(line.split())
+            wrln("# Kinship format version 1.0")
+            wrln("# Size="+str(size))
+            for i in range(size):
+                wr("\t"+str(i+1))
+            wr("\n")
+            is_header = False
+        wr(str(count))
+        wr("\t")
+        wr("\t".join(line.split()))
+        wr("\n")
+    num_inds = count
+    msg(str(count)+" kinship lines written")
+    
 if options.geno:
     msg("Converting geno "+options.geno+'.bed')
     if not options.plink:
         raise Exception("Use --plink switch")
     if not num_inds:
         raise Exception("Can not figure out the number of individuals, use --pheno or --kinship")    
-    num_snps = plink.readbim(options.geno+'.bim')
+    bim_snps = plink.readbim(options.geno+'.bim')
+    num_snps = len(bim_snps)
     writer = None
     if options.prefix:
         writer = open(options.prefix+".geno","w")
     wrln("# Genotype format version 1.0")
     wrln("# Individuals = "+str(num_inds))
-    wrln("# SNPs = "+str(len(num_snps)))
+    wrln("# SNPs = "+str(num_snps))
     wrln("# Encoding = HAB")
     for i in range(num_inds):
         wr("\t"+str(i+1))
@@ -163,8 +167,8 @@ if options.geno:
     snps = plink.readbed(options.geno+'.bed',num_inds, ('A','H','B','-'), out)
 
     msg("Write transposed genotype matrix")
-    for g in range(len(num_snps)):
-        wr(str(g+1)+"\t")
+    for g in range(num_snps):
+        wr(bim_snps[g][1]+"\t")
         for i in range(num_inds):
             wr(m[g][i])
         wr("\n")
