@@ -28,7 +28,8 @@ import csv
 usage = """
 python runlmm.py [options] command
 
-  runlmm.py processing multiplexer reads standard input types and calls the routines
+  runlmm.py processing multiplexer reads standardised input formats
+  and calls the different routines
 
   Current commands are:
 
@@ -88,6 +89,9 @@ if options.pheno:
 
 if options.geno:
     G1 = []
+    hab_mapper = {'A':0,'H':1,'B':2,'-':3}
+    pylmm_mapper = [ 0.0, 0.5, 1.0, float('nan') ]
+
     print options.geno
     with open(options.geno,'r') as tsvin:
         assert(tsvin.readline().strip() == "# Genotype format version 1.0")
@@ -97,9 +101,14 @@ if options.geno:
         tsvin.readline()
         tsv = csv.reader(tsvin, delimiter='\t')
         for row in tsv:
-            print(row)
+            # print(row)
+            id = row[0]
+            gs = list(row[1])
+            # print id,gs
+            gs2 = [pylmm_mapper[hab_mapper[g]] for g in gs]
+            # print id,gs2
             # ns = np.genfromtxt(row[1:])
-            G1.append(ns) # <--- slow
+            G1.append(gs2) # <--- slow
     G = np.array(G1)
 
 print G

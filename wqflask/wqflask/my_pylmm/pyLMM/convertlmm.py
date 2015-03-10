@@ -147,7 +147,8 @@ if options.geno:
         writer = open(options.prefix+".geno","w")
     wrln("# Genotype format version 1.0")
     wrln("# Individuals = "+str(num_inds))
-    wrln("# Phenotypes = "+str(len(num_snps)))
+    wrln("# SNPs = "+str(len(num_snps)))
+    wrln("# Encoding = HAB")
     for i in range(num_inds):
         wr("\t"+str(i+1))
     wr("\n")
