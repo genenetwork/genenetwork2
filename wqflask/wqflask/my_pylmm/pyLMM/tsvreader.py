@@ -20,10 +20,10 @@ import os
 import numpy as np
 import csv
 
-def kinship():
+def kinship(fn):
     K1 = []
-    print options.kinship
-    with open(options.kinship,'r') as tsvin:
+    print fn
+    with open(fn,'r') as tsvin:
         assert(tsvin.readline().strip() == "# Kinship format version 1.0")
         tsvin.readline()
         tsvin.readline()
@@ -32,11 +32,12 @@ def kinship():
             ns = np.genfromtxt(row[1:])
             K1.append(ns) # <--- slow
     K = np.array(K1)
+    return K
 
-def pheno():
+def pheno(fn):
     Y1 = []
-    print options.pheno
-    with open(options.pheno,'r') as tsvin:
+    print fn
+    with open(fn,'r') as tsvin:
         assert(tsvin.readline().strip() == "# Phenotype format version 1.0")
         tsvin.readline()
         tsvin.readline()
@@ -46,14 +47,15 @@ def pheno():
             ns = np.genfromtxt(row[1:])
             Y1.append(ns) # <--- slow
     Y = np.array(Y1)
+    return Y
 
-def geno():
+def geno(fn):
     G1 = []
     hab_mapper = {'A':0,'H':1,'B':2,'-':3}
     pylmm_mapper = [ 0.0, 0.5, 1.0, float('nan') ]
 
-    print options.geno
-    with open(options.geno,'r') as tsvin:
+    print fn
+    with open(fn,'r') as tsvin:
         assert(tsvin.readline().strip() == "# Genotype format version 1.0")
         tsvin.readline()
         tsvin.readline()
@@ -70,4 +72,5 @@ def geno():
             # ns = np.genfromtxt(row[1:])
             G1.append(gs2) # <--- slow
     G = np.array(G1)
+    return G
 

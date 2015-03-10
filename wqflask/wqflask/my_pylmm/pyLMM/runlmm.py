@@ -57,10 +57,13 @@ cmd = args[0]
 print "Command: ",cmd
 
 if options.kinship:
-    k = tsvreader.kinship()
+    k = tsvreader.kinship(options.kinship)
+    print len(k)
 
 if options.pheno:
-    y = tsvreader.pheno()
+    y = tsvreader.pheno(options.pheno)
+    print len(y)
 
 if options.geno:
-    g = tsvreader.geno()
+    g = tsvreader.geno(options.geno)
+    print len(g)
