@@ -133,13 +133,15 @@ class plink:
         return G
     
     def normalizeGenotype(self,G):
+        # print "Before",G
+        # print G.shape
         x = True - np.isnan(G)
         m = G[x].mean()
         s = np.sqrt(G[x].var())
         G[np.isnan(G)] = m
         if s == 0: G = G - m
         else: G = (G - m) / s
-     
+        # print "After",G
         return G
     
     def getPhenos(self,phenoFile=None):

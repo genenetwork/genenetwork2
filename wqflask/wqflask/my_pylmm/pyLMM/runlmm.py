@@ -73,15 +73,33 @@ if options.geno:
     print g.shape
 
 def normalizeGenotype(G):
-    x = True - np.isnan(G)
-    m = G[x].mean()
-    s = np.sqrt(G[x].var())
-    G[np.isnan(G)] = m
-    if s == 0: G = G - m
-    else: G = (G - m) / s
+    # Run for every SNP list (num individuals)
+    x = True - np.isnan(G)  # Matrix of True/False
+    m = G[x].mean()         # Global mean value
+    print m
+    s = np.sqrt(G[x].var()) # Global stddev
+    print s
+    G[np.isnan(G)] = m      # Plug-in mean values for missing
+    if s == 0:
+        G = G - m           # Subtract the mean
+    else:
+        G = (G - m) / s     # Normalize the deviation
     return G
 
-gT = normalizeGenotype(g.T)
+# g = g.reshape((1, -1))[0]
+print("Before",g)
+gn = []
+for snp in g:
+    gn.append( normalizeGenotype(snp) )
+
+gn = np.array(gn)
+print("After1",gn)
+gnT = gn.T
+print("After",gnT)
+# G = gnT
+G = gnT
+print "G shape",G.shape
+# assert(G[0,0]==-2.25726341)
 
 # Remove individuals with missing phenotypes
 v = np.isnan(y)
@@ -89,9 +107,9 @@ keep = True - v
 if v.sum():
    if options.verbose: sys.stderr.write("Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
    y  = y[keep]
-   gT = gT[keep,:]
+   G = G[keep,:]
    k = k[keep,:][:,keep]
 
 if cmd == 'redis':
-    ps, ts = gn2_load_redis('testrun','other',k,y,gT)
-    print ps[0:10],ps[-10:]
+    ps, ts = gn2_load_redis('testrun','other',k,y,G)
+    print np.array(ps)

@@ -333,8 +333,8 @@ def calculate_kinship(genotype_matrix, temp_data, is_testing=False):
     """
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
-    print("genotype matrix n is:", n)
-    print("genotype matrix m is:", m)
+    print("genotype 2D matrix n (inds) is:", n)
+    print("genotype 2D matrix m (snps) is:", m)
     keep = []
     for counter in range(m):
         if is_testing and counter>8:
@@ -730,6 +730,7 @@ def gn2_redis(key,species):
     print('kinship', np.array(params['kinship_matrix']))
     print('pheno', np.array(params['pheno_vector']))
     print('geno', np.array(params['genotype_matrix']))
+    # sys.exit(1)
     
     if species == "human" :
         ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
