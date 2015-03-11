@@ -114,7 +114,7 @@ if y != None:
     v = np.isnan(y)
     keep = True - v
     if v.sum():
-       if options.verbose: sys.stderr.write("Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
+       if options.verbose: sys.stderr.write("runlmm.py: Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
        y = y[keep]
        G = G[keep,:]
        if k != None: k = k[keep,:][:,keep]
