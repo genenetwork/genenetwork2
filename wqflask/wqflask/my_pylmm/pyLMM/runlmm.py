@@ -50,6 +50,9 @@ parser.add_option("--geno",dest="geno",
 parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
+parser.add_option("--test",
+                  action="store_true", dest="testing", default=False,
+                  help="Testing mode")
 
 (options, args) = parser.parse_args()
 
@@ -76,9 +79,9 @@ def normalizeGenotype(G):
     # Run for every SNP list (num individuals)
     x = True - np.isnan(G)  # Matrix of True/False
     m = G[x].mean()         # Global mean value
-    print m
+    # print m
     s = np.sqrt(G[x].var()) # Global stddev
-    print s
+    # print s
     G[np.isnan(G)] = m      # Plug-in mean values for missing
     if s == 0:
         G = G - m           # Subtract the mean
@@ -92,6 +95,7 @@ gn = []
 for snp in g:
     gn.append( normalizeGenotype(snp) )
 
+gn = g
 gn = np.array(gn)
 print("After1",gn)
 gnT = gn.T
@@ -99,6 +103,7 @@ print("After",gnT)
 # G = gnT
 G = gnT
 print "G shape",G.shape
+# sys.exit(1)
 # assert(G[0,0]==-2.25726341)
 
 # Remove individuals with missing phenotypes
@@ -111,5 +116,5 @@ if v.sum():
    k = k[keep,:][:,keep]
 
 if cmd == 'redis':
-    ps, ts = gn2_load_redis('testrun','other',k,y,G)
+    ps, ts = gn2_load_redis('testrun','other',np.array(k),y,G,options.testing)
     print np.array(ps)

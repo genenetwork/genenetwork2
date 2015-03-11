@@ -267,6 +267,7 @@ def run_other(pheno_vector,
     """
     
     print("In run_other")
+    print("REML=",restricted_max_likelihood," REFIT=",refit, "TESTING=",is_testing)
     with Bench("Calculate Kinship"):
         kinship_matrix = calculate_kinship(genotype_matrix, tempdata, is_testing)
     
@@ -280,6 +281,7 @@ def run_other(pheno_vector,
         lmm_ob.fit()
 
     print("genotype_matrix: ", genotype_matrix.shape)
+    print(genotype_matrix)
 
     with Bench("Doing GWAS"):
         t_stats, p_values = GWAS(pheno_vector,
@@ -720,7 +722,7 @@ class LMM:
        pl.title(title)
 
 
-def gn2_redis(key,species):
+def gn2_redis(key,species,is_testing=False):
     json_params = Redis.get(key)
     
     params = json.loads(json_params)
@@ -729,7 +731,8 @@ def gn2_redis(key,species):
 
     print('kinship', np.array(params['kinship_matrix']))
     print('pheno', np.array(params['pheno_vector']))
-    print('geno', np.array(params['genotype_matrix']))
+    geno = np.array(params['genotype_matrix'])
+    print('geno', geno.shape, geno)
     # sys.exit(1)
     
     if species == "human" :
@@ -741,10 +744,11 @@ def gn2_redis(key,species):
                   tempdata = tempdata)
     else:
         ps, ts = run_other(pheno_vector = np.array(params['pheno_vector']),
-                  genotype_matrix = np.array(params['genotype_matrix']),
+                  genotype_matrix = geno,
                   restricted_max_likelihood = params['restricted_max_likelihood'],
                   refit = params['refit'],
-                  tempdata = tempdata, is_testing=False)
+                  tempdata = tempdata,
+                  is_testing=is_testing)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
@@ -769,7 +773,7 @@ def gn2_main():
 
     gn2_redis(key,species)
 
-def gn2_load_redis(key,species,kinship,pheno,geno):
+def gn2_load_redis(key,species,kinship,pheno,geno,is_testing):
     print("Loading Redis from parsed data")
     params = dict(pheno_vector = pheno.tolist(),
                   genotype_matrix = geno.tolist(),
@@ -786,7 +790,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    return gn2_redis(key,species)
+    return gn2_redis(key,species,is_testing)
     
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
