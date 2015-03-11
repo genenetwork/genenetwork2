@@ -19,32 +19,40 @@
 
 from optparse import OptionParser
 import sys
-import os
+import tsvreader
 import numpy as np
-# from lmm import LMM, run_other
-import csv
-
+from lmm import gn2_load_redis
 
 usage = """
 python runlmm.py [options] command
 
-  runlmm.py processing multiplexer reads standard input types and calls the routines
+  runlmm.py processing multiplexer reads standardised input formats
+  and calls the different routines
 
   Current commands are:
 
     parse        : only parse input files
+    redis        : use Redis to call into GN2
 
   try --help for more information
 """
+
 
 parser = OptionParser(usage=usage)
 # parser.add_option("-f", "--file", dest="input file",
 #                   help="In", metavar="FILE")
 parser.add_option("--kinship",dest="kinship",
-                  help="Kinship file format")
+                  help="Kinship file format 1.0")
+parser.add_option("--pheno",dest="pheno",
+                  help="Phenotype file format 1.0")
+parser.add_option("--geno",dest="geno",
+                  help="Genotype file format 1.0")
 parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
+parser.add_option("--test",
+                  action="store_true", dest="testing", default=False,
+                  help="Testing mode")
 
 (options, args) = parser.parse_args()
 
@@ -55,22 +63,58 @@ if len(args) != 1:
 cmd = args[0]
 print "Command: ",cmd
 
-
 if options.kinship:
-    K1 = []
-    print options.kinship
-    with open(options.kinship,'r') as tsvin:
-        if tsvin.readline().strip() != "# Kinship format version 1.0":
-            raise Exception("Expecting Kinship format version 1.0")
-        tsvin.readline()
-        tsvin.readline()
-        tsv = csv.reader(tsvin, delimiter='\t')
-        for row in tsv:
-            ns = np.genfromtxt(row[1:])
-            K1.append(ns) # <--- slow
-    K = np.array(K1)
+    k = tsvreader.kinship(options.kinship)
+    print k.shape
 
-if cmd == 'parse':
-  pass
-else:
-  raise Exception("Unknown command")
+if options.pheno:
+    y = tsvreader.pheno(options.pheno)
+    print y.shape
+
+if options.geno:
+    g = tsvreader.geno(options.geno)
+    print g.shape
+
+def normalizeGenotype(G):
+    # Run for every SNP list (num individuals)
+    x = True - np.isnan(G)  # Matrix of True/False
+    m = G[x].mean()         # Global mean value
+    # print m
+    s = np.sqrt(G[x].var()) # Global stddev
+    # print s
+    G[np.isnan(G)] = m      # Plug-in mean values for missing
+    if s == 0:
+        G = G - m           # Subtract the mean
+    else:
+        G = (G - m) / s     # Normalize the deviation
+    return G
+
+# g = g.reshape((1, -1))[0]
+print("Before",g)
+gn = []
+for snp in g:
+    gn.append( normalizeGenotype(snp) )
+
+gn = g
+gn = np.array(gn)
+print("After1",gn)
+gnT = gn.T
+print("After",gnT)
+# G = gnT
+G = gnT
+print "G shape",G.shape
+# sys.exit(1)
+# assert(G[0,0]==-2.25726341)
+
+# Remove individuals with missing phenotypes
+v = np.isnan(y)
+keep = True - v
+if v.sum():
+   if options.verbose: sys.stderr.write("Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
+   y  = y[keep]
+   G = G[keep,:]
+   k = k[keep,:][:,keep]
+
+if cmd == 'redis':
+    ps, ts = gn2_load_redis('testrun','other',np.array(k),y,G,options.testing)
+    print np.array(ps)

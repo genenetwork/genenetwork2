@@ -45,11 +45,17 @@ import sys
 sys.path.append("/home/zas1024/gene/wqflask/")
 print("sys.path2:", sys.path)
 
+has_gn2=True
+
 from utility.benchmark import Bench
 from utility import temp_data
 
-from wqflask.my_pylmm.pyLMM import chunks
-
+try:
+    from wqflask.my_pylmm.pyLMM import chunks
+except ImportError:
+    print("WARNING: Standalone version missing the Genenetwork2 environment\n")
+    has_gn2=False
+    pass
 
 #np.seterr('raise')
 
@@ -248,20 +254,22 @@ def run_other(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
         refit=False,
-        tempdata=None):
+        tempdata=None,      # <---- can not be None
+        is_testing=False):
+    
     """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
     
     restricted_max_likelihood -- whether to use restricted max likelihood; True or False
     refit -- whether to refit the variance component for each marker
     temp_data -- TempData object that stores the progress for each major step of the
-    calculations ("calculate_kinship" and "GWAS" take the majority of time)
+    calculations ("calculate_kinship" and "GWAS" take the majority of time) 
     
     """
     
-    
     print("In run_other")
+    print("REML=",restricted_max_likelihood," REFIT=",refit, "TESTING=",is_testing)
     with Bench("Calculate Kinship"):
-        kinship_matrix = calculate_kinship(genotype_matrix, tempdata)
+        kinship_matrix = calculate_kinship(genotype_matrix, tempdata, is_testing)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -273,6 +281,7 @@ def run_other(pheno_vector,
         lmm_ob.fit()
 
     print("genotype_matrix: ", genotype_matrix.shape)
+    print(genotype_matrix)
 
     with Bench("Doing GWAS"):
         t_stats, p_values = GWAS(pheno_vector,
@@ -288,6 +297,7 @@ def run_other(pheno_vector,
 def matrixMult(A,B):
 
     # If there is no fblas then we will revert to np.dot()
+
     try:
         linalg.fblas
     except AttributeError:
@@ -315,7 +325,7 @@ def matrixMult(A,B):
     return linalg.fblas.dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)
 
 
-def calculate_kinship(genotype_matrix, temp_data):
+def calculate_kinship(genotype_matrix, temp_data, is_testing=False):
     """
     genotype_matrix is an n x m matrix encoding SNP minor alleles.
     
@@ -325,10 +335,12 @@ def calculate_kinship(genotype_matrix, temp_data):
     """
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
-    print("n is:", n)
-    print("m is:", m)
+    print("genotype 2D matrix n (inds) is:", n)
+    print("genotype 2D matrix m (snps) is:", m)
     keep = []
     for counter in range(m):
+        if is_testing and counter>8:
+            break
         #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
         #Checks if any values in column are not numbers
         not_number = np.isnan(genotype_matrix[:,counter])
@@ -472,7 +484,7 @@ class LMM:
           is not done consistently.
  
     """
-    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=True):
+    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=True,is_testing=False):
  
        """
        The constructor takes a phenotype vector or array of size n.
@@ -481,7 +493,8 @@ class LMM:
        X0 is an optional covariate matrix of size n x q, where there are q covariates.
        When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
        """
- 
+
+       self.is_testing = True
        if X0 == None: X0 = np.ones(len(Y)).reshape(len(Y),1)
        self.verbose = verbose
  
@@ -501,14 +514,14 @@ class LMM:
        self.nonmissing = x
  
        print("this K is:", pf(K))
- 
+       
        if len(Kva) == 0 or len(Kve) == 0:
           if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
           begin = time.time()
           Kva,Kve = linalg.eigh(K)
           end = time.time()
           if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
-       
+
        self.K = K
        self.Kva = Kva
        self.Kve = Kve
@@ -708,24 +721,20 @@ class LMM:
        pl.ylabel("Probability of data")
        pl.title(title)
 
-def main():
-    parser = argparse.ArgumentParser(description='Run pyLMM')
-    parser.add_argument('-k', '--key')
-    parser.add_argument('-s', '--species')
-    
-    opts = parser.parse_args()
-    
-    key = opts.key
-    species = opts.species
-    
+
+def gn2_redis(key,species,is_testing=False):
     json_params = Redis.get(key)
     
     params = json.loads(json_params)
-    #print("params:", params)
-    
-    #print("kinship_matrix:", params['kinship_matrix'])
     
     tempdata = temp_data.TempData(params['temp_uuid'])
+
+    print('kinship', np.array(params['kinship_matrix']))
+    print('pheno', np.array(params['pheno_vector']))
+    geno = np.array(params['genotype_matrix'])
+    print('geno', geno.shape, geno)
+    # sys.exit(1)
+    
     if species == "human" :
         ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
                   covariate_matrix = np.array(params['covariate_matrix']),
@@ -735,10 +744,11 @@ def main():
                   tempdata = tempdata)
     else:
         ps, ts = run_other(pheno_vector = np.array(params['pheno_vector']),
-                  genotype_matrix = np.array(params['genotype_matrix']),
+                  genotype_matrix = geno,
                   restricted_max_likelihood = params['restricted_max_likelihood'],
                   refit = params['refit'],
-                  tempdata = tempdata)
+                  tempdata = tempdata,
+                  is_testing=is_testing)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
@@ -748,9 +758,46 @@ def main():
     #Pushing json_results into a list where it is the only item because blpop needs a list
     Redis.rpush(results_key, json_results)
     Redis.expire(results_key, 60*60)
+    return ps, ts
 
+# This is the main function used by Genenetwork2 (with environment)
+def gn2_main():
+    parser = argparse.ArgumentParser(description='Run pyLMM')
+    parser.add_argument('-k', '--key')
+    parser.add_argument('-s', '--species')
+    
+    opts = parser.parse_args()
+    
+    key = opts.key
+    species = opts.species
+
+    gn2_redis(key,species)
+
+def gn2_load_redis(key,species,kinship,pheno,geno,is_testing):
+    print("Loading Redis from parsed data")
+    params = dict(pheno_vector = pheno.tolist(),
+                  genotype_matrix = geno.tolist(),
+                  kinship_matrix= kinship.tolist(),
+                  restricted_max_likelihood = True,
+                  refit = False,
+                  temp_uuid = "testrun_temp_uuid",
+                        
+                  # meta data
+                  timestamp = datetime.datetime.now().isoformat(),
+    )
+            
+    json_params = json.dumps(params)
+    Redis.set(key, json_params)
+    Redis.expire(key, 60*60)
+
+    return gn2_redis(key,species,is_testing)
+    
 if __name__ == '__main__':
-    main()
+    print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
+    if has_gn2:
+        gn2_main()
+    else:
+        print("Run from runlmm.py instead")
 
 
 
