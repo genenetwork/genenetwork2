@@ -22,17 +22,19 @@ import sys
 import tsvreader
 import numpy as np
 from lmm import gn2_load_redis
+from kinship import kinship
 
 usage = """
 python runlmm.py [options] command
 
   runlmm.py processing multiplexer reads standardised input formats
-  and calls the different routines
+  and calls the different routines (writes to stdout)
 
   Current commands are:
 
     parse        : only parse input files
     redis        : use Redis to call into GN2
+    kinship      : calculate (new) kinship matrix
 
   try --help for more information
 """
@@ -50,6 +52,13 @@ parser.add_option("--geno",dest="geno",
 parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
+parser.add_option("--blas", action="store_true", default=False, dest="useBLAS", help="Use BLAS instead of numpy matrix multiplication")
+parser.add_option("-t", "--threads",
+                  type="int", dest="numThreads", 
+                  help="Threads to use")
+parser.add_option("--saveKvaKve",
+                  action="store_true", dest="saveKvaKve", default=False,
+                  help="Testing mode")
 parser.add_option("--test",
                   action="store_true", dest="testing", default=False,
                   help="Testing mode")
@@ -63,6 +72,10 @@ if len(args) != 1:
 cmd = args[0]
 print "Command: ",cmd
 
+k = None
+y = None
+g = None
+
 if options.kinship:
     k = tsvreader.kinship(options.kinship)
     print k.shape
@@ -74,7 +87,7 @@ if options.pheno:
 if options.geno:
     g = tsvreader.geno(options.geno)
     print g.shape
-
+    
 def normalizeGenotype(G):
     # Run for every SNP list (num individuals)
     x = True - np.isnan(G)  # Matrix of True/False
@@ -89,32 +102,32 @@ def normalizeGenotype(G):
         G = (G - m) / s     # Normalize the deviation
     return G
 
-# g = g.reshape((1, -1))[0]
 print("Before",g)
-gn = []
-for snp in g:
-    gn.append( normalizeGenotype(snp) )
 
-gn = g
-gn = np.array(gn)
-print("After1",gn)
-gnT = gn.T
-print("After",gnT)
-# G = gnT
-G = gnT
+gT = g.T
+print("After",gT)
+G = np.array(gT)
 print "G shape",G.shape
-# sys.exit(1)
-# assert(G[0,0]==-2.25726341)
 
 # Remove individuals with missing phenotypes
-v = np.isnan(y)
-keep = True - v
-if v.sum():
-   if options.verbose: sys.stderr.write("Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
-   y  = y[keep]
-   G = G[keep,:]
-   k = k[keep,:][:,keep]
+if y != None:
+    v = np.isnan(y)
+    keep = True - v
+    if v.sum():
+       if options.verbose: sys.stderr.write("Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
+       y = y[keep]
+       G = G[keep,:]
+       if k != None: k = k[keep,:][:,keep]
 
 if cmd == 'redis':
     ps, ts = gn2_load_redis('testrun','other',np.array(k),y,G,options.testing)
     print np.array(ps)
+elif cmd == 'kinship':
+    gn = []
+    for snp in G.T:
+        gn.append( normalizeGenotype(snp) )
+    G2 = np.array(gn)
+    print G2.shape,G2
+    K = kinship(G2,options)
+else:
+    print "Doing nothing"

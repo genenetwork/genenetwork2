@@ -406,6 +406,8 @@ def GWAS(pheno_vector,
     v = np.isnan(pheno_vector)
     if v.sum():
         keep = True - v
+        print(pheno_vector.shape,pheno_vector)
+        print(keep.shape,keep)
         pheno_vector = pheno_vector[keep]
         #genotype_matrix = genotype_matrix[keep,:]
         #covariate_matrix = covariate_matrix[keep,:]
@@ -437,6 +439,8 @@ def GWAS(pheno_vector,
                 p_values.append(0)
                 t_statistics.append(np.nan)
                 continue
+            
+            print(genotype_matrix.shape,pheno_vector.shape,keep.shape)
 
             pheno_vector = pheno_vector[keep]
             covariate_matrix = covariate_matrix[keep,:]
