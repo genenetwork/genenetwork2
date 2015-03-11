@@ -797,7 +797,7 @@ if __name__ == '__main__':
     if has_gn2:
         gn2_main()
     else:
-        print("Run from pylmmGWAS.py instead")
+        print("Run from runlmm.py instead")
 
 
 
