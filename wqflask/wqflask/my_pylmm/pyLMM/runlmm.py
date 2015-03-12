@@ -88,29 +88,28 @@ if options.geno:
     g = tsvreader.geno(options.geno)
     print g.shape
     
-def normalizeGenotype(G):
+def normalizeGenotype(g1):
+    g = np.copy(g1)         # avoid side effects
     # Run for every SNP list (num individuals)
-    x = True - np.isnan(G)  # Matrix of True/False
-    m = G[x].mean()         # Global mean value
+    x = True - np.isnan(g)  # Matrix of True/False
+    m = g[x].mean()         # Global mean value
     # print m
-    s = np.sqrt(G[x].var()) # Global stddev
+    s = np.sqrt(g[x].var()) # Global stddev
     # print s
-    G[np.isnan(G)] = m      # Plug-in mean values for missing
+    g[np.isnan(g)] = m      # Plug-in mean values for missing
     if s == 0:
-        G = G - m           # Subtract the mean
+        g = g - m           # Subtract the mean
     else:
-        G = (G - m) / s     # Normalize the deviation
-    return G
+        g = (g - m) / s     # Normalize the deviation
+    return g
 
 gn = []
 for snp in g:
     gn.append( normalizeGenotype(snp) )
 
-gn = g
-
 print("Before",g)
 
-gT = g.T
+gT = np.array(gn).T
 print("After",gT)
 G = np.array(gT)
 print "G shape",G.shape
@@ -129,6 +128,7 @@ if cmd == 'redis':
     print G
     ps, ts = gn2_load_redis('testrun','other',np.array(k),y,G,options.testing)
     print np.array(ps)
+    assert(options.testing and ps[0]==0.726205761108)
 elif cmd == 'kinship':
     gn = []
     for snp in G.T:
