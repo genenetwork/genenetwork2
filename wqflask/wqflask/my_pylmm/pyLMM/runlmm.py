@@ -102,6 +102,12 @@ def normalizeGenotype(G):
         G = (G - m) / s     # Normalize the deviation
     return G
 
+gn = []
+for snp in g:
+    gn.append( normalizeGenotype(snp) )
+
+gn = g
+
 print("Before",g)
 
 gT = g.T
