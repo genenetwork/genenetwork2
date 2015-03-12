@@ -120,6 +120,7 @@ if y != None:
        if k != None: k = k[keep,:][:,keep]
 
 if cmd == 'redis':
+    print G
     ps, ts = gn2_load_redis('testrun','other',np.array(k),y,G,options.testing)
     print np.array(ps)
 elif cmd == 'kinship':
