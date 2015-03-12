@@ -143,6 +143,7 @@ def run_human(pheno_vector,
         
         timestamp = datetime.datetime.utcnow().isoformat()
 
+        # Pickle chunks of input SNPs (from Plink interator) and compress them
         #print("Starting adding loop")
         for part, result in enumerate(results):
             #data = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
@@ -517,7 +518,7 @@ class LMM:
           Kve = []
        self.nonmissing = x
  
-       print("this K is:", pf(K))
+       print("this K is:", K.shape, pf(K))
        
        if len(Kva) == 0 or len(Kve) == 0:
           if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
@@ -529,8 +530,8 @@ class LMM:
        self.K = K
        self.Kva = Kva
        self.Kve = Kve
-       print("self.Kva is: ", pf(self.Kva))
-       print("self.Kve is: ", pf(self.Kve))
+       print("self.Kva is: ", self.Kva.shape, pf(self.Kva))
+       print("self.Kve is: ", self.Kve.shape, pf(self.Kve))
        self.Y = Y
        self.X0 = X0
        self.N = self.K.shape[0]
