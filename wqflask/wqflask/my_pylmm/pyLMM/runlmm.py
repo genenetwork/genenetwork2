@@ -125,10 +125,14 @@ if y != None:
        if k != None: k = k[keep,:][:,keep]
 
 if cmd == 'redis':
+    # Emulating the redis setup of GN2
     print G
     ps, ts = gn2_load_redis('testrun','other',np.array(k),y,G,options.testing)
     print np.array(ps)
-    assert(options.testing and ps[0]==0.726205761108)
+    print round(ps[0],4)
+    assert(options.testing and round(ps[0],4)==0.7262)
+    print round(ps[-1],4)
+    assert(options.testing and round(ps[-1],4)==0.3461)
 elif cmd == 'kinship':
     gn = []
     for snp in G.T:
