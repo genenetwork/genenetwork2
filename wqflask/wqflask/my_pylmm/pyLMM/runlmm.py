@@ -98,7 +98,7 @@ if cmd == 'redis':
     gnt = np.array(gn).T
     Y,G = removeMissingPhenotypes(y,gnt,options.verbose)
     print "G",G.shape,G
-    ps, ts = gn2_load_redis('testrun','other',np.array(k),Y,G,options.testing)
+    ps, ts = gn2_load_redis('testrun','other',k,Y,G,options.testing)
     print np.array(ps)
     print round(ps[0],4)
     assert(options.testing and round(ps[0],4)==0.7262)
