@@ -23,6 +23,8 @@ import tsvreader
 import numpy as np
 from lmm import gn2_load_redis
 from kinship import kinship
+from genotype import normalizeGenotype
+from phenotype import removeMissingPhenotypes
 
 usage = """
 python runlmm.py [options] command
@@ -87,47 +89,16 @@ if options.pheno:
 if options.geno:
     g = tsvreader.geno(options.geno)
     print g.shape
-    
-def normalizeGenotype(g1):
-    g = np.copy(g1)         # avoid side effects
-    # Run for every SNP list (num individuals)
-    x = True - np.isnan(g)  # Matrix of True/False
-    m = g[x].mean()         # Global mean value
-    # print m
-    s = np.sqrt(g[x].var()) # Global stddev
-    # print s
-    g[np.isnan(g)] = m      # Plug-in mean values for missing
-    if s == 0:
-        g = g - m           # Subtract the mean
-    else:
-        g = (g - m) / s     # Normalize the deviation
-    return g
-
-gn = []
-for snp in g:
-    gn.append( normalizeGenotype(snp) )
-
-print("Before",g)
-
-gT = np.array(gn).T
-print("After",gT)
-G = np.array(gT)
-print "G shape",G.shape
-
-# Remove individuals with missing phenotypes
-if y != None:
-    v = np.isnan(y)
-    keep = True - v
-    if v.sum():
-       if options.verbose: sys.stderr.write("runlmm.py: Cleaning the phenotype vector by removing %d individuals...\n" % (v.sum()))
-       y = y[keep]
-       G = G[keep,:]
-       if k != None: k = k[keep,:][:,keep]
 
 if cmd == 'redis':
     # Emulating the redis setup of GN2
-    print G
-    ps, ts = gn2_load_redis('testrun','other',np.array(k),y,G,options.testing)
+    gn = []
+    for ind_g in g:
+        gn.append( normalizeGenotype(ind_g) )
+    gnt = np.array(gn).T
+    Y,G = removeMissingPhenotypes(y,gnt,options.verbose)
+    print "G",G.shape,G
+    ps, ts = gn2_load_redis('testrun','other',np.array(k),Y,G,options.testing)
     print np.array(ps)
     print round(ps[0],4)
     assert(options.testing and round(ps[0],4)==0.7262)
