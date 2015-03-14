@@ -113,6 +113,8 @@ if cmd == 'redis':
         print "MAF replacements: \n",G
     if not options.skip_genotype_normalization:
         G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
+    g = None
+    gnt = None
 
     ps, ts = gn2_load_redis('testrun','other',k,Y,G.T)
     print np.array(ps)
@@ -142,6 +144,8 @@ elif cmd == 'kinship':
         print "MAF replacements: \n",G
     if not options.skip_genotype_normalization:
         G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
+    g = None
+    gnt = None
 
     if options.test_kinship:
         K = kinship_full(G)
