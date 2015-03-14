@@ -113,10 +113,19 @@ if cmd == 'redis':
 
     ps, ts = gn2_load_redis('testrun','other',k,Y,G.T)
     print np.array(ps)
-    print round(ps[0],4)
-    assert(options.testing and round(ps[0],4)==0.7262)
-    print round(ps[-1],4)
-    assert(options.testing and round(ps[-1],4)==0.3461)
+    # Test results
+    p1 = round(ps[0],4)
+    p2 = round(ps[-1],4)
+    sys.stderr.write(options.geno+"\n")
+    if options.geno == 'data/small.geno':
+        assert p1==0.0708, "p1=%f" % p1
+        assert p2==0.1417, "p2=%f" % p2
+    if options.geno == 'data/small_na.geno':
+        assert p1==0.0958, "p1=%f" % p1
+        assert p2==0.0435, "p2=%f" % p2
+    if options.geno == 'data/test8000.geno':
+        assert p1==0.8984, "p1=%f" % p1
+        assert p2==0.9623, "p2=%f" % p2
 elif cmd == 'kinship':
     G = g
     print "Original G",G.shape, "\n", G
