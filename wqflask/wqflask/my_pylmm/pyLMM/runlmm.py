@@ -51,6 +51,9 @@ parser.add_option("--pheno",dest="pheno",
                   help="Phenotype file format 1.0")
 parser.add_option("--geno",dest="geno",
                   help="Genotype file format 1.0")
+parser.add_option("--skip-genotype-normalization",
+                  action="store_true", dest="skip_genotype_normalization", default=False,
+                  help="Skip genotype normalization")
 parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
@@ -96,8 +99,11 @@ if cmd == 'redis':
     for ind_g in g:
         gn.append( normalizeGenotype(ind_g) )
     gnt = np.array(gn).T
-    Y,G = removeMissingPhenotypes(y,gnt,options.verbose)
-    print "G",G.shape,G
+    if y:
+        Y,G = removeMissingPhenotypes(y,gnt,options.verbose)
+        print "G",G.shape,G
+    else:
+        G = gnt
     ps, ts = gn2_load_redis('testrun','other',k,Y,G,options.testing)
     print np.array(ps)
     print round(ps[0],4)
@@ -108,17 +114,24 @@ elif cmd == 'kinship':
     gn = []
     for ind_g in g:
         if len(gn)>=8000: break
-        gn.append( normalizeGenotype(ind_g) )
-    K = kinship_full(np.array(gn),options)
-    print "first Kinship method",K.shape,K
-    K = kinship(np.array(gn),options)
-    print "second Kinship method",K.shape,K
+        if options.skip_genotype_normalization:
+          gn.append(ind_g)
+        else:
+            gn.append( normalizeGenotype(ind_g) )
+    G = np.array(gn)
+    print G.shape, "\n", G
+    K = kinship_full(G,options)
+    print "first Kinship method",K.shape,"\n",K
+    K2 = calculate_kinship(np.copy(G.T),None,options)
+    print "GN2 Kinship method",K2.shape,"\n",K2
+    K3 = kinship(G,options)
+    print "third Kinship method",K3.shape,"\n",K3
     sys.exit(1)
     gnt = np.array(gn).T
     Y,g = removeMissingPhenotypes(y,gnt,options.verbose)
     G = g
     print G.shape,G
-    K = calculate_kinship(np.copy(G),None,options)
+    K = calculate_kinship(np.copy(G),temp_data=None,is_testing=options.testing)
     print G.shape,G
     print "first Kinship method",K.shape,K
     K = kinship(G.T,options)

@@ -27,16 +27,17 @@ import Queue
 from optmatrix import matrix_initialize, matrixMultT
 
 
-def compute_W(job,G,n,compute_size):
+def compute_W(job,G,n,snps,compute_size):
    """
    Read 1000 SNPs at a time into matrix and return the result
    """
    W = np.ones((n,compute_size)) * np.nan # W matrix has dimensions individuals x SNPs (initially all NaNs)
    for j in range(0,compute_size):
       row = job*compute_size + j
-      if row >= compute_size:
+      if row >= compute_size or row>=snps:
          W = W[:,range(0,j)]
          break
+      # print job,compute_size,j
       snp = G[job*compute_size+j]
       # print snp.shape,snp
       if snp.var() == 0:
@@ -79,6 +80,7 @@ def kinship(G,options):
     m = G.shape[0] # snps
     snps = m
     sys.stderr.write(str(m)+" SNPs\n")
+    assert m>n, "n should be larger than m (snps>inds)"
 
     q = mp.Queue()
     p = mp.Pool(numThreads, f_init, [q])
@@ -95,7 +97,7 @@ def kinship(G,options):
     for job in range(iterations):
        if options.verbose:
           sys.stderr.write("Processing job %d first %d SNPs\n" % (job, ((job+1)*options.computeSize)))
-       W = compute_W(job,G,n,options.computeSize)
+       W = compute_W(job,G,n,snps,options.computeSize)
        if numThreads == 1:
           compute_matrixMult(job,W,q)
           j,x = q.get()
@@ -124,7 +126,6 @@ def kinship(G,options):
           # print j,K_j[:,0]
           K = K + K_j
 
-    print "kiship.kinship: ",K.shape,K
     K = K / float(snps)
     outFile = 'runtest.kin'
     if options.verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
