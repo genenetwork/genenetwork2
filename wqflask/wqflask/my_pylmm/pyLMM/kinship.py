@@ -119,6 +119,7 @@ def kinship(G,options):
          results.append(p.apply_async(compute_matrixMult, (job,W)))
          # Do we have a result?
          while (len(results)-completed>cpu_num*2):
+            time.sleep(0.1)
             try: 
                j,x = q.get_nowait()
                if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
