@@ -59,7 +59,7 @@ def compute_matrixMult(job,W,q = None):
 def f_init(q):
     compute_matrixMult.q = q
 
-def kinship_full(G,options):
+def kinship_full(G):
     print G.shape
     m = G.shape[0] # snps
     n = G.shape[1] # inds

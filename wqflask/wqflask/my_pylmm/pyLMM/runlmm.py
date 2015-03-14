@@ -139,20 +139,21 @@ elif cmd == 'kinship':
         print "MAF replacements: \n",G
     if not options.skip_genotype_normalization:
         G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
-            
-    K = kinship_full(G,options)
-    print "Genotype",G.shape, "\n", G
-    print "first Kinship method",K.shape,"\n",K
-    K2 = calculate_kinship(np.copy(G.T),temp_data=None)
-    print "Genotype",G.shape, "\n", G
-    print "GN2 Kinship method",K2.shape,"\n",K2
 
+    if True:
+        K = kinship_full(G)
+        print "Genotype",G.shape, "\n", G
+        print "first Kinship method",K.shape,"\n",K
+        k1 = round(K[0][0],4)
+        K2 = calculate_kinship(np.copy(G.T),temp_data=None)
+        print "Genotype",G.shape, "\n", G
+        print "GN2 Kinship method",K2.shape,"\n",K2
+        k2 = round(K2[0][0],4)
+    
     print "Genotype",G.shape, "\n", G
     K3 = kinship(np.copy(G),options)
     print "third Kinship method",K3.shape,"\n",K3
     sys.stderr.write(options.geno+"\n")
-    k1 = round(K[0][0],4)
-    k2 = round(K2[0][0],4)
     k3 = round(K3[0][0],4)
     if options.geno == 'data/small.geno':
         assert k1==0.7939, "k1=%f" % k1
