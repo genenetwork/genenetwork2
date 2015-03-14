@@ -338,6 +338,7 @@ def calculate_kinship(genotype_matrix, temp_data=None):
     m = genotype_matrix.shape[1]
     print("genotype 2D matrix n (inds) is:", n)
     print("genotype 2D matrix m (snps) is:", m)
+    assert m>n, "n should be larger than m (snps>inds)"
     keep = []
     for counter in range(m):
         #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
@@ -777,9 +778,13 @@ def gn2_main():
 
 def gn2_load_redis(key,species,kinship,pheno,geno):
     print("Loading Redis from parsed data")
+    if kinship == None:
+        k = None
+    else:
+        k = kinship.tolist()
     params = dict(pheno_vector = pheno.tolist(),
                   genotype_matrix = geno.tolist(),
-                  kinship_matrix= kinship.tolist(),
+                  kinship_matrix= k,
                   restricted_max_likelihood = True,
                   refit = False,
                   temp_uuid = "testrun_temp_uuid",

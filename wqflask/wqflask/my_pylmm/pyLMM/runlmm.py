@@ -98,16 +98,20 @@ if options.geno:
 
 if cmd == 'redis':
     # Emulating the redis setup of GN2
-    gn = []
-    for ind_g in g:
-        gn.append( genotype.normalize(ind_g) )
-    gnt = np.array(gn).T
-    if y:
-        Y,G = phenotype.remove_missing(y,gnt,options.verbose)
-        print "G",G.shape,G
-    else:
-        G = gnt
-    ps, ts = gn2_load_redis('testrun','other',k,Y,G,options.testing)
+    G = g
+    print "Original G",G.shape, "\n", G
+    if y != None:
+        gnt = np.array(g).T
+        Y,g = phenotype.remove_missing(y,g.T,options.verbose)
+        G = g.T
+        print "Removed missing phenotypes",G.shape, "\n", G
+    if options.maf_normalization:
+        G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
+        print "MAF replacements: \n",G
+    if not options.skip_genotype_normalization:
+        G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
+
+    ps, ts = gn2_load_redis('testrun','other',k,Y,G.T)
     print np.array(ps)
     print round(ps[0],4)
     assert(options.testing and round(ps[0],4)==0.7262)
@@ -116,8 +120,8 @@ if cmd == 'redis':
 elif cmd == 'kinship':
     G = g
     print "Original G",G.shape, "\n", G
-    if y:
-        gnt = np.array(gn).T
+    if y != None:
+        gnt = np.array(g).T
         Y,g = phenotype.remove_missing(y,g.T,options.verbose)
         G = g.T
         print "Removed missing phenotypes",G.shape, "\n", G
