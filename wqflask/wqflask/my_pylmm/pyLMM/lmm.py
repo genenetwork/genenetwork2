@@ -255,8 +255,8 @@ def run_other(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
         refit=False,
-        tempdata=None,      # <---- can not be None
-        is_testing=False):
+        tempdata=None      # <---- can not be None
+        ):
     
     """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
     
@@ -268,9 +268,9 @@ def run_other(pheno_vector,
     """
     
     print("In run_other")
-    print("REML=",restricted_max_likelihood," REFIT=",refit, "TESTING=",is_testing)
+    print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
-        kinship_matrix = calculate_kinship(genotype_matrix, tempdata, is_testing)
+        kinship_matrix = calculate_kinship(genotype_matrix, tempdata)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -326,7 +326,7 @@ def matrixMult(A,B):
     return linalg.fblas.dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)
 
 
-def calculate_kinship(genotype_matrix, temp_data=None, is_testing=False):
+def calculate_kinship(genotype_matrix, temp_data=None):
     """
     genotype_matrix is an n x m matrix encoding SNP minor alleles.
     
@@ -340,8 +340,6 @@ def calculate_kinship(genotype_matrix, temp_data=None, is_testing=False):
     print("genotype 2D matrix m (snps) is:", m)
     keep = []
     for counter in range(m):
-        # if is_testing and counter>8:
-        #     break
         #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
         #Checks if any values in column are not numbers
         not_number = np.isnan(genotype_matrix[:,counter])
@@ -490,7 +488,7 @@ class LMM:
           is not done consistently.
  
     """
-    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=True,is_testing=False):
+    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=True):
  
        """
        The constructor takes a phenotype vector or array of size n.
@@ -500,7 +498,6 @@ class LMM:
        When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
        """
 
-       self.is_testing = True
        if X0 == None: X0 = np.ones(len(Y)).reshape(len(Y),1)
        self.verbose = verbose
  
@@ -728,7 +725,7 @@ class LMM:
        pl.title(title)
 
 
-def gn2_redis(key,species,is_testing=False):
+def gn2_redis(key,species):
     json_params = Redis.get(key)
     
     params = json.loads(json_params)
@@ -753,8 +750,7 @@ def gn2_redis(key,species,is_testing=False):
                   genotype_matrix = geno,
                   restricted_max_likelihood = params['restricted_max_likelihood'],
                   refit = params['refit'],
-                  tempdata = tempdata,
-                  is_testing=is_testing)
+                  tempdata = tempdata)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
@@ -779,7 +775,7 @@ def gn2_main():
 
     gn2_redis(key,species)
 
-def gn2_load_redis(key,species,kinship,pheno,geno,is_testing):
+def gn2_load_redis(key,species,kinship,pheno,geno):
     print("Loading Redis from parsed data")
     params = dict(pheno_vector = pheno.tolist(),
                   genotype_matrix = geno.tolist(),
@@ -796,7 +792,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno,is_testing):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    return gn2_redis(key,species,is_testing)
+    return gn2_redis(key,species)
     
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
