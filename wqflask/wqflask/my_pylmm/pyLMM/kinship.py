@@ -58,6 +58,12 @@ def compute_matrixMult(job,W,q = None):
 def f_init(q):
     compute_matrixMult.q = q
 
+def kinship_full(G,options):
+    print G.shape
+    m = np.dot(G.T,G)
+    m = m/G.shape[0]
+    return m
+
 # Calculate the kinship matrix from G (SNPs as rows!), returns K
 #
 def kinship(G,options):
@@ -118,7 +124,7 @@ def kinship(G,options):
           # print j,K_j[:,0]
           K = K + K_j
 
-    print K.shape,K
+    print "kiship.kinship: ",K.shape,K
     K = K / float(snps)
     outFile = 'runtest.kin'
     if options.verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
@@ -130,7 +136,7 @@ def kinship(G,options):
        if options.verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
        np.savetxt(outFile+".kva",Kva)
        np.savetxt(outFile+".kve",Kve)
-      
+    return K      
 
 
 

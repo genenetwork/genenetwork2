@@ -21,8 +21,8 @@ from optparse import OptionParser
 import sys
 import tsvreader
 import numpy as np
-from lmm import gn2_load_redis
-from kinship import kinship
+from lmm import gn2_load_redis, calculate_kinship
+from kinship import kinship, kinship_full
 from genotype import normalizeGenotype
 from phenotype import removeMissingPhenotypes
 
@@ -106,10 +106,22 @@ if cmd == 'redis':
     assert(options.testing and round(ps[-1],4)==0.3461)
 elif cmd == 'kinship':
     gn = []
-    for snp in G.T:
-        gn.append( normalizeGenotype(snp) )
-    G2 = np.array(gn)
-    print G2.shape,G2
-    K = kinship(G2,options)
+    for ind_g in g:
+        if len(gn)>=8000: break
+        gn.append( normalizeGenotype(ind_g) )
+    K = kinship_full(np.array(gn),options)
+    print "first Kinship method",K.shape,K
+    K = kinship(np.array(gn),options)
+    print "second Kinship method",K.shape,K
+    sys.exit(1)
+    gnt = np.array(gn).T
+    Y,g = removeMissingPhenotypes(y,gnt,options.verbose)
+    G = g
+    print G.shape,G
+    K = calculate_kinship(np.copy(G),None,options)
+    print G.shape,G
+    print "first Kinship method",K.shape,K
+    K = kinship(G.T,options)
+    assert(K[0][0]==1.28)
 else:
     print "Doing nothing"

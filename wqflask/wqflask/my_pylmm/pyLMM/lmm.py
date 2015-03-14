@@ -326,7 +326,7 @@ def matrixMult(A,B):
     return linalg.fblas.dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)
 
 
-def calculate_kinship(genotype_matrix, temp_data, is_testing=False):
+def calculate_kinship(genotype_matrix, temp_data=None, is_testing=False):
     """
     genotype_matrix is an n x m matrix encoding SNP minor alleles.
     
@@ -361,7 +361,8 @@ def calculate_kinship(genotype_matrix, temp_data, is_testing=False):
         genotype_matrix[:,counter] = (genotype_matrix[:,counter] - values_mean) / np.sqrt(vr)
         
         percent_complete = int(round((counter/m)*45))
-        temp_data.store("percent_complete", percent_complete)
+        if temp_data != None:
+            temp_data.store("percent_complete", percent_complete)
         
     genotype_matrix = genotype_matrix[:,keep]
     print("genotype_matrix: ", pf(genotype_matrix))
