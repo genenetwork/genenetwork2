@@ -140,7 +140,7 @@ elif cmd == 'kinship':
     if not options.skip_genotype_normalization:
         G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
 
-    if True:
+    if False:
         K = kinship_full(G)
         print "Genotype",G.shape, "\n", G
         print "first Kinship method",K.shape,"\n",K
@@ -157,11 +157,14 @@ elif cmd == 'kinship':
     k3 = round(K3[0][0],4)
     if options.geno == 'data/small.geno':
         assert k1==0.7939, "k1=%f" % k1
-        assert k2==0.7939, "k1=%f" % k1
-        assert k3==0.7939, "k1=%f" % k1
+        assert k2==0.7939, "k2=%f" % k2
+        assert k3==0.7939, "k3=%f" % k3
     if options.geno == 'data/small_na.geno':
         assert k1==0.7172, "k1=%f" % k1
-        assert k2==0.7172, "k1=%f" % k1
-        assert k3==0.7172, "k1=%f" % k1
+        assert k2==0.7172, "k2=%f" % k2
+        assert k3==0.7172, "k3=%f" % k3
+    if options.geno == 'data/test8000.geno':
+        assert k3==1.4352, "k3=%f" % k3
+
 else:
     print "Doing nothing"

@@ -57,91 +57,94 @@ def compute_matrixMult(job,W,q = None):
    return job
 
 def f_init(q):
-    compute_matrixMult.q = q
+   compute_matrixMult.q = q
 
 def kinship_full(G):
-    print G.shape
-    m = G.shape[0] # snps
-    n = G.shape[1] # inds
-    sys.stderr.write(str(m)+" SNPs\n")
-    assert m>n, "n should be larger than m (snps>inds)"
-    m = np.dot(G.T,G)
-    m = m/G.shape[0]
-    return m
+   """
+   Calculate the Kinship matrix using a full dot multiplication
+   """
+   print G.shape
+   m = G.shape[0] # snps
+   n = G.shape[1] # inds
+   sys.stderr.write(str(m)+" SNPs\n")
+   assert m>n, "n should be larger than m (snps>inds)"
+   m = np.dot(G.T,G)
+   m = m/G.shape[0]
+   return m
 
 # Calculate the kinship matrix from G (SNPs as rows!), returns K
 #
 def kinship(G,options):
-    numThreads = None
-    if options.numThreads:
-        numThreads = int(options.numThreads)
-    options.computeSize = 1000
-    matrix_initialize(options.useBLAS)
-    
-    sys.stderr.write(str(G.shape)+"\n")
-    n = G.shape[1] # inds
-    inds = n
-    m = G.shape[0] # snps
-    snps = m
-    sys.stderr.write(str(m)+" SNPs\n")
-    assert m>n, "n should be larger than m (snps>inds)"
+   numThreads = None
+   if options.numThreads:
+      numThreads = int(options.numThreads)
+   options.computeSize = 1000
+   matrix_initialize(options.useBLAS)
+   
+   sys.stderr.write(str(G.shape)+"\n")
+   n = G.shape[1] # inds
+   inds = n
+   m = G.shape[0] # snps
+   snps = m
+   sys.stderr.write(str(m)+" SNPs\n")
+   assert m>n, "n should be larger than m (snps>inds)"
 
-    q = mp.Queue()
-    p = mp.Pool(numThreads, f_init, [q])
-    iterations = snps/options.computeSize+1
-    if options.testing:
+   q = mp.Queue()
+   p = mp.Pool(numThreads, f_init, [q])
+   iterations = snps/options.computeSize+1
+   if options.testing:
       iterations = 8
-    # jobs = range(0,8) # range(0,iterations)
+   # jobs = range(0,8) # range(0,iterations)
 
-    results = []
+   results = []
 
-    K = np.zeros((n,n))  # The Kinship matrix has dimension individuals x individuals
+   K = np.zeros((n,n))  # The Kinship matrix has dimension individuals x individuals
 
-    completed = 0
-    for job in range(iterations):
-       if options.verbose:
-          sys.stderr.write("Processing job %d first %d SNPs\n" % (job, ((job+1)*options.computeSize)))
-       W = compute_W(job,G,n,snps,options.computeSize)
-       if numThreads == 1:
-          compute_matrixMult(job,W,q)
-          j,x = q.get()
-          if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
-          K_j = x
-          # print j,K_j[:,0]
-          K = K + K_j
-       else:
-          results.append(p.apply_async(compute_matrixMult, (job,W)))
-          # Do we have a result?
-          try: 
-             j,x = q.get_nowait()
-             if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
-             K_j = x
-             # print j,K_j[:,0]
-             K = K + K_j
-             completed += 1
-          except Queue.Empty:
-             pass
+   completed = 0
+   for job in range(iterations):
+      if options.verbose:
+         sys.stderr.write("Processing job %d first %d SNPs\n" % (job, ((job+1)*options.computeSize)))
+      W = compute_W(job,G,n,snps,options.computeSize)
+      if numThreads == 1:
+         compute_matrixMult(job,W,q)
+         j,x = q.get()
+         if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+         K_j = x
+         # print j,K_j[:,0]
+         K = K + K_j
+      else:
+         results.append(p.apply_async(compute_matrixMult, (job,W)))
+         # Do we have a result?
+         try: 
+            j,x = q.get_nowait()
+            if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+            K_j = x
+            # print j,K_j[:,0]
+            K = K + K_j
+            completed += 1
+         except Queue.Empty:
+            pass
 
-    if numThreads == None or numThreads > 1:
-       for job in range(len(results)-completed):
-          j,x = q.get(True,15)
-          if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
-          K_j = x
-          # print j,K_j[:,0]
-          K = K + K_j
+   if numThreads == None or numThreads > 1:
+      for job in range(len(results)-completed):
+         j,x = q.get(True,15)
+         if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+         K_j = x
+         # print j,K_j[:,0]
+         K = K + K_j
 
-    K = K / float(snps)
-    outFile = 'runtest.kin'
-    if options.verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
-    np.savetxt(outFile,K)
+   K = K / float(snps)
+   outFile = 'runtest.kin'
+   if options.verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
+   np.savetxt(outFile,K)
 
-    if options.saveKvaKve:
-       if options.verbose: sys.stderr.write("Obtaining Eigendecomposition\n")
-       Kva,Kve = linalg.eigh(K)
-       if options.verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
-       np.savetxt(outFile+".kva",Kva)
-       np.savetxt(outFile+".kve",Kve)
-    return K      
+   if options.saveKvaKve:
+      if options.verbose: sys.stderr.write("Obtaining Eigendecomposition\n")
+      Kva,Kve = linalg.eigh(K)
+      if options.verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
+      np.savetxt(outFile+".kva",Kva)
+      np.savetxt(outFile+".kve",Kve)
+   return K      
 
 
 
