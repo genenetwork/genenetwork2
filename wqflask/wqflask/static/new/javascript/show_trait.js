@@ -91,13 +91,13 @@ $(function() {
   });
   d3.select("#select_compare_trait").on("click", (function(_this) {
     return function() {
-      $('.qtlcharts').empty();
+      $('.scatter-matrix-container').remove();
       return open_trait_selection();
     };
   })(this));
   d3.select("#clear_compare_trait").on("click", (function(_this) {
     return function() {
-      return $('.qtlcharts').empty();
+      return $('.scatter-matrix-container').remove();
     };
   })(this));
   open_trait_selection = function() {

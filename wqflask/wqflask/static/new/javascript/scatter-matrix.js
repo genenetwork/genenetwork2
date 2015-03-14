@@ -56,9 +56,11 @@ ScatterMatrix.prototype.render = function () {
   var container = d3.select('#scatterplot_container').append('div')
                                    .attr('class', 'scatter-matrix-container');
   var control = container.append('div')
-                         .attr('class', 'scatter-matrix-control');
+                         .attr('class', 'scatter-matrix-control')
+                         .style({'float':'left'})
   var svg = container.append('div')
                      .attr('class', 'scatter-matrix-svg')
+                     .style({'float':'right'})
                      .html('<em>Loading data...</em>');
 
   this.onData(function() {
