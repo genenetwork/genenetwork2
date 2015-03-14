@@ -23,8 +23,8 @@ import tsvreader
 import numpy as np
 from lmm import gn2_load_redis, calculate_kinship
 from kinship import kinship, kinship_full
-from genotype import normalizeGenotype
-from phenotype import removeMissingPhenotypes
+import genotype
+import phenotype
 
 usage = """
 python runlmm.py [options] command
@@ -51,6 +51,9 @@ parser.add_option("--pheno",dest="pheno",
                   help="Phenotype file format 1.0")
 parser.add_option("--geno",dest="geno",
                   help="Genotype file format 1.0")
+parser.add_option("--maf-normalization",
+                  action="store_true", dest="maf_normalization", default=False,
+                  help="Apply MAF genotype normalization")
 parser.add_option("--skip-genotype-normalization",
                   action="store_true", dest="skip_genotype_normalization", default=False,
                   help="Skip genotype normalization")
@@ -97,10 +100,10 @@ if cmd == 'redis':
     # Emulating the redis setup of GN2
     gn = []
     for ind_g in g:
-        gn.append( normalizeGenotype(ind_g) )
+        gn.append( genotype.normalize(ind_g) )
     gnt = np.array(gn).T
     if y:
-        Y,G = removeMissingPhenotypes(y,gnt,options.verbose)
+        Y,G = phenotype.remove_missing(y,gnt,options.verbose)
         print "G",G.shape,G
     else:
         G = gnt
@@ -111,14 +114,20 @@ if cmd == 'redis':
     print round(ps[-1],4)
     assert(options.testing and round(ps[-1],4)==0.3461)
 elif cmd == 'kinship':
-    gn = []
+    G = g
+    print G.shape, "\n", G
+    if options.maf_normalization:
+        g1 = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
+        print "MAF: ",g1
+    sys.exit()
     for ind_g in g:
         if len(gn)>=8000: break
         if options.skip_genotype_normalization:
-          gn.append(ind_g)
+            gn.append(ind_g)
         else:
-            gn.append( normalizeGenotype(ind_g) )
-    G = np.array(gn)
+            gn.append( genotype.normalize(ind_g) )
+        G = np.array(gn)
+            
     print G.shape, "\n", G
     K = kinship_full(G,options)
     print "first Kinship method",K.shape,"\n",K
@@ -128,7 +137,7 @@ elif cmd == 'kinship':
     print "third Kinship method",K3.shape,"\n",K3
     sys.exit(1)
     gnt = np.array(gn).T
-    Y,g = removeMissingPhenotypes(y,gnt,options.verbose)
+    Y,g = remove_missing_phenotypes(y,gnt,options.verbose)
     G = g
     print G.shape,G
     K = calculate_kinship(np.copy(G),temp_data=None,is_testing=options.testing)

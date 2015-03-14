@@ -17,20 +17,35 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as np
+from collections import Counter
 
-def normalizeGenotype(g):
+def replace_missing_with_MAF(snp_g):
+    """
+    Replace the missing genotype with the minor allele frequency (MAF)
+    in the snp row
+    """
+    g1 = np.copy(snp_g)
+    cnt = Counter(g1)
+    print cnt
+    min_val = min(cnt.itervalues())
+    print "min_val=",min_val
+    l = [k for k, v in cnt.iteritems() if v == min_val and not np.isnan(k)]
+    print "l=",l[0]
+    return [l[0] if np.isnan(snp) else snp for snp in g1] 
+    
+def normalize(ind_g):
     """
     Run for every SNP list (for one individual) and return
     normalized SNP genotype values with missing data filled in
     """
-    g1 = np.copy(g)          # avoid side effects
-    x = True - np.isnan(g)   # Matrix of True/False
-    m = g[x].mean()          # Global mean value
-    s = np.sqrt(g[x].var())  # Global stddev
-    g1[np.isnan(g)] = m      # Plug-in mean values for missing data
+    g1 = np.copy(ind_g)          # avoid side effects
+    x = True - np.isnan(ind_g)   # Matrix of True/False
+    m = ind_g[x].mean()          # Global mean value
+    s = np.sqrt(ind_g[x].var())  # Global stddev
+    g1[np.isnan(ind_g)] = m      # Plug-in mean values for missing data
     if s == 0:
-        g1 = g1 - m          # Subtract the mean
+        g1 = g1 - m              # Subtract the mean
     else:
-        g1 = (g1 - m) / s    # Normalize the deviation
+        g1 = (g1 - m) / s        # Normalize the deviation
     return g1
 

@@ -19,7 +19,7 @@
 import sys
 import numpy as np
 
-def removeMissingPhenotypes(y,g,verbose=False):
+def remove_missing(y,g,verbose=False):
     """
     Remove missing data from matrices, make sure the genotype data has
     individuals as rows
