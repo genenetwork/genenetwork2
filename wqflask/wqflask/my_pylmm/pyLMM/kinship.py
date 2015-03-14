@@ -26,20 +26,31 @@ import Queue
 
 from optmatrix import matrix_initialize, matrixMultT
 
+def kinship_full(G):
+   """
+   Calculate the Kinship matrix using a full dot multiplication
+   """
+   print G.shape
+   m = G.shape[0] # snps
+   n = G.shape[1] # inds
+   sys.stderr.write(str(m)+" SNPs\n")
+   assert m>n, "n should be larger than m (snps>inds)"
+   m = np.dot(G.T,G)
+   m = m/G.shape[0]
+   return m
 
 def compute_W(job,G,n,snps,compute_size):
    """
    Read 1000 SNPs at a time into matrix and return the result
    """
-   W = np.ones((n,compute_size)) * np.nan # W matrix has dimensions individuals x SNPs (initially all NaNs)
+   m = compute_size
+   W = np.ones((n,m)) * np.nan # W matrix has dimensions individuals x SNPs (initially all NaNs)
    for j in range(0,compute_size):
-      row = job*compute_size + j
-      if row >= compute_size or row>=snps:
+      pos = job*m + j # real position
+      if pos >= snps:
          W = W[:,range(0,j)]
          break
-      # print job,compute_size,j
       snp = G[job*compute_size+j]
-      # print snp.shape,snp
       if snp.var() == 0:
          continue
       W[:,j] = snp  # set row to list of SNPs
@@ -59,18 +70,6 @@ def compute_matrixMult(job,W,q = None):
 def f_init(q):
    compute_matrixMult.q = q
 
-def kinship_full(G):
-   """
-   Calculate the Kinship matrix using a full dot multiplication
-   """
-   print G.shape
-   m = G.shape[0] # snps
-   n = G.shape[1] # inds
-   sys.stderr.write(str(m)+" SNPs\n")
-   assert m>n, "n should be larger than m (snps>inds)"
-   m = np.dot(G.T,G)
-   m = m/G.shape[0]
-   return m
 
 # Calculate the kinship matrix from G (SNPs as rows!), returns K
 #

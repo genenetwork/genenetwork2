@@ -70,6 +70,9 @@ parser.add_option("--saveKvaKve",
 parser.add_option("--test",
                   action="store_true", dest="testing", default=False,
                   help="Testing mode")
+parser.add_option("--test-kinship",
+                  action="store_true", dest="test_kinship", default=False,
+                  help="Testing mode for Kinship calculation")
 
 (options, args) = parser.parse_args()
 
@@ -140,7 +143,7 @@ elif cmd == 'kinship':
     if not options.skip_genotype_normalization:
         G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
 
-    if False:
+    if options.test_kinship:
         K = kinship_full(G)
         print "Genotype",G.shape, "\n", G
         print "first Kinship method",K.shape,"\n",K
