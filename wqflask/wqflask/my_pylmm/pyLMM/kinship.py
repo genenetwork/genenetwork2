@@ -71,7 +71,6 @@ def compute_matrixMult(job,W,q = None):
 def f_init(q):
    compute_matrixMult.q = q
 
-
 # Calculate the kinship matrix from G (SNPs as rows!), returns K
 #
 def kinship(G,options):
@@ -119,7 +118,7 @@ def kinship(G,options):
          # Multi-core
          results.append(p.apply_async(compute_matrixMult, (job,W)))
          # Do we have a result?
-         while (len(results)-completed>cpu_num):
+         while (len(results)-completed>cpu_num*2):
             try: 
                j,x = q.get_nowait()
                if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
@@ -141,16 +140,17 @@ def kinship(G,options):
          completed += 1
 
    K = K / float(snps)
-   outFile = 'runtest.kin'
-   if options.verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
-   np.savetxt(outFile,K)
+   
+   # outFile = 'runtest.kin'
+   # if options.verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
+   # np.savetxt(outFile,K)
 
-   if options.saveKvaKve:
-      if options.verbose: sys.stderr.write("Obtaining Eigendecomposition\n")
-      Kva,Kve = linalg.eigh(K)
-      if options.verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
-      np.savetxt(outFile+".kva",Kva)
-      np.savetxt(outFile+".kve",Kve)
+   # if options.saveKvaKve:
+   #    if options.verbose: sys.stderr.write("Obtaining Eigendecomposition\n")
+   #    Kva,Kve = linalg.eigh(K)
+   #    if options.verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
+   #    np.savetxt(outFile+".kva",Kva)
+   #    np.savetxt(outFile+".kve",Kve)
    return K      
 
 
