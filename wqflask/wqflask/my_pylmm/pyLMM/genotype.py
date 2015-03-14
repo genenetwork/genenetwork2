@@ -23,7 +23,7 @@ import operator
 def replace_missing_with_MAF(snp_g):
     """
     Replace the missing genotype with the minor allele frequency (MAF)
-    in the snp row
+    in the snp row. It is rather slow!
     """
     cnt = Counter(snp_g)
     tuples = sorted(cnt.items(), key=operator.itemgetter(1))

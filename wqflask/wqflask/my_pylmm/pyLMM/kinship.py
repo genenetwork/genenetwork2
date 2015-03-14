@@ -61,6 +61,10 @@ def f_init(q):
 
 def kinship_full(G,options):
     print G.shape
+    m = G.shape[0] # snps
+    n = G.shape[1] # inds
+    sys.stderr.write(str(m)+" SNPs\n")
+    assert m>n, "n should be larger than m (snps>inds)"
     m = np.dot(G.T,G)
     m = m/G.shape[0]
     return m

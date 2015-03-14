@@ -340,8 +340,8 @@ def calculate_kinship(genotype_matrix, temp_data=None, is_testing=False):
     print("genotype 2D matrix m (snps) is:", m)
     keep = []
     for counter in range(m):
-        if is_testing and counter>8:
-            break
+        # if is_testing and counter>8:
+        #     break
         #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
         #Checks if any values in column are not numbers
         not_number = np.isnan(genotype_matrix[:,counter])

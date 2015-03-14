@@ -116,28 +116,27 @@ if cmd == 'redis':
 elif cmd == 'kinship':
     G = g
     print "Original G",G.shape, "\n", G
+    if y:
+        gnt = np.array(gn).T
+        Y,g = phenotype.remove_missing(y,g.T,options.verbose)
+        G = g.T
+        print "Removed missing phenotypes",G.shape, "\n", G
     if options.maf_normalization:
         G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
         print "MAF replacements: \n",G
     if not options.skip_genotype_normalization:
         G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
             
-    print G.shape, "\n", G
     K = kinship_full(G,options)
+    print "Genotype",G.shape, "\n", G
     print "first Kinship method",K.shape,"\n",K
-    K2 = calculate_kinship(np.copy(G.T),None,options)
+    K2 = calculate_kinship(np.copy(G.T),temp_data=None,is_testing=options.testing)
+    print "Genotype",G.shape, "\n", G
     print "GN2 Kinship method",K2.shape,"\n",K2
-    K3 = kinship(G,options)
+
+    print "Genotype",G.shape, "\n", G
+    K3 = kinship(np.copy(G),options)
     print "third Kinship method",K3.shape,"\n",K3
-    sys.exit(1)
-    gnt = np.array(gn).T
-    Y,g = remove_missing_phenotypes(y,gnt,options.verbose)
-    G = g
-    print G.shape,G
-    K = calculate_kinship(np.copy(G),temp_data=None,is_testing=options.testing)
-    print G.shape,G
-    print "first Kinship method",K.shape,K
-    K = kinship(G.T,options)
     assert(K[0][0]==1.28)
 else:
     print "Doing nothing"
