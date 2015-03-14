@@ -18,20 +18,19 @@
 
 import numpy as np
 from collections import Counter
+import operator
 
 def replace_missing_with_MAF(snp_g):
     """
     Replace the missing genotype with the minor allele frequency (MAF)
     in the snp row
     """
-    g1 = np.copy(snp_g)
-    cnt = Counter(g1)
-    print cnt
-    min_val = min(cnt.itervalues())
-    print "min_val=",min_val
-    l = [k for k, v in cnt.iteritems() if v == min_val and not np.isnan(k)]
-    print "l=",l[0]
-    return [l[0] if np.isnan(snp) else snp for snp in g1] 
+    cnt = Counter(snp_g)
+    tuples = sorted(cnt.items(), key=operator.itemgetter(1))
+    l2 = [t for t in tuples if not np.isnan(t[0])]
+    maf = l2[0][0]
+    res = np.array([maf if np.isnan(snp) else snp for snp in snp_g])
+    return res
     
 def normalize(ind_g):
     """

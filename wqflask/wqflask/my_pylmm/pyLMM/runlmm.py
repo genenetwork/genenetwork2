@@ -115,18 +115,12 @@ if cmd == 'redis':
     assert(options.testing and round(ps[-1],4)==0.3461)
 elif cmd == 'kinship':
     G = g
-    print G.shape, "\n", G
+    print "Original G",G.shape, "\n", G
     if options.maf_normalization:
-        g1 = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
-        print "MAF: ",g1
-    sys.exit()
-    for ind_g in g:
-        if len(gn)>=8000: break
-        if options.skip_genotype_normalization:
-            gn.append(ind_g)
-        else:
-            gn.append( genotype.normalize(ind_g) )
-        G = np.array(gn)
+        G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
+        print "MAF replacements: \n",G
+    if not options.skip_genotype_normalization:
+        G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
             
     print G.shape, "\n", G
     K = kinship_full(G,options)
