@@ -334,7 +334,7 @@ def calculate_kinship_new(genotype_matrix, temp_data=None):
     inds (columns) by snps (rows).
     """
     G = np.apply_along_axis( genotype.normalize, axis=0, arr=genotype_matrix)
-    return kinship(G.T),G
+    return kinship(G.T),G # G gets transposed, we'll turn this into an iterator (FIXME)
 
 def calculate_kinship_old(genotype_matrix, temp_data=None):
     """
