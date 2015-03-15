@@ -49,6 +49,8 @@ has_gn2=True
 
 from utility.benchmark import Bench
 from utility import temp_data
+from kinship import kinship, kinship_full
+import genotype
 
 try:
     from wqflask.my_pylmm.pyLMM import chunks
@@ -270,7 +272,7 @@ def run_other(pheno_vector,
     print("In run_other")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
-        kinship_matrix = calculate_kinship(genotype_matrix, tempdata)
+        kinship_matrix,genotype_matrix = calculate_kinship(genotype_matrix, tempdata)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -326,7 +328,15 @@ def matrixMult(A,B):
     return linalg.fblas.dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)
 
 
-def calculate_kinship(genotype_matrix, temp_data=None):
+def calculate_kinship_new(genotype_matrix, temp_data=None):
+    """ 
+    Call the new kinship calculation where genotype_matrix contains
+    inds (columns) by snps (rows).
+    """
+    G = np.apply_along_axis( genotype.normalize, axis=1, arr=genotype_matrix.T)
+    return kinship(G),G.T
+
+def calculate_kinship_old(genotype_matrix, temp_data=None):
     """
     genotype_matrix is an n x m matrix encoding SNP minor alleles.
     
@@ -366,7 +376,9 @@ def calculate_kinship(genotype_matrix, temp_data=None):
     genotype_matrix = genotype_matrix[:,keep]
     print("genotype_matrix: ", pf(genotype_matrix))
     kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
-    return kinship_matrix
+    return kinship_matrix,genotype_matrix
+
+calculate_kinship = calculate_kinship_new  # alias
 
 def GWAS(pheno_vector,
          genotype_matrix,
