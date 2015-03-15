@@ -333,8 +333,8 @@ def calculate_kinship_new(genotype_matrix, temp_data=None):
     Call the new kinship calculation where genotype_matrix contains
     inds (columns) by snps (rows).
     """
-    G = np.apply_along_axis( genotype.normalize, axis=1, arr=genotype_matrix.T)
-    return kinship(G),G.T
+    G = np.apply_along_axis( genotype.normalize, axis=0, arr=genotype_matrix)
+    return kinship(G.T),G
 
 def calculate_kinship_old(genotype_matrix, temp_data=None):
     """
@@ -749,7 +749,6 @@ def gn2_redis(key,species):
     print('pheno', np.array(params['pheno_vector']))
     geno = np.array(params['genotype_matrix'])
     print('geno', geno.shape, geno)
-    # sys.exit(1)
     
     if species == "human" :
         ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),

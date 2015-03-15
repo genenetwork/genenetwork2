@@ -116,7 +116,9 @@ if cmd == 'redis':
     g = None
     gnt = None
 
-    ps, ts = gn2_load_redis('testrun','other',k,Y,G.T)
+    gt = G.T
+    G = None
+    ps, ts = gn2_load_redis('testrun','other',k,Y,gt)
     print np.array(ps)
     # Test results
     p1 = round(ps[0],4)
