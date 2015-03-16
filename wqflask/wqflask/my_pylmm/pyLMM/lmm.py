@@ -49,7 +49,7 @@ has_gn2=True
 
 from utility.benchmark import Bench
 from utility import temp_data
-from kinship import kinship, kinship_full
+from kinship import kinship, kinship_full, kvakve
 import genotype
 
 try:
@@ -532,11 +532,12 @@ class LMM:
        print("this K is:", K.shape, pf(K))
        
        if len(Kva) == 0 or len(Kve) == 0:
-          if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
-          begin = time.time()
-          Kva,Kve = linalg.eigh(K)
-          end = time.time()
-          if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
+          # if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
+          # begin = time.time()
+          # Kva,Kve = linalg.eigh(K)
+          # end = time.time()
+          # if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
+          Kva,Kve = kvakve(K)
 
        self.K = K
        self.Kva = Kva
