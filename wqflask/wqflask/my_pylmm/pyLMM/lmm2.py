@@ -329,11 +329,11 @@ class LMM2:
 
       """
       if False:
-            print "X=",X
-            print "h=",h
-            print "q=",self.q
-            print "self.Kve=",self.Kve
-            print "X0t_stack=",self.X0t_stack.shape,self.X0t_stack
+         print "X=",X
+         print "h=",h
+         print "q=",self.q
+         print "self.Kve=",self.Kve
+         print "X0t_stack=",self.X0t_stack.shape,self.X0t_stack
       
       if stack:
 	 # X = np.hstack([self.X0t,matrixMult(self.Kve.T, X)])
