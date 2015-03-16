@@ -51,6 +51,7 @@ from utility.benchmark import Bench
 from utility import temp_data
 from kinship import kinship, kinship_full, kvakve
 import genotype
+import gwas
 
 try:
     from wqflask.my_pylmm.pyLMM import chunks
@@ -253,7 +254,7 @@ def human_association(snp,
 #        refit=False,
 #        temp_data=None):
     
-def run_other(pheno_vector,
+def run_other_old(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
         refit=False,
@@ -269,7 +270,7 @@ def run_other(pheno_vector,
     
     """
     
-    print("In run_other")
+    print("In run_other (old)")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
         kinship_matrix,genotype_matrix = calculate_kinship(genotype_matrix, tempdata)
@@ -277,9 +278,51 @@ def run_other(pheno_vector,
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
     
+    # with Bench("Create LMM object"):
+    #     lmm_ob = LMM(pheno_vector, kinship_matrix)
+    
+    # with Bench("LMM_ob fitting"):
+    #     lmm_ob.fit()
+
+    print("genotype_matrix: ", genotype_matrix.shape)
+    print(genotype_matrix)
+
+    with Bench("Doing GWAS"):
+        t_stats, p_values = GWAS(pheno_vector,
+                                      genotype_matrix,
+                                      kinship_matrix,
+                                      restricted_max_likelihood=True,
+                                      refit=False,
+                                      temp_data=tempdata)
+    Bench().report()
+    return p_values, t_stats
+
+def run_other_new(pheno_vector,
+        genotype_matrix,
+        restricted_max_likelihood=True,
+        refit=False,
+        tempdata=None      # <---- can not be None
+        ):
+    
+    """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
+    
+    restricted_max_likelihood -- whether to use restricted max likelihood; True or False
+    refit -- whether to refit the variance component for each marker
+    temp_data -- TempData object that stores the progress for each major step of the
+    calculations ("calculate_kinship" and "GWAS" take the majority of time) 
+    
+    """
+    
+    print("In run_other (new)")
+    print("REML=",restricted_max_likelihood," REFIT=",refit)
+    with Bench("Calculate Kinship"):
+        kinship_matrix,genotype_matrix = calculate_kinship(genotype_matrix, tempdata)
+    
+    print("kinship_matrix: ", pf(kinship_matrix))
+    print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
+
     with Bench("Create LMM object"):
         lmm_ob = LMM(pheno_vector, kinship_matrix)
-    
     with Bench("LMM_ob fitting"):
         lmm_ob.fit()
 
@@ -287,15 +330,15 @@ def run_other(pheno_vector,
     print(genotype_matrix)
 
     with Bench("Doing GWAS"):
-        t_stats, p_values = GWAS(pheno_vector,
-                                genotype_matrix,
-                                kinship_matrix,
-                                restricted_max_likelihood=True,
-                                refit=False,
-                                temp_data=tempdata)
+        t_stats, p_values = gwas.gwas(pheno_vector,
+                                      genotype_matrix.T,
+                                      kinship_matrix,
+                                      restricted_max_likelihood=True,
+                                      refit=False,verbose=True)
     Bench().report()
     return p_values, t_stats
 
+run_other = run_other_old
 
 def matrixMult(A,B):
 
@@ -819,6 +862,5 @@ if __name__ == '__main__':
         gn2_main()
     else:
         print("Run from runlmm.py instead")
-
 
 

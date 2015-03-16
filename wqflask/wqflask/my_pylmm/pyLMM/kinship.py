@@ -26,7 +26,6 @@ import multiprocessing as mp # Multiprocessing is part of the Python stdlib
 import Queue
 import time
 
-
 from optmatrix import matrix_initialize, matrixMultT
 
 def kinship_full(G):
@@ -87,12 +86,13 @@ def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
    m = G.shape[0] # snps
    snps = m
    sys.stderr.write(str(m)+" SNPs\n")
-   assert m>n, "n should be larger than m (snps>inds)"
+   assert snps>inds, "snps should be larger than inds (%i snps, %i inds)" % (snps,inds)
 
    q = mp.Queue()
    p = mp.Pool(numThreads, f_init, [q])
    cpu_num = mp.cpu_count()
    print "CPU cores:",cpu_num
+   print snps,computeSize
    iterations = snps/computeSize+1
    # if testing:
    #    iterations = 8

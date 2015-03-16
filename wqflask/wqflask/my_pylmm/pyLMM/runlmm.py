@@ -21,7 +21,7 @@ from optparse import OptionParser
 import sys
 import tsvreader
 import numpy as np
-from lmm import gn2_load_redis, calculate_kinship
+from lmm import gn2_load_redis, calculate_kinship_old
 from kinship import kinship, kinship_full
 import genotype
 import phenotype
@@ -151,17 +151,17 @@ elif cmd == 'kinship':
     gnt = None
 
     if options.test_kinship:
-        K = kinship_full(G)
+        K = kinship_full(np.copy(G))
         print "Genotype",G.shape, "\n", G
         print "first Kinship method",K.shape,"\n",K
         k1 = round(K[0][0],4)
-        K2 = calculate_kinship(np.copy(G.T),temp_data=None)
+        K2,G = calculate_kinship_old(np.copy(G).T,temp_data=None)
         print "Genotype",G.shape, "\n", G
         print "GN2 Kinship method",K2.shape,"\n",K2
         k2 = round(K2[0][0],4)
     
     print "Genotype",G.shape, "\n", G
-    K3 = kinship(np.copy(G),options)
+    K3 = kinship(G.T)
     print "third Kinship method",K3.shape,"\n",K3
     sys.stderr.write(options.geno+"\n")
     k3 = round(K3[0][0],4)
