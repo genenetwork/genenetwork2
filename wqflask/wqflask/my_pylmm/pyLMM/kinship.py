@@ -164,8 +164,8 @@ def kvakve(K, verbose=True):
    
    Kva,Kve = linalg.eigh(K)
    if verbose:
-      print("self.Kva is: ", Kva.shape, Kva)
-      print("self.Kve is: ", Kve.shape, Kve)
+      print("Kva is: ", Kva.shape, Kva)
+      print("Kve is: ", Kve.shape, Kve)
 
    if sum(Kva < 1e-6):
       if verbose: sys.stderr.write("Cleaning %d eigen values\n" % (sum(Kva < 1e-6)))

@@ -120,6 +120,7 @@ if cmd == 'redis':
     G = None
     ps, ts = gn2_load_redis('testrun','other',k,Y,gt)
     print np.array(ps)
+    print sum(ps)
     # Test results
     p1 = round(ps[0],4)
     p2 = round(ps[-1],4)

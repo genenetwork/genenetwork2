@@ -533,11 +533,12 @@ class LMM:
        
        if len(Kva) == 0 or len(Kve) == 0:
           # if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
-          # begin = time.time()
+          begin = time.time()
           # Kva,Kve = linalg.eigh(K)
-          # end = time.time()
-          # if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
           Kva,Kve = kvakve(K)
+          end = time.time()
+          if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
+          print("sum(Kva),sum(Kve)=",sum(Kva),sum(Kve))
 
        self.K = K
        self.Kva = Kva
@@ -547,10 +548,11 @@ class LMM:
        self.Y = Y
        self.X0 = X0
        self.N = self.K.shape[0]
- 
-       if sum(self.Kva < 1e-6):
-          if self.verbose: sys.stderr.write("Cleaning %d eigen values\n" % (sum(self.Kva < 0)))
-          self.Kva[self.Kva < 1e-6] = 1e-6
+
+       # ----> Below moved to kinship.kvakve(K)
+       # if sum(self.Kva < 1e-6):
+       #    if self.verbose: sys.stderr.write("Cleaning %d eigen values\n" % (sum(self.Kva < 0)))
+       #    self.Kva[self.Kva < 1e-6] = 1e-6
  
        self.transform()
 
