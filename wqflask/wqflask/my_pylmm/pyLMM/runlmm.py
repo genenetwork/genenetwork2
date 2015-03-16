@@ -99,13 +99,37 @@ if options.geno:
     g = tsvreader.geno(options.geno)
     print g.shape
 
+if cmd == 'redis_new':
+    # Emulating the redis setup of GN2
+    Y = y
+    G = g
+    print "Original G",G.shape, "\n", G
+
+    gt = G.T
+    G = None
+    ps, ts = gn2_load_redis('testrun','other',k,Y,gt)
+    print np.array(ps)
+    print sum(ps)
+    # Test results
+    p1 = round(ps[0],4)
+    p2 = round(ps[-1],4)
+    sys.stderr.write(options.geno+"\n")
+    if options.geno == 'data/small.geno':
+        assert p1==0.0708, "p1=%f" % p1
+        assert p2==0.1417, "p2=%f" % p2
+    if options.geno == 'data/small_na.geno':
+        assert p1==0.0958, "p1=%f" % p1
+        assert p2==0.0435, "p2=%f" % p2
+    if options.geno == 'data/test8000.geno':
+        assert p1==0.8984, "p1=%f" % p1
+        assert p2==0.9623, "p2=%f" % p2
 if cmd == 'redis':
     # Emulating the redis setup of GN2
     G = g
     print "Original G",G.shape, "\n", G
     if y != None:
         gnt = np.array(g).T
-        Y,g = phenotype.remove_missing(y,g.T,options.verbose)
+        Y,g,keep = phenotype.remove_missing(y,g.T,options.verbose)
         G = g.T
         print "Removed missing phenotypes",G.shape, "\n", G
     if options.maf_normalization:

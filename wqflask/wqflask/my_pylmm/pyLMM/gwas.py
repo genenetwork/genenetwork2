@@ -21,79 +21,30 @@ import pdb
 import time
 import sys
 # from utility import temp_data
-import lmm
-
+import lmm2
 
 import os
 import numpy as np
 import input
 from optmatrix import matrix_initialize
-# from lmm import LMM
+from lmm2 import LMM2
 
 import multiprocessing as mp # Multiprocessing is part of the Python stdlib
 import Queue 
 
-def compute_snp(j,snp_ids,q = None):
-   # print(j,len(snp_ids),"\n")
+def formatResult(id,beta,betaSD,ts,ps):
+   return "\t".join([str(x) for x in [id,beta,betaSD,ts,ps]]) + "\n"
+
+def compute_snp(j,n,snp_ids,lmm2,REML,q = None):
+   # print(j,snp_ids,"\n")
    result = []
    for snp_id in snp_ids:
-      # j,snp_id = collect
       snp,id = snp_id
-      # id = collect[1]
-      # result = []
-      # Check SNPs for missing values
-      x = snp[keep].reshape((n,1))  # all the SNPs
-      v = np.isnan(x).reshape((-1,))
-      if v.sum():
-         # NOTE: this code appears to be unreachable!
-         if verbose:
-            sys.stderr.write("Found missing values in "+str(x))
-         keeps = True - v
-         xs = x[keeps,:]
-         if keeps.sum() <= 1 or xs.var() <= 1e-6: 
-            # PS.append(np.nan)
-            # TS.append(np.nan)
-            # result.append(formatResult(id,np.nan,np.nan,np.nan,np.nan))
-            # continue
-            result.append(formatResult(id,np.nan,np.nan,np.nan,np.nan))
-            continue
-
-         # Its ok to center the genotype -  I used normalizeGenotype to 
-         # force the removal of missing genotypes as opposed to replacing them with MAF.
-         if not normalizeGenotype:
-            xs = (xs - xs.mean()) / np.sqrt(xs.var())
-         Ys = Y[keeps]
-         X0s = X0[keeps,:]
-         Ks = K[keeps,:][:,keeps]
-         if kfile2:
-            K2s = K2[keeps,:][:,keeps]
-            Ls = LMM_withK2(Ys,Ks,X0=X0s,verbose=verbose,K2=K2s)
-         else:
-            Ls = LMM(Ys,Ks,X0=X0s,verbose=verbose)
-         if refit:
-           Ls.fit(X=xs,REML=REML)
-         else:
-            #try:
-            Ls.fit(REML=REML)
-            #except: pdb.set_trace()
-         ts,ps,beta,betaVar = Ls.association(xs,REML=REML,returnBeta=True)
-      else:
-         if x.var() == 0:
-            # Note: this code appears to be unreachable!
-
-            # PS.append(np.nan)
-            # TS.append(np.nan)
-            # result.append(formatResult(id,np.nan,np.nan,np.nan,np.nan)) # writes nan values
-            result.append(formatResult(id,np.nan,np.nan,np.nan,np.nan))
-            continue
-
-         if refit:
-            L.fit(X=x,REML=REML)
-         # This is where it happens
-         ts,ps,beta,betaVar = L.association(x,REML=REML,returnBeta=True)
+      x = snp.reshape((n,1))  # all the SNPs
+      # if refit:
+      #    L.fit(X=snp,REML=REML)
+      ts,ps,beta,betaVar = lmm2.association(x,REML=REML,returnBeta=True)
       result.append(formatResult(id,beta,np.sqrt(betaVar).sum(),ts,ps))
-      # compute_snp.q.put([j,formatResult(id,beta,np.sqrt(betaVar).sum(),ts,ps)])
-   # print [j,result[0]]," in result queue\n"
    if not q:
       q = compute_snp.q
    q.put([j,result])
@@ -113,8 +64,9 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
    """
    matrix_initialize()
    cpu_num = mp.cpu_count()
-   numThreads = 1
+   numThreads = None
    kfile2 = False
+   reml = restricted_max_likelihood
 
    sys.stderr.write(str(G.shape)+"\n")
    n = G.shape[1] # inds
@@ -123,17 +75,17 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
    snps = m
    sys.stderr.write(str(m)+" SNPs\n")
    # print "***** GWAS: G",G.shape,G
-   assert m>n, "n should be larger than m (snps>inds)"
+   assert snps>inds, "snps should be larger than inds (snps=%d,inds=%d)" % (snps,inds)
 
    # CREATE LMM object for association
    # if not kfile2:  L = LMM(Y,K,Kva,Kve,X0,verbose=verbose)
    # else:  L = LMM_withK2(Y,K,Kva,Kve,X0,verbose=verbose,K2=K2)
 
-   runlmm = lmm.LMM(Y,K) # ,Kva,Kve,X0,verbose=verbose)
+   lmm2 = LMM2(Y,K) # ,Kva,Kve,X0,verbose=verbose)
    if not refit:
       if verbose: sys.stderr.write("Computing fit for null model\n")
-      runlmm.fit()  # follow GN model in run_other
-      if verbose: sys.stderr.write("\t heritability=%0.3f, sigma=%0.3f\n" % (runlmm.optH,runlmm.optSigma))
+      lmm2.fit()  # follow GN model in run_other
+      if verbose: sys.stderr.write("\t heritability=%0.3f, sigma=%0.3f\n" % (lmm2.optH,lmm2.optSigma))
       
    # outFile = "test.out"
    # out = open(outFile,'w')
@@ -142,8 +94,6 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
    def outputResult(id,beta,betaSD,ts,ps):
       out.write(formatResult(id,beta,betaSD,ts,ps))
    def printOutHead(): out.write("\t".join(["SNP_ID","BETA","BETA_SD","F_STAT","P_VALUE"]) + "\n")
-   def formatResult(id,beta,betaSD,ts,ps):
-      return "\t".join([str(x) for x in [id,beta,betaSD,ts,ps]]) + "\n"
 
    printOutHead()
 
@@ -162,15 +112,15 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
    last_j = 0
    # for snp_id in G:
    for snp in G:
-      print snp.shape,snp
-      snp_id = ('SNPID',snp)
+      snp_id = (snp,'SNPID')
       count += 1
       if count % 1000 == 0:
          job = count/1000
          if verbose:
             sys.stderr.write("Job %d At SNP %d\n" % (job,count))
          if numThreads == 1:
-            compute_snp(job,collect,q)
+            print "Running on 1 THREAD"
+            compute_snp(job,n,collect,lmm2,reml,q)
             collect = []
             j,lines = q.get()
             if verbose:
@@ -178,7 +128,7 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
             for line in lines:
                out.write(line)
          else:
-            p.apply_async(compute_snp,(job,collect))
+            p.apply_async(compute_snp,(job,n,collect,lmm2,reml))
             collect = []
             while job > completed:
                try:
@@ -205,6 +155,13 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
             sys.stderr.write("Job "+str(j)+" finished\n")
          for line in lines:
             out.write(line)
+   else:
+      print "Running on 1 THREAD"
+      # print collect
+      compute_snp(count/1000,n,collect,lmm2,reml,q)
+      j,lines = q.get()
+      for line in lines:
+         out.write(line)
 
    # print collect
    ps = [item[1][3] for item in collect]

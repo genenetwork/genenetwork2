@@ -51,6 +51,7 @@ from utility.benchmark import Bench
 from utility import temp_data
 from kinship import kinship, kinship_full, kvakve
 import genotype
+import phenotype
 import gwas
 
 try:
@@ -315,32 +316,45 @@ def run_other_new(pheno_vector,
     
     print("In run_other (new)")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
+
+    # Adjust phenotypes
+    Y,G,keep = phenotype.remove_missing(pheno_vector,genotype_matrix,verbose=True)
+    print("Removed missing phenotypes",Y.shape)
+    # if options.maf_normalization:
+    #     G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
+    #     print "MAF replacements: \n",G
+    # if not options.skip_genotype_normalization:
+    # G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
+
     with Bench("Calculate Kinship"):
-        kinship_matrix,genotype_matrix = calculate_kinship(genotype_matrix, tempdata)
+        K,G = calculate_kinship(G, tempdata)
     
-    print("kinship_matrix: ", pf(kinship_matrix))
-    print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
+    print("kinship_matrix: ", pf(K))
+    print("kinship_matrix.shape: ", pf(K.shape))
 
-    with Bench("Create LMM object"):
-        lmm_ob = LMM(pheno_vector, kinship_matrix)
-    with Bench("LMM_ob fitting"):
-        lmm_ob.fit()
+    # with Bench("Create LMM object"):
+    #     lmm_ob = lmm2.LMM2(Y,K)
+    # with Bench("LMM_ob fitting"):
+    #     lmm_ob.fit()
 
-    print("genotype_matrix: ", genotype_matrix.shape)
-    print(genotype_matrix)
+    print("genotype_matrix: ", G.shape)
+    print(G)
 
     with Bench("Doing GWAS"):
-        t_stats, p_values = gwas.gwas(pheno_vector,
-                                      genotype_matrix.T,
-                                      kinship_matrix,
+        t_stats, p_values = gwas.gwas(Y,
+                                      G.T,
+                                      K,
                                       restricted_max_likelihood=True,
                                       refit=False,verbose=True)
     Bench().report()
     return p_values, t_stats
 
-run_other = run_other_old
+run_other = run_other_new
 
 def matrixMult(A,B):
+    return np.dot(A,B)
+
+def matrixMult_old(A,B):
 
     # If there is no fblas then we will revert to np.dot()
 
@@ -674,11 +688,15 @@ class LMM:
            optimum.
   
         """
+        print("H=",H)
+        print("X=",X)
+        print("REML=",REML)
         n = len(self.LLs)
         HOpt = []
         for i in range(1,n-2):
             if self.LLs[i-1] < self.LLs[i] and self.LLs[i] > self.LLs[i+1]: 
                 HOpt.append(optimize.brent(self.LL_brent,args=(X,REML),brack=(H[i-1],H[i+1])))
+                print("HOpt=",HOpt)
                 if np.isnan(HOpt[-1][0]):
                     HOpt[-1][0] = [self.LLs[i-1]]
 
