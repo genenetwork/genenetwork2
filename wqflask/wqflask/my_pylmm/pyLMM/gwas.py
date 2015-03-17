@@ -131,37 +131,35 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
             p.apply_async(compute_snp,(job,n,collect,lmm2,reml))
             jobs_running += 1
             collect = []
-            while jobs_running:
+            while jobs_running > cpu_num:
                try:
                   j,lst = q.get_nowait()
                   if verbose:
                      sys.stderr.write("Job "+str(j)+" finished\n")
-                  # for line in lines:
-                  #    out.write(line)
                   res.append(lst)
                   jobs_running -= 1
                except Queue.Empty:
+                  time.sleep(0.1)
                   pass
-               if jobs_running + cpu_num*2 > 0:
+               if jobs_running > cpu_num*2:
                   time.sleep(1.0)
                else:
-                  if jobs_running > 0:
-                    break
+                  break
 
       collect.append(snp_id)
 
-   if numThreads==1 or count<1000:
+   if numThreads==1 or count<1000 or len(collect)>0:
       print "Running on 1 THREAD"
       compute_snp(count/1000,n,collect,lmm2,reml,q)
+      collect = []
       j,lst = q.get()
       res.append(lst)
-   else:
-      print "count=",count," running=",jobs_running," collect=",len(collect)
-      for job in range(jobs_running):
-         j,lst = q.get(True,15) # time out
-         if verbose:
-            sys.stderr.write("Job "+str(j)+" finished\n")
-         res.append(lst)
+   print "count=",count," running=",jobs_running," collect=",len(collect)
+   for job in range(jobs_running):
+      j,lst = q.get(True,15) # time out
+      if verbose:
+         sys.stderr.write("Job "+str(j)+" finished\n")
+      res.append(lst)
 
    if verbose:
       print "res=",res[0][0:10]
