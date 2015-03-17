@@ -285,7 +285,7 @@ def run_other_old(pheno_vector,
     # with Bench("LMM_ob fitting"):
     #     lmm_ob.fit()
 
-    print("genotype_matrix: ", genotype_matrix.shape)
+    print("run_other_old genotype_matrix: ", genotype_matrix.shape)
     print(genotype_matrix)
 
     with Bench("Doing GWAS"):
@@ -320,6 +320,7 @@ def run_other_new(pheno_vector,
     # Adjust phenotypes
     Y,G,keep = phenotype.remove_missing(pheno_vector,genotype_matrix,verbose=True)
     print("Removed missing phenotypes",Y.shape)
+
     # if options.maf_normalization:
     #     G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
     #     print "MAF replacements: \n",G
@@ -337,7 +338,7 @@ def run_other_new(pheno_vector,
     # with Bench("LMM_ob fitting"):
     #     lmm_ob.fit()
 
-    print("genotype_matrix: ", G.shape)
+    print("run_other_new genotype_matrix: ", G.shape)
     print(G)
 
     with Bench("Doing GWAS"):
@@ -388,7 +389,9 @@ def calculate_kinship_new(genotype_matrix, temp_data=None):
     Call the new kinship calculation where genotype_matrix contains
     inds (columns) by snps (rows).
     """
+    print("call genotype.normalize")
     G = np.apply_along_axis( genotype.normalize, axis=0, arr=genotype_matrix)
+    print("call calculate_kinship_new")
     return kinship(G.T),G # G gets transposed, we'll turn this into an iterator (FIXME)
 
 def calculate_kinship_old(genotype_matrix, temp_data=None):
@@ -399,6 +402,7 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
     normalizes the resulting vectors and returns the RRM matrix.
     
     """
+    print("call calculate_kinship_old")
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
     print("genotype 2D matrix n (inds) is:", n)
@@ -429,7 +433,7 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
             temp_data.store("percent_complete", percent_complete)
         
     genotype_matrix = genotype_matrix[:,keep]
-    print("genotype_matrix: ", pf(genotype_matrix))
+    print("After kinship (old) genotype_matrix: ", pf(genotype_matrix))
     kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
     return kinship_matrix,genotype_matrix
 

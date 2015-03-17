@@ -66,7 +66,7 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
    """
    matrix_initialize()
    cpu_num = mp.cpu_count()
-   numThreads = None
+   numThreads = None # for now use all available threads
    kfile2 = False
    reml = restricted_max_likelihood
 
@@ -110,10 +110,7 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
    # PS = []
    # TS = []
    count = 0
-
-   completed = 0
-   last_j = 0
-   # for snp_id in G:
+   jobs_running = 0
    for snp in G:
       snp_id = (snp,'SNPID')
       count += 1
@@ -129,13 +126,12 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
             j,lst = q.get()
             if verbose:
                sys.stderr.write("Job "+str(j)+" finished\n")
-            # for line in lines:
-            #    out.write(line)
             res.append(lst)
          else:
             p.apply_async(compute_snp,(job,n,collect,lmm2,reml))
+            jobs_running += 1
             collect = []
-            while job > completed:
+            while jobs_running:
                try:
                   j,lst = q.get_nowait()
                   if verbose:
@@ -143,34 +139,33 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
                   # for line in lines:
                   #    out.write(line)
                   res.append(lst)
-                  completed += 1
+                  jobs_running -= 1
                except Queue.Empty:
                   pass
-               if job > completed + cpu_num*2:
-                  time.sleep(0.1)
+               if jobs_running + cpu_num*2 > 0:
+                  time.sleep(1.0)
                else:
-                  if job >= completed:
+                  if jobs_running > 0:
                     break
 
       collect.append(snp_id)
 
-   if numThreads==1:
+   if numThreads==1 or count<1000:
       print "Running on 1 THREAD"
       compute_snp(count/1000,n,collect,lmm2,reml,q)
       j,lst = q.get()
-      # for line in lines:
-      #    out.write(line)
       res.append(lst)
    else:
-      for job in range(int(count/1000)-completed):
+      print "count=",count," running=",jobs_running," collect=",len(collect)
+      for job in range(jobs_running):
          j,lst = q.get(True,15) # time out
          if verbose:
             sys.stderr.write("Job "+str(j)+" finished\n")
          res.append(lst)
 
-   # print res
+   if verbose:
+      print "res=",res[0][0:10]
+   print [len(res1) for res1 in res]
    ts = [item[0] for res1 in res for item in res1]
    ps = [item[1] for res1 in res for item in res1]
-   # ts = [item[1] for item in res]
-   # print ps
    return ts,ps

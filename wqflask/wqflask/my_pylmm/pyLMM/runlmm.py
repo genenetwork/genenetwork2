@@ -54,9 +54,9 @@ parser.add_option("--geno",dest="geno",
 parser.add_option("--maf-normalization",
                   action="store_true", dest="maf_normalization", default=False,
                   help="Apply MAF genotype normalization")
-parser.add_option("--skip-genotype-normalization",
-                  action="store_true", dest="skip_genotype_normalization", default=False,
-                  help="Skip genotype normalization")
+parser.add_option("--genotype-normalization",
+                  action="store_true", dest="genotype_normalization", default=False,
+                  help="Force genotype normalization")
 parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
@@ -100,7 +100,8 @@ if options.geno:
     print g.shape
 
 if cmd == 'redis_new':
-    # Emulating the redis setup of GN2
+    # The main difference between redis_new and redis is that missing
+    # phenotypes are handled by the first
     Y = y
     G = g
     print "Original G",G.shape, "\n", G
@@ -109,7 +110,7 @@ if cmd == 'redis_new':
     G = None
     ps, ts = gn2_load_redis('testrun','other',k,Y,gt,new_code=True)
     print np.array(ps)
-    print sum(ps)
+    print len(ps),sum(ps)
     # Test results
     p1 = round(ps[0],4)
     p2 = round(ps[-1],4)
@@ -118,12 +119,14 @@ if cmd == 'redis_new':
         assert p1==0.0708, "p1=%f" % p1
         assert p2==0.1417, "p2=%f" % p2
     if options.geno == 'data/small_na.geno':
-        assert p1==0.0958, "p1=%f" % p1
-        assert p2==0.0435, "p2=%f" % p2
+        assert p1==0.0897, "p1=%f" % p1
+        assert p2==0.0405, "p2=%f" % p2
     if options.geno == 'data/test8000.geno':
         assert p1==0.8984, "p1=%f" % p1
-        assert p2==0.9623, "p2=%f" % p2
-if cmd == 'redis':
+        assert p2==0.9620, "p2=%f" % p2
+        assert sum(ps) == 4070.02346579
+        assert len(ps) == 8000
+elif cmd == 'redis':
     # Emulating the redis setup of GN2
     G = g
     print "Original G",G.shape, "\n", G
@@ -135,7 +138,7 @@ if cmd == 'redis':
     if options.maf_normalization:
         G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
         print "MAF replacements: \n",G
-    if not options.skip_genotype_normalization:
+    if options.genotype_normalization:
         G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
     g = None
     gnt = None
@@ -144,8 +147,8 @@ if cmd == 'redis':
     G = None
     ps, ts = gn2_load_redis('testrun','other',k,Y,gt, new_code=False)
     print np.array(ps)
-    print sum(ps)
-    # Test results
+    print len(ps),sum(ps)
+    # Test results 4070.02346579
     p1 = round(ps[0],4)
     p2 = round(ps[-1],4)
     sys.stderr.write(options.geno+"\n")
@@ -153,11 +156,11 @@ if cmd == 'redis':
         assert p1==0.0708, "p1=%f" % p1
         assert p2==0.1417, "p2=%f" % p2
     if options.geno == 'data/small_na.geno':
-        assert p1==0.0958, "p1=%f" % p1
-        assert p2==0.0435, "p2=%f" % p2
+        assert p1==0.0897, "p1=%f" % p1
+        assert p2==0.0405, "p2=%f" % p2
     if options.geno == 'data/test8000.geno':
         assert p1==0.8984, "p1=%f" % p1
-        assert p2==0.9623, "p2=%f" % p2
+        assert p2==0.8827, "p2=%f" % p2
 elif cmd == 'kinship':
     G = g
     print "Original G",G.shape, "\n", G
@@ -169,7 +172,7 @@ elif cmd == 'kinship':
     if options.maf_normalization:
         G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
         print "MAF replacements: \n",G
-    if not options.skip_genotype_normalization:
+    if options.genotype_normalization:
         G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
     g = None
     gnt = None

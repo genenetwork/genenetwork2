@@ -22,6 +22,7 @@ from scipy.linalg import eigh, inv, det
 import scipy.stats as stats # t-tests
 from scipy import optimize
 from optmatrix import matrixMult
+import kinship
 
 def calculateKinship(W,center=False):
       """
@@ -177,13 +178,17 @@ class LMM2:
 	 Kve = []
       self.nonmissing = x
 
-      if len(Kva) == 0 or len(Kve) == 0:
-	 if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
-	 begin = time.time()
-	 Kva,Kve = eigh(K)
-	 end = time.time()
-	 if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
+      print("this K is:", K.shape, K)
       
+      if len(Kva) == 0 or len(Kve) == 0:
+          # if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
+          begin = time.time()
+          # Kva,Kve = linalg.eigh(K)
+          Kva,Kve = kinship.kvakve(K)
+          end = time.time()
+          if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
+          print("sum(Kva),sum(Kve)=",sum(Kva),sum(Kve))
+
       self.K = K
       self.Kva = Kva
       self.Kve = Kve
