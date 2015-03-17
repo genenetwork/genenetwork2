@@ -735,8 +735,7 @@ def gn2_redis(key,species):
 
     print('kinship', np.array(params['kinship_matrix']))
     print('pheno', np.array(params['pheno_vector']))
-    geno = np.array(params['genotype_matrix'])
-    print('geno', geno.shape, geno)
+
     # sys.exit(1)
     
     if species == "human" :
@@ -747,6 +746,9 @@ def gn2_redis(key,species):
                   refit = params['refit'],
                   tempdata = tempdata)
     else:
+        geno = np.array(params['genotype_matrix'])
+        print('geno', geno.shape, geno)
+
         ps, ts = run_other(pheno_vector = np.array(params['pheno_vector']),
                   genotype_matrix = geno,
                   restricted_max_likelihood = params['restricted_max_likelihood'],

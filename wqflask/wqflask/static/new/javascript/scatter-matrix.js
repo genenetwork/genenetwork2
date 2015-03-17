@@ -57,7 +57,7 @@ ScatterMatrix.prototype.render = function () {
                                    .attr('class', 'scatter-matrix-container');
   var control = container.append('div')
                          .attr('class', 'scatter-matrix-control')
-                         .style({'float':'left'})
+                         .style({'float':'left', 'margin-right':'50px'})
   var svg = container.append('div')
                      .attr('class', 'scatter-matrix-svg')
                      .style({'float':'right'})
