@@ -688,15 +688,11 @@ class LMM:
            optimum.
   
         """
-        print("H=",H)
-        print("X=",X)
-        print("REML=",REML)
         n = len(self.LLs)
         HOpt = []
         for i in range(1,n-2):
             if self.LLs[i-1] < self.LLs[i] and self.LLs[i] > self.LLs[i+1]: 
                 HOpt.append(optimize.brent(self.LL_brent,args=(X,REML),brack=(H[i-1],H[i+1])))
-                print("HOpt=",HOpt)
                 if np.isnan(HOpt[-1][0]):
                     HOpt[-1][0] = [self.LLs[i-1]]
 
