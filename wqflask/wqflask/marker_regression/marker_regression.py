@@ -231,7 +231,7 @@ class MarkerRegression(object):
     
     def run_rqtl_geno(self):
 
-        print("CORRECT FUNCTION BEING CALLED")
+        print("Calling R/qtl from python")
 
         ## Get pointers to some common R functions
         r_library     = ro.r["library"]             # Map the library function
@@ -255,14 +255,26 @@ class MarkerRegression(object):
        
         # Add the phenotype
         cross_object = self.add_phenotype(cross_object, self.sanitize_rqtl_phenotype())
+
         # for debug: write_cross(cross_object, "csvr", "test.csvr")
-        # Scan for QTLs 
-        # TODO: use addcovar, and permutations
+
+        # Scan for QTLs
         if(self.control.replace(" ", "") != ""):
-            covar = self.create_covariatesShort(cross_object)
+            covar = self.create_covariates(cross_object)
             result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar)
         else:
             result_data_frame = scanone(cross_object, pheno = "the_pheno")
+
+        if int(self.num_perm) > 0:
+	     # Do permutation
+            if(self.control.replace(" ", "") != ""):
+                covar = self.create_covariatesShort(cross_object)
+                perm_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, n_perm=int(self.num_perm))
+            else:
+                perm_data_frame = scanone(cross_object, pheno = "the_pheno", n_perm=int(self.num_perm))
+
+        self.suggestive, self.significant = self.process_rqtl_perm_results(perm_data_frame)
+
         qtl_results = self.process_rqtl_results(result_data_frame)
 
         return qtl_results
@@ -273,7 +285,7 @@ class MarkerRegression(object):
         return ro.r["the_cross"]
 
 
-    def create_covariatesShort(self, cross):
+    def create_covariates(self, cross):
         ro.globalenv["the_cross"] = cross
         ro.r('genotypes <- pull.geno(the_cross)')       # Get genotype matrix
         userinputS = self.control.replace(" ", "").split(",")     # TODO sanitize user input !!! never trust a user
@@ -282,46 +294,6 @@ class MarkerRegression(object):
         ro.r('covariates <- genotypes[,c(' + covariate_names + ')]')         # get covariate matrix, 
         print("COVARIATES:", ro.r["covariates"])
         return ro.r["covariates"]
-
-
-    def create_covariates(self):
-        if self.control != "":
-            control_markers = self.control.split(",")
-            control_string = ""
-            for i, control in enumerate(control_markers):
-                control_trait = GeneralTrait(name=str(control), dataset_name=str(self.dataset.group.name + "Geno"))
-                control_vals = []
-                for sample in self.dataset.group.samplelist:
-                    if sample in control_trait.data:
-                        control_vals.append(control_trait.data[sample].value)
-                    else:
-                        control_vals.append("x")
-                print("control_vals:", control_vals)
-                control_as_string = "c("
-                for j, val2 in enumerate(control_vals):
-                    if val2 == "x":
-                        if j < (len(control_vals) - 1):
-                            control_as_string +=  "NA,"
-                        else:
-                            control_as_string += "NA"
-                    else:
-                        if j < (len(control_vals) - 1):
-                            control_as_string += str(val2) + ","
-                        else:
-                            control_as_string += str(val2)
-                    #if i < (len(control_vals) - 1):
-                    #    control_as_string += str(new_val2) + ","
-                    #else:
-                    #    control_as_string += str(new_val2)
-                control_as_string += ")"
-                print("control_as_string:", control_as_string)
-                if i < (len(control_markers)-1):
-                    control_string += control_as_string + ","
-                else:
-                    control_string += control_as_string
-                    
-            robjects.r('covariates <- cbind( '+ control_string +')')
-
 
     def sanitize_rqtl_phenotype(self):
         pheno_as_string = "c("
@@ -358,107 +330,8 @@ class MarkerRegression(object):
             qtl_results.append(marker)
             
         return qtl_results
-
-    def run_rqtl_geno_old(self):
-        robjects.packages.importr("qtl")
-        robjects.r('the_cross <- read.cross(format="csvr", dir="/home/zas1024/PLINK2RQTL/test", file="BXD.csvr")')
-        if self.manhattan_plot:
-            robjects.r('the_cross <- calc.genoprob(the_cross)')
-        else:
-            robjects.r('the_cross <- calc.genoprob(the_cross, step=1, stepwidth="max")')
-        pheno_as_string = "c("
-        null_pos = []
-        for i, val in enumerate(self.vals):
-            if val == "x":
-                null_pos.append(i)
-                if i < (len(self.vals) - 1):
-                    pheno_as_string +=  "NA,"
-                else:
-                    pheno_as_string += "NA"
-            else:
-                if i < (len(self.vals) - 1):
-                    pheno_as_string += str(val) + ","
-                else:
-                    pheno_as_string += str(val)
-            
-        pheno_as_string += ")"
-        
-        robjects.r('the_cross$pheno <- cbind(pull.pheno(the_cross), the_pheno = '+ pheno_as_string +')')
-        
-        print("self.control:", self.control)
-        
-        if self.control != "":
-            control_markers = self.control.split(",")
-            control_string = ""
-            for i, control in enumerate(control_markers):
-                control_trait = GeneralTrait(name=str(control), dataset_name=str(self.dataset.group.name + "Geno"))
-                control_vals = []
-                for sample in self.dataset.group.samplelist:
-                    if sample in control_trait.data:
-                        control_vals.append(control_trait.data[sample].value)
-                    else:
-                        control_vals.append("x")
-                print("control_vals:", control_vals)
-                control_as_string = "c("
-                for j, val2 in enumerate(control_vals):
-                    if val2 == "x":
-                        if j < (len(control_vals) - 1):
-                            control_as_string +=  "NA,"
-                        else:
-                            control_as_string += "NA"
-                    else:
-                        if j < (len(control_vals) - 1):
-                            control_as_string += str(val2) + ","
-                        else:
-                            control_as_string += str(val2)
-                    #if i < (len(control_vals) - 1):
-                    #    control_as_string += str(new_val2) + ","
-                    #else:
-                    #    control_as_string += str(new_val2)
-                control_as_string += ")"
-                print("control_as_string:", control_as_string)
-                if i < (len(control_markers)-1):
-                    control_string += control_as_string + ","
-                else:
-                    control_string += control_as_string
-                    
-            robjects.r('covariates <- cbind( '+ control_string +')')
-            #Scan for QTL
-            r_string = 'scanone(the_cross, pheno.col="the_pheno", addcovar=covariates)'
-            #r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, n.perm='+self.num_perm+', addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
-            print("r_string:", r_string)
-
-            # extract the profile
-
-            if int(self.num_perm) > 0:
-	         # Do permutation
-                r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
-                # Extract the tresholds
-                thresholds = robjects.r(r_string)
-                self.suggestive, self.significant = self.process_rqtl_perm_results(thresholds)
-                
-            #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', addcovar='+control_as_string+')'
-            
-        else:
-        #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', n.perm='+self.num_perm+')'
-            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, n.perm='+self.num_perm+')'
-            if self.num_perm.isdigit() and int(self.num_perm) > 0:
-                results = robjects.r(r_string)
-                self.suggestive, self.significant = self.process_rqtl_perm_results(results)
-                r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16)'
-            
-        print("r_string:", r_string)
-        result_data_frame = robjects.r(r_string)
-        #print("results:", result_data_frame)
-
-        print("before process rqtl results")
-
-        qtl_results = self.process_rqtl_results(result_data_frame)
-
-        return qtl_results
     
     def process_rqtl_perm_results(self, results):
-
         perm_vals = []
         for line in str(results).split("\n")[1:(int(self.num_perm)+1)]:
             print("line:", line.split())
