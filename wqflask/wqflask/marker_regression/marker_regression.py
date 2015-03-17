@@ -229,9 +229,41 @@ class MarkerRegression(object):
         
         count, p_values = self.parse_rqtl_output(plink_output_filename)
     
+    def geno_to_rqtl_function(self):
+
+        #TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
+
+        print("Adding a function to the R environment")
+        ro.r("""
+           getGenoCode <- function(header, name = 'unk'){
+             mat = which(unlist(lapply(header,function(x){ length(grep(paste('@',name,sep=''), x)) })) == 1)
+             return(strsplit(header[mat],'')[[1]][6])
+           }
+
+           GENOtoCSVR <- function(genotypes = 'BXD.geno', out = 'cross.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
+             header = readLines(genotypes, 40)
+             toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
+             genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))                # Get the genotype codes 
+
+             genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#')
+             cat('Genodata:', toskip, " ", dim(genodata), '\n')
+             if(is.null(phenotype)) phenotype <- runif((ncol(genodata)-4))                                                     # If there isn't a phenotype, generate a random one
+             if(is.null(sex)) sex <- rep('m', (ncol(genodata)-4))                                                              # If there isn't a sex phenotype, treat all as males
+             outCSVR <- rbind(c('Pheno', '', '', phenotype),                                                                   # Phenotype
+                              c('sex', '', '', sex),                                                                           # Sex phenotype for the mice
+                              cbind(genodata[,c('Locus','Chr', 'cM')], genodata[, 5:ncol(genodata)]))                          # Genotypes
+             write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
+             require(qtl)
+             return(read.cross(file=out, 'csvr', genotypes=genocodes))                                                  # Load it using R/qtl read.cross  
+          }
+        """)
+    
     def run_rqtl_geno(self):
 
         print("Calling R/qtl from python")
+
+        #TODO: Need to get this working for other groups/inbred sets, calculating file on the fly
+        self.geno_to_rqtl_function()
 
         ## Get pointers to some common R functions
         r_library     = ro.r["library"]             # Map the library function
@@ -244,9 +276,14 @@ class MarkerRegression(object):
         calc_genoprob   = ro.r["calc.genoprob"]         # Map the calc.genoprob function
         read_cross      = ro.r["read.cross"]            # Map the read.cross function
         write_cross     = ro.r["write.cross"]           # Map the write.cross function
+        GENOtoCSVR      = ro.r["GENOtoCSVR"]            # Map the write.cross function
 
+        genofilelocation  = webqtlConfig.HTMLPATH + "genotypes/" + self.dataset.group.name + ".geno"
+        crossfilelocation = webqtlConfig.HTMLPATH + "genotypes/" + self.dataset.group.name + ".cross"
 
-        cross_object = read_cross(file = "BXD.csvr", format = "csvr", dir="/home/zas1024/PLINK2RQTL/test", genotypes = r_c("B","H","D"))
+        print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
+
+        cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)  # TODO: Add the SEX if that is available
 
         if self.manhattan_plot:
             cross_object = calc_genoprob(cross_object)
@@ -268,10 +305,10 @@ class MarkerRegression(object):
         if int(self.num_perm) > 0:
 	     # Do permutation
             if(self.control.replace(" ", "") != ""):
-                covar = self.create_covariatesShort(cross_object)
-                perm_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, n_perm=int(self.num_perm))
+                covar = self.create_covariates(cross_object)
+                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm=int(self.num_perm))
             else:
-                perm_data_frame = scanone(cross_object, pheno = "the_pheno", n_perm=int(self.num_perm))
+                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm=int(self.num_perm))
 
         self.suggestive, self.significant = self.process_rqtl_perm_results(perm_data_frame)
 
