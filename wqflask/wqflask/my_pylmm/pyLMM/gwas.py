@@ -110,13 +110,13 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
    # PS = []
    # TS = []
    count = 0
+   job = 0
    jobs_running = 0
    for snp in G:
       snp_id = (snp,'SNPID')
       count += 1
-      # print count,snp_id
       if count % 1000 == 0:
-         job = count/1000
+         job += 1
          if verbose:
             sys.stderr.write("Job %d At SNP %d\n" % (job,count))
          if numThreads == 1:
@@ -126,7 +126,7 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
             j,lst = q.get()
             if verbose:
                sys.stderr.write("Job "+str(j)+" finished\n")
-            res.append(lst)
+            res.append((j,lst))
          else:
             p.apply_async(compute_snp,(job,n,collect,lmm2,reml))
             jobs_running += 1
@@ -136,7 +136,7 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
                   j,lst = q.get_nowait()
                   if verbose:
                      sys.stderr.write("Job "+str(j)+" finished\n")
-                  res.append(lst)
+                  res.append((j,lst))
                   jobs_running -= 1
                except Queue.Empty:
                   time.sleep(0.1)
@@ -149,21 +149,25 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
       collect.append(snp_id)
 
    if numThreads==1 or count<1000 or len(collect)>0:
-      print "Running on 1 THREAD"
-      compute_snp(count/1000,n,collect,lmm2,reml,q)
+      job += 1
+      print "Collect final batch size %i job %i @%i: " % (len(collect), job, count)
+      compute_snp(job,n,collect,lmm2,reml,q)
       collect = []
       j,lst = q.get()
-      res.append(lst)
+      res.append((j,lst))
    print "count=",count," running=",jobs_running," collect=",len(collect)
    for job in range(jobs_running):
       j,lst = q.get(True,15) # time out
       if verbose:
          sys.stderr.write("Job "+str(j)+" finished\n")
-      res.append(lst)
+      res.append((j,lst))
 
-   if verbose:
-      print "res=",res[0][0:10]
-   print [len(res1) for res1 in res]
-   ts = [item[0] for res1 in res for item in res1]
-   ps = [item[1] for res1 in res for item in res1]
+   print "Before sort",[res1[0] for res1 in res]
+   res = sorted(res,key=lambda x: x[0])
+   # if verbose:
+   #    print "res=",res[0][0:10]
+   print "After sort",[res1[0] for res1 in res]
+   print [len(res1[1]) for res1 in res]
+   ts = [item[0] for j,res1 in res for item in res1]
+   ps = [item[1] for j,res1 in res for item in res1]
    return ts,ps
