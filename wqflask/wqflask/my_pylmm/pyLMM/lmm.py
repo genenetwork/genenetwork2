@@ -271,7 +271,7 @@ def run_other_old(pheno_vector,
     
     """
     
-    print("In run_other (old)")
+    print("Running the original LMM engine in run_other (old)")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
         kinship_matrix,genotype_matrix = calculate_kinship(genotype_matrix, tempdata)
@@ -314,7 +314,7 @@ def run_other_new(pheno_vector,
     
     """
     
-    print("In run_other (new)")
+    print("Running the new LMM2 engine in run_other_new")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
 
     # Adjust phenotypes
@@ -349,12 +349,10 @@ def run_other_new(pheno_vector,
     Bench().report()
     return p_values, t_stats
 
-run_other = run_other_new
+# def matrixMult(A,B):
+#     return np.dot(A,B)
 
 def matrixMult(A,B):
-    return np.dot(A,B)
-
-def matrixMult_old(A,B):
 
     # If there is no fblas then we will revert to np.dot()
 
@@ -772,7 +770,10 @@ class LMM:
  
           ts = beta / np.sqrt(var * sigma)        
           ps = 2.0*(1.0 - stats.t.cdf(np.abs(ts), self.N-q))
-          if not len(ts) == 1 or not len(ps) == 1: raise Exception("Something bad happened :(")
+          if not len(ts) == 1 or not len(ps) == 1:
+              print("ts=",ts)
+              print("ps=",ps)
+              raise Exception("Something bad happened :(")
           return ts.sum(),ps.sum()
 
     def plotFit(self,color='b-',title=''):
@@ -798,7 +799,11 @@ class LMM:
        pl.title(title)
 
 
-def gn2_redis(key,species):
+def gn2_redis(key,species,new_code=True):
+    """
+    Invoke pylmm using Redis as a container. new_code runs the new
+    version
+    """
     json_params = Redis.get(key)
     
     params = json.loads(json_params)
@@ -818,11 +823,18 @@ def gn2_redis(key,species):
                   refit = params['refit'],
                   tempdata = tempdata)
     else:
-        ps, ts = run_other(pheno_vector = np.array(params['pheno_vector']),
-                  genotype_matrix = geno,
-                  restricted_max_likelihood = params['restricted_max_likelihood'],
-                  refit = params['refit'],
-                  tempdata = tempdata)
+        if new_code:
+            ps, ts = run_other_new(pheno_vector = np.array(params['pheno_vector']),
+                               genotype_matrix = geno,
+                               restricted_max_likelihood = params['restricted_max_likelihood'],
+                               refit = params['refit'],
+                               tempdata = tempdata)
+        else:
+            ps, ts = run_other_old(pheno_vector = np.array(params['pheno_vector']),
+                               genotype_matrix = geno,
+                               restricted_max_likelihood = params['restricted_max_likelihood'],
+                               refit = params['refit'],
+                               tempdata = tempdata)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
@@ -847,7 +859,7 @@ def gn2_main():
 
     gn2_redis(key,species)
 
-def gn2_load_redis(key,species,kinship,pheno,geno):
+def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
     print("Loading Redis from parsed data")
     if kinship == None:
         k = None
@@ -868,7 +880,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    return gn2_redis(key,species)
+    return gn2_redis(key,species,new_code)
     
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")

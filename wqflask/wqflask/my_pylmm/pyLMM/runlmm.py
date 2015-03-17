@@ -107,7 +107,7 @@ if cmd == 'redis_new':
 
     gt = G.T
     G = None
-    ps, ts = gn2_load_redis('testrun','other',k,Y,gt)
+    ps, ts = gn2_load_redis('testrun','other',k,Y,gt,new_code=True)
     print np.array(ps)
     print sum(ps)
     # Test results
@@ -142,7 +142,7 @@ if cmd == 'redis':
 
     gt = G.T
     G = None
-    ps, ts = gn2_load_redis('testrun','other',k,Y,gt)
+    ps, ts = gn2_load_redis('testrun','other',k,Y,gt, new_code=False)
     print np.array(ps)
     print sum(ps)
     # Test results

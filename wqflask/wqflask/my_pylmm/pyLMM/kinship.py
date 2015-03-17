@@ -168,7 +168,7 @@ def kvakve(K, verbose=True):
       print("Kve is: ", Kve.shape, Kve)
 
    if sum(Kva < 1e-6):
-      if verbose: sys.stderr.write("Cleaning %d eigen values\n" % (sum(Kva < 1e-6)))
+      if verbose: sys.stderr.write("Cleaning %d eigen values (Kva<0)\n" % (sum(Kva < 0)))
       Kva[Kva < 1e-6] = 1e-6
    return Kva,Kve
 
