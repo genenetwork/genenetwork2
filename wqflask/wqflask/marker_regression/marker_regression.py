@@ -13,7 +13,7 @@ import os
 import collections
 import uuid
 
-import rpy2.robjects as robjects
+import rpy2.robjects as ro
 import numpy as np
 from scipy import linalg
 
@@ -79,7 +79,7 @@ class MarkerRegression(object):
             self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
 
-            print("doing rqtl_geno")
+            print("DOING RQTL GENO")
             qtl_results = self.run_rqtl_geno()
             print("qtl_results:", qtl_results)
         elif self.mapping_method == "plink":
@@ -88,8 +88,9 @@ class MarkerRegression(object):
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
             self.num_perm = start_vars['num_perm']
-            if int(self.num_perm) > 0:
-	         self.run_permutations(str(temp_uuid))
+            if self.num_perm != "":
+                if int(self.num_perm) > 0:
+	             self.run_permutations(str(temp_uuid))
             qtl_results = self.gen_data(str(temp_uuid))
         else:
             print("RUNNING NOTHING")
@@ -229,6 +230,136 @@ class MarkerRegression(object):
         count, p_values = self.parse_rqtl_output(plink_output_filename)
     
     def run_rqtl_geno(self):
+
+        print("CORRECT FUNCTION BEING CALLED")
+
+        ## Get pointers to some common R functions
+        r_library     = ro.r["library"]             # Map the library function
+        r_c           = ro.r["c"]                   # Map the c function
+        
+        print(r_library("qtl"))                     # Load R/qtl
+  
+        ## Get pointers to some R/qtl functions
+        scanone         = ro.r["scanone"]               # Map the scanone function
+        calc_genoprob   = ro.r["calc.genoprob"]         # Map the calc.genoprob function
+        read_cross      = ro.r["read.cross"]            # Map the read.cross function
+        write_cross     = ro.r["write.cross"]           # Map the write.cross function
+
+
+        cross_object = read_cross(file = "BXD.csvr", format = "csvr", dir="/home/zas1024/PLINK2RQTL/test", genotypes = r_c("B","H","D"))
+
+        if self.manhattan_plot:
+            cross_object = calc_genoprob(cross_object)
+        else:
+            cross_object = calc_genoprob(cross_object, step=1, stepwidth="max")
+       
+        # Add the phenotype
+        cross_object = self.add_phenotype(cross_object, self.sanitize_rqtl_phenotype())
+        # for debug: write_cross(cross_object, "csvr", "test.csvr")
+        # Scan for QTLs 
+        # TODO: use addcovar, and permutations
+        if(self.control.replace(" ", "") != ""):
+            covar = self.create_covariatesShort(cross_object)
+            result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar)
+        else:
+            result_data_frame = scanone(cross_object, pheno = "the_pheno")
+        qtl_results = self.process_rqtl_results(result_data_frame)
+
+        return qtl_results
+
+    def add_phenotype(self, cross, pheno_as_string):
+        ro.globalenv["the_cross"] = cross
+        ro.r('the_cross$pheno <- cbind(pull.pheno(the_cross), the_pheno = '+ pheno_as_string +')')
+        return ro.r["the_cross"]
+
+
+    def create_covariatesShort(self, cross):
+        ro.globalenv["the_cross"] = cross
+        ro.r('genotypes <- pull.geno(the_cross)')       # Get genotype matrix
+        userinputS = self.control.replace(" ", "").split(",")     # TODO sanitize user input !!! never trust a user
+        covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS) 
+        print(covariate_names)
+        ro.r('covariates <- genotypes[,c(' + covariate_names + ')]')         # get covariate matrix, 
+        print("COVARIATES:", ro.r["covariates"])
+        return ro.r["covariates"]
+
+
+    def create_covariates(self):
+        if self.control != "":
+            control_markers = self.control.split(",")
+            control_string = ""
+            for i, control in enumerate(control_markers):
+                control_trait = GeneralTrait(name=str(control), dataset_name=str(self.dataset.group.name + "Geno"))
+                control_vals = []
+                for sample in self.dataset.group.samplelist:
+                    if sample in control_trait.data:
+                        control_vals.append(control_trait.data[sample].value)
+                    else:
+                        control_vals.append("x")
+                print("control_vals:", control_vals)
+                control_as_string = "c("
+                for j, val2 in enumerate(control_vals):
+                    if val2 == "x":
+                        if j < (len(control_vals) - 1):
+                            control_as_string +=  "NA,"
+                        else:
+                            control_as_string += "NA"
+                    else:
+                        if j < (len(control_vals) - 1):
+                            control_as_string += str(val2) + ","
+                        else:
+                            control_as_string += str(val2)
+                    #if i < (len(control_vals) - 1):
+                    #    control_as_string += str(new_val2) + ","
+                    #else:
+                    #    control_as_string += str(new_val2)
+                control_as_string += ")"
+                print("control_as_string:", control_as_string)
+                if i < (len(control_markers)-1):
+                    control_string += control_as_string + ","
+                else:
+                    control_string += control_as_string
+                    
+            robjects.r('covariates <- cbind( '+ control_string +')')
+
+
+    def sanitize_rqtl_phenotype(self):
+        pheno_as_string = "c("
+        null_pos = []
+        for i, val in enumerate(self.vals):
+            if val == "x":
+                null_pos.append(i)
+                if i < (len(self.vals) - 1):
+                    pheno_as_string +=  "NA,"
+                else:
+                    pheno_as_string += "NA"
+            else:
+                if i < (len(self.vals) - 1):
+                    pheno_as_string += str(val) + ","
+                else:
+                    pheno_as_string += str(val)
+        pheno_as_string += ")"
+        return pheno_as_string
+
+    def process_rqtl_results(self, result):
+        #TODO how to make this a one liner and not copy the stuff in a loop
+        qtl_results = []
+        
+        output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
+        print("output", output)
+        
+        for i, line in enumerate(result.iter_row()):
+            marker = {}
+            marker['name'] = result.rownames[i]
+            marker['chr'] = output[i][0]
+            marker['Mb'] = output[i][1]
+            marker['lod_score'] = output[i][2]
+            
+            qtl_results.append(marker)
+            
+        return qtl_results
+
+    def run_rqtl_geno_old(self):
         robjects.packages.importr("qtl")
         robjects.r('the_cross <- read.cross(format="csvr", dir="/home/zas1024/PLINK2RQTL/test", file="BXD.csvr")')
         if self.manhattan_plot:
@@ -236,14 +367,6 @@ class MarkerRegression(object):
         else:
             robjects.r('the_cross <- calc.genoprob(the_cross, step=1, stepwidth="max")')
         pheno_as_string = "c("
-        #for i, val in enumerate(self.vals):
-        #    if val == "x":
-        #        new_val == "NULL"
-        #    else:
-        #        new_val = val
-        #    if i < (len(self.vals) - 1):
-        #        pheno_as_string += str(new_val) + ","
-        #    else: pheno_as_string += str(new_val)
         null_pos = []
         for i, val in enumerate(self.vals):
             if val == "x":
@@ -300,14 +423,19 @@ class MarkerRegression(object):
                     control_string += control_as_string
                     
             robjects.r('covariates <- cbind( '+ control_string +')')
-            
-            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, n.perm='+self.num_perm+', addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
+            #Scan for QTL
+            r_string = 'scanone(the_cross, pheno.col="the_pheno", addcovar=covariates)'
+            #r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, n.perm='+self.num_perm+', addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
             print("r_string:", r_string)
-            
+
+            # extract the profile
+
             if int(self.num_perm) > 0:
+	         # Do permutation
+                r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
+                # Extract the tresholds
                 thresholds = robjects.r(r_string)
                 self.suggestive, self.significant = self.process_rqtl_perm_results(thresholds)
-                r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
                 
             #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', addcovar='+control_as_string+')'
             
@@ -322,6 +450,8 @@ class MarkerRegression(object):
         print("r_string:", r_string)
         result_data_frame = robjects.r(r_string)
         #print("results:", result_data_frame)
+
+        print("before process rqtl results")
 
         qtl_results = self.process_rqtl_results(result_data_frame)
 
@@ -339,24 +469,6 @@ class MarkerRegression(object):
         
         return self.suggestive, self.significant
             
-    
-    def process_rqtl_results(self, result):
-        qtl_results = []
-        
-        output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
-        print("output", output)
-        
-        
-        for i, line in enumerate(result.iter_row()):
-            marker = {}
-            marker['name'] = result.rownames[i]
-            marker['chr'] = output[i][0]
-            marker['Mb'] = output[i][1]
-            marker['lod_score'] = output[i][2]
-            
-            qtl_results.append(marker)
-            
-        return qtl_results
 
     def run_plink(self):
     
@@ -394,8 +506,8 @@ class MarkerRegression(object):
         self.dataset.group.markers.add_pvalues(p_values)
 
         return self.dataset.group.markers.markers
-    
-    
+   
+
     def gen_pheno_txt_file_plink(self, pheno_filename = ''):
         ped_sample_list = self.get_samples_from_ped_file()	
         output_file = open("%s%s.txt" % (webqtlConfig.TMPDIR, pheno_filename), "wb")
