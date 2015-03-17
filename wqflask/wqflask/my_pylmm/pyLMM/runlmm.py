@@ -57,6 +57,9 @@ parser.add_option("--maf-normalization",
 parser.add_option("--genotype-normalization",
                   action="store_true", dest="genotype_normalization", default=False,
                   help="Force genotype normalization")
+parser.add_option("--remove-missing-phenotypes",
+                  action="store_true", dest="remove_missing_phenotypes", default=False,
+                  help="Remove missing phenotypes")
 parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
@@ -130,11 +133,13 @@ elif cmd == 'redis':
     # Emulating the redis setup of GN2
     G = g
     print "Original G",G.shape, "\n", G
-    if y != None:
+    if y != None and options.remove_missing_phenotypes:
         gnt = np.array(g).T
         Y,g,keep = phenotype.remove_missing(y,g.T,options.verbose)
         G = g.T
         print "Removed missing phenotypes",G.shape, "\n", G
+    else:
+        Y = y
     if options.maf_normalization:
         G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
         print "MAF replacements: \n",G
@@ -159,12 +164,12 @@ elif cmd == 'redis':
         assert p1==0.0897, "p1=%f" % p1
         assert p2==0.0405, "p2=%f" % p2
     if options.geno == 'data/test8000.geno':
-        assert p1==0.8984, "p1=%f" % p1
-        assert p2==0.8827, "p2=%f" % p2
+        assert round(sum(ps)) == 4070
+        assert len(ps) == 8000
 elif cmd == 'kinship':
     G = g
     print "Original G",G.shape, "\n", G
-    if y != None:
+    if y != None and options.remove_missing_phenotypes:
         gnt = np.array(g).T
         Y,g = phenotype.remove_missing(y,g.T,options.verbose)
         G = g.T
@@ -193,11 +198,11 @@ elif cmd == 'kinship':
     sys.stderr.write(options.geno+"\n")
     k3 = round(K3[0][0],4)
     if options.geno == 'data/small.geno':
-        assert k1==0.7939, "k1=%f" % k1
+        assert k1==0.8, "k1=%f" % k1
         assert k2==0.7939, "k2=%f" % k2
         assert k3==0.7939, "k3=%f" % k3
     if options.geno == 'data/small_na.geno':
-        assert k1==0.7172, "k1=%f" % k1
+        assert k1==0.8333, "k1=%f" % k1
         assert k2==0.7172, "k2=%f" % k2
         assert k3==0.7172, "k3=%f" % k3
     if options.geno == 'data/test8000.geno':
