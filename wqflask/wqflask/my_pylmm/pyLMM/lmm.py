@@ -143,6 +143,7 @@ def run_human(pheno_vector,
         
         timestamp = datetime.datetime.utcnow().isoformat()
 
+        # Pickle chunks of input SNPs (from Plink interator) and compress them
         #print("Starting adding loop")
         for part, result in enumerate(results):
             #data = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
@@ -254,8 +255,8 @@ def run_other(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
         refit=False,
-        tempdata=None,      # <---- can not be None
-        is_testing=False):
+        tempdata=None      # <---- can not be None
+        ):
     
     """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
     
@@ -267,9 +268,9 @@ def run_other(pheno_vector,
     """
     
     print("In run_other")
-    print("REML=",restricted_max_likelihood," REFIT=",refit, "TESTING=",is_testing)
+    print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
-        kinship_matrix = calculate_kinship(genotype_matrix, tempdata, is_testing)
+        kinship_matrix = calculate_kinship(genotype_matrix, tempdata)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -325,7 +326,7 @@ def matrixMult(A,B):
     return linalg.fblas.dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)
 
 
-def calculate_kinship(genotype_matrix, temp_data, is_testing=False):
+def calculate_kinship(genotype_matrix, temp_data=None):
     """
     genotype_matrix is an n x m matrix encoding SNP minor alleles.
     
@@ -337,10 +338,9 @@ def calculate_kinship(genotype_matrix, temp_data, is_testing=False):
     m = genotype_matrix.shape[1]
     print("genotype 2D matrix n (inds) is:", n)
     print("genotype 2D matrix m (snps) is:", m)
+    assert m>n, "n should be larger than m (snps>inds)"
     keep = []
     for counter in range(m):
-        if is_testing and counter>8:
-            break
         #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
         #Checks if any values in column are not numbers
         not_number = np.isnan(genotype_matrix[:,counter])
@@ -360,7 +360,8 @@ def calculate_kinship(genotype_matrix, temp_data, is_testing=False):
         genotype_matrix[:,counter] = (genotype_matrix[:,counter] - values_mean) / np.sqrt(vr)
         
         percent_complete = int(round((counter/m)*45))
-        temp_data.store("percent_complete", percent_complete)
+        if temp_data != None:
+            temp_data.store("percent_complete", percent_complete)
         
     genotype_matrix = genotype_matrix[:,keep]
     print("genotype_matrix: ", pf(genotype_matrix))
@@ -406,6 +407,8 @@ def GWAS(pheno_vector,
     v = np.isnan(pheno_vector)
     if v.sum():
         keep = True - v
+        print(pheno_vector.shape,pheno_vector)
+        print(keep.shape,keep)
         pheno_vector = pheno_vector[keep]
         #genotype_matrix = genotype_matrix[keep,:]
         #covariate_matrix = covariate_matrix[keep,:]
@@ -437,6 +440,8 @@ def GWAS(pheno_vector,
                 p_values.append(0)
                 t_statistics.append(np.nan)
                 continue
+            
+            print(genotype_matrix.shape,pheno_vector.shape,keep.shape)
 
             pheno_vector = pheno_vector[keep]
             covariate_matrix = covariate_matrix[keep,:]
@@ -484,7 +489,7 @@ class LMM:
           is not done consistently.
  
     """
-    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=True,is_testing=False):
+    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=True):
  
        """
        The constructor takes a phenotype vector or array of size n.
@@ -494,7 +499,6 @@ class LMM:
        When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
        """
 
-       self.is_testing = True
        if X0 == None: X0 = np.ones(len(Y)).reshape(len(Y),1)
        self.verbose = verbose
  
@@ -513,7 +517,7 @@ class LMM:
           Kve = []
        self.nonmissing = x
  
-       print("this K is:", pf(K))
+       print("this K is:", K.shape, pf(K))
        
        if len(Kva) == 0 or len(Kve) == 0:
           if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
@@ -525,8 +529,8 @@ class LMM:
        self.K = K
        self.Kva = Kva
        self.Kve = Kve
-       print("self.Kva is: ", pf(self.Kva))
-       print("self.Kve is: ", pf(self.Kve))
+       print("self.Kva is: ", self.Kva.shape, pf(self.Kva))
+       print("self.Kve is: ", self.Kve.shape, pf(self.Kve))
        self.Y = Y
        self.X0 = X0
        self.N = self.K.shape[0]
@@ -722,7 +726,7 @@ class LMM:
        pl.title(title)
 
 
-def gn2_redis(key,species,is_testing=False):
+def gn2_redis(key,species):
     json_params = Redis.get(key)
     
     params = json.loads(json_params)
@@ -749,8 +753,7 @@ def gn2_redis(key,species,is_testing=False):
                   genotype_matrix = geno,
                   restricted_max_likelihood = params['restricted_max_likelihood'],
                   refit = params['refit'],
-                  tempdata = tempdata,
-                  is_testing=is_testing)
+                  tempdata = tempdata)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
@@ -775,11 +778,15 @@ def gn2_main():
 
     gn2_redis(key,species)
 
-def gn2_load_redis(key,species,kinship,pheno,geno,is_testing):
+def gn2_load_redis(key,species,kinship,pheno,geno):
     print("Loading Redis from parsed data")
+    if kinship == None:
+        k = None
+    else:
+        k = kinship.tolist()
     params = dict(pheno_vector = pheno.tolist(),
                   genotype_matrix = geno.tolist(),
-                  kinship_matrix= kinship.tolist(),
+                  kinship_matrix= k,
                   restricted_max_likelihood = True,
                   refit = False,
                   temp_uuid = "testrun_temp_uuid",
@@ -792,7 +799,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno,is_testing):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    return gn2_redis(key,species,is_testing)
+    return gn2_redis(key,species)
     
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
