@@ -146,8 +146,8 @@ def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
                   completed += 1
                except Queue.Empty:
                   pass
-               if job > completed + cpu_num + 5:
-                  time.sleep(1)
+               if job > completed + cpu_num*2:
+                  time.sleep(0.1)
                else:
                   if job >= completed:
                     break
