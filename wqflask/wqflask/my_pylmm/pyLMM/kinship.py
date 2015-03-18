@@ -155,13 +155,12 @@ def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
    #    np.savetxt(outFile+".kve",Kve)
    return K      
 
-def kvakve(K, callbacks):
+def kvakve(K, uses):
    """
    Obtain eigendecomposition for K and return Kva,Kve where Kva is cleaned
    of small values < 1e-6 (notably smaller than zero)
    """
-   info = callbacks()['info']
-   mprint = callbacks()['mprint']
+   info,mprint = uses('info','mprint')
 
    info("Obtaining eigendecomposition for %dx%d matrix" % (K.shape[0],K.shape[1]) )
    Kva,Kve = linalg.eigh(K)

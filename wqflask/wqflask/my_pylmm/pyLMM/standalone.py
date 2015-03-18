@@ -44,6 +44,12 @@ def callbacks():
         progress = progress,
         mprint = mprint
     )
+
+def uses(*funcs):
+    """
+    Some sugar
+    """
+    return [callbacks()[func] for func in funcs]
     
 # ----- Minor test cases:
 
@@ -69,3 +75,6 @@ if __name__ == '__main__':
             [5,0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15],
             [6,0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15]]
     mprint("matrix",matrix)
+    ix,dx = uses("info","debug")
+    ix("ix")
+    dx("dx")
