@@ -155,20 +155,21 @@ def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
    #    np.savetxt(outFile+".kve",Kve)
    return K      
 
-def kvakve(K, verbose=True):
+def kvakve(K, callbacks):
    """
    Obtain eigendecomposition for K and return Kva,Kve where Kva is cleaned
    of small values < 1e-6 (notably smaller than zero)
    """
-   if verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
-   
-   Kva,Kve = linalg.eigh(K)
-   if verbose:
-      print("Kva is: ", Kva.shape, Kva)
-      print("Kve is: ", Kve.shape, Kve)
+   info = callbacks()['info']
+   mprint = callbacks()['mprint']
 
-   if sum(Kva < 1e-6):
-      if verbose: sys.stderr.write("Cleaning %d eigen values (Kva<0)\n" % (sum(Kva < 0)))
+   info("Obtaining eigendecomposition for %dx%d matrix" % (K.shape[0],K.shape[1]) )
+   Kva,Kve = linalg.eigh(K)
+   mprint("Kva",Kva)
+   mprint("Kve",Kve)
+
+   if sum(Kva < 0):
+      info("Cleaning %d eigen values (Kva<0)" % (sum(Kva < 0)))
       Kva[Kva < 1e-6] = 1e-6
    return Kva,Kve
 

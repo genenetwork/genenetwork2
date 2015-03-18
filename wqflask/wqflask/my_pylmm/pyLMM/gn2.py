@@ -5,13 +5,25 @@
 
 from __future__ import absolute_import, print_function, division
 
+import numpy as np
 import sys
 import logging
 
 # logging.basicConfig(level=logging.DEBUG)
+# np.set_printoptions()
 
 def progress(location, count, total):
-    print("Progress: %s %i %i @%d%%" % (location,count,total,round(count*100.0/total)))
+    """
+    Progress update
+    """
+    logging.info("Progress: %s %d%%" % (location,round(count*100.0/total)))
+
+def mprint(msg,data):
+    """
+    Array/matrix print function
+    """
+    m = np.array(data)
+    print(msg,m.shape,"=\n",m)
 
 def callbacks():
     return dict(
@@ -22,7 +34,8 @@ def callbacks():
         warning = logging.warning,
         error = logging.error,
         critical = logging.critical,
-        progress = progress
+        progress = progress,
+        mprint = mprint
     )
     
 # ----- Minor test cases:

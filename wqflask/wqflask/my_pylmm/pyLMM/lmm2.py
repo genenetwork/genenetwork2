@@ -24,6 +24,16 @@ from scipy import optimize
 from optmatrix import matrixMult
 import kinship
 
+# A trick to decide on the environment:
+try:
+    from wqflask.my_pylmm.pyLMM import chunks
+    from gn2 import callbacks
+except ImportError:
+    print("WARNING: Standalone version missing the Genenetwork2 environment\n")
+    has_gn2=False
+    from standalone import callbacks
+    pass
+
 def calculateKinship(W,center=False):
       """
 	 W is an n x m matrix encoding SNP minor alleles.
@@ -184,7 +194,7 @@ class LMM2:
           # if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
           begin = time.time()
           # Kva,Kve = linalg.eigh(K)
-          Kva,Kve = kinship.kvakve(K)
+          Kva,Kve = kinship.kvakve(K,callbacks)
           end = time.time()
           if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
           print("sum(Kva),sum(Kve)=",sum(Kva),sum(Kve))
