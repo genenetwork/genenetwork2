@@ -65,6 +65,8 @@ except ImportError:
     sys.stderr.write("WARNING: LMM standalone version missing the Genenetwork2 environment\n")
     pass
 
+progress,info = uses('progress','info')
+
 #np.seterr('raise')
 
 #def run_human(pheno_vector,
@@ -171,10 +173,7 @@ def run_human(pheno_vector,
             #if count > 1000:
             #    break
             count += 1
-
-            percent_complete = (float(count) / total_snps) * 100
-            #print("percent_complete: ", percent_complete)
-            tempdata.store("percent_complete", percent_complete)
+            progress("human",count,total_snps)
 
             #with Bench("actual association"):
             ps, ts = human_association(snp,
@@ -431,10 +430,7 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
             continue
         keep.append(counter)
         genotype_matrix[:,counter] = (genotype_matrix[:,counter] - values_mean) / np.sqrt(vr)
-        
-        percent_complete = int(round((counter/m)*45))
-        if temp_data != None:
-            temp_data.store("percent_complete", percent_complete)
+        progress('kinship_old',counter,m)
         
     genotype_matrix = genotype_matrix[:,keep]
     print("After kinship (old) genotype_matrix: ", pf(genotype_matrix))
@@ -539,9 +535,8 @@ def GWAS(pheno_vector,
                 lmm_ob.fit(X=x)
             ts, ps, beta, betaVar = lmm_ob.association(x, REML=restricted_max_likelihood)
             
-        percent_complete = 45 + int(round((counter/m)*55))
-        temp_data.store("percent_complete", percent_complete)
-
+        progress("gwas_old",counter,m)
+        
         p_values.append(ps)
         t_statistics.append(ts)
 

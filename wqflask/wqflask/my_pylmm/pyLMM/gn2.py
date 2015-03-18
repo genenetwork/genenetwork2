@@ -12,11 +12,16 @@ import logging
 # logging.basicConfig(level=logging.DEBUG)
 # np.set_printoptions()
 
+def set_progress_storage(location):
+    global storage
+    storage = location
+    
 def progress(location, count, total):
     """
     Progress update
     """
-    logging.info("Progress: %s %d%%" % (location,round(count*100.0/total)))
+    storage.store("percent_complete",round(count*100.0)/total)
+    logger.info("Progress: %s %d%%" % (location,round(count*100.0/total)))
 
 def mprint(msg,data):
     """

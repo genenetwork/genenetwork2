@@ -22,7 +22,7 @@ def set_progress_storage(location):
     storage = location
     
 def progress(location, count, total):
-    storage['percentage'] = round(count*100.0)/total)
+    storage.store("percent_complete",round(count*100.0)/total)
     logger.info("Progress: %s %d%%" % (location,round(count*100.0/total)))
 
 def mprint(msg,data):
