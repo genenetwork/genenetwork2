@@ -57,11 +57,11 @@ import gwas
 # ---- A trick to decide on the environment:
 try:
     from wqflask.my_pylmm.pyLMM import chunks
-    from gn2 import uses, set_progress_storage
+    from gn2 import uses, progress_set_func
 except ImportError:
     has_gn2=False
     import standalone as handlers
-    from standalone import uses, set_progress_storage
+    from standalone import uses, progress_set_func
     sys.stderr.write("WARNING: LMM standalone version missing the Genenetwork2 environment\n")
     pass
 
@@ -348,6 +348,7 @@ def run_other_new(pheno_vector,
         t_stats, p_values = gwas.gwas(Y,
                                       G.T,
                                       K,
+                                      uses,
                                       restricted_max_likelihood=True,
                                       refit=False,verbose=True)
     Bench().report()
@@ -812,7 +813,10 @@ def gn2_redis(key,species,new_code=True):
     params = json.loads(json_params)
     
     tempdata = temp_data.TempData(params['temp_uuid'])
-    set_progress_storage(tempdata)
+    def update_tempdata(loc,i,total):
+        tempdata.store("percent_complete",round(i*100.0/total))
+        debug("Updating REDIS percent_complete=%d" % (round(i*100.0/total)))
+    progress_set_func(update_tempdata)
 
     print('kinship', np.array(params['kinship_matrix']))
     print('pheno', np.array(params['pheno_vector']))
