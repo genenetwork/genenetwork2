@@ -74,46 +74,39 @@ def f_init(q):
 
 # Calculate the kinship matrix from G (SNPs as rows!), returns K
 #
-def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
-   numThreads = None
-   if numThreads:
-      numThreads = int(numThreads)
+def kinship(G,uses,computeSize=1000,numThreads=None,useBLAS=False):
+   progress,debug,info,mprint = uses('progress','debug','info','mprint')
+
    matrix_initialize(useBLAS)
-   
-   sys.stderr.write(str(G.shape)+"\n")
+
+   mprint("G",G)
    n = G.shape[1] # inds
    inds = n
    m = G.shape[0] # snps
    snps = m
-   sys.stderr.write(str(m)+" SNPs\n")
+   info("%i SNPs" % (m))
    assert snps>inds, "snps should be larger than inds (%i snps, %i inds)" % (snps,inds)
 
    q = mp.Queue()
    p = mp.Pool(numThreads, f_init, [q])
    cpu_num = mp.cpu_count()
-   print "CPU cores:",cpu_num
-   print snps,computeSize
+   info("CPU cores: %i" % cpu_num)
    iterations = snps/computeSize+1
-   # if testing:
-   #    iterations = 8
-   # jobs = range(0,8) # range(0,iterations)
 
    results = []
-
    K = np.zeros((n,n))  # The Kinship matrix has dimension individuals x individuals
 
    completed = 0
    for job in range(iterations):
-      if verbose:
-         sys.stderr.write("Processing job %d first %d SNPs\n" % (job, ((job+1)*computeSize)))
+      info("Processing job %d first %d SNPs" % (job, ((job+1)*computeSize)))
       W = compute_W(job,G,n,snps,computeSize)
       if numThreads == 1:
          # Single-core
          compute_matrixMult(job,W,q)
          j,x = q.get()
-         if verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+         debug("Job "+str(j)+" finished")
+         progress("kinship",j,iterations)
          K_j = x
-         # print j,K_j[:,0]
          K = K + K_j
       else:
          # Multi-core
@@ -123,39 +116,27 @@ def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
             time.sleep(0.1)
             try: 
                j,x = q.get_nowait()
-               if verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+               debug("Job "+str(j)+" finished")
                K_j = x
-               # print j,K_j[:,0]
                K = K + K_j
                completed += 1
+               progress("kinship",completed,iterations)
             except Queue.Empty:
                pass
          
    if numThreads == None or numThreads > 1:
-      # results contains the growing result set
       for job in range(len(results)-completed):
          j,x = q.get(True,15)
-         if verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+         debug("Job "+str(j)+" finished")
          K_j = x
-         # print j,K_j[:,0]
          K = K + K_j
          completed += 1
+         progress("kinship",completed,iterations)
 
    K = K / float(snps)
-   
-   # outFile = 'runtest.kin'
-   # if verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
-   # np.savetxt(outFile,K)
-
-   # if saveKvaKve:
-   #    if verbose: sys.stderr.write("Obtaining Eigendecomposition\n")
-   #    Kva,Kve = linalg.eigh(K)
-   #    if verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
-   #    np.savetxt(outFile+".kva",Kva)
-   #    np.savetxt(outFile+".kve",Kve)
    return K      
 
-def kvakve(K, uses):
+def kvakve(K,uses):
    """
    Obtain eigendecomposition for K and return Kva,Kve where Kva is cleaned
    of small values < 1e-6 (notably smaller than zero)

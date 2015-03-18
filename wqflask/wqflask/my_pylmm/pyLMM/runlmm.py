@@ -25,6 +25,7 @@ from lmm import gn2_load_redis, calculate_kinship_old
 from kinship import kinship, kinship_full
 import genotype
 import phenotype
+from standalone import uses
 
 usage = """
 python runlmm.py [options] command
@@ -193,7 +194,7 @@ elif cmd == 'kinship':
         k2 = round(K2[0][0],4)
     
     print "Genotype",G.shape, "\n", G
-    K3 = kinship(G.T)
+    K3 = kinship(G.T,uses)
     print "third Kinship method",K3.shape,"\n",K3
     sys.stderr.write(options.geno+"\n")
     k3 = round(K3[0][0],4)

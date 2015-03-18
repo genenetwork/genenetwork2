@@ -37,11 +37,17 @@ def callbacks():
         progress = progress,
         mprint = mprint
     )
-    
+
+def uses(*funcs):
+    """
+    Some sugar
+    """
+    return [callbacks()[func] for func in funcs]
+
 # ----- Minor test cases:
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
     logging.debug("Test %i" % (1))
     d = callbacks()['debug']
     d("TEST")
@@ -49,3 +55,19 @@ if __name__ == '__main__':
     wrln("Hello %i" % 34)
     progress = callbacks()['progress']
     progress("I am half way",50,100)
+    list = [0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15,
+            0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15,
+            0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15,
+            0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15,
+            0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15]
+    mprint("list",list)
+    matrix = [[1,0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15],
+            [2,0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15],
+            [3,0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15],
+            [4,0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15],
+            [5,0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15],
+            [6,0.5,0.6096595 , -0.31559815, -0.52793285, 1.16573418e-15]]
+    mprint("matrix",matrix)
+    ix,dx = uses("info","debug")
+    ix("ix")
+    dx("dx")

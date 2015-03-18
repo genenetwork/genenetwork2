@@ -12,11 +12,13 @@ import numpy as np
 import sys
 import logging
 
+# logger = logging.getLogger(__name__)
+logger = logging.getLogger('lmm2')
 logging.basicConfig(level=logging.DEBUG)
 np.set_printoptions(precision=3,suppress=True)
 
 def progress(location, count, total):
-    logging.info("Progress: %s %d%%" % (location,round(count*100.0/total)))
+    logger.info("Progress: %s %d%%" % (location,round(count*100.0/total)))
 
 def mprint(msg,data):
     """
@@ -36,11 +38,11 @@ def callbacks():
     return dict(
         write = sys.stdout.write,
         writeln = print,
-        debug = logging.debug,
-        info = logging.info,
-        warning = logging.warning,
-        error = logging.error,
-        critical = logging.critical,
+        debug = logger.debug,
+        info = logger.info,
+        warning = logger.warning,
+        error = logger.error,
+        critical = logger.critical,
         progress = progress,
         mprint = mprint
     )
