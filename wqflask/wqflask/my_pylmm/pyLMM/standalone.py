@@ -17,7 +17,12 @@ logger = logging.getLogger('lmm2')
 logging.basicConfig(level=logging.DEBUG)
 np.set_printoptions(precision=3,suppress=True)
 
+def set_progress_storage(location):
+    global storage
+    storage = location
+    
 def progress(location, count, total):
+    storage['percentage'] = round(count*100.0)/total)
     logger.info("Progress: %s %d%%" % (location,round(count*100.0/total)))
 
 def mprint(msg,data):

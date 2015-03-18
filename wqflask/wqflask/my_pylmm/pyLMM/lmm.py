@@ -57,10 +57,11 @@ import gwas
 # ---- A trick to decide on the environment:
 try:
     from wqflask.my_pylmm.pyLMM import chunks
-    from gn2 import uses
+    from gn2 import uses, set_progress_storage
 except ImportError:
     has_gn2=False
-    from standalone import uses
+    import standalone as handlers
+    from standalone import uses, set_progress_storage
     sys.stderr.write("WARNING: LMM standalone version missing the Genenetwork2 environment\n")
     pass
 
@@ -816,6 +817,7 @@ def gn2_redis(key,species,new_code=True):
     params = json.loads(json_params)
     
     tempdata = temp_data.TempData(params['temp_uuid'])
+    set_progress_storage(tempdata)
 
     print('kinship', np.array(params['kinship_matrix']))
     print('pheno', np.array(params['pheno_vector']))
