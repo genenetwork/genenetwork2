@@ -314,20 +314,18 @@ class MarkerRegression(object):
 
     def create_covariates(self, cross):
         ro.globalenv["the_cross"] = cross
-        ro.r('genotypes <- pull.geno(the_cross)')       # Get genotype matrix
-        userinputS = self.control.replace(" ", "").split(",")     # TODO sanitize user input !!! never trust a user
-        covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS) 
-        print(covariate_names)
-        ro.r('covariates <- genotypes[,c(' + covariate_names + ')]')         # get covariate matrix, 
-        print("COVARIATES:", ro.r["covariates"])
+        ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
+        userinputS = self.control.replace(" ", "").split(",")                 # TODO sanitize user input, Never Ever trust a user
+        covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
+        print("Marker names of selected covariates:", covariate_names)
+        ro.r('covariates <- genotypes[,c(' + covariate_names + ')]')          # Get the covariate matrix by using the marker name as index to the genotype file
+        print("R/qtl matrix of covariates:", ro.r["covariates"])
         return ro.r["covariates"]
 
     def sanitize_rqtl_phenotype(self):
         pheno_as_string = "c("
-        null_pos = []
         for i, val in enumerate(self.vals):
             if val == "x":
-                null_pos.append(i)
                 if i < (len(self.vals) - 1):
                     pheno_as_string +=  "NA,"
                 else:
@@ -342,7 +340,7 @@ class MarkerRegression(object):
 
     def process_rqtl_results(self, result):        # TODO: how to make this a one liner and not copy the stuff in a loop
         qtl_results = []
-        
+
         output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
         print("R/qtl scanone output:", output)
 
