@@ -65,7 +65,7 @@ except ImportError:
     sys.stderr.write("WARNING: LMM standalone version missing the Genenetwork2 environment\n")
     pass
 
-progress,info = uses('progress','info')
+progress,debug,info = uses('progress','debug','info')
 
 #np.seterr('raise')
 
