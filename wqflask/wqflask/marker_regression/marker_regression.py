@@ -65,6 +65,7 @@ class MarkerRegression(object):
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False
+
         self.maf = start_vars['maf'] # Minor allele frequency
         self.suggestive = ""
         self.significant = ""
@@ -81,6 +82,12 @@ class MarkerRegression(object):
             else:
                 self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
+
+            if start_vars['pair_scan'] == "true":
+                self.pair_scan = True
+            else:
+                self.pair_scan = False
+            print("pair scan:", self.pair_scan)
 
             print("DOING RQTL GENO")
             qtl_results = self.run_rqtl_geno()
@@ -277,6 +284,7 @@ class MarkerRegression(object):
 
         ## Get pointers to some R/qtl functions
         scanone         = ro.r["scanone"]               # Map the scanone function
+        scantwo         = ro.r["scantwo"]               # Map the scantwo function
         calc_genoprob   = ro.r["calc.genoprob"]         # Map the calc.genoprob function
         read_cross      = ro.r["read.cross"]            # Map the read.cross function
         write_cross     = ro.r["write.cross"]           # Map the write.cross function
@@ -300,20 +308,31 @@ class MarkerRegression(object):
 
         # Scan for QTLs
         covar = self.create_covariates(cross_object)
-        if(r_sum(covar)[0] > 0):
-            print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar)
-        else:
-            print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno")
 
-        if int(self.num_perm) > 0:                                                                      # Do permutation (if requested by user)
+        if self.pair_scan:
             if(r_sum(covar)[0] > 0):
-                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm))
+                print("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar)
             else:
-                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm))
+                print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno")
+ 
+            print("pair scan results:", result_data_frame)
 
-            self.process_rqtl_perm_results(perm_data_frame)                                             # Functions that sets the thresholds for the webinterface
+            return 0
+        else:
+            if(r_sum(covar)[0] > 0):
+                print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar)
+            else:
+                print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno")
 
-        return self.process_rqtl_results(result_data_frame)
+            if int(self.num_perm) > 0:                                                                      # Do permutation (if requested by user)
+                if(r_sum(covar)[0] > 0):
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm))
+                else:
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm))
+
+                self.process_rqtl_perm_results(perm_data_frame)                                             # Functions that sets the thresholds for the webinterface
+
+            return self.process_rqtl_results(result_data_frame)
 
     def add_phenotype(self, cross, pheno_as_string):
         ro.globalenv["the_cross"] = cross
