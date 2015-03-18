@@ -12,25 +12,31 @@ import logging
 # logging.basicConfig(level=logging.DEBUG)
 # np.set_printoptions()
 
-last_location = None
-last_progress = 0
+progress_location = None 
+progress_current  = None
+progress_prev_perc     = None
 
-def set_progress_storage(location):
-    global storage
-    storage = location
+def progress_default_func(location,count,total):
+    global progress_current
+    value = round(count*100.0/total)
+    progress_current = value
+    
+progress_func = progress_default_func
+
+def progress_set_func(func):
+    global progress_func
+    progress_func = func
     
 def progress(location, count, total):
-    global last_location
-    global last_progress
+    global progress_location
+    global progress_prev_perc
     
     perc = round(count*100.0/total)
-    # print(last_progress,";",perc)
-    if perc != last_progress and (location != last_location or perc > 98 or perc > last_progress + 5):
-        storage.store("percent_complete",perc)
+    if perc != progress_prev_perc and (location != progress_location or perc > 98 or perc > progress_prev_perc + 5):
+        progress_func(location, count, total)
         logger.info("Progress: %s %d%%" % (location,perc))
-        last_location = location
-        last_progress = perc
-
+        progress_location = location
+        progress_prev_perc = perc
     
 def mprint(msg,data):
     """
