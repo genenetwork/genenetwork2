@@ -244,7 +244,7 @@ class MarkerRegression(object):
         count, p_values = self.parse_rqtl_output(plink_output_filename)
 
     def geno_to_rqtl_function(self):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
-        print("Adding a function to the R environment")
+        print("Adding some custom helper functions to the R environment")
         ro.r("""
            trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
 
@@ -254,7 +254,7 @@ class MarkerRegression(object):
            }
 
            GENOtoCSVR <- function(genotypes = 'BXD.geno', out = 'cross.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
-             header = readLines(genotypes, 40)
+             header = readLines(genotypes, 40)                                                                                 # Assume a geno header is not longer than 40 lines
              toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
              
              genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))                # Get the genotype codes 
@@ -268,9 +268,9 @@ class MarkerRegression(object):
                               cbind(genodata[,c('Locus','Chr', 'cM')], genodata[, 5:ncol(genodata)]))                          # Genotypes
              write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
              require(qtl)
-             cross = read.cross(file=out, 'csvr', genotypes=genocodes)
-             if(type == 'riset') cross <- convert2riself(cross)
-             return(cross)                                                  # Load it using R/qtl read.cross  
+             cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                         # Load the created cross file using R/qtl read.cross  
+             if(type == 'riset') cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
+             return(cross)
           }
         """)
     
@@ -280,11 +280,11 @@ class MarkerRegression(object):
         self.geno_to_rqtl_function()
 
         ## Get pointers to some common R functions
-        r_library     = ro.r["library"]             # Map the library function
-        r_c           = ro.r["c"]                   # Map the c function
-        r_sum         = ro.r["sum"]                 # Map the sum function
+        r_library     = ro.r["library"]                 # Map the library function
+        r_c           = ro.r["c"]                       # Map the c function
+        r_sum         = ro.r["sum"]                     # Map the sum function
 
-        print(r_library("qtl"))                     # Load R/qtl
+        print(r_library("qtl"))                         # Load R/qtl
 
         ## Get pointers to some R/qtl functions
         scanone         = ro.r["scanone"]               # Map the scanone function
@@ -299,7 +299,7 @@ class MarkerRegression(object):
 
         print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
 
-        cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)  # TODO: Add the SEX if that is available
+        cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)                                  # TODO: Add the SEX if that is available
 
         if self.manhattan_plot:
             cross_object = calc_genoprob(cross_object)
@@ -314,7 +314,7 @@ class MarkerRegression(object):
         covar = self.create_covariates(cross_object)                                                    # Create the additive covariate matrix
 
         if self.pair_scan:
-            if(r_sum(covar)[0] > 0):
+            if(r_sum(covar)[0] > 0):                                                                    # If sum(covar) > 0 we have a covariate matrix
                 print("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar)
             else:
                 print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno")
@@ -328,13 +328,13 @@ class MarkerRegression(object):
             else:
                 print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=self.model, method=self.method)
 
-            if int(self.num_perm) > 0:                                                                      # Do permutation (if requested by user)
+            if int(self.num_perm) > 0:                                                                   # Do permutation (if requested by user)
                 if(r_sum(covar)[0] > 0):
                     perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm), model=self.model, method=self.method)
                 else:
                     perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm), model=self.model, method=self.method)
 
-                self.process_rqtl_perm_results(perm_data_frame)                                             # Functions that sets the thresholds for the webinterface
+                self.process_rqtl_perm_results(perm_data_frame)                                          # Functions that sets the thresholds for the webinterface
 
             return self.process_rqtl_results(result_data_frame)
 
@@ -346,14 +346,14 @@ class MarkerRegression(object):
     def create_covariates(self, cross):
         ro.globalenv["the_cross"] = cross
         ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
-        userinputS = self.control.replace(" ", "").split(",")                 # TODO sanitize user input, Never Ever trust a user
+        userinputS = self.control.replace(" ", "").split(",")                 # TODO: sanitize user input, Never Ever trust a user
         covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
         print("Marker names of selected covariates:", covariate_names)
         ro.r('covnames <- c(' + covariate_names + ')')
         ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
         ro.r('covnames <- covnames[covInGeno]')
         ro.r("cat('covnames (purged): ', covnames,'\n')")
-        ro.r('covariates <- genotypes[,covnames]')          # Get the covariate matrix by using the marker name as index to the genotype file
+        ro.r('covariates <- genotypes[,covnames]')                            # Get the covariate matrix by using the marker name as index to the genotype file
         print("R/qtl matrix of covariates:", ro.r["covariates"])
         return ro.r["covariates"]
 
