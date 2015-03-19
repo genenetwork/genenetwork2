@@ -287,6 +287,7 @@ def marker_regression_page():
         'control_marker',
         'control_marker_db',
         'pair_scan'
+        'pair_scan2'
         'mapmethod'
         'mapmodel'
     )
