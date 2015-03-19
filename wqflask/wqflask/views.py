@@ -286,9 +286,8 @@ def marker_regression_page():
         'manhattan_plot',
         'control_marker',
         'control_marker_db',
-        'pair_scan'
-        'pair_scan2'
-        'mapmethod'
+        'pair_scan',
+        'mapmethod',
         'mapmodel'
     )
 
