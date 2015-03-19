@@ -287,8 +287,8 @@ def marker_regression_page():
         'control_marker',
         'control_marker_db',
         'pair_scan'
-        'mapmethod'
-        'mapmodel'
+        'mapmethod_rqtl'
+        'mapmodel_rqtl'
     )
 
     start_vars = {}
