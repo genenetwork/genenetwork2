@@ -290,7 +290,7 @@ def marker_regression_page():
         'mapmethod',
         'mapmodel'
     )
-    print("Random Print too see if it is running")
+    print("Random Print too see if it is running:", wanted)
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
