@@ -287,8 +287,8 @@ def marker_regression_page():
         'control_marker',
         'control_marker_db',
         'pair_scan',
-        'mapmethod',
-        'mapmodel'
+        'mapmethod_rqtl_geno',
+        'mapmodel_rqtl_geno'
     )
     print("Random Print too see if it is running:", initial_start_vars)
     start_vars = {}
