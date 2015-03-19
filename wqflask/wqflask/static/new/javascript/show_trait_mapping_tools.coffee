@@ -140,8 +140,6 @@ $("#rqtl_geno_compute").click(() =>
         $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val())
         $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val())
         $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val())
-        $('input[name=mapmethod]').val($('input[name=mapmethod_rqtl_geno]').val())
-        $('input[name=mapmodel]').val($('input[name=mapmodel_rqtl_geno]').val())
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         
