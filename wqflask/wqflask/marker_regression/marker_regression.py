@@ -83,8 +83,8 @@ class MarkerRegression(object):
                 self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
             print("StartVars:", start_vars)
-            self.method = start_vars['method_rqtl']
-            self.model = start_vars['model_rqtl']
+            self.method = start_vars['mapmethod_rqtl']
+            self.model = start_vars['mapmodel_rqtl']
 
 
             if start_vars['pair_scan'] == "true":
