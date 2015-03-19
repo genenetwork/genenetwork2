@@ -275,10 +275,15 @@ class MarkerRegression(object):
 
         self.geno_to_rqtl_function()
 
+        #Danny @t Zachary, these two additional parameters should be be provided by the user, they can be drop down options in the interface
+
+        model = "normal"                                                                    # Model can be "normal","binary","2part","np"
+        method = "em"                                                                       # Method can be "em","imp","hk","ehk","mr","mr-imp","mr-argmax"
+
         ## Get pointers to some common R functions
         r_library     = ro.r["library"]             # Map the library function
         r_c           = ro.r["c"]                   # Map the c function
-        r_sum           = ro.r["sum"]             # Map the ncol function
+        r_sum         = ro.r["sum"]                 # Map the sum function
 
         print(r_library("qtl"))                     # Load R/qtl
 
@@ -307,7 +312,7 @@ class MarkerRegression(object):
         # for debug: write_cross(cross_object, "csvr", "test.csvr")
 
         # Scan for QTLs
-        covar = self.create_covariates(cross_object)
+        covar = self.create_covariates(cross_object)                                                    # Create the additive covariate matrix
 
         if self.pair_scan:
             if(r_sum(covar)[0] > 0):
@@ -315,20 +320,20 @@ class MarkerRegression(object):
             else:
                 print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno")
  
-            print("pair scan results:", result_data_frame)
+            print("Pair scan results:", result_data_frame)
 
             return 0
         else:
             if(r_sum(covar)[0] > 0):
-                print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar)
+                print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=model, method=method)
             else:
-                print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno")
+                print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=model, method= method)
 
             if int(self.num_perm) > 0:                                                                      # Do permutation (if requested by user)
                 if(r_sum(covar)[0] > 0):
-                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm))
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm), model=model, method= method)
                 else:
-                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm))
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm), model=model, method= method)
 
                 self.process_rqtl_perm_results(perm_data_frame)                                             # Functions that sets the thresholds for the webinterface
 
