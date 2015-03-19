@@ -80,19 +80,31 @@
                 </div>
                 
                 <div class="tab-pane" id="pylmm">
+                    
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-xs-1 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-xs-2 controls">
-                                <input name="num_perm_pylmm" value="0" type="text" class="form-control">
+                            <label for="mapping_permutations" class="col-xs-2 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                <input name="num_pylmm" value="2000" type="text" class="form-control">
                             </div>
                         </div>
                         <div id="permutations_alert" class="alert alert-error alert-warning" style="display:none;">
                             Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label class="col-xs-1 control-label">Manhattan Plot</label>
-                            <div style="margin-left:20px;" class="col-xs-4 controls">                      
+                            <label for="control_for" class="col-xs-2 control-label">Control&nbsp;for</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
+                                <input name="control_pylmm" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" />
+                                {% else %}
+                                <input name="control_pylmm" value="" type="text" />
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mapping_method_fields form-group">
+                            <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
+                            <div class="col-xs-12 controls">                      
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_pylmm" value="true">
                                     Yes
@@ -103,39 +115,30 @@
                                </label>
                             </div>
                         </div>
-                        <!--<div class="form-group" id="suggestive">
-                            <label for="suggestive_reaper" class="control-label" title="Control Locus">LOD score greater than: </label>
-                            <div class="controls">
-                                <input name="suggestive_reaper" type="text" value="0" class="form-control">
+                        <div class="form-group">
+                            <div style="padding-left:15px;" class="controls">
+                                <button id="pylmm_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
+                                    <i class="icon-ok-circle icon-white"></i> Open Mapping Tool
+                                </button>
                             </div>
-                        </div>-->
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="marker_regression_submit" class="col-xs-1 control-label"></label>
-                        <div style="margin-left:20px;" class="col-xs-4 controls">
-                            <button id="pylmm_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
-                                Compute
-                            </button>
                         </div>
                     </div>
-
                 </div>
                 <div class="tab-pane" id="rqtl_geno">
                     
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-xs-1 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-xs-2 controls">
-                                <input name="num_perm_rqtl_geno" value="500" type="text" class="form-control">
+                            <label for="mapping_permutations" class="col-xs-2 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                <input name="num_perm_rqtl_geno" value="2000" type="text" class="form-control">
                             </div>
                         </div>
                         <div id="permutations_alert" class="alert alert-error alert-warning" style="display:none;">
                             Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-xs-1 control-label">Control&nbsp;for</label>
-                            <div style="margin-left: 20px;" class="col-xs-2 controls">
+                            <label for="control_for" class="col-xs-2 control-label">Control&nbsp;for</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
                                 <input name="control_rqtl_geno" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" />
                                 {% else %}
@@ -144,8 +147,8 @@
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label class="col-xs-1 control-label">Manhattan&nbsp;Plot</label>
-                            <div style="margin-left:35px;" class="col-xs-4 controls">                      
+                            <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
+                            <div class="col-xs-12 controls">                      
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_rqtl" value="true">
                                     Yes
@@ -156,17 +159,27 @@
                                </label>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="marker_regression_submit" class="col-xs-1 control-label"></label>
-                        <div style="margin-left:20px;" class="col-xs-4 controls">
-                            <button id="rqtl_geno_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
-                                <i class="icon-ok-circle icon-white"></i> Compute
-                            </button>
+                        <div class="mapping_method_fields form-group">
+                            <label style="text-align:left;" class="col-xs-12 control-label">Pair Scan</label>
+                            <div class="col-xs-12 controls">                      
+                                <label class="radio-inline">
+                                    <input type="radio" name="pair_scan" value="true">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pair_scan" value="false" checked="">
+                                    No
+                               </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div style="padding-left:15px;" class="controls">
+                                <button id="rqtl_geno_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
+                                    <i class="icon-ok-circle icon-white"></i> Open Mapping Tool
+                                </button>
+                            </div>
                         </div>
                     </div>
-       
                 </div>
                 
                 {% if dataset.group.species == 'human' %}

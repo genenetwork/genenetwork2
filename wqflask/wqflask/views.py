@@ -285,7 +285,8 @@ def marker_regression_page():
         'maf',
         'manhattan_plot',
         'control_marker',
-        'control_marker_db'
+        'control_marker_db',
+        'pair_scan'
     )
 
     start_vars = {}
