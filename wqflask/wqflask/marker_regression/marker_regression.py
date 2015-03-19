@@ -82,7 +82,7 @@ class MarkerRegression(object):
             else:
                 self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
-
+            print("StartVars:", start_vars)
             self.method = start_vars['method']
             self.model = start_vars['model']
 

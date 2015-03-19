@@ -5,3 +5,4 @@
 *~
 web/new_genotypes/HSNIH.json
 *.cross
+*webqtlConfig.py
