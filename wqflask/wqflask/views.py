@@ -287,6 +287,8 @@ def marker_regression_page():
         'control_marker',
         'control_marker_db',
         'pair_scan'
+        'method'
+        'model'
     )
 
     start_vars = {}
