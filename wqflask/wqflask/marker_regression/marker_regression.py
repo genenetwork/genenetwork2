@@ -83,6 +83,10 @@ class MarkerRegression(object):
                 self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
 
+            self.method = start_vars['method_rqtl']
+            self.model = start_vars['model_rqtl']
+
+
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
             else:
@@ -275,11 +279,6 @@ class MarkerRegression(object):
 
         self.geno_to_rqtl_function()
 
-        #Danny @t Zachary, these two additional parameters should be be provided by the user, they can be drop down options in the interface
-
-        model = "normal"                                                                    # Model can be "normal","binary","2part","np"
-        method = "em"                                                                       # Method can be "em","imp","hk","ehk","mr","mr-imp","mr-argmax"
-
         ## Get pointers to some common R functions
         r_library     = ro.r["library"]             # Map the library function
         r_c           = ro.r["c"]                   # Map the c function
@@ -325,15 +324,15 @@ class MarkerRegression(object):
             return 0
         else:
             if(r_sum(covar)[0] > 0):
-                print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=model, method=method)
+                print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=self.model, method=self.method)
             else:
-                print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=model, method= method)
+                print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=self.model, method=self.method)
 
             if int(self.num_perm) > 0:                                                                      # Do permutation (if requested by user)
                 if(r_sum(covar)[0] > 0):
-                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm), model=model, method= method)
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm), model=self.model, method=self.method)
                 else:
-                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm), model=model, method= method)
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm), model=self.model, method=self.method)
 
                 self.process_rqtl_perm_results(perm_data_frame)                                             # Functions that sets the thresholds for the webinterface
 
