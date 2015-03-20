@@ -65,7 +65,7 @@ except ImportError:
     sys.stderr.write("WARNING: LMM standalone version missing the Genenetwork2 environment\n")
     pass
 
-progress,debug,info = uses('progress','debug','info')
+progress,mprint,debug,info = uses('progress','mprint','debug','info')
 
 #np.seterr('raise')
 
@@ -277,7 +277,7 @@ def run_other_old(pheno_vector,
     print("Running the original LMM engine in run_other (old)")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
-        kinship_matrix,genotype_matrix = calculate_kinship(genotype_matrix, tempdata)
+        kinship_matrix,genotype_matrix = calculate_kinship_old(genotype_matrix, tempdata)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -331,7 +331,7 @@ def run_other_new(pheno_vector,
     # G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
 
     with Bench("Calculate Kinship"):
-        K,G = calculate_kinship(G, tempdata)
+        K,G = calculate_kinship_new(G, tempdata)
     
     print("kinship_matrix: ", pf(K))
     print("kinship_matrix.shape: ", pf(K.shape))
@@ -393,9 +393,9 @@ def calculate_kinship_new(genotype_matrix, temp_data=None):
     Call the new kinship calculation where genotype_matrix contains
     inds (columns) by snps (rows).
     """
-    print("call genotype.normalize")
+    info("call genotype.normalize")
     G = np.apply_along_axis( genotype.normalize, axis=0, arr=genotype_matrix)
-    print("call calculate_kinship_new")
+    info("call calculate_kinship_new")
     return kinship(G.T,uses),G # G gets transposed, we'll turn this into an iterator (FIXME)
 
 def calculate_kinship_old(genotype_matrix, temp_data=None):
@@ -406,11 +406,11 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
     normalizes the resulting vectors and returns the RRM matrix.
     
     """
-    print("call calculate_kinship_old")
+    info("call calculate_kinship_old")
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
-    print("genotype 2D matrix n (inds) is:", n)
-    print("genotype 2D matrix m (snps) is:", m)
+    info("genotype 2D matrix n (inds) is: %d" % (n))
+    info("genotype 2D matrix m (snps) is: %d" % (m))
     assert m>n, "n should be larger than m (snps>inds)"
     keep = []
     for counter in range(m):
@@ -431,14 +431,13 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
             continue
         keep.append(counter)
         genotype_matrix[:,counter] = (genotype_matrix[:,counter] - values_mean) / np.sqrt(vr)
-        progress('kinship_old',counter,m)
+        progress('kinship_old normalize genotype',counter,m)
         
     genotype_matrix = genotype_matrix[:,keep]
-    print("After kinship (old) genotype_matrix: ", pf(genotype_matrix))
-    kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
-    return kinship_matrix,genotype_matrix
-
-calculate_kinship = calculate_kinship_new  # alias
+    mprint("After kinship (old) genotype_matrix: ", genotype_matrix)
+    # kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
+    # return kinship_matrix,genotype_matrix
+    return kinship_full(genotype_matrix.T,uses),genotype_matrix
 
 def GWAS(pheno_vector,
          genotype_matrix,
@@ -464,9 +463,9 @@ def GWAS(pheno_vector,
     refit - refit the variance component for each SNP
     
     """
-    if kinship_eigen_vals == None:
+    if kinship_eigen_vals is None:
         kinship_eigen_vals = []
-    if kinship_eigen_vectors == None:
+    if kinship_eigen_vectors is None:
         kinship_eigen_vectors = []
     
     n = genotype_matrix.shape[0]
@@ -570,7 +569,7 @@ class LMM:
        When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
        """
 
-       if X0 == None: X0 = np.ones(len(Y)).reshape(len(Y),1)
+       if X0 is None: X0 = np.ones(len(Y)).reshape(len(Y),1)
        self.verbose = verbose
  
        #x = Y != -9
@@ -663,7 +662,7 @@ class LMM:
            REML is computed by adding additional terms to the standard LL and can be computed by setting REML=True.
         """
  
-        if X == None:
+        if X is None:
             X = self.X0t
         elif stack: 
             self.X0t_stack[:,(self.q)] = matrixMult(self.Kve.T,X)[:,0]

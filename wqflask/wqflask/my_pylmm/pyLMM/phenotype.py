@@ -24,7 +24,7 @@ def remove_missing(y,g,verbose=False):
     Remove missing data from matrices, make sure the genotype data has
     individuals as rows
     """
-    assert(y!=None)
+    assert(y is not None)
     assert(y.shape[0] == g.shape[0])
 
     y1 = y

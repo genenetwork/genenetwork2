@@ -134,7 +134,7 @@ elif cmd == 'redis':
     # Emulating the redis setup of GN2
     G = g
     print "Original G",G.shape, "\n", G
-    if y != None and options.remove_missing_phenotypes:
+    if y is not None and options.remove_missing_phenotypes:
         gnt = np.array(g).T
         Y,g,keep = phenotype.remove_missing(y,g.T,options.verbose)
         G = g.T
@@ -165,7 +165,7 @@ elif cmd == 'redis':
         assert p1==0.0897, "p1=%f" % p1
         assert p2==0.0405, "p2=%f" % p2
     if options.geno == 'data/test8000.geno':
-        assert round(sum(ps)) == 4070
+        assert int(sum(ps)) == 4070
         assert len(ps) == 8000
 elif cmd == 'kinship':
     G = g

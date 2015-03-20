@@ -28,17 +28,21 @@ import time
 
 from optmatrix import matrix_initialize, matrixMultT
 
-def kinship_full(G):
+def kinship_full(G,uses):
    """
    Calculate the Kinship matrix using a full dot multiplication
    """
-   print G.shape
+   info,mprint = uses('info','mprint')
+   
+   # mprint("kinship_full G",G)
    m = G.shape[0] # snps
    n = G.shape[1] # inds
-   sys.stderr.write(str(m)+" SNPs\n")
-   assert m>n, "n should be larger than m (snps>inds)"
-   m = np.dot(G.T,G)
+   info("%d SNPs",m)
+   assert m>n, "n should be larger than m (%d snps > %d inds)" % (m,n)
+   # m = np.dot(G.T,G)
+   m = matrixMultT(G.T)
    m = m/G.shape[0]
+   # mprint("kinship_full K",m)
    return m
 
 def compute_W(job,G,n,snps,compute_size):
