@@ -65,6 +65,7 @@ class MarkerRegression(object):
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False
+
         self.maf = start_vars['maf'] # Minor allele frequency
         self.suggestive = ""
         self.significant = ""
@@ -76,8 +77,17 @@ class MarkerRegression(object):
         elif self.mapping_method == "rqtl_plink":
             qtl_results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
-            self.num_perm = start_vars['num_perm']
+            if start_vars['num_perm'] == "":
+                self.num_perm = 0
+            else:
+                self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
+
+            if start_vars['pair_scan'] == "true":
+                self.pair_scan = True
+            else:
+                self.pair_scan = False
+            print("pair scan:", self.pair_scan)
 
             print("DOING RQTL GENO")
             qtl_results = self.run_rqtl_geno()
@@ -232,18 +242,21 @@ class MarkerRegression(object):
     def geno_to_rqtl_function(self):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
         print("Adding a function to the R environment")
         ro.r("""
+           trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
+
            getGenoCode <- function(header, name = 'unk'){
              mat = which(unlist(lapply(header,function(x){ length(grep(paste('@',name,sep=''), x)) })) == 1)
-             return(strsplit(header[mat],'')[[1]][6])
+             return(trim(strsplit(header[mat],':')[[1]][2]))
            }
 
            GENOtoCSVR <- function(genotypes = 'BXD.geno', out = 'cross.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
              header = readLines(genotypes, 40)
              toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
+             
              genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))                # Get the genotype codes 
-
+             type <- getGenoCode(header, 'type')
              genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#')
-             cat('Genodata:', toskip, " ", dim(genodata), '\n')
+             cat('Genodata:', toskip, " ", dim(genodata), genocodes, '\n')
              if(is.null(phenotype)) phenotype <- runif((ncol(genodata)-4))                                                     # If there isn't a phenotype, generate a random one
              if(is.null(sex)) sex <- rep('m', (ncol(genodata)-4))                                                              # If there isn't a sex phenotype, treat all as males
              outCSVR <- rbind(c('Pheno', '', '', phenotype),                                                                   # Phenotype
@@ -251,7 +264,9 @@ class MarkerRegression(object):
                               cbind(genodata[,c('Locus','Chr', 'cM')], genodata[, 5:ncol(genodata)]))                          # Genotypes
              write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
              require(qtl)
-             return(read.cross(file=out, 'csvr', genotypes=genocodes))                                                  # Load it using R/qtl read.cross  
+             cross = read.cross(file=out, 'csvr', genotypes=genocodes)
+             if(type == 'riset') cross <- convert2riself(cross)
+             return(cross)                                                  # Load it using R/qtl read.cross  
           }
         """)
     
@@ -263,11 +278,13 @@ class MarkerRegression(object):
         ## Get pointers to some common R functions
         r_library     = ro.r["library"]             # Map the library function
         r_c           = ro.r["c"]                   # Map the c function
+        r_sum           = ro.r["sum"]             # Map the ncol function
 
         print(r_library("qtl"))                     # Load R/qtl
 
         ## Get pointers to some R/qtl functions
         scanone         = ro.r["scanone"]               # Map the scanone function
+        scantwo         = ro.r["scantwo"]               # Map the scantwo function
         calc_genoprob   = ro.r["calc.genoprob"]         # Map the calc.genoprob function
         read_cross      = ro.r["read.cross"]            # Map the read.cross function
         write_cross     = ro.r["write.cross"]           # Map the write.cross function
@@ -285,27 +302,37 @@ class MarkerRegression(object):
         else:
             cross_object = calc_genoprob(cross_object, step=1, stepwidth="max")
 
-        cross_object = self.add_phenotype(cross_object, self.sanitize_rqtl_phenotype())             # Add the phenotype
+        cross_object = self.add_phenotype(cross_object, self.sanitize_rqtl_phenotype())                 # Add the phenotype
 
         # for debug: write_cross(cross_object, "csvr", "test.csvr")
 
         # Scan for QTLs
-        if(self.control.replace(" ", "") != ""):
-            covar = self.create_covariates(cross_object)
-            result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar)
-        else:
-            result_data_frame = scanone(cross_object, pheno = "the_pheno")
+        covar = self.create_covariates(cross_object)
 
-        if int(self.num_perm) > 0:                                                                  # Do permutation (if requested by user)
-            if(self.control.replace(" ", "") != ""):
-                covar = self.create_covariates(cross_object)
-                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm=int(self.num_perm))
+        if self.pair_scan:
+            if(r_sum(covar)[0] > 0):
+                print("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar)
             else:
-                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm=int(self.num_perm))
+                print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno")
+ 
+            print("pair scan results:", result_data_frame)
 
-        self.process_rqtl_perm_results(perm_data_frame)                                             # Functions that sets the thresholds for the webinterface
+            return 0
+        else:
+            if(r_sum(covar)[0] > 0):
+                print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar)
+            else:
+                print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno")
 
-        return self.process_rqtl_results(result_data_frame)
+            if int(self.num_perm) > 0:                                                                      # Do permutation (if requested by user)
+                if(r_sum(covar)[0] > 0):
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm))
+                else:
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm))
+
+                self.process_rqtl_perm_results(perm_data_frame)                                             # Functions that sets the thresholds for the webinterface
+
+            return self.process_rqtl_results(result_data_frame)
 
     def add_phenotype(self, cross, pheno_as_string):
         ro.globalenv["the_cross"] = cross
@@ -318,7 +345,11 @@ class MarkerRegression(object):
         userinputS = self.control.replace(" ", "").split(",")                 # TODO sanitize user input, Never Ever trust a user
         covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
         print("Marker names of selected covariates:", covariate_names)
-        ro.r('covariates <- genotypes[,c(' + covariate_names + ')]')          # Get the covariate matrix by using the marker name as index to the genotype file
+        ro.r('covnames <- c(' + covariate_names + ')')
+        ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
+        ro.r('covnames <- covnames[covInGeno]')
+        ro.r("cat('covnames (purged): ', covnames,'\n')")
+        ro.r('covariates <- genotypes[,covnames]')          # Get the covariate matrix by using the marker name as index to the genotype file
         print("R/qtl matrix of covariates:", ro.r["covariates"])
         return ro.r["covariates"]
 
