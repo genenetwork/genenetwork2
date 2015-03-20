@@ -277,7 +277,7 @@ def run_other_old(pheno_vector,
     print("Running the original LMM engine in run_other (old)")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
-        kinship_matrix,genotype_matrix = calculate_kinship_old(genotype_matrix, tempdata)
+        kinship_matrix,genotype_matrix = calculate_kinship_new(genotype_matrix, tempdata)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))

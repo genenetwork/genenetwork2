@@ -184,7 +184,7 @@ elif cmd == 'kinship':
     gnt = None
 
     if options.test_kinship:
-        K = kinship_full(np.copy(G))
+        K = kinship_full(np.copy(G),uses)
         print "Genotype",G.shape, "\n", G
         print "first Kinship method",K.shape,"\n",K
         k1 = round(K[0][0],4)
