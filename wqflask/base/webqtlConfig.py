@@ -49,7 +49,7 @@ GENOMEBROWSER_URL="http://ucscbrowser.genenetwork.org/cgi-bin/hgTracks?clade=mam
 ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Lucene/Details?species=Mus_musculus;idx=Transcript;end=1;q=%s"
 
 
-GNROOT = "/home/zas1024/gene/" # Will remove this and dependent items later
+GNROOT = "/home/danny/GeneNetwork/" # Will remove this and dependent items later
 SECUREDIR = GNROOT + 'secure/'
 COMMON_LIB = GNROOT + 'support/admin'
 HTMLPATH = GNROOT + 'web/'
