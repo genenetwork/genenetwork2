@@ -73,12 +73,11 @@ def f_init(q):
 
 # Calculate the kinship matrix from G (SNPs as rows!), returns K
 #
-def kinship(G,options):
+def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
    numThreads = None
-   if options.numThreads:
-      numThreads = int(options.numThreads)
-   options.computeSize = 1000
-   matrix_initialize(options.useBLAS)
+   if numThreads:
+      numThreads = int(numThreads)
+   matrix_initialize(useBLAS)
    
    sys.stderr.write(str(G.shape)+"\n")
    n = G.shape[1] # inds
@@ -92,9 +91,9 @@ def kinship(G,options):
    p = mp.Pool(numThreads, f_init, [q])
    cpu_num = mp.cpu_count()
    print "CPU cores:",cpu_num
-   iterations = snps/options.computeSize+1
-   if options.testing:
-      iterations = 8
+   iterations = snps/computeSize+1
+   # if testing:
+   #    iterations = 8
    # jobs = range(0,8) # range(0,iterations)
 
    results = []
@@ -103,14 +102,14 @@ def kinship(G,options):
 
    completed = 0
    for job in range(iterations):
-      if options.verbose:
-         sys.stderr.write("Processing job %d first %d SNPs\n" % (job, ((job+1)*options.computeSize)))
-      W = compute_W(job,G,n,snps,options.computeSize)
+      if verbose:
+         sys.stderr.write("Processing job %d first %d SNPs\n" % (job, ((job+1)*computeSize)))
+      W = compute_W(job,G,n,snps,computeSize)
       if numThreads == 1:
          # Single-core
          compute_matrixMult(job,W,q)
          j,x = q.get()
-         if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+         if verbose: sys.stderr.write("Job "+str(j)+" finished\n")
          K_j = x
          # print j,K_j[:,0]
          K = K + K_j
@@ -122,7 +121,7 @@ def kinship(G,options):
             time.sleep(0.1)
             try: 
                j,x = q.get_nowait()
-               if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+               if verbose: sys.stderr.write("Job "+str(j)+" finished\n")
                K_j = x
                # print j,K_j[:,0]
                K = K + K_j
@@ -134,7 +133,7 @@ def kinship(G,options):
       # results contains the growing result set
       for job in range(len(results)-completed):
          j,x = q.get(True,15)
-         if options.verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+         if verbose: sys.stderr.write("Job "+str(j)+" finished\n")
          K_j = x
          # print j,K_j[:,0]
          K = K + K_j
@@ -143,13 +142,13 @@ def kinship(G,options):
    K = K / float(snps)
    
    # outFile = 'runtest.kin'
-   # if options.verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
+   # if verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
    # np.savetxt(outFile,K)
 
-   # if options.saveKvaKve:
-   #    if options.verbose: sys.stderr.write("Obtaining Eigendecomposition\n")
+   # if saveKvaKve:
+   #    if verbose: sys.stderr.write("Obtaining Eigendecomposition\n")
    #    Kva,Kve = linalg.eigh(K)
-   #    if options.verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
+   #    if verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
    #    np.savetxt(outFile+".kva",Kva)
    #    np.savetxt(outFile+".kve",Kve)
    return K      
