@@ -43,7 +43,7 @@ Redis = Redis()
 
 import sys
 sys.path.append("/home/zas1024/gene/wqflask/")
-sys.path.append("/home/danny/GeneNetwork/wqflask/")
+sys.path.append("/home/danny/GeneNetwork/wqflask/wqflask/my_pylmm/pyLMM/")
 print("sys.path2:", sys.path)
 
 has_gn2=True
