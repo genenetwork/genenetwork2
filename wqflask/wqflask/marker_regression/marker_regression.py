@@ -69,7 +69,7 @@ class MarkerRegression(object):
         self.maf = start_vars['maf'] # Minor allele frequency
         self.suggestive = ""
         self.significant = ""
-        #print("self.maf:", self.maf)
+        self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
@@ -86,11 +86,8 @@ class MarkerRegression(object):
             self.method = start_vars['mapmethod_rqtl_geno']
             self.model = start_vars['mapmodel_rqtl_geno']
 
-
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
-            else:
-                self.pair_scan = False
             print("pair scan:", self.pair_scan)
 
             print("DOING RQTL GENO")
@@ -283,6 +280,10 @@ class MarkerRegression(object):
         r_library     = ro.r["library"]                 # Map the library function
         r_c           = ro.r["c"]                       # Map the c function
         r_sum         = ro.r["sum"]                     # Map the sum function
+        plot          = ro.r["plot"]                    # Map the plot function
+        postscript    = ro.r["postscript"]              # Map the postscript function
+        png           = ro.r["png"]              # Map the png function
+        dev_off       = ro.r["dev.off"]                 # Map the device off function
 
         print(r_library("qtl"))                         # Load R/qtl
 
@@ -315,13 +316,19 @@ class MarkerRegression(object):
 
         if self.pair_scan:
             if(r_sum(covar)[0] > 0):                                                                    # If sum(covar) > 0 we have a covariate matrix
-                print("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar)
+                print("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar, model=self.model, method=self.method, n_cluster = 16)
             else:
-                print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno")
+                print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=self.model, method=self.method, n_cluster = 16)
  
             print("Pair scan results:", result_data_frame)
+            
+            self.pair_scan_filename = webqtlUtil.genRandStr("scantwo_")
+            png(file=webqtlConfig.IMGDIR+self.pair_scan_filename+".png")
+            plot(result_data_frame)
+            dev_off()
+            
+            return self.process_pair_scan_results(result_data_frame)
 
-            return 0
         else:
             if(r_sum(covar)[0] > 0):
                 print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=self.model, method=self.method)
@@ -372,6 +379,11 @@ class MarkerRegression(object):
                     pheno_as_string += str(val)
         pheno_as_string += ")"
         return pheno_as_string
+
+    def process_pair_scan_results(self, result):
+        results = []
+
+        return results
 
     def process_rqtl_results(self, result):        # TODO: how to make this a one liner and not copy the stuff in a loop
         qtl_results = []
