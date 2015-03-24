@@ -1,0 +1,7 @@
+tr .outlier {
+    background-color: #ffff99;
+}
+
+#bar_chart_container {
+    overflow-x:scroll;
+}
