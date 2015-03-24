@@ -49,13 +49,13 @@ GENOMEBROWSER_URL="http://ucscbrowser.genenetwork.org/cgi-bin/hgTracks?clade=mam
 ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Lucene/Details?species=Mus_musculus;idx=Transcript;end=1;q=%s"
 
 
-GNROOT = "/home/danny/GeneNetwork/" # Will remove this and dependent items later
+GNROOT = "/home/zas1024/gene/" # Will remove this and dependent items later
 SECUREDIR = GNROOT + 'secure/'
 COMMON_LIB = GNROOT + 'support/admin'
 HTMLPATH = GNROOT + 'web/'
 PYLMM_PATH = '/home/zas1024/plink/'
 SNP_PATH = '/home/zas1024/snps/' 
-IMGDIR = HTMLPATH +'image/'
+IMGDIR = GNROOT + '/wqflask/wqflask/images/'
 IMAGESPATH = HTMLPATH + 'images/'
 UPLOADPATH = IMAGESPATH + 'upload/'
 TMPDIR = '/tmp/'
