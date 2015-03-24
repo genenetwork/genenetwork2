@@ -140,10 +140,51 @@
                             <label for="control_for" class="col-xs-2 control-label">Control&nbsp;for</label>
                             <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
-                                <input name="control_rqtl_geno" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" />
+                                <input name="control_rqtl_geno" value="{{ nearest_marker1+","+nearest_marker2 }}" type="text" style="width: 160px;" class="form-control" />
                                 {% else %}
-                                <input name="control_rqtl_geno" value="" type="text" />
+                                <input name="control_rqtl_geno" value="" type="text" class="form-control" />
                                 {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapmethod_rqtl_geno" style="text-align:left;" class="col-xs-2 control-label">Method</label>
+                            <div class="col-xs-4 controls">
+                              <select name="mapmethod_rqtl_geno" class="form-control">
+                                <option value="em">em</option>
+                                <option value="imp">imp</option>
+                                <option value="hk">hk</option>
+                                <option value="ehk">ehk</option>
+                                <option value="mr">mr</option>
+                                <option value="mr-imp">mr-imp</option>
+                                <option value="mr-argmax">mr-argmax</option>
+                              </select>
+                            </div>
+                        </div>
+
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapmodel_rqtl_geno" style="text-align:left;" class="col-xs-2 control-label">Model</label>
+                            <div class="col-xs-4 controls">
+                              <select name="mapmodel_rqtl_geno" class="form-control">
+                                <option value="normal">normal</option>
+                                <option value="binary">binary</option>
+                                <option value="2part">2part</option>
+                                <option value="np">np</option>
+                              </select>
+                            </div>
+                        </div>
+
+                        <div class="mapping_method_fields form-group">
+                            <label style="text-align:left;" class="col-xs-12 control-label">Pair Scan</label>
+                            <div class="col-xs-12 controls">                      
+                                <label class="radio-inline">
+                                    <input type="radio" name="pair_scan" value="true">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pair_scan" value="false" checked="">
+                                    No
+                               </label>
                             </div>
                         </div>
 
@@ -161,42 +202,6 @@
                             </div>
                         </div>
 
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-12 control-label">Method</label>
-                            <select name="mapmethod_rqtl_geno">
-                              <option value="em">em</option>
-                              <option value="imp">imp</option>
-                              <option value="hk">hk</option>
-                              <option value="ehk">ehk</option>
-                              <option value="mr">mr</option>
-                              <option value="mr-imp">mr-imp</option>
-                              <option value="mr-argmax">mr-argmax</option>
-                            </select>
-                        </div>
-
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-12 control-label">Model</label>
-                            <select name="mapmodel_rqtl_geno">
-                              <option value="normal">normal</option>
-                              <option value="binary">binary</option>
-                              <option value="2part">2part</option>
-                              <option value="np">np</option>
-                            </select>
-                        </div>
-
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-12 control-label">Pair Scan</label>
-                            <div class="col-xs-12 controls">                      
-                                <label class="radio-inline">
-                                    <input type="radio" name="pair_scan" value="true">
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="pair_scan" value="false" checked="">
-                                    No
-                               </label>
-                            </div>
-                        </div>
                         <div class="form-group">
                             <div style="padding-left:15px;" class="controls">
                                 <button id="rqtl_geno_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
