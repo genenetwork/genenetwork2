@@ -82,6 +82,14 @@ def index_page():
     #print("[orange] ds:", ds.datasets)
     return render_template("index_page.html")
 
+
+@app.route("/tmp")
+def tmp_page():
+    print("In tmp_page")
+    initial_start_vars = request.form
+    print("initial_start_vars:", initial_start_vars)
+
+
 @app.route("/data_sharing")
 def data_sharing_page():
     print("In data_sharing")
@@ -296,7 +304,7 @@ def marker_regression_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v3"
+    version = "v4"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -335,7 +343,10 @@ def marker_regression_page():
         Redis.expire(key, 1*60)
 
     with Bench("Rendering template"):
-        rendered_template = render_template("marker_regression.html", **result)
+        if result['pair_scan'] == True:
+            rendered_template = render_template("pair_scan_results.html", **result)
+        else:
+            rendered_template = render_template("marker_regression.html", **result)
 
     return rendered_template
 
