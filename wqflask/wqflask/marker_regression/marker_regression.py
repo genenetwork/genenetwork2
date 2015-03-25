@@ -321,9 +321,9 @@ class MarkerRegression(object):
                 print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=self.model, method=self.method, n_cluster = 16)
  
             print("Pair scan results:", result_data_frame)
-            
-            self.pair_scan_filename = webqtlUtil.genRandStr("scantwo_")
-            png(file=webqtlConfig.IMGDIR+self.pair_scan_filename+".png")
+
+            self.pair_scan_filename = webqtlUtil.genRandStr("scantwo_") + ".png"
+            png(file=webqtlConfig.TMPDIR+self.pair_scan_filename)
             plot(result_data_frame)
             dev_off()
             
