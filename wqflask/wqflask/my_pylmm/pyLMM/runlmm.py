@@ -106,6 +106,8 @@ if options.geno:
 if cmd == 'redis_new':
     # The main difference between redis_new and redis is that missing
     # phenotypes are handled by the first
+    if options.remove_missing_phenotypes:
+        raise Exception('Can not use --remove-missing-phenotypes with LMM2')
     Y = y
     G = g
     print "Original G",G.shape, "\n", G

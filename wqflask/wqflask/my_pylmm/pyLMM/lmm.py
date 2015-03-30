@@ -414,6 +414,7 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
     info("genotype 2D matrix m (snps) is: %d" % (m))
     assert m>n, "n should be larger than m (snps>inds)"
     keep = []
+    mprint("G (before old normalize)",genotype_matrix)
     for counter in range(m):
         #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
         #Checks if any values in column are not numbers
@@ -435,10 +436,10 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
         progress('kinship_old normalize genotype',counter,m)
         
     genotype_matrix = genotype_matrix[:,keep]
-    mprint("After kinship (old) genotype_matrix: ", genotype_matrix)
-    # kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
-    # return kinship_matrix,genotype_matrix
-    return kinship_full(genotype_matrix.T,uses),genotype_matrix
+    mprint("G (after old normalize)",genotype_matrix.T)
+    kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
+    return kinship_matrix,genotype_matrix
+    # return kinship_full(genotype_matrix.T,uses),genotype_matrix
 
 def GWAS(pheno_vector,
          genotype_matrix,
