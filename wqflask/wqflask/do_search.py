@@ -382,10 +382,19 @@ class RifSearch(MrnaAssaySearch):
 
     DoSearch.search_types['RIF'] = "RifSearch"
 
-    def run(self):
+    def get_where_clause(self):
         where_clause = """( %s.symbol = GeneRIF_BASIC.symbol and
             MATCH (GeneRIF_BASIC.comment)
             AGAINST ('+%s' IN BOOLEAN MODE)) """ % (self.dataset.type, self.search_term[0])
+
+        return where_clause
+
+    def run(self):
+        #where_clause = """( %s.symbol = GeneRIF_BASIC.symbol and
+        #    MATCH (GeneRIF_BASIC.comment)
+        #    AGAINST ('+%s' IN BOOLEAN MODE)) """ % (self.dataset.type, self.search_term[0])
+
+        where_clause = self.get_where_clause()
 
         from_clause = ", GeneRIF_BASIC "
         query = self.compile_final_query(from_clause, where_clause)

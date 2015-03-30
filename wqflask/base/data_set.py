@@ -79,7 +79,7 @@ class Dataset_Types(object):
     
     def __init__(self):
         self.datasets = {}
-        file_name = "/home/zas1024/gene/wqflask/wqflask/static/new/javascript/dataset_menu_structure.json"
+        file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
         with open(file_name, 'r') as fh:
             data = json.load(fh)
         

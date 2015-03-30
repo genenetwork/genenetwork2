@@ -1310,6 +1310,9 @@ def get_nearest_marker(this_trait, this_db):
     result = g.db.execute(query).fetchall()
     print("result:", result)
 
-    return result[0][0], result[1][0]
+    if result == []:
+        return "", ""
+    else:
+        return result[0][0], result[1][0]
     
     

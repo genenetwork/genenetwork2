@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function
 
 import sys
@@ -20,6 +21,8 @@ import redis
 Redis = redis.StrictRedis()
 
 import flask
+import base64
+import array
 import sqlalchemy
 #import config
 
@@ -81,6 +84,21 @@ def index_page():
     #    Redis.expire(key, 2*60)
     #print("[orange] ds:", ds.datasets)
     return render_template("index_page.html")
+
+
+@app.route("/tmp/<img_path>")
+def tmp_page(img_path):
+    print("In tmp_page")
+    print("img_path:", img_path)
+    initial_start_vars = request.form
+    print("initial_start_vars:", initial_start_vars)
+    imgfile = open('/home/zas1024/tmp/' + img_path, 'rb')
+    imgdata = imgfile.read()
+    imgB64 = imgdata.encode("base64")
+    bytesarray = array.array('B', imgB64)
+    return render_template("show_image.html",
+                            img_base64 = bytesarray )
+
 
 @app.route("/data_sharing")
 def data_sharing_page():
@@ -285,15 +303,18 @@ def marker_regression_page():
         'maf',
         'manhattan_plot',
         'control_marker',
-        'control_marker_db'
+        'control_marker_db',
+        'pair_scan',
+        'mapmethod_rqtl_geno',
+        'mapmodel_rqtl_geno'
     )
-
+    print("Random Print too see if it is running:", initial_start_vars)
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v3"
+    version = "v4"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -332,7 +353,19 @@ def marker_regression_page():
         Redis.expire(key, 1*60)
 
     with Bench("Rendering template"):
-        rendered_template = render_template("marker_regression.html", **result)
+        if result['pair_scan'] == True:
+            img_path = result['pair_scan_filename']
+            print("img_path:", img_path)
+            initial_start_vars = request.form
+            print("initial_start_vars:", initial_start_vars)
+            imgfile = open('/home/zas1024/tmp/' + img_path, 'rb')
+            imgdata = imgfile.read()
+            imgB64 = imgdata.encode("base64")
+            bytesarray = array.array('B', imgB64)
+            result['pair_scan_array'] = bytesarray
+            rendered_template = render_template("pair_scan_results.html", **result)
+        else:
+            rendered_template = render_template("marker_regression.html", **result)
 
     return rendered_template
 

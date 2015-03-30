@@ -35,14 +35,8 @@ import os
 import reaper
 
 import webqtlConfig
-import cookieData
-import sessionData
-from cgiData import cgiData
 from webqtlCaseData import webqtlCaseData
 from utility import webqtlUtil
-
-
-
 
 class webqtlFormData(object):
     'Represents data from a WebQTL form page, needed to generate the next page'

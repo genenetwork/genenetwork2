@@ -43,6 +43,7 @@ Redis = Redis()
 
 import sys
 sys.path.append("/home/zas1024/gene/wqflask/")
+sys.path.append("/home/danny/GeneNetwork/wqflask/wqflask/my_pylmm/pyLMM/")
 print("sys.path2:", sys.path)
 
 has_gn2=True
@@ -817,12 +818,11 @@ def gn2_redis(key,species,new_code=True):
         debug("Updating REDIS percent_complete=%d" % (round(i*100.0/total)))
     progress_set_func(update_tempdata)
 
-    print('kinship', np.array(params['kinship_matrix']))
+    
     print('pheno', np.array(params['pheno_vector']))
-    geno = np.array(params['genotype_matrix'])
-    print('geno', geno.shape, geno)
     
     if species == "human" :
+        print('kinship', np.array(params['kinship_matrix']))
         ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
                   covariate_matrix = np.array(params['covariate_matrix']),
                   plink_input_file = params['input_file_name'],
@@ -830,6 +830,9 @@ def gn2_redis(key,species,new_code=True):
                   refit = params['refit'],
                   tempdata = tempdata)
     else:
+        geno = np.array(params['genotype_matrix'])
+        print('geno', geno.shape, geno)
+
         if new_code:
             ps, ts = run_other_new(pheno_vector = np.array(params['pheno_vector']),
                                genotype_matrix = geno,
