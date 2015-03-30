@@ -37,8 +37,6 @@ from dbFunction import webqtlDatabaseFunction
 
 from utility import formatting
 
-#from base.JinjaPage import JinjaEnv, JinjaPage
-
 #class QuickSearchResult(object):
     #def __init__(self, key, result_fields):
     #    self.key = key

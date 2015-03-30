@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Pair Scan{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
+{% endblock %}
+
+{% block content %} <!-- Start of body -->
+
+    {{ header("Mapping",
+        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
+
+    <div class="container">
+        <div>
+            <h2>
+                Pair Scan
+            </h2>
+        </div>
+        <div id="chart_container">
+            <div class="pair_scan_figure" id="pair_scan_figure">
+                <a href="/tmp/{{ pair_scan_filename }}">
+                    <img alt="Embedded Image" src="data:image/png;base64,
+                    {% for elem in pair_scan_array -%}
+                    {% print("%c"|format(elem)) %}
+                    {%- endfor %}
+                    " /></a>
+            </div>
+        </div>
+        <div>
+            <h2>
+                Results
+            </h2>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}  
+
+    <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+
+{% endblock %}
