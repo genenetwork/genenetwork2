@@ -36,5 +36,5 @@ def remove_missing(y,g,verbose=False):
             sys.stderr.write("runlmm.py: Cleaning the phenotype vector and genotype matrix by removing %d individuals...\n" % (v.sum()))
         y1 = y[keep]
         g1 = g[keep,:]
-    return y1,g1
+    return y1,g1,keep
 
