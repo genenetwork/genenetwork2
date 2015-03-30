@@ -85,7 +85,7 @@ def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
       print("genotype matrix n is:", n)
       print("genotype matrix m is:", m)
 
-      if X0 == None: 
+      if X0 is None: 
          X0 = np.ones((n,1))
       
       # Remove missing values in Y and adjust associated parameters
@@ -173,7 +173,7 @@ class LMM2:
       When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
       """
 
-      if X0 == None: 
+      if X0 is None: 
 	 X0 = np.ones(len(Y)).reshape(len(Y),1)
       self.verbose = verbose
 
@@ -260,7 +260,7 @@ class LMM2:
 	 REML is computed by adding additional terms to the standard LL and can be computed by setting REML=True.
       """
 
-      if X == None: X = self.X0t
+      if X is None: X = self.X0t
       elif stack: 
 	 self.X0t_stack[:,(self.q)] = matrixMult(self.Kve.T,X)[:,0]
 	 X = self.X0t_stack
@@ -316,7 +316,7 @@ class LMM2:
 	 Given this optimum, the function computes the LL and associated ML solutions.
       """
       
-      if X == None: X = self.X0t
+      if X is None: X = self.X0t
       else: 
 	 #X = np.hstack([self.X0t,matrixMult(self.Kve.T, X)])
 	 self.X0t_stack[:,(self.q)] = matrixMult(self.Kve.T,X)[:,0]
@@ -340,7 +340,7 @@ class LMM2:
    def association(self,X,h=None,stack=True,REML=True,returnBeta=False):
       """
 	Calculates association statitics for the SNPs encoded in the vector X of size n.
-	If h == None, the optimal h stored in optH is used.
+	If h is None, the optimal h stored in optH is used.
 
       """
       if False:
@@ -358,7 +358,7 @@ class LMM2:
          self.X0t_stack[:,(self.q)] = m
 	 X = self.X0t_stack
 	 
-      if h == None: h = self.optH
+      if h is None: h = self.optH
 
       L,beta,sigma,betaVAR = self.LL(h,X,stack=False,REML=REML)
       q  = len(beta)
