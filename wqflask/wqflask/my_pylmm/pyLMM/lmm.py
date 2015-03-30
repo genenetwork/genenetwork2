@@ -814,6 +814,9 @@ def gn2_redis(key,species,new_code=True):
     
     tempdata = temp_data.TempData(params['temp_uuid'])
     def update_tempdata(loc,i,total):
+        """
+        This is the single method that updates Redis for percentage complete!
+        """
         tempdata.store("percent_complete",round(i*100.0/total))
         debug("Updating REDIS percent_complete=%d" % (round(i*100.0/total)))
     progress_set_func(update_tempdata)
