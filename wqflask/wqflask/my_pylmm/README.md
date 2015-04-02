@@ -1,11 +1,15 @@
 # Genenetwork2/pylmm RELEASE NOTES 
 
-## 0.50-gn2-pre2
+## 0.50-gn2 (April 2nd, 2015)
+
+- Replaced the GN2 genotype normalization
+
+## 0.50-gn2-pre2 (March 18, 2015)
 
 - Added abstractions for progress meter and info/debug statements;
   Redis perc_complete is now updated through a lambda
 
-## 0.50-gn2-pre1 (release)
+## 0.50-gn2-pre1 (release, March 17, 2015)
 
 - This is the first test release of multi-core pylmm into GN2. Both
   kinship calculation and GWAS have been made multi-threaded by
