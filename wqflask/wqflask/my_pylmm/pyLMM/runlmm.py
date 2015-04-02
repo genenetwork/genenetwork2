@@ -104,10 +104,17 @@ if options.geno and cmd != 'iterator':
     print g.shape
 
 if cmd == 'iterator':
-    print "ITERATE over SNPs"
-    def pretty(snpid,values):
-        print snpid,values
-    print tsvreader.geno_iter(options.geno,pretty)
+    def snp_iterator(func):
+        tsvreader.geno_iter(options.geno,func)
+        
+    if options.remove_missing_phenotypes:
+        raise Exception('Can not use --remove-missing-phenotypes with LMM2')
+    ps, ts = gn2_iter_redis('testrun_iter','other',k,y,snp_iterator)
+    print np.array(ps)
+    print len(ps),sum(ps)
+    # Test results
+    p1 = round(ps[0],4)
+    p2 = round(ps[-1],4)
 elif cmd == 'redis_new':
     # The main difference between redis_new and redis is that missing
     # phenotypes are handled by the first
