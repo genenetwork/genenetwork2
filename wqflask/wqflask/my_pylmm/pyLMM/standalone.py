@@ -57,6 +57,10 @@ def mprint(msg,data):
               m[-2][0:3]," ... ",m[-2][-3:],"\n ",
               m[-1][0:3]," ... ",m[-1][-3:],"]")
 
+def fatal(msg):
+    logger.critical(msg)
+    raise Exception(msg)
+
 def callbacks():
     return dict(
         write = sys.stdout.write,
@@ -66,6 +70,7 @@ def callbacks():
         warning = logger.warning,
         error = logger.error,
         critical = logger.critical,
+        fatal = fatal,
         progress = progress,
         mprint = mprint
     )

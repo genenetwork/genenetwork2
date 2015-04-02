@@ -45,15 +45,20 @@ def mprint(msg,data):
     m = np.array(data)
     print(msg,m.shape,"=\n",m)
 
+def fatal(msg):
+    logger.critical(msg)
+    raise Exception(msg)
+
 def callbacks():
     return dict(
         write = sys.stdout.write,
         writeln = print,
-        debug = logging.debug,
-        info = logging.info,
-        warning = logging.warning,
-        error = logging.error,
-        critical = logging.critical,
+        debug = logger.debug,
+        info = logger.info,
+        warning = logger.warning,
+        error = logger.error,
+        critical = logger.critical,
+        fatal = fatal,
         progress = progress,
         mprint = mprint
     )

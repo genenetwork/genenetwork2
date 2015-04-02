@@ -66,7 +66,7 @@ except ImportError:
     sys.stderr.write("WARNING: LMM standalone version missing the Genenetwork2 environment\n")
     pass
 
-progress,mprint,debug,info = uses('progress','mprint','debug','info')
+progress,mprint,debug,info,fatal = uses('progress','mprint','debug','info','fatal')
 
 #np.seterr('raise')
 
@@ -278,7 +278,7 @@ def run_other_old(pheno_vector,
     print("Running the original LMM engine in run_other (old)")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
-        kinship_matrix,genotype_matrix = calculate_kinship_old(genotype_matrix, tempdata)
+        kinship_matrix,genotype_matrix = calculate_kinship_new(genotype_matrix, tempdata)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -408,6 +408,7 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
     
     """
     info("call calculate_kinship_old")
+    fatal("THE FUNCTION calculate_kinship_old IS OBSOLETE, use calculate_kinship_new instead - see Genotype Normalization Problem on Pjotr's blog")
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
     info("genotype 2D matrix n (inds) is: %d" % (n))
