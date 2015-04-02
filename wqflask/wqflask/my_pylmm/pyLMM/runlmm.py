@@ -99,11 +99,16 @@ if options.pheno:
     y = tsvreader.pheno(options.pheno)
     print y.shape
 
-if options.geno:
+if options.geno and cmd != 'iterator':
     g = tsvreader.geno(options.geno)
     print g.shape
 
-if cmd == 'redis_new':
+if cmd == 'iterator':
+    print "ITERATE over SNPs"
+    def pretty(snpid,values):
+        print snpid,values
+    print tsvreader.geno_iter(options.geno,pretty)
+elif cmd == 'redis_new':
     # The main difference between redis_new and redis is that missing
     # phenotypes are handled by the first
     if options.remove_missing_phenotypes:
