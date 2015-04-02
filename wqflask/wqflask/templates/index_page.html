@@ -29,19 +29,19 @@
 
                                 <div class="form-group">
                                     <label for="species" class="col-xs-1 control-label" style="width: 65px !important;">Species:</label>
-                                    <div class="col-xs-10 controls">
+                                    <div class="col-xs-10 controls input-append" style="padding-right: 0px;">
                                         <div class="col-xs-8">
                                           <select name="species" id="species" class="form-control selectpicker span3" style="width: 280px !important;"></select>
                                         </div>
                                         <div class="col-xs-4">
-                                          <input id="make_default" class="btn btn-default form-control" value="Make Default">
+                                          <input id="make_default" class="btn btn-primary form-control" value="Make Default">
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="group" class="col-xs-1 control-label" style="width: 65px !important;">Group:</label>
-                                    <div class="col-xs-4 controls input-append">
+                                    <div class="col-xs-10 controls input-append">
                                         <div class="col-xs-8">
                                           <select name="group" id="group" class="form-control selectpicker span3" style="width: 280px !important;"></select>
                                           <i class="icon-question-sign"></i>
@@ -51,7 +51,7 @@
 
                                 <div class="form-group">
                                     <label for="tissue" class="col-xs-1 control-label" style="width: 65px !important;">Type:</label>
-                                    <div class="col-xs-4 controls">
+                                    <div class="col-xs-10 controls">
                                         <div class="col-xs-8">
                                           <select name="type" id="type" class="form-control selectpicker span3" style="width: 280px !important;"></select>
                                         </div>
@@ -60,7 +60,7 @@
 
                                 <div class="form-group">
                                     <label for="dataset" class="col-xs-1 control-label" style="width: 65px !important;">Dataset:</label>
-                                    <div class="col-xs-4 controls input-append">
+                                    <div class="col-xs-10 controls input-append">
                                         <div class="col-xs-8">
                                           <select name="dataset" id="dataset" class="form-control selectpicker span5" style="width: 450px !important;"></select>
                                           <i class="icon-question-sign"></i>
@@ -86,15 +86,15 @@
 
                                 <!--  GET ANY HELP   -->
                                 <div class="form-group">
-                                    <label for="tfor" class="col-xs-1 control-label" style="width: 65px !important;"></label>
+                                    <label for="btsearch" class="col-xs-1 control-label" style="width: 65px !important;"></label>
                                     <div class="col-xs-10 controls">
-                                        <div class="col-xs-10">
-                                          <p>Enter terms, genes, ID numbers in the
-                                             <b>Search</b> field<br>
-                                             Use <b>*</b> or <b>?</b> wildcards (Cyp*a?,
-                                             synap*)<br>
-                                             Use <b>quotes</b> for terms such as <i>"tyrosine
-                                             kinase"</i></p>
+                                        <div class="col-xs-2 controls" style="width: 100px !important;">
+                                            <input id="btsearch" type="submit" class="btn btn-primary form-control" value="Search">
+                                        </div>                                    
+                                        <div class="col-xs-9 controls">
+                                            Enter terms, genes, ID numbers in the <b>Search</b> field
+                                            Use <b>*</b> or <b>?</b> wildcards (Cyp*a?, synap*)
+                                            Use <b>quotes</b> for terms such as <i>"tyrosine kinase"</i>
                                         </div>
                                     </div>
                                 </div>
@@ -103,10 +103,6 @@
                                 <!--  SEARCH, MAKE DEFAULT -->
 
                                 <div class="form-group">
-
-                                    <div class="col-xs-3 controls" style="width: 100px !important;">
-                                        <input id="btsearch" type="submit" class="btn btn-primary form-control" value="Search">
-                                    </div>
                                 </div>
 
                                 <input type="hidden" name="FormID" value="searchResult" class="form-control">
@@ -159,7 +155,7 @@
                       </ul>
                 </section>
             </div>
-            <div style="padding-left:120px" class="col-xs-6" style="width: 600px !important;">
+            <div style="padding-left:120px" class="col-xs-4" style="width: 600px !important;">
                 <!--
                 <section id="tour-info">
                     <div class="page-header">
@@ -207,32 +203,16 @@
 
                         <li>GeneNetwork Source Code at <a href="https://github.com/genenetwork/genenetwork" target="_blank">GitHub</a></li>
                     </ul>
-                    <h3>Mirror and development sites</h3>
+                    <h3>GN1 Mirror and development sites</h3>
+
                     <ul>
-                        <li><a href="http://www.genenetwork.org/" target="_blank">
-                        Main GN site</a> at UTHSC</li>
-
-                        <li><a href="http://www.genenetwork.waimr.uwa.edu.au/" target="_blank">
-                        Australia</a> at the UWA</li>
-
-                        <li><a href="http://gn.genetics.ucla.edu/" target="_blank">
-                        California</a> at UCLA</li>
-
-                        <li><a href="http://genenetwork.helmholtz-hzi.de/" target="_blank">
-                        Germany</a> at the HZI</li>
-
-                        <li><a href="https://genenetwork.hubrecht.eu/" target="_blank">
-                        Netherlands</a> at the Hubrecht
-                        (development)</li>
-
-                        <li><a href="http://genenetwork.memphis.edu/" target="_blank">
-                        Memphis</a> at the U of M</li>
-
-                        <li><a href="http://webqtl.bic.nus.edu.sg/" target="_blank">
-                        Singapore</a> at the NUS</li>
-
-                        <li><a href="http://genenetwork.epfl.ch/" target="_blank">
-                        Switzerland</a> at the EPFL</li>
+                        <li><a href="http://www.genenetwork.org/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Main GN1 site at UTHSC</a> (main site)</li>
+                        <li><a href="http://www.genenetwork.waimr.uwa.edu.au/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Australia at the UWA</a></li>
+                        <li><a href="http://gn.genetics.ucla.edu/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">California at UCLA</a></li>
+                        <li><a href="http://genenetwork.helmholtz-hzi.de/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Germany at the HZI</a></li>
+                        <li><a href="http://genenetwork.memphis.edu/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Memphis at the U of M</a></li>
+                        <li><a href="http://webqtl.bic.nus.edu.sg/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Singapore at the NUS</a></li>
+                        <li><a href="http://genenetwork.epfl.ch/" target="_blank" style="font-size:12px;font-family:verdana;color:blue">Switzerland at the EPFL</a></li>
                     </ul>
                 </section>
 

@@ -32,7 +32,6 @@ import urlparse
 
 import flask
 
-from base.templatePage import templatePage
 from base import webqtlConfig
 from dbFunction import webqtlDatabaseFunction
 import SharingBody
@@ -42,10 +41,9 @@ import SharingInfo
 #########################################
 #      Sharing Info Page
 #########################################
-class SharingInfoPage(templatePage):
+class SharingInfoPage():
 
     def __init__(self, fd):
-        templatePage.__init__(self, fd)
         self.redirect_url = None   # Set if you want a redirect
         print("fd is:", pf(fd.__dict__))
         # Todo: Need a [0] in line below????d
