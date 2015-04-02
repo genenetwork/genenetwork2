@@ -875,6 +875,9 @@ def gn2_main():
     gn2_redis(key,species)
 
 def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
+    """
+    This function emulates current GN2 behaviour by pre-loading Redis
+    """
     print("Loading Redis from parsed data")
     if kinship == None:
         k = None
@@ -896,7 +899,35 @@ def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
     Redis.expire(key, 60*60)
 
     return gn2_redis(key,species,new_code)
-    
+
+def gn2_iter_redis(key,species,kinship,pheno,geno_iterator):
+    """
+    This function emulates GN2 behaviour by pre-loading Redis with
+    a SNP iterator
+    """
+    print("Loading Redis using a SNP iterator")
+    if kinship == None:
+        k = None
+    else:
+        k = kinship.tolist()
+    params = dict(pheno_vector = pheno.tolist(),
+                  genotype_matrix = geno_iterator.tolist(),
+                  kinship_matrix = k,
+                  restricted_max_likelihood = True,
+                  refit = False,
+                  temp_uuid = "testrun_temp_uuid",
+                        
+                  # meta data
+                  timestamp = datetime.datetime.now().isoformat(),
+    )
+            
+    json_params = json.dumps(params)
+    Redis.set(key, json_params)
+    Redis.expire(key, 60*60)
+
+    return gn2_redis(key,species,new_code)
+
+
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
     if has_gn2:
