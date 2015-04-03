@@ -891,15 +891,21 @@ def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
 def gn2_iter_redis(key,species,kinship,pheno,geno_iterator):
     """
     This function emulates GN2 behaviour by pre-loading Redis with
-    a SNP iterator
+    a SNP iterator, for this it sets a key for every genotype (SNP)
     """
     print("Loading Redis using a SNP iterator")
+    for i,genotypes in enumerate(geno_iterator):
+        gkey = key+'_geno_'+str(i)
+        Redis.set(gkey, genotypes)
+        Redis.expire(gkey, 60*60)
+    
     if kinship == None:
         k = None
     else:
         k = kinship.tolist()
     params = dict(pheno_vector = pheno.tolist(),
-                  genotype_matrix = geno_iterator.tolist(),
+                  genotype_matrix = "iterator",
+                  genotypes = i,
                   kinship_matrix = k,
                   restricted_max_likelihood = True,
                   refit = False,
@@ -913,7 +919,7 @@ def gn2_iter_redis(key,species,kinship,pheno,geno_iterator):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    return gwas_using_redis(key,species,new_code)
+    return gwas_using_redis(key,species)
 
 # This is the main function used by Genenetwork2 (with environment)
 #
