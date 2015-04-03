@@ -21,7 +21,7 @@ from optparse import OptionParser
 import sys
 import tsvreader
 import numpy as np
-from lmm import gn2_load_redis, gn2_load_redis_iter, calculate_kinship_new
+from lmm import gn2_load_redis, gn2_load_redis_iter, calculate_kinship_new, run_gwas
 from kinship import kinship, kinship_full
 import genotype
 import phenotype
@@ -103,7 +103,20 @@ if options.geno and cmd != 'iterator':
     g = tsvreader.geno(options.geno)
     print g.shape
 
-if cmd == 'iterator':
+if cmd == 'run':
+    if options.remove_missing_phenotypes:
+        raise Exception('Can not use --remove-missing-phenotypes with LMM2')
+    snp_iterator =  tsvreader.geno_iter(options.geno)
+    n = len(y)
+    m = g.shape[1]
+    ps, ts = run_gwas('other',n,m,k,y,g.T)
+    print np.array(ps)
+    print len(ps),sum(ps)
+    # Test results
+    p1 = round(ps[0],4)
+    p2 = round(ps[-1],4)
+
+elif cmd == 'iterator':
     if options.remove_missing_phenotypes:
         raise Exception('Can not use --remove-missing-phenotypes with LMM2')
     snp_iterator =  tsvreader.geno_iter(options.geno)

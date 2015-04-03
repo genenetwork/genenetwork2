@@ -795,9 +795,9 @@ class LMM:
        pl.title(title)
 
 
-def run_gwas(species,k,y,geno,cov,reml,refit,inputfn,new_code):
+def run_gwas(species,n,m,k,y,geno,cov=None,reml=True,refit=False,inputfn=None,new_code=True):
     """
-    Invoke pylmm using a genotype (SNP) iterator
+    Invoke pylmm using genotype as a matrix or as a (SNP) iterator.
     """
     info("gwas_without_redis")
     print('pheno', y)
@@ -848,8 +848,11 @@ def gwas_with_redis(key,species,new_code=True):
         if v is not None:
             v = np.array(v)
         return v
-    
-    ps,ts = run_gwas(species,narray('kinship_matrix'),narray('pheno_vector'),narray('genotype_matrix'),narray('covariate_matrix'),params['restricted_max_likelihood'],params['refit'],params['input_file_name'],new_code)
+
+    y = narray('pheno_vector')
+    n = len(y)
+    m = params['num_genotypes']
+    ps,ts = run_gwas(species,n,m,narray('kinship_matrix'),y,narray('genotype_matrix'),narray('covariate_matrix'),params['restricted_max_likelihood'],params['refit'],params['input_file_name'],new_code)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
@@ -873,6 +876,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
         k = kinship.tolist()
     params = dict(pheno_vector = pheno.tolist(),
                   genotype_matrix = geno.tolist(),
+                  num_genotypes = geno.shape[1],
                   kinship_matrix = k,
                   covariate_matrix = None,
                   input_file_name = None,
@@ -881,8 +885,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
                   temp_uuid = "testrun_temp_uuid",
                         
                   # meta data
-                  timestamp = datetime.datetime.now().isoformat(),
-    )
+                  timestamp = datetime.datetime.now().isoformat())
             
     json_params = json.dumps(params)
     Redis.set(key, json_params)
@@ -907,7 +910,7 @@ def gn2_load_redis_iter(key,species,kinship,pheno,geno_iterator):
         k = kinship.tolist()
     params = dict(pheno_vector = pheno.tolist(),
                   genotype_matrix = "iterator",
-                  genotypes = i,
+                  num_genotypes = i,
                   kinship_matrix = k,
                   covariate_matrix = None,
                   input_file_name = None,
