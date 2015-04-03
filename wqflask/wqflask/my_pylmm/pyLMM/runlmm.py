@@ -200,7 +200,7 @@ elif cmd == 'kinship':
         print "Genotype",G.shape, "\n", G
         print "first Kinship method",K.shape,"\n",K
         k1 = round(K[0][0],4)
-        K2,G = calculate_kinship_new(np.copy(G).T,temp_data=None)
+        K2,G = calculate_kinship_new(np.copy(G).T)
         print "Genotype",G.shape, "\n", G
         print "GN2 Kinship method",K2.shape,"\n",K2
         k2 = round(K2[0][0],4)

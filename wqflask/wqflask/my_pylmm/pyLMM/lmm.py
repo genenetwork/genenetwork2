@@ -81,8 +81,7 @@ def run_human(pheno_vector,
             covariate_matrix,
             plink_input_file,
             kinship_matrix,
-            refit=False,
-            tempdata=None):
+            refit=False):
 
     v = np.isnan(pheno_vector)
     keep = True - v
@@ -262,23 +261,19 @@ def human_association(snp,
 def run_other_old(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
-        refit=False,
-        tempdata=None      # <---- can not be None
-        ):
+        refit=False):
     
     """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
     
     restricted_max_likelihood -- whether to use restricted max likelihood; True or False
     refit -- whether to refit the variance component for each marker
-    temp_data -- TempData object that stores the progress for each major step of the
-    calculations ("calculate_kinship" and "GWAS" take the majority of time) 
     
     """
     
     print("Running the original LMM engine in run_other (old)")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
-        kinship_matrix,genotype_matrix = calculate_kinship_new(genotype_matrix, tempdata)
+        kinship_matrix,genotype_matrix = calculate_kinship_new(genotype_matrix)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -297,24 +292,19 @@ def run_other_old(pheno_vector,
                                       genotype_matrix,
                                       kinship_matrix,
                                       restricted_max_likelihood=True,
-                                      refit=False,
-                                      temp_data=tempdata)
+                                      refit=False)
     Bench().report()
     return p_values, t_stats
 
 def run_other_new(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
-        refit=False,
-        tempdata=None      # <---- can not be None
-        ):
+        refit=False):
     
     """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
     
     restricted_max_likelihood -- whether to use restricted max likelihood; True or False
     refit -- whether to refit the variance component for each marker
-    temp_data -- TempData object that stores the progress for each major step of the
-    calculations ("calculate_kinship" and "GWAS" take the majority of time) 
     
     """
     
@@ -332,7 +322,7 @@ def run_other_new(pheno_vector,
     # G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
 
     with Bench("Calculate Kinship"):
-        K,G = calculate_kinship_new(G, tempdata)
+        K,G = calculate_kinship_new(G)
     
     print("kinship_matrix: ", pf(K))
     print("kinship_matrix.shape: ", pf(K.shape))
@@ -815,25 +805,24 @@ def gwas_without_redis(species,k,y,geno,cov,reml,refit,inputfn,new_code):
     if species == "human" :
         print('kinship', k )
         ps, ts = run_human(pheno_vector = y,
-                  covariate_matrix = cov,
-                  plink_input_file = inputfn,
-                  kinship_matrix = k,
-                           refit = refit, tempdata=tempdata)
+                           covariate_matrix = cov,
+                           plink_input_file = inputfn,
+                           kinship_matrix = k,
+                           refit = refit)
     else:
         print('geno', geno.shape, geno)
 
         if new_code:
             ps, ts = run_other_new(pheno_vector = y,
-                               genotype_matrix = geno,
-                               restricted_max_likelihood = reml,
-                               refit = refit,
-                               tempdata = tempdata)
+                                   genotype_matrix = geno,
+                                   restricted_max_likelihood = reml,
+                                   refit = refit)
         else:
             ps, ts = run_other_old(pheno_vector = y,
                                genotype_matrix = geno,
                                restricted_max_likelihood = reml,
-                               refit = refit,
-                               tempdata = tempdata)
+                               refit = refit)
+    return ps,ts
 
 def gwas_using_redis(key,species,new_code=True):
     """
@@ -853,7 +842,14 @@ def gwas_using_redis(key,species,new_code=True):
         debug("Updating REDIS percent_complete=%d" % (round(i*100.0/total)))
     progress_set_func(update_tempdata)
 
-    ps,ts = gwas_without_redis(species,np.array(params['kinship_matrix']),np.array(params['pheno_vector']),np.array(params['genotype_matrix']),np.array(params['covariate_matrix']),params['restricted_max_likelihood'],params['refit'],params['input_file_name'],new_code)
+    def narray(key):
+        print(key)
+        v = params[key]
+        if v is not None:
+            v = np.array(v)
+        return v
+    
+    ps,ts = gwas_without_redis(species,narray('kinship_matrix'),narray('pheno_vector'),narray('genotype_matrix'),narray('covariate_matrix'),params['restricted_max_likelihood'],params['refit'],params['input_file_name'],new_code)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
