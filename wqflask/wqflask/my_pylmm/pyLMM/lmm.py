@@ -795,7 +795,7 @@ class LMM:
        pl.title(title)
 
 
-def gwas_without_redis(species,k,y,geno,cov,reml,refit,inputfn,new_code):
+def run_gwas(species,k,y,geno,cov,reml,refit,inputfn,new_code):
     """
     Invoke pylmm using a genotype (SNP) iterator
     """
@@ -824,10 +824,10 @@ def gwas_without_redis(species,k,y,geno,cov,reml,refit,inputfn,new_code):
                                refit = refit)
     return ps,ts
 
-def gwas_using_redis(key,species,new_code=True):
+def gwas_with_redis(key,species,new_code=True):
     """
     Invoke pylmm using Redis as a container. new_code runs the new
-    version
+    version. All the Redis code goes here!
     """
     json_params = Redis.get(key)
     
@@ -849,7 +849,7 @@ def gwas_using_redis(key,species,new_code=True):
             v = np.array(v)
         return v
     
-    ps,ts = gwas_without_redis(species,narray('kinship_matrix'),narray('pheno_vector'),narray('genotype_matrix'),narray('covariate_matrix'),params['restricted_max_likelihood'],params['refit'],params['input_file_name'],new_code)
+    ps,ts = run_gwas(species,narray('kinship_matrix'),narray('pheno_vector'),narray('genotype_matrix'),narray('covariate_matrix'),params['restricted_max_likelihood'],params['refit'],params['input_file_name'],new_code)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
@@ -888,7 +888,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    return gwas_using_redis(key,species,new_code)
+    return gwas_with_redis(key,species,new_code)
 
 def gn2_load_redis_iter(key,species,kinship,pheno,geno_iterator):
     """
@@ -922,7 +922,7 @@ def gn2_load_redis_iter(key,species,kinship,pheno,geno_iterator):
     json_params = json.dumps(params)
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
-    return gwas_using_redis(key,species)
+    return gwas_with_redis(key,species)
 
 # This is the main function used by Genenetwork2 (with environment)
 #
@@ -938,7 +938,7 @@ def gn2_main():
     key = opts.key
     species = opts.species
 
-    gwas_using_redis(key,species)
+    gwas_with_redis(key,species)
 
 
 if __name__ == '__main__':
