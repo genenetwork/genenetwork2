@@ -805,7 +805,7 @@ class LMM:
        pl.title(title)
 
 
-def gn2_redis(key,species,new_code=True):
+def gwas_using_redis(key,species,new_code=True):
     """
     Invoke pylmm using Redis as a container. new_code runs the new
     version
@@ -861,18 +861,6 @@ def gn2_redis(key,species,new_code=True):
     Redis.expire(results_key, 60*60)
     return ps, ts
 
-# This is the main function used by Genenetwork2 (with environment)
-def gn2_main():
-    parser = argparse.ArgumentParser(description='Run pyLMM')
-    parser.add_argument('-k', '--key')
-    parser.add_argument('-s', '--species')
-    
-    opts = parser.parse_args()
-    
-    key = opts.key
-    species = opts.species
-
-    gn2_redis(key,species)
 
 def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
     """
@@ -898,7 +886,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    return gn2_redis(key,species,new_code)
+    return gwas_using_redis(key,species,new_code)
 
 def gn2_iter_redis(key,species,kinship,pheno,geno_iterator):
     """
@@ -925,7 +913,23 @@ def gn2_iter_redis(key,species,kinship,pheno,geno_iterator):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    return gn2_redis(key,species,new_code)
+    return gwas_using_redis(key,species,new_code)
+
+# This is the main function used by Genenetwork2 (with environment)
+#
+# Note that this calling route will become OBSOLETE (we should use runlmm.py
+# instead)
+def gn2_main():
+    parser = argparse.ArgumentParser(description='Run pyLMM')
+    parser.add_argument('-k', '--key')
+    parser.add_argument('-s', '--species')
+    
+    opts = parser.parse_args()
+    
+    key = opts.key
+    species = opts.species
+
+    gwas_using_redis(key,species)
 
 
 if __name__ == '__main__':
