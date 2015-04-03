@@ -805,6 +805,36 @@ class LMM:
        pl.title(title)
 
 
+def gwas_without_redis(species,k,y,geno,cov,reml,refit,inputfn,new_code):
+    """
+    Invoke pylmm using a genotype (SNP) iterator
+    """
+    info("gwas_without_redis")
+    print('pheno', y)
+    
+    if species == "human" :
+        print('kinship', k )
+        ps, ts = run_human(pheno_vector = y,
+                  covariate_matrix = cov,
+                  plink_input_file = inputfn,
+                  kinship_matrix = k,
+                           refit = refit, tempdata=tempdata)
+    else:
+        print('geno', geno.shape, geno)
+
+        if new_code:
+            ps, ts = run_other_new(pheno_vector = y,
+                               genotype_matrix = geno,
+                               restricted_max_likelihood = reml,
+                               refit = refit,
+                               tempdata = tempdata)
+        else:
+            ps, ts = run_other_old(pheno_vector = y,
+                               genotype_matrix = geno,
+                               restricted_max_likelihood = reml,
+                               refit = refit,
+                               tempdata = tempdata)
+
 def gwas_using_redis(key,species,new_code=True):
     """
     Invoke pylmm using Redis as a container. new_code runs the new
@@ -823,33 +853,7 @@ def gwas_using_redis(key,species,new_code=True):
         debug("Updating REDIS percent_complete=%d" % (round(i*100.0/total)))
     progress_set_func(update_tempdata)
 
-    
-    print('pheno', np.array(params['pheno_vector']))
-    
-    if species == "human" :
-        print('kinship', np.array(params['kinship_matrix']))
-        ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
-                  covariate_matrix = np.array(params['covariate_matrix']),
-                  plink_input_file = params['input_file_name'],
-                  kinship_matrix = np.array(params['kinship_matrix']),
-                  refit = params['refit'],
-                  tempdata = tempdata)
-    else:
-        geno = np.array(params['genotype_matrix'])
-        print('geno', geno.shape, geno)
-
-        if new_code:
-            ps, ts = run_other_new(pheno_vector = np.array(params['pheno_vector']),
-                               genotype_matrix = geno,
-                               restricted_max_likelihood = params['restricted_max_likelihood'],
-                               refit = params['refit'],
-                               tempdata = tempdata)
-        else:
-            ps, ts = run_other_old(pheno_vector = np.array(params['pheno_vector']),
-                               genotype_matrix = geno,
-                               restricted_max_likelihood = params['restricted_max_likelihood'],
-                               refit = params['refit'],
-                               tempdata = tempdata)
+    ps,ts = gwas_without_redis(species,np.array(params['kinship_matrix']),np.array(params['pheno_vector']),np.array(params['genotype_matrix']),np.array(params['covariate_matrix']),params['restricted_max_likelihood'],params['refit'],params['input_file_name'],new_code)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
@@ -874,6 +878,8 @@ def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
     params = dict(pheno_vector = pheno.tolist(),
                   genotype_matrix = geno.tolist(),
                   kinship_matrix = k,
+                  covariate_matrix = None,
+                  input_file_name = None,
                   restricted_max_likelihood = True,
                   refit = False,
                   temp_uuid = "testrun_temp_uuid",
@@ -888,7 +894,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
 
     return gwas_using_redis(key,species,new_code)
 
-def gn2_iter_redis(key,species,kinship,pheno,geno_iterator):
+def gn2_load_redis_iter(key,species,kinship,pheno,geno_iterator):
     """
     This function emulates GN2 behaviour by pre-loading Redis with
     a SNP iterator, for this it sets a key for every genotype (SNP)
@@ -907,6 +913,8 @@ def gn2_iter_redis(key,species,kinship,pheno,geno_iterator):
                   genotype_matrix = "iterator",
                   genotypes = i,
                   kinship_matrix = k,
+                  covariate_matrix = None,
+                  input_file_name = None,
                   restricted_max_likelihood = True,
                   refit = False,
                   temp_uuid = "testrun_temp_uuid",
@@ -918,7 +926,6 @@ def gn2_iter_redis(key,species,kinship,pheno,geno_iterator):
     json_params = json.dumps(params)
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
-
     return gwas_using_redis(key,species)
 
 # This is the main function used by Genenetwork2 (with environment)
