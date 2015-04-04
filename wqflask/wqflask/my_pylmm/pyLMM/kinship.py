@@ -28,12 +28,21 @@ import time
 
 from optmatrix import matrix_initialize, matrixMultT
 
-def kinship_full(G,uses):
+# ---- A trick to decide on the environment:
+try:
+    from wqflask.my_pylmm.pyLMM import chunks
+    from gn2 import uses, progress_set_func
+except ImportError:
+    has_gn2=False
+    import standalone as handlers
+    from standalone import uses, progress_set_func
+
+progress,debug,info,mprint = uses('progress','debug','info','mprint')
+
+def kinship_full(G):
    """
    Calculate the Kinship matrix using a full dot multiplication
    """
-   info,mprint = uses('info','mprint')
-   
    # mprint("kinship_full G",G)
    m = G.shape[0] # snps
    n = G.shape[1] # inds
@@ -78,8 +87,7 @@ def f_init(q):
 
 # Calculate the kinship matrix from G (SNPs as rows!), returns K
 #
-def kinship(G,uses,computeSize=1000,numThreads=None,useBLAS=False):
-   progress,debug,info,mprint = uses('progress','debug','info','mprint')
+def kinship(G,computeSize=1000,numThreads=None,useBLAS=False):
 
    matrix_initialize(useBLAS)
 
@@ -89,7 +97,7 @@ def kinship(G,uses,computeSize=1000,numThreads=None,useBLAS=False):
    m = G.shape[0] # snps
    snps = m
    info("%i SNPs" % (m))
-   assert snps>inds, "snps should be larger than inds (%i snps, %i inds)" % (snps,inds)
+   assert snps>=inds, "snps should be larger than inds (%i snps, %i inds)" % (snps,inds)
 
    q = mp.Queue()
    p = mp.Pool(numThreads, f_init, [q])
@@ -140,13 +148,11 @@ def kinship(G,uses,computeSize=1000,numThreads=None,useBLAS=False):
    K = K / float(snps)
    return K      
 
-def kvakve(K,uses):
+def kvakve(K):
    """
    Obtain eigendecomposition for K and return Kva,Kve where Kva is cleaned
    of small values < 1e-6 (notably smaller than zero)
    """
-   info,mprint = uses('info','mprint')
-
    info("Obtaining eigendecomposition for %dx%d matrix" % (K.shape[0],K.shape[1]) )
    Kva,Kve = linalg.eigh(K)
    mprint("Kva",Kva)

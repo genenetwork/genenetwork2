@@ -131,16 +131,15 @@ def check_results(ps,ts):
 if cmd == 'run':
     if options.remove_missing_phenotypes:
         raise Exception('Can not use --remove-missing-phenotypes with LMM2')
-    snp_iterator =  tsvreader.geno_iter(options.geno)
     n = len(y)
     m = g.shape[1]
-    ps, ts = run_gwas('other',n,m,k,y,g.T)
+    ps, ts = run_gwas('other',n,m,k,y,g)  # <--- pass in geno by SNP
     check_results(ps,ts)
 elif cmd == 'iterator':
     if options.remove_missing_phenotypes:
         raise Exception('Can not use --remove-missing-phenotypes with LMM2')
-    snp_iterator =  tsvreader.geno_iter(options.geno)
-    ps, ts = gn2_load_redis_iter('testrun_iter','other',k,y,snp_iterator)
+    geno_iterator =  tsvreader.geno_iter(options.geno)
+    ps, ts = gn2_load_redis_iter('testrun_iter','other',k,y,geno_iterator)
     check_results(ps,ts)
 elif cmd == 'redis_new':
     # The main difference between redis_new and redis is that missing
@@ -150,10 +149,9 @@ elif cmd == 'redis_new':
     Y = y
     G = g
     print "Original G",G.shape, "\n", G
-
-    gt = G.T
-    G = None
-    ps, ts = gn2_load_redis('testrun','other',k,Y,gt,new_code=True)
+    # gt = G.T
+    # G = None
+    ps, ts = gn2_load_redis('testrun','other',k,Y,G,new_code=True)
     check_results(ps,ts)
 elif cmd == 'redis':
     # Emulating the redis setup of GN2
@@ -174,9 +172,10 @@ elif cmd == 'redis':
     g = None
     gnt = None
 
-    gt = G.T
-    G = None
-    ps, ts = gn2_load_redis('testrun','other',k,Y,gt, new_code=False)
+    # gt = G.T
+    # G = None
+    mprint("G",G)
+    ps, ts = gn2_load_redis('testrun','other',k,Y,G, new_code=False)
     check_results(ps,ts)
 elif cmd == 'kinship':
     G = g

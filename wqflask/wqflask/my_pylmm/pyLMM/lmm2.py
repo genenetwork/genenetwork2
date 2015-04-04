@@ -32,7 +32,6 @@ except ImportError:
     sys.stderr.write("WARNING: LMM2 standalone version missing the Genenetwork2 environment\n")
     has_gn2=False
     from standalone import uses
-    pass
 
 def calculateKinship(W,center=False):
       """
@@ -149,28 +148,32 @@ def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
 
 class LMM2:
 
-   """
-	 This is a simple version of EMMA/fastLMM.  
-	 The main purpose of this module is to take a phenotype vector (Y), a set of covariates (X) and a kinship matrix (K)
-	 and to optimize this model by finding the maximum-likelihood estimates for the model parameters.
-	 There are three model parameters: heritability (h), covariate coefficients (beta) and the total
-	 phenotypic variance (sigma).
-	 Heritability as defined here is the proportion of the total variance (sigma) that is attributed to 
-	 the kinship matrix.
+   """This is a simple version of EMMA/fastLMM.
 
-	 For simplicity, we assume that everything being input is a numpy array.
-	 If this is not the case, the module may throw an error as conversion from list to numpy array
-	 is not done consistently.
+   The main purpose of this module is to take a phenotype vector (Y),
+   a set of covariates (X) and a kinship matrix (K) and to optimize
+   this model by finding the maximum-likelihood estimates for the
+   model parameters.  There are three model parameters: heritability
+   (h), covariate coefficients (beta) and the total phenotypic
+   variance (sigma).  Heritability as defined here is the proportion
+   of the total variance (sigma) that is attributed to the kinship
+   matrix.
+
+   For simplicity, we assume that everything being input is a numpy
+   array.  If this is not the case, the module may throw an error as
+   conversion from list to numpy array is not done consistently.
 
    """
    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=False):
 
-      """
-      The constructor takes a phenotype vector or array Y of size n.
-      It takes a kinship matrix K of size n x n.  Kva and Kve can be computed as Kva,Kve = linalg.eigh(K) and cached.
-      If they are not provided, the constructor will calculate them.
-      X0 is an optional covariate matrix of size n x q, where there are q covariates.
-      When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
+      """The constructor takes a phenotype vector or array Y of size n. It
+      takes a kinship matrix K of size n x n.  Kva and Kve can be
+      computed as Kva,Kve = linalg.eigh(K) and cached.  If they are
+      not provided, the constructor will calculate them.  X0 is an
+      optional covariate matrix of size n x q, where there are q
+      covariates.  When this parameter is not provided, the
+      constructor will set X0 to an n x 1 matrix of all ones to
+      represent a mean effect.
       """
 
       if X0 is None: 
@@ -194,7 +197,7 @@ class LMM2:
           # if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
           begin = time.time()
           # Kva,Kve = linalg.eigh(K)
-          Kva,Kve = kinship.kvakve(K,uses)
+          Kva,Kve = kinship.kvakve(K)
           end = time.time()
           if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
           print("sum(Kva),sum(Kve)=",sum(Kva),sum(Kve))

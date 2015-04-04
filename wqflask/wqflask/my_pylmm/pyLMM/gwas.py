@@ -19,7 +19,7 @@
 
 import pdb
 import time
-# from utility import temp_data
+import sys
 import lmm2
 
 import os
@@ -30,6 +30,18 @@ from lmm2 import LMM2
 
 import multiprocessing as mp # Multiprocessing is part of the Python stdlib
 import Queue 
+
+# ---- A trick to decide on the environment:
+try:
+    from wqflask.my_pylmm.pyLMM import chunks
+    from gn2 import uses
+except ImportError:
+    sys.stderr.write("WARNING: LMM2 standalone version missing the Genenetwork2 environment\n")
+    has_gn2=False
+    from standalone import uses
+
+progress,mprint,debug,info,fatal = uses('progress','mprint','debug','info','fatal')
+
 
 def formatResult(id,beta,betaSD,ts,ps):
    return "\t".join([str(x) for x in [id,beta,betaSD,ts,ps]]) + "\n"
@@ -52,12 +64,11 @@ def compute_snp(j,n,snp_ids,lmm2,REML,q = None):
 def f_init(q):
    compute_snp.q = q
 
-def gwas(Y,G,K,uses,restricted_max_likelihood=True,refit=False,verbose=True):
+def gwas(Y,G,K,restricted_max_likelihood=True,refit=False,verbose=True):
    """
    GWAS. The G matrix should be n inds (cols) x m snps (rows)
    """
-   progress,debug,info,mprint = uses('progress','debug','info','mprint')
-
+   info("In gwas.gwas")
    matrix_initialize()
    cpu_num = mp.cpu_count()
    numThreads = None # for now use all available threads
@@ -70,7 +81,7 @@ def gwas(Y,G,K,uses,restricted_max_likelihood=True,refit=False,verbose=True):
    m = G.shape[0] # snps
    snps = m
    info("%s SNPs",snps)
-   assert snps>inds, "snps should be larger than inds (snps=%d,inds=%d)" % (snps,inds)
+   assert snps>=inds, "snps should be larger than inds (snps=%d,inds=%d)" % (snps,inds)
 
    # CREATE LMM object for association
    # if not kfile2:  L = LMM(Y,K,Kva,Kve,X0,verbose=verbose)
