@@ -27,6 +27,8 @@ import genotype
 import phenotype
 from standalone import uses
 
+progress,mprint,debug,info,fatal = uses('progress','mprint','debug','info','fatal')
+
 usage = """
 python runlmm.py [options] command
 
@@ -103,6 +105,29 @@ if options.geno and cmd != 'iterator':
     g = tsvreader.geno(options.geno)
     print g.shape
 
+def check_results(ps,ts):
+    print np.array(ps)
+    print len(ps),sum(ps)
+    # Test results
+    p1 = round(ps[0],4)
+    p2 = round(ps[-1],4)
+    # sys.stderr.write(options.geno+"\n")
+    if options.geno == 'data/small.geno':
+        info("Validating results for "+options.geno)
+        assert p1==0.0708, "p1=%f" % p1
+        assert p2==0.1417, "p2=%f" % p2
+    if options.geno == 'data/small_na.geno':
+        info("Validating results for "+options.geno)
+        assert p1==0.0897, "p1=%f" % p1
+        assert p2==0.0405, "p2=%f" % p2
+    if options.geno == 'data/test8000.geno':
+        info("Validating results for "+options.geno)
+        # assert p1==0.8984, "p1=%f" % p1
+        # assert p2==0.9621, "p2=%f" % p2
+        assert round(sum(ps)) == 4070
+        assert len(ps) == 8000
+    info("Run completed")
+    
 if cmd == 'run':
     if options.remove_missing_phenotypes:
         raise Exception('Can not use --remove-missing-phenotypes with LMM2')
@@ -110,22 +135,13 @@ if cmd == 'run':
     n = len(y)
     m = g.shape[1]
     ps, ts = run_gwas('other',n,m,k,y,g.T)
-    print np.array(ps)
-    print len(ps),sum(ps)
-    # Test results
-    p1 = round(ps[0],4)
-    p2 = round(ps[-1],4)
-
+    check_results(ps,ts)
 elif cmd == 'iterator':
     if options.remove_missing_phenotypes:
         raise Exception('Can not use --remove-missing-phenotypes with LMM2')
     snp_iterator =  tsvreader.geno_iter(options.geno)
     ps, ts = gn2_load_redis_iter('testrun_iter','other',k,y,snp_iterator)
-    print np.array(ps)
-    print len(ps),sum(ps)
-    # Test results
-    p1 = round(ps[0],4)
-    p2 = round(ps[-1],4)
+    check_results(ps,ts)
 elif cmd == 'redis_new':
     # The main difference between redis_new and redis is that missing
     # phenotypes are handled by the first
@@ -138,23 +154,7 @@ elif cmd == 'redis_new':
     gt = G.T
     G = None
     ps, ts = gn2_load_redis('testrun','other',k,Y,gt,new_code=True)
-    print np.array(ps)
-    print len(ps),sum(ps)
-    # Test results
-    p1 = round(ps[0],4)
-    p2 = round(ps[-1],4)
-    sys.stderr.write(options.geno+"\n")
-    if options.geno == 'data/small.geno':
-        assert p1==0.0708, "p1=%f" % p1
-        assert p2==0.1417, "p2=%f" % p2
-    if options.geno == 'data/small_na.geno':
-        assert p1==0.0897, "p1=%f" % p1
-        assert p2==0.0405, "p2=%f" % p2
-    if options.geno == 'data/test8000.geno':
-        # assert p1==0.8984, "p1=%f" % p1
-        # assert p2==0.9621, "p2=%f" % p2
-        assert round(sum(ps)) == 4070
-        assert len(ps) == 8000
+    check_results(ps,ts)
 elif cmd == 'redis':
     # Emulating the redis setup of GN2
     G = g
@@ -177,21 +177,7 @@ elif cmd == 'redis':
     gt = G.T
     G = None
     ps, ts = gn2_load_redis('testrun','other',k,Y,gt, new_code=False)
-    print np.array(ps)
-    print len(ps),sum(ps)
-    # Test results 4070.02346579
-    p1 = round(ps[0],4)
-    p2 = round(ps[-1],4)
-    sys.stderr.write(options.geno+"\n")
-    if options.geno == 'data/small.geno':
-        assert p1==0.0708, "p1=%f" % p1
-        assert p2==0.1417, "p2=%f" % p2
-    if options.geno == 'data/small_na.geno':
-        assert p1==0.0897, "p1=%f" % p1
-        assert p2==0.0405, "p2=%f" % p2
-    if options.geno == 'data/test8000.geno':
-        assert int(sum(ps)) == 4070
-        assert len(ps) == 8000
+    check_results(ps,ts)
 elif cmd == 'kinship':
     G = g
     print "Original G",G.shape, "\n", G
@@ -235,4 +221,4 @@ elif cmd == 'kinship':
         assert k3==1.4352, "k3=%f" % k3
 
 else:
-    print "Doing nothing"
+    fatal("Doing nothing")
