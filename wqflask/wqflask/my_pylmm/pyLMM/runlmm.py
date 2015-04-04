@@ -196,20 +196,20 @@ elif cmd == 'kinship':
         print "Genotype",G.shape, "\n", G
         print "first Kinship method",K.shape,"\n",K
         k1 = round(K[0][0],4)
-        K2,G = calculate_kinship_new(np.copy(G).T)
+        K2,G = calculate_kinship_new(np.copy(G))
         print "Genotype",G.shape, "\n", G
         print "GN2 Kinship method",K2.shape,"\n",K2
         k2 = round(K2[0][0],4)
     
     print "Genotype",G.shape, "\n", G
-    K3 = kinship(G.T)
+    K3 = kinship(G)
     print "third Kinship method",K3.shape,"\n",K3
     sys.stderr.write(options.geno+"\n")
     k3 = round(K3[0][0],4)
     if options.geno == 'data/small.geno':
-        assert k1==0.8, "k1=%f" % k1
-        assert k2==0.7939, "k2=%f" % k2
-        assert k3==0.7939, "k3=%f" % k3
+        assert k1==0.8333, "k1=%f" % k1
+        assert k2==0.9375, "k2=%f" % k2
+        assert k3==0.9375, "k3=%f" % k3
     if options.geno == 'data/small_na.geno':
         assert k1==0.8333, "k1=%f" % k1
         assert k2==0.7172, "k2=%f" % k2
