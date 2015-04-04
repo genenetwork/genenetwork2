@@ -108,26 +108,25 @@ if options.geno and cmd != 'iterator':
 def check_results(ps,ts):
     print np.array(ps)
     print len(ps),sum(ps)
-    # Test results
     p1 = round(ps[0],4)
     p2 = round(ps[-1],4)
-    # sys.stderr.write(options.geno+"\n")
     if options.geno == 'data/small.geno':
         info("Validating results for "+options.geno)
-        assert p1==0.0708, "p1=%f" % p1
-        assert p2==0.1417, "p2=%f" % p2
+        assert p1==0.7387, "p1=%f" % p1
+        assert p2==0.7387, "p2=%f" % p2
     if options.geno == 'data/small_na.geno':
         info("Validating results for "+options.geno)
-        assert p1==0.0897, "p1=%f" % p1
-        assert p2==0.0405, "p2=%f" % p2
+        assert p1==0.062, "p1=%f" % p1
+        assert p2==0.062, "p2=%f" % p2
     if options.geno == 'data/test8000.geno':
         info("Validating results for "+options.geno)
-        # assert p1==0.8984, "p1=%f" % p1
-        # assert p2==0.9621, "p2=%f" % p2
         assert round(sum(ps)) == 4070
         assert len(ps) == 8000
     info("Run completed")
-    
+
+if y is not None:
+    n = y.shape[0]
+
 if cmd == 'run':
     if options.remove_missing_phenotypes:
         raise Exception('Can not use --remove-missing-phenotypes with LMM2')
@@ -159,7 +158,7 @@ elif cmd == 'redis':
     print "Original G",G.shape, "\n", G
     if y is not None and options.remove_missing_phenotypes:
         gnt = np.array(g).T
-        Y,g,keep = phenotype.remove_missing(y,g.T,options.verbose)
+        n,Y,g,keep = phenotype.remove_missing(n,y,gnt)
         G = g.T
         print "Removed missing phenotypes",G.shape, "\n", G
     else:
@@ -174,7 +173,6 @@ elif cmd == 'redis':
 
     # gt = G.T
     # G = None
-    mprint("G",G)
     ps, ts = gn2_load_redis('testrun','other',k,Y,G, new_code=False)
     check_results(ps,ts)
 elif cmd == 'kinship':
@@ -182,7 +180,7 @@ elif cmd == 'kinship':
     print "Original G",G.shape, "\n", G
     if y != None and options.remove_missing_phenotypes:
         gnt = np.array(g).T
-        Y,g = phenotype.remove_missing(y,g.T,options.verbose)
+        n,Y,g,keep = phenotype.remove_missing(n,y,g.T)
         G = g.T
         print "Removed missing phenotypes",G.shape, "\n", G
     if options.maf_normalization:
@@ -194,7 +192,7 @@ elif cmd == 'kinship':
     gnt = None
 
     if options.test_kinship:
-        K = kinship_full(np.copy(G),uses)
+        K = kinship_full(np.copy(G))
         print "Genotype",G.shape, "\n", G
         print "first Kinship method",K.shape,"\n",K
         k1 = round(K[0][0],4)
@@ -204,7 +202,7 @@ elif cmd == 'kinship':
         k2 = round(K2[0][0],4)
     
     print "Genotype",G.shape, "\n", G
-    K3 = kinship(G.T,uses)
+    K3 = kinship(G.T)
     print "third Kinship method",K3.shape,"\n",K3
     sys.stderr.write(options.geno+"\n")
     k3 = round(K3[0][0],4)

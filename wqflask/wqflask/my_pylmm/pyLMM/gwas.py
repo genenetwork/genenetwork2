@@ -36,7 +36,6 @@ try:
     from wqflask.my_pylmm.pyLMM import chunks
     from gn2 import uses
 except ImportError:
-    sys.stderr.write("WARNING: LMM2 standalone version missing the Genenetwork2 environment\n")
     has_gn2=False
     from standalone import uses
 

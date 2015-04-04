@@ -288,7 +288,7 @@ def run_other_old(pheno_vector,
 
     with Bench("Doing GWAS"):
         t_stats, p_values = GWAS(pheno_vector,
-                                      genotype_matrix,
+                                      genotype_matrix.T,
                                       kinship_matrix,
                                       restricted_max_likelihood=True,
                                       refit=False)
