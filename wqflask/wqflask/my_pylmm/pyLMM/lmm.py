@@ -50,8 +50,10 @@ has_gn2=True
 
 from utility.benchmark import Bench
 from utility import temp_data
-from kinship import kinship, kinship_full
+from kinship import kinship, kinship_full, kvakve
 import genotype
+import phenotype
+import gwas
 
 try:
     from wqflask.my_pylmm.pyLMM import chunks
@@ -254,7 +256,7 @@ def human_association(snp,
 #        refit=False,
 #        temp_data=None):
     
-def run_other(pheno_vector,
+def run_other_old(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
         refit=False,
@@ -270,7 +272,7 @@ def run_other(pheno_vector,
     
     """
     
-    print("In run_other")
+    print("Running the original LMM engine in run_other (old)")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
         kinship_matrix,genotype_matrix = calculate_kinship(genotype_matrix, tempdata)
@@ -278,25 +280,79 @@ def run_other(pheno_vector,
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
     
-    with Bench("Create LMM object"):
-        lmm_ob = LMM(pheno_vector, kinship_matrix)
+    # with Bench("Create LMM object"):
+    #     lmm_ob = LMM(pheno_vector, kinship_matrix)
     
-    with Bench("LMM_ob fitting"):
-        lmm_ob.fit()
+    # with Bench("LMM_ob fitting"):
+    #     lmm_ob.fit()
 
-    print("genotype_matrix: ", genotype_matrix.shape)
+    print("run_other_old genotype_matrix: ", genotype_matrix.shape)
     print(genotype_matrix)
 
     with Bench("Doing GWAS"):
         t_stats, p_values = GWAS(pheno_vector,
-                                genotype_matrix,
-                                kinship_matrix,
-                                restricted_max_likelihood=True,
-                                refit=False,
-                                temp_data=tempdata)
+                                      genotype_matrix,
+                                      kinship_matrix,
+                                      restricted_max_likelihood=True,
+                                      refit=False,
+                                      temp_data=tempdata)
     Bench().report()
     return p_values, t_stats
 
+def run_other_new(pheno_vector,
+        genotype_matrix,
+        restricted_max_likelihood=True,
+        refit=False,
+        tempdata=None      # <---- can not be None
+        ):
+    
+    """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
+    
+    restricted_max_likelihood -- whether to use restricted max likelihood; True or False
+    refit -- whether to refit the variance component for each marker
+    temp_data -- TempData object that stores the progress for each major step of the
+    calculations ("calculate_kinship" and "GWAS" take the majority of time) 
+    
+    """
+    
+    print("Running the new LMM2 engine in run_other_new")
+    print("REML=",restricted_max_likelihood," REFIT=",refit)
+
+    # Adjust phenotypes
+    Y,G,keep = phenotype.remove_missing(pheno_vector,genotype_matrix,verbose=True)
+    print("Removed missing phenotypes",Y.shape)
+
+    # if options.maf_normalization:
+    #     G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
+    #     print "MAF replacements: \n",G
+    # if not options.skip_genotype_normalization:
+    # G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
+
+    with Bench("Calculate Kinship"):
+        K,G = calculate_kinship(G, tempdata)
+    
+    print("kinship_matrix: ", pf(K))
+    print("kinship_matrix.shape: ", pf(K.shape))
+
+    # with Bench("Create LMM object"):
+    #     lmm_ob = lmm2.LMM2(Y,K)
+    # with Bench("LMM_ob fitting"):
+    #     lmm_ob.fit()
+
+    print("run_other_new genotype_matrix: ", G.shape)
+    print(G)
+
+    with Bench("Doing GWAS"):
+        t_stats, p_values = gwas.gwas(Y,
+                                      G.T,
+                                      K,
+                                      restricted_max_likelihood=True,
+                                      refit=False,verbose=True)
+    Bench().report()
+    return p_values, t_stats
+
+# def matrixMult(A,B):
+#     return np.dot(A,B)
 
 def matrixMult(A,B):
 
@@ -334,8 +390,10 @@ def calculate_kinship_new(genotype_matrix, temp_data=None):
     Call the new kinship calculation where genotype_matrix contains
     inds (columns) by snps (rows).
     """
+    print("call genotype.normalize")
     G = np.apply_along_axis( genotype.normalize, axis=0, arr=genotype_matrix)
-    return kinship(G.T),G
+    print("call calculate_kinship_new")
+    return kinship(G.T),G # G gets transposed, we'll turn this into an iterator (FIXME)
 
 def calculate_kinship_old(genotype_matrix, temp_data=None):
     """
@@ -345,6 +403,7 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
     normalizes the resulting vectors and returns the RRM matrix.
     
     """
+    print("call calculate_kinship_old")
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
     print("genotype 2D matrix n (inds) is:", n)
@@ -375,7 +434,7 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
             temp_data.store("percent_complete", percent_complete)
         
     genotype_matrix = genotype_matrix[:,keep]
-    print("genotype_matrix: ", pf(genotype_matrix))
+    print("After kinship (old) genotype_matrix: ", pf(genotype_matrix))
     kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
     return kinship_matrix,genotype_matrix
 
@@ -533,11 +592,13 @@ class LMM:
        print("this K is:", K.shape, pf(K))
        
        if len(Kva) == 0 or len(Kve) == 0:
-          if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
+          # if self.verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
           begin = time.time()
-          Kva,Kve = linalg.eigh(K)
+          # Kva,Kve = linalg.eigh(K)
+          Kva,Kve = kvakve(K)
           end = time.time()
           if self.verbose: sys.stderr.write("Total time: %0.3f\n" % (end - begin))
+          print("sum(Kva),sum(Kve)=",sum(Kva),sum(Kve))
 
        self.K = K
        self.Kva = Kva
@@ -547,10 +608,11 @@ class LMM:
        self.Y = Y
        self.X0 = X0
        self.N = self.K.shape[0]
- 
-       if sum(self.Kva < 1e-6):
-          if self.verbose: sys.stderr.write("Cleaning %d eigen values\n" % (sum(self.Kva < 0)))
-          self.Kva[self.Kva < 1e-6] = 1e-6
+
+       # ----> Below moved to kinship.kvakve(K)
+       # if sum(self.Kva < 1e-6):
+       #    if self.verbose: sys.stderr.write("Cleaning %d eigen values\n" % (sum(self.Kva < 0)))
+       #    self.Kva[self.Kva < 1e-6] = 1e-6
  
        self.transform()
 
@@ -713,7 +775,10 @@ class LMM:
  
           ts = beta / np.sqrt(var * sigma)        
           ps = 2.0*(1.0 - stats.t.cdf(np.abs(ts), self.N-q))
-          if not len(ts) == 1 or not len(ps) == 1: raise Exception("Something bad happened :(")
+          if not len(ts) == 1 or not len(ps) == 1:
+              print("ts=",ts)
+              print("ps=",ps)
+              raise Exception("Something bad happened :(")
           return ts.sum(),ps.sum()
 
     def plotFit(self,color='b-',title=''):
@@ -739,7 +804,11 @@ class LMM:
        pl.title(title)
 
 
-def gn2_redis(key,species):
+def gn2_redis(key,species,new_code=True):
+    """
+    Invoke pylmm using Redis as a container. new_code runs the new
+    version
+    """
     json_params = Redis.get(key)
     
     params = json.loads(json_params)
@@ -761,11 +830,18 @@ def gn2_redis(key,species):
         geno = np.array(params['genotype_matrix'])
         print('geno', geno.shape, geno)
 
-        ps, ts = run_other(pheno_vector = np.array(params['pheno_vector']),
-                  genotype_matrix = geno,
-                  restricted_max_likelihood = params['restricted_max_likelihood'],
-                  refit = params['refit'],
-                  tempdata = tempdata)
+        if new_code:
+            ps, ts = run_other_new(pheno_vector = np.array(params['pheno_vector']),
+                               genotype_matrix = geno,
+                               restricted_max_likelihood = params['restricted_max_likelihood'],
+                               refit = params['refit'],
+                               tempdata = tempdata)
+        else:
+            ps, ts = run_other_old(pheno_vector = np.array(params['pheno_vector']),
+                               genotype_matrix = geno,
+                               restricted_max_likelihood = params['restricted_max_likelihood'],
+                               refit = params['refit'],
+                               tempdata = tempdata)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
@@ -790,7 +866,7 @@ def gn2_main():
 
     gn2_redis(key,species)
 
-def gn2_load_redis(key,species,kinship,pheno,geno):
+def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
     print("Loading Redis from parsed data")
     if kinship == None:
         k = None
@@ -811,7 +887,7 @@ def gn2_load_redis(key,species,kinship,pheno,geno):
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
 
-    return gn2_redis(key,species)
+    return gn2_redis(key,species,new_code)
     
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
@@ -819,6 +895,5 @@ if __name__ == '__main__':
         gn2_main()
     else:
         print("Run from runlmm.py instead")
-
 
 

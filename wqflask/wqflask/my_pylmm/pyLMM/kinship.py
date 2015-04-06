@@ -21,6 +21,7 @@
 import sys
 import os
 import numpy as np
+from scipy import linalg
 import multiprocessing as mp # Multiprocessing is part of the Python stdlib
 import Queue
 import time
@@ -85,12 +86,13 @@ def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
    m = G.shape[0] # snps
    snps = m
    sys.stderr.write(str(m)+" SNPs\n")
-   assert m>n, "n should be larger than m (snps>inds)"
+   assert snps>inds, "snps should be larger than inds (%i snps, %i inds)" % (snps,inds)
 
    q = mp.Queue()
    p = mp.Pool(numThreads, f_init, [q])
    cpu_num = mp.cpu_count()
    print "CPU cores:",cpu_num
+   print snps,computeSize
    iterations = snps/computeSize+1
    # if testing:
    #    iterations = 8
@@ -152,6 +154,24 @@ def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
    #    np.savetxt(outFile+".kva",Kva)
    #    np.savetxt(outFile+".kve",Kve)
    return K      
+
+def kvakve(K, verbose=True):
+   """
+   Obtain eigendecomposition for K and return Kva,Kve where Kva is cleaned
+   of small values < 1e-6 (notably smaller than zero)
+   """
+   if verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
+   
+   Kva,Kve = linalg.eigh(K)
+   if verbose:
+      print("Kva is: ", Kva.shape, Kva)
+      print("Kve is: ", Kve.shape, Kve)
+
+   if sum(Kva < 1e-6):
+      if verbose: sys.stderr.write("Cleaning %d eigen values (Kva<0)\n" % (sum(Kva < 0)))
+      Kva[Kva < 1e-6] = 1e-6
+   return Kva,Kve
+
 
 
 
