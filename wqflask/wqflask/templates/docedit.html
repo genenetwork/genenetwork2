@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Test html editor{% endblock %}
+{% block title %}Edit: {{title}}{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h2>Test HTML Editor</h2>
+    <h3>Edit: {{title}}</h3>
     <form>
         <textarea name="ckcontent" id="ckcontent">
-        Test HTML
+			{{content|safe}}
         </textarea>
         <script type="text/javascript" src="/static/packages/ckeditor/ckeditor.js"></script>
         <script type="text/javascript">
             CKEDITOR.replace('ckcontent',	{
-                height: '500px',
+                height: '650px',
             });
         </script>
     </form>

@@ -33,6 +33,7 @@ from flask import (render_template, request, make_response, Response,
 
 from wqflask import search_results
 from wqflask import docs
+from wqflask import news
 from base.data_set import DataSet    # Used by YAML in marker_regression
 from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
@@ -150,14 +151,20 @@ def search_page():
         else:
             return render_template("search_result_page.html", **result)
 
-@app.route("/testhtmleditor")
-def testhtmleditor_page():
-    return render_template("testhtmleditor.html")
+@app.route("/docedit")
+def docedit():
+    doc = docs.Docs(request.args['entry'])
+    return render_template("docedit.html", **doc.__dict__)
 
 @app.route("/help")
 def help():
     doc = docs.Docs("help")
     return render_template("docs.html", **doc.__dict__)
+
+@app.route("/news")
+def news_route():
+    newsobject = news.News()
+    return render_template("news.html", **newsobject.__dict__)
 
 @app.route("/references")
 def references():

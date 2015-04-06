@@ -5,6 +5,11 @@
 {% block content %}
 <div class="container">
 	<h3>{{title}}</h3>
+	<div style="text-align: right;">
+		<a href="docedit?entry={{entry}}">
+			<img style="width: 25px;" src="/static/images/edit.png">
+		</a>
+	</div>
 	{{content|safe}}
 </div>
 {% endblock %}
