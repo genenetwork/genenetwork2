@@ -701,7 +701,7 @@ class MarkerRegression(object):
             no_val_samples = self.identify_empty_samples()
             trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
             
-            genotype_matrix = np.array(trimmed_genotype_data).T
+            genotype_matrix = np.array(genotype_data).T
 
             #print("pheno_vector: ", pf(pheno_vector))
             #print("genotype_matrix: ", pf(genotype_matrix))
