@@ -135,6 +135,8 @@ class plink:
     def normalizeGenotype(self,G):
         # print "Before",G
         # print G.shape
+        print "call input.normalizeGenotype"
+        raise "This should not be used"
         x = True - np.isnan(G)
         m = G[x].mean()
         s = np.sqrt(G[x].var())
