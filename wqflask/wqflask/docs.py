@@ -11,5 +11,6 @@ class Docs(object):
             WHERE Docs.entry LIKE '%s'
             """
         result = g.db.execute(sql % (entry)).fetchone()
+        self.entry = entry
         self.title = result[0]
         self.content = result[1]
