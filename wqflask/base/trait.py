@@ -549,6 +549,9 @@ class GeneralTrait(object):
         if self.alias:
             alias = string.replace(self.alias, ";", " ")
             alias = string.join(string.split(alias), ", ")
+        else:
+            alias = 'Not available'
+
         return alias
 
 

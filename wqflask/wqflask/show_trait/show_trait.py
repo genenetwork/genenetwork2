@@ -283,13 +283,13 @@ class ShowTrait(object):
         #    else:
         #        pass
 
-        g.db.execute("SELECT Name FROM InbredSet WHERE Name=%s", self.dataset.group.name)
+        result = g.db.execute("SELECT Name FROM InbredSet WHERE Name=%s", self.dataset.group.name)
         if this_trait:
             addSelectionButton = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (self.dataset.group.name, 'dataInput'))
             addSelectionButton_img = HT.Image("/images/add_icon.jpg", name="addselect", alt="Add To Collection", title="Add To Collection", style="border:none;")
             #addSelectionButton.append(addSelectionButton_img)
             addSelectionText = "Add"
-        elif self.cursor.fetchall():
+        elif result.fetchall():
             addSelectionButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('%s')[0], 'addRecord');" % ('dataInput'))
             addSelectionButton_img = HT.Image("/images/add_icon.jpg", name="", alt="Add To Collection", title="Add To Collection", style="border:none;")
             #addSelectionButton.append(addSelectionButton_img)
@@ -368,7 +368,7 @@ class ShowTrait(object):
                         blatsequence = ''
                         for seqt in seqs:
                             if int(seqt[1][-1]) % 2 == 1:
-                                blatsequence += string.strip(seqt[0])
+                                blatsequence += string.strip(seqt[0])## NEEDED FOR UCSC GENOME BROWSER LINK
 
                 #--------Hongqiang add this part in order to not only blat ProbeSet, but also blat Probe
                 blatsequence = '%3E'+this_trait.name+'%0A'+blatsequence+'%0A'
@@ -469,52 +469,25 @@ class ShowTrait(object):
 
             #XZ: Resource Links:
             if this_trait.symbol:
-                linkStyle = "background:#dddddd;padding:2"
-                tSpan = HT.Span(style="font-family:verdana,serif;font-size:13px")
-
                 #XZ,12/26/2008: Gene symbol may contain single quotation mark.
                 #For example, Affymetrix, mouse430v2, 1440338_at, the symbol is 2'-Pde (geneid 211948)
                 #I debug this by using double quotation marks.
                 if _Species == "rat":
-
-                    #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
-                    #symatlas_species = "Rattus norvegicus"
-
-                    #self.cursor.execute("SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = '%s'" % this_trait.symbol)
-                    self.cursor.execute('SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = "%s"' % this_trait.symbol)
-                    try:
-                        kgId, chr, txst, txen = self.cursor.fetchall()[0]
+                    result = g.db.execute("SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
+                    if result != None:
+                        kgId, chr, txst, txen = result[0], result[1], result[2], result[3]
                         if chr and txst and txen and kgId:
                             txst = int(txst*1000000)
                             txen = int(txen*1000000)
-                            #tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
-                            #        title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('rn3',kgId,chr,txst,txen),Class="fs14 fwn"), style=linkStyle)
-                            #        , "&nbsp;"*2)
-                    except:
-                        pass
                 if _Species == "mouse":
-
-                    #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
-                    #symatlas_species = "Mus musculus"
-
-                    #self.cursor.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = '%s'" % this_trait.symbol)
-                    #try:
                     print("this_trait.symbol:", this_trait.symbol)
                     result = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
                     if result != None:
                         this_chr, txst, txen = result[0], result[1], result[2]
-                    #this_chr, txst, txen = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
                         if this_chr and txst and txen and this_trait.refseq_transcriptid :
                             txst = int(txst*1000000)
                             txen = int(txen*1000000)
-                        #tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
-                        #        title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('mm9',
-                        #                                                                                  this_trait.refseq_transcriptid,
-                        #                                                                                  this_chr,
-                        #                                                                                  txst,
-                        #                                                                                  txen),
-                        #        Class="fs14 fwn"), style=linkStyle)
-                        #        , "&nbsp;"*2)
+                        ## NEEDED FOR UCSC GENOME BROWSER LINK
                         
                 #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
                 #tSpan.append(HT.Span(HT.Href(text= 'SymAtlas',target="mainFrame",\
