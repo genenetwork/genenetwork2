@@ -21,10 +21,13 @@ from optparse import OptionParser
 import sys
 import tsvreader
 import numpy as np
-from lmm import gn2_load_redis, calculate_kinship_old
+from lmm import gn2_load_redis, gn2_load_redis_iter, calculate_kinship_new, run_gwas
 from kinship import kinship, kinship_full
 import genotype
 import phenotype
+from standalone import uses
+
+progress,mprint,debug,info,fatal = uses('progress','mprint','debug','info','fatal')
 
 usage = """
 python runlmm.py [options] command
@@ -98,44 +101,64 @@ if options.pheno:
     y = tsvreader.pheno(options.pheno)
     print y.shape
 
-if options.geno:
+if options.geno and cmd != 'iterator':
     g = tsvreader.geno(options.geno)
     print g.shape
 
-if cmd == 'redis_new':
+def check_results(ps,ts):
+    print np.array(ps)
+    print len(ps),sum(ps)
+    p1 = round(ps[0],4)
+    p2 = round(ps[-1],4)
+    if options.geno == 'data/small.geno':
+        info("Validating results for "+options.geno)
+        assert p1==0.7387, "p1=%f" % p1
+        assert p2==0.7387, "p2=%f" % p2
+    if options.geno == 'data/small_na.geno':
+        info("Validating results for "+options.geno)
+        assert p1==0.062, "p1=%f" % p1
+        assert p2==0.062, "p2=%f" % p2
+    if options.geno == 'data/test8000.geno':
+        info("Validating results for "+options.geno)
+        assert round(sum(ps)) == 4070
+        assert len(ps) == 8000
+    info("Run completed")
+
+if y is not None:
+    n = y.shape[0]
+
+if cmd == 'run':
+    if options.remove_missing_phenotypes:
+        raise Exception('Can not use --remove-missing-phenotypes with LMM2')
+    n = len(y)
+    m = g.shape[1]
+    ps, ts = run_gwas('other',n,m,k,y,g)  # <--- pass in geno by SNP
+    check_results(ps,ts)
+elif cmd == 'iterator':
+    if options.remove_missing_phenotypes:
+        raise Exception('Can not use --remove-missing-phenotypes with LMM2')
+    geno_iterator =  tsvreader.geno_iter(options.geno)
+    ps, ts = gn2_load_redis_iter('testrun_iter','other',k,y,geno_iterator)
+    check_results(ps,ts)
+elif cmd == 'redis_new':
     # The main difference between redis_new and redis is that missing
     # phenotypes are handled by the first
+    if options.remove_missing_phenotypes:
+        raise Exception('Can not use --remove-missing-phenotypes with LMM2')
     Y = y
     G = g
     print "Original G",G.shape, "\n", G
-
-    gt = G.T
-    G = None
-    ps, ts = gn2_load_redis('testrun','other',k,Y,gt,new_code=True)
-    print np.array(ps)
-    print len(ps),sum(ps)
-    # Test results
-    p1 = round(ps[0],4)
-    p2 = round(ps[-1],4)
-    sys.stderr.write(options.geno+"\n")
-    if options.geno == 'data/small.geno':
-        assert p1==0.0708, "p1=%f" % p1
-        assert p2==0.1417, "p2=%f" % p2
-    if options.geno == 'data/small_na.geno':
-        assert p1==0.0897, "p1=%f" % p1
-        assert p2==0.0405, "p2=%f" % p2
-    if options.geno == 'data/test8000.geno':
-        # assert p1==0.8984, "p1=%f" % p1
-        # assert p2==0.9621, "p2=%f" % p2
-        assert round(sum(ps)) == 4070
-        assert len(ps) == 8000
+    # gt = G.T
+    # G = None
+    ps, ts = gn2_load_redis('testrun','other',k,Y,G,new_code=True)
+    check_results(ps,ts)
 elif cmd == 'redis':
     # Emulating the redis setup of GN2
     G = g
     print "Original G",G.shape, "\n", G
-    if y != None and options.remove_missing_phenotypes:
+    if y is not None and options.remove_missing_phenotypes:
         gnt = np.array(g).T
-        Y,g,keep = phenotype.remove_missing(y,g.T,options.verbose)
+        n,Y,g,keep = phenotype.remove_missing(n,y,gnt)
         G = g.T
         print "Removed missing phenotypes",G.shape, "\n", G
     else:
@@ -148,30 +171,16 @@ elif cmd == 'redis':
     g = None
     gnt = None
 
-    gt = G.T
-    G = None
-    ps, ts = gn2_load_redis('testrun','other',k,Y,gt, new_code=False)
-    print np.array(ps)
-    print len(ps),sum(ps)
-    # Test results 4070.02346579
-    p1 = round(ps[0],4)
-    p2 = round(ps[-1],4)
-    sys.stderr.write(options.geno+"\n")
-    if options.geno == 'data/small.geno':
-        assert p1==0.0708, "p1=%f" % p1
-        assert p2==0.1417, "p2=%f" % p2
-    if options.geno == 'data/small_na.geno':
-        assert p1==0.0897, "p1=%f" % p1
-        assert p2==0.0405, "p2=%f" % p2
-    if options.geno == 'data/test8000.geno':
-        assert round(sum(ps)) == 4070
-        assert len(ps) == 8000
+    # gt = G.T
+    # G = None
+    ps, ts = gn2_load_redis('testrun','other',k,Y,G, new_code=False)
+    check_results(ps,ts)
 elif cmd == 'kinship':
     G = g
     print "Original G",G.shape, "\n", G
     if y != None and options.remove_missing_phenotypes:
         gnt = np.array(g).T
-        Y,g = phenotype.remove_missing(y,g.T,options.verbose)
+        n,Y,g,keep = phenotype.remove_missing(n,y,g.T)
         G = g.T
         print "Removed missing phenotypes",G.shape, "\n", G
     if options.maf_normalization:
@@ -187,20 +196,20 @@ elif cmd == 'kinship':
         print "Genotype",G.shape, "\n", G
         print "first Kinship method",K.shape,"\n",K
         k1 = round(K[0][0],4)
-        K2,G = calculate_kinship_old(np.copy(G).T,temp_data=None)
+        K2,G = calculate_kinship_new(np.copy(G))
         print "Genotype",G.shape, "\n", G
         print "GN2 Kinship method",K2.shape,"\n",K2
         k2 = round(K2[0][0],4)
     
     print "Genotype",G.shape, "\n", G
-    K3 = kinship(G.T)
+    K3 = kinship(G)
     print "third Kinship method",K3.shape,"\n",K3
     sys.stderr.write(options.geno+"\n")
     k3 = round(K3[0][0],4)
     if options.geno == 'data/small.geno':
-        assert k1==0.8, "k1=%f" % k1
-        assert k2==0.7939, "k2=%f" % k2
-        assert k3==0.7939, "k3=%f" % k3
+        assert k1==0.8333, "k1=%f" % k1
+        assert k2==0.9375, "k2=%f" % k2
+        assert k3==0.9375, "k3=%f" % k3
     if options.geno == 'data/small_na.geno':
         assert k1==0.8333, "k1=%f" % k1
         assert k2==0.7172, "k2=%f" % k2
@@ -209,4 +218,4 @@ elif cmd == 'kinship':
         assert k3==1.4352, "k3=%f" % k3
 
 else:
-    print "Doing nothing"
+    fatal("Doing nothing")

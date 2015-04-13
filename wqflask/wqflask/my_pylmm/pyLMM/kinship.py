@@ -28,17 +28,30 @@ import time
 
 from optmatrix import matrix_initialize, matrixMultT
 
+# ---- A trick to decide on the environment:
+try:
+    from wqflask.my_pylmm.pyLMM import chunks
+    from gn2 import uses, progress_set_func
+except ImportError:
+    has_gn2=False
+    import standalone as handlers
+    from standalone import uses, progress_set_func
+
+progress,debug,info,mprint = uses('progress','debug','info','mprint')
+
 def kinship_full(G):
    """
    Calculate the Kinship matrix using a full dot multiplication
    """
-   print G.shape
+   # mprint("kinship_full G",G)
    m = G.shape[0] # snps
    n = G.shape[1] # inds
-   sys.stderr.write(str(m)+" SNPs\n")
-   assert m>n, "n should be larger than m (snps>inds)"
-   m = np.dot(G.T,G)
+   info("%d SNPs",m)
+   assert m>n, "n should be larger than m (%d snps > %d inds)" % (m,n)
+   # m = np.dot(G.T,G)
+   m = matrixMultT(G.T)
    m = m/G.shape[0]
+   # mprint("kinship_full K",m)
    return m
 
 def compute_W(job,G,n,snps,compute_size):
@@ -74,46 +87,38 @@ def f_init(q):
 
 # Calculate the kinship matrix from G (SNPs as rows!), returns K
 #
-def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
-   numThreads = None
-   if numThreads:
-      numThreads = int(numThreads)
+def kinship(G,computeSize=1000,numThreads=None,useBLAS=False):
+
    matrix_initialize(useBLAS)
-   
-   sys.stderr.write(str(G.shape)+"\n")
+
+   mprint("G",G)
    n = G.shape[1] # inds
    inds = n
    m = G.shape[0] # snps
    snps = m
-   sys.stderr.write(str(m)+" SNPs\n")
-   assert snps>inds, "snps should be larger than inds (%i snps, %i inds)" % (snps,inds)
+   info("%i SNPs" % (m))
+   assert snps>=inds, "snps should be larger than inds (%i snps, %i inds)" % (snps,inds)
 
    q = mp.Queue()
    p = mp.Pool(numThreads, f_init, [q])
    cpu_num = mp.cpu_count()
-   print "CPU cores:",cpu_num
-   print snps,computeSize
+   info("CPU cores: %i" % cpu_num)
    iterations = snps/computeSize+1
-   # if testing:
-   #    iterations = 8
-   # jobs = range(0,8) # range(0,iterations)
 
    results = []
-
    K = np.zeros((n,n))  # The Kinship matrix has dimension individuals x individuals
 
    completed = 0
    for job in range(iterations):
-      if verbose:
-         sys.stderr.write("Processing job %d first %d SNPs\n" % (job, ((job+1)*computeSize)))
+      info("Processing job %d first %d SNPs" % (job, ((job+1)*computeSize)))
       W = compute_W(job,G,n,snps,computeSize)
       if numThreads == 1:
          # Single-core
          compute_matrixMult(job,W,q)
          j,x = q.get()
-         if verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+         debug("Job "+str(j)+" finished")
+         progress("kinship",j,iterations)
          K_j = x
-         # print j,K_j[:,0]
          K = K + K_j
       else:
          # Multi-core
@@ -123,52 +128,38 @@ def kinship(G,computeSize=1000,numThreads=None,useBLAS=False,verbose=True):
             time.sleep(0.1)
             try: 
                j,x = q.get_nowait()
-               if verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+               debug("Job "+str(j)+" finished")
                K_j = x
-               # print j,K_j[:,0]
                K = K + K_j
                completed += 1
+               progress("kinship",completed,iterations)
             except Queue.Empty:
                pass
          
    if numThreads == None or numThreads > 1:
-      # results contains the growing result set
       for job in range(len(results)-completed):
          j,x = q.get(True,15)
-         if verbose: sys.stderr.write("Job "+str(j)+" finished\n")
+         debug("Job "+str(j)+" finished")
          K_j = x
-         # print j,K_j[:,0]
          K = K + K_j
          completed += 1
+         progress("kinship",completed,iterations)
 
    K = K / float(snps)
-   
-   # outFile = 'runtest.kin'
-   # if verbose: sys.stderr.write("Saving Kinship file to %s\n" % outFile)
-   # np.savetxt(outFile,K)
-
-   # if saveKvaKve:
-   #    if verbose: sys.stderr.write("Obtaining Eigendecomposition\n")
-   #    Kva,Kve = linalg.eigh(K)
-   #    if verbose: sys.stderr.write("Saving eigendecomposition to %s.[kva | kve]\n" % outFile)
-   #    np.savetxt(outFile+".kva",Kva)
-   #    np.savetxt(outFile+".kve",Kve)
    return K      
 
-def kvakve(K, verbose=True):
+def kvakve(K):
    """
    Obtain eigendecomposition for K and return Kva,Kve where Kva is cleaned
    of small values < 1e-6 (notably smaller than zero)
    """
-   if verbose: sys.stderr.write("Obtaining eigendecomposition for %dx%d matrix\n" % (K.shape[0],K.shape[1]) )
-   
+   info("Obtaining eigendecomposition for %dx%d matrix" % (K.shape[0],K.shape[1]) )
    Kva,Kve = linalg.eigh(K)
-   if verbose:
-      print("Kva is: ", Kva.shape, Kva)
-      print("Kve is: ", Kve.shape, Kve)
+   mprint("Kva",Kva)
+   mprint("Kve",Kve)
 
-   if sum(Kva < 1e-6):
-      if verbose: sys.stderr.write("Cleaning %d eigen values (Kva<0)\n" % (sum(Kva < 0)))
+   if sum(Kva < 0):
+      info("Cleaning %d eigen values (Kva<0)" % (sum(Kva < 0)))
       Kva[Kva < 1e-6] = 1e-6
    return Kva,Kve
 

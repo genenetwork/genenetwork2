@@ -75,3 +75,48 @@ def geno(fn):
     G = np.array(G1)
     return G
 
+def geno(fn):
+    G1 = []
+    for id,values in geno_iter(fn):
+        G1.append(values) # <--- slow
+    G = np.array(G1)
+    return G
+
+def geno_callback(fn,func):
+    hab_mapper = {'A':0,'H':1,'B':2,'-':3}
+    pylmm_mapper = [ 0.0, 0.5, 1.0, float('nan') ]
+
+    print fn
+    with open(fn,'r') as tsvin:
+        assert(tsvin.readline().strip() == "# Genotype format version 1.0")
+        tsvin.readline()
+        tsvin.readline()
+        tsvin.readline()
+        tsvin.readline()
+        tsv = csv.reader(tsvin, delimiter='\t')
+        for row in tsv:
+            id = row[0]
+            gs = list(row[1])
+            gs2 = [pylmm_mapper[hab_mapper[g]] for g in gs]
+            func(id,gs2) 
+
+def geno_iter(fn):
+    """
+    Yield a tuple of snpid and values
+    """
+    hab_mapper = {'A':0,'H':1,'B':2,'-':3}
+    pylmm_mapper = [ 0.0, 0.5, 1.0, float('nan') ]
+
+    print fn
+    with open(fn,'r') as tsvin:
+        assert(tsvin.readline().strip() == "# Genotype format version 1.0")
+        tsvin.readline()
+        tsvin.readline()
+        tsvin.readline()
+        tsvin.readline()
+        tsv = csv.reader(tsvin, delimiter='\t')
+        for row in tsv:
+            id = row[0]
+            gs = list(row[1])
+            gs2 = [pylmm_mapper[hab_mapper[g]] for g in gs]
+            yield (id,gs2) 
