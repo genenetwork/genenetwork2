@@ -56,7 +56,8 @@ def geno(fn):
 
     print fn
     with open(fn,'r') as tsvin:
-        assert(tsvin.readline().strip() == "# Genotype format version 1.0")
+        line = tsvin.readline().strip()
+        assert line == "# Genotype format version 1.0", line
         tsvin.readline()
         tsvin.readline()
         tsvin.readline()
