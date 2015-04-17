@@ -33,6 +33,7 @@ from flask import (render_template, request, make_response, Response,
 
 from wqflask import search_results
 from wqflask import docs
+from wqflask import news
 from base.data_set import DataSet    # Used by YAML in marker_regression
 from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
@@ -44,8 +45,6 @@ from wqflask.correlation import show_corr_results
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from utility import temp_data
-
-from wqflask.dataSharing import SharingInfo, SharingInfoPage
 
 from base import webqtlFormData
 from utility.benchmark import Bench
@@ -100,20 +99,20 @@ def tmp_page(img_path):
                             img_base64 = bytesarray )
 
 
-@app.route("/data_sharing")
-def data_sharing_page():
-    print("In data_sharing")
-    fd = webqtlFormData.webqtlFormData(request.args)
-    print("1Have fd")
-    sharingInfoObject = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
-    info, htmlfilelist = sharingInfoObject.getBody(infoupdate="")
-    print("type(htmlfilelist):", type(htmlfilelist))
-    htmlfilelist = htmlfilelist.encode("utf-8")
-    #template_vars = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
-    print("1 Made it to rendering")
-    return render_template("data_sharing.html",
-                            info=info,
-                            htmlfilelist=htmlfilelist)
+#@app.route("/data_sharing")
+#def data_sharing_page():
+#    print("In data_sharing")
+#    fd = webqtlFormData.webqtlFormData(request.args)
+#    print("1Have fd")
+#    sharingInfoObject = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
+#    info, htmlfilelist = sharingInfoObject.getBody(infoupdate="")
+#    print("type(htmlfilelist):", type(htmlfilelist))
+#    htmlfilelist = htmlfilelist.encode("utf-8")
+#    #template_vars = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
+#    print("1 Made it to rendering")
+#    return render_template("data_sharing.html",
+#                            info=info,
+#                            htmlfilelist=htmlfilelist)
 
 
 @app.route("/search", methods=('GET',))
@@ -152,9 +151,10 @@ def search_page():
         else:
             return render_template("search_result_page.html", **result)
 
-@app.route("/testhtmleditor")
-def testhtmleditor_page():
-    return render_template("testhtmleditor.html")
+@app.route("/docedit")
+def docedit():
+    doc = docs.Docs(request.args['entry'])
+    return render_template("docedit.html", **doc.__dict__)
 
 @app.route("/help")
 def help():
@@ -162,15 +162,9 @@ def help():
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/news")
-def news():
-    #variables = whats_new.whats_new()
-    with open("/home/sam/gene/wqflask/wqflask/yaml_data/whats_new.yaml") as fh:
-        contents = fh.read()
-        yamilized = yaml.safe_load(contents)
-        news_items = yamilized['news']
-    for news_item in news_items:
-        print("\nnews_item is: %s\n" % (news_item))
-    return render_template("whats_new.html", news_items=news_items)
+def news_route():
+    newsobject = news.News()
+    return render_template("news.html", **newsobject.__dict__)
 
 @app.route("/references")
 def references():

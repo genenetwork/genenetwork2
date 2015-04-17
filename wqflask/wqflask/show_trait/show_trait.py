@@ -19,7 +19,6 @@ from utility import webqtlUtil, Plot, Bunch, helper_functions
 from base.trait import GeneralTrait
 from base import data_set
 from dbFunction import webqtlDatabaseFunction
-from base.templatePage import templatePage
 from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf
