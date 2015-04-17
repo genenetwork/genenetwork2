@@ -53,12 +53,12 @@ SECRET_HMAC_CODE = '*'
 ```
 
 ```sh
-   export WQFLASK_SETTINGS=$HOME/settings.py
-   source /home/pjotr/ve27/bin/activate  
-   cd genenetwork2/wqflask
-   python ./runserver.py
+export WQFLASK_SETTINGS=$HOME/settings.py
+source /home/pjotr/ve27/bin/activate  
+cd genenetwork2/wqflask
+python ./runserver.py
 
-   or
+or
 
-   python ./secure_server.py
+python ./secure_server.py
 ```
