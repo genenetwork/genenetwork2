@@ -856,30 +856,47 @@ def gwas_with_redis(key,species,new_code=True):
 
     def narray(t):
         info("Type is "+t)
-        v = params[t]
+        v = params.get(t)
         if v is not None:
-            v = np.array(v).astype(np.float)
-            print(v)
+            # Note input values can be array of string or float
+            v1 = [x if x != 'NA' else 'nan' for x in v]
+            v = np.array(v1).astype(np.float)
         return v
 
-    def narrayT(t):
-        m = narray(t)
+    def marray(t):
+        info("Type is "+t)
+        v = params.get(t)
+        if v is not None:
+            m = []
+            for r in v:
+              # Note input values can be array of string or float
+              r1 = [x if x != 'NA' else 'nan' for x in r]
+              m.append(np.array(r1).astype(np.float))
+            return np.array(m)
+        return np.array(v)
+
+    def marrayT(t):
+        m = marray(t)
         if m is not None:
             return m.T
         return m
     
     # We are transposing before we enter run_gwas - this should happen on the webserver
     # side (or when reading data from file)
-    print(params)
-    k = narray('kinship_matrix')
-    g = narrayT('genotype_matrix')
+    k = marray('kinship_matrix')
+    g = marrayT('genotype_matrix')
+    mprint("geno",g)
     y = narray('pheno_vector')
     n = len(y)
-    m = params['num_genotypes']
-    ps,ts = run_gwas(species,n,m,k,y,g,narray('covariate_matrix'),params['restricted_max_likelihood'],params['refit'],params['input_file_name'],new_code)
+    m = params.get('num_genotypes')
+    if m is None:
+      m = g.shape[0]
+    info("m=%d,n=%d" % (m,n))
+    ps,ts = run_gwas(species,n,m,k,y,g,narray('covariate_matrix'),params['restricted_max_likelihood'],params['refit'],params.get('input_file_name'),new_code)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
+    # fatal(results_key)
     json_results = json.dumps(dict(p_values = ps,
                                    t_stats = ts))
     
