@@ -854,22 +854,23 @@ def gwas_with_redis(key,species,new_code=True):
         debug("Updating REDIS percent_complete=%d" % (round(i*100.0/total)))
     progress_set_func(update_tempdata)
 
-    def narray(key):
-        print(key)
-        v = params[key]
+    def narray(t):
+        info("Type is "+t)
+        v = params[t]
         if v is not None:
             v = np.array(v).astype(np.float)
             print(v)
         return v
 
-    def narrayT(key):
-        m = narray(key)
+    def narrayT(t):
+        m = narray(t)
         if m is not None:
             return m.T
         return m
     
     # We are transposing before we enter run_gwas - this should happen on the webserver
     # side (or when reading data from file)
+    print(params)
     k = narray('kinship_matrix')
     g = narrayT('genotype_matrix')
     y = narray('pheno_vector')
