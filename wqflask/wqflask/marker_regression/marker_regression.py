@@ -128,7 +128,7 @@ class MarkerRegression(object):
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         self.qtl_results = []
         for qtl in self.filtered_markers:
-            print("lod score is:", qtl['lod_score'])
+            # print("lod score is:", qtl['lod_score'])
             if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
                 print("changing to X")
                 self.json_data['chr'].append("X")
@@ -145,7 +145,7 @@ class MarkerRegression(object):
             self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
-        print("json_data:", self.json_data)
+        # print("json_data:", self.json_data)
         
 
         self.js_data = dict(
@@ -745,7 +745,7 @@ class MarkerRegression(object):
             json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
             results = json.loads(json_results[1])
             p_values = [float(result) for result in results['p_values']]
-            print("p_values:", p_values)
+            print("p_values:", p_values[:10])
             #p_values = self.trim_results(p_values)
             t_stats = results['t_stats']
             
