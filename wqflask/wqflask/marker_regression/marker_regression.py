@@ -40,6 +40,7 @@ from utility import temp_data
 
 from utility.benchmark import Bench
 
+PYLMM_COMMAND= 'python /home/pjotr/izip/git/opensource/python/gn2/wqflask/wqflask/my_pylmm/pyLMM/lmm.py'
 
 class MarkerRegression(object):
 
@@ -272,7 +273,7 @@ class MarkerRegression(object):
         """)
     
     def run_rqtl_geno(self):
-        print("Calling R/qtl from python")
+        print("Calling R/qtl")
 
         self.geno_to_rqtl_function()
 
@@ -655,8 +656,7 @@ class MarkerRegression(object):
                 Redis.set(key, json_params)
                 Redis.expire(key, 60*60)
     
-                command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
-                                                                                                                        "other")
+                command = PYLMM_COMMAND+' --key {} --species {}'.format(key,"other")
     
                 os.system(command)
     
@@ -713,8 +713,8 @@ class MarkerRegression(object):
             #            "refit": False,
             #            "temp_data": tempdata}
             
-            print("genotype_matrix:", str(genotype_matrix.tolist()))
-            print("pheno_vector:", str(pheno_vector.tolist()))
+            # print("genotype_matrix:", str(genotype_matrix.tolist()))
+            # print("pheno_vector:", str(pheno_vector.tolist()))
             
             params = dict(pheno_vector = pheno_vector.tolist(),
                         genotype_matrix = genotype_matrix.tolist(),
@@ -732,7 +732,7 @@ class MarkerRegression(object):
             Redis.expire(key, 60*60)
             print("before printing command")
 
-            command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+            command = PYLMM_COMMAND + ' --key {} --species {}'.format(key,
                                                                                                                     "other")
             print("command is:", command)
             print("after printing command")
@@ -806,7 +806,7 @@ class MarkerRegression(object):
 
         print("Before creating the command")
 
-        command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+        command = PYLMM_COMMAND+' --key {} --species {}'.format(key,
                                                                                                                 "human")
         
         print("command is:", command)

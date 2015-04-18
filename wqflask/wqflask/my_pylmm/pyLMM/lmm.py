@@ -42,25 +42,27 @@ from redis import Redis
 Redis = Redis()
 
 import sys
-sys.path.append("/home/zas1024/gene/wqflask/")
-
-has_gn2=True
 
 from utility.benchmark import Bench
 from utility import temp_data
-
-sys.path.append("/home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/")
 
 from kinship import kinship, kinship_full, kvakve
 import genotype
 import phenotype
 import gwas
 
+has_gn2=True
+sys.stderr.write("INFO: pylmm system path is "+":".join(sys.path)+"\n")
+sys.stderr.write("INFO: pylmm file is "+__file__+"\n")
+
 # ---- A trick to decide on the environment:
 try:
-    from wqflask.my_pylmm.pyLMM import chunks
+    sys.stderr.write("INFO: trying loading module\n")
+    import utility.formatting # this is never used, just to check the environment
+    sys.stderr.write("INFO: This is a genenetwork2 environment\n")
     from gn2 import uses, progress_set_func
 except ImportError:
+    # Failed to load gn2
     has_gn2=False
     import standalone as handlers
     from standalone import uses, progress_set_func
@@ -856,7 +858,8 @@ def gwas_with_redis(key,species,new_code=True):
         print(key)
         v = params[key]
         if v is not None:
-            v = np.array(v)
+            v = np.array(v).astype(np.float)
+            print(v)
         return v
 
     def narrayT(key):
@@ -969,6 +972,6 @@ if __name__ == '__main__':
     if has_gn2:
         gn2_main()
     else:
-        print("Run from runlmm.py instead")
+        fatal("Run from runlmm.py instead")
 
 
