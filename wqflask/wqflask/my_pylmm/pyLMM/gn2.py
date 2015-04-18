@@ -1,7 +1,10 @@
-# Genenetwork2 specific methods and callback handler
+# Standalone specific methods and callback handler
 #
 # Copyright (C) 2015  Pjotr Prins (pjotr.prins@thebird.nl)
 #
+# Set the log level with
+#
+#   logging.basicConfig(level=logging.DEBUG)
 
 from __future__ import absolute_import, print_function, division
 
@@ -9,8 +12,10 @@ import numpy as np
 import sys
 import logging
 
-# logging.basicConfig(level=logging.DEBUG)
-# np.set_printoptions()
+# logger = logging.getLogger(__name__)
+logger = logging.getLogger('lmm2')
+logging.basicConfig(level=logging.DEBUG)
+np.set_printoptions(precision=3,suppress=True)
 
 progress_location = None 
 progress_current  = None
@@ -37,13 +42,20 @@ def progress(location, count, total):
         logger.info("Progress: %s %d%%" % (location,perc))
         progress_location = location
         progress_prev_perc = perc
-    
+
 def mprint(msg,data):
     """
     Array/matrix print function
     """
     m = np.array(data)
-    print(msg,m.shape,"=\n",m)
+    if m.ndim == 1:
+        print(msg,m.shape,"=\n",m[0:3]," ... ",m[-3:])
+    if m.ndim == 2:
+        print(msg,m.shape,"=\n[",
+              m[0][0:3]," ... ",m[0][-3:],"\n ",
+              m[1][0:3]," ... ",m[1][-3:],"\n  ...\n ",
+              m[-2][0:3]," ... ",m[-2][-3:],"\n ",
+              m[-1][0:3]," ... ",m[-1][-3:],"]")
 
 def fatal(msg):
     logger.critical(msg)
@@ -68,7 +80,7 @@ def uses(*funcs):
     Some sugar
     """
     return [callbacks()[func] for func in funcs]
-
+    
 # ----- Minor test cases:
 
 if __name__ == '__main__':
