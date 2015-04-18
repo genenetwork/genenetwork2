@@ -127,8 +127,9 @@ class MarkerRegression(object):
 
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         self.qtl_results = []
-        for qtl in self.filtered_markers:
-            # print("lod score is:", qtl['lod_score'])
+        for index,qtl in enumerate(self.filtered_markers):
+            if index<40:
+                print("lod score is:", qtl['lod_score'])
             if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
                 print("changing to X")
                 self.json_data['chr'].append("X")
