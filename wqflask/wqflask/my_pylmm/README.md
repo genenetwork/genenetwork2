@@ -1,5 +1,12 @@
 # Genenetwork2/pylmm RELEASE NOTES 
 
+## 0.51-gn2 (April 19, 2015)
+
+- Improved GN2 integration
+- Less matrix transposes
+- Able to run pylmm standalone without Redis again (still requires
+  the modules)
+
 ## 0.50-gn2 (April 2nd, 2015)
 
 - Replaced the GN2 genotype normalization
