@@ -34,6 +34,12 @@ import datetime
 # import cPickle as pickle
 from pprint import pformat as pf
 
+# Add local dir to PYTHONPATH
+import os
+cwd = os.path.dirname(__file__)
+if sys.path[0] != cwd:
+    sys.path.insert(1,cwd)
+
 # pylmm imports
 from kinship import kinship, kinship_full, kvakve
 import genotype

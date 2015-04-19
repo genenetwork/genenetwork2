@@ -16,8 +16,8 @@ Clone the repository (currently ~800Mb) to local
 GN2 requires
 
 * python
-* redis
-* mysql
+* redis-server
+* mysql-server
 
 ## Required python modules
 

@@ -21,6 +21,14 @@ from optparse import OptionParser
 import sys
 import tsvreader
 import numpy as np
+
+# Add local dir to PYTHONPATH
+import os
+cwd = os.path.dirname(__file__)
+if sys.path[0] != cwd:
+    sys.path.insert(1,cwd)
+
+# pylmm modules
 from lmm import gn2_load_redis, gn2_load_redis_iter, calculate_kinship_new, run_gwas
 from kinship import kinship, kinship_full
 import genotype
