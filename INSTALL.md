@@ -1,5 +1,10 @@
 # INSTALL Genenetwork2 (GN2)
 
+## Use a Docker image
+
+A Docker image can be generated from
+[here](https://github.com/lomereiter/gn2-docker).
+
 ## Fetch GN2 from github
 
 Clone the repository (currently ~800Mb) to local
@@ -10,12 +15,14 @@ Clone the repository (currently ~800Mb) to local
 
 GN2 requires
 
+* python
 * redis
 * mysql
 
 ## Required python modules
 
-Install the following python modules:
+Install the following python modules (it is probably wise to use a local
+Python with environment for this)
 
 * Flask
 * pyyaml
@@ -53,12 +60,14 @@ SECRET_HMAC_CODE = '*'
 ```
 
 ```sh
+# Use a working copy of python
+export python=$HOME/ve27/bin/python
 export WQFLASK_SETTINGS=$HOME/settings.py
 source /home/pjotr/ve27/bin/activate  
 cd genenetwork2/wqflask
-python ./runserver.py
+$python ./runserver.py
 
 or
 
-python ./secure_server.py
+$python ./secure_server.py
 ```

@@ -856,7 +856,7 @@ def gwas_with_redis(key,species,new_code=True):
         print(key)
         v = params[key]
         if v is not None:
-            v = np.array(v)
+            v = np.array(v).astype(np.float)
         return v
 
     def narrayT(key):
@@ -969,6 +969,6 @@ if __name__ == '__main__':
     if has_gn2:
         gn2_main()
     else:
-        print("Run from runlmm.py instead")
+        fatal("Run from runlmm.py instead")
 
 
