@@ -20,9 +20,9 @@ from wqflask import app
 
 import logging
 #from themodule import TheHandlerYouWant
-file_handler = logging.FileHandler("/tmp/flask_gn_log_danny_unsecure")
-file_handler.setLevel(logging.DEBUG)
-app.logger.addHandler(file_handler)
+# file_handler = logging.FileHandler("/tmp/flask_gn_log_danny_unsecure")
+# file_handler.setLevel(logging.DEBUG)
+# app.logger.addHandler(file_handler)
 
 import logging_tree
 logging_tree.printout()

@@ -17,7 +17,7 @@ logger = logging.getLogger('lmm2')
 logging.basicConfig(level=logging.DEBUG)
 np.set_printoptions(precision=3,suppress=True)
 
-progress_location = None 
+progress_location = None
 progress_current  = None
 progress_prev_perc     = None
 
@@ -25,17 +25,17 @@ def progress_default_func(location,count,total):
     global progress_current
     value = round(count*100.0/total)
     progress_current = value
-    
+
 progress_func = progress_default_func
 
 def progress_set_func(func):
     global progress_func
     progress_func = func
-    
+
 def progress(location, count, total):
     global progress_location
     global progress_prev_perc
-    
+
     perc = round(count*100.0/total)
     if perc != progress_prev_perc and (location != progress_location or perc > 98 or perc > progress_prev_perc + 5):
         progress_func(location, count, total)

@@ -40,6 +40,7 @@ from utility import temp_data
 
 from utility.benchmark import Bench
 
+PYLMM_COMMAND= 'python /home/pjotr/izip/git/opensource/python/gn2/wqflask/wqflask/my_pylmm/pyLMM/lmm.py'
 
 class MarkerRegression(object):
 
@@ -126,8 +127,9 @@ class MarkerRegression(object):
 
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         self.qtl_results = []
-        for qtl in self.filtered_markers:
-            print("lod score is:", qtl['lod_score'])
+        for index,qtl in enumerate(self.filtered_markers):
+            if index<40:
+                print("lod score is:", qtl['lod_score'])
             if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
                 print("changing to X")
                 self.json_data['chr'].append("X")
@@ -144,7 +146,7 @@ class MarkerRegression(object):
             self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
-        print("json_data:", self.json_data)
+        # print("json_data:", self.json_data)
         
 
         self.js_data = dict(
@@ -272,7 +274,7 @@ class MarkerRegression(object):
         """)
     
     def run_rqtl_geno(self):
-        print("Calling R/qtl from python")
+        print("Calling R/qtl")
 
         self.geno_to_rqtl_function()
 
@@ -655,8 +657,7 @@ class MarkerRegression(object):
                 Redis.set(key, json_params)
                 Redis.expire(key, 60*60)
     
-                command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
-                                                                                                                        "other")
+                command = PYLMM_COMMAND+' --key {} --species {}'.format(key,"other")
     
                 os.system(command)
     
@@ -713,8 +714,8 @@ class MarkerRegression(object):
             #            "refit": False,
             #            "temp_data": tempdata}
             
-            print("genotype_matrix:", str(genotype_matrix.tolist()))
-            print("pheno_vector:", str(pheno_vector.tolist()))
+            # print("genotype_matrix:", str(genotype_matrix.tolist()))
+            # print("pheno_vector:", str(pheno_vector.tolist()))
             
             params = dict(pheno_vector = pheno_vector.tolist(),
                         genotype_matrix = genotype_matrix.tolist(),
@@ -732,7 +733,7 @@ class MarkerRegression(object):
             Redis.expire(key, 60*60)
             print("before printing command")
 
-            command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+            command = PYLMM_COMMAND + ' --key {} --species {}'.format(key,
                                                                                                                     "other")
             print("command is:", command)
             print("after printing command")
@@ -745,7 +746,7 @@ class MarkerRegression(object):
             json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
             results = json.loads(json_results[1])
             p_values = [float(result) for result in results['p_values']]
-            print("p_values:", p_values)
+            print("p_values:", p_values[:10])
             #p_values = self.trim_results(p_values)
             t_stats = results['t_stats']
             
@@ -806,7 +807,7 @@ class MarkerRegression(object):
 
         print("Before creating the command")
 
-        command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+        command = PYLMM_COMMAND+' --key {} --species {}'.format(key,
                                                                                                                 "human")
         
         print("command is:", command)

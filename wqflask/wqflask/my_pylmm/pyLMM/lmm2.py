@@ -24,14 +24,24 @@ from scipy import optimize
 from optmatrix import matrixMult
 import kinship
 
+sys.stderr.write("INFO: pylmm (lmm2) system path is "+":".join(sys.path)+"\n")
+sys.stderr.write("INFO: pylmm (lmm2) file is "+__file__+"\n")
+
 # ---- A trick to decide on the environment:
 try:
-    from wqflask.my_pylmm.pyLMM import chunks
-    from gn2 import uses
+    sys.stderr.write("INFO: trying loading module\n")
+    import utility.formatting # this is never used, just to check the environment
+    sys.stderr.write("INFO: This is a genenetwork2 environment (lmm2)\n")
+    from gn2 import uses, progress_set_func
 except ImportError:
-    sys.stderr.write("WARNING: LMM2 standalone version missing the Genenetwork2 environment\n")
+    # Failed to load gn2
     has_gn2=False
-    from standalone import uses
+    import standalone as handlers
+    from standalone import uses, progress_set_func
+    sys.stderr.write("WARNING: LMM2 standalone version missing the Genenetwork2 environment\n")
+
+progress,mprint,debug,info,fatal = uses('progress','mprint','debug','info','fatal')
+
 
 def calculateKinship(W,center=False):
       """
