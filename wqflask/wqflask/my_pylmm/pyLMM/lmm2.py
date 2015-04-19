@@ -29,7 +29,7 @@ sys.stderr.write("INFO: pylmm (lmm2) file is "+__file__+"\n")
 
 # ---- A trick to decide on the environment:
 try:
-    sys.stderr.write("INFO: trying loading module\n")
+    sys.stderr.write("INFO: lmm2 try loading module\n")
     import utility.formatting # this is never used, just to check the environment
     sys.stderr.write("INFO: This is a genenetwork2 environment (lmm2)\n")
     from gn2 import uses, progress_set_func

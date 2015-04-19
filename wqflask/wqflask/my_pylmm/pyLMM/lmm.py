@@ -19,48 +19,46 @@ from __future__ import absolute_import, print_function, division
 
 import sys
 import time
-import argparse
+# import argparse
 import uuid
 
 import numpy as np
 from scipy import linalg
 from scipy import optimize
 from scipy import stats
-import pdb
+# import pdb
 
-import simplejson as json
-
-import gzip
-import zlib
+# import gzip
+# import zlib
 import datetime
-import cPickle as pickle
-import simplejson as json
-
+# import cPickle as pickle
 from pprint import pformat as pf
 
-from redis import Redis
-Redis = Redis()
-
-import sys
-
-from utility.benchmark import Bench
-from utility import temp_data
-
+# pylmm imports
 from kinship import kinship, kinship_full, kvakve
 import genotype
 import phenotype
 import gwas
+from benchmark import Bench
 
-has_gn2=True
-sys.stderr.write("INFO: pylmm system path is "+":".join(sys.path)+"\n")
+# The following imports are for exchanging data with the webserver
+import simplejson as json
+from redis import Redis
+Redis = Redis()
+from utility import temp_data
+
+has_gn2=None
+
+# sys.stderr.write("INFO: pylmm system path is "+":".join(sys.path)+"\n")
 sys.stderr.write("INFO: pylmm file is "+__file__+"\n")
 
 # ---- A trick to decide on the environment:
 try:
-    sys.stderr.write("INFO: trying loading module\n")
+    sys.stderr.write("INFO: lmm try loading module\n")
     import utility.formatting # this is never used, just to check the environment
     sys.stderr.write("INFO: This is a genenetwork2 environment\n")
     from gn2 import uses, progress_set_func
+    has_gn2=True
 except ImportError:
     # Failed to load gn2
     has_gn2=False
