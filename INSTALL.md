@@ -71,3 +71,7 @@ or
 
 $python ./secure_server.py
 ```
+
+## Other information
+
+Check also the ./misc/ directory for settings
