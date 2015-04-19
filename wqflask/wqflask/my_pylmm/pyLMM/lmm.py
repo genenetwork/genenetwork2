@@ -19,7 +19,6 @@ from __future__ import absolute_import, print_function, division
 
 import sys
 import time
-# import argparse
 import uuid
 
 import numpy as np
@@ -977,6 +976,7 @@ def gn2_load_redis_iter(key,species,kinship,pheno,geno_iterator):
 # Note that this calling route will become OBSOLETE (we should use runlmm.py
 # instead)
 def gn2_main():
+    import argparse
     parser = argparse.ArgumentParser(description='Run pyLMM')
     parser.add_argument('-k', '--key')
     parser.add_argument('-s', '--species')
@@ -991,9 +991,5 @@ def gn2_main():
 
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
-    if has_gn2:
-        gn2_main()
-    else:
-        fatal("Run from runlmm.py instead")
-
+    gn2_main()
 
