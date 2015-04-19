@@ -18,6 +18,8 @@ from wqflask import app
 #_ch = logging.StreamHandler()
 #_log.addHandler(_ch)
 
+print app.config
+
 import logging
 file_handler = logging.FileHandler(app.config['LOGFILE'])
 file_handler.setLevel(logging.DEBUG)
