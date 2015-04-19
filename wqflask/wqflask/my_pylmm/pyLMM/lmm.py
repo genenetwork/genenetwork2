@@ -45,7 +45,7 @@ from benchmark import Bench
 import simplejson as json
 from redis import Redis
 Redis = Redis()
-from utility import temp_data
+import temp_data
 
 has_gn2=None
 
