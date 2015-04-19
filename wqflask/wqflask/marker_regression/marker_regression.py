@@ -42,11 +42,11 @@ from utility import temp_data
 from utility.benchmark import Bench
 
 import os
-if os.environ['PYLMM_PATH'] is None:
-    PYLMM_PATH=app.config['PYLMM_PATH']
+if os.environ.get('PYLMM_PATH') is None:
+    PYLMM_PATH=app.config.get('PYLMM_PATH')
     if PYLMM_PATH is None:
         PYLMM_PATH=os.environ['HOME']+'/gene/wqflask/wqflask/my_pylmm/pyLMM'
-if !os.path.isfile(PYLMM_PATH+'lmm.py'):
+if not os.path.isfile(PYLMM_PATH+'/lmm.py'):
     raise 'PYLMM_PATH unknown or faulty'
 PYLMM_COMMAND= 'python '+PYLMM_PATH+'/lmm.py'
 
