@@ -33,6 +33,28 @@
             <h2>
                 Results
             </h2>
+            <table cellpadding="0" cellspacing="0" border="0" id="pair_scan_results" class="table table-hover table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <td>Index</td>
+                        <td>Locus</td>
+                        <td>Chr 1</td>
+                        <td>Mb</td>
+                        <td>Chr 2</td>
+                   </tr>
+                </thead>
+                <tbody>
+                    {% for marker in pair_scan_results %}
+                        <tr>
+                            <td>{{loop.index}}</td>
+                            <td>{{marker.name}}</td>
+                            <td>{{marker.chr1}}</td>
+                            <td>{{marker.Mb}}</td>
+                            <td>{{marker.chr2}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 

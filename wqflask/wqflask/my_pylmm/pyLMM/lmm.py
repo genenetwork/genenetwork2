@@ -19,49 +19,59 @@ from __future__ import absolute_import, print_function, division
 
 import sys
 import time
-import argparse
 import uuid
 
 import numpy as np
 from scipy import linalg
 from scipy import optimize
 from scipy import stats
-import pdb
+# import pdb
 
-import simplejson as json
-
-import gzip
-import zlib
+# import gzip
+# import zlib
 import datetime
-import cPickle as pickle
-import simplejson as json
-
+# import cPickle as pickle
 from pprint import pformat as pf
 
-from redis import Redis
-Redis = Redis()
+# Add local dir to PYTHONPATH
+import os
+cwd = os.path.dirname(__file__)
+if sys.path[0] != cwd:
+    sys.path.insert(1,cwd)
 
-import sys
-sys.path.append("/home/zas1024/gene/wqflask/")
-
-has_gn2=True
-
-from utility.benchmark import Bench
-from utility import temp_data
-
-sys.path.append("/home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/")
-
+# pylmm imports
 from kinship import kinship, kinship_full, kvakve
 import genotype
 import phenotype
 import gwas
+from benchmark import Bench
 
+# The following imports are for exchanging data with the webserver
+import simplejson as json
+from redis import Redis
+Redis = Redis()
+import temp_data
+
+has_gn2=None
+
+# sys.stderr.write("INFO: pylmm system path is "+":".join(sys.path)+"\n")
+sys.stderr.write("INFO: pylmm file is "+__file__+"\n")
+
+# ---- A trick to decide on the environment:
 try:
-    from wqflask.my_pylmm.pyLMM import chunks
+    sys.stderr.write("INFO: lmm try loading module\n")
+    import utility.formatting # this is never used, just to check the environment
+    sys.stderr.write("INFO: This is a genenetwork2 environment\n")
+    from gn2 import uses, progress_set_func
+    has_gn2=True
 except ImportError:
-    print("WARNING: Standalone version missing the Genenetwork2 environment\n")
+    # Failed to load gn2
     has_gn2=False
-    pass
+    import standalone as handlers
+    from standalone import uses, progress_set_func
+    sys.stderr.write("WARNING: LMM standalone version missing the Genenetwork2 environment\n")
+
+progress,mprint,debug,info,fatal = uses('progress','mprint','debug','info','fatal')
 
 #np.seterr('raise')
 
@@ -76,8 +86,7 @@ def run_human(pheno_vector,
             covariate_matrix,
             plink_input_file,
             kinship_matrix,
-            refit=False,
-            tempdata=None):
+            refit=False):
 
     v = np.isnan(pheno_vector)
     keep = True - v
@@ -169,10 +178,7 @@ def run_human(pheno_vector,
             #if count > 1000:
             #    break
             count += 1
-
-            percent_complete = (float(count) / total_snps) * 100
-            #print("percent_complete: ", percent_complete)
-            tempdata.store("percent_complete", percent_complete)
+            progress("human",count,total_snps)
 
             #with Bench("actual association"):
             ps, ts = human_association(snp,
@@ -260,23 +266,19 @@ def human_association(snp,
 def run_other_old(pheno_vector,
         genotype_matrix,
         restricted_max_likelihood=True,
-        refit=False,
-        tempdata=None      # <---- can not be None
-        ):
+        refit=False):
     
     """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
     
     restricted_max_likelihood -- whether to use restricted max likelihood; True or False
     refit -- whether to refit the variance component for each marker
-    temp_data -- TempData object that stores the progress for each major step of the
-    calculations ("calculate_kinship" and "GWAS" take the majority of time) 
     
     """
     
     print("Running the original LMM engine in run_other (old)")
     print("REML=",restricted_max_likelihood," REFIT=",refit)
     with Bench("Calculate Kinship"):
-        kinship_matrix,genotype_matrix = calculate_kinship(genotype_matrix, tempdata)
+        kinship_matrix,genotype_matrix = calculate_kinship_new(genotype_matrix)
     
     print("kinship_matrix: ", pf(kinship_matrix))
     print("kinship_matrix.shape: ", pf(kinship_matrix.shape))
@@ -292,27 +294,22 @@ def run_other_old(pheno_vector,
 
     with Bench("Doing GWAS"):
         t_stats, p_values = GWAS(pheno_vector,
-                                      genotype_matrix,
+                                      genotype_matrix.T,
                                       kinship_matrix,
                                       restricted_max_likelihood=True,
-                                      refit=False,
-                                      temp_data=tempdata)
+                                      refit=False)
     Bench().report()
     return p_values, t_stats
 
-def run_other_new(pheno_vector,
-        genotype_matrix,
+def run_other_new(n,m,pheno_vector,
+        geno,
         restricted_max_likelihood=True,
-        refit=False,
-        tempdata=None      # <---- can not be None
-        ):
+        refit=False):
     
     """Takes the phenotype vector and genotype matrix and returns a set of p-values and t-statistics
     
     restricted_max_likelihood -- whether to use restricted max likelihood; True or False
     refit -- whether to refit the variance component for each marker
-    temp_data -- TempData object that stores the progress for each major step of the
-    calculations ("calculate_kinship" and "GWAS" take the majority of time) 
     
     """
     
@@ -320,8 +317,7 @@ def run_other_new(pheno_vector,
     print("REML=",restricted_max_likelihood," REFIT=",refit)
 
     # Adjust phenotypes
-    Y,G,keep = phenotype.remove_missing(pheno_vector,genotype_matrix,verbose=True)
-    print("Removed missing phenotypes",Y.shape)
+    n,Y,keep = phenotype.remove_missing_new(n,pheno_vector)
 
     # if options.maf_normalization:
     #     G = np.apply_along_axis( genotype.replace_missing_with_MAF, axis=0, arr=g )
@@ -329,8 +325,9 @@ def run_other_new(pheno_vector,
     # if not options.skip_genotype_normalization:
     # G = np.apply_along_axis( genotype.normalize, axis=1, arr=G)
 
+    geno = geno[:,keep]
     with Bench("Calculate Kinship"):
-        K,G = calculate_kinship(G, tempdata)
+        K,G = calculate_kinship_new(geno)
     
     print("kinship_matrix: ", pf(K))
     print("kinship_matrix.shape: ", pf(K.shape))
@@ -345,7 +342,7 @@ def run_other_new(pheno_vector,
 
     with Bench("Doing GWAS"):
         t_stats, p_values = gwas.gwas(Y,
-                                      G.T,
+                                      G,
                                       K,
                                       restricted_max_likelihood=True,
                                       refit=False,verbose=True)
@@ -385,18 +382,30 @@ def matrixMult(A,B):
 
     return linalg.fblas.dgemm(alpha=1.,a=AA,b=BB,trans_a=transA,trans_b=transB)
 
-
-def calculate_kinship_new(genotype_matrix, temp_data=None):
+def calculate_kinship_new(genotype_matrix):
     """ 
     Call the new kinship calculation where genotype_matrix contains
     inds (columns) by snps (rows).
     """
-    print("call genotype.normalize")
-    G = np.apply_along_axis( genotype.normalize, axis=0, arr=genotype_matrix)
-    print("call calculate_kinship_new")
-    return kinship(G.T),G # G gets transposed, we'll turn this into an iterator (FIXME)
+    assert type(genotype_matrix) is np.ndarray
+    info("call genotype.normalize")
+    G = np.apply_along_axis( genotype.normalize, axis=1, arr=genotype_matrix)
+    mprint("G",genotype_matrix)
+    info("call calculate_kinship_new")
+    return kinship(G),G # G gets transposed, we'll turn this into an iterator (FIXME)
 
-def calculate_kinship_old(genotype_matrix, temp_data=None):
+def calculate_kinship_iter(geno):
+    """ 
+    Call the new kinship calculation where genotype_matrix contains
+    inds (columns) by snps (rows).
+    """
+    assert type(genotype_matrix) is iter
+    info("call genotype.normalize")
+    G = np.apply_along_axis( genotype.normalize, axis=0, arr=genotype_matrix)
+    info("call calculate_kinship_new")
+    return kinship(G)
+
+def calculate_kinship_old(genotype_matrix):
     """
     genotype_matrix is an n x m matrix encoding SNP minor alleles.
     
@@ -404,13 +413,15 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
     normalizes the resulting vectors and returns the RRM matrix.
     
     """
-    print("call calculate_kinship_old")
+    info("call calculate_kinship_old")
+    fatal("THE FUNCTION calculate_kinship_old IS OBSOLETE, use calculate_kinship_new instead - see Genotype Normalization Problem on Pjotr's blog")
     n = genotype_matrix.shape[0]
     m = genotype_matrix.shape[1]
-    print("genotype 2D matrix n (inds) is:", n)
-    print("genotype 2D matrix m (snps) is:", m)
+    info("genotype 2D matrix n (inds) is: %d" % (n))
+    info("genotype 2D matrix m (snps) is: %d" % (m))
     assert m>n, "n should be larger than m (snps>inds)"
     keep = []
+    mprint("G (before old normalize)",genotype_matrix)
     for counter in range(m):
         #print("type of genotype_matrix[:,counter]:", pf(genotype_matrix[:,counter]))
         #Checks if any values in column are not numbers
@@ -429,17 +440,13 @@ def calculate_kinship_old(genotype_matrix, temp_data=None):
             continue
         keep.append(counter)
         genotype_matrix[:,counter] = (genotype_matrix[:,counter] - values_mean) / np.sqrt(vr)
-        
-        percent_complete = int(round((counter/m)*45))
-        if temp_data != None:
-            temp_data.store("percent_complete", percent_complete)
+        progress('kinship_old normalize genotype',counter,m)
         
     genotype_matrix = genotype_matrix[:,keep]
-    print("After kinship (old) genotype_matrix: ", pf(genotype_matrix))
+    mprint("G (after old normalize)",genotype_matrix.T)
     kinship_matrix = np.dot(genotype_matrix, genotype_matrix.T) * 1.0/float(m)
     return kinship_matrix,genotype_matrix
-
-calculate_kinship = calculate_kinship_new  # alias
+    # return kinship_full(genotype_matrix.T),genotype_matrix
 
 def GWAS(pheno_vector,
          genotype_matrix,
@@ -465,9 +472,9 @@ def GWAS(pheno_vector,
     refit - refit the variance component for each SNP
     
     """
-    if kinship_eigen_vals == None:
+    if kinship_eigen_vals is None:
         kinship_eigen_vals = []
-    if kinship_eigen_vectors == None:
+    if kinship_eigen_vectors is None:
         kinship_eigen_vectors = []
     
     n = genotype_matrix.shape[0]
@@ -537,9 +544,8 @@ def GWAS(pheno_vector,
                 lmm_ob.fit(X=x)
             ts, ps, beta, betaVar = lmm_ob.association(x, REML=restricted_max_likelihood)
             
-        percent_complete = 45 + int(round((counter/m)*55))
-        temp_data.store("percent_complete", percent_complete)
-
+        progress("gwas_old",counter,m)
+        
         p_values.append(ps)
         t_statistics.append(ts)
 
@@ -572,7 +578,7 @@ class LMM:
        When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
        """
 
-       if X0 == None: X0 = np.ones(len(Y)).reshape(len(Y),1)
+       if X0 is None: X0 = np.ones(len(Y)).reshape(len(Y),1)
        self.verbose = verbose
  
        #x = Y != -9
@@ -665,7 +671,7 @@ class LMM:
            REML is computed by adding additional terms to the standard LL and can be computed by setting REML=True.
         """
  
-        if X == None:
+        if X is None:
             X = self.X0t
         elif stack: 
             self.X0t_stack[:,(self.q)] = matrixMult(self.Kve.T,X)[:,0]
@@ -804,48 +810,96 @@ class LMM:
        pl.ylabel("Probability of data")
        pl.title(title)
 
+def run_gwas(species,n,m,k,y,geno,cov=None,reml=True,refit=False,inputfn=None,new_code=True):
+    """
+    Invoke pylmm using genotype as a matrix or as a (SNP) iterator.
+    """
+    info("run_gwas")
+    print('pheno', y)
+    
+    if species == "human" :
+        print('kinship', k )
+        ps, ts = run_human(pheno_vector = y,
+                           covariate_matrix = cov,
+                           plink_input_file = inputfn,
+                           kinship_matrix = k,
+                           refit = refit)
+    else:
+        print('geno', geno.shape, geno)
 
-def gn2_redis(key,species,new_code=True):
+        if new_code:
+            ps, ts = run_other_new(n,m,pheno_vector = y,
+                                   geno = geno,
+                                   restricted_max_likelihood = reml,
+                                   refit = refit)
+        else:
+            ps, ts = run_other_old(pheno_vector = y,
+                               genotype_matrix = geno,
+                               restricted_max_likelihood = reml,
+                               refit = refit)
+    return ps,ts
+
+def gwas_with_redis(key,species,new_code=True):
     """
     Invoke pylmm using Redis as a container. new_code runs the new
-    version
+    version. All the Redis code goes here!
     """
     json_params = Redis.get(key)
     
     params = json.loads(json_params)
     
     tempdata = temp_data.TempData(params['temp_uuid'])
+    def update_tempdata(loc,i,total):
+        """
+        This is the single method that updates Redis for percentage complete!
+        """
+        tempdata.store("percent_complete",round(i*100.0/total))
+        debug("Updating REDIS percent_complete=%d" % (round(i*100.0/total)))
+    progress_set_func(update_tempdata)
 
-    
-    print('pheno', np.array(params['pheno_vector']))
-    
-    if species == "human" :
-        print('kinship', np.array(params['kinship_matrix']))
-        ps, ts = run_human(pheno_vector = np.array(params['pheno_vector']),
-                  covariate_matrix = np.array(params['covariate_matrix']),
-                  plink_input_file = params['input_file_name'],
-                  kinship_matrix = np.array(params['kinship_matrix']),
-                  refit = params['refit'],
-                  tempdata = tempdata)
-    else:
-        geno = np.array(params['genotype_matrix'])
-        print('geno', geno.shape, geno)
+    def narray(t):
+        info("Type is "+t)
+        v = params.get(t)
+        if v is not None:
+            # Note input values can be array of string or float
+            v1 = [x if x != 'NA' else 'nan' for x in v]
+            v = np.array(v1).astype(np.float)
+        return v
 
-        if new_code:
-            ps, ts = run_other_new(pheno_vector = np.array(params['pheno_vector']),
-                               genotype_matrix = geno,
-                               restricted_max_likelihood = params['restricted_max_likelihood'],
-                               refit = params['refit'],
-                               tempdata = tempdata)
-        else:
-            ps, ts = run_other_old(pheno_vector = np.array(params['pheno_vector']),
-                               genotype_matrix = geno,
-                               restricted_max_likelihood = params['restricted_max_likelihood'],
-                               refit = params['refit'],
-                               tempdata = tempdata)
+    def marray(t):
+        info("Type is "+t)
+        v = params.get(t)
+        if v is not None:
+            m = []
+            for r in v:
+              # Note input values can be array of string or float
+              r1 = [x if x != 'NA' else 'nan' for x in r]
+              m.append(np.array(r1).astype(np.float))
+            return np.array(m)
+        return np.array(v)
+
+    def marrayT(t):
+        m = marray(t)
+        if m is not None:
+            return m.T
+        return m
+    
+    # We are transposing before we enter run_gwas - this should happen on the webserver
+    # side (or when reading data from file)
+    k = marray('kinship_matrix')
+    g = marrayT('genotype_matrix')
+    mprint("geno",g)
+    y = narray('pheno_vector')
+    n = len(y)
+    m = params.get('num_genotypes')
+    if m is None:
+      m = g.shape[0]
+    info("m=%d,n=%d" % (m,n))
+    ps,ts = run_gwas(species,n,m,k,y,g,narray('covariate_matrix'),params['restricted_max_likelihood'],params['refit'],params.get('input_file_name'),new_code)
         
     results_key = "pylmm:results:" + params['temp_uuid']
 
+    # fatal(results_key)
     json_results = json.dumps(dict(p_values = ps,
                                    t_stats = ts))
     
@@ -854,28 +908,56 @@ def gn2_redis(key,species,new_code=True):
     Redis.expire(results_key, 60*60)
     return ps, ts
 
-# This is the main function used by Genenetwork2 (with environment)
-def gn2_main():
-    parser = argparse.ArgumentParser(description='Run pyLMM')
-    parser.add_argument('-k', '--key')
-    parser.add_argument('-s', '--species')
-    
-    opts = parser.parse_args()
-    
-    key = opts.key
-    species = opts.species
-
-    gn2_redis(key,species)
-
 def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
-    print("Loading Redis from parsed data")
+    """
+    This function emulates current GN2 behaviour by pre-loading Redis (note the input
+    genotype is transposed to emulate GN2 (FIXME!)
+    """
+    info("Loading Redis from parsed data")
     if kinship == None:
         k = None
     else:
         k = kinship.tolist()
     params = dict(pheno_vector = pheno.tolist(),
-                  genotype_matrix = geno.tolist(),
-                  kinship_matrix= k,
+                  genotype_matrix = geno.T.tolist(),
+                  num_genotypes = geno.shape[0],
+                  kinship_matrix = k,
+                  covariate_matrix = None,
+                  input_file_name = None,
+                  restricted_max_likelihood = True,
+                  refit = False,
+                  temp_uuid = "testrun_temp_uuid",
+                        
+                  # meta data
+                  timestamp = datetime.datetime.now().isoformat())
+            
+    json_params = json.dumps(params)
+    Redis.set(key, json_params)
+    Redis.expire(key, 60*60)
+
+    return gwas_with_redis(key,species,new_code)
+
+def gn2_load_redis_iter(key,species,kinship,pheno,geno_iterator):
+    """
+    This function emulates GN2 behaviour by pre-loading Redis with
+    a SNP iterator, for this it sets a key for every genotype (SNP)
+    """
+    print("Loading Redis using a SNP iterator")
+    for i,genotypes in enumerate(geno_iterator):
+        gkey = key+'_geno_'+str(i)
+        Redis.set(gkey, genotypes)
+        Redis.expire(gkey, 60*60)
+    
+    if kinship == None:
+        k = None
+    else:
+        k = kinship.tolist()
+    params = dict(pheno_vector = pheno.tolist(),
+                  genotype_matrix = "iterator",
+                  num_genotypes = i,
+                  kinship_matrix = k,
+                  covariate_matrix = None,
+                  input_file_name = None,
                   restricted_max_likelihood = True,
                   refit = False,
                   temp_uuid = "testrun_temp_uuid",
@@ -887,14 +969,27 @@ def gn2_load_redis(key,species,kinship,pheno,geno,new_code=True):
     json_params = json.dumps(params)
     Redis.set(key, json_params)
     Redis.expire(key, 60*60)
+    return gwas_with_redis(key,species)
 
-    return gn2_redis(key,species,new_code)
+# This is the main function used by Genenetwork2 (with environment)
+#
+# Note that this calling route will become OBSOLETE (we should use runlmm.py
+# instead)
+def gn2_main():
+    import argparse
+    parser = argparse.ArgumentParser(description='Run pyLMM')
+    parser.add_argument('-k', '--key')
+    parser.add_argument('-s', '--species')
     
+    opts = parser.parse_args()
+    
+    key = opts.key
+    species = opts.species
+
+    gwas_with_redis(key,species)
+
+
 if __name__ == '__main__':
     print("WARNING: Calling pylmm from lmm.py will become OBSOLETE, use runlmm.py instead!")
-    if has_gn2:
-        gn2_main()
-    else:
-        print("Run from runlmm.py instead")
-
+    gn2_main()
 

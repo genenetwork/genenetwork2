@@ -1,5 +1,5 @@
-# This is a converter for common LMM formats, so as to keep complexity
-# outside the main routines. 
+# This is a converter for common LMM formats, so as to keep file
+# reader complexity outside the main routines.
 
 # Copyright (C) 2015  Pjotr Prins (pjotr.prins@thebird.nl)
 #
@@ -31,6 +31,12 @@ python convertlmm.py [--plink] [--prefix out_basename] [--kinship kfile] [--phen
   Convert files for runlmm.py processing. Writes to stdout by default.
 
   try --help for more information
+
+Examples:
+
+  python ./my_pylmm/pyLMM/convertlmm.py --plink --pheno data/test_snps.132k.clean.noX.fake.phenos > test.pheno
+
+  python ./my_pylmm/pyLMM/convertlmm.py --plink --pheno data/test_snps.132k.clean.noX.fake.phenos --geno data/test_snps.132k.clean.noX > test.geno
 """
 
 # if len(args) == 0:

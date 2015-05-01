@@ -24,6 +24,25 @@ from scipy import optimize
 from optmatrix import matrixMult
 import kinship
 
+sys.stderr.write("INFO: pylmm (lmm2) system path is "+":".join(sys.path)+"\n")
+sys.stderr.write("INFO: pylmm (lmm2) file is "+__file__+"\n")
+
+# ---- A trick to decide on the environment:
+try:
+    sys.stderr.write("INFO: lmm2 try loading module\n")
+    import utility.formatting # this is never used, just to check the environment
+    sys.stderr.write("INFO: This is a genenetwork2 environment (lmm2)\n")
+    from gn2 import uses, progress_set_func
+except ImportError:
+    # Failed to load gn2
+    has_gn2=False
+    import standalone as handlers
+    from standalone import uses, progress_set_func
+    sys.stderr.write("WARNING: LMM2 standalone version missing the Genenetwork2 environment\n")
+
+progress,mprint,debug,info,fatal = uses('progress','mprint','debug','info','fatal')
+
+
 def calculateKinship(W,center=False):
       """
 	 W is an n x m matrix encoding SNP minor alleles.
@@ -75,7 +94,7 @@ def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
       print("genotype matrix n is:", n)
       print("genotype matrix m is:", m)
 
-      if X0 == None: 
+      if X0 is None: 
          X0 = np.ones((n,1))
       
       # Remove missing values in Y and adjust associated parameters
@@ -139,31 +158,35 @@ def GWAS(Y, X, K, Kva=[], Kve=[], X0=None, REML=True, refit=False):
 
 class LMM2:
 
-   """
-	 This is a simple version of EMMA/fastLMM.  
-	 The main purpose of this module is to take a phenotype vector (Y), a set of covariates (X) and a kinship matrix (K)
-	 and to optimize this model by finding the maximum-likelihood estimates for the model parameters.
-	 There are three model parameters: heritability (h), covariate coefficients (beta) and the total
-	 phenotypic variance (sigma).
-	 Heritability as defined here is the proportion of the total variance (sigma) that is attributed to 
-	 the kinship matrix.
+   """This is a simple version of EMMA/fastLMM.
 
-	 For simplicity, we assume that everything being input is a numpy array.
-	 If this is not the case, the module may throw an error as conversion from list to numpy array
-	 is not done consistently.
+   The main purpose of this module is to take a phenotype vector (Y),
+   a set of covariates (X) and a kinship matrix (K) and to optimize
+   this model by finding the maximum-likelihood estimates for the
+   model parameters.  There are three model parameters: heritability
+   (h), covariate coefficients (beta) and the total phenotypic
+   variance (sigma).  Heritability as defined here is the proportion
+   of the total variance (sigma) that is attributed to the kinship
+   matrix.
+
+   For simplicity, we assume that everything being input is a numpy
+   array.  If this is not the case, the module may throw an error as
+   conversion from list to numpy array is not done consistently.
 
    """
    def __init__(self,Y,K,Kva=[],Kve=[],X0=None,verbose=False):
 
-      """
-      The constructor takes a phenotype vector or array Y of size n.
-      It takes a kinship matrix K of size n x n.  Kva and Kve can be computed as Kva,Kve = linalg.eigh(K) and cached.
-      If they are not provided, the constructor will calculate them.
-      X0 is an optional covariate matrix of size n x q, where there are q covariates.
-      When this parameter is not provided, the constructor will set X0 to an n x 1 matrix of all ones to represent a mean effect.
+      """The constructor takes a phenotype vector or array Y of size n. It
+      takes a kinship matrix K of size n x n.  Kva and Kve can be
+      computed as Kva,Kve = linalg.eigh(K) and cached.  If they are
+      not provided, the constructor will calculate them.  X0 is an
+      optional covariate matrix of size n x q, where there are q
+      covariates.  When this parameter is not provided, the
+      constructor will set X0 to an n x 1 matrix of all ones to
+      represent a mean effect.
       """
 
-      if X0 == None: 
+      if X0 is None: 
 	 X0 = np.ones(len(Y)).reshape(len(Y),1)
       self.verbose = verbose
 
@@ -250,7 +273,7 @@ class LMM2:
 	 REML is computed by adding additional terms to the standard LL and can be computed by setting REML=True.
       """
 
-      if X == None: X = self.X0t
+      if X is None: X = self.X0t
       elif stack: 
 	 self.X0t_stack[:,(self.q)] = matrixMult(self.Kve.T,X)[:,0]
 	 X = self.X0t_stack
@@ -306,7 +329,7 @@ class LMM2:
 	 Given this optimum, the function computes the LL and associated ML solutions.
       """
       
-      if X == None: X = self.X0t
+      if X is None: X = self.X0t
       else: 
 	 #X = np.hstack([self.X0t,matrixMult(self.Kve.T, X)])
 	 self.X0t_stack[:,(self.q)] = matrixMult(self.Kve.T,X)[:,0]
@@ -330,7 +353,7 @@ class LMM2:
    def association(self,X,h=None,stack=True,REML=True,returnBeta=False):
       """
 	Calculates association statitics for the SNPs encoded in the vector X of size n.
-	If h == None, the optimal h stored in optH is used.
+	If h is None, the optimal h stored in optH is used.
 
       """
       if False:
@@ -348,7 +371,7 @@ class LMM2:
          self.X0t_stack[:,(self.q)] = m
 	 X = self.X0t_stack
 	 
-      if h == None: h = self.optH
+      if h is None: h = self.optH
 
       L,beta,sigma,betaVAR = self.LL(h,X,stack=False,REML=REML)
       q  = len(beta)

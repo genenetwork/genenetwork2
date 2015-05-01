@@ -37,14 +37,15 @@ def normalize(ind_g):
     Run for every SNP list (for one individual) and return
     normalized SNP genotype values with missing data filled in
     """
-    g1 = np.copy(ind_g)          # avoid side effects
-    x = True - np.isnan(ind_g)   # Matrix of True/False
-    m = ind_g[x].mean()          # Global mean value
-    s = np.sqrt(ind_g[x].var())  # Global stddev
-    g1[np.isnan(ind_g)] = m      # Plug-in mean values for missing data
-    if s == 0:
-        g1 = g1 - m              # Subtract the mean
+    g = np.copy(ind_g)              # copy to avoid side effects
+    missing = np.isnan(g)
+    values = g[True - missing]
+    mean = values.mean()            # Global mean value
+    stddev = np.sqrt(values.var())  # Global stddev
+    g[missing] = mean               # Plug-in mean values for missing data
+    if stddev == 0:
+        g = g - mean                # Subtract the mean
     else:
-        g1 = (g1 - m) / s        # Normalize the deviation
-    return g1
+        g = (g - mean) / stddev     # Normalize the deviation
+    return g
 
