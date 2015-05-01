@@ -32,10 +32,10 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
-from wqflask.marker_regression import qtl_reaper_mapping
-from wqflask.marker_regression import plink_mapping
+#from wqflask.marker_regression import qtl_reaper_mapping
+#from wqflask.marker_regression import plink_mapping
 from wqflask.marker_regression import gemma_mapping
-from wqflask.marker_regression import rqtl_mapping
+#from wqflask.marker_regression import rqtl_mapping
 from wqflask.my_pylmm.data import prep_data
 from wqflask.my_pylmm.pyLMM import lmm
 from wqflask.my_pylmm.pyLMM import input
