@@ -24,18 +24,18 @@
             <h4>Already have an account? Sign in here.</h4>
 
 
-            <form class="form-horizontal" action="/n/login" method="POST" name="login_user_form">
+            <form class="form-horizontal" action="/n/login" method="POST" name="login_user_form" id="loginUserForm">
                  <fieldset>
                     <div class="form-group">
                         <label style="text-align:left;" class="col-xs-1 control-label" for="email_address">Email&nbsp;Address</label>
-                        <div style="margin-left:20px;" class="col-xs-10">
+                        <div style="margin-left:20px;" class="col-xs-4">
                             <input id="email_address" class="focused" name="email_address" type="text" value="">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label style="text-align:left;" class="col-xs-1 control-label" for="password">Password</label>
-                        <div style="margin-left:20px;" class="col-xs-3 controls">
+                        <div style="margin-left:20px;" class="col-xs-4 controls">
                             <input id="password" name="password" type="password" value="">
                             <br />
                             <a href="/n/forgot_password">Forgot your password?</a><br/>
@@ -45,14 +45,14 @@
 
                     <div class="form-group">
                         <label class="col-xs-1 control-label" for="remember"></label>
-                        <div style="margin-left:20px;" class="col-xs-3 controls">
+                        <div style="margin-left:20px;" class="col-xs-4 controls">
                             <input id="remember" name="remember" type="checkbox" value="y"> <b>Remember me</b>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-xs-1 control-label" for="submit"></label>
-                        <div style="margin-left:20px;" class="col-xs-3 controls">
+                        <div style="margin-left:20px;" class="col-xs-4 controls">
                             <input id="next" name="next" type="hidden" value="">
                             <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
                         </div>
@@ -66,8 +66,41 @@
 
   {% endblock %}
 
+{% block css %}
+<style type="text/css">
+input.error{
+    border:1px solid #FF0000 !important;
+}
+
+label.error,div.error{
+    font-weight:normal;
+    color:#FF0000 !important;
+}
+</style>
+{% endblock %}
+
 {% block js %}
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>-->
+
+    <script type="text/javascript" src="/static/new/packages/ValidationPlugin/dist/jquery.validate.min.js"></script>
+    <script>
+    $(document).ready(function () {
+        $("#loginUserForm").validate({
+            onkeyup: false,
+            onsubmit: true,
+            onfocusout: function(element) { $(element).valid(); },
+            rules: {
+                email_address: {
+                    required: true,
+                    email: true
+                },
+                password: {
+                    required: true
+                }
+            }
+        });
+    });
+    </script>
 
     {% include "new_security/_scripts.html" %}
 
