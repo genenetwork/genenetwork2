@@ -186,7 +186,8 @@ def environments():
     doc = docs.Docs("environments")
     return render_template("docs.html", **doc.__dict__)
 
-@app.route('/export_trait_csv', methods=('POST',))
+# TODO
+@app.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
     print("In export_trait_excel")
