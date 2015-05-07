@@ -79,8 +79,8 @@ open_mapping_results = (data) ->
     $.colorbox(
         html: data
         href: "#mapping_results_holder"
-        height: "80%"
-        width: "80%"
+        height: "90%"
+        width: "90%"
     )
 
 showalert = (message,alerttype) ->
@@ -154,8 +154,8 @@ $("#plink_compute").click(() =>
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("plink")
-        $('input[name=mapping_display_all]').val($('input[name=display_all_plink]').val())
-        $('input[name=suggestive]').val($('input[name=suggestive_plink]').val())
+        #$('input[name=mapping_display_all]').val($('input[name=display_all_plink]').val())
+        #$('input[name=suggestive]').val($('input[name=suggestive_plink]').val())
         $('input[name=maf]').val($('input[name=maf_plink]').val())
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
@@ -164,11 +164,12 @@ $("#plink_compute").click(() =>
 )
 
 $("#gemma_compute").click(() =>
+        console.log("RUNNING GEMMA")
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("gemma")
-        $('input[name=mapping_display_all]').val($('input[name=display_all_gemma]').val())
-        $('input[name=suggestive]').val($('input[name=suggestive_gemma]').val())
+        #$('input[name=mapping_display_all]').val($('input[name=display_all_gemma]').val())
+        #$('input[name=suggestive]').val($('input[name=suggestive_gemma]').val())
         $('input[name=maf]').val($('input[name=maf_gemma]').val())
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)

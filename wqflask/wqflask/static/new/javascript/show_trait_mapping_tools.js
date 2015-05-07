@@ -99,8 +99,8 @@ open_mapping_results = function(data) {
   return $.colorbox({
     html: data,
     href: "#mapping_results_holder",
-    height: "80%",
-    width: "80%"
+    height: "90%",
+    width: "90%"
   });
 };
 
@@ -187,11 +187,10 @@ $("#plink_compute").click((function(_this) {
 $("#gemma_compute").click((function(_this) {
   return function() {
     var form_data, url;
+    console.log("RUNNING GEMMA");
     $("#static_progress_bar_container").modal();
     url = "/marker_regression";
     $('input[name=method]').val("gemma");
-    $('input[name=mapping_display_all]').val($('input[name=display_all_gemma]').val());
-    $('input[name=suggestive]').val($('input[name=suggestive_gemma]').val());
     $('input[name=maf]').val($('input[name=maf_gemma]').val());
     form_data = $('#trait_data_form').serialize();
     console.log("form_data is:", form_data);

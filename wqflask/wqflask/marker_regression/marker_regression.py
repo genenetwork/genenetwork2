@@ -32,6 +32,10 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
+#from wqflask.marker_regression import qtl_reaper_mapping
+#from wqflask.marker_regression import plink_mapping
+from wqflask.marker_regression import gemma_mapping
+#from wqflask.marker_regression import rqtl_mapping
 from wqflask.my_pylmm.data import prep_data
 from wqflask.my_pylmm.pyLMM import lmm
 from wqflask.my_pylmm.pyLMM import input
@@ -82,7 +86,10 @@ class MarkerRegression(object):
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
-            qtl_results = self.run_gemma()
+            included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
+            self.dataset.group.get_specified_markers(markers = included_markers)
+            self.dataset.group.markers.add_pvalues(p_values)
+            qtl_results = self.dataset.group.markers.markers
         elif self.mapping_method == "rqtl_plink":
             qtl_results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
@@ -97,9 +104,7 @@ class MarkerRegression(object):
 
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
-            print("pair scan:", self.pair_scan)
 
-            print("DOING RQTL GENO")
             qtl_results = self.run_rqtl_geno()
             print("qtl_results:", qtl_results)
         elif self.mapping_method == "plink":
@@ -166,11 +171,11 @@ class MarkerRegression(object):
             chromosomes = chromosome_mb_lengths,
             qtl_results = self.filtered_markers,
         )
+        
 
     def run_gemma(self):
         """Generates p-values for each marker using GEMMA"""
         
-        #filename = webqtlUtil.genRandStr("{}_{}_".format(self.dataset.group.name, self.this_trait.name))
         self.gen_pheno_txt_file()
 
         os.chdir("/home/zas1024/gene/web/gemma")
@@ -391,9 +396,23 @@ class MarkerRegression(object):
         return pheno_as_string
 
     def process_pair_scan_results(self, result):
-        results = []
+        pair_scan_results = []
 
-        return results
+        result = result[1]
+        output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
+        print("R/qtl scantwo output:", output)
+
+        for i, line in enumerate(result.iter_row()):
+            marker = {}
+            marker['name'] = result.rownames[i]
+            marker['chr1'] = output[i][0]
+            marker['Mb'] = output[i][1]
+            marker['chr2'] = int(output[i][2])
+            pair_scan_results.append(marker)
+
+        print("pair_scan_results:", pair_scan_results)
+
+        return pair_scan_results
 
     def process_rqtl_results(self, result):        # TODO: how to make this a one liner and not copy the stuff in a loop
         qtl_results = []
