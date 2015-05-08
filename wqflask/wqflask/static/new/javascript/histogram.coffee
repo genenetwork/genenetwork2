@@ -53,7 +53,7 @@ class Histogram
 
     get_histogram_data: () ->
         console.log("sample_vals:", @sample_vals)
-        n_bins = sqrt(@sample_vals.length)
+        n_bins = Math.sqrt(@sample_vals.length)
         @histogram_data = d3.layout.histogram()
             .bins(@x_scale.ticks(n_bins))(@sample_vals)
         console.log("histogram_data:", @histogram_data[0])
