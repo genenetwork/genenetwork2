@@ -265,6 +265,7 @@
         }
       }
       console.log("towards end:", sample_sets);
+      root.histogram.redraw(sample_sets['samples_primary'].the_values);
       return update_stat_values(sample_sets);
     };
     show_hide_outliers = function() {

@@ -13,10 +13,10 @@ class Histogram
         @y_buffer = @plot_height/20
         @plot_height -= @y_buffer
 
-        @redraw(@sample_list)
+        @get_sample_vals(@sample_list)
+        @redraw(@sample_vals)
 
-    redraw: (sample_list) ->
-        @get_sample_vals(sample_list)
+    redraw: (@sample_vals) ->
         @y_min = d3.min(@sample_vals)  
         @y_max = d3.max(@sample_vals) * 1.1
 

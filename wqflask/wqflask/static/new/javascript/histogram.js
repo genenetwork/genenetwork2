@@ -21,11 +21,12 @@
       this.x_buffer = this.plot_width / 20;
       this.y_buffer = this.plot_height / 20;
       this.plot_height -= this.y_buffer;
-      this.redraw(this.sample_list);
+      this.get_sample_vals(this.sample_list);
+      this.redraw(this.sample_vals);
     }
 
-    Histogram.prototype.redraw = function(sample_list) {
-      this.get_sample_vals(sample_list);
+    Histogram.prototype.redraw = function(sample_vals) {
+      this.sample_vals = sample_vals;
       this.y_min = d3.min(this.sample_vals);
       this.y_max = d3.max(this.sample_vals) * 1.1;
       this.create_x_scale();

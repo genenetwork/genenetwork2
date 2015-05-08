@@ -238,6 +238,7 @@ $ ->
                         sample_sets['samples_all'].add_value(real_value)
                         already_seen[name] = true
         console.log("towards end:", sample_sets)
+        root.histogram.redraw(sample_sets['samples_primary'].the_values)
         update_stat_values(sample_sets)
 
     show_hide_outliers = ->
