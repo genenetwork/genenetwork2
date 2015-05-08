@@ -5,6 +5,7 @@ import sys
 print("sys.path is:", sys.path)
 
 import csv
+import xlsxwriter
 import StringIO  # Todo: Use cStringIO?
 
 import gc
@@ -186,7 +187,7 @@ def environments():
     doc = docs.Docs("environments")
     return render_template("docs.html", **doc.__dict__)
 
-@app.route('/export_trait_csv', methods=('POST',))
+@app.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
     print("In export_trait_excel")
@@ -196,15 +197,18 @@ def export_trait_excel():
     print("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
     buff = StringIO.StringIO()
-    writer = csv.writer(buff)
-    for row in sample_data:
-        writer.writerow(row)
-    csv_data = buff.getvalue()
+    workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+    for i, row in enumerate(sample_data):
+        worksheet.write(i, 0, row[0])
+        worksheet.write(i, 1, row[1])
+    workbook.close()
+    excel_data = buff.getvalue()
     buff.close()
 
-    return Response(csv_data,
-                    mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=test.csv"})
+    return Response(excel_data,
+                    mimetype='application/vnd.ms-excel',
+                    headers={"Content-Disposition":"attachment;filename=test.xlsx"})
 
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_csv():
