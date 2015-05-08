@@ -5,12 +5,11 @@
   root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   Histogram = (function() {
-    function Histogram(sample_list, sample_group) {
-      this.sample_list = sample_list;
+    function Histogram(sample_list1, sample_group) {
+      this.sample_list = sample_list1;
       this.sample_group = sample_group;
       this.sort_by = "name";
       this.format_count = d3.format(",.0f");
-      this.get_sample_vals();
       this.margin = {
         top: 10,
         right: 30,
@@ -21,30 +20,35 @@
       this.plot_height = 500 - this.margin.top - this.margin.bottom;
       this.x_buffer = this.plot_width / 20;
       this.y_buffer = this.plot_height / 20;
+      this.plot_height -= this.y_buffer;
+      this.redraw(this.sample_list);
+    }
+
+    Histogram.prototype.redraw = function(sample_list) {
+      this.get_sample_vals(sample_list);
       this.y_min = d3.min(this.sample_vals);
       this.y_max = d3.max(this.sample_vals) * 1.1;
-      this.plot_height -= this.y_buffer;
       this.create_x_scale();
       this.get_histogram_data();
       this.create_y_scale();
+      $("#histogram").empty();
       this.svg = this.create_svg();
-      this.create_graph();
-    }
+      return this.create_graph();
+    };
 
-    Histogram.prototype.get_sample_vals = function() {
+    Histogram.prototype.get_sample_vals = function(sample_list) {
       var sample;
       return this.sample_vals = (function() {
-        var i, len, ref, results;
-        ref = this.sample_list;
+        var i, len, results;
         results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          sample = ref[i];
+        for (i = 0, len = sample_list.length; i < len; i++) {
+          sample = sample_list[i];
           if (sample.value !== null) {
             results.push(sample.value);
           }
         }
         return results;
-      }).call(this);
+      })();
     };
 
     Histogram.prototype.create_svg = function() {
@@ -97,19 +101,20 @@
     };
 
     Histogram.prototype.add_bars = function() {
-      var bar;
+      var bar, rect_width;
       console.log("bar_width:", this.x_scale(this.histogram_data[0].dx));
       bar = this.svg.selectAll(".bar").data(this.histogram_data).enter().append("g").attr("class", "bar").attr("transform", (function(_this) {
         return function(d) {
           return "translate(" + _this.x_scale(d.x) + "," + _this.y_scale(d.y) + ")";
         };
       })(this));
-      bar.append("rect").attr("x", 1).attr("width", this.x_scale(this.histogram_data[0].x + this.histogram_data[0].dx) - 1).attr("height", (function(_this) {
+      rect_width = this.x_scale(this.histogram_data[0].x + this.histogram_data[0].dx) - this.x_scale(this.histogram_data[0].x);
+      bar.append("rect").attr("x", 1).attr("width", rect_width - 1).attr("height", (function(_this) {
         return function(d) {
           return _this.plot_height - _this.y_scale(d.y);
         };
       })(this));
-      return bar.append("text").attr("dy", ".75em").attr("y", 6).attr("x", this.x_scale(this.histogram_data[0].dx) / 2).attr("text-anchor", "middle").style("fill", "#fff").text((function(_this) {
+      return bar.append("text").attr("dy", ".75em").attr("y", 6).attr("x", rect_width / 2).attr("text-anchor", "middle").style("fill", "#fff").text((function(_this) {
         return function(d) {
           var bar_height;
           bar_height = _this.plot_height - _this.y_scale(d.y);
