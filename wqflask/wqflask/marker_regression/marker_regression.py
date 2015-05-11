@@ -37,8 +37,8 @@ from utility import webqtlUtil
 from wqflask.marker_regression import gemma_mapping
 #from wqflask.marker_regression import rqtl_mapping
 from wqflask.my_pylmm.data import prep_data
-from wqflask.my_pylmm.pyLMM import lmm
-from wqflask.my_pylmm.pyLMM import input
+# from wqflask.my_pylmm.pyLMM import lmm
+# from wqflask.my_pylmm.pyLMM import input
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
