@@ -377,11 +377,9 @@ $ ->
 
     ##Get Sample Data From Table Code
 
-    get_sample_table_data = ->
-        samples = {}
-        primary_samples = []
-        other_samples = []
-        $('#sortable1').find('.value_se').each (_index, element) =>
+    get_sample_table_data = (table_name) ->
+        samples = []
+        $('#' + table_name).find('.value_se').each (_index, element) =>
             row_data = {}
             row_data.name = $.trim($(element).find('.column_name-Sample').text())
             row_data.value = $(element).find('.edit_sample_value').val()
@@ -391,10 +389,7 @@ $ ->
                 row_data[attribute_info.name] = $.trim($(element).find(
                     '.column_name-'+attribute_info.name.replace(" ", "_")).text())
             console.log("row_data is:", row_data)
-            primary_samples.push(row_data)
-        console.log("primary_samples is:", primary_samples)
-        samples.primary_samples = primary_samples
-        samples.other_samples = other_samples
+            samples.push(row_data)
         return samples
 
     ##End Get Sample Data from Table Code
@@ -402,7 +397,9 @@ $ ->
     ##Export Sample Table Data Code
 
     export_sample_table_data = ->
-        sample_data = get_sample_table_data()
+        sample_data = {}
+        sample_data.primary_samples = get_sample_table_data('samples_primary')
+        sample_data.other_samples = get_sample_table_data('samples_other')
         console.log("sample_data is:", sample_data)
         json_sample_data = JSON.stringify(sample_data)
         console.log("json_sample_data is:", json_sample_data)
