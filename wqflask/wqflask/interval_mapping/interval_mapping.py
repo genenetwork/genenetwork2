@@ -24,9 +24,9 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
-from wqflask.my_pylmm.data import prep_data
-from wqflask.my_pylmm.pyLMM import lmm
-from wqflask.my_pylmm.pyLMM import input
+# from wqflask.my_pylmm.data import prep_data
+# from wqflask.my_pylmm.pyLMM import lmm
+# from wqflask.my_pylmm.pyLMM import input
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
