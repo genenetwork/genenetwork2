@@ -51,7 +51,7 @@ if os.environ.get('PYLMM_PATH') is None:
     if PYLMM_PATH is None:
         PYLMM_PATH=os.environ['HOME']+'/gene/wqflask/wqflask/my_pylmm/pyLMM'
 if not os.path.isfile(PYLMM_PATH+'/lmm.py'):
-    raise 'PYLMM_PATH unknown or faulty'
+    raise Exception('PYLMM_PATH '+PYLMM_PATH+' unknown or faulty')
 PYLMM_COMMAND= 'python '+PYLMM_PATH+'/lmm.py'
 
 class MarkerRegression(object):
