@@ -42,7 +42,7 @@ from base import species
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
-from wqflask.utility import chunks
+from utility import chunks
 
 from maintenance import get_group_samplelists
 
