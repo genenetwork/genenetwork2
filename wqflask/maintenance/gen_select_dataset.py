@@ -35,7 +35,9 @@ from __future__ import print_function, division
 #config = config.Config(cdict).from_envvar('WQFLASK_SETTINGS')
 #print("cdict is:", cdict)
 
-import our_settings
+import sys
+sys.path.append("/home/zas1024/")
+import zach_settings
 
 import MySQLdb
 
@@ -47,7 +49,7 @@ import urlparse
 
 from pprint import pformat as pf
 
-#Engine = sa.create_engine(our_settings.SQLALCHEMY_DATABASE_URI)
+#Engine = sa.create_engine(zach_settings.SQLALCHEMY_DATABASE_URI)
 
 # build MySql database connection
 
@@ -60,7 +62,7 @@ from pprint import pformat as pf
 def parse_db_uri(db_uri):
     """Converts a database URI to the db name, host name, user name, and password"""
     
-    parsed_uri = urlparse.urlparse(our_settings.DB_URI)
+    parsed_uri = urlparse.urlparse(zach_settings.DB_URI)
     
     db_conn_info = dict(
                         db = parsed_uri.path[1:],
@@ -104,11 +106,47 @@ def get_types(groups):
         types[species] = {}
         for group_name, _group_full_name in group_dict:
             # make group an alias to shorten the code
-            types[species][group_name] = [("Phenotypes", "Phenotypes"), ("Genotypes", "Genotypes")]
-            types[species][group_name] += build_types(species, group_name)
+            #types[species][group_name] = [("Phenotypes", "Phenotypes"), ("Genotypes", "Genotypes")]
+            if phenotypes_exist(group_name):
+                types[species][group_name] = [("Phenotypes", "Phenotypes")]
+            if genotypes_exist(group_name):
+                if group_name in types[species]:
+                    types[species][group_name] += [("Genotypes", "Genotypes")]
+                else:
+                    types[species][group_name] = [("Genotypes", "Genotypes")]
+            if group_name in types[species]:
+                types[species][group_name] += build_types(species, group_name)
+            else:
+                types[species][group_name] = build_types(species, group_name)
 
     return types
 
+
+def phenotypes_exist(group_name):
+    print("group_name:", group_name)
+    Cursor.execute("""select Name from PublishFreeze
+                      where PublishFreeze.Name = %s""", (group_name+"Publish"))
+
+    results = Cursor.fetchone()
+    print("RESULTS:", results)
+
+    if results != None:
+        return True
+    else:
+        return False
+
+def genotypes_exist(group_name):
+    print("group_name:", group_name)
+    Cursor.execute("""select Name from GenoFreeze
+                      where GenoFreeze.Name = %s""", (group_name+"Geno"))
+
+    results = Cursor.fetchone()
+    print("RESULTS:", results)
+
+    if results != None:
+        return True
+    else:
+        return False
 
 def build_types(species, group):
     """Fetches tissues
@@ -196,7 +234,7 @@ def build_datasets(species, group, type_name):
 def main():
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
 
-    parse_db_uri(our_settings.DB_URI)
+    parse_db_uri(zach_settings.DB_URI)
 
     species = get_species()
     groups = get_groups(species)
@@ -236,6 +274,6 @@ def _test_it():
     #print("build_datasets:", pf(datasets))
 
 if __name__ == '__main__':   
-    Conn = MySQLdb.Connect(**parse_db_uri(our_settings.DB_URI))
+    Conn = MySQLdb.Connect(**parse_db_uri(zach_settings.DB_URI))
     Cursor = Conn.cursor()
     main()
