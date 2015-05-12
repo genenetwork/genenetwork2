@@ -1,9 +1,13 @@
 <dl class="dl-horizontal">
+    {% if this_trait.dataset.type == 'ProbeSet' %}
     <dt>Aliases</dt>
     <dd>{{ this_trait.alias_fmt }}</dd>
+    {% endif %}
 
+    {% if this_trait.dataset.type != 'Publish' %}
     <dt>Location</dt>
     <dd>{{ this_trait.location_fmt }}</dd>
+    {% endif %}
 
     <dt>Database</dt>
     <dd>
@@ -16,7 +20,7 @@
     <dt>
         <a href="/blatInfo.html" target="_blank"
            title="Values higher than 2 for the specificity are good">
-            BLAT Specifity
+            BLAT Specificity
         </a>
     </dt>
     <dd>{{ "%0.3f" | format(this_trait.probe_set_specificity|float) }}</dd>
