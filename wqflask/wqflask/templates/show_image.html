@@ -1,0 +1,5 @@
+<img alt="Embedded Image" src="data:image/png;base64,
+{% for elem in img_base64 -%}
+    {% print("%c"|format(elem)) %}
+{%- endfor %}
+" />

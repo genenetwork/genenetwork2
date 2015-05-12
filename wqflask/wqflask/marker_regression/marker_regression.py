@@ -13,7 +13,7 @@ import os
 import collections
 import uuid
 
-import rpy2.robjects as robjects
+import rpy2.robjects as ro
 import numpy as np
 from scipy import linalg
 
@@ -25,21 +25,34 @@ from redis import Redis
 Redis = Redis()
 
 from flask import Flask, g
+from wqflask import app
 
 from base.trait import GeneralTrait
 from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
+#from wqflask.marker_regression import qtl_reaper_mapping
+#from wqflask.marker_regression import plink_mapping
+from wqflask.marker_regression import gemma_mapping
+#from wqflask.marker_regression import rqtl_mapping
 from wqflask.my_pylmm.data import prep_data
-from wqflask.my_pylmm.pyLMM import lmm
-from wqflask.my_pylmm.pyLMM import input
+# from wqflask.my_pylmm.pyLMM import lmm
+# from wqflask.my_pylmm.pyLMM import input
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 
 from utility.benchmark import Bench
 
+import os
+if os.environ.get('PYLMM_PATH') is None:
+    PYLMM_PATH=app.config.get('PYLMM_PATH')
+    if PYLMM_PATH is None:
+        PYLMM_PATH=os.environ['HOME']+'/gene/wqflask/wqflask/my_pylmm/pyLMM'
+if not os.path.isfile(PYLMM_PATH+'/lmm.py'):
+    raise Exception('PYLMM_PATH '+PYLMM_PATH+' unknown or faulty')
+PYLMM_COMMAND= 'python '+PYLMM_PATH+'/lmm.py'
 
 class MarkerRegression(object):
 
@@ -65,21 +78,33 @@ class MarkerRegression(object):
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False
+
         self.maf = start_vars['maf'] # Minor allele frequency
         self.suggestive = ""
         self.significant = ""
-        #print("self.maf:", self.maf)
+        self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
-            qtl_results = self.run_gemma()
+            included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
+            self.dataset.group.get_specified_markers(markers = included_markers)
+            self.dataset.group.markers.add_pvalues(p_values)
+            qtl_results = self.dataset.group.markers.markers
         elif self.mapping_method == "rqtl_plink":
             qtl_results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
-            self.num_perm = start_vars['num_perm']
+            if start_vars['num_perm'] == "":
+                self.num_perm = 0
+            else:
+                self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
+            print("StartVars:", start_vars)
+            self.method = start_vars['mapmethod_rqtl_geno']
+            self.model = start_vars['mapmodel_rqtl_geno']
 
-            print("doing rqtl_geno")
+            if start_vars['pair_scan'] == "true":
+                self.pair_scan = True
+
             qtl_results = self.run_rqtl_geno()
             print("qtl_results:", qtl_results)
         elif self.mapping_method == "plink":
@@ -88,8 +113,9 @@ class MarkerRegression(object):
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
             self.num_perm = start_vars['num_perm']
-            if int(self.num_perm) > 0:
-	         self.run_permutations(str(temp_uuid))
+            if self.num_perm != "":
+                if int(self.num_perm) > 0:
+	             self.run_permutations(str(temp_uuid))
             qtl_results = self.gen_data(str(temp_uuid))
         else:
             print("RUNNING NOTHING")
@@ -114,8 +140,9 @@ class MarkerRegression(object):
 
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         self.qtl_results = []
-        for qtl in self.filtered_markers:
-            print("lod score is:", qtl['lod_score'])
+        for index,qtl in enumerate(self.filtered_markers):
+            if index<40:
+                print("lod score is:", qtl['lod_score'])
             if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
                 print("changing to X")
                 self.json_data['chr'].append("X")
@@ -132,7 +159,7 @@ class MarkerRegression(object):
             self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
-        print("json_data:", self.json_data)
+        # print("json_data:", self.json_data)
         
 
         self.js_data = dict(
@@ -144,11 +171,11 @@ class MarkerRegression(object):
             chromosomes = chromosome_mb_lengths,
             qtl_results = self.filtered_markers,
         )
+        
 
     def run_gemma(self):
         """Generates p-values for each marker using GEMMA"""
         
-        #filename = webqtlUtil.genRandStr("{}_{}_".format(self.dataset.group.name, self.this_trait.name))
         self.gen_pheno_txt_file()
 
         os.chdir("/home/zas1024/gene/web/gemma")
@@ -227,27 +254,135 @@ class MarkerRegression(object):
         os.system(rqtl_command)
         
         count, p_values = self.parse_rqtl_output(plink_output_filename)
+
+    def geno_to_rqtl_function(self):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
+        print("Adding some custom helper functions to the R environment")
+        ro.r("""
+           trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
+
+           getGenoCode <- function(header, name = 'unk'){
+             mat = which(unlist(lapply(header,function(x){ length(grep(paste('@',name,sep=''), x)) })) == 1)
+             return(trim(strsplit(header[mat],':')[[1]][2]))
+           }
+
+           GENOtoCSVR <- function(genotypes = 'BXD.geno', out = 'cross.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
+             header = readLines(genotypes, 40)                                                                                 # Assume a geno header is not longer than 40 lines
+             toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
+             
+             genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))                # Get the genotype codes 
+             type <- getGenoCode(header, 'type')
+             genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#')
+             cat('Genodata:', toskip, " ", dim(genodata), genocodes, '\n')
+             if(is.null(phenotype)) phenotype <- runif((ncol(genodata)-4))                                                     # If there isn't a phenotype, generate a random one
+             if(is.null(sex)) sex <- rep('m', (ncol(genodata)-4))                                                              # If there isn't a sex phenotype, treat all as males
+             outCSVR <- rbind(c('Pheno', '', '', phenotype),                                                                   # Phenotype
+                              c('sex', '', '', sex),                                                                           # Sex phenotype for the mice
+                              cbind(genodata[,c('Locus','Chr', 'cM')], genodata[, 5:ncol(genodata)]))                          # Genotypes
+             write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
+             require(qtl)
+             cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                         # Load the created cross file using R/qtl read.cross  
+             if(type == 'riset') cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
+             return(cross)
+          }
+        """)
     
     def run_rqtl_geno(self):
-        robjects.packages.importr("qtl")
-        robjects.r('the_cross <- read.cross(format="csvr", dir="/home/zas1024/PLINK2RQTL/test", file="BXD.csvr")')
+        print("Calling R/qtl")
+
+        self.geno_to_rqtl_function()
+
+        ## Get pointers to some common R functions
+        r_library     = ro.r["library"]                 # Map the library function
+        r_c           = ro.r["c"]                       # Map the c function
+        r_sum         = ro.r["sum"]                     # Map the sum function
+        plot          = ro.r["plot"]                    # Map the plot function
+        postscript    = ro.r["postscript"]              # Map the postscript function
+        png           = ro.r["png"]              # Map the png function
+        dev_off       = ro.r["dev.off"]                 # Map the device off function
+
+        print(r_library("qtl"))                         # Load R/qtl
+
+        ## Get pointers to some R/qtl functions
+        scanone         = ro.r["scanone"]               # Map the scanone function
+        scantwo         = ro.r["scantwo"]               # Map the scantwo function
+        calc_genoprob   = ro.r["calc.genoprob"]         # Map the calc.genoprob function
+        read_cross      = ro.r["read.cross"]            # Map the read.cross function
+        write_cross     = ro.r["write.cross"]           # Map the write.cross function
+        GENOtoCSVR      = ro.r["GENOtoCSVR"]            # Map the GENOtoCSVR function
+
+        genofilelocation  = webqtlConfig.HTMLPATH + "genotypes/" + self.dataset.group.name + ".geno"
+        crossfilelocation = webqtlConfig.HTMLPATH + "genotypes/" + self.dataset.group.name + ".cross"
+
+        print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
+
+        cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)                                  # TODO: Add the SEX if that is available
+
         if self.manhattan_plot:
-            robjects.r('the_cross <- calc.genoprob(the_cross)')
+            cross_object = calc_genoprob(cross_object)
         else:
-            robjects.r('the_cross <- calc.genoprob(the_cross, step=1, stepwidth="max")')
+            cross_object = calc_genoprob(cross_object, step=1, stepwidth="max")
+
+        cross_object = self.add_phenotype(cross_object, self.sanitize_rqtl_phenotype())                 # Add the phenotype
+
+        # for debug: write_cross(cross_object, "csvr", "test.csvr")
+
+        # Scan for QTLs
+        covar = self.create_covariates(cross_object)                                                    # Create the additive covariate matrix
+
+        if self.pair_scan:
+            if(r_sum(covar)[0] > 0):                                                                    # If sum(covar) > 0 we have a covariate matrix
+                print("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar, model=self.model, method=self.method, n_cluster = 16)
+            else:
+                print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=self.model, method=self.method, n_cluster = 16)
+ 
+            print("Pair scan results:", result_data_frame)
+
+            self.pair_scan_filename = webqtlUtil.genRandStr("scantwo_") + ".png"
+            png(file=webqtlConfig.TMPDIR+self.pair_scan_filename)
+            plot(result_data_frame)
+            dev_off()
+            
+            return self.process_pair_scan_results(result_data_frame)
+
+        else:
+            if(r_sum(covar)[0] > 0):
+                print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=self.model, method=self.method)
+            else:
+                print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=self.model, method=self.method)
+
+            if int(self.num_perm) > 0:                                                                   # Do permutation (if requested by user)
+                if(r_sum(covar)[0] > 0):
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm), model=self.model, method=self.method)
+                else:
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm), model=self.model, method=self.method)
+
+                self.process_rqtl_perm_results(perm_data_frame)                                          # Functions that sets the thresholds for the webinterface
+
+            return self.process_rqtl_results(result_data_frame)
+
+    def add_phenotype(self, cross, pheno_as_string):
+        ro.globalenv["the_cross"] = cross
+        ro.r('the_cross$pheno <- cbind(pull.pheno(the_cross), the_pheno = '+ pheno_as_string +')')
+        return ro.r["the_cross"]
+
+    def create_covariates(self, cross):
+        ro.globalenv["the_cross"] = cross
+        ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
+        userinputS = self.control.replace(" ", "").split(",")                 # TODO: sanitize user input, Never Ever trust a user
+        covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
+        print("Marker names of selected covariates:", covariate_names)
+        ro.r('covnames <- c(' + covariate_names + ')')
+        ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
+        ro.r('covnames <- covnames[covInGeno]')
+        ro.r("cat('covnames (purged): ', covnames,'\n')")
+        ro.r('covariates <- genotypes[,covnames]')                            # Get the covariate matrix by using the marker name as index to the genotype file
+        print("R/qtl matrix of covariates:", ro.r["covariates"])
+        return ro.r["covariates"]
+
+    def sanitize_rqtl_phenotype(self):
         pheno_as_string = "c("
-        #for i, val in enumerate(self.vals):
-        #    if val == "x":
-        #        new_val == "NULL"
-        #    else:
-        #        new_val = val
-        #    if i < (len(self.vals) - 1):
-        #        pheno_as_string += str(new_val) + ","
-        #    else: pheno_as_string += str(new_val)
-        null_pos = []
         for i, val in enumerate(self.vals):
             if val == "x":
-                null_pos.append(i)
                 if i < (len(self.vals) - 1):
                     pheno_as_string +=  "NA,"
                 else:
@@ -257,106 +392,55 @@ class MarkerRegression(object):
                     pheno_as_string += str(val) + ","
                 else:
                     pheno_as_string += str(val)
-            
         pheno_as_string += ")"
-        
-        robjects.r('the_cross$pheno <- cbind(pull.pheno(the_cross), the_pheno = '+ pheno_as_string +')')
-        
-        print("self.control:", self.control)
-        
-        if self.control != "":
-            control_markers = self.control.split(",")
-            control_string = ""
-            for i, control in enumerate(control_markers):
-                control_trait = GeneralTrait(name=str(control), dataset_name=str(self.dataset.group.name + "Geno"))
-                control_vals = []
-                for sample in self.dataset.group.samplelist:
-                    if sample in control_trait.data:
-                        control_vals.append(control_trait.data[sample].value)
-                    else:
-                        control_vals.append("x")
-                print("control_vals:", control_vals)
-                control_as_string = "c("
-                for j, val2 in enumerate(control_vals):
-                    if val2 == "x":
-                        if j < (len(control_vals) - 1):
-                            control_as_string +=  "NA,"
-                        else:
-                            control_as_string += "NA"
-                    else:
-                        if j < (len(control_vals) - 1):
-                            control_as_string += str(val2) + ","
-                        else:
-                            control_as_string += str(val2)
-                    #if i < (len(control_vals) - 1):
-                    #    control_as_string += str(new_val2) + ","
-                    #else:
-                    #    control_as_string += str(new_val2)
-                control_as_string += ")"
-                print("control_as_string:", control_as_string)
-                if i < (len(control_markers)-1):
-                    control_string += control_as_string + ","
-                else:
-                    control_string += control_as_string
-                    
-            robjects.r('covariates <- cbind( '+ control_string +')')
-            
-            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, n.perm='+self.num_perm+', addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
-            print("r_string:", r_string)
-            
-            if int(self.num_perm) > 0:
-                thresholds = robjects.r(r_string)
-                self.suggestive, self.significant = self.process_rqtl_perm_results(thresholds)
-                r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, addcovar=covariates, intcovar=covariates[,'+ str(len(control_markers)) +'])'
-                
-            #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', addcovar='+control_as_string+')'
-            
-        else:
-        #r_string = 'scanone(the_cross, pheno.col='+pheno_as_string+', n.perm='+self.num_perm+')'
-            r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16, n.perm='+self.num_perm+')'
-            if self.num_perm.isdigit() and int(self.num_perm) > 0:
-                results = robjects.r(r_string)
-                self.suggestive, self.significant = self.process_rqtl_perm_results(results)
-                r_string = 'scanone(the_cross, pheno.col="the_pheno", n.cluster=16)'
-            
-        print("r_string:", r_string)
-        result_data_frame = robjects.r(r_string)
-        #print("results:", result_data_frame)
+        return pheno_as_string
 
-        qtl_results = self.process_rqtl_results(result_data_frame)
+    def process_pair_scan_results(self, result):
+        pair_scan_results = []
 
-        return qtl_results
-    
-    def process_rqtl_perm_results(self, results):
-
-        perm_vals = []
-        for line in str(results).split("\n")[1:(int(self.num_perm)+1)]:
-            print("line:", line.split())
-            perm_vals.append(float(line.split()[1]))
-        
-        self.suggestive = np.percentile(np.array(perm_vals), 67)
-        self.significant = np.percentile(np.array(perm_vals), 95)
-        
-        return self.suggestive, self.significant
-            
-    
-    def process_rqtl_results(self, result):
-        qtl_results = []
-        
+        result = result[1]
         output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
-        print("output", output)
-        
-        
+        print("R/qtl scantwo output:", output)
+
+        for i, line in enumerate(result.iter_row()):
+            marker = {}
+            marker['name'] = result.rownames[i]
+            marker['chr1'] = output[i][0]
+            marker['Mb'] = output[i][1]
+            marker['chr2'] = int(output[i][2])
+            pair_scan_results.append(marker)
+
+        print("pair_scan_results:", pair_scan_results)
+
+        return pair_scan_results
+
+    def process_rqtl_results(self, result):        # TODO: how to make this a one liner and not copy the stuff in a loop
+        qtl_results = []
+
+        output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
+        print("R/qtl scanone output:", output)
+
         for i, line in enumerate(result.iter_row()):
             marker = {}
             marker['name'] = result.rownames[i]
             marker['chr'] = output[i][0]
             marker['Mb'] = output[i][1]
             marker['lod_score'] = output[i][2]
-            
             qtl_results.append(marker)
-            
+
         return qtl_results
+
+    def process_rqtl_perm_results(self, results):
+        perm_vals = []
+        for line in str(results).split("\n")[1:(int(self.num_perm)+1)]:
+            print("R/qtl permutation line:", line.split())
+            perm_vals.append(float(line.split()[1]))
+
+        self.suggestive = np.percentile(np.array(perm_vals), 67)
+        self.significant = np.percentile(np.array(perm_vals), 95)
+
+        return self.suggestive, self.significant
+
 
     def run_plink(self):
     
@@ -394,8 +478,8 @@ class MarkerRegression(object):
         self.dataset.group.markers.add_pvalues(p_values)
 
         return self.dataset.group.markers.markers
-    
-    
+   
+
     def gen_pheno_txt_file_plink(self, pheno_filename = ''):
         ped_sample_list = self.get_samples_from_ped_file()	
         output_file = open("%s%s.txt" % (webqtlConfig.TMPDIR, pheno_filename), "wb")
@@ -600,8 +684,7 @@ class MarkerRegression(object):
                 Redis.set(key, json_params)
                 Redis.expire(key, 60*60)
     
-                command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
-                                                                                                                        "other")
+                command = PYLMM_COMMAND+' --key {} --species {}'.format(key,"other")
     
                 os.system(command)
     
@@ -646,7 +729,7 @@ class MarkerRegression(object):
             no_val_samples = self.identify_empty_samples()
             trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
             
-            genotype_matrix = np.array(trimmed_genotype_data).T
+            genotype_matrix = np.array(genotype_data).T
 
             #print("pheno_vector: ", pf(pheno_vector))
             #print("genotype_matrix: ", pf(genotype_matrix))
@@ -658,8 +741,8 @@ class MarkerRegression(object):
             #            "refit": False,
             #            "temp_data": tempdata}
             
-            print("genotype_matrix:", str(genotype_matrix.tolist()))
-            print("pheno_vector:", str(pheno_vector.tolist()))
+            # print("genotype_matrix:", str(genotype_matrix.tolist()))
+            # print("pheno_vector:", str(pheno_vector.tolist()))
             
             params = dict(pheno_vector = pheno_vector.tolist(),
                         genotype_matrix = genotype_matrix.tolist(),
@@ -677,7 +760,7 @@ class MarkerRegression(object):
             Redis.expire(key, 60*60)
             print("before printing command")
 
-            command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+            command = PYLMM_COMMAND + ' --key {} --species {}'.format(key,
                                                                                                                     "other")
             print("command is:", command)
             print("after printing command")
@@ -690,7 +773,7 @@ class MarkerRegression(object):
             json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
             results = json.loads(json_results[1])
             p_values = [float(result) for result in results['p_values']]
-            print("p_values:", p_values)
+            print("p_values:", p_values[:10])
             #p_values = self.trim_results(p_values)
             t_stats = results['t_stats']
             
@@ -720,6 +803,7 @@ class MarkerRegression(object):
     #def gen_human_results(self, pheno_vector, tempdata):
     def gen_human_results(self, pheno_vector, key, temp_uuid):
         file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
+        print("file_base:", file_base)
 
         plink_input = input.plink(file_base, type='b')
         input_file_name = os.path.join(webqtlConfig.SNP_PATH, self.dataset.group.name + ".snps.gz")
@@ -750,7 +834,7 @@ class MarkerRegression(object):
 
         print("Before creating the command")
 
-        command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+        command = PYLMM_COMMAND+' --key {} --species {}'.format(key,
                                                                                                                 "human")
         
         print("command is:", command)

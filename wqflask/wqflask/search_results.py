@@ -37,8 +37,6 @@ from dbFunction import webqtlDatabaseFunction
 
 from utility import formatting
 
-#from base.JinjaPage import JinjaEnv, JinjaPage
-
 #class QuickSearchResult(object):
     #def __init__(self, key, result_fields):
     #    self.key = key
@@ -212,40 +210,72 @@ class SearchResultPage(object):
     #
     #    #search_gene
     #    #search_geno
-    #    #searhch_pheno
+    #    #search_pheno
     #    #search_mrn
-    #    #searhc_publish
+    #    #search_publish
 
 
     def search(self):
         self.search_terms = parser.parse(self.search_terms)
         print("After parsing:", self.search_terms)
 
-        for a_search in self.search_terms:
-            print("[kodak] item is:", pf(a_search))
-            search_term = a_search['search_term']
-            search_operator = a_search['separator']
-            if a_search['key']:
-                search_type = a_search['key'].upper()
-            else:
-                # We fall back to the dataset type as the key to get the right object
-                search_type = self.dataset.type
+        if len(self.search_terms) > 1:
+            combined_from_clause = ""
+            combined_where_clause = "" 
+            for i, a_search in enumerate(self.search_terms):
+                print("[kodak] item is:", pf(a_search))
+                search_term = a_search['search_term']
+                search_operator = a_search['separator']
+                if a_search['key']:
+                    search_type = a_search['key'].upper()
+                else:
+                    # We fall back to the dataset type as the key to get the right object
+                    search_type = self.dataset.type
                 
-            print("search_type is:", pf(search_type))
+                print("search_type is:", pf(search_type))
 
-            # This is throwing an error when a_search['key'] is None, so I changed above    
-            #search_type = string.upper(a_search['key'])
-            #if not search_type:
-            #    search_type = self.dataset.type
+                search_ob = do_search.DoSearch.get_search(search_type) 
+                search_class = getattr(do_search, search_ob)     
+                the_search = search_class(search_term,
+                                        search_operator,
+                                        self.dataset,
+                                        )
+                
+                #search_query = the_search.get_final_query()
 
-            search_ob = do_search.DoSearch.get_search(search_type)
-            search_class = getattr(do_search, search_ob)
-            print("search_class is: ", pf(search_class))
-            the_search = search_class(search_term,
-                                    search_operator,
-                                    self.dataset,
-                                    )
-            self.results.extend(the_search.run())
-            #print("in the search results are:", self.results)
+                get_from_clause = getattr(the_search, "get_from_clause", None)
+                if callable(get_from_clause):
+                    from_clause = the_search.get_from_clause()
+                    combined_from_clause += from_clause
+                where_clause = the_search.get_where_clause()
+                combined_where_clause += "(" + where_clause + ")"
+                if (i+1) < len(self.search_terms):
+                    combined_where_clause += "AND"
+
+            results = the_search.run_combined(combined_from_clause, combined_where_clause)
+            self.results.extend(results)
+         
+        else:
+            for a_search in self.search_terms:
+                print("[kodak] item is:", pf(a_search))
+                search_term = a_search['search_term']
+                search_operator = a_search['separator']
+                if a_search['key']:
+                    search_type = a_search['key'].upper()
+                else:
+                    # We fall back to the dataset type as the key to get the right object
+                    search_type = self.dataset.type
+                
+                print("search_type is:", pf(search_type))
+
+                search_ob = do_search.DoSearch.get_search(search_type)
+                search_class = getattr(do_search, search_ob)
+                print("search_class is: ", pf(search_class))
+                the_search = search_class(search_term,
+                                        search_operator,
+                                        self.dataset,
+                                        )
+                self.results.extend(the_search.run())
+                #print("in the search results are:", self.results)
 
         self.header_fields = the_search.header_fields

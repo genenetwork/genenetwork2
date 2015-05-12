@@ -67,15 +67,24 @@ do_ajax_post = (url, form_data) ->
             success: (data) =>
                 clearInterval(this.my_timer)
                 $('#progress_bar_container').modal('hide')
-                $("body").html(data)
+                open_mapping_results(data)
+                #$("body").html(data)
         )
         console.log("settingInterval")
         
         this.my_timer = setInterval(get_progress, 1000)
         return false
 
+open_mapping_results = (data) ->
+    $.colorbox(
+        html: data
+        href: "#mapping_results_holder"
+        height: "90%"
+        width: "90%"
+    )
+
 showalert = (message,alerttype) ->
-      $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + '"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>')
+    $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + '"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>')
     
 
 $("#interval_mapping_compute").click(() =>
@@ -95,32 +104,6 @@ $("#interval_mapping_compute").click(() =>
         console.log("form_data is:", form_data)
         
         do_ajax_post(url, form_data)
-        
-        #remove_outliers = confirm("Remove outliers?")
-        #if use_outliers == true
-        #    block_outliers()
-        #    do_ajax_post(url, form_data)
-        #else
-        #    do_ajax_post(url, form_data)
-        #$.ajax(
-        #    type: "POST"
-        #    url: url
-        #    data: form_data
-        #    error: (xhr, ajaxOptions, thrownError) =>
-        #        alert("Sorry, an error occurred")
-        #        console.log(xhr)
-        #        clearInterval(this.my_timer)
-        #        $('#progress_bar_container').modal('hide')
-        #        $("body").html("We got an error.")        
-        #    success: (data) =>
-        #        clearInterval(this.my_timer)
-        #        $('#progress_bar_container').modal('hide')
-        #        $("body").html(data)
-        #)
-        #console.log("settingInterval")
-        #
-        #this.my_timer = setInterval(get_progress, 1000)
-        #return false
 )
 
 $('#suggestive').hide()
@@ -146,26 +129,6 @@ $("#pylmm_compute").click(() =>
         #if use_outliers == true
         #    block_outliers()
         do_ajax_post(url, form_data)
-        
-        #$.ajax(
-        #    type: "POST"
-        #    url: url
-        #    data: form_data
-        #    error: (xhr, ajaxOptions, thrownError) =>
-        #        alert("Sorry, an error occurred")
-        #        console.log(xhr)
-        #        clearInterval(this.my_timer)
-        #        $('#progress_bar_container').modal('hide')
-        #        $("body").html("We got an error.")        
-        #    success: (data) =>
-        #        clearInterval(this.my_timer)
-        #        $('#progress_bar_container').modal('hide')
-        #        $("body").html(data)
-        #)
-        #console.log("settingInterval")
-        #
-        #this.my_timer = setInterval(get_progress, 1000)
-        #return false
 )
     
     
@@ -184,26 +147,6 @@ $("#rqtl_geno_compute").click(() =>
         #if use_outliers == true
         #    block_outliers()
         do_ajax_post(url, form_data)
-        
-        #$.ajax(
-        #    type: "POST"
-        #    url: url
-        #    data: form_data
-        #    error: (xhr, ajaxOptions, thrownError) =>
-        #        alert("Sorry, an error occurred")
-        #        console.log(xhr)
-        #        clearInterval(this.my_timer)
-        #        $('#progress_bar_container').modal('hide')
-        #        $("body").html("We got an error.")        
-        #    success: (data) =>
-        #        clearInterval(this.my_timer)
-        #        $('#progress_bar_container').modal('hide')
-        #        $("body").html(data)
-        #)
-        #console.log("settingInterval")
-        #
-        #this.my_timer = setInterval(get_progress, 1000)
-        #return false
 )
 
 
@@ -211,66 +154,27 @@ $("#plink_compute").click(() =>
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("plink")
-        $('input[name=mapping_display_all]').val($('input[name=display_all_plink]').val())
-        $('input[name=suggestive]').val($('input[name=suggestive_plink]').val())
+        #$('input[name=mapping_display_all]').val($('input[name=display_all_plink]').val())
+        #$('input[name=suggestive]').val($('input[name=suggestive_plink]').val())
         $('input[name=maf]').val($('input[name=maf_plink]').val())
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         
         do_ajax_post(url, form_data)
-        
-        #$.ajax(
-        #    type: "POST"
-        #    url: url
-        #    data: form_data
-        #    error: (xhr, ajaxOptions, thrownError) =>
-        #        alert("Sorry, an error occurred")
-        #        console.log(xhr)
-        #        clearInterval(this.my_timer)
-        #        $('#static_progress_bar_container').modal('hide')
-        #        $("body").html("We got an error.")        
-        #    success: (data) =>
-        #        clearInterval(this.my_timer)
-        #        $('#static_progress_bar_container').modal('hide')
-        #        $("body").html(data)
-        #)
-        #console.log("settingInterval")
-        #
-        #this.my_timer = setInterval(get_progress, 1000)
-        #return false
 )
 
 $("#gemma_compute").click(() =>
+        console.log("RUNNING GEMMA")
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("gemma")
-        $('input[name=mapping_display_all]').val($('input[name=display_all_gemma]').val())
-        $('input[name=suggestive]').val($('input[name=suggestive_gemma]').val())
+        #$('input[name=mapping_display_all]').val($('input[name=display_all_gemma]').val())
+        #$('input[name=suggestive]').val($('input[name=suggestive_gemma]').val())
         $('input[name=maf]').val($('input[name=maf_gemma]').val())
         form_data = $('#trait_data_form').serialize()
         console.log("form_data is:", form_data)
         
         do_ajax_post(url, form_data)
-        
-        #$.ajax(
-        #    type: "POST"
-        #    url: url
-        #    data: form_data
-        #    error: (xhr, ajaxOptions, thrownError) =>
-        #        alert("Sorry, an error occurred")
-        #        console.log(xhr)
-        #        clearInterval(this.my_timer)
-        #        $('#static_progress_bar_container').modal('hide')
-        #        $("body").html("We got an error.")        
-        #    success: (data) =>
-        #        clearInterval(this.my_timer)
-        #        $('#static_progress_bar_container').modal('hide')
-        #        $("body").html(data)
-        #)
-        #console.log("settingInterval")
-        #
-        #this.my_timer = setInterval(get_progress, 1000)
-        #return false
 )
 
 #$(".submit_special").click(submit_special)

@@ -45,7 +45,6 @@ from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.trait import GeneralTrait
 from base import data_set
-from base.templatePage import templatePage
 from utility import webqtlUtil, helper_functions, corr_result_helpers
 from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.

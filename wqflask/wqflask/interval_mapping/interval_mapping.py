@@ -24,9 +24,9 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
-from wqflask.my_pylmm.data import prep_data
-from wqflask.my_pylmm.pyLMM import lmm
-from wqflask.my_pylmm.pyLMM import input
+# from wqflask.my_pylmm.data import prep_data
+# from wqflask.my_pylmm.pyLMM import lmm
+# from wqflask.my_pylmm.pyLMM import input
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
@@ -57,13 +57,8 @@ class IntervalMapping(object):
         self.set_options(start_vars)
  
         self.json_data = {}
- 
-        #if self.method == "qtl_reaper":
         self.json_data['lodnames'] = ['lod.hk']
         self.gen_reaper_results(tempdata)
-        #else:
-        #    self.gen_pylmm_results(tempdata)
-        #self.gen_qtl_results(tempdata)
 
         #Get chromosome lengths for drawing the interval map plot
         chromosome_mb_lengths = {}
@@ -93,13 +88,7 @@ class IntervalMapping(object):
     def set_options(self, start_vars):
         """Sets various options (physical/genetic mapping, # permutations, which chromosome"""
         
-        #self.plot_scale = start_vars['scale']
-        #if self.plotScale == 'physic' and not fd.genotype.Mbmap:
-        #    self.plotScale = 'morgan'
-        #self.method = start_vars['mapping_method']
         self.num_permutations = int(start_vars['num_perm'])
-        #self.do_bootstrap = start_vars['do_bootstrap']
-        #self.selected_chr = start_vars['chromosome']
         if start_vars['manhattan_plot'] == "true":
             self.manhattan_plot = True
         else:
@@ -112,9 +101,6 @@ class IntervalMapping(object):
             self.control_locus = start_vars['control_locus']
         else:
             self.control_locus = None
-        #self.weighted_regression = start_vars['weighted']
-        #self.lrs_lod = start_vars['lrs_lod']
-
 
     def gen_qtl_results(self, tempdata):
         """Generates qtl results for plotting interval map"""
@@ -134,7 +120,7 @@ class IntervalMapping(object):
         #if self.weighted_regression:
         #    self.lrs_array = self.genotype.permutation(strains = trimmed_samples,
         #                                                         trait = trimmed_values, 
-        #                                                         variance = _vars,
+        #                                                         variance = variances,
         #                                                         nperm=self.num_permutations)
         #else:
         self.lrs_array = genotype.permutation(strains = trimmed_samples,
@@ -175,12 +161,6 @@ class IntervalMapping(object):
         self.json_data['markernames'] = []
         for qtl in reaper_results:
             reaper_locus = qtl.locus
-            #if reaper_locus.chr == "20":
-            #    print("changing to X")
-            #    self.json_data['chr'].append("X")
-            #else:
-            #    self.json_data['chr'].append(reaper_locus.chr)
-            ##self.json_data['chr'].append(reaper_locus.chr)
             self.json_data['pos'].append(reaper_locus.Mb)
             self.json_data['lod.hk'].append(qtl.lrs)
             self.json_data['markernames'].append(reaper_locus.name)

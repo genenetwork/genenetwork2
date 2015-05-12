@@ -14,9 +14,15 @@
 
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
-        <p>We searched <a href="/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a></p>
+        <p>We searched <a href="/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a>
+           to find all records that match
+                {% for word in search_terms %}
+                    <strong>{{word.search_term[0]}}</strong> {% if not loop.last %} or {% endif %}
+                {% endfor %}.
 
-        <p>To find all records that match:</p>
+        </p>
+
+        <!--
         <ul>
             {% if search_terms %}
             <li>
@@ -26,9 +32,9 @@
             </li>
             {% endif %}
         </ul>
+        -->
 
-        <p>To study a record, click on its ID below.<br />
-        Check records below and click Add button to add to selection.</p>
+        <p>To study a record, click on its ID below. Check records below and click Add button to add to selection.</p>
 
         <div>
             <br />
@@ -36,14 +42,20 @@
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
             <button class="btn btn-default" id="add"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-            <button class="btn btn-primary pull-right"><span class="glyphicon glyphicon-download"></span> Download Table</button>
+            <button class="btn btn-primary"><span class="glyphicon glyphicon-download"></span> Download Table</button>
             <br />
             <br />
             <table class="table table-hover table-striped" id='trait_table'>
                 <thead>
                     <tr>
                     {% for header in header_fields %}
+                        {% if header == 'Max LRS' %}
+                        <th>{{header}}<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                        {% elif header == 'Additive Effect' %}
+                        <th>{{header}}<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                        {% else %}
                         <th>{{header}}</th>
+                        {% endif %}
                     {% endfor %}
                     </tr>
                 </thead>
@@ -134,17 +146,11 @@
 
         $(document).ready( function () {
             
-	     /*num_columns = $('#trait_table').find('tr:first th').length;
-
-            nul_cols = []
-	     for (i=0; i<num_columns - 1, i++) {
-                $('#trait_table > tbody > tr').each(function() {
-                    if ($(this).find('td:eq(i)').html()){
-                        continue;
-                    }
-                });
-                nul_cols.push(i)
-	     }*/
+            $('#trait_table tr').click(function(event) {
+                if (event.target.type !== 'checkbox') {
+                    $(':checkbox', this).trigger('click');
+                }
+            });
 
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
@@ -160,7 +166,7 @@
                       "sWidth": "15%"  },
                     { "sType": "cust-txt" },
                     { "sType": "natural",
-                      "sWidth": "10%"  },
+                      "sWidth": "12%"  },
                     { "sType": "natural",
                       "sWidth": "15%"  },
                     { "sType": "cust-txt" }
@@ -174,7 +180,7 @@
                     null,
                     null
                 ],
-                "sDom": "ftir",
+                "sDom": "tir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
@@ -205,7 +211,7 @@
                     null,
                     null
                 ],
-                "sDom": "ftir",
+                "sDom": "tir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,

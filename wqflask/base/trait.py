@@ -53,7 +53,8 @@ class GeneralTrait(object):
         self.pvalue = None
         self.mean = None
         self.num_overlap = None
-
+        self.strand_probe = None
+        self.symbol = None
 
         if kw.get('fullname'):
             name2 = value.split("::")
@@ -533,12 +534,27 @@ class GeneralTrait(object):
         return setDescription
 
     @property
+    def name_header_fmt(self):
+        '''Return a human-readable name for use in page header'''
+        if self.dataset.type == 'ProbeSet':
+            return self.symbol
+        elif self.dataset.type == 'Geno':
+            return self.name
+        elif self.dataset.type == 'Publish':
+            return self.post_publication_abbreviation
+        else:
+            return "unnamed"
+
+    @property
     def description_fmt(self):
         '''Return a text formated description'''
-        if self.description:
-            formatted = self.description
-            if self.probe_target_description:
-                formatted += "; " + self.probe_target_description
+        if self.dataset.type == 'ProbeSet':
+            if self.description:
+                formatted = self.description
+                if self.probe_target_description:
+                    formatted += "; " + self.probe_target_description
+        elif self.dataset.type == 'Publish':
+            formatted = self.post_publication_description
         else:
             formatted = "Not available"
         return formatted.capitalize()
@@ -549,6 +565,9 @@ class GeneralTrait(object):
         if self.alias:
             alias = string.replace(self.alias, ";", " ")
             alias = string.join(string.split(alias), ", ")
+        else:
+            alias = 'Not available'
+
         return alias
 
 
@@ -649,4 +668,4 @@ def get_sample_data():
     #    jsonable_sample_data[sample] = trait_ob.data[sample].value
     #
     #return jsonable_sample_data
-    
+

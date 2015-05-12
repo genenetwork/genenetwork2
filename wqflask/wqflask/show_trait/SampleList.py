@@ -25,7 +25,11 @@ class SampleList(object):
 
         self.sample_list = [] # The actual list
 
-        self.get_attributes()
+        try:
+            self.get_attributes()
+        except Exception:
+            print("failed to get attributes")
+            self.attributes = {}
         
         print("camera: attributes are:", pf(self.attributes))
 
@@ -243,4 +247,4 @@ def natural_sort_key(x):
         x = int(x)
     except ValueError:
         pass
-    return x        
+    return x

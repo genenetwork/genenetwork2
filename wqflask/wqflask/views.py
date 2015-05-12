@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function
 
 import sys
 print("sys.path is:", sys.path)
 
 import csv
+import xlsxwriter
 import StringIO  # Todo: Use cStringIO?
 
 import gc
@@ -20,6 +22,8 @@ import redis
 Redis = redis.StrictRedis()
 
 import flask
+import base64
+import array
 import sqlalchemy
 #import config
 
@@ -43,8 +47,6 @@ from wqflask.correlation import show_corr_results
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from utility import temp_data
-
-from wqflask.dataSharing import SharingInfo, SharingInfoPage
 
 from base import webqtlFormData
 from utility.benchmark import Bench
@@ -84,20 +86,35 @@ def index_page():
     #print("[orange] ds:", ds.datasets)
     return render_template("index_page.html")
 
-@app.route("/data_sharing")
-def data_sharing_page():
-    print("In data_sharing")
-    fd = webqtlFormData.webqtlFormData(request.args)
-    print("1Have fd")
-    sharingInfoObject = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
-    info, htmlfilelist = sharingInfoObject.getBody(infoupdate="")
-    print("type(htmlfilelist):", type(htmlfilelist))
-    htmlfilelist = htmlfilelist.encode("utf-8")
-    #template_vars = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
-    print("1 Made it to rendering")
-    return render_template("data_sharing.html",
-                            info=info,
-                            htmlfilelist=htmlfilelist)
+
+@app.route("/tmp/<img_path>")
+def tmp_page(img_path):
+    print("In tmp_page")
+    print("img_path:", img_path)
+    initial_start_vars = request.form
+    print("initial_start_vars:", initial_start_vars)
+    imgfile = open('/home/zas1024/tmp/' + img_path, 'rb')
+    imgdata = imgfile.read()
+    imgB64 = imgdata.encode("base64")
+    bytesarray = array.array('B', imgB64)
+    return render_template("show_image.html",
+                            img_base64 = bytesarray )
+
+
+#@app.route("/data_sharing")
+#def data_sharing_page():
+#    print("In data_sharing")
+#    fd = webqtlFormData.webqtlFormData(request.args)
+#    print("1Have fd")
+#    sharingInfoObject = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
+#    info, htmlfilelist = sharingInfoObject.getBody(infoupdate="")
+#    print("type(htmlfilelist):", type(htmlfilelist))
+#    htmlfilelist = htmlfilelist.encode("utf-8")
+#    #template_vars = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
+#    print("1 Made it to rendering")
+#    return render_template("data_sharing.html",
+#                            info=info,
+#                            htmlfilelist=htmlfilelist)
 
 
 @app.route("/search", methods=('GET',))
@@ -191,7 +208,7 @@ def environments():
     doc = docs.Docs("environments")
     return render_template("docs.html", **doc.__dict__)
 
-@app.route('/export_trait_csv', methods=('POST',))
+@app.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
     print("In export_trait_excel")
@@ -201,15 +218,18 @@ def export_trait_excel():
     print("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
     buff = StringIO.StringIO()
-    writer = csv.writer(buff)
-    for row in sample_data:
-        writer.writerow(row)
-    csv_data = buff.getvalue()
+    workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+    for i, row in enumerate(sample_data):
+        worksheet.write(i, 0, row[0])
+        worksheet.write(i, 1, row[1])
+    workbook.close()
+    excel_data = buff.getvalue()
     buff.close()
 
-    return Response(csv_data,
-                    mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=test.csv"})
+    return Response(excel_data,
+                    mimetype='application/vnd.ms-excel',
+                    headers={"Content-Disposition":"attachment;filename=test.xlsx"})
 
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_csv():
@@ -302,9 +322,12 @@ def marker_regression_page():
         'maf',
         'manhattan_plot',
         'control_marker',
-        'control_marker_db'
+        'control_marker_db',
+        'pair_scan',
+        'mapmethod_rqtl_geno',
+        'mapmodel_rqtl_geno'
     )
-
+    print("Random Print too see if it is running:", initial_start_vars)
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
@@ -349,7 +372,19 @@ def marker_regression_page():
         Redis.expire(key, 1*60)
 
     with Bench("Rendering template"):
-        rendered_template = render_template("marker_regression.html", **result)
+        if result['pair_scan'] == True:
+            img_path = result['pair_scan_filename']
+            print("img_path:", img_path)
+            initial_start_vars = request.form
+            print("initial_start_vars:", initial_start_vars)
+            imgfile = open('/home/zas1024/tmp/' + img_path, 'rb')
+            imgdata = imgfile.read()
+            imgB64 = imgdata.encode("base64")
+            bytesarray = array.array('B', imgB64)
+            result['pair_scan_array'] = bytesarray
+            rendered_template = render_template("pair_scan_results.html", **result)
+        else:
+            rendered_template = render_template("marker_regression.html", **result)
 
     return rendered_template
 

@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}View Collection{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+{% endblock %}
 {% block content %}
 <!-- Start of body -->
     {% if uc %}
@@ -10,13 +15,7 @@
             'This collection has {}.'.format(numify(trait_obs|count, "record", "records"))) }}
     {% endif %}
     <div class="container">
-        <div class="page-header">
-            <h1>Your Collection</h1>
-            {% if uc %}
-            <h2>{{ uc.name }}</h2>
-            {% endif %}
-
-            <div class="form-group">
+        <div>
             {% if uc %}
             <form action="/collections/delete" method="post">
                 {% if uc %}
@@ -51,40 +50,18 @@
                     <input type="submit" class="btn btn-primary" value="Heatmap" />
                 </div>
             </form>
-            </div>
-
-            <!--
-            <form action="/corr_matrix" method="post">
-                {% if uc %}
-                <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
-                {% endif %}
-                <input type="hidden" name="trait_list" id="trait_list" value= "
-                {% for this_trait in trait_obs %}
-                    {{ this_trait.name }}:{{ this_trait.dataset.name }},
-                {% endfor %}" >
-                <input type="submit"
-                       class="btn btn-small"
-                       value="Correlation Matrix" />
-            </form>
-            <form action="/heatmap" method="post">
-                {% if uc %}
-                <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
-                {% endif %}
-                <input type="hidden" name="trait_list" id="trait_list" value= "
-                {% for this_trait in trait_obs %}
-                    {{ this_trait.name }}:{{ this_trait.dataset.name }},
-                {% endfor %}" >
-                <input type="submit"
-                       class="btn btn-small"
-                       value="Heatmap" />
-            </form>
-            -->
         </div>
 
-
-
-        <div class="bs-docs-example">
-        <table class="table table-hover" id='trait_table'>
+        <div>
+            <br />
+            <br />
+            <br />
+            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+            <br />
+            <br />
+        <table class="table table-hover table-striped" id='trait_table'>
             <thead>
                 <tr>
                     <th></th>
@@ -92,9 +69,9 @@
                     <th>Description</th>
                     <th>Location</th>
                     <th>Mean</th>
-                    <th>Max LRS</th>
+                    <th>Max LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
                     <th>Max LRS Location</th>
-                    <th>Additive Effect</th>
+                    <th>Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
                 </tr>
             </thead>
 
@@ -126,15 +103,7 @@
             </tbody>
 
         </table>
-
         <br />
-
-        <button class="btn" id="select_all"><i class="icon-ok"></i> Select All</button>
-        <button class="btn" id="deselect_all"><i class="icon-remove"></i> Deselect All</button>
-        <button class="btn" id="invert"><i class="icon-resize-vertical"></i> Invert</button>
-        <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Add Record to Other Collection</button>
-        <button class="btn" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Remove Record</button>
-        <button class="btn btn-primary pull-right"><i class="icon-download icon-white"></i> Download Table</button>
         </div>
     </div>
 
@@ -144,4 +113,55 @@
 
 {% block js %}
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript">
+        $(document).ready( function () {
+
+            $('#trait_table tr').click(function(event) {
+                if (event.target.type !== 'checkbox') {
+                    $(':checkbox', this).trigger('click');
+                }
+            });
+
+            console.time("Creating table");
+            $('#trait_table').dataTable( {
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "sType": "natural" },
+                    { "sType": "natural",
+                      "sWidth": "35%"  },
+                    { "sType": "natural",
+                      "sWidth": "15%"  },
+                    { "sType": "cust-txt" },
+                    { "sType": "natural",
+                      "sWidth": "12%"  },
+                    { "sType": "natural",
+                      "sWidth": "15%"  },
+                    { "sType": "cust-txt" }
+                ],
+                "columns": [
+                    { "width": "50%" },
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                ],
+                "sDom": "tir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "bSortClasses": false
+            } );
+            console.timeEnd("Creating table");
+        });
+        
+    </script>
+
+
 {% endblock %}
+

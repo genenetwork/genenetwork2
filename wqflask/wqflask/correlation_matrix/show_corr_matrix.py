@@ -48,7 +48,6 @@ from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.trait import GeneralTrait
 from base import data_set
-from base.templatePage import templatePage
 from utility import webqtlUtil, helper_functions, corr_result_helpers
 from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
@@ -193,7 +192,7 @@ class CorrelationMatrix(object):
         m = robjects.r.matrix(corr_results_to_list, nrow=len(cols))
         eigen = base.eigen(m)
         print("eigen:", eigen)
-        #pca = stats.princomp(m, cor = "TRUE")
+        pca = stats.princomp(m, cor = "TRUE")
         print("pca:", pca)
 
         return pca

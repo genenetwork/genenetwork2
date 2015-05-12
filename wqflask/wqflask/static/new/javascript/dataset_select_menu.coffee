@@ -118,5 +118,12 @@ $ ->
                 console.log("Calling:", populate_function)
                 window[populate_function]()
 
+    check_search_term = ->
+        search_term = $('#tfor').val()
+        console.log("search_term:", search_term)
+        if (search_term == "")
+            alert("Please enter one or more search terms or search equations.")
+            return false
 
     $("#make_default").click(make_default)
+    $("#btsearch").click(check_search_term)

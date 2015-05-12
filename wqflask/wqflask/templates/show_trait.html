@@ -6,14 +6,19 @@
     <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
-    {{ header("{}".format(this_trait.symbol),
-        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
+    {% if this_trait.dataset.type != 'Geno' %}
+	{{ header("{}".format(this_trait.name_header_fmt),
+	    '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
+    {% else %}
+	{{ header("{}".format(this_trait.name_header_fmt)) }}
+    {% endif %}
 
 
     <form method="post" action="/corr_compute" name="trait_page" id="trait_data_form"
@@ -30,7 +35,7 @@
             <div class="page-header">
                 <h1>{{ dataset.group.species.capitalize() }} -
                     {{ dataset.group.name }} -
-                    {{ this_trait.symbol }}
+                    {{ this_trait.name_header_fmt }}
                 </h1>
             </div>
             
@@ -40,7 +45,7 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                Statistics
+                                <span class="glyphicon glyphicon-chevron-down"></span> Statistics
                             </a>
                         </h3>
                     </div>
@@ -54,7 +59,7 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                                Calculate Correlations
+                                <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
                             </a>
                         </h3>
                     </div>
@@ -68,7 +73,7 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-                                Mapping Tools
+                                <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
                             </a>
                         </h3>
                     </div>
@@ -82,7 +87,7 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true">
-                                Review and Edit Data
+                                <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
                             </a>
                         </h3>
                     </div>
@@ -122,6 +127,7 @@
     <script type="text/javascript" src="/static/new/javascript/histogram.js"></script>
     <script type="text/javascript" src="/static/new/javascript/box_plot.js"></script>
     <script type="text/javascript" src="/static/new/javascript/scatterplot.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/scatter-matrix.js"></script>
     <script type="text/javascript" src="/static/new/javascript/draw_probability_plot.js"></script>  
     <script type="text/javascript" src="/static/new/javascript/compare_traits_scatterplot.js"></script>  
     
@@ -162,6 +168,16 @@
             };
             
             $(document).ready( function () {
+
+                $('.panel-heading').find('a').click(function () {
+                   if ($(this).hasClass('collapsed')){
+                       $(this).find('.glyphicon-chevron-down').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+                   }
+                   else {
+                       $(this).find('.glyphicon-chevron-up').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+                   }
+                });
+
                 console.time("Creating table");
                 
                 {% if sample_groups[0].se_exists() %}

@@ -42,7 +42,7 @@ from base import species
 from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
-from wqflask.my_pylmm.pyLMM import chunks
+from utility import chunks
 
 from maintenance import get_group_samplelists
 
@@ -79,7 +79,7 @@ class Dataset_Types(object):
     
     def __init__(self):
         self.datasets = {}
-        file_name = "/home/zas1024/gene/wqflask/wqflask/static/new/javascript/dataset_menu_structure.json"
+        file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
         with open(file_name, 'r') as fh:
             data = json.load(fh)
         
@@ -640,7 +640,7 @@ class PhenotypeDataSet(DataSet):
                             'Year',
                             'Max LRS',
                             'Max LRS Location',
-                            'Add. Effect']
+                            'Add. Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a>']
 
         self.type = 'Publish'
 
@@ -901,7 +901,7 @@ class MrnaAssayDataSet(DataSet):
                              'Mean Expr',
                              'Max LRS',
                              'Max LRS Location',
-                             'Add. Effect']
+                             'Add. Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a>']
 
         # Todo: Obsolete or rename this field
         self.type = 'ProbeSet'

@@ -25,25 +25,28 @@ h3 code {
 
 /* Tweak navbar brand link to be super sleek
 -------------------------------------------------- */
-
+/*
 body > .navbar {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
 }
+*/
 
 /* Change the docs' brand */
-body > .navbar .brand {
-  padding-right: 0;
-  padding-left: 0;
+
+body > .navbar .navbar-brand {
+  padding-right: 20px;
+  padding-left: 20px;
   margin-left: 20px;
   float: left;
   font-weight: bold;
-  color: #336699;
+  color: #ffffff;
   text-shadow: 0 1px 0 rgba(255,255,255,.1), 0 0 30px rgba(255,255,255,.125);
   -webkit-transition: all .2s linear;
      -moz-transition: all .2s linear;
           transition: all .2s linear;
 }
+
 body > .navbar .brand:hover {
   text-decoration: none;
   text-shadow: 0 1px 0 rgba(255,255,255,.1), 0 0 30px rgba(255,255,255,.4);
@@ -98,16 +101,16 @@ hr.soften {
 
 }
 .jumbotron h1 {
-  font-size: 80px;
+  font-size: 60px;
   font-weight: bold;
   letter-spacing: -1px;
   line-height: 1;
 }
 .jumbotron p {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 300;
-  line-height: 30px;
-  margin-bottom: 30px;
+  line-height: 20px;
+  margin-bottom: 10px;
 }
 
 /* Link styles (used on .masthead-links as well) */
@@ -230,10 +233,10 @@ hr.soften {
   border-bottom: 1px solid #ddd;
 }
 .subhead h1 {
-  font-size: 40px;
+  font-size: 30px;
 }
 .subhead p {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 .subhead .navbar {
   display: none;

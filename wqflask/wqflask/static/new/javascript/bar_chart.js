@@ -66,6 +66,7 @@ Bar_Chart = (function() {
             }
           });
         }
+        _this.draw_legend();
         return _this.add_legend(_this.attribute, _this.distinct_attr_vals[_this.attribute]);
       };
     })(this));
@@ -150,6 +151,8 @@ Bar_Chart = (function() {
     for (key in vals) {
       if (!__hasProp.call(vals, key)) continue;
       distinct_vals = vals[key];
+      this.min_val = d3.min(distinct_vals);
+      this.max_val = d3.max(distinct_vals);
       this_color_dict = {};
       if (distinct_vals.length < 10) {
         color = d3.scale.category10();
@@ -168,7 +171,7 @@ Bar_Chart = (function() {
             }
           };
         })(this))) {
-          color_range = d3.scale.linear().domain([d3.min(distinct_vals), d3.max(distinct_vals)]).range([0, 255]);
+          color_range = d3.scale.linear().domain([min_val, max_val]).range([0, 255]);
           for (i = _j = 0, _len1 = distinct_vals.length; _j < _len1; i = ++_j) {
             value = distinct_vals[i];
             console.log("color_range(value):", parseInt(color_range(value)));
@@ -181,6 +184,15 @@ Bar_Chart = (function() {
     return _results;
   };
 
+  Bar_Chart.prototype.draw_legend = function() {
+    var svg_html;
+    $('#legend-left').html(this.min_val);
+    $('#legend-right').html(this.max_val);
+    svg_html = '<svg height="10" width="90"> <rect x="0" width="15" height="10" style="fill: rgb(0, 0, 0);"></rect> <rect x="15" width="15" height="10" style="fill: rgb(50, 0, 0);"></rect> <rect x="30" width="15" height="10" style="fill: rgb(100, 0, 0);"></rect> <rect x="45" width="15" height="10" style="fill: rgb(150, 0, 0);"></rect> <rect x="60" width="15" height="10" style="fill: rgb(200, 0, 0);"></rect> <rect x="75" width="15" height="10" style="fill: rgb(255, 0, 0);"></rect> </svg>';
+    console.log("svg_html:", svg_html);
+    return $('#legend-colors').html(svg_html);
+  };
+
   Bar_Chart.prototype.get_trait_color_dict = function(samples, vals) {
     var color, color_range, distinct_vals, i, key, sample, this_color_dict, value, _i, _j, _len, _len1, _results;
     this.trait_color_dict = {};
@@ -189,6 +201,8 @@ Bar_Chart = (function() {
       if (!__hasProp.call(vals, key)) continue;
       distinct_vals = vals[key];
       this_color_dict = {};
+      this.min_val = d3.min(distinct_vals);
+      this.max_val = d3.max(distinct_vals);
       if (distinct_vals.length < 10) {
         color = d3.scale.category10();
         for (i = _i = 0, _len = distinct_vals.length; _i < _len; i = ++_i) {
@@ -426,7 +440,7 @@ Bar_Chart = (function() {
     console.log("TRAIT_COLOR_DICT:", this.trait_color_dict);
     console.log("SAMPLES:", this.samples);
     if (this.sort_by = "value") {
-      return this.svg.selectAll(".bar").data(this.samples).transition().duration(1000).style("fill", (function(_this) {
+      this.svg.selectAll(".bar").data(this.samples).transition().duration(1000).style("fill", (function(_this) {
         return function(d) {
           console.log("this color:", _this.trait_color_dict[d[0]]);
           return _this.trait_color_dict[d[0]];
@@ -436,8 +450,9 @@ Bar_Chart = (function() {
           return d[1];
         };
       })(this));
+      return this.draw_legend();
     } else {
-      return this.svg.selectAll(".bar").data(this.sorted_samples()).transition().duration(1000).style("fill", (function(_this) {
+      this.svg.selectAll(".bar").data(this.sorted_samples()).transition().duration(1000).style("fill", (function(_this) {
         return function(d) {
           console.log("this color:", _this.trait_color_dict[d[0]]);
           return _this.trait_color_dict[d[0]];
@@ -447,6 +462,7 @@ Bar_Chart = (function() {
           return d[1];
         };
       })(this));
+      return this.draw_legend();
     }
   };
 

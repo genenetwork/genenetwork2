@@ -4,7 +4,6 @@ class Histogram
     constructor: (@sample_list, @sample_group) ->
         @sort_by = "name"
         @format_count = d3.format(",.0f") #a formatter for counts
-        @get_sample_vals()
         
         @margin = {top: 10, right: 30, bottom: 30, left: 30}
         @plot_width = 960 - @margin.left - @margin.right
@@ -12,21 +11,25 @@ class Histogram
 
         @x_buffer = @plot_width/20
         @y_buffer = @plot_height/20
+        @plot_height -= @y_buffer
 
+        @get_sample_vals(@sample_list)
+        @redraw(@sample_vals)
+
+    redraw: (@sample_vals) ->
         @y_min = d3.min(@sample_vals)  
         @y_max = d3.max(@sample_vals) * 1.1
-        
-        @plot_height -= @y_buffer
+
         @create_x_scale()
         @get_histogram_data()
         @create_y_scale()
         
+        $("#histogram").empty()
         @svg = @create_svg()
-
         @create_graph()
 
-    get_sample_vals: () ->
-        @sample_vals = (sample.value for sample in @sample_list when sample.value != null)
+    get_sample_vals: (sample_list) ->
+        @sample_vals = (sample.value for sample in sample_list when sample.value != null)
 
     create_svg: () ->
         svg = d3.select("#histogram")
@@ -53,8 +56,9 @@ class Histogram
 
     get_histogram_data: () ->
         console.log("sample_vals:", @sample_vals)
+        n_bins = Math.sqrt(@sample_vals.length)
         @histogram_data = d3.layout.histogram()
-            .bins(@x_scale.ticks(20))(@sample_vals)
+            .bins(@x_scale.ticks(n_bins))(@sample_vals)
         console.log("histogram_data:", @histogram_data[0])
 
     create_y_scale: () ->
@@ -112,17 +116,20 @@ class Histogram
             .attr("class", "bar")
             .attr("transform", (d) =>
                 return "translate(" + @x_scale(d.x) + "," + @y_scale(d.y) + ")")
+
+        rect_width = @x_scale(@histogram_data[0].x + @histogram_data[0].dx) -
+                     @x_scale(@histogram_data[0].x)
         
         bar.append("rect")
             .attr("x", 1)
-            .attr("width", @x_scale(@histogram_data[0].x + @histogram_data[0].dx) - 1)
+            .attr("width", rect_width - 1)
             .attr("height", (d) =>
                 return @plot_height - @y_scale(d.y)
             )
         bar.append("text")
             .attr("dy", ".75em")
             .attr("y", 6)
-            .attr("x", @x_scale(@histogram_data[0].dx)/2)
+            .attr("x", rect_width / 2)
             .attr("text-anchor", "middle")
             .style("fill", "#fff")
             .text((d) =>

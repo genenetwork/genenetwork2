@@ -28,7 +28,7 @@ class Bar_Chart
         @plot_height -= @y_buffer
         @create_scales()
         @create_graph()
-        
+
         d3.select("#color_attribute").on("change", =>
             @attribute = $("#color_attribute").val()
             console.log("attr_color_dict:", @attr_color_dict)
@@ -59,6 +59,7 @@ class Bar_Chart
                         else
                             return @attr_color_dict[@attribute][d[2][@attribute]]
                     )
+            @draw_legend()
             @add_legend(@attribute, @distinct_attr_vals[@attribute])
         )
 
@@ -181,6 +182,8 @@ class Bar_Chart
         @attr_color_dict = {}
         console.log("vals:", vals)
         for own key, distinct_vals of vals
+            @min_val = d3.min(distinct_vals)
+            @max_val = d3.max(distinct_vals)
             this_color_dict = {}
             if distinct_vals.length < 10
                 color = d3.scale.category10()
@@ -197,8 +200,8 @@ class Bar_Chart
                         return true
                 )
                     color_range = d3.scale.linear()
-                                    .domain([d3.min(distinct_vals),
-                                            d3.max(distinct_vals)])
+                                    .domain([min_val,
+                                            max_val])
                                     .range([0,255])
                     for value, i in distinct_vals
                         console.log("color_range(value):", parseInt(color_range(value)))
@@ -206,12 +209,30 @@ class Bar_Chart
                         #this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)))
                         #this_color_dict[value] = "rgb(0, 0, " + color_range(parseInt(value)) + ")"
             @attr_color_dict[key] = this_color_dict
+       
+
+
+    draw_legend: () ->
+        $('#legend-left').html(@min_val)
+        $('#legend-right').html(@max_val)
+        svg_html = '<svg height="10" width="90"> \
+                        <rect x="0" width="15" height="10" style="fill: rgb(0, 0, 0);"></rect> \
+                        <rect x="15" width="15" height="10" style="fill: rgb(50, 0, 0);"></rect> \
+                        <rect x="30" width="15" height="10" style="fill: rgb(100, 0, 0);"></rect> \
+                        <rect x="45" width="15" height="10" style="fill: rgb(150, 0, 0);"></rect> \
+                        <rect x="60" width="15" height="10" style="fill: rgb(200, 0, 0);"></rect> \
+                        <rect x="75" width="15" height="10" style="fill: rgb(255, 0, 0);"></rect> \
+                    </svg>'
+        console.log("svg_html:", svg_html)
+        $('#legend-colors').html(svg_html)
             
     get_trait_color_dict: (samples, vals) ->
         @trait_color_dict = {}
         console.log("vals:", vals)
         for own key, distinct_vals of vals
             this_color_dict = {}
+            @min_val = d3.min(distinct_vals)
+            @max_val = d3.max(distinct_vals)
             if distinct_vals.length < 10
                 color = d3.scale.category10()
                 for value, i in distinct_vals
@@ -434,8 +455,8 @@ class Bar_Chart
                 .select("title")
                 .text((d) =>
                     return d[1]
-                )            
-
+                ) 
+            @draw_legend()      
         else
             @svg.selectAll(".bar")
                 .data(@sorted_samples())
@@ -448,7 +469,8 @@ class Bar_Chart
                 .select("title")
                 .text((d) =>
                     return d[1]
-                )            
+                )  
+            @draw_legend()          
 
     trim_values: (trait_sample_data) ->
         trimmed_samples = {}
