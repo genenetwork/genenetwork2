@@ -29,8 +29,8 @@ from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
 from wqflask.my_pylmm.data import prep_data
-from wqflask.my_pylmm.pyLMM import lmm
-from wqflask.my_pylmm.pyLMM import input
+# from wqflask.my_pylmm.pyLMM import lmm
+# from wqflask.my_pylmm.pyLMM import input
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
@@ -225,6 +225,7 @@ class Heatmap(object):
             #json_results = Redis.blpop("pylmm:results:" + str(self.temp_uuid), 45*60)
                 
     def gen_pylmm_results(self):    
+        # This function is NOT used. If it is, we should use a shared function with marker_regression.py
         self.trait_results = {}
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
