@@ -72,6 +72,18 @@ or
 $python ./secure_server.py
 ```
 
+## Running tools
+
+### pylmm
+
+To run pylmm check out the repository at https://github.com/genenetwork/pylmm_gn2.
+
+Next update the setting.py file to point at the tree
+
+GN2 can locate PYLMM through PYLMM_PATH in setting.py (or in ENV)
+
+    PYLMM_PATH = '/home/test/opensource/python/pylmm_gn2/pylmm_gn2'
+
 ## Other information
 
 Check also the ./misc/ directory for settings
