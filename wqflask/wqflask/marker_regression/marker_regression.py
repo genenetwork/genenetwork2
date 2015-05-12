@@ -25,7 +25,6 @@ from redis import Redis
 Redis = Redis()
 
 from flask import Flask, g
-from wqflask import app
 
 from base.trait import GeneralTrait
 from base import data_set
