@@ -28,7 +28,7 @@ def get_setting(id,default,guess,get_valid_path):
             setting = guess
         path = get_valid_path(guess)
     if not path:
-        raise Exception(id+' '+setting+' path unknown or faulty (update settings.py?)')
+        raise Exception(id+' '+setting+' path unknown or faulty (update settings.py?). '+id+' should point to the root of the git repository')
 
     return path
 
