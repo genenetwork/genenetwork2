@@ -24,9 +24,6 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
-# from wqflask.my_pylmm.data import prep_data
-# from wqflask.my_pylmm.pyLMM import lmm
-# from wqflask.my_pylmm.pyLMM import input
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
@@ -223,32 +220,6 @@ class IntervalMapping(object):
                    "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive}
             self.qtl_results.append(qtl)
             
-    def gen_pylmm_results(self, tempdata):
-        print("USING PYLMM")
-        self.dataset.group.get_markers()
-        
-        pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
-        if self.dataset.group.species == "human":
-            p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
-        else:
-            genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-
-            no_val_samples = self.identify_empty_samples()
-            trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
-            
-            genotype_matrix = np.array(trimmed_genotype_data).T
-            
-            t_stats, p_values = lmm.run(
-                pheno_vector,
-                genotype_matrix,
-                restricted_max_likelihood=True,
-                refit=False,
-                temp_data=tempdata
-            )
-            
-            print("p_values:", p_values)
-            self.dataset.group.markers.add_pvalues(p_values)
-            self.qtl_results = self.dataset.group.markers.markers
 
     def gen_qtl_results_2(self, tempdata):
         """Generates qtl results for plotting interval map"""
