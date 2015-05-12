@@ -44,7 +44,7 @@
                    </tr>
                 </thead>
                 <tbody>
-                    {% for marker in pair_scan_results %}
+                    {% for marker in filtered_markers %}
                         <tr>
                             <td>{{loop.index}}</td>
                             <td>{{marker.name}}</td>

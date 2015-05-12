@@ -120,57 +120,83 @@ class MarkerRegression(object):
         else:
             print("RUNNING NOTHING")
             
-        self.lod_cutoff = 2    
-        self.filtered_markers = []
-        highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
-        for marker in qtl_results:
-            if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
-                if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
-                    highest_chr = marker['chr']
-                if 'lod_score' in marker:
-                    self.filtered_markers.append(marker)
+        if self.pair_scan == True:  
+            self.filtered_markers = []
+            highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
+            for marker in qtl_results:
+                if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
+                    if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
+                        highest_chr = marker['chr1']
+                    if 'lod_score' in marker:
+                        self.filtered_markers.append(marker)
 
-        self.json_data['chr'] = []
-        self.json_data['pos'] = []
-        self.json_data['lod.hk'] = []
-        self.json_data['markernames'] = []
+            for qtl in enumerate(self.filtered_markers):
+                self.json_data['chr1'].append(str(qtl['chr1']))
+                self.json_data['chr2'].append(str(qtl['chr2']))
+                self.json_data['Mb'].append(qtl['Mb'])
+                self.json_data['markernames'].append(qtl['name'])
 
-        self.json_data['suggestive'] = self.suggestive
-        self.json_data['significant'] = self.significant
+            self.js_data = dict(
+                json_data = self.json_data,
+                this_trait = self.this_trait.name,
+                data_set = self.dataset.name,
+                maf = self.maf,
+                manhattan_plot = self.manhattan_plot,
+                qtl_results = self.filtered_markers,
+            )
 
-        #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
-        self.qtl_results = []
-        for index,qtl in enumerate(self.filtered_markers):
-            if index<40:
-                print("lod score is:", qtl['lod_score'])
-            if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
-                print("changing to X")
-                self.json_data['chr'].append("X")
-            else:
-                self.json_data['chr'].append(str(qtl['chr']))
-            self.json_data['pos'].append(qtl['Mb'])
-            self.json_data['lod.hk'].append(str(qtl['lod_score']))
-            self.json_data['markernames'].append(qtl['name'])
+        else:
+            self.lod_cutoff = 2    
+            self.filtered_markers = []
+            highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
+            for marker in qtl_results:
+                if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                    if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                        highest_chr = marker['chr']
+                    if 'lod_score' in marker:
+                        self.filtered_markers.append(marker)
 
-        #Get chromosome lengths for drawing the interval map plot
-        chromosome_mb_lengths = {}
-        self.json_data['chrnames'] = []
-        for key in self.species.chromosomes.chromosomes.keys():
-            self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
-            chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
+            self.json_data['chr'] = []
+            self.json_data['pos'] = []
+            self.json_data['lod.hk'] = []
+            self.json_data['markernames'] = []
+
+            self.json_data['suggestive'] = self.suggestive
+            self.json_data['significant'] = self.significant
+
+            #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+            self.qtl_results = []
+            for index, qtl in enumerate(self.filtered_markers):
+                if index<40:
+                    print("lod score is:", qtl['lod_score'])
+                if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
+                    print("changing to X")
+                    self.json_data['chr'].append("X")
+                else:
+                    self.json_data['chr'].append(str(qtl['chr']))
+                self.json_data['pos'].append(qtl['Mb'])
+                self.json_data['lod.hk'].append(str(qtl['lod_score']))
+                self.json_data['markernames'].append(qtl['name'])
+
+            #Get chromosome lengths for drawing the interval map plot
+            chromosome_mb_lengths = {}
+            self.json_data['chrnames'] = []
+            for key in self.species.chromosomes.chromosomes.keys():
+                self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
+                chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
-        # print("json_data:", self.json_data)
+            # print("json_data:", self.json_data)
         
 
-        self.js_data = dict(
-            json_data = self.json_data,
-            this_trait = self.this_trait.name,
-            data_set = self.dataset.name,
-            maf = self.maf,
-            manhattan_plot = self.manhattan_plot,
-            chromosomes = chromosome_mb_lengths,
-            qtl_results = self.filtered_markers,
-        )
+            self.js_data = dict(
+                json_data = self.json_data,
+                this_trait = self.this_trait.name,
+                data_set = self.dataset.name,
+                maf = self.maf,
+                manhattan_plot = self.manhattan_plot,
+                chromosomes = chromosome_mb_lengths,
+                qtl_results = self.filtered_markers,
+            )
         
 
     def run_gemma(self):
