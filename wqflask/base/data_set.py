@@ -292,6 +292,7 @@ class DatasetGroup(object):
         
         self.incparentsf1 = False
         self.allsamples = None
+        self._datasets = None
 
     def get_specified_markers(self, markers = []):
         self.markers = HumanMarkers(self.name, markers)
@@ -305,6 +306,52 @@ class DatasetGroup(object):
 
         self.markers = marker_class(self.name)
 
+    def datasets(self):
+        key = "group_dataset_menu:v1:" + self.name
+        print("key is:", key)
+        with Bench("Loading cache"):
+            result = Redis.get(key)
+        if result:
+            self._datasets = pickle.loads(result)
+            return self._datasets
+
+        dataset_menu = []
+        print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
+        print("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
+        results = g.db.execute("""SELECT PublishFreeze.FullName,PublishFreeze.Name FROM
+                PublishFreeze,InbredSet WHERE PublishFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name = %s and PublishFreeze.public > %s""",
+                (self.name, webqtlConfig.PUBLICTHRESH))
+        for item in results.fetchall():
+            dataset_menu.append(dict(tissue=None,
+                                     datasets=[item]))
+
+        results = g.db.execute("""SELECT GenoFreeze.FullName,GenoFreeze.Name FROM GenoFreeze,
+                InbredSet WHERE GenoFreeze.InbredSetId = InbredSet.Id and InbredSet.Name =
+                %s and GenoFreeze.public > %s""",
+                (self.name, webqtlConfig.PUBLICTHRESH))
+        for item in results.fetchall():
+            dataset_menu.append(dict(tissue=None,
+                                datasets=[item]))
+
+        #03/09/2009: Xiaodong changed the SQL query to order by Name as requested by Rob.
+        tissues = g.db.execute("SELECT Id, Name FROM Tissue order by Name")
+        for item in tissues.fetchall():
+            tissue_id, tissue_name = item
+            data_sets = g.db.execute('''SELECT ProbeSetFreeze.FullName,ProbeSetFreeze.Name FROM ProbeSetFreeze, ProbeFreeze,
+            InbredSet WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeFreeze.TissueId = %s and
+            ProbeSetFreeze.public > %s and ProbeFreeze.InbredSetId = InbredSet.Id and InbredSet.Name like %s
+            order by ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId ''',
+            (tissue_id, webqtlConfig.PUBLICTHRESH, "%" + self.name + "%"))
+            dataset_sub_menu = [item for item in data_sets.fetchall() if item]
+            if dataset_sub_menu:
+                dataset_menu.append(dict(tissue=tissue_name,
+                                    datasets=dataset_sub_menu))
+
+        Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
+        Redis.expire(key, 60*5)
+        self._datasets = dataset_menu
+        return self._datasets
 
     def get_f1_parent_strains(self):
         try:
