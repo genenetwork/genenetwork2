@@ -29,6 +29,7 @@ import json
 import gzip
 import cPickle as pickle
 import itertools
+from operator import itemgetter
 
 from redis import Redis
 Redis = Redis()
@@ -292,6 +293,7 @@ class DatasetGroup(object):
         
         self.incparentsf1 = False
         self.allsamples = None
+        self._datasets = None
 
     def get_specified_markers(self, markers = []):
         self.markers = HumanMarkers(self.name, markers)
@@ -305,6 +307,56 @@ class DatasetGroup(object):
 
         self.markers = marker_class(self.name)
 
+    def datasets(self):
+        key = "group_dataset_menu:v1:" + self.name
+        print("key is:", key)
+        with Bench("Loading cache"):
+            result = Redis.get(key)
+        if result:
+            self._datasets = pickle.loads(result)
+            return self._datasets
+
+        dataset_menu = []
+        print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
+        print("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
+        results = g.db.execute('''
+             (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
+              FROM PublishFreeze,InbredSet
+              WHERE PublishFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name = %s
+                and PublishFreeze.public > %s)
+             UNION
+             (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
+              FROM GenoFreeze, InbredSet
+              WHERE GenoFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name = %s
+                and GenoFreeze.public > %s)
+             UNION
+             (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
+              FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
+              WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+                and ProbeFreeze.TissueId = Tissue.Id
+                and ProbeFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name like %s
+                and ProbeSetFreeze.public > %s
+              ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
+            ''', (self.name, webqtlConfig.PUBLICTHRESH,
+                  self.name, webqtlConfig.PUBLICTHRESH,
+                  "%" + self.name + "%", webqtlConfig.PUBLICTHRESH))
+
+        for tissue_name, dataset in itertools.groupby(results.fetchall(), itemgetter(0)):
+            if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
+                for item in dataset:
+                    dataset_menu.append(dict(tissue=None, datasets=[item[1:]]))
+            else:
+                dataset_sub_menu = [item[1:] for item in dataset]
+                dataset_menu.append(dict(tissue=tissue_name,
+                                    datasets=dataset_sub_menu))
+
+        Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
+        Redis.expire(key, 60*5)
+        self._datasets = dataset_menu
+        return self._datasets
 
     def get_f1_parent_strains(self):
         try:
