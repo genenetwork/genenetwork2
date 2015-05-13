@@ -25,7 +25,6 @@ from redis import Redis
 Redis = Redis()
 
 from flask import Flask, g
-from wqflask import app
 
 from base.trait import GeneralTrait
 from base import data_set
@@ -36,23 +35,13 @@ from utility import webqtlUtil
 #from wqflask.marker_regression import plink_mapping
 from wqflask.marker_regression import gemma_mapping
 #from wqflask.marker_regression import rqtl_mapping
-from wqflask.my_pylmm.data import prep_data
-# from wqflask.my_pylmm.pyLMM import lmm
-# from wqflask.my_pylmm.pyLMM import input
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
-
 from utility.benchmark import Bench
+from utility.tools import pylmm_command
 
-import os
-if os.environ.get('PYLMM_PATH') is None:
-    PYLMM_PATH=app.config.get('PYLMM_PATH')
-    if PYLMM_PATH is None:
-        PYLMM_PATH=os.environ['HOME']+'/gene/wqflask/wqflask/my_pylmm/pyLMM'
-if not os.path.isfile(PYLMM_PATH+'/lmm.py'):
-    raise Exception('PYLMM_PATH '+PYLMM_PATH+' unknown or faulty')
-PYLMM_COMMAND= 'python '+PYLMM_PATH+'/lmm.py'
+PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
 
 class MarkerRegression(object):
 
