@@ -319,38 +319,39 @@ class DatasetGroup(object):
         dataset_menu = []
         print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
         print("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
-        results = g.db.execute("""SELECT PublishFreeze.FullName,PublishFreeze.Name FROM
-                PublishFreeze,InbredSet WHERE PublishFreeze.InbredSetId = InbredSet.Id
-                and InbredSet.Name = %s and PublishFreeze.public > %s""",
-                (self.name, webqtlConfig.PUBLICTHRESH))
-        for item in results.fetchall():
-            dataset_menu.append(dict(tissue=None,
-                                     datasets=[item]))
-
-        results = g.db.execute("""SELECT GenoFreeze.FullName,GenoFreeze.Name FROM GenoFreeze,
-                InbredSet WHERE GenoFreeze.InbredSetId = InbredSet.Id and InbredSet.Name =
-                %s and GenoFreeze.public > %s""",
-                (self.name, webqtlConfig.PUBLICTHRESH))
-        for item in results.fetchall():
-            dataset_menu.append(dict(tissue=None,
-                                datasets=[item]))
-
-        #03/09/2009: Xiaodong changed the SQL query to order by Name as requested by Rob.
         results = g.db.execute('''
-            SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
-            FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
-            WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                  ProbeFreeze.TissueId = Tissue.Id and
-                  ProbeSetFreeze.public > %s and
-                  ProbeFreeze.InbredSetId = InbredSet.Id and
-                  InbredSet.Name like %s
-            ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId
-            ''', (webqtlConfig.PUBLICTHRESH, "%" + self.name + "%"))
+             (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
+              FROM PublishFreeze,InbredSet
+              WHERE PublishFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name = %s
+                and PublishFreeze.public > %s)
+             UNION
+             (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
+              FROM GenoFreeze, InbredSet
+              WHERE GenoFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name = %s
+                and GenoFreeze.public > %s)
+             UNION
+             (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
+              FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
+              WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+                and ProbeFreeze.TissueId = Tissue.Id
+                and ProbeFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name like %s
+                and ProbeSetFreeze.public > %s
+              ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
+            ''', (self.name, webqtlConfig.PUBLICTHRESH,
+                  self.name, webqtlConfig.PUBLICTHRESH,
+                  "%" + self.name + "%", webqtlConfig.PUBLICTHRESH))
 
         for tissue_name, dataset in itertools.groupby(results.fetchall(), itemgetter(0)):
-            dataset_sub_menu = [item[1:] for item in dataset]
-            dataset_menu.append(dict(tissue=tissue_name,
-                                     datasets=dataset_sub_menu))
+            if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
+                for item in dataset:
+                    dataset_menu.append(dict(tissue=None, datasets=[item[1:]]))
+            else:
+                dataset_sub_menu = [item[1:] for item in dataset]
+                dataset_menu.append(dict(tissue=tissue_name,
+                                    datasets=dataset_sub_menu))
 
         Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
         Redis.expire(key, 60*5)
