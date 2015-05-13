@@ -29,6 +29,7 @@ import json
 import gzip
 import cPickle as pickle
 import itertools
+from operator import itemgetter
 
 from redis import Redis
 Redis = Redis()
@@ -335,18 +336,21 @@ class DatasetGroup(object):
                                 datasets=[item]))
 
         #03/09/2009: Xiaodong changed the SQL query to order by Name as requested by Rob.
-        tissues = g.db.execute("SELECT Id, Name FROM Tissue order by Name")
-        for item in tissues.fetchall():
-            tissue_id, tissue_name = item
-            data_sets = g.db.execute('''SELECT ProbeSetFreeze.FullName,ProbeSetFreeze.Name FROM ProbeSetFreeze, ProbeFreeze,
-            InbredSet WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeFreeze.TissueId = %s and
-            ProbeSetFreeze.public > %s and ProbeFreeze.InbredSetId = InbredSet.Id and InbredSet.Name like %s
-            order by ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId ''',
-            (tissue_id, webqtlConfig.PUBLICTHRESH, "%" + self.name + "%"))
-            dataset_sub_menu = [item for item in data_sets.fetchall() if item]
-            if dataset_sub_menu:
-                dataset_menu.append(dict(tissue=tissue_name,
-                                    datasets=dataset_sub_menu))
+        results = g.db.execute('''
+            SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
+            FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
+            WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+                  ProbeFreeze.TissueId = Tissue.Id and
+                  ProbeSetFreeze.public > %s and
+                  ProbeFreeze.InbredSetId = InbredSet.Id and
+                  InbredSet.Name like %s
+            ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId
+            ''', (webqtlConfig.PUBLICTHRESH, "%" + self.name + "%"))
+
+        for tissue_name, dataset in itertools.groupby(results.fetchall(), itemgetter(0)):
+            dataset_sub_menu = [item[1:] for item in dataset]
+            dataset_menu.append(dict(tissue=tissue_name,
+                                     datasets=dataset_sub_menu))
 
         Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
         Redis.expire(key, 60*5)
