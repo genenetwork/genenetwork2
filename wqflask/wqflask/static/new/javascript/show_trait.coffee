@@ -64,36 +64,6 @@ $ ->
     sample_lists = js_data.sample_lists
     sample_group_types = js_data.sample_group_types
 
-    #if $("#update_bar_chart").length
-    #    $("#update_bar_chart.btn-group").button()
-    root.bar_chart = new Bar_Chart(sample_lists[0])
-    root.histogram = new Histogram(sample_lists[0])
-    new Box_Plot(sample_lists[0])
-
-    $('.bar_chart_samples_group').change ->
-        $('#bar_chart').remove()
-        $('#bar_chart_container').append('<div id="bar_chart"></div>')
-        group = $(this).val()
-        if group == "samples_primary"
-            root.bar_chart = new Bar_Chart(sample_lists[0])
-        else if group == "samples_other"
-            root.bar_chart = new Bar_Chart(sample_lists[1])
-        else if group == "samples_all"
-            all_samples = sample_lists[0].concat sample_lists[1]
-            root.bar_chart = new Bar_Chart(all_samples)
-
-    $('.box_plot_samples_group').change ->
-        $('#box_plot').remove()
-        $('#box_plot_container').append('<div id="box_plot"></div>')
-        group = $(this).val()
-        if group == "samples_primary"
-            new Box_Plot(sample_lists[0])
-        else if group == "samples_other"
-            new Box_Plot(sample_lists[1])
-        else if group == "samples_all"
-            all_samples = sample_lists[0].concat sample_lists[1]
-            new Box_Plot(all_samples)
-
     d3.select("#select_compare_trait").on("click", =>
         $('.scatter-matrix-container').remove()
         open_trait_selection()
@@ -158,6 +128,11 @@ $ ->
                 console.log("Calling change_stats_value")
                 change_stats_value(sample_sets, category, row.vn, row.digits)
 
+    redraw_histogram = ->
+        root.histogram.redraw(_.values(root.selected_samples[root.histogram_group]))
+
+    redraw_bar_chart = ->
+        root.bar_chart.redraw(root.selected_samples[root.bar_chart_group])
 
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"
@@ -213,6 +188,11 @@ $ ->
             samples_other: new Stats([])
             samples_all: new Stats([])
 
+        root.selected_samples = # maps: sample name -> value
+            samples_primary: {}
+            samples_other: {}
+            samples_all: {}
+
         console.log("at beginning:", sample_sets)
 
         tables = ['samples_primary', 'samples_other']
@@ -232,14 +212,21 @@ $ ->
                     real_value = parseFloat(real_value)
 
                     sample_sets[table].add_value(real_value)
+                    root.selected_samples[table][name] = real_value
                     console.log("checking name of:", name)
                     if not (name of already_seen)
                         console.log("haven't seen")
                         sample_sets['samples_all'].add_value(real_value)
+                        root.selected_samples['samples_all'][name] = real_value
                         already_seen[name] = true
         console.log("towards end:", sample_sets)
-        root.histogram.redraw(sample_sets['samples_primary'].the_values)
         update_stat_values(sample_sets)
+
+        console.log("redrawing histogram")
+        redraw_histogram()
+
+        console.log("redrawing bar chart")
+        redraw_bar_chart()
 
     show_hide_outliers = ->
         console.log("FOOBAR in beginning of show_hide_outliers")
@@ -427,11 +414,36 @@ $ ->
     console.log("after registering block_outliers")
 
     _.mixin(_.str.exports());  # Add string fuctions directly to underscore
-    $('#edit_sample_lists').change(edit_data_change)
-    console.log("loaded")
-    #console.log("basic_table is:", basic_table)
-    # Add back following two lines later
+
+    root.histogram_group = 'samples_primary'
+    root.histogram = new Histogram(sample_lists[0])
+    $('.histogram_samples_group').change ->
+        root.histogram_group = $(this).val()
+        redraw_histogram()
+
+    root.bar_chart_group = 'samples_primary'
+    root.bar_chart = new Bar_Chart(sample_lists[0])
+    $('.bar_chart_samples_group').change ->
+        root.bar_chart_group = $(this).val()
+        redraw_bar_chart()
+
+    new Box_Plot(sample_lists[0])
+        
+    $('.box_plot_samples_group').change ->
+        $('#box_plot').remove()
+        $('#box_plot_container').append('<div id="box_plot"></div>')
+        group = $(this).val()
+        if group == "samples_primary"
+            new Box_Plot(sample_lists[0])
+        else if group == "samples_other"
+            new Box_Plot(sample_lists[1])
+        else if group == "samples_all"
+            all_samples = sample_lists[0].concat sample_lists[1]
+            new Box_Plot(all_samples)
+
     make_table()
     edit_data_change()   # Set the values at the beginning
+
+    $('#edit_sample_lists').change(edit_data_change)
     #$("#all-mean").html('foobar8')
     console.log("end")

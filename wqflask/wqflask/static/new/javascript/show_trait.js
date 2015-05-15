@@ -56,40 +56,9 @@
   ];
 
   $(function() {
-    var block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, open_trait_selection, populate_sample_attributes_values_dropdown, process_id, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values;
+    var block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, open_trait_selection, populate_sample_attributes_values_dropdown, process_id, redraw_bar_chart, redraw_histogram, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values;
     sample_lists = js_data.sample_lists;
     sample_group_types = js_data.sample_group_types;
-    root.bar_chart = new Bar_Chart(sample_lists[0]);
-    root.histogram = new Histogram(sample_lists[0]);
-    new Box_Plot(sample_lists[0]);
-    $('.bar_chart_samples_group').change(function() {
-      var all_samples, group;
-      $('#bar_chart').remove();
-      $('#bar_chart_container').append('<div id="bar_chart"></div>');
-      group = $(this).val();
-      if (group === "samples_primary") {
-        return root.bar_chart = new Bar_Chart(sample_lists[0]);
-      } else if (group === "samples_other") {
-        return root.bar_chart = new Bar_Chart(sample_lists[1]);
-      } else if (group === "samples_all") {
-        all_samples = sample_lists[0].concat(sample_lists[1]);
-        return root.bar_chart = new Bar_Chart(all_samples);
-      }
-    });
-    $('.box_plot_samples_group').change(function() {
-      var all_samples, group;
-      $('#box_plot').remove();
-      $('#box_plot_container').append('<div id="box_plot"></div>');
-      group = $(this).val();
-      if (group === "samples_primary") {
-        return new Box_Plot(sample_lists[0]);
-      } else if (group === "samples_other") {
-        return new Box_Plot(sample_lists[1]);
-      } else if (group === "samples_all") {
-        all_samples = sample_lists[0].concat(sample_lists[1]);
-        return new Box_Plot(all_samples);
-      }
-    });
     d3.select("#select_compare_trait").on("click", (function(_this) {
       return function() {
         $('.scatter-matrix-container').remove();
@@ -169,6 +138,12 @@
       }
       return results;
     };
+    redraw_histogram = function() {
+      return root.histogram.redraw(_.values(root.selected_samples[root.histogram_group]));
+    };
+    redraw_bar_chart = function() {
+      return root.bar_chart.redraw(root.selected_samples[root.bar_chart_group]);
+    };
     make_table = function() {
       var header, i, key, len, ref, ref1, row, row_line, table, the_id, the_rows, value;
       header = "<thead><tr><th>&nbsp;</th>";
@@ -238,6 +213,11 @@
         samples_other: new Stats([]),
         samples_all: new Stats([])
       };
+      root.selected_samples = {
+        samples_primary: {},
+        samples_other: {},
+        samples_all: {}
+      };
       console.log("at beginning:", sample_sets);
       tables = ['samples_primary', 'samples_other'];
       for (i = 0, len = tables.length; i < len; i++) {
@@ -255,18 +235,23 @@
             console.log("in the iffy if");
             real_value = parseFloat(real_value);
             sample_sets[table].add_value(real_value);
+            root.selected_samples[table][name] = real_value;
             console.log("checking name of:", name);
             if (!(name in already_seen)) {
               console.log("haven't seen");
               sample_sets['samples_all'].add_value(real_value);
+              root.selected_samples['samples_all'][name] = real_value;
               already_seen[name] = true;
             }
           }
         }
       }
       console.log("towards end:", sample_sets);
-      root.histogram.redraw(sample_sets['samples_primary'].the_values);
-      return update_stat_values(sample_sets);
+      update_stat_values(sample_sets);
+      console.log("redrawing histogram");
+      redraw_histogram();
+      console.log("redrawing bar chart");
+      return redraw_bar_chart();
     };
     show_hide_outliers = function() {
       var label;
@@ -460,10 +445,36 @@
     $('#block_outliers').click(block_outliers);
     console.log("after registering block_outliers");
     _.mixin(_.str.exports());
-    $('#edit_sample_lists').change(edit_data_change);
-    console.log("loaded");
+    root.histogram_group = 'samples_primary';
+    root.histogram = new Histogram(sample_lists[0]);
+    $('.histogram_samples_group').change(function() {
+      root.histogram_group = $(this).val();
+      return redraw_histogram();
+    });
+    root.bar_chart_group = 'samples_primary';
+    root.bar_chart = new Bar_Chart(sample_lists[0]);
+    $('.bar_chart_samples_group').change(function() {
+      root.bar_chart_group = $(this).val();
+      return redraw_bar_chart();
+    });
+    new Box_Plot(sample_lists[0]);
+    $('.box_plot_samples_group').change(function() {
+      var all_samples, group;
+      $('#box_plot').remove();
+      $('#box_plot_container').append('<div id="box_plot"></div>');
+      group = $(this).val();
+      if (group === "samples_primary") {
+        return new Box_Plot(sample_lists[0]);
+      } else if (group === "samples_other") {
+        return new Box_Plot(sample_lists[1]);
+      } else if (group === "samples_all") {
+        all_samples = sample_lists[0].concat(sample_lists[1]);
+        return new Box_Plot(all_samples);
+      }
+    });
     make_table();
     edit_data_change();
+    $('#edit_sample_lists').change(edit_data_change);
     return console.log("end");
   });
 

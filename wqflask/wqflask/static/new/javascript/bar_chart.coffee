@@ -136,6 +136,21 @@ class Bar_Chart
             @open_trait_selection()
         )
 
+    # takes a dict: name -> value and rebuilds the graph
+    redraw: (samples_dict) ->
+        updated_samples = []
+        for [name, val, attr] in @full_sample_list
+            if name of samples_dict
+                updated_samples.push [name, samples_dict[name], attr]
+
+        @samples = updated_samples
+        # TODO: update underscore.js and replace the below with an _.unzip call
+        @sample_names = (x[0] for x in @samples)
+        @sample_vals = (x[1] for x in @samples)
+        @sample_attr_vals = (x[2] for x in @samples)
+
+        @rebuild_bar_graph(if @sort_by == 'name' then @samples else @sorted_samples())
+
     rebuild_bar_graph: (samples) ->
         console.log("samples:", samples)
         @svg.selectAll(".bar")
@@ -170,13 +185,11 @@ class Bar_Chart
             #    return @trait_color_dict[d[0]]
             #    #return @attr_color_dict["collection_trait"][trimmed_samples[d[0]]]
             #)
-        sample_names = (sample[0] for sample in samples)
-        console.log("sample_names2:", sample_names)
-        x_scale = d3.scale.ordinal()
-            .domain(sample_names)
-            .rangeRoundBands([0, @range], 0.1, 0)
+        @create_scales()
         $('.bar_chart').find('.x.axis').remove()
-        @add_x_axis(x_scale)
+        $('.bar_chart').find('.y.axis').remove()
+        @add_x_axis()
+        @add_y_axis() 
 
     get_attr_color_dict: (vals) ->
         @attr_color_dict = {}
@@ -273,6 +286,8 @@ class Bar_Chart
         @attributes = (key for key of @sample_list[0]["extra_attributes"])
         console.log("attributes:", @attributes)
         @sample_attr_vals = []
+        # WTF??? how can they be zipped later???
+        # TODO find something with extra_attributes for testing
         if @attributes.length > 0
             for sample in @sample_list
                 attr_vals = {}
@@ -280,6 +295,7 @@ class Bar_Chart
                     attr_vals[attribute] = sample["extra_attributes"][attribute]
                 @sample_attr_vals.push(attr_vals)
         @samples = _.zip(@sample_names, @sample_vals, @sample_attr_vals)
+        @full_sample_list = @samples.slice() # keeps attributes across redraws
 
     get_distinct_attr_vals: () ->
         @distinct_attr_vals = {}
@@ -314,14 +330,14 @@ class Bar_Chart
     create_graph: () ->
         
         #@add_border()
-        @add_x_axis(@x_scale)
+        @add_x_axis()
         @add_y_axis() 
         
         @add_bars()
         
     add_x_axis: (scale) ->
         xAxis = d3.svg.axis()
-            .scale(scale)
+            .scale(@x_scale)
             .orient("bottom");
         
         @svg.append("g")
