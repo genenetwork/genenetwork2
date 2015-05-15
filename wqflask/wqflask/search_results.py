@@ -223,26 +223,7 @@ class SearchResultPage(object):
             combined_from_clause = ""
             combined_where_clause = "" 
             for i, a_search in enumerate(self.search_terms):
-                print("[kodak] item is:", pf(a_search))
-                search_term = a_search['search_term']
-                search_operator = a_search['separator']
-                if a_search['key']:
-                    search_type = a_search['key'].upper()
-                else:
-                    # We fall back to the dataset type as the key to get the right object
-                    search_type = self.dataset.type
-                
-                print("search_type is:", pf(search_type))
-
-                search_ob = do_search.DoSearch.get_search(search_type) 
-                search_class = getattr(do_search, search_ob)     
-                the_search = search_class(search_term,
-                                        search_operator,
-                                        self.dataset,
-                                        )
-                
-                #search_query = the_search.get_final_query()
-
+                the_search = self.get_search_ob(a_search)
                 get_from_clause = getattr(the_search, "get_from_clause", None)
                 if callable(get_from_clause):
                     from_clause = the_search.get_from_clause()
@@ -251,31 +232,37 @@ class SearchResultPage(object):
                 combined_where_clause += "(" + where_clause + ")"
                 if (i+1) < len(self.search_terms):
                     combined_where_clause += "AND"
-
-            results = the_search.run_combined(combined_from_clause, combined_where_clause)
+            final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
+            results = the_search.execute(final_query)
             self.results.extend(results)
-         
         else:
             for a_search in self.search_terms:
-                print("[kodak] item is:", pf(a_search))
-                search_term = a_search['search_term']
-                search_operator = a_search['separator']
-                if a_search['key']:
-                    search_type = a_search['key'].upper()
-                else:
-                    # We fall back to the dataset type as the key to get the right object
-                    search_type = self.dataset.type
-                
-                print("search_type is:", pf(search_type))
-
-                search_ob = do_search.DoSearch.get_search(search_type)
-                search_class = getattr(do_search, search_ob)
-                print("search_class is: ", pf(search_class))
-                the_search = search_class(search_term,
-                                        search_operator,
-                                        self.dataset,
-                                        )
+                the_search = self.get_search_ob(a_search)
                 self.results.extend(the_search.run())
                 #print("in the search results are:", self.results)
 
         self.header_fields = the_search.header_fields
+
+    def get_search_ob(self, a_search):
+        print("[kodak] item is:", pf(a_search))
+        search_term = a_search['search_term']
+        search_operator = a_search['separator']
+        search_type = {}
+        search_type['dataset_type'] = self.dataset.type
+        if a_search['key']:
+            search_type['key'] = a_search['key'].upper()
+            #search_type = a_search['key'].upper()
+        #else:
+        #    # We fall back to the dataset type as the key to get the right object
+        #    search_type = self.dataset.type
+                
+        print("search_type is:", pf(search_type))
+
+        search_ob = do_search.DoSearch.get_search(search_type)
+        search_class = getattr(do_search, search_ob)
+        print("search_class is: ", pf(search_class))
+        the_search = search_class(search_term,
+                                search_operator,
+                                self.dataset,
+                                )
+        return the_search
