@@ -26,6 +26,7 @@ class SampleList(object):
         self.header = header
 
         self.sample_list = [] # The actual list
+        self.sample_attribute_values = {}
 
         self.get_attributes()
         print("camera: attributes are:", pf(self.attributes))
@@ -156,7 +157,6 @@ class SampleList(object):
             self.attributes[key].distinct_values.sort(key=natural_sort_key)
 
     def get_extra_attribute_values(self):
-        self.sample_attribute_values = {}
         if self.attributes:
             results = g.db.execute('''
                         SELECT Strain.Name AS SampleName, CaseAttributeId AS Id, CaseAttributeXRef.Value
