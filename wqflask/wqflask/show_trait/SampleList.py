@@ -10,6 +10,8 @@ import numpy as np
 from scipy import stats
 from pprint import pformat as pf
 
+import itertools
+
 class SampleList(object):
     def __init__(self,
                  dataset,
@@ -24,14 +26,13 @@ class SampleList(object):
         self.header = header
 
         self.sample_list = [] # The actual list
+        self.sample_attribute_values = {}
 
-        try:
-            self.get_attributes()
-        except Exception:
-            print("failed to get attributes")
-            self.attributes = {}
-        
+        self.get_attributes()
         print("camera: attributes are:", pf(self.attributes))
+
+        if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
+            self.get_extra_attribute_values()
 
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
@@ -59,8 +60,8 @@ class SampleList(object):
                 sample.this_id = "Other_" + str(counter)
 
             #### For extra attribute columns; currently only used by several datasets - Zach
-            if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
-                sample.extra_attributes = self.get_extra_attribute_values(sample_name)
+            if self.sample_attribute_values:
+                sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
                 print("sample.extra_attributes is", pf(sample.extra_attributes))
             
             self.sample_list.append(sample)
@@ -135,75 +136,54 @@ class SampleList(object):
                 else:
                     sample.outlier = False
                     
-                    
     def get_attributes(self):
         """Finds which extra attributes apply to this dataset"""
-        
-        #ZS: Id and name values for this trait's extra attributes
-        case_attributes = g.db.execute('''SELECT CaseAttribute.Id, CaseAttribute.Name
-                                        FROM CaseAttribute, CaseAttributeXRef
-                                        WHERE CaseAttributeXRef.ProbeSetFreezeId = %s AND
-                                            CaseAttribute.Id = CaseAttributeXRef.CaseAttributeId
-                                                group by CaseAttributeXRef.CaseAttributeId''',
-                                                (str(self.dataset.id),))
 
+        # Get attribute names and distinct values for each attribute
+        results = g.db.execute('''
+                        SELECT DISTINCT CaseAttribute.Id, CaseAttribute.Name, CaseAttributeXRef.Value
+                        FROM CaseAttribute, CaseAttributeXRef
+                        WHERE CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id
+                        AND CaseAttributeXRef.ProbeSetFreezeId = %s
+                        ORDER BY CaseAttribute.Name''', (str(self.dataset.id),))
 
         self.attributes = {}
-        for key, value in case_attributes.fetchall():
-            print("radish: %s - %s" % (key, value))
+        for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
+            key, name = attr
+            print("radish: %s - %s" % (key, name))
             self.attributes[key] = Bunch()
-            self.attributes[key].name = value
-
-            attribute_values = g.db.execute('''SELECT DISTINCT CaseAttributeXRef.Value
-                                               FROM CaseAttribute, CaseAttributeXRef
-                                               WHERE CaseAttribute.Name = %s AND
-                                CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id''', (value,))
-
-            self.attributes[key].distinct_values = [item[0] for item in attribute_values.fetchall()]
+            self.attributes[key].name = name
+            self.attributes[key].distinct_values = [item.Value for item in values]
             self.attributes[key].distinct_values.sort(key=natural_sort_key)
 
-
-    def get_extra_attribute_values(self, sample_name):
-
-        attribute_values = {}
-
+    def get_extra_attribute_values(self):
         if self.attributes:
+            results = g.db.execute('''
+                        SELECT Strain.Name AS SampleName, CaseAttributeId AS Id, CaseAttributeXRef.Value
+                        FROM Strain, StrainXRef, InbredSet, CaseAttributeXRef
+                        WHERE StrainXRef.StrainId = Strain.Id
+                        AND InbredSet.Id = StrainXRef.InbredSetId
+                        AND CaseAttributeXRef.StrainId = Strain.Id
+                        AND InbredSet.Name = %s
+                        AND CaseAttributeXRef.ProbeSetFreezeId = %s
+                        ORDER BY SampleName''',
+                       (self.dataset.group.name, self.this_trait.dataset.id))
 
-            #ZS: Get StrainId value for the next query
-            result = g.db.execute("""SELECT Strain.Id
-                                        FROM Strain, StrainXRef, InbredSet
-                                        WHERE Strain.Name = %s and
-                                            StrainXRef.StrainId = Strain.Id and
-                                            InbredSet.Id = StrainXRef.InbredSetId and
-                                            InbredSet.Name = %s""", (sample_name,
-                                                                     self.dataset.group.name))
+            for sample_name, items in itertools.groupby(results.fetchall(), lambda row: row.SampleName):
+                attribute_values = {}
+                for item in items:
+                    attribute_value = item.Value
 
-            sample_id = result.fetchone().Id
+                    #ZS: If it's an int, turn it into one for sorting
+                    #(for example, 101 would be lower than 80 if they're strings instead of ints)
+                    try:
+                        attribute_value = int(attribute_value)
+                    except ValueError:
+                        pass
 
-            for attribute in self.attributes:
+                    attribute_values[self.attributes[item.Id].name] = attribute_value
+                self.sample_attribute_values[sample_name] = attribute_values
 
-                #ZS: Add extra case attribute values (if any)
-                result = g.db.execute("""SELECT Value
-                                                FROM CaseAttributeXRef
-                                        WHERE ProbeSetFreezeId = %s AND
-                                                StrainId = %s AND
-                                                CaseAttributeId = %s
-                                        group by CaseAttributeXRef.CaseAttributeId""", (
-                                            self.this_trait.dataset.id, sample_id, str(attribute)))
-
-                attribute_value = result.fetchone().Value #Trait-specific attributes, if any
-
-                #ZS: If it's an int, turn it into one for sorting
-                #(for example, 101 would be lower than 80 if they're strings instead of ints)
-                try:
-                    attribute_value = int(attribute_value)
-                except ValueError:
-                    pass
-                
-                attribute_values[self.attributes[attribute].name] = attribute_value
-               
-        return attribute_values
-    
     def se_exists(self):
         """Returns true if SE values exist for any samples, otherwise false"""
         
