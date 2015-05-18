@@ -42,33 +42,30 @@
       this.y_max = d3.max(this.sample_vals) * 1.1;
       this.svg = this.create_svg();
       this.plot_height -= this.y_buffer;
-      this.create_scales();
+      this.create_scales(this.sample_names);
       this.create_graph();
       d3.select("#color_attribute").on("change", (function(_this) {
         return function() {
           _this.attribute = $("#color_attribute").val();
           console.log("attr_color_dict:", _this.attr_color_dict);
-          if (_this.sort_by = "name") {
-            _this.svg.selectAll(".bar").data(_this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
-              if (_this.attribute === "None") {
-                return "steelblue";
-              } else {
-                return _this.attr_color_dict[_this.attribute][d[2][_this.attribute]];
-              }
-            }).select("title").text(function(d) {
-              return d[1];
-            });
+          _this.svg.selectAll(".bar").data(_this.sort_by === "name" ? _this.samples : _this.sorted_samples()).transition().duration(1000).style("fill", function(d) {
+            if (_this.attribute === "None") {
+              return "steelblue";
+            } else {
+              return _this.attr_color_dict[_this.attribute][d[2][_this.attribute]];
+            }
+          }).select("title").text(function(d) {
+            return d[1];
+          });
+          $(".legend").remove();
+          if (_this.attribute === "None" || _this.is_discrete[_this.attribute]) {
+            $("#legend-left,#legend-right,#legend-colors").empty();
+            if (_this.attribute !== "None") {
+              return _this.add_legend(_this.attribute, _this.distinct_attr_vals[_this.attribute]);
+            }
           } else {
-            _this.svg.selectAll(".bar").data(_this.samples).transition().duration(1000).style("fill", function(d) {
-              if (_this.attribute === "None") {
-                return "steelblue";
-              } else {
-                return _this.attr_color_dict[_this.attribute][d[2][_this.attribute]];
-              }
-            });
+            return _this.draw_legend();
           }
-          _this.draw_legend();
-          return _this.add_legend(_this.attribute, _this.distinct_attr_vals[_this.attribute]);
         };
       })(this));
       $(".sort_by_value").on("click", (function(_this) {
@@ -98,52 +95,77 @@
       })(this));
     }
 
-    Bar_Chart.prototype.redraw = function(samples_dict) {
-      var attr, j, len, name, ref, ref1, updated_samples, val, x;
-      updated_samples = [];
-      ref = this.full_sample_list;
+    Bar_Chart.prototype.extra = function(sample) {
+      var attr_vals, attribute, j, len, ref;
+      attr_vals = {};
+      ref = this.attributes;
       for (j = 0, len = ref.length; j < len; j++) {
-        ref1 = ref[j], name = ref1[0], val = ref1[1], attr = ref1[2];
-        if (name in samples_dict) {
-          updated_samples.push([name, samples_dict[name], attr]);
-        }
+        attribute = ref[j];
+        attr_vals[attribute] = sample["extra_attributes"][attribute];
       }
-      this.samples = updated_samples;
+      return attr_vals;
+    };
+
+    Bar_Chart.prototype.redraw = function(samples_dict) {
+      var curr, x;
+      curr = (function() {
+        var j, len, ref, results;
+        ref = this.sample_list;
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          x = ref[j];
+          if (x.name in samples_dict && samples_dict[x.name] !== null) {
+            results.push(x);
+          }
+        }
+        return results;
+      }).call(this);
       this.sample_names = (function() {
-        var k, len1, ref2, results;
-        ref2 = this.samples;
+        var j, len, results;
         results = [];
-        for (k = 0, len1 = ref2.length; k < len1; k++) {
-          x = ref2[k];
-          results.push(x[0]);
+        for (j = 0, len = curr.length; j < len; j++) {
+          x = curr[j];
+          results.push(x.name);
         }
         return results;
-      }).call(this);
+      })();
       this.sample_vals = (function() {
-        var k, len1, ref2, results;
-        ref2 = this.samples;
+        var j, len, results;
         results = [];
-        for (k = 0, len1 = ref2.length; k < len1; k++) {
-          x = ref2[k];
-          results.push(x[1]);
+        for (j = 0, len = curr.length; j < len; j++) {
+          x = curr[j];
+          results.push(samples_dict[x.name]);
         }
         return results;
-      }).call(this);
+      })();
       this.sample_attr_vals = (function() {
-        var k, len1, ref2, results;
-        ref2 = this.samples;
+        var j, len, results;
         results = [];
-        for (k = 0, len1 = ref2.length; k < len1; k++) {
-          x = ref2[k];
-          results.push(x[2]);
+        for (j = 0, len = curr.length; j < len; j++) {
+          x = curr[j];
+          results.push(this.extra(x));
         }
         return results;
       }).call(this);
+      this.samples = _.zip(this.sample_names, this.sample_vals, this.sample_attr_vals);
       return this.rebuild_bar_graph(this.sort_by === 'name' ? this.samples : this.sorted_samples());
     };
 
     Bar_Chart.prototype.rebuild_bar_graph = function(samples) {
+      var names, vals, x;
       console.log("samples:", samples);
+      this.attribute = $("#color_attribute").val();
+      vals = (function() {
+        var j, len, results;
+        results = [];
+        for (j = 0, len = samples.length; j < len; j++) {
+          x = samples[j];
+          results.push(x[1]);
+        }
+        return results;
+      })();
+      this.y_min = d3.min(vals);
+      this.y_max = d3.max(vals) * 1.1;
       this.svg.selectAll(".bar").data(samples).transition().duration(1000).style("fill", (function(_this) {
         return function(d) {
           if (_this.attributes.length === 0 && (_this.trait_color_dict != null)) {
@@ -172,7 +194,16 @@
           return d[1];
         };
       })(this));
-      this.create_scales();
+      names = (function() {
+        var j, len, results;
+        results = [];
+        for (j = 0, len = samples.length; j < len; j++) {
+          x = samples[j];
+          results.push(x[0]);
+        }
+        return results;
+      })();
+      this.create_scales(names);
       $('.bar_chart').find('.x.axis').remove();
       $('.bar_chart').find('.y.axis').remove();
       this.add_x_axis();
@@ -180,8 +211,11 @@
     };
 
     Bar_Chart.prototype.get_attr_color_dict = function(vals) {
-      var color, color_range, distinct_vals, i, j, k, key, len, len1, results, this_color_dict, value;
+      var color, color_range, discrete, distinct_vals, i, j, k, key, len, len1, results, this_color_dict, value;
       this.attr_color_dict = {};
+      this.is_discrete = {};
+      this.minimum_values = {};
+      this.maximum_values = {};
       console.log("vals:", vals);
       results = [];
       for (key in vals) {
@@ -190,7 +224,8 @@
         this.min_val = d3.min(distinct_vals);
         this.max_val = d3.max(distinct_vals);
         this_color_dict = {};
-        if (distinct_vals.length < 10) {
+        discrete = distinct_vals.length < 10;
+        if (discrete) {
           color = d3.scale.category10();
           for (i = j = 0, len = distinct_vals.length; j < len; i = ++j) {
             value = distinct_vals[i];
@@ -207,7 +242,7 @@
               }
             };
           })(this))) {
-            color_range = d3.scale.linear().domain([min_val, max_val]).range([0, 255]);
+            color_range = d3.scale.linear().domain([this.min_val, this.max_val]).range([0, 255]);
             for (i = k = 0, len1 = distinct_vals.length; k < len1; i = ++k) {
               value = distinct_vals[i];
               console.log("color_range(value):", parseInt(color_range(value)));
@@ -215,15 +250,18 @@
             }
           }
         }
-        results.push(this.attr_color_dict[key] = this_color_dict);
+        this.attr_color_dict[key] = this_color_dict;
+        this.is_discrete[key] = discrete;
+        this.minimum_values[key] = this.min_val;
+        results.push(this.maximum_values[key] = this.max_val);
       }
       return results;
     };
 
     Bar_Chart.prototype.draw_legend = function() {
       var svg_html;
-      $('#legend-left').html(this.min_val);
-      $('#legend-right').html(this.max_val);
+      $('#legend-left').html(this.minimum_values[this.attribute]);
+      $('#legend-right').html(this.maximum_values[this.attribute]);
       svg_html = '<svg height="10" width="90"> <rect x="0" width="15" height="10" style="fill: rgb(0, 0, 0);"></rect> <rect x="15" width="15" height="10" style="fill: rgb(50, 0, 0);"></rect> <rect x="30" width="15" height="10" style="fill: rgb(100, 0, 0);"></rect> <rect x="45" width="15" height="10" style="fill: rgb(150, 0, 0);"></rect> <rect x="60" width="15" height="10" style="fill: rgb(200, 0, 0);"></rect> <rect x="75" width="15" height="10" style="fill: rgb(255, 0, 0);"></rect> </svg>';
       console.log("svg_html:", svg_html);
       return $('#legend-colors').html(svg_html);
@@ -287,7 +325,7 @@
     };
 
     Bar_Chart.prototype.get_samples = function() {
-      var attr_vals, attribute, j, k, key, len, len1, ref, ref1, sample;
+      var key, sample;
       this.sample_names = (function() {
         var j, len, ref, results;
         ref = this.sample_list;
@@ -321,22 +359,19 @@
         return results;
       }).call(this);
       console.log("attributes:", this.attributes);
-      this.sample_attr_vals = [];
-      if (this.attributes.length > 0) {
+      this.sample_attr_vals = (function() {
+        var j, len, ref, results;
         ref = this.sample_list;
+        results = [];
         for (j = 0, len = ref.length; j < len; j++) {
           sample = ref[j];
-          attr_vals = {};
-          ref1 = this.attributes;
-          for (k = 0, len1 = ref1.length; k < len1; k++) {
-            attribute = ref1[k];
-            attr_vals[attribute] = sample["extra_attributes"][attribute];
+          if (sample.value !== null) {
+            results.push(this.extra(sample));
           }
-          this.sample_attr_vals.push(attr_vals);
         }
-      }
-      this.samples = _.zip(this.sample_names, this.sample_vals, this.sample_attr_vals);
-      return this.full_sample_list = this.samples.slice();
+        return results;
+      }).call(this);
+      return this.samples = _.zip(this.sample_names, this.sample_vals, this.sample_attr_vals);
     };
 
     Bar_Chart.prototype.get_distinct_attr_vals = function() {
@@ -371,8 +406,8 @@
       return svg;
     };
 
-    Bar_Chart.prototype.create_scales = function() {
-      this.x_scale = d3.scale.ordinal().domain(this.sample_names).rangeRoundBands([0, this.range], 0.1, 0);
+    Bar_Chart.prototype.create_scales = function(sample_names) {
+      this.x_scale = d3.scale.ordinal().domain(sample_names).rangeRoundBands([0, this.range], 0.1, 0);
       return this.y_scale = d3.scale.linear().domain([this.y_min * 0.75, this.y_max]).range([this.plot_height, this.y_buffer]);
     };
 

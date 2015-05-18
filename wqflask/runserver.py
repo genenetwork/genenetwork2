@@ -30,6 +30,7 @@ logging_tree.printout()
 
 app.run(host='0.0.0.0',
         port=app.config['SERVER_PORT'],
-        use_debugger=False,
+        debug=True,
+        use_debugger=True,
         threaded=True,
         use_reloader=True)

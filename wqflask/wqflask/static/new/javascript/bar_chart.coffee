@@ -26,41 +26,36 @@ class Bar_Chart
         @svg = @create_svg()
 
         @plot_height -= @y_buffer
-        @create_scales()
+        @create_scales(@sample_names)
         @create_graph()
 
         d3.select("#color_attribute").on("change", =>
             @attribute = $("#color_attribute").val()
+
             console.log("attr_color_dict:", @attr_color_dict)
-            #if $("#update_bar_chart").html() == 'Sort By Name'
-            if @sort_by = "name" 
-                @svg.selectAll(".bar")
-                    .data(@sorted_samples())
-                    .transition()
-                    .duration(1000)
-                    .style("fill", (d) =>
-                        if @attribute == "None"
-                            return "steelblue"
-                        else
-                            return @attr_color_dict[@attribute][d[2][@attribute]]
-                    )
-                    .select("title")
-                    .text((d) =>
-                        return d[1]
-                    )
+
+            @svg.selectAll(".bar")
+                .data(if @sort_by == "name" then @samples else @sorted_samples())
+                .transition()
+                .duration(1000)
+                .style("fill", (d) =>
+                    if @attribute == "None"
+                        return "steelblue"
+                    else
+                        return @attr_color_dict[@attribute][d[2][@attribute]]
+                )
+                .select("title")
+                .text((d) =>
+                    return d[1]
+                )
+
+            $(".legend").remove()
+            if @attribute == "None" or @is_discrete[@attribute]
+                $("#legend-left,#legend-right,#legend-colors").empty()
+                if @attribute != "None"
+                    @add_legend(@attribute, @distinct_attr_vals[@attribute])
             else
-                @svg.selectAll(".bar")
-                    .data(@samples)
-                    .transition()
-                    .duration(1000)
-                    .style("fill", (d) =>
-                        if @attribute == "None"
-                            return "steelblue"
-                        else
-                            return @attr_color_dict[@attribute][d[2][@attribute]]
-                    )
-            @draw_legend()
-            @add_legend(@attribute, @distinct_attr_vals[@attribute])
+                @draw_legend()
         )
 
         $(".sort_by_value").on("click", =>
@@ -136,23 +131,31 @@ class Bar_Chart
             @open_trait_selection()
         )
 
+    extra: (sample) ->
+        attr_vals = {}
+        for attribute in @attributes
+            attr_vals[attribute] = sample["extra_attributes"][attribute]
+        attr_vals
+
     # takes a dict: name -> value and rebuilds the graph
     redraw: (samples_dict) ->
-        updated_samples = []
-        for [name, val, attr] in @full_sample_list
-            if name of samples_dict
-                updated_samples.push [name, samples_dict[name], attr]
-
-        @samples = updated_samples
-        # TODO: update underscore.js and replace the below with an _.unzip call
-        @sample_names = (x[0] for x in @samples)
-        @sample_vals = (x[1] for x in @samples)
-        @sample_attr_vals = (x[2] for x in @samples)
+        curr = (x for x in @sample_list when\
+                x.name of samples_dict and samples_dict[x.name] != null)
+        @sample_names = (x.name for x in curr)
+        @sample_vals = (samples_dict[x.name] for x in curr)
+        @sample_attr_vals = (@extra(x) for x in curr)
+        @samples = _.zip(@sample_names, @sample_vals, @sample_attr_vals)
 
         @rebuild_bar_graph(if @sort_by == 'name' then @samples else @sorted_samples())
 
     rebuild_bar_graph: (samples) ->
         console.log("samples:", samples)
+        @attribute = $("#color_attribute").val()
+
+        vals = (x[1] for x in samples)
+        @y_min = d3.min(vals)
+        @y_max = d3.max(vals) * 1.1
+
         @svg.selectAll(".bar")
             .data(samples)
             .transition()
@@ -185,7 +188,8 @@ class Bar_Chart
             #    return @trait_color_dict[d[0]]
             #    #return @attr_color_dict["collection_trait"][trimmed_samples[d[0]]]
             #)
-        @create_scales()
+        names = (x[0] for x in samples)
+        @create_scales(names)
         $('.bar_chart').find('.x.axis').remove()
         $('.bar_chart').find('.y.axis').remove()
         @add_x_axis()
@@ -193,12 +197,16 @@ class Bar_Chart
 
     get_attr_color_dict: (vals) ->
         @attr_color_dict = {}
+        @is_discrete = {}
+        @minimum_values = {}
+        @maximum_values = {}
         console.log("vals:", vals)
         for own key, distinct_vals of vals
             @min_val = d3.min(distinct_vals)
             @max_val = d3.max(distinct_vals)
             this_color_dict = {}
-            if distinct_vals.length < 10
+            discrete = distinct_vals.length < 10
+            if discrete
                 color = d3.scale.category10()
                 for value, i in distinct_vals
                     this_color_dict[value] = color(i)
@@ -213,8 +221,7 @@ class Bar_Chart
                         return true
                 )
                     color_range = d3.scale.linear()
-                                    .domain([min_val,
-                                            max_val])
+                                    .domain([@min_val, @max_val])
                                     .range([0,255])
                     for value, i in distinct_vals
                         console.log("color_range(value):", parseInt(color_range(value)))
@@ -222,12 +229,15 @@ class Bar_Chart
                         #this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)))
                         #this_color_dict[value] = "rgb(0, 0, " + color_range(parseInt(value)) + ")"
             @attr_color_dict[key] = this_color_dict
+            @is_discrete[key] = discrete
+            @minimum_values[key] = @min_val
+            @maximum_values[key] = @max_val
        
 
 
     draw_legend: () ->
-        $('#legend-left').html(@min_val)
-        $('#legend-right').html(@max_val)
+        $('#legend-left').html(@minimum_values[@attribute])
+        $('#legend-right').html(@maximum_values[@attribute])
         svg_html = '<svg height="10" width="90"> \
                         <rect x="0" width="15" height="10" style="fill: rgb(0, 0, 0);"></rect> \
                         <rect x="15" width="15" height="10" style="fill: rgb(50, 0, 0);"></rect> \
@@ -285,19 +295,11 @@ class Bar_Chart
         @sample_vals = (sample.value for sample in @sample_list when sample.value != null)
         @attributes = (key for key of @sample_list[0]["extra_attributes"])
         console.log("attributes:", @attributes)
-        @sample_attr_vals = []
-        # WTF??? how can they be zipped later???
-        # TODO find something with extra_attributes for testing
-        if @attributes.length > 0
-            for sample in @sample_list
-                attr_vals = {}
-                for attribute in @attributes
-                    attr_vals[attribute] = sample["extra_attributes"][attribute]
-                @sample_attr_vals.push(attr_vals)
+        @sample_attr_vals = (@extra(sample) for sample in @sample_list when sample.value != null)
         @samples = _.zip(@sample_names, @sample_vals, @sample_attr_vals)
-        @full_sample_list = @samples.slice() # keeps attributes across redraws
 
     get_distinct_attr_vals: () ->
+        # FIXME: this has quadratic behaviour, may cause issues with many samples and continuous attributes
         @distinct_attr_vals = {}
         for sample in @sample_attr_vals
             for attribute of sample
@@ -318,9 +320,9 @@ class Bar_Chart
             
         return svg
         
-    create_scales: () ->
+    create_scales: (sample_names) ->
         @x_scale = d3.scale.ordinal()
-            .domain(@sample_names)
+            .domain(sample_names)
             .rangeRoundBands([0, @range], 0.1, 0)
 
         @y_scale = d3.scale.linear()
@@ -401,6 +403,7 @@ class Bar_Chart
         console.log("sorted:", sorted)
         return sorted
 
+    # FIXME: better positioning of the legend
     add_legend: (attribute, distinct_vals) ->
         legend = @svg.append("g")
             .attr("class", "legend")
