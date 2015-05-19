@@ -262,7 +262,7 @@
       var svg_html;
       $('#legend-left').html(this.minimum_values[this.attribute]);
       $('#legend-right').html(this.maximum_values[this.attribute]);
-      svg_html = '<svg height="10" width="90"> <rect x="0" width="15" height="10" style="fill: rgb(0, 0, 0);"></rect> <rect x="15" width="15" height="10" style="fill: rgb(50, 0, 0);"></rect> <rect x="30" width="15" height="10" style="fill: rgb(100, 0, 0);"></rect> <rect x="45" width="15" height="10" style="fill: rgb(150, 0, 0);"></rect> <rect x="60" width="15" height="10" style="fill: rgb(200, 0, 0);"></rect> <rect x="75" width="15" height="10" style="fill: rgb(255, 0, 0);"></rect> </svg>';
+      svg_html = '<svg height="15" width="120"> <rect x="0" width="20" height="15" style="fill: rgb(0, 0, 0);"></rect> <rect x="20" width="20" height="15" style="fill: rgb(50, 0, 0);"></rect> <rect x="40" width="20" height="15" style="fill: rgb(100, 0, 0);"></rect> <rect x="60" width="20" height="15" style="fill: rgb(150, 0, 0);"></rect> <rect x="80" width="20" height="15" style="fill: rgb(200, 0, 0);"></rect> <rect x="100" width="20" height="15" style="fill: rgb(255, 0, 0);"></rect> </svg>';
       console.log("svg_html:", svg_html);
       return $('#legend-colors').html(svg_html);
     };
@@ -466,27 +466,26 @@
     };
 
     Bar_Chart.prototype.add_legend = function(attribute, distinct_vals) {
-      var legend, legend_rect, legend_text;
-      legend = this.svg.append("g").attr("class", "legend").attr("height", 100).attr("width", 100).attr('transform', 'translate(-20,50)');
-      legend_rect = legend.selectAll('rect').data(distinct_vals).enter().append("rect").attr("x", this.plot_width - 65).attr("width", 10).attr("height", 10).attr("y", (function(_this) {
-        return function(d, i) {
-          return i * 20;
-        };
-      })(this)).style("fill", (function(_this) {
+      var legend_span;
+      legend_span = d3.select('#bar_chart_legend').append('div').style('word-wrap', 'break-word').attr('class', 'legend').selectAll('span').data(distinct_vals).enter().append('span').style({
+        'word-wrap': 'normal',
+        'display': 'inline-block'
+      });
+      legend_span.append('span').style("background-color", (function(_this) {
         return function(d) {
-          console.log("TEST:", _this.attr_color_dict[attribute][d]);
           return _this.attr_color_dict[attribute][d];
         };
-      })(this));
-      return legend_text = legend.selectAll('text').data(distinct_vals).enter().append("text").attr("x", this.plot_width - 52).attr("y", (function(_this) {
-        return function(d, i) {
-          return i * 20 + 9;
-        };
-      })(this)).text((function(_this) {
+      })(this)).style({
+        'display': 'inline-block',
+        'width': '15px',
+        'height': '15px',
+        'margin': '0px 5px 0px 15px'
+      });
+      return legend_span.append('span').text((function(_this) {
         return function(d) {
           return d;
         };
-      })(this));
+      })(this)).style('font-size', '20px');
     };
 
     Bar_Chart.prototype.open_trait_selection = function() {

@@ -238,13 +238,13 @@ class Bar_Chart
     draw_legend: () ->
         $('#legend-left').html(@minimum_values[@attribute])
         $('#legend-right').html(@maximum_values[@attribute])
-        svg_html = '<svg height="10" width="90"> \
-                        <rect x="0" width="15" height="10" style="fill: rgb(0, 0, 0);"></rect> \
-                        <rect x="15" width="15" height="10" style="fill: rgb(50, 0, 0);"></rect> \
-                        <rect x="30" width="15" height="10" style="fill: rgb(100, 0, 0);"></rect> \
-                        <rect x="45" width="15" height="10" style="fill: rgb(150, 0, 0);"></rect> \
-                        <rect x="60" width="15" height="10" style="fill: rgb(200, 0, 0);"></rect> \
-                        <rect x="75" width="15" height="10" style="fill: rgb(255, 0, 0);"></rect> \
+        svg_html = '<svg height="15" width="120"> \
+                        <rect x="0" width="20" height="15" style="fill: rgb(0, 0, 0);"></rect> \
+                        <rect x="20" width="20" height="15" style="fill: rgb(50, 0, 0);"></rect> \
+                        <rect x="40" width="20" height="15" style="fill: rgb(100, 0, 0);"></rect> \
+                        <rect x="60" width="20" height="15" style="fill: rgb(150, 0, 0);"></rect> \
+                        <rect x="80" width="20" height="15" style="fill: rgb(200, 0, 0);"></rect> \
+                        <rect x="100" width="20" height="15" style="fill: rgb(255, 0, 0);"></rect> \
                     </svg>'
         console.log("svg_html:", svg_html)
         $('#legend-colors').html(svg_html)
@@ -403,40 +403,20 @@ class Bar_Chart
         console.log("sorted:", sorted)
         return sorted
 
-    # FIXME: better positioning of the legend
     add_legend: (attribute, distinct_vals) ->
-        legend = @svg.append("g")
-            .attr("class", "legend")
-            .attr("height", 100)
-            .attr("width", 100)
-            .attr('transform', 'translate(-20,50)')
+        legend_span = d3.select('#bar_chart_legend')
+            .append('div').style('word-wrap', 'break-word')
+            .attr('class', 'legend').selectAll('span')
+            .data(distinct_vals)
+          .enter().append('span').style({'word-wrap': 'normal', 'display': 'inline-block'})
 
-        legend_rect = legend.selectAll('rect')
-                        .data(distinct_vals)
-                        .enter()
-                        .append("rect")
-                        .attr("x", @plot_width - 65)
-                        .attr("width", 10)
-                        .attr("height", 10)
-                        .attr("y", (d, i) =>
-                            return i * 20
-                        )
-                        .style("fill", (d) =>
-                            console.log("TEST:", @attr_color_dict[attribute][d])
-                            return @attr_color_dict[attribute][d]
-                        )
-
-        legend_text = legend.selectAll('text')
-                        .data(distinct_vals)
-                        .enter()
-                        .append("text")
-                        .attr("x", @plot_width - 52)
-                        .attr("y", (d, i) =>
-                            return i*20 + 9    
-                        )
-                        .text((d) =>
-                            return d
-                        )
+        legend_span.append('span')
+            .style("background-color", (d) =>
+                return @attr_color_dict[attribute][d]
+            )
+            .style({'display': 'inline-block', 'width': '15px', 'height': '15px',\
+                    'margin': '0px 5px 0px 15px'})
+        legend_span.append('span').text((d) => return d).style('font-size', '20px')
 
     open_trait_selection: () ->
         $('#collections_holder').load('/collections/list?color_by_trait #collections_list', =>
