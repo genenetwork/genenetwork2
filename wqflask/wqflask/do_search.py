@@ -781,6 +781,10 @@ class PositionSearch(DoSearch):
         DoSearch.search_types[search_key] = "PositionSearch"
 
     def get_where_clause(self):
+        self.search_term = [float(value) if is_number(value) else value for value in self.search_term]
+        self.chr, self.mb_min, self.mb_max = self.search_term[:3]
+        self.get_chr()
+
         where_clause = """ %s.Chr = %s and
                                 %s.Mb > %s and
                                 %s.Mb < %s """ % self.mescape(self.dataset.type,
@@ -793,12 +797,6 @@ class PositionSearch(DoSearch):
 
         return where_clause
 
-    def setup(self):
-        self.search_term = [float(value) if is_number(value) else value for value in self.search_term]
-        self.chr, self.mb_min, self.mb_max = self.search_term[:3]
-        self.get_chr()
-        self.where_clause = self.get_where_clause()
-
     def get_chr(self):
         try:
             self.chr = int(self.chr)
@@ -807,7 +805,7 @@ class PositionSearch(DoSearch):
 
     def run(self):
 
-        self.setup()
+        self.get_where_clause()
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
         return self.execute(self.query)
@@ -820,7 +818,7 @@ class MrnaPositionSearch(PositionSearch, MrnaAssaySearch):
 
     def run(self):
 
-        self.setup()
+        self.get_where_clause()
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
         return self.execute(self.query)
@@ -833,7 +831,7 @@ class GenotypePositionSearch(PositionSearch, GenotypeSearch):
 
     def run(self):
 
-        self.setup()
+        self.get_where_clause()
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
         return self.execute(self.query)
