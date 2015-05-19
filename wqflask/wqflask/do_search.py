@@ -497,9 +497,11 @@ class LrsSearch(DoSearch):
 
     def get_from_clause(self):
         if self.search_operator == "=":
-            self.from_clause = ", Geno"
+            from_clause = ", Geno"
         else:
-            self.from_clause = ""
+            from_clause = ""
+
+        return from_clause
 
     def get_where_clause(self):
         self.search_term = [float(value) for value in self.search_term]
@@ -526,7 +528,7 @@ class LrsSearch(DoSearch):
             print("self.sub_clause is:", pf(self.sub_clause))
 
             #%s.Chr = Geno.Chr
-            self.where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
+            where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
                                                     Geno.SpeciesId = %s
                                                     """ % self.mescape(self.dataset.type,
                                                            self.species_id)
@@ -536,10 +538,9 @@ class LrsSearch(DoSearch):
             self.sub_clause = """ %sXRef.LRS %s %s """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
                                                                         self.search_term[0])
-            self.where_clause = self.sub_clause
-        
-
-        #return where_clause
+            where_clause = self.sub_clause
+       
+        return where_clause
 
 
     def run(self):
@@ -557,8 +558,8 @@ class MrnaLrsSearch(LrsSearch, MrnaAssaySearch):
 
     def run(self):
 
-        self.get_from_clause()
-        self.get_where_clause()
+        self.from_clause = self.get_from_clause()
+        self.where_clause = self.get_where_clause()
         self.query = self.compile_final_query(from_clause = self.from_clause, where_clause = self.where_clause)
 
         return self.execute(self.query)
@@ -569,8 +570,8 @@ class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
 
     def run(self):
 
-        self.get_from_clause()
-        self.get_where_clause()
+        self.from_clause = self.get_from_clause()
+        self.where_clause = self.get_where_clause()
         self.query = self.compile_final_query(from_clause = self.from_clause, where_clause = self.where_clause)
 
         return self.execute(self.query)

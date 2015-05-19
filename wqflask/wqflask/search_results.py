@@ -239,7 +239,6 @@ class SearchResultPage(object):
             for a_search in self.search_terms:
                 the_search = self.get_search_ob(a_search)
                 self.results.extend(the_search.run())
-                #print("in the search results are:", self.results)
 
         self.header_fields = the_search.header_fields
 
