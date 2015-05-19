@@ -481,7 +481,7 @@ class GoSearch(MrnaAssaySearch):
         return self.execute(query)
 
 #ZS: Not sure what the best way to deal with LRS searches is
-class LrsSearch(MrnaAssaySearch):
+class LrsSearch(DoSearch):
     """Searches for genes with a QTL within the given LRS values
 
     LRS searches can take 3 different forms:
@@ -497,9 +497,9 @@ class LrsSearch(MrnaAssaySearch):
 
     def get_from_clause(self):
         if self.search_operator == "=":
-            return ", Geno"
+            self.from_clause = ", Geno"
         else:
-            return ""
+            self.from_clause = ""
 
     def get_where_clause(self):
         self.search_term = [float(value) for value in self.search_term]
@@ -526,7 +526,7 @@ class LrsSearch(MrnaAssaySearch):
             print("self.sub_clause is:", pf(self.sub_clause))
 
             #%s.Chr = Geno.Chr
-            where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
+            self.where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
                                                     Geno.SpeciesId = %s
                                                     """ % self.mescape(self.dataset.type,
                                                            self.species_id)
@@ -536,17 +536,11 @@ class LrsSearch(MrnaAssaySearch):
             self.sub_clause = """ %sXRef.LRS %s %s """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
                                                                         self.search_term[0])
-            where_clause = self.sub_clause
+            self.where_clause = self.sub_clause
         
 
-        return where_clause
+        #return where_clause
 
-    def get_final_query(self):
-        self.from_clause = self.get_from_clause()
-        self.where_clause = self.get_where_clause()
-        self.query = self.compile_final_query(self.from_clause, self.where_clause)
-
-        return self.query
 
     def run(self):
 
@@ -557,6 +551,29 @@ class LrsSearch(MrnaAssaySearch):
 
         return self.execute(self.query)
 
+class MrnaLrsSearch(LrsSearch, MrnaAssaySearch):
+    
+    DoSearch.search_types['ProbeSet_LRS'] = 'MrnaLrsSearch'
+
+    def run(self):
+
+        self.get_from_clause()
+        self.get_where_clause()
+        self.query = self.compile_final_query(from_clause = self.from_clause, where_clause = self.where_clause)
+
+        return self.execute(self.query)
+
+class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
+    
+    DoSearch.search_types['Publish_LRS'] = 'PhenotypeLrsSearch'
+
+    def run(self):
+
+        self.get_from_clause()
+        self.get_where_clause()
+        self.query = self.compile_final_query(from_clause = self.from_clause, where_clause = self.where_clause)
+
+        return self.execute(self.query)
 
 class CisTransLrsSearch(LrsSearch):
 
@@ -693,24 +710,6 @@ class MeanSearch(MrnaAssaySearch):
         return self.query
 
     def run(self):
-
-        #self.search_term = [float(value) for value in self.search_term]
-        #
-        #if self.search_operator == "=":
-        #    assert isinstance(self.search_term, (list, tuple))
-        #    self.mean_min, self.mean_max = self.search_term[:2]
-        #
-        #    self.where_clause = """ %sXRef.mean > %s and
-        #                     %sXRef.mean < %s """ % self.mescape(self.dataset.type,
-        #                                                        min(self.mean_min, self.mean_max),
-        #                                                        self.dataset.type,
-        #                                                        max(self.mean_min, self.mean_max))
-        #else:
-        #    # Deal with >, <, >=, and <=
-        #    self.where_clause = """ %sXRef.mean %s %s """ % self.mescape(self.dataset.type,
-        #                                                                self.search_operator,
-        #                                                                self.search_term[0])
-
         self.where_clause = self.get_where_clause()
         print("where_clause is:", pf(self.where_clause))
 
@@ -840,6 +839,8 @@ class GenotypePositionSearch(PositionSearch, GenotypeSearch):
 
 class PvalueSearch(MrnaAssaySearch):
     """Searches for traits with a permutationed p-value between low and high"""
+
+    DoSearch.search_types['ProbeSet_PVALUE'] = "PvalueSearch"
 
     def run(self):
 
