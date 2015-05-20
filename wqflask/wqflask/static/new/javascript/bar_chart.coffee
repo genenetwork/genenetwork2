@@ -10,11 +10,10 @@ class Bar_Chart
             @get_attr_color_dict(@distinct_attr_vals)
         
         #Used to calculate the bottom margin so sample names aren't cut off
-        longest_sample_name = d3.max(sample.length for sample in @sample_names)
+        longest_sample_name = d3.max(sample.name.length for sample in @sample_list)
         
         @margin = {top: 20, right: 20, bottom: longest_sample_name * 7, left: 40}
-        @plot_width = @sample_vals.length * 20 - @margin.left - @margin.right
-        @range = @sample_vals.length * 20
+        @plot_width = @sample_vals.length * 20
         @plot_height = 500 - @margin.top - @margin.bottom
 
         @x_buffer = @plot_width/20
@@ -26,41 +25,36 @@ class Bar_Chart
         @svg = @create_svg()
 
         @plot_height -= @y_buffer
-        @create_scales()
+        @create_scales(@sample_names)
         @create_graph()
 
         d3.select("#color_attribute").on("change", =>
             @attribute = $("#color_attribute").val()
+
             console.log("attr_color_dict:", @attr_color_dict)
-            #if $("#update_bar_chart").html() == 'Sort By Name'
-            if @sort_by = "name" 
-                @svg.selectAll(".bar")
-                    .data(@sorted_samples())
-                    .transition()
-                    .duration(1000)
-                    .style("fill", (d) =>
-                        if @attribute == "None"
-                            return "steelblue"
-                        else
-                            return @attr_color_dict[@attribute][d[2][@attribute]]
-                    )
-                    .select("title")
-                    .text((d) =>
-                        return d[1]
-                    )
+
+            @svg.selectAll(".bar")
+                .data(if @sort_by == "name" then @samples else @sorted_samples())
+                .transition()
+                .duration(1000)
+                .style("fill", (d) =>
+                    if @attribute == "None"
+                        return "steelblue"
+                    else
+                        return @attr_color_dict[@attribute][d[2][@attribute]]
+                )
+                .select("title")
+                .text((d) =>
+                    return d[1]
+                )
+
+            $(".legend").remove()
+            if @attribute == "None" or @is_discrete[@attribute]
+                $("#legend-left,#legend-right,#legend-colors").empty()
+                if @attribute != "None"
+                    @add_legend(@attribute, @distinct_attr_vals[@attribute])
             else
-                @svg.selectAll(".bar")
-                    .data(@samples)
-                    .transition()
-                    .duration(1000)
-                    .style("fill", (d) =>
-                        if @attribute == "None"
-                            return "steelblue"
-                        else
-                            return @attr_color_dict[@attribute][d[2][@attribute]]
-                    )
-            @draw_legend()
-            @add_legend(@attribute, @distinct_attr_vals[@attribute])
+                @draw_legend()
         )
 
         $(".sort_by_value").on("click", =>
@@ -136,11 +130,45 @@ class Bar_Chart
             @open_trait_selection()
         )
 
+    extra: (sample) ->
+        attr_vals = {}
+        for attribute in @attributes
+            attr_vals[attribute] = sample["extra_attributes"][attribute]
+        attr_vals
+
+    # takes a dict: name -> value and rebuilds the graph
+    redraw: (samples_dict) ->
+        curr = (x for x in @sample_list when\
+                x.name of samples_dict and samples_dict[x.name] != null)
+        @sample_names = (x.name for x in curr)
+        @sample_vals = (samples_dict[x.name] for x in curr)
+        @sample_attr_vals = (@extra(x) for x in curr)
+        @samples = _.zip(@sample_names, @sample_vals, @sample_attr_vals)
+
+        @rebuild_bar_graph(if @sort_by == 'name' then @samples else @sorted_samples())
+
     rebuild_bar_graph: (samples) ->
         console.log("samples:", samples)
-        @svg.selectAll(".bar")
-            .data(samples)
-            .transition()
+        @attribute = $("#color_attribute").val()
+
+        # recompute sizes
+        vals = (x[1] for x in samples)
+        @y_min = d3.min(vals)
+        @y_max = d3.max(vals) * 1.1
+        @plot_width = samples.length * 20
+
+        $("svg.bar_chart").attr("width", @plot_width + @margin.left + @margin.right)
+
+        names = (x[0] for x in samples)
+        @create_scales(names)
+        $('.bar_chart').find('.x.axis').remove()
+        $('.bar_chart').find('.y.axis').remove()
+        @add_x_axis()
+        @add_y_axis()
+
+        bars = @update_bars(samples)
+
+        bars.transition()
             .duration(1000)
             .style("fill", (d) =>
                 if @attributes.length == 0 and @trait_color_dict?
@@ -156,6 +184,7 @@ class Bar_Chart
                 else
                     return "steelblue"
             )
+            .attr("x", (d) => return @x_scale(d[0]))
             .attr("y", (d) =>
                 return @y_scale(d[1])
             )
@@ -170,22 +199,19 @@ class Bar_Chart
             #    return @trait_color_dict[d[0]]
             #    #return @attr_color_dict["collection_trait"][trimmed_samples[d[0]]]
             #)
-        sample_names = (sample[0] for sample in samples)
-        console.log("sample_names2:", sample_names)
-        x_scale = d3.scale.ordinal()
-            .domain(sample_names)
-            .rangeRoundBands([0, @range], 0.1, 0)
-        $('.bar_chart').find('.x.axis').remove()
-        @add_x_axis(x_scale)
 
     get_attr_color_dict: (vals) ->
         @attr_color_dict = {}
+        @is_discrete = {}
+        @minimum_values = {}
+        @maximum_values = {}
         console.log("vals:", vals)
         for own key, distinct_vals of vals
             @min_val = d3.min(distinct_vals)
             @max_val = d3.max(distinct_vals)
             this_color_dict = {}
-            if distinct_vals.length < 10
+            discrete = distinct_vals.length < 10
+            if discrete
                 color = d3.scale.category10()
                 for value, i in distinct_vals
                     this_color_dict[value] = color(i)
@@ -200,8 +226,7 @@ class Bar_Chart
                         return true
                 )
                     color_range = d3.scale.linear()
-                                    .domain([min_val,
-                                            max_val])
+                                    .domain([@min_val, @max_val])
                                     .range([0,255])
                     for value, i in distinct_vals
                         console.log("color_range(value):", parseInt(color_range(value)))
@@ -209,19 +234,22 @@ class Bar_Chart
                         #this_color_dict[value] = d3.rgb("lightblue").darker(color_range(parseInt(value)))
                         #this_color_dict[value] = "rgb(0, 0, " + color_range(parseInt(value)) + ")"
             @attr_color_dict[key] = this_color_dict
+            @is_discrete[key] = discrete
+            @minimum_values[key] = @min_val
+            @maximum_values[key] = @max_val
        
 
 
     draw_legend: () ->
-        $('#legend-left').html(@min_val)
-        $('#legend-right').html(@max_val)
-        svg_html = '<svg height="10" width="90"> \
-                        <rect x="0" width="15" height="10" style="fill: rgb(0, 0, 0);"></rect> \
-                        <rect x="15" width="15" height="10" style="fill: rgb(50, 0, 0);"></rect> \
-                        <rect x="30" width="15" height="10" style="fill: rgb(100, 0, 0);"></rect> \
-                        <rect x="45" width="15" height="10" style="fill: rgb(150, 0, 0);"></rect> \
-                        <rect x="60" width="15" height="10" style="fill: rgb(200, 0, 0);"></rect> \
-                        <rect x="75" width="15" height="10" style="fill: rgb(255, 0, 0);"></rect> \
+        $('#legend-left').html(@minimum_values[@attribute])
+        $('#legend-right').html(@maximum_values[@attribute])
+        svg_html = '<svg height="15" width="120"> \
+                        <rect x="0" width="20" height="15" style="fill: rgb(0, 0, 0);"></rect> \
+                        <rect x="20" width="20" height="15" style="fill: rgb(50, 0, 0);"></rect> \
+                        <rect x="40" width="20" height="15" style="fill: rgb(100, 0, 0);"></rect> \
+                        <rect x="60" width="20" height="15" style="fill: rgb(150, 0, 0);"></rect> \
+                        <rect x="80" width="20" height="15" style="fill: rgb(200, 0, 0);"></rect> \
+                        <rect x="100" width="20" height="15" style="fill: rgb(255, 0, 0);"></rect> \
                     </svg>'
         console.log("svg_html:", svg_html)
         $('#legend-colors').html(svg_html)
@@ -272,16 +300,11 @@ class Bar_Chart
         @sample_vals = (sample.value for sample in @sample_list when sample.value != null)
         @attributes = (key for key of @sample_list[0]["extra_attributes"])
         console.log("attributes:", @attributes)
-        @sample_attr_vals = []
-        if @attributes.length > 0
-            for sample in @sample_list
-                attr_vals = {}
-                for attribute in @attributes
-                    attr_vals[attribute] = sample["extra_attributes"][attribute]
-                @sample_attr_vals.push(attr_vals)
+        @sample_attr_vals = (@extra(sample) for sample in @sample_list when sample.value != null)
         @samples = _.zip(@sample_names, @sample_vals, @sample_attr_vals)
 
     get_distinct_attr_vals: () ->
+        # FIXME: this has quadratic behaviour, may cause issues with many samples and continuous attributes
         @distinct_attr_vals = {}
         for sample in @sample_attr_vals
             for attribute of sample
@@ -302,10 +325,10 @@ class Bar_Chart
             
         return svg
         
-    create_scales: () ->
+    create_scales: (sample_names) ->
         @x_scale = d3.scale.ordinal()
-            .domain(@sample_names)
-            .rangeRoundBands([0, @range], 0.1, 0)
+            .domain(sample_names)
+            .rangeRoundBands([0, @plot_width], 0.1, 0)
 
         @y_scale = d3.scale.linear()
             .domain([@y_min * 0.75, @y_max])
@@ -314,14 +337,14 @@ class Bar_Chart
     create_graph: () ->
         
         #@add_border()
-        @add_x_axis(@x_scale)
+        @add_x_axis()
         @add_y_axis() 
         
-        @add_bars()
+        @update_bars(@samples)
         
     add_x_axis: (scale) ->
         xAxis = d3.svg.axis()
-            .scale(scale)
+            .scale(@x_scale)
             .orient("bottom");
         
         @svg.append("g")
@@ -352,10 +375,9 @@ class Bar_Chart
             .attr("dy", ".71em")
             .style("text-anchor", "end")
 
-    add_bars: () ->
-        @svg.selectAll(".bar")
-            .data(@samples)
-          .enter().append("rect")
+    update_bars: (samples) ->
+        bars = @svg.selectAll(".bar").data(samples, (d) => return d[0])
+        bars.enter().append("rect")
             .style("fill", "steelblue")
             .attr("class", "bar")
             .attr("x", (d) =>
@@ -372,7 +394,8 @@ class Bar_Chart
             .text((d) =>
                 return d[1]
             )
-            
+        bars.exit().remove()
+        return bars
 
     sorted_samples: () ->
         #if @sample_attr_vals.length > 0
@@ -386,38 +409,19 @@ class Bar_Chart
         return sorted
 
     add_legend: (attribute, distinct_vals) ->
-        legend = @svg.append("g")
-            .attr("class", "legend")
-            .attr("height", 100)
-            .attr("width", 100)
-            .attr('transform', 'translate(-20,50)')
+        legend_span = d3.select('#bar_chart_legend')
+            .append('div').style('word-wrap', 'break-word')
+            .attr('class', 'legend').selectAll('span')
+            .data(distinct_vals)
+          .enter().append('span').style({'word-wrap': 'normal', 'display': 'inline-block'})
 
-        legend_rect = legend.selectAll('rect')
-                        .data(distinct_vals)
-                        .enter()
-                        .append("rect")
-                        .attr("x", @plot_width - 65)
-                        .attr("width", 10)
-                        .attr("height", 10)
-                        .attr("y", (d, i) =>
-                            return i * 20
-                        )
-                        .style("fill", (d) =>
-                            console.log("TEST:", @attr_color_dict[attribute][d])
-                            return @attr_color_dict[attribute][d]
-                        )
-
-        legend_text = legend.selectAll('text')
-                        .data(distinct_vals)
-                        .enter()
-                        .append("text")
-                        .attr("x", @plot_width - 52)
-                        .attr("y", (d, i) =>
-                            return i*20 + 9    
-                        )
-                        .text((d) =>
-                            return d
-                        )
+        legend_span.append('span')
+            .style("background-color", (d) =>
+                return @attr_color_dict[attribute][d]
+            )
+            .style({'display': 'inline-block', 'width': '15px', 'height': '15px',\
+                    'margin': '0px 5px 0px 15px'})
+        legend_span.append('span').text((d) => return d).style('font-size', '20px')
 
     open_trait_selection: () ->
         $('#collections_holder').load('/collections/list?color_by_trait #collections_list', =>
