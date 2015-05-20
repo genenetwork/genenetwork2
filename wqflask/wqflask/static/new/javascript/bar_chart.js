@@ -19,11 +19,11 @@
       }
       longest_sample_name = d3.max((function() {
         var j, len, ref, results;
-        ref = this.sample_names;
+        ref = this.sample_list;
         results = [];
         for (j = 0, len = ref.length; j < len; j++) {
           sample = ref[j];
-          results.push(sample.length);
+          results.push(sample.name.length);
         }
         return results;
       }).call(this));
@@ -33,8 +33,7 @@
         bottom: longest_sample_name * 7,
         left: 40
       };
-      this.plot_width = this.sample_vals.length * 20 - this.margin.left - this.margin.right;
-      this.range = this.sample_vals.length * 20;
+      this.plot_width = this.sample_vals.length * 20;
       this.plot_height = 500 - this.margin.top - this.margin.bottom;
       this.x_buffer = this.plot_width / 20;
       this.y_buffer = this.plot_height / 20;
@@ -152,7 +151,7 @@
     };
 
     Bar_Chart.prototype.rebuild_bar_graph = function(samples) {
-      var names, vals, x;
+      var bars, names, vals, x;
       console.log("samples:", samples);
       this.attribute = $("#color_attribute").val();
       vals = (function() {
@@ -166,7 +165,24 @@
       })();
       this.y_min = d3.min(vals);
       this.y_max = d3.max(vals) * 1.1;
-      this.svg.selectAll(".bar").data(samples).transition().duration(1000).style("fill", (function(_this) {
+      this.plot_width = samples.length * 20;
+      $("svg.bar_chart").attr("width", this.plot_width + this.margin.left + this.margin.right);
+      names = (function() {
+        var j, len, results;
+        results = [];
+        for (j = 0, len = samples.length; j < len; j++) {
+          x = samples[j];
+          results.push(x[0]);
+        }
+        return results;
+      })();
+      this.create_scales(names);
+      $('.bar_chart').find('.x.axis').remove();
+      $('.bar_chart').find('.y.axis').remove();
+      this.add_x_axis();
+      this.add_y_axis();
+      bars = this.update_bars(samples);
+      return bars.transition().duration(1000).style("fill", (function(_this) {
         return function(d) {
           if (_this.attributes.length === 0 && (_this.trait_color_dict != null)) {
             console.log("SAMPLE:", d[0]);
@@ -181,6 +197,10 @@
             return "steelblue";
           }
         };
+      })(this)).attr("x", (function(_this) {
+        return function(d) {
+          return _this.x_scale(d[0]);
+        };
       })(this)).attr("y", (function(_this) {
         return function(d) {
           return _this.y_scale(d[1]);
@@ -194,20 +214,6 @@
           return d[1];
         };
       })(this));
-      names = (function() {
-        var j, len, results;
-        results = [];
-        for (j = 0, len = samples.length; j < len; j++) {
-          x = samples[j];
-          results.push(x[0]);
-        }
-        return results;
-      })();
-      this.create_scales(names);
-      $('.bar_chart').find('.x.axis').remove();
-      $('.bar_chart').find('.y.axis').remove();
-      this.add_x_axis();
-      return this.add_y_axis();
     };
 
     Bar_Chart.prototype.get_attr_color_dict = function(vals) {
@@ -407,14 +413,14 @@
     };
 
     Bar_Chart.prototype.create_scales = function(sample_names) {
-      this.x_scale = d3.scale.ordinal().domain(sample_names).rangeRoundBands([0, this.range], 0.1, 0);
+      this.x_scale = d3.scale.ordinal().domain(sample_names).rangeRoundBands([0, this.plot_width], 0.1, 0);
       return this.y_scale = d3.scale.linear().domain([this.y_min * 0.75, this.y_max]).range([this.plot_height, this.y_buffer]);
     };
 
     Bar_Chart.prototype.create_graph = function() {
       this.add_x_axis();
       this.add_y_axis();
-      return this.add_bars();
+      return this.update_bars(this.samples);
     };
 
     Bar_Chart.prototype.add_x_axis = function(scale) {
@@ -433,8 +439,14 @@
       return this.svg.append("g").attr("class", "y axis").call(yAxis).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end");
     };
 
-    Bar_Chart.prototype.add_bars = function() {
-      return this.svg.selectAll(".bar").data(this.samples).enter().append("rect").style("fill", "steelblue").attr("class", "bar").attr("x", (function(_this) {
+    Bar_Chart.prototype.update_bars = function(samples) {
+      var bars;
+      bars = this.svg.selectAll(".bar").data(samples, (function(_this) {
+        return function(d) {
+          return d[0];
+        };
+      })(this));
+      bars.enter().append("rect").style("fill", "steelblue").attr("class", "bar").attr("x", (function(_this) {
         return function(d) {
           return _this.x_scale(d[0]);
         };
@@ -451,6 +463,8 @@
           return d[1];
         };
       })(this));
+      bars.exit().remove();
+      return bars;
     };
 
     Bar_Chart.prototype.sorted_samples = function() {

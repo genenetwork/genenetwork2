@@ -96,7 +96,7 @@ $ ->
         $("#stats_tabs" + selected).show()
 
 
-    change_stats_value = (sample_sets, category, value_type, decimal_places)->
+    change_stats_value = (sample_sets, category, value_type, decimal_places, effects) ->
         id = "#" + process_id(category, value_type)
         console.log("the_id:", id)
         in_box = $(id).html
@@ -115,7 +115,10 @@ $ ->
         console.log("*-* current_value:", current_value)
         if the_value != current_value
             console.log("object:", $(id).html(the_value))
-            $(id).html(the_value).effect("highlight")
+            if effects
+                $(id).html(the_value).effect("highlight")
+            else
+                $(id).html(the_value)
 
         # We go ahead and always change the title value if we have it
         if title_value
@@ -123,10 +126,11 @@ $ ->
 
 
     update_stat_values = (sample_sets)->
+        show_effects = $(".tab-pane.active").attr("id") == "stats_tab"
         for category in ['samples_primary', 'samples_other', 'samples_all']
             for row in Stat_Table_Rows
                 console.log("Calling change_stats_value")
-                change_stats_value(sample_sets, category, row.vn, row.digits)
+                change_stats_value(sample_sets, category, row.vn, row.digits, show_effects)
 
     redraw_histogram = ->
         root.histogram.redraw(_.values(root.selected_samples[root.histogram_group]))
@@ -202,20 +206,20 @@ $ ->
                 name = $(row).find('.edit_sample_sample_name').html()
                 name = $.trim(name)
                 real_value = $(row).find('.edit_sample_value').val()
-                console.log("real_value:", real_value)
+                #console.log("real_value:", real_value)
                 
                 checkbox = $(row).find(".edit_sample_checkbox")
-                checked = $(checkbox).attr('checked')
+                checked = $(checkbox).prop('checked')
 
                 if checked and is_number(real_value) and real_value != ""
-                    console.log("in the iffy if")
+                    #console.log("in the iffy if")
                     real_value = parseFloat(real_value)
 
                     sample_sets[table].add_value(real_value)
                     root.selected_samples[table][name] = real_value
-                    console.log("checking name of:", name)
+                    #console.log("checking name of:", name)
                     if not (name of already_seen)
-                        console.log("haven't seen")
+                        #console.log("haven't seen")
                         sample_sets['samples_all'].add_value(real_value)
                         root.selected_samples['samples_all'][name] = real_value
                         already_seen[name] = true
@@ -445,5 +449,12 @@ $ ->
     edit_data_change()   # Set the values at the beginning
 
     $('#edit_sample_lists').change(edit_data_change)
+
+    # bind additional handlers for pushing data updates
+    $('#block_by_index').click(edit_data_change)
+    $('#exclude_group').click(edit_data_change)
+    $('#block_outliers').click(edit_data_change)
+    $('#reset').click(edit_data_change)
+
     #$("#all-mean").html('foobar8')
     console.log("end")

@@ -10,11 +10,10 @@ class Bar_Chart
             @get_attr_color_dict(@distinct_attr_vals)
         
         #Used to calculate the bottom margin so sample names aren't cut off
-        longest_sample_name = d3.max(sample.length for sample in @sample_names)
+        longest_sample_name = d3.max(sample.name.length for sample in @sample_list)
         
         @margin = {top: 20, right: 20, bottom: longest_sample_name * 7, left: 40}
-        @plot_width = @sample_vals.length * 20 - @margin.left - @margin.right
-        @range = @sample_vals.length * 20
+        @plot_width = @sample_vals.length * 20
         @plot_height = 500 - @margin.top - @margin.bottom
 
         @x_buffer = @plot_width/20
@@ -152,13 +151,24 @@ class Bar_Chart
         console.log("samples:", samples)
         @attribute = $("#color_attribute").val()
 
+        # recompute sizes
         vals = (x[1] for x in samples)
         @y_min = d3.min(vals)
         @y_max = d3.max(vals) * 1.1
+        @plot_width = samples.length * 20
 
-        @svg.selectAll(".bar")
-            .data(samples)
-            .transition()
+        $("svg.bar_chart").attr("width", @plot_width + @margin.left + @margin.right)
+
+        names = (x[0] for x in samples)
+        @create_scales(names)
+        $('.bar_chart').find('.x.axis').remove()
+        $('.bar_chart').find('.y.axis').remove()
+        @add_x_axis()
+        @add_y_axis()
+
+        bars = @update_bars(samples)
+
+        bars.transition()
             .duration(1000)
             .style("fill", (d) =>
                 if @attributes.length == 0 and @trait_color_dict?
@@ -174,6 +184,7 @@ class Bar_Chart
                 else
                     return "steelblue"
             )
+            .attr("x", (d) => return @x_scale(d[0]))
             .attr("y", (d) =>
                 return @y_scale(d[1])
             )
@@ -188,12 +199,6 @@ class Bar_Chart
             #    return @trait_color_dict[d[0]]
             #    #return @attr_color_dict["collection_trait"][trimmed_samples[d[0]]]
             #)
-        names = (x[0] for x in samples)
-        @create_scales(names)
-        $('.bar_chart').find('.x.axis').remove()
-        $('.bar_chart').find('.y.axis').remove()
-        @add_x_axis()
-        @add_y_axis() 
 
     get_attr_color_dict: (vals) ->
         @attr_color_dict = {}
@@ -323,7 +328,7 @@ class Bar_Chart
     create_scales: (sample_names) ->
         @x_scale = d3.scale.ordinal()
             .domain(sample_names)
-            .rangeRoundBands([0, @range], 0.1, 0)
+            .rangeRoundBands([0, @plot_width], 0.1, 0)
 
         @y_scale = d3.scale.linear()
             .domain([@y_min * 0.75, @y_max])
@@ -335,7 +340,7 @@ class Bar_Chart
         @add_x_axis()
         @add_y_axis() 
         
-        @add_bars()
+        @update_bars(@samples)
         
     add_x_axis: (scale) ->
         xAxis = d3.svg.axis()
@@ -370,10 +375,9 @@ class Bar_Chart
             .attr("dy", ".71em")
             .style("text-anchor", "end")
 
-    add_bars: () ->
-        @svg.selectAll(".bar")
-            .data(@samples)
-          .enter().append("rect")
+    update_bars: (samples) ->
+        bars = @svg.selectAll(".bar").data(samples, (d) => return d[0])
+        bars.enter().append("rect")
             .style("fill", "steelblue")
             .attr("class", "bar")
             .attr("x", (d) =>
@@ -390,7 +394,8 @@ class Bar_Chart
             .text((d) =>
                 return d[1]
             )
-            
+        bars.exit().remove()
+        return bars
 
     sorted_samples: () ->
         #if @sample_attr_vals.length > 0
