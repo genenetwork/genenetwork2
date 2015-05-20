@@ -13,27 +13,10 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 
-from sqlalchemy import event
-from sqlalchemy.engine import Engine
-import logging
-import time
+#import logging
 #
-logging.basicConfig()
-logger = logging.getLogger('sqlalchemy.engine')
-logger.setLevel(logging.INFO)
-
-@event.listens_for(Engine, "before_cursor_execute")
-def before_cursor_execute(conn, cursor, statement,
-                        parameters, context, executemany):
-    conn.info.setdefault('query_start_time', []).append(time.time())
-    logger.info("Start Query: %s", statement)
-
-@event.listens_for(Engine, "after_cursor_execute")
-def after_cursor_execute(conn, cursor, statement,
-                        parameters, context, executemany):
-    total = time.time() - conn.info['query_start_time'].pop(-1)
-    logger.info("Query Complete!")
-    logger.info("Total Time: %f", total)
+#logging.basicConfig()
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 def init_db():
     # import all modules here that might define models so that
