@@ -82,7 +82,7 @@
                             <TD>{{ this_trait.mean }}</TD>
                             <TD align="right">{{ this_trait.LRS_score_repr }}</TD>
                             <TD>{{ this_trait.LRS_location_repr }}</TD>
-                            <TD>{{ this_trait.additive }}</TD>
+                            <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
                         {% elif dataset.type == 'Publish' %}
                             <TD>{{ this_trait.description_display }}</TD>
                             <TD>{{ this_trait.authors }}</TD>
@@ -93,7 +93,7 @@
                             </TD>
                             <TD>{{ this_trait.LRS_score_repr }}</TD>
                             <TD>{{ this_trait.LRS_location_repr }}</TD>
-                            <TD>{{ this_trait.additive }}</TD>
+                            <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
                         {% elif dataset.type == 'Geno' %}
                             <TD>{{ this_trait.location_repr }}</TD>
                         {% endif %}
@@ -183,7 +183,7 @@
                     { "sType": "natural",
                       "sWidth": "12%"  },
                     { "sType": "natural",
-                      "sWidth": "15%"  },
+                      "sWidth": "20%"  },
                     { "sType": "natural" }
                 ],
                 "sDom": "tir",

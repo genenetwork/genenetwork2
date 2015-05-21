@@ -442,13 +442,6 @@ class WikiSearch(MrnaAssaySearch):
         return where_clause
 
     def run(self):
-        #where_clause = """%s.symbol = GeneRIF.symbol
-        #    and GeneRIF.versionId=0 and GeneRIF.display>0
-        #    and (GeneRIF.comment REGEXP '%s' or GeneRIF.initial = '%s')
-        #        """ % (self.dataset.type,
-        #               "[[:<:]]"+str(self.search_term[0])+"[[:>:]]",
-        #               str(self.search_term[0]))
-
         where_clause = self.get_where_clause()
 
         from_clause = ", GeneRIF "
@@ -747,27 +740,6 @@ class RangeSearch(MrnaAssaySearch):
         return where_clause
 
     def run(self):
-
-        #self.search_term = [float(value) for value in self.search_term]
-        # 
-        #if self.search_operator == "=":
-        #    assert isinstance(self.search_term, (list, tuple))
-        #    self.range_min, self.range_max = self.search_term[:2]
-        #    self.where_clause = """ (SELECT Pow(2, max(value) -min(value))
-        #                             FROM ProbeSetData
-        #                             WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s AND
-        #                            (SELECT Pow(2, max(value) -min(value))
-        #                             FROM ProbeSetData
-        #                             WHERE ProbeSetData.Id = ProbeSetXRef.dataId) < %s
-        #                            """ % self.mescape(min(self.range_min, self.range_max),
-        #                                               max(self.range_min, self.range_max))
-        #else:
-        #    # Deal with >, <, >=, and <=
-        #    self.where_clause = """ (SELECT Pow(2, max(value) -min(value))
-        #                             FROM ProbeSetData
-        #                             WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s
-        #                            """ % (escape(self.search_term[0]))
-        
         self.where_clause = self.get_where_clause()
 
         self.query = self.compile_final_query(where_clause = self.where_clause)
