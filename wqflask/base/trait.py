@@ -423,6 +423,8 @@ class GeneralTrait(object):
                             if result:
                                 self.locus_chr = result[0]
                                 self.locus_mb = result[1]
+                            else:
+                                self.locus = self.locus_chr = self.locus_mb = ""
                         else:
                             self.locus = self.locus_chr = self.locus_mb = ""
                     else:
