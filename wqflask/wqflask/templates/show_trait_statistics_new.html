@@ -32,7 +32,7 @@
                 </div>   
                 <div class="tab-pane" id="histogram_tab">
                     <div style="padding: 20px" class="form-horizontal">
-                        {% if sample_groups|length == 1 %}
+                        {% if sample_groups|length != 1 %}
                         <select class="histogram_samples_group">
                             {% for group, pretty_group in sample_group_types.items() %}
                                 <option value="{{ group }}">{{ pretty_group }}</option>
@@ -47,7 +47,7 @@
                 </div>   
                 <div class="tab-pane" id="bar_chart_tab">
                     <div style="padding: 20px" class="form-horizontal">
-                        {% if sample_groups|length == 1 %}
+                        {% if sample_groups|length != 1 %}
                         <select class="bar_chart_samples_group">
                             {% for group, pretty_group in sample_group_types.items() %}
                                 <option value="{{ group }}">{{ pretty_group }}</option>
