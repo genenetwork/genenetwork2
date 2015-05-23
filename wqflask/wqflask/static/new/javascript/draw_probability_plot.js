@@ -23,7 +23,7 @@
     })();
   };
 
-  redraw_prob_plot = function(samples) {
+  redraw_prob_plot = function(samples, sample_group) {
     var container, h, margin, totalh, totalw, w;
     h = 600;
     w = 600;
@@ -41,16 +41,19 @@
     container.height(totalh);
     return nv.addGraph((function(_this) {
       return function() {
-        var W, chart, data, names, pvalue, pvalue_str, sample, sorted_names, sorted_values, sw_result, test_str, value, x, z_score;
-        chart = nv.models.scatterChart().width(w).height(h).showLegend(false);
+        var W, all_samples, chart, data, intercept, make_data, names, pvalue, pvalue_str, slope, sorted_names, sorted_values, sw_result, test_str, x, z_scores;
+        chart = nv.models.scatterChart().width(w).height(h).showLegend(true).color(d3.scale.category10().range());
+        chart.pointRange([50, 50]);
+        chart.legend.updateState(false);
         chart.xAxis.axisLabel("Theoretical quantiles").tickFormat(d3.format('.02f'));
         chart.yAxis.axisLabel("Sample quantiles").tickFormat(d3.format('.02f'));
         chart.tooltipContent(function(obj) {
           return '<b style="font-size: 20px">' + obj.point.name + '</b>';
         });
+        all_samples = samples[sample_group];
         names = (function() {
           var j, len, ref, results;
-          ref = _.keys(samples);
+          ref = _.keys(all_samples);
           results = [];
           for (j = 0, len = ref.length; j < len; j++) {
             x = ref[j];
@@ -61,14 +64,14 @@
           return results;
         })();
         sorted_names = names.sort(function(x, y) {
-          return samples[x] - samples[y];
+          return all_samples[x] - all_samples[y];
         });
         sorted_values = (function() {
           var j, len, results;
           results = [];
           for (j = 0, len = sorted_names.length; j < len; j++) {
             x = sorted_names[j];
-            results.push(samples[x]);
+            results.push(all_samples[x]);
           }
           return results;
         })();
@@ -76,31 +79,39 @@
         W = sw_result.w.toFixed(3);
         pvalue = sw_result.p.toFixed(3);
         pvalue_str = pvalue > 0.05 ? pvalue.toString() : "<span style='color:red'>" + pvalue + "</span>";
-        test_str = "Shapiro-Wilk test statistic = " + W + " (p = " + pvalue_str + ")";
-        data = [
-          {
-            slope: jStat.stdev(sorted_values),
-            intercept: jStat.mean(sorted_values),
-            size: 10,
+        test_str = "Shapiro-Wilk test statistic is " + W + " (p = " + pvalue_str + ")";
+        z_scores = get_z_scores(sorted_values.length);
+        slope = jStat.stdev(sorted_values);
+        intercept = jStat.mean(sorted_values);
+        make_data = function(group_name) {
+          var sample, value, z_score;
+          return {
+            key: js_data.sample_group_types[group_name],
+            slope: slope,
+            intercept: intercept,
             values: (function() {
               var j, len, ref, ref1, results;
               ref = _.zip(get_z_scores(sorted_values.length), sorted_values, sorted_names);
               results = [];
               for (j = 0, len = ref.length; j < len; j++) {
                 ref1 = ref[j], z_score = ref1[0], value = ref1[1], sample = ref1[2];
-                results.push({
-                  x: z_score,
-                  y: value,
-                  name: sample
-                });
+                if (sample in samples[group_name]) {
+                  results.push({
+                    x: z_score,
+                    y: value,
+                    name: sample
+                  });
+                }
               }
               return results;
             })()
-          }
-        ];
+          };
+        };
+        data = [make_data('samples_primary'), make_data('samples_other')];
         console.log("THE DATA IS:", data);
         d3.select("#prob_plot_container svg").datum(data).call(chart);
         $("#prob_plot_title").html("<h3>Normal probability plot</h3>" + test_str);
+        $("#prob_plot_container .nv-legendWrap").toggle(sample_group === "samples_all");
         return chart;
       };
     })(this));

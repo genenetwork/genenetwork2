@@ -11,8 +11,10 @@ get_z_scores = (n) ->
 
     return (jStat.normal.inv(x, 0, 1) for x in osm_uniform)
 
-# input: dictionary sample name -> sample value
-redraw_prob_plot = (samples) ->
+# samples is {'samples_primary': {'name1': value1, ...},
+#             'samples_other': {'nameN': valueN, ...},
+#             'samples_all': {'name1': value1, ...}}
+redraw_prob_plot = (samples, sample_group) ->
     h = 600
     w = 600
     margin = {left:60, top:40, right:40, bottom: 40, inner:5}
@@ -24,20 +26,33 @@ redraw_prob_plot = (samples) ->
     container.height(totalh)
 
     nv.addGraph(() =>
-        chart = nv.models.scatterChart().width(w).height(h).showLegend(false)
+        chart = nv.models.scatterChart()
+                  .width(w)
+                  .height(h)
+                  .showLegend(true)
+                  .color(d3.scale.category10().range())
+
+        # size settings are quite counter-intuitive in NVD3!
+        chart.pointRange([50,50]) # (50 is the area, not radius)
+
+        chart.legend.updateState(false)
+
         chart.xAxis
              .axisLabel("Theoretical quantiles")
-             .tickFormat(d3.format('.02f'));
+             .tickFormat(d3.format('.02f'))
+
         chart.yAxis
              .axisLabel("Sample quantiles")
-             .tickFormat(d3.format('.02f'));
+             .tickFormat(d3.format('.02f'))
+
         chart.tooltipContent((obj) =>
-            return '<b style="font-size: 20px">' + obj.point.name + '</b>';
+            return '<b style="font-size: 20px">' + obj.point.name + '</b>'
         )
 
-        names = (x for x in _.keys(samples) when samples[x] != null)
-        sorted_names = names.sort((x, y) => samples[x] - samples[y])
-        sorted_values = (samples[x] for x in sorted_names)
+        all_samples = samples[sample_group]
+        names = (x for x in _.keys(all_samples) when samples[x] != null)
+        sorted_names = names.sort((x, y) => all_samples[x] - all_samples[y])
+        sorted_values = (all_samples[x] for x in sorted_names)
         sw_result = ShapiroWilkW(sorted_values)
         W = sw_result.w.toFixed(3)
         pvalue = sw_result.p.toFixed(3)
@@ -46,22 +61,32 @@ redraw_prob_plot = (samples) ->
                      else\
                         "<span style='color:red'>"+pvalue+"</span>"
         test_str = "Shapiro-Wilk test statistic is #{W} (p = #{pvalue_str})"
-        data = [{
-                 slope: jStat.stdev(sorted_values),
-                 intercept: jStat.mean(sorted_values),
-                 size: 10,
+
+        z_scores = get_z_scores(sorted_values.length)
+        slope = jStat.stdev(sorted_values)
+        intercept = jStat.mean(sorted_values)
+
+        make_data = (group_name) ->
+            return {
+                 key: js_data.sample_group_types[group_name],
+                 slope: slope,
+                 intercept: intercept,
                  values: ({x: z_score, y: value, name: sample}\
                           for [z_score, value, sample] in\
                           _.zip(get_z_scores(sorted_values.length),
                                 sorted_values,
-                                sorted_names))
-                }]
+                                sorted_names)\
+                          when sample of samples[group_name])
+                }
+
+        data = [make_data('samples_primary'), make_data('samples_other')]
         console.log("THE DATA IS:", data)
         d3.select("#prob_plot_container svg")
           .datum(data)
           .call(chart)
 
         $("#prob_plot_title").html("<h3>Normal probability plot</h3>"+test_str)
+        $("#prob_plot_container .nv-legendWrap").toggle(sample_group == "samples_all")
 
         return chart
         )

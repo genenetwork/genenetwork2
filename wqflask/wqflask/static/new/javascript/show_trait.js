@@ -150,7 +150,7 @@
       return root.bar_chart.redraw(root.selected_samples[root.bar_chart_group]);
     };
     redraw_prob_plot = function() {
-      return root.redraw_prob_plot_impl(root.selected_samples['samples_all']);
+      return root.redraw_prob_plot_impl(root.selected_samples, root.prob_plot_group);
     };
     make_table = function() {
       var header, i, key, len, ref, ref1, row, row_line, table, the_id, the_rows, value;
@@ -453,15 +453,23 @@
     _.mixin(_.str.exports());
     root.histogram_group = 'samples_primary';
     root.histogram = new Histogram(sample_lists[0]);
+    $('.histogram_samples_group').val(root.histogram_group);
     $('.histogram_samples_group').change(function() {
       root.histogram_group = $(this).val();
       return redraw_histogram();
     });
     root.bar_chart_group = 'samples_primary';
     root.bar_chart = new Bar_Chart(sample_lists[0]);
+    $('.bar_chart_samples_group').val(root.bar_chart_group);
     $('.bar_chart_samples_group').change(function() {
       root.bar_chart_group = $(this).val();
       return redraw_bar_chart();
+    });
+    root.prob_plot_group = 'samples_primary';
+    $('.prob_plot_samples_group').val(root.prob_plot_group);
+    $('.prob_plot_samples_group').change(function() {
+      root.prob_plot_group = $(this).val();
+      return redraw_prob_plot();
     });
     make_table();
     edit_data_change();

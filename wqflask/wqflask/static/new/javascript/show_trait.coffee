@@ -138,9 +138,8 @@ $ ->
     redraw_bar_chart = ->
         root.bar_chart.redraw(root.selected_samples[root.bar_chart_group])
 
-    # TODO: add group selector
     redraw_prob_plot = ->
-        root.redraw_prob_plot_impl(root.selected_samples['samples_all'])
+        root.redraw_prob_plot_impl(root.selected_samples, root.prob_plot_group)
 
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"
@@ -428,15 +427,23 @@ $ ->
 
     root.histogram_group = 'samples_primary'
     root.histogram = new Histogram(sample_lists[0])
+    $('.histogram_samples_group').val(root.histogram_group)
     $('.histogram_samples_group').change ->
         root.histogram_group = $(this).val()
         redraw_histogram()
 
     root.bar_chart_group = 'samples_primary'
     root.bar_chart = new Bar_Chart(sample_lists[0])
+    $('.bar_chart_samples_group').val(root.bar_chart_group)
     $('.bar_chart_samples_group').change ->
         root.bar_chart_group = $(this).val()
         redraw_bar_chart()
+
+    root.prob_plot_group = 'samples_primary'
+    $('.prob_plot_samples_group').val(root.prob_plot_group)
+    $('.prob_plot_samples_group').change ->
+        root.prob_plot_group = $(this).val()
+        redraw_prob_plot()
 
     # new Box_Plot(sample_lists[0])
         
