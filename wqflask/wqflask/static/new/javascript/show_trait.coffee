@@ -138,6 +138,10 @@ $ ->
     redraw_bar_chart = ->
         root.bar_chart.redraw(root.selected_samples[root.bar_chart_group])
 
+    # TODO: add group selector
+    redraw_prob_plot = ->
+        root.redraw_prob_plot_impl(root.selected_samples['samples_all'])
+
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"
         console.log("js_data.sample_group_types:", js_data.sample_group_types)
@@ -231,6 +235,9 @@ $ ->
 
         console.log("redrawing bar chart")
         redraw_bar_chart()
+
+        console.log("redrawing probability plot")
+        redraw_prob_plot()
 
     show_hide_outliers = ->
         console.log("FOOBAR in beginning of show_hide_outliers")
@@ -431,19 +438,19 @@ $ ->
         root.bar_chart_group = $(this).val()
         redraw_bar_chart()
 
-    new Box_Plot(sample_lists[0])
+    # new Box_Plot(sample_lists[0])
         
-    $('.box_plot_samples_group').change ->
-        $('#box_plot').remove()
-        $('#box_plot_container').append('<div id="box_plot"></div>')
-        group = $(this).val()
-        if group == "samples_primary"
-            new Box_Plot(sample_lists[0])
-        else if group == "samples_other"
-            new Box_Plot(sample_lists[1])
-        else if group == "samples_all"
-            all_samples = sample_lists[0].concat sample_lists[1]
-            new Box_Plot(all_samples)
+    # $('.box_plot_samples_group').change ->
+    #     $('#box_plot').remove()
+    #     $('#box_plot_container').append('<div id="box_plot"></div>')
+    #     group = $(this).val()
+    #     if group == "samples_primary"
+    #         new Box_Plot(sample_lists[0])
+    #     else if group == "samples_other"
+    #         new Box_Plot(sample_lists[1])
+    #     else if group == "samples_all"
+    #         all_samples = sample_lists[0].concat sample_lists[1]
+    #         new Box_Plot(all_samples)
 
     make_table()
     edit_data_change()   # Set the values at the beginning

@@ -137,20 +137,8 @@ class ShowTrait(object):
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
         
-        probability_plot_data = []
-        sample_vals = []
-        sample_z_scores = []
-        for sample_list in sample_lists:
-            for sample in sample_list:
-                sample_vals.append(sample.prob_plot_value)
-                sample_z_scores.append(sample.z_score)
-        probability_plot_data.append(sample_z_scores)        
-        probability_plot_data.append(sample_vals)
-
-        
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
-                        probability_plot_data = probability_plot_data,
                         attribute_names = self.sample_groups[0].attributes,
                         temp_uuid = self.temp_uuid)
         self.js_data = js_data
