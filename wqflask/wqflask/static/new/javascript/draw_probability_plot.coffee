@@ -50,9 +50,9 @@ redraw_prob_plot = (samples, sample_group) ->
         )
 
         all_samples = samples[sample_group]
-        names = (x for x in _.keys(all_samples) when samples[x] != null)
-        sorted_names = names.sort((x, y) => all_samples[x] - all_samples[y])
-        sorted_values = (all_samples[x] for x in sorted_names)
+        names = (x for x in _.keys(all_samples) when all_samples[x] != null)
+        sorted_names = names.sort((x, y) => all_samples[x].value - all_samples[y].value)
+        sorted_values = (all_samples[x].value for x in sorted_names)
         sw_result = ShapiroWilkW(sorted_values)
         W = sw_result.w.toFixed(3)
         pvalue = sw_result.p.toFixed(3)

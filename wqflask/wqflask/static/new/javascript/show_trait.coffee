@@ -133,10 +133,10 @@ $ ->
                 change_stats_value(sample_sets, category, row.vn, row.digits, show_effects)
 
     redraw_histogram = ->
-        root.histogram.redraw(_.values(root.selected_samples[root.histogram_group]))
+        root.histogram.redraw((x.value for x in _.values(root.selected_samples[root.histogram_group])))
 
     redraw_bar_chart = ->
-        root.bar_chart.redraw(root.selected_samples[root.bar_chart_group])
+        root.bar_chart.redraw(root.selected_samples, root.bar_chart_group)
 
     redraw_prob_plot = ->
         root.redraw_prob_plot_impl(root.selected_samples, root.prob_plot_group)
@@ -219,12 +219,20 @@ $ ->
                     real_value = parseFloat(real_value)
 
                     sample_sets[table].add_value(real_value)
-                    root.selected_samples[table][name] = real_value
+
+                    real_variance = $(row).find('.edit_sample_se').val()
+                    if (is_number(real_variance))
+                        real_variance = parseFloat(real_variance)
+                    else
+                        real_variance = null
+                    real_dict = {value: real_value, variance: real_variance}
+                    root.selected_samples[table][name] = real_dict
+
                     #console.log("checking name of:", name)
                     if not (name of already_seen)
                         #console.log("haven't seen")
                         sample_sets['samples_all'].add_value(real_value)
-                        root.selected_samples['samples_all'][name] = real_value
+                        root.selected_samples['samples_all'][name] = real_dict
                         already_seen[name] = true
         console.log("towards end:", sample_sets)
         update_stat_values(sample_sets)
@@ -433,7 +441,7 @@ $ ->
         redraw_histogram()
 
     root.bar_chart_group = 'samples_primary'
-    root.bar_chart = new Bar_Chart(sample_lists[0])
+    root.bar_chart = new Bar_Chart(sample_lists)
     $('.bar_chart_samples_group').val(root.bar_chart_group)
     $('.bar_chart_samples_group').change ->
         root.bar_chart_group = $(this).val()
@@ -444,20 +452,6 @@ $ ->
     $('.prob_plot_samples_group').change ->
         root.prob_plot_group = $(this).val()
         redraw_prob_plot()
-
-    # new Box_Plot(sample_lists[0])
-        
-    # $('.box_plot_samples_group').change ->
-    #     $('#box_plot').remove()
-    #     $('#box_plot_container').append('<div id="box_plot"></div>')
-    #     group = $(this).val()
-    #     if group == "samples_primary"
-    #         new Box_Plot(sample_lists[0])
-    #     else if group == "samples_other"
-    #         new Box_Plot(sample_lists[1])
-    #     else if group == "samples_all"
-    #         all_samples = sample_lists[0].concat sample_lists[1]
-    #         new Box_Plot(all_samples)
 
     make_table()
     edit_data_change()   # Set the values at the beginning

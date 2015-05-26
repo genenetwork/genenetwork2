@@ -57,21 +57,21 @@
           results = [];
           for (j = 0, len = ref.length; j < len; j++) {
             x = ref[j];
-            if (samples[x] !== null) {
+            if (all_samples[x] !== null) {
               results.push(x);
             }
           }
           return results;
         })();
         sorted_names = names.sort(function(x, y) {
-          return all_samples[x] - all_samples[y];
+          return all_samples[x].value - all_samples[y].value;
         });
         sorted_values = (function() {
           var j, len, results;
           results = [];
           for (j = 0, len = sorted_names.length; j < len; j++) {
             x = sorted_names[j];
-            results.push(all_samples[x]);
+            results.push(all_samples[x].value);
           }
           return results;
         })();

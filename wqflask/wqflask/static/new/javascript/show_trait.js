@@ -144,10 +144,20 @@
       return results;
     };
     redraw_histogram = function() {
-      return root.histogram.redraw(_.values(root.selected_samples[root.histogram_group]));
+      var x;
+      return root.histogram.redraw((function() {
+        var i, len, ref, results;
+        ref = _.values(root.selected_samples[root.histogram_group]);
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          x = ref[i];
+          results.push(x.value);
+        }
+        return results;
+      })());
     };
     redraw_bar_chart = function() {
-      return root.bar_chart.redraw(root.selected_samples[root.bar_chart_group]);
+      return root.bar_chart.redraw(root.selected_samples, root.bar_chart_group);
     };
     redraw_prob_plot = function() {
       return root.redraw_prob_plot_impl(root.selected_samples, root.prob_plot_group);
@@ -214,7 +224,7 @@
       return processed;
     };
     edit_data_change = function() {
-      var already_seen, checkbox, checked, i, j, len, len1, name, real_value, row, rows, sample_sets, table, tables;
+      var already_seen, checkbox, checked, i, j, len, len1, name, real_dict, real_value, real_variance, row, rows, sample_sets, table, tables;
       already_seen = {};
       sample_sets = {
         samples_primary: new Stats([]),
@@ -241,10 +251,20 @@
           if (checked && is_number(real_value) && real_value !== "") {
             real_value = parseFloat(real_value);
             sample_sets[table].add_value(real_value);
-            root.selected_samples[table][name] = real_value;
+            real_variance = $(row).find('.edit_sample_se').val();
+            if (is_number(real_variance)) {
+              real_variance = parseFloat(real_variance);
+            } else {
+              real_variance = null;
+            }
+            real_dict = {
+              value: real_value,
+              variance: real_variance
+            };
+            root.selected_samples[table][name] = real_dict;
             if (!(name in already_seen)) {
               sample_sets['samples_all'].add_value(real_value);
-              root.selected_samples['samples_all'][name] = real_value;
+              root.selected_samples['samples_all'][name] = real_dict;
               already_seen[name] = true;
             }
           }
@@ -459,7 +479,7 @@
       return redraw_histogram();
     });
     root.bar_chart_group = 'samples_primary';
-    root.bar_chart = new Bar_Chart(sample_lists[0]);
+    root.bar_chart = new Bar_Chart(sample_lists);
     $('.bar_chart_samples_group').val(root.bar_chart_group);
     $('.bar_chart_samples_group').change(function() {
       root.bar_chart_group = $(this).val();
