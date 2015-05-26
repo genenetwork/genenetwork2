@@ -13,7 +13,11 @@
 #legend-left, #legend-right {
   font-size: 20px;
 }
-/*
-.x.axis path {
+
+.nvd3 .nv-group {
+  fill-opacity: .9 !important;
+}
+
+.nvtooltip table td.legend-color-guide div {
   display: none;
-}*/
+}

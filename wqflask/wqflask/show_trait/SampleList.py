@@ -68,7 +68,6 @@ class SampleList(object):
 
         print("self.attributes is", pf(self.attributes))
 
-        self.get_z_scores()
         self.do_outliers()
         #do_outliers(the_samples)
         print("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
@@ -79,50 +78,6 @@ class SampleList(object):
     def __repr__(self):
         return "<SampleList> --> %s" % (pf(self.__dict__))
 
-    #def get_z_scores(self):
-    #    values = [sample.value for sample in self.sample_list if sample.value != None]
-    #    dataX = values[:]
-    #    dataX.sort(webqtlUtil.cmpOrder)
-    #    dataY=webqtlUtil.U(len(dataX))
-    #    z_scores=map(webqtlUtil.inverseCumul, dataY)
-    #    
-    #    print("self.sample_list:", [sample for sample in self.sample_list if sample.value != None])
-    #    print("z_scores:", len(z_scores))
-    #    for i, sample in enumerate([sample for sample in self.sample_list if sample.value != None]):
-    #        print("sample is:", sample)
-    #        sample.z_score = z_scores[i]
-        
-        
-    #def get_z_scores(self):
-    #    values = [sample.value for sample in self.sample_list if sample.value != None]
-    #    z_scores = z_score(values)
-    #    
-    #    print("self.sample_list:", [sample for sample in self.sample_list if sample.value != None])
-    #    print("z_scores:", len(z_scores))
-    #    for i, sample in enumerate([sample for sample in self.sample_list if sample.value != None]):
-    #        print("sample is:", sample)
-    #        sample.z_score = z_scores[i]
-        
-        
-    def get_z_scores(self):
-        
-        
-        values = [sample.value for sample in self.sample_list if sample.value != None]
-        numpy_array = np.array(values)
-        prob_plot = stats.probplot(numpy_array)[0]
-        print("prob_plot:", prob_plot)
-        
-        values = prob_plot[1]
-        z_scores = prob_plot[0]
-        print("z_scores:", z_scores)
-
-        
-        print("self.sample_list:", [sample for sample in self.sample_list if sample.value != None])
-        for i, sample in enumerate([sample for sample in self.sample_list if sample.value != None]):
-            print("sample is:", sample)
-            sample.z_score = z_scores[i]
-            sample.prob_plot_value = values[i]
-        
     def do_outliers(self):
         values = [sample.value for sample in self.sample_list if sample.value != None]
         upper_bound, lower_bound = Plot.find_outliers(values)

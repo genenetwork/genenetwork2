@@ -137,20 +137,8 @@ class ShowTrait(object):
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
         
-        probability_plot_data = []
-        sample_vals = []
-        sample_z_scores = []
-        for sample_list in sample_lists:
-            for sample in sample_list:
-                sample_vals.append(sample.prob_plot_value)
-                sample_z_scores.append(sample.z_score)
-        probability_plot_data.append(sample_z_scores)        
-        probability_plot_data.append(sample_vals)
-
-        
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
-                        probability_plot_data = probability_plot_data,
                         attribute_names = self.sample_groups[0].attributes,
                         temp_uuid = self.temp_uuid)
         self.js_data = js_data
@@ -1165,11 +1153,9 @@ class ShowTrait(object):
         elif self.dataset.group.f1list:
             all_samples_ordered = self.dataset.group.f1list + self.dataset.group.samplelist
         else:
-            all_samples_ordered = self.dataset.group.samplelist
+            all_samples_ordered = list(self.dataset.group.samplelist)
 
-        this_trait_samples = set(this_trait.data.keys())
-
-        primary_sample_names = all_samples_ordered
+        primary_sample_names = list(all_samples_ordered)
 
         print("self.dataset.group", pf(self.dataset.group.__dict__))
         print("-*- primary_samplelist is:", pf(primary_sample_names))
@@ -1180,14 +1166,10 @@ class ShowTrait(object):
                 all_samples_ordered.append(sample)
                 other_sample_names.append(sample)
 
-        other_sample_names, all_samples_ordered = get_samplelist_from_trait_data(this_trait,
-                                                                                 all_samples_ordered)
-        
-        
         print("species:", self.dataset.group.species)
         if self.dataset.group.species == "human":
             primary_sample_names += other_sample_names
-            
+
         primary_samples = SampleList(dataset = self.dataset,
                                         sample_names=primary_sample_names,
                                         this_trait=this_trait,
@@ -1222,16 +1204,6 @@ class ShowTrait(object):
         #        or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
         #    print("hjs")
         self.dataset.group.allsamples = all_samples_ordered
-
-
-def get_samplelist_from_trait_data(this_trait, all_samples_ordered):
-    other_sample_names = []
-    for sample in this_trait.data.keys():
-        if sample not in all_samples_ordered:
-            all_samples_ordered.append(sample)
-            other_sample_names.append(sample)
-            
-    return other_sample_names, all_samples_ordered
 
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr
