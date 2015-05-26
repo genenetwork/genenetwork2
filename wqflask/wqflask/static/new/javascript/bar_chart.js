@@ -176,7 +176,7 @@
             ];
             if (evt.data.yErr) {
               evt['series'].push({
-                key: 'SD',
+                key: 'SE',
                 value: evt.data.yErr
               });
             }

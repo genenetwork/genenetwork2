@@ -97,7 +97,7 @@ class Bar_Chart
                     color: evt.color
                 }];
                 if evt.data.yErr
-                    evt['series'].push({key: 'SD', value: evt.data.yErr})
+                    evt['series'].push({key: 'SE', value: evt.data.yErr})
                 if evt.data.attr
                     for k, v of evt.data.attr
                         evt['series'].push({key: k, value: v})
