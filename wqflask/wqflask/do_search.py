@@ -391,25 +391,32 @@ class GenotypeSearch(DoSearch):
             self.search_term = "[[:<:]]" + self.search_term[0] + "[[:>:]]"
 
         for field in self.search_fields:
-            fields_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
+            where_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
                                                                                field),
                                                                                self.search_term))
-        print("hello ;where_clause is:", pf(fields_clause))
-        fields_clause = "(%s) " % ' OR '.join(fields_clause)
+        print("hello ;where_clause is:", pf(where_clause))
+        where_clause = "(%s) " % ' OR '.join(where_clause)
 
-        return fields_clause
+        return where_clause
 
     def compile_final_query(self, from_clause = '', where_clause = ''):
         """Generates the final query string"""
 
         from_clause = self.normalize_spaces(from_clause)
 
-        query = (self.base_query +
-                """WHERE %s
-                    and Geno.Id = GenoXRef.GenoId
-                    and GenoXRef.GenoFreezeId = GenoFreeze.Id
-                    and GenoFreeze.Id = %s"""% (where_clause,
-                                            escape(str(self.dataset.id))))
+
+        if self.search_term[0] == "*":
+            query = (self.base_query +
+                    """WHERE Geno.Id = GenoXRef.GenoId
+                        and GenoXRef.GenoFreezeId = GenoFreeze.Id
+                        and GenoFreeze.Id = %s"""% (escape(str(self.dataset.id))))
+        else:
+            query = (self.base_query +
+                    """WHERE %s
+                        and Geno.Id = GenoXRef.GenoId
+                        and GenoXRef.GenoFreezeId = GenoFreeze.Id
+                        and GenoFreeze.Id = %s"""% (where_clause,
+                                                escape(str(self.dataset.id))))
 
         print("query is:", pf(query))
 
@@ -420,7 +427,10 @@ class GenotypeSearch(DoSearch):
         #Todo: Zach will figure out exactly what both these lines mean
         #and comment here
 
-        self.query = self.compile_final_query(where_clause = self.get_where_clause())
+        if self.search_term[0] == "*":
+            self.query = self.compile_final_query()
+        else:
+            self.query = self.compile_final_query(where_clause = self.get_where_clause())
 
         return self.execute(self.query)
 
