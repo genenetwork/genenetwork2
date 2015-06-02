@@ -128,18 +128,24 @@ class MrnaAssaySearch(DoSearch):
                      'Additive Effect']
 
     def get_where_clause(self):
-        where_clause = """(MATCH (ProbeSet.Name,
-                    ProbeSet.description,
-                    ProbeSet.symbol,
-                    alias,
-                    GenbankId,
-                    UniGeneId,
-                    Probe_Target_Description)
-                    AGAINST ('%s' IN BOOLEAN MODE))
-                    and ProbeSet.Id = ProbeSetXRef.ProbeSetId
-                    and ProbeSetXRef.ProbeSetFreezeId = %s
-                            """ % (escape(self.search_term[0]),
-                            escape(str(self.dataset.id)))
+
+        if self.search_term[0] != "*":
+            match_clause = """(MATCH (ProbeSet.Name,
+                        ProbeSet.description,
+                        ProbeSet.symbol,
+                        alias,
+                        GenbankId,
+                        UniGeneId,
+                        Probe_Target_Description)
+                        AGAINST ('%s' IN BOOLEAN MODE)) and
+                                """ % (escape(self.search_term[0]))
+        else:
+            match_clause = ""
+
+        where_clause = (match_clause + 
+            """ProbeSet.Id = ProbeSetXRef.ProbeSetId
+               and ProbeSetXRef.ProbeSetFreezeId = %s
+                        """ % (escape(str(self.dataset.id))))
 
         return where_clause
 
@@ -235,29 +241,40 @@ class PhenotypeSearch(DoSearch):
 
         # This adds a clause to the query that matches the search term
         # against each field in the search_fields tuple
-        fields_clause_list = []
+        where_clause_list = []
         for field in self.search_fields:
-            fields_clause_list.append('''%s REGEXP "%s"''' % (field, search_term))
-        fields_clause = "(%s) " % ' OR '.join(fields_clause_list)
+            where_clause_list.append('''%s REGEXP "%s"''' % (field, search_term))
+        where_clause = "(%s) " % ' OR '.join(where_clause_list)
 
-        return fields_clause
+        return where_clause
 
     def compile_final_query(self, from_clause = '', where_clause = ''):
         """Generates the final query string"""
 
         from_clause = self.normalize_spaces(from_clause)
 
-        query = (self.base_query +
-                """%s
-                    WHERE %s
-                    and PublishXRef.InbredSetId = %s
-                    and PublishXRef.PhenotypeId = Phenotype.Id
-                    and PublishXRef.PublicationId = Publication.Id
-                    and PublishFreeze.Id = %s""" % (
-                        from_clause,
-                        where_clause,
-                        escape(str(self.dataset.group.id)),
-                        escape(str(self.dataset.id))))
+        if self.search_term[0] == "*":
+            query = (self.base_query +
+                    """%s
+                        WHERE PublishXRef.InbredSetId = %s
+                        and PublishXRef.PhenotypeId = Phenotype.Id
+                        and PublishXRef.PublicationId = Publication.Id
+                        and PublishFreeze.Id = %s""" % (
+                            from_clause,
+                            escape(str(self.dataset.group.id)),
+                            escape(str(self.dataset.id))))
+        else:
+            query = (self.base_query +
+                    """%s
+                        WHERE %s
+                        and PublishXRef.InbredSetId = %s
+                        and PublishXRef.PhenotypeId = Phenotype.Id
+                        and PublishXRef.PublicationId = Publication.Id
+                        and PublishFreeze.Id = %s""" % (
+                            from_clause,
+                            where_clause,
+                            escape(str(self.dataset.group.id)),
+                            escape(str(self.dataset.id))))
 
         print("query is:", pf(query))
 

@@ -98,8 +98,16 @@
                         <td><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
                         <td>{{ trait.num_overlap }}</td>
                         <td>{{'%0.3e'|format(trait.sample_p)}}</td>
+                        {% if trait.lit_corr == "" or trait.lit_corr == 0.000 %}
+                        <td>--</td>
+                        {% else %}
                         <td>{{'%0.3f'|format(trait.lit_corr)}}</td>
+                        {% endif %}
+                        {% if trait.tissue_corr == "" or trait.tissue_corr == 0.000 %}
+                        <td>--</td>
+                        {% else %}
                         <td>{{'%0.3f'|format(trait.tissue_corr)}}</td>
+                        {% endif %}
                         <td>{{'%0.3e'|format(trait.tissue_pvalue)}}</td>
                     {% elif target_dataset.type == "Publish" %}
                         <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>

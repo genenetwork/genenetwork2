@@ -249,12 +249,7 @@ class SearchResultPage(object):
         search_type = {}
         search_type['dataset_type'] = self.dataset.type
         if a_search['key']:
-            search_type['key'] = a_search['key'].upper()
-            #search_type = a_search['key'].upper()
-        #else:
-        #    # We fall back to the dataset type as the key to get the right object
-        #    search_type = self.dataset.type
-                
+            search_type['key'] = a_search['key'].upper()       
         print("search_type is:", pf(search_type))
 
         search_ob = do_search.DoSearch.get_search(search_type)
