@@ -3,6 +3,8 @@
 
 from __future__ import print_function, division
 
+import string
+
 from flask import Flask, g
 
 from MySQLdb import escape_string as escape
@@ -39,6 +41,13 @@ class DoSearch(object):
         print("in do_search query is:", pf(query))
         results = g.db.execute(query, no_parameters=True).fetchall()
         return results
+
+    def handle_wildcard(self, str):
+        keyword = str.strip()
+        keyword.replace("*",".*")
+        keyword.replace("?",".")        
+
+        return keyword
 
     #def escape(self, stringy):
     #    """Shorter name than self.db_conn.escape_string"""
@@ -237,7 +246,7 @@ class PhenotypeSearch(DoSearch):
         #Todo: Zach will figure out exactly what both these lines mean
         #and comment here
         if "'" not in self.search_term[0]:
-            search_term = "[[:<:]]" + self.search_term[0] + "[[:>:]]"
+            search_term = "[[:<:]]" + self.handle_wildcard(self.search_term[0]) + "[[:>:]]"
 
         # This adds a clause to the query that matches the search term
         # against each field in the search_fields tuple
