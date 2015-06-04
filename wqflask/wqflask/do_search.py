@@ -826,7 +826,7 @@ class MrnaPositionSearch(PositionSearch, MrnaAssaySearch):
 
     def run(self):
 
-        self.get_where_clause()
+        self.where_clause = self.get_where_clause()
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
         return self.execute(self.query)
@@ -839,7 +839,7 @@ class GenotypePositionSearch(PositionSearch, GenotypeSearch):
 
     def run(self):
 
-        self.get_where_clause()
+        self.where_clause = self.get_where_clause()
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
         return self.execute(self.query)
