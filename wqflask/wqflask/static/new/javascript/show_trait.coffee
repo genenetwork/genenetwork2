@@ -61,6 +61,14 @@ Stat_Table_Rows = [
         ]
 
 $ ->
+
+    add = ->
+        trait = $("input[name=trait_hmac]").val()
+        console.log("trait is:", trait)
+        $.colorbox({href:"/collections/add?traits=#{trait}"})
+
+    $('#add_to_collection').click(add)
+
     sample_lists = js_data.sample_lists
     sample_group_types = js_data.sample_group_types
 

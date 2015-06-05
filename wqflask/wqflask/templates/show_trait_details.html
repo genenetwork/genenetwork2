@@ -60,38 +60,40 @@
 
 
 
-<!--<div class="btn-toolbar">
+<div style="margin-bottom:15px;" class="btn-toolbar">
     <div class="btn-group">
-        <button class="btn btn-primary" title="Add to collection">
+        <button type="button" id="add_to_collection" class="btn btn-primary" title="Add to collection">
             <i class="icon-plus-sign icon-white"></i> Add
         </button>
-
-        <button class="btn" title="Find similar expression data">
+        <a href="#redirect" onclick="window.open('http://www.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene=Shh&amp;alias=1&amp;species=mouse')">
+        <button type="button" class="btn btn-default" title="Find similar expression data">
             <i class="icon-search"></i> Find
         </button>
-
-        <button class="btn" title="Check probe locations at UCSC">
+        </a>
+        <a href="#redirect" onclick="window.open('{{ UCSC_BLAT_URL }}')">
+        <button type="button" class="btn btn-default" title="Check probe locations at UCSC">
             <i class="icon-ok"></i> Verify
         </button>
+        </a>
     </div>
 
     <div class="btn-group">
 
-        <button class="btn" title="Write or review comments about this gene">
+        <button type="button" class="btn btn-default" title="Write or review comments about this gene">
             <i class="icon-edit"></i> GeneWiki
         </button>
 
-        <button class="btn" title="View SNPs and Indels">
+        <button type="button" class="btn btn-default" title="View SNPs and Indels">
             <i class="icon-road"></i> SNPs
         </button>
 
-        <button class="btn" title="View probes, SNPs, and RNA-seq at UTHSC">
+        <button type="button" class="btn btn-default" title="View probes, SNPs, and RNA-seq at UTHSC">
             <i class="icon-eye-close"></i> RNA-seq
         </button>
 
-        <button class="btn" title="Check sequence of probes">
+        <button type="button" class="btn btn-default" title="Check sequence of probes">
             <i class="icon-list"></i> Probes
         </button>
 
     </div>
-</div>-->
+</div>

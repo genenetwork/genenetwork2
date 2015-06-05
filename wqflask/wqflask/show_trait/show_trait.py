@@ -362,34 +362,35 @@ class ShowTrait(object):
                 #--------Hongqiang add this part in order to not only blat ProbeSet, but also blat Probe
                 blatsequence = '%3E'+this_trait.name+'%0A'+blatsequence+'%0A'
                 #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
-                self.cursor.execute("""SELECT Probe.Sequence, Probe.Name
+                query = """SELECT Probe.Sequence, Probe.Name
                                        FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
                                        WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
                                              ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                             ProbeSetFreeze.Name = '%s' AND
-                                             ProbeSet.Name = '%s' AND
-                                             Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (this_trait.dataset.name, this_trait.name) )
+                                             ProbeSetFreeze.Name = '{}' AND
+                                             ProbeSet.Name = '{}' AND
+                                             Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""".format(this_trait.dataset.name, this_trait.name)
 
-                seqs = self.cursor.fetchall()
+                seqs = g.db.execute(query).fetchall()
+
                 for seqt in seqs:
                     if int(seqt[1][-1]) %2 == 1:
                         blatsequence += '%3EProbe_'+string.strip(seqt[1])+'%0A'+string.strip(seqt[0])+'%0A'
 
                 #XZ: Pay attention to the parameter of version (rn, mm, hg). They need to be changed if necessary.
                 if _Species == "rat":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', blatsequence)
+                    self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', blatsequence)
                     UTHSC_BLAT_URL = ""
                 elif _Species == "mouse":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', blatsequence)
+                    self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', blatsequence)
                     UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', blatsequence)
                 elif _Species == "human":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
+                    self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
                     UTHSC_BLAT_URL = ""
                 else:
-                    UCSC_BLAT_URL = ""
+                    self.UCSC_BLAT_URL = ""
                     UTHSC_BLAT_URL = ""
 
-                if UCSC_BLAT_URL:
+                if self.UCSC_BLAT_URL != "":
                     verifyButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % UCSC_BLAT_URL)
                     verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="verify", alt=" Check probe locations at UCSC ",
                             title=" Check probe locations at UCSC ", style="border:none;")
