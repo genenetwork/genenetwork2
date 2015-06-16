@@ -225,7 +225,7 @@ class ShowTrait(object):
 
     def dispTraitInformation(self, args, title1Body, hddn, this_trait):
 
-        _Species = webqtlDatabaseFunction.retrieve_species(group=self.dataset.group.name)
+        self.species_name = webqtlDatabaseFunction.retrieve_species(group=self.dataset.group.name)
 
         #tbl = HT.TableLite(cellpadding=2, Class="collap", style="margin-left:20px;", width="840", valign="top", id="target1")
 
@@ -299,7 +299,7 @@ class ShowTrait(object):
             #XZ: Gene Symbol
             if this_trait.symbol:
                 #XZ: Show SNP Browser only for mouse
-                if _Species == 'mouse':
+                if self.species_name == 'mouse':
                     geneName = g.db.execute("SELECT geneSymbol FROM GeneList WHERE geneSymbol = %s", this_trait.symbol).fetchone()
                     if geneName:
                         snpurl = os.path.join(webqtlConfig.CGIDIR, "main.py?FormID=SnpBrowserResultPage&submitStatus=1&diffAlleles=True&customStrain=True") + "&geneName=%s" % geneName[0]
@@ -322,8 +322,8 @@ class ShowTrait(object):
 
                 #XZ: display similar traits in other selected datasets
                 if this_trait and this_trait.dataset and this_trait.dataset.type=="ProbeSet" and this_trait.symbol:
-                    if _Species in ("mouse", "rat", "human"):
-                        similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.symbol, _Species)
+                    if self.species_name in ("mouse", "rat", "human"):
+                        similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.symbol, self.species_name)
                         similarButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % similarUrl)
                         similarButton_img = HT.Image("/images/find_icon.jpg", name="similar", alt=" Find similar expression data ", title=" Find similar expression data ", style="border:none;")
                         similarText = "Find"
@@ -377,18 +377,18 @@ class ShowTrait(object):
                         blatsequence += '%3EProbe_'+string.strip(seqt[1])+'%0A'+string.strip(seqt[0])+'%0A'
 
                 #XZ: Pay attention to the parameter of version (rn, mm, hg). They need to be changed if necessary.
-                if _Species == "rat":
+                if self.species_name == "rat":
                     self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', blatsequence)
-                    UTHSC_BLAT_URL = ""
-                elif _Species == "mouse":
+                    self.UTHSC_BLAT_URL = ""
+                elif self.species_name == "mouse":
                     self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', blatsequence)
-                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', blatsequence)
-                elif _Species == "human":
+                    self.UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', blatsequence)
+                elif self.species_name == "human":
                     self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
-                    UTHSC_BLAT_URL = ""
+                    self.UTHSC_BLAT_URL = ""
                 else:
                     self.UCSC_BLAT_URL = ""
-                    UTHSC_BLAT_URL = ""
+                    self.UTHSC_BLAT_URL = ""
 
                 if self.UCSC_BLAT_URL != "":
                     verifyButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % UCSC_BLAT_URL)
@@ -396,7 +396,7 @@ class ShowTrait(object):
                             title=" Check probe locations at UCSC ", style="border:none;")
                     verifyButton.append(verifyButtonImg)
                     verifyText = 'Verify'
-                if UTHSC_BLAT_URL:
+                if self.UTHSC_BLAT_URL != "":
                     rnaseqButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % UTHSC_BLAT_URL)
                     rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="rnaseq", alt=" View probes, SNPs, and RNA-seq at UTHSC ",
                             title=" View probes, SNPs, and RNA-seq at UTHSC ", style="border:none;")
@@ -416,6 +416,7 @@ class ShowTrait(object):
                 #query database for number of probes associated with trait; if count > 0, set probe tool button and text
                 probeResult = g.db.execute(query).fetchone()
                 if probeResult[0] > 0:
+                    self.show_probes = "True"
                     probeurl = "%s?FormID=showProbeInfo&database=%s&ProbeSetID=%s&CellID=%s&group=%s&incparentsf1=ON" \
                             % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.dataset, this_trait.name, this_trait.cellid, self.dataset.group.name)
                     probeButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % probeurl)
@@ -423,7 +424,7 @@ class ShowTrait(object):
                     #probeButton.append(probeButton_img)
                     probeText = "Probes"
 
-            this_trait.species = _Species  # We need this in the template, so we tuck it into this_trait
+            this_trait.species = self.species_name  # We need this in the template, so we tuck it into this_trait
             this_trait.database = this_trait.get_database()
 
             #XZ: ID links
@@ -462,14 +463,14 @@ class ShowTrait(object):
                 #XZ,12/26/2008: Gene symbol may contain single quotation mark.
                 #For example, Affymetrix, mouse430v2, 1440338_at, the symbol is 2'-Pde (geneid 211948)
                 #I debug this by using double quotation marks.
-                if _Species == "rat":
+                if self.species_name == "rat":
                     result = g.db.execute("SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
                     if result != None:
                         kgId, chr, txst, txen = result[0], result[1], result[2], result[3]
                         if chr and txst and txen and kgId:
                             txst = int(txst*1000000)
                             txen = int(txen*1000000)
-                if _Species == "mouse":
+                if self.species_name == "mouse":
                     print("this_trait.symbol:", this_trait.symbol)
                     result = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
                     if result != None:
@@ -484,10 +485,10 @@ class ShowTrait(object):
                 #       url="http://symatlas.gnf.org/SymAtlas/bioentry?querytext=%s&query=14&species=%s&type=Expression" \
                 #       % (this_trait.symbol,symatlas_species),Class="fs14 fwn", \
                 #       title="Expression across many tissues and cell types"), style=linkStyle), "&nbsp;"*2)
-                if this_trait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
+                if this_trait.geneid and (self.species_name == "mouse" or self.species_name == "rat" or self.species_name == "human"):
                     #tSpan.append(HT.Span(HT.Href(text= 'BioGPS',target="mainFrame",\
                     #        url="http://biogps.gnf.org/?org=%s#goto=genereport&id=%s" \
-                    #        % (_Species, this_trait.geneid),Class="fs14 fwn", \
+                    #        % (self.species_name, this_trait.geneid),Class="fs14 fwn", \
                     #        title="Expression across many tissues and cell types"), style=linkStyle), "&nbsp;"*2)
                     pass
                 #tSpan.append(HT.Span(HT.Href(text= 'STRING',target="mainFrame",\
@@ -497,13 +498,13 @@ class ShowTrait(object):
                 if this_trait.symbol:
                     #ZS: The "species scientific" converts the plain English species names we're using to their scientific names, which are needed for PANTHER's input
                     #We should probably use the scientific name along with the English name (if not instead of) elsewhere as well, given potential non-English speaking users
-                    if _Species == "mouse":
+                    if self.species_name == "mouse":
                         species_scientific = "Mus%20musculus"
-                    elif _Species == "rat":
+                    elif self.species_name == "rat":
                         species_scientific = "Rattus%20norvegicus"
-                    elif _Species == "human":
+                    elif self.species_name == "human":
                         species_scientific = "Homo%20sapiens"
-                    elif _Species == "drosophila":
+                    elif self.species_name == "drosophila":
                         species_scientific = "Drosophila%20melanogaster"
                     else:
                         species_scientific = "all"
@@ -519,7 +520,7 @@ class ShowTrait(object):
                 #       url="http://bind.ca/?textquery=%s" \
                 #       % this_trait.symbol,Class="fs14 fwn", \
                 #       title="Protein interactions"), style=linkStyle), "&nbsp;"*2)
-                #if this_trait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
+                #if this_trait.geneid and (self.species_name == "mouse" or self.species_name == "rat" or self.species_name == "human"):
                 #    tSpan.append(HT.Span(HT.Href(text= 'Gemma',target="mainFrame",\
                 #            url="http://www.chibi.ubc.ca/Gemma/gene/showGene.html?ncbiid=%s" \
                 #            % this_trait.geneid, Class="fs14 fwn", \
@@ -528,19 +529,19 @@ class ShowTrait(object):
                 #        url="http://lily.uthsc.edu:8080/20091027_GNInterfaces/20091027_redirectSynDB.jsp?query=%s" \
                 #        % this_trait.symbol, Class="fs14 fwn", \
                 #        title="Brain synapse database"), style=linkStyle), "&nbsp;"*2)
-                #if _Species == "mouse":
+                #if self.species_name == "mouse":
                 #    tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
                 #            url="http://mouse.brain-map.org/brain/%s.html" \
                 #            % this_trait.symbol, Class="fs14 fwn", \
                 #            title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
 
                 if this_trait.geneid:
-                    #if _Species == "mouse":
+                    #if self.species_name == "mouse":
                     #       tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
                     #               url="http://www.brain-map.org/search.do?queryText=egeneid=%s" \
                     #               % this_trait.geneid, Class="fs14 fwn", \
                     #               title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
-                    if _Species == "human":
+                    if self.species_name == "human":
                         #tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
                         #        url="http://humancortex.alleninstitute.org/has/human/imageseries/search/1.html?searchSym=t&searchAlt=t&searchName=t&gene_term=&entrez_term=%s" \
                         #        % this_trait.geneid, Class="fs14 fwn", \
@@ -643,13 +644,13 @@ class ShowTrait(object):
                 location = "not available"
 
             #if this_trait.sequence and len(this_trait.sequence) > 100:
-            #    if _Species == "rat":
+            #    if self.species_name == "rat":
             #        UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', this_trait.sequence)
             #        UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('rat', 'rn3', this_trait.sequence)
-            #    elif _Species == "mouse":
+            #    elif self.species_name == "mouse":
             #        UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
             #        UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
-            #    elif _Species == "human":
+            #    elif self.species_name == "human":
             #        UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
             #        UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('human', 'hg19', this_trait.sequence)
             #    else:
@@ -895,7 +896,7 @@ class ShowTrait(object):
     def build_mapping_tools(self, this_trait):
 
 
-        _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
+        #_Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
 
         this_group = fd.group
         if this_group[:3] == 'BXD':

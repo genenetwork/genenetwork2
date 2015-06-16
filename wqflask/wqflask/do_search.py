@@ -448,6 +448,9 @@ class RifSearch(MrnaAssaySearch):
 
     DoSearch.search_types['ProbeSet_RIF'] = "RifSearch"
 
+    def get_from_clause(self):
+        return ", GeneRIF_BASIC "
+
     def get_where_clause(self):
         where_clause = """( %s.symbol = GeneRIF_BASIC.symbol and
             MATCH (GeneRIF_BASIC.comment)
@@ -456,9 +459,9 @@ class RifSearch(MrnaAssaySearch):
         return where_clause
 
     def run(self):
+        from_clause = self.get_from_clause()
         where_clause = self.get_where_clause()
 
-        from_clause = ", GeneRIF_BASIC "
         query = self.compile_final_query(from_clause, where_clause)
 
         return self.execute(query)
@@ -467,6 +470,9 @@ class WikiSearch(MrnaAssaySearch):
     """Searches GeneWiki for traits other people have annotated"""
 
     DoSearch.search_types['ProbeSet_WIKI'] =  "WikiSearch"
+
+    def get_from_clause(self):
+        return ", GeneRIF "
 
     def get_where_clause(self):
         where_clause = """%s.symbol = GeneRIF.symbol
@@ -478,9 +484,9 @@ class WikiSearch(MrnaAssaySearch):
         return where_clause
 
     def run(self):
+        from_clause = self.get_from_clause()
         where_clause = self.get_where_clause()
 
-        from_clause = ", GeneRIF "
         query = self.compile_final_query(from_clause, where_clause)
 
         return self.execute(query)
