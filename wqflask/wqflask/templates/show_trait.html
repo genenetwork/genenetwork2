@@ -45,11 +45,9 @@
             {% include 'show_trait_details.html' %}
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                <span class="glyphicon glyphicon-chevron-down"></span> Statistics
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-down"></span> Statistics
                         </h3>
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse in">
@@ -59,11 +57,9 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                                <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
                         </h3>
                     </div>
                     <div id="collapseTwo" class="panel-collapse collapse in">
@@ -73,11 +69,9 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-                                <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
                         </h3>
                     </div>
                     <div id="collapseThree" class="panel-collapse collapse in">
@@ -87,11 +81,9 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFour" aria-expanded="true">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true">
-                                <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
                         </h3>
                     </div>
                     <div id="collapseFour" class="panel-collapse collapse" aria-expanded="true">
@@ -185,7 +177,7 @@
             
             $(document).ready( function () {
 
-                $('.panel-heading').find('a').click(function () {
+                $('.panel-heading').click(function () {
                    if ($(this).hasClass('collapsed')){
                        $(this).find('.glyphicon-chevron-down').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
                    }
