@@ -880,22 +880,6 @@ def cmpGenoPos(A,B):
     except:
         return 0
 
-#XZhou: Must use "BINARY" to enable case sensitive comparison.
-def authUser(name,password,db, encrypt=None):
-    try:
-        if encrypt:
-            query = 'SELECT privilege, id,name,password, grpName FROM User WHERE name= BINARY \'%s\' and password= BINARY \'%s\'' % (name,password)
-        else:
-            query = 'SELECT privilege, id,name,password, grpName FROM User WHERE name= BINARY \'%s\' and password= BINARY SHA(\'%s\')' % (name,password)
-        db.execute(query)
-        records = db.fetchone()
-        if not records:
-            raise ValueError
-        return records#(privilege,id,name,password,grpName)
-    except:
-        return (None, None, None, None, None)
-
-
 def hasAccessToConfidentialPhenotypeTrait(privilege, userName, authorized_users):
     access_to_confidential_phenotype_trait = 0
     if webqtlConfig.USERDICT[privilege] > webqtlConfig.USERDICT['user']:
