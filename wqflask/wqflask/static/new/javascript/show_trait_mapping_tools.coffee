@@ -76,18 +76,20 @@ do_ajax_post = (url, form_data) ->
         return false
 
 open_mapping_results = (data) ->
-    $.colorbox(
-        html: data
-        href: "#mapping_results_holder"
-        height: "90%"
-        width: "90%"
-    )
+    results_window = window.open()
+    $(results_window.document.body).html(data)
+    #$.colorbox(
+    #    html: data
+    #    href: "#mapping_results_holder"
+    #    height: "90%"
+    #    width: "90%"
+    #)
 
 showalert = (message,alerttype) ->
     $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + '"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>')
     
 
-$("#interval_mapping_compute").click(() =>
+$("#interval_mapping_compute").on("click", =>
         showalert("One or more outliers exist in this data set. Please review values before mapping. \
                   Including outliers when mapping may lead to misleading results. \
                   We recommend <A HREF=\"http://en.wikipedia.org/wiki/Winsorising\">winsorising</A> the outliers \
@@ -116,8 +118,8 @@ $('input[name=display_all]').change(() =>
             $('#suggestive').hide()
 )
 
-$("#pylmm_compute").click(() =>
-        $("#progress_bar_container").modal({show:true})
+$("#pylmm_compute").on("click", =>
+        #$("#progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("pylmm")
         $('input[name=num_perm]').val($('input[name=num_perm_pylmm]').val())
@@ -133,7 +135,7 @@ $("#pylmm_compute").click(() =>
     
     
     
-$("#rqtl_geno_compute").click(() =>
+$("#rqtl_geno_compute").on("click", =>
         $("#progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("rqtl_geno")
@@ -150,7 +152,7 @@ $("#rqtl_geno_compute").click(() =>
 )
 
 
-$("#plink_compute").click(() =>
+$("#plink_compute").on("click", =>
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("plink")
@@ -163,7 +165,7 @@ $("#plink_compute").click(() =>
         do_ajax_post(url, form_data)
 )
 
-$("#gemma_compute").click(() =>
+$("#gemma_compute").on("click", =>
         console.log("RUNNING GEMMA")
         $("#static_progress_bar_container").modal()
         url = "/marker_regression"
