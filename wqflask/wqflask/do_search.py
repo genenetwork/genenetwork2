@@ -394,7 +394,7 @@ class GenotypeSearch(DoSearch):
 
         # This adds a clause to the query that matches the search term
         # against each field in search_fields (above)
-        fields_clause = []
+        where_clause = []
 
         if "'" not in self.search_term[0]:
             self.search_term = "[[:<:]]" + self.search_term[0] + "[[:>:]]"
