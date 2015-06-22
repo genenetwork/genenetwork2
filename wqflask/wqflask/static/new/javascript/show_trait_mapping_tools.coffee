@@ -76,14 +76,13 @@ do_ajax_post = (url, form_data) ->
         return false
 
 open_mapping_results = (data) ->
-    results_window = window.open()
-    $(results_window.document.body).html(data)
-    #$.colorbox(
-    #    html: data
-    #    href: "#mapping_results_holder"
-    #    height: "90%"
-    #    width: "90%"
-    #)
+    $.colorbox(
+       html: data
+       href: "#mapping_results_holder"
+       height: "90%"
+       width: "90%"
+       onComplete: => root.create_manhattan_plot()
+    )
 
 showalert = (message,alerttype) ->
     $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + '"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>')
@@ -119,7 +118,7 @@ $('input[name=display_all]').change(() =>
 )
 
 $("#pylmm_compute").on("click", =>
-        #$("#progress_bar_container").modal()
+        $("#progress_bar_container").modal()
         url = "/marker_regression"
         $('input[name=method]').val("pylmm")
         $('input[name=num_perm]').val($('input[name=num_perm_pylmm]').val())

@@ -44,8 +44,8 @@ create_manhattan_plot = ->
                     d3.select(this)
                       .transition().duration(500).attr("r", r*3)
                       .transition().duration(500).attr("r", r)
-                  
-create_manhattan_plot()
+
+root.create_manhattan_plot = create_manhattan_plot
 
 $("#export").click =>
     #Get d3 SVG element

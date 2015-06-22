@@ -1,16 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Marker Regression{% endblock %}
-{% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
-{% endblock %}
-{% block content %} <!-- Start of body -->
-
+{% from "base_macro.html" import header %}
+{% block content %}
     {{ header("Mapping",
         '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
 
@@ -75,22 +64,6 @@
     <script>
         js_data = {{ js_data | safe }}
     </script>
-
-    <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/FileSaver.js/FileSaver.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/Blob.js/BlobBuilder.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.standard_fonts_metrics.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.from_html.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
