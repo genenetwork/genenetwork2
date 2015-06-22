@@ -85,7 +85,10 @@ class IntervalMapping(object):
     def set_options(self, start_vars):
         """Sets various options (physical/genetic mapping, # permutations, which chromosome"""
         
-        self.num_permutations = int(start_vars['num_perm'])
+        if start_vars['num_perm'] == "":
+            self.num_permutations = 0
+        else:
+            self.num_permutations = start_vars['num_perm']
         if start_vars['manhattan_plot'] == "true":
             self.manhattan_plot = True
         else:
