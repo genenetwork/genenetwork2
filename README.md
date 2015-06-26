@@ -2,7 +2,8 @@ genenetwork on github  (May 7, 2012 by Lei Yan and Rob Williams)
 
 www.genenetwork.org 
 
-Released under Affero General Public License 3 (AGPLv3)
+Released under Affero General Public License 3 (AGPLv3). See also
+LICENSE.txt
 
 For background see: http://en.wikipedia.org/wiki/Genenetwork
 
