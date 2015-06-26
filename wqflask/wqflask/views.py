@@ -288,6 +288,10 @@ def heatmap_page():
     
     return rendered_template
 
+@app.route("/mapping_results_container")
+def mapping_results_container_page():
+    return render_template("mapping_results_container.html")
+
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
     initial_start_vars = request.form
@@ -439,7 +443,7 @@ def interval_mapping_page():
         Redis.expire(key, 60*60)
 
     with Bench("Rendering template"):
-        rendered_template = render_template("interval_mapping.html", **result)
+        rendered_template = render_template("marker_regression.html", **result)
 
     return rendered_template
 

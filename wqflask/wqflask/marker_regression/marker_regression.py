@@ -39,9 +39,10 @@ from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
-from utility.tools import pylmm_command
+from utility.tools import pylmm_command, plink_command
 
 PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
+PLINK_PATH,PLINK_COMMAND = plink_command()
 
 class MarkerRegression(object):
 
@@ -178,6 +179,7 @@ class MarkerRegression(object):
         
 
             self.js_data = dict(
+                result_score_type = "LOD",
                 json_data = self.json_data,
                 this_trait = self.this_trait.name,
                 data_set = self.dataset.name,
@@ -458,29 +460,16 @@ class MarkerRegression(object):
 
 
     def run_plink(self):
-    
-        os.chdir("/home/zas1024/plink")
-        
         plink_output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
         
         self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
         
-        plink_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
-        
+        plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
+        print("plink_command:", plink_command)        
+
         os.system(plink_command)
 
         count, p_values = self.parse_plink_output(plink_output_filename)
-        #gemma_command = './gemma -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
-        #                                                                                         self.dataset.group.name,
-        #                                                                                         self.dataset.group.name,
-        #                                                                                         self.dataset.group.name)
-        #print("gemma_command:" + gemma_command)
-        #
-        #os.system(gemma_command)
-        #
-        #included_markers, p_values = self.parse_gemma_output()
-        #
-        #self.dataset.group.get_specified_markers(markers = included_markers)
         
         #for marker in self.dataset.group.markers.markers:
         #    if marker['name'] not in included_markers:
@@ -567,10 +556,7 @@ class MarkerRegression(object):
     
     # get strain name from ped file in order
     def get_samples_from_ped_file(self):
-        
-        os.chdir("/home/zas1024/plink")
-        
-        ped_file= open("{}.ped".format(self.dataset.group.name),"r")
+        ped_file= open("{}/{}.ped".format(PLINK_PATH, self.dataset.group.name),"r")
         line = ped_file.readline()
         sample_list=[]
         

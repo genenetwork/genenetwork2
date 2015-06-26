@@ -115,7 +115,7 @@ class MrnaAssaySearch(DoSearch):
 
     DoSearch.search_types['ProbeSet'] = "MrnaAssaySearch"
 
-    base_query = """SELECT ProbeSet.Name as TNAME,
+    base_query = """SELECT distinct ProbeSet.Name as TNAME,
                 0 as thistable,
                 ProbeSetXRef.Mean as TMEAN,
                 ProbeSetXRef.LRS as TLRS,

@@ -1,4 +1,4 @@
-create_manhattan_plot = ->
+create_lod_chart = ->
     h = 500
     w = 1200
     margin = {left:60, top:40, right:40, bottom: 40, inner:5}
@@ -18,7 +18,7 @@ create_manhattan_plot = ->
                         .height(h)
                         .width(w)
                         .margin(margin)
-                        .ylab("LOD score")
+                        .ylab(js_data.result_score_type + " score")
                         .manhattanPlot(js_data.manhattan_plot)
                         #.additive(additive)
                         
@@ -45,7 +45,12 @@ create_manhattan_plot = ->
                       .transition().duration(500).attr("r", r*3)
                       .transition().duration(500).attr("r", r)
 
-root.create_manhattan_plot = create_manhattan_plot
+$ ->
+    #window.setTimeout ( ->
+    #    console.log(js_data)
+    #), 1000
+    #window.setTimeout(create_lod_chart(), 1000)
+    root.create_lod_chart = create_lod_chart
 
 $("#export").click =>
     #Get d3 SVG element

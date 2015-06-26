@@ -49,3 +49,21 @@ def pylmm_command(default=None):
     path = get_setting('PYLMM_PATH',default,guess,get_valid_path)
     pylmm_command = 'python '+path+'/pylmm_gn2/lmm.py'
     return path,pylmm_command
+
+def plink_command(default=None):
+    """
+    Return the path to the repository and the python command to call
+    """
+    def get_valid_path(path):
+        """Test for a valid repository"""
+        if path:
+            sys.stderr.write("Trying PLINK_PATH in "+path+"\n")
+        if path and os.path.isfile(path+'/plink'):
+            return path
+        else:
+            None
+
+    guess = os.environ.get('HOME')+'/plink'
+    path = get_setting('PLINK_PATH',default,guess,get_valid_path)
+    plink_command = path+'/plink'
+    return path,plink_command

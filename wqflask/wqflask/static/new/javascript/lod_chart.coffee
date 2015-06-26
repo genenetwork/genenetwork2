@@ -117,6 +117,7 @@ lodchart = () ->
                    .attr("height", height)
                    .attr("fill", (d,i) ->
                       return darkrect if i % 2
+
                       lightrect)
                    .attr("stroke", "none")
                    .on("click", (d) ->
@@ -270,23 +271,25 @@ lodchart = () ->
             curves = g.append("g").attr("id", "curves")
       
             for chr in data.chrnames
-              curves.append("path")
-                    .datum(data.posByChr[chr[0]])
-                    .attr("d", lodcurve(chr[0], lodvarnum))
-                    .attr("stroke", lodlinecolor)
-                    .attr("fill", "none")
-                    .attr("stroke-width", linewidth)
-                    .style("pointer-events", "none")
+              if chr.indexOf(data['chr'])
+                  curves.append("path")
+                        .datum(data.posByChr[chr[0]])
+                        .attr("d", lodcurve(chr[0], lodvarnum))
+                        .attr("stroke", lodlinecolor)
+                        .attr("fill", "none")
+                        .attr("stroke-width", linewidth)
+                        .style("pointer-events", "none")
             
             if additive
                 for chr in data.chrnames
-                    curves.append("path")
-                          .datum(data.posByChr[chr[0]])
-                          .attr("d", additivecurve(chr[0], lodvarnum))
-                          .attr("stroke", additivelinecolor)
-                          .attr("fill", "none")
-                          .attr("stroke-width", 1)
-                          .style("pointer-events", "none")
+                    if chr.indexOf(data['chr'])
+                        curves.append("path")
+                              .datum(data.posByChr[chr[0]])
+                              .attr("d", additivecurve(chr[0], lodvarnum))
+                              .attr("stroke", additivelinecolor)
+                              .attr("fill", "none")
+                              .attr("stroke-width", 1)
+                              .style("pointer-events", "none")
         
         # points at markers
         console.log("before pointsize")

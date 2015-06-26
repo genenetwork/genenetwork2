@@ -74,6 +74,7 @@ class IntervalMapping(object):
         json.dumps(self.json_data, webqtlConfig.TMPDIR + json_filename)
         
         self.js_data = dict(
+            result_score_type = "LRS",
             manhattan_plot = self.manhattan_plot,
             additive = self.additive,
             chromosomes = chromosome_mb_lengths,
@@ -88,7 +89,7 @@ class IntervalMapping(object):
         if start_vars['num_perm'] == "":
             self.num_permutations = 0
         else:
-            self.num_permutations = start_vars['num_perm']
+            self.num_permutations = int(start_vars['num_perm'])
         if start_vars['manhattan_plot'] == "true":
             self.manhattan_plot = True
         else:

@@ -106,10 +106,13 @@ chrscales = function(data, width, chrGap, leftMargin, pad4heatmap) {
     if (d > maxd) {
       maxd = d;
     }
-    rng = d3.extent(data.posByChr[chr[0]]);
-    chrStart.push(rng[0]);
-    chrEnd.push(rng[1]);
-    L = rng[1] - rng[0];
+    //rng = d3.extent(data.posByChr[chr[0]]);
+    //chrStart.push(rng[0]);
+    //chrEnd.push(rng[1]);
+    //L = rng[1] - rng[0];
+    chrStart.push(0);
+    chrEnd.push(chr[1]);
+    L = chr[1]
     chrLength.push(L);
     totalChrLength += L;
   }
