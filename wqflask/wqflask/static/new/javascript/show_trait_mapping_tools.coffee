@@ -63,10 +63,12 @@ do_ajax_post = (url, form_data) ->
                 console.log(xhr)
                 clearInterval(this.my_timer)
                 $('#progress_bar_container').modal('hide')
+                $('#static_progress_bar_container').modal('hide')
                 $("body").html("We got an error.")        
             success: (data) =>
                 clearInterval(this.my_timer)
                 $('#progress_bar_container').modal('hide')
+                $('#static_progress_bar_container').modal('hide')
                 open_mapping_results(data)
                 #$("body").html(data)
         )
