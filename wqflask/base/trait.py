@@ -251,14 +251,7 @@ class GeneralTrait(object):
         # Todo: is this necessary? If not remove
         self.data.clear()
 
-        if self.dataset.group.parlist:
-            all_samples_ordered = (self.dataset.group.parlist +
-                                   self.dataset.group.f1list +
-                                   self.dataset.group.samplelist)
-        elif self.dataset.group.f1list:
-            all_samples_ordered = self.dataset.group.f1list + self.dataset.group.samplelist
-        else:
-            all_samples_ordered = self.dataset.group.samplelist
+        all_samples_ordered = self.dataset.group.all_samples_ordered()
 
         if results:
             for item in results:

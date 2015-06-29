@@ -392,6 +392,12 @@ class DatasetGroup(object):
             Redis.set(key, json.dumps(self.samplelist))
             Redis.expire(key, 60*5)
 
+    def all_samples_ordered(self):
+        result = []
+        lists = (self.parlist, self.f1list, self.samplelist)
+        [result.extend(l) for l in lists if l]
+        return result
+
     def read_genotype_file(self):
         '''Read genotype from .geno file instead of database'''
         #if self.group == 'BXD300':
