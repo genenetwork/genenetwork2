@@ -805,11 +805,11 @@ class PhenotypeDataSet(DataSet):
                     WHERE
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                             PublishData.Id = PublishXRef.DataId AND PublishXRef.Id = %s AND
-                            PublishFreeze.Id = %d AND PublishData.StrainId = Strain.Id
+                            PublishFreeze.Id = %s AND PublishData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    """ % (trait, self.id)
-        results = g.db.execute(query).fetchall()
+                    """
+        results = g.db.execute(query, (trait, self.id)).fetchall()
         return results
 
 
@@ -892,15 +892,17 @@ class GenotypeDataSet(DataSet):
                     left join GenoSE on
                             (GenoSE.DataId = GenoData.Id AND GenoSE.StrainId = GenoData.StrainId)
                     WHERE
-                            Geno.SpeciesId = %s AND Geno.Name = '%s' AND GenoXRef.GenoId = Geno.Id AND
+                            Geno.SpeciesId = %s AND Geno.Name = %s AND GenoXRef.GenoId = Geno.Id AND
                             GenoXRef.GenoFreezeId = GenoFreeze.Id AND
-                            GenoFreeze.Name = '%s' AND
+                            GenoFreeze.Name = %s AND
                             GenoXRef.DataId = GenoData.Id AND
                             GenoData.StrainId = Strain.Id
                     Order BY
                             Strain.Name
-                    """ % (webqtlDatabaseFunction.retrieve_species_id(self.group.name), trait, self.name)
-        results = g.db.execute(query).fetchall()
+                    """
+        results = g.db.execute(query,
+                               (webqtlDatabaseFunction.retrieve_species_id(self.group.name),
+                                trait, self.name)).fetchall()
         return results
 
 
