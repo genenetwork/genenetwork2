@@ -667,8 +667,8 @@ class CisTransLrsSearch(DoSearch):
             where_clause = sub_clause + """
                     %sXRef.Locus = Geno.name and
                     Geno.SpeciesId = %s and
-                    (ABS(%s.Mb-Geno.Mb) %s %s and %s.Chr = Geno.Chr) or
-                    (%s.Chr != Geno.Chr)""" % (
+                    ((ABS(%s.Mb-Geno.Mb) %s %s and %s.Chr = Geno.Chr) or
+                    (%s.Chr != Geno.Chr))""" % (
                         escape(self.dataset.type),
                         escape(str(self.species_id)),
                         escape(self.dataset.type),
