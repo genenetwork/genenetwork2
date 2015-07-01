@@ -611,64 +611,76 @@ class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
 
         return self.execute(self.query)
 
-class CisTransLrsSearch(LrsSearch):
+class CisTransLrsSearch(DoSearch):
 
-    def real_run(self, the_operator):
-        #if isinstance(self.search_term, basestring):
-        #    self.search_term = [self.search_term]
-        print("self.search_term is:", self.search_term)
+    def get_from_clause(self):
+        return ", Geno "
+
+    def get_where_clause(self, cis_trans):
         self.search_term = [float(value) for value in self.search_term]
         self.mb_buffer = 5  # default
-
-        self.from_clause = ", Geno "
+        if cis_trans == "cis":
+            the_operator = "<"
+        else:
+            the_operator = ">"
 
         if self.search_operator == "=":
             if len(self.search_term) == 2:
-                self.lrs_min, self.lrs_max = self.search_term
+                lrs_min, lrs_max = self.search_term
                 #[int(value) for value in self.search_term]
 
             elif len(self.search_term) == 3:
-                self.lrs_min, self.lrs_max, self.mb_buffer = self.search_term
+                lrs_min, lrs_max, self.mb_buffer = self.search_term
 
             else:
                 SomeError
 
-            self.sub_clause = """ %sXRef.LRS > %s and
+            sub_clause = """ %sXRef.LRS > %s and
                 %sXRef.LRS < %s  and """  % (
                     escape(self.dataset.type),
-                    escape(min(self.lrs_min, self.lrs_max)),
+                    escape(str(min(lrs_min, lrs_max))),
                     escape(self.dataset.type),
-                    escape(max(self.lrs_min, self.lrs_max))
+                    escape(str(max(lrs_min, lrs_max)))
                 )
         else:
             # Deal with >, <, >=, and <=
-            self.sub_clause = """ %sXRef.LRS %s %s and """  % (
+            sub_clause = """ %sXRef.LRS %s %s and """  % (
                     escape(self.dataset.type),
                     escape(self.search_operator),
                     escape(self.search_term[0])
                 )
 
-        self.where_clause = self.sub_clause + """
-                ABS(%s.Mb-Geno.Mb) %s %s and
-                %sXRef.Locus = Geno.name and
-                Geno.SpeciesId = %s and
-                %s.Chr = Geno.Chr""" % (
-                    escape(self.dataset.type),
-                    the_operator,
-                    escape(self.mb_buffer),
-                    escape(self.dataset.type),
-                    escape(self.species_id),
-                    escape(self.dataset.type)
-                    )
+        if cis_trans == "cis":
+            where_clause = sub_clause + """
+                    ABS(%s.Mb-Geno.Mb) %s %s and
+                    %sXRef.Locus = Geno.name and
+                    Geno.SpeciesId = %s and
+                    %s.Chr = Geno.Chr""" % (
+                        escape(self.dataset.type),
+                        the_operator,
+                        escape(str(self.mb_buffer)),
+                        escape(self.dataset.type),
+                        escape(str(self.species_id)),
+                        escape(self.dataset.type)
+                        )
+        else:
+            where_clause = sub_clause + """
+                    %sXRef.Locus = Geno.name and
+                    Geno.SpeciesId = %s and
+                    (ABS(%s.Mb-Geno.Mb) %s %s and %s.Chr = Geno.Chr) or
+                    (%s.Chr != Geno.Chr)""" % (
+                        escape(self.dataset.type),
+                        escape(str(self.species_id)),
+                        escape(self.dataset.type),
+                        the_operator,
+                        escape(str(self.mb_buffer)),
+                        escape(self.dataset.type),
+                        escape(self.dataset.type)
+                        )
 
-        print("where_clause is:", pf(self.where_clause))
-
-        self.query = self.compile_final_query(self.from_clause, self.where_clause)
-
-        return self.execute(self.query)
-
-
-class CisLrsSearch(CisTransLrsSearch):
+        return where_clause
+    
+class CisLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
     """
     Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
 
@@ -685,12 +697,17 @@ class CisLrsSearch(CisTransLrsSearch):
 
     """
 
-    DoSearch.search_types['CISLRS'] = "CisLrsSearch"
+    DoSearch.search_types['ProbeSet_CISLRS'] = 'CisLrsSearch'
 
     def run(self):
-        return self.real_run("<")
+        self.from_clause = self.get_from_clause()
+        self.where_clause = self.get_where_clause("cis")
 
-class TransLrsSearch(CisTransLrsSearch):
+        self.query = self.compile_final_query(self.from_clause, self.where_clause)
+
+        return self.execute(self.query)
+
+class TransLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
     """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
 
     A transLRS search can take 3 forms:
@@ -706,10 +723,15 @@ class TransLrsSearch(CisTransLrsSearch):
 
     """
 
-    DoSearch.search_types['TRANSLRS'] = "TransLrsSearch"
+    DoSearch.search_types['ProbeSet_TRANSLRS'] = 'TransLrsSearch'
 
     def run(self):
-        return self.real_run(">")
+        self.from_clause = self.get_from_clause()
+        self.where_clause = self.get_where_clause("trans")
+
+        self.query = self.compile_final_query(self.from_clause, self.where_clause)
+
+        return self.execute(self.query)
 
 
 class MeanSearch(MrnaAssaySearch):
