@@ -251,14 +251,7 @@ class GeneralTrait(object):
         # Todo: is this necessary? If not remove
         self.data.clear()
 
-        if self.dataset.group.parlist:
-            all_samples_ordered = (self.dataset.group.parlist +
-                                   self.dataset.group.f1list +
-                                   self.dataset.group.samplelist)
-        elif self.dataset.group.f1list:
-            all_samples_ordered = self.dataset.group.f1list + self.dataset.group.samplelist
-        else:
-            all_samples_ordered = self.dataset.group.samplelist
+        all_samples_ordered = self.dataset.group.all_samples_ordered()
 
         if results:
             for item in results:
@@ -299,6 +292,7 @@ class GeneralTrait(object):
                     """ % (self.name, self.dataset.id)
             
             print("query is:", query)        
+            assert self.name.isdigit()
         
             trait_info = g.db.execute(query).fetchone()
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
@@ -337,10 +331,10 @@ class GeneralTrait(object):
             trait_info = g.db.execute(query).fetchone()
             #print("trait_info is: ", pf(trait_info))
         else: #Temp type
-            query = """SELECT %s FROM %s WHERE Name = %s
-                                     """ % (string.join(self.dataset.display_fields,','),
-                                            self.dataset.type, self.name)
-            trait_info = g.db.execute(query).fetchone()
+            query = """SELECT %s FROM %s WHERE Name = %s"""
+            trait_info = g.db.execute(query,
+                                      (string.join(self.dataset.display_fields,','),
+                                                   self.dataset.type, self.name)).fetchone()
         if trait_info:
             self.haveinfo = True
 
