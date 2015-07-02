@@ -87,8 +87,30 @@ open_mapping_results = (data) ->
        href: "#mapping_results_holder"
        height: "90%"
        width: "90%"
-       onComplete: => root.create_lod_chart()
-    )
+       onComplete: =>
+          root.create_lod_chart()
+
+          #Set filename
+          filename = "lod_chart_" + js_data.this_trait
+
+          getSvgXml = ->
+              svg = $("#topchart").find("svg")[0]
+              (new XMLSerializer).serializeToString(svg)
+
+          $("#exportform > #export").click =>
+              svg_xml = getSvgXml()
+              form = $("#exportform")
+              form.find("#data").val(svg_xml)
+              form.find("#filename").val(filename)
+              form.submit()
+
+          $("#exportpdfform > #export_pdf").click =>
+              svg_xml = getSvgXml()
+              form = $("#exportpdfform")
+              form.find("#data").val(svg_xml)
+              form.find("#filename").val(filename)
+              form.submit()
+     )
 
 showalert = (message,alerttype) ->
     $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + '"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>')
