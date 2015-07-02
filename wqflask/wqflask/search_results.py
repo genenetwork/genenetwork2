@@ -222,12 +222,17 @@ class SearchResultPage(object):
         if len(self.search_terms) > 1:
             combined_from_clause = ""
             combined_where_clause = "" 
+            previous_from_clauses = [] #The same table can't be referenced twice in the from clause
             for i, a_search in enumerate(self.search_terms):
                 the_search = self.get_search_ob(a_search)
                 get_from_clause = getattr(the_search, "get_from_clause", None)
                 if callable(get_from_clause):
                     from_clause = the_search.get_from_clause()
-                    combined_from_clause += from_clause
+                    if from_clause in previous_from_clauses:
+                        pass
+                    else:
+                        previous_from_clauses.append(from_clause)
+                        combined_from_clause += from_clause
                 where_clause = the_search.get_where_clause()
                 combined_where_clause += "(" + where_clause + ")"
                 if (i+1) < len(self.search_terms):

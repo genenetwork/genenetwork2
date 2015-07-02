@@ -595,6 +595,7 @@ class MrnaLrsSearch(LrsSearch, MrnaAssaySearch):
 
         self.from_clause = self.get_from_clause()
         self.where_clause = self.get_where_clause()
+
         self.query = self.compile_final_query(from_clause = self.from_clause, where_clause = self.where_clause)
 
         return self.execute(self.query)
@@ -607,6 +608,7 @@ class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
 
         self.from_clause = self.get_from_clause()
         self.where_clause = self.get_where_clause()
+
         self.query = self.compile_final_query(from_clause = self.from_clause, where_clause = self.where_clause)
 
         return self.execute(self.query)
@@ -614,7 +616,7 @@ class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
 class CisTransLrsSearch(DoSearch):
 
     def get_from_clause(self):
-        return ", Geno "
+        return ", Geno"
 
     def get_where_clause(self, cis_trans):
         self.search_term = [float(value) for value in self.search_term]
@@ -699,9 +701,12 @@ class CisLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
 
     DoSearch.search_types['ProbeSet_CISLRS'] = 'CisLrsSearch'
 
+    def get_where_clause(self):
+        return CisTransLrsSearch.get_where_clause(self, "cis")
+
     def run(self):
         self.from_clause = self.get_from_clause()
-        self.where_clause = self.get_where_clause("cis")
+        self.where_clause = self.get_where_clause()
 
         self.query = self.compile_final_query(self.from_clause, self.where_clause)
 
@@ -725,9 +730,12 @@ class TransLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
 
     DoSearch.search_types['ProbeSet_TRANSLRS'] = 'TransLrsSearch'
 
+    def get_where_clause(self):
+        return CisTransLrsSearch.get_where_clause(self, "trans")
+
     def run(self):
         self.from_clause = self.get_from_clause()
-        self.where_clause = self.get_where_clause("trans")
+        self.where_clause = self.get_where_clause()
 
         self.query = self.compile_final_query(self.from_clause, self.where_clause)
 
