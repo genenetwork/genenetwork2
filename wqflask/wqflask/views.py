@@ -377,7 +377,7 @@ def export():
     svg_xml = request.form.get("data", "Invalid data")
     filename = request.form.get("filename", "manhattan_plot_snp")
     response = Response(svg_xml, mimetype="image/svg+xml")
-    response.headers["Content-Disposition"] = "attchment; filename=%s"%filename
+    response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
     return response
 
 @app.route("/export_pdf", methods = ('POST',))
@@ -390,7 +390,7 @@ def export_pdf():
     filepath = "/home/zas1024/gene/wqflask/output/"+filename
     pdf_file = cairosvg.svg2pdf(bytestring=svg_xml)
     response = Response(pdf_file, mimetype="application/pdf")
-    response.headers["Content-Disposition"] = "attchment; filename=%s"%filename
+    response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
     return response
 
 @app.route("/interval_mapping", methods=('POST',))

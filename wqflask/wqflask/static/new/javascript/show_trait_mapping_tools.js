@@ -79,6 +79,7 @@ do_ajax_post = function(url, form_data) {
         console.log(xhr);
         clearInterval(_this.my_timer);
         $('#progress_bar_container').modal('hide');
+        $('#static_progress_bar_container').modal('hide');
         return $("body").html("We got an error.");
       };
     })(this),
@@ -86,6 +87,7 @@ do_ajax_post = function(url, form_data) {
       return function(data) {
         clearInterval(_this.my_timer);
         $('#progress_bar_container').modal('hide');
+        $('#static_progress_bar_container').modal('hide');
         return open_mapping_results(data);
       };
     })(this)
@@ -103,14 +105,37 @@ open_mapping_results = function(data) {
     width: "90%",
     onComplete: (function(_this) {
       return function() {
-        return root.create_lod_chart();
+        var filename, getSvgXml;
+        root.create_lod_chart();
+        filename = "lod_chart_" + js_data.this_trait;
+        getSvgXml = function() {
+          var svg;
+          svg = $("#topchart").find("svg")[0];
+          return (new XMLSerializer).serializeToString(svg);
+        };
+        $("#exportform > #export").click(function() {
+          var form, svg_xml;
+          svg_xml = getSvgXml();
+          form = $("#exportform");
+          form.find("#data").val(svg_xml);
+          form.find("#filename").val(filename);
+          return form.submit();
+        });
+        return $("#exportpdfform > #export_pdf").click(function() {
+          var form, svg_xml;
+          svg_xml = getSvgXml();
+          form = $("#exportpdfform");
+          form.find("#data").val(svg_xml);
+          form.find("#filename").val(filename);
+          return form.submit();
+        });
       };
     })(this)
   });
 };
 
 showalert = function(message, alerttype) {
-  return $('#alert_placeholder').append('<div id="alertdiv" class="alert ' + alerttype + '"><a class="close" data-dismiss="alert">×</a><span>' + message + '</span></div>');
+  return $('#alert_placeholder').append('<div id="alertdiv" class="alert ' + alerttype + '"><a class="close" data-dismiss="alert">ï¿½</a><span>' + message + '</span></div>');
 };
 
 $('#suggestive').hide();

@@ -17,6 +17,7 @@ Werkzeug==0.8.3
 apache-libcloud==0.12.3
 argparse==1.2.1
 blinker==1.2
+cairosvg==1.0.15
 itsdangerous==0.17
 logging-tree==1.2
 logilab-astng==0.24.3
