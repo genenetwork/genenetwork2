@@ -77,9 +77,9 @@ class SearchResultPage(object):
             self.trait_type = kw['trait_type']
             self.quick_search()
         else:
+            self.search_term_exists = True
             self.results = []
             print("kw is:", kw)
-            #self.quick_search = False
             self.search_terms = kw['search_terms']
             if kw['type'] == "Phenotypes":
                 dataset_type = "Publish"
@@ -225,27 +225,35 @@ class SearchResultPage(object):
             previous_from_clauses = [] #The same table can't be referenced twice in the from clause
             for i, a_search in enumerate(self.search_terms):
                 the_search = self.get_search_ob(a_search)
-                get_from_clause = getattr(the_search, "get_from_clause", None)
-                if callable(get_from_clause):
-                    from_clause = the_search.get_from_clause()
-                    if from_clause in previous_from_clauses:
-                        pass
-                    else:
-                        previous_from_clauses.append(from_clause)
-                        combined_from_clause += from_clause
-                where_clause = the_search.get_where_clause()
-                combined_where_clause += "(" + where_clause + ")"
-                if (i+1) < len(self.search_terms):
-                    combined_where_clause += "AND"
-            final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
-            results = the_search.execute(final_query)
-            self.results.extend(results)
+                if the_search != None:
+                    get_from_clause = getattr(the_search, "get_from_clause", None)
+                    if callable(get_from_clause):
+                        from_clause = the_search.get_from_clause()
+                        if from_clause in previous_from_clauses:
+                            pass
+                        else:
+                            previous_from_clauses.append(from_clause)
+                            combined_from_clause += from_clause
+                    where_clause = the_search.get_where_clause()
+                    combined_where_clause += "(" + where_clause + ")"
+                    if (i+1) < len(self.search_terms):
+                        combined_where_clause += "AND"
+                else:
+                    self.search_term_exists = False
+            if self.search_term_exists:
+                final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
+                results = the_search.execute(final_query)
+                self.results.extend(results)
         else:
             for a_search in self.search_terms:
                 the_search = self.get_search_ob(a_search)
-                self.results.extend(the_search.run())
+                if the_search != None:
+                    self.results.extend(the_search.run())
+                else:
+                    self.search_term_exists = False
 
-        self.header_fields = the_search.header_fields
+        if the_search != None:
+            self.header_fields = the_search.header_fields
 
     def get_search_ob(self, a_search):
         print("[kodak] item is:", pf(a_search))
@@ -258,10 +266,13 @@ class SearchResultPage(object):
         print("search_type is:", pf(search_type))
 
         search_ob = do_search.DoSearch.get_search(search_type)
-        search_class = getattr(do_search, search_ob)
-        print("search_class is: ", pf(search_class))
-        the_search = search_class(search_term,
-                                search_operator,
-                                self.dataset,
-                                )
-        return the_search
+        if search_ob:
+            search_class = getattr(do_search, search_ob)
+            print("search_class is: ", pf(search_class))
+            the_search = search_class(search_term,
+                                    search_operator,
+                                    self.dataset,
+                                    )
+            return the_search
+        else:
+            return None

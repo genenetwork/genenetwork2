@@ -73,8 +73,11 @@ class DoSearch(object):
             search_type_string += '_' + search_type['key']
 
         print("search_type_string is:", search_type_string)
-
-        return cls.search_types[search_type_string]
+        
+        if search_type_string in cls.search_types:
+            return cls.search_types[search_type_string]
+        else:
+            return None
 
 class QuickMrnaAssaySearch(DoSearch):
     """A general search for mRNA assays"""
@@ -612,6 +615,8 @@ class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
         self.query = self.compile_final_query(from_clause = self.from_clause, where_clause = self.where_clause)
 
         return self.execute(self.query)
+
+
 
 class CisTransLrsSearch(DoSearch):
 

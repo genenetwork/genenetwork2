@@ -128,7 +128,7 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
+        key = "search_results:v2:" + json.dumps(request.args, sort_keys=True)
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
@@ -149,8 +149,10 @@ def search_page():
 
         if result['quick']:
             return render_template("quick_search.html", **result)
-        else:
+        elif result['search_term_exists']:
             return render_template("search_result_page.html", **result)
+        else:
+            return render_template("search_error.html")
 
 @app.route("/docedit")
 def docedit():
