@@ -63,7 +63,7 @@
                 <tbody>
                     {% for this_trait in trait_list %}
                     <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <TD>
+                        <TD>{{ loop.index }}
                             <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
                                    VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                         </TD>

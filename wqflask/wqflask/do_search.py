@@ -92,7 +92,7 @@ class QuickMrnaAssaySearch(DoSearch):
                 ProbeSet.name_num as ProbeSet_name_num
                 FROM ProbeSet """
 
-    header_fields = ['',
+    header_fields = ['Index',
                      'Record',
                      'Symbol',
                      'Location']
@@ -129,7 +129,7 @@ class MrnaAssaySearch(DoSearch):
                 ProbeSet.name_num as TNAME_NUM
                 FROM ProbeSetXRef, ProbeSet """
 
-    header_fields = ['',
+    header_fields = ['Index',
                      'Record',
                      'Symbol',
                      'Description',
@@ -234,7 +234,7 @@ class PhenotypeSearch(DoSearch):
                     'Publication.Authors',
                     'PublishXRef.Id')
 
-    header_fields = ['',
+    header_fields = ['Index',
                      'Record',
                      'Description',
                      'Authors',
@@ -388,7 +388,7 @@ class GenotypeSearch(DoSearch):
 
     search_fields = ('Name', 'Chr')
 
-    header_fields = ['',
+    header_fields = ['Index',
                      'Record',
                      'Location']
 

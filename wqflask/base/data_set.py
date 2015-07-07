@@ -691,7 +691,7 @@ class PhenotypeDataSet(DataSet):
                                'sequence', 'units', 'comments']
 
         # Fields displayed in the search results table header
-        self.header_fields = ['',
+        self.header_fields = ['Index',
                             'ID',
                             'Description',
                             'Authors',
@@ -795,7 +795,7 @@ class PhenotypeDataSet(DataSet):
 
                         this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
                         this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
-                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr %s: %.6f Mb' % (LRS_Chr, float(LRS_Mb))
+                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (LRS_Chr, float(LRS_Mb))
                         
     def retrieve_sample_data(self, trait):
         query = """
@@ -835,7 +835,7 @@ class GenotypeDataSet(DataSet):
                                'sequence']
 
         # Fields displayed in the search results table header
-        self.header_fields = ['',
+        self.header_fields = ['Index',
                               'ID',
                               'Location']
 
@@ -953,7 +953,7 @@ class MrnaAssayDataSet(DataSet):
                                'flag']
 
         # Fields displayed in the search results table header
-        self.header_fields = ['',
+        self.header_fields = ['Index',
                              'ID',
                              'Symbol',
                              'Description',
@@ -1115,7 +1115,7 @@ class MrnaAssayDataSet(DataSet):
                 #                               this_trait.mb)
 
                 #ZS: Put this in function currently called "convert_location_to_value"
-                this_trait.location_repr = 'Chr %s: %.6f Mb' % (this_trait.chr,
+                this_trait.location_repr = 'Chr%s: %.6f' % (this_trait.chr,
                                                                 float(this_trait.mb))
                 this_trait.location_value = trait_location_value
 
@@ -1171,7 +1171,7 @@ class MrnaAssayDataSet(DataSet):
 
                     this_trait.LRS_score_repr = '%3.1f' % this_trait.lrs
                     this_trait.LRS_score_value = this_trait.lrs
-                    this_trait.LRS_location_repr = 'Chr %s: %.6f' % (lrs_chr, float(lrs_mb))
+                    this_trait.LRS_location_repr = 'Chr%s: %.6f' % (lrs_chr, float(lrs_mb))
       
 
     def convert_location_to_value(self, chromosome, mb):
