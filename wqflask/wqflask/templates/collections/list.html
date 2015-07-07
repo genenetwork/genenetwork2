@@ -15,6 +15,7 @@
         <table class="table table-hover" id='trait_table'>
             <thead>
                 <tr>
+                    <th>Index</th>
                     <th>Name</th>
                     <th>Created</th>
                     <th>Last Changed</th>
@@ -25,6 +26,7 @@
             <tbody>
             {% for uc in user_collections %}
                 <tr class="collection_line">
+                    <td>{{ loop.index }}
                     <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
                     <td>{{ timeago(uc.created_timestamp.isoformat() + "Z") }}</td>
                     <td>{{ timeago(uc.changed_timestamp.isoformat() + "Z") }}</td>

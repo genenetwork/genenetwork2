@@ -67,7 +67,7 @@
         <table class="table table-hover table-striped" id='trait_table'>
             <thead>
                 <tr>
-                    <th></th>
+                    <th>Index</th>
                     <th>Record</th>
                     <th>Description</th>
                     <th>Location</th>
@@ -81,7 +81,7 @@
             <tbody>
                 {% for this_trait in trait_obs %}
                 <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                    <TD>
+                    <TD>{{ loop.index }}
                         <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
                                VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                     </TD>
