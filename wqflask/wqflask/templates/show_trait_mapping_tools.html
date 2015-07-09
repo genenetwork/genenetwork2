@@ -1,10 +1,10 @@
 <div>
-    {% if use_pylmm_rqtl or use_plink_gemma %}
+    {% if (use_pylmm_rqtl and dataset.group.species != "human") or use_plink_gemma %}
     <div class="col-xs-6">
         <div class="tabbable"> <!-- Only required for left/right tabs -->
         
             <ul class="nav nav-pills">
-                {% if use_pylmm_rqtl and not use_plink_gemma %}
+                {% if use_pylmm_rqtl and not use_plink_gemma and dataset.group.species != "human" %}
                 <li class="active">
                     <a href="#pylmm" data-toggle="tab">pyLMM</a>
                 </li>
@@ -29,7 +29,7 @@
             </ul>
 
             <div class="tab-content">
-                {% if use_pylmm_rqtl %}
+                {% if use_pylmm_rqtl and not use_plink_gemma and dataset.group.species != "human" %}
                 <div class="tab-pane active" id="pylmm">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
