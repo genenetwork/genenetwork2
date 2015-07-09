@@ -16,12 +16,16 @@ from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
 from utility import webqtlUtil, Plot, Bunch, helper_functions
+from utility.tools import pylmm_command, plink_command
 from base.trait import GeneralTrait
 from base import data_set
 from dbFunction import webqtlDatabaseFunction
 from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf
+
+PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
+PLINK_PATH,PLINK_COMMAND = plink_command()
 
 ###############################################
 #
@@ -137,11 +141,35 @@ class ShowTrait(object):
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
         
+        self.get_mapping_methods()
+
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
                         attribute_names = self.sample_groups[0].attributes,
                         temp_uuid = self.temp_uuid)
         self.js_data = js_data
+
+    def get_mapping_methods(self):
+        '''Only display mapping methods when the dataset group's genotype file exists'''
+        def check_plink_gemma():
+            if (os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".bed") and
+                os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".bim") and
+                os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".fam") and     
+                os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".map")):
+
+                return True
+            else:
+                return False
+
+        def check_pylmm_rqtl():
+            if os.path.isfile(webqtlConfig.GENODIR+self.dataset.group.name+".geno"):
+                return True
+            else:
+                return False
+
+        self.use_plink_gemma = check_plink_gemma()
+        self.use_pylmm_rqtl = check_pylmm_rqtl()
+
 
     def read_data(self, include_f1=False):
         '''read user input data or from trait data and analysis form'''

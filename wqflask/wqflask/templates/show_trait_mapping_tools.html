@@ -1,20 +1,21 @@
 <div>
+    {% if use_pylmm_rqtl or use_plink_gemma %}
     <div class="col-xs-6">
         <div class="tabbable"> <!-- Only required for left/right tabs -->
         
             <ul class="nav nav-pills">
+                {% if use_pylmm_rqtl and not use_plink_gemma %}
                 <li class="active">
                     <a href="#pylmm" data-toggle="tab">pyLMM</a>
                 </li>
                 <li>
                     <a href="#rqtl_geno" data-toggle="tab">rqtl</a>
                 </li>
-                {% if dataset.group.species != 'human' %}
                 <li>
                     <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
                 </li>
                 {% endif %}
-                {% if dataset.group.species == 'human' %}
+                {% if use_plink_gemma %}
                 <li>
                     <a href="#plink" data-toggle="tab">PLINK</a>
                 </li>
@@ -28,8 +29,8 @@
             </ul>
 
             <div class="tab-content">
+                {% if use_pylmm_rqtl %}
                 <div class="tab-pane active" id="pylmm">
-                    
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
                             <label for="mapping_permutations" class="col-xs-2 control-label">Permutations</label>
@@ -160,7 +161,6 @@
                         </div>
                     </div>
                 </div>
-                {% if dataset.group.species != 'human' %}
                 <div class="tab-pane" id="interval_mapping">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
@@ -214,7 +214,7 @@
                     </div>
                 </div>
                 {% endif %}
-                {% if dataset.group.species == 'human' %}
+                {% if use_plink_gemma %}
                 <div class="tab-pane" id="plink">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
@@ -272,4 +272,7 @@
     <div id="mapping_result_holder_wrapper" style="display:none;">
         <div id="mapping_result_holder"></div>
     </div>
+    {% else %}
+    Mapping options are disabled for data not matched with genotypes.
+    {% endif %}
 </div>

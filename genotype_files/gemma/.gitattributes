@@ -1,3 +1,0 @@
-*.bed filter=lfs -crlf
-*.bim filter=lfs -crlf
-*.map filter=lfs -crlf

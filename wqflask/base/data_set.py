@@ -371,7 +371,7 @@ class DatasetGroup(object):
             self.parlist = [maternal, paternal]
 
     def get_samplelist(self):
-        key = "samplelist:v4:" + self.name
+        key = "samplelist:v2:" + self.name
         print("key is:", key)
         with Bench("Loading cache"):
             result = Redis.get(key)
@@ -384,9 +384,18 @@ class DatasetGroup(object):
             print("  self.samplelist: ", self.samplelist)
         else:
             print("Cache not hit")
-            try:
-                self.samplelist = get_group_samplelists.get_samplelist(self.name + ".geno")
-            except IOError:
+
+            from utility.tools import plink_command
+            PLINK_PATH,PLINK_COMMAND = plink_command()
+
+            geno_file_path = webqtlConfig.GENODIR+self.name+".geno"
+            plink_file_path = PLINK_PATH+"/"+self.name+".fam"
+
+            if os.path.isfile(plink_file_path):
+                self.samplelist = get_group_samplelists.get_samplelist("plink", plink_file_path)
+            elif os.path.isfile(geno_file_path):
+                self.samplelist = get_group_samplelists.get_samplelist("geno", geno_file_path)
+            else:
                 self.samplelist = None
             print("after get_samplelist")
             Redis.set(key, json.dumps(self.samplelist))
