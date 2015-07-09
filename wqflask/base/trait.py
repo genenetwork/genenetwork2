@@ -291,8 +291,7 @@ class GeneralTrait(object):
                             PublishFreeze.Id = %s
                     """ % (self.name, self.dataset.id)
             
-            print("query is:", query)        
-            assert self.name.isdigit()
+            print("query is:", query) 
         
             trait_info = g.db.execute(query).fetchone()
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
