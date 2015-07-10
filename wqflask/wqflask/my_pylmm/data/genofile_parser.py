@@ -78,26 +78,19 @@ class ConvertGenoFile(object):
             #    self.process_snps_file()
 
 
-    #def process_row(self, row):
-    #    counter = 0
-    #    for char in row:
-    #        if char 
-    #        counter += 1
-
-
     def process_csv(self):
         for row_count, row in enumerate(self.process_rows()):
-            #self.latest_row_pos = row_count
-
-            row_items = row.split()
+            row_items = row.split("\t")
 
             this_marker = Marker()
             this_marker.name = row_items[1]
             this_marker.chr = row_items[0]
-            #this_marker.cM = row_items[2]
             if self.cm_exists and self.mb_exists:
-                #print("cm and mb exists")
-                this_marker.Mb = row_items[2]
+                this_marker.cM = row_items[2]
+                this_marker.Mb = row_items[3]
+                genotypes = row_items[4:]
+            elif self.cm_exists:
+                this_marker.cM = row_items[2]
                 genotypes = row_items[3:]
             elif self.mb_exists:
                 this_marker.Mb = row_items[2]
@@ -190,13 +183,13 @@ class ConvertGenoFile(object):
 
 
 if __name__=="__main__":
-    Old_Geno_Directory = """/home/zas1024/gene/web/genotypes/"""
-    New_Geno_Directory = """/home/zas1024/gene/web/new_genotypes/"""
-    #Input_File = """/home/zas1024/gene/web/genotypes/BXD.geno"""
+    Old_Geno_Directory = """/home/zas1024/gene/genotype_files/genotypes/"""
+    New_Geno_Directory = """/home/zas1024/gene/genotype_files/new_genotypes/"""
+    #Input_File = """/home/zas1024/gene/genotype_files/genotypes/BXD.geno"""
     #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
-    convertob = ConvertGenoFile("/home/zas1024/gene/web/genotypes/HSNIH.geno", "/home/zas1024/gene/web/new_genotypes/HSNIH.json")
-    convertob.convert()
-    #ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
+    #convertob = ConvertGenoFile("/home/zas1024/gene/genotype_files/genotypes/SRxSHRSPF2.geno", "/home/zas1024/gene/genotype_files/new_genotypes/SRxSHRSPF2.json")
+    #convertob.convert()
+    ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
     #ConvertGenoFiles(Geno_Directory)
     
     #process_csv(Input_File, Output_File)

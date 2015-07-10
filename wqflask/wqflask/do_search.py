@@ -499,7 +499,14 @@ class GoSearch(MrnaAssaySearch):
 
     DoSearch.search_types['ProbeSet_GO'] =  "GoSearch"
 
-    def run(self):
+    def get_from_clause(self):
+        from_clause = """, db_GeneOntology.term as GOterm,
+            db_GeneOntology.association as GOassociation,
+            db_GeneOntology.gene_product as GOgene_product """
+
+        return from_clause
+
+    def get_where_clause(self):
         field = 'GOterm.acc'
         go_id = 'GO:' + ('0000000'+self.search_term[0])[-7:]
 
@@ -510,9 +517,11 @@ class GoSearch(MrnaAssaySearch):
 
         where_clause = " %s = '%s' and %s " % (field, go_id, statements)
 
-        from_clause = """ , db_GeneOntology.term as GOterm,
-            db_GeneOntology.association as GOassociation,
-            db_GeneOntology.gene_product as GOgene_product """
+        return where_clause
+
+    def run(self):
+        from_clause = self.get_from_clause()
+        where_clause = self.get_where_clause()
 
         query = self.compile_final_query(from_clause, where_clause)
 
