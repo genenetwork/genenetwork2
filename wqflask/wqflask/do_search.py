@@ -534,7 +534,14 @@ class LrsSearch(DoSearch):
     DoSearch.search_types['LRS'] = 'LrsSearch'
 
     def get_from_clause(self):
-        if self.search_operator == "=":
+        #If the user typed, for example "Chr4", the "Chr" substring needs to be removed so that all search elements can be converted to floats
+        if len(self.search_term) > 2 and "Chr" in self.search_term[2]:
+            chr_num = self.search_term[2].replace("Chr", "")
+            self.search_term[2] = chr_num
+
+        self.search_term = [float(value) for value in self.search_term]
+
+        if len(self.search_term) > 2:
             from_clause = ", Geno"
         else:
             from_clause = ""
@@ -542,41 +549,36 @@ class LrsSearch(DoSearch):
         return from_clause
 
     def get_where_clause(self):
-        self.search_term = [float(value) for value in self.search_term]
-
         if self.search_operator == "=":
             assert isinstance(self.search_term, (list, tuple))
-            self.lrs_min, self.lrs_max = self.search_term[:2]
+            lrs_min, lrs_max = self.search_term[:2]
 
-            self.sub_clause = """ %sXRef.LRS > %s and
-                             %sXRef.LRS < %s and """ % self.mescape(self.dataset.type,
-                                                                min(self.lrs_min, self.lrs_max),
+            where_clause = """ %sXRef.LRS > %s and
+                             %sXRef.LRS < %s """ % self.mescape(self.dataset.type,
+                                                                min(lrs_min, lrs_max),
                                                                 self.dataset.type,
-                                                                max(self.lrs_min, self.lrs_max))
+                                                                max(lrs_min, lrs_max))
 
             if len(self.search_term) > 2:
-                self.chr_num = self.search_term[2]
-                self.sub_clause += """ Geno.Chr = %s and """ % (self.chr_num)
+                chr_num = self.search_term[2]
+                where_clause += """ and Geno.Chr = %s """ % (chr_num)
                 if len(self.search_term) == 5:
-                    self.mb_low, self.mb_high = self.search_term[3:]
-                    self.sub_clause += """ Geno.Mb > %s and
-                                                  Geno.Mb < %s and
-                                            """ % self.mescape(min(self.mb_low, self.mb_high),
-                                                               max(self.mb_low, self.mb_high))
-            print("self.sub_clause is:", pf(self.sub_clause))
+                    mb_low, mb_high = self.search_term[3:]
+                    where_clause += """ and Geno.Mb > %s and
+                                                  Geno.Mb < %s
+                                            """ % self.mescape(min(mb_low, mb_high),
+                                                               max(mb_low, mb_high))
 
-            #%s.Chr = Geno.Chr
-            where_clause = self.sub_clause + """ %sXRef.Locus = Geno.name and
+                where_clause += """ and %sXRef.Locus = Geno.name and
                                                     Geno.SpeciesId = %s
                                                     """ % self.mescape(self.dataset.type,
                                                            self.species_id)
         else:
             # Deal with >, <, >=, and <=
             print("self.search_term is:", self.search_term)
-            self.sub_clause = """ %sXRef.LRS %s %s """ % self.mescape(self.dataset.type,
+            where_clause = """ %sXRef.LRS %s %s """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
                                                                         self.search_term[0])
-            where_clause = self.sub_clause
        
         return where_clause
 

@@ -77,10 +77,15 @@ class SearchResultPage(object):
             self.trait_type = kw['trait_type']
             self.quick_search()
         else:
+            print("kw is:", kw)
+            if kw['search_terms_or']:
+                self.and_or = "or"
+                self.search_terms = kw['search_terms_or']
+            else:
+                self.and_or = "and"
+                self.search_terms = kw['search_terms_and']
             self.search_term_exists = True
             self.results = []
-            print("kw is:", kw)
-            self.search_terms = kw['search_terms']
             if kw['type'] == "Phenotypes":
                 dataset_type = "Publish"
             elif kw['type'] == "Genotypes":
@@ -237,10 +242,14 @@ class SearchResultPage(object):
                     where_clause = the_search.get_where_clause()
                     combined_where_clause += "(" + where_clause + ")"
                     if (i+1) < len(self.search_terms):
-                        combined_where_clause += "AND"
+                        if self.and_or == "and":
+                            combined_where_clause += "AND"
+                        else:
+                            combined_where_clause += "OR"
                 else:
                     self.search_term_exists = False
             if self.search_term_exists:
+                combined_where_clause = "(" + combined_where_clause + ")"
                 final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
                 results = the_search.execute(final_query)
                 self.results.extend(results)
