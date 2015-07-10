@@ -21,9 +21,11 @@
             <button class="btn btn-primary pull-right"><span class="glyphicon glyphicon-download"></span> Download Table</button>
             <br />
             <br />
-            <table class="table table-hover table-striped" id='' style="width: 100%;">
+            <table class="table table-hover table-striped" id="trait_table">
                 <thead>
                     <tr>
+						<th></th>
+						<th>Index</th>
 						<th>Tissue</th>
 						<th>Dataset</th>
 						<th>Record</th>
@@ -42,6 +44,8 @@
                 <tbody>
                     {% for this_trait in results %}
                     <TR>
+						<td><input type="checkbox"></td>
+						<td>{{ loop.index }}</td>
                         {% for item in this_trait[1:] %}
 							<TD>{{ item }}</TD>
 						{% endfor %}
@@ -64,7 +68,7 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
+     <script type="text/javascript" charset="utf-8">
         function getValue(x) {
             if (x.indexOf('input') >= 0) {
                 if ($(x).val() == 'x') {
@@ -92,19 +96,39 @@
 
         $(document).ready( function () {
             
-	     /*num_columns = $('#trait_table').find('tr:first th').length;
-
-            nul_cols = []
-	     for (i=0; i<num_columns - 1, i++) {
-                $('#trait_table > tbody > tr').each(function() {
-                    if ($(this).find('td:eq(i)').html()){
-                        continue;
-                    }
-                });
-                nul_cols.push(i)
-	     }*/
+            $('#trait_table tr').click(function(event) {
+                if (event.target.type !== 'checkbox') {
+                    $(':checkbox', this).trigger('click');
+                }
+            });
 
             console.time("Creating table");
+            $('#trait_table').dataTable( {
+                "aoColumns": [
+					{ "bSortable": false },
+                    { "bSortable": true },
+                    { "sType": "natural" },
+                    { "sType": "natural" },
+                    { "sType": "natural", "sWidth": "35%"  },
+                    { "sType": "natural", "sWidth": "15%"  },
+                    { "sType": "cust-txt" },
+                    { "sType": "natural", "sWidth": "12%"  },
+					{ "sType": "natural", "sWidth": "12%"  },
+					{ "sType": "natural", "sWidth": "12%"  },
+					{ "sType": "natural", "sWidth": "12%"  },
+					{ "sType": "natural", "sWidth": "12%"  },
+                    { "sType": "natural", "sWidth": "15%"  },
+                    { "sType": "cust-txt" }
+                ],
+              
+                "sDom": "tir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "bSortClasses": false
+            } );
+
             console.timeEnd("Creating table");
         });
         
