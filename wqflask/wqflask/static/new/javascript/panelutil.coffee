@@ -30,16 +30,15 @@ reorgLodData = (data, lodvarname=null) ->
     data.lodByChr = {}
     
     for chr,i in data.chrnames
-      #console.log("chr:", chr)
-      data.posByChr[chr[0]] = []
-      data.lodByChr[chr[0]] = []
-      for pos, j in data.pos
-        if data.chr[j].toString() == chr[0]
-          #console.log(data.chr[j] + " AND " + chr[0])
-          data.posByChr[chr[0]].push(pos)
-          data.lodnames = [data.lodnames] unless Array.isArray(data.lodnames)
-          lodval = (data[lodcolumn][j] for lodcolumn in data.lodnames)
-          data.lodByChr[chr[0]].push(lodval)
+      if data.chr.indexOf(chr[0])
+          data.posByChr[chr[0]] = []
+          data.lodByChr[chr[0]] = []
+          for pos, j in data.pos
+            if data.chr[j].toString() == chr[0]
+              data.posByChr[chr[0]].push(pos)
+              data.lodnames = [data.lodnames] unless Array.isArray(data.lodnames)
+              lodval = (data[lodcolumn][j] for lodcolumn in data.lodnames)
+              data.lodByChr[chr[0]].push(lodval)
 
     #console.log("data.posByChr:", data.posByChr)
 

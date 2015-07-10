@@ -66,10 +66,7 @@ def check_send_mail_running():
 if __name__ == '__main__':
     #create_user()
 
-
-
     check_send_mail_running()
-
 
     app.run(host='0.0.0.0',
         port=5002,

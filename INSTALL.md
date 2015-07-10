@@ -82,7 +82,7 @@ Next update the setting.py file to point at the tree
 
 GN2 can locate PYLMM through PYLMM_PATH in setting.py (or in ENV)
 
-    PYLMM_PATH = '/home/test/opensource/python/pylmm_gn2/pylmm_gn2'
+    PYLMM_PATH = '/home/test/opensource/python/pylmm_gn2'
 
 ## Other information
 

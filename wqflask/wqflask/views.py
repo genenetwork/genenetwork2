@@ -129,7 +129,7 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
+        key = "search_results:v2:" + json.dumps(request.args, sort_keys=True)
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
@@ -150,8 +150,10 @@ def search_page():
 
         if result['quick']:
             return render_template("quick_search.html", **result)
-        else:
+        elif result['search_term_exists']:
             return render_template("search_result_page.html", **result)
+        else:
+            return render_template("search_error.html")
 
 @app.route("/gsearch", methods=('GET',))
 def gsearchreq():
@@ -309,6 +311,10 @@ def heatmap_page():
     
     return rendered_template
 
+@app.route("/mapping_results_container")
+def mapping_results_container_page():
+    return render_template("mapping_results_container.html")
+
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
     initial_start_vars = request.form
@@ -333,7 +339,7 @@ def marker_regression_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v4"
+    version = "v3"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -394,7 +400,7 @@ def export():
     svg_xml = request.form.get("data", "Invalid data")
     filename = request.form.get("filename", "manhattan_plot_snp")
     response = Response(svg_xml, mimetype="image/svg+xml")
-    response.headers["Content-Disposition"] = "attchment; filename=%s"%filename
+    response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
     return response
 
 @app.route("/export_pdf", methods = ('POST',))
@@ -407,7 +413,7 @@ def export_pdf():
     filepath = "/home/zas1024/gene/wqflask/output/"+filename
     pdf_file = cairosvg.svg2pdf(bytestring=svg_xml)
     response = Response(pdf_file, mimetype="application/pdf")
-    response.headers["Content-Disposition"] = "attchment; filename=%s"%filename
+    response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
     return response
 
 @app.route("/interval_mapping", methods=('POST',))
@@ -460,7 +466,7 @@ def interval_mapping_page():
         Redis.expire(key, 60*60)
 
     with Bench("Rendering template"):
-        rendered_template = render_template("interval_mapping.html", **result)
+        rendered_template = render_template("marker_regression.html", **result)
 
     return rendered_template
 

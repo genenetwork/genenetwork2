@@ -9,7 +9,15 @@
   fill: steelblue;
   shape-rendering: crispEdges;
 }
-/*
-.x.axis path {
+
+#legend-left, #legend-right {
+  font-size: 20px;
+}
+
+.nvd3 .nv-group {
+  fill-opacity: .9 !important;
+}
+
+.nvtooltip table td.legend-color-guide div {
   display: none;
-}*/
+}

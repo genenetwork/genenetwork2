@@ -85,13 +85,29 @@
                         <td>{{ trait.description }} <br><br> <b>Aliases</b>: {{ trait.alias }}</td>
                         <td>Chr{{ trait.chr }}: {{'%0.6f'|format(trait.mb) if trait.mb != None }}</td>
                         <td>{{'%0.3f'|format(trait.mean)}}</td>
+                        {% if trait.lrs == "" or trait.lrs == 0.000 %}
+                        <td>--</td>
+                        {% else %}
                         <td>{{'%0.3f'|format(trait.lrs)}}</td>
-                        <td>Chr{{ trait.locus_chr }}: {{'%0.3f'|format(trait.locus_mb) }}</td>
+                        {% endif %}
+                        {% if trait.locus_mb == "" %}
+                        <td>--</td>
+                        {% else %}
+                        <td>Chr{{ trait.locus_chr if trait.locus_chr != None }}: {{'%0.3f'|format(trait.locus_mb)}}</td>
+                        {% endif %}
                         <td><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
                         <td>{{ trait.num_overlap }}</td>
                         <td>{{'%0.3e'|format(trait.sample_p)}}</td>
+                        {% if trait.lit_corr == "" or trait.lit_corr == 0.000 %}
+                        <td>--</td>
+                        {% else %}
                         <td>{{'%0.3f'|format(trait.lit_corr)}}</td>
+                        {% endif %}
+                        {% if trait.tissue_corr == "" or trait.tissue_corr == 0.000 %}
+                        <td>--</td>
+                        {% else %}
                         <td>{{'%0.3f'|format(trait.tissue_corr)}}</td>
+                        {% endif %}
                         <td>{{'%0.3e'|format(trait.tissue_pvalue)}}</td>
                     {% elif target_dataset.type == "Publish" %}
                         <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>

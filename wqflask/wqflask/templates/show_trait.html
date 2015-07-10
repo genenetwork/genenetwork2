@@ -5,11 +5,15 @@
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/nvd3/nv.d3.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
@@ -24,6 +28,7 @@
     <form method="post" action="/corr_compute" name="trait_page" id="trait_data_form"
     class="form-horizontal">
         <div id="hidden_inputs">
+        <input type="hidden" name="trait_hmac" value="{{ data_hmac('{}:{}'.format(this_trait.name, dataset.name)) }}">
         {% for key in hddn %}
             <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
         {% endfor %}
@@ -42,11 +47,9 @@
             {% include 'show_trait_details.html' %}
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                <span class="glyphicon glyphicon-chevron-down"></span> Statistics
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-down"></span> Statistics
                         </h3>
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse in">
@@ -56,11 +59,9 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                                <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
                         </h3>
                     </div>
                     <div id="collapseTwo" class="panel-collapse collapse in">
@@ -70,11 +71,9 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-                                <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
                         </h3>
                     </div>
                     <div id="collapseThree" class="panel-collapse collapse in">
@@ -84,11 +83,9 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFour" aria-expanded="true">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true">
-                                <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
                         </h3>
                     </div>
                     <div id="collapseFour" class="panel-collapse collapse" aria-expanded="true">
@@ -114,9 +111,12 @@
     </script>
 
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="/static/new/packages/nvd3/nv.d3.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/jstat.min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/shapiro-wilk.js"></script>
     <script type="text/javascript" src="/static/new/javascript/colorbrewer.js"></script>
     <script type="text/javascript" src="/static/new/packages/ValidationPlugin/dist/jquery.validate.min.js"></script>
     <script type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
@@ -135,9 +135,16 @@
     <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>
     <script type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
     <script type="text/javascript" src="/static/new/javascript/validation.js"></script>
-    
-    <script language="javascript" type="text/javascript" src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/FileSaver.js/FileSaver.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/Blob.js/BlobBuilder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.standard_fonts_metrics.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.from_html.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
+
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
@@ -146,7 +153,7 @@
            function getValue(x) {
                 if (x.indexOf('input') >= 0) {
                     if ($(x).val() == 'x') {
-                        return 0
+                        return 'x'
                     }
                     else {
                        return parseFloat($(x).val());
@@ -164,12 +171,21 @@
             jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
                 var x = getValue(a);
                 var y = getValue(b);
-                return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+
+                if (x == 'x') {
+                    return 1;
+                }
+                else if (y == 'x') {
+                    return -1;
+                }
+                else {
+                    return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+                }
             };
             
             $(document).ready( function () {
 
-                $('.panel-heading').find('a').click(function () {
+                $('.panel-heading').click(function () {
                    if ($(this).hasClass('collapsed')){
                        $(this).find('.glyphicon-chevron-down').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
                    }
@@ -241,7 +257,6 @@
                         "bDeferRender": true,
                         "bSortClasses": false
                     } );
-                    console.timeEnd("Creating table");
                 {% endif %}
             });
     </script>

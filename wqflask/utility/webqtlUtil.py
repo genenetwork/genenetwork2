@@ -43,6 +43,7 @@ ParInfo ={
 'BXH':['BHF1', 'HBF1',  'C57BL/6J', 'C3H/HeJ'],
 'AKXD':['AKF1', 'KAF1', 'AKR/J', 'DBA/2J'],
 'BXD':['B6D2F1', 'D2B6F1', 'C57BL/6J', 'DBA/2J'],
+'C57BL-6JxC57BL-6NJF2':['', '', 'C57BL/6J', 'C57BL/6NJ'],
 'BXD300':['B6D2F1', 'D2B6F1', 'C57BL/6J', 'DBA/2J'],
 'B6BTBRF2':['B6BTBRF1', 'BTBRB6F1', 'C57BL/6J', 'BTBRT<+>tf/J'],
 'BHHBF2':['B6HF2','HB6F2','C57BL/6J','C3H/HeJ'],
@@ -879,22 +880,6 @@ def cmpGenoPos(A,B):
             return -1
     except:
         return 0
-
-#XZhou: Must use "BINARY" to enable case sensitive comparison.
-def authUser(name,password,db, encrypt=None):
-    try:
-        if encrypt:
-            query = 'SELECT privilege, id,name,password, grpName FROM User WHERE name= BINARY \'%s\' and password= BINARY \'%s\'' % (name,password)
-        else:
-            query = 'SELECT privilege, id,name,password, grpName FROM User WHERE name= BINARY \'%s\' and password= BINARY SHA(\'%s\')' % (name,password)
-        db.execute(query)
-        records = db.fetchone()
-        if not records:
-            raise ValueError
-        return records#(privilege,id,name,password,grpName)
-    except:
-        return (None, None, None, None, None)
-
 
 def hasAccessToConfidentialPhenotypeTrait(privilege, userName, authorized_users):
     access_to_confidential_phenotype_trait = 0

@@ -134,10 +134,12 @@ $(function() {
     return _results;
   };
   check_search_term = function() {
-    var search_term;
-    search_term = $('#tfor').val();
-    console.log("search_term:", search_term);
-    if (search_term === "") {
+    var or_search_term, and_search_term;
+    or_search_term = $('#or_search').val();
+    and_search_term = $('#and_search').val();
+    console.log("or_search_term:", or_search_term);
+    console.log("and_search_term:", and_search_term);
+    if (or_search_term === "" && and_search_term === "") {
       alert("Please enter one or more search terms or search equations.");
       return false;
     }

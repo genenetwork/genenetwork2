@@ -32,7 +32,7 @@
                 </div>   
                 <div class="tab-pane" id="histogram_tab">
                     <div style="padding: 20px" class="form-horizontal">
-                        {% if sample_groups|length == 1 %}
+                        {% if sample_groups|length != 1 %}
                         <select class="histogram_samples_group">
                             {% for group, pretty_group in sample_group_types.items() %}
                                 <option value="{{ group }}">{{ pretty_group }}</option>
@@ -47,7 +47,7 @@
                 </div>   
                 <div class="tab-pane" id="bar_chart_tab">
                     <div style="padding: 20px" class="form-horizontal">
-                        {% if sample_groups|length == 1 %}
+                        {% if sample_groups|length != 1 %}
                         <select class="bar_chart_samples_group">
                             {% for group, pretty_group in sample_group_types.items() %}
                                 <option value="{{ group }}">{{ pretty_group }}</option>
@@ -79,32 +79,40 @@
                             </button>
                         </div>
                     </div>
-                        <div class="row" style="height: 0px">
-                          <div id="bar_chart_legend" style="margin-left: 900px; margin-top:50px; positive: relative;">
+                        <div class="row" style="position:relative">
+                          <div id="bar_chart_legend" style="margin-left: 150px; margin-top:20px; position: absolute;">
                             <span id="legend-left"></span>
-                            <span id="legend-colors">
-                            <!--
-                              <svg height="10" width="90">
-                                <rect x="0" width="15" height="10" style="fill: rgb(0, 0, 0);"></rect>
-                                <rect x="15" width="15" height="10" style="fill: rgb(50, 0, 0);"></rect>
-                                <rect x="30" width="15" height="10" style="fill: rgb(100, 0, 0);"></rect>
-                                <rect x="45" width="15" height="10" style="fill: rgb(150, 0, 0);"></rect>
-                                <rect x="60" width="15" height="10" style="fill: rgb(200, 0, 0);"></rect>
-                                <rect x="75" width="15" height="10" style="fill: rgb(255, 0, 0);"></rect>
-                              </svg>
-                            -->
-                            </span>
+                            <span id="legend-colors"></span>
                             <span id="legend-right"></span>
                           </div>
                         </div>
                         <div style="margin-left: 20px; margin-right: 20px;" class="row" id="bar_chart_container">
-                            <div id="bar_chart" class="barchart"></div>
+                            <svg></svg>
                         </div>
                 </div>
                 <div class="tab-pane" id="probability_plot">
-                    <div id="probability_plot_container">
-                        <div id="prob_plot" class="qtlcharts"></div>
+                    <div style="padding: 20px" class="form-horizontal">
+                        {% if sample_groups|length != 1 %}
+                        <select class="prob_plot_samples_group">
+                            {% for group, pretty_group in sample_group_types.items() %}
+                                <option value="{{ group }}">{{ pretty_group }}</option>
+                            {% endfor %}
+                        </select>
+                        <br><br>
+                        {% endif %}
+
+                        <div id="prob_plot_container">
+                            <div id="prob_plot_title"></div>
+                            <svg></svg>
+                        </div>
+
+                        <div>
+                            More about <a href="http://en.wikipedia.org/wiki/Normal_probability_plot" target="_blank">Normal Probability Plots</a> and more
+                            about interpreting these plots from the <a href="/glossary.html#normal_probability" target="_blank">glossary</a></td>
+                            </div>
+
                     </div>
+
                 </div>
 <!--                <div class="tab-pane" id="box_plot_tab">
                     {% if sample_groups|length > 1 %}

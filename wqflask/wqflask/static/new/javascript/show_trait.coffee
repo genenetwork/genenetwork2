@@ -61,38 +61,16 @@ Stat_Table_Rows = [
         ]
 
 $ ->
+
+    add = ->
+        trait = $("input[name=trait_hmac]").val()
+        console.log("trait is:", trait)
+        $.colorbox({href:"/collections/add?traits=#{trait}"})
+
+    $('#add_to_collection').click(add)
+
     sample_lists = js_data.sample_lists
     sample_group_types = js_data.sample_group_types
-
-    #if $("#update_bar_chart").length
-    #    $("#update_bar_chart.btn-group").button()
-    root.bar_chart = new Bar_Chart(sample_lists[0])
-    root.histogram = new Histogram(sample_lists[0])
-    new Box_Plot(sample_lists[0])
-
-    $('.bar_chart_samples_group').change ->
-        $('#bar_chart').remove()
-        $('#bar_chart_container').append('<div id="bar_chart"></div>')
-        group = $(this).val()
-        if group == "samples_primary"
-            root.bar_chart = new Bar_Chart(sample_lists[0])
-        else if group == "samples_other"
-            root.bar_chart = new Bar_Chart(sample_lists[1])
-        else if group == "samples_all"
-            all_samples = sample_lists[0].concat sample_lists[1]
-            root.bar_chart = new Bar_Chart(all_samples)
-
-    $('.box_plot_samples_group').change ->
-        $('#box_plot').remove()
-        $('#box_plot_container').append('<div id="box_plot"></div>')
-        group = $(this).val()
-        if group == "samples_primary"
-            new Box_Plot(sample_lists[0])
-        else if group == "samples_other"
-            new Box_Plot(sample_lists[1])
-        else if group == "samples_all"
-            all_samples = sample_lists[0].concat sample_lists[1]
-            new Box_Plot(all_samples)
 
     d3.select("#select_compare_trait").on("click", =>
         $('.scatter-matrix-container').remove()
@@ -126,7 +104,7 @@ $ ->
         $("#stats_tabs" + selected).show()
 
 
-    change_stats_value = (sample_sets, category, value_type, decimal_places)->
+    change_stats_value = (sample_sets, category, value_type, decimal_places, effects) ->
         id = "#" + process_id(category, value_type)
         console.log("the_id:", id)
         in_box = $(id).html
@@ -145,7 +123,10 @@ $ ->
         console.log("*-* current_value:", current_value)
         if the_value != current_value
             console.log("object:", $(id).html(the_value))
-            $(id).html(the_value).effect("highlight")
+            if effects
+                $(id).html(the_value).effect("highlight")
+            else
+                $(id).html(the_value)
 
         # We go ahead and always change the title value if we have it
         if title_value
@@ -153,11 +134,20 @@ $ ->
 
 
     update_stat_values = (sample_sets)->
+        show_effects = $(".tab-pane.active").attr("id") == "stats_tab"
         for category in ['samples_primary', 'samples_other', 'samples_all']
             for row in Stat_Table_Rows
                 console.log("Calling change_stats_value")
-                change_stats_value(sample_sets, category, row.vn, row.digits)
+                change_stats_value(sample_sets, category, row.vn, row.digits, show_effects)
 
+    redraw_histogram = ->
+        root.histogram.redraw((x.value for x in _.values(root.selected_samples[root.histogram_group])))
+
+    redraw_bar_chart = ->
+        root.bar_chart.redraw(root.selected_samples, root.bar_chart_group)
+
+    redraw_prob_plot = ->
+        root.redraw_prob_plot_impl(root.selected_samples, root.prob_plot_group)
 
     make_table = ->
         header = "<thead><tr><th>&nbsp;</th>"
@@ -213,6 +203,11 @@ $ ->
             samples_other: new Stats([])
             samples_all: new Stats([])
 
+        root.selected_samples = # maps: sample name -> value
+            samples_primary: {}
+            samples_other: {}
+            samples_all: {}
+
         console.log("at beginning:", sample_sets)
 
         tables = ['samples_primary', 'samples_other']
@@ -222,24 +217,42 @@ $ ->
                 name = $(row).find('.edit_sample_sample_name').html()
                 name = $.trim(name)
                 real_value = $(row).find('.edit_sample_value').val()
-                console.log("real_value:", real_value)
+                #console.log("real_value:", real_value)
                 
                 checkbox = $(row).find(".edit_sample_checkbox")
-                checked = $(checkbox).attr('checked')
+                checked = $(checkbox).prop('checked')
 
                 if checked and is_number(real_value) and real_value != ""
-                    console.log("in the iffy if")
+                    #console.log("in the iffy if")
                     real_value = parseFloat(real_value)
 
                     sample_sets[table].add_value(real_value)
-                    console.log("checking name of:", name)
+
+                    real_variance = $(row).find('.edit_sample_se').val()
+                    if (is_number(real_variance))
+                        real_variance = parseFloat(real_variance)
+                    else
+                        real_variance = null
+                    real_dict = {value: real_value, variance: real_variance}
+                    root.selected_samples[table][name] = real_dict
+
+                    #console.log("checking name of:", name)
                     if not (name of already_seen)
-                        console.log("haven't seen")
+                        #console.log("haven't seen")
                         sample_sets['samples_all'].add_value(real_value)
+                        root.selected_samples['samples_all'][name] = real_dict
                         already_seen[name] = true
         console.log("towards end:", sample_sets)
-        root.histogram.redraw(sample_sets['samples_primary'].the_values)
         update_stat_values(sample_sets)
+
+        console.log("redrawing histogram")
+        redraw_histogram()
+
+        console.log("redrawing bar chart")
+        redraw_bar_chart()
+
+        console.log("redrawing probability plot")
+        redraw_prob_plot()
 
     show_hide_outliers = ->
         console.log("FOOBAR in beginning of show_hide_outliers")
@@ -427,11 +440,37 @@ $ ->
     console.log("after registering block_outliers")
 
     _.mixin(_.str.exports());  # Add string fuctions directly to underscore
-    $('#edit_sample_lists').change(edit_data_change)
-    console.log("loaded")
-    #console.log("basic_table is:", basic_table)
-    # Add back following two lines later
+
+    root.histogram_group = 'samples_primary'
+    root.histogram = new Histogram(sample_lists[0])
+    $('.histogram_samples_group').val(root.histogram_group)
+    $('.histogram_samples_group').change ->
+        root.histogram_group = $(this).val()
+        redraw_histogram()
+
+    root.bar_chart_group = 'samples_primary'
+    root.bar_chart = new Bar_Chart(sample_lists)
+    $('.bar_chart_samples_group').val(root.bar_chart_group)
+    $('.bar_chart_samples_group').change ->
+        root.bar_chart_group = $(this).val()
+        redraw_bar_chart()
+
+    root.prob_plot_group = 'samples_primary'
+    $('.prob_plot_samples_group').val(root.prob_plot_group)
+    $('.prob_plot_samples_group').change ->
+        root.prob_plot_group = $(this).val()
+        redraw_prob_plot()
+
     make_table()
     edit_data_change()   # Set the values at the beginning
+
+    $('#edit_sample_lists').change(edit_data_change)
+
+    # bind additional handlers for pushing data updates
+    $('#block_by_index').click(edit_data_change)
+    $('#exclude_group').click(edit_data_change)
+    $('#block_outliers').click(edit_data_change)
+    $('#reset').click(edit_data_change)
+
     #$("#all-mean").html('foobar8')
     console.log("end")

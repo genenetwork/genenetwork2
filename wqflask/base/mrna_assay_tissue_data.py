@@ -51,15 +51,15 @@ class MrnaAssayTissueData(object):
             
             query += ''' Symbol in {} group by Symbol)
                 as x inner join TissueProbeSetXRef as t on t.Symbol = x.Symbol
-                and t.Mean = x.maxmean;
+                and t.Mean = x.maxmean;http://docs.python.org/2/library/string.html?highlight=lower#string.lower
                     '''.format(in_clause)
 
         results = g.db.execute(query).fetchall()
         
         for result in results:
             symbol = result[0]
-            if symbol in gene_symbols:
-            #gene_symbols.append(symbol)
+            if symbol.lower() in [gene_symbol.lower() for gene_symbol in gene_symbols]:
+                #gene_symbols.append(symbol)
                 symbol = symbol.lower()
                 
                 self.data[symbol].gene_id = result.GeneId
