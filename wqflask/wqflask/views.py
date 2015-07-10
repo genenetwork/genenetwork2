@@ -33,6 +33,7 @@ from flask import (render_template, request, make_response, Response,
                    Flask, g, config, jsonify, redirect, url_for)
 
 from wqflask import search_results
+from wqflask import gsearch
 from wqflask import docs
 from wqflask import news
 from base.data_set import DataSet    # Used by YAML in marker_regression
@@ -154,6 +155,26 @@ def search_page():
         else:
             return render_template("search_error.html")
 
+@app.route("/gsearch", methods=('GET',))
+def gsearchreq():
+    return render_template("gsearch.html")
+
+@app.route("/gsearchact", methods=('GET',))
+def gsearchact():
+    print("request.args is", request.args)
+    result = gsearch.GSearch(request.args).__dict__
+    return render_template("gsearchact.html", **result)
+
+@app.route("/gsearch2", methods=('GET',))
+def gsearchreq2():
+    return render_template("gsearch2.html")
+
+@app.route("/gsearchact2", methods=('GET',))
+def gsearchact2():
+    print("request.args is", request.args)
+    result = gsearch.GSearch(request.args).__dict__
+    return render_template("gsearchact2.html", **result)
+	
 @app.route("/docedit")
 def docedit():
     doc = docs.Docs(request.args['entry'])
