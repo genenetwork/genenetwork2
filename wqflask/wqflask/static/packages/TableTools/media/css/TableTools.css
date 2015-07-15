@@ -319,3 +319,8 @@ div.DTTT_collection a.DTTT_button {
 	line-height: 20px;
 }
 
+.no-sort::after { display: none!important; }
+.no-sort { pointer-events: none!important; 
+           cursor: default!important; 
+}
+
