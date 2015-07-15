@@ -51,7 +51,7 @@
                     {% for header in header_fields %}
                         {% if header == 'Index' %}
                         <th class="no-sort">{{header}}</th>
-                        {% if header == 'Max LRS' %}
+                        {% elif header == 'Max LRS' %}
                         <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% elif header == 'Additive Effect' %}
                         <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
