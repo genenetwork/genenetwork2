@@ -119,15 +119,12 @@
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
 	
-	<link href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" rel="stylesheet">
-	<link href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css" rel="stylesheet">
-	<script src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
-	<script src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
+    <link href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" rel="stylesheet">
+    <link href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css" rel="stylesheet">
+    <script src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
+    <script src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
 	
     <script type="text/javascript" charset="utf-8">
-
-        console.log("TESTING:", parseFloat("TESTING"))
-
         function getValue(x) {
             if (x.indexOf('input') >= 0) {
                 if ($(x).val() == 'x') {
@@ -176,7 +173,6 @@
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
             $('#trait_table').dataTable( {
-                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
                 "aoColumns": [
                     { "bSortable": true, "sType": "natural" },
                     { "sType": "natural" },
@@ -201,7 +197,6 @@
             } );
             {% elif dataset.type == 'Publish' %}
             $('#trait_table').dataTable( {
-                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
                 "aoColumns": [
                     { "bSortable": true, "sType": "natural" },
                     { "sType": "natural" },
@@ -232,5 +227,4 @@
          
         });
     </script>
-    
 {% endblock %}
