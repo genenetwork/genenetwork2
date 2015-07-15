@@ -50,9 +50,9 @@
                     <tr>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th>{{header}}<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% elif header == 'Additive Effect' %}
-                        <th>{{header}}<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
                         <th>{{header}}</th>
                         {% endif %}
@@ -79,10 +79,10 @@
                             <TD>{{ this_trait.symbol }}</TD>
                             <TD>{{ this_trait.description_display }}</TD>
                             <TD>{{ this_trait.location_repr }}</TD>
-                            <TD>{{ this_trait.mean }}</TD>
-                            <TD align="right">{{ this_trait.LRS_score_repr }}</TD>
+                            <TD align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
+                            <TD align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
                             <TD>{{ this_trait.LRS_location_repr }}</TD>
-                            <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
+                            <TD align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
                         {% elif dataset.type == 'Publish' %}
                             <TD>{{ this_trait.description_display }}</TD>
                             <TD>{{ this_trait.authors }}</TD>
@@ -118,6 +118,12 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+	
+	<link href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" rel="stylesheet">
+	<link href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css" rel="stylesheet">
+	<script src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
+	<script src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
+	
     <script type="text/javascript" charset="utf-8">
 
         console.log("TESTING:", parseFloat("TESTING"))
@@ -172,19 +178,15 @@
             $('#trait_table').dataTable( {
                 //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
                 "aoColumns": [
-                    { "bSortable": false },
+                    { "bSortable": true, "sType": "natural" },
                     { "sType": "natural" },
                     { "sType": "natural" },
-                    { "sType": "natural",
-                      "sWidth": "35%"  },
-                    { "sType": "natural",
-                      "sWidth": "15%"  },
+                    { "sType": "natural", "sWidth": "35%"},
+                    { "sType": "natural", "sWidth": "15%"},
                     { "sType": "natural" },
-                    { "sType": "natural",
-                      "sWidth": "12%"  },
-                    { "sType": "natural",
-                      "sWidth": "20%"  },
-                    { "sType": "natural" }
+                    { "sType": "natural", "sWidth": "8%"},
+                    { "sType": "natural", "sWidth": "15%"},
+                    { "sType": "natural", "sWidth": "7%"}
                 ],
                 "sDom": "tir",
                 "iDisplayLength": -1,
@@ -197,12 +199,10 @@
             $('#trait_table').dataTable( {
                 //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
                 "aoColumns": [
-                    { "bSortable": false },
+                    { "bSortable": true, "sType": "natural" },
                     { "sType": "natural" },
-                    { "sType": "natural", 
-                      "sWidth": "35%"  },
-                    { "sType": "natural",
-                      "sWidth": "20%"  },
+                    { "sType": "natural", "sWidth": "35%"  },
+                    { "sType": "natural", "sWidth": "20%"  },
                     { "sType": "natural" },
                     { "sType": "cust-txt" },
                     { "sType": "natural" },
@@ -218,6 +218,21 @@
             {% endif %}
             console.timeEnd("Creating table");
         });
+		
+		$(document).ready( function () {
+			var table = $('#trait_table').DataTable();
+			new $.fn.dataTable.FixedHeader( table );
+		});
+
+		$(document).ready( function () {
+			var table = $('#trait_table').DataTable( {
+				"scrollY": "300px",
+				"scrollX": "100%",
+				"scrollCollapse": true,
+				"paging": false
+			});
+			new $.fn.dataTable.FixedColumns( table );
+		});
         
     </script>
     
