@@ -26,6 +26,8 @@
                     <tr>
 						<th></th>
 						<th>Index</th>
+						<th>Species</th>
+						<th>Group</th>
 						<th>Tissue</th>
 						<th>Dataset</th>
 						<th>Record</th>
@@ -46,7 +48,7 @@
                     <TR>
 						<td><input type="checkbox"></td>
 						<td>{{ loop.index }}</td>
-                        {% for item in this_trait[1:] %}
+                        {% for item in this_trait %}
 							<TD>{{ item }}</TD>
 						{% endfor %}
                     </TR>
