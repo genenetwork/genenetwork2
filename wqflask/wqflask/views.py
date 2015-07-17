@@ -155,15 +155,23 @@ def search_page():
         else:
             return render_template("search_error.html")
 
-@app.route("/gsearch", methods=('GET',))
-def gsearchreq():
-    return render_template("gsearch.html")
+@app.route("/gsearch0", methods=('GET',))
+def gsearchreq0():
+    return render_template("gsearch0.html")
 
-@app.route("/gsearchact", methods=('GET',))
-def gsearchact():
-    print("request.args is", request.args)
+@app.route("/gsearchact0", methods=('GET',))
+def gsearchact0():
     result = gsearch.GSearch(request.args).__dict__
-    return render_template("gsearchact.html", **result)
+    return render_template("gsearchact0.html", **result)
+	
+@app.route("/gsearch1", methods=('GET',))
+def gsearchreq1():
+    return render_template("gsearch1.html")
+
+@app.route("/gsearchact1", methods=('GET',))
+def gsearchact1():
+    result = gsearch.GSearch(request.args).__dict__
+    return render_template("gsearchact1.html", **result)
 
 @app.route("/gsearch2", methods=('GET',))
 def gsearchreq2():
@@ -171,7 +179,6 @@ def gsearchreq2():
 
 @app.route("/gsearchact2", methods=('GET',))
 def gsearchact2():
-    print("request.args is", request.args)
     result = gsearch.GSearch(request.args).__dict__
     return render_template("gsearchact2.html", **result)
 	
