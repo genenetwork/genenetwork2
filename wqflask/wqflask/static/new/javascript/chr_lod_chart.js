@@ -96,11 +96,18 @@ Chr_Lod_Chart = (function() {
   Chr_Lod_Chart.prototype.create_coordinates = function() {
     var i, len, ref, result, results;
     ref = this.these_results;
+    console.log("THESE_RESULTS:", ref)
     results = [];
     for (i = 0, len = ref.length; i < len; i++) {
       result = ref[i];
       this.x_coords.push(parseFloat(result.Mb));
-      this.y_coords.push(result.lod_score);
+      if (js_data.result_score_type == "LOD") {
+        this.y_coords.push(result.lod_score);
+      }
+      else {
+        console.log("LRS VALUE:", result['lrs_value']) 
+        this.y_coords.push(result['lrs_value']);
+      }
       results.push(this.marker_names.push(result.name));
     }
     return results;
