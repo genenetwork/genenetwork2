@@ -4,6 +4,8 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" >
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -102,7 +104,7 @@
                     <TD>{{ this_trait.additive }}</TD>
 
                 </TR>
-            {% endfor %}
+                {% endfor %}
             </tbody>
 
         </table>
@@ -118,8 +120,13 @@
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
+
+
     <script language="javascript" type="text/javascript">
         $(document).ready( function () {
 
@@ -131,36 +138,39 @@
 
             console.time("Creating table");
             $('#trait_table').dataTable( {
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "sType": "natural" },
-                    { "sType": "natural",
-                      "sWidth": "35%"  },
-                    { "sType": "natural",
-                      "sWidth": "15%"  },
-                    { "sType": "cust-txt" },
-                    { "sType": "natural",
-                      "sWidth": "12%"  },
-                    { "sType": "natural",
-                      "sWidth": "15%"  },
-                    { "sType": "cust-txt" }
-                ],
                 "columns": [
-                    { "width": "50%" },
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural",
+                      "width": "35%"  },
+                    { "type": "natural",
+                      "width": "15%"  },
+                    { "type": "cust-txt" },
+                    { "type": "natural",
+                      "width": "12%"  },
+                    { "type": "natural",
+                      "width": "15%"  },
+                    { "type": "natural" }
                 ],
-                "sDom": "tir",
+                "sDom": "Ztir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
-                "bSortClasses": false
+                "bSortClasses": false,
+                "scrollY": "600px",
+                "scrollX": true,
+                "scrollCollapse": true,
+                "colResize": {
+                    "tableWidthFixed": false
+                },
+                "paging": false
             } );
             console.timeEnd("Creating table");
+
+            var table = $('#trait_table').DataTable();
+            new $.fn.dataTable.FixedColumns( table );
+
         });
         
     </script>

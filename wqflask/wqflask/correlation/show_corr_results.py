@@ -185,6 +185,8 @@ class CorrelationResults(object):
                 elif self.corr_type == "lit":    
                     trait_object.lit_corr = lit_corr_data[trait][1]
                 self.correlation_results.append(trait_object)
+
+            self.target_dataset.get_trait_info(self.correlation_results, self.target_dataset.group.species)
             
             if self.corr_type != "lit" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
                 self.do_lit_correlation_for_trait_list()
