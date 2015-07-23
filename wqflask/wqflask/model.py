@@ -172,8 +172,11 @@ class UserCollection(Base):
 
     @property
     def num_members(self):
-        print("members are:", json.loads(self.members))
-        return len(json.loads(self.members))
+        try:
+            return len(json.loads(self.members))
+        except:
+            return 0
+        
 
     #@property
     #def display_num_members(self):

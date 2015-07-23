@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Your Collections{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" >
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
+{% endblock %}
 {% block content %}
 <!-- Start of body -->
     {{ header("Your Collections",
@@ -11,8 +18,8 @@
             <h1>Collections owned by {{ g.user_session.user_ob.full_name }}</h1>
         </div>
 
-        <div class="bs-docs-example" id="collections_list">
-        <table class="table table-hover" id='trait_table'>
+        <div id="collections_list">
+        <table class="table table-hover table-striped" id='trait_table'>
             <thead>
                 <tr>
                     <th>Index</th>
@@ -49,7 +56,33 @@
 
 {% block js %}
     <script type="text/javascript" src="/static/packages/smart-time-ago/lib/timeago.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
     <script>
-        $('body').timeago();
+            $('#trait_table').dataTable( {
+                "sDom": "Ztir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "bSortClasses": false,
+                "scrollY": "600px",
+                "scrollX": true,
+                "scrollCollapse": true,
+                "colResize": {
+                    "tableWidthFixed": false
+                },
+                "paging": false
+            } );
+
+            var table = $('#trait_table').DataTable();
+            //new $.fn.dataTable.FixedHeader( table );
+            new $.fn.dataTable.FixedColumns( table );
+
     </script>
 {% endblock %}

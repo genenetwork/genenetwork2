@@ -13,6 +13,8 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
 
 {% endblock %}
 {% block content %} <!-- Start of body -->
@@ -146,6 +148,10 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -195,68 +201,79 @@
                 });
 
                 console.time("Creating table");
-                
-                {% if sample_groups[0].se_exists() %}
-                    $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'yellow')
-                    $('#samples_primary, #samples_other').dataTable( {
-                        //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                        "aoColumns": [
-                            { "sType": "natural" },
-                            null,
-                            { "sType": "cust-txt" },
-                            { "bSortable": false },
-                            { "sType": "cust-txt" }
+
+                $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'yellow')
+                {% if sample_groups[0].se_exists() %} 
+                $('#samples_primary, #samples_other').DataTable( {
+                    "columns": [
+                        { "type": "natural" },
+                        { "type": "natural" },
+                        { "type": "cust-txt" },
+                        { "bSortable": false },
+                        { "type": "cust-txt" }
                         ],
-                        "sDom": "ftr",
-                        "oTableTools": {
-                            "aButtons": [
-                                "copy",
-                                "print",
-                                {
-                                    "sExtends":    "collection",
-                                    "sButtonText": 'Save <span class="caret" />',
-                                    "aButtons":    [ "csv", "xls", "pdf" ]
-                                }
-                            ],
-                            "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
-                        },
-                        "bPaginate": false,
-                        "bLengthChange": true,
-                        "bDeferRender": true,
-                        "bSortClasses": false
-                    } );
-                    console.timeEnd("Creating table");
+                    "sDom": "RJtir",
+                    "oTableTools": {
+                        "aButtons": [
+                            "copy",
+                            "print",
+                            {
+                                "sExtends":    "collection",
+                                "sButtonText": 'Save <span class="caret" />',
+                                "aButtons":    [ "csv", "xls", "pdf" ]
+                            }
+                        ],
+                        "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
+                    },
+                    "iDisplayLength": -1,
+                    "autoWidth": true,
+                    "bLengthChange": true,
+                    "bDeferRender": true,
+                    "bSortClasses": false,
+                    "scrollY": "600px",
+                    "scrollCollapse": false,
+                    "colResize": {
+                        "tableWidthFixed": false
+                    },
+                    "paging": false
+                } );
+                console.timeEnd("Creating table");
 
                 {% else %}
-        
-            
-                    console.time("Creating table");
+                console.time("Creating table");
                     
-                    $('#samples_primary, #samples_other').dataTable( {
-                        //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                        "aoColumns": [
-                            { "sType": "natural" },
-                            null,
-                            { "sType": "cust-txt" }
+                $('#samples_primary, #samples_other').DataTable( {
+                    "columns": [
+                        { "type": "natural" },
+                        null,
+                        { "type": "cust-txt" }
+                    ],
+                    "sDom": "RJtir",
+                    "oTableTools": {
+                        "aButtons": [
+                            "copy",
+                            "print",
+                            {
+                                "sExtends":    "collection",
+                                "sButtonText": 'Save <span class="caret" />',
+                                "aButtons":    [ "csv", "xls", "pdf" ]
+                            }
                         ],
-                        "sDom": "ftr",
-                        "oTableTools": {
-                            "aButtons": [
-                                "copy",
-                                "print",
-                                {
-                                    "sExtends":    "collection",
-                                    "sButtonText": 'Save <span class="caret" />',
-                                    "aButtons":    [ "csv", "xls", "pdf" ]
-                                }
-                            ],
-                            "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
-                        },
-                        "bPaginate": false,
-                        "bLengthChange": true,
-                        "bDeferRender": true,
-                        "bSortClasses": false
-                    } );
+                        "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
+                    },
+                    "iDisplayLength": -1,
+                    "autoWidth": true,
+                    "bLengthChange": true,
+                    "bDeferRender": true,
+                    "bSortClasses": false,
+                    "scrollY": "600px",
+                    "scrollX": true,
+                    "scrollCollapse": false,
+                    "colResize": {
+                        "tableWidthFixed": false
+                    },
+                    "paging": false
+                } );
                 {% endif %}
             });
     </script>

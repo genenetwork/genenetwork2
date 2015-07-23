@@ -277,7 +277,7 @@ class DatasetGroup(object):
     """
     def __init__(self, dataset):
         """This sets self.group and self.group_id"""
-        print("dataset name:", dataset.name)
+        print("DATASET NAME2:", dataset.name)
         self.name, self.id = g.db.execute(dataset.query_for_group).fetchone()
         if self.name == 'BXD300':
             self.name = "BXD"
@@ -306,13 +306,13 @@ class DatasetGroup(object):
         self.markers = marker_class(self.name)
 
     def datasets(self):
-        key = "group_dataset_menu:v1:" + self.name
-        print("key is:", key)
-        with Bench("Loading cache"):
-            result = Redis.get(key)
-        if result:
-            self._datasets = pickle.loads(result)
-            return self._datasets
+        key = "group_dataset_menu:v2:" + self.name
+        print("key is2:", key)
+        #with Bench("Loading cache"):
+        #    result = Redis.get(key)
+        #if result:
+        #    self._datasets = pickle.loads(result)
+        #    return self._datasets
 
         dataset_menu = []
         print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
@@ -342,18 +342,37 @@ class DatasetGroup(object):
                   self.name, webqtlConfig.PUBLICTHRESH,
                   "%" + self.name + "%", webqtlConfig.PUBLICTHRESH))
 
-        for tissue_name, dataset in itertools.groupby(results.fetchall(), itemgetter(0)):
+        the_results = results.fetchall()
+
+        #for tissue_name, dataset in itertools.groupby(the_results, itemgetter(0)):
+        for dataset_item in the_results:
+            tissue_name = dataset_item[0]
+            dataset = dataset_item[1]
+            dataset_short = dataset_item[2]
             if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
-                for item in dataset:
-                    dataset_menu.append(dict(tissue=None, datasets=[item[1:]]))
+                dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
             else:
                 dataset_sub_menu = [item[1:] for item in dataset]
-                dataset_menu.append(dict(tissue=tissue_name,
-                                    datasets=dataset_sub_menu))
+                
+                tissue_already_exists = False
+                tissue_position = None
+                for i, tissue_dict in enumerate(dataset_menu):
+                    if tissue_dict['tissue'] == tissue_name:
+                        tissue_already_exists = True
+                        tissue_position = i
+                        break
+
+                if tissue_already_exists:
+                    print("dataset_menu:", dataset_menu[i]['datasets'])
+                    dataset_menu[i]['datasets'].append((dataset, dataset_short))
+                else:
+                    dataset_menu.append(dict(tissue=tissue_name,
+                                        datasets=[(dataset, dataset_short)]))
 
         Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
         Redis.expire(key, 60*5)
         self._datasets = dataset_menu
+
         return self._datasets
 
     def get_f1_parent_strains(self):
@@ -498,6 +517,8 @@ class DataSet(object):
         self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
         self.group.get_samplelist()
         self.species = species.TheSpecies(self)
+
+        print("TESTING!!!")
 
 
     def get_desc(self):
@@ -699,13 +720,13 @@ class PhenotypeDataSet(DataSet):
 
         # Fields displayed in the search results table header
         self.header_fields = ['Index',
-                            'ID',
+                            'Record',
                             'Description',
                             'Authors',
                             'Year',
                             'Max LRS',
                             'Max LRS Location',
-                            'Add. Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a>']
+                            'Additive Effect']
 
         self.type = 'Publish'
 
@@ -784,7 +805,6 @@ class PhenotypeDataSet(DataSet):
                         Geno.Name = %s and
                         Geno.SpeciesId = Species.Id
                 """, (species, this_trait.locus)).fetchone()
-                #result = self.cursor.fetchone()
 
                 if result:
                     if result[0] and result[1]:
@@ -961,14 +981,14 @@ class MrnaAssayDataSet(DataSet):
 
         # Fields displayed in the search results table header
         self.header_fields = ['Index',
-                             'ID',
+                             'Record',
                              'Symbol',
                              'Description',
                              'Location',
-                             'Mean Expr',
+                             'Mean',
                              'Max LRS',
                              'Max LRS Location',
-                             'Add. Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a>']
+                             'Additive Effect']
 
         # Todo: Obsolete or rename this field
         self.type = 'ProbeSet'
