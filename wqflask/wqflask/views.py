@@ -155,6 +155,11 @@ def search_page():
         else:
             return render_template("search_error.html")
 
+@app.route("/gsearch", methods=('GET',))
+def gsearchact():
+    result = gsearch.GSearch(request.args).__dict__
+    return render_template("gsearchact.html", **result)
+			
 @app.route("/gsearch0", methods=('GET',))
 def gsearchreq0():
     return render_template("gsearch0.html")

@@ -73,6 +73,20 @@
                 </div>
             </div>
     </div>
+	
+	<div class="container-fluid" style="background-color: #d5d5d5; height: 95px;">
+	
+					<form method="get" action="/gsearch">
+					<div class="row" >
+						<select class="form-control col-xs-2" style="width: 170px; margin-top: 15px; margin-left: 10px;" name="type">
+							<option value="gene">Genes / Molecules</option>
+							<option value="phenotype">Phenotypes</option>
+						</select>
+						<input class="btn btn-primary form-control col-xs-2" style="width: 100px; margin-top: 15px; margin-left: 10px;" type="submit" value="Search All">
+						<input class="form-control col-xs-6" style="width: 980px; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required>
+					</div>
+					</form>
+					</div>
 
     {% block content %}{% endblock %}
 
