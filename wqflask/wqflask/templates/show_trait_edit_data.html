@@ -73,26 +73,25 @@
     <br>
 
 
-    <div id="edit_sample_lists">
+    <!--<div id="edit_sample_lists">-->
     {% for sample_type in sample_groups %}
-        <div class="sample_group">
+        <!--<div class="sample_group">-->
             <h3>{{ sample_type.header }}</h3>
 
-            <table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped table-bordered"
-                   id="samples_{{ sample_type.sample_group_type }}">
+            <table class="table table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left;">
                 <thead>
                     <tr>
-                        <td>Index</td>
-                        <td>Sample</td>
-                        <td>Value</td>
+                        <th>Index</td>
+                        <th>Sample</td>
+                        <th>Value</td>
                         {% if sample_type.se_exists() %}
-                        <td>&nbsp;</td>
-                        <td>SE</td>
+                        <th>&nbsp;</td>
+                        <th>SE</td>
                         {% endif %}
                         {% for attribute in sample_type.attributes|sort() %}
-                        <td>
+                        <th>
                             {{ sample_type.attributes[attribute].name }}
-                        </td>
+                        </th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -148,9 +147,9 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
+        <!--</div>-->
         {% endfor %}
-    </div>
+    <!--</div>-->
 
 
     <input type="hidden" name="Default_Name">

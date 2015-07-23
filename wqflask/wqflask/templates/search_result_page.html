@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" >
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
 {% endblock %}
 {% block content %}
@@ -47,7 +47,7 @@
             <button class="btn btn-primary"><span class="glyphicon glyphicon-download"></span> Download Table</button>
             <br />
             <br />
-            <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %} width="400px" style="float: left;"{% endif %}>
+            <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
                 <thead>
                     <tr>
                     {% for header in header_fields %}
@@ -119,11 +119,11 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
-    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
-    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
-
 	
     <script type="text/javascript" charset="utf-8">
         function getValue(x) {
@@ -173,28 +173,33 @@
 
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
-            $('#trait_table').dataTable( {
+            $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural", "width": "35%"},
-                    { "type": "natural", "width": "15%"},
                     { "type": "natural" },
-                    { "type": "natural", "width": "8%"},
-                    { "type": "natural", "width": "15%"},
-                    { "type": "natural", "width": "7%"}
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
                 ],
-                "sDom": "Ztir",
+                "sDom": "RJtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": false,
+                "colResize": {
+                    "tableWidthFixed": false,
+                },
                 "paging": false
             } );
             {% elif dataset.type == 'Publish' %}
-            $('#trait_table').dataTable( {
+            $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural" },
                     { "type": "natural" },
@@ -205,36 +210,46 @@
                     { "type": "natural", "width": "15%"},
                     { "type": "natural" }
                 ],
-                "sDom": "Ztir",
+                "sDom": "RJtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": false,
+                "colResize": {
+                    "tableWidthFixed": false,
+                },
                 "paging": false
             } );
             {% elif dataset.type == 'Geno' %}
-            $('#trait_table').dataTable( {
+            $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural", "width": "40%"}
                 ],
-                "sDom": "Ztir",
+                "sDom": "RJtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": false,
+                "colResize": {
+                    "tableWidthFixed": false,
+                },
                 "paging": false
             } );
             {% endif %}
             console.timeEnd("Creating table");
-
-            var table = $('#trait_table').DataTable();
-            new $.fn.dataTable.FixedHeader( table );
-            new $.fn.dataTable.FixedColumns( table );
          
+            //var table = $('#trait_table').DataTable();
+            //new $.fn.dataTable.FixedHeader( table );
+            //new $.fn.dataTable.FixedColumns( table );
+
         });
     </script>
 {% endblock %}

@@ -1,846 +1,943 @@
-/*! ColResize 0.0.10
- */
-
-/**
- * @summary     ColResize
- * @description Provide the ability to resize columns in a DataTable
- * @version     0.0.10
- * @file        dataTables.colResize.js
- * @author      Silvacom Ltd.
- *
- * For details please refer to: http://www.datatables.net
- *
- * Special thank to everyone who has contributed to this plug in
- * - dykstrad
- * - tdillan (for 0.0.3 and 0.0.5 bug fixes)
- * - kylealonius (for 0.0.8 bug fix)
- * - the86freak (for 0.0.9 bug fix)
- */
-
-(function (window, document, undefined) {
-
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-     * DataTables plug-in API functions test
-     *
-     * This are required by ColResize in order to perform the tasks required, and also keep this
-     * code portable, to be used for other column resize projects with DataTables, if needed.
-     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-    var factory = function ($, DataTable) {
-        "use strict";
-
-        /**
-         * Plug-in for DataTables which will resize the columns depending on the handle clicked
-         *  @method  $.fn.dataTableExt.oApi.fnColResize
-         *  @param   object oSettings DataTables settings object - automatically added by DataTables!
-         *  @param   int iCol Take the column to be resized
-         *  @returns void
-         */
-        $.fn.dataTableExt.oApi.fnColResize = function (oSettings, iCol) {
-            var v110 = $.fn.dataTable.Api ? true : false;
-
-            /*
-             * Update DataTables' event handlers
-             */
-
-            /* Fire an event so other plug-ins can update */
-            $(oSettings.oInstance).trigger('column-resize', [ oSettings, {
-                "iCol": iCol
-            } ]);
-        };
-
-        /**
-         * ColResize provides column resize control for DataTables
-         * @class ColResize
-         * @constructor
-         * @param {object} dt DataTables settings object
-         * @param {object} opts ColResize options
-         */
-        var ColResize = function (dt, opts) {
-            var oDTSettings;
-
-            if ($.fn.dataTable.Api) {
-                oDTSettings = new $.fn.dataTable.Api(dt).settings()[0];
-            }
-            // 1.9 compatibility
-            else if (dt.fnSettings) {
-                // DataTables object, convert to the settings object
-                oDTSettings = dt.fnSettings();
-            }
-            else if (typeof dt === 'string') {
-                // jQuery selector
-                if ($.fn.dataTable.fnIsDataTable($(dt)[0])) {
-                    oDTSettings = $(dt).eq(0).dataTable().fnSettings();
-                }
-            }
-            else if (dt.nodeName && dt.nodeName.toLowerCase() === 'table') {
-                // Table node
-                if ($.fn.dataTable.fnIsDataTable(dt.nodeName)) {
-                    oDTSettings = $(dt.nodeName).dataTable().fnSettings();
-                }
-            }
-            else if (dt instanceof jQuery) {
-                // jQuery object
-                if ($.fn.dataTable.fnIsDataTable(dt[0])) {
-                    oDTSettings = dt.eq(0).dataTable().fnSettings();
-                }
-            }
-            else {
-                // DataTables settings object
-                oDTSettings = dt;
-            }
-
-            // Convert from camelCase to Hungarian, just as DataTables does
-            if ($.fn.dataTable.camelToHungarian) {
-                $.fn.dataTable.camelToHungarian(ColResize.defaults, opts || {});
-            }
-
-
-            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-             * Public class variables
-             * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-            /**
-             * @namespace Settings object which contains customizable information for ColResize instance
-             */
-            this.s = {
-                /**
-                 * DataTables settings object
-                 *  @property dt
-                 *  @type     Object
-                 *  @default  null
-                 */
-                "dt": null,
-
-                /**
-                 * Initialisation object used for this instance
-                 *  @property init
-                 *  @type     object
-                 *  @default  {}
-                 */
-                "init": $.extend(true, {}, ColResize.defaults, opts),
-
-                /**
-                 * @namespace Information used for the mouse drag
-                 */
-                "mouse": {
-                    "startX": -1,
-                    "startY": -1,
-                    "targetIndex": -1,
-                    "targetColumn": -1,
-                    "neighbourIndex": -1,
-                    "neighbourColumn": -1
-                },
-
-                /**
-                 * Status variable keeping track of mouse down status
-                 *  @property isMousedown
-                 *  @type     boolean
-                 *  @default  false
-                 */
-                "isMousedown": false
-            };
-
-
-            /**
-             * @namespace Common and useful DOM elements for the class instance
-             */
+var dt;
+(function (dt) {
+    var ColResize = (function () {
+        function ColResize($, api, settings) {
+            this.$ = $;
+            this.tableSize = -1;
+            this.initialized = false;
+            this.dt = {};
             this.dom = {
-                /**
-                 * Resizing element (the one the mouse is resizing)
-                 *  @property resize
-                 *  @type     element
-                 *  @default  null
-                 */
-                "resizeCol": null,
-
-                /**
-                 * Resizing element neighbour (the column next to the one the mouse is resizing)
-                 * This is for fixed table resizing.
-                 *  @property resize
-                 *  @type     element
-                 *  @default  null
-                 */
-                "resizeColNeighbour": null,
-
-                /**
-                 *  Array of events to be restored, used for overriding existing events from other plugins for a time.
-                 *  @property restoreEvents
-                 *  @type     array
-                 *  @default  []
-                 */
-                "restoreEvents": []
+                fixedLayout: false,
+                fixedHeader: null,
+                winResizeTimer: null,
+                mouse: {
+                    startX: -1,
+                    startWidth: null
+                },
+                table: {
+                    prevWidth: null
+                },
+                origState: true,
+                resize: false,
+                scrollHead: null,
+                scrollHeadTable: null,
+                scrollFoot: null,
+                scrollFootTable: null,
+                scrollFootInner: null,
+                scrollBody: null,
+                scrollBodyTable: null,
+                scrollX: false,
+                scrollY: false
             };
+            this.settings = this.$.extend(true, {}, dt.ColResize.defaultSettings, settings);
+            this.dt.settings = api.settings()[0];
+            this.dt.api = api;
+            this.dt.settings.colResize = this;
+            this.registerCallbacks();
+        }
+        ColResize.prototype.initialize = function () {
+            var _this = this;
+            this.$.each(this.dt.settings.aoColumns, function (i, col) {
+                return _this.setupColumn(col);
+            });
 
+            //Initialize fixedHeader if specified
+            if (this.settings.fixedHeader)
+                this.setupFixedHeader();
 
-            /* Constructor logic */
-            this.s.dt = oDTSettings.oInstance.fnSettings();
-            this.s.dt._colResize = this;
-            this._fnConstruct();
+            //Save scroll head and body if found
+            this.dom.scrollHead = this.$('div.' + this.dt.settings.oClasses.sScrollHead, this.dt.settings.nTableWrapper);
+            this.dom.scrollHeadInner = this.$('div.' + this.dt.settings.oClasses.sScrollHeadInner, this.dom.scrollHead);
+            this.dom.scrollHeadTable = this.$('div.' + this.dt.settings.oClasses.sScrollHeadInner + ' > table', this.dom.scrollHead);
 
-            /* Add destroy callback */
-            oDTSettings.oApi._fnCallbackReg(oDTSettings, 'aoDestroyCallback', $.proxy(this._fnDestroy, this), 'ColResize');
+            this.dom.scrollFoot = this.$('div.' + this.dt.settings.oClasses.sScrollFoot, this.dt.settings.nTableWrapper);
+            this.dom.scrollFootInner = this.$('div.' + this.dt.settings.oClasses.sScrollFootInner, this.dom.scrollFoot);
+            this.dom.scrollFootTable = this.$('div.' + this.dt.settings.oClasses.sScrollFootInner + ' > table', this.dom.scrollFoot);
 
-            return this;
+            this.dom.scrollBody = this.$('div.' + this.dt.settings.oClasses.sScrollBody, this.dt.settings.nTableWrapper);
+            this.dom.scrollBodyTable = this.$('> table', this.dom.scrollBody);
+            this.dt.api.on('draw.dt', this.onDraw.bind(this));
+            if (this.dom.scrollFootTable) {
+                this.dt.api.on('colPinFcDraw.dt', function (e, colPin, data) {
+                    if (data.leftClone.header)
+                        _this.$('tfoot', data.leftClone.header).remove();
+                    if (data.leftClone.footer)
+                        _this.$('thead', data.leftClone.footer).remove();
+                    if (data.rightClone.header)
+                        _this.$('tfoot', data.rightClone.header).remove();
+                    if (data.rightClone.footer)
+                        _this.$('thead', data.rightClone.footer).remove();
+                });
+            }
+
+            this.dom.scrollX = this.dt.settings.oInit.sScrollX === undefined ? false : true;
+            this.dom.scrollY = this.dt.settings.oInit.sScrollY === undefined ? false : true;
+
+            //SaveTableWidth
+            this.dt.settings.sTableWidthOrig = this.$(this.dt.settings.nTable).width();
+            this.updateTableSize();
+
+            this.dt.settings.oFeatures.bAutoWidthOrig = this.dt.settings.oFeatures.bAutoWidth;
+            this.dt.settings.oFeatures.bAutoWidth = false;
+
+            if (this.dt.settings.oInit.bStateSave && this.dt.settings.oLoadedState) {
+                this.loadState(this.dt.settings.oLoadedState);
+            }
+
+            this.onDraw();
+            this.dom.table.preWidth = parseFloat(this.dom.scrollBodyTable.css('width'));
+
+            if (!this.dom.scrollX && this.dom.scrollY && this.settings.fixedLayout && this.dt.settings._reszEvt) {
+                //We have to manually resize columns on window resize
+                var eventName = 'resize.DT-' + this.dt.settings.sInstance;
+                this.$(window).off(eventName);
+                this.$(window).on(eventName, function () {
+                    _this.proportionallyColumnSizing();
+                    //api._fnAdjustColumnSizing(this.dt.settings);
+                });
+            }
+
+            if (this.dom.scrollX || this.dom.scrollY) {
+                this.dt.api.on('column-sizing.dt', this.fixFootAndHeadTables.bind(this));
+                this.dt.api.on('column-visibility.dt', this.fixFootAndHeadTables.bind(this));
+            }
+
+            this.initialized = true;
+            this.dt.settings.oApi._fnCallbackFire(this.dt.settings, 'colResizeInitCompleted', 'colResizeInitCompleted', [this]);
         };
 
+        ColResize.prototype.setupColumn = function (col) {
+            var _this = this;
+            var $th = this.$(col.nTh);
+            if (col.resizable === false)
+                return;
 
-        ColResize.prototype = {
-            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-             * Public methods
-             * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-            /**
-             * Reset the column widths to the original widths that was detected on
-             * start up.
-             *  @return {this} Returns `this` for chaining.
-             *
-             *  @example
-             *    // DataTables initialisation with ColResize
-             *    var table = $('#example').dataTable( {
-             *        "sDom": 'Zlfrtip'
-             *    } );
-             *
-             *    // Add click event to a button to reset the ordering
-             *    $('#resetOrdering').click( function (e) {
-             *        e.preventDefault();
-             *        $.fn.dataTable.ColResize( table ).fnReset();
-             *    } );
-             */
-            "fnReset": function () {
-                var a = [];
-                for (var i = 0, iLen = this.s.dt.aoColumns.length; i < iLen; i++) {
-                    this.s.dt.aoColumns[i].width = this.s.dt.aoColumns[i]._ColResize_iOrigWidth;
-                }
-
-                this.s.dt.adjust().draw();
-
-                return this;
-            },
-
-
-            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-             * Private methods (they are of course public in JS, but recommended as private)
-             * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-            /**
-             * Constructor logic
-             *  @method  _fnConstruct
-             *  @returns void
-             *  @private
-             */
-            "_fnConstruct": function () {
-                var that = this;
-                var iLen = that.s.dt.aoColumns.length;
-                var i;
-
-                that._fnSetupMouseListeners();
-
-                /* Add event handlers for the resize handles */
-                for (i = 0; i < iLen; i++) {
-                    /* Mark the original column width for later reference */
-                    this.s.dt.aoColumns[i]._ColResize_iOrigWidth = this.s.dt.aoColumns[i].width;
-                }
-
-                this._fnSetColumnIndexes();
-
-                /* State saving */
-                this.s.dt.oApi._fnCallbackReg( this.s.dt, 'aoStateSaveParams', function (oS, oData) {
-                    that._fnStateSave.call(that, oData);
-                }, "ColResize_State" );
-
-                // State loading
-                this._fnStateLoad();
-            },
-
-            /**
-             * @method  _fnStateSave
-             * @param   object oState DataTables state
-             * @private
-             */
-            "_fnStateSave": function (oState) {
-                this.s.dt.aoColumns.forEach(function(col, index) {
-                    oState.columns[index].width = col.sWidthOrig;
-                });
-            },
-
-            /**
-             * If state has been loaded, apply the saved widths to the columns
-             * @method  _fnStateLoad
-             * @private
-             */
-            "_fnStateLoad": function() {
-                var that = this,
-                    loadedState = this.s.dt.oLoadedState;
-                if (loadedState && loadedState.columns) {
-                    var colStates = loadedState.columns,
-                        currCols = this.s.dt.aoColumns;
-                    // Only apply the saved widths if the number of columns is the same.
-                    // Otherwise, we don't know if we're applying the width to the correct column.
-                    if (colStates.length > 0 && colStates.length === currCols.length) {
-                        colStates.forEach(function(state, index) {
-                            var col = that.s.dt.aoColumns[index];
-                            if (state.width) {
-                                col.sWidthOrig = col.sWidth = state.width;
-                            }
-                        });
-                    }
-                }
-            },
-
-            /**
-             * Remove events of type from obj add it to restoreEvents array to be restored at a later time
-             * @param until string flag when to restore the event
-             * @param obj Object to remove events from
-             * @param type type of event to remove
-             * @param namespace namespace of the event being removed
-             */
-            "_fnDelayEvents": function (until, obj, type, namespace) {
-                var that = this;
-                //Get the events for the object
-                var events = $._data($(obj).get(0), 'events');
-                $.each(events, function (i, o) {
-                    //If the event type matches
-                    if (i == type) {
-                        //Loop through the possible many events with that type
-                        $.each(o, function (k, v) {
-                            //Somehow it is possible for the event to be undefined make sure it is defined first
-                            if (v) {
-                                if (namespace) {
-                                    //Add the event to the array of events to be restored later
-                                    that.dom.restoreEvents.push({"until": until, "obj": obj, "type": v.type, "namespace": v.namespace, "handler": v.handler});
-                                    //If the namespace matches
-                                    if (v.namespace == namespace) {
-                                        //Turn off/unbind the event
-                                        $(obj).off(type + "." + namespace);
-                                    }
-                                } else {
-                                    //Add the event to the array of events to be restored later
-                                    that.dom.restoreEvents.push({"until": until, "obj": obj, "type": v.type, "namespace": null, "handler": v.handler});
-                                    //Turn off/unbind the event
-                                    $(obj).off(type);
-                                }
-                            }
-                        });
-                    }
-                });
-            },
-
-            /**
-             * Loop through restoreEvents array and restore the events on the elements provided
-             */
-            "_fnRestoreEvents": function (until) {
-                var that = this;
-                //Loop through the events to be restored
-                var i;
-                for (i = that.dom.restoreEvents.length; i--;) {
-                    if (that.dom.restoreEvents[i].until == undefined || that.dom.restoreEvents[i].until == null || that.dom.restoreEvents[i].until == until) {
-                        if (that.dom.restoreEvents[i].namespace) {
-                            //Turn on the event for the object provided
-                            $(that.dom.restoreEvents[i].obj).off(that.dom.restoreEvents[i].type + "." + that.dom.restoreEvents[i].namespace).on(that.dom.restoreEvents[i].type + "." + that.dom.restoreEvents[i].namespace, that.dom.restoreEvents[i].handler);
-                            that.dom.restoreEvents.splice(i, 1);
-                        } else {
-                            //Turn on the event for the object provided
-                            $(that.dom.restoreEvents[i].obj).off(that.dom.restoreEvents[i].type).on(that.dom.restoreEvents[i].type, that.dom.restoreEvents[i].handler);
-                            that.dom.restoreEvents.splice(i, 1);
-                        }
-                    }
-                }
-            },
-
-            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-             * Mouse drop and drag
-             */
-
-            "_fnSetupMouseListeners":function() {
-                var that = this;
-                $(that.s.dt.nTableWrapper).off("mouseenter.ColResize").on("mouseenter.ColResize","th",function(e) {
-                    e.preventDefault();
-                    that._fnMouseEnter.call(that, e, this);
-                });
-                $(that.s.dt.nTableWrapper).off("mouseleave.ColResize").on("mouseleave.ColResize","th",function(e) {
-                    e.preventDefault();
-                    that._fnMouseLeave.call(that, e, this);
-                });
-            },
-
-            /**
-             * Add mouse listeners to the resize handle on TH element
-             *  @method  _fnMouseListener
-             *  @param   i Column index
-             *  @param   nTh TH resize handle element clicked on
-             *  @returns void
-             *  @private
-             */
-            "_fnMouseListener": function (i, nTh) {
-                var that = this;
-                $(nTh).off('mouseenter.ColResize').on('mouseenter.ColResize', function (e) {
-                    e.preventDefault();
-                    that._fnMouseEnter.call(that, e, nTh);
-                });
-                $(nTh).off('mouseleave.ColResize').on('mouseleave.ColResize', function (e) {
-                    e.preventDefault();
-                    that._fnMouseLeave.call(that, e, nTh);
-                });
-            },
-
-            /**
-             *
-             * @param e Mouse event
-             * @param nTh TH element that the mouse is over
-             */
-            "_fnMouseEnter": function (e, nTh) {
-                var that = this;
-                if(!that.s.isMousedown) {
-                    //Once the mouse has entered the cell add mouse move event to see if the mouse is over resize handle
-                    $(nTh).off('mousemove.ColResizeHandle').on('mousemove.ColResizeHandle', function (e) {
-                        e.preventDefault();
-                        that._fnResizeHandleCheck.call(that, e, nTh);
-                    });
-                }
-            },
-
-            /**
-             * Clear mouse events when the mouse has left the th
-             * @param e Mouse event
-             * @param nTh TH element that the mouse has just left
-             */
-            "_fnMouseLeave": function (e, nTh) {
-                //Once the mouse has left the TH make suure to remove the mouse move listener
-                $(nTh).off('mousemove.ColResizeHandle');
-            },
-
-            /**
-             * Mouse down on a TH element in the table header
-             *  @method  _fnMouseDown
-             *  @param   event e Mouse event
-             *  @param   element nTh TH element to be resized
-             *  @returns void
-             *  @private
-             */
-            "_fnMouseDown": function (e, nTh) {
-                var that = this;
-
-                that.s.isMousedown = true;
+            // listen to mousemove event for resize
+            $th.on('mousemove.ColResize', function (e) {
+                if (_this.dom.resize || col.resizable === false)
+                    return;
 
                 /* Store information about the mouse position */
-                var target = $(e.target).closest('th, td');
-                var offset = target.offset();
+                var $thTarget = e.target.nodeName.toUpperCase() == 'TH' ? _this.$(e.target) : _this.$(e.target).closest('TH');
+                var offset = $thTarget.offset();
+                var nLength = $thTarget.innerWidth();
 
-                /* Store information about the mouse position for resize calculations in mouse move function */
-                this.s.mouse.startX = e.pageX;
-                this.s.mouse.startY = e.pageY;
+                /* are we on the col border (if so, resize col) */
+                if (Math.abs(e.pageX - Math.round(offset.left + nLength)) <= 5) {
+                    $thTarget.css({ 'cursor': 'col-resize' });
+                } else
+                    $thTarget.css({ 'cursor': 'pointer' });
+            });
 
-                //Store the indexes of the columns the mouse is down on
-                var idx = that.dom.resizeCol[0].cellIndex;
-                
-                // the last column has no 'right-side' neighbour
-                // with fixed this can make the table smaller
-               if (that.dom.resizeColNeighbour[0] === undefined){
-                    var idxNeighbour = 0;
-                } else {
-                    var idxNeighbour = that.dom.resizeColNeighbour[0].cellIndex;
-                }
-                
-               
+            //Save the original width
+            col._ColResize_sWidthOrig = col.sWidthOrig;
+            col.initWidth = $th.width();
+            col.minWidthOrig = col.minWidth;
 
-                if (idx === undefined) {
-                    return;
-                }
+            $th.on('dblclick.ColResize', function (e) {
+                _this.onDblClick(e, $th, col);
+            });
 
-                this.s.mouse.targetIndex = idx;
-                this.s.mouse.targetColumn = this.s.dt.aoColumns[ idx ];
+            $th.off('mousedown.ColReorder');
 
-                this.s.mouse.neighbourIndex = idxNeighbour;
-                this.s.mouse.neighbourColumn = this.s.dt.aoColumns[ idxNeighbour ];
+            // listen to mousedown event
+            $th.on('mousedown.ColResize', function (e) {
+                return _this.onMouseDown(e, col);
+            });
+        };
 
-                /* Add event handlers to the document */
-                $(document)
-                    .off('mousemove.ColResize').on('mousemove.ColResize', function (e) {
-                        that._fnMouseMove.call(that, e);
-                    })
-                    .off('mouseup.ColResize').on('mouseup.ColResize', function (e) {
-                        that._fnMouseUp.call(that, e);
-                    });
-            },
+        ColResize.prototype.setupFixedHeader = function () {
+            var fhSettings = this.settings.fixedHeader === true ? undefined : this.settings.fixedHeader;
 
-            /**
-             * Deal with a mouse move event while dragging to resize a column
-             *  @method  _fnMouseMove
-             *  @param   e Mouse event
-             *  @returns void
-             *  @private
-             */
-            "_fnMouseMove": function (e) {
-                var that = this;
+            //If left or right option was set to true disable resizing for the first or last column
+            if (this.$.isPlainObject(fhSettings)) {
+                var columns = this.dt.settings.aoColumns;
+                if (fhSettings.left === true)
+                    columns[0].resizable = false;
+                if (fhSettings.right === true)
+                    columns[columns.length - 1].resizable = false;
+            }
 
-                var offset = $(that.s.mouse.targetColumn.nTh).offset();
-                var relativeX = (e.pageX - offset.left);
-                var distFromLeft = relativeX;
-                var distFromRight = $(that.s.mouse.targetColumn.nTh).outerWidth() - relativeX - 1;
+            this.dom.fixedHeader = new this.$.fn.dataTable.FixedHeader(this.dt.api, fhSettings);
+            var origUpdateClones = this.dom.fixedHeader._fnUpdateClones;
+            var that = this;
 
-                //Change in mouse x position
-                var dx = e.pageX - that.s.mouse.startX;
-                //Get the minimum width of the column (default minimum 10px)
-                var minColumnWidth = Math.max(parseInt($(that.s.mouse.targetColumn.nTh).css('min-width')), 10);
-                //Store the previous width of the column
-                var prevWidth = $(that.s.mouse.targetColumn.nTh).width();
-                //As long as the cursor is past the handle, resize the columns
-                if ((dx > 0 && distFromRight <= 0) || (dx < 0 && distFromRight >= 0)) {
-                    if (!that.s.init.tableWidthFixed) {
-                        //As long as the width is larger than the minimum
-                        var newColWidth = Math.max(minColumnWidth, prevWidth + dx);
-                        //Get the width difference (take into account the columns minimum width)
-                        var widthDiff = newColWidth - prevWidth;
-                        var colResizeIdx = parseInt(that.dom.resizeCol.attr("data-column-index"));
-                        //Set datatable column widths
-                        that.s.mouse.targetColumn.sWidthOrig = that.s.mouse.targetColumn.sWidth = that.s.mouse.targetColumn.width = newColWidth + "px";
-                        var domCols = $(that.s.dt.nTableWrapper).find("th[data-column-index='"+colResizeIdx+"']");
-                        //For each table expand the width by the same amount as the column
-                        //This accounts for other datatable plugins like FixedColumns
-                        domCols.parents("table").each(function() {
-                            if(!$(this).parent().hasClass("DTFC_LeftBodyLiner")) {
-                                var newWidth = $(this).width() + widthDiff;
-                                $(this).width(newWidth);
-                            } else {
-                                var newWidth =$(that.s.dt.nTableWrapper).find(".DTFC_LeftHeadWrapper").children("table").width();
-                                $(this).parents(".DTFC_LeftWrapper").width(newWidth);
-                                $(this).parent().width(newWidth+15);
-                                $(this).width(newWidth);
-                            }
-                        });
-                        //Apply the new width to the columns after the table has been resized
-                        domCols.width(that.s.mouse.targetColumn.width);
-                    } else {
-                        //A neighbour column must exist in order to resize a column in a table with a fixed width
-                        if (that.s.mouse.neighbourColumn) {
-                            //Get the minimum width of the neighbor column (default minimum 10px)
-                            var minColumnNeighbourWidth = Math.max(parseInt($(that.s.mouse.neighbourColumn.nTh).css('min-width')), 10);
-                            //Store the previous width of the neighbour column
-                            var prevNeighbourWidth = $(that.s.mouse.neighbourColumn.nTh).width();
-                            //As long as the width is larger than the minimum
-                            var newColWidth = Math.max(minColumnWidth, prevWidth + dx);
-                            var newColNeighbourWidth = Math.max(minColumnNeighbourWidth, prevNeighbourWidth - dx);
-                            //Get the width difference (take into account the columns minimum width)
-                            var widthDiff = newColWidth - prevWidth;
-                            var widthDiffNeighbour = newColNeighbourWidth - prevNeighbourWidth;
-                            //Get the column index for the column being changed
-                            var colResizeIdx = parseInt(that.dom.resizeCol.attr("data-column-index"));
-                            var neighbourColResizeIdx = parseInt(that.dom.resizeColNeighbour.attr("data-column-index"));
-                            //Set datatable column widths
-                            that.s.mouse.neighbourColumn.sWidthOrig = that.s.mouse.neighbourColumn.sWidth = that.s.mouse.neighbourColumn.width = newColNeighbourWidth + "px";
-                            that.s.mouse.targetColumn.sWidthOrig = that.s.mouse.targetColumn.sWidth = that.s.mouse.targetColumn.width = newColWidth + "px";
-                            //Get list of columns based on column index in all affected tables tables. This accounts for other plugins like FixedColumns
-                            var domNeighbourCols = $(that.s.dt.nTableWrapper).find("th[data-column-index='" + neighbourColResizeIdx + "']");
-                            var domCols = $(that.s.dt.nTableWrapper).find("th[data-column-index='" + colResizeIdx + "']");
-                            //If dx if positive (the width is getting larger) shrink the neighbour columns first
-                            if(dx>0) {
-                                domNeighbourCols.width(that.s.mouse.neighbourColumn.width);
-                                domCols.width(that.s.mouse.targetColumn.width);
-                            } else {
-                                //Apply the new width to the columns then to the neighbour columns
-                                domCols.width(that.s.mouse.targetColumn.width);
-                                domNeighbourCols.width(that.s.mouse.neighbourColumn.width);
-                            }
-                        }
-                    }
-                }
-                that.s.mouse.startX = e.pageX;
-            },
+            //FixeHeader doesn't have any callback after updating the clones so we have to wrap the orig function
+            this.dom.fixedHeader._fnUpdateClones = function () {
+                origUpdateClones.apply(this, arguments);
+                that.memorizeFixedHeaderNodes();
+            };
 
-            /**
-             * Check to see if the mouse is over the resize handle area
-             * @param e
-             * @param nTh
-             */
-            "_fnResizeHandleCheck": function (e, nTh) {
-                var that = this;
+            //As we missed the first call of _fnUpdateClones we have to call memorizeFixedHeaderNodes function manually
+            this.memorizeFixedHeaderNodes();
+        };
 
-                var offset = $(nTh).offset();
-                var relativeX = (e.pageX - offset.left);
-                var relativeY = (e.pageY - offset.top);
-                var distFromLeft = relativeX;
-                var distFromRight = $(nTh).outerWidth() - relativeX - 1;
-
-                var handleBuffer = this.s.init.handleWidth / 2;
-                var leftHandleOn = distFromLeft < handleBuffer;
-                var rightHandleOn = distFromRight < handleBuffer;
-
-                //If this is the first table cell
-                if ($(nTh).prev("th").length == 0) {
-                    if(this.s.init.rtl)
-                        rightHandleOn = false;
-                    else
-                        leftHandleOn = false;
-                }
-                //If this is the last cell and the table is fixed width don't let them expand the last cell directly
-                if ($(nTh).next("th").length == 0 && this.s.init.tableWidthFixed) {
-                    if(this.s.init.rtl)
-                        leftHandleOn = false;
-                    else
-                        rightHandleOn = false;
-                }
-
-                var resizeAvailable = leftHandleOn||rightHandleOn;
-
-                //If table is in right to left mode flip which TH is being resized
-                if (that.s.init.rtl) {
-                    //Handle is to the left
-                    if (leftHandleOn) {
-                        that.dom.resizeCol = $(nTh);
-                        that.dom.resizeColNeighbour = $(nTh).next();
-                    } else if (rightHandleOn) {
-                        that.dom.resizeCol = $(nTh).prev();
-                        that.dom.resizeColNeighbour = $(nTh);
-                    }
-                } else {
-                    //Handle is to the right
-                    if (rightHandleOn) {
-                        that.dom.resizeCol = $(nTh);
-                        that.dom.resizeColNeighbour = $(nTh).next();
-                    } else if (leftHandleOn) {
-                        that.dom.resizeCol = $(nTh).prev();
-                        that.dom.resizeColNeighbour = $(nTh);
-                    }
-                }
-
-                //If table width is fixed make sure both columns are resizable else just check the one.
-                if(this.s.init.tableWidthFixed)
-                    resizeAvailable &= this.s.init.exclude.indexOf(parseInt($(that.dom.resizeCol).attr("data-column-index"))) == -1 && this.s.init.exclude.indexOf(parseInt($(that.dom.resizeColNeighbour).attr("data-column-index"))) == -1;
-                else
-                    resizeAvailable &= this.s.init.exclude.indexOf(parseInt($(that.dom.resizeCol).attr("data-column-index"))) == -1;
-
-                $(nTh).off('mousedown.ColResize');
-                if (resizeAvailable) {
-                    $(nTh).css("cursor", "ew-resize");
-
-                    //Delay other mousedown events from the Reorder plugin
-                    that._fnDelayEvents(null, nTh, "mousedown", "ColReorder");
-                    that._fnDelayEvents("click", nTh, "click", "DT");
-
-                    $(nTh).off('mousedown.ColResize').on('mousedown.ColResize', function (e) {
-                        e.preventDefault();
-                        that._fnMouseDown.call(that, e, nTh);
-                    })
-                        .off('click.ColResize').on('click.ColResize', function (e) {
-                            that._fnClick.call(that, e);
-                        });
-                } else {
-                    $(nTh).css("cursor", "pointer");
-                    $(nTh).off('mousedown.ColResize click.ColResize');
-                    //Restore any events that were removed
-                    that._fnRestoreEvents();
-                    //This is to restore column sorting on click functionality
-                    if (!that.s.isMousedown)
-                    //Restore click event if mouse is not down
-                        this._fnRestoreEvents("click");
-                }
-            },
-
-            "_fnClick": function (e) {
-                var that = this;
-                that.s.isMousedown = false;
-                e.stopImmediatePropagation();
-            },
-
-            /**
-             * Finish off the mouse drag
-             *  @method  _fnMouseUp
-             *  @param   e Mouse event
-             *  @returns void
-             *  @private
-             */
-            "_fnMouseUp": function (e) {
-                var that = this;
-                that.s.isMousedown = false;
-
-                //Fix width of column to be the size the dom is limited to (for when user sets min-width on a column)
-                that.s.mouse.targetColumn.width = that.dom.resizeCol.width();
-
-                $(document).off('mousemove.ColResize mouseup.ColResize');
-                this.s.dt.oInstance.fnAdjustColumnSizing();
-                //Table width fix, prevents extra gaps between tables
-                var LeftWrapper = $(that.s.dt.nTableWrapper).find(".DTFC_LeftWrapper");
-                var DTFC_LeftWidth = LeftWrapper.width();
-                LeftWrapper.children(".DTFC_LeftHeadWrapper").children("table").width(DTFC_LeftWidth);
-
-                if (that.s.init.resizeCallback) {
-                    that.s.init.resizeCallback.call(that, that.s.mouse.targetColumn);
-                }
-            },
-
-            /**
-             * Clean up ColResize memory references and event handlers
-             *  @method  _fnDestroy
-             *  @returns void
-             *  @private
-             */
-            "_fnDestroy": function () {
-                var i, iLen;
-
-                for (i = 0, iLen = this.s.dt.aoDrawCallback.length; i < iLen; i++) {
-                    if (this.s.dt.aoDrawCallback[i].sName === 'ColResize_Pre') {
-                        this.s.dt.aoDrawCallback.splice(i, 1);
+        ColResize.prototype.memorizeFixedHeaderNodes = function () {
+            var _this = this;
+            var fhSettings = this.dom.fixedHeader.fnGetSettings();
+            var fhCache = fhSettings.aoCache;
+            var i, col;
+            for (i = 0; i < fhCache.length; i++) {
+                var type = fhCache[i].sType;
+                var propName;
+                var selector;
+                switch (type) {
+                    case 'fixedHeader':
+                        propName = 'fhTh';
+                        selector = 'thead>tr>th';
+                        this.dt.settings.fhTHead = fhCache[i].nNode;
                         break;
-                    }
+                    case 'fixedFooter':
+                        propName = 'fhTf';
+                        selector = 'thead>tr>th';
+
+                        //prepend a cloned thead to the floating footer table so that resizing will work correctly
+                        var tfoot = this.$(fhCache[i].nNode);
+                        var thead = this.$(this.dt.settings.nTHead).clone().css({ height: 0, visibility: 'hidden' });
+                        this.$('tr', thead).css('height', 0);
+                        this.$('tr>th', thead).css({
+                            'height': 0,
+                            'padding-bottom': 0,
+                            'padding-top': 0,
+                            'border-bottom-width': 0,
+                            'border-top-width': 0,
+                            'line-height': 0
+                        });
+                        tfoot.prepend(thead);
+                        this.$('tfoot>tr>th', tfoot).css('width', '');
+                        this.dt.settings.fhTFoot = fhCache[i].nNode;
+                        break;
+                    default:
+                        continue;
                 }
 
-                $(this.s.dt.nTHead).find('*').off('.ColResize');
-
-                $.each(this.s.dt.aoColumns, function (i, column) {
-                    $(column.nTh).removeAttr('data-column-index');
-                });
-
-                this.s.dt._colResize = null;
-                this.s = null;
-            },
-
-
-            /**
-             * Add a data attribute to the column headers, so we know the index of
-             * the row to be reordered. This allows fast detection of the index, and
-             * for this plug-in to work with FixedHeader which clones the nodes.
-             *  @private
-             */
-            "_fnSetColumnIndexes": function () {
-                $.each(this.s.dt.aoColumns, function (i, column) {
-                    $(column.nTh).attr('data-column-index', i);
+                this.$(selector, fhCache[i].nNode).each(function (j, th) {
+                    col = _this.getVisibleColumn(j);
+                    col[propName] = th;
                 });
             }
         };
 
-
-        /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-         * Static parameters
-         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-        /**
-         * ColResize default settings for initialisation
-         *  @namespace
-         *  @static
-         */
-        ColResize.defaults = {
-            /**
-             * Callback function that is fired when columns are resized
-             *  @type function():void
-             *  @default null
-             *  @static
-             */
-            "resizeCallback": null,
-
-            /**
-             * Exclude array for columns that are not resizable
-             *  @property exclude
-             *  @type     array of indexes that are excluded from resizing
-             *  @default  []
-             */
-            "exclude": [],
-
-            /**
-             * Check to see if user is using a fixed table width or dynamic
-             * if true:
-             *      -Columns will resize themselves and their neighbour
-             *      -If neighbour is excluded resize will not occur
-             * if false:
-             *      -Columns will resize themselves and increase or decrease the width of the table accordingly
-             */
-            "tableWidthFixed": true,
-
-            /**
-             * Width of the resize handle in pixels
-             *  @property handleWidth
-             *  @type     int (pixels)
-             *  @default  10
-             */
-            "handleWidth": 10,
-
-            /**
-             * Right to left support, when true flips which column they are resizing on mouse down
-             *  @property rtl
-             *  @type     bool
-             *  @default  false
-             */
-            "rtl": false
+        //zero based index
+        ColResize.prototype.getVisibleColumn = function (idx) {
+            var columns = this.dt.settings.aoColumns;
+            var currVisColIdx = -1;
+            for (var i = 0; i < columns.length; i++) {
+                if (!columns[i].bVisible)
+                    continue;
+                currVisColIdx++;
+                if (currVisColIdx == idx)
+                    return columns[i];
+            }
+            return null;
         };
 
+        ColResize.prototype.updateTableSize = function () {
+            if (this.dom.scrollX && this.dom.scrollHeadTable.length)
+                this.tableSize = this.dom.scrollHeadTable.width();
+            else
+                this.tableSize = -1;
+        };
 
-        /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-         * Constants
-         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        ColResize.prototype.proportionallyColumnSizing = function () {
+            var _this = this;
+            var prevWidths = [], newWidths = [], prevWidth, newWidth, newTableWidth, prevTableWidth, moveLength, multiplier, cWidth, i, j, delay = 500, prevTotalColWidths = 0, currTotalColWidths, columnRestWidths = [], columns = this.dt.settings.aoColumns, bodyTableColumns = this.$('thead th', this.dom.scrollBodyTable), headTableColumns = this.$('thead th', this.dom.scrollHeadTable), footTableColumns = this.dom.scrollFootTable.length ? this.$('thead th', this.dom.scrollFootTable) : [], visColumns = [];
 
-        /**
-         * ColResize version
-         *  @constant  version
-         *  @type      String
-         *  @default   As code
-         */
-        ColResize.version = "0.0.10";
+            for (i = 0; i < columns.length; i++) {
+                if (!columns[i].bVisible)
+                    continue;
+                visColumns.push(columns[i]);
+                columnRestWidths.push(0); //set default value
+            }
 
+            for (i = 0; i < bodyTableColumns.length; i++) {
+                cWidth = parseFloat(bodyTableColumns[i].style.width);
+                prevTotalColWidths += cWidth;
+                prevWidths.push(cWidth);
+            }
 
-        /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-         * DataTables interfaces
-         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+            for (i = 0; i < bodyTableColumns.length; i++) {
+                bodyTableColumns[i].style.width = '';
+            }
 
-        // Expose
-        $.fn.dataTable.ColResize = ColResize;
-        $.fn.DataTable.ColResize = ColResize;
+            //Get the new table width calculated by the browser
+            newTableWidth = parseFloat(this.dom.scrollBodyTable.css('width'));
 
+            //Get the old table width
+            prevTableWidth = this.dom.table.preWidth;
+            moveLength = newTableWidth - prevTableWidth;
+            if (moveLength == 0) {
+                for (i = 0; i < bodyTableColumns.length; i++) {
+                    bodyTableColumns[i].style.width = prevWidths[i] + 'px';
+                }
+                return;
+            }
 
-        // Register a new feature with DataTables
-        if (typeof $.fn.dataTable == "function" &&
-            typeof $.fn.dataTableExt.fnVersionCheck == "function" &&
-            $.fn.dataTableExt.fnVersionCheck('1.9.3')) {
-            $.fn.dataTableExt.aoFeatures.push({
-                "fnInit": function (settings) {
-                    var table = settings.oInstance;
+            //var tot = 0;
+            currTotalColWidths = prevTotalColWidths;
+            for (i = 0; i < visColumns.length; i++) {
+                //For each column calculate the new width
+                prevWidth = prevWidths[i];
+                multiplier = (+(prevWidth / prevTotalColWidths).toFixed(2));
 
-                    if (!settings._colResize) {
-                        var dtInit = settings.oInit;
-                        var opts = dtInit.colResize || dtInit.oColResize || {};
+                //tot += multiplier;
+                newWidth = prevWidth + (moveLength * multiplier) + columnRestWidths[i];
+                currTotalColWidths -= prevWidth;
 
-                        new ColResize(settings, opts);
+                //Check whether the column can be resized to the new calculated value
+                //if not, set it to the min or max width depends on the moveLength value
+                if (!this.canResizeColumn(visColumns[i], newWidth)) {
+                    cWidth = moveLength > 0 ? this.getColumnMaxWidth(visColumns[i]) : this.getColumnMinWidth(visColumns[i]);
+                    var rest = newWidth - cWidth;
+                    newWidth = cWidth;
+
+                    for (j = (i + 1); j < visColumns.length; j++) {
+                        columnRestWidths[j] += rest * (+(visColumns[j] / currTotalColWidths).toFixed(2));
                     }
-                    else {
-                        table.oApi._fnLog(settings, 1, "ColResize attempted to initialise twice. Ignoring second");
-                    }
+                }
+                newWidths.push(newWidth);
+            }
 
-                    return null;
-                    /* No node for DataTables to insert */
-                },
-                "cFeature": "Z",
-                "sFeature": "ColResize"
+            //Apply the calculated column widths to the headers cells
+            var tablesWidth = this.dom.scrollBodyTable.outerWidth() + 'px';
+            for (i = 0; i < headTableColumns.length; i++) {
+                headTableColumns[i].style.width = newWidths[i] + 'px';
+            }
+            this.dom.scrollHeadTable.css('width', tablesWidth);
+            this.dom.scrollHeadInner.css('width', tablesWidth);
+
+            for (i = 0; i < bodyTableColumns.length; i++) {
+                bodyTableColumns[i].style.width = newWidths[i] + 'px';
+            }
+
+            if (this.dom.scrollFootTable.length) {
+                for (i = 0; i < footTableColumns.length; i++) {
+                    footTableColumns[i].style.width = newWidths[i] + 'px';
+                }
+                this.dom.scrollFootTable[0].style.width = tablesWidth;
+                this.dom.scrollFootInner[0].style.width = tablesWidth;
+            }
+
+            //console.log('moveLength: ' + moveLength + ' multiplier: ' + tot);
+            //console.log(newWidths);
+            this.dom.table.preWidth = newTableWidth;
+
+            //Call afterResizing function after the window stops resizing
+            if (this.dom.winResizeTimer)
+                clearTimeout(this.dom.winResizeTimer);
+            this.dom.winResizeTimer = setTimeout(function () {
+                _this.afterResizing();
+                _this.dom.winResizeTimer = null;
+            }, delay);
+        };
+
+        ColResize.prototype.getColumnIndex = function (col) {
+            //Get the current column position
+            var colIdx = -1;
+            for (var i = 0; i < this.dt.settings.aoColumns.length; i++) {
+                if (this.dt.settings.aoColumns[i] === col) {
+                    colIdx = i;
+                    break;
+                }
+            }
+            return colIdx;
+        };
+
+        ColResize.prototype.getColumnEvent = function (th, type, ns) {
+            var event;
+            var thEvents = this.$._data(th, "events");
+            this.$.each(thEvents[type] || [], function (idx, handler) {
+                if (handler.namespace === ns)
+                    event = handler;
             });
-        } else {
-            alert("Warning: ColResize requires DataTables 1.9.3 or greater - www.datatables.net/download");
-        }
+            return event;
+        };
 
+        ColResize.prototype.loadState = function (data) {
+            var _this = this;
+            var i, col;
 
-// API augmentation
-        if ($.fn.dataTable.Api) {
-            $.fn.dataTable.Api.register('colResize.reset()', function () {
-                return this.iterator('table', function (ctx) {
-                    ctx._colResize.fnReset();
+            var onInit = function () {
+                if (_this.settings.fixedLayout) {
+                    _this.setTablesLayout('fixed');
+                } else {
+                    _this.setTablesLayout('auto');
+                }
+                if (!data.colResize) {
+                    if (_this.dt.settings.oFeatures.bAutoWidthOrig)
+                        _this.dt.settings.oFeatures.bAutoWidth = true;
+                    else if (_this.dt.settings.sTableWidthOrig)
+                        _this.$(_this.dt.settings.nTable).width(_this.dt.settings.sTableWidthOrig);
+
+                    for (i = 0; i < _this.dt.settings.aoColumns.length; i++) {
+                        col = _this.dt.settings.aoColumns[i];
+                        if (col._ColResize_sWidthOrig) {
+                            col.sWidthOrig = col._ColResize_sWidthOrig;
+                        }
+                    }
+                    _this.dom.origState = true;
+                } else {
+                    var columns = data.colResize.columns || [];
+                    var wMap = {};
+
+                    if (_this.dt.settings.oFeatures.bAutoWidth) {
+                        _this.dt.settings.oFeatures.bAutoWidth = false;
+                    }
+
+                    if (_this.dom.scrollX && data.colResize.tableSize > 0) {
+                        _this.dom.scrollHeadTable.width(data.colResize.tableSize);
+                        _this.dom.scrollHeadInner.width(data.colResize.tableSize);
+                        _this.dom.scrollBodyTable.width(data.colResize.tableSize);
+                        _this.dom.scrollFootTable.width(data.colResize.tableSize);
+                    }
+
+                    for (i = 0; i < columns.length; i++) {
+                        wMap[i] = columns[i];
+                    }
+                    for (i = 0; i < _this.dt.settings.aoColumns.length; i++) {
+                        col = _this.dt.settings.aoColumns[i];
+                        var idx = col._ColReorder_iOrigCol != null ? col._ColReorder_iOrigCol : i;
+                        col.sWidth = wMap[idx];
+                        col.sWidthOrig = wMap[idx];
+                        col.nTh.style.width = columns[i];
+
+                        //Check for FixedHeader
+                        if (col.fhTh)
+                            col.fhTh.style.width = columns[i];
+                        if (col.fhTf)
+                            col.fhTf.style.width = columns[i];
+                    }
+                    _this.dom.origState = false;
+                }
+
+                _this.dt.api.columns.adjust();
+                if (_this.dom.scrollX || _this.dom.scrollY)
+                    _this.dt.api.draw(false);
+            };
+
+            if (this.initialized) {
+                onInit();
+                return;
+            }
+            this.dt.settings.oApi._fnCallbackReg(this.dt.settings, 'colResizeInitCompleted', function () {
+                onInit();
+            }, "ColResize_Init");
+        };
+
+        ColResize.prototype.saveState = function (data) {
+            if (!this.dt.settings._bInitComplete) {
+                var oData = this.dt.settings.fnStateLoadCallback.call(this.dt.settings.oInstance, this.dt.settings);
+                if (oData && oData.colResize)
+                    data.colResize = oData.colResize;
+                return;
+            }
+            this.updateTableSize();
+            data.colResize = {
+                columns: [],
+                tableSize: this.tableSize
+            };
+
+            data.colResize.columns.length = this.dt.settings.aoColumns.length;
+            for (var i = 0; i < this.dt.settings.aoColumns.length; i++) {
+                var col = this.dt.settings.aoColumns[i];
+                var idx = col._ColReorder_iOrigCol != null ? col._ColReorder_iOrigCol : i;
+                data.colResize.columns[idx] = col.sWidth;
+            }
+        };
+
+        ColResize.prototype.registerCallbacks = function () {
+            var _this = this;
+            /* State saving */
+            this.dt.settings.oApi._fnCallbackReg(this.dt.settings, 'aoStateSaveParams', function (oS, oData) {
+                _this.saveState(oData);
+            }, "ColResize_StateSave");
+
+            /* State loading */
+            this.dt.settings.oApi._fnCallbackReg(this.dt.settings, 'aoStateLoaded', function (oS, oData) {
+                _this.loadState(oData);
+            }, "ColResize_StateLoad");
+
+            if (this.$.fn.DataTable.models.oSettings.remoteStateInitCompleted !== undefined) {
+                //Integrate with remote state
+                this.dt.settings.oApi._fnCallbackReg(this.dt.settings, 'remoteStateLoadedParams', function (s, data) {
+                    _this.loadState(data);
+                }, "ColResize_StateLoad");
+                this.dt.settings.oApi._fnCallbackReg(this.dt.settings, 'remoteStateSaveParams', function (s, data) {
+                    _this.saveState(data);
+                }, "ColResize_StateSave");
+            }
+        };
+
+        ColResize.prototype.setTablesLayout = function (value) {
+            if (this.dom.scrollX || this.dom.scrollY) {
+                this.dom.scrollHeadTable.css('table-layout', value);
+                this.dom.scrollBodyTable.css('table-layout', value);
+                this.dom.scrollFootTable.css('table-layout', value);
+            } else {
+                this.$(this.dt.settings.nTable).css('table-layout', value);
+            }
+            this.dom.fixedLayout = value == 'fixed';
+        };
+
+        //only when scrollX or scrollY are enabled
+        ColResize.prototype.fixFootAndHeadTables = function (e) {
+            var _this = this;
+            if (e != null && e.target !== this.dt.settings.nTable)
+                return;
+
+            if (this.dom.scrollFootTable.length) {
+                this.$('thead', this.dom.scrollFootTable).remove();
+                this.dom.scrollFootTable.prepend(this.$('thead', this.dom.scrollBodyTable).clone());
+            }
+            this.$('tfoot', this.dom.scrollHeadTable).remove();
+            this.dom.scrollHeadTable.append(this.$('tfoot', this.dom.scrollBodyTable).clone());
+            var removeFooterWidth = function (table) {
+                _this.$('tfoot>tr>th', table).each(function (i, th) {
+                    _this.$(th).css('width', '');
                 });
+            };
+
+            //Remove all tfoot headers widths
+            removeFooterWidth(this.dom.scrollFootTable);
+            removeFooterWidth(this.dom.scrollBodyTable);
+            removeFooterWidth(this.dom.scrollHeadTable);
+        };
+
+        ColResize.prototype.onDraw = function (e) {
+            if (e != null && e.target !== this.dt.settings.nTable)
+                return;
+            if (this.dom.scrollX || this.dom.scrollY) {
+                this.fixFootAndHeadTables();
+
+                //Fix the header table padding
+                if (this.dt.settings._bInitComplete) {
+                    var borderWidth = this.dom.scrollHeadTable.outerWidth() - this.dom.scrollHeadTable.innerWidth();
+                    var paddingType = this.dt.settings.oBrowser.bScrollbarLeft ? 'padding-left' : 'padding-right';
+                    var paddingVal = parseFloat(this.dom.scrollHeadInner.css(paddingType));
+                    this.dom.scrollHeadInner.css(paddingType, (paddingVal + borderWidth) + 'px');
+                }
+            }
+
+            var autoWidthTypes = [];
+            if (this.settings.dblClick == 'autoMinFit' || !this.settings.fixedLayout)
+                autoWidthTypes.push('autoMinWidth');
+            if (this.settings.dblClick == 'autoFit')
+                autoWidthTypes.push('autoWidth');
+
+            //Call this only once so that the table will be cloned only one time
+            if (autoWidthTypes.length)
+                this.updateColumnsAutoWidth(autoWidthTypes);
+
+            if (!this.settings.fixedLayout) {
+                var columns = this.dt.settings.aoColumns;
+                var i;
+                for (i = 0; i < columns.length; i++) {
+                    if (!columns[i].bVisible)
+                        continue;
+                    columns[i].minWidth = Math.max((columns[i].minWidthOrig || 0), columns[i].autoMinWidth);
+
+                    //We have to resize if the current column width if is less that the column minWidth
+                    if (this.$(columns[i].nTh).width() < columns[i].minWidth)
+                        this.resize(columns[i], columns[i].minWidth);
+                }
+            } else {
+                if (!this.dom.fixedLayout) {
+                    this.setTablesLayout('fixed');
+                    this.afterResizing();
+                }
+            }
+        };
+
+        ColResize.prototype.getTableAutoColWidths = function (table, types) {
+            var widths = {}, i, colIdx;
+            var $table = this.$(table);
+            for (i = 0; i < types.length; i++) {
+                widths[types[i]] = [];
+            }
+            if (!types.length || !$table.length)
+                return widths;
+
+            var clnTable = $table.clone().removeAttr('id').css('table-layout', 'auto');
+
+            // Remove any assigned widths from the footer (from scrolling)
+            clnTable.find('thead th, tfoot th, tfoot td').css('width', '');
+            var container = this.$('<div />').css({
+                'position': 'absolute',
+                'width': '9999px',
+                'height': '9999px'
             });
-        }
+            container.append(clnTable);
+            this.$(this.dt.settings.nTableWrapper).append(container);
 
+            var headerCols = this.$('thead>tr>th', clnTable);
+
+            for (i = 0; i < types.length; i++) {
+                var type = types[i];
+                var fn = '';
+                switch (type) {
+                    case 'autoMinWidth':
+                        clnTable.css('width', '1px');
+                        fn = 'width';
+                        break;
+                    case 'autoWidth':
+                        clnTable.css('width', 'auto');
+                        fn = 'outerWidth';
+                        break;
+                    default:
+                        throw 'Invalid widthType ' + type;
+                }
+                for (colIdx = 0; colIdx < headerCols.length; colIdx++) {
+                    widths[type].push(this.$(headerCols[colIdx])[fn]());
+                }
+            }
+
+            container.remove();
+            return widths;
+        };
+
+        ColResize.prototype.updateColumnsAutoWidth = function (types) {
+            var columns = this.dt.settings.aoColumns;
+            var i, j, colLen, type, visColIdx = 0;
+            var widths = {};
+            if (this.dom.scrollX || this.dom.scrollY) {
+                var headWidths = this.getTableAutoColWidths(this.dom.scrollHeadTable, types);
+                var bodyWidths = this.getTableAutoColWidths(this.dom.scrollBodyTable, types);
+                var footWidths = this.getTableAutoColWidths(this.dom.scrollFootTable, types);
+
+                for (i = 0; i < types.length; i++) {
+                    type = types[i];
+                    widths[type] = [];
+                    footWidths[type].length = headWidths[type].length;
+                    colLen = headWidths[type].length;
+                    for (j = 0; j < colLen; j++) {
+                        widths[type].push(Math.max(headWidths[type][j], bodyWidths[type][j], (footWidths[type][j] || 0)));
+                    }
+                }
+            } else {
+                widths = this.getTableAutoColWidths(this.dt.settings.nTable, types);
+            }
+
+            for (i = 0; i < columns.length; i++) {
+                if (!columns[i].bVisible)
+                    continue;
+                for (j = 0; j < types.length; j++) {
+                    type = types[j];
+                    columns[i][type] = widths[type][visColIdx];
+                }
+                visColIdx++;
+            }
+        };
+
+        ColResize.prototype.overrideClickHander = function (col, $th) {
+            var dtClickEvent = this.getColumnEvent($th.get(0), 'click', 'DT');
+
+            //Remove the DataTables event so that ordering will not occur
+            if (dtClickEvent) {
+                $th.off('click.DT');
+                this.$(document).one('click.ColResize', function (e) {
+                    $th.on('click.DT', dtClickEvent.handler);
+                });
+            }
+        };
+
+        ColResize.prototype.onDblClick = function (e, $th, col) {
+            if (e.target !== $th.get(0))
+                return;
+            if ($th.css('cursor') != 'col-resize')
+                return;
+
+            var width;
+            switch (this.settings.dblClick) {
+                case 'autoMinFit':
+                    width = col.autoMinWidth;
+                    break;
+                case 'autoFit':
+                    width = col.autoWidth;
+                    break;
+                default:
+                    width = col.initWidth;
+            }
+            this.resize(col, width);
+        };
+
+        ColResize.prototype.onMouseDown = function (e, col) {
+            var _this = this;
+            if (e.target !== col.nTh && e.target !== col.fhTh)
+                return true;
+
+            var $th = e.target === col.nTh ? this.$(col.nTh) : this.$(col.fhTh);
+
+            if ($th.css('cursor') != 'col-resize' || col.resizable === false) {
+                var colReorder = this.dt.settings._colReorder;
+                if (colReorder) {
+                    colReorder._fnMouseDown.call(colReorder, e, e.target); //Here we fix the e.preventDefault() in ColReorder so that we can have working inputs in header
+                }
+                return true;
+            }
+            this.dom.mouse.startX = e.pageX;
+            this.dom.mouse.prevX = e.pageX;
+            this.dom.mouse.startWidth = $th.width();
+            this.dom.resize = true;
+
+            this.beforeResizing(col);
+
+            /* Add event handlers to the document */
+            this.$(document).on('mousemove.ColResize', function (event) {
+                _this.onMouseMove(event, col);
+            });
+            this.overrideClickHander(col, $th);
+            this.$(document).one('mouseup.ColResize', function (event) {
+                _this.onMouseUp(event, col);
+            });
+
+            return false;
+        };
+
+        ColResize.prototype.resize = function (col, width) {
+            var colWidth = this.$(col.nTh).width();
+            var moveLength = width - this.$(col.nTh).width();
+            this.beforeResizing(col);
+            var resized = this.resizeColumn(col, colWidth, moveLength, moveLength);
+            this.afterResizing();
+            return resized;
+        };
+
+        ColResize.prototype.beforeResizing = function (col) {
+            //if (this.settings.fixedLayout && !this.dom.fixedLayout)
+            //    this.setTablesLayout('fixed');
+        };
+
+        ColResize.prototype.afterResizing = function () {
+            var i;
+            var columns = this.dt.settings.aoColumns;
+            for (i = 0; i < columns.length; i++) {
+                if (!columns[i].bVisible)
+                    continue;
+                columns[i].sWidth = this.$(columns[i].nTh).css('width');
+            }
+
+            //Update the internal storage of the table's width (in case we changed it because the user resized some column and scrollX was enabled
+            this.updateTableSize();
+
+            //Save the state
+            this.dt.settings.oInstance.oApi._fnSaveState(this.dt.settings);
+            this.dom.origState = false;
+        };
+
+        ColResize.prototype.onMouseUp = function (e, col) {
+            this.$(document).off('mousemove.ColResize');
+            if (!this.dom.resize)
+                return;
+            this.dom.resize = false;
+            this.afterResizing();
+        };
+
+        ColResize.prototype.canResizeColumn = function (col, newWidth) {
+            return (col.resizable === undefined || col.resizable) && this.settings.minWidth <= newWidth && (!col.minWidth || col.minWidth <= newWidth) && (!this.settings.maxWidth || this.settings.maxWidth >= newWidth) && (!col.maxWidth || col.maxWidth >= newWidth);
+        };
+
+        ColResize.prototype.getColumnMaxWidth = function (col) {
+            return col.maxWidth ? col.maxWidth : this.settings.maxWidth;
+        };
+
+        ColResize.prototype.getColumnMinWidth = function (col) {
+            return col.minWidth ? col.minWidth : this.settings.minWidth;
+        };
+
+        ColResize.prototype.getPrevResizableColumnIdx = function (col, moveLength) {
+            var columns = this.dt.settings.aoColumns;
+            var colIdx = ColResizeHelper.indexOf(columns, col);
+            for (var i = colIdx; i >= 0; i--) {
+                if (!columns[i].bVisible)
+                    continue;
+                var newWidth = this.$(columns[i].nTh).width() + moveLength;
+                if (this.canResizeColumn(columns[i], newWidth))
+                    return i;
+            }
+            return -1;
+        };
+
+        ColResize.prototype.getNextResizableColumnIdx = function (col, moveLength) {
+            var columns = this.dt.settings.aoColumns;
+            var colIdx = ColResizeHelper.indexOf(columns, col);
+            for (var i = (colIdx + 1); i < columns.length; i++) {
+                if (!columns[i].bVisible)
+                    continue;
+                var newWidth = this.$(columns[i].nTh).width() - moveLength;
+                if (this.canResizeColumn(columns[i], newWidth))
+                    return i;
+            }
+            return -1;
+        };
+
+        ColResize.prototype.resizeColumn = function (col, startWidth, moveLength, lastMoveLength) {
+            if (moveLength == 0 || lastMoveLength == 0 || col.resizable === false)
+                return false;
+            var i;
+            var columns = this.dt.settings.aoColumns;
+            var headCol = this.$(col.nTh);
+            var headColNext = headCol.next();
+            var colIdx = this.getColumnIndex(col);
+            var thWidth = startWidth + moveLength;
+            var thNextWidth;
+            var nextColIdx;
+
+            if (!this.dom.scrollX) {
+                if (lastMoveLength < 0) {
+                    thWidth = headColNext.width() - lastMoveLength;
+                    nextColIdx = this.getPrevResizableColumnIdx(col, lastMoveLength);
+                    if (nextColIdx < 0)
+                        return false;
+                    headCol = headColNext;
+                    colIdx = colIdx + 1;
+                    headColNext = this.$(columns[nextColIdx].nTh);
+                    thNextWidth = headColNext.width() + lastMoveLength;
+                } else {
+                    thWidth = headCol.width() + lastMoveLength;
+                    nextColIdx = this.getNextResizableColumnIdx(col, lastMoveLength);
+
+                    //If there is no columns that can be shrinked dont resize anymore
+                    if (nextColIdx < 0)
+                        return false;
+                    headColNext = this.$(columns[nextColIdx].nTh);
+                    thNextWidth = headColNext.width() - lastMoveLength;
+
+                    if ((this.settings.maxWidth && this.settings.maxWidth < thWidth) || col.maxWidth && col.maxWidth < thWidth)
+                        return false;
+                }
+                if (!this.canResizeColumn(columns[nextColIdx], thNextWidth) || !this.canResizeColumn(columns[colIdx], thWidth))
+                    return false;
+                headColNext.width(thNextWidth);
+
+                //If fixed header is present we have to resize the cloned column too
+                if (this.dom.fixedHeader) {
+                    this.$(columns[nextColIdx].fhTh).width(thNextWidth);
+                    this.$(columns[colIdx].fhTh).width(thWidth);
+
+                    //If fixedfooter was enabled resize that too
+                    if (columns[nextColIdx].fhTf) {
+                        this.$(columns[nextColIdx].fhTf).width(thNextWidth);
+                        this.$(columns[colIdx].fhTf).width(thWidth);
+                    }
+                }
+            } else {
+                if (!this.canResizeColumn(col, thWidth))
+                    return false;
+                var tSize = this.tableSize + moveLength + 'px';
+                this.dom.scrollHeadInner.css('width', tSize);
+                this.dom.scrollHeadTable.css('width', tSize);
+                this.dom.scrollBodyTable.css('width', tSize);
+                this.dom.scrollFootTable.css('width', tSize);
+            }
+            headCol.width(thWidth);
+
+            //scrollX or scrollY enabled
+            if (this.dom.scrollBody.length) {
+                var colDomIdx = 0;
+                for (i = 0; i < this.dt.settings.aoColumns.length && i != colIdx; i++) {
+                    if (this.dt.settings.aoColumns[i].bVisible)
+                        colDomIdx++;
+                }
+
+                //Get the table
+                var bodyCol = this.$('thead>tr>th:nth(' + colDomIdx + ')', this.dom.scrollBodyTable);
+                var footCol = this.$('thead>tr>th:nth(' + colDomIdx + ')', this.dom.scrollFootTable);
+
+                //This will happen only when scrollY is used without scrollX
+                if (!this.dom.scrollX) {
+                    var nextColDomIdx = 0;
+                    for (i = 0; i < this.dt.settings.aoColumns.length && i != nextColIdx; i++) {
+                        if (this.dt.settings.aoColumns[i].bVisible)
+                            nextColDomIdx++;
+                    }
+                    var bodyColNext = this.$('thead>tr>th:nth(' + nextColDomIdx + ')', this.dom.scrollBodyTable);
+                    var footColNext = this.$('thead>tr>th:nth(' + nextColDomIdx + ')', this.dom.scrollFootTable);
+
+                    bodyColNext.width(thNextWidth);
+                    if (thWidth > 0)
+                        bodyCol.width(thWidth);
+
+                    footColNext.width(thNextWidth);
+                    if (thWidth > 0)
+                        footCol.width(thWidth);
+                }
+
+                //Resize the table and the column
+                if (this.dom.scrollX && thWidth > 0) {
+                    bodyCol.width(thWidth);
+                    footCol.width(thWidth);
+                }
+            }
+            return true;
+        };
+
+        ColResize.prototype.onMouseMove = function (e, col) {
+            var moveLength = e.pageX - this.dom.mouse.startX;
+            var lastMoveLength = e.pageX - this.dom.mouse.prevX;
+            this.resizeColumn(col, this.dom.mouse.startWidth, moveLength, lastMoveLength);
+            this.dom.mouse.prevX = e.pageX;
+        };
+
+        ColResize.prototype.destroy = function () {
+        };
+        ColResize.defaultSettings = {
+            minWidth: 1,
+            maxWidth: null,
+            fixedLayout: true,
+            fixedHeader: null,
+            dblClick: 'initWidth'
+        };
         return ColResize;
-    }; // /factory
+    })();
+    dt.ColResize = ColResize;
 
+    var ColResizeHelper = (function () {
+        function ColResizeHelper() {
+        }
+        ColResizeHelper.indexOf = function (arr, item, equalFun) {
+            if (typeof equalFun === "undefined") { equalFun = null; }
+            for (var i = 0; i < arr.length; i++) {
+                if (equalFun) {
+                    if (equalFun(arr[i], item))
+                        return i;
+                } else if (arr[i] === item)
+                    return i;
+            }
+            return -1;
+        };
+        return ColResizeHelper;
+    })();
+    dt.ColResizeHelper = ColResizeHelper;
+})(dt || (dt = {}));
 
-// Define as an AMD module if possible
-if ( typeof define === 'function' && define.amd ) {
-    define( ['jquery', 'datatables'], factory );
-}
-else if ( typeof exports === 'object' ) {
-    // Node/CommonJS
-    factory( require('jquery'), require('datatables') );
-}
-else if (jQuery && !jQuery.fn.dataTable.ColResize) {
-    // Otherwise simply initialise as normal, stopping multiple evaluation
-    factory(jQuery, jQuery.fn.dataTable);
-}
+(function ($, window, document, undefined) {
+    //Register events
+    $.fn.DataTable.models.oSettings.colResizeInitCompleted = [];
 
+    //Register api function
+    $.fn.DataTable.Api.register('colResize.init()', function (settings) {
+        var colResize = new dt.ColResize($, this, settings);
+        if (this.settings()[0]._bInitComplete)
+            colResize.initialize();
+        else
+            this.one('init.dt', function () {
+                colResize.initialize();
+            });
+        return null;
+    });
 
-})(window, document);
+    $.fn.DataTable.Api.register('column().resize()', function (width) {
+        var oSettings = this.settings()[0];
+        var colResize = oSettings.colResize;
+        return colResize.resize(oSettings.aoColumns[this[0][0]], width);
+    });
+
+    //Add as feature
+    $.fn.dataTable.ext.feature.push({
+        "fnInit": function (oSettings) {
+            return oSettings.oInstance.api().colResize.init(oSettings.oInit.colResize);
+        },
+        "cFeature": "J",
+        "sFeature": "ColResize"
+    });
+}(jQuery, window, document, undefined));
