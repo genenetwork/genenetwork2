@@ -158,34 +158,11 @@ def search_page():
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
     result = gsearch.GSearch(request.args).__dict__
-    return render_template("gsearchact.html", **result)
-			
-@app.route("/gsearch0", methods=('GET',))
-def gsearchreq0():
-    return render_template("gsearch0.html")
-
-@app.route("/gsearchact0", methods=('GET',))
-def gsearchact0():
-    result = gsearch.GSearch(request.args).__dict__
-    return render_template("gsearchact0.html", **result)
-	
-@app.route("/gsearch1", methods=('GET',))
-def gsearchreq1():
-    return render_template("gsearch1.html")
-
-@app.route("/gsearchact1", methods=('GET',))
-def gsearchact1():
-    result = gsearch.GSearch(request.args).__dict__
-    return render_template("gsearchact1.html", **result)
-
-@app.route("/gsearch2", methods=('GET',))
-def gsearchreq2():
-    return render_template("gsearch2.html")
-
-@app.route("/gsearchact2", methods=('GET',))
-def gsearchact2():
-    result = gsearch.GSearch(request.args).__dict__
-    return render_template("gsearchact2.html", **result)
+    type = request.args['type']
+    if type == "gene":
+        return render_template("gsearch_gene.html", **result)
+    elif type == "phenotype":
+        return render_template("gsearch_pheno.html", **result)
 	
 @app.route("/docedit")
 def docedit():

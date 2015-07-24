@@ -4,6 +4,8 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -24,7 +26,6 @@
             <table class="table table-hover table-striped" id="trait_table">
                 <thead>
                     <tr>
-						<th></th>
 						<th>Index</th>
 						<th>Symbol</th>
 						<th>Record</th>
@@ -46,8 +47,7 @@
                 <tbody>
                     {% for this_trait in results %}
                     <TR>
-						<td><input type="checkbox"></td>
-						<td>{{ loop.index }}</td>
+						<td><input type="checkbox">{{ loop.index }}</td>
                         {% for item in this_trait %}
 							<TD>{{ item }}</TD>
 						{% endfor %}
@@ -64,31 +64,46 @@
 {% endblock %}
 
 {% block js %}
-    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+	<script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-	<script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
-     <script type="text/javascript" charset="utf-8">
+	
+    <script type="text/javascript" charset="utf-8">
         function getValue(x) {
             if (x.indexOf('input') >= 0) {
                 if ($(x).val() == 'x') {
-                    return 0
+                    return 0;
                 }
                 else {
                    return parseFloat($(x).val());
                 }
+            }
+            else if (isNaN(x)) {
+                return x;
             }
             return parseFloat(x);
         }
             
         jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
             var x = getValue(a);
-            var y = getValue(b);
-            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            var y = getValue(b); 
+            
+            if (x == 'N/A' || x == '') {
+                return 1;
+            }
+            else if (y == 'N/A' || y == '') {
+                return -1;
+            }
+            else {
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            }
         };
             
         jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
@@ -96,7 +111,6 @@
             var y = getValue(b);
             return ((x < y) ? 1 : ((x > y) ? -1 : 0));
         };
-
 
         $(document).ready( function () {
             
@@ -109,8 +123,6 @@
             console.time("Creating table");
             $('#trait_table').DataTable( {
                 "columns": [
-					{ "sortable": false },
-                    { "sortable": true },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural", "width": "35%"  },
@@ -122,26 +134,26 @@
 					{ "type": "natural", "width": "12%"  },
 					{ "type": "natural", "width": "12%"  },
                     { "type": "natural", "width": "15%"  },
+					{ "type": "natural" },
+					{ "type": "natural" },
+					{ "type": "natural" },
                     { "type": "cust-txt" }
                 ],
-              
-				"sDom": "tir",
+				"sDom": "RJtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
                 "scrollY": "700px",
-                "scrollCollapse": true,
+                "scrollCollapse": false,
                 "colResize": {
                     "tableWidthFixed": false,
                 },
                 "paging": false
             } );
-
             console.timeEnd("Creating table");
         });
         
     </script>
-    
 {% endblock %}
