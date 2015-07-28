@@ -75,10 +75,10 @@
 
     <!--<div id="edit_sample_lists">-->
     {% for sample_type in sample_groups %}
-        <!--<div class="sample_group">-->
+        <div class="sample_group" style="width:50%;">
             <h3>{{ sample_type.header }}</h3>
 
-            <table class="table table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left;">
+            <table class="table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left;">
                 <thead>
                     <tr>
                         <th>Index</td>
@@ -147,7 +147,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-        <!--</div>-->
+        </div>
         {% endfor %}
     <!--</div>-->
 

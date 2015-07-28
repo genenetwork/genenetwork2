@@ -39,14 +39,16 @@
         <p>To study a record, click on its ID below. Check records below and click Add button to add to selection.</p>
 
         <div>
-            <br />
-            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
-            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn btn-default" id="add"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-            <button class="btn btn-primary"><span class="glyphicon glyphicon-download"></span> Download Table</button>
-            <br />
-            <br />
+          <br />
+          <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+          <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+          <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+          <button class="btn btn-default" id="add"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+          <button class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download Table</button>
+          <button id="redraw" class="btn btn-default">Reset Columns</button>
+          <br />
+          <br />
+          <div id="table_container">
             <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
                 <thead>
                     <tr>
@@ -104,6 +106,7 @@
                 </tbody>
 
             </table>
+          </div>
         </div>
     </div>
 
@@ -178,16 +181,16 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
+                    { "type": "natural", "width": "30%" },
+                    { "type": "natural", "width": "15%" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "15%" },
                     { "type": "natural" }
                 ],
                 "sDom": "RJtir",
                 "iDisplayLength": -1,
-                "autoWidth": true,
+                "autoWidth": false,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
@@ -212,7 +215,7 @@
                 ],
                 "sDom": "RJtir",
                 "iDisplayLength": -1,
-                "autoWidth": true,
+                "autoWidth": false,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
@@ -232,7 +235,7 @@
                 ],
                 "sDom": "RJtir",
                 "iDisplayLength": -1,
-                "autoWidth": true,
+                "autoWidth": false,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
@@ -245,8 +248,12 @@
             } );
             {% endif %}
             console.timeEnd("Creating table");
-         
-            //var table = $('#trait_table').DataTable();
+            
+            $('#redraw').click(function() {
+                var table = $('#trait_table').DataTable();
+                table.colReorder.reset()
+            });
+            
             //new $.fn.dataTable.FixedHeader( table );
             //new $.fn.dataTable.FixedColumns( table );
 
