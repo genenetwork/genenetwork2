@@ -1,6 +1,9 @@
 from __future__ import absolute_import, print_function, division
 
 from flask import Flask, g
+from base.data_set import create_dataset
+from base.trait import GeneralTrait
+from dbFunction import webqtlDatabaseFunction
 
 class GSearch(object):
 
@@ -41,6 +44,7 @@ class GSearch(object):
 				SELECT
 				Species.`Name`,
 				InbredSet.`Name`,
+				PublishFreeze.`Name`,
 				PublishXRef.`Id`,
 				Phenotype.`Post_publication_description`,
 				Publication.`Authors`,
@@ -48,8 +52,9 @@ class GSearch(object):
 				PublishXRef.`LRS`,
 				PublishXRef.`Locus`,
 				PublishXRef.`additive`
-				FROM Species,InbredSet,PublishXRef,Phenotype,Publication
+				FROM Species,InbredSet,PublishFreeze,PublishXRef,Phenotype,Publication
 				WHERE PublishXRef.`InbredSetId`=InbredSet.`Id`
+				AND PublishFreeze.`InbredSetId`=InbredSet.`Id`
 				AND InbredSet.`SpeciesId`=Species.`Id`
 				AND PublishXRef.`PhenotypeId`=Phenotype.`Id` 
 				AND PublishXRef.`PublicationId`=Publication.`Id`
@@ -63,6 +68,16 @@ class GSearch(object):
 					OR Publication.Title REGEXP "[[:<:]]%s[[:>:]]" 
 					OR Publication.Authors REGEXP "[[:<:]]%s[[:>:]]" 
 					OR PublishXRef.Id REGEXP "[[:<:]]%s[[:>:]]")
-				ORDER BY Species.`Name`, InbredSet.`Name`, Phenotype.`Post_publication_description`
+				ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
+				LIMIT 1000
 				""" % (self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms)
-			self.results = g.db.execute(sql).fetchall()
+			re = g.db.execute(sql).fetchall()
+			self.trait_list = []
+			for line in re:
+				dataset = create_dataset(line[2], "Publish")
+				trait_id = line[3]
+				this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True)
+				self.trait_list.append(this_trait)
+				species = webqtlDatabaseFunction.retrieve_species(dataset.group.name)
+				dataset.get_trait_info([this_trait], species)
+
