@@ -20,7 +20,6 @@ lodchart = function() {
   };
   titlepos = 20;
   manhattanPlot = false;
-  additive = false;
   ylim = null;
   additive_ylim = null;
   nyticks = 5;
@@ -70,7 +69,8 @@ lodchart = function() {
         return results;
       })();
       ylim = ylim != null ? ylim : [0, d3.max(data[lodvarname])];
-      if (additive) {
+
+      if ('additive' in data) {
         data['additive'] = (function() {
           var j, len, ref, results;
           ref = data['additive'];
@@ -91,7 +91,7 @@ lodchart = function() {
       g.append("rect").attr("x", margin.left).attr("y", margin.top).attr("height", height).attr("width", width).attr("fill", darkrect).attr("stroke", "none");
       yscale.domain(ylim).range([height + margin.top, margin.top + margin.inner]);
       yticks = yticks != null ? yticks : yscale.ticks(nyticks);
-      if (additive) {
+      if ('additive' in data) {
         additive_yscale.domain(additive_ylim).range([height + margin.top, margin.top + margin.inner + height / 2]);
         additive_yticks = additive_yticks != null ? additive_yticks : additive_yscale.ticks(nyticks);
       }
@@ -147,7 +147,7 @@ lodchart = function() {
         return formatAxis(yticks)(d);
       });
       yaxis.append("text").attr("class", "title").attr("y", margin.top + height / 2).attr("x", margin.left - axispos.ytitle).text(ylab).attr("transform", rotate_ylab ? "rotate(270," + (margin.left - axispos.ytitle) + "," + (margin.top + height / 2) + ")" : "").attr("text-anchor", "middle").attr("fill", "slateblue");
-      if (additive) {
+      if ('additive' in data) {
         rotate_additive_ylab = rotate_additive_ylab != null ? rotate_additive_ylab : additive_ylab.length > 1;
         additive_yaxis = g.append("g").attr("class", "y axis");
         additive_yaxis.selectAll("empty").data(additive_yticks).enter().append("line").attr("y1", function(d) {
@@ -186,12 +186,12 @@ lodchart = function() {
             return yscale(data.lodByChr[chr][i][lodcolumn]);
           });
         };
-        if (additive) {
+        if ('additive' in data) {
           additivecurve = function(chr, lodcolumn) {
             return d3.svg.line().x(function(d) {
               return xscale[chr](d);
             }).y(function(d, i) {
-              return additive_yscale(data.additiveByChr[chr][i][lodcolumn]);
+              return additive_yscale(data.additiveByChr[chr][i]);
             });
           };
         }
@@ -203,7 +203,7 @@ lodchart = function() {
             curves.append("path").datum(data.posByChr[chr[0]]).attr("d", lodcurve(chr[0], lodvarnum)).attr("stroke", lodlinecolor).attr("fill", "none").attr("stroke-width", linewidth).style("pointer-events", "none");
           }
         }
-        if (additive) {
+        if ('additive' in data) {
           ref1 = data.chrnames;
           for (k = 0, len1 = ref1.length; k < len1; k++) {
             chr = ref1[k];
@@ -429,9 +429,6 @@ lodchart = function() {
   };
   chart.yscale = function() {
     return yscale;
-  };
-  chart.additive = function() {
-    return additive;
   };
   chart.additive_yscale = function() {
     return additive_yscale;

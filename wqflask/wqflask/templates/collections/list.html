@@ -4,8 +4,6 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" >
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -59,30 +57,20 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
-    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
-    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
     <script>
             $('#trait_table').dataTable( {
-                "sDom": "Ztir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
-                "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
                 "scrollY": "600px",
-                "scrollX": true,
                 "scrollCollapse": true,
-                "colResize": {
-                    "tableWidthFixed": false
-                },
                 "paging": false
             } );
-
-            var table = $('#trait_table').DataTable();
-            //new $.fn.dataTable.FixedHeader( table );
-            new $.fn.dataTable.FixedColumns( table );
 
     </script>
 {% endblock %}

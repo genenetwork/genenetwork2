@@ -47,12 +47,19 @@ reorgLodData = function(data, lodvarname) {
   }
   data.posByChr = {};
   data.lodByChr = {};
+  if ('additive' in data){
+    data.additiveByChr = {};
+  }
   _ref = data.chrnames;
   for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
     chr = _ref[i];
     data.posByChr[chr[0]] = [];
     data.lodByChr[chr[0]] = [];
+    if ('additive' in data){
+      data.additiveByChr[chr[0]] = [];
+    }
     _ref1 = data.pos;
+
     for (j = _j = 0, _len1 = _ref1.length; _j < _len1; j = ++_j) {
       pos = _ref1[j];
       if (data.chr[j].toString() === chr[0]) {
@@ -71,6 +78,12 @@ reorgLodData = function(data, lodvarname) {
           return _results;
         })();
         data.lodByChr[chr[0]].push(lodval);
+
+        if ('additive' in data){
+          addval = data['additive'][j]
+          data.additiveByChr[chr[0]].push(addval);            
+        }
+
       }
     }
   }

@@ -26,26 +26,36 @@
                 
             </div>
         </div>
-        <div>
+        <div style="width:60%;">
             <h2>
                 Results
             </h2>
-            <table cellpadding="0" cellspacing="0" border="0" id="qtl_results" class="table table-hover table-striped table-bordered">
+            <table id="qtl_results" class="table table-hover table-striped">
                 <thead>
                     <tr>
-                        <td>Index</td>
-                        <td>LOD Score</td>
-                        <td>Chr</td>
-                        <td>Mb</td>
-                        <td>Locus</td>
+                        <th>Index</th>
+                        <th>LOD Score</th>
+                        <th>Chr</th>
+                        <th>Mb</th>
+                        <th>Locus</th>
                    </tr>
                 </thead>
                 <tbody>
-                    {% for marker in filtered_markers %}
-                        {% if marker.lod_score > lod_cutoff %}
+                    {% for marker in qtl_results %}
+                        {% if (score_type == "LOD" and marker.lod_score > cutoff) or
+                              (score_type == "LRS" and marker.lrs_value > cutoff) %}
                         <tr>
-                            <td>{{loop.index}}</td>
+                            <td>
+                                {{loop.index}}
+                                <input type="checkbox" name="selectCheck"
+                                       class="checkbox edit_sample_checkbox"
+                                       value="{{ marker.name }}" checked="checked">
+                            </td>
+                            {% if score_type == "LOD" %}
                             <td>{{marker.lod_score}}</td>
+                            {% else %}
+                            <td>{{marker.lrs_value}}</td>
+                            {% endif %}
                             <td>{{marker.chr}}</td>
                             <td>{{marker.Mb}}</td>
                             <td>{{marker.name}}</td>
@@ -70,26 +80,24 @@
         $(document).ready( function () {
             console.time("Creating table");
             $('#qtl_results').dataTable( {
-                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "sDom": "lTftipr",
-                "oTableTools": {
-                    "aButtons": [
-                        "copy",
-                        "print",
-                        {
-                            "sExtends":    "collection",
-                            "sButtonText": 'Save <span class="caret" />',
-                            "aButtons":    [ "csv", "xls", "pdf" ]
-                        }
+                "columns": [
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
                     ],
-                    "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
-                },
-                "iDisplayLength": 50,
-                "bLengthChange": true,
+                "sDom": "ZRtir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
                 "bDeferRender": true,
-                "bSortClasses": false
+                "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": true,
+                "paging": false
             } );
             console.timeEnd("Creating table");
+
         });
     </script>
 {% endblock %}

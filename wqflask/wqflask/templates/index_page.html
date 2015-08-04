@@ -79,7 +79,7 @@
                                     <label for="or_search" class="col-xs-1 control-label" style="padding-left: 0px; padding-right: 0px; width: 65px !important;">Get Any:</label>
                                     <div class="col-xs-10 controls">
                                         <div class="col-xs-8">
-                                          <textarea name="search_terms_or" rows="1" class="form-control search-query" style="max-width: 550px; width: 450px !important;" id="or_search"></textarea>
+                                          <textarea onkeydown="pressed(event)" name="search_terms_or" rows="1" class="form-control search-query" style="max-width: 550px; width: 450px !important;" id="or_search"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -100,7 +100,7 @@
                                     <label for="and_search" class="col-xs-1 control-label" style="padding-left: 0px; padding-right: 0px; width: 65px !important;">Combined:</label>
                                     <div class="col-xs-10 controls">
                                         <div class="col-xs-8">
-                                          <textarea name="search_terms_and" rows="1" class="form-control search-query" style="max-width: 550px; width: 450px !important;" id="and_search"></textarea>
+                                          <textarea onkeydown="pressed(event)" name="search_terms_and" rows="1" class="form-control search-query" style="max-width: 550px; width: 450px !important;" id="and_search"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -265,4 +265,15 @@
 
 {% block js %}
     <script src="/static/new/javascript/dataset_select_menu.js"></script>
+
+    <script>
+        function pressed(e) {
+            // Has the enter key been pressed?
+            if ( (window.event ? event.keyCode : e.which) == 13) { 
+                // If it has been so, manually submit the <form>
+                document.forms[0].submit();
+            }
+        }
+    </script>
+
 {% endblock %}

@@ -229,22 +229,26 @@
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "sDom": "RJtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
-                "scrollY": "700px",
-                "scrollCollapse": false,
+                //"scrollY": "700px",
+                //"scrollCollapse": false,
                 "colResize": {
                     "tableWidthFixed": false
                 },
                 "paging": false
             } );
+
+            var table = $('#corr_results').DataTable();
+            new $.fn.dataTable.FixedHeader( table );
+
             {% elif target_dataset.type == "Publish" %}
             $('#corr_results').dataTable( {
-                "aoColumns": [
+                "columns": [
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
@@ -257,7 +261,7 @@
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "sDom": "RJtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
@@ -280,7 +284,7 @@
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "sDom": "RJtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,

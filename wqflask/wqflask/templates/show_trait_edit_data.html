@@ -81,12 +81,12 @@
             <table class="table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left;">
                 <thead>
                     <tr>
-                        <th>Index</td>
-                        <th>Sample</td>
-                        <th>Value</td>
+                        <th>Index</th>
+                        <th>Sample</th>
+                        <th>Value</th>
                         {% if sample_type.se_exists() %}
-                        <th>&nbsp;</td>
-                        <th>SE</td>
+                        <th>&nbsp;</th>
+                        <th>SE</th>
                         {% endif %}
                         {% for attribute in sample_type.attributes|sort() %}
                         <th>

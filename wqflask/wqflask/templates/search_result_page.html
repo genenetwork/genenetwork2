@@ -188,19 +188,16 @@
                     { "type": "natural", "width": "15%" },
                     { "type": "natural" }
                 ],
-                "sDom": "RJtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
-                "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
                 "scrollY": "700px",
                 "scrollCollapse": false,
-                "colResize": {
-                    "tableWidthFixed": false,
-                },
                 "paging": false
             } );
+
             {% elif dataset.type == 'Publish' %}
             $('#trait_table').DataTable( {
                 "columns": [
@@ -213,17 +210,13 @@
                     { "type": "natural", "width": "15%"},
                     { "type": "natural" }
                 ],
-                "sDom": "RJtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
-                "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
                 "scrollY": "700px",
                 "scrollCollapse": false,
-                "colResize": {
-                    "tableWidthFixed": false,
-                },
                 "paging": false
             } );
             {% elif dataset.type == 'Geno' %}
@@ -233,17 +226,13 @@
                     { "type": "natural" },
                     { "type": "natural", "width": "40%"}
                 ],
-                "sDom": "RJtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
-                "autoWidth": false,
-                "bLengthChange": true,
+                "autoWidth": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
                 "scrollY": "700px",
                 "scrollCollapse": false,
-                "colResize": {
-                    "tableWidthFixed": false,
-                },
                 "paging": false
             } );
             {% endif %}

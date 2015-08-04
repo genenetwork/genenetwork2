@@ -112,6 +112,11 @@ open_mapping_results = (data) ->
               form.submit()
      )
 
+outlier_text = "One or more outliers exist in this data set. Please review values before mapping. \
+                  Including outliers when mapping may lead to misleading results. \
+                  We recommend <A HREF=\"http://en.wikipedia.org/wiki/Winsorising\">winsorising</A> the outliers \
+                  or simply deleting them."
+
 showalert = (message,alerttype) ->
     $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + '"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>')
     
@@ -124,6 +129,11 @@ $('input[name=display_all]').change(() =>
             $('#suggestive').show()
         else
             $('#suggestive').hide()
+)
+
+$("#pylmm_mapping_compute").on("mouseover", =>
+        if ( $(".outlier").length and $(".outlier-alert").length < 1 ) 
+            showalert(outlier_text, "alert-success outlier-alert")
 )
 
 $("#pylmm_compute").on("click", =>
@@ -140,8 +150,7 @@ $("#pylmm_compute").on("click", =>
         #    block_outliers()
         do_ajax_post(url, form_data)
 )
-    
-    
+
     
 $("#rqtl_geno_compute").on("click", =>
         $("#progress_bar_container").modal()
@@ -187,11 +196,12 @@ $("#gemma_compute").on("click", =>
         do_ajax_post(url, form_data)
 )
 
+$("#interval_mapping_compute").on("mouseover", =>
+        if ( $(".outlier").length and $(".outlier-alert").length < 1 ) 
+            showalert(outlier_text, "alert-success outlier-alert")
+)
+
 $("#interval_mapping_compute").on("click", =>
-        showalert("One or more outliers exist in this data set. Please review values before mapping. \
-                  Including outliers when mapping may lead to misleading results. \
-                  We recommend <A HREF=\"http://en.wikipedia.org/wiki/Winsorising\">winsorising</A> the outliers \
-                  or simply deleting them.", "alert-success")
         console.log("In interval mapping")
         $("#progress_bar_container").modal()
         url = "/interval_mapping"

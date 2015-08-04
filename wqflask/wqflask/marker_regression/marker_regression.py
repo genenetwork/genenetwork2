@@ -79,9 +79,9 @@ class MarkerRegression(object):
             included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
             self.dataset.group.get_specified_markers(markers = included_markers)
             self.dataset.group.markers.add_pvalues(p_values)
-            qtl_results = self.dataset.group.markers.markers
+            results = self.dataset.group.markers.markers
         elif self.mapping_method == "rqtl_plink":
-            qtl_results = self.run_rqtl_plink()
+            results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
             if start_vars['num_perm'] == "":
                 self.num_perm = 0
@@ -95,32 +95,32 @@ class MarkerRegression(object):
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
 
-            qtl_results = self.run_rqtl_geno()
-            print("qtl_results:", qtl_results)
+            results = self.run_rqtl_geno()
+            print("qtl_results:", results)
         elif self.mapping_method == "plink":
-            qtl_results = self.run_plink()
-            #print("qtl_results:", pf(qtl_results))
+            results = self.run_plink()
+            #print("qtl_results:", pf(results))
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
             self.num_perm = start_vars['num_perm']
             if self.num_perm != "":
                 if int(self.num_perm) > 0:
 	             self.run_permutations(str(temp_uuid))
-            qtl_results = self.gen_data(str(temp_uuid))
+            results = self.gen_data(str(temp_uuid))
         else:
             print("RUNNING NOTHING")
             
         if self.pair_scan == True:  
-            self.filtered_markers = []
+            self.qtl_results = []
             highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
-            for marker in qtl_results:
+            for marker in results:
                 if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
                     if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
                         highest_chr = marker['chr1']
                     if 'lod_score' in marker:
-                        self.filtered_markers.append(marker)
+                        self.qtl_results.append(marker)
 
-            for qtl in enumerate(self.filtered_markers):
+            for qtl in enumerate(self.qtl_results):
                 self.json_data['chr1'].append(str(qtl['chr1']))
                 self.json_data['chr2'].append(str(qtl['chr2']))
                 self.json_data['Mb'].append(qtl['Mb'])
@@ -132,19 +132,20 @@ class MarkerRegression(object):
                 data_set = self.dataset.name,
                 maf = self.maf,
                 manhattan_plot = self.manhattan_plot,
-                qtl_results = self.filtered_markers,
+                qtl_results = self.qtl_results,
             )
 
         else:
-            self.lod_cutoff = 2    
-            self.filtered_markers = []
+            self.score_type = "LRS"
+            self.cutoff = 2    
+            self.qtl_results = []
             highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
-            for marker in qtl_results:
+            for marker in results:
                 if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
                     if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
                         highest_chr = marker['chr']
                     if 'lod_score' in marker:
-                        self.filtered_markers.append(marker)
+                        self.qtl_results.append(marker)
 
             self.json_data['chr'] = []
             self.json_data['pos'] = []
@@ -155,8 +156,7 @@ class MarkerRegression(object):
             self.json_data['significant'] = self.significant
 
             #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
-            self.qtl_results = []
-            for index, qtl in enumerate(self.filtered_markers):
+            for index, qtl in enumerate(self.qtl_results):
                 if index<40:
                     print("lod score is:", qtl['lod_score'])
                 if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
@@ -179,14 +179,14 @@ class MarkerRegression(object):
         
 
             self.js_data = dict(
-                result_score_type = "LOD",
+                result_score_type = self.score_type,
                 json_data = self.json_data,
                 this_trait = self.this_trait.name,
                 data_set = self.dataset.name,
                 maf = self.maf,
                 manhattan_plot = self.manhattan_plot,
                 chromosomes = chromosome_mb_lengths,
-                qtl_results = self.filtered_markers,
+                qtl_results = self.qtl_results,
             )
         
 
