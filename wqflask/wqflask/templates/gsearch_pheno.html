@@ -26,6 +26,7 @@
 			<table class="table table-hover table-striped" id='trait_table'  style="float: left;">
                 <thead>
                     <tr>
+						<th style="width: 30px;"></th>
                         <th>Index</th>
 						<th>Species</th>
 						<th>Group</th>
@@ -41,7 +42,8 @@
                 <tbody>
                  {% for this_trait in trait_list %}
                     <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <TD>{{ loop.index }}<INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
+                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
+						<TD>{{ loop.index }}</TD>
                         <TD>{{ this_trait.dataset.group.species }}</TD>
 						<TD>{{ this_trait.dataset.group.name }}</TD>
 						<TD><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></TD>
@@ -122,6 +124,7 @@
             console.time("Creating table");
             $('#trait_table').DataTable( {
                 "columns": [
+					{ "bSortClasses": false },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
