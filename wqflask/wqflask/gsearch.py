@@ -43,7 +43,6 @@ class GSearch(object):
 			self.trait_list = []
 			for line in re:
 				dataset = create_dataset(line[3], "ProbeSet")
-				print("dataset: %s %s %s" % (line[3], dataset.name, dataset.id))
 				trait_id = line[4]
 				this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True)
 				self.trait_list.append(this_trait)
