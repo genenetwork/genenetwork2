@@ -24,37 +24,44 @@
             <br />
             <br />
             <table class="table table-hover table-striped" id="trait_table">
-                <thead>
-                    <tr>
+				<thead>
+					<tr>
+						<th style="width: 30px;"></th>
 						<th>Index</th>
-						<th>Symbol</th>
-						<th>Record</th>
-						<th>Description</th>
 						<th>Species</th>
 						<th>Group</th>
 						<th>Tissue</th>
 						<th>Dataset</th>
-						<th>Chr</th>
-						<th>Mb</th>
+						<th>Record</th>
+						<th>Symbol</th>
+						<th>Description</th>
+						<th>Location</th>
 						<th>Mean</th>
-						<th>Max LRS</th>
-						<th>Locus</th>
-						<th>Pvalue</th>
-						<th>Additive</th>
-                    </tr>
-                </thead>
-
+						<th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+						<th>Max LRS Location</th>
+						<th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+					</tr>
+				</thead>
                 <tbody>
-                    {% for this_trait in results %}
-                    <TR>
-						<td><input type="checkbox">{{ loop.index }}</td>
-                        {% for item in this_trait %}
-							<TD>{{ item }}</TD>
-						{% endfor %}
-                    </TR>
-                {% endfor %}
+				{% for this_trait in trait_list %}
+					<TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
+						<TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
+						<TD>{{ loop.index }}</TD>
+						<TD>{{ this_trait.dataset.group.species }}</TD>
+						<TD>{{ this_trait.dataset.group.name }}</TD>
+						<TD>{{ this_trait.dataset.name }}</TD>
+						<TD>{{ this_trait.dataset.name }}</TD>
+						<TD><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></TD>
+						<TD>{{ this_trait.symbol }}</TD>
+						<TD>{{ this_trait.description_display }}</TD>
+						<TD>{{ this_trait.location_repr }}</TD>
+						<TD align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
+						<TD align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
+						<TD>{{ this_trait.LRS_location_repr }}</TD>
+						<TD align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
+					</TR>
+				{% endfor %}
                 </tbody>
-
             </table>
         </div>
     </div>
@@ -123,7 +130,7 @@
             console.time("Creating table");
             $('#trait_table').DataTable( {
                 "columns": [
-                    { "type": "natural" },
+                    { "bSortClasses": false },
                     { "type": "natural" },
                     { "type": "natural", "width": "35%"  },
                     { "type": "natural", "width": "15%"  },
@@ -136,16 +143,11 @@
                     { "type": "natural", "width": "15%"  },
 					{ "type": "natural" },
 					{ "type": "natural" },
-					{ "type": "natural" },
-                    { "type": "cust-txt" }
+					{ "type": "natural" }
                 ],
-				"sDom": "RJtir",
-                "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
-                "bSortClasses": false,
-                "scrollY": "700px",
                 "scrollCollapse": false,
                 "colResize": {
                     "tableWidthFixed": false,

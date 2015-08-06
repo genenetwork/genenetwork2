@@ -16,7 +16,7 @@ class GSearch(object):
 				Species.`Name` AS species_name,
 				InbredSet.`Name` AS inbredset_name,
 				Tissue.`Name` AS tissue_name,
-				ProbeSetFreeze.FullName AS probesetfreeze_fullname,
+				ProbeSetFreeze.Name AS probesetfreeze_name,
 				ProbeSet.Name AS probeset_name,
 				ProbeSet.Symbol AS probeset_symbol,
 				ProbeSet.`description` AS probeset_description,
@@ -35,10 +35,21 @@ class GSearch(object):
 				AND ( MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE) )
 				AND ProbeSet.Id = ProbeSetXRef.ProbeSetId
 				AND ProbeSetXRef.ProbeSetFreezeId=ProbeSetFreeze.Id
-				ORDER BY species_name, inbredset_name, tissue_name, probesetfreeze_fullname, probeset_name
+				AND ProbeSetFreeze.public > 0
+				ORDER BY species_name, inbredset_name, tissue_name, probesetfreeze_name, probeset_name
 				LIMIT 1000
 				""" % (self.terms)
-			self.results = g.db.execute(sql).fetchall()
+			re = g.db.execute(sql).fetchall()
+			self.trait_list = []
+			for line in re:
+				dataset = create_dataset(line[3], "ProbeSet")
+				print("dataset: %s %s %s" % (line[3], dataset.name, dataset.id))
+				trait_id = line[4]
+				this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True)
+				self.trait_list.append(this_trait)
+				species = webqtlDatabaseFunction.retrieve_species(dataset.group.name)
+				dataset.get_trait_info([this_trait], species)
+
 		elif self.type == "phenotype":
 			sql = """
 				SELECT
@@ -80,4 +91,3 @@ class GSearch(object):
 				self.trait_list.append(this_trait)
 				species = webqtlDatabaseFunction.retrieve_species(dataset.group.name)
 				dataset.get_trait_info([this_trait], species)
-
