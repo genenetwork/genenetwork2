@@ -3,7 +3,7 @@
   var create_lod_chart;
 
   create_lod_chart = function() {
-    var additive, chrrect, data, h, halfh, margin, mychart, totalh, totalw, w;
+    var chrrect, data, h, halfh, margin, mychart, totalh, totalw, w;
     h = 500;
     w = 1200;
     margin = {
@@ -16,12 +16,7 @@
     halfh = h + margin.top + margin.bottom;
     totalh = halfh * 2;
     totalw = w + margin.left + margin.right;
-    if ('additive' in js_data) {
-      additive = js_data.additive;
-    } else {
-      additive = false;
-    }
-    console.log("js_data:", js_data);
+    //console.log("js_data:", js_data);
     mychart = lodchart().lodvarname("lod.hk").height(h).width(w).margin(margin).ylab(js_data.result_score_type + " score").manhattanPlot(js_data.manhattan_plot);
     data = js_data.json_data;
     d3.select("div#topchart").datum(data).call(mychart);

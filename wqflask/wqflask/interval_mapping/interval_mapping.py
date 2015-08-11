@@ -72,7 +72,7 @@ class IntervalMapping(object):
         
         json_filename = webqtlUtil.genRandStr(prefix="intmap_")
         json.dumps(self.json_data, webqtlConfig.TMPDIR + json_filename)
-        
+
         self.js_data = dict(
             result_score_type = self.score_type,
             manhattan_plot = self.manhattan_plot,
@@ -220,7 +220,7 @@ class IntervalMapping(object):
                 self.json_data['additive'].append(qtl.additive)
             locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
             qtl = {"lrs_value": qtl.lrs, "chr":reaper_locus.chr, "Mb":reaper_locus.Mb,
-                   "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive}
+                   "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
             self.qtl_results.append(qtl)
 
 

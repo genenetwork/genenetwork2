@@ -65,7 +65,7 @@ table.dataTable tbody tr {
   background-color: #ffffff;
 }
 table.dataTable tbody tr.selected {
-  background-color: #B0BED9;
+  background-color: #ffff99;
 }
 table.dataTable tbody th,
 table.dataTable tbody td {

@@ -43,9 +43,11 @@
           <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
           <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
           <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-          <button class="btn btn-default" id="add"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+          <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
           <button class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download Table</button>
           <button id="redraw" class="btn btn-default">Reset Columns</button>
+          <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+          <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
           <br />
           <br />
           <div id="table_container">

@@ -29,7 +29,8 @@ lodchart = function() {
   darkrect = "#F1F1F9";
   lightrect = "#FBFBFF";
   lodlinecolor = "darkslateblue";
-  additivelinecolor = "red";
+  additivelinecolor_plus = "red";
+  additivelinecolor_negative = "green";
   linewidth = 2;
   suggestivecolor = "gainsboro";
   significantcolor = "#EBC7C7";
@@ -208,7 +209,13 @@ lodchart = function() {
           for (k = 0, len1 = ref1.length; k < len1; k++) {
             chr = ref1[k];
             if (chr.indexOf(data['chr'])) {
-              curves.append("path").datum(data.posByChr[chr[0]]).attr("d", additivecurve(chr[0], lodvarnum)).attr("stroke", additivelinecolor).attr("fill", "none").attr("stroke-width", 1).style("pointer-events", "none");
+              if (additivecurve(chr[0], lodvarnum).y < 0) {
+                additivecurve(chr[0], lodvarnum).y = Math.abs(additivecurve(chr[0], lodvarnum).y)
+                curves.append("path").datum(data.posByChr[chr[0]]).attr("d", additivecurve(chr[0], lodvarnum)).attr("stroke", additivelinecolor_negative).attr("fill", "none").attr("stroke-width", 1).style("pointer-events", "none");
+              }
+              else {
+                curves.append("path").datum(data.posByChr[chr[0]]).attr("d", additivecurve(chr[0], lodvarnum)).attr("stroke", additivelinecolor_plus).attr("fill", "none").attr("stroke-width", 1).style("pointer-events", "none");
+              }
             }
           }
         }
