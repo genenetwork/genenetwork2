@@ -54,6 +54,7 @@
             <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
                 <thead>
                     <tr>
+                        <th style="width: 30px;"></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
                         <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
@@ -69,10 +70,9 @@
                 <tbody>
                     {% for this_trait in trait_list %}
                     <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <TD>{{ loop.index }}
-                            <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
-                                   VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
+                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                         </TD>
+                        <TD>{{ loop.index }}</TD>
                         <TD>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = this_trait.name,
@@ -183,6 +183,7 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
+                    { "type": "natural" },
                     { "type": "natural", "width": "30%" },
                     { "type": "natural", "width": "15%" },
                     { "type": "natural" },
@@ -209,6 +210,7 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
+                    { "type": "natural" },
                     { "type": "natural", "width": "15%"},
                     { "type": "natural" }
                 ],
@@ -224,6 +226,7 @@
             {% elif dataset.type == 'Geno' %}
             $('#trait_table').DataTable( {
                 "columns": [
+                    { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural", "width": "40%"}

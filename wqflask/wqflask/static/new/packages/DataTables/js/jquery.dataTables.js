@@ -640,7 +640,7 @@
 			oCol.sWidthOrig = th.attr('width') || null;
 	
 			// Style attribute
-			var t = (th.attr('style') || '').match(/width:\s*(\d+[pxem%]+)/);
+			var t = (th.attr('style') || '').match(/width:\s*(\d+[px|em|%]+)/);
 			if ( t ) {
 				oCol.sWidthOrig = t[1];
 			}

@@ -19,7 +19,7 @@
             <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn btn-default" id="add"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+            <button class="btn btn-default" id="add" disabled ><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
             <button class="btn btn-primary pull-right"><span class="glyphicon glyphicon-download"></span> Download Table</button>
             <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
             <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
@@ -29,35 +29,42 @@
             <table class="table table-hover table-striped" id="trait_table">
                 <thead>
                     <tr>
-						<th>Index</th>
-						<th>Symbol</th>
-						<th>Record</th>
-						<th>Description</th>
-						<th>Species</th>
-						<th>Group</th>
-						<th>Tissue</th>
-						<th>Dataset</th>
-						<th>Chr</th>
-						<th>Mb</th>
-						<th>Mean</th>
-						<th>Max LRS</th>
-						<th>Locus</th>
-						<th>Pvalue</th>
-						<th>Additive</th>
+                        <th style="width: 30px;"></th>
+                        <th>Index</th>
+                        <th>Species</th>
+                        <th>Group</th>
+                        <th>Tissue</th>
+                        <th>Dataset</th>
+                        <th>Record</th>
+                        <th>Symbol</th>
+                        <th>Description</th>
+                        <th>Location</th>
+                        <th>Mean</th>
+                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th>Max LRS Location</th>
+                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                     </tr>
                 </thead>
-
                 <tbody>
-                    {% for this_trait in results %}
-                    <TR>
-						<td><input class="trait_checkbox" type="checkbox">{{ loop.index }}</td>
-                        {% for item in this_trait %}
-							<TD>{{ item }}</TD>
-						{% endfor %}
+                {% for this_trait in trait_list %}
+                    <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
+                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
+                        <TD>{{ loop.index }}</TD>
+                        <TD>{{ this_trait.dataset.group.species }}</TD>
+                        <TD>{{ this_trait.dataset.group.name }}</TD>
+                        <TD>{{ this_trait.dataset.name }}</TD>
+                        <TD>{{ this_trait.dataset.name }}</TD>
+                        <TD><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></TD>
+                        <TD>{{ this_trait.symbol }}</TD>
+                        <TD>{{ this_trait.description_display }}</TD>
+                        <TD>{{ this_trait.location_repr }}</TD>
+                        <TD align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
+                        <TD align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
+                        <TD>{{ this_trait.LRS_location_repr }}</TD>
+                        <TD align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
                     </TR>
                 {% endfor %}
                 </tbody>
-
             </table>
         </div>
     </div>
@@ -71,8 +78,8 @@
     
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.js"></script>
     <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
@@ -149,7 +156,6 @@
             $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural" },
-                    { "type": "natural" },
                     { "type": "natural", "width": "35%"  },
                     { "type": "natural", "width": "15%"  },
                     { "type": "cust-txt" },
@@ -161,16 +167,14 @@
                     { "type": "natural", "width": "15%"  },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural" },
+                    { "type": "natural" }, 
                     { "type": "cust-txt" }
                 ],
-                "sDom": "RJtir",
-                "iDisplayLength": -1,
+                "order": [[ 1, "asc" ]],
+                "sDom": "RZtir",
                 "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
-                "bSortClasses": false,
-                "scrollY": "700px",
                 "scrollCollapse": false,
                 "colResize": {
                     "tableWidthFixed": false,

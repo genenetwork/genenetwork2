@@ -57,6 +57,7 @@ $(function() {
               i += 1
           });
       }
+      change_buttons();
   });            
 
   $('.trait_checkbox:checkbox').change(function() {
