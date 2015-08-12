@@ -54,7 +54,17 @@ $(function() {
                       $(this).closest('tr').addClass('selected')
                   }
               }
+              else {
+                  if ($(this).closest('tr').hasClass('selected')) {
+                      $(this).closest('tr').removeClass('selected')
+                  }
+              }
               i += 1
+          });
+      }
+      else {
+          $('#trait_table > tbody > tr').each(function(){
+              $(this).closest('tr').removeClass('selected')
           });
       }
       change_buttons();
