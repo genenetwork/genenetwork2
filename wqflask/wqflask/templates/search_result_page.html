@@ -2,10 +2,11 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <!--<link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />-->
+    <!--<link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />-->
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -121,14 +122,18 @@
 {% block js %}
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.js"></script>
     <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <!--<script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>-->
+    <!--<script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>-->
 	
     <script type="text/javascript" charset="utf-8">
         function getValue(x) {
@@ -191,7 +196,10 @@
                     { "type": "natural", "width": "15%" },
                     { "type": "natural" }
                 ],
-                "sDom": "RZtir",
+                "buttons": [
+                    'csv'
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "bDeferRender": true,

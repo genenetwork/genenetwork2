@@ -78,7 +78,7 @@ lodchart = function() {
           results = [];
           for (j = 0, len = ref.length; j < len; j++) {
             x = ref[j];
-            results.push(Math.abs(x));
+            results.push(x);
           }
           return results;
         })();
@@ -189,11 +189,17 @@ lodchart = function() {
         };
         if ('additive' in data) {
           additivecurve = function(chr, lodcolumn) {
-            return d3.svg.line().x(function(d) {
+            if (data.additiveByChr[chr][0] < 0) {
+              pos_neg = "negative"
+            }
+            else {
+              pos_neg = "positive"
+            }
+            return [pos_neg, d3.svg.line().x(function(d) {
               return xscale[chr](d);
             }).y(function(d, i) {
-              return additive_yscale(data.additiveByChr[chr][i]);
-            });
+              return additive_yscale(Math.abs(data.additiveByChr[chr][i]));
+            })];
           };
         }
         curves = g.append("g").attr("id", "curves");
@@ -209,12 +215,11 @@ lodchart = function() {
           for (k = 0, len1 = ref1.length; k < len1; k++) {
             chr = ref1[k];
             if (chr.indexOf(data['chr'])) {
-              if (additivecurve(chr[0], lodvarnum).y < 0) {
-                additivecurve(chr[0], lodvarnum).y = Math.abs(additivecurve(chr[0], lodvarnum).y)
-                curves.append("path").datum(data.posByChr[chr[0]]).attr("d", additivecurve(chr[0], lodvarnum)).attr("stroke", additivelinecolor_negative).attr("fill", "none").attr("stroke-width", 1).style("pointer-events", "none");
+              if (additivecurve(chr[0], lodvarnum)[0] == "negative") {
+                curves.append("path").datum(data.posByChr[chr[0]]).attr("d", additivecurve(chr[0], lodvarnum)[1]).attr("stroke", additivelinecolor_negative).attr("fill", "none").attr("stroke-width", 1).style("pointer-events", "none");
               }
               else {
-                curves.append("path").datum(data.posByChr[chr[0]]).attr("d", additivecurve(chr[0], lodvarnum)).attr("stroke", additivelinecolor_plus).attr("fill", "none").attr("stroke-width", 1).style("pointer-events", "none");
+                curves.append("path").datum(data.posByChr[chr[0]]).attr("d", additivecurve(chr[0], lodvarnum)[1]).attr("stroke", additivelinecolor_plus).attr("fill", "none").attr("stroke-width", 1).style("pointer-events", "none");
               }
             }
           }

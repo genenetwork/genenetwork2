@@ -57,6 +57,7 @@ $(function() {
               else {
                   if ($(this).closest('tr').hasClass('selected')) {
                       $(this).closest('tr').removeClass('selected')
+                      $(this).find('.trait_checkbox').prop("checked", false)
                   }
               }
               i += 1
@@ -65,6 +66,7 @@ $(function() {
       else {
           $('#trait_table > tbody > tr').each(function(){
               $(this).closest('tr').removeClass('selected')
+              $(this).find('.trait_checkbox').prop("checked", false)
           });
       }
       change_buttons();
