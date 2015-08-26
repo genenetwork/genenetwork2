@@ -94,6 +94,7 @@ $(function() {
   $('#dataset_info').click(dataset_info);
   make_default = function() {
     var holder, item, jholder, _i, _len, _ref;
+    alert("The current settings are now your default.")
     holder = {};
     _ref = ['species', 'group', 'type', 'dataset'];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {

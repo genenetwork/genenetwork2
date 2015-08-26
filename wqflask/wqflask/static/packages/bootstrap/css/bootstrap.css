@@ -1215,7 +1215,7 @@ a.bg-danger:hover {
 }
 .page-header {
   padding-bottom: 9px;
-  margin: 20px 0 20px;
+  margin: 10px 0 10px;
   border-bottom: 1px solid #eee;
 }
 ul,
@@ -4674,7 +4674,7 @@ a.list-group-item.active > .badge,
   margin-left: 3px;
 }
 .jumbotron {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   color: inherit;
   background-color: #eee;
 }

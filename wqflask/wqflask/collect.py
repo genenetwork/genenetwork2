@@ -181,6 +181,8 @@ def collections_new():
     if "anonymous_add" in params:
         AnonCollection().add_traits(params, "Default")
         return redirect(url_for('view_collection'))
+    elif "sign_in" in params:
+        return redirect(url_for('login'))
 
     collection_name = params['new_collection']
 

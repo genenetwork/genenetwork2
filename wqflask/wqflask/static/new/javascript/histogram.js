@@ -68,7 +68,7 @@
     Histogram.prototype.get_histogram_data = function() {
       var n_bins;
       console.log("sample_vals:", this.sample_vals);
-      n_bins = Math.sqrt(this.sample_vals.length);
+      n_bins = 2*Math.sqrt(this.sample_vals.length); //Was originally just the square root, but increased to 2*; ideally would be a GUI for changing this
       this.histogram_data = d3.layout.histogram().bins(this.x_scale.ticks(n_bins))(this.sample_vals);
       return console.log("histogram_data:", this.histogram_data[0]);
     };

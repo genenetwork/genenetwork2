@@ -52,8 +52,8 @@
                         <TD>{{ loop.index }}</TD>
                         <TD>{{ this_trait.dataset.group.species }}</TD>
                         <TD>{{ this_trait.dataset.group.name }}</TD>
-                        <TD>{{ this_trait.dataset.name }}</TD>
-                        <TD>{{ this_trait.dataset.name }}</TD>
+                        <TD>{{ this_trait.dataset.tissue }}</TD>
+                        <TD>{{ this_trait.dataset.fullname }}</TD>
                         <TD><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></TD>
                         <TD>{{ this_trait.symbol }}</TD>
                         <TD>{{ this_trait.description_display }}</TD>

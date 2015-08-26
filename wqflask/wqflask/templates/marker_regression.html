@@ -34,7 +34,7 @@
                 <thead>
                     <tr>
                         <th>Index</th>
-                        <th>LOD Score</th>
+                        <th>{{ score_type }}</th>
                         <th>Chr</th>
                         <th>Mb</th>
                         <th>Locus</th>
@@ -87,7 +87,10 @@
                     { "type": "natural" },
                     { "type": "natural" }
                     ],
-                "sDom": "ZRtir",
+                "buttons": [
+                    'csv'
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bDeferRender": true,

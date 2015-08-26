@@ -559,29 +559,39 @@ class DataSet(object):
         This is not meant to retrieve the data set info if no name at all is passed.
 
         """
-
-        query_args = tuple(escape(x) for x in (
-            (self.type + "Freeze"),
-            str(webqtlConfig.PUBLICTHRESH),
-            self.name,
-            self.name,
-            self.name))
-        print("query_args are:", query_args)
-
-        #print("""
-        #        SELECT Id, Name, FullName, ShortName
-        #        FROM %s
-        #        WHERE public > %s AND
-        #             (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-        #  """ % (query_args))
         
         try:
-            self.id, self.name, self.fullname, self.shortname = g.db.execute("""
-                    SELECT Id, Name, FullName, ShortName
-                    FROM %s
-                    WHERE public > %s AND
-                         (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-              """ % (query_args)).fetchone()
+            if self.type == "ProbeSet":
+                query_args = tuple(escape(x) for x in (
+                    str(webqtlConfig.PUBLICTHRESH),
+                    self.name,
+                    self.name,
+                    self.name))
+
+                self.id, self.name, self.fullname, self.shortname, self.tissue = g.db.execute("""
+                        SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, Tissue.Name
+                        FROM ProbeSetFreeze, ProbeFreeze, Tissue
+                        WHERE ProbeSetFreeze.public > %s AND
+                              ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
+                              ProbeFreeze.TissueId = Tissue.Id AND
+                             (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
+                  """ % (query_args)).fetchone()
+            else:
+                query_args = tuple(escape(x) for x in (
+                    (self.type + "Freeze"),
+                    str(webqtlConfig.PUBLICTHRESH),
+                    self.name,
+                    self.name,
+                    self.name))
+
+                self.tissue = "N/A"
+                self.id, self.name, self.fullname, self.shortname = g.db.execute("""
+                        SELECT Id, Name, FullName, ShortName
+                        FROM %s
+                        WHERE public > %s AND
+                             (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
+                  """ % (query_args)).fetchone()
+
         except TypeError:
             print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass

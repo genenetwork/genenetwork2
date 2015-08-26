@@ -2,8 +2,6 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <!--<link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />-->
-    <!--<link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />-->
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
@@ -45,10 +43,19 @@
           <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
           <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
           <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-          <button class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download Table</button>
+          <!--<button class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download Table</button>-->
           <button id="redraw" class="btn btn-default">Reset Columns</button>
           <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
           <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+          <br />
+          <br />
+          <button class="btn btn-default" id="open_options">Open Extra Options</button>
+          <br />
+          <br />
+          <div id="extra_options" style="display:none;">
+          Min LRS <input type="text" id="min" class="form-control" style="width: 60px; display: inline;">
+          Max LRS <input type="text" id="max" class="form-control" style="width: 60px; display: inline;">
+          </div>
           <br />
           <br />
           <div id="table_container">
@@ -58,7 +65,7 @@
                         <th style="width: 30px;"></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS</th>
                         {% elif header == 'Additive Effect' %}
                         <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
@@ -73,7 +80,7 @@
                     <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
                         <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                         </TD>
-                        <TD>{{ loop.index }}</TD>
+                        <TD align="right">{{ loop.index }}</TD>
                         <TD>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = this_trait.name,
@@ -132,8 +139,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.js"></script>
     <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
-    <!--<script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>-->
-    <!--<script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>-->
 	
     <script type="text/javascript" charset="utf-8">
         function getValue(x) {
@@ -150,7 +155,41 @@
             }
             return parseFloat(x);
         }
-            
+
+
+        function filtering( oSettings, aData, iDataIndex, column) {
+            var iColumn = column;
+            if (document.getElementById('min').value){
+                var iMin = document.getElementById('min').value * 1;
+            } else {
+                var iMin = 0
+            }
+            if (document.getElementById('max').value){
+                var iMax = document.getElementById('max').value * 1;
+            } else {
+                var iMax = 10000
+            }
+
+            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn]*1;
+            if ( iMin === "" && iMax === "" )
+            {
+                return true;
+            }
+            else if ( iMin === "" && iVersion < iMax )
+            {
+                return true;
+            }
+            else if ( iMin < iVersion && "" === iMax )
+            {
+                return true;
+            }
+            else if ( iMin < iVersion && iVersion < iMax )
+            {
+                return true;
+            }
+                return false;
+        }
+
         jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
             var x = getValue(a);
             var y = getValue(b); 
@@ -183,13 +222,21 @@
 
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
+
+            jQuery.fn.dataTableExt.afnFiltering.push(
+                function( oSettings, aData, iDataIndex ) {
+                    return filtering( oSettings, aData, iDataIndex, 7 );
+
+                }
+            );
+
             $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural", "width": "30%" },
+                    { "type": "natural", "width": "40%" },
                     { "type": "natural", "width": "15%" },
                     { "type": "natural" },
                     { "type": "natural" },
@@ -201,7 +248,6 @@
                 ],
                 "sDom": "RZBtir",
                 "iDisplayLength": -1,
-                "autoWidth": false,
                 "bDeferRender": true,
                 "bSortClasses": false,
                 "scrollY": "700px",
@@ -222,7 +268,10 @@
                     { "type": "natural", "width": "15%"},
                     { "type": "natural" }
                 ],
-                "sDom": "RZtir",
+                "buttons": [
+                    'csv'
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "bDeferRender": true,
@@ -239,7 +288,10 @@
                     { "type": "natural" },
                     { "type": "natural", "width": "40%"}
                 ],
-                "sDom": "RZtir",
+                "buttons": [
+                    'csv'
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bDeferRender": true,
@@ -251,13 +303,18 @@
             {% endif %}
             console.timeEnd("Creating table");
             
+            var table = $('#trait_table').DataTable();
             $('#redraw').click(function() {
                 var table = $('#trait_table').DataTable();
                 table.colReorder.reset()
             });
-            
-            //new $.fn.dataTable.FixedHeader( table );
-            //new $.fn.dataTable.FixedColumns( table );
+
+            $('#min').keyup( function() { table.draw(); } );
+            $('#max').keyup( function() { table.draw(); } );
+
+            $('#open_options').click( function () {
+                $('#extra_options').toggle();
+            });
 
         });
     </script>

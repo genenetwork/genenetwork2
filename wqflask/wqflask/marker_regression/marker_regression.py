@@ -165,7 +165,10 @@ class MarkerRegression(object):
                 else:
                     self.json_data['chr'].append(str(qtl['chr']))
                 self.json_data['pos'].append(qtl['Mb'])
-                self.json_data['lod.hk'].append(str(qtl['lod_score']))
+                if self.score_type == "LRS":
+                    self.json_data['lod.hk'].append(str(qtl['lrs_value']))
+                else:
+                    self.json_data['lod.hk'].append(str(qtl['lod_score']))
                 self.json_data['markernames'].append(qtl['name'])
 
             #Get chromosome lengths for drawing the interval map plot

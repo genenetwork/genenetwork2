@@ -1,4 +1,8 @@
 <dl class="dl-horizontal">
+    <dt>Species</dt>
+    <dd>{{ this_trait.dataset.group.species }}</dd>
+    <dt>Group</dt>
+    <dd>{{ this_trait.dataset.group.name }}</dd>
     {% if this_trait.dataset.type == 'ProbeSet' %}
     <dt>Aliases</dt>
     <dd>{{ this_trait.alias_fmt }}</dd>
@@ -33,7 +37,7 @@
     {% if this_trait.dataset.type == 'ProbeSet' %}
     <dd>
         {% if this_trait.symbol != None %}
-        <a href="http://bioinformatics-dev/Getd2g.pl?gene_list={{ this_trait.symbol }}" target="_blank" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
+        <a href="http://www.genotation.org/Getd2g.pl?gene_list={{ this_trait.symbol }}" target="_blank" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
             Genotation
         </a>
         &nbsp;&nbsp;
