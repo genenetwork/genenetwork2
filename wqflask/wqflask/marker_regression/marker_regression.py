@@ -73,9 +73,11 @@ class MarkerRegression(object):
         self.suggestive = ""
         self.significant = ""
         self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
+        self.score_type = "LRS" #ZS: LRS or LOD
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
+            self.score_type = "LOD"
             included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
             self.dataset.group.get_specified_markers(markers = included_markers)
             self.dataset.group.markers.add_pvalues(p_values)
@@ -83,6 +85,7 @@ class MarkerRegression(object):
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
+            self.score_type = "LOD"
             if start_vars['num_perm'] == "":
                 self.num_perm = 0
             else:
@@ -136,7 +139,6 @@ class MarkerRegression(object):
             )
 
         else:
-            self.score_type = "LRS"
             self.cutoff = 2    
             self.qtl_results = []
             highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
@@ -165,7 +167,7 @@ class MarkerRegression(object):
                 else:
                     self.json_data['chr'].append(str(qtl['chr']))
                 self.json_data['pos'].append(qtl['Mb'])
-                if self.score_type == "LRS":
+                if 'lrs_value' in qtl:
                     self.json_data['lod.hk'].append(str(qtl['lrs_value']))
                 else:
                     self.json_data['lod.hk'].append(str(qtl['lod_score']))

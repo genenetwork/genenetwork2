@@ -92,10 +92,11 @@ class IntervalMapping(object):
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False
-        if start_vars['display_additive'] == "yes":
-            self.additive = True
-        else:
-            self.additive = False
+        #ZS: Commenting this out until we can fix the issue with positive/negative additive effects being colored properly
+        #if start_vars['display_additive'] == "yes":
+        #    self.additive = True
+        #else:
+        self.additive = False
         if 'control_locus' in start_vars:
             self.control_locus = start_vars['control_locus']
         else:
