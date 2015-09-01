@@ -18,7 +18,6 @@
               <input type="hidden" id="filename" name="filename" value="">
               <input type="submit" id="export_pdf" value="Download PDF">
             </form>
-<!--            <button id="export_pdf" class="btn">Export PDF</button>-->
             <button id="return_to_full_view" class="btn" style="display:none">Return to full view</button>
         </div>
         <div id="chart_container">
@@ -33,6 +32,7 @@
             <table id="qtl_results" class="table table-hover table-striped">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>Index</th>
                         <th>{{ score_type }}</th>
                         <th>Chr</th>
@@ -46,18 +46,18 @@
                               (score_type == "LRS" and marker.lrs_value > cutoff) %}
                         <tr>
                             <td>
-                                {{loop.index}}
                                 <input type="checkbox" name="selectCheck"
                                        class="checkbox edit_sample_checkbox"
                                        value="{{ marker.name }}" checked="checked">
                             </td>
+                            <Td align="right">{{ loop.index }}</Td>
                             {% if score_type == "LOD" %}
-                            <td>{{marker.lod_score}}</td>
+                            <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
                             {% else %}
-                            <td>{{marker.lrs_value}}</td>
+                            <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
                             {% endif %}
                             <td>{{marker.chr}}</td>
-                            <td>{{marker.Mb}}</td>
+                            <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
                             <td>{{marker.name}}</td>
                         </tr>
                         {% endif %}
@@ -81,6 +81,7 @@
             console.time("Creating table");
             $('#qtl_results').dataTable( {
                 "columns": [
+                    { "type": "natural", "bSortable": false },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },

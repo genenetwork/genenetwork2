@@ -73,11 +73,13 @@
                             <i class="icon-signal"></i> Sort By Value
                             </button>
                         </div>
+                        {% if g.user_session.user_ob %}
                         <div class="btn-group">
                             <button type="button" class="btn btn-default" id="color_by_trait">
                                 <i class="icon-tint"></i> Color by Trait
                             </button>
                         </div>
+                        {% endif %}
                     </div>
                         <div class="row" style="position:relative">
                           <div id="bar_chart_legend" style="margin-left: 150px; margin-top:20px; position: absolute;">

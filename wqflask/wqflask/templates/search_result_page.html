@@ -49,15 +49,17 @@
           <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
           <br />
           <br />
+          {% if dataset.type == 'ProbeSet' %}
           <button class="btn btn-default" id="open_options">Open Extra Options</button>
           <br />
-          <br />
+          <br />          
           <div id="extra_options" style="display:none;">
           Min LRS <input type="text" id="min" class="form-control" style="width: 60px; display: inline;">
           Max LRS <input type="text" id="max" class="form-control" style="width: 60px; display: inline;">
           </div>
           <br />
           <br />
+          {% endif %}
           <div id="table_container">
             <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
                 <thead>
@@ -222,11 +224,9 @@
 
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
-
             jQuery.fn.dataTableExt.afnFiltering.push(
                 function( oSettings, aData, iDataIndex ) {
                     return filtering( oSettings, aData, iDataIndex, 7 );
-
                 }
             );
 

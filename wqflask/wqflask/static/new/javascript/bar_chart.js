@@ -221,27 +221,33 @@
               return _this.color_dict[d.attr[_this.attribute_name]];
             });
             _this.add_legend();
+          } else if (typeof _this.trait_color_dict !== 'undefined') {
+            _this.color_dict = _this.trait_color_dict;
+            _this.chart.barColor(function(d) {
+              return _this.color_dict[d['x']];
+            });
           } else {
             _this.chart.barColor(function() {
               return 'steelblue';
             });
           }
           _this.chart.width(raw_data.length * 20);
+          //User should be able to change Y domain, but should still have good default
           _this.chart.yDomain([
-            0.9 * _.min((function() {
+            0.95 * _.min((function() { // ZS: Decreasing this constant decreases the min Y axis value
               var j, len, results;
               results = [];
               for (j = 0, len = values.length; j < len; j++) {
                 d = values[j];
-                results.push(d.y - 1.5 * d.yErr);
+                results.push(d.y - 0.5 * d.yErr); //ZS: the 0.5 was originally 1.5
               }
               return results;
-            })()), 1.05 * _.max((function() {
+            })()), 1.05 * _.max((function() { // ZS: Decreasing this constant decreases the max Y axis value
               var j, len, results;
               results = [];
               for (j = 0, len = values.length; j < len; j++) {
                 d = values[j];
-                results.push(d.y + 1.5 * d.yErr);
+                results.push(d.y + 0.5 * d.yErr); // //ZS: the 0.5 was originally 1.5
               }
               return results;
             })())
@@ -398,17 +404,18 @@
       trimmed_samples = this.trim_values(trait_sample_data);
       distinct_values = {};
       distinct_values["collection_trait"] = this.get_distinct_values(trimmed_samples);
-      this.get_trait_color_dict(trimmed_samples, distinct_values);
+      this.trait_color_dict = this.get_trait_color_dict(trimmed_samples, distinct_values);
       console.log("TRAIT_COLOR_DICT:", this.trait_color_dict);
-      return console.log("SAMPLES:", this.samples);
+      return this.rebuild_bar_graph();
+      //return console.log("SAMPLES:", this.samples);
     };
 
     Bar_Chart.prototype.trim_values = function(trait_sample_data) {
       var j, len, ref, sample, trimmed_samples;
       trimmed_samples = {};
-      ref = this.sample_names;
+      ref = this.sample_lists['samples_all'];
       for (j = 0, len = ref.length; j < len; j++) {
-        sample = ref[j];
+        sample = ref[j]['name'];
         if (sample in trait_sample_data) {
           trimmed_samples[sample] = trait_sample_data[sample];
         }
@@ -422,6 +429,53 @@
       distinct_values = _.uniq(_.values(samples));
       console.log("distinct_values:", distinct_values);
       return distinct_values;
+    };
+
+    Bar_Chart.prototype.get_trait_color_dict = function(samples, vals) {
+      var color, color_range, distinct_vals, i, j, k, key, len, len1, results, sample, this_color_dict, value;
+      trait_color_dict = {};
+      console.log("vals:", vals);
+      for (key in vals) {
+        if (!hasProp.call(vals, key)) continue;
+        distinct_vals = vals[key];
+        this_color_dict = {};
+        this.min_val = d3.min(distinct_vals);
+        this.max_val = d3.max(distinct_vals);
+        if (distinct_vals.length < 10) {
+          color = d3.scale.category10();
+          for (i = j = 0, len = distinct_vals.length; j < len; i = ++j) {
+            value = distinct_vals[i];
+            this_color_dict[value] = color(i);
+          }
+        } else {
+          console.log("distinct_values:", distinct_vals);
+          if (_.every(distinct_vals, (function(_this) {
+            return function(d) {
+              if (isNaN(d)) {
+                return false;
+              } else {
+                return true;
+              }
+            };
+          })(this))) {
+            color_range = d3.scale.linear().domain([d3.min(distinct_vals), d3.max(distinct_vals)]).range([0, 255]);
+            for (i = k = 0, len1 = distinct_vals.length; k < len1; i = ++k) {
+              value = distinct_vals[i];
+              //console.log("color_range(value):", parseInt(color_range(value)));
+              this_color_dict[value] = d3.rgb(parseInt(color_range(value)), 0, 0);
+            }
+          }
+        }
+      }
+      results = [];
+      console.log("SAMPLES:", samples)
+      for (sample in samples) {
+        if (!hasProp.call(samples, sample)) continue;
+        value = samples[sample];
+        trait_color_dict[sample] = this_color_dict[value];
+        //results.push(this.trait_color_dict[sample] = this_color_dict[value]);
+      }
+      return trait_color_dict;
     };
 
     return Bar_Chart;
