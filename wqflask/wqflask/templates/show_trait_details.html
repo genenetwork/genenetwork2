@@ -38,12 +38,6 @@
     <dt>Resource Links</dt>
     {% if this_trait.dataset.type == 'ProbeSet' %}
     <dd>
-        {% if this_trait.symbol != None %}
-        <a href="http://www.genotation.org/Getd2g.pl?gene_list={{ this_trait.symbol }}" target="_blank" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
-            Genotation
-        </a>
-        &nbsp;&nbsp;
-        {% endif %}
         {% if this_trait.geneid != None %}
         <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{ this_trait.geneid }}" target="_blank" title="Info from NCBI Entrez Gene">
             Gene
@@ -59,6 +53,12 @@
         {% if this_trait.genbankid != None %}
         <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=Nucleotide&cmd=search&doptcmdl=DocSum&term={{ this_trait.genbankid }}" target="_blank" title="Find the original GenBank sequence used to design the probes">
             GenBank
+        </a>
+        &nbsp;&nbsp;
+        {% endif %}
+        {% if this_trait.symbol != None %}
+        <a href="http://www.genotation.org/Getd2g.pl?gene_list={{ this_trait.symbol }}" target="_blank" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
+            Genotation
         </a>
         &nbsp;&nbsp;
         {% endif %}

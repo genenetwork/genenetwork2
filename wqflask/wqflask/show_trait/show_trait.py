@@ -102,11 +102,13 @@ class ShowTrait(object):
 
         print("self.dataset.type:", self.dataset.type)
         if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
-            self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
-            self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
+            self.nearest_marker = get_nearest_marker(self.this_trait, self.dataset)
+            #self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
+            #self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
         else:
-            self.nearest_marker1 = ""
-            self.nearest_marker2 = ""
+            self.nearest_marker = ""
+            #self.nearest_marker1 = ""
+            #self.nearest_marker2 = ""
 
         self.make_sample_lists(self.this_trait)
 
@@ -120,11 +122,13 @@ class ShowTrait(object):
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
-        hddn['manhattan_plot'] = False
+        hddn['manhattan_plot'] = ""
         if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
-            hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
+            hddn['control_marker'] = self.nearest_marker
+            #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
         else:
             hddn['control_marker'] = ""
+        hddn['do_control'] = False
         hddn['maf'] = 0.01
         hddn['compare_traits'] = []
         hddn['export_data'] = ""
@@ -1231,21 +1235,24 @@ def get_nearest_marker(this_trait, this_db):
     print("this_chr:", this_chr)
     this_mb = this_trait.locus_mb
     print("this_mb:", this_mb)
+    #One option is to take flanking markers, another is to take the two (or one) closest
     query = """SELECT Geno.Name
                FROM Geno, GenoXRef, GenoFreeze
                WHERE Geno.Chr = '{}' AND
                      GenoXRef.GenoId = Geno.Id AND
                      GenoFreeze.Id = GenoXRef.GenoFreezeId AND
                      GenoFreeze.Name = '{}'
-               ORDER BY ABS( Geno.Mb - {}) LIMIT 2""".format(this_chr, this_db.group.name+"Geno", this_mb)
+               ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name+"Geno", this_mb)
     print("query:", query)
 
     result = g.db.execute(query).fetchall()
     print("result:", result)
 
     if result == []:
-        return "", ""
+        return ""
+        #return "", ""
     else:
-        return result[0][0], result[1][0]
+        return result[0][0]
+        #return result[0][0], result[1][0]
     
     

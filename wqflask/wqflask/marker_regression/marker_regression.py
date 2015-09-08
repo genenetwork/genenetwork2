@@ -91,6 +91,7 @@ class MarkerRegression(object):
             else:
                 self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
+            self.do_control = start_vars['do_control']
             print("StartVars:", start_vars)
             self.method = start_vars['mapmethod_rqtl_geno']
             self.model = start_vars['mapmodel_rqtl_geno']
@@ -352,7 +353,7 @@ class MarkerRegression(object):
         covar = self.create_covariates(cross_object)                                                    # Create the additive covariate matrix
 
         if self.pair_scan:
-            if(r_sum(covar)[0] > 0):                                                                    # If sum(covar) > 0 we have a covariate matrix
+            if self.do_control == "true":                                                # If sum(covar) > 0 we have a covariate matrix
                 print("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar, model=self.model, method=self.method, n_cluster = 16)
             else:
                 print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=self.model, method=self.method, n_cluster = 16)
@@ -367,13 +368,13 @@ class MarkerRegression(object):
             return self.process_pair_scan_results(result_data_frame)
 
         else:
-            if(r_sum(covar)[0] > 0):
+            if self.do_control == "true":
                 print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=self.model, method=self.method)
             else:
                 print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=self.model, method=self.method)
 
             if int(self.num_perm) > 0:                                                                   # Do permutation (if requested by user)
-                if(r_sum(covar)[0] > 0):
+                if self.do_control == "true":
                     perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm), model=self.model, method=self.method)
                 else:
                     perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm), model=self.model, method=self.method)

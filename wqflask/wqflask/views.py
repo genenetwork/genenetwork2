@@ -318,6 +318,7 @@ def marker_regression_page():
         'manhattan_plot',
         'control_marker',
         'control_marker_db',
+        'do_control',
         'pair_scan',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
