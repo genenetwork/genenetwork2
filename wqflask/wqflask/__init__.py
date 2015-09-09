@@ -6,16 +6,14 @@ print("sys.path is:", sys.path)
 import jinja2
 
 from flask import Flask
-
 from utility import formatting
 
 app = Flask(__name__)
 
-app.config.SECURITY_PASSWORD_HASH='bcrypt'
+app.config.from_object('cfg.default_settings')   # Get the defaults from cfg.default_settings
+app.config.from_envvar('WQFLASK_SETTINGS')       # See http://flask.pocoo.org/docs/config/#configuring-from-files
 
-# See http://flask.pocoo.org/docs/config/#configuring-from-files
-app.config.from_object('cfg.default_settings')
-app.config.from_envvar('WQFLASK_SETTINGS')
+print("Current application configuration:", app.config)
 
 app.jinja_env.globals.update(
     undefined = jinja2.StrictUndefined,

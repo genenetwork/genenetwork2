@@ -15,3 +15,7 @@ SECURITY_EMAIL_SENDER = "no-reply@genenetwork.org"
 SECURITY_POST_LOGIN_VIEW = "/thank_you"
 
 SQLALCHEMY_POOL_RECYCLE = 3600
+
+SECURITY_PASSWORD_HASH = "bcrypt"
+SESSION_TYPE = "filesystem"
+# SECRET_KEY = "secretkey"
