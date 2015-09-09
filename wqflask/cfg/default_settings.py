@@ -18,4 +18,4 @@ SQLALCHEMY_POOL_RECYCLE = 3600
 
 SECURITY_PASSWORD_HASH = "bcrypt"
 SESSION_TYPE = "filesystem"
-# SECRET_KEY = "secretkey"
+SECRET_KEY = "secretkey"
