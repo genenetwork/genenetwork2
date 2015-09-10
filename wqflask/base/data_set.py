@@ -1171,7 +1171,8 @@ class MrnaAssayDataSet(DataSet):
             
             mean = result[0] if result else 0
 
-            this_trait.mean = "%2.3f" % mean
+            if mean:
+                this_trait.mean = "%2.3f" % mean
 
             #LRS and its location
             this_trait.LRS_score_repr = 'N/A'
