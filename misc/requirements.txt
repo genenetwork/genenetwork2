@@ -34,3 +34,4 @@ simplejson==3.0.7
 wsgiref==0.1.2
 yolk==0.4.3
 XlsxWriter==0.7.2
+pandas==0.16.2
