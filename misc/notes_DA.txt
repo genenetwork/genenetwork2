@@ -1,0 +1,6 @@
+Danny's notes about the genenetwork source
+
+Location of static files:
+
+Location of HTML templates: wqflask/wqflask/templates/
+
