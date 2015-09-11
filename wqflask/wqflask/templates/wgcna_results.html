@@ -4,7 +4,7 @@
 {% block content %} <!-- Start of body -->
   <div>
     <h1>WGCNA Results</h1>
-    {{result}}
+    Phenotypes used as input: {% for k in result %} {{k[0].name}} {% endfor %}
   </div>
 {% endblock %}
 
