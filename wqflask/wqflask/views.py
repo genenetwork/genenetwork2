@@ -266,38 +266,43 @@ def heatmap_page():
     start_vars = request.form
     temp_uuid = uuid.uuid4()
     
-    version = "v5"
-    key = "heatmap:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
-    print("key is:", pf(key))
-    with Bench("Loading cache"):
-        result = Redis.get(key)
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        version = "v5"
+        key = "heatmap:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+        print("key is:", pf(key))
+        with Bench("Loading cache"):
+            result = Redis.get(key)
         
-    if result:
-        print("Cache hit!!!")
-        with Bench("Loading results"):
-            result = pickle.loads(result)
+        if result:
+            print("Cache hit!!!")
+            with Bench("Loading results"):
+                result = pickle.loads(result)
     
+        else:
+            print("Cache miss!!!")
+    
+            template_vars = heatmap.Heatmap(request.form, temp_uuid)
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                               default=json_default_handler,
+                                               indent="   ")
+        
+            result = template_vars.__dict__
+
+            for item in template_vars.__dict__.keys():
+                print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
+    
+            pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+            print("pickled result length:", len(pickled_result))
+            Redis.set(key, pickled_result)
+            Redis.expire(key, 60*60)
+    
+        with Bench("Rendering template"):
+            rendered_template = render_template("heatmap.html", **result)
+     
     else:
-        print("Cache miss!!!")
-    
-        template_vars = heatmap.Heatmap(request.form, temp_uuid)
-        template_vars.js_data = json.dumps(template_vars.js_data,
-                                           default=json_default_handler,
-                                           indent="   ")
-        
-        result = template_vars.__dict__
-    
-        for item in template_vars.__dict__.keys():
-            print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-    
-        pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-        print("pickled result length:", len(pickled_result))
-        Redis.set(key, pickled_result)
-        Redis.expire(key, 60*60)
-    
-    with Bench("Rendering template"):
-        rendered_template = render_template("heatmap.html", **result)
-    
+        rendered_template = render_template("empty_collection.html", **{'tool':'Heatmap'})
+
     return rendered_template
 
 @app.route("/mapping_results_container")
@@ -470,12 +475,18 @@ def corr_compute_page():
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
     print("In corr_matrix, request.form is:", pf(request.form))
-    template_vars = show_corr_matrix.CorrelationMatrix(request.form)
-    template_vars.js_data = json.dumps(template_vars.js_data,
-                                       default=json_default_handler,
-                                       indent="   ")
+
+    start_vars = request.form
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        template_vars = show_corr_matrix.CorrelationMatrix(start_vars)
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
     
-    return render_template("correlation_matrix.html", **template_vars.__dict__)
+        return render_template("correlation_matrix.html", **template_vars.__dict__)
+    else:
+        return render_template("empty_collection.html", **{'tool':'Correlation Matrix'})
 
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():
