@@ -174,6 +174,10 @@ def help():
     doc = docs.Docs("help")
     return render_template("docs.html", **doc.__dict__)
 
+@app.route("/wgcna", methods=('POST',))
+def wcgna():
+    return render_template("wgcna_results.html")
+
 @app.route("/news")
 def news_route():
     newsobject = news.News()
