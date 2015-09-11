@@ -89,7 +89,7 @@ class Dataset_Types(object):
             for group in data['datasets'][species]:
                 for dataset_type in data['datasets'][species][group]:
                     for dataset in data['datasets'][species][group][dataset_type]:
-                        print("dataset is:", dataset)
+                        #print("dataset is:", dataset)
                         
                         short_dataset_name = dataset[0]
                         if dataset_type == "Phenotypes":
