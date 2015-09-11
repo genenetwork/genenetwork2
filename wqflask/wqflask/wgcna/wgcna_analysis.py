@@ -2,11 +2,8 @@
 # Author / Maintainer: Danny Arends <Danny.Arends@gmail.com>
 
 from numpy import *
-from pandas import *
-
 import scipy as sp                            # SciPy
 import rpy2.robjects as ro                    # R Objects
-import pandas.rpy.common as com               # R common functions
 
 from utility import helper_functions
 
