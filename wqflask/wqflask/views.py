@@ -180,8 +180,10 @@ def help():
 @app.route("/wgcna", methods=('POST',))
 def wcgna():
     print("In wgcna, request.form is:", request.form)
-    template_vars = wgcna_analysis.WGCNA(request.form)
-    return render_template("wgcna_results.html")
+    wgcna = wgcna_analysis.WGCNA()                                  # Start R, load the package and pointers and create the analysis
+    wgcnaA = wgcna.run_analysis(request.form)                       # Start the analysis, a wgcnaA object should be a separate long running thread
+    result = wgcna.process_results(wgcnaA)                          # After the analysis is finished store the result
+    return render_template("wgcna_results.html", **result)          # Display them using the template
 
 @app.route("/news")
 def news_route():
