@@ -46,6 +46,9 @@ from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
+
+from wqflask.wgcna import wgcna_analysis
+
 from utility import temp_data
 
 from base import webqtlFormData
@@ -176,6 +179,8 @@ def help():
 
 @app.route("/wgcna", methods=('POST',))
 def wcgna():
+    print("In wgcna, request.form is:", request.form)
+    template_vars = wgcna_analysis.WGCNA(request.form)
     return render_template("wgcna_results.html")
 
 @app.route("/news")
@@ -327,7 +332,7 @@ def marker_regression_page():
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )
-    print("Random Print too see if it is running:", initial_start_vars)
+    print("Marker regression called with initial_start_vars:", initial_start_vars)
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
