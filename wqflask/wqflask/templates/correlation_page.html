@@ -26,6 +26,7 @@
             <table id="corr_results" class="table table-hover table-striped">
                 <thead>
                     <tr>
+                        <th style="width: 30px;"></th>
                     {% for header in target_dataset.header_fields %}
                         {% if header == 'Max LRS' %}
                         <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
@@ -78,10 +79,9 @@
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                        <TD>{{ loop.index }}
-                            <INPUT TYPE="checkbox" NAME="result_trait" class="checkbox trait_checkbox"
-                                   VALUE="{{ data_hmac('{}:{}'.format(trait.name, target_dataset.name)) }}">
+                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                         </TD>
+                        <TD align="right">{{ loop.index }}</TD>
                         <TD>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
@@ -211,8 +211,11 @@
             console.time("Creating table");
 
             {% if target_dataset.type == "ProbeSet" %}
+
+
             $('#corr_results').dataTable( {
                 "columns": [
+                    { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
@@ -231,15 +234,10 @@
                 ],
                 "sDom": "RZtir",
                 "iDisplayLength": -1,
-                "autoWidth": true,
-                "bLengthChange": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
                 //"scrollY": "700px",
                 //"scrollCollapse": false,
-                "colResize": {
-                    "tableWidthFixed": false
-                },
                 "paging": false
             } );
 
@@ -249,6 +247,7 @@
             {% elif target_dataset.type == "Publish" %}
             $('#corr_results').dataTable( {
                 "columns": [
+                    { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
@@ -280,6 +279,7 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
+                    { "type": "natural" },
                     { "type": "numeric-html" },
                     { "type": "natural" },
                     { "type": "natural" }
@@ -299,6 +299,7 @@
             } );
             {% endif %}
             console.timeEnd("Creating table");
+
 
         });
     </script>

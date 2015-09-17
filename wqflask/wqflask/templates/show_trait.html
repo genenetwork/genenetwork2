@@ -199,6 +199,7 @@
                 {% if sample_groups[0].se_exists() %} 
                 $('#samples_primary, #samples_other').DataTable( {
                     "columns": [
+                        { "bSortable": false },
                         { "type": "natural" },
                         { "type": "natural" },
                         { "type": "cust-txt" },
@@ -228,6 +229,7 @@
                     
                 $('#samples_primary, #samples_other').DataTable( {
                     "columns": [
+                        { "bSortable": false },
                         { "type": "natural" },
                         null,
                         { "type": "cust-txt" }

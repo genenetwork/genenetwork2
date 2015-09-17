@@ -81,6 +81,7 @@
             <table class="table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left;">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>Index</th>
                         <th>Sample</th>
                         <th>Value</th>
@@ -98,13 +99,9 @@
                 <tbody>
                     {% for sample in sample_type.sample_list %}
                     <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
-                        <td class="column_name-Index">
-                            {{ loop.index }}
-                            <input type="checkbox" name="selectCheck"
-                                   class="checkbox edit_sample_checkbox"
-                                   value="{{ sample.name }}" checked="checked">
+                        <td class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" style="transform: scale(1.5);" value="{{ sample.name }}" checked="checked">
                         </td>
-        
+                        <td class="column_name-Index" align="right">{{ loop.index }}</td>
                         <td class="column_name-Sample">
                             <span class="edit_sample_sample_name">
                                 {{ sample.name }}
