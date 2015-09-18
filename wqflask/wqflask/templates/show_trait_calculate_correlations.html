@@ -72,6 +72,23 @@
                 </select>
             </div>
         </div>
+
+        <div class="form-group">
+            <label class="col-xs-1 control-label">Min Expr</label>
+            <div class="col-xs-2 controls">
+                <input name="min_expr" value="" type="text" class="form-control" style="width: 50px;">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-1 control-label">Range</label>
+            <div class="col-xs-3 controls">
+                <input name="p_range_lower" value="" type="hidden">
+                <input name="p_range_upper" value="" type="hidden">
+                <div id="p_range_slider" ></div>
+                <span style="font: 400 12px Arial; color: #888; display: block; margin: 15px 0;" id="p_range_lower"></span>
+                <span style="font: 400 12px Arial; color: #888; display: block; margin: 15px 0;" id="p_range_upper"></span>
+            </div>
+        </div>
         
         <div class="form-group">
             <label for="corr_sample_method" class="col-xs-1 control-label"></label>

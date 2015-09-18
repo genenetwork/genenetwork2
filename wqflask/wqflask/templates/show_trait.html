@@ -12,6 +12,8 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/nvd3/nv.d3.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.pips.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
 
 {% endblock %}
@@ -147,6 +149,7 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/noUiSlider/nouislider.js"></script>
     <script type="text/javascript" charset="utf-8">
             
            function getValue(x) {
@@ -251,6 +254,29 @@
                     "paging": false
                 } );
                 {% endif %}
+               
+                var slider = document.getElementById('p_range_slider');
+                noUiSlider.create(slider, {
+                    start: [-1.0, 1.0],
+                    range: {
+                        'min': [-1.0],
+                        'max': [1.0]
+                    }
+                });
+
+                var slider_display =  [
+                    document.getElementById('p_range_lower'),
+                    document.getElementById('p_range_upper')
+                ];
+                var slider_values =  [
+                    $('input[name=p_range_lower]'),
+                    $('input[name=p_range_upper]')
+                ];                
+
+                slider.noUiSlider.on('update', function( values, handle ) {
+                    slider_display[handle].innerHTML = values[handle];
+                    slider_values[handle].val(values[handle]);
+                });
             });
     </script>
     
