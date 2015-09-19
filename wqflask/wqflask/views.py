@@ -177,13 +177,19 @@ def help():
     doc = docs.Docs("help")
     return render_template("docs.html", **doc.__dict__)
 
-@app.route("/wgcna", methods=('POST',))
-def wcgna():
+@app.route("/wgcna_setup", methods=('POST',))
+def wcgna_setup():
+    print("In wgcna, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("wgcna_setup.html", **request.form)          # Display them using the template
+
+@app.route("/wgcna_results", methods=('POST',))
+def wcgna_results():
     print("In wgcna, request.form is:", request.form)
-    wgcna = wgcna_analysis.WGCNA()                                  # Start R, load the package and pointers and create the analysis
-    wgcnaA = wgcna.run_analysis(request.form)                       # Start the analysis, a wgcnaA object should be a separate long running thread
-    result = wgcna.process_results(wgcnaA)                          # After the analysis is finished store the result
-    return render_template("wgcna_results.html", **result)          # Display them using the template
+    wgcna = wgcna_analysis.WGCNA()                                # Start R, load the package and pointers and create the analysis
+    wgcnaA = wgcna.run_analysis(request.form)                     # Start the analysis, a wgcnaA object should be a separate long running thread
+    result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
+    return render_template("wgcna_results.html", **result)        # Display them using the template
+
 
 @app.route("/news")
 def news_route():
