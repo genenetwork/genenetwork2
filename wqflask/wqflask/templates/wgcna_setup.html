@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}WCGNA analysis{% endblock %}
+
+{% block content %} <!-- Start of body -->
+<form action="/wgcna_results" method="post">
+  <div>
+
+    <h1>WGCNA analysis parameters</h1>
+    Phenotypes used as input: {{request.form}}
+    <input type="hidden" name="trait_list" id="trait_list" value= "{{request.form['trait_list']}}">
+
+    <table>
+      <tr><td>Soft threshold:</td><td><input type="text" class="form-inline" id="SoftThreshold", value="1,2,3,4,5,6,7,8,9"></td></tr>
+      <tr><td>Power:</td><td><input type="text" class="form-inline" id="Power", value="6"></td></tr>
+      <tr><td>Minimum module size:</td><td><input type="text" class="form-inline" id="MinModuleSize", value="30"></td></tr>
+      <tr><td>TOMtype:</td><td><input type="text" class="form-inline" id="TOMtype", value="unsigned"></td></tr>
+      <tr><td>mergeCutHeight:</td><td><input type="text" class="form-inline" id="mergeCutHeight", value="0.25"></td></tr>
+    </table>
+    <input type="submit" class="btn btn-primary" value="Run WGCNA using these settings" />
+  </div>
+</form>
+{% endblock %}
+
