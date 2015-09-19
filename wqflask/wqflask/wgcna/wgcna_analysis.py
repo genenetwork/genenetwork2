@@ -54,6 +54,12 @@ class WGCNA(object):
             self.results[t]  = strains
 
         print("Retrieved phenotype data from database")
+        # TODO:
+        # Load data into R
+        # Calculate a good soft threshold
+        # Create block wise modules using WGCNA
+        # How many modules and how many gene per module ?
+        # Show the iconic WCGNA plot of the modules in the hanging tree
 
     def process_results(self, results):
         print("Processing WGCNA output")
