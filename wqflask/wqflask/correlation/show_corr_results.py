@@ -104,6 +104,12 @@ class CorrelationResults(object):
             self.sample_data = {}
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
+            if start_vars['min_expr'] == "":
+                self.min_expr = 0
+            else:
+                self.min_expr = float(start_vars['min_expr'])
+            self.p_range_lower = float(start_vars['p_range_lower'])
+            self.p_range_upper = float(start_vars['p_range_upper'])
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
 
@@ -164,27 +170,30 @@ class CorrelationResults(object):
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 print("trait name:", trait)
                 trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True)
+                print("trait_object.mean:", trait_object.mean)
+                print("self.min_expr:", self.min_expr)
+                print("self.p_range_upper:", self.p_range_upper)
+                if (float(trait_object.mean) > self.min_expr and 
+                    float(self.correlation_data[trait][0]) > self.p_range_lower and
+                    float(self.correlation_data[trait][0]) < self.p_range_upper):
+
+                    (trait_object.sample_r,
+                    trait_object.sample_p,
+                    trait_object.num_overlap) = self.correlation_data[trait]
                 
-                (trait_object.sample_r,
-                trait_object.sample_p,
-                trait_object.num_overlap) = self.correlation_data[trait]
+                    #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
+                    #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
                 
-                #trait_object.sample_p = self.correlation_data[trait][1]
-                #trait_object.num_overlap = self.correlation_data[trait][2]
-                
-                #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
-                #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
-                
-                # Set some sane defaults
-                trait_object.tissue_corr = 0
-                trait_object.tissue_pvalue = 0
-                trait_object.lit_corr = 0
-                if self.corr_type == "tissue":
-                    trait_object.tissue_corr = tissue_corr_data[trait][1]
-                    trait_object.tissue_pvalue = tissue_corr_data[trait][2]
-                elif self.corr_type == "lit":    
-                    trait_object.lit_corr = lit_corr_data[trait][1]
-                self.correlation_results.append(trait_object)
+                    # Set some sane defaults
+                    trait_object.tissue_corr = 0
+                    trait_object.tissue_pvalue = 0
+                    trait_object.lit_corr = 0
+                    if self.corr_type == "tissue":
+                        trait_object.tissue_corr = tissue_corr_data[trait][1]
+                        trait_object.tissue_pvalue = tissue_corr_data[trait][2]
+                    elif self.corr_type == "lit":    
+                        trait_object.lit_corr = lit_corr_data[trait][1]
+                    self.correlation_results.append(trait_object)
 
             self.target_dataset.get_trait_info(self.correlation_results, self.target_dataset.group.species)
             
@@ -478,6 +487,7 @@ class CorrelationResults(object):
         this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
             this_trait_vals, target_vals)
 
+        #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/ 
         if self.corr_method == 'pearson':
             sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
         else:
