@@ -7,12 +7,17 @@
     Phenotype / Module table:
     <table>
       <tr><th>Phenotype</th><th>Module</th><th>Weight</th></tr>
-      {% for k in result %} 
-        <tr><td>{{k[0].name}}</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+      {% for k in results['network'] %} 
+        <tr><td>{{k}}</td><td>&nbsp;</td><td>&nbsp;</td></tr>
       {% endfor %}
     </table>
-    WGCNA module plot
-    <img src="">
+    <h2>WGCNA module plot</h2>
+                <a href="{{ results['imgurl'] }}">
+                    <img alt="Embedded Image" src="data:image/png;base64,
+                    {% for elem in results['imgdata'] -%}
+                    {% print("%c"|format(elem)) %}
+                    {%- endfor %}
+                    " /></a>
   </div>
 {% endblock %}
 
