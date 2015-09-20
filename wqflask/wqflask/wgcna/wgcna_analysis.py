@@ -7,6 +7,7 @@ import rpy2.robjects as ro                    # R Objects
 import rpy2.rinterface as ri
 
 from base import webqtlConfig                 # For paths and stuff
+from utility import webqtlUtil                # Random number for the image
 
 import base64
 import array
@@ -97,22 +98,24 @@ class WGCNA(object):
         # Create block wise modules using WGCNA
         network = self.r_blockwiseModules(rM, power = 6, verbose = 3)
 
+        # Save the network for the GUI
         self.results['network'] = network
 
         # How many modules and how many gene per module ?
         print(r_table(network[1]))
 
         # The iconic WCGNA plot of the modules in the hanging tree
-        self.results['imgurl'] = webqtlConfig.TMPDIR + "WGCNAoutput.png"
-        r_png(self.results['imgurl'])
+        self.results['imgurl'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
+        self.results['imgloc'] = webqtlConfig.TMPDIR + self.results['imgurl']
+        r_png(self.results['imgloc'])
         mergedColors = self.r_labels2colors(network[1])
-        self.r_plotDendroAndColors(network[5][0], mergedColors, "Module colors",dendroLabels = False, hang = 0.03, addGuide = True, guideHang = 0.05)
+        self.r_plotDendroAndColors(network[5][0], mergedColors, "Module colors", dendroLabels = False, hang = 0.03, addGuide = True, guideHang = 0.05)
         r_dev_off()
         sys.stdout.flush()
 
     def render_image(self, results):
-        print("pre-loading imgage results:", self.results['imgurl'])
-        imgfile = open(self.results['imgurl'], 'rb')
+        print("pre-loading imgage results:", self.results['imgloc'])
+        imgfile = open(self.results['imgloc'], 'rb')
         imgdata = imgfile.read()
         imgB64 = imgdata.encode("base64")
         bytesarray = array.array('B', imgB64)
@@ -124,6 +127,7 @@ class WGCNA(object):
         template_vars["input"] = self.input
         template_vars["results"] = self.results
         self.render_image(results)
+        sys.stdout.flush()
         #r_sink(type = "message")                                   # This restores R output to the stdout/stderr
         #r_sink()                                                   # We should end the Rpy session more or less
         return(dict(template_vars))

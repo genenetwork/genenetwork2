@@ -12,7 +12,7 @@
       {% endfor %}
     </table>
     <h2>WGCNA module plot</h2>
-                <a href="{{ results['imgurl'] }}">
+                <a href="/tmp/{{ results['imgurl'] }}">
                     <img alt="Embedded Image" src="data:image/png;base64,
                     {% for elem in results['imgdata'] -%}
                     {% print("%c"|format(elem)) %}
