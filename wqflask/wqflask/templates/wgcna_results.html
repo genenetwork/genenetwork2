@@ -2,9 +2,17 @@
 {% block title %}WCGNA results{% endblock %}
 
 {% block content %} <!-- Start of body -->
-  <div>
+  <div class="container">
     <h1>WGCNA Results</h1>
-    Phenotypes used as input: {% for k in result %} {{k[0].name}} {% endfor %}
+    Phenotype / Module table:
+    <table>
+      <tr><th>Phenotype</th><th>Module</th><th>Weight</th></tr>
+      {% for k in result %} 
+        <tr><td>{{k[0].name}}</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+      {% endfor %}
+    </table>
+    WGCNA module plot
+    <img src="">
   </div>
 {% endblock %}
 
