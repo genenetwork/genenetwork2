@@ -1,9 +1,10 @@
 # WGCNA analysis for GN2
 # Author / Maintainer: Danny Arends <Danny.Arends@gmail.com>
-
+import sys
 from numpy import *
 import scipy as sp                            # SciPy
 import rpy2.robjects as ro                    # R Objects
+import rpy2.rinterface as ri
 
 from utility import helper_functions
 
@@ -16,6 +17,13 @@ r_options       = ro.r["options"]             # Map the options function
 r_read_csv      = ro.r["read.csv"]            # Map the read.csv function
 r_dim           = ro.r["dim"]                 # Map the dim function
 r_c             = ro.r["c"]                   # Map the c function
+r_cat           = ro.r["cat"]                 # Map the cat function
+r_paste         = ro.r["paste"]               # Map the paste function
+r_unlist        = ro.r["unlist"]              # Map the unlist function
+r_unique        = ro.r["unique"]              # Map the unique function
+r_length        = ro.r["length"]              # Map the length function
+r_matrix        = ro.r["matrix"]              # Map the matrix function
+r_list          = ro.r["list"]                # Map the list function
 r_seq           = ro.r["seq"]                 # Map the seq function
 r_table         = ro.r["table"]               # Map the table function
 r_names         = ro.r["names"]               # Map the names function
@@ -46,25 +54,47 @@ class WGCNA(object):
         self.trait_db_list = [trait.strip() for trait in requestform['trait_list'].split(',')]
         print("Retrieved phenotype data from database", requestform['trait_list'])
         helper_functions.get_trait_db_obs(self, self.trait_db_list)
-        self.results = {}
-        for t in self.trait_list:
-            strains = []
-            for s in t[0].data:
-                strains.append(s)
-            self.results[t]  = strains
 
-        print("Retrieved phenotype data from database")
+        self.input = {}           # self.input contains the phenotype values we need to send to R
+        strains = []              # All the strains we have data for (contains duplicates)
+        traits  = []              # All the traits we have data for (should not contain duplicates)
+        for trait in self.trait_list:
+            traits.append(trait[0].name)
+            self.input[trait[0].name] = {}
+            for strain in trait[0].data:
+                strains.append(strain)
+                self.input[trait[0].name][strain]  = trait[0].data[strain].value
+
+        # Transfer the load data from python to R
+        uStrainsR = r_unique(ro.Vector(strains))    # Unique strains in R vector
+        uTraitsR = r_unique(ro.Vector(traits))      # Unique traits in R vector
+
+        r_cat("The number of unique strains:", r_length(uStrainsR), "\n")
+        r_cat("The number of unique traits:", r_length(uTraitsR), "\n")
+
+        # rM is the datamatrix holding all the data in R /rows = strains columns = traits
+        rM = ro.r.matrix(ri.NA_Real, nrow=r_length(uStrainsR), ncol=r_length(uTraitsR), dimnames = r_list(uStrainsR, uTraitsR))
+        for t in uTraitsR:
+            trait = t[0]                  # R uses vectors every single element is a vector
+            for s in uStrainsR:
+                strain = s[0]             # R uses vectors every single element is a vector
+                rM.rx[strain, trait] = self.input[trait].get(strain)  # Update the matrix location
+                print(trait, strain, " in python: ", self.input[trait].get(strain), "in R:", rM.rx(strain,trait)[0])
+                sys.stdout.flush()
+
         # TODO:
-        # Load data into R
+        self.results = {}
         # Calculate a good soft threshold
         # Create block wise modules using WGCNA
         # How many modules and how many gene per module ?
         # Show the iconic WCGNA plot of the modules in the hanging tree
+        sys.stdout.flush()
 
     def process_results(self, results):
         print("Processing WGCNA output")
         template_vars = {}
-        template_vars["result"] = self.results
+        template_vars["input"] = self.input
+        template_vars["results"] = self.results
         #r_sink(type = "message")                                   # This restores R output to the stdout/stderr
         #r_sink()                                                   # We should end the Rpy session more or less
         return(dict(template_vars))
