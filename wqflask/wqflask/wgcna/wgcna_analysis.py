@@ -6,6 +6,11 @@ import scipy as sp                            # SciPy
 import rpy2.robjects as ro                    # R Objects
 import rpy2.rinterface as ri
 
+from base import webqtlConfig                 # For paths and stuff
+
+import base64
+import array
+
 from utility import helper_functions
 
 from rpy2.robjects.packages import importr
@@ -22,8 +27,8 @@ r_paste         = ro.r["paste"]               # Map the paste function
 r_unlist        = ro.r["unlist"]              # Map the unlist function
 r_unique        = ro.r["unique"]              # Map the unique function
 r_length        = ro.r["length"]              # Map the length function
-r_matrix        = ro.r["matrix"]              # Map the matrix function
-r_list          = ro.r["list"]                # Map the list function
+r_list          = ro.r.list                   # Map the list function
+r_matrix        = ro.r.matrix                 # Map the matrix function
 r_seq           = ro.r["seq"]                 # Map the seq function
 r_table         = ro.r["table"]               # Map the table function
 r_names         = ro.r["names"]               # Map the names function
@@ -82,19 +87,43 @@ class WGCNA(object):
                 print(trait, strain, " in python: ", self.input[trait].get(strain), "in R:", rM.rx(strain,trait)[0])
                 sys.stdout.flush()
 
-        # TODO:
+        # TODO: Get the user specified parameters
+
         self.results = {}
         # Calculate a good soft threshold
+        powers = r_c(r_c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), r_seq(12, 20, 2))
+        sft    = self.r_pickSoftThreshold(rM, powerVector = powers, verbose = 5)
+
         # Create block wise modules using WGCNA
+        network = self.r_blockwiseModules(rM, power = 6, verbose = 3)
+
+        self.results['network'] = network
+
         # How many modules and how many gene per module ?
-        # Show the iconic WCGNA plot of the modules in the hanging tree
+        print(r_table(network[1]))
+
+        # The iconic WCGNA plot of the modules in the hanging tree
+        self.results['imgurl'] = webqtlConfig.TMPDIR + "WGCNAoutput.png"
+        r_png(self.results['imgurl'])
+        mergedColors = self.r_labels2colors(network[1])
+        self.r_plotDendroAndColors(network[5][0], mergedColors, "Module colors",dendroLabels = False, hang = 0.03, addGuide = True, guideHang = 0.05)
+        r_dev_off()
         sys.stdout.flush()
+
+    def render_image(self, results):
+        print("pre-loading imgage results:", self.results['imgurl'])
+        imgfile = open(self.results['imgurl'], 'rb')
+        imgdata = imgfile.read()
+        imgB64 = imgdata.encode("base64")
+        bytesarray = array.array('B', imgB64)
+        self.results['imgdata'] = bytesarray
 
     def process_results(self, results):
         print("Processing WGCNA output")
         template_vars = {}
         template_vars["input"] = self.input
         template_vars["results"] = self.results
+        self.render_image(results)
         #r_sink(type = "message")                                   # This restores R output to the stdout/stderr
         #r_sink()                                                   # We should end the Rpy session more or less
         return(dict(template_vars))
