@@ -212,7 +212,7 @@
                     "buttons": [
                         'csv'
                     ],
-                    "sDom": "RZBtir",
+                    "sDom": "RZBtr",
                     "iDisplayLength": -1,
                     "autoWidth": false,
                     "bLengthChange": true,
@@ -240,7 +240,7 @@
                     "buttons": [
                         'csv'
                     ],
-                    "sDom": "RZBtir",
+                    "sDom": "RZBtr",
                     "iDisplayLength": -1,
                     "autoWidth": false,
                     "bLengthChange": true,
@@ -254,7 +254,48 @@
                     "paging": false
                 } );
                 {% endif %}
-               
+
+                console.log("SAMPLE GROUP TYPES:", js_data.sample_group_types)
+                if (Object.keys(js_data.sample_group_types).length > 1) {
+                    $('#stats_table').DataTable( {
+                        "columns": [
+                            { "bSortable": false },
+                            { "bSortable": false },
+                            { "bSortable": false },
+                            { "bSortable": false }
+                        ],
+                        "sDom": "RZtr",
+                        "iDisplayLength": -1,
+                        "autoWidth": false,
+                        "bLengthChange": true,
+                        "bDeferRender": true,
+                        "bSortClasses": false,
+                        "colResize": {
+                            "tableWidthFixed": false
+                        },
+                        "paging": false
+                    } );
+                }
+                else {
+                    $('#stats_table').DataTable( {
+                        "columns": [
+                            { "bSortable": false },
+                            { "bSortable": false }
+                        ],
+                        "sDom": "RZtr",
+                        "iDisplayLength": -1,
+                        "autoWidth": false,
+                        "bLengthChange": true,
+                        "bDeferRender": true,
+                        "bSortClasses": false,
+                        "colResize": {
+                            "tableWidthFixed": false
+                        },
+                        "paging": false
+                    } );
+
+                }
+
                 var slider = document.getElementById('p_range_slider');
                 noUiSlider.create(slider, {
                     start: [-1.0, 1.0],

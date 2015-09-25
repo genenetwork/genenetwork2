@@ -139,9 +139,12 @@ class ShowTrait(object):
         self.temp_uuid = uuid.uuid4()
 
         self.sample_group_types = OrderedDict()
-        self.sample_group_types['samples_primary'] = self.dataset.group.name + " Only"
-        self.sample_group_types['samples_other'] = "Non-" + self.dataset.group.name
-        self.sample_group_types['samples_all'] = "All Cases"
+        if len(self.sample_groups) > 1:
+            self.sample_group_types['samples_primary'] = self.dataset.group.name + " Only"
+            self.sample_group_types['samples_other'] = "Non-" + self.dataset.group.name
+            self.sample_group_types['samples_all'] = "All Cases"
+        else:
+            self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
         
