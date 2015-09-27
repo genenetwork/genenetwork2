@@ -110,6 +110,17 @@ class CorrelationResults(object):
                 self.min_expr = float(start_vars['min_expr'])
             self.p_range_lower = float(start_vars['p_range_lower'])
             self.p_range_upper = float(start_vars['p_range_upper'])
+            self.min_location_chr = start_vars['min_loc_chr']
+            self.max_location_chr = start_vars['max_loc_chr']
+            if start_vars['min_loc_mb'].isdigit():
+                self.min_location_mb = start_vars['min_loc_mb']
+            else:
+                self.min_location_mb = 0
+            if start_vars['max_loc_mb'].isdigit():
+                self.max_location_mb = start_vars['max_loc_mb']
+            else:
+                self.max_location_mb = 1000
+            self.max_location = [start_vars['max_loc_chr'], start_vars['max_loc_mb']]
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
 
@@ -167,15 +178,35 @@ class CorrelationResults(object):
                                                                        key=lambda t: -abs(t[1][0])))
 
 
+            #ZS: Convert min/max chromosome to an int for the location range option
+            min_chr_as_int = 1
+            max_chr_as_int = 30 #Just to make sure all are included if user inputs nothing
+            for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
+                if chr_info.name == self.min_location_chr:
+                    min_chr_as_int = order_id
+                if chr_info.name == self.max_location_chr:
+                    max_chr_as_int = order_id
+
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 print("trait name:", trait)
                 trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True)
-                print("trait_object.mean:", trait_object.mean)
-                print("self.min_expr:", self.min_expr)
-                print("self.p_range_upper:", self.p_range_upper)
+                
+                #ZS: Convert trait chromosome to an int for the location range option
+                chr_as_int = 0
+                for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
+                    if chr_info.name == trait_object.chr: 
+                        chr_as_int = order_id
+
                 if (float(trait_object.mean) > self.min_expr and 
                     float(self.correlation_data[trait][0]) > self.p_range_lower and
-                    float(self.correlation_data[trait][0]) < self.p_range_upper):
+                    float(self.correlation_data[trait][0]) < self.p_range_upper and
+                    chr_as_int >= min_chr_as_int and
+                    chr_as_int <= max_chr_as_int):
+    
+                    if (chr_as_int == min_chr_as_int and float(trait_object.mb) < float(self.min_location_mb)):
+                        continue
+                    elif (chr_as_int == max_chr_as_int and float(trait_object.mb) > float(self.max_location_mb)):
+                        continue
 
                     (trait_object.sample_r,
                     trait_object.sample_p,

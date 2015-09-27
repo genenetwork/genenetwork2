@@ -179,13 +179,10 @@
       for (key in _ref) {
         if (!__hasProp.call(_ref, key)) continue;
         value = _ref[key];
-        console.log("aa key:", key);
-        console.log("aa value:", value);
         the_id = process_id("column", key);
         header += "<th id=\"" + the_id + "\">" + value + "</th>";
       }
       header += "</thead>";
-      console.log("windex header is:", header);
       the_rows = "<tbody>";
       for (_i = 0, _len = Stat_Table_Rows.length; _i < _len; _i++) {
         row = Stat_Table_Rows[_i];
@@ -201,9 +198,7 @@
         for (key in _ref1) {
           if (!__hasProp.call(_ref1, key)) continue;
           value = _ref1[key];
-          console.log("apple key:", key);
           the_id = process_id(key, row.vn);
-          console.log("the_id:", the_id);
           row_line += "<td id=\"" + the_id + "\">foo</td>";
         }
         row_line += "</tr>";
