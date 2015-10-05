@@ -31,7 +31,7 @@ iplotCorr = function(data, chartOpts) {
   ncorrX = data.cols.length;
   ncorrY = data.rows.length;
   corXscale = d3.scale.ordinal().domain(d3.range(ncorrX)).rangeBands([0, width]);
-  corYscale = d3.scale.ordinal().domain(d3.range(ncorrY)).rangeBands([height, 0]);
+  corYscale = d3.scale.ordinal().domain(d3.range(ncorrY)).rangeBands([0, height]);
   corZscale = d3.scale.linear().domain(zlim).range(corcolors);
   pixel_width = corXscale(1) - corXscale(0);
   pixel_height = corYscale(0) - corYscale(1);
@@ -44,12 +44,16 @@ iplotCorr = function(data, chartOpts) {
         value: data.corr[i][j]
       });
     }
+    corrplot.append("text").attr("class", "corrlabel_y").attr("y", corYscale(i) - pixel_height / 2).attr("x", -margin.left * 0.1).text(data["var"][data.rows[i]]).attr("dominant-baseline", "middle").attr("text-anchor", "end");
+    //corrplot.append("text").attr("class", "corrlabel_x").attr("x", corXscale(i) + pixel_width / 2).attr("y", height + margin.bottom * 0.2).text(data["var"][data.cols[i]]).attr("dominant-baseline", "middle").attr("text-anchor", "middle");
+
   }
   scatterplot.append("rect").attr("height", height).attr("width", width).attr("fill", rectcolor).attr("stroke", "black").attr("stroke-width", 1).attr("pointer-events", "none");
   corr_tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
     return d3.format(".2f")(d.value);
   }).direction('e').offset([0, 10]);
   corrplot.call(corr_tip);
+
   cells = corrplot.selectAll("empty").data(corr).enter().append("rect").attr("class", "cell").attr("x", function(d) {
     return corXscale(d.col);
   }).attr("y", function(d) {
@@ -59,11 +63,12 @@ iplotCorr = function(data, chartOpts) {
   }).attr("stroke", "none").attr("stroke-width", 2).on("mouseover", function(d) {
     d3.select(this).attr("stroke", "black");
     corr_tip.show(d);
-    corrplot.append("text").attr("class", "corrlabel").attr("x", corXscale(d.col) + pixel_width / 2).attr("y", height + margin.bottom * 0.2).text(data["var"][data.cols[d.col]]).attr("dominant-baseline", "middle").attr("text-anchor", "middle");
-    return corrplot.append("text").attr("class", "corrlabel").attr("y", corYscale(d.row) + pixel_height / 2).attr("x", -margin.left * 0.1).text(data["var"][data.rows[d.row]]).attr("dominant-baseline", "middle").attr("text-anchor", "end");
+    //corrplot.append("text").attr("class", "corrlabel").attr("x", corXscale(d.col) + pixel_width / 2).attr("y", height + margin.bottom * 0.2).text(data["var"][data.cols[d.col]]).attr("dominant-baseline", "middle").attr("text-anchor", "middle");
+    //return corrplot.append("text").attr("class", "corrlabel_x").attr("y", corYscale(d.row) + pixel_height / 2).attr("x", -margin.left * 0.1).text(data["var"][data.rows[d.row]]).attr("dominant-baseline", "middle").attr("text-anchor", "end");
+    return corrplot.append("text").attr("class", "corrlabel_x").attr("x", corXscale(d.col) + pixel_width / 2).attr("y", height + margin.bottom * 0.2).text(data["var"][data.cols[d.col]]).attr("dominant-baseline", "middle").attr("text-anchor", "middle");
   }).on("mouseout", function(d) {
     corr_tip.hide(d);
-    d3.selectAll("text.corrlabel").remove();
+    d3.selectAll("text.corrlabel_x").remove();
     return d3.select(this).attr("stroke", "none");
   }).on("click", function(d) {
     return drawScatter(d.col, d.row);
@@ -135,7 +140,7 @@ iplotCorr = function(data, chartOpts) {
       var x, y;
       x = data.dat[data.cols[i]][d];
       y = data.dat[data.rows[j]][d];
-      if ((x != null) && (y != null)) {
+      if ((x != "") && (y != "")) {
         return 3;
       } else {
         return null;
