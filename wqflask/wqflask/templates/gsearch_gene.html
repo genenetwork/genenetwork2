@@ -26,7 +26,7 @@
 
             <br />
             <br />
-            <table class="table table-hover table-striped" id="trait_table">
+            <table width="2000px" class="table table-hover table-striped" id="trait_table">
                 <thead>
                     <tr>
                         <th style="width: 30px;"></th>
@@ -80,8 +80,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.js"></script>
-    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
 	
@@ -156,15 +154,15 @@
             $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural" },
-                    { "type": "natural", "width": "35%"  },
-                    { "type": "natural", "width": "15%"  },
+                    { "type": "natural" },
+                    { "type": "natural" },
                     { "type": "cust-txt" },
-                    { "type": "natural", "width": "12%"  },
-                    { "type": "natural", "width": "12%"  },
-                    { "type": "natural", "width": "12%"  },
-                    { "type": "natural", "width": "12%"  },
-                    { "type": "natural", "width": "12%"  },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
                     { "type": "natural", "width": "15%"  },
+                    { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" }, 
@@ -172,7 +170,7 @@
                 ],
                 "order": [[ 1, "asc" ]],
                 "sDom": "RZtir",
-                "autoWidth": true,
+                "autoWidth": false,
                 "bLengthChange": true,
                 "bDeferRender": true,
                 "scrollCollapse": false,
@@ -181,6 +179,7 @@
                 },
                 "paging": false
             } );
+
             console.timeEnd("Creating table");
 
         });
