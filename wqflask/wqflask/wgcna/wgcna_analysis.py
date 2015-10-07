@@ -74,6 +74,7 @@ class WGCNA(object):
         # Transfer the load data from python to R
         uStrainsR = r_unique(ro.Vector(strains))    # Unique strains in R vector
         uTraitsR = r_unique(ro.Vector(traits))      # Unique traits in R vector
+        self.phenotypes = uTraitsR
 
         r_cat("The number of unique strains:", r_length(uStrainsR), "\n")
         r_cat("The number of unique traits:", r_length(uTraitsR), "\n")
@@ -93,7 +94,7 @@ class WGCNA(object):
         self.results = {}
         # Calculate a good soft threshold
         powers = r_c(r_c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), r_seq(12, 20, 2))
-        sft    = self.r_pickSoftThreshold(rM, powerVector = powers, verbose = 5)
+        self.sft    = self.r_pickSoftThreshold(rM, powerVector = powers, verbose = 5)
 
         # Create block wise modules using WGCNA
         network = self.r_blockwiseModules(rM, power = 6, verbose = 3)
@@ -125,6 +126,8 @@ class WGCNA(object):
         print("Processing WGCNA output")
         template_vars = {}
         template_vars["input"] = self.input
+        template_vars["phenotypes"] = self.phenotypes
+        template_vars["powers"] = self.sft[1:]                      # Results from the soft threshold analysis
         template_vars["results"] = self.results
         self.render_image(results)
         sys.stdout.flush()
