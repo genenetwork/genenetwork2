@@ -87,17 +87,15 @@ class WGCNA(object):
             for s in uStrainsR:
                 strain = s[0]             # R uses vectors every single element is a vector
                 rM.rx[strain, trait] = self.input[trait].get(strain)  # Update the matrix location
-                #print(trait, strain, " in python: ", self.input[trait].get(strain), "in R:", rM.rx(strain,trait)[0])
+                #DEBUG: print(trait, strain, " in python: ", self.input[trait].get(strain), "in R:", rM.rx(strain,trait)[0])
                 sys.stdout.flush()
 
-        # TODO: Get the user specified parameters
-
         self.results = {}
-        self.results['nphe'] = r_length(uTraitsR)[0]
-        self.results['nstr'] = r_length(uStrainsR)[0]
-        self.results['phenotypes'] = uTraitsR
-        self.results['strains'] = uStrainsR
-        self.results['requestform'] = requestform
+        self.results['nphe'] = r_length(uTraitsR)[0]          # Number of phenotypes/traits
+        self.results['nstr'] = r_length(uStrainsR)[0]         # Number of strains
+        self.results['phenotypes'] = uTraitsR                 # Traits used
+        self.results['strains'] = uStrainsR                   # Strains used in the analysis
+        self.results['requestform'] = requestform             # Store the user specified parameters for the output page
 
         # Calculate soft threshold if the user specified the SoftThreshold variable
         if requestform.get('SoftThresholds') is not None:
@@ -109,14 +107,14 @@ class WGCNA(object):
           print "PowerEstimate: {}".format(self.sft[0])
           self.results['PowerEstimate'] = self.sft[0]
           if r_is_NA(self.sft[0]):
-            self.results['Power'] = 1
+            self.results['Power'] = 1                         # No power could be estimated
           else:
-            self.results['Power'] = self.sft[0][0]
+            self.results['Power'] = self.sft[0][0]            # Use the estimated power
         else:
-          # The user clicked a button, so no soft threshold selection, just use the value the user gives
-          self.results['Power'] = requestform.get('Power')
+          # The user clicked a button, so no soft threshold selection
+          self.results['Power'] = requestform.get('Power')    # Use the power value the user gives
 
-        # Create block wise modules using WGCNA
+        # Create the block wise modules using WGCNA
         network = self.r_blockwiseModules(rM, power = self.results['Power'], TOMType = requestform['TOMtype'], minModuleSize = requestform['MinModuleSize'], verbose = 3)
 
         # Save the network for the GUI
