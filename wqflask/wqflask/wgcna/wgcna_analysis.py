@@ -106,7 +106,7 @@ class WGCNA(object):
 
           print "PowerEstimate: {}".format(self.sft[0])
           self.results['PowerEstimate'] = self.sft[0]
-          if self.sft[0][0] == "NA":
+          if self.sft[0][0] is ri.NA_Integer:
             print "No power is suitable for the analysis, just use 1"
             self.results['Power'] = 1                         # No power could be estimated
           else:
