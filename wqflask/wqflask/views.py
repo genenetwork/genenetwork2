@@ -46,6 +46,9 @@ from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
+
+from wqflask.wgcna import wgcna_analysis
+
 from utility import temp_data
 
 from base import webqtlFormData
@@ -93,7 +96,7 @@ def tmp_page(img_path):
     print("img_path:", img_path)
     initial_start_vars = request.form
     print("initial_start_vars:", initial_start_vars)
-    imgfile = open('/home/zas1024/tmp/' + img_path, 'rb')
+    imgfile = open(webqtlConfig.TMPDIR + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = imgdata.encode("base64")
     bytesarray = array.array('B', imgB64)
@@ -173,6 +176,20 @@ def docedit():
 def help():
     doc = docs.Docs("help")
     return render_template("docs.html", **doc.__dict__)
+
+@app.route("/wgcna_setup", methods=('POST',))
+def wcgna_setup():
+    print("In wgcna, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("wgcna_setup.html", **request.form)          # Display them using the template
+
+@app.route("/wgcna_results", methods=('POST',))
+def wcgna_results():
+    print("In wgcna, request.form is:", request.form)
+    wgcna = wgcna_analysis.WGCNA()                                # Start R, load the package and pointers and create the analysis
+    wgcnaA = wgcna.run_analysis(request.form)                     # Start the analysis, a wgcnaA object should be a separate long running thread
+    result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
+    return render_template("wgcna_results.html", **result)        # Display them using the template
+
 
 @app.route("/news")
 def news_route():
@@ -328,7 +345,7 @@ def marker_regression_page():
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )
-    print("Random Print too see if it is running:", initial_start_vars)
+    print("Marker regression called with initial_start_vars:", initial_start_vars)
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
