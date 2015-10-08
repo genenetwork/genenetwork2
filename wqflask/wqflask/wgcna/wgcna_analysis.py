@@ -28,12 +28,14 @@ r_paste         = ro.r["paste"]               # Map the paste function
 r_unlist        = ro.r["unlist"]              # Map the unlist function
 r_unique        = ro.r["unique"]              # Map the unique function
 r_length        = ro.r["length"]              # Map the length function
+r_unlist        = ro.r["unlist"]              # Map the unlist function
 r_list          = ro.r.list                   # Map the list function
 r_matrix        = ro.r.matrix                 # Map the matrix function
 r_seq           = ro.r["seq"]                 # Map the seq function
 r_table         = ro.r["table"]               # Map the table function
 r_names         = ro.r["names"]               # Map the names function
 r_sink          = ro.r["sink"]                # Map the sink function
+r_is_NA         = ro.r["is.na"]               # Map the is.na function
 r_file          = ro.r["file"]                # Map the file function
 r_png           = ro.r["png"]                 # Map the png function for plotting
 r_dev_off       = ro.r["dev.off"]             # Map the dev.off function
@@ -74,7 +76,6 @@ class WGCNA(object):
         # Transfer the load data from python to R
         uStrainsR = r_unique(ro.Vector(strains))    # Unique strains in R vector
         uTraitsR = r_unique(ro.Vector(traits))      # Unique traits in R vector
-        self.phenotypes = uTraitsR
 
         r_cat("The number of unique strains:", r_length(uStrainsR), "\n")
         r_cat("The number of unique traits:", r_length(uTraitsR), "\n")
@@ -86,29 +87,49 @@ class WGCNA(object):
             for s in uStrainsR:
                 strain = s[0]             # R uses vectors every single element is a vector
                 rM.rx[strain, trait] = self.input[trait].get(strain)  # Update the matrix location
-                print(trait, strain, " in python: ", self.input[trait].get(strain), "in R:", rM.rx(strain,trait)[0])
+                #print(trait, strain, " in python: ", self.input[trait].get(strain), "in R:", rM.rx(strain,trait)[0])
                 sys.stdout.flush()
 
         # TODO: Get the user specified parameters
 
         self.results = {}
-        # Calculate a good soft threshold
-        powers = r_c(r_c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), r_seq(12, 20, 2))
-        self.sft    = self.r_pickSoftThreshold(rM, powerVector = powers, verbose = 5)
+        self.results['nphe'] = r_length(uTraitsR)[0]
+        self.results['nstr'] = r_length(uStrainsR)[0]
+        self.results['phenotypes'] = uTraitsR
+        self.results['strains'] = uStrainsR
+        self.results['requestform'] = requestform
+
+        # Calculate soft threshold if the user specified the SoftThreshold variable
+        if requestform.get('SoftThresholds') is not None:
+          powers = [int(threshold.strip()) for threshold in requestform['SoftThresholds'].rstrip().split(",")]
+          rpow = r_unlist(r_c(powers))
+          print "SoftThresholds: {} == {}".format(powers, rpow)
+          self.sft    = self.r_pickSoftThreshold(rM, powerVector = rpow, verbose = 5)
+
+          print "PowerEstimate: {}".format(self.sft[0])
+          self.results['PowerEstimate'] = self.sft[0]
+          if r_is_NA(self.sft[0]):
+            self.results['Power'] = 1
+          else:
+            self.results['Power'] = self.sft[0][0]
+        else:
+          # The user clicked a button, so no soft threshold selection, just use the value the user gives
+          self.results['Power'] = requestform.get('Power')
 
         # Create block wise modules using WGCNA
-        network = self.r_blockwiseModules(rM, power = 6, verbose = 3)
+        network = self.r_blockwiseModules(rM, power = self.results['Power'], TOMType = requestform['TOMtype'], minModuleSize = requestform['MinModuleSize'], verbose = 3)
 
         # Save the network for the GUI
         self.results['network'] = network
 
         # How many modules and how many gene per module ?
-        print(r_table(network[1]))
+        print "WGCNA found {} modules".format(r_table(network[1]))
+        self.results['nmod'] = r_length(r_table(network[1]))[0]
 
         # The iconic WCGNA plot of the modules in the hanging tree
         self.results['imgurl'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
         self.results['imgloc'] = webqtlConfig.TMPDIR + self.results['imgurl']
-        r_png(self.results['imgloc'])
+        r_png(self.results['imgloc'], width=1000, height=600)
         mergedColors = self.r_labels2colors(network[1])
         self.r_plotDendroAndColors(network[5][0], mergedColors, "Module colors", dendroLabels = False, hang = 0.03, addGuide = True, guideHang = 0.05)
         r_dev_off()
@@ -126,7 +147,6 @@ class WGCNA(object):
         print("Processing WGCNA output")
         template_vars = {}
         template_vars["input"] = self.input
-        template_vars["phenotypes"] = self.phenotypes
         template_vars["powers"] = self.sft[1:]                      # Results from the soft threshold analysis
         template_vars["results"] = self.results
         self.render_image(results)
