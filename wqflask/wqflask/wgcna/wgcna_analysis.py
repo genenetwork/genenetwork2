@@ -43,7 +43,7 @@ r_dev_off       = ro.r["dev.off"]             # Map the dev.off function
 class WGCNA(object):
     def __init__(self):
         print("Initialization of WGCNA")
-        log = r_file("/tmp/genenetwork_wcgna.log", open = "wt")
+        #log = r_file("/tmp/genenetwork_wcgna.log", open = "wt")
         #r_sink(log)                                  # Uncomment the r_sink() commands to log output from stdout/stderr to a file
         #r_sink(log, type = "message")
         r_library("WGCNA")                            # Load WGCNA - Should only be done once, since it is quite expensive
