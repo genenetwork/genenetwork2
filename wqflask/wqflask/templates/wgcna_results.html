@@ -4,40 +4,73 @@
 {% block content %} <!-- Start of body -->
   <div class="container">
     <h1>WGCNA Results</h1>
-    <h4>Soft threshold table</h4>
+    Analysis found {{results['nmod']}} modules when scanning {{results['nphe']}} phenotypes, measured on {{results['nstr']}} strains.<br>
+    Additional parameters settings:
+    <ul>
+      <li>Soft thresholds checked = {{results['requestform']['SoftThresholds']}}</li>
+      <li>Power used for this analysis = {{results['Power']}}</li>
+      <li>TomType = {{results['requestform']['TOMtype']}}</li>
+      <li>Minimum module size = {{results['requestform']['MinModuleSize'] }}</li>
+      <li>mergeCutHeight = {{results['requestform']['mergeCutHeight'] }}</li>
+    </ul>
+
+    <h3>Soft threshold table</h3>
     <table width="80%">
       <tr><th>Power</th><th>SFT.R.sq</th><th>slope</th><th>truncated.R.sq</th><th>mean.k</th><th>median.k</th><th>max.k</th><th>Analysis</th></tr>
       {% for r in range(powers[0][0]|length) %}
-        <tr>
+        {% if powers[0][1][r] > 0.85 %}
+        <tr style="color: #00ff00;">
+        {% elif powers[0][1][r] > 0.75 %}
+        <tr style="color: #aaaa00;">
+        {% else %}
+        <tr style="color: #ff0000;">
+        {% endif %}
         {% for c in range(powers[0]|length) %}
         <td>{{powers[0][c][r]|round(3)}}</td>
        {% endfor %}
-        <td><input type="submit" value="Redo use power = {{powers[0][0][r]}}" /></td></tr>
-    {% endfor %}
-    </table>
-
-    <h4>Phenotype / Module table</h4>
-
-    debug: {{results['network']|length}}
-    debug: {{results['network'][0]|length}}
-    {{phenotypes[0][0]}}
-    <table width="80%">
-      <tr><th>Phenotype</th><th>Module</th></tr>
-      {% for r in range(results['network'][0]|length) %}
-        <tr>
-          <td>{{phenotypes[r][0]}}</td>
-          <td>{{results['network'][0][r]}}</td>
+        <td style="color: #000000;">
+          {% if powers[0][1][r] > 0.75 %}
+          <input type="submit" value="Redo use power = {{powers[0][0][r]}}" /></td>
+          {% endif %}
         </tr>
     {% endfor %}
     </table>
-
-    <h2>WGCNA module plot</h2>
+    <h3>WGCNA module plot</h3>
                 <a href="/tmp/{{ results['imgurl'] }}">
                     <img alt="Embedded Image" src="data:image/png;base64,
                     {% for elem in results['imgdata'] -%}
                     {% print("%c"|format(elem)) %}
                     {%- endfor %}
                     " /></a>
+
+
+    <h3>Phenotype / Module table</h3>
+    <table width="80%">
+      <tr><th>Phenotype</th><th>Module</th></tr>
+      {% for r in range(results['nphe']) %}
+        <tr>
+          <td>{{results['phenotypes'][r][0]}}</td>
+          <td>{{results['network'][0][r]}}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <h3>Module eigen genes</h3>
+    <table width="80%">
+      <tr><th>Phenotype</th>
+      {% for m in range(results['nmod']) %}
+        <th><input type="submit" value="Add module {{m}} to collection" /></th>
+      {% endfor %}
+      </tr>
+      {% for r in range(results['nstr']) %}
+        <tr>
+          <td>{{results['strains'][r][0]}}</td>
+          {% for m in range(results['nmod']) %}
+          <td>{{results['network'][2][m][r]}}</td>
+          {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
   </div>
 {% endblock %}
 
