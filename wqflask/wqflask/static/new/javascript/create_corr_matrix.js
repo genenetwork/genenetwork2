@@ -42,3 +42,19 @@ get_data = function() {
   data.rows = js_data.rows;
   return data;
 };
+
+
+var neg_color_scale = chroma.scale(['#FF0000', 'white']).domain([-1, -0.4]);
+var pos_color_scale = chroma.scale(['white', 'aqua']).domain([0.4, 1])
+$('.corr_cell').each( function () {
+  corr_value = parseFloat($(this).find('span.corr_value').text())
+  if (corr_value >= 0.5){
+    $(this).css('background-color', pos_color_scale(parseFloat(corr_value)))
+  }
+  else if (corr_value <= -0.5) {
+    $(this).css('background-color', neg_color_scale(parseFloat(corr_value)))
+  }
+  else {
+    $(this).css('background-color', 'white')
+  }
+});

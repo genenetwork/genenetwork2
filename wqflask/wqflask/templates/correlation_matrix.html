@@ -14,27 +14,28 @@
 
    
 
-<table class="collap" border="1" cellpadding="5" cellspacing="1" width="100%">
+<table class="matrix" border="1" cellpadding="5" cellspacing="1" style="margin: 20px;" width="80%">
   <tbody>
     <tr>
-      <td></td>
-      <td align="center" colspan="11">Spearman Rank Correlation (rho)</td>
+      <td style="background-color: royalblue;" ></td>
+      <td align="center" colspan="{{traits|length + 1 }}" style="font-weight: Bold; border: 1px solid #999999; padding: 3px; color: #fff; background-color: royalblue;">Spearman Rank Correlation (rho)</td>
     </tr>
     <tr>
-      <td align="center" rowspan="11" width="10">P e a r s o n &nbsp;&nbsp;&nbsp; r</td>
+      <td align="center" rowspan="{{traits|length + 1 }}" width="10" style="font-weight: Bold; border: 1px solid #999999; padding: 3px; color: #fff; background-color: royalblue;">P e a r s o n &nbsp;&nbsp;&nbsp; r</td>
       <td width="300"></td>
       {% for trait in traits %}
-      <td align="center"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}">Trait{{ loop.index }}</a></td>
+      <td align="center"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}" style="font-weight: Bold;">Trait{{ loop.index }}</a></td>
       {% endfor %}
     </tr>
     {% for trait in traits %}
     <tr>
-      <td><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}">Trait {{ loop.index }}: {{ trait.dataset.name }}::{{ trait.name }}</a><div id="shortName_0" style="display:none">Symbol: {{ trait.symbol }} </div><div id="verboseName_0" style="display:none">{{ trait_symbol }} on Chr {{ trait.chr }} @ {{ trait.mb }} Mb</div><div id="verboseName2_0" style="display:none">{{ trait.description }}</div><div id="verboseName3_0" style="display:none">{{ trait.probe_target_description }}</div></td>
+      <td><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}" style="font-weight: Bold;">Trait {{ loop.index }}: {{ trait.dataset.name }}::{{ trait.name }}</a><div id="shortName_0" style="display:none">Symbol: {{ trait.symbol }} </div><div id="verboseName_0" style="display:none">{{ trait_symbol }} on Chr {{ trait.chr }} @ {{ trait.mb }} Mb</div><div id="verboseName2_0" style="display:none">{{ trait.description }}</div><div id="verboseName3_0" style="display:none">{{ trait.probe_target_description }}</div></td>
       {% for result in corr_results[loop.index-1] %}
       {% if result[0].name == trait.name %}
-      <td nowrap="ON" align="center"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font><em>n</em><br>{{ result[2] }}</font></a></td>
+      <td nowrap="ON" align="center" bgcolor="#cccccc"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 11px; color: #000000;" ><em>n</em><br>{{ result[2] }}</font></a></td>
       {% else %}
-      <td nowrap="ON" align="middle"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font>{{ '%0.3f' % result[1] }}<br>{{ result[2] }}</font></a></td>
+      <!--<td nowrap="ON" align="middle" class="corr_cell"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 11px;{% if result[1] > 0.7 %} color: red; {% elif result[1] > 0.5 %} color: #FF6600; {% elif result[1] < -0.7 %} color: blue; {% elif result[1] < -0.5 %} color: #009900; {% else %} color: #000000; {% endif %}" ><span class="corr_value">{{ '%0.3f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>-->
+      <td nowrap="ON" align="middle" class="corr_cell"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 11px; color: #000000;" ><span class="corr_value">{{ '%0.3f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
       {% endif %}
       {% endfor %}
     </tr>
@@ -64,6 +65,7 @@
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/chroma.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/corr_matrix.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/create_corr_matrix.js"></script>
 

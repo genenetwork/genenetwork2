@@ -22,8 +22,19 @@
         and analysis page.
         </p>    
 
+        <br />
+        <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+        <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+        <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+        <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+        <button id="redraw" class="btn btn-default">Reset Columns</button>
+        <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+        <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+        <br />
+        <br />
+
         <div>
-            <table id="corr_results" class="table table-hover table-striped">
+            <table id="trait_table" class="table table-hover table-striped">
                 <thead>
                     <tr>
                         <th style="width: 30px;"></th>
@@ -79,7 +90,7 @@
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
+                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}">
                         </TD>
                         <TD align="right">{{ loop.index }}</TD>
                         <TD>
@@ -141,6 +152,8 @@
 {% endblock %}
 
 {% block js %}  
+    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
@@ -202,7 +215,7 @@
 
         $(document).ready( function () {
             
-            $('#corr_results tr').click(function(event) {
+            $('#trait_table tr').click(function(event) {
                 if (event.target.type !== 'checkbox') {
                     $(':checkbox', this).trigger('click');
                 }
@@ -213,7 +226,7 @@
             {% if target_dataset.type == "ProbeSet" %}
 
 
-            $('#corr_results').dataTable( {
+            $('#trait_table').dataTable( {
                 "columns": [
                     { "type": "natural" },
                     { "type": "natural" },
@@ -241,11 +254,11 @@
                 "paging": false
             } );
 
-            var table = $('#corr_results').DataTable();
+            var table = $('#trait_table').DataTable();
             new $.fn.dataTable.FixedHeader( table );
 
             {% elif target_dataset.type == "Publish" %}
-            $('#corr_results').dataTable( {
+            $('#trait_table').dataTable( {
                 "columns": [
                     { "type": "natural" },
                     { "type": "natural" },
@@ -274,7 +287,7 @@
                 "paging": false
             } );
             {% elif target_dataset.type == "Geno" %}
-            $('#corr_results').dataTable( {
+            $('#trait_table').dataTable( {
                 "columns": [
                     { "type": "natural" },
                     { "type": "natural" },

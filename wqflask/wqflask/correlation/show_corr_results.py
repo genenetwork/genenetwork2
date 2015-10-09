@@ -104,23 +104,28 @@ class CorrelationResults(object):
             self.sample_data = {}
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
-            if start_vars['min_expr'] == "":
-                self.min_expr = 0
-            else:
-                self.min_expr = float(start_vars['min_expr'])
+            if 'min_expr' in start_vars:
+                if start_vars['min_expr'] != "":
+                    self.min_expr = float(start_vars['min_expr'])
+                else:
+                    self.min_expr = None
             self.p_range_lower = float(start_vars['p_range_lower'])
             self.p_range_upper = float(start_vars['p_range_upper'])
-            self.min_location_chr = start_vars['min_loc_chr']
-            self.max_location_chr = start_vars['max_loc_chr']
-            if start_vars['min_loc_mb'].isdigit():
-                self.min_location_mb = start_vars['min_loc_mb']
-            else:
-                self.min_location_mb = 0
-            if start_vars['max_loc_mb'].isdigit():
-                self.max_location_mb = start_vars['max_loc_mb']
-            else:
-                self.max_location_mb = 1000
-            self.max_location = [start_vars['max_loc_chr'], start_vars['max_loc_mb']]
+
+            if ('min_loc_chr' in start_vars and 
+                'max_loc_chr' in start_vars and 
+                'min_loc_mb' in start_vars and 
+                'max_loc_mb' in start_vars):
+
+                self.min_location_chr = start_vars['min_loc_chr']
+                self.max_location_chr = start_vars['max_loc_chr']
+                if start_vars['min_loc_mb'].isdigit():
+                    self.min_location_mb = start_vars['min_loc_mb']
+                else:
+                    self.min_location_mb = 0
+                if start_vars['max_loc_mb'].isdigit():
+                    self.max_location_mb = start_vars['max_loc_mb']
+
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
 
@@ -178,56 +183,79 @@ class CorrelationResults(object):
                                                                        key=lambda t: -abs(t[1][0])))
 
 
-            #ZS: Convert min/max chromosome to an int for the location range option
-            min_chr_as_int = 1
-            max_chr_as_int = 30 #Just to make sure all are included if user inputs nothing
-            for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
-                if chr_info.name == self.min_location_chr:
-                    min_chr_as_int = order_id
-                if chr_info.name == self.max_location_chr:
-                    max_chr_as_int = order_id
+            if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
+                #ZS: Convert min/max chromosome to an int for the location range option
+                min_chr_as_int = 1
+                max_chr_as_int = 30 #Just to make sure all are included if user inputs nothing
+                for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
+                    if chr_info.name == self.min_location_chr:
+                        min_chr_as_int = order_id
+                    if chr_info.name == self.max_location_chr:
+                        max_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 print("trait name:", trait)
                 trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True)
                 
-                #ZS: Convert trait chromosome to an int for the location range option
-                chr_as_int = 0
-                for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
-                    if chr_info.name == trait_object.chr: 
-                        chr_as_int = order_id
+                if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
+                    #ZS: Convert trait chromosome to an int for the location range option
+                    chr_as_int = 0
+                    for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
+                        if chr_info.name == trait_object.chr: 
+                            chr_as_int = order_id
 
-                if (float(trait_object.mean) > self.min_expr and 
-                    float(self.correlation_data[trait][0]) > self.p_range_lower and
-                    float(self.correlation_data[trait][0]) < self.p_range_upper and
-                    chr_as_int >= min_chr_as_int and
-                    chr_as_int <= max_chr_as_int):
-    
-                    if (chr_as_int == min_chr_as_int and float(trait_object.mb) < float(self.min_location_mb)):
-                        continue
-                    elif (chr_as_int == max_chr_as_int and float(trait_object.mb) > float(self.max_location_mb)):
-                        continue
+                if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
+                    float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
-                    (trait_object.sample_r,
-                    trait_object.sample_p,
-                    trait_object.num_overlap) = self.correlation_data[trait]
+                    if ((self.dataset.type == "ProbeSet" or self.dataset.type == "Geno") and
+                         (self.min_expr != None and float(trait_object.mean) >= self.min_expr) and
+                         chr_as_int >= min_chr_as_int and
+                         chr_as_int <= max_chr_as_int) :
+
+
+                        if (chr_as_int == min_chr_as_int and float(trait_object.mb) < float(self.min_location_mb)):
+                            continue
+                        elif (chr_as_int == max_chr_as_int and float(trait_object.mb) > float(self.max_location_mb)):
+                            continue
+
+                        (trait_object.sample_r,
+                        trait_object.sample_p,
+                        trait_object.num_overlap) = self.correlation_data[trait]
                 
-                    #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
-                    #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
+                        #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
+                        #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
                 
-                    # Set some sane defaults
-                    trait_object.tissue_corr = 0
-                    trait_object.tissue_pvalue = 0
-                    trait_object.lit_corr = 0
-                    if self.corr_type == "tissue":
-                        trait_object.tissue_corr = tissue_corr_data[trait][1]
-                        trait_object.tissue_pvalue = tissue_corr_data[trait][2]
-                    elif self.corr_type == "lit":    
-                        trait_object.lit_corr = lit_corr_data[trait][1]
-                    self.correlation_results.append(trait_object)
+                        # Set some sane defaults
+                        trait_object.tissue_corr = 0
+                        trait_object.tissue_pvalue = 0
+                        trait_object.lit_corr = 0
+                        if self.corr_type == "tissue":
+                            trait_object.tissue_corr = tissue_corr_data[trait][1]
+                            trait_object.tissue_pvalue = tissue_corr_data[trait][2]
+                        elif self.corr_type == "lit":    
+                            trait_object.lit_corr = lit_corr_data[trait][1]
+                        self.correlation_results.append(trait_object)
+                    else:
+                        (trait_object.sample_r,
+                        trait_object.sample_p,
+                        trait_object.num_overlap) = self.correlation_data[trait]
+                
+                        #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
+                        #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
+                
+                        # Set some sane defaults
+                        trait_object.tissue_corr = 0
+                        trait_object.tissue_pvalue = 0
+                        trait_object.lit_corr = 0
+                        if self.corr_type == "tissue":
+                            trait_object.tissue_corr = tissue_corr_data[trait][1]
+                            trait_object.tissue_pvalue = tissue_corr_data[trait][2]
+                        elif self.corr_type == "lit":    
+                            trait_object.lit_corr = lit_corr_data[trait][1]
+                        self.correlation_results.append(trait_object)
 
             self.target_dataset.get_trait_info(self.correlation_results, self.target_dataset.group.species)
-            
+
             if self.corr_type != "lit" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
                 self.do_lit_correlation_for_trait_list()
             

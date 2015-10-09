@@ -224,12 +224,6 @@
 
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
-            jQuery.fn.dataTableExt.afnFiltering.push(
-                function( oSettings, aData, iDataIndex ) {
-                    return filtering( oSettings, aData, iDataIndex, 7 );
-                }
-            );
-
             $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural" },
@@ -243,6 +237,7 @@
                     { "type": "natural", "width": "15%" },
                     { "type": "natural" }
                 ],
+                "order": [[1, "asc" ]],
                 "buttons": [
                     'csv'
                 ],
@@ -268,6 +263,7 @@
                     { "type": "natural", "width": "15%"},
                     { "type": "natural" }
                 ],
+                "order": [[1, "asc" ]],
                 "buttons": [
                     'csv'
                 ],
@@ -288,6 +284,7 @@
                     { "type": "natural" },
                     { "type": "natural", "width": "40%"}
                 ],
+                "order": [[1, "asc" ]],
                 "buttons": [
                     'csv'
                 ],

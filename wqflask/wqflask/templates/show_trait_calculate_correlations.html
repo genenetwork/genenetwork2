@@ -72,7 +72,7 @@
                 </select>
             </div>
         </div>
-
+        {% if this_trait.dataset.type == 'ProbeSet' %}
         <div class="form-group">
             <label class="col-xs-1 control-label">Min Expr</label>
             <div class="col-xs-2 controls">
@@ -93,6 +93,7 @@
                 </span>
             </div>
         </div>
+        {% endif %}
         <div class="form-group">
             <label class="col-xs-1 control-label">Range</label>
             <div class="col-xs-3 controls">
