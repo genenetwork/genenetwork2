@@ -1257,7 +1257,7 @@ class MrnaAssayDataSet(DataSet):
                             Strain.Name
                     """ % (escape(trait), escape(self.name))
         results = g.db.execute(query).fetchall()
-        print("RETRIEVED RESULTS HERE:", results)
+        #print("RETRIEVED RESULTS HERE:", results)
         return results
     
     

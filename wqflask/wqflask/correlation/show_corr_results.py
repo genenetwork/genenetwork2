@@ -112,19 +112,19 @@ class CorrelationResults(object):
             self.p_range_lower = float(start_vars['p_range_lower'])
             self.p_range_upper = float(start_vars['p_range_upper'])
 
-            if ('min_loc_chr' in start_vars and 
-                'max_loc_chr' in start_vars and 
+            if ('loc_chr' in start_vars and 
                 'min_loc_mb' in start_vars and 
                 'max_loc_mb' in start_vars):
 
-                self.min_location_chr = start_vars['min_loc_chr']
-                self.max_location_chr = start_vars['max_loc_chr']
+                self.location_chr = start_vars['loc_chr']
                 if start_vars['min_loc_mb'].isdigit():
                     self.min_location_mb = start_vars['min_loc_mb']
                 else:
-                    self.min_location_mb = 0
+                    self.min_location_mb = None
                 if start_vars['max_loc_mb'].isdigit():
                     self.max_location_mb = start_vars['max_loc_mb']
+                else:
+                    self.max_location_mb = None
 
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
@@ -149,7 +149,6 @@ class CorrelationResults(object):
                 if corr_samples_group == 'samples_other':
                     primary_samples = [x for x in primary_samples if x not in (
                                     self.dataset.group.parlist + self.dataset.group.f1list)]
-                print("primary_samples:", primary_samples)
                 self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
 
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
@@ -185,16 +184,12 @@ class CorrelationResults(object):
 
             if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
                 #ZS: Convert min/max chromosome to an int for the location range option
-                min_chr_as_int = 1
-                max_chr_as_int = 30 #Just to make sure all are included if user inputs nothing
+                range_chr_as_int = None
                 for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
-                    if chr_info.name == self.min_location_chr:
-                        min_chr_as_int = order_id
-                    if chr_info.name == self.max_location_chr:
-                        max_chr_as_int = order_id
+                    if chr_info.name == self.location_chr:
+                        range_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
-                print("trait name:", trait)
                 trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True)
                 
                 if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
@@ -207,15 +202,15 @@ class CorrelationResults(object):
                 if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
                     float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
-                    if ((self.dataset.type == "ProbeSet" or self.dataset.type == "Geno") and
-                         (self.min_expr != None and float(trait_object.mean) >= self.min_expr) and
-                         chr_as_int >= min_chr_as_int and
-                         chr_as_int <= max_chr_as_int) :
+                    if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
 
-
-                        if (chr_as_int == min_chr_as_int and float(trait_object.mb) < float(self.min_location_mb)):
+                        if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
                             continue
-                        elif (chr_as_int == max_chr_as_int and float(trait_object.mb) > float(self.max_location_mb)):
+                        elif range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+                            continue
+                        elif (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
+                            continue
+                        elif (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
                             continue
 
                         (trait_object.sample_r,
@@ -501,8 +496,6 @@ class CorrelationResults(object):
                    FROM GeneIDXRef
                    WHERE rat='%s'""" % escape(gene_id)
             
-            print("GENE_ID QUERY: ", query)
-            
             result = g.db.execute(query).fetchone()
             if result != None:
                 mouse_gene_id = result.mouse
@@ -513,13 +506,9 @@ class CorrelationResults(object):
                    FROM GeneIDXRef
                    WHERE human='%s'""" % escape(gene_id)
             
-            print("GENE_ID QUERY: ", query)
-            
             result = g.db.execute(query).fetchone()
             if result != None:
                 mouse_gene_id = result.mouse
-
-        print("mouse_geneid:", mouse_gene_id)
         
         return mouse_gene_id        
     
