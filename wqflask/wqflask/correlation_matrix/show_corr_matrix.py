@@ -138,17 +138,18 @@ class CorrelationMatrix(object):
                         this_trait_vals.append(sample_value)
                         target_vals.append(target_sample_value)
         
-                this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
-                this_trait_vals, target_vals)
-                
-                if is_spearman == False:
-                    sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
-                    if sample_r == 1:
-                        is_spearman = True
+                this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(this_trait_vals, target_vals)
+                if num_overlap == 0:
+                    corr_result_row.append([target_trait, 0, num_overlap])
                 else:
-                    sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
+                    if is_spearman == False:
+                        sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
+                        if sample_r == 1:
+                            is_spearman = True
+                    else:
+                        sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
 
-                corr_result_row.append([target_trait, sample_r, num_overlap])
+                    corr_result_row.append([target_trait, sample_r, num_overlap])
                 
             self.corr_results.append(corr_result_row)
 
