@@ -270,8 +270,11 @@
         function pressed(e) {
             // Has the enter key been pressed?
             if ( (window.event ? event.keyCode : e.which) == 13) { 
-                // If it has been so, manually submit the <form>
-                document.forms[1].submit();
+                // If enter key has been pressed and the search fields are non-empty
+								// manually submit the <form>			 
+								if( event.target.value != "" ) {										
+									document.forms[1].submit();
+								}
             }
         }
     </script>
