@@ -74,6 +74,7 @@ class MarkerRegression(object):
         self.significant = ""
         self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
         self.score_type = "LRS" #ZS: LRS or LOD
+        self.mapping_scale = "megabase"
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
@@ -86,6 +87,7 @@ class MarkerRegression(object):
             results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
             self.score_type = "LOD"
+            self.mapping_scale = "centimorgan"
             if start_vars['num_perm'] == "":
                 self.num_perm = 0
             else:
@@ -136,6 +138,7 @@ class MarkerRegression(object):
                 data_set = self.dataset.name,
                 maf = self.maf,
                 manhattan_plot = self.manhattan_plot,
+                mapping_scale = self.mapping_scale,
                 qtl_results = self.qtl_results,
             )
 
@@ -191,6 +194,7 @@ class MarkerRegression(object):
                 data_set = self.dataset.name,
                 maf = self.maf,
                 manhattan_plot = self.manhattan_plot,
+                mapping_scale = self.mapping_scale,
                 chromosomes = chromosome_mb_lengths,
                 qtl_results = self.qtl_results,
             )

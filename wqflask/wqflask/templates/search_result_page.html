@@ -15,6 +15,7 @@
 
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
+        <!-- Need to customize text more for other types of searches -->
         <p>We searched <a href="/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a>
            to find all records that match
                 {% for word in search_terms %}
@@ -49,6 +50,8 @@
           <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
           <br />
           <br />
+<!--
+          Removing this until more options are added and work correctly
           {% if dataset.type == 'ProbeSet' %}
           <button class="btn btn-default" id="open_options">Open Extra Options</button>
           <br />
@@ -59,6 +62,7 @@
           </div>
           <br />
           <br />
+-->
           {% endif %}
           <div id="table_container">
             <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">

@@ -36,7 +36,11 @@
                         <th>Index</th>
                         <th>{{ score_type }}</th>
                         <th>Chr</th>
+                        {% if mapping_scale == "centimorgan" %}
+                        <th>cM</th>
+                        {% else %}
                         <th>Mb</th>
+                        {% endif %}
                         <th>Locus</th>
                    </tr>
                 </thead>

@@ -95,35 +95,24 @@ class CorrelationMatrix(object):
                     #self.sample_data[this_trait.name].append('')
             self.sample_data.append(this_trait_vals)
 
+        self.lowest_overlap = 8 #ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
+
         self.corr_results = []
-        self.corr_results_for_pca = []
+        self.pca_corr_results = []
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
             this_db = trait_db[1]
             
             this_db_samples = this_db.group.samplelist
-            
-            #for sample in this_db_samples:
-            #    if sample not in self.samples:
-            #        self.samples.append(sample)
-            
             this_sample_data = this_trait.data
-            print("this_sample_data", len(this_sample_data))
-            
-            #for sample in this_sample_data:
-            #    if sample not in self.all_sample_list:
-            #        self.all_sample_list.append(sample)
             
             corr_result_row = []
+            pca_corr_result_row = []
             is_spearman = False #ZS: To determine if it's above or below the diagonal
             for target in self.trait_list:
                 target_trait = target[0]
                 target_db = target[1]
                 target_samples = target_db.group.samplelist
-                
-                #if this_trait == target_trait and this_db == target_db:
-                #    corr_result_row.append(1)
-                #    continue
 
                 target_sample_data = target_trait.data
                 print("target_samples", len(target_samples))
@@ -139,19 +128,26 @@ class CorrelationMatrix(object):
                         target_vals.append(target_sample_value)
         
                 this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(this_trait_vals, target_vals)
+
+                if num_overlap < self.lowest_overlap:
+                    self.lowest_overlap = num_overlap
                 if num_overlap == 0:
                     corr_result_row.append([target_trait, 0, num_overlap])
+                    pca_corr_result_row.append(0)
                 else:
+                    pearson_r, pearson_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
                     if is_spearman == False:
-                        sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
+                        sample_r, sample_p = pearson_r, pearson_p
                         if sample_r == 1:
                             is_spearman = True
                     else:
                         sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
 
                     corr_result_row.append([target_trait, sample_r, num_overlap])
+                    pca_corr_result_row.append(pearson_r)
                 
             self.corr_results.append(corr_result_row)
+            self.pca_corr_results.append(pca_corr_result_row)
 
         print("corr_results:", pf(self.corr_results))
 
@@ -159,8 +155,9 @@ class CorrelationMatrix(object):
         for sample in self.all_sample_list:
             groups.append(1)
 
-        #pca = self.calculate_pca(self.corr_results, range(len(self.traits)))
+        pca = self.calculate_pca(self.pca_corr_results, range(len(self.traits)))
 
+        self.loadings_array = self.process_loadings()
 
         self.js_data = dict(traits = [trait.name for trait in self.traits],
                             groups = groups,
@@ -211,8 +208,24 @@ class CorrelationMatrix(object):
         print("eigen:", eigen)
         pca = stats.princomp(m, cor = "TRUE")
         print("pca:", pca)
-        print("loadings:", pca.rx('loadings'))
+        self.loadings = pca.rx('loadings')
+        self.scores = pca.rx('scores')
+        self.scale = pca.rx('scale')
         print("scores:", pca.rx('scores'))
         print("scale:", pca.rx('scale'))
 
         return pca
+
+    def process_loadings(self):
+        loadings_array = []
+        loadings_row = []
+        print("before loop:", self.loadings[0])
+        for i in range(len(self.trait_list)):
+            loadings_row = []
+            for j in range(3):
+                position = i + len(self.trait_list)*j
+                loadings_row.append(self.loadings[0][position])
+            loadings_array.append(loadings_row)
+        print("loadings:", loadings_array)
+        return loadings_array
+

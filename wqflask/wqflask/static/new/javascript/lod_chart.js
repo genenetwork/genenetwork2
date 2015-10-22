@@ -2,7 +2,7 @@
 var lodchart;
 
 lodchart = function() {
-  var additive, additive_ylab, additive_ylim, additive_yscale, additive_yticks, additivelinecolor, axispos, chart, chrGap, chrSelect, darkrect, height, lightrect, linewidth, lodcurve, lodlinecolor, lodvarname, manhattanPlot, margin, markerSelect, nyticks, pad4heatmap, pointcolor, pointsAtMarkers, pointsize, pointstroke, rotate_ylab, significantcolor, suggestivecolor, title, titlepos, width, xlab, xscale, ylab, ylim, yscale, yticks;
+  var additive, additive_ylab, additive_ylim, additive_yscale, additive_yticks, additivelinecolor, axispos, chart, chrGap, chrSelect, darkrect, height, lightrect, linewidth, lodcurve, lodlinecolor, lodvarname, manhattanPlot, mappingScale, margin, markerSelect, nyticks, pad4heatmap, pointcolor, pointsAtMarkers, pointsize, pointstroke, rotate_ylab, significantcolor, suggestivecolor, title, titlepos, width, xlab, xscale, ylab, ylim, yscale, yticks;
   width = 800;
   height = 500;
   margin = {
@@ -97,7 +97,7 @@ lodchart = function() {
         additive_yticks = additive_yticks != null ? additive_yticks : additive_yscale.ticks(nyticks);
       }
       reorgLodData(data, lodvarname);
-      data = chrscales(data, width, chrGap, margin.left, pad4heatmap);
+      data = chrscales(data, width, chrGap, margin.left, pad4heatmap, mappingScale);
       xscale = data.xscale;
       chrSelect = g.append("g").attr("class", "chrRect").selectAll("empty").data(data.chrnames).enter().append("rect").attr("id", function(d) {
         return "chrrect" + d[0];
@@ -133,7 +133,7 @@ lodchart = function() {
         var chr_plot;
         $('#topchart').remove();
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>');
-        return chr_plot = new Chr_Lod_Chart(600, 1200, chr_ob, manhattanPlot);
+        return chr_plot = new Chr_Lod_Chart(600, 1200, chr_ob, manhattanPlot, mappingScale);
       };
       rotate_ylab = rotate_ylab != null ? rotate_ylab : ylab.length > 1;
       yaxis = g.append("g").attr("class", "y axis");
@@ -303,6 +303,13 @@ lodchart = function() {
       return manhattanPlot;
     }
     manhattanPlot = value;
+    return chart;
+  };
+  chart.mappingScale = function(value) {
+    if (!arguments.length) {
+      return mappingScale;
+    }
+    mappingScale = value;
     return chart;
   };
   chart.ylim = function(value) {
