@@ -272,7 +272,7 @@
             if ( (window.event ? event.keyCode : e.which) == 13) { 
                 // If enter key has been pressed and the search fields are non-empty
 								// manually submit the <form>			 
-								if( event.target.value != "" ) {										
+								if( event.target.value.trim() != "" ) {										
 									document.forms[1].submit();
 								}
             }
