@@ -62,7 +62,15 @@
                             {% endif %}
                             <td>{{marker.chr}}</td>
                             <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
-                            <td>{{marker.name}}</td>
+                            <td>
+                                {{ marker.name }}
+                                <!--<a href="{{ url_for('show_trait_page',
+                                        trait_id = marker.name,
+                                        dataset = dataset.name
+                                        )}}">
+                                    {{ marker.name }}
+                                </a>-->
+                            </td>
                         </tr>
                         {% endif %}
                     {% endfor %}
