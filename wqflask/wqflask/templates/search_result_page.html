@@ -16,7 +16,7 @@
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <!-- Need to customize text more for other types of searches -->
-        <p>We searched <a href="/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a>
+        <p>We searched <a href="/static/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a>
            to find all records that match
                 {% for word in search_terms %}
                     <strong>{{word.search_term[0]}}</strong> {% if not loop.last %} or {% endif %}
