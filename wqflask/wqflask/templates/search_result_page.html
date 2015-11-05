@@ -62,8 +62,9 @@
           </div>
           <br />
           <br />
--->
           {% endif %}
+-->
+
           <div id="table_container">
             <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
                 <thead>
@@ -162,39 +163,6 @@
             return parseFloat(x);
         }
 
-
-        function filtering( oSettings, aData, iDataIndex, column) {
-            var iColumn = column;
-            if (document.getElementById('min').value){
-                var iMin = document.getElementById('min').value * 1;
-            } else {
-                var iMin = 0
-            }
-            if (document.getElementById('max').value){
-                var iMax = document.getElementById('max').value * 1;
-            } else {
-                var iMax = 10000
-            }
-
-            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn]*1;
-            if ( iMin === "" && iMax === "" )
-            {
-                return true;
-            }
-            else if ( iMin === "" && iVersion < iMax )
-            {
-                return true;
-            }
-            else if ( iMin < iVersion && "" === iMax )
-            {
-                return true;
-            }
-            else if ( iMin < iVersion && iVersion < iMax )
-            {
-                return true;
-            }
-                return false;
-        }
 
         jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
             var x = getValue(a);
@@ -308,13 +276,6 @@
             $('#redraw').click(function() {
                 var table = $('#trait_table').DataTable();
                 table.colReorder.reset()
-            });
-
-            $('#min').keyup( function() { table.draw(); } );
-            $('#max').keyup( function() { table.draw(); } );
-
-            $('#open_options').click( function () {
-                $('#extra_options').toggle();
             });
 
         });
