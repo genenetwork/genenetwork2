@@ -335,6 +335,8 @@ def marker_regression_page():
         'trait_id',
         'dataset',
         'method',
+        'mapping_scale',
+        'score_type',
         'suggestive',
         'num_perm',
         'maf',
@@ -352,7 +354,7 @@ def marker_regression_page():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v4"
+    version = "v1"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -404,8 +406,8 @@ def marker_regression_page():
             result['pair_scan_array'] = bytesarray
             rendered_template = render_template("pair_scan_results.html", **result)
         else:
-            #rendered_template = render_template("marker_regression.html", **result)
-            rendered_template = render_template("marker_regression_gn1.html", **result)
+            rendered_template = render_template("marker_regression.html", **result)
+            #rendered_template = render_template("marker_regression_gn1.html", **result)
 
     return rendered_template
 

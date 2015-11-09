@@ -63,7 +63,7 @@ def plink_command(default=None):
         else:
             None
 
-    guess = os.environ.get('HOME')+'/plink'
+    guess = os.environ.get('HOME')+'/plink_gemma'
     path = get_setting('PLINK_PATH',default,guess,get_valid_path)
     plink_command = path+'/plink'
     return path,plink_command

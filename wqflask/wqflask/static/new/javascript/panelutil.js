@@ -157,7 +157,7 @@ chrscales = function(data, width, chrGap, leftMargin, pad4heatmap, mappingScale)
     data.chrEnd.push(cur + w);
     cur = data.chrEnd[i] + chrGap;
 
-    if (mappingScale == "centimorgan") {
+    if (mappingScale == "morgan") {
         max_pos = d3.max(data.posByChr[chr[0]])
         console.log("max_pos:", max_pos)
         data.xscale[chr[0]] = d3.scale.linear().domain([chrStart[i], max_pos]).range([data.chrStart[i], data.chrEnd[i]]);

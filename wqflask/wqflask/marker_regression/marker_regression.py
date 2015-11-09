@@ -74,7 +74,7 @@ class MarkerRegression(object):
         self.significant = ""
         self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
         self.score_type = "LRS" #ZS: LRS or LOD
-        self.mapping_scale = "megabase"
+        self.mapping_scale = "physic"
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
@@ -87,7 +87,7 @@ class MarkerRegression(object):
             results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
             self.score_type = "LOD"
-            self.mapping_scale = "centimorgan"
+            self.mapping_scale = "morgan"
             if start_vars['num_perm'] == "":
                 self.num_perm = 0
             else:

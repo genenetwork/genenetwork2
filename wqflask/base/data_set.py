@@ -158,7 +158,10 @@ class Markers(object):
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
     def __init__(self, name):
         json_data_fh = open(os.path.join(webqtlConfig.NEWGENODIR + name + '.json'))
-        markers = json.load(json_data_fh)
+        try:
+            markers = json.load(json_data_fh)
+        except:
+            markers = []
     
         for marker in markers:
             if (marker['chr'] != "X") and (marker['chr'] != "Y"):

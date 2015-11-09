@@ -119,7 +119,7 @@ Chr_Lod_Chart = (function() {
   };
 
   Chr_Lod_Chart.prototype.create_scales = function() {
-    if (this.mappingScale == "centimorgan") {
+    if (this.mappingScale == "morgan") {
         max_pos = 0
         for (i = 0, len = this.these_results.length; i < len; i++) {
            marker = this.these_results[i]
