@@ -37,7 +37,7 @@ class GSearch(object):
 				AND ProbeSetXRef.ProbeSetFreezeId=ProbeSetFreeze.Id
 				AND ProbeSetFreeze.public > 0
 				ORDER BY species_name, inbredset_name, tissue_name, probesetfreeze_name, probeset_name
-				LIMIT 1000
+				LIMIT 5000
 				""" % (self.terms)
 			re = g.db.execute(sql).fetchall()
 			self.trait_list = []
@@ -79,7 +79,7 @@ class GSearch(object):
 					OR Publication.Authors REGEXP "[[:<:]]%s[[:>:]]" 
 					OR PublishXRef.Id REGEXP "[[:<:]]%s[[:>:]]")
 				ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
-				LIMIT 1000
+				LIMIT 5000
 				""" % (self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms)
 			re = g.db.execute(sql).fetchall()
 			self.trait_list = []
