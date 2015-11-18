@@ -42,7 +42,7 @@ from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.heatmap import heatmap
 from wqflask.marker_regression import marker_regression
-#from wqflask.marker_regression import marker_regression_gn1
+from wqflask.marker_regression import marker_regression_gn1
 from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
 from wqflask.correlation_matrix import show_corr_matrix
@@ -384,7 +384,7 @@ def marker_regression_page():
 
         #causeerror
         
-        #gn1_template_vars = marker_regression_gn1.MarkerRegression(template_vars)
+        gn1_template_vars = marker_regression_gn1.MarkerRegression(result)
 
         #qtl_length = len(result['js_data']['qtl_results'])
         #print("qtl_length:", qtl_length)

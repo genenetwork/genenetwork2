@@ -75,6 +75,7 @@ class MarkerRegression(object):
         self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
         self.score_type = "LRS" #ZS: LRS or LOD
         self.mapping_scale = "physic"
+        self.num_perm = 0
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
@@ -94,7 +95,6 @@ class MarkerRegression(object):
                 self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            print("StartVars:", start_vars)
             self.method = start_vars['mapmethod_rqtl_geno']
             self.model = start_vars['mapmodel_rqtl_geno']
 
@@ -102,7 +102,7 @@ class MarkerRegression(object):
                 self.pair_scan = True
 
             results = self.run_rqtl_geno()
-            print("qtl_results:", results)
+            #print("qtl_results:", results)
         elif self.mapping_method == "plink":
             results = self.run_plink()
             #print("qtl_results:", pf(results))
@@ -163,8 +163,8 @@ class MarkerRegression(object):
 
             #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
             for index, qtl in enumerate(self.qtl_results):
-                if index<40:
-                    print("lod score is:", qtl['lod_score'])
+                #if index<40:
+                #    print("lod score is:", qtl['lod_score'])
                 if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
                     print("changing to X")
                     self.json_data['chr'].append("X")
@@ -241,7 +241,7 @@ class MarkerRegression(object):
                     included_markers.append(line.split("\t")[1])
                     p_values.append(float(line.split("\t")[10]))
                     #p_values[line.split("\t")[1]] = float(line.split("\t")[10])
-        print("p_values: ", p_values)
+        #print("p_values: ", p_values)
         return included_markers, p_values
 
     def gen_pheno_txt_file(self):
@@ -784,7 +784,7 @@ class MarkerRegression(object):
             json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
             results = json.loads(json_results[1])
             p_values = [float(result) for result in results['p_values']]
-            print("p_values:", p_values[:10])
+            #print("p_values:", p_values[:10])
             #p_values = self.trim_results(p_values)
             t_stats = results['t_stats']
             
