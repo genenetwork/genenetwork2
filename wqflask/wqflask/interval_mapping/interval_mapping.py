@@ -24,9 +24,6 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
-from wqflask.my_pylmm.data import prep_data
-from wqflask.my_pylmm.pyLMM import lmm
-from wqflask.my_pylmm.pyLMM import input
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
@@ -56,14 +53,12 @@ class IntervalMapping(object):
  
         self.set_options(start_vars)
  
+        self.score_type = "LRS"
+        self.cutoff = 3
+
         self.json_data = {}
- 
-        #if self.method == "qtl_reaper":
         self.json_data['lodnames'] = ['lod.hk']
         self.gen_reaper_results(tempdata)
-        #else:
-        #    self.gen_pylmm_results(tempdata)
-        #self.gen_qtl_results(tempdata)
 
         #Get chromosome lengths for drawing the interval map plot
         chromosome_mb_lengths = {}
@@ -73,48 +68,39 @@ class IntervalMapping(object):
             
             chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
-        #print("self.qtl_results:", self.qtl_results)
-        
         print("JSON DATA:", self.json_data)
         
-        #os.chdir(webqtlConfig.TMPDIR)
         json_filename = webqtlUtil.genRandStr(prefix="intmap_")
         json.dumps(self.json_data, webqtlConfig.TMPDIR + json_filename)
-        
+
         self.js_data = dict(
+            result_score_type = self.score_type,
             manhattan_plot = self.manhattan_plot,
-            additive = self.additive,
             chromosomes = chromosome_mb_lengths,
             qtl_results = self.qtl_results,
             json_data = self.json_data
-            #lrs_lod = self.lrs_lod,
         )
 
     def set_options(self, start_vars):
         """Sets various options (physical/genetic mapping, # permutations, which chromosome"""
         
-        #self.plot_scale = start_vars['scale']
-        #if self.plotScale == 'physic' and not fd.genotype.Mbmap:
-        #    self.plotScale = 'morgan'
-        #self.method = start_vars['mapping_method']
-        self.num_permutations = int(start_vars['num_perm'])
-        #self.do_bootstrap = start_vars['do_bootstrap']
-        #self.selected_chr = start_vars['chromosome']
+        if start_vars['num_perm'] == "":
+            self.num_permutations = 0
+        else:
+            self.num_permutations = int(start_vars['num_perm'])
         if start_vars['manhattan_plot'] == "true":
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False
-        if start_vars['display_additive'] == "yes":
-            self.additive = True
-        else:
-            self.additive = False
+        #ZS: Commenting this out until we can fix the issue with positive/negative additive effects being colored properly
+        #if start_vars['display_additive'] == "yes":
+        #    self.additive = True
+        #else:
+        self.additive = False
         if 'control_locus' in start_vars:
             self.control_locus = start_vars['control_locus']
         else:
             self.control_locus = None
-        #self.weighted_regression = start_vars['weighted']
-        #self.lrs_lod = start_vars['lrs_lod']
-
 
     def gen_qtl_results(self, tempdata):
         """Generates qtl results for plotting interval map"""
@@ -134,7 +120,7 @@ class IntervalMapping(object):
         #if self.weighted_regression:
         #    self.lrs_array = self.genotype.permutation(strains = trimmed_samples,
         #                                                         trait = trimmed_values, 
-        #                                                         variance = _vars,
+        #                                                         variance = variances,
         #                                                         nperm=self.num_permutations)
         #else:
         self.lrs_array = genotype.permutation(strains = trimmed_samples,
@@ -171,20 +157,14 @@ class IntervalMapping(object):
         self.json_data['chr'] = []
         self.json_data['pos'] = []
         self.json_data['lod.hk'] = []
-        self.json_data['additive'] = []
         self.json_data['markernames'] = []
         for qtl in reaper_results:
             reaper_locus = qtl.locus
-            #if reaper_locus.chr == "20":
-            #    print("changing to X")
-            #    self.json_data['chr'].append("X")
-            #else:
-            #    self.json_data['chr'].append(reaper_locus.chr)
-            ##self.json_data['chr'].append(reaper_locus.chr)
             self.json_data['pos'].append(reaper_locus.Mb)
             self.json_data['lod.hk'].append(qtl.lrs)
             self.json_data['markernames'].append(reaper_locus.name)
             if self.additive:
+                self.json_data['additive'] = []
                 self.json_data['additive'].append(qtl.additive)
             locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
             qtl = {"lrs": qtl.lrs, "locus": locus, "additive": qtl.additive}
@@ -225,8 +205,9 @@ class IntervalMapping(object):
         self.json_data['chr'] = []
         self.json_data['pos'] = []
         self.json_data['lod.hk'] = []
-        self.json_data['additive'] = []
         self.json_data['markernames'] = []
+        if self.additive:
+            self.json_data['additive'] = []
 
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         self.qtl_results = []
@@ -240,65 +221,8 @@ class IntervalMapping(object):
                 self.json_data['additive'].append(qtl.additive)
             locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
             qtl = {"lrs_value": qtl.lrs, "chr":reaper_locus.chr, "Mb":reaper_locus.Mb,
-                   "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive}
+                   "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
             self.qtl_results.append(qtl)
-            
-    def gen_pylmm_results(self, tempdata):
-        print("USING PYLMM")
-        self.dataset.group.get_markers()
-        
-        pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
-        if self.dataset.group.species == "human":
-            p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
-        else:
-            genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-
-            no_val_samples = self.identify_empty_samples()
-            trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
-            
-            genotype_matrix = np.array(trimmed_genotype_data).T
-            
-            t_stats, p_values = lmm.run(
-                pheno_vector,
-                genotype_matrix,
-                restricted_max_likelihood=True,
-                refit=False,
-                temp_data=tempdata
-            )
-            
-            print("p_values:", p_values)
-            self.dataset.group.markers.add_pvalues(p_values)
-            self.qtl_results = self.dataset.group.markers.markers
-
-    def gen_qtl_results_2(self, tempdata):
-        """Generates qtl results for plotting interval map"""
-    
-        self.dataset.group.get_markers()
-        self.dataset.read_genotype_file()
-    
-        pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
-    
-        #if self.dataset.group.species == "human":
-        #    p_values, t_stats = self.gen_human_results(pheno_vector, tempdata)
-        #else:
-        genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-        
-        no_val_samples = self.identify_empty_samples()
-        trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
-        
-        genotype_matrix = np.array(trimmed_genotype_data).T
-        
-        t_stats, p_values = lmm.run(
-            pheno_vector,
-            genotype_matrix,
-            restricted_max_likelihood=True,
-            refit=False,
-            temp_data=tempdata
-        )
-        
-        self.dataset.group.markers.add_pvalues(p_values)
-        
-        self.qtl_results = self.dataset.group.markers.markers
 
 
     def identify_empty_samples(self):

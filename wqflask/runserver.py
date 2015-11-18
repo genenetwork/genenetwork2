@@ -18,9 +18,10 @@ from wqflask import app
 #_ch = logging.StreamHandler()
 #_log.addHandler(_ch)
 
+print app.config
+
 import logging
-#from themodule import TheHandlerYouWant
-file_handler = logging.FileHandler("/tmp/flask_gn_log_danny_unsecure")
+file_handler = logging.FileHandler(app.config['LOGFILE'])
 file_handler.setLevel(logging.DEBUG)
 app.logger.addHandler(file_handler)
 
@@ -28,7 +29,8 @@ import logging_tree
 logging_tree.printout()
 
 app.run(host='0.0.0.0',
-        port=5003,
-        use_debugger=False,
+        port=app.config['SERVER_PORT'],
+        debug=True,
+        use_debugger=True,
         threaded=True,
         use_reloader=True)

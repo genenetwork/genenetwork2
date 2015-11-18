@@ -193,18 +193,7 @@ class Chr_Lod_Chart
             .attr("fill", "black")
 
     add_back_button: () ->
-        @svg.append("text")
-            .attr("class", "back")
-            .text("Return to full view")
-            .attr("x", @x_buffer*2)
-            .attr("y", @y_buffer/2)
-            .attr("dx", "0em")
-            .attr("text-anchor", "middle")
-            .attr("font-family", "sans-serif")
-            .attr("font-size", "18px")
-            .attr("cursor", "pointer")
-            .attr("fill", "black")
-            .on("click", @return_to_full_view)
+        $("#return_to_full_view").show().click => @return_to_full_view()
 
     add_path: () ->
         line_function = d3.svg.line()
@@ -281,9 +270,10 @@ class Chr_Lod_Chart
                 )
 
     return_to_full_view: () ->
+        $("#return_to_full_view").hide()
         $('#topchart').remove()
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
-        create_manhattan_plot()
+        create_lod_chart()
 
     show_marker_in_table: (marker_info) ->
         console.log("in show_marker_in_table")

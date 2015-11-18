@@ -3,6 +3,8 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" rel="stylesheet">
+    <link href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css" rel="stylesheet">
 {% endblock %}
 {% block content %}
     
@@ -20,18 +22,32 @@
         and analysis page.
         </p>    
 
+        <br />
+        <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+        <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+        <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+        <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+        <button id="redraw" class="btn btn-default">Reset Columns</button>
+        <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+        <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+        <br />
+        <br />
+
         <div>
-            <table id="corr_results" class="table table-hover table-striped table-bordered">
+            <table id="trait_table" class="table table-hover table-striped">
                 <thead>
                     <tr>
-                    {% if target_dataset.type == 'ProbeSet' %}
-                        <th>Trait</th>
-                        <th>Symbol</th>
-                        <th>Description</th>
-                        <th>Location</th>
-                        <th>Mean Expr</th>
-                        <th>Max LRS</th>
-                        <th>Max LRS Location</th>
+                        <th style="width: 30px;"></th>
+                    {% for header in target_dataset.header_fields %}
+                        {% if header == 'Max LRS' %}
+                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        {% elif header == 'Additive Effect' %}
+                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        {% else %}
+                        <th>{{header}}</th>
+                        {% endif %}
+                    {% endfor %}
+                        {% if target_dataset.type == "ProbeSet" %}
                         {% if corr_method == 'pearson' %}
                         <th>Sample r</th>
                         <th>N Cases</th>
@@ -48,10 +64,6 @@
                         <th>Tissue p(rho)</th>
                         {% endif %}
                     {% elif target_dataset.type == "Publish" %}
-                        <th>Record ID</th>
-                        <th>Phenotype</th>
-                        <th>Authors</th>
-                        <th>Year</th>
                         {% if corr_method == 'pearson' %}
                         <th>Sample r</th>
                         <th>N Cases</th>
@@ -62,8 +74,6 @@
                         <th>Sample p(rho)</th>
                         {% endif %}
                     {% elif target_dataset.type == "Geno" %}
-                        <th>Record ID</th>
-                        <th>Location</th>
                         {% if corr_method == 'pearson' %}
                         <th>Sample r</th>
                         <th>N Cases</th>
@@ -76,38 +86,63 @@
                     {% endif %}
                     </tr>
                 </thead>
+
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                    {% if target_dataset.type == 'ProbeSet' %}
-                        <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
-                        <td>{{ trait.symbol }}</td>
-                        <td>{{ trait.description }} <br><br> <b>Aliases</b>: {{ trait.alias }}</td>
-                        <td>Chr{{ trait.chr }}: {{'%0.6f'|format(trait.mb) if trait.mb != None }}</td>
-                        <td>{{'%0.3f'|format(trait.mean)}}</td>
-                        <td>{{'%0.3f'|format(trait.lrs)}}</td>
-                        <td>Chr{{ trait.locus_chr }}: {{'%0.3f'|format(trait.locus_mb) }}</td>
-                        <td><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td>{{ trait.num_overlap }}</td>
-                        <td>{{'%0.3e'|format(trait.sample_p)}}</td>
-                        <td>{{'%0.3f'|format(trait.lit_corr)}}</td>
-                        <td>{{'%0.3f'|format(trait.tissue_corr)}}</td>
-                        <td>{{'%0.3e'|format(trait.tissue_pvalue)}}</td>
-                    {% elif target_dataset.type == "Publish" %}
-                        <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
-                        <td>{{ trait.post_publication_description }}</td>
-                        <td>{{ trait.authors }}</td>
-                        <td>{{ trait.year }}</td>
-                        <td><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td>{{ trait.num_overlap }}</td>
-                        <td>{{'%0.3e'|format(trait.sample_p)}}</td>
-                    {% elif target_dataset.type == "Geno" %}
-                        <td><a href="/show_trait?trait_id={{trait.name}}&amp;dataset={{trait.dataset.name}}">{{ trait.name }}</a></td>
-                        <td>Chr{{ trait.chr }}: {{'%0.6f'|format(trait.mb) }}</td>
-                        <td><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td>{{ trait.num_overlap }}</td>
-                        <td>{{'%0.3e'|format(trait.sample_p)}}</td>
-                    {% endif %}
+                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}">
+                        </TD>
+                        <TD align="right">{{ loop.index }}</TD>
+                        <TD>
+                            <a href="{{ url_for('show_trait_page',
+                                    trait_id = trait.name,
+                                    dataset = dataset.name
+                                    )}}">
+                                {{ trait.name }}
+                            </a>
+                        </TD>
+                      {% if target_dataset.type == 'ProbeSet' %}
+                        <TD>{{ trait.symbol }}</TD>
+                        <TD>{{ trait.description_display }}</TD>
+                        <TD style="white-space: nowrap;">{{ trait.location_repr }}</TD>
+                        <TD align="right">{{ '%0.3f' % trait.mean|float }}</TD>
+                        <TD align="right">{{ '%0.3f' % trait.LRS_score_repr|float }}</TD>
+                        <TD style="white-space: nowrap;">{{ trait.LRS_location_repr }}</TD>
+                        <TD align="right">{{ '%0.3f' % trait.additive|float }}</TD>
+                        <TD><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></TD>
+                        <TD>{{ trait.num_overlap }}</TD>
+                        <TD>{{'%0.3e'|format(trait.sample_p)}}</TD>
+                        {% if trait.lit_corr == "" or trait.lit_corr == 0.000 %}
+                        <TD>--</TD>
+                        {% else %}
+                        <TD>{{'%0.3f'|format(trait.lit_corr)}}</TD>
+                        {% endif %}
+                        {% if trait.tissue_corr == "" or trait.tissue_corr == 0.000 %}
+                        <TD>--</TD>
+                        {% else %}
+                        <TD>{{'%0.3f'|format(trait.tissue_corr)}}</TD>
+                        {% endif %}
+                        <TD>{{'%0.3e'|format(trait.tissue_pvalue)}}</TD>
+                      {% elif target_dataset.type == "Publish" %}
+                        <TD>{{ trait.description_display }}</TD>
+                        <TD>{{ trait.authors }}</TD>
+                        <TD>
+                            <a href="{{ trait.pubmed_link }}">
+                                {{ trait.pubmed_text }}
+                            </a>
+                        </TD>
+                        <TD>{{ trait.LRS_score_repr }}</TD>
+                        <TD>{{ trait.LRS_location_repr }}</TD>
+                        <TD>{{ '%0.3f' % trait.additive|float }}</TD>
+                        <TD><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></TD>
+                        <TD>{{ trait.num_overlap }}</TD>
+                        <TD>{{'%0.3e'|format(trait.sample_p)}}</TD>
+                      {% elif target_dataset.type == "Geno" %}
+                        <TD>{{ trait.location_repr }}</TD>
+                        <TD><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></TD>
+                        <TD>{{ trait.num_overlap }}</TD>
+                        <TD>{{'%0.3e'|format(trait.sample_p)}}</TD>
+                      {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -117,35 +152,168 @@
 {% endblock %}
 
 {% block js %}  
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
     <script type="text/javascript" charset="utf-8">
+        function getValue(x) {
+            if (x.indexOf('input') >= 0) {
+                if ($(x).val() == 'x') {
+                    return 0;
+                }
+                else {
+                   return parseFloat($(x).val());
+                }
+            }
+            else if (isNaN(x)) {
+                return x;
+            }
+            return parseFloat(x);
+        }
+            
+        jQuery.fn.dataTableExt.oSort['numeric-html-asc']  = function(a,b) {
+            a = Math.abs(parseFloat($(a).text()));
+            b = Math.abs(parseFloat($(b).text()));
+            return ((a < b) ? -1 : ((a > b) ?  1 : 0));
+        };
+
+        jQuery.fn.dataTableExt.oSort['numeric-html-desc']  = function(a,b) {
+            a = Math.abs(parseFloat($(a).text()));
+            b = Math.abs(parseFloat($(b).text()));
+            return ((a < b) ? 1 : ((a > b) ?  -1 : 0));
+        };
+
+        jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
+            var x = getValue(a);
+            var y = getValue(b); 
+            
+            if (x == 'N/A' || x == '') {
+                return 1;
+            }
+            else if (y == 'N/A' || y == '') {
+                return -1;
+            }
+            else {
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            }
+        };
+            
+        jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
+            var x = getValue(a);
+            var y = getValue(b);
+            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+        };
+
+
         $(document).ready( function () {
+            
+            $('#trait_table tr').click(function(event) {
+                if (event.target.type !== 'checkbox') {
+                    $(':checkbox', this).trigger('click');
+                }
+            });
+
             console.time("Creating table");
-            $('#corr_results').dataTable( {
-                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "sDom": "lTftipr",
-                "oTableTools": {
-                    "aButtons": [
-                        "copy",
-                        "print",
-                        {
-                            "sExtends":    "collection",
-                            "sButtonText": 'Save <span class="caret" />',
-                            "aButtons":    [ "csv", "xls", "pdf" ]
-                        }
-                    ],
-                    "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
-                },
-                "iDisplayLength": 50,
+
+            {% if target_dataset.type == "ProbeSet" %}
+
+
+            $('#trait_table').dataTable( {
+                "columns": [
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "numeric-html" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
+                "sDom": "RZtir",
+                "iDisplayLength": -1,
+                "bDeferRender": true,
+                "bSortClasses": false,
+                //"scrollY": "700px",
+                //"scrollCollapse": false,
+                "paging": false
+            } );
+
+            var table = $('#trait_table').DataTable();
+            new $.fn.dataTable.FixedHeader( table );
+
+            {% elif target_dataset.type == "Publish" %}
+            $('#trait_table').dataTable( {
+                "columns": [
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "numeric-html" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
+                "sDom": "RZtir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
                 "bLengthChange": true,
                 "bDeferRender": true,
-                "bSortClasses": false
+                "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": false,
+                "colResize": {
+                    "tableWidthFixed": false
+                },
+                "paging": false
             } );
+            {% elif target_dataset.type == "Geno" %}
+            $('#trait_table').dataTable( {
+                "columns": [
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "numeric-html" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
+                "sDom": "RZtir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": false,
+                "colResize": {
+                    "tableWidthFixed": false
+                },
+                "paging": false
+            } );
+            {% endif %}
             console.timeEnd("Creating table");
+
+
         });
     </script>
 {% endblock %}

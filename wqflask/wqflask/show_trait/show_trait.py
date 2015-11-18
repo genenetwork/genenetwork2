@@ -16,12 +16,16 @@ from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
 from utility import webqtlUtil, Plot, Bunch, helper_functions
+from utility.tools import pylmm_command, plink_command
 from base.trait import GeneralTrait
 from base import data_set
 from dbFunction import webqtlDatabaseFunction
 from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf
+
+PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
+PLINK_PATH,PLINK_COMMAND = plink_command()
 
 ###############################################
 #
@@ -98,11 +102,13 @@ class ShowTrait(object):
 
         print("self.dataset.type:", self.dataset.type)
         if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
-            self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
-            self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
+            self.nearest_marker = get_nearest_marker(self.this_trait, self.dataset)
+            #self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
+            #self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
         else:
-            self.nearest_marker1 = ""
-            self.nearest_marker2 = ""
+            self.nearest_marker = ""
+            #self.nearest_marker1 = ""
+            #self.nearest_marker2 = ""
 
         self.make_sample_lists(self.this_trait)
 
@@ -116,13 +122,16 @@ class ShowTrait(object):
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
-        hddn['manhattan_plot'] = False
+        hddn['manhattan_plot'] = ""
         if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
-            hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
+            hddn['control_marker'] = self.nearest_marker
+            #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
         else:
             hddn['control_marker'] = ""
+        hddn['do_control'] = False
         hddn['maf'] = 0.01
         hddn['compare_traits'] = []
+        hddn['export_data'] = ""
     
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
@@ -130,29 +139,42 @@ class ShowTrait(object):
         self.temp_uuid = uuid.uuid4()
 
         self.sample_group_types = OrderedDict()
-        self.sample_group_types['samples_primary'] = self.dataset.group.name + " Only"
-        self.sample_group_types['samples_other'] = "Non-" + self.dataset.group.name
-        self.sample_group_types['samples_all'] = "All Cases"
+        if len(self.sample_groups) > 1:
+            self.sample_group_types['samples_primary'] = self.dataset.group.name + " Only"
+            self.sample_group_types['samples_other'] = "Non-" + self.dataset.group.name
+            self.sample_group_types['samples_all'] = "All Cases"
+        else:
+            self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
         
-        probability_plot_data = []
-        sample_vals = []
-        sample_z_scores = []
-        for sample_list in sample_lists:
-            for sample in sample_list:
-                sample_vals.append(sample.prob_plot_value)
-                sample_z_scores.append(sample.z_score)
-        probability_plot_data.append(sample_z_scores)        
-        probability_plot_data.append(sample_vals)
+        self.get_mapping_methods()
 
-        
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
-                        probability_plot_data = probability_plot_data,
                         attribute_names = self.sample_groups[0].attributes,
                         temp_uuid = self.temp_uuid)
         self.js_data = js_data
+
+    def get_mapping_methods(self):
+        '''Only display mapping methods when the dataset group's genotype file exists'''
+        def check_plink_gemma():
+            if (os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".bed") and
+                os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".map")):
+
+                return True
+            else:
+                return False
+
+        def check_pylmm_rqtl():
+            if os.path.isfile(webqtlConfig.GENODIR+self.dataset.group.name+".geno"):
+                return True
+            else:
+                return False
+
+        self.use_plink_gemma = check_plink_gemma()
+        self.use_pylmm_rqtl = check_pylmm_rqtl()
+
 
     def read_data(self, include_f1=False):
         '''read user input data or from trait data and analysis form'''
@@ -236,7 +258,7 @@ class ShowTrait(object):
 
     def dispTraitInformation(self, args, title1Body, hddn, this_trait):
 
-        _Species = webqtlDatabaseFunction.retrieve_species(group=self.dataset.group.name)
+        self.species_name = webqtlDatabaseFunction.retrieve_species(group=self.dataset.group.name)
 
         #tbl = HT.TableLite(cellpadding=2, Class="collap", style="margin-left:20px;", width="840", valign="top", id="target1")
 
@@ -283,13 +305,13 @@ class ShowTrait(object):
         #    else:
         #        pass
 
-        g.db.execute("SELECT Name FROM InbredSet WHERE Name=%s", self.dataset.group.name)
+        result = g.db.execute("SELECT Name FROM InbredSet WHERE Name=%s", self.dataset.group.name)
         if this_trait:
             addSelectionButton = HT.Href(url="#redirect", onClick="addRmvSelection('%s', document.getElementsByName('%s')[0], 'addToSelection');" % (self.dataset.group.name, 'dataInput'))
             addSelectionButton_img = HT.Image("/images/add_icon.jpg", name="addselect", alt="Add To Collection", title="Add To Collection", style="border:none;")
             #addSelectionButton.append(addSelectionButton_img)
             addSelectionText = "Add"
-        elif self.cursor.fetchall():
+        elif result.fetchall():
             addSelectionButton = HT.Href(url="#redirect", onClick="dataEditingFunc(document.getElementsByName('%s')[0], 'addRecord');" % ('dataInput'))
             addSelectionButton_img = HT.Image("/images/add_icon.jpg", name="", alt="Add To Collection", title="Add To Collection", style="border:none;")
             #addSelectionButton.append(addSelectionButton_img)
@@ -310,7 +332,7 @@ class ShowTrait(object):
             #XZ: Gene Symbol
             if this_trait.symbol:
                 #XZ: Show SNP Browser only for mouse
-                if _Species == 'mouse':
+                if self.species_name == 'mouse':
                     geneName = g.db.execute("SELECT geneSymbol FROM GeneList WHERE geneSymbol = %s", this_trait.symbol).fetchone()
                     if geneName:
                         snpurl = os.path.join(webqtlConfig.CGIDIR, "main.py?FormID=SnpBrowserResultPage&submitStatus=1&diffAlleles=True&customStrain=True") + "&geneName=%s" % geneName[0]
@@ -333,8 +355,8 @@ class ShowTrait(object):
 
                 #XZ: display similar traits in other selected datasets
                 if this_trait and this_trait.dataset and this_trait.dataset.type=="ProbeSet" and this_trait.symbol:
-                    if _Species in ("mouse", "rat", "human"):
-                        similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.symbol, _Species)
+                    if self.species_name in ("mouse", "rat", "human"):
+                        similarUrl = "%s?cmd=sch&gene=%s&alias=1&species=%s" % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.symbol, self.species_name)
                         similarButton = HT.Href(url="#redirect", onClick="openNewWin('%s')" % similarUrl)
                         similarButton_img = HT.Image("/images/find_icon.jpg", name="similar", alt=" Find similar expression data ", title=" Find similar expression data ", style="border:none;")
                         similarText = "Find"
@@ -368,45 +390,46 @@ class ShowTrait(object):
                         blatsequence = ''
                         for seqt in seqs:
                             if int(seqt[1][-1]) % 2 == 1:
-                                blatsequence += string.strip(seqt[0])
+                                blatsequence += string.strip(seqt[0])## NEEDED FOR UCSC GENOME BROWSER LINK
 
                 #--------Hongqiang add this part in order to not only blat ProbeSet, but also blat Probe
                 blatsequence = '%3E'+this_trait.name+'%0A'+blatsequence+'%0A'
                 #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
-                self.cursor.execute("""SELECT Probe.Sequence, Probe.Name
+                query = """SELECT Probe.Sequence, Probe.Name
                                        FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
                                        WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
                                              ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                             ProbeSetFreeze.Name = '%s' AND
-                                             ProbeSet.Name = '%s' AND
-                                             Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (this_trait.dataset.name, this_trait.name) )
+                                             ProbeSetFreeze.Name = '{}' AND
+                                             ProbeSet.Name = '{}' AND
+                                             Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""".format(this_trait.dataset.name, this_trait.name)
 
-                seqs = self.cursor.fetchall()
+                seqs = g.db.execute(query).fetchall()
+
                 for seqt in seqs:
                     if int(seqt[1][-1]) %2 == 1:
                         blatsequence += '%3EProbe_'+string.strip(seqt[1])+'%0A'+string.strip(seqt[0])+'%0A'
 
                 #XZ: Pay attention to the parameter of version (rn, mm, hg). They need to be changed if necessary.
-                if _Species == "rat":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', blatsequence)
-                    UTHSC_BLAT_URL = ""
-                elif _Species == "mouse":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', blatsequence)
-                    UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', blatsequence)
-                elif _Species == "human":
-                    UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
-                    UTHSC_BLAT_URL = ""
+                if self.species_name == "rat":
+                    self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', blatsequence)
+                    self.UTHSC_BLAT_URL = ""
+                elif self.species_name == "mouse":
+                    self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', blatsequence)
+                    self.UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', blatsequence)
+                elif self.species_name == "human":
+                    self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
+                    self.UTHSC_BLAT_URL = ""
                 else:
-                    UCSC_BLAT_URL = ""
-                    UTHSC_BLAT_URL = ""
+                    self.UCSC_BLAT_URL = ""
+                    self.UTHSC_BLAT_URL = ""
 
-                if UCSC_BLAT_URL:
+                if self.UCSC_BLAT_URL != "":
                     verifyButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % UCSC_BLAT_URL)
                     verifyButtonImg = HT.Image("/images/verify_icon.jpg", name="verify", alt=" Check probe locations at UCSC ",
                             title=" Check probe locations at UCSC ", style="border:none;")
                     verifyButton.append(verifyButtonImg)
                     verifyText = 'Verify'
-                if UTHSC_BLAT_URL:
+                if self.UTHSC_BLAT_URL != "":
                     rnaseqButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % UTHSC_BLAT_URL)
                     rnaseqButtonImg = HT.Image("/images/rnaseq_icon.jpg", name="rnaseq", alt=" View probes, SNPs, and RNA-seq at UTHSC ",
                             title=" View probes, SNPs, and RNA-seq at UTHSC ", style="border:none;")
@@ -426,6 +449,7 @@ class ShowTrait(object):
                 #query database for number of probes associated with trait; if count > 0, set probe tool button and text
                 probeResult = g.db.execute(query).fetchone()
                 if probeResult[0] > 0:
+                    self.show_probes = "True"
                     probeurl = "%s?FormID=showProbeInfo&database=%s&ProbeSetID=%s&CellID=%s&group=%s&incparentsf1=ON" \
                             % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), this_trait.dataset, this_trait.name, this_trait.cellid, self.dataset.group.name)
                     probeButton = HT.Href(url="#", onClick="javascript:openNewWin('%s'); return false;" % probeurl)
@@ -433,7 +457,7 @@ class ShowTrait(object):
                     #probeButton.append(probeButton_img)
                     probeText = "Probes"
 
-            this_trait.species = _Species  # We need this in the template, so we tuck it into this_trait
+            this_trait.species = self.species_name  # We need this in the template, so we tuck it into this_trait
             this_trait.database = this_trait.get_database()
 
             #XZ: ID links
@@ -469,62 +493,35 @@ class ShowTrait(object):
 
             #XZ: Resource Links:
             if this_trait.symbol:
-                linkStyle = "background:#dddddd;padding:2"
-                tSpan = HT.Span(style="font-family:verdana,serif;font-size:13px")
-
                 #XZ,12/26/2008: Gene symbol may contain single quotation mark.
                 #For example, Affymetrix, mouse430v2, 1440338_at, the symbol is 2'-Pde (geneid 211948)
                 #I debug this by using double quotation marks.
-                if _Species == "rat":
-
-                    #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
-                    #symatlas_species = "Rattus norvegicus"
-
-                    #self.cursor.execute("SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = '%s'" % this_trait.symbol)
-                    self.cursor.execute('SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = "%s"' % this_trait.symbol)
-                    try:
-                        kgId, chr, txst, txen = self.cursor.fetchall()[0]
+                if self.species_name == "rat":
+                    result = g.db.execute("SELECT kgID, chromosome,txStart,txEnd FROM GeneList_rn33 WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
+                    if result != None:
+                        kgId, chr, txst, txen = result[0], result[1], result[2], result[3]
                         if chr and txst and txen and kgId:
                             txst = int(txst*1000000)
                             txen = int(txen*1000000)
-                            #tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
-                            #        title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('rn3',kgId,chr,txst,txen),Class="fs14 fwn"), style=linkStyle)
-                            #        , "&nbsp;"*2)
-                    except:
-                        pass
-                if _Species == "mouse":
-
-                    #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
-                    #symatlas_species = "Mus musculus"
-
-                    #self.cursor.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = '%s'" % this_trait.symbol)
-                    #try:
+                if self.species_name == "mouse":
                     print("this_trait.symbol:", this_trait.symbol)
                     result = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
                     if result != None:
                         this_chr, txst, txen = result[0], result[1], result[2]
-                    #this_chr, txst, txen = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
                         if this_chr and txst and txen and this_trait.refseq_transcriptid :
                             txst = int(txst*1000000)
                             txen = int(txen*1000000)
-                        #tSpan.append(HT.Span(HT.Href(text= 'UCSC',target="mainFrame",\
-                        #        title= 'Info from UCSC Genome Browser', url = webqtlConfig.UCSC_REFSEQ % ('mm9',
-                        #                                                                                  this_trait.refseq_transcriptid,
-                        #                                                                                  this_chr,
-                        #                                                                                  txst,
-                        #                                                                                  txen),
-                        #        Class="fs14 fwn"), style=linkStyle)
-                        #        , "&nbsp;"*2)
+                        ## NEEDED FOR UCSC GENOME BROWSER LINK
                         
                 #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
                 #tSpan.append(HT.Span(HT.Href(text= 'SymAtlas',target="mainFrame",\
                 #       url="http://symatlas.gnf.org/SymAtlas/bioentry?querytext=%s&query=14&species=%s&type=Expression" \
                 #       % (this_trait.symbol,symatlas_species),Class="fs14 fwn", \
                 #       title="Expression across many tissues and cell types"), style=linkStyle), "&nbsp;"*2)
-                if this_trait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
+                if this_trait.geneid and (self.species_name == "mouse" or self.species_name == "rat" or self.species_name == "human"):
                     #tSpan.append(HT.Span(HT.Href(text= 'BioGPS',target="mainFrame",\
                     #        url="http://biogps.gnf.org/?org=%s#goto=genereport&id=%s" \
-                    #        % (_Species, this_trait.geneid),Class="fs14 fwn", \
+                    #        % (self.species_name, this_trait.geneid),Class="fs14 fwn", \
                     #        title="Expression across many tissues and cell types"), style=linkStyle), "&nbsp;"*2)
                     pass
                 #tSpan.append(HT.Span(HT.Href(text= 'STRING',target="mainFrame",\
@@ -534,13 +531,13 @@ class ShowTrait(object):
                 if this_trait.symbol:
                     #ZS: The "species scientific" converts the plain English species names we're using to their scientific names, which are needed for PANTHER's input
                     #We should probably use the scientific name along with the English name (if not instead of) elsewhere as well, given potential non-English speaking users
-                    if _Species == "mouse":
+                    if self.species_name == "mouse":
                         species_scientific = "Mus%20musculus"
-                    elif _Species == "rat":
+                    elif self.species_name == "rat":
                         species_scientific = "Rattus%20norvegicus"
-                    elif _Species == "human":
+                    elif self.species_name == "human":
                         species_scientific = "Homo%20sapiens"
-                    elif _Species == "drosophila":
+                    elif self.species_name == "drosophila":
                         species_scientific = "Drosophila%20melanogaster"
                     else:
                         species_scientific = "all"
@@ -556,7 +553,7 @@ class ShowTrait(object):
                 #       url="http://bind.ca/?textquery=%s" \
                 #       % this_trait.symbol,Class="fs14 fwn", \
                 #       title="Protein interactions"), style=linkStyle), "&nbsp;"*2)
-                #if this_trait.geneid and (_Species == "mouse" or _Species == "rat" or _Species == "human"):
+                #if this_trait.geneid and (self.species_name == "mouse" or self.species_name == "rat" or self.species_name == "human"):
                 #    tSpan.append(HT.Span(HT.Href(text= 'Gemma',target="mainFrame",\
                 #            url="http://www.chibi.ubc.ca/Gemma/gene/showGene.html?ncbiid=%s" \
                 #            % this_trait.geneid, Class="fs14 fwn", \
@@ -565,19 +562,19 @@ class ShowTrait(object):
                 #        url="http://lily.uthsc.edu:8080/20091027_GNInterfaces/20091027_redirectSynDB.jsp?query=%s" \
                 #        % this_trait.symbol, Class="fs14 fwn", \
                 #        title="Brain synapse database"), style=linkStyle), "&nbsp;"*2)
-                #if _Species == "mouse":
+                #if self.species_name == "mouse":
                 #    tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
                 #            url="http://mouse.brain-map.org/brain/%s.html" \
                 #            % this_trait.symbol, Class="fs14 fwn", \
                 #            title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
 
                 if this_trait.geneid:
-                    #if _Species == "mouse":
+                    #if self.species_name == "mouse":
                     #       tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
                     #               url="http://www.brain-map.org/search.do?queryText=egeneid=%s" \
                     #               % this_trait.geneid, Class="fs14 fwn", \
                     #               title="Allen Brain Atlas"), style=linkStyle), "&nbsp;"*2)
-                    if _Species == "human":
+                    if self.species_name == "human":
                         #tSpan.append(HT.Span(HT.Href(text= 'ABA',target="mainFrame",\
                         #        url="http://humancortex.alleninstitute.org/has/human/imageseries/search/1.html?searchSym=t&searchAlt=t&searchName=t&gene_term=&entrez_term=%s" \
                         #        % this_trait.geneid, Class="fs14 fwn", \
@@ -680,13 +677,13 @@ class ShowTrait(object):
                 location = "not available"
 
             #if this_trait.sequence and len(this_trait.sequence) > 100:
-            #    if _Species == "rat":
+            #    if self.species_name == "rat":
             #        UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', this_trait.sequence)
             #        UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('rat', 'rn3', this_trait.sequence)
-            #    elif _Species == "mouse":
+            #    elif self.species_name == "mouse":
             #        UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
             #        UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm9', this_trait.sequence)
-            #    elif _Species == "human":
+            #    elif self.species_name == "human":
             #        UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
             #        UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('human', 'hg19', this_trait.sequence)
             #    else:
@@ -914,40 +911,7 @@ class ShowTrait(object):
             this_group = 'BXD'
 
         if this_group:
-
-            dataset_menu = []
-            print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
-            print("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
-            results = g.db.execute("""SELECT PublishFreeze.FullName,PublishFreeze.Name FROM
-                    PublishFreeze,InbredSet WHERE PublishFreeze.InbredSetId = InbredSet.Id
-                    and InbredSet.Name = %s and PublishFreeze.public > %s""",
-                    (this_group, webqtlConfig.PUBLICTHRESH))
-            for item in results.fetchall():
-                dataset_menu.append(dict(tissue=None,
-                                         datasets=[item]))
-
-            results = g.db.execute("""SELECT GenoFreeze.FullName,GenoFreeze.Name FROM GenoFreeze,
-                    InbredSet WHERE GenoFreeze.InbredSetId = InbredSet.Id and InbredSet.Name =
-                    %s and GenoFreeze.public > %s""",
-                    (this_group, webqtlConfig.PUBLICTHRESH))
-            for item in results.fetchall():
-                dataset_menu.append(dict(tissue=None,
-                                    datasets=[item]))
-
-            #03/09/2009: Xiaodong changed the SQL query to order by Name as requested by Rob.
-            tissues = g.db.execute("SELECT Id, Name FROM Tissue order by Name")
-            for item in tissues.fetchall():
-                tissue_id, tissue_name = item
-                data_sets = g.db.execute('''SELECT ProbeSetFreeze.FullName,ProbeSetFreeze.Name FROM ProbeSetFreeze, ProbeFreeze,
-                InbredSet WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and ProbeFreeze.TissueId = %s and
-                ProbeSetFreeze.public > %s and ProbeFreeze.InbredSetId = InbredSet.Id and InbredSet.Name like %s
-                order by ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId ''',
-                (tissue_id, webqtlConfig.PUBLICTHRESH, "%" + this_group + "%"))
-                dataset_sub_menu = [item for item in data_sets.fetchall() if item]
-                if dataset_sub_menu:
-                    dataset_menu.append(dict(tissue=tissue_name,
-                                        datasets=dataset_sub_menu))
-
+            dataset_menu = self.dataset.group.datasets()
             dataset_menu_selected = None
             if len(dataset_menu):
                 if this_trait and this_trait.dataset:
@@ -965,7 +929,7 @@ class ShowTrait(object):
     def build_mapping_tools(self, this_trait):
 
 
-        _Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
+        #_Species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, group=fd.group)
 
         this_group = fd.group
         if this_group[:3] == 'BXD':
@@ -1217,18 +1181,9 @@ class ShowTrait(object):
 
 
     def make_sample_lists(self, this_trait):
-        if self.dataset.group.parlist:
-            all_samples_ordered = (self.dataset.group.parlist +
-                                   self.dataset.group.f1list +
-                                   self.dataset.group.samplelist)
-        elif self.dataset.group.f1list:
-            all_samples_ordered = self.dataset.group.f1list + self.dataset.group.samplelist
-        else:
-            all_samples_ordered = self.dataset.group.samplelist
+        all_samples_ordered = self.dataset.group.all_samples_ordered()
 
-        this_trait_samples = set(this_trait.data.keys())
-
-        primary_sample_names = all_samples_ordered
+        primary_sample_names = list(all_samples_ordered)
 
         print("self.dataset.group", pf(self.dataset.group.__dict__))
         print("-*- primary_samplelist is:", pf(primary_sample_names))
@@ -1239,14 +1194,10 @@ class ShowTrait(object):
                 all_samples_ordered.append(sample)
                 other_sample_names.append(sample)
 
-        other_sample_names, all_samples_ordered = get_samplelist_from_trait_data(this_trait,
-                                                                                 all_samples_ordered)
-        
-        
         print("species:", self.dataset.group.species)
         if self.dataset.group.species == "human":
             primary_sample_names += other_sample_names
-            
+
         primary_samples = SampleList(dataset = self.dataset,
                                         sample_names=primary_sample_names,
                                         this_trait=this_trait,
@@ -1282,36 +1233,29 @@ class ShowTrait(object):
         #    print("hjs")
         self.dataset.group.allsamples = all_samples_ordered
 
-
-def get_samplelist_from_trait_data(this_trait, all_samples_ordered):
-    other_sample_names = []
-    for sample in this_trait.data.keys():
-        if sample not in all_samples_ordered:
-            all_samples_ordered.append(sample)
-            other_sample_names.append(sample)
-            
-    return other_sample_names, all_samples_ordered
-
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr
     print("this_chr:", this_chr)
     this_mb = this_trait.locus_mb
     print("this_mb:", this_mb)
+    #One option is to take flanking markers, another is to take the two (or one) closest
     query = """SELECT Geno.Name
                FROM Geno, GenoXRef, GenoFreeze
                WHERE Geno.Chr = '{}' AND
                      GenoXRef.GenoId = Geno.Id AND
                      GenoFreeze.Id = GenoXRef.GenoFreezeId AND
                      GenoFreeze.Name = '{}'
-               ORDER BY ABS( Geno.Mb - {}) LIMIT 2""".format(this_chr, this_db.group.name+"Geno", this_mb)
+               ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name+"Geno", this_mb)
     print("query:", query)
 
     result = g.db.execute(query).fetchall()
     print("result:", result)
 
     if result == []:
-        return "", ""
+        return ""
+        #return "", ""
     else:
-        return result[0][0], result[1][0]
+        return result[0][0]
+        #return result[0][0], result[1][0]
     
     

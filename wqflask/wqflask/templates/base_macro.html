@@ -1,0 +1,28 @@
+{% macro flash_me() -%}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="container">
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+{% endmacro %}
+
+{% macro header(main, second) %}
+    <header class="jumbotron subhead" id="overview" >
+        <div class="container">
+            <h1>{{ main }}</h1>
+            <p class="lead">
+               {{ second }}
+            </p>
+        </div>
+    </header>
+
+    {{ flash_me() }}
+{% endmacro %}
+
+{% macro timeago(timestamp) %}
+<time class="timeago" datetime="{{ timestamp }}">{{ timestamp }}</time>
+{% endmacro %}

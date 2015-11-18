@@ -15,8 +15,7 @@ $ ->
         $(".trait_checkbox").trigger('click')
 
     add = ->
-        traits = $("#trait_table input:checked").map(->
-            return $(this).val()).get()
+        traits = $("#trait_table input:checked").map(-> return $(this).val()).get()
         console.log("checked length is:", traits.length)
         console.log("checked is:", traits)
         $.colorbox({href:"/collections/add?traits=#{traits}"})

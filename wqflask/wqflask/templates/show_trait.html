@@ -5,21 +5,32 @@
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/nvd3/nv.d3.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.pips.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
-    {{ header("{}".format(this_trait.symbol),
-        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
+    {% if this_trait.dataset.type != 'Geno' %}
+	{{ header("{}".format(this_trait.name_header_fmt),
+	    '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
+    {% else %}
+	{{ header("{}".format(this_trait.name_header_fmt)) }}
+    {% endif %}
 
 
     <form method="post" action="/corr_compute" name="trait_page" id="trait_data_form"
     class="form-horizontal">
         <div id="hidden_inputs">
+        <input type="hidden" name="trait_hmac" value="{{ data_hmac('{}:{}'.format(this_trait.name, dataset.name)) }}">
         {% for key in hddn %}
             <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
         {% endfor %}
@@ -28,21 +39,13 @@
         <input type="hidden" name="temp_uuid" id="temp_uuid" value="{{ temp_uuid }}">
 
         <div class="container">
-            <div class="page-header">
-                <h1>{{ dataset.group.species.capitalize() }} -
-                    {{ dataset.group.name }} -
-                    {{ this_trait.symbol }}
-                </h1>
-            </div>
             
             {% include 'show_trait_details.html' %}
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                <span class="glyphicon glyphicon-chevron-down"></span> Statistics
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-down"></span> Statistics
                         </h3>
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse in">
@@ -52,11 +55,9 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                                <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
                         </h3>
                     </div>
                     <div id="collapseTwo" class="panel-collapse collapse in">
@@ -66,25 +67,22 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-                                <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
                         </h3>
                     </div>
                     <div id="collapseThree" class="panel-collapse collapse in">
                         <div class="panel-body">
                             {% include 'show_trait_mapping_tools.html' %}
                         </div>
+                        <div id="alert_placeholder"></div>
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFour" aria-expanded="true">
                         <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true">
-                                <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
-                            </a>
+                             <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
                         </h3>
                     </div>
                     <div id="collapseFour" class="panel-collapse collapse" aria-expanded="true">
@@ -110,9 +108,12 @@
     </script>
 
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="/static/new/packages/nvd3/nv.d3.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/jstat.min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/shapiro-wilk.js"></script>
     <script type="text/javascript" src="/static/new/javascript/colorbrewer.js"></script>
     <script type="text/javascript" src="/static/new/packages/ValidationPlugin/dist/jquery.validate.min.js"></script>
     <script type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
@@ -131,18 +132,30 @@
     <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>
     <script type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
     <script type="text/javascript" src="/static/new/javascript/validation.js"></script>
-    
-    <script language="javascript" type="text/javascript" src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/FileSaver.js/FileSaver.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/Blob.js/BlobBuilder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.standard_fonts_metrics.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.from_html.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
+
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/noUiSlider/nouislider.js"></script>
     <script type="text/javascript" charset="utf-8">
             
            function getValue(x) {
                 if (x.indexOf('input') >= 0) {
                     if ($(x).val() == 'x') {
-                        return 0
+                        return 'x'
                     }
                     else {
                        return parseFloat($(x).val());
@@ -160,12 +173,21 @@
             jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
                 var x = getValue(a);
                 var y = getValue(b);
-                return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+
+                if (x == 'x') {
+                    return 1;
+                }
+                else if (y == 'x') {
+                    return -1;
+                }
+                else {
+                    return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+                }
             };
             
             $(document).ready( function () {
 
-                $('.panel-heading').find('a').click(function () {
+                $('.panel-heading').click(function () {
                    if ($(this).hasClass('collapsed')){
                        $(this).find('.glyphicon-chevron-down').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
                    }
@@ -175,70 +197,127 @@
                 });
 
                 console.time("Creating table");
-                
-                {% if sample_groups[0].se_exists() %}
-                    $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'yellow')
-                    $('#samples_primary, #samples_other').dataTable( {
-                        //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                        "aoColumns": [
-                            { "sType": "natural" },
-                            null,
-                            { "sType": "cust-txt" },
-                            { "bSortable": false },
-                            { "sType": "cust-txt" }
+
+                $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'yellow')
+                {% if sample_groups[0].se_exists() %} 
+                $('#samples_primary, #samples_other').DataTable( {
+                    "columns": [
+                        { "bSortable": false },
+                        { "type": "natural" },
+                        { "type": "natural" },
+                        { "type": "cust-txt" },
+                        { "bSortable": false },
+                        { "type": "cust-txt" }
                         ],
-                        "sDom": "ftr",
-                        "oTableTools": {
-                            "aButtons": [
-                                "copy",
-                                "print",
-                                {
-                                    "sExtends":    "collection",
-                                    "sButtonText": 'Save <span class="caret" />',
-                                    "aButtons":    [ "csv", "xls", "pdf" ]
-                                }
-                            ],
-                            "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
-                        },
-                        "bPaginate": false,
-                        "bLengthChange": true,
-                        "bDeferRender": true,
-                        "bSortClasses": false
-                    } );
-                    console.timeEnd("Creating table");
+                    "buttons": [
+                        'csv'
+                    ],
+                    "sDom": "RZBtr",
+                    "iDisplayLength": -1,
+                    "autoWidth": false,
+                    "bLengthChange": true,
+                    "bDeferRender": true,
+                    "bSortClasses": false,
+                    "scrollY": "600px",
+                    "scrollCollapse": false,
+                    "colResize": {
+                        "tableWidthFixed": false
+                    },
+                    "paging": false
+                } );
+                console.timeEnd("Creating table");
 
                 {% else %}
-        
-            
-                    console.time("Creating table");
+                console.time("Creating table");
                     
-                    $('#samples_primary, #samples_other').dataTable( {
-                        //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                        "aoColumns": [
-                            { "sType": "natural" },
-                            null,
-                            { "sType": "cust-txt" }
+                $('#samples_primary, #samples_other').DataTable( {
+                    "columns": [
+                        { "bSortable": false },
+                        { "type": "natural" },
+                        null,
+                        { "type": "cust-txt" }
+                    ],
+                    "buttons": [
+                        'csv'
+                    ],
+                    "sDom": "RZBtr",
+                    "iDisplayLength": -1,
+                    "autoWidth": false,
+                    "bLengthChange": true,
+                    "bDeferRender": true,
+                    "bSortClasses": false,
+                    "scrollY": "600px",
+                    "scrollCollapse": false,
+                    "colResize": {
+                        "tableWidthFixed": false
+                    },
+                    "paging": false
+                } );
+                {% endif %}
+
+                console.log("SAMPLE GROUP TYPES:", js_data.sample_group_types)
+                if (Object.keys(js_data.sample_group_types).length > 1) {
+                    $('#stats_table').DataTable( {
+                        "columns": [
+                            { "bSortable": false },
+                            { "bSortable": false },
+                            { "bSortable": false },
+                            { "bSortable": false }
                         ],
-                        "sDom": "ftr",
-                        "oTableTools": {
-                            "aButtons": [
-                                "copy",
-                                "print",
-                                {
-                                    "sExtends":    "collection",
-                                    "sButtonText": 'Save <span class="caret" />',
-                                    "aButtons":    [ "csv", "xls", "pdf" ]
-                                }
-                            ],
-                            "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
-                        },
-                        "bPaginate": false,
+                        "sDom": "RZtr",
+                        "iDisplayLength": -1,
+                        "autoWidth": false,
                         "bLengthChange": true,
                         "bDeferRender": true,
-                        "bSortClasses": false
+                        "bSortClasses": false,
+                        "colResize": {
+                            "tableWidthFixed": false
+                        },
+                        "paging": false
                     } );
-                    console.timeEnd("Creating table");
-                {% endif %}
+                }
+                else {
+                    $('#stats_table').DataTable( {
+                        "columns": [
+                            { "bSortable": false },
+                            { "bSortable": false }
+                        ],
+                        "sDom": "RZtr",
+                        "iDisplayLength": -1,
+                        "autoWidth": false,
+                        "bLengthChange": true,
+                        "bDeferRender": true,
+                        "bSortClasses": false,
+                        "colResize": {
+                            "tableWidthFixed": false
+                        },
+                        "paging": false
+                    } );
+
+                }
+
+                var slider = document.getElementById('p_range_slider');
+                noUiSlider.create(slider, {
+                    start: [-1.0, 1.0],
+                    range: {
+                        'min': [-1.0],
+                        'max': [1.0]
+                    }
+                });
+
+                var slider_display =  [
+                    document.getElementById('p_range_lower'),
+                    document.getElementById('p_range_upper')
+                ];
+                var slider_values =  [
+                    $('input[name=p_range_lower]'),
+                    $('input[name=p_range_upper]')
+                ];                
+
+                slider.noUiSlider.on('update', function( values, handle ) {
+                    slider_display[handle].innerHTML = values[handle];
+                    slider_values[handle].val(values[handle]);
+                });
             });
     </script>
     

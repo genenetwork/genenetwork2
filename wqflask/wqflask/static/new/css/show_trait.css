@@ -5,3 +5,7 @@ tr .outlier {
 #bar_chart_container {
     overflow-x:scroll;
 }
+
+div.sample_group {
+    overflow: auto; # needed because it contains float dataTable wrapper
+}

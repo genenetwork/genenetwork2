@@ -5,6 +5,7 @@ import sys
 print("sys.path is:", sys.path)
 
 import csv
+import xlsxwriter
 import StringIO  # Todo: Use cStringIO?
 
 import gc
@@ -32,6 +33,7 @@ from flask import (render_template, request, make_response, Response,
                    Flask, g, config, jsonify, redirect, url_for)
 
 from wqflask import search_results
+from wqflask import gsearch
 from wqflask import docs
 from wqflask import news
 from base.data_set import DataSet    # Used by YAML in marker_regression
@@ -44,6 +46,9 @@ from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
+
+from wqflask.wgcna import wgcna_analysis
+
 from utility import temp_data
 
 from base import webqtlFormData
@@ -91,7 +96,7 @@ def tmp_page(img_path):
     print("img_path:", img_path)
     initial_start_vars = request.form
     print("initial_start_vars:", initial_start_vars)
-    imgfile = open('/home/zas1024/tmp/' + img_path, 'rb')
+    imgfile = open(webqtlConfig.TMPDIR + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = imgdata.encode("base64")
     bytesarray = array.array('B', imgB64)
@@ -127,7 +132,7 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
+        key = "search_results:v2:" + json.dumps(request.args, sort_keys=True)
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
@@ -148,9 +153,20 @@ def search_page():
 
         if result['quick']:
             return render_template("quick_search.html", **result)
-        else:
+        elif result['search_term_exists']:
             return render_template("search_result_page.html", **result)
+        else:
+            return render_template("search_error.html")
 
+@app.route("/gsearch", methods=('GET',))
+def gsearchact():
+    result = gsearch.GSearch(request.args).__dict__
+    type = request.args['type']
+    if type == "gene":
+        return render_template("gsearch_gene.html", **result)
+    elif type == "phenotype":
+        return render_template("gsearch_pheno.html", **result)
+	
 @app.route("/docedit")
 def docedit():
     doc = docs.Docs(request.args['entry'])
@@ -160,6 +176,20 @@ def docedit():
 def help():
     doc = docs.Docs("help")
     return render_template("docs.html", **doc.__dict__)
+
+@app.route("/wgcna_setup", methods=('POST',))
+def wcgna_setup():
+    print("In wgcna, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("wgcna_setup.html", **request.form)          # Display them using the template
+
+@app.route("/wgcna_results", methods=('POST',))
+def wcgna_results():
+    print("In wgcna, request.form is:", request.form)
+    wgcna = wgcna_analysis.WGCNA()                                # Start R, load the package and pointers and create the analysis
+    wgcnaA = wgcna.run_analysis(request.form)                     # Start the analysis, a wgcnaA object should be a separate long running thread
+    result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
+    return render_template("wgcna_results.html", **result)        # Display them using the template
+
 
 @app.route("/news")
 def news_route():
@@ -186,7 +216,7 @@ def environments():
     doc = docs.Docs("environments")
     return render_template("docs.html", **doc.__dict__)
 
-@app.route('/export_trait_csv', methods=('POST',))
+@app.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
     print("In export_trait_excel")
@@ -196,15 +226,18 @@ def export_trait_excel():
     print("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
     buff = StringIO.StringIO()
-    writer = csv.writer(buff)
-    for row in sample_data:
-        writer.writerow(row)
-    csv_data = buff.getvalue()
+    workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+    for i, row in enumerate(sample_data):
+        worksheet.write(i, 0, row[0])
+        worksheet.write(i, 1, row[1])
+    workbook.close()
+    excel_data = buff.getvalue()
     buff.close()
 
-    return Response(csv_data,
-                    mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=test.csv"})
+    return Response(excel_data,
+                    mimetype='application/vnd.ms-excel',
+                    headers={"Content-Disposition":"attachment;filename=test.xlsx"})
 
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_csv():
@@ -250,39 +283,48 @@ def heatmap_page():
     start_vars = request.form
     temp_uuid = uuid.uuid4()
     
-    version = "v5"
-    key = "heatmap:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
-    print("key is:", pf(key))
-    with Bench("Loading cache"):
-        result = Redis.get(key)
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        version = "v5"
+        key = "heatmap:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+        print("key is:", pf(key))
+        with Bench("Loading cache"):
+            result = Redis.get(key)
         
-    if result:
-        print("Cache hit!!!")
-        with Bench("Loading results"):
-            result = pickle.loads(result)
+        if result:
+            print("Cache hit!!!")
+            with Bench("Loading results"):
+                result = pickle.loads(result)
     
+        else:
+            print("Cache miss!!!")
+    
+            template_vars = heatmap.Heatmap(request.form, temp_uuid)
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                               default=json_default_handler,
+                                               indent="   ")
+        
+            result = template_vars.__dict__
+
+            for item in template_vars.__dict__.keys():
+                print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
+    
+            pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+            print("pickled result length:", len(pickled_result))
+            Redis.set(key, pickled_result)
+            Redis.expire(key, 60*60)
+    
+        with Bench("Rendering template"):
+            rendered_template = render_template("heatmap.html", **result)
+     
     else:
-        print("Cache miss!!!")
-    
-        template_vars = heatmap.Heatmap(request.form, temp_uuid)
-        template_vars.js_data = json.dumps(template_vars.js_data,
-                                           default=json_default_handler,
-                                           indent="   ")
-        
-        result = template_vars.__dict__
-    
-        for item in template_vars.__dict__.keys():
-            print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-    
-        pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-        print("pickled result length:", len(pickled_result))
-        Redis.set(key, pickled_result)
-        Redis.expire(key, 60*60)
-    
-    with Bench("Rendering template"):
-        rendered_template = render_template("heatmap.html", **result)
-    
+        rendered_template = render_template("empty_collection.html", **{'tool':'Heatmap'})
+
     return rendered_template
+
+@app.route("/mapping_results_container")
+def mapping_results_container_page():
+    return render_template("mapping_results_container.html")
 
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
@@ -298,17 +340,18 @@ def marker_regression_page():
         'manhattan_plot',
         'control_marker',
         'control_marker_db',
+        'do_control',
         'pair_scan',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )
-    print("Random Print too see if it is running:", initial_start_vars)
+    print("Marker regression called with initial_start_vars:", initial_start_vars)
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
 
-    version = "v4"
+    version = "v3"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
@@ -369,7 +412,7 @@ def export():
     svg_xml = request.form.get("data", "Invalid data")
     filename = request.form.get("filename", "manhattan_plot_snp")
     response = Response(svg_xml, mimetype="image/svg+xml")
-    response.headers["Content-Disposition"] = "attchment; filename=%s"%filename
+    response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
     return response
 
 @app.route("/export_pdf", methods = ('POST',))
@@ -382,7 +425,7 @@ def export_pdf():
     filepath = "/home/zas1024/gene/wqflask/output/"+filename
     pdf_file = cairosvg.svg2pdf(bytestring=svg_xml)
     response = Response(pdf_file, mimetype="application/pdf")
-    response.headers["Content-Disposition"] = "attchment; filename=%s"%filename
+    response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
     return response
 
 @app.route("/interval_mapping", methods=('POST',))
@@ -435,7 +478,7 @@ def interval_mapping_page():
         Redis.expire(key, 60*60)
 
     with Bench("Rendering template"):
-        rendered_template = render_template("interval_mapping.html", **result)
+        rendered_template = render_template("marker_regression.html", **result)
 
     return rendered_template
 
@@ -449,12 +492,18 @@ def corr_compute_page():
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
     print("In corr_matrix, request.form is:", pf(request.form))
-    template_vars = show_corr_matrix.CorrelationMatrix(request.form)
-    template_vars.js_data = json.dumps(template_vars.js_data,
-                                       default=json_default_handler,
-                                       indent="   ")
+
+    start_vars = request.form
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        template_vars = show_corr_matrix.CorrelationMatrix(start_vars)
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
     
-    return render_template("correlation_matrix.html", **template_vars.__dict__)
+        return render_template("correlation_matrix.html", **template_vars.__dict__)
+    else:
+        return render_template("empty_collection.html", **{'tool':'Correlation Matrix'})
 
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():

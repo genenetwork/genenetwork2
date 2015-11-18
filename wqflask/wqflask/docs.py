@@ -8,9 +8,9 @@ class Docs(object):
         sql = """
             SELECT Docs.title, Docs.content
             FROM Docs
-            WHERE Docs.entry LIKE '%s'
+            WHERE Docs.entry LIKE %s
             """
-        result = g.db.execute(sql % (entry)).fetchone()
+        result = g.db.execute(sql, str(entry)).fetchone()
         self.entry = entry
         self.title = result[0]
         self.content = result[1]

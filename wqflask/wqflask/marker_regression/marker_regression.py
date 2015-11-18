@@ -31,15 +31,18 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
-from wqflask.my_pylmm.data import prep_data
-from wqflask.my_pylmm.pyLMM import lmm
-from wqflask.my_pylmm.pyLMM import input
+#from wqflask.marker_regression import qtl_reaper_mapping
+#from wqflask.marker_regression import plink_mapping
+from wqflask.marker_regression import gemma_mapping
+#from wqflask.marker_regression import rqtl_mapping
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
-
 from utility.benchmark import Bench
+from utility.tools import pylmm_command, plink_command
 
+PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
+PLINK_PATH,PLINK_COMMAND = plink_command()
 
 class MarkerRegression(object):
 
@@ -70,97 +73,132 @@ class MarkerRegression(object):
         self.suggestive = ""
         self.significant = ""
         self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
+        self.score_type = "LRS" #ZS: LRS or LOD
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
-            qtl_results = self.run_gemma()
+            self.score_type = "LOD"
+            included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
+            self.dataset.group.get_specified_markers(markers = included_markers)
+            self.dataset.group.markers.add_pvalues(p_values)
+            results = self.dataset.group.markers.markers
         elif self.mapping_method == "rqtl_plink":
-            qtl_results = self.run_rqtl_plink()
+            results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
+            self.score_type = "LOD"
             if start_vars['num_perm'] == "":
                 self.num_perm = 0
             else:
                 self.num_perm = start_vars['num_perm']
             self.control = start_vars['control_marker']
+            self.do_control = start_vars['do_control']
             print("StartVars:", start_vars)
             self.method = start_vars['mapmethod_rqtl_geno']
             self.model = start_vars['mapmodel_rqtl_geno']
 
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
-            print("pair scan:", self.pair_scan)
 
-            print("DOING RQTL GENO")
-            qtl_results = self.run_rqtl_geno()
-            print("qtl_results:", qtl_results)
+            results = self.run_rqtl_geno()
+            print("qtl_results:", results)
         elif self.mapping_method == "plink":
-            qtl_results = self.run_plink()
-            #print("qtl_results:", pf(qtl_results))
+            results = self.run_plink()
+            #print("qtl_results:", pf(results))
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
             self.num_perm = start_vars['num_perm']
             if self.num_perm != "":
                 if int(self.num_perm) > 0:
 	             self.run_permutations(str(temp_uuid))
-            qtl_results = self.gen_data(str(temp_uuid))
+            results = self.gen_data(str(temp_uuid))
         else:
             print("RUNNING NOTHING")
             
-        self.lod_cutoff = 2    
-        self.filtered_markers = []
-        highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
-        for marker in qtl_results:
-            if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
-                if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
-                    highest_chr = marker['chr']
-                if 'lod_score' in marker:
-                    self.filtered_markers.append(marker)
+        if self.pair_scan == True:  
+            self.qtl_results = []
+            highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
+            for marker in results:
+                if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
+                    if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
+                        highest_chr = marker['chr1']
+                    if 'lod_score' in marker:
+                        self.qtl_results.append(marker)
 
-        self.json_data['chr'] = []
-        self.json_data['pos'] = []
-        self.json_data['lod.hk'] = []
-        self.json_data['markernames'] = []
+            for qtl in enumerate(self.qtl_results):
+                self.json_data['chr1'].append(str(qtl['chr1']))
+                self.json_data['chr2'].append(str(qtl['chr2']))
+                self.json_data['Mb'].append(qtl['Mb'])
+                self.json_data['markernames'].append(qtl['name'])
 
-        self.json_data['suggestive'] = self.suggestive
-        self.json_data['significant'] = self.significant
+            self.js_data = dict(
+                json_data = self.json_data,
+                this_trait = self.this_trait.name,
+                data_set = self.dataset.name,
+                maf = self.maf,
+                manhattan_plot = self.manhattan_plot,
+                qtl_results = self.qtl_results,
+            )
 
-        #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
-        self.qtl_results = []
-        for qtl in self.filtered_markers:
-            print("lod score is:", qtl['lod_score'])
-            if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
-                print("changing to X")
-                self.json_data['chr'].append("X")
-            else:
-                self.json_data['chr'].append(str(qtl['chr']))
-            self.json_data['pos'].append(qtl['Mb'])
-            self.json_data['lod.hk'].append(str(qtl['lod_score']))
-            self.json_data['markernames'].append(qtl['name'])
+        else:
+            self.cutoff = 2    
+            self.qtl_results = []
+            highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
+            for marker in results:
+                if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                    if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                        highest_chr = marker['chr']
+                    if 'lod_score' in marker:
+                        self.qtl_results.append(marker)
 
-        #Get chromosome lengths for drawing the interval map plot
-        chromosome_mb_lengths = {}
-        self.json_data['chrnames'] = []
-        for key in self.species.chromosomes.chromosomes.keys():
-            self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
-            chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
+            self.json_data['chr'] = []
+            self.json_data['pos'] = []
+            self.json_data['lod.hk'] = []
+            self.json_data['markernames'] = []
+
+            self.json_data['suggestive'] = self.suggestive
+            self.json_data['significant'] = self.significant
+
+            #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+            for index, qtl in enumerate(self.qtl_results):
+                if index<40:
+                    print("lod score is:", qtl['lod_score'])
+                if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
+                    print("changing to X")
+                    self.json_data['chr'].append("X")
+                else:
+                    self.json_data['chr'].append(str(qtl['chr']))
+                self.json_data['pos'].append(qtl['Mb'])
+                if 'lrs_value' in qtl:
+                    self.json_data['lod.hk'].append(str(qtl['lrs_value']))
+                else:
+                    self.json_data['lod.hk'].append(str(qtl['lod_score']))
+                self.json_data['markernames'].append(qtl['name'])
+
+            #Get chromosome lengths for drawing the interval map plot
+            chromosome_mb_lengths = {}
+            self.json_data['chrnames'] = []
+            for key in self.species.chromosomes.chromosomes.keys():
+                self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
+                chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
         
-        print("json_data:", self.json_data)
+            # print("json_data:", self.json_data)
         
 
-        self.js_data = dict(
-            json_data = self.json_data,
-            this_trait = self.this_trait.name,
-            data_set = self.dataset.name,
-            maf = self.maf,
-            manhattan_plot = self.manhattan_plot,
-            chromosomes = chromosome_mb_lengths,
-            qtl_results = self.filtered_markers,
-        )
+            self.js_data = dict(
+                result_score_type = self.score_type,
+                json_data = self.json_data,
+                this_trait = self.this_trait.name,
+                data_set = self.dataset.name,
+                maf = self.maf,
+                manhattan_plot = self.manhattan_plot,
+                chromosomes = chromosome_mb_lengths,
+                qtl_results = self.qtl_results,
+            )
+        
 
     def run_gemma(self):
         """Generates p-values for each marker using GEMMA"""
         
-        #filename = webqtlUtil.genRandStr("{}_{}_".format(self.dataset.group.name, self.this_trait.name))
         self.gen_pheno_txt_file()
 
         os.chdir("/home/zas1024/gene/web/gemma")
@@ -272,7 +310,7 @@ class MarkerRegression(object):
         """)
     
     def run_rqtl_geno(self):
-        print("Calling R/qtl from python")
+        print("Calling R/qtl")
 
         self.geno_to_rqtl_function()
 
@@ -315,7 +353,7 @@ class MarkerRegression(object):
         covar = self.create_covariates(cross_object)                                                    # Create the additive covariate matrix
 
         if self.pair_scan:
-            if(r_sum(covar)[0] > 0):                                                                    # If sum(covar) > 0 we have a covariate matrix
+            if self.do_control == "true":                                                # If sum(covar) > 0 we have a covariate matrix
                 print("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar, model=self.model, method=self.method, n_cluster = 16)
             else:
                 print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=self.model, method=self.method, n_cluster = 16)
@@ -330,13 +368,13 @@ class MarkerRegression(object):
             return self.process_pair_scan_results(result_data_frame)
 
         else:
-            if(r_sum(covar)[0] > 0):
+            if self.do_control == "true":
                 print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=self.model, method=self.method)
             else:
                 print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=self.model, method=self.method)
 
             if int(self.num_perm) > 0:                                                                   # Do permutation (if requested by user)
-                if(r_sum(covar)[0] > 0):
+                if self.do_control == "true":
                     perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm), model=self.model, method=self.method)
                 else:
                     perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm), model=self.model, method=self.method)
@@ -381,9 +419,23 @@ class MarkerRegression(object):
         return pheno_as_string
 
     def process_pair_scan_results(self, result):
-        results = []
+        pair_scan_results = []
 
-        return results
+        result = result[1]
+        output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
+        print("R/qtl scantwo output:", output)
+
+        for i, line in enumerate(result.iter_row()):
+            marker = {}
+            marker['name'] = result.rownames[i]
+            marker['chr1'] = output[i][0]
+            marker['Mb'] = output[i][1]
+            marker['chr2'] = int(output[i][2])
+            pair_scan_results.append(marker)
+
+        print("pair_scan_results:", pair_scan_results)
+
+        return pair_scan_results
 
     def process_rqtl_results(self, result):        # TODO: how to make this a one liner and not copy the stuff in a loop
         qtl_results = []
@@ -414,29 +466,16 @@ class MarkerRegression(object):
 
 
     def run_plink(self):
-    
-        os.chdir("/home/zas1024/plink")
-        
         plink_output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
         
         self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
         
-        plink_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
-        
+        plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
+        print("plink_command:", plink_command)        
+
         os.system(plink_command)
 
         count, p_values = self.parse_plink_output(plink_output_filename)
-        #gemma_command = './gemma -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
-        #                                                                                         self.dataset.group.name,
-        #                                                                                         self.dataset.group.name,
-        #                                                                                         self.dataset.group.name)
-        #print("gemma_command:" + gemma_command)
-        #
-        #os.system(gemma_command)
-        #
-        #included_markers, p_values = self.parse_gemma_output()
-        #
-        #self.dataset.group.get_specified_markers(markers = included_markers)
         
         #for marker in self.dataset.group.markers.markers:
         #    if marker['name'] not in included_markers:
@@ -523,10 +562,7 @@ class MarkerRegression(object):
     
     # get strain name from ped file in order
     def get_samples_from_ped_file(self):
-        
-        os.chdir("/home/zas1024/plink")
-        
-        ped_file= open("{}.ped".format(self.dataset.group.name),"r")
+        ped_file= open("{}/{}.ped".format(PLINK_PATH, self.dataset.group.name),"r")
         line = ped_file.readline()
         sample_list=[]
         
@@ -655,8 +691,7 @@ class MarkerRegression(object):
                 Redis.set(key, json_params)
                 Redis.expire(key, 60*60)
     
-                command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
-                                                                                                                        "other")
+                command = PYLMM_COMMAND+' --key {} --species {}'.format(key,"other")
     
                 os.system(command)
     
@@ -713,8 +748,8 @@ class MarkerRegression(object):
             #            "refit": False,
             #            "temp_data": tempdata}
             
-            print("genotype_matrix:", str(genotype_matrix.tolist()))
-            print("pheno_vector:", str(pheno_vector.tolist()))
+            # print("genotype_matrix:", str(genotype_matrix.tolist()))
+            # print("pheno_vector:", str(pheno_vector.tolist()))
             
             params = dict(pheno_vector = pheno_vector.tolist(),
                         genotype_matrix = genotype_matrix.tolist(),
@@ -732,7 +767,7 @@ class MarkerRegression(object):
             Redis.expire(key, 60*60)
             print("before printing command")
 
-            command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+            command = PYLMM_COMMAND + ' --key {} --species {}'.format(key,
                                                                                                                     "other")
             print("command is:", command)
             print("after printing command")
@@ -745,7 +780,7 @@ class MarkerRegression(object):
             json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
             results = json.loads(json_results[1])
             p_values = [float(result) for result in results['p_values']]
-            print("p_values:", p_values)
+            print("p_values:", p_values[:10])
             #p_values = self.trim_results(p_values)
             t_stats = results['t_stats']
             
@@ -806,7 +841,7 @@ class MarkerRegression(object):
 
         print("Before creating the command")
 
-        command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+        command = PYLMM_COMMAND+' --key {} --species {}'.format(key,
                                                                                                                 "human")
         
         print("command is:", command)

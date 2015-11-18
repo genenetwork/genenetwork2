@@ -14,10 +14,10 @@
                 <input type="text" id="remove_samples_field">
                 <select id="block_group" size="1">
                   <option value="primary">
-                    {{ sample_group_types['primary_only'] }}
+                    {{ sample_group_types['samples_primary'] }}
                   </option>
                   <option value="other">
-                    {{ sample_group_types['other_only'] }}
+                    {{ sample_group_types['samples_other'] }}
                   </option>
                 </select>
                 <input type="button" id="block_by_index" class="btn" value="Block">
@@ -44,11 +44,11 @@
             {% endif %}
             <br>
             <div>
-              <input type="button" id="hide_no_value" class="btn" value="Hide No Value">
-              <input type="button" id="block_outliers" class="btn" value="Block Outliers">
-              <input type="button" id="reset" class="btn btn-inverse" value="Reset">
+              <input type="button" id="hide_no_value" class="btn btn-default" value="Hide No Value">
+              <input type="button" id="block_outliers" class="btn btn-default" value="Block Outliers">
+              <input type="button" id="reset" class="btn btn-primary" value="Reset">
               <span class="input-append">
-                <input type="button" id="export" class="btn" value="Export">
+                <input type="button" id="export" class="btn btn-default" value="Export">
                 <select id="export_format" class="select optional span2">
                   <option value="excel">Excel</option>
                   <option value="csv">CSV</option>
@@ -73,39 +73,35 @@
     <br>
 
 
-    <div id="edit_sample_lists">
+    <!--<div id="edit_sample_lists">-->
     {% for sample_type in sample_groups %}
-        <div>
+        <div class="sample_group" style="width:50%;">
             <h3>{{ sample_type.header }}</h3>
 
-            <table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped table-bordered"
-                   id="samples_{{ sample_type.sample_group_type }}">
+            <table class="table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left;">
                 <thead>
                     <tr>
-                        <td>Index</td>
-                        <td>Sample</td>
-                        <td>Value</td>
+                        <th></th>
+                        <th>Index</th>
+                        <th>Sample</th>
+                        <th>Value</th>
                         {% if sample_type.se_exists() %}
-                        <td>&nbsp;</td>
-                        <td>SE</td>
+                        <th>&nbsp;</th>
+                        <th>SE</th>
                         {% endif %}
                         {% for attribute in sample_type.attributes|sort() %}
-                        <td>
+                        <th>
                             {{ sample_type.attributes[attribute].name }}
-                        </td>
+                        </th>
                         {% endfor %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for sample in sample_type.sample_list %}
                     <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
-                        <td class="column_name-Index">
-                            {{ loop.index }}
-                            <input type="checkbox" name="selectCheck"
-                                   class="checkbox edit_sample_checkbox"
-                                   value="{{ sample.name }}" checked="checked">
+                        <td class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" style="transform: scale(1.5);" value="{{ sample.name }}" checked="checked">
                         </td>
-        
+                        <td class="column_name-Index" align="right">{{ loop.index }}</td>
                         <td class="column_name-Sample">
                             <span class="edit_sample_sample_name">
                                 {{ sample.name }}
@@ -150,7 +146,7 @@
             </table>
         </div>
         {% endfor %}
-    </div>
+    <!--</div>-->
 
 
     <input type="hidden" name="Default_Name">

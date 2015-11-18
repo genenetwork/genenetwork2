@@ -17,6 +17,7 @@ Werkzeug==0.8.3
 apache-libcloud==0.12.3
 argparse==1.2.1
 blinker==1.2
+cairosvg==1.0.15
 itsdangerous==0.17
 logging-tree==1.2
 logilab-astng==0.24.3
@@ -32,3 +33,4 @@ scipy==0.11.0
 simplejson==3.0.7
 wsgiref==0.1.2
 yolk==0.4.3
+XlsxWriter==0.7.2

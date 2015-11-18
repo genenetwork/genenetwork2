@@ -72,7 +72,7 @@ class CorrelationMatrix(object):
         self.traits = []
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
-            self.traits.append(this_trait.name)
+            self.traits.append(this_trait)
             this_sample_data = this_trait.data
             
             for sample in this_sample_data:
@@ -96,7 +96,7 @@ class CorrelationMatrix(object):
             self.sample_data.append(this_trait_vals)
 
         self.corr_results = []
-        self.corr_rseults_for_pca = []
+        self.corr_results_for_pca = []
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
             this_db = trait_db[1]
@@ -115,14 +115,15 @@ class CorrelationMatrix(object):
             #        self.all_sample_list.append(sample)
             
             corr_result_row = []
+            is_spearman = False #ZS: To determine if it's above or below the diagonal
             for target in self.trait_list:
                 target_trait = target[0]
                 target_db = target[1]
                 target_samples = target_db.group.samplelist
                 
-                if this_trait == target_trait and this_db == target_db:
-                    corr_result_row.append(1)
-                    continue
+                #if this_trait == target_trait and this_db == target_db:
+                #    corr_result_row.append(1)
+                #    continue
 
                 target_sample_data = target_trait.data
                 print("target_samples", len(target_samples))
@@ -137,12 +138,18 @@ class CorrelationMatrix(object):
                         this_trait_vals.append(sample_value)
                         target_vals.append(target_sample_value)
         
-                this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
-                this_trait_vals, target_vals)
-                
-                sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
+                this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(this_trait_vals, target_vals)
+                if num_overlap == 0:
+                    corr_result_row.append([target_trait, 0, num_overlap])
+                else:
+                    if is_spearman == False:
+                        sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
+                        if sample_r == 1:
+                            is_spearman = True
+                    else:
+                        sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
 
-                corr_result_row.append(sample_r)
+                    corr_result_row.append([target_trait, sample_r, num_overlap])
                 
             self.corr_results.append(corr_result_row)
 
@@ -152,15 +159,25 @@ class CorrelationMatrix(object):
         for sample in self.all_sample_list:
             groups.append(1)
 
-        pca = self.calculate_pca(self.corr_results, range(len(self.traits)))
+        #pca = self.calculate_pca(self.corr_results, range(len(self.traits)))
 
-        self.js_data = dict(traits = self.traits,
+
+        self.js_data = dict(traits = [trait.name for trait in self.traits],
                             groups = groups,
                             cols = range(len(self.traits)),
                             rows = range(len(self.traits)),
                             samples = self.all_sample_list,
-                            sample_data = self.sample_data,
-                            corr_results = self.corr_results,)
+                            sample_data = self.sample_data,)
+        #                    corr_results = [result[1] for result in result_row for result_row in self.corr_results])
+
+
+        #self.js_data = dict(traits = self.traits,
+        #                    groups = groups,
+        #                    cols = range(len(self.traits)),
+        #                    rows = range(len(self.traits)),
+        #                    samples = self.all_sample_list,
+        #                    sample_data = self.sample_data,
+        #                    corr_results = self.corr_results,)
         
         
         
@@ -194,21 +211,8 @@ class CorrelationMatrix(object):
         print("eigen:", eigen)
         pca = stats.princomp(m, cor = "TRUE")
         print("pca:", pca)
+        print("loadings:", pca.rx('loadings'))
+        print("scores:", pca.rx('scores'))
+        print("scale:", pca.rx('scale'))
 
         return pca
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        

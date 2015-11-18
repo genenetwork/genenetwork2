@@ -181,6 +181,8 @@ def collections_new():
     if "anonymous_add" in params:
         AnonCollection().add_traits(params, "Default")
         return redirect(url_for('view_collection'))
+    elif "sign_in" in params:
+        return redirect(url_for('login'))
 
     collection_name = params['new_collection']
 
@@ -329,6 +331,8 @@ def view_collection():
         #                         dis=trait_ob.description))
         #json_version.append(trait_ob.__dict__th)
        
+    print("trait_obs:", trait_obs)
+
     if "uc_id" in params: 
         collection_info = dict(trait_obs=trait_obs,
                            uc = uc)

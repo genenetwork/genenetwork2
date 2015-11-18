@@ -38,6 +38,18 @@
                     <input type="submit" class="btn btn-primary" value="Correlation Matrix" />
                 </div>
             </form>
+            <form action="/wgcna_setup" method="post">
+                {% if uc %}
+                <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
+                {% endif %}
+                <input type="hidden" name="trait_list" id="trait_list" value= "
+                {% for this_trait in trait_obs %}
+                    {{ this_trait.name }}:{{ this_trait.dataset.name }},
+                {% endfor %}" >
+                <div class="col-xs-2 controls">
+                    <input type="submit" class="btn btn-primary" value="WGCNA Analysis" />
+                </div>
+            </form>
             <form action="/heatmap" method="post">
                 {% if uc %}
                 <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
@@ -59,12 +71,15 @@
             <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+            <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Add Record to Other Collection</button>
+            <button class="btn" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Remove Record</button>
+            <button class="btn btn-primary pull-right"><i class="icon-download icon-white"></i> Download Table</button>
             <br />
             <br />
         <table class="table table-hover table-striped" id='trait_table'>
             <thead>
                 <tr>
-                    <th></th>
+                    <th>Index</th>
                     <th>Record</th>
                     <th>Description</th>
                     <th>Location</th>
@@ -78,7 +93,7 @@
             <tbody>
                 {% for this_trait in trait_obs %}
                 <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                    <TD>
+                    <TD>{{ loop.index }}
                         <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
                                VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                     </TD>
@@ -99,7 +114,7 @@
                     <TD>{{ this_trait.additive }}</TD>
 
                 </TR>
-            {% endfor %}
+                {% endfor %}
             </tbody>
 
         </table>
@@ -115,8 +130,12 @@
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+
+
     <script language="javascript" type="text/javascript">
         $(document).ready( function () {
 
@@ -128,36 +147,31 @@
 
             console.time("Creating table");
             $('#trait_table').dataTable( {
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "sType": "natural" },
-                    { "sType": "natural",
-                      "sWidth": "35%"  },
-                    { "sType": "natural",
-                      "sWidth": "15%"  },
-                    { "sType": "cust-txt" },
-                    { "sType": "natural",
-                      "sWidth": "12%"  },
-                    { "sType": "natural",
-                      "sWidth": "15%"  },
-                    { "sType": "cust-txt" }
-                ],
                 "columns": [
-                    { "width": "50%" },
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural",
+                      "width": "35%"  },
+                    { "type": "natural",
+                      "width": "15%"  },
+                    { "type": "cust-txt" },
+                    { "type": "natural",
+                      "width": "12%"  },
+                    { "type": "natural",
+                      "width": "15%"  },
+                    { "type": "natural" }
                 ],
-                "sDom": "tir",
+                "sDom": "ZRtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
-                "bLengthChange": true,
                 "bDeferRender": true,
-                "bSortClasses": false
+                "bSortClasses": false,
+                "scrollY": "600px",
+                "scrollCollapse": true,
+                "paging": false
             } );
             console.timeEnd("Creating table");
+
         });
         
     </script>

@@ -77,10 +77,15 @@ class SearchResultPage(object):
             self.trait_type = kw['trait_type']
             self.quick_search()
         else:
-            self.results = []
             print("kw is:", kw)
-            #self.quick_search = False
-            self.search_terms = kw['search_terms']
+            if kw['search_terms_or']:
+                self.and_or = "or"
+                self.search_terms = kw['search_terms_or']
+            else:
+                self.and_or = "and"
+                self.search_terms = kw['search_terms_and']
+            self.search_term_exists = True
+            self.results = []
             if kw['type'] == "Phenotypes":
                 dataset_type = "Publish"
             elif kw['type'] == "Genotypes":
@@ -114,8 +119,7 @@ class SearchResultPage(object):
 
             print("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id)
-            this_trait.retrieve_info(get_qtl_info=True)
+            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True)
             self.trait_list.append(this_trait)
 
         self.dataset.get_trait_info(self.trait_list, species)
@@ -222,60 +226,61 @@ class SearchResultPage(object):
         if len(self.search_terms) > 1:
             combined_from_clause = ""
             combined_where_clause = "" 
+            previous_from_clauses = [] #The same table can't be referenced twice in the from clause
             for i, a_search in enumerate(self.search_terms):
-                print("[kodak] item is:", pf(a_search))
-                search_term = a_search['search_term']
-                search_operator = a_search['separator']
-                if a_search['key']:
-                    search_type = a_search['key'].upper()
+                the_search = self.get_search_ob(a_search)
+                if the_search != None:
+                    get_from_clause = getattr(the_search, "get_from_clause", None)
+                    if callable(get_from_clause):
+                        from_clause = the_search.get_from_clause()
+                        if from_clause in previous_from_clauses:
+                            pass
+                        else:
+                            previous_from_clauses.append(from_clause)
+                            combined_from_clause += from_clause
+                    where_clause = the_search.get_where_clause()
+                    combined_where_clause += "(" + where_clause + ")"
+                    if (i+1) < len(self.search_terms):
+                        if self.and_or == "and":
+                            combined_where_clause += "AND"
+                        else:
+                            combined_where_clause += "OR"
                 else:
-                    # We fall back to the dataset type as the key to get the right object
-                    search_type = self.dataset.type
-                
-                print("search_type is:", pf(search_type))
-
-                search_ob = do_search.DoSearch.get_search(search_type) 
-                search_class = getattr(do_search, search_ob)     
-                the_search = search_class(search_term,
-                                        search_operator,
-                                        self.dataset,
-                                        )
-                
-                #search_query = the_search.get_final_query()
-
-                get_from_clause = getattr(the_search, "get_from_clause", None)
-                if callable(get_from_clause):
-                    from_clause = the_search.get_from_clause()
-                    combined_from_clause += from_clause
-                where_clause = the_search.get_where_clause()
-                combined_where_clause += "(" + where_clause + ")"
-                if (i+1) < len(self.search_terms):
-                    combined_where_clause += "AND"
-
-            results = the_search.run_combined(combined_from_clause, combined_where_clause)
-            self.results.extend(results)
-         
+                    self.search_term_exists = False
+            if self.search_term_exists:
+                combined_where_clause = "(" + combined_where_clause + ")"
+                final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
+                results = the_search.execute(final_query)
+                self.results.extend(results)
         else:
             for a_search in self.search_terms:
-                print("[kodak] item is:", pf(a_search))
-                search_term = a_search['search_term']
-                search_operator = a_search['separator']
-                if a_search['key']:
-                    search_type = a_search['key'].upper()
+                the_search = self.get_search_ob(a_search)
+                if the_search != None:
+                    self.results.extend(the_search.run())
                 else:
-                    # We fall back to the dataset type as the key to get the right object
-                    search_type = self.dataset.type
-                
-                print("search_type is:", pf(search_type))
+                    self.search_term_exists = False
 
-                search_ob = do_search.DoSearch.get_search(search_type)
-                search_class = getattr(do_search, search_ob)
-                print("search_class is: ", pf(search_class))
-                the_search = search_class(search_term,
-                                        search_operator,
-                                        self.dataset,
-                                        )
-                self.results.extend(the_search.run())
-                #print("in the search results are:", self.results)
+        if the_search != None:
+            self.header_fields = the_search.header_fields
 
-        self.header_fields = the_search.header_fields
+    def get_search_ob(self, a_search):
+        print("[kodak] item is:", pf(a_search))
+        search_term = a_search['search_term']
+        search_operator = a_search['separator']
+        search_type = {}
+        search_type['dataset_type'] = self.dataset.type
+        if a_search['key']:
+            search_type['key'] = a_search['key'].upper()       
+        print("search_type is:", pf(search_type))
+
+        search_ob = do_search.DoSearch.get_search(search_type)
+        if search_ob:
+            search_class = getattr(do_search, search_ob)
+            print("search_class is: ", pf(search_class))
+            the_search = search_class(search_term,
+                                    search_operator,
+                                    self.dataset,
+                                    )
+            return the_search
+        else:
+            return None

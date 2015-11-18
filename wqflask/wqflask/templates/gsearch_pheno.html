@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
+{% endblock %}
+{% block content %}
+<!-- Start of body -->
+
+    <div class="container">
+
+        <p>To study a record, click on its ID below.<br />Check records below and click Add button to add to selection.</p>
+
+        <div>
+            <br />
+            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+            <button class="btn btn-default" id="add" disabled ><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+            <button class="btn btn-primary pull-right"><span class="glyphicon glyphicon-download"></span> Download Table</button>
+            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+            <br />
+            <br />
+            <table class="table table-hover table-striped" id='trait_table'  style="float: left;">
+                <thead>
+                    <tr>
+                        <th style="width: 30px;"></th>
+                        <th>Index</th>
+                        <th>Species</th>
+                        <th>Group</th>
+                        <th>Record</th>
+                        <th>Description</th>
+                        <th>Authors</th>
+                        <th>Year</th>
+                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th>Max LRS Location</th>
+                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                 {% for this_trait in trait_list %}
+                    <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
+                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
+                        <TD>{{ loop.index }}</TD>
+                        <TD>{{ this_trait.dataset.group.species }}</TD>
+                        <TD>{{ this_trait.dataset.group.name }}</TD>
+                        <TD><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></TD>
+                        <TD>{{ this_trait.description_display }}</TD>
+                        <TD>{{ this_trait.authors }}</TD>
+                        <TD><a href="{{ this_trait.pubmed_link }}">{{ this_trait.pubmed_text }}</a></TD>
+                        <TD>{{ this_trait.LRS_score_repr }}</TD>
+                        <TD>{{ this_trait.LRS_location_repr }}</TD>
+                        <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
+                    </TR>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+	
+    <script type="text/javascript" charset="utf-8">
+        function getValue(x) {
+            if (x.indexOf('input') >= 0) {
+                if ($(x).val() == 'x') {
+                    return 0;
+                }
+                else {
+                   return parseFloat($(x).val());
+                }
+            }
+            else if (isNaN(x)) {
+                return x;
+            }
+            return parseFloat(x);
+        }
+            
+        jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
+            var x = getValue(a);
+            var y = getValue(b); 
+            
+            if (x == 'N/A' || x == '') {
+                return 1;
+            }
+            else if (y == 'N/A' || y == '') {
+                return -1;
+            }
+            else {
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            }
+        };
+            
+        jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
+            var x = getValue(a);
+            var y = getValue(b);
+            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+        };
+
+        $(document).ready( function () {
+            
+            $('#trait_table tr').click(function(event) {
+                if (event.target.type !== 'checkbox') {
+                    $(':checkbox', this).trigger('click');
+                }
+            });
+
+            console.time("Creating table");
+            $('#trait_table').DataTable( {
+                "columns": [
+                    { "bSortClasses": false },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "20%"},
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
+                "order": [[ 1, "asc" ]],
+                "sDom": "RZtir",
+                "autoWidth": false,
+                "bLengthChange": true,
+                "bDeferRender": true,
+                "scrollCollapse": false,
+                "colResize": {
+                    "tableWidthFixed": false,
+                },
+                "paging": false
+            } );
+            console.timeEnd("Creating table");
+        });
+        
+    </script>
+{% endblock %}

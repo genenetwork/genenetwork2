@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    {{ header("Error") }}
+
+    <div class="container">
+        <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
+        <p>You entered at least one incorrect search command.</p>
+    </div>
+
+    <div id="myModal"></div>
+
+<!-- End of body -->
+
+{% endblock %}

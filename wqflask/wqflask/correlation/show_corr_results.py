@@ -104,6 +104,28 @@ class CorrelationResults(object):
             self.sample_data = {}
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
+            if 'min_expr' in start_vars:
+                if start_vars['min_expr'] != "":
+                    self.min_expr = float(start_vars['min_expr'])
+                else:
+                    self.min_expr = None
+            self.p_range_lower = float(start_vars['p_range_lower'])
+            self.p_range_upper = float(start_vars['p_range_upper'])
+
+            if ('loc_chr' in start_vars and 
+                'min_loc_mb' in start_vars and 
+                'max_loc_mb' in start_vars):
+
+                self.location_chr = start_vars['loc_chr']
+                if start_vars['min_loc_mb'].isdigit():
+                    self.min_location_mb = start_vars['min_loc_mb']
+                else:
+                    self.min_location_mb = None
+                if start_vars['max_loc_mb'].isdigit():
+                    self.max_location_mb = start_vars['max_loc_mb']
+                else:
+                    self.max_location_mb = None
+
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
 
@@ -127,7 +149,6 @@ class CorrelationResults(object):
                 if corr_samples_group == 'samples_other':
                     primary_samples = [x for x in primary_samples if x not in (
                                     self.dataset.group.parlist + self.dataset.group.f1list)]
-                print("primary_samples:", primary_samples)
                 self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
 
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
@@ -161,31 +182,75 @@ class CorrelationResults(object):
                                                                        key=lambda t: -abs(t[1][0])))
 
 
+            if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
+                #ZS: Convert min/max chromosome to an int for the location range option
+                range_chr_as_int = None
+                for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
+                    if chr_info.name == self.location_chr:
+                        range_chr_as_int = order_id
+
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
-                print("trait name:", trait)
                 trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True)
                 
-                (trait_object.sample_r,
-                trait_object.sample_p,
-                trait_object.num_overlap) = self.correlation_data[trait]
+                if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
+                    #ZS: Convert trait chromosome to an int for the location range option
+                    chr_as_int = 0
+                    for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
+                        if chr_info.name == trait_object.chr: 
+                            chr_as_int = order_id
+
+                if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
+                    float(self.correlation_data[trait][0]) <= self.p_range_upper):
+
+                    if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
+
+                        if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
+                            continue
+                        elif range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+                            continue
+                        elif (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
+                            continue
+                        elif (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
+                            continue
+
+                        (trait_object.sample_r,
+                        trait_object.sample_p,
+                        trait_object.num_overlap) = self.correlation_data[trait]
                 
-                #trait_object.sample_p = self.correlation_data[trait][1]
-                #trait_object.num_overlap = self.correlation_data[trait][2]
+                        #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
+                        #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
                 
-                #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
-                #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
+                        # Set some sane defaults
+                        trait_object.tissue_corr = 0
+                        trait_object.tissue_pvalue = 0
+                        trait_object.lit_corr = 0
+                        if self.corr_type == "tissue":
+                            trait_object.tissue_corr = tissue_corr_data[trait][1]
+                            trait_object.tissue_pvalue = tissue_corr_data[trait][2]
+                        elif self.corr_type == "lit":    
+                            trait_object.lit_corr = lit_corr_data[trait][1]
+                        self.correlation_results.append(trait_object)
+                    else:
+                        (trait_object.sample_r,
+                        trait_object.sample_p,
+                        trait_object.num_overlap) = self.correlation_data[trait]
                 
-                # Set some sane defaults
-                trait_object.tissue_corr = 0
-                trait_object.tissue_pvalue = 0
-                trait_object.lit_corr = 0
-                if self.corr_type == "tissue":
-                    trait_object.tissue_corr = tissue_corr_data[trait][1]
-                    trait_object.tissue_pvalue = tissue_corr_data[trait][2]
-                elif self.corr_type == "lit":    
-                    trait_object.lit_corr = lit_corr_data[trait][1]
-                self.correlation_results.append(trait_object)
-            
+                        #Get symbol for trait and call function that gets each tissue value from the database (tables TissueProbeSetXRef,
+                        #TissueProbeSetData, etc) and calculates the correlation (cal_zero_order_corr_for_tissue in correlation_functions)
+                
+                        # Set some sane defaults
+                        trait_object.tissue_corr = 0
+                        trait_object.tissue_pvalue = 0
+                        trait_object.lit_corr = 0
+                        if self.corr_type == "tissue":
+                            trait_object.tissue_corr = tissue_corr_data[trait][1]
+                            trait_object.tissue_pvalue = tissue_corr_data[trait][2]
+                        elif self.corr_type == "lit":    
+                            trait_object.lit_corr = lit_corr_data[trait][1]
+                        self.correlation_results.append(trait_object)
+
+            self.target_dataset.get_trait_info(self.correlation_results, self.target_dataset.group.species)
+
             if self.corr_type != "lit" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
                 self.do_lit_correlation_for_trait_list()
             
@@ -431,8 +496,6 @@ class CorrelationResults(object):
                    FROM GeneIDXRef
                    WHERE rat='%s'""" % escape(gene_id)
             
-            print("GENE_ID QUERY: ", query)
-            
             result = g.db.execute(query).fetchone()
             if result != None:
                 mouse_gene_id = result.mouse
@@ -443,13 +506,9 @@ class CorrelationResults(object):
                    FROM GeneIDXRef
                    WHERE human='%s'""" % escape(gene_id)
             
-            print("GENE_ID QUERY: ", query)
-            
             result = g.db.execute(query).fetchone()
             if result != None:
                 mouse_gene_id = result.mouse
-
-        print("mouse_geneid:", mouse_gene_id)
         
         return mouse_gene_id        
     
@@ -476,6 +535,7 @@ class CorrelationResults(object):
         this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
             this_trait_vals, target_vals)
 
+        #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/ 
         if self.corr_method == 'pearson':
             sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
         else:

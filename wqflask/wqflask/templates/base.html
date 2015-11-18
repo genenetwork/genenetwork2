@@ -1,3 +1,4 @@
+{% from "base_macro.html" import header, flash_me, timeago %}
 <!DOCTYPE HTML>
 <html lang="en">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -10,12 +11,6 @@
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/non-responsive.css" />
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/docs.css" />
-
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
     <link rel="stylesheet" type="text/css" href="/static/packages/colorbox/example4/colorbox.css"  />
     <link rel="stylesheet" type="text/css" href="/static/new/css/main.css"  />
     <link rel="stylesheet" type="text/css" href="/static/new/css/parsley.css"  />
@@ -24,37 +19,6 @@
     {% endblock %}
 
 </head>
-
-{% macro header(main, second) %}
-    <header class="jumbotron subhead" id="overview" >
-        <div class="container">
-            <h1>{{ main }}</h1>
-            <p class="lead">
-               {{ second }}
-            </p>
-        </div>
-    </header>
-
-    {{ flash_me() }}
-{% endmacro %}
-
-
-{% macro flash_me() -%}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="container">
-            {% for category, message in messages %}
-                <div class="alert {{ category }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    {% endwith %}
-{% endmacro %}
-
-{% macro timeago(timestamp) %}
-<time class="timeago" datetime="{{ timestamp }}">{{ timestamp }}</time>
-{% endmacro %}
-
 
 <body style="width: 1500px !important;">
     <!-- Navbar ================================================== -->
@@ -105,9 +69,26 @@
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
                         </li>
+                        <li style="margin-left: 20px;">
+                            <a href="http://www.genenetwork.org" style="font-weight: bold;" >Use GeneNetwork 1</a>
+                        </li
                     </ul>
                 </div>
             </div>
+    </div>
+	
+    <div class="container-fluid" style="background-color: #d5d5d5; height: 95px;">
+	
+        <form method="get" action="/gsearch">
+            <div class="row">
+                <select class="form-control col-xs-2" style="width: 170px; margin-top: 15px; margin-left: 10px;" name="type">
+                    <option value="gene">Genes / Molecules</option>
+                    <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
+                </select>
+                <input class="btn btn-primary form-control col-xs-2" style="width: 100px; margin-top: 15px; margin-left: 10px;" type="submit" value="Search All">
+                <input class="form-control col-xs-6" style="width: 600px; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required>
+            </div>
+        </form>
     </div>
 
     {% block content %}{% endblock %}

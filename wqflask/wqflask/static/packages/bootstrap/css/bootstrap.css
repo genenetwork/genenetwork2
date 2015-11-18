@@ -903,7 +903,7 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #333;
+  color: #000;
   background-color: #fff;
 }
 input,
@@ -1215,7 +1215,7 @@ a.bg-danger:hover {
 }
 .page-header {
   padding-bottom: 9px;
-  margin: 20px 0 20px;
+  margin: 10px 0 10px;
   border-bottom: 1px solid #eee;
 }
 ul,
@@ -2072,8 +2072,8 @@ th {
   text-align: left;
 }
 .table {
-  width: 100%;
-  max-width: 100%;
+  //width: 100%;
+  //max-width: 100%;
   margin-bottom: 20px;
 }
 .table > thead > tr > th,
@@ -2365,7 +2365,7 @@ output {
   padding: 6px 12px;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #555;
+  color: #000;
   background-color: #fff;
   background-image: none;
   border: 1px solid #ccc;
@@ -4674,7 +4674,7 @@ a.list-group-item.active > .badge,
   margin-left: 3px;
 }
 .jumbotron {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   color: inherit;
   background-color: #eee;
 }
@@ -5133,6 +5133,7 @@ a.list-group-item-danger.active:focus {
   border-bottom: 1px solid transparent;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
+  cursor: pointer;
 }
 .panel-heading > .dropdown .dropdown-toggle {
   color: inherit;

@@ -2,8 +2,9 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -37,22 +38,38 @@
         <p>To study a record, click on its ID below. Check records below and click Add button to add to selection.</p>
 
         <div>
-            <br />
-            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
-            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn btn-default" id="add"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-            <button class="btn btn-primary pull-right"><span class="glyphicon glyphicon-download"></span> Download Table</button>
-            <br />
-            <br />
-            <table class="table table-hover table-striped" id='trait_table'>
+          <br />
+          <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+          <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+          <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+          <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+          <!--<button class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download Table</button>-->
+          <button id="redraw" class="btn btn-default">Reset Columns</button>
+          <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+          <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+          <br />
+          <br />
+          {% if dataset.type == 'ProbeSet' %}
+          <button class="btn btn-default" id="open_options">Open Extra Options</button>
+          <br />
+          <br />          
+          <div id="extra_options" style="display:none;">
+          Min LRS <input type="text" id="min" class="form-control" style="width: 60px; display: inline;">
+          Max LRS <input type="text" id="max" class="form-control" style="width: 60px; display: inline;">
+          </div>
+          <br />
+          <br />
+          {% endif %}
+          <div id="table_container">
+            <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
                 <thead>
                     <tr>
+                        <th style="width: 30px;"></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th>{{header}}<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th>{{header}}<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
                         <th>{{header}}</th>
                         {% endif %}
@@ -63,10 +80,9 @@
                 <tbody>
                     {% for this_trait in trait_list %}
                     <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <TD>
-                            <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
-                                   VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
+                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                         </TD>
+                        <TD align="right">{{ loop.index }}</TD>
                         <TD>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = this_trait.name,
@@ -79,10 +95,10 @@
                             <TD>{{ this_trait.symbol }}</TD>
                             <TD>{{ this_trait.description_display }}</TD>
                             <TD>{{ this_trait.location_repr }}</TD>
-                            <TD>{{ this_trait.mean }}</TD>
-                            <TD align="right">{{ this_trait.LRS_score_repr }}</TD>
+                            <TD align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
+                            <TD align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
                             <TD>{{ this_trait.LRS_location_repr }}</TD>
-                            <TD>{{ this_trait.additive }}</TD>
+                            <TD align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
                         {% elif dataset.type == 'Publish' %}
                             <TD>{{ this_trait.description_display }}</TD>
                             <TD>{{ this_trait.authors }}</TD>
@@ -93,7 +109,7 @@
                             </TD>
                             <TD>{{ this_trait.LRS_score_repr }}</TD>
                             <TD>{{ this_trait.LRS_location_repr }}</TD>
-                            <TD>{{ this_trait.additive }}</TD>
+                            <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
                         {% elif dataset.type == 'Geno' %}
                             <TD>{{ this_trait.location_repr }}</TD>
                         {% endif %}
@@ -102,6 +118,7 @@
                 </tbody>
 
             </table>
+          </div>
         </div>
     </div>
 
@@ -114,27 +131,80 @@
 {% block js %}
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
+	
     <script type="text/javascript" charset="utf-8">
         function getValue(x) {
             if (x.indexOf('input') >= 0) {
                 if ($(x).val() == 'x') {
-                    return 0
+                    return 0;
                 }
                 else {
                    return parseFloat($(x).val());
                 }
             }
+            else if (isNaN(x)) {
+                return x;
+            }
             return parseFloat(x);
         }
-            
+
+
+        function filtering( oSettings, aData, iDataIndex, column) {
+            var iColumn = column;
+            if (document.getElementById('min').value){
+                var iMin = document.getElementById('min').value * 1;
+            } else {
+                var iMin = 0
+            }
+            if (document.getElementById('max').value){
+                var iMax = document.getElementById('max').value * 1;
+            } else {
+                var iMax = 10000
+            }
+
+            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn]*1;
+            if ( iMin === "" && iMax === "" )
+            {
+                return true;
+            }
+            else if ( iMin === "" && iVersion < iMax )
+            {
+                return true;
+            }
+            else if ( iMin < iVersion && "" === iMax )
+            {
+                return true;
+            }
+            else if ( iMin < iVersion && iVersion < iMax )
+            {
+                return true;
+            }
+                return false;
+        }
+
         jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
             var x = getValue(a);
-            var y = getValue(b);
-            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            var y = getValue(b); 
+            
+            if (x == 'N/A' || x == '') {
+                return 1;
+            }
+            else if (y == 'N/A' || y == '') {
+                return -1;
+            }
+            else {
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            }
         };
             
         jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
@@ -154,74 +224,95 @@
 
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
-            $('#trait_table').dataTable( {
-                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "sType": "natural" },
-                    { "sType": "natural" },
-                    { "sType": "natural",
-                      "sWidth": "35%"  },
-                    { "sType": "natural",
-                      "sWidth": "15%"  },
-                    { "sType": "cust-txt" },
-                    { "sType": "natural",
-                      "sWidth": "12%"  },
-                    { "sType": "natural",
-                      "sWidth": "15%"  },
-                    { "sType": "cust-txt" }
-                ],
+            $('#trait_table').DataTable( {
                 "columns": [
-                    { "width": "50%" },
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "40%" },
+                    { "type": "natural", "width": "15%" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "15%" },
+                    { "type": "natural" }
                 ],
-                "sDom": "tir",
+                "order": [[1, "asc" ]],
+                "buttons": [
+                    'csv'
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
-                "autoWidth": true,
-                "bLengthChange": true,
                 "bDeferRender": true,
-                "bSortClasses": false
+                "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": false,
+                "paging": false
             } );
 
             {% elif dataset.type == 'Publish' %}
-            $('#trait_table').dataTable( {
-                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "sType": "natural" },
-                    { "sType": "natural", 
-                      "sWidth": "35%"  },
-                    { "sType": "natural",
-                      "sWidth": "20%"  },
-                    { "sType": "natural" },
-                    { "sType": "cust-txt" },
-                    { "sType": "natural" }
-                ],
+            $('#trait_table').DataTable( {
                 "columns": [
-                    { "width": "50%" },
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "15%"},
+                    { "type": "natural" }
                 ],
-                "sDom": "tir",
+                "order": [[1, "asc" ]],
+                "buttons": [
+                    'csv'
+                ],
+                "sDom": "RZBtir",
+                "iDisplayLength": -1,
+                "autoWidth": false,
+                "bDeferRender": true,
+                "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": false,
+                "paging": false
+            } );
+            {% elif dataset.type == 'Geno' %}
+            $('#trait_table').DataTable( {
+                "columns": [
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "40%"}
+                ],
+                "order": [[1, "asc" ]],
+                "buttons": [
+                    'csv'
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
-                "bLengthChange": true,
                 "bDeferRender": true,
-                "bSortClasses": false
+                "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": false,
+                "paging": false
             } );
             {% endif %}
             console.timeEnd("Creating table");
+            
+            var table = $('#trait_table').DataTable();
+            $('#redraw').click(function() {
+                var table = $('#trait_table').DataTable();
+                table.colReorder.reset()
+            });
+
+            $('#min').keyup( function() { table.draw(); } );
+            $('#max').keyup( function() { table.draw(); } );
+
+            $('#open_options').click( function () {
+                $('#extra_options').toggle();
+            });
+
         });
-        
     </script>
-    
 {% endblock %}

@@ -1,15 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Interval Mapping{% endblock %}
-{% block css %}
-<!--    <link rel="stylesheet" type="text/css" href="/static/new/css/interval_mapping.css" />-->
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
-{% endblock %}
-{% block content %} <!-- Start of body -->
-
+{% from "base_macro.html" import header %}
+{% block content %}
     {{ header("Mapping",
         '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
 
@@ -28,35 +18,46 @@
               <input type="hidden" id="filename" name="filename" value="">
               <input type="submit" id="export_pdf" value="Download PDF">
             </form>
-<!--            <button id="export_pdf" class="btn">Export PDF</button>-->
+            <button id="return_to_full_view" class="btn" style="display:none">Return to full view</button>
         </div>
         <div id="chart_container">
             <div class="qtlcharts" id="topchart">
                 
             </div>
         </div>
-        <div>
+        <div style="width:60%;">
             <h2>
                 Results
             </h2>
-            <table cellpadding="0" cellspacing="0" border="0" id="qtl_results" class="table table-hover table-striped table-bordered">
+            <table id="qtl_results" class="table table-hover table-striped">
                 <thead>
                     <tr>
-                        <td>Index</td>
-                        <td>LOD Score</td>
-                        <td>Chr</td>
-                        <td>Mb</td>
-                        <td>Locus</td>
+                        <th></th>
+                        <th>Index</th>
+                        <th>{{ score_type }}</th>
+                        <th>Chr</th>
+                        <th>Mb</th>
+                        <th>Locus</th>
                    </tr>
                 </thead>
                 <tbody>
-                    {% for marker in filtered_markers %}
-                        {% if marker.lod_score > lod_cutoff %}
+                    {% for marker in qtl_results %}
+                        {% if (score_type == "LOD" and marker.lod_score > cutoff) or
+                              (score_type == "LRS" and marker.lrs_value > cutoff) %}
                         <tr>
-                            <td>{{loop.index}}</td>
-                            <td>{{marker.lod_score}}</td>
+                            <td>
+                                <input type="checkbox" name="selectCheck"
+                                       class="checkbox edit_sample_checkbox"
+                                       value="{{ marker.name }}" checked="checked">
+                            </td>
+                            <Td align="right">{{ loop.index }}</Td>
+                            {% if score_type == "LOD" %}
+                            <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
+                            {% else %}
+                            <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
+                            {% endif %}
                             <td>{{marker.chr}}</td>
-                            <td>{{marker.Mb}}</td>
+                            <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
                             <td>{{marker.name}}</td>
                         </tr>
                         {% endif %}
@@ -75,52 +76,32 @@
         js_data = {{ js_data | safe }}
     </script>
 
-    <!--[if lt IE 9]>
-<!--        <script language="javascript" type="text/javascript" src="/static/packages/jqplot/excanvas.js"></script>-->
-    <![endif]-->
-    <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
-<!--    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/FileSaver.js/FileSaver.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/Blob.js/BlobBuilder.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.standard_fonts_metrics.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.from_html.js"></script>-->
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script>
-<!--    <script language="javascript" type="text/javascript" src="/static/new/javascript/manhattan_plot.js"></script>-->
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
-
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");
             $('#qtl_results').dataTable( {
-                //"sDom": "<<'span3'l><'span3'T><'span4'f>'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "sDom": "lTftipr",
-                "oTableTools": {
-                    "aButtons": [
-                        "copy",
-                        "print",
-                        {
-                            "sExtends":    "collection",
-                            "sButtonText": 'Save <span class="caret" />',
-                            "aButtons":    [ "csv", "xls", "pdf" ]
-                        }
+                "columns": [
+                    { "type": "natural", "bSortable": false },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
                     ],
-                    "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
-                },
-                "iDisplayLength": 50,
-                "bLengthChange": true,
+                "buttons": [
+                    'csv'
+                ],
+                "sDom": "RZBtir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
                 "bDeferRender": true,
-                "bSortClasses": false
+                "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": true,
+                "paging": false
             } );
             console.timeEnd("Creating table");
+
         });
     </script>
 {% endblock %}
