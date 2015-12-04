@@ -626,6 +626,9 @@ class MarkerRegression(object):
         self.dict['body'] = TD_LR
         self.dict['title'] = "Mapping"
 
+
+        print("AT END OF GN1 MAPPING")
+
     def writeQTL2Text(self, filename):
         if self.multipleInterval:
             return ""
@@ -756,7 +759,8 @@ class MarkerRegression(object):
             drawAreaHeight -= 60
 
         #Image map
-        gifmap = HT.Map(name='WebQTLImageMap')
+        gifmap = HT.Map(name = "WebQTLImageMap")
+        #gifmap = None
 
         newoffset = (xLeftOffset, xRightOffset, yTopOffset, yBottomOffset)
         # Draw the alternating-color background first and get plotXScale
@@ -1689,7 +1693,7 @@ class MarkerRegression(object):
                             distScale = 10
                         else:
                             distScale = 5
-                    for tickdists in range(distScale, ceil(distLen), distScale):
+                    for tickdists in range(distScale, int(ceil(distLen)), distScale):
                         canvas.drawLine(startPosX + tickdists*plotXScale, yZero, startPosX + tickdists*plotXScale, yZero + 7, color=pid.black, width=1*zoom)
                         canvas.drawString(str(tickdists), startPosX+tickdists*plotXScale, yZero + 10*zoom, color=pid.black, font=MBLabelFont, angle=270)
                     startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
@@ -1809,7 +1813,12 @@ class MarkerRegression(object):
             lodm = 1.0
 
         if self.lrsMax <= 0:  #sliding scale
-            LRSMax = max(map(max, self.qtlresults)).lrs
+            if "lrs_value" in self.qtlresults[0]:
+                LRSMax = max([result['lrs_value'] for result in self.qtlresults])
+                #LRSMax = max(map(max, self.qtlresults)).lrs_value
+            else: 
+                LRSMax = max([result['lod_score'] for result in self.qtlresults])
+                #LRSMax = max(map(max, self.qtlresults)).lod_score
             #genotype trait will give infinite LRS
             LRSMax = min(LRSMax, webqtlConfig.MAXLRS)
             if self.permChecked and not self.multipleInterval:
@@ -1882,11 +1891,11 @@ class MarkerRegression(object):
         if self.multipleInterval:
             lrsEdgeWidth = 1
         else:
-            additiveMax = max(map(lambda X : abs(X.additive), self.qtlresults[0]))
-            if INTERCROSS:
-                dominanceMax = max(map(lambda X : abs(X.dominance), self.qtlresults[0]))
-            else:
-                dominanceMax = -1
+            #additiveMax = max(map(lambda X : abs(X.additive), self.qtlresults[0]))
+            #if INTERCROSS:
+            #    dominanceMax = max(map(lambda X : abs(X.dominance), self.qtlresults[0]))
+            #else:
+            #    dominanceMax = -1
             lrsEdgeWidth = 2
             
         if zoom == 2:
@@ -1894,7 +1903,7 @@ class MarkerRegression(object):
         for i, qtlresult in enumerate(self.qtlresults):
             m = 0
             startPosX = xLeftOffset
-            thisLRSColor = self.colorCollection[i]
+            thisLRSColor = self.colorCollection[0]
             for j, _chr in enumerate(self.genotype):
                 LRSCoordXY = []
                 AdditiveCoordXY = []
@@ -1907,20 +1916,20 @@ class MarkerRegression(object):
                     # updated by NL 06-18-2011:
                     # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                     # for any lrs is over than 460(LRS max in this system), it will be reset to 460
-                    if      qtlresult[m].lrs> 460 or qtlresult[m].lrs=='inf':
+                    if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
                         Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSMax
                     else:
-                        Yc = yZero - qtlresult[m].lrs*LRSHeightThresh/LRSMax
+                        Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSMax
 
                     LRSCoordXY.append((Xc, Yc))
-                    if not self.multipleInterval and self.additiveChecked:
-                        if additiveMax == 0.0:
-                            additiveMax = 0.000001
-                        Yc = yZero - qtlresult[m].additive*AdditiveHeightThresh/additiveMax
-                        AdditiveCoordXY.append((Xc, Yc))
-                    if not self.multipleInterval and INTERCROSS and self.additiveChecked:
-                        Yc = yZero - qtlresult[m].dominance*DominanceHeightThresh/dominanceMax
-                        DominanceCoordXY.append((Xc, Yc))
+                    #if not self.multipleInterval and self.additiveChecked:
+                    #    if additiveMax == 0.0:
+                    #        additiveMax = 0.000001
+                    #    Yc = yZero - qtlresult[m].additive*AdditiveHeightThresh/additiveMax
+                    #    AdditiveCoordXY.append((Xc, Yc))
+                    #if not self.multipleInterval and INTERCROSS and self.additiveChecked:
+                    #    Yc = yZero - qtlresult[m].dominance*DominanceHeightThresh/dominanceMax
+                    #    DominanceCoordXY.append((Xc, Yc))
                     m += 1
                 canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
