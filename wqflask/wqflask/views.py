@@ -133,7 +133,7 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        key = "search_results:v3:" + json.dumps(request.args, sort_keys=True)
+        key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
@@ -385,10 +385,10 @@ def marker_regression_page():
 
         #causeerror
         
-        print("TESTING GN1!!!")
-        gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
-        print("gn1_template_vars:", gn1_template_vars)
-        causeerror
+        #print("TESTING GN1!!!")
+        #gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+        #print("gn1_template_vars:", gn1_template_vars)
+        #causeerror
 
 
         #qtl_length = len(result['js_data']['qtl_results'])
