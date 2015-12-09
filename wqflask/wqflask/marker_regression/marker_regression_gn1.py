@@ -344,8 +344,6 @@ class MarkerRegression(object):
             self.GraphInterval = self.MbGraphInterval #Mb
         else:
             self.GraphInterval = self.cMGraphInterval #cM
-
-
 			
         ################################################################
         # Get Trait Values and Infomation
@@ -509,12 +507,16 @@ class MarkerRegression(object):
         ################################################################
         # Plots goes here
         ################################################################
+        print("BEFORE GN1 PLOT")
         if self.plotScale != 'physic' or self.multipleInterval:
             showLocusForm =  webqtlUtil.genRandStr("fm_")
         else:
             showLocusForm = ""
+        print("BEFORE PIL CANVAS")
         intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
+        print("BEFORE PLOTINTMAPPING")
         gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
+        print("AFTER PLOTINTMAPPING")        
 
         filename= webqtlUtil.genRandStr("Itvl_")
         intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='png')
@@ -527,6 +529,8 @@ class MarkerRegression(object):
             intCanvasX2.save(os.path.join(webqtlConfig.IMGDIR, filename+"X2"), format='png')
             #DLintImgX2=HT.Href(text='Download',url = '/image/'+filename+'X2.png', Class='smallsize', target='_blank')
 
+        print("AFTER GN1 PLOT")
+ 
         textUrl = self.writeQTL2Text(fd, filename)
 
         ################################################################
@@ -739,6 +743,7 @@ class MarkerRegression(object):
         endPixelX   = (xLeftOffset + plotWidth)
 
         #Drawing Area Height
+        print("DRAWING AREA HEIGHT")
         drawAreaHeight = plotHeight
         if self.plotScale == 'physic' and self.selectedChr > -1:
             drawAreaHeight -= self.ENSEMBL_BAND_HEIGHT + self.UCSC_BAND_HEIGHT+ self.WEBQTL_BAND_HEIGHT + 3*self.BAND_SPACING+ 10*zoom
@@ -764,6 +769,7 @@ class MarkerRegression(object):
 
         newoffset = (xLeftOffset, xRightOffset, yTopOffset, yBottomOffset)
         # Draw the alternating-color background first and get plotXScale
+        print("DRAW BACKGROUND")
         plotXScale = self.drawGraphBackground(canvas, gifmap, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         #draw bootstap
@@ -772,6 +778,7 @@ class MarkerRegression(object):
 
         # Draw clickable region and gene band if selected
         if self.plotScale == 'physic' and self.selectedChr > -1:
+            print("DRAW CLICKABLE REGION")
             self.drawClickBand(canvas, gifmap, plotXScale, offset=newoffset, zoom = zoom, startMb=startMb, endMb = endMb)
             if self.geneChecked and self.geneCol:
                 self.drawGeneBand(canvas, gifmap, plotXScale, offset=newoffset, zoom = zoom, startMb=startMb, endMb = endMb)
@@ -779,14 +786,18 @@ class MarkerRegression(object):
                 self.drawSNPTrackNew(canvas, offset=newoffset, zoom = 2*zoom, startMb=startMb, endMb = endMb)
 ## BEGIN HaplotypeAnalyst
             if self.haplotypeAnalystChecked:
+                print("DRAW HAPLOTYPE")
                 self.drawHaplotypeBand(canvas, gifmap, plotXScale, offset=newoffset, zoom = zoom, startMb=startMb, endMb = endMb)
 ## END HaplotypeAnalyst
         # Draw X axis
+        print("DRAW X AXIS")
         self.drawXAxis(canvas, drawAreaHeight, gifmap, plotXScale, showLocusForm, offset=newoffset, zoom = zoom, startMb=startMb, endMb = endMb)
         # Draw QTL curve
+        print("DRAW QTL CURVE")
         self.drawQTL(canvas, drawAreaHeight, gifmap, plotXScale, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         #draw legend
+        print("DRAW LEGEND")
         if self.multipleInterval:
             self.drawMultiTraitName(fd, canvas, gifmap, showLocusForm, offset=newoffset)
         elif self.legendChecked:
@@ -795,6 +806,7 @@ class MarkerRegression(object):
             pass
 
         #draw position, no need to use a separate function
+        print("DRAW PROBESET POSITION")
         if self.genotype.Mbmap:
             self.drawProbeSetPosition(canvas, plotXScale, offset=newoffset, zoom = zoom)
 
