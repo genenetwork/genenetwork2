@@ -37,13 +37,14 @@ from flask import Flask, g
 
 from htmlgen import HTMLgen2 as HT
 
+
 from utility import helper_functions
 from utility import Plot
 from base import webqtlConfig
 #from intervalAnalyst import GeneUtil
 #from base.webqtlTrait import webqtlTrait
 #from base.templatePage import templatePage
-#from utility import webqtlUtil
+from utility import webqtlUtil
 #from utility.THCell import THCell
 #from utility.TDCell import TDCell
 #from dbFunction import webqtlDatabaseFunction
@@ -507,19 +508,16 @@ class MarkerRegression(object):
         ################################################################
         # Plots goes here
         ################################################################
-        print("BEFORE GN1 PLOT")
         if self.plotScale != 'physic' or self.multipleInterval:
             showLocusForm =  webqtlUtil.genRandStr("fm_")
         else:
             showLocusForm = ""
-        print("BEFORE PIL CANVAS")
         intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
-        print("BEFORE PLOTINTMAPPING")
         gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
         print("AFTER PLOTINTMAPPING")        
 
         filename= webqtlUtil.genRandStr("Itvl_")
-        intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='png')
+        intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='jpeg')
         intImg=HT.Image('/image/'+filename+'.png', border=0, usemap='#WebQTLImageMap')
 
         #Scales plot differently for high resolution
@@ -743,7 +741,6 @@ class MarkerRegression(object):
         endPixelX   = (xLeftOffset + plotWidth)
 
         #Drawing Area Height
-        print("DRAWING AREA HEIGHT")
         drawAreaHeight = plotHeight
         if self.plotScale == 'physic' and self.selectedChr > -1:
             drawAreaHeight -= self.ENSEMBL_BAND_HEIGHT + self.UCSC_BAND_HEIGHT+ self.WEBQTL_BAND_HEIGHT + 3*self.BAND_SPACING+ 10*zoom
@@ -769,7 +766,6 @@ class MarkerRegression(object):
 
         newoffset = (xLeftOffset, xRightOffset, yTopOffset, yBottomOffset)
         # Draw the alternating-color background first and get plotXScale
-        print("DRAW BACKGROUND")
         plotXScale = self.drawGraphBackground(canvas, gifmap, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         #draw bootstap
@@ -778,7 +774,6 @@ class MarkerRegression(object):
 
         # Draw clickable region and gene band if selected
         if self.plotScale == 'physic' and self.selectedChr > -1:
-            print("DRAW CLICKABLE REGION")
             self.drawClickBand(canvas, gifmap, plotXScale, offset=newoffset, zoom = zoom, startMb=startMb, endMb = endMb)
             if self.geneChecked and self.geneCol:
                 self.drawGeneBand(canvas, gifmap, plotXScale, offset=newoffset, zoom = zoom, startMb=startMb, endMb = endMb)
@@ -786,18 +781,14 @@ class MarkerRegression(object):
                 self.drawSNPTrackNew(canvas, offset=newoffset, zoom = 2*zoom, startMb=startMb, endMb = endMb)
 ## BEGIN HaplotypeAnalyst
             if self.haplotypeAnalystChecked:
-                print("DRAW HAPLOTYPE")
                 self.drawHaplotypeBand(canvas, gifmap, plotXScale, offset=newoffset, zoom = zoom, startMb=startMb, endMb = endMb)
 ## END HaplotypeAnalyst
         # Draw X axis
-        print("DRAW X AXIS")
         self.drawXAxis(canvas, drawAreaHeight, gifmap, plotXScale, showLocusForm, offset=newoffset, zoom = zoom, startMb=startMb, endMb = endMb)
         # Draw QTL curve
-        print("DRAW QTL CURVE")
         self.drawQTL(canvas, drawAreaHeight, gifmap, plotXScale, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         #draw legend
-        print("DRAW LEGEND")
         if self.multipleInterval:
             self.drawMultiTraitName(fd, canvas, gifmap, showLocusForm, offset=newoffset)
         elif self.legendChecked:
@@ -806,7 +797,6 @@ class MarkerRegression(object):
             pass
 
         #draw position, no need to use a separate function
-        print("DRAW PROBESET POSITION")
         if self.genotype.Mbmap:
             self.drawProbeSetPosition(canvas, plotXScale, offset=newoffset, zoom = zoom)
 
@@ -1823,7 +1813,7 @@ class MarkerRegression(object):
             lodm = self.LODFACTOR
         else:
             lodm = 1.0
-
+ 
         if self.lrsMax <= 0:  #sliding scale
             if "lrs_value" in self.qtlresults[0]:
                 LRSMax = max([result['lrs_value'] for result in self.qtlresults])
@@ -1874,6 +1864,7 @@ class MarkerRegression(object):
 
         #"Significant" and "Suggestive" Drawing Routine
         # ======= Draw the thick lines for "Significant" and "Suggestive" =====  (crowell: I tried to make the SNPs draw over these lines, but piddle wouldn't have it...)
+        print("DRAW SUGGESTIVE/SIGNFICANT LINES")
         if self.permChecked and not self.multipleInterval:
             significantY = yZero - self.significance*LRSHeightThresh/LRSMax
             suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRSMax
@@ -1912,23 +1903,37 @@ class MarkerRegression(object):
             
         if zoom == 2:
             lrsEdgeWidth = 2 * lrsEdgeWidth
+        print("DRAW QTL RESULT CURVE")
+
+        LRSCoordXY = []
+        AdditiveCoordXY = []
+        DominanceCoordXY = []
+
+        previous_chr = 1
+        previous_chr_as_int = 1
         for i, qtlresult in enumerate(self.qtlresults):
             m = 0
             startPosX = xLeftOffset
             thisLRSColor = self.colorCollection[0]
-            for j, _chr in enumerate(self.genotype):
-                LRSCoordXY = []
-                AdditiveCoordXY = []
-                DominanceCoordXY = []
-                for k, _locus in enumerate(_chr):
+            #for j, _chr in enumerate(self.genotype):
+            if 1 == 1:
+                #LRSCoordXY = []
+                #AdditiveCoordXY = []
+                #DominanceCoordXY = []
+                #for k, _locus in enumerate(_chr):
+                if 1 == 1:
                     if self.plotScale == 'physic':
-                        Xc = startPosX + (_locus.Mb-startMb)*plotXScale
+                        #Xc = startPosX + (_locus.Mb-startMb)*plotXScale
+                        Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
                     else:
-                        Xc = startPosX + (_locus.cM-_chr[0].cM)*plotXScale
+                        #Xc = startPosX + (_locus.cM-_chr[0].cM)*plotXScale
+                        Xc = startPosX + (qtlresult['cM']-qtlresult[0]['cM'])*plotXScale
+
                     # updated by NL 06-18-2011:
                     # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                     # for any lrs is over than 460(LRS max in this system), it will be reset to 460
                     if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                    #if self.qtlresults[j]['lrs_value'] > 460 or self.qtlresults[j]['lrs_value']=='inf':
                         Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSMax
                     else:
                         Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSMax
@@ -1943,7 +1948,7 @@ class MarkerRegression(object):
                     #    Yc = yZero - qtlresult[m].dominance*DominanceHeightThresh/dominanceMax
                     #    DominanceCoordXY.append((Xc, Yc))
                     m += 1
-                canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
                 lineWidth = 1
                 if not self.multipleInterval and self.additiveChecked:
@@ -2004,7 +2009,21 @@ class MarkerRegression(object):
                                     canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
                                 else:
                                     canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                startPosX +=  (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
+                 
+                print("previous_chr:", previous_chr_as_int)
+                startPosX +=  (self.ChrLengthDistList[previous_chr_as_int-1]+self.GraphInterval)*plotXScale
+                #startPosX +=  (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
+
+                if qtlresult['chr'] != previous_chr:
+                    previous_chr = qtlresult['chr']
+                    try:
+                        previous_chr_as_int = int(previous_chr)
+                    except:
+                        previous_chr_as_int += 1
+
+        canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+
+        print("AFTER QTL CURVE")
 
         ###draw additive scale
         if not self.multipleInterval and self.additiveChecked:
