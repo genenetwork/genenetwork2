@@ -516,20 +516,20 @@ class MarkerRegression(object):
         gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
         print("AFTER PLOTINTMAPPING")        
 
-        filename= webqtlUtil.genRandStr("Itvl_")
-        intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='jpeg')
-        intImg=HT.Image('/image/'+filename+'.png', border=0, usemap='#WebQTLImageMap')
+        self.filename= webqtlUtil.genRandStr("Itvl_")
+        intCanvas.save(os.path.join(webqtlConfig.IMGDIR, self.filename), format='jpeg')
+        intImg=HT.Image('/image/'+self.filename+'.png', border=0, usemap='#WebQTLImageMap')
 
         #Scales plot differently for high resolution
         if self.draw2X:
             intCanvasX2 = pid.PILCanvas(size=(self.graphWidth*2,self.graphHeight*2))
             gifmapX2 = self.plotIntMapping(intCanvasX2, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm, zoom=2)
-            intCanvasX2.save(os.path.join(webqtlConfig.IMGDIR, filename+"X2"), format='png')
-            #DLintImgX2=HT.Href(text='Download',url = '/image/'+filename+'X2.png', Class='smallsize', target='_blank')
+            intCanvasX2.save(os.path.join(webqtlConfig.IMGDIR, self.filename+"X2"), format='png')
+            #DLintImgX2=HT.Href(text='Download',url = '/image/'+self.filename+'X2.png', Class='smallsize', target='_blank')
 
         print("AFTER GN1 PLOT")
  
-        textUrl = self.writeQTL2Text(fd, filename)
+        #textUrl = self.writeQTL2Text(fd, self.filename)
 
         ################################################################
         # Info tables goes here
@@ -571,13 +571,15 @@ class MarkerRegression(object):
         if (self.additiveChecked):
             btminfo.append(HT.BR(), 'A positive additive coefficient (', HT.Font('green', color='green'), ' line) indicates that %s alleles increase trait values. In contrast, a negative additive coefficient (' % fd.ppolar, HT.Font('red', color='red'), ' line) indicates that %s alleles increase trait values.' % fd.mpolar)
 
-        if self.traitList and self.traitList[0].db and self.traitList[0].db.type == 'Geno':
+        if self.traitList and self.traitList[0].dataset and self.traitList[0].dataset.type == 'Geno':
             btminfo.append(HT.BR(), 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
 
         if self.permChecked and not self.multipleInterval and 0<self.nperm:
-            TD_LR = HT.TD(HT.Blockquote(topTable), HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
+            TD_LR = HT.TD(HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
+            #TD_LR = HT.TD(HT.Blockquote(topTable), HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
         else:
-            TD_LR = HT.TD(HT.Blockquote(topTable), HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo), bgColor='#eeeeee', height = 200)
+            TD_LR = HT.TD(HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo), bgColor='#eeeeee', height = 200)
+            #TD_LR = HT.TD(HT.Blockquote(topTable), HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
 
 
         if geneTable:
@@ -625,8 +627,10 @@ class MarkerRegression(object):
             # geneTableContainer
             TD_LR.append(HT.Blockquote(tableForm))
 
-        self.dict['body'] = TD_LR
-        self.dict['title'] = "Mapping"
+        self.body = TD_LR
+
+        #self.dict['body'] = TD_LR
+        #self.dict['title'] = "Mapping"
 
 
         print("AT END OF GN1 MAPPING")
@@ -1910,11 +1914,25 @@ class MarkerRegression(object):
         DominanceCoordXY = []
 
         previous_chr = 1
-        previous_chr_as_int = 1
+        previous_chr_as_int = 0
+        oldStartPosX = 0
+        startPosX = xLeftOffset
         for i, qtlresult in enumerate(self.qtlresults):
             m = 0
-            startPosX = xLeftOffset
+            #startPosX = xLeftOffset
             thisLRSColor = self.colorCollection[0]
+
+            if qtlresult['chr'] != previous_chr:
+                previous_chr = qtlresult['chr']
+                previous_chr_as_int += 1
+
+                newStartPosX = (self.ChrLengthDistList[previous_chr_as_int - 1]+self.GraphInterval)*plotXScale
+                if newStartPosX != oldStartPosX:
+                    startPosX += newStartPosX
+                    oldStartPosX = newStartPosX
+
+            #startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
+
             #for j, _chr in enumerate(self.genotype):
             if 1 == 1:
                 #LRSCoordXY = []
@@ -2009,17 +2027,7 @@ class MarkerRegression(object):
                                     canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
                                 else:
                                     canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                 
-                print("previous_chr:", previous_chr_as_int)
-                startPosX +=  (self.ChrLengthDistList[previous_chr_as_int-1]+self.GraphInterval)*plotXScale
-                #startPosX +=  (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
-
-                if qtlresult['chr'] != previous_chr:
-                    previous_chr = qtlresult['chr']
-                    try:
-                        previous_chr_as_int = int(previous_chr)
-                    except:
-                        previous_chr_as_int += 1
+                
 
         canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 

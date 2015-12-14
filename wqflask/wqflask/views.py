@@ -388,7 +388,7 @@ def marker_regression_page():
         print("TESTING GN1!!!")
         gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
         print("gn1_template_vars:", gn1_template_vars)
-        causeerror
+        #causeerror
 
 
         #qtl_length = len(result['js_data']['qtl_results'])
@@ -411,8 +411,8 @@ def marker_regression_page():
             result['pair_scan_array'] = bytesarray
             rendered_template = render_template("pair_scan_results.html", **result)
         else:
-            rendered_template = render_template("marker_regression.html", **result)
-            #rendered_template = render_template("marker_regression_gn1.html", **result)
+            #rendered_template = render_template("marker_regression.html", **result)
+            rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
 
     return rendered_template
 
