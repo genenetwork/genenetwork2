@@ -74,6 +74,10 @@
 
 {% block js %}  
 
+    <script>
+        js_data = {{ js_data | safe }}
+    </script>
+
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");

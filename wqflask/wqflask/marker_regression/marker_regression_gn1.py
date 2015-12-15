@@ -175,6 +175,8 @@ class MarkerRegression(object):
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
         self.species = start_vars['species']
+ 
+        self.js_data = start_vars['js_data']
 
         #ZS: Think I can just get all this from dataset object now
         #RISet and Species
