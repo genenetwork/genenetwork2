@@ -2,12 +2,12 @@
 (function() {
   var block_outliers, composite_mapping_fields, do_ajax_post, get_progress, mapping_method_fields, open_mapping_results, outlier_text, showalert, submit_special, toggle_enable_disable, update_time_remaining;
 
-  submit_special = function() {
-    var url;
+  submit_special = function(url) {
+    //var url;
     console.log("In submit_special");
     console.log("this is:", this);
     console.log("$(this) is:", $(this));
-    url = $(this).data("url");
+    //url = $(this).data("url");
     console.log("url is:", url);
     $("#trait_data_form").attr("action", url);
     return $("#trait_data_form").submit();
@@ -172,7 +172,8 @@
       $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_pylmm]:checked').val());
       form_data = $('#trait_data_form').serialize();
       console.log("form_data is:", form_data);
-      return do_ajax_post(url, form_data);
+      return submit_special(url);
+      //return do_ajax_post(url, form_data);
     };
   })(this));
 
