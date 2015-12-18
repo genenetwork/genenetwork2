@@ -515,8 +515,10 @@ class MarkerRegression(object):
         else:
             showLocusForm = ""
         intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
-        gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
-        print("AFTER PLOTINTMAPPING")        
+        gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)    
+
+        self.gifmap = gifmap.__str__()
+        #print("GIFMAP:", gifmap.__str__())
 
         self.filename= webqtlUtil.genRandStr("Itvl_")
         intCanvas.save(os.path.join(webqtlConfig.IMGDIR, self.filename), format='jpeg')
@@ -528,8 +530,6 @@ class MarkerRegression(object):
             gifmapX2 = self.plotIntMapping(intCanvasX2, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm, zoom=2)
             intCanvasX2.save(os.path.join(webqtlConfig.IMGDIR, self.filename+"X2"), format='png')
             #DLintImgX2=HT.Href(text='Download',url = '/image/'+self.filename+'X2.png', Class='smallsize', target='_blank')
-
-        print("AFTER GN1 PLOT")
  
         #textUrl = self.writeQTL2Text(fd, self.filename)
 
@@ -634,8 +634,6 @@ class MarkerRegression(object):
         #self.dict['body'] = TD_LR
         #self.dict['title'] = "Mapping"
 
-
-        print("AT END OF GN1 MAPPING")
 
     def writeQTL2Text(self, filename):
         if self.multipleInterval:
@@ -1870,7 +1868,6 @@ class MarkerRegression(object):
 
         #"Significant" and "Suggestive" Drawing Routine
         # ======= Draw the thick lines for "Significant" and "Suggestive" =====  (crowell: I tried to make the SNPs draw over these lines, but piddle wouldn't have it...)
-        print("DRAW SUGGESTIVE/SIGNFICANT LINES")
         if self.permChecked and not self.multipleInterval:
             significantY = yZero - self.significance*LRSHeightThresh/LRSMax
             suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRSMax
@@ -1909,7 +1906,6 @@ class MarkerRegression(object):
             
         if zoom == 2:
             lrsEdgeWidth = 2 * lrsEdgeWidth
-        print("DRAW QTL RESULT CURVE")
 
         LRSCoordXY = []
         AdditiveCoordXY = []
@@ -2032,8 +2028,6 @@ class MarkerRegression(object):
                 
 
         canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-
-        print("AFTER QTL CURVE")
 
         ###draw additive scale
         if not self.multipleInterval and self.additiveChecked:

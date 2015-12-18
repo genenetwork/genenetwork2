@@ -11,7 +11,8 @@
         </div>
         <div id="chart_container">
             <div class="qtlcharts" id="topchart">
-                <img src="/static/output/{{ filename }}.jpeg">
+                {{ gifmap|safe }}
+                <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
             </div>
         </div>
         <div style="width:60%;">

@@ -382,14 +382,8 @@ def marker_regression_page():
 
         #for item in template_vars.__dict__.keys():
         #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-
-        #causeerror
         
-        print("TESTING GN1!!!")
         gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
-        print("gn1_template_vars:", gn1_template_vars)
-        #causeerror
-
 
         #qtl_length = len(result['js_data']['qtl_results'])
         #print("qtl_length:", qtl_length)
