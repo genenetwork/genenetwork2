@@ -273,6 +273,7 @@ class MarkerRegression(object):
         self.additiveChecked = False
         self.dominanceChecked = False
         self.LRS_LOD = start_vars['score_type']
+        self.cutoff = start_vars['cutoff']
         self.intervalAnalystChecked = False
         self.legendChecked = False
         self.geneChecked = False
@@ -630,7 +631,7 @@ class MarkerRegression(object):
             TD_LR.append(HT.Blockquote(tableForm))
 
         self.body = TD_LR
-
+       
         #self.dict['body'] = TD_LR
         #self.dict['title'] = "Mapping"
 

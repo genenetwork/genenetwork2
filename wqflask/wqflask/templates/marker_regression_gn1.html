@@ -1,3 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Mapping Results{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+{% endblock %}
 {% from "base_macro.html" import header %}
 {% block content %}
     {{ header("Mapping",
@@ -15,7 +21,7 @@
                 <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
             </div>
         </div>
-        <div style="width:60%;">
+        <div style="width:45%;">
             <h2>
                 Results
             </h2>
@@ -24,7 +30,7 @@
                     <tr>
                         <th></th>
                         <th>Index</th>
-                        <th>{{ score_type }}</th>
+                        <th>{{ LRS_LOD }}</th>
                         <th>Chr</th>
                         {% if plotScale == "centimorgan" %}
                         <th>cM</th>
@@ -36,8 +42,8 @@
                 </thead>
                 <tbody>
                     {% for marker in qtlresults %}
-                        {% if (score_type == "LOD" and marker.lod_score > cutoff) or
-                              (score_type == "LRS" and marker.lrs_value > cutoff) %}
+                        {% if (LRS_LOD == "LOD" and marker.lod_score|float > cutoff|float) or
+                              (LRS_LOD == "LRS" and marker.lrs_value|float > cutoff|float) %}
                         <tr>
                             <td>
                                 <input type="checkbox" name="selectCheck"
@@ -74,6 +80,18 @@
 {% endblock %}
 
 {% block js %}  
+
+    <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
+
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
 
     <script>
         js_data = {{ js_data | safe }}
