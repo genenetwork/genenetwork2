@@ -6,22 +6,30 @@
 {% endblock %}
 {% from "base_macro.html" import header %}
 {% block content %}
-    {{ header("Mapping",
+    {{ header("Whole Genome Mapping Results",
         '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
 
     <div class="container">
-        <div>
-            <h2>
-                Whole Genome Mapping
-            </h2>
-        </div>
+        <form method="post" target="_blank" action="/marker_regression" name="marker_regression" id="marker_regression_form">
+        <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
+        <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
+        <input type="hidden" name="dataset" value="{{ dataset.name }}">
+        {% for sample in dataset.group.samplelist %}
+        <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
+        {% endfor %}
+        <input type="hidden" name="maf">
+        <input type="hidden" name="method" value="{{ mapping_method }}">
+        <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
+        <input type="hidden" name="manhattan_plot">
+        <input type="hidden" name="num_perm">
         <div id="chart_container">
             <div class="qtlcharts" id="topchart">
                 {{ gifmap|safe }}
                 <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
             </div>
         </div>
-        <div style="width:45%;">
+        </form>
+        <div style="width:48%;">
             <h2>
                 Results
             </h2>
@@ -102,12 +110,12 @@
             console.time("Creating table");
             $('#qtl_results').dataTable( {
                 "columns": [
-                    { "type": "natural", "bSortable": false },
+                    { "type": "natural", "sWidth": "10%", "bSortable": false },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural" }
+                    { "type": "natural", "sWidth": "30%"}
                     ],
                 "buttons": [
                     'csv'
@@ -124,6 +132,14 @@
             console.timeEnd("Creating table");
 
         });
+
+        chrView = function(this_chr, chr_mb_list) {
+            $('input[name=selected_chr]').val(this_chr + 1)
+            $('input[name=chr_mb_list]').val(chr_mb_list)
+
+            return $('#marker_regression_form').submit();
+        };
+
     </script>
 
 {% endblock %}

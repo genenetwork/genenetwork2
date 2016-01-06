@@ -52,6 +52,8 @@ class MarkerRegression(object):
 
         #tempdata = temp_data.TempData(temp_uuid)
         
+        self.temp_uuid = temp_uuid #needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
+
         self.json_data = {}
         self.json_data['lodnames'] = ['lod.hk']
         
@@ -76,6 +78,11 @@ class MarkerRegression(object):
         self.score_type = "LRS" #ZS: LRS or LOD
         self.mapping_scale = "physic"
         self.num_perm = 0
+
+        #ZS: This is passed to GN1 code for single chr mapping
+        self.selected_chr = -1        
+        if "selected_chr" in start_vars:
+            self.selected_chr = int(start_vars['selected_chr'])
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
@@ -720,7 +727,9 @@ class MarkerRegression(object):
     def gen_data(self, temp_uuid):
         """Generates p-values for each marker"""
 
-        pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
+
+        print("self.vals is:", self.vals)
+        pheno_vector = np.array([(val == "x" or val == "") and np.nan or float(val) for val in self.vals])
 
         #lmm_uuid = str(uuid.uuid4())
 

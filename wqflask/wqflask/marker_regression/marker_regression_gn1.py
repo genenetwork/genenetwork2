@@ -172,10 +172,16 @@ class MarkerRegression(object):
 
         #helper_functions.get_species_dataset_trait(self, start_vars)
 
+        self.temp_uuid = start_vars['temp_uuid']
+
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
         self.species = start_vars['species']
+
+        self.vals = start_vars['vals'] #Needed to put into form for when it is resubmitted for single chr views or remapping
  
+        self.mapping_method = start_vars['mapping_method'] #Needing for form submission when doing single chr mapping or remapping after changing options
+
         self.js_data = start_vars['js_data']
 
         #ZS: Think I can just get all this from dataset object now
@@ -226,9 +232,9 @@ class MarkerRegression(object):
         #self.controlLocus = fd.formdata.getvalue('controlLocus', '')
 
         #try:
-        #    self.selectedChr = int(fd.formdata.getvalue('chromosomes', "-1"))
+        self.selectedChr = int(start_vars['selected_chr'])
         #except:
-        self.selectedChr = -1
+        #    self.selectedChr = -1
 
         #whether include parents and F1 for InbredSet
         #fd.parentsf14regression = fd.formdata.getvalue('parentsf14regression')
@@ -1921,9 +1927,11 @@ class MarkerRegression(object):
             #startPosX = xLeftOffset
             thisLRSColor = self.colorCollection[0]
 
-            if qtlresult['chr'] != previous_chr:
+            if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
                 previous_chr = qtlresult['chr']
                 previous_chr_as_int += 1
+
+                print("ChrLengthDistList:", self.ChrLengthDistList)
 
                 newStartPosX = (self.ChrLengthDistList[previous_chr_as_int - 1]+self.GraphInterval)*plotXScale
                 if newStartPosX != oldStartPosX:
@@ -1933,7 +1941,7 @@ class MarkerRegression(object):
             #startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
 
             #for j, _chr in enumerate(self.genotype):
-            if 1 == 1:
+            if self.selectedChr == -1 or qtlresult['chr'] == self.selectedChr:
                 #LRSCoordXY = []
                 #AdditiveCoordXY = []
                 #DominanceCoordXY = []
@@ -2120,7 +2128,7 @@ class MarkerRegression(object):
                 COORDS = "%d,%d,%d,%d" %(chrStartPix, yTopOffset, chrEndPix,yTopOffset +20)
 
                 #add by NL 09-03-2010
-                HREF = "javascript placeholder"
+                HREF = "javascript:chrView(%d,%s);" % (i,self.ChrLengthMbList)
                 #HREF = "javascript:changeView(%d,%s);" % (i,self.ChrLengthMbList)
                 Areas = HT.Area(shape='rect',coords=COORDS,href=HREF)
                 gifmap.areas.append(Areas)
