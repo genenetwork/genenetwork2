@@ -59,7 +59,7 @@
                                        value="{{ marker.name }}" checked="checked">
                             </td>
                             <Td align="right">{{ loop.index }}</Td>
-                            {% if score_type == "LOD" %}
+                            {% if LRS_LOD == "LOD" %}
                             <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
                             {% else %}
                             <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>

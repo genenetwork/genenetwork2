@@ -517,10 +517,10 @@ class MarkerRegression(object):
         ################################################################
         # Plots goes here
         ################################################################
-        if self.plotScale != 'physic' or self.multipleInterval:
-            showLocusForm =  webqtlUtil.genRandStr("fm_")
-        else:
-            showLocusForm = ""
+        #if self.plotScale != 'physic' or self.multipleInterval:
+        #    showLocusForm =  webqtlUtil.genRandStr("fm_")
+        #else:
+        showLocusForm = ""
         intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
         gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)    
 
@@ -1789,7 +1789,8 @@ class MarkerRegression(object):
                             edgeColor=rectColor,fillColor=rectColor,edgeWidth = 0)
                     COORDS="%d,%d,%d,%d"%(xLeftOffset+offsetA-LRectHeight, yZero+40+Zorder*(LRectWidth+3),\
                             xLeftOffset+offsetA,yZero+40+Zorder*(LRectWidth+3)+LRectWidth)
-                    HREF="javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm,fd.RISet+"Geno", Lname)
+                    HREF="/show_trait?trait_id=%s&dataset=%s" % (Lname, self.dataset.group.name+"Geno")
+                    #HREF="javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm,fd.RISet+"Geno", Lname)
                     Areas=HT.Area(shape='rect',coords=COORDS,href=HREF, title="Locus : " + Lname)
                     gifmap.areas.append(Areas)
                 ##piddle bug
@@ -1947,21 +1948,32 @@ class MarkerRegression(object):
                 #DominanceCoordXY = []
                 #for k, _locus in enumerate(_chr):
                 if 1 == 1:
-                    if self.plotScale == 'physic':
+                    Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+                    #if self.plotScale == 'physic':
                         #Xc = startPosX + (_locus.Mb-startMb)*plotXScale
-                        Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
-                    else:
+                        #Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+                    #else:
                         #Xc = startPosX + (_locus.cM-_chr[0].cM)*plotXScale
-                        Xc = startPosX + (qtlresult['cM']-qtlresult[0]['cM'])*plotXScale
+                        #Xc = startPosX + (qtlresult['cM']-qtlresult[0]['cM'])*plotXScale
 
                     # updated by NL 06-18-2011:
                     # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                     # for any lrs is over than 460(LRS max in this system), it will be reset to 460
-                    if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                    #if self.qtlresults[j]['lrs_value'] > 460 or self.qtlresults[j]['lrs_value']=='inf':
-                        Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSMax
+                    if self.LRS_LOD == "LRS":
+                        if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSMax
+                        else:
+                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSMax
                     else:
-                        Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSMax
+                        if qtlresult['lod_score'] > 100 or qtlresult['lod_score']=='inf':
+                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSMax
+                        else:
+                            Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRSMax
+                    #if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                    #if self.qtlresults[j]['lrs_value'] > 460 or self.qtlresults[j]['lrs_value']=='inf':
+                    #    Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSMax
+                    #else:
+                    #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSMax
 
                     LRSCoordXY.append((Xc, Yc))
                     #if not self.multipleInterval and self.additiveChecked:
