@@ -110,6 +110,15 @@ class MarkerRegression(object):
 
             results = self.run_rqtl_geno()
             #print("qtl_results:", results)
+        elif self.mapping_method == "reaper":
+            if start_vars['num_perm'] == "":
+                self.num_perm = 0
+            else:
+                self.num_perm = int(start_vars['num_perm'])
+            self.additive = False
+            self.control = start_vars['control_marker']
+            self.do_control = start_vars['do_control']
+            results = self.gen_reaper_results()
         elif self.mapping_method == "plink":
             results = self.run_plink()
             #print("qtl_results:", pf(results))
@@ -130,7 +139,7 @@ class MarkerRegression(object):
                 if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
                     if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
                         highest_chr = marker['chr1']
-                    if 'lod_score' in marker:
+                    if 'lod_score' in marker.keys():
                         self.qtl_results.append(marker)
 
             for qtl in enumerate(self.qtl_results):
@@ -157,7 +166,7 @@ class MarkerRegression(object):
                 if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
                     if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
                         highest_chr = marker['chr']
-                    if 'lod_score' in marker:
+                    if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                         self.qtl_results.append(marker)
 
             self.json_data['chr'] = []
@@ -178,7 +187,7 @@ class MarkerRegression(object):
                 else:
                     self.json_data['chr'].append(str(qtl['chr']))
                 self.json_data['pos'].append(qtl['Mb'])
-                if 'lrs_value' in qtl:
+                if 'lrs_value' in qtl.keys():
                     self.json_data['lod.hk'].append(str(qtl['lrs_value']))
                 else:
                     self.json_data['lod.hk'].append(str(qtl['lod_score']))
@@ -588,6 +597,66 @@ class MarkerRegression(object):
         
         return sample_list
     
+    def gen_reaper_results(self):
+        genotype = self.dataset.group.read_genotype_file()
+
+        samples, values, variances = self.this_trait.export_informative()
+
+        trimmed_samples = []
+        trimmed_values = []
+        for i in range(0, len(samples)):
+            if samples[i] in self.dataset.group.samplelist:
+                trimmed_samples.append(samples[i])
+                trimmed_values.append(values[i])
+                
+        self.lrs_array = genotype.permutation(strains = trimmed_samples,
+                                                   trait = trimmed_values, 
+                                                   nperm= self.num_perm)
+        
+        self.suggestive = self.lrs_array[int(self.num_perm*0.37-1)]
+        self.significant = self.lrs_array[int(self.num_perm*0.95-1)]
+        self.json_data['suggestive'] = self.suggestive
+        self.json_data['significant'] = self.significant
+
+        print("samples:", trimmed_samples)
+
+        if self.control != "" and self.do_control == "true":
+            reaper_results = genotype.regression(strains = trimmed_samples,
+                                                          trait = trimmed_values,
+                                                          control = self.control)
+        else:
+            reaper_results = genotype.regression(strains = trimmed_samples,
+                                                          trait = trimmed_values)
+
+        self.json_data['chr'] = []
+        self.json_data['pos'] = []
+        self.json_data['lod.hk'] = []
+        self.json_data['markernames'] = []
+        if self.additive:
+            self.json_data['additive'] = []
+
+        #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+        qtl_results = []
+        for qtl in reaper_results:
+            reaper_locus = qtl.locus
+            #ZS: Convert chr to int
+            converted_chr = reaper_locus.chr
+            if reaper_locus.chr != "X" and reaper_locus.chr != "X/Y":
+                converted_chr = int(reaper_locus.chr)
+            self.json_data['chr'].append(converted_chr)
+            self.json_data['pos'].append(reaper_locus.Mb)
+            self.json_data['lod.hk'].append(qtl.lrs)
+            self.json_data['markernames'].append(reaper_locus.name)
+            if self.additive:
+                self.json_data['additive'].append(qtl.additive)
+            locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
+            qtl = {"lrs_value": qtl.lrs, "chr":converted_chr, "Mb":reaper_locus.Mb,
+                   "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
+            qtl_results.append(qtl)
+
+        return qtl_results
+
+
     def parse_plink_output(self, output_filename):
         plink_results={}
     

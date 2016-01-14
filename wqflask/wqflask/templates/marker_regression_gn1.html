@@ -22,6 +22,11 @@
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
         <input type="hidden" name="manhattan_plot">
         <input type="hidden" name="num_perm">
+        <input type="hidden" name="do_control" value="{{ doControl }}">
+        <input type="hidden" name="control_marker" value="{{ controlLocus }}">
+        <input type="hidden" name="mapmethod_rqtl_geno" value="{{ mapmethod_rqtl_geno }}">
+        <input type="hidden" name="mapmodel_rqtl_geno" value="{{ mapmodel_rqtl_geno }}">
+        <input type="hidden" name="pair_scan" value="{{ pair_scan }}">
         <div id="chart_container">
             <div class="qtlcharts" id="topchart">
                 {{ gifmap|safe }}

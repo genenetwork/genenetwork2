@@ -178,9 +178,13 @@ class MarkerRegression(object):
         self.this_trait = start_vars['this_trait']
         self.species = start_vars['species']
 
-        self.vals = start_vars['vals'] #Needed to put into form for when it is resubmitted for single chr views or remapping
- 
-        self.mapping_method = start_vars['mapping_method'] #Needing for form submission when doing single chr mapping or remapping after changing options
+        #Needing for form submission when doing single chr mapping or remapping after changing options
+        self.vals = start_vars['vals'] 
+        self.mapping_method = start_vars['mapping_method'] 
+        if self.mapping_method == "rqtl_geno":
+            self.mapmethod_rqtl_geno = start_vars['method']
+            self.mapmodel_rqtl_geno = start_vars['model']
+            self.pair_scan = start_vars['pair_scan']
 
         self.js_data = start_vars['js_data']
 
@@ -225,10 +229,15 @@ class MarkerRegression(object):
         #self.permChecked = fd.formdata.getvalue('permCheck', True)
         self.bootChecked = False #ZS: For now setting to False, I'll add this option later once rest of figure works
         #self.bootChecked = fd.formdata.getvalue('bootCheck', '')
+        if 'do_control' in start_vars.keys():
+            self.doControl = start_vars['do_control']
+        else:
+            self.doControl = "false"
         if 'control' in start_vars.keys():
             self.controlLocus = start_vars['control']
         else:
             self.controlLocus = ""
+        
         #self.controlLocus = fd.formdata.getvalue('controlLocus', '')
 
         #try:
@@ -1760,6 +1769,7 @@ class MarkerRegression(object):
             lineColor = pid.lightblue
             startPosX = xLeftOffset
             for j, ChrInfo in enumerate(ChrAInfo):
+              if ChrInfo == self.selectedChr:
                 preLpos = -1
                 for i, item in enumerate(ChrInfo):
                     Lname,Lpos = item
@@ -1931,8 +1941,6 @@ class MarkerRegression(object):
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
                 previous_chr = qtlresult['chr']
                 previous_chr_as_int += 1
-
-                print("ChrLengthDistList:", self.ChrLengthDistList)
 
                 newStartPosX = (self.ChrLengthDistList[previous_chr_as_int - 1]+self.GraphInterval)*plotXScale
                 if newStartPosX != oldStartPosX:
