@@ -223,14 +223,6 @@
     };
   })(this));
 
-  $("#interval_mapping_compute").on("mouseover", (function(_this) {
-    return function() {
-      if ($(".outlier").length && $(".outlier-alert").length < 1) {
-        return showalert(outlier_text, "alert-success outlier-alert");
-      }
-    };
-  })(this));
-
   $("#interval_mapping_compute").on("click", (function(_this) {
     return function() {
       var form_data, url;
@@ -247,6 +239,14 @@
       console.log("form_data is:", form_data);
       return submit_special(url);
       //return do_ajax_post(url, form_data);
+    };
+  })(this));
+
+  $("#interval_mapping_compute").on("mouseover", (function(_this) {
+    return function() {
+      if ($(".outlier").length && $(".outlier-alert").length < 1) {
+        return showalert(outlier_text, "alert-success outlier-alert");
+      }
     };
   })(this));
 

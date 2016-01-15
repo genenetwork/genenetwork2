@@ -109,7 +109,6 @@ class MarkerRegression(object):
                 self.pair_scan = True
 
             results = self.run_rqtl_geno()
-            #print("qtl_results:", results)
         elif self.mapping_method == "reaper":
             if start_vars['num_perm'] == "":
                 self.num_perm = 0
@@ -121,7 +120,6 @@ class MarkerRegression(object):
             results = self.gen_reaper_results()
         elif self.mapping_method == "plink":
             results = self.run_plink()
-            #print("qtl_results:", pf(results))
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
             self.num_perm = start_vars['num_perm']
@@ -621,9 +619,10 @@ class MarkerRegression(object):
         print("samples:", trimmed_samples)
 
         if self.control != "" and self.do_control == "true":
+            print("CONTROL IS:", self.control)
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                           trait = trimmed_values,
-                                                          control = self.control)
+                                                          control = str(self.control))
         else:
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                           trait = trimmed_values)
