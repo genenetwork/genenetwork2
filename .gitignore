@@ -7,3 +7,6 @@
 web/new_genotypes/HSNIH.json
 wqflask/secure_server.py
 wqflask/base/webqtlConfig.py
+build/
+dist/
+*.egg-info/
