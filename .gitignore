@@ -10,3 +10,4 @@ wqflask/base/webqtlConfig.py
 build/
 dist/
 *.egg-info/
+EGG-INFO/
