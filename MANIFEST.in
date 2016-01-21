@@ -1,5 +1,4 @@
 include wqflask/*
-include wqflask/output/*
 include wqflask/other_config/*
 include wqflask/other_config/nginx_conf/*
 include wqflask/cfg/*
