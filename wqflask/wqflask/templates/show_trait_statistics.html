@@ -1,433 +1,155 @@
-<br />
-
 <div>
-    <h2>Basic Statistics</h2>
+        <div class="tabbable"> <!-- Only required for left/right tabs -->
+            <ul class="nav nav-pills">
+                <li class="active">
+                    <a href="#stats_tab" data-toggle="tab">Basic Statistics</a>
+                </li>
+                <li>
+                    <a href="#histogram_tab" data-toggle="tab">Histogram</a>
+                </li>
+                <li>
+                    <a href="#bar_chart_tab" data-toggle="tab">Bar Chart</a>
+                </li>
+                <li>
+                    <a href="#probability_plot" data-toggle="tab">Probability Plot</a>
+                </li>
+                {% if g.user_session.user_ob %}
+                <li>
+                    <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
+                </li>
+                {% endif %}
+                <!--<li>
+                    <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
+                </li>-->
+            </ul>
 
+            <div class="tab-content">
+                <div class="tab-pane active" id="stats_tab">
+                    <div style="padding: 20px" class="form-horizontal">
+                            <table id="stats_table" style="width: 300px; float: left;" class="table table-hover table-striped"></table>
 
-    <p id="sectionbody2"></p>Include:
-                            <select name="corr_samples_group" size="1">
+                    </div>
+                </div>   
+                <div class="tab-pane" id="histogram_tab">
+                    <div style="padding: 20px" class="form-horizontal">
+                        {% if sample_groups|length != 1 %}
+                        <select class="histogram_samples_group">
                             {% for group, pretty_group in sample_group_types.items() %}
-                                <option value="{{ group }}">
-                                    {{ pretty_group }}
-                                </option>
+                                <option value="{{ group }}">{{ pretty_group }}</option>
                             {% endfor %}
-                            </select><br>
-    <br>
-    <input type="button" name="Default_Name" class="btn update" value=" Update Figures "><br>
-    <br>
+                        </select>
+                        <br><br>
+                        {% endif %}
+                        <div id="histogram_container">
+                            <div id="histogram" class="barchart"></div>
+                        </div>
+                    </div>
+                </div>   
+                <div class="tab-pane" id="bar_chart_tab">
+                    <div style="padding: 20px" class="form-horizontal">
+                        {% if sample_groups|length != 1 %}
+                        <select class="bar_chart_samples_group">
+                            {% for group, pretty_group in sample_group_types.items() %}
+                                <option value="{{ group }}">{{ pretty_group }}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                        {% if sample_groups[0].attributes %}
+                        <div class="input-append">
+                            <select id="color_attribute" size="1">
+                                <option value="None">None</option>
+                                {% for attribute in sample_groups[0].attributes %}
+                                <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
+                                    {{ sample_groups[0].attributes[attribute].name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        <div id="update_bar_chart" class="btn-group">
+                            <button type="button" class="btn btn-default sort_by_name" value="name">
+                            <i class="icon-resize-horizontal"></i> Sort By Name
+                            </button>
+                            <button type="button" class="btn btn-default sort_by_value" value="value">
+                            <i class="icon-signal"></i> Sort By Value
+                            </button>
+                        </div>
+                        {% if g.user_session.user_ob %}
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default" id="color_by_trait">
+                                <i class="icon-tint"></i> Color by Trait
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                        <div class="row" style="position:relative">
+                          <div id="bar_chart_legend" style="margin-left: 150px; margin-top:20px; position: absolute;">
+                            <span id="legend-left"></span>
+                            <span id="legend-colors"></span>
+                            <span id="legend-right"></span>
+                          </div>
+                        </div>
+                        <div style="margin-left: 20px; margin-right: 20px;" class="row" id="bar_chart_container">
+                            <svg></svg>
+                        </div>
+                </div>
+                <div class="tab-pane" id="probability_plot">
+                    <div style="padding: 20px" class="form-horizontal">
+                        {% if sample_groups|length != 1 %}
+                        <select class="prob_plot_samples_group">
+                            {% for group, pretty_group in sample_group_types.items() %}
+                                <option value="{{ group }}">{{ pretty_group }}</option>
+                            {% endfor %}
+                        </select>
+                        <br><br>
+                        {% endif %}
 
-          {% for sd in stats_data %}
-          <div class="ui-tabs" id="{{ 'stats_tabs%i' % loop.index0 }}">
-            <ul>
-              <li><a href="#statstabs-1" class="stats_tab">Basic Table</a></li>
+                        <div id="prob_plot_container">
+                            <div id="prob_plot_title"></div>
+                            <svg></svg>
+                        </div>
 
-              <li><a href="#statstabs-5" class="stats_tab">Probability Plot</a></li>
+                        <div>
+                            More about <a href="http://en.wikipedia.org/wiki/Normal_probability_plot" target="_blank">Normal Probability Plots</a> and more
+                            about interpreting these plots from the <a href="/glossary.html#normal_probability" target="_blank">glossary</a></td>
+                            </div>
 
-              <li><a href="#statstabs-3" class="stats_tab">Bar Graph (by name)</a></li>
+                    </div>
 
-              <li><a href="#statstabs-4" class="stats_tab">Bar Graph (by rank)</a></li>
-
-              <li><a href="#statstabs-2" class="stats_tab">Box Plot</a></li>
-            </ul>
-
-            <div id="statstabs-1">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td>
-                    <table cellpadding="20" cellspacing="0">
-                      <tr>
-                        <td class="fs14 fwb ffl b1 cw cbrb" align="left" width="180">Statistic</td>
-
-                        <td class="fs14 fwb ffl b1 cw cbrb" align="right" width="60">Value</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" align="left">N of Samples</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes" id="n_of_samples_value">{{ sd.N }}</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Mean</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes" id="mean_value">{{ "%2.3f" % sd.traitmean }}</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Median</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes" id="median_value">{{ "%2.3f" % sd.traitmedian }}</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Error (SE)</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.traitsem }}</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Deviation (SD)</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.traitstdev }}</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Minimum</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.min }}</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Maximum</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.max }}</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Range (log2)</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.range_log2 }}</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left"><span>Range (fold)</span></td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.range_fold }}</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left"><span><a href="/glossary.html#Interquartile" target="_blank" class=
-                        "non_bold">Interquartile Range</a></span></td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">{{ "%2.3f" % sd.interquartile }} </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
+                </div>
+<!--                <div class="tab-pane" id="box_plot_tab">
+                    {% if sample_groups|length > 1 %}
+                    <select class="box_plot_samples_group">
+                        {% for group, pretty_group in sample_group_types.items() %}
+                            <option value="{{ group }}">{{ pretty_group }}</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
+                    {% endif %}
+                    <div id="box_plot_container">
+                        <div id="box_plot"></div>
+                    </div>
+                </div>-->
+                {% if g.user_session.user_ob %}
+                <div class="tab-pane" id="scatterplot_matrix">
+                    
+                    <div style="margin-bottom:40px;" class="btn-group">
+                        <button type="button" class="btn btn-default" id="select_compare_trait">
+                            <i class="icon-th-large"></i> Select Traits
+                        </button>
+                        <button type="button" class="btn btn-default" id="clear_compare_trait">
+                            <i class="icon-trash"></i> Clear
+                        </button>
+                    </div>
+                    <div id="scatterplot_container">
+                        <div id="comparison_scatterplot" class="qtlcharts"></div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
-
-            <div id="statstabs-5">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td><img src="/image/nP_OE9u7BSx.gif" alt="nP_OE9u7BSx.gif" border="0"></td>
-                </tr>
-
-                <tr>
-                  <td><br>
-                  <br>
-                  This plot evaluates whether data are normally distributed. Different symbols represent different groups.<br>
-                  <br>
-                  More about <a href="http://en.wikipedia.org/wiki/Normal_probability_plot" target="_blank">Normal Probability Plots</a> and more
-                  about interpreting these plots from the <a href="/glossary.html#normal_probability" target="_blank">glossary</a></td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-2">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td align="left">
-                    <img src="/image/Box_gUFtEOVI.gif" alt="Box_gUFtEOVI.gif" border="0">
-
-                    <p><span>More about <a href="http://davidmlane.com/hyperstat/A37797.html" target="_blank" class="fs13">Box Plots</a></span></p>
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-3">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td><img src="/image/Bar_y7L2rYlL.gif" alt="Bar_y7L2rYlL.gif" border="0"></td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-4">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td><img src="/image/Bar_1Z4GjYFq.gif" alt="Bar_1Z4GjYFq.gif" border="0"></td>
-                </tr>
-              </table>
-            </div>
-          </div>
-          {% endfor %}
-        {# Not used now - Todo: Delete after we're sure this is right.
-          <div class="ui-tabs" id="stats_tabs1">
-            <ul>
-              <li><a href="#statstabs-1" class="stats_tab">Basic Table</a></li>
-
-              <li><a href="#statstabs-5" class="stats_tab">Probability Plot</a></li>
-
-              <li><a href="#statstabs-3" class="stats_tab">Bar Graph (by name)</a></li>
-
-              <li><a href="#statstabs-4" class="stats_tab">Bar Graph (by rank)</a></li>
-
-              <li><a href="#statstabs-2" class="stats_tab">Box Plot</a></li>
-            </ul>
-
-            <div id="statstabs-1">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td>
-                    <table cellpadding="20" cellspacing="0">
-                      <tr>
-                        <td class="fs14 fwb ffl b1 cw cbrb" align="left" width="180">Statistic</td>
-
-                        <td class="fs14 fwb ffl b1 cw cbrb" align="right" width="60">Value</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" align="left">N of Samples</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">71</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Mean</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">6.109</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Median</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">6.084</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Error (SE)</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">0.022</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Deviation (SD)</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">0.187</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Minimum</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">5.782</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Maximum</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">6.579</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Range (log2)</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">0.797</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left"><span>Range (fold)</span></td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">1.74</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left"><span><a href="/glossary.html#Interquartile" target="_blank" class=
-                        "non_bold">Interquartile Range</a></span></td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">1.13</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-5">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td><img src="/image/nP_eSYO7ZQg.gif" alt="nP_eSYO7ZQg.gif" border="0"></td>
-                </tr>
-
-                <tr>
-                  <td><br>
-                  <br>
-                  This plot evaluates whether data are normally distributed. Different symbols represent different groups.<br>
-                  <br>
-                  More about <a href="http://en.wikipedia.org/wiki/Normal_probability_plot" target="_blank">Normal Probability Plots</a> and more
-                  about interpreting these plots from the <a href="/glossary.html#normal_probability" target="_blank">glossary</a></td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-2">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td align="left">
-                    <img src="/image/Box_PWNWQMfj.gif" alt="Box_PWNWQMfj.gif" border="0">
-
-                    <p><span>More about <a href="http://davidmlane.com/hyperstat/A37797.html" target="_blank" class="fs13">Box Plots</a></span></p>
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-3">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td><img src="/image/Bar_VuPqYbR6.gif" alt="Bar_VuPqYbR6.gif" border="0"></td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-4">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td><img src="/image/Bar_9PbdvXZ9.gif" alt="Bar_9PbdvXZ9.gif" border="0"></td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div class="ui-tabs" id="stats_tabs2">
-
-
-            <ul>
-              <li><a href="#statstabs-1" class="stats_tab">Basic Table</a></li>
-
-              <li><a href="#statstabs-5" class="stats_tab">Probability Plot</a></li>
-
-              <li><a href="#statstabs-3" class="stats_tab">Bar Graph (by name)</a></li>
-
-              <li><a href="#statstabs-4" class="stats_tab">Bar Graph (by rank)</a></li>
-
-              <li><a href="#statstabs-2" class="stats_tab">Box Plot</a></li>
-            </ul>
-
-            <div id="statstabs-1">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td>
-                    <table cellpadding="20" cellspacing="0">
-                      <tr>
-                        <td class="fs14 fwb ffl b1 cw cbrb" align="left" width="180">Statistic</td>
-
-                        <td class="fs14 fwb ffl b1 cw cbrb" align="right" width="60">Value</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" align="left">N of Samples</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">32</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Mean</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">6.176</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Median</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">6.170</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Error (SE)</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">0.027</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Standard Deviation (SD)</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">0.150</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Minimum</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">5.906</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Maximum</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">6.485</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left">Range (log2)</td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">0.579</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left"><span>Range (fold)</span></td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">1.49</td>
-                      </tr>
-
-                      <tr align="right">
-                        <td class="fs13 b1 cbw c222" nowrap="yes" align="left"><span><a href="/glossary.html#Interquartile" target="_blank" class=
-                        "non_bold">Interquartile Range</a></span></td>
-
-                        <td class="fs13 b1 cbw c222" nowrap="yes">1.15</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-5">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td><img src="/image/nP_swDAFlJy.gif" alt="nP_swDAFlJy.gif" border="0"></td>
-                </tr>
-
-                <tr>
-                  <td><br>
-                  <br>
-                  This plot evaluates whether data are normally distributed. Different symbols represent different groups.<br>
-                  <br>
-                  More about <a href="http://en.wikipedia.org/wiki/Normal_probability_plot" target="_blank">Normal Probability Plots</a> and more
-                  about interpreting these plots from the <a href="/glossary.html#normal_probability" target="_blank">glossary</a></td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-2">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td align="left">
-                    <img src="/image/Box_6sQJ8xhK.gif" alt="Box_6sQJ8xhK.gif" border="0">
-
-                    <p><span>More about <a href="http://davidmlane.com/hyperstat/A37797.html" target="_blank" class="fs13">Box Plots</a></span></p>
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-3">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td><img src="/image/Bar_QMWE2VEp.gif" alt="Bar_QMWE2VEp.gif" border="0"></td>
-                </tr>
-              </table>
-            </div>
-
-            <div id="statstabs-4">
-              <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td><img src="/image/Bar_X07QmgsX.gif" alt="Bar_X07QmgsX.gif" border="0"></td>
-                </tr>
-              </table>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </table>
-    #}
+        </div>
+    <!--</div>-->
+    <div id="collections_holder_wrapper" style="display:none;">
+        <div id="collections_holder"></div>
+    </div>
+   
+</div>

@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Trait Data and Analysis{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/nvd3/nv.d3.min.css" />
@@ -50,7 +48,7 @@
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse in">
                         <div class="panel-body">
-                            {% include 'show_trait_statistics_new.html' %}
+                            {% include 'show_trait_statistics.html' %}
                         </div>
                     </div>
                 </div>                
@@ -115,8 +113,6 @@
     <script type="text/javascript" src="/static/new/js_external/jstat.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/shapiro-wilk.js"></script>
     <script type="text/javascript" src="/static/new/javascript/colorbrewer.js"></script>
-    <script type="text/javascript" src="/static/new/packages/ValidationPlugin/dist/jquery.validate.min.js"></script>
-    <script type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
 
     <script type="text/javascript" src="/static/new/javascript/stats.js"></script>
     <script type="text/javascript" src="/static/new/javascript/box.js"></script>
@@ -136,9 +132,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/libs/Blob.js/BlobBuilder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.standard_fonts_metrics.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/jsPDF/jspdf.plugin.from_html.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
 
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
