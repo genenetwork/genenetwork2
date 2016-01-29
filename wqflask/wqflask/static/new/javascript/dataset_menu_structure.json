@@ -14,12 +14,14 @@
          "BayXSha": {
             "Genotypes": [
                [
+                  "None",
                   "BayXShaGeno",
                   "BayXSha Genotypes"
                ]
             ],
             "Phenotypes": [
                [
+                  "642",
                   "BayXShaPublish",
                   "BayXSha Published Phenotypes"
                ]
@@ -28,12 +30,14 @@
          "ColXBur": {
             "Genotypes": [
                [
+                  "None",
                   "ColXBurGeno",
                   "ColXBur Genotypes"
                ]
             ],
             "Phenotypes": [
                [
+                  "623",
                   "ColXBurPublish",
                   "ColXBur Published Phenotypes"
                ]
@@ -42,12 +46,14 @@
          "ColXCvi": {
             "Genotypes": [
                [
+                  "None",
                   "ColXCviGeno",
                   "ColXCvi Genotypes"
                ]
             ],
             "Phenotypes": [
                [
+                  "640",
                   "ColXCviPublish",
                   "ColXCvi Published Phenotypes"
                ]
@@ -99,6 +105,7 @@
             ],
             "Genotypes": [
                [
+                  "615",
                   "SXMGeno",
                   "SXM Genotypes"
                ]
@@ -122,6 +129,7 @@
             ],
             "Phenotypes": [
                [
+                  "608",
                   "SXMPublish",
                   "SXM Published Phenotypes"
                ]
@@ -198,6 +206,7 @@
             ],
             "Genotypes": [
                [
+                  "None",
                   "AD-cases-controls-MyersGeno",
                   "AD-cases-controls-Myers Genotypes"
                ]
@@ -285,6 +294,7 @@
             ],
             "Phenotypes": [
                [
+                  "634",
                   "CANDLEPublish",
                   "CANDLE Published Phenotypes"
                ]
@@ -941,6 +951,7 @@
          "HCP": {
             "Phenotypes": [
                [
+                  "None",
                   "HCPPublish",
                   "HCP Published Phenotypes"
                ]
@@ -966,6 +977,7 @@
             ],
             "Phenotypes": [
                [
+                  "635",
                   "HLCPublish",
                   "HLC Published Phenotypes"
                ]
@@ -1153,6 +1165,7 @@
          "AKXD": {
             "Genotypes": [
                [
+                  "611",
                   "AKXDGeno",
                   "AKXD Genotypes"
                ]
@@ -1192,6 +1205,7 @@
             ],
             "Genotypes": [
                [
+                  "636",
                   "AXBXAGeno",
                   "AXBXA Genotypes"
                ]
@@ -1212,6 +1226,7 @@
             ],
             "Phenotypes": [
                [
+                  "629",
                   "AXBXAPublish",
                   "AXBXA Published Phenotypes"
                ]
@@ -1220,6 +1235,7 @@
          "B6BTBRF2": {
             "Genotypes": [
                [
+                  "618",
                   "B6BTBRF2Geno",
                   "B6BTBRF2 Genotypes"
                ]
@@ -1238,6 +1254,7 @@
             ],
             "Phenotypes": [
                [
+                  "603",
                   "B6BTBRF2Publish",
                   "B6BTBRF2 Published Phenotypes"
                ]
@@ -1245,6 +1262,11 @@
          },
          "B6D2F2": {
             "Brain mRNA": [
+               [
+                  "77",
+                  "BRF2_M_0805_R",
+                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
+               ],
                [
                   "76",
                   "BRF2_M_0805_M",
@@ -1254,11 +1276,6 @@
                   "78",
                   "BRF2_M_0805_P",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
-               ],
-               [
-                  "77",
-                  "BRF2_M_0805_R",
-                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
                ],
                [
                   "33",
@@ -1278,6 +1295,7 @@
             ],
             "Genotypes": [
                [
+                  "637",
                   "B6D2F2Geno",
                   "B6D2F2 Genotypes"
                ]
@@ -1286,6 +1304,7 @@
          "B6D2F2-PSU": {
             "Genotypes": [
                [
+                  "617",
                   "B6D2F2-PSUGeno",
                   "B6D2F2-PSU Genotypes"
                ]
@@ -1325,6 +1344,7 @@
          "BDF2-1999": {
             "Genotypes": [
                [
+                  "None",
                   "BDF2-1999Geno",
                   "BDF2-1999 Genotypes"
                ]
@@ -1340,6 +1360,7 @@
          "BDF2-2005": {
             "Genotypes": [
                [
+                  "None",
                   "BDF2-2005Geno",
                   "BDF2-2005 Genotypes"
                ]
@@ -1399,6 +1420,7 @@
             ],
             "Genotypes": [
                [
+                  "None",
                   "BHF2Geno",
                   "BHF2 Genotypes"
                ]
@@ -1475,6 +1497,7 @@
             ],
             "Genotypes": [
                [
+                  "None",
                   "BHHBF2Geno",
                   "BHHBF2 Genotypes"
                ]
@@ -1791,6 +1814,11 @@
                   "Eye M430v2 WT Gpnmb (Sep08) RMA **"
                ],
                [
+                  "279",
+                  "Eye_M2_0908_R_WT",
+                  "Eye M430v2 WT Tyrp1 (Sep08) RMA **"
+               ],
+               [
                   "278",
                   "Eye_M2_0908_R_MT",
                   "Eye M430v2 Mutant Tyrp1 (Sep08) RMA **"
@@ -1799,11 +1827,6 @@
                   "382",
                   "Eye_M2_0908_WTWT",
                   "Eye M430v2 WT WT (Sep08) RMA **"
-               ],
-               [
-                  "279",
-                  "Eye_M2_0908_R_WT",
-                  "Eye M430v2 WT Tyrp1 (Sep08) RMA **"
                ],
                [
                   "400",
@@ -1825,6 +1848,7 @@
             ],
             "Genotypes": [
                [
+                  "600",
                   "BXDGeno",
                   "BXD Genotypes"
                ]
@@ -1940,14 +1964,14 @@
                   "UTHSC Hippocampus Illumina v6.1 RSS (Nov12) RankInv"
                ],
                [
-                  "206",
-                  "UMUTAffyExon_0209_RMA",
-                  "UMUTAffy Hippocampus Exon (Feb09) RMA"
-               ],
-               [
                   "296",
                   "UT_ILM_BXD_hipp_RSE_1112",
                   "UTHSC Hippocampus Illumina v6.1 RSE (Nov12) RankInv"
+               ],
+               [
+                  "206",
+                  "UMUTAffyExon_0209_RMA",
+                  "UMUTAffy Hippocampus Exon (Feb09) RMA"
                ],
                [
                   "242",
@@ -2036,14 +2060,14 @@
             ],
             "Kidney mRNA": [
                [
-                  "240",
-                  "MA_M2M_0706_R",
-                  "Mouse kidney M430v2 Male (Aug06) RMA"
-               ],
-               [
                   "239",
                   "MA_M2F_0706_R",
                   "Mouse kidney M430v2 Female (Aug06) RMA"
+               ],
+               [
+                  "240",
+                  "MA_M2M_0706_R",
+                  "Mouse kidney M430v2 Male (Aug06) RMA"
                ],
                [
                   "118",
@@ -2333,6 +2357,7 @@
             ],
             "Phenotypes": [
                [
+                  "602",
                   "BXDPublish",
                   "BXD Published Phenotypes"
                ]
@@ -2640,6 +2665,7 @@
             ],
             "Genotypes": [
                [
+                  "638",
                   "BXHGeno",
                   "BXH Genotypes"
                ]
@@ -2653,6 +2679,7 @@
             ],
             "Phenotypes": [
                [
+                  "627",
                   "BXHPublish",
                   "BXH Published Phenotypes"
                ]
@@ -2661,12 +2688,14 @@
          "C57BL-6JxC57BL-6NJF2": {
             "Genotypes": [
                [
+                  "622",
                   "C57BL-6JxC57BL-6NJF2Geno",
                   "C57BL-6JxC57BL-6NJF2 Genotypes"
                ]
             ],
             "Phenotypes": [
                [
+                  "620",
                   "C57BL-6JxC57BL-6NJF2Publish",
                   "C57BL-6JxC57BL-6NJF2 Published Phenotypes"
                ]
@@ -2709,6 +2738,7 @@
             ],
             "Genotypes": [
                [
+                  "None",
                   "CTB6F2Geno",
                   "CTB6F2 Genotypes"
                ]
@@ -2749,6 +2779,7 @@
             ],
             "Phenotypes": [
                [
+                  "630",
                   "CTB6F2Publish",
                   "CTB6F2 Published Phenotypes"
                ]
@@ -2757,6 +2788,7 @@
          "CXB": {
             "Genotypes": [
                [
+                  "614",
                   "CXBGeno",
                   "CXB Genotypes"
                ]
@@ -2775,6 +2807,7 @@
             ],
             "Phenotypes": [
                [
+                  "628",
                   "CXBPublish",
                   "CXB Published Phenotypes"
                ]
@@ -2811,6 +2844,7 @@
             ],
             "Phenotypes": [
                [
+                  "624",
                   "HSPublish",
                   "HS Published Phenotypes"
                ]
@@ -2828,6 +2862,7 @@
          "LXS": {
             "Genotypes": [
                [
+                  "601",
                   "LXSGeno",
                   "LXS Genotypes"
                ]
@@ -2869,6 +2904,11 @@
                   "Hippocampus Illumina (May07) RankInv"
                ],
                [
+                  "219",
+                  "Illum_LXS_Hipp_NON_1008",
+                  "Hippocampus Illumina NON (Oct08) RankInv beta"
+               ],
+               [
                   "212",
                   "Illum_LXS_Hipp_RSE_1008",
                   "Hippocampus Illumina RSE (Oct08) RankInv beta"
@@ -2887,15 +2927,11 @@
                   "213",
                   "Illum_LXS_Hipp_NOS_1008",
                   "Hippocampus Illumina NOS (Oct08) RankInv beta"
-               ],
-               [
-                  "219",
-                  "Illum_LXS_Hipp_NON_1008",
-                  "Hippocampus Illumina NON (Oct08) RankInv beta"
                ]
             ],
             "Phenotypes": [
                [
+                  "606",
                   "LXSPublish",
                   "LXS Published Phenotypes"
                ]
@@ -2921,12 +2957,14 @@
          "Linsenbardt-Boehm": {
             "Genotypes": [
                [
+                  "None",
                   "Linsenbardt-BoehmGeno",
                   "Linsenbardt-Boehm Genotypes"
                ]
             ],
             "Phenotypes": [
                [
+                  "645",
                   "Linsenbardt-BoehmPublish",
                   "Linsenbardt-Boehm Published Phenotypes"
                ]
@@ -2949,6 +2987,7 @@
             ],
             "Genotypes": [
                [
+                  "609",
                   "MDPGeno",
                   "MDP Genotypes"
                ]
@@ -2994,6 +3033,7 @@
             ],
             "Phenotypes": [
                [
+                  "605",
                   "MDPPublish",
                   "Mouse Phenome Database"
                ]
@@ -3009,6 +3049,7 @@
             ],
             "Phenotypes": [
                [
+                  "607",
                   "NZBXFVB-N2Publish",
                   "NZBXFVB-N2 Published Phenotypes"
                ]
@@ -3017,6 +3058,7 @@
          "SOTNOT-OHSU": {
             "Genotypes": [
                [
+                  "613",
                   "SOTNOT-OHSUGeno",
                   "SOTNOT-OHSU Genotypes"
                ]
@@ -3041,6 +3083,7 @@
          "HSNIH": {
             "Phenotypes": [
                [
+                  "619",
                   "HSNIHPublish",
                   "HSNIH Published Phenotypes"
                ]
@@ -3056,6 +3099,7 @@
             ],
             "Genotypes": [
                [
+                  "None",
                   "HXBBXHGeno",
                   "HXBBXH Genotypes"
                ]
@@ -3112,6 +3156,7 @@
             ],
             "Phenotypes": [
                [
+                  "632",
                   "HXBBXHPublish",
                   "HXBBXH Published Phenotypes"
                ]
@@ -3131,12 +3176,14 @@
          "J12XJ58F11": {
             "Genotypes": [
                [
+                  "None",
                   "J12XJ58F11Geno",
                   "J12XJ58F11 Genotypes"
                ]
             ],
             "Phenotypes": [
                [
+                  "647",
                   "J12XJ58F11Publish",
                   "J12XJ58F11 Published Phenotypes"
                ]
@@ -3145,6 +3192,7 @@
          "J12XJ58F2": {
             "Phenotypes": [
                [
+                  "616",
                   "J12XJ58F2Publish",
                   "J12XJ58F2 Published Phenotypes"
                ]
@@ -3155,6 +3203,7 @@
          "LXP": {
             "Phenotypes": [
                [
+                  "621",
                   "LXPPublish",
                   "LXP Published Phenotypes"
                ]

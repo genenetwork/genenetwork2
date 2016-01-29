@@ -156,15 +156,6 @@ def build_types(species, group):
      
     """
     
-    #print("""select distinct Tissue.Name
-    #                   from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
-    #                   where Species.Name = '{}' and Species.Id = InbredSet.SpeciesId and
-    #                   InbredSet.Name = '{}' and
-    #                   ProbeFreeze.TissueId = Tissue.Id and
-    #                   ProbeFreeze.InbredSetId = InbredSet.Id and
-    #                   ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-    #                   ProbeSetFreeze.public > 0
-    #                   order by Tissue.Name""".format(species, group))
     Cursor.execute("""select distinct Tissue.Name
                        from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
                        where Species.Name = %s and Species.Id = InbredSet.SpeciesId and
@@ -199,6 +190,19 @@ def build_datasets(species, group, type_name):
     """Gets dataset names from database"""
     dataset_text = dataset_value = None
     if type_name == "Phenotypes":
+        print("GROUP:", group)
+        Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
+                    InbredSet.Name = %s and 
+                    PublishFreeze.InbredSetId = InbredSet.Id and
+                    InfoFiles.InfoPageName = PublishFreeze.Name and
+                    PublishFreeze.public > 0 order by
+                    PublishFreeze.CreateTime desc""", (group))
+
+        results = Cursor.fetchone()
+        if results != None:
+            dataset_id = str(results[0])
+        else:
+            dataset_id = "None"
         dataset_value = "%sPublish" % group
         if group == 'MDP':
             dataset_text = "Mouse Phenome Database"
@@ -206,20 +210,24 @@ def build_datasets(species, group, type_name):
             dataset_text = "%s Published Phenotypes" % group
 
     elif type_name == "Genotypes":
+        Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where
+                    InbredSet.Name = %s and 
+                    GenoFreeze.InbredSetId = InbredSet.Id and
+                    InfoFiles.InfoPageName = GenoFreeze.ShortName and
+                    GenoFreeze.public > 0 order by
+                    GenoFreeze.CreateTime desc""", (group))
+
+        results = Cursor.fetchone()
+        if results != None:
+            dataset_id = str(results[0])
+        else:
+            dataset_id = "None"
         dataset_value = "%sGeno" % group
         dataset_text = "%s Genotypes" % group
 
     if dataset_value:
-        return [(dataset_value, dataset_text)]
+        return [(dataset_id, dataset_value, dataset_text)]
     else:
-        #print("""select ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
-        #            ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
-        #            Species.Name = '{}' and Species.Id = InbredSet.SpeciesId and
-        #            InbredSet.Name = '{}' and
-        #            ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '{}'
-        #            and ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId =
-        #            InbredSet.Id and ProbeSetFreeze.public > 0 order by
-        #            ProbeSetFreeze.CreateTime desc""".format(species, group, type_name))
         Cursor.execute("""select ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
                     Species.Name = %s and Species.Id = InbredSet.SpeciesId and
@@ -247,7 +255,6 @@ def main():
 
     species = get_species()
     groups = get_groups(species)
-    print("groups:", groups)
     types = get_types(groups)
     datasets = get_datasets(types)
 
