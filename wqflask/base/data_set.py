@@ -91,7 +91,7 @@ class Dataset_Types(object):
                     for dataset in data['datasets'][species][group][dataset_type]:
                         #print("dataset is:", dataset)
                         
-                        short_dataset_name = dataset[0]
+                        short_dataset_name = dataset[1]
                         if dataset_type == "Phenotypes":
                             new_type = "Publish"
                         elif dataset_type == "Genotypes":

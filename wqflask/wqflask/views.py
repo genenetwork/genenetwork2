@@ -201,6 +201,11 @@ def references():
     doc = docs.Docs("references")
     return render_template("docs.html", **doc.__dict__)
 
+@app.route("/intro")
+def intro():
+    doc = docs.Docs("intro")
+    return render_template("docs.html", **doc.__dict__)
+
 @app.route("/policies")
 def policies():
     doc = docs.Docs("policies")
