@@ -16,7 +16,7 @@
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <!-- Need to customize text more for other types of searches -->
-        <p>We searched <a href="/static/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a>
+        <p>We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{dataset.id}}">{{ dataset.fullname }}</a>
            to find all records
                 {% for word in search_terms %}
                     {% if word.key|lower == "rif" %}

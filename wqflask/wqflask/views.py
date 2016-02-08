@@ -385,10 +385,10 @@ def marker_regression_page():
 
         #causeerror
         
-        #print("TESTING GN1!!!")
-        #gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
-        #print("gn1_template_vars:", gn1_template_vars)
-        #causeerror
+        print("TESTING GN1!!!")
+        gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+        print("gn1_template_vars:", gn1_template_vars)
+        causeerror
 
 
         #qtl_length = len(result['js_data']['qtl_results'])
