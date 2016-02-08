@@ -182,7 +182,7 @@ class CorrelationResults(object):
                                                                        key=lambda t: -abs(t[1][0])))
 
 
-            if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
+            if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
                 #ZS: Convert min/max chromosome to an int for the location range option
                 range_chr_as_int = None
                 for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
@@ -202,7 +202,7 @@ class CorrelationResults(object):
                 if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
                     float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
-                    if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
+                    if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
 
                         if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
                             continue
