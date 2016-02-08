@@ -1,0 +1,35 @@
+#+TITLE: Installing GeneNetwork services with GNU Guix
+
+* Table of Contents                                                     :TOC:
+ - [[#introduction][Introduction]]
+ - [[#binary-deployment][Binary deployment]]
+ - [[#from-source-deployment][From source deployment]]
+
+* Introduction
+
+Large system deployments tend to get very complex. In this document we
+explain the GeneNetwork deployment system which is based on GNU Guix
+(see Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]).
+
+* Binary deployment
+
+NYA (will go to README)
+
+* From source deployment
+
+GNU Guix allows for [[https://github.com/pjotrp/guix-notes/blob/master/REPRODUCIBLE.org][reproducible deployment]] based on a checked out
+Guix repository - use gn-stable for that:
+
+#+begin_src sh   :lang bash
+mkdir genenetwork
+cd genenetwork
+git checkout https://github.com/genenetwork/guix.git gn-stable-guix
+git checkout https://github.com/genenetwork/guix-bioinformatics.git
+#+end_src
+
+Next build guix (and run) following the instructions in [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][guix-notes]].
+
+Once that is done we can add the guix-bioinformatics path with
+
+: env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix package -A slurm
+
