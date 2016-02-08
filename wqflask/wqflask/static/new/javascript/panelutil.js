@@ -105,7 +105,7 @@ reorgLodData = function(data, lodvarname) {
   return data;
 };
 
-chrscales = function(data, width, chrGap, leftMargin, pad4heatmap) {
+chrscales = function(data, width, chrGap, leftMargin, pad4heatmap, mappingScale) {
   var L, chr, chrEnd, chrLength, chrStart, cur, d, i, maxd, rng, totalChrLength, w, _i, _j, _len, _len1, _ref, _ref1;
   chrStart = [];
   chrEnd = [];
@@ -156,7 +156,15 @@ chrscales = function(data, width, chrGap, leftMargin, pad4heatmap) {
     w = Math.round((width - chrGap * (data.chrnames.length - pad4heatmap)) / totalChrLength * chrLength[i]);
     data.chrEnd.push(cur + w);
     cur = data.chrEnd[i] + chrGap;
-    data.xscale[chr[0]] = d3.scale.linear().domain([chrStart[i], chrEnd[i]]).range([data.chrStart[i], data.chrEnd[i]]);
+
+    if (mappingScale == "morgan") {
+        max_pos = d3.max(data.posByChr[chr[0]])
+        console.log("max_pos:", max_pos)
+        data.xscale[chr[0]] = d3.scale.linear().domain([chrStart[i], max_pos]).range([data.chrStart[i], data.chrEnd[i]]);
+    }
+    else {
+        data.xscale[chr[0]] = d3.scale.linear().domain([chrStart[i], chrEnd[i]]).range([data.chrStart[i], data.chrEnd[i]]);
+    }
   }
   return data;
 };

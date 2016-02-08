@@ -19,7 +19,7 @@ class MrnaAssayTissueData(object):
         if self.gene_symbols == None:
             self.gene_symbols = []
         
-        print("self.gene_symbols:", self.gene_symbols)
+        #print("self.gene_symbols:", self.gene_symbols)
         
         self.data = collections.defaultdict(Bunch)
             
@@ -57,9 +57,15 @@ class MrnaAssayTissueData(object):
 
         results = g.db.execute(query).fetchall()
         
+        lower_symbols = []
+        for gene_symbol in gene_symbols:
+            if gene_symbol != None:
+                lower_symbols.append(gene_symbol.lower())
+
         for result in results:
             symbol = result[0]
-            if symbol.lower() in [gene_symbol.lower() for gene_symbol in gene_symbols]:
+            #if symbol.lower() in [gene_symbol.lower() for gene_symbol in gene_symbols]:
+            if symbol.lower() in lower_symbols:
                 #gene_symbols.append(symbol)
                 symbol = symbol.lower()
                 

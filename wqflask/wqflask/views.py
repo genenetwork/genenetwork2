@@ -42,6 +42,7 @@ from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.heatmap import heatmap
 from wqflask.marker_regression import marker_regression
+from wqflask.marker_regression import marker_regression_gn1
 from wqflask.interval_mapping import interval_mapping
 from wqflask.correlation import show_corr_results
 from wqflask.correlation_matrix import show_corr_matrix
@@ -132,7 +133,7 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        key = "search_results:v2:" + json.dumps(request.args, sort_keys=True)
+        key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
@@ -334,6 +335,8 @@ def marker_regression_page():
         'trait_id',
         'dataset',
         'method',
+        'mapping_scale',
+        'score_type',
         'suggestive',
         'num_perm',
         'maf',
@@ -355,7 +358,8 @@ def marker_regression_page():
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     print("key is:", pf(key))
     with Bench("Loading cache"):
-        result = Redis.get(key)
+        result = None # Just for testing
+        #result = Redis.get(key)
 
     #print("************************ Starting result *****************")
     #print("result is [{}]: {}".format(type(result), result))
@@ -374,14 +378,19 @@ def marker_regression_page():
                                            indent="   ")
 
         result = template_vars.__dict__
+        #print("initial result:", result['qtl_results'])
 
-        print("DATASET:", pf(result['dataset']))
-
-        for item in template_vars.__dict__.keys():
-            print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
+        #for item in template_vars.__dict__.keys():
+        #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
         #causeerror
         
+        print("TESTING GN1!!!")
+        gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+        print("gn1_template_vars:", gn1_template_vars)
+        causeerror
+
+
         #qtl_length = len(result['js_data']['qtl_results'])
         #print("qtl_length:", qtl_length)
         pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
@@ -403,6 +412,7 @@ def marker_regression_page():
             rendered_template = render_template("pair_scan_results.html", **result)
         else:
             rendered_template = render_template("marker_regression.html", **result)
+            #rendered_template = render_template("marker_regression_gn1.html", **result)
 
     return rendered_template
 

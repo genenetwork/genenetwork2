@@ -15,10 +15,34 @@
 
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
-        <p>We searched <a href="/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a>
-           to find all records that match
+        <!-- Need to customize text more for other types of searches -->
+        <p>We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{dataset.id}}">{{ dataset.fullname }}</a>
+           to find all records
                 {% for word in search_terms %}
-                    <strong>{{word.search_term[0]}}</strong> {% if not loop.last %} or {% endif %}
+                    {% if word.key|lower == "rif" %}
+                    with <u>GeneRIF</u> containing <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    {% elif word.key|lower == "go" %}
+                    with <u>Gene Ontology ID</u> <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    {% elif word.key|lower == "wiki" %}
+                    with <u>GeneWiki</u> containing <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    {% elif word.key|lower == "mean" %}
+                    with <u>MEAN</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if not loop.last %} and {% endif %}
+                    {% elif word.key|lower == "lrs" or word.key|lower == "translrs" or word.key|lower == "cislrs" %}
+                    {% if word.search_term|length == 1 %}
+                    with {% if word.key|lower == "translrs" %}trans{% elif word.key|lower == "cislrs" %}cis{% endif %}LRS {% if word.separator == ">" %} greater than {% elif word.separator == "<" %} less than {% elif word.separator == ">=" %} greater than or equal to {% elif word.separator == "<=" %} less than or equal to {% endif %} <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    {% elif word.search_term|length == 2 %}
+                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if not loop.last %} and {% endif %}
+                    {% elif word.search_term|length == 3 %}
+                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if not loop.last %} and {% endif %}
+                    {% elif word.search_term|length == 5 %}
+                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if not loop.last %} and {% endif %}
+                    {% endif %}
+                    {% elif word.key|lower == "position" %}
+                    with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if not loop.last %} and {% endif %}
+                    {% else %}
+                    with {{ word.key|lower }} matching {{ word.search_term[0] }}
+                    {% endif %}
+                    <!--<strong>{{word.search_term[0]}}</strong> {% if not loop.last %} or {% endif %}-->
                 {% endfor %}.
 
         </p>
@@ -49,6 +73,8 @@
           <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
           <br />
           <br />
+<!--
+          Removing this until more options are added and work correctly
           {% if dataset.type == 'ProbeSet' %}
           <button class="btn btn-default" id="open_options">Open Extra Options</button>
           <br />
@@ -60,6 +86,8 @@
           <br />
           <br />
           {% endif %}
+-->
+
           <div id="table_container">
             <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
                 <thead>
@@ -158,39 +186,6 @@
             return parseFloat(x);
         }
 
-
-        function filtering( oSettings, aData, iDataIndex, column) {
-            var iColumn = column;
-            if (document.getElementById('min').value){
-                var iMin = document.getElementById('min').value * 1;
-            } else {
-                var iMin = 0
-            }
-            if (document.getElementById('max').value){
-                var iMax = document.getElementById('max').value * 1;
-            } else {
-                var iMax = 10000
-            }
-
-            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn]*1;
-            if ( iMin === "" && iMax === "" )
-            {
-                return true;
-            }
-            else if ( iMin === "" && iVersion < iMax )
-            {
-                return true;
-            }
-            else if ( iMin < iVersion && "" === iMax )
-            {
-                return true;
-            }
-            else if ( iMin < iVersion && iVersion < iMax )
-            {
-                return true;
-            }
-                return false;
-        }
 
         jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
             var x = getValue(a);
@@ -304,13 +299,6 @@
             $('#redraw').click(function() {
                 var table = $('#trait_table').DataTable();
                 table.colReorder.reset()
-            });
-
-            $('#min').keyup( function() { table.draw(); } );
-            $('#max').keyup( function() { table.draw(); } );
-
-            $('#open_options').click( function () {
-                $('#extra_options').toggle();
             });
 
         });

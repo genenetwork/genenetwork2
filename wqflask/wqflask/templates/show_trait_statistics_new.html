@@ -13,9 +13,11 @@
                 <li>
                     <a href="#probability_plot" data-toggle="tab">Probability Plot</a>
                 </li>
+                {% if g.user_session.user_ob %}
                 <li>
                     <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
                 </li>
+                {% endif %}
                 <!--<li>
                     <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
                 </li>-->
@@ -127,6 +129,7 @@
                         <div id="box_plot"></div>
                     </div>
                 </div>-->
+                {% if g.user_session.user_ob %}
                 <div class="tab-pane" id="scatterplot_matrix">
                     
                     <div style="margin-bottom:40px;" class="btn-group">
@@ -141,6 +144,7 @@
                         <div id="comparison_scatterplot" class="qtlcharts"></div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     <!--</div>-->

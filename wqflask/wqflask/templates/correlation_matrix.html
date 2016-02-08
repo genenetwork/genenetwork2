@@ -12,7 +12,9 @@
     
     {{ header("Correlation Matrix") }}
 
-   
+{% if lowest_overlap < 8 %}
+<div style="margin: 20px;" >Caution: This matrix of correlations contains some cells with small sample sizes of fewer than 8.</div>
+{% endif %}
 
 <table class="matrix" border="1" cellpadding="5" cellspacing="1" style="margin: 20px;" width="80%">
   <tbody>
@@ -42,18 +44,48 @@
   </tbody>
 </table>
 
+<br>
+
+<div id="loadings_plot"></div>
+
+<table class="table table-hover table-striped" border="1" id='trait_table' style="margin: 20px;" width="40%">
+  <thead>
+    <tr>
+      <th></th>
+      <th align="right" >Factor 1</th>
+      <th align="right" >Factor 2</th>
+      <th align="right" >Factor 2</th>
 <!--
-<div class="container">
-  <div id="chart"></div>
-</div>
+      {% for row in loadings_array %}
+      <th>Factor {{ loop.index }}</th>
+      {% endfor %}
 -->
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in loadings_array %}
+    {% set row_counter = loop.index-1 %}
+    <tr>
+      <td>
+        <a href="{{ url_for('show_trait_page', trait_id = traits[loop.index-1].name, dataset = traits[loop.index-1].dataset.name) }}">
+          {{ traits[loop.index-1].name }}
+        </a>
+      </td>
+      {% for column in row %}
+      <td><span style="float: right;">{{ '%0.3f' % loadings_array[row_counter][loop.index-1]|float }}</span></td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+    
+  </tbody>
+</table>
 
 {% endblock %}
 
 {% block js %}
 
     <script>
-        js_data = {{ js_data | safe }}
+        loadings = {{ loadings_array | safe }}
     </script>
 
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
@@ -65,7 +97,6 @@
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/chroma.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/corr_matrix.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_corr_matrix.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/loadings_plot.js"></script>
 
 {% endblock %}

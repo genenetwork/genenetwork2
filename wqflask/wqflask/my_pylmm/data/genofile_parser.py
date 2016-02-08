@@ -65,11 +65,11 @@ class ConvertGenoFile(object):
         self.configurations = {}
         #self.skipped_cols = 3
         
-        if self.input_file.endswith(".geno.gz"):
-            print("self.input_file: ", self.input_file)
-            self.input_fh = gzip.open(self.input_file)
-        else:
-            self.input_fh = open(self.input_file)
+        #if self.input_file.endswith(".geno.gz"):
+        #    print("self.input_file: ", self.input_file)
+        #    self.input_fh = gzip.open(self.input_file)
+        #else:
+        self.input_fh = open(self.input_file)
         
         with open(self.output_file, "w") as self.output_fh:
             #if self.file_type == "geno":

@@ -2,11 +2,12 @@
 var Chr_Lod_Chart;
 
 Chr_Lod_Chart = (function() {
-  function Chr_Lod_Chart(plot_height, plot_width, chr, manhattanPlot) {
+  function Chr_Lod_Chart(plot_height, plot_width, chr, manhattanPlot, mappingScale) {
     this.plot_height = plot_height;
     this.plot_width = plot_width;
     this.chr = chr;
     this.manhattanPlot = manhattanPlot;
+    this.mappingScale = mappingScale;
     this.qtl_results = js_data.qtl_results;
     console.log("qtl_results are:", this.qtl_results);
     console.log("chr is:", this.chr);
@@ -65,8 +66,6 @@ Chr_Lod_Chart = (function() {
       } else {
         this_chr = result.chr;
       }
-      console.log("this_chr is:", this_chr);
-      console.log("@chr[0] is:", parseInt(this.chr[0]));
       if (this_chr > parseInt(this.chr[0])) {
         break;
       }
@@ -120,7 +119,19 @@ Chr_Lod_Chart = (function() {
   };
 
   Chr_Lod_Chart.prototype.create_scales = function() {
-    this.x_scale = d3.scale.linear().domain([0, this.chr[1]]).range([this.x_buffer, this.plot_width]);
+    if (this.mappingScale == "morgan") {
+        max_pos = 0
+        for (i = 0, len = this.these_results.length; i < len; i++) {
+           marker = this.these_results[i]
+           if (parseFloat(marker['Mb']) > max_pos){
+               max_pos = parseFloat(marker.Mb)
+           }
+        }
+        this.x_scale = d3.scale.linear().domain([0, max_pos]).range([this.x_buffer, this.plot_width]);
+    }
+    else {
+        this.x_scale = d3.scale.linear().domain([0, this.chr[1]]).range([this.x_buffer, this.plot_width]);
+    }
     return this.y_scale = d3.scale.linear().domain([0, this.y_max]).range([this.plot_height, this.y_buffer]);
   };
 

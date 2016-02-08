@@ -167,7 +167,7 @@ class ShowTrait(object):
                 return False
 
         def check_pylmm_rqtl():
-            if os.path.isfile(webqtlConfig.GENODIR+self.dataset.group.name+".geno"):
+            if os.path.isfile(webqtlConfig.GENODIR+self.dataset.group.name+".geno") and (os.path.getsize(webqtlConfig.NEWGENODIR+self.dataset.group.name+".json") > 0):
                 return True
             else:
                 return False

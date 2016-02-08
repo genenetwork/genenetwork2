@@ -93,8 +93,10 @@ class SearchResultPage(object):
             else:
                 dataset_type = "ProbeSet"
             self.dataset = create_dataset(kw['dataset'], dataset_type)
+            print("KEYWORD:", self.search_terms)
             self.search()
-            self.gen_search_result()
+            if self.search_term_exists:
+                self.gen_search_result()
 
 
 
@@ -253,15 +255,19 @@ class SearchResultPage(object):
                 results = the_search.execute(final_query)
                 self.results.extend(results)
         else:
-            for a_search in self.search_terms:
-                the_search = self.get_search_ob(a_search)
-                if the_search != None:
-                    self.results.extend(the_search.run())
-                else:
-                    self.search_term_exists = False
+            if self.search_terms == []:
+                self.search_term_exists = False
+            else:
+                for a_search in self.search_terms:
+                    the_search = self.get_search_ob(a_search)
+                    if the_search != None:
+                        self.results.extend(the_search.run())
+                    else:
+                        self.search_term_exists = False
 
-        if the_search != None:
-            self.header_fields = the_search.header_fields
+        if self.search_term_exists:
+            if the_search != None:
+                self.header_fields = the_search.header_fields
 
     def get_search_ob(self, a_search):
         print("[kodak] item is:", pf(a_search))

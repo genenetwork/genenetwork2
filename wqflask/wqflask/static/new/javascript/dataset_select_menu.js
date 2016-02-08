@@ -28,6 +28,7 @@ $(function() {
   window.populate_group = populate_group;
   populate_type = function() {
     var group, species, type_list;
+    console.log("in populate type");
     species = $('#species').val();
     group = $('#group').val();
     type_list = this.jdata.types[species][group];
@@ -37,6 +38,7 @@ $(function() {
   window.populate_type = populate_type;
   populate_dataset = function() {
     var dataset_list, group, species, type;
+    console.log("in populate dataset");
     species = $('#species').val();
     group = $('#group').val();
     type = $('#type').val();
@@ -53,7 +55,11 @@ $(function() {
     _results = [];
     for (_i = 0, _len = items.length; _i < _len; _i++) {
       item = items[_i];
-      _results.push(dropdown.append($("<option />").val(item[0]).text(item[1])));
+      if (item.length > 2){
+        _results.push(dropdown.append($("<option data-id=\""+item[0]+"\" />").val(item[1]).text(item[2])));
+      } else {
+        _results.push(dropdown.append($("<option />").val(item[0]).text(item[1])));
+      }
     }
     return _results;
   };
@@ -87,8 +93,8 @@ $(function() {
   $('#group_info').click(group_info);
   dataset_info = function() {
     var dataset, url;
-    dataset = $('#dataset').val();
-    url = "/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + dataset;
+    accession_id = $('#dataset option:selected').data("id");
+    url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + accession_id;
     return open_window(url, "Dataset Info");
   };
   $('#dataset_info').click(dataset_info);

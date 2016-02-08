@@ -123,12 +123,12 @@ def get_types(groups):
 
 
 def phenotypes_exist(group_name):
-    print("group_name:", group_name)
+    #print("group_name:", group_name)
     Cursor.execute("""select Name from PublishFreeze
                       where PublishFreeze.Name = %s""", (group_name+"Publish"))
 
     results = Cursor.fetchone()
-    print("RESULTS:", results)
+    #print("RESULTS:", results)
 
     if results != None:
         return True
@@ -136,12 +136,12 @@ def phenotypes_exist(group_name):
         return False
 
 def genotypes_exist(group_name):
-    print("group_name:", group_name)
+    #print("group_name:", group_name)
     Cursor.execute("""select Name from GenoFreeze
                       where GenoFreeze.Name = %s""", (group_name+"Geno"))
 
     results = Cursor.fetchone()
-    print("RESULTS:", results)
+    #print("RESULTS:", results)
 
     if results != None:
         return True
@@ -220,7 +220,7 @@ def build_datasets(species, group, type_name):
         #            and ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId =
         #            InbredSet.Id and ProbeSetFreeze.public > 0 order by
         #            ProbeSetFreeze.CreateTime desc""".format(species, group, type_name))
-        Cursor.execute("""select ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
+        Cursor.execute("""select ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
                     Species.Name = %s and Species.Id = InbredSet.SpeciesId and
                     InbredSet.Name = %s and
@@ -228,7 +228,16 @@ def build_datasets(species, group, type_name):
                     and ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId =
                     InbredSet.Id and ProbeSetFreeze.public > 0 order by
                     ProbeSetFreeze.CreateTime desc""", (species, group, type_name))
-        return Cursor.fetchall()
+ 
+        dataset_results = Cursor.fetchall()
+        datasets = []
+        for dataset_info in dataset_results:
+            this_dataset_info = []
+            for info in dataset_info:
+                this_dataset_info.append(str(info))
+            datasets.append(this_dataset_info)
+
+        return datasets
 
 
 def main():
