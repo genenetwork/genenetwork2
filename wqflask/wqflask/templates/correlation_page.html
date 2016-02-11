@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
     <link href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" rel="stylesheet">
     <link href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
 {% endblock %}
 {% block content %}
     
@@ -155,6 +156,10 @@
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
@@ -245,7 +250,10 @@
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "sDom": "RZtir",
+                "buttons": [
+                    'csvHtml5'
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
                 "bDeferRender": true,
                 "bSortClasses": false,
@@ -273,7 +281,10 @@
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "sDom": "RZtir",
+                "buttons": [
+                    'csvHtml5'
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
@@ -297,7 +308,10 @@
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "sDom": "RZtir",
+                "buttons": [
+                    'csvHtml5'
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bLengthChange": true,
