@@ -86,4 +86,4 @@ GN2 can locate PYLMM through PYLMM_PATH in setting.py (or in ENV)
 
 ## Other information
 
-Check also the ./misc/ directory for settings
+Check also the ./doc directory for settings
