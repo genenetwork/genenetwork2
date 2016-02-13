@@ -24,7 +24,7 @@ from flask import Flask, g
 from MySQLdb import escape_string as escape
 
 # Instead of importing HT we're going to build a class below until we can eliminate it
-from htmlgen import HTMLgen2 as HT
+# from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
 from utility.benchmark import Bench
