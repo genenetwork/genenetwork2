@@ -5,11 +5,11 @@
 # Absolute path to this script, e.g. /home/user/bin/foo.sh
 SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
-SCRIPTPATH=$(dirname $(dirname "$SCRIPT"))
-echo $SCRIPTPATH
+GN2_BASE_PATH=$(dirname $(dirname "$SCRIPT"))
+echo $GN2_BASE_PATH
 
-export PROFILE=$SCRIPTPATH
-export PYTHONPATH=$PROFILE/wqflask:$PYTHONPATH
-export WQFLASK_SETTINGS=$PROFILE/etc/default_settings.py
+export PYTHONPATH=$GN2_BASE_PATH/wqflask:$PYTHONPATH
+export WQFLASK_SETTINGS=$GN2_BASE_PATH/etc/default_settings.py
 
-/usr/bin/env python ./wqflask/runserver.py
+cd $GN2_BASE_PATH/wqflask
+/usr/bin/env python runserver.py
