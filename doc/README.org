@@ -2,7 +2,8 @@
 
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
- - [[#binary-deployment][Binary deployment]]
+ - [[#binary-deployment-wip][Binary deployment (WIP)]]
+ - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
 
 * Introduction
 
@@ -10,7 +11,12 @@ Large system deployments tend to get very complex. In this document we
 explain the GeneNetwork deployment system which is based on GNU Guix
 (see Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]).
 
-* Binary deployment
+* Binary deployment (WIP)
 
-NYA
+GN can be deployed either as a binary tarball or as a GNU Guix
+package.
+
+* Source deployment and other information on reproducibility
+
+See the document [[GUIX-Reproducible-from-source.org]].
 
