@@ -189,8 +189,6 @@
                    }
                 });
 
-                console.time("Creating table");
-
                 $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'yellow')
                 {% if sample_groups[0].se_exists() %} 
                 $('#samples_primary, #samples_other').DataTable( {
@@ -218,10 +216,8 @@
                     },
                     "paging": false
                 } );
-                console.timeEnd("Creating table");
 
                 {% else %}
-                console.time("Creating table");
                     
                 $('#samples_primary, #samples_other').DataTable( {
                     "columns": [

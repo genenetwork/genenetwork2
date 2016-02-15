@@ -298,6 +298,9 @@ class MarkerRegression(object):
 
     def geno_to_rqtl_function(self):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
         print("Adding some custom helper functions to the R environment")
+
+
+
         ro.r("""
            trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
 
@@ -306,7 +309,7 @@ class MarkerRegression(object):
              return(trim(strsplit(header[mat],':')[[1]][2]))
            }
 
-           GENOtoCSVR <- function(genotypes = 'BXD.geno', out = 'cross.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
+           GENOtoCSVR <- function(genotypes = '%s', out = 'cross.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
              header = readLines(genotypes, 40)                                                                                 # Assume a geno header is not longer than 40 lines
              toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
              
@@ -325,7 +328,7 @@ class MarkerRegression(object):
              if(type == 'riset') cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
              return(cross)
           }
-        """)
+        """ % (self.dataset.group.name + ".geno"))
     
     def run_rqtl_geno(self):
         print("Calling R/qtl")
