@@ -8,8 +8,14 @@ SCRIPT=$(readlink -f "$0")
 GN2_BASE_PATH=$(dirname $(dirname "$SCRIPT"))
 echo $GN2_BASE_PATH
 
+settings=$1
+if [ -z $settings ]; then settings=$GN2_BASE_PATH/etc/default_settings.py ; fi
 export PYTHONPATH=$GN2_BASE_PATH/wqflask:$PYTHONPATH
-export WQFLASK_SETTINGS=$GN2_BASE_PATH/etc/default_settings.py
+export WQFLASK_SETTINGS=$settings
+
+# start the redis server
+redis-server &
 
 cd $GN2_BASE_PATH/wqflask
+echo "Starting with $settings"
 /usr/bin/env python runserver.py

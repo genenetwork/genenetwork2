@@ -3,6 +3,8 @@
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
  - [[#binary-deployment-wip][Binary deployment (WIP)]]
+   - [[#run-mysql-server][Run MySQL server]]
+   - [[#start-the-gn2-server][Start the GN2 server]]
  - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
 
 * Introduction
@@ -15,6 +17,53 @@ explain the GeneNetwork deployment system which is based on GNU Guix
 
 GN can be deployed either as a binary tarball or as a GNU Guix
 package.
+
+** Run MySQL server
+
+At this point we require the underlying distribution to install
+and run mysqld. 
+
+Download one of
+
+http://files.genenetwork.org/raw_database/
+https://s3.amazonaws.com/genenetwork2/db_webqtl_s.zip
+
+Check the md5sum.
+
+After installation inflate the database binary in the MySQL directory
+(this is subject to change soon) 
+
+: chown -R mysql:mysql db_webqtl_s/
+: chmod 700 db_webqtl_s/
+: chmod 660 db_webqtl_s/*
+
+restart MySQL service (mysqld). Login as root and
+
+: mysql> show databases;
+: +--------------------+
+: | Database           |
+: +--------------------+
+: | information_schema |
+: | db_webqtl_s        |
+: | mysql              |
+: | performance_schema |
+: +--------------------+
+
+Set permissions and match password in your settings file below:
+
+: mysql> grant all privileges on db_webqtl_s.* to gn2@"localhost" identified by 'mysql_password';
+
+** Start the GN2 server
+
+Copy the default_settings.py file and modify 
+
+: DB_URI = """mysql://gn2:mysql_password@localhost/db_webqtl"""
+: SQLALCHEMY_DATABASE_URI = 'mysql://gn2:mysql_password/db_webqtl'
+: SECRET_KEY = 'secret_key'
+
+Start the server with your settings file
+
+: ./bin/genenetwork2 ~/my_gn2_settings.py
 
 * Source deployment and other information on reproducibility
 
