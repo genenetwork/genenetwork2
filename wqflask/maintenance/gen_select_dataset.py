@@ -76,7 +76,7 @@ def parse_db_uri(db_uri):
 
 def get_species():
     """Build species list"""
-    Cursor.execute("select Name, MenuName from Species order by OrderId")
+    Cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
     species = list(Cursor.fetchall())
     return species
 
@@ -90,8 +90,8 @@ def get_groups(species):
                        ProbeFreeze, GenoFreeze, PublishFreeze where Species.Name = %s
                        and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300' and
                        (PublishFreeze.InbredSetId = InbredSet.Id
-                            or GenoFreeze.InbredSetId = InbredSet.Id
-                            or ProbeFreeze.InbredSetId = InbredSet.Id)
+                        or GenoFreeze.InbredSetId = InbredSet.Id
+                        or ProbeFreeze.InbredSetId = InbredSet.Id)
                         group by InbredSet.Name
                         order by InbredSet.Name""", (species_name))
         groups[species_name] = list(Cursor.fetchall())
@@ -169,7 +169,9 @@ def build_types(species, group):
     results = []
     for result in Cursor.fetchall():
         if len(result):
-            results.append((result[0], result[0]))
+            these_datasets = build_datasets(species, group, result[0])
+            if len(these_datasets) > 0:
+                results.append((result[0], result[0]))
     
     return results
 
@@ -182,7 +184,10 @@ def get_datasets(types):
             #print("type_list: ", type_list)
             datasets[species][group] = {}
             for type_name in type_list:
-                datasets[species][group][type_name[0]] = build_datasets(species, group, type_name[0])
+                these_datasets = build_datasets(species, group, type_name[0])
+                if len(these_datasets) > 0:
+                    datasets[species][group][type_name[0]] = these_datasets
+
     return datasets
 
 
@@ -195,7 +200,8 @@ def build_datasets(species, group, type_name):
                     InbredSet.Name = %s and 
                     PublishFreeze.InbredSetId = InbredSet.Id and
                     InfoFiles.InfoPageName = PublishFreeze.Name and
-                    PublishFreeze.public > 0 order by
+                    PublishFreeze.public > 0 and 
+                    PublishFreeze.confidentiality < 1 order by
                     PublishFreeze.CreateTime desc""", (group))
 
         results = Cursor.fetchone()
@@ -214,7 +220,8 @@ def build_datasets(species, group, type_name):
                     InbredSet.Name = %s and 
                     GenoFreeze.InbredSetId = InbredSet.Id and
                     InfoFiles.InfoPageName = GenoFreeze.ShortName and
-                    GenoFreeze.public > 0 order by
+                    GenoFreeze.public > 0 and 
+                    GenoFreeze.confidentiality < 1 order by
                     GenoFreeze.CreateTime desc""", (group))
 
         results = Cursor.fetchone()
@@ -232,9 +239,9 @@ def build_datasets(species, group, type_name):
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
                     Species.Name = %s and Species.Id = InbredSet.SpeciesId and
                     InbredSet.Name = %s and
-                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = %s
-                    and ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId =
-                    InbredSet.Id and ProbeSetFreeze.public > 0 order by
+                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = %s and 
+                    ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id and 
+                    ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0 order by
                     ProbeSetFreeze.CreateTime desc""", (species, group, type_name))
  
         dataset_results = Cursor.fetchall()
