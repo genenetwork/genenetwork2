@@ -50,6 +50,7 @@ from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 
 from utility import temp_data
+from utility.tools import TEMPDIR
 
 from base import webqtlFormData
 from utility.benchmark import Bench
@@ -423,7 +424,7 @@ def marker_regression_page():
             print("img_path:", img_path)
             initial_start_vars = request.form
             print("initial_start_vars:", initial_start_vars)
-            imgfile = open('/home/zas1024/tmp/' + img_path, 'rb')
+            imgfile = open(TEMPDIR + '/' + img_path, 'rb')
             imgdata = imgfile.read()
             imgB64 = imgdata.encode("base64")
             bytesarray = array.array('B', imgB64)

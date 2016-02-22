@@ -9,6 +9,7 @@ import os
 import sys
 from wqflask import app
 
+
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
     app.config, with get_valid_path is a function checking whether the
@@ -33,7 +34,7 @@ def get_setting(command_id,guess=None):
     different settings.py file (or setting the environment).
 
     """
-    def valid(command):
+    def value(command):
         if command:
             sys.stderr.write("Found value "+command+"\n")
             return command
@@ -42,12 +43,12 @@ def get_setting(command_id,guess=None):
     
     # ---- Check whether environment exists
     sys.stderr.write("Looking for "+command_id+"\n")
-    command = valid(os.environ.get(command_id))
+    command = value(os.environ.get(command_id))
     if not command:
         # ---- Check whether setting exists in app
-        command = valid(app.config.get(command_id))
+        command = value(app.config.get(command_id))
         if not command:
-            command = valid(guess)
+            command = value(guess)
             if not command:
                 raise Exception(command_id+' path unknown or faulty (update settings.py?). '+command_id+' should point to the path')
     return command
@@ -76,3 +77,8 @@ def flat_files(subdir=None):
     if subdir:
         return valid_path(base+"/"+subdir)
     return valid_path(base)
+
+def tempdir():
+    return valid_path(get_setting("TEMPDIR","/tmp"))
+
+TEMPDIR = tempdir()
