@@ -708,12 +708,12 @@ class CorrelationResults(object):
         
         for sample in sample_names:
             if sample not in excluded_samples:
-                value = start_vars['value:' + sample]
-                if value.strip().lower() == 'x':
-                    self.sample_data[str(sample)] = None
-                else:
+                print("Looking for",sample,"in",start_vars)
+                value = start_vars.get('value:' + sample)
+                if value and not value.strip().lower() == 'x':
                     self.sample_data[str(sample)] = float(value)
-
+                else:
+                    self.sample_data[str(sample)] = None
 
 
     ##XZ, 12/16/2008: the input geneid is of mouse type
