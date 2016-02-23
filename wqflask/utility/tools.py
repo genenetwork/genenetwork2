@@ -36,7 +36,7 @@ def get_setting(command_id,guess=None):
     """
     def value(command):
         if command:
-            sys.stderr.write("Found value "+command+"\n")
+            sys.stderr.write("Found path "+command+"\n")
             return command
         else:
             return None
@@ -95,6 +95,7 @@ def locate(name, subdir=None):
     if valid_path(base):
         lookfor = base + "/" + name
         if valid_file(lookfor):
+            print("Found: file "+lookfor+"\n")
             return lookfor
         else:
             raise IOError("Can not locate "+lookfor)
@@ -114,6 +115,7 @@ def locate_without_error(name, subdir=None):
     if valid_path(base):
         lookfor = base + "/" + name
         if valid_file(lookfor):
+            print("Found: file "+name+"\n")
             return lookfor
     sys.stderr.write("WARNING: file "+name+" not found\n")
     return None

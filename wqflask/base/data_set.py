@@ -44,7 +44,7 @@ from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
 from utility import chunks
-from utility.tools import locate
+from utility.tools import locate, locate_without_error
 
 from maintenance import get_group_samplelists
 
@@ -405,15 +405,15 @@ class DatasetGroup(object):
         else:
             print("Cache not hit")
 
-            geno_file_path = locate(self.name+".geno",'genotype')
-            mapping_file_path = locate(self.name+".fam",'mapping')
-            if os.path.isfile(mapping_file_path):
-                self.samplelist = get_group_samplelists.get_samplelist("plink", mapping_file_path)
-            elif os.path.isfile(geno_file_path):
-                self.samplelist = get_group_samplelists.get_samplelist("geno", geno_file_path)
+            genotype_fn = locate_without_error(self.name+".geno",'genotype')
+            mapping_fn = locate_without_error(self.name+".fam",'mapping')
+            if mapping_fn:
+                self.samplelist = get_group_samplelists.get_samplelist("plink", mapping_fn)
+            elif genotype_fn:
+                self.samplelist = get_group_samplelists.get_samplelist("geno", genotype_fn)
             else:
                 self.samplelist = None
-            #print("after get_samplelist")
+            print("Sample list: ",self.samplelist)
             Redis.set(key, json.dumps(self.samplelist))
             Redis.expire(key, 60*5)
 
