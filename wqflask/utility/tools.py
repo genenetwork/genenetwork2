@@ -79,6 +79,11 @@ def flat_files(subdir=None):
     return valid_path(base)
 
 def locate(name, subdir=None):
+    """
+    Locate a static flat file in the GENENETWORK_FILES environment.
+
+    This function throws an error when the file is not found.
+    """
     base = get_setting("GENENETWORK_FILES")
     if subdir:
         base = base+"/"+subdir
@@ -89,7 +94,24 @@ def locate(name, subdir=None):
         else:
             raise IOError("Can not locate "+lookfor)
     raise IOError("Can not locate "+name)
-     
+
+def locate_without_error(name, subdir=None):
+    """
+    Locate a static flat file in the GENENETWORK_FILES environment.
+
+    This function does not throw an error when the file is not found
+    but returns None.
+    """
+    base = get_setting("GENENETWORK_FILES")
+    if subdir:
+        base = base+"/"+subdir
+    if valid_path(base):
+        lookfor = base + "/" + name
+        if valid_path(lookfor):
+            return lookfor
+    sys.stderr.write("WARNING: file "+name+" not found\n")
+    return None
+
 def tempdir():
     return valid_path(get_setting("TEMPDIR","/tmp"))
 
