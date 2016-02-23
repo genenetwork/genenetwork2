@@ -13,8 +13,14 @@ if [ -z $settings ]; then settings=$GN2_BASE_PATH/etc/default_settings.py ; fi
 export PYTHONPATH=$GN2_BASE_PATH/wqflask:$PYTHONPATH
 export WQFLASK_SETTINGS=$settings
 
+if [ -z $TEMPDIR ]; then
+    TEMPDIR="/tmp"
+fi
+                         
 # start the redis server
-redis-server &
+echo -n "dir $TEMPDIR
+dbfilename gn2.rdb
+" | redis-server - &
 
 cd $GN2_BASE_PATH/wqflask
 echo "Starting with $settings"
