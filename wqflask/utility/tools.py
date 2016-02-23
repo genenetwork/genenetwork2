@@ -54,8 +54,13 @@ def get_setting(command_id,guess=None):
     return command
 
 def valid_bin(bin):
-    if os.path.islink(bin) or os.path.isfile(bin):
+    if os.path.islink(bin) or valid_file(bin):
         return bin
+    return None
+
+def valid_file(fn):
+    if os.path.isfile(fn):
+        return fn
     return None
 
 def valid_path(dir):
@@ -89,11 +94,12 @@ def locate(name, subdir=None):
         base = base+"/"+subdir
     if valid_path(base):
         lookfor = base + "/" + name
-        if valid_path(lookfor):
+        if valid_file(lookfor):
             return lookfor
         else:
             raise IOError("Can not locate "+lookfor)
-    raise IOError("Can not locate "+name)
+    if subdir: sys.stderr.write(subdir)
+    raise IOError("Can not locate "+name+" in "+base)
 
 def locate_without_error(name, subdir=None):
     """
@@ -107,7 +113,7 @@ def locate_without_error(name, subdir=None):
         base = base+"/"+subdir
     if valid_path(base):
         lookfor = base + "/" + name
-        if valid_path(lookfor):
+        if valid_file(lookfor):
             return lookfor
     sys.stderr.write("WARNING: file "+name+" not found\n")
     return None
