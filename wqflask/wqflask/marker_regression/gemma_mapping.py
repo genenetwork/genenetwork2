@@ -1,6 +1,9 @@
 import os
 
 from base import webqtlConfig
+from utility.tools import gemma_command
+
+GEMMA_PATH,GEMMA_COMMAND = gemma_command()
 
 def run_gemma(this_dataset, samples, vals): 
     """Generates p-values for each marker using GEMMA"""
@@ -9,9 +12,11 @@ def run_gemma(this_dataset, samples, vals):
 
     gen_pheno_txt_file(this_dataset, samples, vals)
 
-    os.chdir("{}gemma".format(webqtlConfig.HTMLPATH))
+    os.chdir(GEMMA_PATH)
 
-    gemma_command = './gemma -bfile %s -k output_%s.cXX.txt -lmm 1 -o output/%s_output' % (this_dataset.group.name,
+    gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/output/%s.cXX.txt -lmm 1 -o %s_output' % (GEMMA_PATH,
+                                                                                    this_dataset.group.name,
+                                                                                    GEMMA_PATH,
                                                                                     this_dataset.group.name,
                                                                                     this_dataset.group.name)
     print("gemma_command:" + gemma_command)
@@ -25,14 +30,14 @@ def run_gemma(this_dataset, samples, vals):
 def gen_pheno_txt_file(this_dataset, samples, vals):
     """Generates phenotype file for GEMMA"""
                 
-    with open("{}gemma/{}.fam".format(webqtlConfig.HTMLPATH, this_dataset.group.name), "w") as outfile:
+    with open("{}/{}.fam".format(GEMMA_PATH, this_dataset.group.name), "w") as outfile:
         for i, sample in enumerate(samples):
             outfile.write(str(sample) + " " + str(sample) + " 0 0 0 " + str(vals[i]) + "\n")
 
 def parse_gemma_output(this_dataset):
     included_markers = []
     p_values = []
-    with open("{}gemma/output/{}_output.assoc.txt".format(webqtlConfig.HTMLPATH, this_dataset.group.name)) as output_file:
+    with open("{}/output/{}_output.assoc.txt".format(GEMMA_PATH, this_dataset.group.name)) as output_file:
         for line in output_file:
             if line.startswith("chr"):
                 continue

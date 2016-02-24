@@ -39,10 +39,11 @@ from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
-from utility.tools import pylmm_command, plink_command
+from utility.tools import pylmm_command, plink_command, gemma_command
 
 PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
 PLINK_PATH,PLINK_COMMAND = plink_command()
+GEMMA_PATH,GEMMA_COMMAND = gemma_command()
 
 class MarkerRegression(object):
 
@@ -86,7 +87,7 @@ class MarkerRegression(object):
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
-            self.score_type = "LOD"
+            self.score_type = "LRS"
             included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
             self.dataset.group.get_specified_markers(markers = included_markers)
             self.dataset.group.markers.add_pvalues(p_values)
@@ -219,9 +220,9 @@ class MarkerRegression(object):
         
         self.gen_pheno_txt_file()
 
-        os.chdir("/home/zas1024/gene/web/gemma")
+        #os.chdir("/home/zas1024/gene/web/gemma")
 
-        gemma_command = './gemma -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
+        gemma_command = GEMMA_COMMAND + ' -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name)
