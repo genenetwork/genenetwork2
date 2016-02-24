@@ -133,7 +133,7 @@ def tempdir():
     
 # Cached values
 PYLMM_COMMAND = pylmm_command()
-GEMMA_COMMAND = pylmm_command()
-PLINK_COMMAND = pylmm_command()
+GEMMA_COMMAND = gemma_command()
+PLINK_COMMAND = plink_command()
 FLAT_FILES    = flat_files()
 TEMPDIR       = tempdir()

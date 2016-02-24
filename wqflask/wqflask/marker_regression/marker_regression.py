@@ -937,8 +937,7 @@ class MarkerRegression(object):
             Redis.expire(key, 60*60)
             print("before printing command")
 
-            command = PYLMM_COMMAND + ' --key {} --species {}'.format(key,
-                                                                                                                    "other")
+            command = PYLMM_COMMAND + ' --key {} --species {}'.format(key, "other")
             print("command is:", command)
             print("after printing command")
 

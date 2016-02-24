@@ -28,6 +28,7 @@ import time
 import string
 from math import *
 import piddle as pid
+import piddlePIL as pil
 import sys,os
 import cPickle
 import httplib, urllib
@@ -551,7 +552,7 @@ class MarkerRegression(object):
         #    showLocusForm =  webqtlUtil.genRandStr("fm_")
         #else:
         showLocusForm = ""
-        intCanvas = pid.PILCanvas(size=(self.graphWidth, self.graphHeight))
+        intCanvas = pil.PILCanvas(size=(self.graphWidth, self.graphHeight))
         gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
 
         self.gifmap = gifmap.__str__()
@@ -563,7 +564,7 @@ class MarkerRegression(object):
 
         #Scales plot differently for high resolution
         if self.draw2X:
-            intCanvasX2 = pid.PILCanvas(size=(self.graphWidth*2,self.graphHeight*2))
+            intCanvasX2 = pil.PILCanvas(size=(self.graphWidth*2,self.graphHeight*2))
             gifmapX2 = self.plotIntMapping(intCanvasX2, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm, zoom=2)
             intCanvasX2.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename+"X2"), format='png')
             #DLintImgX2=HT.Href(text='Download',url = '/image/'+self.filename+'X2.png', Class='smallsize', target='_blank')
@@ -2582,7 +2583,7 @@ class MarkerRegression(object):
         #########################################
         #      Permutation Graph
         #########################################
-        myCanvas = pid.PILCanvas(size=(400,300))
+        myCanvas = pil.PILCanvas(size=(400,300))
         if 'lod_score' in self.qtlresults[0] and self.LRS_LOD == "LRS":
             perm_output = [value*4.16 for value in self.perm_output]
         elif 'lod_score' not in self.qtlresults[0] and self.LRS_LOD == "LOD":

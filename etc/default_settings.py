@@ -24,6 +24,6 @@ SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a
 
 # Path overrides for Genenetwork
 GENENETWORK_FILES = "../../gn2_data"
-PYLMM_COMMAND = os.popen("which pylmm_redis").read()
-PLINK_COMMAND = os.popen("which plink2").read()
-GEMMA_COMMAND = os.popen("which gemma").read()
+PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())
+PLINK_COMMAND = str.strip(os.popen("which plink2").read())
+GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
