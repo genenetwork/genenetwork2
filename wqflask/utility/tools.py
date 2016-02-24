@@ -1,9 +1,5 @@
 # Tools/paths finder resolves external paths from settings and/or environment
 # variables
-#
-# Currently supported:
-#
-#   PYLMM_PATH finds the root of the git repository of the pylmm_gn2 tool 
 
 import os
 import sys
@@ -69,13 +65,13 @@ def valid_path(dir):
     return None
 
 def pylmm_command(guess=None):
-    return valid_bin(get_setting("PYLMM_RUN",guess))
+    return valid_bin(get_setting("PYLMM_COMMAND",guess))
 
 def gemma_command(guess=None):
-    return valid_bin(get_setting("GEMMA_RUN",guess))
+    return valid_bin(get_setting("GEMMA_COMMAND",guess))
 
 def plink_command(guess=None):
-    return valid_bin(get_setting("PLINK_RUN",guess))
+    return valid_bin(get_setting("PLINK_COMMAND",guess))
 
 def flat_files(subdir=None):
     base = get_setting("GENENETWORK_FILES")
