@@ -1,3 +1,4 @@
+
 # Tools/paths finder resolves external paths from settings and/or environment
 # variables
 
@@ -83,9 +84,10 @@ def assert_dir(dir):
     if not valid_path(dir):
         raise Exception("ERROR: can not find directory "+dir)
     return dir
-    
+
 def mk_dir(dir):
-    os.makedirs(dir)
+    if not valid_path(dir):
+        os.makedirs(dir)
     return assert_dir(dir)
 
 def locate(name, subdir=None):

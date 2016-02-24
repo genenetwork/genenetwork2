@@ -44,7 +44,7 @@ from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
 from utility import chunks
-from utility.tools import locate, locate_without_error
+from utility.tools import locate, locate_ignore_error
 
 from maintenance import get_group_samplelists
 
@@ -405,8 +405,8 @@ class DatasetGroup(object):
         else:
             print("Cache not hit")
 
-            genotype_fn = locate_without_error(self.name+".geno",'genotype')
-            mapping_fn = locate_without_error(self.name+".fam",'mapping')
+            genotype_fn = locate_ignore_error(self.name+".geno",'genotype')
+            mapping_fn = locate_ignore_error(self.name+".fam",'mapping')
             if mapping_fn:
                 self.samplelist = get_group_samplelists.get_samplelist("plink", mapping_fn)
             elif genotype_fn:
