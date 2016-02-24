@@ -140,7 +140,7 @@ class MarkerRegressionPage(templatePage):
                 intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
                 gifmap = self.plotIntMappingForPLINK(fd, intCanvas, startMb = self.startMb, endMb = self.endMb, plinkResultDict=plinkResultDict)
 
-                intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='png')
+                intCanvas.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, filename), format='png')
                 intImg=HT.Image('/image/'+filename+'.png', border=0, usemap='#WebQTLImageMap')
 
                 TD_LR = HT.TR(HT.TD(HT.Blockquote(gifmap,intImg, HT.P()), bgColor='#eeeeee', height = 200))
@@ -249,7 +249,7 @@ class MarkerRegressionPage(templatePage):
                 intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
                 gifmap = self.plotIntMapping(fd, intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= "")
                 filename= webqtlUtil.genRandStr("Itvl_")
-                intCanvas.save(os.path.join(webqtlConfig.IMGDIR, filename), format='png')
+                intCanvas.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, filename), format='png')
                 intImg=HT.Image('/image/'+filename+'.png', border=0, usemap='#WebQTLImageMap')
 
                 ################################################################
@@ -458,7 +458,7 @@ class MarkerRegressionPage(templatePage):
         #plotBar(myCanvas,10,10,390,290,LRSArray,XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test',identification=fd.identification)
         Plot.plotBar(myCanvas, LRSArray,XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test')
         filename= webqtlUtil.genRandStr("Reg_")
-        myCanvas.save(webqtlConfig.IMGDIR+filename, format='gif')
+        myCanvas.save(webqtlConfig.GENERATED_IMAGE_DIR+filename, format='gif')
         img=HT.Image('/image/'+filename+'.gif',border=0,alt='Histogram of Permutation Test')
             
         if fd.suggestive == None:

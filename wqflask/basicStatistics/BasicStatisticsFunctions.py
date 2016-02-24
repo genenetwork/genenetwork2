@@ -118,7 +118,7 @@ def plotNormalProbability(vals=None, RISet='', title=None, showstrains=0, specia
     Plot.plotXY(c, dataZ, dataX, dataLabel = dataLabel, XLabel='Expected Z score', connectdot=0, YLabel='Trait value', title=title, specialCases=specialStrains, showLabel = showLabel)
 
     filename= webqtlUtil.genRandStr("nP_")
-    c.save(webqtlConfig.IMGDIR+filename, format='gif')
+    c.save(webqtlConfig.GENERATED_IMAGE_DIR+filename, format='gif')
 
     img=HT.Image('/image/'+filename+'.gif',border=0)
 
@@ -145,7 +145,7 @@ def plotBoxPlot(vals):
 
     Plot.plotBoxPlot(canvas, XXX, offset=(xLeftOffset, xRightOffset, yTopOffset, yBottomOffset), XLabel= "Trait")
     filename= webqtlUtil.genRandStr("Box_")
-    canvas.save(webqtlConfig.IMGDIR+filename, format='gif')
+    canvas.save(webqtlConfig.GENERATED_IMAGE_DIR+filename, format='gif')
     img=HT.Image('/image/'+filename+'.gif',border=0)
 
     plotLink = HT.Span("More about ", HT.Href(text="Box Plots", url="http://davidmlane.com/hyperstat/A37797.html", target="_blank", Class="fs13"))
@@ -201,7 +201,7 @@ def plotBarGraph(identification='', RISet='', vals=None, type="name"):
     Plot.plotBarText(c, tvals, tnames, variance=tvars, YLabel='Value', title=title, sLabel = sLabel, barSpace = sw)
 
     filename= webqtlUtil.genRandStr("Bar_")
-    c.save(webqtlConfig.IMGDIR+filename, format='gif')
+    c.save(webqtlConfig.GENERATED_IMAGE_DIR+filename, format='gif')
     img=HT.Image('/image/'+filename+'.gif',border=0)
 
     return img

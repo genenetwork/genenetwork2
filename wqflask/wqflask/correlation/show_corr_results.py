@@ -943,7 +943,7 @@ class CorrelationResults(object):
                 use_tissue_corr = True
 
             DatabaseFileName = self.getFileName( target_db_name=self.target_db_name )
-            datasetFile = open(webqtlConfig.TEXTDIR+DatabaseFileName,'r')
+            datasetFile = open(webqtlConfig.CACHEDIR+DatabaseFileName,'r')
 
             #XZ, 01/08/2009: read the first line
             line = datasetFile.readline()

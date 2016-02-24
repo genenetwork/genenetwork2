@@ -157,7 +157,7 @@ class webqtlFormData(object):
 
         self.genotype_1 = reaper.Dataset()
 
-        full_filename = os.path.join(webqtlConfig.GENODIR, self.group + '.geno')
+        full_filename = locate(self.group + '.geno','genotype')
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         full_filename = str(full_filename)

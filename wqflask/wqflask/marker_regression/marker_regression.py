@@ -30,7 +30,7 @@ from flask import Flask, g
 from base.trait import GeneralTrait
 from base import data_set
 from base import species
-from base import webqtlConfig
+# from base import webqtlConfig
 from utility import webqtlUtil
 from utility import helper_functions
 from utility import Plot, Bunch

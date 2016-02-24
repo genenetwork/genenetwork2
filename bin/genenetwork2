@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# This will run the server with default settings
+# This will run the server with default settings.
 
 # Absolute path to this script, e.g. /home/user/bin/foo.sh
 SCRIPT=$(readlink -f "$0")

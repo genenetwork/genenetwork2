@@ -79,6 +79,15 @@ def flat_files(subdir=None):
         return valid_path(base+"/"+subdir)
     return valid_path(base)
 
+def assert_dir(dir):
+    if not valid_path(dir):
+        raise Exception("ERROR: can not find directory "+dir)
+    return dir
+    
+def mk_dir(dir):
+    os.makedirs(dir)
+    return assert_dir(dir)
+
 def locate(name, subdir=None):
     """
     Locate a static flat file in the GENENETWORK_FILES environment.
@@ -98,7 +107,7 @@ def locate(name, subdir=None):
     if subdir: sys.stderr.write(subdir)
     raise IOError("Can not locate "+name+" in "+base)
 
-def locate_without_error(name, subdir=None):
+def locate_ignore_error(name, subdir=None):
     """
     Locate a static flat file in the GENENETWORK_FILES environment.
 
