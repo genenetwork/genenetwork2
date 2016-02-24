@@ -1,4 +1,3 @@
-
 # Tools/paths finder resolves external paths from settings and/or environment
 # variables
 
@@ -105,9 +104,9 @@ def locate(name, subdir=None):
             print("Found: file "+lookfor+"\n")
             return lookfor
         else:
-            raise IOError("Can not locate "+lookfor)
+            raise Exception("Can not locate "+lookfor)
     if subdir: sys.stderr.write(subdir)
-    raise IOError("Can not locate "+name+" in "+base)
+    raise Exception("Can not locate "+name+" in "+base)
 
 def locate_ignore_error(name, subdir=None):
     """
