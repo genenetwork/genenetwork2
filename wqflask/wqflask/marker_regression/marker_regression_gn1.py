@@ -29,6 +29,7 @@ import string
 from math import *
 import piddle as pid
 import piddlePIL as pil
+from piddle import Font
 import sys,os
 import cPickle
 import httplib, urllib
@@ -941,7 +942,7 @@ class MarkerRegression(object):
         bootScale = bootScale[:-1] + [highestPercent]
 
         bootOffset = 50*fontZoom
-        bootScaleFont=pid.Font(ttf="verdana",size=13*fontZoom,bold=0)
+        bootScaleFont=Font(ttf="verdana",size=13*fontZoom,bold=0)
         canvas.drawRect(canvas.size[0]-bootOffset,yZero-bootHeightThresh,canvas.size[0]-bootOffset-15*zoom,yZero,fillColor = pid.yellow)
         canvas.drawLine(canvas.size[0]-bootOffset+4, yZero, canvas.size[0]-bootOffset, yZero, color=pid.black)
         canvas.drawString('0%' ,canvas.size[0]-bootOffset+10,yZero+5,font=bootScaleFont,color=pid.black)
@@ -2259,7 +2260,7 @@ class MarkerRegression(object):
                 chrFontZoom = 2
             else:
                 chrFontZoom = 1
-            chrLabelFont=pid.Font(ttf="verdana",size=24*chrFontZoom,bold=0)
+            chrLabelFont=Font(ttf="verdana",size=24*chrFontZoom,bold=0)
 
             for i, _chr in enumerate(self.genotype):
                 if (i % 2 == 0):
