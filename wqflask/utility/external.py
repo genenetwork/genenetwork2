@@ -5,5 +5,5 @@ import sys
 import subprocess
 
 def shell(command):
-    if not subprocess.call(command, shell=True):
+    if subprocess.call(command, shell=True) != 0:
         raise Exception("ERROR: failed on "+command)
