@@ -30,16 +30,12 @@ from flask import Flask, g
 from base.trait import GeneralTrait
 from base import data_set
 from base import species
-# from base import webqtlConfig
 from utility import webqtlUtil
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
 from wqflask.marker_regression import gemma_mapping
-#from wqflask.marker_regression import qtl_reaper_mapping
-#from wqflask.marker_regression import plink_mapping
-#from wqflask.marker_regression import rqtl_mapping
 
 from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND
 from utility.external import shell
@@ -297,22 +293,14 @@ class MarkerRegression(object):
         included_markers, p_values = self.parse_gemma_output()
         
         self.dataset.group.get_specified_markers(markers = included_markers)
-        
-        #for marker in self.dataset.group.markers.markers:
-        #    if marker['name'] not in included_markers:
-        #        print("marker:", marker)
-        #        self.dataset.group.markers.markers.remove(marker)
-        #        #del self.dataset.group.markers.markers[marker]
-        
         self.dataset.group.markers.add_pvalues(p_values)
-
         return self.dataset.group.markers.markers
-
 
     def parse_gemma_output(self):
         included_markers = []
         p_values = []
-        with open("/home/zas1024/gene/web/gemma/output/{}_output.assoc.txt".format(self.dataset.group.name)) as output_file:
+        # Use a temporary file name here!
+        with open(webqtlConfig.GENERATED_TEXT_DIR+"/{}_output.assoc.txt".format(self.dataset.group.name)) as output_file:
             for line in output_file:
                 if line.startswith("chr"):
                     continue
@@ -325,31 +313,12 @@ class MarkerRegression(object):
 
     def gen_pheno_txt_file(self):
         """Generates phenotype file for GEMMA"""
-        
-        #with open("/home/zas1024/gene/web/gemma/tmp_pheno/{}.txt".format(filename), "w") as outfile:
-        #    for sample, i in enumerate(self.samples):
-        #        print("sample:" + str(i))
-        #        print("self.vals[i]:" + str(self.vals[sample]))
-        #        outfile.write(str(i) + "\t" + str(self.vals[sample]) + "\n")
-                
-        with open("/home/zas1024/gene/web/gemma/{}.fam".format(self.dataset.group.name), "w") as outfile:
+        with open(webqtlConfig.GENERATED_TEXT_DIR+"{}.fam".format(self.dataset.group.name), "w") as outfile:
             for i, sample in enumerate(self.samples):
                 outfile.write(str(sample) + " " + str(sample) + " 0 0 0 " + str(self.vals[i]) + "\n")
-
-    #def gen_plink_for_gemma(self, filename):
-    #    
-    #    make_bed = "/home/zas1024/plink/plink --file /home/zas1024/plink/%s --noweb --no-fid --no-parents --no-sex --no-pheno --pheno %s%s.txt --out %s%s --make-bed" % (webqtlConfig.HTMLPATH,
-    #                                                                                                                                             webqtlConfig.HTMLPATH,
-    #                                                                                                                                             self.dataset.group.name,
-    #                                                                                                                                             webqtlConfig.TMPDIR,
-    #                                                                                                                                             filename,
-    #                                                                                                                                             webqtlConfig.TMPDIR,
-    #                                                                                                                                             filename)
-    #
-    #
     
     def run_rqtl_plink(self):
-        os.chdir("/home/zas1024/plink")
+        # os.chdir("/home/zas1024/plink") never do this!!
         
         output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
         

@@ -458,7 +458,7 @@ def export_pdf():
     svg_xml = request.form.get("data", "Invalid data")
     print("svg_xml:", svg_xml)
     filename = request.form.get("filename", "interval_map_pdf")
-    filepath = "/home/zas1024/gene/wqflask/output/"+filename
+    filepath = GENERATED_IMAGE_DIR+filename
     pdf_file = cairosvg.svg2pdf(bytestring=svg_xml)
     response = Response(pdf_file, mimetype="application/pdf")
     response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
