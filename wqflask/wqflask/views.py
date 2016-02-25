@@ -30,7 +30,7 @@ import sqlalchemy
 from wqflask import app
 
 from flask import (render_template, request, make_response, Response,
-                   Flask, g, config, jsonify, redirect, url_for)
+                   Flask, g, config, jsonify, redirect, url_for, send_from_directory)
 
 from wqflask import search_results
 from wqflask import gsearch
@@ -53,6 +53,7 @@ from utility import temp_data
 from utility.tools import TEMPDIR
 
 from base import webqtlFormData
+from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
@@ -172,6 +173,10 @@ def gsearchact():
 def docedit():
     doc = docs.Docs(request.args['entry'])
     return render_template("docedit.html", **doc.__dict__)
+
+@app.route('/generated/<filename>')
+def generated_file(filename):
+    return send_from_directory(GENERATED_IMAGE_DIR,filename)
 
 @app.route("/help")
 def help():

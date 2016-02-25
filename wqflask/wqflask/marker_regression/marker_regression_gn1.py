@@ -28,8 +28,6 @@ import time
 import string
 from math import *
 import piddle as pid
-# import piddlePIL as pil
-# from piddle import Font
 import sys,os
 import cPickle
 import httplib, urllib
@@ -40,20 +38,10 @@ from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
 from base.GeneralObject import GeneralObject
-#from base.webqtlTrait import webqtlTrait
-#from base.templatePage import templatePage
 from utility import webqtlUtil
 from utility import helper_functions
 from utility import Plot
-#from utility.THCell import THCell
-#from utility.TDCell import TDCell
 from wqflask.interval_analyst import GeneUtil
-
-#from dbFunction import webqtlDatabaseFunction
-
-#import logging
-#logging.basicConfig(filename="/tmp/gn_leiyan.log", level=logging.INFO)
-#_log = logging.getLogger("gn\web\webqtl\intervalMapping\IntervalMappingPage.py")
 
 #########################################
 #      Inteval Mapping Plot Page

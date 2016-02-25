@@ -143,7 +143,7 @@
             <div class="tab-pane active" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
-                  <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
+                  <img src="/generated/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
                   {% if additiveChecked|upper == "ON" %}
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
