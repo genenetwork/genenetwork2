@@ -31,6 +31,7 @@ from base import species
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
+from utility.tools import PYLMM_COMMAND
 
 from MySQLdb import escape_string as escape
 
@@ -212,7 +213,7 @@ class Heatmap(object):
             #Redis.expire(key, 60*60)
             #print("before printing command")
             #
-            #command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+            #command = 'python lmm.py --key {} --species {}'.format(key,
             #                                                                                                        "other")
             #print("command is:", command)
             #print("after printing command")
@@ -271,7 +272,7 @@ class Heatmap(object):
             Redis.expire(key, 60*60)
             print("before printing command")
             
-            command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+            command = PYLMM_COMMAND+' --key {} --species {}'.format(key,
                                                                                                                     "other")
             print("command is:", command)
             print("after printing command")

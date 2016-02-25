@@ -36,8 +36,7 @@ from __future__ import print_function, division
 #print("cdict is:", cdict)
 
 import sys
-sys.path.append("/home/zas1024/")
-import zach_settings
+import zach_settings # no hard code paths!
 
 import MySQLdb
 

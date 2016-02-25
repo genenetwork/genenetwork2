@@ -318,7 +318,7 @@ class MarkerRegression(object):
                 outfile.write(str(sample) + " " + str(sample) + " 0 0 0 " + str(self.vals[i]) + "\n")
     
     def run_rqtl_plink(self):
-        # os.chdir("/home/zas1024/plink") never do this!!
+        # os.chdir("") never do this inside a webserver!!
         
         output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
         
