@@ -187,6 +187,24 @@
                                 <input name="num_perm_reaper" value="2000" type="text" class="form-control">
                             </div>
                         </div>
+                        <div class="mapping_method_fields form-group">
+                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
+                                <input name="control_reaper" value="{{ nearest_marker }}" type="text" style="width: 160px;" class="form-control" />
+                                {% else %}
+                                <input name="control_reaper" value="" type="text" class="form-control" />
+                                {% endif %}
+                                <label class="radio-inline">
+                                    <input type="radio" name="do_control_reaper" value="true">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="do_control_reaper" value="false" checked="">
+                                    No
+                                </label>
+                            </div>
+                        </div>
 <!-- 
                         <div class="mapping_method_fields form-group">
                             <label for="mapping_bootstraps" class="col-xs-3 control-label" title="Bootstrapping Resamples">Bootstrap</label>
@@ -225,7 +243,7 @@
                         </div>
                         <div class="form-group">
                             <div style="padding-left:15px;" class="controls">
-                                <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/interval_mapping" title="Compute Interval Mapping">
+                                <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Interval Mapping">
                                     <i class="icon-ok-circle icon-white"></i> Compute
                                 </button>
                             </div>

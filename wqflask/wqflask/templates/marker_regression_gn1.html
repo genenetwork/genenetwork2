@@ -1,204 +1,151 @@
-<?XML VERSION="1.0" ENCODING="UTF-8">
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-<TITLE>Mapping</TITLE>
+{% extends "base.html" %}
+{% block title %}Mapping Results{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+{% endblock %}
+{% from "base_macro.html" import header %}
+{% block content %}
+    {{ header("Whole Genome Mapping Results",
+        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
 
-<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
-<META NAME="keywords" CONTENT="genetics, bioinformatics, genome, phenome, gene expression, complex trait analysis, gene mapping, SNP, quantitative trait locus QTL, expression eQTL, WebQTL, Traitnet, Traitnetwork, personalized medicine">
-<META NAME="description" CONTENT ="GeneNetwork is a free scientific web resource used to study relationships between differences in genes, environmental factors, phenotypes, and disease risk." >
-<META NAME="author" CONTENT ="GeneNetwork developers" >
-<META NAME="geo.placename" CONTENT ="Memphis, TN" >
-<META NAME="geo.region" CONTENT="US-TN">
+    <div class="container">
+        <form method="post" target="_blank" action="/marker_regression" name="marker_regression" id="marker_regression_form">
+        <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
+        <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
+        <input type="hidden" name="dataset" value="{{ dataset.name }}">
+        {% for sample in dataset.group.samplelist %}
+        <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
+        {% endfor %}
+        <input type="hidden" name="maf">
+        <input type="hidden" name="method" value="{{ mapping_method }}">
+        <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
+        <input type="hidden" name="manhattan_plot">
+        <input type="hidden" name="num_perm">
+        <input type="hidden" name="do_control" value="{{ doControl }}">
+        <input type="hidden" name="control_marker" value="{{ controlLocus }}">
+        <input type="hidden" name="mapmethod_rqtl_geno" value="{{ mapmethod_rqtl_geno }}">
+        <input type="hidden" name="mapmodel_rqtl_geno" value="{{ mapmodel_rqtl_geno }}">
+        <input type="hidden" name="pair_scan" value="{{ pair_scan }}">
+        <div id="chart_container">
+            <div class="qtlcharts" id="topchart">
+                {{ gifmap|safe }}
+                <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
+            </div>
+        </div>
+        </form>
+        <div style="width:48%;">
+            <h2>
+                Results
+            </h2>
+            <table id="qtl_results" class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Index</th>
+                        <th>{{ LRS_LOD }}</th>
+                        <th>Chr</th>
+                        {% if plotScale == "centimorgan" %}
+                        <th>cM</th>
+                        {% else %}
+                        <th>Mb</th>
+                        {% endif %}
+                        <th>Locus</th>
+                   </tr>
+                </thead>
+                <tbody>
+                    {% for marker in qtlresults %}
+                        {% if (LRS_LOD == "LOD" and marker.lod_score|float > cutoff|float) or
+                              (LRS_LOD == "LRS" and marker.lrs_value|float > cutoff|float) %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selectCheck"
+                                       class="checkbox edit_sample_checkbox"
+                                       value="{{ marker.name }}" checked="checked">
+                            </td>
+                            <Td align="right">{{ loop.index }}</Td>
+                            {% if LRS_LOD == "LOD" %}
+                            <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
+                            {% else %}
+                            <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
+                            {% endif %}
+                            <td>{{marker.chr}}</td>
+                            <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
+                            <td>
+                                {{ marker.name }}
+                                <!--<a href="{{ url_for('show_trait_page',
+                                        trait_id = marker.name,
+                                        dataset = dataset.name
+                                        )}}">
+                                    {{ marker.name }}
+                                </a>-->
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<LINK REL="stylesheet" TYPE="text/css" HREF='/css/general.css'>
-<LINK REL="stylesheet" TYPE="text/css" HREF='/css/menu.css'>
-<link rel="stylesheet" media="all" type="text/css" href="/css/tabbed_pages.css" />
-<LINK REL="apple-touch-icon" href="/images/ipad_icon3.png" />
-<link type="text/css" href='/css/custom-theme/jquery-ui-1.10.3.custom.css' rel='Stylesheet' />
-<link type="text/css" href='/css/tab_style.css' rel='Stylesheet' />
+    <!-- End of body -->
 
-<script type="text/javascript" src="/javascript/jquery-1.5.2.min.js"></script>
-<SCRIPT SRC="/javascript/webqtl.js"></SCRIPT>
-<SCRIPT SRC="/javascript/dhtml.js"></SCRIPT>
-<SCRIPT SRC="/javascript/tablesorter.js"></SCRIPT>
-<SCRIPT SRC="/javascript/jqueryFunction.js"></SCRIPT>
-<script src="/javascript/tabbed_pages.js" type="text/javascript"></script>
-<script src="/javascript/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
-<script src="/javascript/sorttable.js"></script>
+{% endblock %}
 
-</HEAD>
-<BODY  bottommargin="2" leftmargin="2" rightmargin="2" topmargin="2" text=#000000 bgColor=#ffffff >
+{% block js %}  
 
-<TABLE cellSpacing=5 cellPadding=4 width="100%" border=0>
-  <TBODY>
-  <!-- Start of body -->
-  <TR>
-    <TD  bgColor=#eeeeee class="solidBorder">
-      <Table width= "100%" cellSpacing=0 cellPadding=5>
-        <TR>
-          <TD height="200" bgcolor="#eeeeee">
-            <BLOCKQUOTE>
-            <TABLE border="0" cellpadding="0" cellspacing="0">
-              <TR>
-                <TD valign="top">
-                  <P class="title">Map Viewer: Whole Genome</P>
-                  <P>
-                    <STRONG>Population: </STRONG>{{ dataset.species }} {{ dataset.group.name }}<BR>
-                    <STRONG>Database: </STRONG><A HREF="http://www.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName={{ dataset.name }}" TARGET="_blank" class="normalsize">{{ dataset.fullname }}</A><BR>
-                    <STRONG>Trait ID: </STRONG><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = dataset.name) }}">{{ marker.name }}</a><BR>
-                    {% if this_trait.symbol != None %}
-                    <STRONG>Gene Symbol: </STRONG><EM id="green">this_trait.symbol</EM><BR>
-                    {% if this_trait.dataset.type != 'Publish' %}
-                    <STRONG>Location: </STRONG> {{ this_trait.location_fmt }}
-                    {% endif %}
-                  </P>
-                  <P>
-                    <BR><A HREF="/tmp/Itvl_bnCx5c3U.txt" TARGET="_blank" class="smallsize">Download</A> results in tab-delimited text format.</TD><TD width="25">&nbsp;</TD><TD class="doubleBorder" width="400">
-<FORM METHOD="POST" ACTION="/webqtl/main.py" ENCTYPE="multipart/form-data" NAME="changeViewForm">
-<TABLE border="0"><TR><TD valign="top"><TABLE border="0"><TR><TD class="fs12 fwb ffl">Chr: </TD><TD><SELECT NAME="chromosomes" SIZE=1 onChange="chrLength(this.form.chromosomes.value, this.form.scale.value, this.form, self.ChrLengthMbList);">
-<OPTION Value="-1" SELECTED>All</OPTION>
-<OPTION Value="0">1</OPTION>
-<OPTION Value="1">2</OPTION>
-<OPTION Value="2">3</OPTION>
-<OPTION Value="3">4</OPTION>
-<OPTION Value="4">5</OPTION>
-<OPTION Value="5">6</OPTION>
-<OPTION Value="6">7</OPTION>
-<OPTION Value="7">8</OPTION>
-<OPTION Value="8">9</OPTION>
-<OPTION Value="9">10</OPTION>
-<OPTION Value="10">11</OPTION>
-<OPTION Value="11">12</OPTION>
-<OPTION Value="12">13</OPTION>
-<OPTION Value="13">14</OPTION>
-<OPTION Value="14">15</OPTION>
-<OPTION Value="15">16</OPTION>
-<OPTION Value="16">17</OPTION>
-<OPTION Value="17">18</OPTION>
-<OPTION Value="18">19</OPTION>
-<OPTION Value="19">X</OPTION>
-</SELECT>
-<SELECT NAME="scale" SIZE=1 onChange="chrLength(this.form.chromosomes.value, this.form.scale.value, this.form, self.ChrLengthMbList);">
-<OPTION Value="morgan">Genetic</OPTION>
-<OPTION Value="physic" SELECTED>Physical</OPTION>
-</SELECT>
+    <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
 
-<INPUT TYPE="button" NAME="Default_Name" class="button" VALUE="Remap" onClick="javascript:databaseFunc(this.form,'showIntMap');"></TD></TR><TR><TD class="fs12 fwb ffl">View: </TD><TD nowrap="on">
-<INPUT TYPE="text" NAME="startMb" SIZE=10> to 
-<INPUT TYPE="text" NAME="endMb" SIZE=10>Mb<SPAN class="cr"> *</SPAN></TD></TR><TR><TD class="fs12 fwb ffl">Units: </TD><TD>
-<INPUT TYPE="radio" NAME="LRSCheck" VALUE="LRS" CHECKED>LRS 
-<INPUT TYPE="radio" NAME="LRSCheck" VALUE="LOD">LOD <A HREF="/glossary.html#LOD" TARGET="helpWind"><IMG src="/images/qmarkBoxBlue.gif" height="13" width="10" alt="Glossary" border="0"></A></TD></TR><TR><TD class="fs12 fwb ffl"> </TD><TD class="fs11 fwn">
-<INPUT TYPE="text" NAME="lrsMax" VALUE="0.0" SIZE=3>units on Y-axis (0 for default)</TD></TR><TR><TD class="fs12 fwb ffl">Width: </TD><TD class="fs11 fwn ">
-<INPUT TYPE="text" NAME="graphWidth" VALUE="1600" SIZE=5>pixels (minimum=1400)</TD></TR></TABLE></TD><TD width="15">&nbsp;</TD><TD nowrap="on" valign="top">
-<INPUT TYPE="checkbox" NAME="permCheck" class="checkbox" VALUE="ON" CHECKED><SPAN class="fs12 fwn">Permutation Test <A HREF="/glossary.html#Permutation" TARGET="helpWind"><IMG src="/images/qmarkBoxBlue.gif" height="13" width="10" alt="Glossary" border="0"></A></SPAN><BR>
-<INPUT TYPE="checkbox" NAME="bootCheck" class="checkbox" VALUE="ON" CHECKED><SPAN class="fs12 fwn">Bootstrap Test <A HREF="/glossary.html#bootstrap" TARGET="helpWind"><IMG src="/images/qmarkBoxBlue.gif" height="13" width="10" alt="Glossary" border="0"></A></SPAN><BR>
-<INPUT TYPE="checkbox" NAME="additiveCheck" class="checkbox" VALUE="ON" CHECKED><SPAN class="fs12 fwn">Allele Effects <A HREF="/glossary.html#additive" TARGET="helpWind"><IMG src="/images/qmarkBoxBlue.gif" height="13" width="10" alt="Glossary" border="0"></A></SPAN><BR>
-<INPUT TYPE="checkbox" NAME="showSNP" class="checkbox" VALUE="ON" CHECKED><SPAN class="fs12 fwn">SNP Track <A HREF="/glossary.html#snpSeismograph" TARGET="helpWind"><IMG src="/images/qmarkBoxBlue.gif" height="13" width="10" alt="Glossary" border="0"></A></SPAN><SPAN class="cr"> *</SPAN><BR>
-<INPUT TYPE="checkbox" NAME="showGenes" class="checkbox" VALUE="ON" CHECKED><SPAN class="fs12 fwn">Gene Track</SPAN><SPAN class="cr"> *</SPAN><BR>
-<INPUT TYPE="checkbox" NAME="intervalAnalystCheck" class="checkbox" VALUE="ON" CHECKED><SPAN class="fs12 fwn">Interval Analyst</SPAN><SPAN class="cr"> *</SPAN><BR>
-<INPUT TYPE="checkbox" NAME="haplotypeAnalystCheck" class="checkbox" VALUE="ON"><SPAN class="fs12 fwn">Haplotype Analyst</SPAN><SPAN class="cr"> *</SPAN><BR>
-<INPUT TYPE="checkbox" NAME="viewLegend" class="checkbox" VALUE="ON" CHECKED><SPAN class="fs12 fwn">Legend</SPAN><BR>
-<INPUT TYPE="checkbox" NAME="draw2X" class="checkbox" VALUE="ON"><SPAN class="fs12 fwn">2X Plot</SPAN></TD></TR><TR><TD class="fs11 fwn" align="Center" colspan="3"><SPAN class="cr"> *</SPAN> only apply to single chromosome physical mapping</TD></TR></TABLE>
-<INPUT TYPE="hidden" NAME="permSuggestive" VALUE="10.7954270978">
-<INPUT TYPE="hidden" NAME="permSignificance" VALUE="17.4487035226">
-<INPUT TYPE="hidden" NAME="FormID" VALUE="dataEditing">
-<INPUT TYPE="hidden" NAME="MDPChoice2" VALUE="1">
-<INPUT TYPE="hidden" NAME="MDPChoice3" VALUE="1">
-<INPUT TYPE="hidden" NAME="MDPChoice1" VALUE="1">
-<INPUT TYPE="hidden" NAME="strainVals" VALUE="_">
-<INPUT TYPE="hidden" NAME="extra_attributes" VALUE="_">
-<INPUT TYPE="hidden" NAME="otherStrainNames" VALUE="_">
-<INPUT TYPE="hidden" NAME="trait_name" VALUE="1457003_at">
-<INPUT TYPE="hidden" NAME="fromDataEditingPage" VALUE="1">
-<INPUT TYPE="hidden" NAME="directPermuCheckbox" VALUE="on">
-<INPUT TYPE="hidden" NAME="otherStrainVals" VALUE="_">
-<INPUT TYPE="hidden" NAME="identification" VALUE="Hippocampus M430v2 BXD 06/06 PDNN : 1457003_at">
-<INPUT TYPE="hidden" NAME="bootCheck1" VALUE="on">
-<INPUT TYPE="hidden" NAME="stats_mdp" VALUE="0">
-<INPUT TYPE="hidden" NAME="orderBy" VALUE="['2', '2', '2']">
-<INPUT TYPE="hidden" NAME="chromosomes1" VALUE="-1">
-<INPUT TYPE="hidden" NAME="chromosomes2" VALUE="-1">
-<INPUT TYPE="hidden" NAME="mappingMethodId" VALUE="1">
-<INPUT TYPE="hidden" NAME="other_extra_attributes" VALUE="_">
-<INPUT TYPE="hidden" NAME="scale2" VALUE="physic">
-<INPUT TYPE="hidden" NAME="criteria3" VALUE="500">
-<INPUT TYPE="hidden" NAME="isSE" VALUE="yes">
-<INPUT TYPE="hidden" NAME="num_perm" VALUE="1000">
-<INPUT TYPE="hidden" NAME="submitID" VALUE="intervalMap">
-<INPUT TYPE="hidden" NAME="description" VALUE="glutamate receptor, ionotropic, NMDA2B (epsilon 2); distal 3' UTR (3' UTR long form splice variant)">
-<INPUT TYPE="hidden" NAME="allstrainlist" VALUE="B6D2F1 D2B6F1 C57BL/6J DBA/2J BXD1 BXD2 BXD5 BXD6 BXD8 BXD9 BXD11 BXD12 BXD13 BXD14 BXD15 BXD16 BXD18 BXD19 BXD20 BXD21 BXD22 BXD23 BXD24 BXD24a BXD25 BXD27 BXD28 BXD29 BXD30 BXD31 BXD32 BXD33 BXD34 BXD35 BXD36 BXD37 BXD38 BXD39 BXD40 BXD41 BXD42 BXD43 BXD44 BXD45 BXD48 BXD48a BXD49 BXD50 BXD51 BXD52 BXD53 BXD54 BXD55 BXD56 BXD59 BXD60 BXD61 BXD62 BXD63 BXD64 BXD65 BXD65a BXD65b BXD66 BXD67 BXD68 BXD69 BXD70 BXD71 BXD72 BXD73 BXD73a BXD73b BXD74 BXD75 BXD76 BXD77 BXD78 BXD79 BXD81 BXD83 BXD84 BXD85 BXD86 BXD87 BXD88 BXD89 BXD90 BXD91 BXD93 BXD94 BXD95 BXD98 BXD99 BXD100 BXD101 BXD102 BALB/cByJ PWK/PhJ A/J KK/HlJ LG/J 129S1/SvImJ NZO/HlLtJ CAST/EiJ PWD/PhJ AKR/J CXB13 CXB12 CXB11 CXB10 WSB/EiJ C3H/HeJ CXB7 CXB6 CXB5 CXB4 CXB3 CXB2 CXB1 CXB9 CXB8 NOD/ShiLtJ C57BL/6ByJ BALB/cJ">
-<INPUT TYPE="hidden" NAME="otherStrainVars" VALUE="_">
-<INPUT TYPE="hidden" NAME="graphSort" VALUE="0">
-<INPUT TYPE="hidden" NAME="stats_method" VALUE="1">
-<INPUT TYPE="hidden" NAME="scale1" VALUE="physic">
-<INPUT TYPE="hidden" NAME="sample_method" VALUE="2">
-<INPUT TYPE="hidden" NAME="db_name" VALUE="Hippocampus Consortium M430v2 (Jun06) PDNN">
-<INPUT TYPE="hidden" NAME="num_perm2" VALUE="2000">
-<INPUT TYPE="hidden" NAME="num_perm1" VALUE="1000">
-<INPUT TYPE="hidden" NAME="pairScanReturn" VALUE="50">
-<INPUT TYPE="hidden" NAME="strainNames" VALUE="_">
-<INPUT TYPE="hidden" NAME="removeField" VALUE="e.g., 4, 6-30, 43">
-<INPUT TYPE="hidden" NAME="location" VALUE=" Chr 6 @ 135.679913 Mb">
-<INPUT TYPE="hidden" NAME="valsHidden" VALUE="OFF">
-<INPUT TYPE="hidden" NAME="incparentsf1" VALUE="ON">
-<INPUT TYPE="hidden" NAME="block_method" VALUE="1">
-<INPUT TYPE="hidden" NAME="fullname" VALUE="HC_M2_0606_P::1457003_at">
-<INPUT TYPE="hidden" NAME="RISet" VALUE="BXD">
-<INPUT TYPE="hidden" NAME="normalPlotTitle" VALUE="Grin2b: 1457003_at">
-<INPUT TYPE="hidden" NAME="trait_type" VALUE="ProbeSet">
-<INPUT TYPE="hidden" NAME="criteria1" VALUE="500">
-<INPUT TYPE="hidden" NAME="criteria2" VALUE="500">
-<INPUT TYPE="hidden" NAME="database1" VALUE="HC_M2_0606_P">
-<INPUT TYPE="hidden" NAME="database2" VALUE="HC_M2_0606_P">
-<INPUT TYPE="hidden" NAME="database3" VALUE="HC_M2_0606_P">
-<INPUT TYPE="hidden" NAME="num_perm3" VALUE="2000">
-<INPUT TYPE="hidden" NAME="symbol" VALUE="Grin2b">
-<INPUT TYPE="hidden" NAME="tissue_method" VALUE="5">
-<INPUT TYPE="hidden" NAME="GeneId" VALUE="14812">
-<INPUT TYPE="hidden" NAME="heritability" VALUE="None">
-<INPUT TYPE="hidden" NAME="Default_Name">
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
 
-</FORM>
-</TD></TR></TABLE></BLOCKQUOTE><BLOCKQUOTE>
-<MAP NAME="WebQTLImageMap">
-<AREA coords="120,80,135,100" href="javascript:changeView(0,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="219,80,235,100" href="javascript:changeView(1,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="308,80,323,100" href="javascript:changeView(2,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="391,80,406,100" href="javascript:changeView(3,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="472,80,487,100" href="javascript:changeView(4,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="552,80,567,100" href="javascript:changeView(5,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="632,80,647,100" href="javascript:changeView(6,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="707,80,721,100" href="javascript:changeView(7,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="775,80,790,100" href="javascript:changeView(8,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="835,80,866,100" href="javascript:changeView(9,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="903,80,933,100" href="javascript:changeView(10,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="968,80,999,100" href="javascript:changeView(11,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="1033,80,1063,100" href="javascript:changeView(12,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="1099,80,1129,100" href="javascript:changeView(13,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="1160,80,1190,100" href="javascript:changeView(14,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="1215,80,1245,100" href="javascript:changeView(15,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="1268,80,1298,100" href="javascript:changeView(16,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="1320,80,1349,100" href="javascript:changeView(17,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="1362,80,1392,100" href="javascript:changeView(18,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="1431,80,1447,100" href="javascript:changeView(19,[197.19543200000001, 181.748087, 159.599783, 155.63012000000001, 152.53725900000001, 149.51703699999999, 152.524553, 131.73887099999999, 124.076172, 129.993255, 121.843856, 121.25753, 120.284312, 125.194864, 103.494974, 98.319149999999993, 95.272650999999996, 90.772030999999998, 61.34243, 166.650296]);" shape="rect"><AREA coords="80, 442, 175, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="80, 407, 175, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="182, 442, 270, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="182, 407, 270, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="277, 442, 354, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="277, 407, 354, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="360, 442, 436, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="360, 407, 436, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="442, 442, 516, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="442, 407, 516, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="523, 442, 595, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="523, 407, 595, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="602, 442, 675, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="602, 407, 675, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="682, 442, 745, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="682, 407, 745, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="752, 442, 812, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="752, 407, 812, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="819, 442, 881, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="819, 407, 881, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="888, 442, 946, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="888, 407, 946, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="953, 442, 1012, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="953, 407, 1012, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="1018, 442, 1076, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="1018, 407, 1076, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="1083, 442, 1143, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="1083, 407, 1143, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="1150, 442, 1199, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="1150, 407, 1199, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="1206, 442, 1253, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="1206, 407, 1253, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="1260, 442, 1305, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="1260, 407, 1305, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="1312, 442, 1355, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="1312, 407, 1355, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="1362, 442, 1391, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="1362, 407, 1391, 411" nohref shape="rect" title="Significant LRS = 17.45"><AREA coords="1398, 442, 1478, 446" nohref shape="rect" title="Suggestive LRS = 10.80"><AREA coords="1398, 407, 1478, 411" nohref shape="rect" title="Significant LRS = 17.45"></MAP>
-<IMG src="/image/Itvl_bnCx5c3U.png" alt="Itvl_bnCx5c3U.png" border="0" usemap="#WebQTLImageMap">
-<P>
-<P id="smallsize"><BR>A positive additive coefficient (<FONT color="green">green</FONT> line) indicates that DBA/2J alleles increase trait values. In contrast, a negative additive coefficient (<FONT color="red">red</FONT> line) indicates that C57BL/6J alleles increase trait values.</P>
-<P>
-<TABLE><TR><TD><IMG src="/image/Reg_9sObQtW0.gif" alt="Histogram of Permutation Test" border="0"></TD></TR><TR><TD></TD></TR><TR><TD>Total of 1000 permutations</TD></TR></TABLE>
-<P>
-<A HREF="/tmp/Reg_1MWrEXK7.txt" TARGET="_blank" class="fs12 fwn">Download Permutation Results</A></BLOCKQUOTE></TD>
-		</TR>
-		</TABLE>
-		</TD>
-	</TR>
-	<!-- End of body -->
+    <script>
+        js_data = {{ js_data | safe }}
+    </script>
 
-</TABLE>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function () {
+            console.time("Creating table");
+            $('#qtl_results').dataTable( {
+                "columns": [
+                    { "type": "natural", "sWidth": "10%", "bSortable": false },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "sWidth": "30%"}
+                    ],
+                "buttons": [
+                    'csv'
+                ],
+                "sDom": "RZBtir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
+                "bDeferRender": true,
+                "bSortClasses": false,
+                "scrollY": "700px",
+                "scrollCollapse": true,
+                "paging": false
+            } );
+            console.timeEnd("Creating table");
 
-<!-- menu script itself. you should not modify this file -->
-<script language="JavaScript" src="/javascript/menu_new.js"></script>
-<!-- items structure. menu hierarchy and links are stored there -->
-<script language="JavaScript" src="/javascript/menu_items.js"></script>
-<!-- files with geometry and styles structures -->
-<script language="JavaScript" src="/javascript/menu_tpl.js"></script>
-<script language="JavaScript">
-	<!--//
-	// Note where menu initialization block is located in HTML document.
-	// Don't try to position menu locating menu initialization block in
-	// some table cell or other HTML element. Always put it before </body>
-	// each menu gets two parameters (see demo files)
-	// 1. items structure
-	// 2. geometry structure
-	new menu (MENU_ITEMS, MENU_POS);
-	// make sure files containing definitions for these variables are linked to the document
-	// if you got some javascript error like "MENU_POS is not defined", then you've made syntax
-	// error in menu_tpl.js file or that file isn't linked properly.
-	
-	// also take a look at stylesheets loaded in header in order to set styles
-	//-->
-</script>
-</BODY>
-</HTML>
+        });
+
+        chrView = function(this_chr, chr_mb_list) {
+            $('input[name=selected_chr]').val(this_chr + 1)
+            $('input[name=chr_mb_list]').val(chr_mb_list)
+
+            return $('#marker_regression_form').submit();
+        };
+
+    </script>
+
+{% endblock %}
+

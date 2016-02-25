@@ -7,6 +7,7 @@ from scipy import stats
 import numpy as np
 
 class CorrScatterPlot(object):
+    """Page that displays a correlation scatterplot with a line fitted to it"""
 
     def __init__(self, params):
         self.data_set_1 = data_set.create_dataset(params['dataset_1'])

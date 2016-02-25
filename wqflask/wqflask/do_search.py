@@ -861,7 +861,10 @@ class PositionSearch(DoSearch):
         try:
             self.chr = int(self.chr)
         except: 
-            self.chr = int(self.chr.replace('chr', ''))
+            if 'chr' in self.chr:
+                self.chr = int(self.chr.replace('chr', ''))
+            else:
+                self.chr = int(self.chr.replace('CHR', ''))
 
     def run(self):
 
