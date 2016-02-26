@@ -87,7 +87,7 @@ class MarkerRegression(object):
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
-            self.score_type = "LRS"
+            self.score_type = "LOD"
             included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
             self.dataset.group.get_specified_markers(markers = included_markers)
             self.dataset.group.markers.add_pvalues(p_values)
@@ -492,7 +492,7 @@ class MarkerRegression(object):
         
         self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
         
-        plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
+        plink_command = PLINK_COMMAND + ' --noweb --bed %s/%s.bed --bim %s/%s.bim --fam %s/%s.fam --no-fid --no-parents --no-sex --no-pheno --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
         print("plink_command:", plink_command)        
 
         os.system(plink_command)
