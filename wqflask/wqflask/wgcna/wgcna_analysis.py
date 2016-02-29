@@ -6,7 +6,7 @@ import scipy as sp                            # SciPy
 import rpy2.robjects as ro                    # R Objects
 import rpy2.rinterface as ri
 
-from base import webqtlConfig                 # For paths and stuff
+from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility import webqtlUtil                # Random number for the image
 
 import base64
@@ -127,7 +127,7 @@ class WGCNA(object):
 
         # The iconic WCGNA plot of the modules in the hanging tree
         self.results['imgurl'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
-        self.results['imgloc'] = webqtlConfig.TMPDIR + self.results['imgurl']
+        self.results['imgloc'] = GENERATED_IMAGE_DIR + self.results['imgurl']
         r_png(self.results['imgloc'], width=1000, height=600)
         mergedColors = self.r_labels2colors(network[1])
         self.r_plotDendroAndColors(network[5][0], mergedColors, "Module colors", dendroLabels = False, hang = 0.03, addGuide = True, guideHang = 0.05)

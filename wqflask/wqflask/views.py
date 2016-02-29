@@ -98,7 +98,7 @@ def tmp_page(img_path):
     print("img_path:", img_path)
     initial_start_vars = request.form
     print("initial_start_vars:", initial_start_vars)
-    imgfile = open(webqtlConfig.TMPDIR + img_path, 'rb')
+    imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = imgdata.encode("base64")
     bytesarray = array.array('B', imgB64)
