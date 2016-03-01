@@ -1,6 +1,9 @@
 #! /bin/bash
 #
-# This will run the server with default settings.
+# This will run the GN2 server (with default settings if none supplied).
+#
+# Environment settings can be used to preconfigure as well as a
+# settings.py file.
 
 # Absolute path to this script, e.g. /home/user/bin/foo.sh
 SCRIPT=$(readlink -f "$0")
@@ -8,20 +11,29 @@ SCRIPT=$(readlink -f "$0")
 GN2_BASE_PATH=$(dirname $(dirname "$SCRIPT"))
 echo $GN2_BASE_PATH
 
+# Handle setting parameter
 settings=$1
 if [ -z $settings ]; then settings=$GN2_BASE_PATH/etc/default_settings.py ; fi
-export PYTHONPATH=$GN2_BASE_PATH/wqflask:$PYTHONPATH
+if [ ! -e $settings ]; then
+    echo "ERROR: can not load settings file $settings"
+    exit 1
+fi
 export WQFLASK_SETTINGS=$settings
 
+# We may change this one:
+export PYTHONPATH=$GN2_BASE_PATH/wqflask:$PYTHONPATH
+
+# TEMPDIR defaults to /tmp if nothing else
 if [ -z $TEMPDIR ]; then
     TEMPDIR="/tmp"
 fi
                          
-# start the redis server
+# Start the redis server
 echo -n "dir $TEMPDIR
 dbfilename gn2.rdb
 " | redis-server - &
 
+# Start the flask server running GN2
 cd $GN2_BASE_PATH/wqflask
 echo "Starting with $settings"
 /usr/bin/env python runserver.py
