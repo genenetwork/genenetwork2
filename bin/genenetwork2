@@ -15,7 +15,8 @@ echo $GN2_BASE_PATH
 settings=$1
 if [ -z $settings ]; then settings=$GN2_BASE_PATH/etc/default_settings.py ; fi
 if [ ! -e $settings ]; then
-    settings=$GN2_BASE_PATH/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
+    GN2_BASE_PATH=$GN2_BASE_PATH/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg
+    settings=$GN2_BASE_PATH/etc/default_settings.py
     if [ ! -e $settings ]; then
         echo "ERROR: can not locate settings file - pass it in the command line"
         exit 1
