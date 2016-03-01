@@ -161,7 +161,6 @@ class ShowTrait(object):
         def check_plink_gemma():
             if (os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".bed") and
                 os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".map")):
-
                 return True
             else:
                 return False

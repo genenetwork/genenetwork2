@@ -39,10 +39,11 @@ from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
-from utility.tools import pylmm_command, plink_command
+from utility.tools import pylmm_command, plink_command, gemma_command
 
 PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
 PLINK_PATH,PLINK_COMMAND = plink_command()
+GEMMA_PATH,GEMMA_COMMAND = gemma_command()
 
 class MarkerRegression(object):
 
@@ -219,9 +220,9 @@ class MarkerRegression(object):
         
         self.gen_pheno_txt_file()
 
-        os.chdir("/home/zas1024/gene/web/gemma")
+        #os.chdir("/home/zas1024/gene/web/gemma")
 
-        gemma_command = './gemma -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
+        gemma_command = GEMMA_COMMAND + ' -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name)
@@ -491,7 +492,7 @@ class MarkerRegression(object):
         
         self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
         
-        plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
+        plink_command = PLINK_COMMAND + ' --noweb --bed %s/%s.bed --bim %s/%s.bim --fam %s/%s.fam --no-fid --no-parents --no-sex --no-pheno --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
         print("plink_command:", plink_command)        
 
         os.system(plink_command)

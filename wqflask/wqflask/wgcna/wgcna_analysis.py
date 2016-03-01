@@ -86,8 +86,8 @@ class WGCNA(object):
             trait = t[0]                  # R uses vectors every single element is a vector
             for s in uStrainsR:
                 strain = s[0]             # R uses vectors every single element is a vector
-                rM.rx[strain, trait] = self.input[trait].get(strain)  # Update the matrix location
                 #DEBUG: print(trait, strain, " in python: ", self.input[trait].get(strain), "in R:", rM.rx(strain,trait)[0])
+                rM.rx[strain, trait] = self.input[trait].get(strain)  # Update the matrix location
                 sys.stdout.flush()
 
         self.results = {}
