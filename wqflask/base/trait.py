@@ -31,16 +31,16 @@ class GeneralTrait(object):
 
     """
 
-    def __init__(self, get_qtl_info=False, **kw):
+    def __init__(self, get_qtl_info=False, get_sample_info=True, **kw):
         # xor assertion
         assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. or name";
         if kw.get('dataset_name'):
             self.dataset = create_dataset(kw.get('dataset_name'))
-            print(" in GeneralTrait created dataset:", self.dataset)
+            #print(" in GeneralTrait created dataset:", self.dataset)
         else:
             self.dataset = kw.get('dataset')
         self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
-        print("THE NAME IS:", self.name)
+        #print("THE NAME IS:", self.name)
         self.cellid = kw.get('cellid')
         self.identification = kw.get('identification', 'un-named trait')
         self.haveinfo = kw.get('haveinfo', False)
@@ -67,7 +67,8 @@ class GeneralTrait(object):
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
         self.retrieve_info(get_qtl_info=get_qtl_info)
-        self.retrieve_sample_data()
+        if kw.get('get_sample_info') != False:
+            self.retrieve_sample_data()
         
         
     def jsonable(self):
@@ -291,7 +292,7 @@ class GeneralTrait(object):
                             PublishFreeze.Id = %s
                     """ % (self.name, self.dataset.id)
             
-            print("query is:", query) 
+            #print("query is:", query) 
         
             trait_info = g.db.execute(query).fetchone()
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
@@ -402,9 +403,9 @@ class GeneralTrait(object):
                     #self.cursor.execute(query)
                     #trait_qtl = self.cursor.fetchone()
                     if trait_qtl:
-                        print("trait_qtl:", trait_qtl)
+                        #print("trait_qtl:", trait_qtl)
                         self.locus, self.lrs, self.pvalue, self.mean, self.additive= trait_qtl
-                        print("self.locus:", self.locus)
+                        #print("self.locus:", self.locus)
                         if self.locus:
                             query = """
                                 select Geno.Chr, Geno.Mb from Geno, Species

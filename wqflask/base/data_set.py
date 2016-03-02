@@ -280,7 +280,7 @@ class DatasetGroup(object):
     """
     def __init__(self, dataset):
         """This sets self.group and self.group_id"""
-        print("DATASET NAME2:", dataset.name)
+        #print("DATASET NAME2:", dataset.name)
         self.name, self.id = g.db.execute(dataset.query_for_group).fetchone()
         if self.name == 'BXD300':
             self.name = "BXD"
@@ -366,7 +366,7 @@ class DatasetGroup(object):
                         break
 
                 if tissue_already_exists:
-                    print("dataset_menu:", dataset_menu[i]['datasets'])
+                    #print("dataset_menu:", dataset_menu[i]['datasets'])
                     dataset_menu[i]['datasets'].append((dataset, dataset_short))
                 else:
                     dataset_menu.append(dict(tissue=tissue_name,
@@ -392,18 +392,18 @@ class DatasetGroup(object):
 
     def get_samplelist(self):
         key = "samplelist:v2:" + self.name
-        print("key is:", key)
-        with Bench("Loading cache"):
-            result = Redis.get(key)
+        #print("key is:", key)
+        #with Bench("Loading cache"):
+        result = Redis.get(key)
 
         if result:
-            print("Sample List Cache hit!!!")
-            print("Before unjsonifying {}: {}".format(type(result), result))
+            #print("Sample List Cache hit!!!")
+            #print("Before unjsonifying {}: {}".format(type(result), result))
             self.samplelist = json.loads(result)
-            print("  type: ", type(self.samplelist))
-            print("  self.samplelist: ", self.samplelist)
+            #print("  type: ", type(self.samplelist))
+            #print("  self.samplelist: ", self.samplelist)
         else:
-            print("Cache not hit")
+            #print("Cache not hit")
 
             from utility.tools import plink_command
             PLINK_PATH,PLINK_COMMAND = plink_command()
@@ -417,7 +417,7 @@ class DatasetGroup(object):
                 self.samplelist = get_group_samplelists.get_samplelist("geno", geno_file_path)
             else:
                 self.samplelist = None
-            print("after get_samplelist")
+            #print("after get_samplelist")
             Redis.set(key, json.dumps(self.samplelist))
             Redis.expire(key, 60*5)
 
@@ -442,9 +442,9 @@ class DatasetGroup(object):
         # reaper barfs on unicode filenames, so here we ensure it's a string
         full_filename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
         if os.path.isfile(full_filename):
-            print("Reading file: ", full_filename)
+            #print("Reading file: ", full_filename)
             genotype_1.read(full_filename)
-            print("File read")
+            #print("File read")
         else:
             try:
                 full_filename = str(os.path.join(webqtlConfig.TMPDIR, self.name + '.geno'))
@@ -520,8 +520,6 @@ class DataSet(object):
         self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
         self.group.get_samplelist()
         self.species = species.TheSpecies(self)
-
-        print("TESTING!!!")
 
 
     def get_desc(self):
@@ -700,7 +698,7 @@ class PhenotypeDataSet(DataSet):
 
     def setup(self):
         
-        print("IS A PHENOTYPEDATASET")
+        #print("IS A PHENOTYPEDATASET")
         
         # Fields in the database table
         self.search_fields = ['Phenotype.Post_publication_description',
@@ -1032,7 +1030,7 @@ class MrnaAssayDataSet(DataSet):
         #print("After get_trait_list query")
         trait_data = {}
         for trait in results:
-            print("Retrieving sample_data for ", trait[0])
+            #print("Retrieving sample_data for ", trait[0])
             trait_data[trait[0]] = self.retrieve_sample_data(trait[0])
         #print("After retrieve_sample_data")
         return trait_data
