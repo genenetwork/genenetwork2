@@ -236,13 +236,15 @@ def export_trait_excel():
     for i, row in enumerate(sample_data):
         worksheet.write(i, 0, row[0])
         worksheet.write(i, 1, row[1])
+        if len(row) > 2:
+            worksheet.write(i, 2, row[2])
     workbook.close()
     excel_data = buff.getvalue()
     buff.close()
 
     return Response(excel_data,
                     mimetype='application/vnd.ms-excel',
-                    headers={"Content-Disposition":"attachment;filename=test.xlsx"})
+                    headers={"Content-Disposition":"attachment;filename=sample_data.xlsx"})
 
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_csv():
@@ -262,7 +264,7 @@ def export_trait_csv():
 
     return Response(csv_data,
                     mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=test.csv"})
+                    headers={"Content-Disposition":"attachment;filename=sample_data.csv"})
 
 @app.route("/show_trait")
 def show_trait_page():
