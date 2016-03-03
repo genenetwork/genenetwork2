@@ -76,8 +76,8 @@ def plink_command(guess=None):
 def flat_files(subdir=None):
     base = get_setting("GENENETWORK_FILES")
     if subdir:
-        return valid_path(base+"/"+subdir)
-    return valid_path(base)
+        return assert_dir(base+"/"+subdir)
+    return assert_dir(base)
 
 def assert_dir(dir):
     if not valid_path(dir):
