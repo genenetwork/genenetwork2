@@ -3,11 +3,9 @@
   var block_outliers, composite_mapping_fields, do_ajax_post, get_progress, mapping_method_fields, open_mapping_results, outlier_text, showalert, submit_special, toggle_enable_disable, update_time_remaining;
 
   submit_special = function(url) {
-    //var url;
     console.log("In submit_special");
     console.log("this is:", this);
     console.log("$(this) is:", $(this));
-    //url = $(this).data("url");
     console.log("url is:", url);
     $("#trait_data_form").attr("action", url);
     return $("#trait_data_form").submit();

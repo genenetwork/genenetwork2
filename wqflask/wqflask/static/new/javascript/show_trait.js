@@ -310,6 +310,20 @@
       }
     };
     $('select[name=corr_method]').change(on_corr_method_change);
+
+    submit_special = function(url) {
+      $("#trait_data_form").attr("action", url);
+      return $("#trait_data_form").submit();
+    };
+
+    $(".corr_compute").on("click", (function(_this) {
+      return function() {
+        var url;
+        url = "/corr_compute";
+        return submit_special(url);
+      };
+    })(this));
+
     create_value_dropdown = function(value) {
       return "<option val=" + value + ">" + value + "</option>";
     };
