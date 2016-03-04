@@ -1,4 +1,4 @@
-#+TITLE: Installing GeneNetwork services with GNU Guix
+#+TITLE: Installing GeneNetwork services
 
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
@@ -12,7 +12,8 @@
 
 Large system deployments tend to get very complex. In this document we
 explain the GeneNetwork deployment system which is based on GNU Guix
-(see Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]).
+(see also Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]). The Guix system can be used to install
+GN with all its files and dependencies.
 
 * Binary deployment (WIP)
 

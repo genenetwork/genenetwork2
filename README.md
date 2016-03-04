@@ -4,7 +4,10 @@ Source code for the GeneNetwork2 server http://www.genenetwork.org/
 
 ## Install
 
-See the [installation docs](doc/README.org)
+The recommended installation is with GNU Guix which allows you to
+deploy GN2 and dependencies as a self contained unit on any machine.
+The database can be run separately as well as the source tree (for
+developers).  See the [installation docs](doc/README.org).
 
 ## License
 
