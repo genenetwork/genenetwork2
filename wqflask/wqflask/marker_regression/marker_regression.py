@@ -39,6 +39,7 @@ from wqflask.marker_regression import gemma_mapping
 
 from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND
 from utility.external import shell
+from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
 class MarkerRegression(object):
 
@@ -324,7 +325,7 @@ class MarkerRegression(object):
         
         self.gen_pheno_txt_file_plink(pheno_filename = output_filename)
         
-        rqtl_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
+        rqtl_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
         
         os.system(rqtl_command)
         
@@ -381,10 +382,11 @@ class MarkerRegression(object):
         calc_genoprob   = ro.r["calc.genoprob"]         # Map the calc.genoprob function
         read_cross      = ro.r["read.cross"]            # Map the read.cross function
         write_cross     = ro.r["write.cross"]           # Map the write.cross function
-        GENOtoCSVR      = ro.r["GENOtoCSVR"]            # Map the GENOtoCSVR function
+        GENOtoCSVR      = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
 
-        genofilelocation  = locate(self.dataset.group.name + ".geno", "genotype")
-        crossfilelocation = locate(self.dataset.group.name + ".cross", "genotype")
+        crossname = self.dataset.group.name
+        genofilelocation  = locate(crossname + ".geno", "genotype")
+        crossfilelocation = TMPDIR + crossname + ".cross"
 
         #print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
 
@@ -411,7 +413,7 @@ class MarkerRegression(object):
             #print("Pair scan results:", result_data_frame)
 
             self.pair_scan_filename = webqtlUtil.genRandStr("scantwo_") + ".png"
-            png(file=webqtlConfig.TMPDIR+self.pair_scan_filename)
+            png(file=TMPDIR+self.pair_scan_filename)
             plot(result_data_frame)
             dev_off()
             
@@ -521,8 +523,8 @@ class MarkerRegression(object):
         
         self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
         
-        plink_command = PLINK_COMMAND + ' --noweb --bed %s/%s.bed --bim %s/%s.bim --fam %s/%s.fam --no-fid --no-parents --no-sex --no-pheno --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
-        #print("plink_command:", plink_command)        
+        plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
+        print("plink_command:", plink_command)        
 
         os.system(plink_command)
 
@@ -543,7 +545,7 @@ class MarkerRegression(object):
 
     def gen_pheno_txt_file_plink(self, pheno_filename = ''):
         ped_sample_list = self.get_samples_from_ped_file()	
-        output_file = open("%s%s.txt" % (webqtlConfig.TMPDIR, pheno_filename), "wb")
+        output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
         header = 'FID\tIID\t%s\n' % self.this_trait.name
         output_file.write(header)
     
@@ -578,7 +580,7 @@ class MarkerRegression(object):
         
     def gen_pheno_txt_file_rqtl(self, pheno_filename = ''):
         ped_sample_list = self.get_samples_from_ped_file()	
-        output_file = open("%s%s.txt" % (webqtlConfig.TMPDIR, pheno_filename), "wb")
+        output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
         header = 'FID\tIID\t%s\n' % self.this_trait.name
         output_file.write(header)
     
@@ -720,7 +722,7 @@ class MarkerRegression(object):
     
         threshold_p_value = 0.01
     
-        result_fp = open("%s%s.qassoc"% (webqtlConfig.TMPDIR, output_filename), "rb")
+        result_fp = open("%s%s.qassoc"% (TMPDIR, output_filename), "rb")
         
         header_line = result_fp.readline()# read header line
         line = result_fp.readline()
@@ -1042,7 +1044,7 @@ def create_snp_iterator_file(group):
     This function is only called by main below
     """
     raise Exception("Paths are undefined here")
-    plink_file_base = os.path.join(webqtlConfig.TMPDIR, group)
+    plink_file_base = os.path.join(TMPDIR, group)
     plink_input = input.plink(plink_file_base, type='b')
     
     data = dict(plink_input = list(plink_input),
