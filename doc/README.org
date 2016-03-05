@@ -5,10 +5,11 @@
  - [[#source-deployment][Source deployment]]
    - [[#install-guix][Install guix]]
    - [[#checkout-the-git-repositories][Checkout the git repositories]]
+   - [[#update-guix][Update guix]]
+   - [[#update-the-path][Update the path]]
    - [[#install-gn2][Install GN2]]
    - [[#run-gn2][Run GN2]]
    - [[#run-mysql-server][Run MySQL server]]
-   - [[#notes][Notes]]
  - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
 
 * Introduction
@@ -47,9 +48,15 @@ git clone --recursive --branch gn-latest https://github.com/genenetwork/guix gui
 cd guix-gn-latest
 #+end_src bash
 
-*** Update the path
+** Update guix
 
-Now make sure the guix update path is inline with ours
+At some point you may decide to create, install and run a recent
+version of the guix-daemon by compiling the guix repository. Follow
+[[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully.
+
+** Update the path
+
+Now make sure the guix update path is in line with ours
 
 #+begin_src bash
 mkdir -p ~/.config/guix
@@ -60,7 +67,8 @@ ln -s ~/genenetwork/guix-gn-latest ~/.config/guix/latest
 
 #+begin_src bash
 export GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/
-guix package -i genenetwork2
+cd ~/genenetwork/guix-gn-latest
+./pre-inst guix package -i genenetwork2
 #+end_src bash
 
 ** Run GN2
@@ -107,11 +115,6 @@ Set permissions and match password in your settings file below:
 
 : mysql> grant all privileges on db_webqtl_s.* to gn2@"localhost" identified by 'mysql_password';
 
-** Notes
-
-At some point you may decide to create, install and run a recent
-version of the guix-daemon by compiling the guix repository. Follow
-[[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully.
 
 * Source deployment and other information on reproducibility
 
