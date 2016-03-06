@@ -9,6 +9,7 @@
    - [[#install-gn2][Install GN2]]
    - [[#run-gn2][Run GN2]]
    - [[#run-mysql-server][Run MySQL server]]
+   - [[#run-your-own-copy-of-gn2][Run your own copy of GN2]]
  - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
 
 * Introduction
@@ -68,7 +69,8 @@ export PATH=~/.guix-profile/bin:$PATH
 genenetwork2
 #+end_src bash
 
-will start the default server which listens on port 5003.
+will start the default server which listens on port 5003, i.e.,
+http://localhost:5003/.
 
 ** Run MySQL server
 
@@ -104,6 +106,27 @@ restart MySQL service (mysqld). Login as root and
 Set permissions and match password in your settings file below:
 
 : mysql> grant all privileges on db_webqtl_s.* to gn2@"localhost" identified by 'mysql_password';
+
+** Run your own copy of GN2
+
+At some point you may want to fix the source code. Clone the GN2
+repository from  https://github.com/genenetwork/genenetwork2_diet
+
+Inside the repository:
+
+: cd genenetwork2_diet
+: ./bin/genenetwork2 
+
+Will fire up your local repo http://localhost:5003/ using the  
+settings in ./etc/default_settings.py
+
+To override settings create your own from a copy of
+default_settings.py and pass it into GN2 with
+
+: ./bin/genenetwork2 $HOME/my_settings.py
+
+and everything *should* work. This way we develop against
+the exact same dependency graph of software.
 
 
 * Source deployment and other information on reproducibility
