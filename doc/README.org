@@ -6,7 +6,6 @@
    - [[#install-guix][Install guix]]
    - [[#checkout-the-git-repositories][Checkout the git repositories]]
    - [[#update-guix][Update guix]]
-   - [[#update-the-path][Update the path]]
    - [[#install-gn2][Install GN2]]
    - [[#run-gn2][Run GN2]]
    - [[#run-mysql-server][Run MySQL server]]
@@ -54,21 +53,12 @@ At some point you may decide to create, install and run a recent
 version of the guix-daemon by compiling the guix repository. Follow
 [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully.
 
-** Update the path
-
-Now make sure the guix update path is in line with ours
-
-#+begin_src bash
-mkdir -p ~/.config/guix
-ln -s ~/genenetwork/guix-gn-latest ~/.config/guix/latest
-#+end_src bash
-
 ** Install GN2
 
 #+begin_src bash
 export GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/
 cd ~/genenetwork/guix-gn-latest
-./pre-inst guix package -i genenetwork2
+./pre-inst-env guix package -i genenetwork2
 #+end_src bash
 
 ** Run GN2
