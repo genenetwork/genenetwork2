@@ -62,10 +62,29 @@ cd ~/genenetwork/guix-gn-latest
 ./pre-inst-env guix package -i genenetwork2
 #+end_src bash
 
+Make a note of the paths with
+
+#+begin_src bash
+./pre-inst-env guix package --search-paths
+#+end_src bash
+
 ** Run GN2
+
+After setting the paths for the server
 
 #+begin_src bash
 export PATH=~/.guix-profile/bin:$PATH
+export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
+export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
+export GUIX_GTK3_PATH="$HOME/.guix-profile/lib/gtk-3.0"
+export GI_TYPELIB_PATH="$HOME/.guix-profile/lib/girepository-1.0"
+export XDG_DATA_DIRS="$HOME/.guix-profile/share"
+export GIO_EXTRA_MODULES="$HOME/.guix-profile/lib/gio/modules"
+#+end_src bash
+
+run the main script (in ~/.guix-profile/bin)
+
+#+begin_src bash
 genenetwork2
 #+end_src bash
 
@@ -125,8 +144,9 @@ default_settings.py and pass it into GN2 with
 
 : ./bin/genenetwork2 $HOME/my_settings.py
 
-and everything *should* work. This way we develop against
-the exact same dependency graph of software.
+and everything *should* work (note the full path to the settings
+file). This way we develop against the exact same dependency graph of
+software.
 
 
 * Source deployment and other information on reproducibility
