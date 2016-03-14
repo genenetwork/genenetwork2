@@ -171,6 +171,7 @@ class MrnaAssaySearch(DoSearch):
                 WHERE %s
                     and ProbeSet.Id = ProbeSetXRef.ProbeSetId
                     and ProbeSetXRef.ProbeSetFreezeId = %s
+                ORDER BY ProbeSet.symbol ASC
                             """ % (escape(from_clause),
                                     where_clause,
                                     escape(str(self.dataset.id))))
@@ -192,6 +193,7 @@ class MrnaAssaySearch(DoSearch):
                 WHERE %s
                     and ProbeSet.Id = ProbeSetXRef.ProbeSetId
                     and ProbeSetXRef.ProbeSetFreezeId = %s
+                ORDER BY ProbeSet.symbol ASC
                             """ % (escape(from_clause),
                                     where_clause,
                                     escape(str(self.dataset.id))))
@@ -205,7 +207,7 @@ class MrnaAssaySearch(DoSearch):
 
         print("Running ProbeSetSearch")
         where_clause = self.get_where_clause()
-        query = self.base_query + "WHERE " + where_clause
+        query = self.base_query + "WHERE " + where_clause + "ORDER BY ProbeSet.symbol ASC"
 
         #print("final query is:", pf(query))
 

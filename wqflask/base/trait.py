@@ -221,32 +221,6 @@ class GeneralTrait(object):
         if samplelist == None:
             samplelist = []
 
-        #assert self.dataset
-
-        #if self.cellid:
-        #     #Probe Data
-        #    query = '''
-        #            SELECT
-        #                    Strain.Name, ProbeData.value, ProbeSE.error, ProbeData.Id
-        #            FROM
-        #                    (ProbeData, ProbeFreeze, ProbeSetFreeze, ProbeXRef,
-        #                    Strain, Probe, ProbeSet)
-        #            left join ProbeSE on
-        #                    (ProbeSE.DataId = ProbeData.Id AND ProbeSE.StrainId = ProbeData.StrainId)
-        #            WHERE
-        #                    Probe.Name = '%s' AND ProbeSet.Name = '%s' AND
-        #                    Probe.ProbeSetId = ProbeSet.Id AND
-        #                    ProbeXRef.ProbeId = Probe.Id AND
-        #                    ProbeXRef.ProbeFreezeId = ProbeFreeze.Id AND
-        #                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
-        #                    ProbeSetFreeze.Name = '%s' AND
-        #                    ProbeXRef.DataId = ProbeData.Id AND
-        #                    ProbeData.StrainId = Strain.Id
-        #            Order BY
-        #                    Strain.Name
-        #            ''' % (self.cellid, self.name, self.dataset.name)
-        #
-        #else:
         results = self.dataset.retrieve_sample_data(self.name)
 
         # Todo: is this necessary? If not remove
@@ -259,15 +233,6 @@ class GeneralTrait(object):
                 name, value, variance, num_cases = item
                 if not samplelist or (samplelist and name in samplelist):
                     self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
-
-    #def keys(self):
-    #    return self.__dict__.keys()
-    #
-    #def has_key(self, key):
-    #    return self.__dict__.has_key(key)
-    #
-    #def items(self):
-    #    return self.__dict__.items()
 
     def retrieve_info(self, get_qtl_info=False):
         assert self.dataset, "Dataset doesn't exist"

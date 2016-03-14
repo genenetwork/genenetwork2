@@ -94,7 +94,7 @@ hr.soften {
 .jumbotron {
   position: relative;
   padding: 0px 0;
-  color: #336699;
+  color: black;
   text-align: left;
   text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 30px rgba(0,0,0,.075);
   background: #d5d5d5; /* Old browsers */
@@ -107,7 +107,7 @@ hr.soften {
   line-height: 1;
 }
 .jumbotron p {
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 300;
   line-height: 20px;
   margin-bottom: 10px;

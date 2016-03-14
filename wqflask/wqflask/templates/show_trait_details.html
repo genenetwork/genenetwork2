@@ -1,71 +1,82 @@
-<dl class="dl-horizontal">
-    <dt>Species</dt>
-    <dd>{{ this_trait.dataset.group.species }}</dd>
-    <dt>Group</dt>
-    <dd>{{ this_trait.dataset.group.name }}</dd>
-    <dt>Tissue</dt>
-    <dd>{{ this_trait.dataset.tissue }}</dd>
+<table class="table">
+    <tr>
+        <td>Species</td>
+        <td>{{ this_trait.dataset.group.species }}</td>
+    </tr>
+    <tr>
+        <td>Group</td>
+        <td>{{ this_trait.dataset.group.name }}</td>
+    </tr>
+    <tr>
+        <td>Tissue</td>
+        <td>{{ this_trait.dataset.tissue }}</td>
+    </tr>
     {% if this_trait.dataset.type == 'ProbeSet' %}
-    <dt>Aliases</dt>
-    <dd>{{ this_trait.alias_fmt }}</dd>
+    <tr>
+        <td>Aliases</td>
+        <td>{{ this_trait.alias_fmt|replace(",",";") }}</td>
+    </tr>
     {% endif %}
-
     {% if this_trait.dataset.type != 'Publish' %}
-    <dt>Location</dt>
-    <dd>{{ this_trait.location_fmt }}</dd>
+    <tr>
+        <td>Location</td>
+        <td>{{ this_trait.location_fmt }}</td>
+    </tr>
     {% endif %}
-
-    <dt>Database</dt>
-    <dd>
-        <a href="{{ url_for('static', filename='dbdoc/' + dataset.fullname + '.html') }}" target="_blank">
-            {{ dataset.name }}
-        </a>
-    </dd>
-
+    <tr>
+        <td>Database</td>
+        <td>
+            <a href="{{ url_for('static', filename='dbdoc/' + dataset.fullname + '.html') }}" target="_blank">
+                {{ dataset.fullname }}
+            </a>
+        </td>
+    </tr>
     {% if this_trait.probe_set_specificity %}
-    <dt>
-        <a href="/blatInfo.html" target="_blank"
-           title="Values higher than 2 for the specificity are good">
-            BLAT Specificity
-        </a>
-    </dt>
-    <dd>{{ "%0.3f" | format(this_trait.probe_set_specificity|float) }}</dd>
+    <tr>
+        <td>Target Score</td>
+        <td>
+            <a href="/blatInfo.html" target="_blank"
+               title="Values higher than 2 for the specificity are good">
+                BLAT Specificity
+            </a>: 
+            {{ "%0.3f" | format(this_trait.probe_set_specificity|float) }}
+            &nbsp;&nbsp;
+            {% if this_trait.probe_set_blat_score %}
+            Score: {{ "%0.3f" | format(this_trait.probe_set_blat_score|float) }}
+            {% endif %}
+        </td>
+    </tr>
     {% endif %}
-    {% if this_trait.probe_set_blat_score %}
-    <dt>BLAT Score</dt>
-    <dd>{{ "%0.3f" | format(this_trait.probe_set_blat_score|float) }}</dd>
-    {% endif %}
-    <dt>Resource Links</dt>
-    {% if this_trait.dataset.type == 'ProbeSet' %}
-    <dd>
-        {% if this_trait.geneid != None %}
-        <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{ this_trait.geneid }}" target="_blank" title="Info from NCBI Entrez Gene">
-            Gene
-        </a>
-        &nbsp;&nbsp;
+    <tr>
+        <td>Resource Links</td>
+        <td>
+            {% if this_trait.geneid != None %}
+            <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{ this_trait.geneid }}" target="_blank" title="Info from NCBI Entrez Gene">
+                Gene
+            </a>
+            &nbsp;&nbsp;
+            {% endif %}
+            {% if this_trait.omim != None %}
+            <a href="http://www.ncbi.nlm.nih.gov/omim/{{ this_trait.omim }}" target="_blank" title="Summary from On Mendelion Inheritance in Man">
+                OMIM
+            </a>
+            &nbsp;&nbsp;
+            {% endif %}
+            {% if this_trait.genbankid != None %}
+            <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=Nucleotide&cmd=search&doptcmdl=DocSum&term={{ this_trait.genbankid }}" target="_blank" title="Find the original GenBank sequence used to design the probes">
+                GenBank
+            </a>
+            &nbsp;&nbsp;
+            {% endif %}
+            {% if this_trait.symbol != None %}
+            <a href="http://www.genotation.org/Getd2g.pl?gene_list={{ this_trait.symbol }}" target="_blank" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
+                Genotation
+            </a>
+            &nbsp;&nbsp;
         {% endif %}
-        {% if this_trait.omim != None %}
-        <a href="http://www.ncbi.nlm.nih.gov/omim/{{ this_trait.omim }}" target="_blank" title="Summary from On Mendelion Inheritance in Man">
-            OMIM
-        </a>
-        &nbsp;&nbsp;
-        {% endif %}
-        {% if this_trait.genbankid != None %}
-        <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=Nucleotide&cmd=search&doptcmdl=DocSum&term={{ this_trait.genbankid }}" target="_blank" title="Find the original GenBank sequence used to design the probes">
-            GenBank
-        </a>
-        &nbsp;&nbsp;
-        {% endif %}
-        {% if this_trait.symbol != None %}
-        <a href="http://www.genotation.org/Getd2g.pl?gene_list={{ this_trait.symbol }}" target="_blank" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
-            Genotation
-        </a>
-        &nbsp;&nbsp;
-        {% endif %}
-    </dd>
-    {% endif %}
-</dl>
-
+        </td>
+    </tr>
+</table>
 
 <div style="margin-bottom:15px;" class="btn-toolbar">
     <div class="btn-group">

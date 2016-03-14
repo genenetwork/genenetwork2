@@ -2,6 +2,7 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/scroller/1.4.1/css/scroller.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
@@ -161,6 +162,7 @@
     
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/scroller/1.4.1/js/dataTables.scroller.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
@@ -217,8 +219,29 @@
                 }
             });
 
+/*
+                serverSide: true,
+                ajax: function ( data, callback, settings ) {
+                    var out = [];
+ 
+                    for ( var i=data.start, ien=data.start+data.length ; i<ien ; i++ ) {
+                        out.push( [ i+'-1', i+'-2', i+'-3', i+'-4', i+'-5' ] );
+                    }
+ 
+                    setTimeout( function () {
+                        callback( {
+                            draw: data.draw,
+                            data: out,
+                            recordsTotal: 5000000,
+                            recordsFiltered: 5000000
+                        } );
+                    }, 50 );
+                },
+*/
+
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
+            //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
             $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural" },

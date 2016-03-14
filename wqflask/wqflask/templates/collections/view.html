@@ -8,13 +8,17 @@
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
+
+    <div class="container">
     {% if uc %}
-        {{ header(uc.name,
-            'This collection has {}.'.format(numify(trait_obs|count, "record", "records"))) }}
+        <h2>{{ uc.name }}</h2>
+        <h3>{{ 'This collection has {}.'.format(numify(trait_obs|count, "record", "records")) }}</h3>
     {% else %}
-        {{ header('Your Collection',
-            'This collection has {}.'.format(numify(trait_obs|count, "record", "records"))) }}
+        <h2>Your Collection</h2>
+        <h3>{{ 'This collection has {}.'.format(numify(trait_obs|count, "record", "records")) }}</h3>
     {% endif %}
+    </div>
+
     <div class="container">
         <div>
             {% if uc %}

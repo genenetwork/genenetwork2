@@ -16,13 +16,18 @@
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
+<!--
     {% if this_trait.dataset.type != 'Geno' %}
 	{{ header("{}".format(this_trait.name_header_fmt),
 	    '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
     {% else %}
 	{{ header("{}".format(this_trait.name_header_fmt)) }}
     {% endif %}
-
+-->
+    <div class="container">
+        <h2>Trait Data and Analysis for <b>{{ this_trait.name }}</b></h2>
+        <h3>{{ this_trait.description_fmt }}</h3>
+    </div>
 
     <form method="post" target="_blank" action="/corr_compute" name="trait_page" id="trait_data_form"
     class="form-horizontal">
@@ -36,40 +41,50 @@
         <input type="hidden" name="temp_uuid" id="temp_uuid" value="{{ temp_uuid }}">
 
         <div class="container">
-            
-            {% include 'show_trait_details.html' %}
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne" aria-expanded="true">
+                        <h3 class="panel-title">
+                             <span class="glyphicon glyphicon-chevron-down"></span> Details and Links
+                        </h3>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse" aria-expanded="true">
+                        <div class="panel-body">
+                            {% include 'show_trait_details.html' %}
+                        </div>
+                    </div>
+                </div>    
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-down"></span> Statistics
                         </h3>
                     </div>
-                    <div id="collapseOne" class="panel-collapse collapse in">
+                    <div id="collapseTwo" class="panel-collapse collapse in">
                         <div class="panel-body">
                             {% include 'show_trait_statistics.html' %}
                         </div>
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
                         </h3>
                     </div>
-                    <div id="collapseTwo" class="panel-collapse collapse in">
+                    <div id="collapseThree" class="panel-collapse collapse in">
                         <div class="panel-body">
                             {% include 'show_trait_calculate_correlations.html' %}
                         </div>
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFour">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
                         </h3>
                     </div>
-                    <div id="collapseThree" class="panel-collapse collapse in">
+                    <div id="collapseFour" class="panel-collapse collapse in">
                         <div class="panel-body">
                             {% include 'show_trait_mapping_tools.html' %}
                         </div>
@@ -77,12 +92,12 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFour" aria-expanded="true">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFive" aria-expanded="true">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
                         </h3>
                     </div>
-                    <div id="collapseFour" class="panel-collapse collapse" aria-expanded="true">
+                    <div id="collapseFive" class="panel-collapse collapse" aria-expanded="true">
                         <div class="panel-body">
                             {% include 'show_trait_edit_data.html' %}
                         </div>
