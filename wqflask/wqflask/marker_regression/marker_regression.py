@@ -84,6 +84,8 @@ class MarkerRegression(object):
         self.selected_chr = -1        
         if "selected_chr" in start_vars:
             self.selected_chr = int(start_vars['selected_chr'])
+        if "mb_range" in start_vars:
+            self.mb_range = start_vars['mb_range']
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":

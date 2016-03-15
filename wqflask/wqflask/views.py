@@ -352,6 +352,7 @@ def marker_regression_page():
         'control_marker_db',
         'do_control',
         'pair_scan',
+        'mb_range',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )

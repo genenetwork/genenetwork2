@@ -166,7 +166,6 @@ class Markers(object):
         for marker in markers:
             if (marker['chr'] != "X") and (marker['chr'] != "Y"):
                 marker['chr'] = int(marker['chr'])
-            print("Mb:", marker['Mb'])
             marker['Mb'] = float(marker['Mb'])
             
         self.markers = markers
