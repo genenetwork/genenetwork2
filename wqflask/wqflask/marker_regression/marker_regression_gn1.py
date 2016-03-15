@@ -295,8 +295,11 @@ class MarkerRegression(object):
         self.SNPChecked  = False
         self.draw2X = False
         self.lrsMax = 0
-        self.startMb = -1
-        self.endMb = -1
+        if 'mb_range' in start_vars:
+            self.startMb, self.endMb = [float(x) for x in start_vars['mb_range'].split(',')]
+        else:
+            self.startMb = -1
+            self.endMb = -1
 
         #self.additiveChecked = fd.formdata.getvalue('additiveCheck')
         #self.dominanceChecked = fd.formdata.getvalue('dominanceCheck')
@@ -1597,7 +1600,7 @@ class MarkerRegression(object):
     
                 WEBQTL_COORDS = "%d, %d, %d, %d" % (xBrowse1, paddingTop, xBrowse2, (paddingTop+self.WEBQTL_BAND_HEIGHT))
                 bandWidth = xBrowse2 - xBrowse1
-                WEBQTL_HREF = "javascript:centerIntervalMapOnRange2('%s', %f, %f, document.changeViewForm)" % (currentChromosome, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
+                WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
     
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
                 gifmap.areas.append(HT.Area(shape='rect',coords=WEBQTL_COORDS,href=WEBQTL_HREF, title=WEBQTL_TITLE))
@@ -1606,9 +1609,9 @@ class MarkerRegression(object):
     
                 UCSC_COORDS = "%d, %d, %d, %d" %(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.UCSC_BAND_HEIGHT))
                 if self.species == "mouse":
-                    UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d&hgt.customText=%s/snp/chr%s" % (self._ucscDb, currentChromosome, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases, webqtlConfig.PORTADDR, currentChromosome)
+                    UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d&hgt.customText=%s/snp/chr%s" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases, webqtlConfig.PORTADDR, self.selectedChr)
                 else:
-                    UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d" % (self._ucscDb, currentChromosome, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
+                    UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 UCSC_TITLE = "Click to view this section of the genome in the UCSC Genome Browser"
                 gifmap.areas.append(HT.Area(shape='rect',coords=UCSC_COORDS,href=UCSC_HREF, title=UCSC_TITLE))
                 canvas.drawRect(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.UCSC_BAND_HEIGHT), edgeColor=self.CLICKABLE_UCSC_REGION_COLOR, fillColor=self.CLICKABLE_UCSC_REGION_COLOR)
@@ -1616,9 +1619,9 @@ class MarkerRegression(object):
     
                 ENSEMBL_COORDS = "%d, %d, %d, %d" %(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.ENSEMBL_BAND_HEIGHT))
                 if self.species == "mouse":
-                    ENSEMBL_HREF = "http://www.ensembl.org/Mus_musculus/contigview?highlight=&chr=%s&vc_start=%d&vc_end=%d&x=35&y=12" % (currentChromosome, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
+                    ENSEMBL_HREF = "http://www.ensembl.org/Mus_musculus/contigview?highlight=&chr=%s&vc_start=%d&vc_end=%d&x=35&y=12" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 else:
-                    ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (currentChromosome, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
+                    ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 ENSEMBL_TITLE = "Click to view this section of the genome in the Ensembl Genome Browser"
                 gifmap.areas.append(HT.Area(shape='rect',coords=ENSEMBL_COORDS,href=ENSEMBL_HREF, title=ENSEMBL_TITLE))
                 canvas.drawRect(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.ENSEMBL_BAND_HEIGHT), edgeColor=self.CLICKABLE_ENSEMBL_REGION_COLOR, fillColor=self.CLICKABLE_ENSEMBL_REGION_COLOR)
@@ -1632,7 +1635,7 @@ class MarkerRegression(object):
             #draw the gray text
             chrFont = pid.Font(ttf="verdana", size=26*zoom, bold=1)
             traitFont = pid.Font(ttf="verdana", size=14, bold=0)
-            chrX = xLeftOffset + plotWidth - 2 - canvas.stringWidth("Chr %s" % currentChromosome, font=chrFont)
+            chrX = xLeftOffset + plotWidth - 2 - canvas.stringWidth("Chr %s" % self.selectedChr, font=chrFont)
             canvas.drawString("Chr %s" % currentChromosome, chrX, ensemblPaddingTop-5, font=chrFont, color=pid.gray)
             traitX = chrX - 28 - canvas.stringWidth("database", font=traitFont)
             # end of drawBrowserClickableRegions
@@ -2752,7 +2755,8 @@ class MarkerRegression(object):
                     geneSymbolNCBI = theGO["GeneSymbol"]
 
                 geneLength = (float(theGO["TxEnd"]) - float(theGO["TxStart"]))
-                geneLengthURL = "javascript:centerIntervalMapOnRange2('%s', %f, %f, document.changeViewForm)" % (theGO["Chromosome"], float(theGO["TxStart"])-(geneLength*0.1), float(theGO["TxEnd"])+(geneLength*0.1))
+                #geneLengthURL = "javascript:centerIntervalMapOnRange2('%s', %f, %f, document.changeViewForm)" % (theGO["Chromosome"], float(theGO["TxStart"])-(geneLength*0.1), float(theGO["TxEnd"])+(geneLength*0.1))
+                geneLengthURL = "javascript:rangeView('%s', %f, %f)" % (theGO["Chromosome"], float(theGO["TxStart"])-(geneLength*0.1), float(theGO["TxEnd"])+(geneLength*0.1))
 
                 avgExprVal = []
                 if avgExprVal != "" and avgExprVal:
