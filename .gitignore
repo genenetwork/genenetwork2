@@ -12,3 +12,4 @@ dist/
 *.egg-info/
 EGG-INFO/
 wqflask/output/*
+wqflask/wqflask/static/output/*
