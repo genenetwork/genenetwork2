@@ -133,6 +133,7 @@ repository from  https://github.com/genenetwork/genenetwork2_diet
 
 Inside the repository:
 
+: git clone 
 : cd genenetwork2_diet
 : ./bin/genenetwork2 
 
