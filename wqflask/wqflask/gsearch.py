@@ -92,7 +92,7 @@ class GSearch(object):
 			for line in re:
 				dataset = create_dataset(line[2], "Publish")
 				trait_id = line[3]
-				this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True)
+				this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
 				self.trait_list.append(this_trait)
 				species = webqtlDatabaseFunction.retrieve_species(dataset.group.name)
 				dataset.get_trait_info([this_trait], species)
