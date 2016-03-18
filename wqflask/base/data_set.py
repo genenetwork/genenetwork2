@@ -54,7 +54,7 @@ from pprint import pformat as pf
 # Each subclass will add to this
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name, dataset_type = None):
+def create_dataset(dataset_name, dataset_type = None, get_samplelist = True):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
         #dataset_type = get_dataset_type_from_json(dataset_name)
@@ -71,7 +71,7 @@ def create_dataset(dataset_name, dataset_type = None):
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     dataset_class = globals()[dataset_ob]
-    return dataset_class(dataset_name)
+    return dataset_class(dataset_name, get_samplelist)
 
 
 #def get_dataset_type_from_json(dataset_name):
@@ -501,7 +501,7 @@ class DataSet(object):
 
     """
 
-    def __init__(self, name):
+    def __init__(self, name, get_samplelist = True):
 
         assert name, "Need a name"
         self.name = name
@@ -517,7 +517,8 @@ class DataSet(object):
         self.retrieve_other_names()
         
         self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
-        self.group.get_samplelist()
+        if get_samplelist == True:
+             self.group.get_samplelist()
         self.species = species.TheSpecies(self)
 
 

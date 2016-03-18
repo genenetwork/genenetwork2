@@ -295,10 +295,13 @@ class MarkerRegression(object):
         self.SNPChecked  = False
         self.draw2X = False
         self.lrsMax = 0
-        if 'mb_range' in start_vars:
-            self.startMb, self.endMb = [float(x) for x in start_vars['mb_range'].split(',')]
+        if 'startMb' in start_vars:
+            self.startMb = start_vars['startMb']
         else:
             self.startMb = -1
+        if 'endMb' in start_vars:
+            self.endMb = start_vars['endMb']
+        else:
             self.endMb = -1
 
         #self.additiveChecked = fd.formdata.getvalue('additiveCheck')
