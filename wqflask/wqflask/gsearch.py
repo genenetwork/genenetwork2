@@ -46,7 +46,7 @@ class GSearch(object):
 			self.trait_list = []
 			with Bench("Creating trait objects"):
 				for line in re:
-					dataset = create_dataset(line[3], "ProbeSet")
+					dataset = create_dataset(line[3], "ProbeSet", get_samplelist=False)
 					trait_id = line[4]
 					#with Bench("Building trait object"):
 					this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)

@@ -67,7 +67,7 @@ class GeneralTrait(object):
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
         self.retrieve_info(get_qtl_info=get_qtl_info)
-        if kw.get('get_sample_info') != False:
+        if get_sample_info != False:
             self.retrieve_sample_data()
         
         

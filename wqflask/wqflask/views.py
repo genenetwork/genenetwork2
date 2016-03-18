@@ -352,7 +352,8 @@ def marker_regression_page():
         'control_marker_db',
         'do_control',
         'pair_scan',
-        'mb_range',
+        'startMb',
+        'endMb',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )
@@ -391,7 +392,8 @@ def marker_regression_page():
         #for item in template_vars.__dict__.keys():
         #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
         
-        gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+        if start_vars['method'] != "gemma":
+            gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
 
         #qtl_length = len(result['js_data']['qtl_results'])
         #print("qtl_length:", qtl_length)
@@ -414,7 +416,10 @@ def marker_regression_page():
             rendered_template = render_template("pair_scan_results.html", **result)
         else:
             #rendered_template = render_template("marker_regression.html", **result)
-            rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
+            if start_vars['method'] != "gemma":
+                rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
+            else:
+                rendered_template = render_template("marker_regression_gn1.html", **result)
 
     return rendered_template
 

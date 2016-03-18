@@ -3,22 +3,23 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+
+    <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
 {% endblock %}
 {% from "base_macro.html" import header %}
 {% block content %}
-    {{ header("Whole Genome Mapping Results",
-        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
-
     <div class="container">
         <form method="post" target="_blank" action="/marker_regression" name="marker_regression" id="marker_regression_form">
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
+        <input type="hidden" name="method" value="{{ mapping_method }}">
+        {% if mapping_method != "gemma" %}
         {% for sample in dataset.group.samplelist %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
         <input type="hidden" name="maf">
-        <input type="hidden" name="method" value="{{ mapping_method }}">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
         <input type="hidden" name="mb_range" value="{{ startMb|string + "," + endMb|string }}">
         <input type="hidden" name="manhattan_plot">
@@ -28,13 +29,80 @@
         <input type="hidden" name="mapmethod_rqtl_geno" value="{{ mapmethod_rqtl_geno }}">
         <input type="hidden" name="mapmodel_rqtl_geno" value="{{ mapmodel_rqtl_geno }}">
         <input type="hidden" name="pair_scan" value="{{ pair_scan }}">
-        <div id="chart_container">
-            <div class="qtlcharts" id="topchart">
-                {{ gifmap|safe }}
-                <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
-            </div>
+        {% endif %}
+        
+        <div class="container">
+          <div class="col-xs-5">
+              <h2>Map Viewer: Whole Genome</h2><br>
+              <b>Population:</b> {{ dataset.group.species|capitalize }} {{ dataset.group.name }}<br>
+              <b>Database:</b> {{ dataset.fullname }}<br>
+              {% if dataset.type == "ProbeSet" %}<b>Trait ID:</b>{% else %}<b>Record ID:</b>{% endif %} <a href="/show_trait?trait_id={{ this_trait.name }}&dataset={{ dataset.name }}">{{ this_trait.name }}</a><br>
+              {% if dataset.type == "ProbeSet" %}
+              <b>Gene Symbol:</b> <i>{{ this_trait.symbol }}</i><br>
+              <b>Location:</b> Chr {{ this_trait.chr }} @ {{ this_trait.mb }} Mb
+              {% endif %}
+          </div>
+          {% if mapping_method != "gemma" %}
+          <div id="gn1_map_options" class="col-xs-5" style="border:2px solid black; padding: 10px; margin: 10px;">
+            <div class="col-xs-7" style="padding-left: 0px;">
+              <table>
+                <tr>
+                  <td><b>Chr:&nbsp;</b></td>
+                  <td>
+                    <select name="chromosomes" size="1">
+                        {% for chr in ChrList %}
+                        <option value="{{ chr[1] }}">{{ chr[0] }}</option>
+                        {% endfor %}
+                    </select>&nbsp;
+                    <button type="button" class="btn btn-primary">Remap</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>View:&nbsp;</b></td>
+                  <td>
+                    <input type="text" name="startMb"
+                  </td>
+                </tr>
+              </table>
+              </div>
+              <div class="col-xs-3">
+              </div>
+          </div>
         </div>
+        {% endif %}
+        
+ 
+        <div class="tabbable" style="margin: 10px;">
+          <ul class="nav nav-tabs">
+            {% if mapping_method != "gemma" %}
+            <li id="gn1_map_tab">
+              <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
+            </li>
+            {% endif %}
+            <li id="vector_map_tab">
+              <a href="#vector_map" data-toggle="tab" {% if mapping_method != "gemma" %}aria-expanded="false"{% else %}aria-expanded="true"{% endif %}>Vector Map</a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            {% if mapping_method != "gemma" %}
+            <div class="tab-pane active" id="gn1_map">
+              <div class="qtlcharts">
+                  {{ gifmap|safe }}
+                  <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
+              </div>
+            </div>
+            {% endif %}
+            <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
+              <div id="chart_container">
+                <div class="qtlcharts" id="topchart"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         </form>
+        
+        {% if mapping_method != "gemma" %} 
         <div style="width:48%;">
             <h2>
                 Results
@@ -87,6 +155,7 @@
                 </tbody>
             </table>
         </div>
+        {% endif %}
     </div>
 
     <!-- End of body -->
@@ -95,8 +164,10 @@
 
 {% block js %}  
 
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
 
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
@@ -111,6 +182,11 @@
         js_data = {{ js_data | safe }}
     </script>
 
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
+    
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");
@@ -137,7 +213,15 @@
             } );
             console.timeEnd("Creating table");
 
-        });
+            $('#vector_map_tab').click(function(){
+                $('div#gn1_map_options').hide();
+            });
+
+            $('#gn1_map_tab').click(function(){
+                $('div#gn1_map_options').show();
+            });
+
+            });
 
         chrView = function(this_chr, chr_mb_list) {
             $('input[name=selected_chr]').val(this_chr + 1)
@@ -148,10 +232,10 @@
 
         rangeView = function(this_chr, start_mb, end_mb) {
             $('input[name=selected_chr]').val(this_chr)
-            $('input[name=mb_range]').val(start_mb + "," + end_mb)
-            
-            console.log("mb_range:", $('input[name=mb_range]').val())
-            
+            $('input[name=startMb]').val(start_mb)
+            $('input[name=endMb]').val(end_mb)
+            //$('input[name=mb_range]').val(start_mb + "," + end_mb)
+
             return $('#marker_regression_form').submit();
         };
 
