@@ -285,6 +285,7 @@ class MarkerRegression(object):
 
 
         self.graphHeight = self.GRAPH_DEFAULT_HEIGHT
+        self.manhattan_plot = start_vars['manhattan_plot']
         self.additiveChecked = False
         self.dominanceChecked = False
         self.LRS_LOD = start_vars['score_type']
@@ -1989,7 +1990,11 @@ class MarkerRegression(object):
                     #else:
                     #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSMax
 
-                    LRSCoordXY.append((Xc, Yc))
+                    if self.manhattan_plot == True:
+                        canvas.drawEllipse(Xc-1, Yc-1, Xc+1, Yc+1, fillColor=pid.black)
+                    else:
+                        LRSCoordXY.append((Xc, Yc))
+
                     #if not self.multipleInterval and self.additiveChecked:
                     #    if additiveMax == 0.0:
                     #        additiveMax = 0.000001
@@ -1999,7 +2004,8 @@ class MarkerRegression(object):
                     #    Yc = yZero - qtlresult[m].dominance*DominanceHeightThresh/dominanceMax
                     #    DominanceCoordXY.append((Xc, Yc))
                     m += 1
-                #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                if self.manhattan_plot != True:
+                    canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
                 lineWidth = 1
                 if not self.multipleInterval and self.additiveChecked:
@@ -2062,7 +2068,7 @@ class MarkerRegression(object):
                                     canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
                 
 
-        canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+        #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
         ###draw additive scale
         if not self.multipleInterval and self.additiveChecked:

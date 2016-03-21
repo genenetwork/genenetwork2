@@ -91,6 +91,7 @@ class MarkerRegression(object):
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             self.score_type = "LOD"
+            self.manhattan_plot = True
             with Bench("Running GEMMA"):
                 included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
             with Bench("Getting markers from csv"):
