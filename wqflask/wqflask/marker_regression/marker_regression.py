@@ -18,6 +18,7 @@ import numpy as np
 from scipy import linalg
 
 import cPickle as pickle
+import itertools
 
 import simplejson as json
 
@@ -90,10 +91,14 @@ class MarkerRegression(object):
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             self.score_type = "LOD"
-            included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
-            self.dataset.group.get_specified_markers(markers = included_markers)
-            self.dataset.group.markers.add_pvalues(p_values)
-            results = self.dataset.group.markers.markers
+            with Bench("Running GEMMA"):
+                included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
+            with Bench("Getting markers from csv"):
+                marker_obs = get_markers_from_csv(included_markers, p_values, self.dataset.group.name)
+            results = marker_obs
+            #self.dataset.group.get_specified_markers(markers = included_markers)
+            #self.dataset.group.markers.add_pvalues(p_values)
+            #results = self.dataset.group.markers.markers
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
@@ -183,7 +188,7 @@ class MarkerRegression(object):
                 #if index<40:
                 #    print("lod score is:", qtl['lod_score'])
                 if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
-                    print("changing to X")
+                    #print("changing to X")
                     self.json_data['chr'].append("X")
                 else:
                     self.json_data['chr'].append(str(qtl['chr']))
@@ -1005,6 +1010,52 @@ def create_snp_iterator_file(group):
     
     with gzip.open(snp_file_base, "wb") as fh:
         pickle.dump(data, fh, pickle.HIGHEST_PROTOCOL)
+
+def get_markers_from_csv(included_markers, p_values, group_name):
+    marker_data_fh = open(os.path.join(webqtlConfig.PYLMM_PATH + group_name + '_markers.csv'))
+    markers = []
+    for marker_name, p_value in itertools.izip(included_markers, p_values):
+        if not p_value or len(included_markers) < 1: 
+            continue   
+        for line in marker_data_fh:
+            splat = line.strip().split()
+            if splat[0] == marker_name:
+                marker = {}
+                marker['name'] = splat[0]
+                marker['chr'] = int(splat[1])
+                marker['Mb'] = float(splat[2])
+                marker['p_value'] = p_value
+                if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
+                    marker['lod_score'] = 0
+                    marker['lrs_value'] = 0
+                else:
+                    marker['lod_score'] = -math.log10(marker['p_value'])
+                    marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+                markers.append(marker)
+                break
+
+#    for line, p_value in itertools.izip(marker_data_fh, p_values):
+#        if not p_value or len(included_markers) < 1: 
+#            continue
+#        splat = line.strip().split()
+#        if splat[0] in included_markers:
+#            marker = {}
+#            marker['name'] = splat[0]
+#            marker['chr'] = int(splat[1])
+#            marker['Mb'] = float(splat[2])
+#            marker['p_value'] = p_value
+#            if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
+#                marker['lod_score'] = 0
+#                marker['lrs_value'] = 0
+#            else:
+#                marker['lod_score'] = -math.log10(marker['p_value'])
+#                marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+#            markers.append(marker)
+#        else:
+#            continue
+
+    return markers
+        
 
 #if __name__ == '__main__':
 #    import cPickle as pickle

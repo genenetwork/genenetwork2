@@ -380,25 +380,24 @@ def marker_regression_page():
             result = pickle.loads(result)
     else:
         print("Cache miss!!!")
-        template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
+        with Bench("Total time in MarkerRegression"):
+            template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
 
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
 
         result = template_vars.__dict__
-        #print("initial result:", result['qtl_results'])
 
         #for item in template_vars.__dict__.keys():
         #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
         
-        if start_vars['method'] != "gemma":
-            gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+        gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
 
         #qtl_length = len(result['js_data']['qtl_results'])
         #print("qtl_length:", qtl_length)
         pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-        print("pickled result length:", len(pickled_result))
+        #print("pickled result length:", len(pickled_result))
         Redis.set(key, pickled_result)
         Redis.expire(key, 1*60)
 
@@ -416,10 +415,7 @@ def marker_regression_page():
             rendered_template = render_template("pair_scan_results.html", **result)
         else:
             #rendered_template = render_template("marker_regression.html", **result)
-            if start_vars['method'] != "gemma":
-                rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
-            else:
-                rendered_template = render_template("marker_regression_gn1.html", **result)
+            rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
 
     return rendered_template
 
