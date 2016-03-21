@@ -1,0 +1,245 @@
+- github Document reduction issue
+- github bio-vcf issue
+
+
+* GeneNetwork Database
+
+All *Data tables are large
+
+** User access
+
+GN1 uses access table and GN2 uses user table.
+
+** AvgMethod 
+
+Probesetfreeze refers to AvgMethod
+
+** BXDSnPosition
+
+Snp table (all snps)
+
+Mapping in GN1 shows snps when  you select a chromosome.
+
+** CaseAttribute(XRef)
+
+Metadata
+
+** CeleralINFO_mm6
+
+?
+
+** Chr_Length
+
+Default mm9, column for mm8
+
+** Dataset_mbat
+
+Menu for BXD (linkouts)
+
+** DatasetMapInvestigator
+
+Arthur?
+
+** DataSets
+
+Information/metadata
+
+** DatasetStatus
+
+Arthur private/public
+
+** DBList and DBType
+
+Hooked in API (URL encoding)
+
+** Docs
+
+GN2 only (see menu bar)
+
+** Ensembl* 
+
+Probe information
+
+(will be deprecated)
+
+** Genbank
+
+Linkout and not important
+
+** GeneCategory
+
+Not important. GeneWiki notes function classification.
+
+Deprecate.
+
+** GeneChip
+
+** GeneIDXRef
+
+Interspecies gene comparison
+
+** GeneList
+
+Track info
+
+** Genlist_rn3(3)
+
+Rat list
+
+** GeneMap_cuiyan
+
+Link outs
+
+** GeneRIF
+
+Wiki info (nightly updated from NCBI)
+
+XRef should be foreign keys
+
+** Geno
+
+SNP or marker info
+
+** GenoCode
+
+Belongs to someone else
+
+** GenoData
+
+Allele info
+
+** GenoFreeze
+
+Big menu (Freeze refers to menu)
+
+** GenoSE
+
+SE standard err, not used
+
+** GenoXREF
+
+Very important. Key links between Geno, GenoData
+
+** GORef
+
+GO terms
+
+** H2
+
+Heritability for probeset(?)
+
+** Homologene
+
+Homology, not used much
+
+** InbredSet
+
+Group in menu
+
+** Indelall, SnpAll, SnpPattern, SnpSource
+
+Indel Snp browser (variant browser Gn1)
+
+** Info*
+
+Infra system PhP 
+
+Data Info button 
+
+Infosystem users has separate entries
+
+Also Investigators, User, Organizations, 
+
+** LCorrRamin3 
+
+Lit. Correlations Prof. Ramin
+
+** Login
+
+GN2 login info
+
+** MachineAccessLog
+
+Old
+
+** MappingMethod
+
+GN1
+
+** News
+
+GN2
+
+** NStrain
+
+pheno           publishfreeze (menu)
+                       xref (keys)
+                          xref links to publish (pubmed), phenotype, pubishdata
+geno            genofreeze
+                       xref (keys)
+                          xref links to publish (pubmed), genotype, genodata
+probeset/expr.  probesetfreeze
+                       xref (keys)
+                          xref links to publish (pubmed), probeset, probesetdata
+probe/expr.  probefreeze
+                       xref (keys)
+                          xref links to publish (pubmed), probe, probedata
+
+Each dataset has 3 values (real value (1), number of samples (2), stderr (3))
+
+NStrain = number of phenotype samples
+
+ProbesetFreeze contains all data, incl. metabolomic.
+
+** Probe
+
+Probedata - main molecular data. Probesets, metabolome, 
+
+** Publication and publishdata (all pheno)
+
+Phenotype pubs
+
+** QuickSearch
+
+No longer used
+
+** role
+
+empty
+
+** Sample*
+
+No longer used
+
+** Species & Strain (should be sample)
+
+Menu
+
+** InbredSet 
+
+Menu
+
+** TableComments
+
+Metadata on DB
+
+** Temp*
+
+User upload data
+
+** Tissue
+
+Menu - 3rd level
+
+** TissueP*
+
+Correlation tables
+
+** User collection
+
+User selection - retained
+
+** UserPrivilege
+
+** Vlookup 
+

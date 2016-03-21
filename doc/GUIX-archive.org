@@ -1,0 +1,106 @@
+* Binary deployment
+
+Note binary deployment is not working pending a few improvements
+to GNU Guix. See source deployment instead.
+
+** Install Guix using a tar ball
+
+GN can be deployed either as a binary tarball or as a GNU Guix
+package. First install GNU Guix following the instructions of the
+[[https://www.gnu.org/software/guix/manual/html_node/Binary-Installation.html#Binary-Installation][binary installation]] using a tar ball from [[https://www.gnu.org/software/guix/download/][here]].
+
+With guix-daemon running you should be able to install the hello
+package:
+
+: guix package -i hello
+
+** Fix locale
+
+You may want to 
+
+#+begin_src sh   :lang bash
+export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
+export LC_ALL=en_US.utf8
+#+end_src sh   :lang bash
+
+** Authorize our archives
+
+Next add our archive key to guix (as root):
+
+#+begin_src scheme
+echo "(public-key   
+ (ecc 
+  (curve Ed25519)
+  (q #E9A95686D8437186302E07C7AB9BF3913F435026C2D389AF27D9C66FD6EBB649#)
+  )
+ )
+"|guix archive --authorize
+#+end_src scheme
+
+if you have trouble finding a suitable guix try
+
+: ls /gnu/store/*guix-*/bin/guix
+
+and you should be able to use this directly, e.g.
+
+: alias guix=/gnu/store/632msbms2yaldfnlrb5lbnlnmn9yjisw-guix-0.9.0/bin/guix
+: guix --version
+
+** Download and install the GN2 archive
+
+Find the archive on 
+
+  http://files.genenetwork.org/software/
+
+download and install with
+
+#+begin_src bash
+guix archive --import < genenetwork2-data-hash.nar
+#+end_src bash
+
+and you should see a list of packages installing, e.g.
+
+#+begin_src bash
+importing path `/gnu/store/l1zs2drn3zdzl5ysjcmhibcpa35p9zfc-python2-mysqlclient-1.3.7'
+importing path `/gnu/store/n7kfg4knibvblggy8ci2liscl7vz5wkg-python2-parallel-1.6.4'
+importing path `/gnu/store/qvv16qwlq59gp5d07lwbf5n8ndsi3il3-python2-sqlalchemy-1.0.11'
+importing path `/gnu/store/qw872mbmr9ir0a9drv9xw9pvjk05ywwy-python2-xlsxwriter-0.8.4'
+importing path `/gnu/store/wc112m1xfy3p08v14bdzay2ki2rirdsm-pylmm-gn2-1.0-3c6d1cac8'
+importing path `/gnu/store/zfkcy17c2ks3cd9ks14irdabqvmlfpyn-python2-flask-sqlalchemy-2.1'
+importing path `/gnu/store/cgcjdiz1qylbc372gc3nda3372ihkpqb-genenetwork2-2.0-a8fcff4'
+(etc.)
+#+end_src bash
+
+The following packages need to be added and the R path set
+
+: export R_LIBS_SITE="/home/wrk/.guix-profile/site-library/"
+: guix package -i /gnu/store/w0dqg9dshq53j8xhcnqgvnvms2s6y5k5-r-wgcna-1.49-425bc170cc0873ddbd414675ac40f6d4d724c7cb
+: guix package -i /gnu/store/k60bdlm0v7xic88j2z5c1jb1jvc371mn-r-qtl-1.38-4
+
+You can add the last one to your profile
+
+: guix package -i /gnu/store/cgcjdiz1qylbc372gc3nda3372ihkpqb-genenetwork2-2.0-a8fcff
+: export PATH=~/.guix-profile/bin:$PATH
+: genenetwork2
+
+ or run it directly with
+
+: /gnu/store/cgcjdiz1qylbc372gc3nda3372ihkpqb-genenetwork2-2.0-a8fcff/bin/genenetwork2
+
+
+
+** Other
+
+Update guix with a 'guix pull' and make guix visible in the path.
+More information exists also in my [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org][guix-notes]].
+
+With guix running you should be able to install python, for example.
+
+: guix package -i python2
+
+This will make python appear in $HOME/.guix-profile/bin/python. Suggested
+environment settings can be seen with
+
+: guix package --search-paths
+
+
