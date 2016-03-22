@@ -48,6 +48,7 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 
 from wqflask.wgcna import wgcna_analysis
+from wqflask.ctl import ctl_analysis
 
 from utility import temp_data
 from utility.tools import TEMPDIR
@@ -204,7 +205,10 @@ def ctl_setup():
 @app.route("/ctl_results", methods=('POST',))
 def ctl_results():
     print("In ctl, request.form is:", request.form)
-    return render_template("ctl_results.html", **result)        # Display them using the template
+    ctl = ctl_analysis.CTL()                                  # Start R, load the package and pointers and create the analysis
+    ctlA = ctl.run_analysis(request.form)                     # Start the analysis, a ctlA object should be a separate long running thread
+    result = ctl.process_results(ctlA)                        # After the analysis is finished store the result
+    return render_template("ctl_results.html", **result)      # Display them using the template
 
 @app.route("/news")
 def news_route():
