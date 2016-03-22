@@ -8,11 +8,14 @@ import rpy2.rinterface as ri
 
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility import webqtlUtil                # Random number for the image
+from utility import genofile_parser           # genofile_parser
 
 import base64
 import array
+import csv
 
 from utility import helper_functions
+from utility.tools import locate
 
 from rpy2.robjects.packages import importr
 utils = importr("utils")
@@ -43,13 +46,17 @@ r_dev_off       = ro.r["dev.off"]             # Map the dev.off function
 class CTL(object):
     def __init__(self):
         print("Initialization of CTL")
-        #log = r_file("/tmp/genenetwork_wcgna.log", open = "wt")
+        #log = r_file("/tmp/genenetwork_ctl.log", open = "wt")
         #r_sink(log)                                  # Uncomment the r_sink() commands to log output from stdout/stderr to a file
         #r_sink(log, type = "message")
         r_library("ctl")                                                  # Load CTL - Should only be done once, since it is quite expensive
         r_options(stringsAsFactors = False)
         print("Initialization of CTL done, package loaded in R session")
-        self.r_CTLscan    = ro.r["CTLscan"]                               # Map the CTLscan function
+        self.r_CTLscan            = ro.r["CTLscan"]                        # Map the CTLscan function
+        self.r_CTLsignificant     = ro.r["CTLsignificant"]                 # Map the CTLsignificant function
+        self.r_lineplot           = ro.r["ctl.lineplot"]                   # Map the ctl.lineplot function
+        self.r_CTLnetwork         = ro.r["CTLnetwork"]                     # Map the CTLnetwork function
+        self.r_CTLprofiles        = ro.r["CTLprofiles"]                    # Map the CTLprofiles function
         print("Obtained pointers to CTL functions")
 
     def run_analysis(self, requestform):
@@ -57,18 +64,26 @@ class CTL(object):
 
         self.trait_db_list = [trait.strip() for trait in requestform['trait_list'].split(',')]
         print("Retrieved phenotype data from database", requestform['trait_list'])
+
         helper_functions.get_trait_db_obs(self, self.trait_db_list)
 
         self.input = {}           # self.input contains the phenotype values we need to send to R
         strains = []              # All the strains we have data for (contains duplicates)
         traits  = []              # All the traits we have data for (should not contain duplicates)
+        genotypebasename = ""
         for trait in self.trait_list:
             traits.append(trait[0].name)
+            if genotypebasename == "":
+              genotypebasename = trait[1].group.name
             self.input[trait[0].name] = {}
             for strain in trait[0].data:
                 strains.append(strain)
                 self.input[trait[0].name][strain]  = trait[0].data[strain].value
 
+        genofilelocation = locate(genotypebasename + ".geno", "genotype")
+        parser = genofile_parser.ConvertGenoFile(genofilelocation)
+        parser.process_csv()
+        print(parser.markers)
         self.results = {}
         sys.stdout.flush()
 
