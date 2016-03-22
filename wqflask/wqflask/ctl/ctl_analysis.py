@@ -46,10 +46,10 @@ class CTL(object):
         #log = r_file("/tmp/genenetwork_wcgna.log", open = "wt")
         #r_sink(log)                                  # Uncomment the r_sink() commands to log output from stdout/stderr to a file
         #r_sink(log, type = "message")
-        r_library("ctl")                            # Load WGCNA - Should only be done once, since it is quite expensive
+        r_library("ctl")                                                  # Load CTL - Should only be done once, since it is quite expensive
         r_options(stringsAsFactors = False)
         print("Initialization of CTL done, package loaded in R session")
-        self.r_CTLscan    = ro.r["CTLscan"]                              # Map the CTLscan function
+        self.r_CTLscan    = ro.r["CTLscan"]                               # Map the CTLscan function
         print("Obtained pointers to CTL functions")
 
     def run_analysis(self, requestform):
@@ -68,6 +68,8 @@ class CTL(object):
             for strain in trait[0].data:
                 strains.append(strain)
                 self.input[trait[0].name][strain]  = trait[0].data[strain].value
+
+        self.results = {}
         sys.stdout.flush()
 
     def render_image(self, results):
@@ -79,7 +81,7 @@ class CTL(object):
         self.results['imgdata'] = bytesarray
 
     def process_results(self, results):
-        print("Processing WGCNA output")
+        print("Processing CTL output")
         template_vars = {}
         template_vars["input"] = self.input
         sys.stdout.flush()
