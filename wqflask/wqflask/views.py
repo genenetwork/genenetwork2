@@ -196,6 +196,15 @@ def wcgna_results():
     result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
     return render_template("wgcna_results.html", **result)        # Display them using the template
 
+@app.route("/ctl_setup", methods=('POST',))
+def ctl_setup():
+    print("In ctl, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("ctl_setup.html", **request.form)          # Display them using the template
+
+@app.route("/ctl_results", methods=('POST',))
+def ctl_results():
+    print("In ctl, request.form is:", request.form)
+    return render_template("ctl_results.html", **result)        # Display them using the template
 
 @app.route("/news")
 def news_route():
