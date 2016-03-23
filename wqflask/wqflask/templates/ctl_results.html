@@ -5,5 +5,13 @@
 <div class="container">
   <h1>CTL Results</h1>
   {{request.form['trait_list'].split(',')|length}} phenotypes as input
+
+  <a href="/tmp/{{ results['imgurl'] }}">
+      <img alt="Embedded Image" src="data:image/png;base64,
+      {% for elem in results['imgdata'] -%}
+      {% print("%c"|format(elem)) %}
+      {%- endfor %}
+      " /></a>
+
 </div>
 {% endblock %}
