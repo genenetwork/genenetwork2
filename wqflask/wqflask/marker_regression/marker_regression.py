@@ -176,6 +176,8 @@ class MarkerRegression(object):
                     if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                         self.qtl_results.append(marker)
 
+            self.trimmed_markers = trim_markers_for_table(results)
+			
             self.json_data['chr'] = []
             self.json_data['pos'] = []
             self.json_data['lod.hk'] = []
@@ -234,7 +236,7 @@ class MarkerRegression(object):
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name)
-        print("gemma_command:" + gemma_command)
+        #print("gemma_command:" + gemma_command)
         
         os.system(gemma_command)
         
@@ -628,10 +630,10 @@ class MarkerRegression(object):
         self.json_data['suggestive'] = self.suggestive
         self.json_data['significant'] = self.significant
 
-        print("samples:", trimmed_samples)
+        #print("samples:", trimmed_samples)
 
         if self.control != "" and self.do_control == "true":
-            print("CONTROL IS:", self.control)
+            #print("CONTROL IS:", self.control)
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                           trait = trimmed_values,
                                                           control = str(self.control))
@@ -749,7 +751,7 @@ class MarkerRegression(object):
 
         top_lod_scores = []
 	
-        print("self.num_perm:", self.num_perm)
+        #print("self.num_perm:", self.num_perm)
 
         for permutation in range(int(self.num_perm)):
 
@@ -796,10 +798,10 @@ class MarkerRegression(object):
                     if p_value < lowest_p_value:
                         lowest_p_value = p_value
                 
-                print("lowest_p_value:", lowest_p_value)        
+                #print("lowest_p_value:", lowest_p_value)        
                 top_lod_scores.append(-math.log10(lowest_p_value))
 
-        print("top_lod_scores:", top_lod_scores)
+        #print("top_lod_scores:", top_lod_scores)
 
         self.suggestive = np.percentile(top_lod_scores, 67)
         self.significant = np.percentile(top_lod_scores, 95)
@@ -1012,6 +1014,21 @@ def create_snp_iterator_file(group):
     with gzip.open(snp_file_base, "wb") as fh:
         pickle.dump(data, fh, pickle.HIGHEST_PROTOCOL)
 
+def trim_markers_for_table(markers):
+    num_markers = len(markers)
+	
+    if 'lod_score' in markers[0].keys():
+        sorted_markers = sorted(markers, key=lambda k: k['lod_score'], reverse=True)
+    else:
+        sorted_markers = sorted(markers, key=lambda k: k['lrs_value'], reverse=True)
+    trimmed_sorted_markers = sorted_markers[:int(len(sorted_markers) * 0.001)]
+	
+    if len(trimmed_sorted_markers) < 50:
+        return sorted_markers
+    else:
+        return trimmed_sorted_markers
+
+
 def get_markers_from_csv(included_markers, p_values, group_name):
     marker_data_fh = open(os.path.join(webqtlConfig.PYLMM_PATH + group_name + '_markers.csv'))
     markers = []
@@ -1035,33 +1052,7 @@ def get_markers_from_csv(included_markers, p_values, group_name):
                 markers.append(marker)
                 break
 
-#    for line, p_value in itertools.izip(marker_data_fh, p_values):
-#        if not p_value or len(included_markers) < 1: 
-#            continue
-#        splat = line.strip().split()
-#        if splat[0] in included_markers:
-#            marker = {}
-#            marker['name'] = splat[0]
-#            marker['chr'] = int(splat[1])
-#            marker['Mb'] = float(splat[2])
-#            marker['p_value'] = p_value
-#            if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
-#                marker['lod_score'] = 0
-#                marker['lrs_value'] = 0
-#            else:
-#                marker['lod_score'] = -math.log10(marker['p_value'])
-#                marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
-#            markers.append(marker)
-#        else:
-#            continue
-
     return markers
-        
-
-#if __name__ == '__main__':
-#    import cPickle as pickle
-#    import gzip
-#    create_snp_iterator_file("HLC")
     
 if __name__ == '__main__':
     import cPickle as pickle

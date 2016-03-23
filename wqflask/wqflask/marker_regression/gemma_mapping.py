@@ -45,5 +45,5 @@ def parse_gemma_output(this_dataset):
                 included_markers.append(line.split("\t")[1])
                 p_values.append(float(line.split("\t")[10]))
 
-    print("p_values: ", p_values)
+    #print("p_values: ", p_values)
     return included_markers, p_values

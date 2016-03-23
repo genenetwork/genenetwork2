@@ -341,6 +341,7 @@ def marker_regression_page():
         'trait_id',
         'dataset',
         'method',
+        'trimmed_markers',
         'selected_chr',
         'mapping_scale',
         'score_type',

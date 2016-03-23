@@ -96,7 +96,6 @@
         </div>
 
         </form>
-        {% if mapping_method != "gemma" %}
         <div style="width:48%;">
             <h2>
                 Results
@@ -117,9 +116,7 @@
                    </tr>
                 </thead>
                 <tbody>
-                    {% for marker in qtlresults %}
-                        {% if (LRS_LOD == "LOD" and marker.lod_score|float > cutoff|float) or
-                              (LRS_LOD == "LRS" and marker.lrs_value|float > cutoff|float) %}
+                    {% for marker in trimmed_markers %}
                         <tr>
                             <td>
                                 <input type="checkbox" name="selectCheck"
@@ -144,12 +141,10 @@
                                 </a>-->
                             </td>
                         </tr>
-                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        {% endif %}
     </div>
 
     <!-- End of body -->
@@ -195,6 +190,7 @@
                     { "type": "natural" },
                     { "type": "natural", "sWidth": "30%"}
                     ],
+                "order": [[1, "asc"]],
                 "buttons": [
                     'csv'
                 ],

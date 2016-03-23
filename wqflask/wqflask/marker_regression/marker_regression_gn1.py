@@ -24,7 +24,6 @@
 #
 # Last updated by Zach 12/14/2010
 
-
 import time
 import string
 from math import *
@@ -187,6 +186,7 @@ class MarkerRegression(object):
             self.pair_scan = start_vars['pair_scan']
 
         self.js_data = start_vars['js_data']
+        self.trimmed_markers = start_vars['trimmed_markers'] #Top markers to display in table
 
         #ZS: Think I can just get all this from dataset object now
         #RISet and Species
@@ -209,6 +209,7 @@ class MarkerRegression(object):
             self._ucscDb = "mm9"
         else:
             self._ucscDb = ""
+
 
         #####################################
         # Options
@@ -1838,17 +1839,17 @@ class MarkerRegression(object):
         #LRSTop is then defined to be above the LRSMax by enough to add one additional LRSScale increment.
         #if we are using a set-scale, then we set LRSTop to be the user's value, and LRSMax doesn't matter.
 
-        if self.LRS_LOD == 'LOD':
+        if self.LRS_LOD == 'LRS':
             lodm = self.LODFACTOR
         else:
             lodm = 1.0
  
         if self.lrsMax <= 0:  #sliding scale
-            if "lrs_value" in self.qtlresults[0]:
-                LRSMax = max([result['lrs_value'] for result in self.qtlresults])
+            if "lod_score" in self.qtlresults[0]:
+                LRSMax = max([result['lod_score'] for result in self.qtlresults])
                 #LRSMax = max(map(max, self.qtlresults)).lrs_value
             else: 
-                LRSMax = max([result['lod_score'] for result in self.qtlresults])
+                LRSMax = max([result['lrs_value'] for result in self.qtlresults])
                 #LRSMax = max(map(max, self.qtlresults)).lod_score
             #genotype trait will give infinite LRS
             LRSMax = min(LRSMax, webqtlConfig.MAXLRS)
@@ -1867,7 +1868,7 @@ class MarkerRegression(object):
             LRSScale = 2.5
         else:
             LRSScale = 1.0
-
+           
         LRSAxisList = Plot.frange(LRSScale, LRSMax/lodm, LRSScale)
         #make sure the user's value appears on the y-axis
         #update by NL 6-21-2011: round the LOD value to 100 when LRSMax is equal to 460
@@ -2004,8 +2005,8 @@ class MarkerRegression(object):
                     #    Yc = yZero - qtlresult[m].dominance*DominanceHeightThresh/dominanceMax
                     #    DominanceCoordXY.append((Xc, Yc))
                     m += 1
-                if self.manhattan_plot != True:
-                    canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+        
+                    #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
                 lineWidth = 1
                 if not self.multipleInterval and self.additiveChecked:
@@ -2068,7 +2069,8 @@ class MarkerRegression(object):
                                     canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
                 
 
-        #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+        if self.manhattan_plot != True:
+		    canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
         ###draw additive scale
         if not self.multipleInterval and self.additiveChecked:
