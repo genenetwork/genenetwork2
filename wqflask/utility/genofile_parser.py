@@ -8,6 +8,7 @@ import glob
 import traceback
 import gzip
 
+
 import simplejson as json
 
 from pprint import pformat as pf
@@ -34,12 +35,12 @@ class ConvertGenoFile(object):
     self.latest_row_value = None
     self.latest_col_value = None
     self.input_fh = open(input_file)
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("!!!!!!!!!!!!!!!!PARSER!!!!!!!!!!!!!!!!!!")
     self.haplotype_notation = {
-      '@mat': "3",
-      '@pat': "1",
-      '@het': "2",
-      '@unk': "NA"
+      '@mat': "1",
+      '@pat': "2",
+      '@het': "-999",
+      '@unk': "-999"
     }
     self.configurations = {}
 
@@ -56,6 +57,8 @@ class ConvertGenoFile(object):
                 self.mb_exists = True
             if 'cM' in row.split():
                 self.cm_exists = True
+            skip = 2 + self.cm_exists + self.mb_exists
+            self.individuals = row.split()[skip:]
             continue
         if row.startswith('@'):
             key, _separater, value = row.partition(':')
@@ -88,9 +91,10 @@ class ConvertGenoFile(object):
       else:
         genotypes = row_items[2:]
       for item_count, genotype in enumerate(genotypes):
-        if genotype.upper() in self.configurations:
-          this_marker.genotypes.append(self.configurations[genotype.upper()])
+        if genotype.upper().strip() in self.configurations:
+          this_marker.genotypes.append(self.configurations[genotype.upper().strip()])
         else:
+          print("WARNING:", genotype.upper())
           this_marker.genotypes.append("NA")
       self.markers.append(this_marker.__dict__)
 
