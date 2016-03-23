@@ -76,6 +76,7 @@ class CTL(object):
         self.trait_db_list = [trait.strip() for trait in requestform['trait_list'].split(',')]
         self.trait_db_list = [x for x in self.trait_db_list if x]
 
+        # Get the name of the .geno file belonging to the first phenotype
         datasetname = self.trait_db_list[0].split(":")[1]
         dataset = data_set.create_dataset(datasetname)
 
@@ -83,28 +84,20 @@ class CTL(object):
         parser = genofile_parser.ConvertGenoFile(genofilelocation)
         parser.process_csv()
 
+        # Create a genotype matrix
         individuals = parser.individuals
         markers = []
         markernames = []
-        x = 1
         for marker in parser.markers:
           markernames.append(marker["name"])
           markers.append(marker["genotypes"])
-          if x == 1:
-            print marker["genotypes"]
 
-          x = x +1
-  
         genotypes = list(itertools.chain(*markers))
         print(len(genotypes) / len(individuals), "==", len(parser.markers))
 
         rGeno = r_t(ro.r.matrix(r_unlist(genotypes), nrow=len(markernames), ncol=len(individuals), dimnames = r_list(markernames, individuals), byrow=True))
 
-        print(r_dim(rGeno)) 
-        #self.trait_names = [trait.split(':')[0].strip() for trait in self.trait_db_list]
-        #print(self.trait_names)
-
-
+        # Create a phenotype matrix
         traits = []
         for trait in self.trait_db_list:
           print("retrieving data for", trait)
@@ -118,28 +111,25 @@ class CTL(object):
               else:
                 traits.append("-999")
 
-        print len(traits) / len(individuals), "==", len(self.trait_db_list)
         rPheno = r_t(ro.r.matrix(r_unlist(traits), nrow=len(self.trait_db_list), ncol=len(individuals), dimnames = r_list(self.trait_db_list, individuals), byrow=True))
 
+        # Use a data frame to store the objects
         rPheno = r_data_frame(rPheno)
         rGeno = r_data_frame(rGeno)
 
-        print(r_class(rPheno))
-        print(r_class(rGeno))
-
-
-
-        r_write_table(rPheno, "~/pheno.csv")
-        r_write_table(rGeno,  "~/geno.csv")
+        # Perform the CTL scan
         res = self.r_CTLscan(rGeno, rPheno)
 
+        # Create an image for output
         self.results = {}
         self.results['imgurl'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
         self.results['imgloc'] = GENERATED_IMAGE_DIR + self.results['imgurl']
         r_png(self.results['imgloc'], width=1000, height=600)
         self.r_lineplot(res, significance = 1)
         r_dev_off()
-     #   sys.stdout.flush()
+
+        # Flush any output from R
+        sys.stdout.flush()
 
     def render_image(self, results):
         print("pre-loading imgage results:", self.results['imgloc'])
