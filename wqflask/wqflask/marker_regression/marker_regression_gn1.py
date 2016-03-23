@@ -297,13 +297,13 @@ class MarkerRegression(object):
         self.SNPChecked  = False
         self.draw2X = False
         self.lrsMax = 0
-        if 'startMb' in start_vars:
-            self.startMb = start_vars['startMb']
-        else:
+        try:
+            self.startMb = float(start_vars['startMb'])
+        except:
             self.startMb = -1
-        if 'endMb' in start_vars:
-            self.endMb = start_vars['endMb']
-        else:
+        try:
+            self.endMb = float(start_vars['endMb'])
+        except:
             self.endMb = -1
 
         #self.additiveChecked = fd.formdata.getvalue('additiveCheck')
@@ -487,7 +487,7 @@ class MarkerRegression(object):
             #StartMb or EndMb
             if self.startMb < 0 or self.endMb < 0:
                 self.startMb = 0
-                self.endMb = self.ChrLengthMbList[self.selectedChr]
+                self.endMb = self.ChrLengthMbList[self.selectedChr - 1]
 
         geneTable = ""
 
@@ -1605,7 +1605,7 @@ class MarkerRegression(object):
     
                 WEBQTL_COORDS = "%d, %d, %d, %d" % (xBrowse1, paddingTop, xBrowse2, (paddingTop+self.WEBQTL_BAND_HEIGHT))
                 bandWidth = xBrowse2 - xBrowse1
-                WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
+                WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr - 1, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
     
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
                 gifmap.areas.append(HT.Area(shape='rect',coords=WEBQTL_COORDS,href=WEBQTL_HREF, title=WEBQTL_TITLE))

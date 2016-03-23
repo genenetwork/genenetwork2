@@ -343,6 +343,7 @@ def marker_regression_page():
         'method',
         'trimmed_markers',
         'selected_chr',
+        'chromosomes',
         'mapping_scale',
         'score_type',
         'suggestive',

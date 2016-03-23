@@ -82,11 +82,15 @@ class MarkerRegression(object):
         self.num_perm = 0
 
         #ZS: This is passed to GN1 code for single chr mapping
-        self.selected_chr = -1        
+        self.selected_chr = -1
+        #if "chromosomes" in start_vars:
+        #    self.selected_chr = int(start_vars['chromosomes']) + 1
         if "selected_chr" in start_vars:
-            self.selected_chr = int(start_vars['selected_chr'])
-        if "mb_range" in start_vars:
-            self.mb_range = start_vars['mb_range']
+            self.selected_chr = int(start_vars['selected_chr']) + 1
+        if "startMb" in start_vars:
+            self.startMb = start_vars['startMb']
+        if "endMb" in start_vars:
+            self.endMb = start_vars['endMb']
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
