@@ -13,6 +13,10 @@ from utility import genofile_parser           # genofile_parser
 import base64
 import array
 import csv
+import itertools
+
+from base import data_set
+from base import trait as TRAIT
 
 from utility import helper_functions
 from utility.tools import locate
@@ -26,9 +30,11 @@ r_options       = ro.r["options"]             # Map the options function
 r_read_csv      = ro.r["read.csv"]            # Map the read.csv function
 r_dim           = ro.r["dim"]                 # Map the dim function
 r_c             = ro.r["c"]                   # Map the c function
+r_t             = ro.r["t"]                   # Map the t function
 r_cat           = ro.r["cat"]                 # Map the cat function
 r_paste         = ro.r["paste"]               # Map the paste function
 r_unlist        = ro.r["unlist"]              # Map the unlist function
+r_head          = ro.r["head"]                # Map the unlist function
 r_unique        = ro.r["unique"]              # Map the unique function
 r_length        = ro.r["length"]              # Map the length function
 r_unlist        = ro.r["unlist"]              # Map the unlist function
@@ -42,6 +48,12 @@ r_is_NA         = ro.r["is.na"]               # Map the is.na function
 r_file          = ro.r["file"]                # Map the file function
 r_png           = ro.r["png"]                 # Map the png function for plotting
 r_dev_off       = ro.r["dev.off"]             # Map the dev.off function
+r_save_image    = ro.r["save.image"]          # Map the save.image function
+r_class         = ro.r["class"]               # Map the class function
+r_save          = ro.r["save"]                # Map the save function
+r_write_table   = ro.r["write.table"]         # Map the write.table function
+r_as_data_frame   = ro.r["as.data.frame"]         # Map the write.table function
+r_data_frame   = ro.r["data.frame"]         # Map the write.table function
 
 class CTL(object):
     def __init__(self):
@@ -61,31 +73,73 @@ class CTL(object):
 
     def run_analysis(self, requestform):
         print("Starting CTL analysis on dataset")
-
         self.trait_db_list = [trait.strip() for trait in requestform['trait_list'].split(',')]
-        print("Retrieved phenotype data from database", requestform['trait_list'])
+        self.trait_db_list = [x for x in self.trait_db_list if x]
 
-        helper_functions.get_trait_db_obs(self, self.trait_db_list)
+        datasetname = self.trait_db_list[0].split(":")[1]
+        dataset = data_set.create_dataset(datasetname)
 
-        self.input = {}           # self.input contains the phenotype values we need to send to R
-        strains = []              # All the strains we have data for (contains duplicates)
-        traits  = []              # All the traits we have data for (should not contain duplicates)
-        genotypebasename = ""
-        for trait in self.trait_list:
-            traits.append(trait[0].name)
-            if genotypebasename == "":
-              genotypebasename = trait[1].group.name
-            self.input[trait[0].name] = {}
-            for strain in trait[0].data:
-                strains.append(strain)
-                self.input[trait[0].name][strain]  = trait[0].data[strain].value
-
-        genofilelocation = locate(genotypebasename + ".geno", "genotype")
+        genofilelocation = locate(dataset.group.name + ".geno", "genotype")
         parser = genofile_parser.ConvertGenoFile(genofilelocation)
         parser.process_csv()
-        print(parser.markers)
+
+        individuals = parser.individuals
+        markers = []
+        markernames = []
+        x = 1
+        for marker in parser.markers:
+          markernames.append(marker["name"])
+          markers.append(marker["genotypes"])
+          if x == 1:
+            print marker["genotypes"]
+
+          x = x +1
+  
+        genotypes = list(itertools.chain(*markers))
+        print(len(genotypes) / len(individuals), "==", len(parser.markers))
+
+        rGeno = r_t(ro.r.matrix(r_unlist(genotypes), nrow=len(markernames), ncol=len(individuals), dimnames = r_list(markernames, individuals), byrow=True))
+
+        print(r_dim(rGeno)) 
+        #self.trait_names = [trait.split(':')[0].strip() for trait in self.trait_db_list]
+        #print(self.trait_names)
+
+
+        traits = []
+        for trait in self.trait_db_list:
+          print("retrieving data for", trait)
+          if trait != "":
+            ts = trait.split(':')
+            gt = TRAIT.GeneralTrait(name = ts[0], dataset_name = ts[1])
+            gt.retrieve_sample_data(individuals)
+            for ind in individuals:
+              if ind in gt.data.keys():
+                traits.append(gt.data[ind].value)
+              else:
+                traits.append("-999")
+
+        print len(traits) / len(individuals), "==", len(self.trait_db_list)
+        rPheno = r_t(ro.r.matrix(r_unlist(traits), nrow=len(self.trait_db_list), ncol=len(individuals), dimnames = r_list(self.trait_db_list, individuals), byrow=True))
+
+        rPheno = r_data_frame(rPheno)
+        rGeno = r_data_frame(rGeno)
+
+        print(r_class(rPheno))
+        print(r_class(rGeno))
+
+
+
+        r_write_table(rPheno, "~/pheno.csv")
+        r_write_table(rGeno,  "~/geno.csv")
+        res = self.r_CTLscan(rGeno, rPheno)
+
         self.results = {}
-        sys.stdout.flush()
+        self.results['imgurl'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
+        self.results['imgloc'] = GENERATED_IMAGE_DIR + self.results['imgurl']
+        r_png(self.results['imgloc'], width=1000, height=600)
+        self.r_lineplot(res, significance = 1)
+        r_dev_off()
+     #   sys.stdout.flush()
 
     def render_image(self, results):
         print("pre-loading imgage results:", self.results['imgloc'])
@@ -98,7 +152,8 @@ class CTL(object):
     def process_results(self, results):
         print("Processing CTL output")
         template_vars = {}
-        template_vars["input"] = self.input
+        template_vars["results"] = self.results
+        self.render_image(self.results)
         sys.stdout.flush()
         return(dict(template_vars))
 
