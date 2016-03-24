@@ -52,8 +52,10 @@ r_save_image    = ro.r["save.image"]          # Map the save.image function
 r_class         = ro.r["class"]               # Map the class function
 r_save          = ro.r["save"]                # Map the save function
 r_write_table   = ro.r["write.table"]         # Map the write.table function
-r_as_data_frame   = ro.r["as.data.frame"]         # Map the write.table function
-r_data_frame   = ro.r["data.frame"]         # Map the write.table function
+r_read_table   = ro.r["read.table"]         # Map the read.table function
+r_as_data_frame = ro.r["as.data.frame"]         # Map the write.table function
+r_data_frame    = ro.r["data.frame"]         # Map the write.table function
+r_as_numeric    = ro.r["as.numeric"]         # Map the write.table function
 
 class CTL(object):
     def __init__(self):
@@ -69,6 +71,7 @@ class CTL(object):
         self.r_lineplot           = ro.r["ctl.lineplot"]                   # Map the ctl.lineplot function
         self.r_CTLnetwork         = ro.r["CTLnetwork"]                     # Map the CTLnetwork function
         self.r_CTLprofiles        = ro.r["CTLprofiles"]                    # Map the CTLprofiles function
+        self.r_CTLsignificant     = ro.r["CTLsignificant"]                 # Map the CTLsignificant function
         print("Obtained pointers to CTL functions")
 
     def run_analysis(self, requestform):
@@ -111,21 +114,32 @@ class CTL(object):
               else:
                 traits.append("-999")
 
-        rPheno = r_t(ro.r.matrix(r_unlist(traits), nrow=len(self.trait_db_list), ncol=len(individuals), dimnames = r_list(self.trait_db_list, individuals), byrow=True))
+        rPheno = r_t(ro.r.matrix(r_as_numeric(r_unlist(traits)), nrow=len(self.trait_db_list), ncol=len(individuals), dimnames = r_list(self.trait_db_list, individuals), byrow=True))
 
         # Use a data frame to store the objects
         rPheno = r_data_frame(rPheno)
         rGeno = r_data_frame(rGeno)
 
+        r_write_table(rGeno, "~/outputGN/geno.csv")
+        r_write_table(rPheno, "~/outputGN/pheno.csv")
+
         # Perform the CTL scan
-        res = self.r_CTLscan(rGeno, rPheno)
+        res = self.r_CTLscan(rGeno, rPheno, ncores = 6)
+
+        # Get significant interactions
+        significant = self.r_CTLsignificant(res)
+
+        print(significant[0])
 
         # Create an image for output
         self.results = {}
         self.results['imgurl'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
         self.results['imgloc'] = GENERATED_IMAGE_DIR + self.results['imgurl']
+        self.results['ctlresult'] = significant
+
+        # Create the lineplot
         r_png(self.results['imgloc'], width=1000, height=600)
-        self.r_lineplot(res, significance = 1)
+          self.r_lineplot(res)
         r_dev_off()
 
         # Flush any output from R
