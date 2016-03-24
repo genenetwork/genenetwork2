@@ -356,6 +356,7 @@ def marker_regression_page():
         'pair_scan',
         'startMb',
         'endMb',
+        'showGenes',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )

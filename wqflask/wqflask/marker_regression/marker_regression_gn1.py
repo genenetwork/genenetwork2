@@ -36,18 +36,18 @@ from flask import Flask, g
 
 from htmlgen import HTMLgen2 as HT
 
-
-from utility import helper_functions
-from utility import Plot
 from base import webqtlConfig
-#from intervalAnalyst import GeneUtil
 #from base.webqtlTrait import webqtlTrait
 #from base.templatePage import templatePage
+#from base.GeneralObject import GeneralObject
 from utility import webqtlUtil
+from utility import helper_functions
+from utility import Plot
 #from utility.THCell import THCell
 #from utility.TDCell import TDCell
+from wqflask.interval_analyst import GeneUtil
+
 #from dbFunction import webqtlDatabaseFunction
-#from base.GeneralObject import GeneralObject
 
 #import logging
 #logging.basicConfig(filename="/tmp/gn_leiyan.log", level=logging.INFO)
@@ -228,8 +228,9 @@ class MarkerRegression(object):
         else:
             self.permChecked = True
         #self.permChecked = fd.formdata.getvalue('permCheck', True)
-        self.bootChecked = False #ZS: For now setting to False, I'll add this option later once rest of figure works
         #self.bootChecked = fd.formdata.getvalue('bootCheck', '')
+        self.bootChecked = False #ZS: For now setting to False, I'll add this option later once rest of figure works
+
         if 'do_control' in start_vars.keys():
             self.doControl = start_vars['do_control']
         else:
@@ -258,26 +259,15 @@ class MarkerRegression(object):
 
         #Darwing Options
         try:
-            if self.selectedChr > -1:
-                self.graphWidth  = min(self.GRAPH_MAX_WIDTH, self.GRAPH_MIN_WIDTH)
-            else:
-                self.graphWidth  = min(self.GRAPH_MAX_WIDTH, self.MULT_GRAPH_MIN_WIDTH)
+           if self.selectedChr > -1:
+               self.graphWidth  = min(self.GRAPH_MAX_WIDTH, max(self.GRAPH_MIN_WIDTH, int(fd.formdata.getvalue('graphWidth'))))
+           else:
+               self.graphWidth  = min(self.GRAPH_MAX_WIDTH, max(self.MULT_GRAPH_MIN_WIDTH, int(fd.formdata.getvalue('graphWidth'))))
         except:
-            if self.selectedChr > -1:
-                self.graphWidth  = self.GRAPH_DEFAULT_WIDTH
-            else:
-                self.graphWidth  = self.MULT_GRAPH_DEFAULT_WIDTH
-
-        #try:
-        #    if self.selectedChr > -1:
-        #        self.graphWidth  = min(self.GRAPH_MAX_WIDTH, max(self.GRAPH_MIN_WIDTH, int(fd.formdata.getvalue('graphWidth'))))
-        #    else:
-        #        self.graphWidth  = min(self.GRAPH_MAX_WIDTH, max(self.MULT_GRAPH_MIN_WIDTH, int(fd.formdata.getvalue('graphWidth'))))
-        #except:
-        #    if self.selectedChr > -1:
-        #        self.graphWidth  = self.GRAPH_DEFAULT_WIDTH
-        #    else:
-        #        self.graphWidth  = self.MULT_GRAPH_DEFAULT_WIDTH
+           if self.selectedChr > -1:
+               self.graphWidth  = self.GRAPH_DEFAULT_WIDTH
+           else:
+               self.graphWidth  = self.MULT_GRAPH_DEFAULT_WIDTH
 
 ## BEGIN HaplotypeAnalyst
         #self.haplotypeAnalystChecked = fd.formdata.getvalue('haplotypeAnalystCheck')
@@ -293,7 +283,10 @@ class MarkerRegression(object):
         self.cutoff = start_vars['cutoff']
         self.intervalAnalystChecked = False
         self.legendChecked = False
-        self.geneChecked = False
+        if 'showGenes' in start_vars.keys():
+            self.geneChecked = start_vars['showGenes']
+        else:
+            self.geneChecked = False
         self.SNPChecked  = False
         self.draw2X = False
         self.lrsMax = 0
@@ -491,23 +484,17 @@ class MarkerRegression(object):
 
         geneTable = ""
 
-        #if self.plotScale == 'physic' and self.selectedChr > -1 and (self.intervalAnalystChecked  or self.geneChecked):
-        #    chrName = self.genotype[0].name
-        #    # Draw the genes for this chromosome / region of this chromosome
-        #    if self.traitList and self.traitList[0] and len(self.traitList) == 1 and self.dataset.name:
-        #        webqtldatabase = self.dataset.name
-        #        #webqtldatabase = self.traitList[0].db.name
-        #    else:
-        #        webqtldatabase = None
-        #
-        #    self.geneCol = None
-        #
-        #    if self.species == "mouse":
-        #        self.geneCol = GeneUtil.loadGenes(self.cursor, chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "mouse")
-        #    elif self.species == "rat":
-        #        self.geneCol = GeneUtil.loadGenes(self.cursor, chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "rat")
-        #    else:
-        #        self.geneCol = None
+        self.geneCol = None
+        if self.plotScale == 'physic' and self.selectedChr > -1 and (self.intervalAnalystChecked  or self.geneChecked):
+           chrName = self.selectedChr
+           # Draw the genes for this chromosome / region of this chromosome
+           webqtldatabase = self.dataset.name
+        
+           if self.dataset.group.species == "mouse":
+               self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "mouse")
+           elif self.dataset.group.species == "rat":
+               self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "rat")
+
         #
         #    if self.geneCol and self.intervalAnalystChecked:
         #        #######################################################################
@@ -527,9 +514,7 @@ class MarkerRegression(object):
         #        tableForm = HT.Form(cgi=os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=mainfmName, submit=HT.Input(type='hidden'))
         #        tableForm.append(HT.Input(name='FormID', value='', type='hidden'))
         #        tableForm.append(geneTableContainer)
-        #
-        #else:
-        self.geneCol = None
+
 
         ################################################################
         # Plots goes here
@@ -1168,7 +1153,7 @@ class MarkerRegression(object):
 
         for gIndex, theGO in enumerate(self.geneCol):
             geneNCBILink = 'http://www.ncbi.nlm.nih.gov/gene?term=%s'
-            if self.species == "mouse":
+            if self.dataset.group.species == "mouse":
                 txStart = theGO["TxStart"]
                 txEnd = theGO["TxEnd"]
                 geneLength = (txEnd - txStart)*1000.0
@@ -1227,7 +1212,7 @@ class MarkerRegression(object):
                 # NL: 06-02-2011 Rob required to change this link for gene related
                 HREF=geneNCBILink %geneSymbol
 
-            elif self.species == "rat":
+            elif self.dataset.group.species == "rat":
                 exonStarts = []
                 exonEnds = []
                 txStart = theGO["TxStart"]
@@ -1641,7 +1626,7 @@ class MarkerRegression(object):
             chrFont = pid.Font(ttf="verdana", size=26*zoom, bold=1)
             traitFont = pid.Font(ttf="verdana", size=14, bold=0)
             chrX = xLeftOffset + plotWidth - 2 - canvas.stringWidth("Chr %s" % self.selectedChr, font=chrFont)
-            canvas.drawString("Chr %s" % currentChromosome, chrX, ensemblPaddingTop-5, font=chrFont, color=pid.gray)
+            canvas.drawString("Chr %s" % self.selectedChr, chrX, ensemblPaddingTop-5, font=chrFont, color=pid.gray)
             traitX = chrX - 28 - canvas.stringWidth("database", font=traitFont)
             # end of drawBrowserClickableRegions
         else:

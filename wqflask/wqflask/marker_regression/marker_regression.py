@@ -32,15 +32,15 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil
-#from wqflask.marker_regression import qtl_reaper_mapping
-#from wqflask.marker_regression import plink_mapping
-from wqflask.marker_regression import gemma_mapping
-#from wqflask.marker_regression import rqtl_mapping
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
 from utility.tools import pylmm_command, plink_command, gemma_command
+from wqflask.marker_regression import gemma_mapping
+#from wqflask.marker_regression import qtl_reaper_mapping
+#from wqflask.marker_regression import plink_mapping
+#from wqflask.marker_regression import rqtl_mapping
 
 PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
 PLINK_PATH,PLINK_COMMAND = plink_command()
@@ -83,14 +83,22 @@ class MarkerRegression(object):
 
         #ZS: This is passed to GN1 code for single chr mapping
         self.selected_chr = -1
-        #if "chromosomes" in start_vars:
-        #    self.selected_chr = int(start_vars['chromosomes']) + 1
         if "selected_chr" in start_vars:
-            self.selected_chr = int(start_vars['selected_chr']) + 1
+            if int(start_vars['selected_chr']) != -1: #ZS: Needs to be -1 if showing full map; there's probably a better way to fix this
+                self.selected_chr = int(start_vars['selected_chr']) + 1
+            else:
+                self.selected_chr = int(start_vars['selected_chr'])
         if "startMb" in start_vars:
             self.startMb = start_vars['startMb']
         if "endMb" in start_vars:
             self.endMb = start_vars['endMb']
+        if "startMb" in start_vars: #ZS: This is to ensure showGenes is checked the first time you open the mapping page, since startMb will only not be set during the first load
+            if "showGenes" in start_vars:
+                self.showGenes = start_vars['showGenes']
+            else:
+                self.showGenes = False 
+        else:
+            self.showGenes = "ON"
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":

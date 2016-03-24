@@ -40,7 +40,7 @@
               {% endif %}
           </div>
           <div id="gn1_map_options" class="col-xs-5" style="border:2px solid black; padding: 10px; margin: 10px;">
-            <div class="col-xs-9" style="padding-left: 0px;">
+            <div class="col-xs-8" style="padding-left: 0px;">
               <table>
                 <tr>
                   <td><b>Chr:&nbsp;</b></td>
@@ -62,12 +62,13 @@
                 <tr>
                   <td><b>Width:&nbsp;</b></td>
                   <td>
-                    <input type="text" name="graphWidth" value="1600" size="5">
+                    <input type="text" name="graphWidth" value="1600" size="5"><span style="font-size: 11px;"> pixels (minimum=900)</span>
                   </td>
                 </tr>
               </table>
               </div>
-              <div class="col-xs-3">
+              <div class="col-xs-4">
+                  <input type="checkbox" name="showGenes" class="checkbox" style="display: inline;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span>Gene Track </span> <span style="color:red;">*</span>
               </div>
           </div>
         </div>
