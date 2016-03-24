@@ -79,6 +79,18 @@ class CTL(object):
         self.trait_db_list = [trait.strip() for trait in requestform['trait_list'].split(',')]
         self.trait_db_list = [x for x in self.trait_db_list if x]
 
+        print("strategy:", requestform.get("strategy"))
+        strategy = requestform.get("strategy")
+
+        print("nperm:", requestform.get("nperm"))
+        nperm = int(requestform.get("nperm"))
+
+        print("parametric:", requestform.get("parametric"))
+        parametric = bool(requestform.get("parametric"))
+
+        print("significance:", requestform.get("significance"))
+        significance = float(requestform.get("significance"))
+
         # Get the name of the .geno file belonging to the first phenotype
         datasetname = self.trait_db_list[0].split(":")[1]
         dataset = data_set.create_dataset(datasetname)
@@ -120,26 +132,26 @@ class CTL(object):
         rPheno = r_data_frame(rPheno)
         rGeno = r_data_frame(rGeno)
 
-        r_write_table(rGeno, "~/outputGN/geno.csv")
-        r_write_table(rPheno, "~/outputGN/pheno.csv")
+        # Debug: Print the genotype and phenotype files to disk
+        #r_write_table(rGeno, "~/outputGN/geno.csv")
+        #r_write_table(rPheno, "~/outputGN/pheno.csv")
 
         # Perform the CTL scan
-        res = self.r_CTLscan(rGeno, rPheno, ncores = 6)
+        res = self.r_CTLscan(rGeno, rPheno, strategy = strategy, nperm = nperm, parametric = parametric, ncores = 6)
 
         # Get significant interactions
-        significant = self.r_CTLsignificant(res)
-
-        print(significant[0])
+        significant = self.r_CTLsignificant(res, significance = significance)
 
         # Create an image for output
         self.results = {}
         self.results['imgurl'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
         self.results['imgloc'] = GENERATED_IMAGE_DIR + self.results['imgurl']
         self.results['ctlresult'] = significant
+        self.results['requestform'] = requestform             # Store the user specified parameters for the output page
 
         # Create the lineplot
         r_png(self.results['imgloc'], width=1000, height=600)
-          self.r_lineplot(res)
+        self.r_lineplot(res, significance = significance)
         r_dev_off()
 
         # Flush any output from R
