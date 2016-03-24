@@ -1025,12 +1025,14 @@ def trim_markers_for_table(markers):
         sorted_markers = sorted(markers, key=lambda k: k['lod_score'], reverse=True)
     else:
         sorted_markers = sorted(markers, key=lambda k: k['lrs_value'], reverse=True)
-    trimmed_sorted_markers = sorted_markers[:int(len(sorted_markers) * 0.001)]
-	
-    if len(trimmed_sorted_markers) < 50:
-        return sorted_markers
-    else:
+    
+    #ZS: So we end up with a list of just 200 markers
+    if len(sorted_markers) >= 200:
+        trimming_factor = 200 / len(sorted_markers) 
+        trimmed_sorted_markers = sorted_markers[:int(len(sorted_markers) * trimming_factor)]
         return trimmed_sorted_markers
+    else:
+        return sorted_markers
 
 
 def get_markers_from_csv(included_markers, p_values, group_name):
