@@ -92,6 +92,8 @@ class MarkerRegression(object):
             self.startMb = start_vars['startMb']
         if "endMb" in start_vars:
             self.endMb = start_vars['endMb']
+        if "graphWidth" in start_vars:
+            self.graphWidth = start_vars['graphWidth']
         if "startMb" in start_vars: #ZS: This is to ensure showGenes is checked the first time you open the mapping page, since startMb will only not be set during the first load
             if "showGenes" in start_vars:
                 self.showGenes = start_vars['showGenes']

@@ -62,7 +62,7 @@
                 <tr>
                   <td><b>Width:&nbsp;</b></td>
                   <td>
-                    <input type="text" name="graphWidth" value="1600" size="5"><span style="font-size: 11px;"> pixels (minimum=900)</span>
+                    <input type="text" name="graphWidth" value="{% if graphWidth is defined %}{{ graphWidth }}{% else %}1600{% endif %}" size="5"><span style="font-size: 11px;"> pixels (minimum=900)</span>
                   </td>
                 </tr>
               </table>

@@ -260,9 +260,9 @@ class MarkerRegression(object):
         #Darwing Options
         try:
            if self.selectedChr > -1:
-               self.graphWidth  = min(self.GRAPH_MAX_WIDTH, max(self.GRAPH_MIN_WIDTH, int(fd.formdata.getvalue('graphWidth'))))
+               self.graphWidth  = min(self.GRAPH_MAX_WIDTH, max(self.GRAPH_MIN_WIDTH, int(start_vars['graphWidth'])))
            else:
-               self.graphWidth  = min(self.GRAPH_MAX_WIDTH, max(self.MULT_GRAPH_MIN_WIDTH, int(fd.formdata.getvalue('graphWidth'))))
+               self.graphWidth  = min(self.GRAPH_MAX_WIDTH, max(self.MULT_GRAPH_MIN_WIDTH, int(start_vars['graphWidth'])))
         except:
            if self.selectedChr > -1:
                self.graphWidth  = self.GRAPH_DEFAULT_WIDTH
