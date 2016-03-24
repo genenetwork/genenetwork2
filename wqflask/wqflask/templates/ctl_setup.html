@@ -4,7 +4,7 @@
 {% block content %} <!-- Start of body -->
 <div class="container">
   <h1>CTL analysis parameters</h1>
-  {{request.form['trait_list'].split(',')|length}} phenotypes as input
+  {{(request.form['trait_list'].split(',')|length -1)}} phenotypes as input
 
 <form action="/ctl_results" method="post" class="form-horizontal">
 	<input type="hidden" name="trait_list" id="trait_list" value= "{{request.form['trait_list']}}">

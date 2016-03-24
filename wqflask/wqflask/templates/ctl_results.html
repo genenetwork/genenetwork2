@@ -4,14 +4,35 @@
 {% block content %} <!-- Start of body -->
 <div class="container">
   <h1>CTL Results</h1>
-  {{request.form['trait_list'].split(',')|length}} phenotypes as input
-
+  {{(request.form['trait_list'].split(',')|length -1)}} phenotypes as input<br>
+  <h3>Figure</h3>
   <a href="/tmp/{{ results['imgurl'] }}">
       <img alt="Embedded Image" src="data:image/png;base64,
       {% for elem in results['imgdata'] -%}
       {% print("%c"|format(elem)) %}
       {%- endfor %}
       " /></a>
+  <h3>Tabular results</h3>
+  <table width="80%">
+  <tr><th>trait</th><th>marker</th><th>trait</th><th>LOD</th><th>dCor</th></tr>
+  significant CTL:<br>
+  {% for r in range(results['ctlresult'][0]|length) %}
+    <tr>
+    {% for c in range(results['ctlresult']|length) %}
+      <td>
+      {% if c > 2 %}
+      {{results['ctlresult'][c][r]|float|round(2)}}
+      {% else %}
+      {{results['ctlresult'][c][r]}}
+      {% endif %}
+      </td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+  </table>
+
+
+
 
 </div>
 {% endblock %}
