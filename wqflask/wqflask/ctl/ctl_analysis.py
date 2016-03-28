@@ -69,9 +69,10 @@ class CTL(object):
         self.r_CTLscan            = ro.r["CTLscan"]                        # Map the CTLscan function
         self.r_CTLsignificant     = ro.r["CTLsignificant"]                 # Map the CTLsignificant function
         self.r_lineplot           = ro.r["ctl.lineplot"]                   # Map the ctl.lineplot function
+        self.r_CTLsignificant     = ro.r["CTLsignificant"]                 # Map the CTLsignificant function
         self.r_CTLnetwork         = ro.r["CTLnetwork"]                     # Map the CTLnetwork function
         self.r_CTLprofiles        = ro.r["CTLprofiles"]                    # Map the CTLprofiles function
-        self.r_CTLsignificant     = ro.r["CTLsignificant"]                 # Map the CTLsignificant function
+        self.r_plotCTLobject      = ro.r["plot.CTLobject"]                 # Map the CTLsignificant function
         print("Obtained pointers to CTL functions")
 
     def run_analysis(self, requestform):
@@ -144,26 +145,44 @@ class CTL(object):
 
         # Create an image for output
         self.results = {}
-        self.results['imgurl'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
-        self.results['imgloc'] = GENERATED_IMAGE_DIR + self.results['imgurl']
+        self.results['imgurl1'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
+        self.results['imgloc1'] = GENERATED_IMAGE_DIR + self.results['imgurl1']
+
         self.results['ctlresult'] = significant
         self.results['requestform'] = requestform             # Store the user specified parameters for the output page
 
         # Create the lineplot
-        r_png(self.results['imgloc'], width=1000, height=600)
+        r_png(self.results['imgloc1'], width=1000, height=600)
         self.r_lineplot(res, significance = significance)
         r_dev_off()
+
+        n = 2
+        for trait in self.trait_db_list:
+          # Create the QTL like CTL plots
+          self.results['imgurl' + str(n)] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
+          self.results['imgloc' + str(n)] = GENERATED_IMAGE_DIR + self.results['imgurl' + str(n)]
+          r_png(self.results['imgloc' + str(n)], width=1000, height=600)
+          self.r_plotCTLobject(res, (n-1), significance = significance, main='Phenotype ' + trait)
+          r_dev_off()
+          n = n + 1
 
         # Flush any output from R
         sys.stdout.flush()
 
-    def render_image(self, results):
-        print("pre-loading imgage results:", self.results['imgloc'])
-        imgfile = open(self.results['imgloc'], 'rb')
+    def loadImage(self, path, name):
+        print("pre-loading imgage results:", self.results[path])
+        imgfile = open(self.results[path], 'rb')
         imgdata = imgfile.read()
         imgB64 = imgdata.encode("base64")
         bytesarray = array.array('B', imgB64)
-        self.results['imgdata'] = bytesarray
+        self.results[name] = bytesarray
+
+    def render_image(self, results):
+        self.loadImage("imgloc1", "imgdata1")
+        n = 2
+        for trait in self.trait_db_list:
+          self.loadImage("imgloc" + str(n), "imgdata" + str(n))
+          n = n + 1
 
     def process_results(self, results):
         print("Processing CTL output")

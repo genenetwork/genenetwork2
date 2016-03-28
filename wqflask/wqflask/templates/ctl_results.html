@@ -5,13 +5,22 @@
 <div class="container">
   <h1>CTL Results</h1>
   {{(request.form['trait_list'].split(',')|length -1)}} phenotypes as input<br>
-  <h3>Figure</h3>
-  <a href="/tmp/{{ results['imgurl'] }}">
+  <h3>Network Figure</h3>
+  <a href="/tmp/{{ results['imgurl1'] }}">
       <img alt="Embedded Image" src="data:image/png;base64,
-      {% for elem in results['imgdata'] -%}
+      {% for elem in results['imgdata1'] -%}
       {% print("%c"|format(elem)) %}
       {%- endfor %}
       " /></a>
+  <h3>CTL/QTL Plots for individual traits</h3>
+  {% for r in range(2, (request.form['trait_list'].split(',')|length +1)) %}
+  <a href="/tmp/{{ results['imgurl' + r|string] }}">
+      <img width=100 height=100 alt="Embedded Image" src="data:image/png;base64,
+      {% for elem in results['imgdata' + r|string] -%}
+      {% print("%c"|format(elem)) %}
+      {%- endfor %}
+      " /></a>
+  {% endfor %}
   <h3>Tabular results</h3>
   <table width="80%">
   <tr><th>trait</th><th>marker</th><th>trait</th><th>LOD</th><th>dCor</th></tr>
