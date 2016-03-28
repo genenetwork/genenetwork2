@@ -145,7 +145,7 @@ class CTL(object):
 
         # Create an image for output
         self.results = {}
-        self.results['imgurl1'] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
+        self.results['imgurl1'] = webqtlUtil.genRandStr("CTLline_") + ".png"
         self.results['imgloc1'] = GENERATED_IMAGE_DIR + self.results['imgurl1']
 
         self.results['ctlresult'] = significant
@@ -159,7 +159,7 @@ class CTL(object):
         n = 2
         for trait in self.trait_db_list:
           # Create the QTL like CTL plots
-          self.results['imgurl' + str(n)] = webqtlUtil.genRandStr("WGCNAoutput_") + ".png"
+          self.results['imgurl' + str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
           self.results['imgloc' + str(n)] = GENERATED_IMAGE_DIR + self.results['imgurl' + str(n)]
           r_png(self.results['imgloc' + str(n)], width=1000, height=600)
           self.r_plotCTLobject(res, (n-1), significance = significance, main='Phenotype ' + trait)
