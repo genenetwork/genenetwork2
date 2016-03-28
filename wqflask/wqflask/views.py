@@ -358,6 +358,7 @@ def marker_regression_page():
         'endMb',
         'graphWidth',
         'showGenes',
+        'viewLegend',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )

@@ -40,7 +40,7 @@
               {% endif %}
           </div>
           <div id="gn1_map_options" class="col-xs-5" style="border:2px solid black; padding: 10px; margin: 10px;">
-            <div class="col-xs-8" style="padding-left: 0px;">
+            <div class="col-xs-8" style="padding: 0px;">
               <table>
                 <tr>
                   <td><b>Chr:&nbsp;</b></td>
@@ -55,7 +55,7 @@
                 </tr>
                 <tr>
                   <td><b>View:&nbsp;</b></td>
-                  <td>
+                  <td style="padding: 5px;">
                     <input type="text" name="startMb" size="10"> to <input type="text" name="endMb" size="10">
                   </td>
                 </tr>
@@ -67,8 +67,9 @@
                 </tr>
               </table>
               </div>
-              <div class="col-xs-4">
-                  <input type="checkbox" name="showGenes" class="checkbox" style="display: inline;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span>Gene Track </span> <span style="color:red;">*</span>
+              <div class="col-xs-4" style="padding: 0px;">
+                  <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
+                  <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span> 
               </div>
           </div>
         </div>

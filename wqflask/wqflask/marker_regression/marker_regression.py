@@ -94,13 +94,18 @@ class MarkerRegression(object):
             self.endMb = start_vars['endMb']
         if "graphWidth" in start_vars:
             self.graphWidth = start_vars['graphWidth']
-        if "startMb" in start_vars: #ZS: This is to ensure showGenes is checked the first time you open the mapping page, since startMb will only not be set during the first load
+        if "startMb" in start_vars: #ZS: This is to ensure showGenes, Legend, etc are checked the first time you open the mapping page, since startMb will only not be set during the first load
             if "showGenes" in start_vars:
                 self.showGenes = start_vars['showGenes']
             else:
                 self.showGenes = False 
+            if "viewLegend" in start_vars:
+                self.viewLegend = start_vars['viewLegend']
+            else:
+                self.viewLegend = False
         else:
             self.showGenes = "ON"
+            self.viewLegend = "ON"
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":

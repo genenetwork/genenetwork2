@@ -282,7 +282,10 @@ class MarkerRegression(object):
         self.LRS_LOD = start_vars['score_type']
         self.cutoff = start_vars['cutoff']
         self.intervalAnalystChecked = False
-        self.legendChecked = False
+        if 'viewLegend' in start_vars.keys():
+            self.legendChecked = start_vars['viewLegend']
+        else:
+            self.legendChecked = False
         if 'showGenes' in start_vars.keys():
             self.geneChecked = start_vars['showGenes']
         else:
@@ -805,7 +808,7 @@ class MarkerRegression(object):
         if self.multipleInterval:
             self.drawMultiTraitName(fd, canvas, gifmap, showLocusForm, offset=newoffset)
         elif self.legendChecked:
-            self.drawLegendPanel(fd, canvas, offset=newoffset, zoom = zoom)
+            self.drawLegendPanel(canvas, offset=newoffset, zoom = zoom)
         else:
             pass
 
@@ -1063,7 +1066,7 @@ class MarkerRegression(object):
                 gifmap.areas.append(Areas)
 
 
-    def drawLegendPanel(self, fd, canvas, offset= (40, 120, 80, 10), zoom = 1, locLocation= None):
+    def drawLegendPanel(self, canvas, offset= (40, 120, 80, 10), zoom = 1, locLocation= None):
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
         plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
@@ -1118,16 +1121,16 @@ class MarkerRegression(object):
         labelFont=pid.Font(ttf="verdana",size=12*fontZoom)
         labelColor = pid.black
         if self.selectedChr == -1:
-            string1 = 'Mapping for Dataset: %s, mapping on All Chromosomes' % fd.RISet
+            string1 = 'Mapping for Dataset: %s, mapping on All Chromosomes' % self.dataset.group.name
         else:
-            string1 = 'Mapping for Dataset: %s, mapping on Chromosome %s' % (fd.RISet,self.genotype[0].name)
+            string1 = 'Mapping for Dataset: %s, mapping on Chromosome %s' % (self.dataset.group.name, self.selectedChr)
         if self.controlLocus:
             string2 = 'Using %s as control' % self.controlLocus
         else:
             string2 = 'Using Haldane mapping function with no control for other QTLs'
         d = 4+ max(canvas.stringWidth(string1,font=labelFont),canvas.stringWidth(string2,font=labelFont))
-        if fd.identification:
-            identification = "Trait ID: %s" % fd.identification
+        if self.this_trait.name:
+            identification = "Trait ID: %s : %s" % (self.dataset.fullname, self.this_trait.name)
             canvas.drawString(identification,canvas.size[0] - xRightOffset-d,20*fontZoom,font=labelFont,color=labelColor)
 
         canvas.drawString(string1,canvas.size[0] - xRightOffset-d,35*fontZoom,font=labelFont,color=labelColor)
