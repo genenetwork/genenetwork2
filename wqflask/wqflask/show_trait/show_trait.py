@@ -150,6 +150,8 @@ class ShowTrait(object):
         
         self.get_mapping_methods()
 
+        self.trait_table_width = get_trait_table_width(self.sample_groups)
+
         js_data = dict(sample_group_types = self.sample_group_types,
                         sample_lists = sample_lists,
                         attribute_names = self.sample_groups[0].attributes,
@@ -1256,5 +1258,16 @@ def get_nearest_marker(this_trait, this_db):
     else:
         return result[0][0]
         #return result[0][0], result[1][0]
+
+def get_trait_table_width(sample_groups):
+    table_width = 35
+    if sample_groups[0].se_exists():
+        table_width += 10
+    if (table_width + len(sample_groups[0].attributes)*10) > 100:
+        table_width = 100
+    else:
+        table_width += len(sample_groups[0].attributes)*10
+
+    return table_width
     
     

@@ -151,7 +151,7 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script
     <script language="javascript" type="text/javascript" src="/static/new/packages/noUiSlider/nouislider.js"></script>
     <script type="text/javascript" charset="utf-8">
             
@@ -208,7 +208,10 @@
                         { "type": "natural" },
                         { "type": "cust-txt" },
                         { "bSortable": false },
-                        { "type": "cust-txt" }
+                        { "type": "cust-txt" }{% if sample_groups[0].attributes|length > 0 %},{% endif %}
+                        {% for attribute in sample_groups[0].attributes %}
+                        { "type": "natural" }{% if loop.index < sample_groups[0].attributes|length %},{% endif %}
+                        {% endfor %}
                         ],
                     "sDom": "RZtr",
                     "iDisplayLength": -1,
@@ -231,7 +234,10 @@
                         { "bSortable": false },
                         { "type": "natural" },
                         null,
-                        { "type": "cust-txt" }
+                        { "type": "cust-txt" }{% if sample_groups[0].attributes|length > 0 %},{% endif %}
+                        {% for attribute in sample_groups[0].attributes %}
+                        { "type": "natural" }{% if loop.index < sample_groups[0].attributes|length %},{% endif %}
+                        {% endfor %}
                     ],
                     "sDom": "RZtr",
                     "iDisplayLength": -1,
@@ -257,15 +263,12 @@
                             { "bSortable": false },
                             { "bSortable": false }
                         ],
-                        "sDom": "RZtr",
+                        "sDom": "tr",
                         "iDisplayLength": -1,
                         "autoWidth": false,
                         "bLengthChange": true,
                         "bDeferRender": true,
                         "bSortClasses": false,
-                        "colResize": {
-                            "tableWidthFixed": false
-                        },
                         "paging": false
                     } );
                 }
@@ -275,15 +278,12 @@
                             { "bSortable": false },
                             { "bSortable": false }
                         ],
-                        "sDom": "RZtr",
+                        "sDom": "tr",
                         "iDisplayLength": -1,
                         "autoWidth": false,
                         "bLengthChange": true,
                         "bDeferRender": true,
                         "bSortClasses": false,
-                        "colResize": {
-                            "tableWidthFixed": false
-                        },
                         "paging": false
                     } );
 
