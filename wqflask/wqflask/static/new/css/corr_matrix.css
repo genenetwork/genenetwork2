@@ -3,7 +3,7 @@
        -moz-transform: rotate(-90deg);
         -ms-transform: rotate(-90deg);
          -o-transform: rotate(-90deg);
-            trasnform: rotate(-90deg);
+            transform: rotate(-90deg);
               color: #000
               font-size: 22px;
               height: 50px;
