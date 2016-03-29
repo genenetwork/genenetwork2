@@ -37,9 +37,9 @@ from flask import Flask, g
 from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
+from base.GeneralObject import GeneralObject
 #from base.webqtlTrait import webqtlTrait
 #from base.templatePage import templatePage
-#from base.GeneralObject import GeneralObject
 from utility import webqtlUtil
 from utility import helper_functions
 from utility import Plot
@@ -271,9 +271,11 @@ class MarkerRegression(object):
 
 ## BEGIN HaplotypeAnalyst
         #self.haplotypeAnalystChecked = fd.formdata.getvalue('haplotypeAnalystCheck')
-        self.haplotypeAnalystChecked = False
+        if 'haplotypeAnalystCheck' in start_vars.keys():
+            self.haplotypeAnalystChecked = start_vars['haplotypeAnalystCheck']
+        else:
+            self.haplotypeAnalystChecked = False
 ## END HaplotypeAnalyst
-
 
         self.graphHeight = self.GRAPH_DEFAULT_HEIGHT
         self.manhattan_plot = start_vars['manhattan_plot']
@@ -415,20 +417,21 @@ class MarkerRegression(object):
 
 ## BEGIN HaplotypeAnalyst
 ## count the amount of individuals to be plotted, and increase self.graphHeight
-        #if self.haplotypeAnalystChecked and self.selectedChr > -1:
-        #    thisTrait = self.traitList[0]
-        #    _strains, _vals, _vars = thisTrait.exportInformative()
-        #    smd=[]
-        #    for ii, _val in enumerate(_vals):
-        #        temp = GeneralObject(name=_strains[ii], value=_val)
-        #        smd.append(temp)
-        #    bxdlist=list(self.genotype.prgy)
-        #    for j,_geno in enumerate (self.genotype[0][1].genotype):
-        #        for item in smd:
-        #            if item.name == bxdlist[j]:
-        #                self.NR_INDIVIDUALS = self.NR_INDIVIDUALS + 1
-## default:
-        #    self.graphHeight = self.graphHeight + 2 * (self.NR_INDIVIDUALS+10) * self.EACH_GENE_HEIGHT
+        if self.haplotypeAnalystChecked and self.selectedChr > -1:
+           #thisTrait = self.traitList[0]
+           thisTrait = self.this_trait
+           _strains, _vals, _vars = thisTrait.export_informative()
+           smd=[]
+           for ii, _val in enumerate(_vals):
+               temp = GeneralObject(name=_strains[ii], value=_val)
+               smd.append(temp)
+           samplelist = list(self.genotype.prgy)
+           for j,_geno in enumerate (self.genotype[0][1].genotype):
+               for item in smd:
+                   if item.name == samplelist[j]:
+                       self.NR_INDIVIDUALS = self.NR_INDIVIDUALS + 1
+# default:
+           self.graphHeight = self.graphHeight + 2 * (self.NR_INDIVIDUALS+10) * self.EACH_GENE_HEIGHT
 ## for paper:
         #    #self.graphHeight = self.graphHeight + 1 * self.NR_INDIVIDUALS * self.EACH_GENE_HEIGHT - 180
 ## END HaplotypeAnalyst
@@ -526,7 +529,7 @@ class MarkerRegression(object):
         #    showLocusForm =  webqtlUtil.genRandStr("fm_")
         #else:
         showLocusForm = ""
-        intCanvas = pid.PILCanvas(size=(self.graphWidth,self.graphHeight))
+        intCanvas = pid.PILCanvas(size=(self.graphWidth, self.graphHeight))
         gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)    
 
         self.gifmap = gifmap.__str__()
@@ -1267,7 +1270,11 @@ class MarkerRegression(object):
                 canvas.drawLine(geneStartPix, geneYLocation + self.EACH_GENE_HEIGHT/2*zoom, geneEndPix, geneYLocation + self.EACH_GENE_HEIGHT/2*zoom, color=outlineColor, width=1)
 
                 #draw the arrows
-                for xCoord in range(0, geneEndPix-geneStartPix):
+                if geneEndPix - geneStartPix < 1:
+                    genePixRange = 1
+                else:
+                    genePixRange = int(geneEndPix - geneStartPix)
+                for xCoord in range(0, genePixRange):
 
                     if (xCoord % self.EACH_GENE_ARROW_SPACING == 0 and xCoord + self.EACH_GENE_ARROW_SPACING < geneEndPix-geneStartPix) or xCoord == 0:
                         if strand == "+":
@@ -1347,7 +1354,6 @@ class MarkerRegression(object):
         if self.plotScale != 'physic' or self.selectedChr == -1 or not self.geneCol:
             return
 
-
         fpText = open(os.path.join(webqtlConfig.TMPDIR, "hallo") + '.txt','wb')
 
         clickableRegionLabelFont=pid.Font(ttf="verdana", size=9, bold=0)
@@ -1363,18 +1369,21 @@ class MarkerRegression(object):
 
         exprdrawn = 0
 
-        thisTrait = self.traitList[0]
-        _strains, _vals, _vars = thisTrait.exportInformative()
+        #thisTrait = self.traitList[0]
+        thisTrait = self.this_trait
+        _strains, _vals, _vars = thisTrait.export_informative()
 
         smd=[]
         for ii, _val in enumerate(_vals):
-            temp = GeneralObject(name=_strains[ii], value=_val)
-            smd.append(temp)
+            if _strains[ii] in self.dataset.group.samplelist:
+                temp = GeneralObject(name=_strains[ii], value=_val)
+                smd.append(temp)
+            
 
         smd.sort(lambda A, B: cmp(A.value, B.value))
         smd.reverse()
 
-        bxdlist=list(self.genotype.prgy)
+        samplelist = list(self.genotype.prgy)
 
         oldgeneEndPix = -1
         #Initializing plotRight, error before
@@ -1473,7 +1482,7 @@ class MarkerRegression(object):
 
                         plotbxd=0
                         for item in smd:
-                            if item.name == bxdlist[j]:
+                            if item.name == samplelist[j]:
                                 plotbxd=1
 
                         if (plotbxd == 1):
@@ -1481,7 +1490,7 @@ class MarkerRegression(object):
                             counter = 0
                             for item in smd:
                                 counter = counter + 1
-                                if item.name == bxdlist[j]:
+                                if item.name == samplelist[j]:
                                     ind = counter
                             maxind=max(ind,maxind)
 
@@ -1504,7 +1513,7 @@ class MarkerRegression(object):
 
 
                             COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation+ind*self.EACH_GENE_HEIGHT, geneEndPix+1, (geneYLocation + ind*self.EACH_GENE_HEIGHT))
-                            TITLE = "Strain: %s, marker (%s) \n Position  %2.3f Mb." % (bxdlist[j], self.genotype[0][i].name, float(txStart))
+                            TITLE = "Strain: %s, marker (%s) \n Position  %2.3f Mb." % (samplelist[j], self.genotype[0][i].name, float(txStart))
                             HREF = ''
                             gifmap.areas.append(HT.Area(shape='rect',coords=COORDS,href=HREF, title=TITLE))
 
@@ -1524,14 +1533,14 @@ class MarkerRegression(object):
                     firstGene = 0
                 else:
                     lastGene = 0
-
-        for j,_geno in enumerate (self.genotype[0][1].genotype):
+                     
+        for j, _geno in enumerate (self.genotype[0][1].genotype):
 
             plotbxd=0
             for item in smd:
-                if item.name == bxdlist[j]:
-                    plotbxd=1
-
+                if item.name == samplelist[j]:
+                    plotbxd=1    
+                    
             if (plotbxd == 1):
 
                 ind = 0
@@ -1539,12 +1548,12 @@ class MarkerRegression(object):
                 expr = 0
                 for item in smd:
                     counter = counter + 1
-                    if item.name == bxdlist[j]:
+                    if item.name == samplelist[j]:
                         ind = counter
                         expr = item.value
 
                 # Place where font is hardcoded
-                canvas.drawString("%s" % (bxdlist[j]), (xLeftOffset + plotWidth + 10) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black)
+                canvas.drawString("%s" % (samplelist[j]), (xLeftOffset + plotWidth + 10) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black)
                 canvas.drawString("%2.2f" % (expr), (xLeftOffset + plotWidth + 60) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black)
 
         fpText.close()

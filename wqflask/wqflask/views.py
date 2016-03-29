@@ -359,6 +359,7 @@ def marker_regression_page():
         'graphWidth',
         'showGenes',
         'viewLegend',
+        'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )
