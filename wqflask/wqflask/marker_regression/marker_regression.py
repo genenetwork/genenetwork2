@@ -144,7 +144,15 @@ class MarkerRegression(object):
                 self.num_perm = 0
             else:
                 self.num_perm = int(start_vars['num_perm'])
-            self.additive = False
+                
+            if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
+                if "additiveCheck" in start_vars:
+                    self.additiveCheck = start_vars['additiveCheck']
+                else:
+                    self.additiveCheck = False 
+            else:
+                self.additiveCheck = "ON"
+                
             self.control = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             results = self.gen_reaper_results()
@@ -666,8 +674,8 @@ class MarkerRegression(object):
         self.json_data['pos'] = []
         self.json_data['lod.hk'] = []
         self.json_data['markernames'] = []
-        if self.additive:
-            self.json_data['additive'] = []
+        #if self.additive:
+        #    self.json_data['additive'] = []
 
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         qtl_results = []
@@ -681,8 +689,8 @@ class MarkerRegression(object):
             self.json_data['pos'].append(reaper_locus.Mb)
             self.json_data['lod.hk'].append(qtl.lrs)
             self.json_data['markernames'].append(reaper_locus.name)
-            if self.additive:
-                self.json_data['additive'].append(qtl.additive)
+            #if self.additive:
+            #    self.json_data['additive'].append(qtl.additive)
             locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
             qtl = {"lrs_value": qtl.lrs, "chr":converted_chr, "Mb":reaper_locus.Mb,
                    "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}

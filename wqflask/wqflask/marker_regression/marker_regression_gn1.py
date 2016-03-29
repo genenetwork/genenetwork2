@@ -121,10 +121,10 @@ class MarkerRegression(object):
     SIGNIFICANT_WIDTH = 5
     SUGGESTIVE_WIDTH = 5
     ADDITIVE_COLOR_POSITIVE = pid.green
-    ADDITIVE_COLOR_NEGATIVE = pid.red
+    ADDITIVE_COLOR_NEGATIVE = pid.orange
     ADDITIVE_COLOR = ADDITIVE_COLOR_POSITIVE
     DOMINANCE_COLOR_POSITIVE = pid.darkviolet
-    DOMINANCE_COLOR_NEGATIVE = pid.orange
+    DOMINANCE_COLOR_NEGATIVE = pid.red
 
     ## BEGIN HaplotypeAnalyst
     HAPLOTYPE_POSITIVE = pid.green
@@ -279,11 +279,14 @@ class MarkerRegression(object):
 
         self.graphHeight = self.GRAPH_DEFAULT_HEIGHT
         self.manhattan_plot = start_vars['manhattan_plot']
-        self.additiveChecked = False
         self.dominanceChecked = False
         self.LRS_LOD = start_vars['score_type']
         self.cutoff = start_vars['cutoff']
         self.intervalAnalystChecked = False
+        if 'additiveCheck' in start_vars.keys():
+            self.additiveChecked = start_vars['additiveCheck']
+        else:
+            self.additiveChecked = False
         if 'viewLegend' in start_vars.keys():
             self.legendChecked = start_vars['viewLegend']
         else:
@@ -585,8 +588,8 @@ class MarkerRegression(object):
         ################################################################
         btminfo = HT.Paragraph(Id="smallsize") #Small('More information about this graph is available here.')
 
-        if (self.additiveChecked):
-            btminfo.append(HT.BR(), 'A positive additive coefficient (', HT.Font('green', color='green'), ' line) indicates that %s alleles increase trait values. In contrast, a negative additive coefficient (' % fd.ppolar, HT.Font('red', color='red'), ' line) indicates that %s alleles increase trait values.' % fd.mpolar)
+        #if (self.additiveChecked):
+        #    btminfo.append(HT.BR(), 'A positive additive coefficient (', HT.Font('green', color='green'), ' line) indicates that %s alleles increase trait values. In contrast, a negative additive coefficient (' % fd.ppolar, HT.Font('red', color='red'), ' line) indicates that %s alleles increase trait values.' % fd.mpolar)
 
         if self.traitList and self.traitList[0].dataset and self.traitList[0].dataset.type == 'Geno':
             btminfo.append(HT.BR(), 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
@@ -1920,7 +1923,7 @@ class MarkerRegression(object):
         if self.multipleInterval:
             lrsEdgeWidth = 1
         else:
-            #additiveMax = max(map(lambda X : abs(X.additive), self.qtlresults[0]))
+            additiveMax = max(map(lambda X : abs(X['additive']), self.qtlresults))
             #if INTERCROSS:
             #    dominanceMax = max(map(lambda X : abs(X.dominance), self.qtlresults[0]))
             #else:
@@ -1993,77 +1996,77 @@ class MarkerRegression(object):
                     else:
                         LRSCoordXY.append((Xc, Yc))
 
-                    #if not self.multipleInterval and self.additiveChecked:
-                    #    if additiveMax == 0.0:
-                    #        additiveMax = 0.000001
-                    #    Yc = yZero - qtlresult[m].additive*AdditiveHeightThresh/additiveMax
-                    #    AdditiveCoordXY.append((Xc, Yc))
-                    #if not self.multipleInterval and INTERCROSS and self.additiveChecked:
-                    #    Yc = yZero - qtlresult[m].dominance*DominanceHeightThresh/dominanceMax
-                    #    DominanceCoordXY.append((Xc, Yc))
+                    if not self.multipleInterval and self.additiveChecked:
+                       if additiveMax == 0.0:
+                           additiveMax = 0.000001
+                       Yc = yZero - qtlresult['additive']*AdditiveHeightThresh/additiveMax
+                       AdditiveCoordXY.append((Xc, Yc))
+                    # if not self.multipleInterval and INTERCROSS and self.additiveChecked:
+                       # Yc = yZero - qtlresult['dominance']*DominanceHeightThresh/dominanceMax
+                       # DominanceCoordXY.append((Xc, Yc))
                     m += 1
         
                     #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
-                lineWidth = 1
-                if not self.multipleInterval and self.additiveChecked:
-                    plusColor = self.ADDITIVE_COLOR_POSITIVE
-                    minusColor = self.ADDITIVE_COLOR_NEGATIVE
-                    for k, aPoint in enumerate(AdditiveCoordXY):
-                        if k > 0:
-                            Xc0, Yc0 = AdditiveCoordXY[k-1]
-                            Xc, Yc = aPoint
-                            if (Yc0-yZero)*(Yc-yZero) < 0:
-                                if Xc == Xc0: #genotype , locus distance is 0
-                                    Xcm = Xc
-                                else:
-                                    Xcm = (yZero-Yc0)/((Yc-Yc0)/(Xc-Xc0)) +Xc0
-                                if Yc0 < yZero:
-                                    canvas.drawLine(Xc0, Yc0, Xcm, yZero, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                    canvas.drawLine(Xcm, yZero, Xc, yZero-(Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                else:
-                                    canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xcm, yZero, color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                    canvas.drawLine(Xcm, yZero, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                            elif (Yc0-yZero)*(Yc-yZero) > 0:
-                                if Yc < yZero:
-                                    canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                else:
-                                    canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                            else:
-                                minYc = min(Yc-yZero, Yc0-yZero)
-                                if minYc < 0:
-                                    canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                else:
-                                    canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                if not self.multipleInterval and INTERCROSS and self.dominanceChecked:
-                    plusColor = self.DOMINANCE_COLOR_POSITIVE
-                    minusColor = self.DOMINANCE_COLOR_NEGATIVE
-                    for k, aPoint in enumerate(DominanceCoordXY):
-                        if k > 0:
-                            Xc0, Yc0 = DominanceCoordXY[k-1]
-                            Xc, Yc = aPoint
-                            if (Yc0-yZero)*(Yc-yZero) < 0:
-                                if Xc == Xc0: #genotype , locus distance is 0
-                                    Xcm = Xc
-                                else:
-                                    Xcm = (yZero-Yc0)/((Yc-Yc0)/(Xc-Xc0)) +Xc0
-                                if Yc0 < yZero:
-                                    canvas.drawLine(Xc0, Yc0, Xcm, yZero, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                    canvas.drawLine(Xcm, yZero, Xc, yZero-(Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                else:
-                                    canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xcm, yZero, color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                    canvas.drawLine(Xcm, yZero, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                            elif (Yc0-yZero)*(Yc-yZero) > 0:
-                                if Yc < yZero:
-                                    canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                else:
-                                    canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                            else:
-                                minYc = min(Yc-yZero, Yc0-yZero)
-                                if minYc < 0:
-                                    canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                else:
-                                    canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+        lineWidth = 1
+        if not self.multipleInterval and self.additiveChecked:
+            plusColor = self.ADDITIVE_COLOR_POSITIVE
+            minusColor = self.ADDITIVE_COLOR_NEGATIVE
+            for k, aPoint in enumerate(AdditiveCoordXY):
+                if k > 0:
+                    Xc0, Yc0 = AdditiveCoordXY[k-1]
+                    Xc, Yc = aPoint
+                    if (Yc0-yZero)*(Yc-yZero) < 0:
+                        if Xc == Xc0: #genotype , locus distance is 0
+                            Xcm = Xc
+                        else:
+                            Xcm = (yZero-Yc0)/((Yc-Yc0)/(Xc-Xc0)) +Xc0
+                        if Yc0 < yZero:
+                            canvas.drawLine(Xc0, Yc0, Xcm, yZero, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            canvas.drawLine(Xcm, yZero, Xc, yZero-(Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                        else:
+                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xcm, yZero, color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            canvas.drawLine(Xcm, yZero, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                    elif (Yc0-yZero)*(Yc-yZero) > 0:
+                        if Yc < yZero:
+                            canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                        else:
+                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                    else:
+                        minYc = min(Yc-yZero, Yc0-yZero)
+                        if minYc < 0:
+                            canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                        else:
+                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+        if not self.multipleInterval and INTERCROSS and self.dominanceChecked:
+            plusColor = self.DOMINANCE_COLOR_POSITIVE
+            minusColor = self.DOMINANCE_COLOR_NEGATIVE
+            for k, aPoint in enumerate(DominanceCoordXY):
+                if k > 0:
+                    Xc0, Yc0 = DominanceCoordXY[k-1]
+                    Xc, Yc = aPoint
+                    if (Yc0-yZero)*(Yc-yZero) < 0:
+                        if Xc == Xc0: #genotype , locus distance is 0
+                            Xcm = Xc
+                        else:
+                            Xcm = (yZero-Yc0)/((Yc-Yc0)/(Xc-Xc0)) +Xc0
+                        if Yc0 < yZero:
+                            canvas.drawLine(Xc0, Yc0, Xcm, yZero, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            canvas.drawLine(Xcm, yZero, Xc, yZero-(Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                        else:
+                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xcm, yZero, color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            canvas.drawLine(Xcm, yZero, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                    elif (Yc0-yZero)*(Yc-yZero) > 0:
+                        if Yc < yZero:
+                            canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                        else:
+                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                    else:
+                        minYc = min(Yc-yZero, Yc0-yZero)
+                        if minYc < 0:
+                            canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                        else:
+                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
                 
 
         if self.manhattan_plot != True:
