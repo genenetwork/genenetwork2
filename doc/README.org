@@ -24,7 +24,6 @@ checked out version of the Guix package tree (this is required for
 reproducibility).
 
 * Source deployment
-
 ** Install guix
 
 Deploying from source is also straightforward. Install GNU Guix using
@@ -43,7 +42,7 @@ repositories:
 cd ~
 mkdir genenetwork
 cd genenetwork
-git clone https://github.com/genenetwork/guix-bioinformatics
+git clone --branch gn-latest https://github.com/genenetwork/guix-bioinformatics 
 git clone --recursive --branch gn-latest https://github.com/genenetwork/guix guix-gn-latest
 cd guix-gn-latest
 #+end_src bash
@@ -57,10 +56,12 @@ version of the guix-daemon by compiling the guix repository. Follow
 ** Install GN2
 
 #+begin_src bash
-export GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/
-cd ~/genenetwork/guix-gn-latest
-./pre-inst-env guix package -i genenetwork2
+env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env guix package -i genenetwork2 --fallback 
 #+end_src bash
+
+Note that you can use the genenetwork.org guix substitute caching
+server at http://guix.genenetwork.org (which speeds up installs
+significantly because all packages are pre-built).
 
 Make a note of the paths with
 
@@ -126,6 +127,10 @@ Set permissions and match password in your settings file below:
 
 : mysql> grant all privileges on db_webqtl_s.* to gn2@"localhost" identified by 'mysql_password';
 
+Note that if the mysql connection is not working, try connecting to
+the IP address and check server firewall, hosts.allow and mysql IP
+configuration.
+
 ** Run your own copy of GN2
 
 At some point you may want to fix the source code. Clone the GN2
@@ -148,7 +153,6 @@ default_settings.py and pass it into GN2 with
 and everything *should* work (note the full path to the settings
 file). This way we develop against the exact same dependency graph of
 software.
-
 
 * Source deployment and other information on reproducibility
 

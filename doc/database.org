@@ -1,6 +1,4 @@
 - github Document reduction issue
-- github bio-vcf issue
-
 
 * GeneNetwork Database
 
