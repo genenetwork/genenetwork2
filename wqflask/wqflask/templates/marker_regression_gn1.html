@@ -39,7 +39,7 @@
               <b>Location:</b> Chr {{ this_trait.chr }} @ {{ this_trait.mb }} Mb
               {% endif %}
           </div>
-          <div id="gn1_map_options" class="col-xs-5" style="border:2px solid black; padding: 10px; margin: 10px;">
+          <div id="gn1_map_options" class="col-xs-5" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
             <div class="col-xs-8" style="padding: 0px;">
               <table>
                 <tr>
@@ -56,7 +56,7 @@
                 <tr>
                   <td><b>View:&nbsp;</b></td>
                   <td style="padding: 5px;">
-                    <input type="text" name="startMb" size="10" value="{{ startMb }}"> to <input type="text" name="endMb" size="10" value="{{ endMb }}">
+                    <input type="text" name="startMb" size="10" value="{% if startMb != -1 %}{{ startMb }}{% endif %}"> to <input type="text" name="endMb" size="10" value="{% if endMb != -1 %}{{ endMb }}{% endif %}">
                   </td>
                 </tr>
                 <tr>
@@ -68,7 +68,9 @@
               </table>
               </div>
               <div class="col-xs-4" style="padding: 0px;">
+                  {% if mapping_method == "reaper" %}
                   <input type="checkbox" name="additiveCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if additiveChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Allele Effects<br>
+                  {% endif %}
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
                   <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span><br>
                   <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Analyst </span> <span style="color:red;">*</span> 

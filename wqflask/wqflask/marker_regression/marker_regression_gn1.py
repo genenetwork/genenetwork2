@@ -485,7 +485,7 @@ class MarkerRegression(object):
         ################################################################
         # GeneCollection goes here
         ################################################################
-        if self.plotScale == 'physic':
+        if self.plotScale == 'physic' and self.selectedChr != -1:
             #StartMb or EndMb
             if self.startMb < 0 or self.endMb < 0:
                 self.startMb = 0
@@ -594,7 +594,7 @@ class MarkerRegression(object):
         if self.traitList and self.traitList[0].dataset and self.traitList[0].dataset.type == 'Geno':
             btminfo.append(HT.BR(), 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
 
-        if self.permChecked and not self.multipleInterval and 0<self.nperm:
+        if self.permChecked and not self.multipleInterval and 0 < self.nperm:
             TD_LR = HT.TD(HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
             #TD_LR = HT.TD(HT.Blockquote(topTable), HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
         else:
@@ -1129,7 +1129,7 @@ class MarkerRegression(object):
         if self.selectedChr == -1:
             string1 = 'Mapping for Dataset: %s, mapping on All Chromosomes' % self.dataset.group.name
         else:
-            string1 = 'Mapping for Dataset: %s, mapping on Chromosome %s' % (self.dataset.group.name, self.selectedChr)
+            string1 = 'Mapping for Dataset: %s, mapping on Chromosome %s' % (self.dataset.group.name, self.ChrList[self.selectedChr][0])
         if self.controlLocus:
             string2 = 'Using %s as control' % self.controlLocus
         else:
@@ -1640,8 +1640,8 @@ class MarkerRegression(object):
             #draw the gray text
             chrFont = pid.Font(ttf="verdana", size=26*zoom, bold=1)
             traitFont = pid.Font(ttf="verdana", size=14, bold=0)
-            chrX = xLeftOffset + plotWidth - 2 - canvas.stringWidth("Chr %s" % self.selectedChr, font=chrFont)
-            canvas.drawString("Chr %s" % self.selectedChr, chrX, ensemblPaddingTop-5, font=chrFont, color=pid.gray)
+            chrX = xLeftOffset + plotWidth - 2 - canvas.stringWidth("Chr %s" % self.ChrList[self.selectedChr][0], font=chrFont)
+            canvas.drawString("Chr %s" % self.ChrList[self.selectedChr][0], chrX, ensemblPaddingTop-5, font=chrFont, color=pid.gray)
             traitX = chrX - 28 - canvas.stringWidth("database", font=traitFont)
             # end of drawBrowserClickableRegions
         else:
@@ -1736,7 +1736,9 @@ class MarkerRegression(object):
             ChrAInfo = []
             preLpos = -1
             distinctCount = 0.0
-            if len(self.genotype) > 1:
+            
+            #if len(self.genotype) > 1:
+            if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
                 for i, _chr in enumerate(self.genotype):
                     thisChr = []
                     Locus0CM = _chr[0].cM
@@ -1759,15 +1761,16 @@ class MarkerRegression(object):
                     ChrAInfo.append(thisChr)
             else:
                 for i, _chr in enumerate(self.genotype):
-                    thisChr = []
-                    Locus0CM = _chr[0].cM
-                    for _locus in _chr:
-                        if _locus.name != ' - ':
-                            if _locus.cM != preLpos:
-                                distinctCount += 1
-                            preLpos = _locus.cM
-                            thisChr.append([_locus.name, _locus.cM-Locus0CM])
-                    ChrAInfo.append(thisChr)
+                    if _chr.name == self.ChrList[self.selectedChr][0]:
+                        thisChr = []
+                        Locus0CM = _chr[0].cM
+                        for _locus in _chr:
+                            if _locus.name != ' - ':
+                                if _locus.cM != preLpos:
+                                    distinctCount += 1
+                                preLpos = _locus.cM
+                                thisChr.append([_locus.name, _locus.cM-Locus0CM])
+                        ChrAInfo.append(thisChr)
 
             stepA =  (plotWidth+0.0)/distinctCount
 
@@ -1776,8 +1779,8 @@ class MarkerRegression(object):
             offsetA = -stepA
             lineColor = pid.lightblue
             startPosX = xLeftOffset
+            
             for j, ChrInfo in enumerate(ChrAInfo):
-              if ChrInfo == self.selectedChr:
                 preLpos = -1
                 for i, item in enumerate(ChrInfo):
                     Lname,Lpos = item
@@ -1809,7 +1812,7 @@ class MarkerRegression(object):
                             xLeftOffset+offsetA,yZero+40+Zorder*(LRectWidth+3)+LRectWidth)
                     HREF="/show_trait?trait_id=%s&dataset=%s" % (Lname, self.dataset.group.name+"Geno")
                     #HREF="javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm,fd.RISet+"Geno", Lname)
-                    Areas=HT.Area(shape='rect',coords=COORDS,href=HREF, title="Locus : " + Lname)
+                    Areas=HT.Area(shape='rect', coords=COORDS, href=HREF, target="_blank", title="Locus : " + Lname)
                     gifmap.areas.append(Areas)
                 ##piddle bug
                 if j == 0:
@@ -1923,7 +1926,8 @@ class MarkerRegression(object):
         if self.multipleInterval:
             lrsEdgeWidth = 1
         else:
-            additiveMax = max(map(lambda X : abs(X['additive']), self.qtlresults))
+            if self.additiveChecked:
+                additiveMax = max(map(lambda X : abs(X['additive']), self.qtlresults))
             #if INTERCROSS:
             #    dominanceMax = max(map(lambda X : abs(X.dominance), self.qtlresults[0]))
             #else:
@@ -1957,8 +1961,13 @@ class MarkerRegression(object):
 
             #startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
 
-            #for j, _chr in enumerate(self.genotype):
-            if self.selectedChr == -1 or qtlresult['chr'] == self.selectedChr:
+            #for j, _chr in enumerate(self.genotype):   
+            #ZS: This is beause the chromosome value stored in qtlresult['chr'] can be (for example) either X or 20 depending upon the mapping method/scale used
+            if self.plotScale == "physic":
+                this_chr = str(self.ChrList[self.selectedChr][0])
+            else:
+                this_chr = str(self.ChrList[self.selectedChr][1]+1)
+            if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
                 #LRSCoordXY = []
                 #AdditiveCoordXY = []
                 #DominanceCoordXY = []
@@ -2127,7 +2136,7 @@ class MarkerRegression(object):
                 canvas.drawRect(startPix, yTopOffset, min(startPix+spacingAmt, xLeftOffset+plotWidth), \
                         yBottom, edgeColor=theBackColor, fillColor=theBackColor)
 
-            drawRegionDistance = self.ChrLengthDistList[self.selectedChr]
+            drawRegionDistance = self.ChrLengthDistList[self.ChrList[self.selectedChr][1]]
             self.ChrLengthDistList = [drawRegionDistance]
             if self.plotScale == 'physic':
                 plotXScale = plotWidth / (endMb-startMb)

@@ -337,9 +337,6 @@ class MarkerRegression(object):
         count, p_values = self.parse_rqtl_output(plink_output_filename)
 
     def geno_to_rqtl_function(self):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
-        print("Adding some custom helper functions to the R environment")
-
-
 
         ro.r("""
            trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
@@ -371,8 +368,6 @@ class MarkerRegression(object):
         """ % (self.dataset.group.name + ".geno"))
     
     def run_rqtl_geno(self):
-        print("Calling R/qtl")
-
         self.geno_to_rqtl_function()
 
         ## Get pointers to some common R functions
@@ -397,7 +392,7 @@ class MarkerRegression(object):
         genofilelocation  = webqtlConfig.HTMLPATH + "genotypes/" + self.dataset.group.name + ".geno"
         crossfilelocation = webqtlConfig.HTMLPATH + "genotypes/" + self.dataset.group.name + ".cross"
 
-        print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
+        #print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
 
         cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)                                  # TODO: Add the SEX if that is available
 
@@ -419,7 +414,7 @@ class MarkerRegression(object):
             else:
                 print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=self.model, method=self.method, n_cluster = 16)
  
-            print("Pair scan results:", result_data_frame)
+            #print("Pair scan results:", result_data_frame)
 
             self.pair_scan_filename = webqtlUtil.genRandStr("scantwo_") + ".png"
             png(file=webqtlConfig.TMPDIR+self.pair_scan_filename)
@@ -454,13 +449,13 @@ class MarkerRegression(object):
         ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
         userinputS = self.control.replace(" ", "").split(",")                 # TODO: sanitize user input, Never Ever trust a user
         covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
-        print("Marker names of selected covariates:", covariate_names)
+        #print("Marker names of selected covariates:", covariate_names)
         ro.r('covnames <- c(' + covariate_names + ')')
         ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
         ro.r('covnames <- covnames[covInGeno]')
         ro.r("cat('covnames (purged): ', covnames,'\n')")
         ro.r('covariates <- genotypes[,covnames]')                            # Get the covariate matrix by using the marker name as index to the genotype file
-        print("R/qtl matrix of covariates:", ro.r["covariates"])
+        #print("R/qtl matrix of covariates:", ro.r["covariates"])
         return ro.r["covariates"]
 
     def sanitize_rqtl_phenotype(self):
@@ -484,7 +479,7 @@ class MarkerRegression(object):
 
         result = result[1]
         output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
-        print("R/qtl scantwo output:", output)
+        #print("R/qtl scantwo output:", output)
 
         for i, line in enumerate(result.iter_row()):
             marker = {}
@@ -494,7 +489,7 @@ class MarkerRegression(object):
             marker['chr2'] = int(output[i][2])
             pair_scan_results.append(marker)
 
-        print("pair_scan_results:", pair_scan_results)
+        #print("pair_scan_results:", pair_scan_results)
 
         return pair_scan_results
 
@@ -502,7 +497,7 @@ class MarkerRegression(object):
         qtl_results = []
 
         output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
-        print("R/qtl scanone output:", output)
+        #print("R/qtl scanone output:", output)
 
         for i, line in enumerate(result.iter_row()):
             marker = {}
@@ -517,7 +512,7 @@ class MarkerRegression(object):
     def process_rqtl_perm_results(self, results):
         perm_vals = []
         for line in str(results).split("\n")[1:(int(self.num_perm)+1)]:
-            print("R/qtl permutation line:", line.split())
+            #print("R/qtl permutation line:", line.split())
             perm_vals.append(float(line.split()[1]))
 
         self.suggestive = np.percentile(np.array(perm_vals), 67)
@@ -532,7 +527,7 @@ class MarkerRegression(object):
         self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
         
         plink_command = PLINK_COMMAND + ' --noweb --bed %s/%s.bed --bim %s/%s.bim --fam %s/%s.fam --no-fid --no-parents --no-sex --no-pheno --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
-        print("plink_command:", plink_command)        
+        #print("plink_command:", plink_command)        
 
         os.system(plink_command)
 
