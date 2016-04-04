@@ -13,7 +13,7 @@ developers).  See the [installation docs](doc/README.org).
 ## License
 
 The GeneNetwork2 source code is released under the Affero General
-Public License 3 (AGPLv3). See also LICENSE.txt
+Public License 3 (AGPLv3). See [LICENSE.txt](LICENSE.txt).
 
 ## More information
 

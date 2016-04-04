@@ -14,14 +14,15 @@
 
 * Introduction
 
-Large system deployments tend to get very complex. In this document we
-explain the GeneNetwork deployment system which is based on GNU Guix
-(see also Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]). The Guix system can be used to install
-GN with all its files and dependencies.
+Large system deployments can get very complex. In this document we
+explain the GeneNetwork version 2 (GN2) reproducible deployment system
+which is based on GNU Guix (see also Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]). The Guix
+system can be used to install GN with all its files and dependencies.
 
-The official installation path is via a GNU Guix installation from a
-checked out version of the Guix package tree (this is required for
-reproducibility).
+The official installation path is from a checked out version of the
+main Guix package tree and that of the Genenetwork package
+tree. Current supported versions can be found as the SHA values of
+'gn-latest' branches of [[https://github.com/genenetwork/guix-bioinformatics/tree/gn-latest][Guix bioinformatics]] and [[https://github.com/genenetwork/guix/tree/gn-latest][GNU Guix main]].
 
 * Source deployment
 ** Install guix
