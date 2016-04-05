@@ -215,7 +215,11 @@ class MarkerRegression(object):
         # Options
         #####################################
         #Mapping options
-        self.plotScale = start_vars['mapping_scale']
+        if start_vars['mapping_scale'] != "":
+            self.plotScale = start_vars['mapping_scale']
+        else:
+            self.plotScale = "physic"
+
         #self.plotScale = fd.formdata.getvalue('scale', 'physic')
         #if self.plotScale == 'physic' and not fd.genotype.Mbmap: #ZS: Not sure where "Mbmap" is stored, if at all; should be fine without this though
         #    self.plotScale = 'morgan'
