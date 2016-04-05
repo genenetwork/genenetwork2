@@ -227,24 +227,34 @@ class MarkerRegression(object):
             self.nperm = int(start_vars['num_perm'])
         else:
             self.nperm = 0
+        if 'num_bootstrap' in start_vars.keys():
+            self.nboot = int(start_vars['num_bootstrap'])
+        else:
+            self.nboot = 0
         if (start_vars['num_perm'] == "") or (start_vars['num_perm'] < 1):
             self.permChecked = False
         else:
             self.permChecked = True
         #self.permChecked = fd.formdata.getvalue('permCheck', True)
-        #self.bootChecked = fd.formdata.getvalue('bootCheck', '')
-        self.bootChecked = False #ZS: For now setting to False, I'll add this option later once rest of figure works
+
+        if 'bootCheck' in start_vars.keys():
+            self.bootChecked = start_vars['bootCheck']
+        else:
+            self.bootChecked = False
+        if 'bootstrap_results' in start_vars.keys():
+            self.bootResult = start_vars['bootstrap_results']
+        else:
+            self.bootResult = []
+
 
         if 'do_control' in start_vars.keys():
             self.doControl = start_vars['do_control']
         else:
             self.doControl = "false"
-        if 'control' in start_vars.keys():
-            self.controlLocus = start_vars['control']
+        if 'control_marker' in start_vars.keys():
+            self.controlLocus = start_vars['control_marker']
         else:
             self.controlLocus = ""
-        
-        #self.controlLocus = fd.formdata.getvalue('controlLocus', '')
 
         #try:
         self.selectedChr = int(start_vars['selected_chr'])
@@ -795,8 +805,8 @@ class MarkerRegression(object):
         plotXScale = self.drawGraphBackground(canvas, gifmap, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         #draw bootstap
-        #if self.bootChecked and not self.multipleInterval:
-        #    self.drawBootStrapResult(canvas, fd.nboot, drawAreaHeight, plotXScale, offset=newoffset)
+        if self.bootChecked and not self.multipleInterval:
+            self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset)
 
         # Draw clickable region and gene band if selected
         if self.plotScale == 'physic' and self.selectedChr > -1:
@@ -843,17 +853,31 @@ class MarkerRegression(object):
         BootCoord = []
         i = 0
         startX = xLeftOffset
-        for j, _chr in enumerate(self.genotype):
-            BootCoord.append( [])
-            for _locus in _chr:
-                if self.plotScale == 'physic':
-                    Xc = startX + (_locus.Mb-self.startMb)*plotXScale
-                else:
-                    Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
-                BootCoord[-1].append([Xc, self.bootResult[i]])
-                i += 1
-            startX += (self.ChrLengthDistList[j] + self.GraphInterval)*plotXScale
-
+        
+        if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
+            for j, _chr in enumerate(self.genotype):
+                BootCoord.append( [])
+                for _locus in _chr:
+                    if self.plotScale == 'physic':
+                        Xc = startX + (_locus.Mb-self.startMb)*plotXScale
+                    else:
+                        Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
+                    BootCoord[-1].append([Xc, self.bootResult[i]])
+                    i += 1
+                startX += (self.ChrLengthDistList[j] + self.GraphInterval)*plotXScale
+        else:
+            for j, _chr in enumerate(self.genotype):
+                if _chr.name == self.ChrList[self.selectedChr][0]:
+                    BootCoord.append( [])
+                for _locus in _chr:
+                    if _chr.name == self.ChrList[self.selectedChr][0]:
+                        if self.plotScale == 'physic':
+                            Xc = startX + (_locus.Mb-self.startMb)*plotXScale
+                        else:
+                            Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
+                        BootCoord[-1].append([Xc, self.bootResult[i]])
+                    i += 1      
+                
         #reduce bootResult
         if self.selectedChr > -1:
             maxBootBar = 80.0
@@ -1134,7 +1158,7 @@ class MarkerRegression(object):
             string1 = 'Mapping for Dataset: %s, mapping on All Chromosomes' % self.dataset.group.name
         else:
             string1 = 'Mapping for Dataset: %s, mapping on Chromosome %s' % (self.dataset.group.name, self.ChrList[self.selectedChr][0])
-        if self.controlLocus:
+        if self.controlLocus and self.doControl != "false":
             string2 = 'Using %s as control' % self.controlLocus
         else:
             string2 = 'Using Haldane mapping function with no control for other QTLs'

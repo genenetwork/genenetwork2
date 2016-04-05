@@ -188,6 +188,12 @@
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
+                            <label for="mapping_bootstraps" class="col-xs-3 control-label">Bootstraps</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                <input name="num_bootstrap" value="2000" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
                             <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
                             <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
@@ -204,12 +210,15 @@
                                     No
                                 </label>
                             </div>
-                        </div>
-<!-- 
+                        </div> 
+
+<!--
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_bootstraps" class="col-xs-3 control-label" title="Bootstrapping Resamples">Bootstrap</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                <input name="mapping_bootstraps" value="2000" type="text" class="form-control">
+                            <label for="mapping_bootstraps" class="col-xs-3 control-label" title="Bootstrapping Resamples">Bootstrap Test (n=2000)</label>
+                            <div class="col-xs-4 controls">
+                                <label>
+                                    <input type="checkbox" name="bootCheck" id="bootCheck"> Bootstrap Test (n=2000)
+                                </label>
                             </div>
                         </div>
 
@@ -227,6 +236,7 @@
                             </div>
                         </div>
 -->
+
 
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>

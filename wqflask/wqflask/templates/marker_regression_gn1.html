@@ -22,6 +22,7 @@
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
         <input type="hidden" name="manhattan_plot">
         <input type="hidden" name="num_perm">
+        <input type="hidden" name="num_bootstrap" value="{{ nboot }}">
         <input type="hidden" name="do_control" value="{{ doControl }}">
         <input type="hidden" name="control_marker" value="{{ controlLocus }}">
         <input type="hidden" name="mapmethod_rqtl_geno" value="{{ mapmethod_rqtl_geno }}">
@@ -69,6 +70,7 @@
               </div>
               <div class="col-xs-4" style="padding: 0px;">
                   {% if mapping_method == "reaper" %}
+                  <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test <br>
                   <input type="checkbox" name="additiveCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if additiveChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Allele Effects<br>
                   {% endif %}
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>

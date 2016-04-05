@@ -80,6 +80,8 @@ class MarkerRegression(object):
         self.score_type = "LRS" #ZS: LRS or LOD
         self.mapping_scale = "physic"
         self.num_perm = 0
+        self.bootstrap_results = []
+        
 
         #ZS: This is passed to GN1 code for single chr mapping
         self.selected_chr = -1
@@ -130,7 +132,7 @@ class MarkerRegression(object):
                 self.num_perm = 0
             else:
                 self.num_perm = start_vars['num_perm']
-            self.control = start_vars['control_marker']
+            self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             self.method = start_vars['mapmethod_rqtl_geno']
             self.model = start_vars['mapmodel_rqtl_geno']
@@ -143,17 +145,35 @@ class MarkerRegression(object):
             if start_vars['num_perm'] == "":
                 self.num_perm = 0
             else:
-                self.num_perm = int(start_vars['num_perm'])
+                self.num_perm = int(start_vars['num_perm']) 
                 
             if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
+                if "bootCheck" in start_vars:
+                    self.bootCheck = "ON"
+                    self.num_bootstrap = int(start_vars['num_bootstrap'])
+                else:
+                    self.bootCheck = False
+                    self.num_bootstrap = int(start_vars['num_bootstrap'])
                 if "additiveCheck" in start_vars:
                     self.additiveCheck = start_vars['additiveCheck']
                 else:
                     self.additiveCheck = False 
             else:
+                try:
+                    if int(start_vars['num_bootstrap']) > 0:
+                        self.bootCheck = "ON"
+                        self.num_bootstrap = int(start_vars['num_bootstrap'])
+                    else:
+                        self.bootCheck = False
+                        self.num_bootstrap = 0 
+                #ZS: If some string that can't be converted to int is input for num_bootstrap
+                except: 
+                    self.num_bootstrap = 0
+                    self.bootCheck = False
+
                 self.additiveCheck = "ON"
                 
-            self.control = start_vars['control_marker']
+            self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             results = self.gen_reaper_results()
         elif self.mapping_method == "plink":
@@ -447,7 +467,7 @@ class MarkerRegression(object):
     def create_covariates(self, cross):
         ro.globalenv["the_cross"] = cross
         ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
-        userinputS = self.control.replace(" ", "").split(",")                 # TODO: sanitize user input, Never Ever trust a user
+        userinputS = self.control_marker.replace(" ", "").split(",")                 # TODO: sanitize user input, Never Ever trust a user
         covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
         #print("Marker names of selected covariates:", covariate_names)
         ro.r('covnames <- c(' + covariate_names + ')')
@@ -656,14 +676,40 @@ class MarkerRegression(object):
 
         #print("samples:", trimmed_samples)
 
-        if self.control != "" and self.do_control == "true":
-            #print("CONTROL IS:", self.control)
+        if self.control_marker != "" and self.do_control == "true":
             reaper_results = genotype.regression(strains = trimmed_samples,
-                                                          trait = trimmed_values,
-                                                          control = str(self.control))
+                                                 trait = trimmed_values,
+                                                 control = str(self.control_marker))
+            if self.bootCheck:
+                control_geno = []
+                control_geno2 = []
+                _FIND = 0
+                for _chr in genotype:
+                    for _locus in _chr:
+                        if _locus.name == self.control_marker:
+                            control_geno2 = _locus.genotype
+                            _FIND = 1
+                            break
+                    if _FIND:
+                        break
+                if control_geno2:
+                    _prgy = list(genotype.prgy)
+                    for _strain in trimmed_samples:
+                        _idx = _prgy.index(_strain)
+                        control_geno.append(control_geno2[_idx])
+            
+                self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
+                                                       trait = trimmed_values,
+                                                       control = control_geno,
+                                                       nboot = self.num_bootstrap)
         else:
             reaper_results = genotype.regression(strains = trimmed_samples,
-                                                          trait = trimmed_values)
+                                                 trait = trimmed_values)
+                                                 
+            if self.bootCheck:
+                self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
+                                                       trait = trimmed_values,
+                                                       nboot = self.num_bootstrap)
 
         self.json_data['chr'] = []
         self.json_data['pos'] = []
