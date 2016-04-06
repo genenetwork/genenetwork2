@@ -21,7 +21,7 @@
         <input type="hidden" name="maf">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
         <input type="hidden" name="manhattan_plot">
-        <input type="hidden" name="num_perm">
+        <input type="hidden" name="num_perm" value="{{ nperm }}">
         <input type="hidden" name="num_bootstrap" value="{{ nboot }}">
         <input type="hidden" name="do_control" value="{{ doControl }}">
         <input type="hidden" name="control_marker" value="{{ controlLocus }}">
@@ -69,8 +69,13 @@
               </table>
               </div>
               <div class="col-xs-4" style="padding: 0px;">
-                  {% if mapping_method == "reaper" %}
+                  {% if (mapping_method == "reaper" or mapping_method == "rqtl_geno") and nperm > 0 %}
+                  <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test <br>
+                  {% endif %}
+                  {% if mapping_method == "reaper" and nboot > 0 %}
                   <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test <br>
+                  {% endif %}
+                  {% if mapping_method == "reaper" %}
                   <input type="checkbox" name="additiveCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if additiveChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Allele Effects<br>
                   {% endif %}
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
@@ -98,6 +103,14 @@
               <div class="qtlcharts">
                   {{ gifmap|safe }}
                   <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
+                  {% if additiveChecked|upper == "ON" %}
+                  <br>
+                  <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
+                  {% endif %}
+                  {% if permChecked|upper == "ON" %}
+                  <br><br>
+                  <img src="/static/output/{{ perm_filename }}.gif">
+                  {% endif %}
               </div>
             </div>
             {% if mapping_method != "gemma" %}

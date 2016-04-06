@@ -228,9 +228,10 @@
       //$("#progress_bar_container").modal();
       url = "/marker_regression";
       $('input[name=method]').val("reaper");
-      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
+      $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
       $('input[name=control_marker]').val($('input[name=control_reaper]').val());
       $('input[name=do_control]').val($('input[name=do_control_reaper]:checked').val());
+      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
       $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'));
       $('input[name=suggestive]').val($('input[name=suggestive_reaper]'));
       form_data = $('#trait_data_form').serialize();

@@ -220,32 +220,31 @@ class MarkerRegression(object):
         else:
             self.plotScale = "physic"
 
-        #self.plotScale = fd.formdata.getvalue('scale', 'physic')
-        #if self.plotScale == 'physic' and not fd.genotype.Mbmap: #ZS: Not sure where "Mbmap" is stored, if at all; should be fine without this though
-        #    self.plotScale = 'morgan'
-        if start_vars['num_perm'] != "":
+        if 'permCheck' in start_vars.keys():
+            self.permChecked = start_vars['permCheck']
+        else:
+            self.permChecked = False
+        if start_vars['num_perm'] > 0:
             self.nperm = int(start_vars['num_perm'])
+            if self.permChecked:
+                self.perm_output = start_vars['perm_output']
+                self.suggestive = start_vars['suggestive']
+                self.significant = start_vars['significant']
         else:
             self.nperm = 0
-        if 'num_bootstrap' in start_vars.keys():
-            self.nboot = int(start_vars['num_bootstrap'])
-        else:
-            self.nboot = 0
-        if (start_vars['num_perm'] == "") or (start_vars['num_perm'] < 1):
-            self.permChecked = False
-        else:
-            self.permChecked = True
-        #self.permChecked = fd.formdata.getvalue('permCheck', True)
-
+           
         if 'bootCheck' in start_vars.keys():
             self.bootChecked = start_vars['bootCheck']
         else:
             self.bootChecked = False
+        if 'num_bootstrap' in start_vars.keys():
+            self.nboot = int(start_vars['num_bootstrap'])
+        else:
+            self.nboot = 0
         if 'bootstrap_results' in start_vars.keys():
             self.bootResult = start_vars['bootstrap_results']
         else:
             self.bootResult = []
-
 
         if 'do_control' in start_vars.keys():
             self.doControl = start_vars['do_control']
@@ -593,9 +592,9 @@ class MarkerRegression(object):
         else:
             showLocusForm = intImg
         
-        if self.permChecked and not self.multipleInterval and 0<self.nperm:
-            perm_histogram = self.drawPermutationHistogram()
-            perm_text_file = self.permutationTextFile()
+        if self.permChecked and self.nperm > 0 and not self.multipleInterval and 0 < self.nperm:
+            self.perm_filename = self.drawPermutationHistogram()
+            #perm_text_file = self.permutationTextFile()
 
         ################################################################
         # footnote goes here
@@ -608,12 +607,12 @@ class MarkerRegression(object):
         if self.traitList and self.traitList[0].dataset and self.traitList[0].dataset.type == 'Geno':
             btminfo.append(HT.BR(), 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
 
-        if self.permChecked and not self.multipleInterval and 0 < self.nperm:
-            TD_LR = HT.TD(HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
-            #TD_LR = HT.TD(HT.Blockquote(topTable), HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
-        else:
-            TD_LR = HT.TD(HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo), bgColor='#eeeeee', height = 200)
-            #TD_LR = HT.TD(HT.Blockquote(topTable), HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
+        #if self.permChecked and not self.multipleInterval and 0 < self.nperm:
+        #    TD_LR = HT.TD(HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
+        #    #TD_LR = HT.TD(HT.Blockquote(topTable), HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
+        #else:
+        TD_LR = HT.TD(HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo), bgColor='#eeeeee', height = 200)
+        #TD_LR = HT.TD(HT.Blockquote(topTable), HT.Blockquote(gifmap, showLocusForm, HT.P(), btminfo, HT.P(), perm_histogram, HT.P(), perm_text_file), bgColor='#eeeeee', height = 200)
 
 
         if geneTable:
@@ -683,7 +682,7 @@ class MarkerRegression(object):
         fpText.write(time.strftime("Date and Time (US Center): %b %d, %Y at %I.%M %p\n", time.localtime()))
         fpText.write("Trait ID: %s\n" % self.this_trait.name)
         fpText.write("Suggestive LRS = %0.2f\n" % self.suggestive)
-        fpText.write("Significant LRS = %0.2f\n" % self.significance)
+        fpText.write("Significant LRS = %0.2f\n" % self.significant)
         """
         if self.this_trait.symbol and self.this_trait.chr and self.this_trait.mb:
                 writeSymbol, writeChromosome, writeMb = self.this_trait.symbol, self.this_trait.chr, self.this_trait.mb
@@ -720,7 +719,7 @@ class MarkerRegression(object):
                 else:
                     lrs_lod = marker['lod_score']
 
-                P_value = self.calculatePValue(lrs_lod, self.LRSArray)
+                P_value = self.calculatePValue(lrs_lod, self.perm_output)
 
                 #if _dominance:
                 #    fpText.write("%s\t%s\t%2.3f\t%s\t%2.3f\t%2.3f\t%2.3f\t%2.3f\n" %(qtlresult.locus.chr, \
@@ -1139,7 +1138,7 @@ class MarkerRegression(object):
             canvas.drawLine(startPosX+54,startPosY,startPosX+67,startPosY,color=self.HAPLOTYPE_RECOMBINATION, width=4)
             canvas.drawString('Haplotypes (Pat, Mat, Het, Unk)',startPosX+76,startPosY+5,font=labelFont,color=pid.black)
 
-        if self.permChecked:
+        if self.permChecked and self.nperm > 0:
             startPosY += stepPosY
             startPosX = xLeftOffset
             canvas.drawLine(startPosX, startPosY, startPosX + 32, startPosY, color=self.SIGNIFICANT_COLOR, width=self.SIGNIFICANT_WIDTH)
@@ -1147,7 +1146,7 @@ class MarkerRegression(object):
             lod = 1
             if self.LRS_LOD == 'LOD':
                 lod = self.LODFACTOR
-            canvas.drawString('Significant %s = %2.2f' % (self.LRS_LOD, self.significance/lod),xLeftOffset+42,startPosY +5,font=labelFont,color=pid.black)
+            canvas.drawString('Significant %s = %2.2f' % (self.LRS_LOD, self.significant/lod),xLeftOffset+42,startPosY +5,font=labelFont,color=pid.black)
             canvas.drawString('Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive/lod),xLeftOffset+42,startPosY + 5 +stepPosY,font=labelFont,color=pid.black)
 
 
@@ -1884,10 +1883,10 @@ class MarkerRegression(object):
                 #LRSMax = max(map(max, self.qtlresults)).lod_score
             #genotype trait will give infinite LRS
             LRSMax = min(LRSMax, webqtlConfig.MAXLRS)
-            if self.permChecked and not self.multipleInterval:
-                self.significance = min(self.significance, webqtlConfig.MAXLRS)
+            if self.permChecked and self.nperm > 0 and not self.multipleInterval:
+                self.significant = min(self.significant, webqtlConfig.MAXLRS)
                 self.suggestive = min(self.suggestive, webqtlConfig.MAXLRS)
-                LRSMax = max(self.significance, LRSMax)
+                LRSMax = max(self.significant, LRSMax)
         else:
             LRSMax = self.lrsMax*lodm
 
@@ -1922,34 +1921,46 @@ class MarkerRegression(object):
             #Draw the LRS/LOD Y axis label
             canvas.drawString(scaleStr, xLeftOffset-4-canvas.stringWidth(scaleStr, font=LRSScaleFont)-5, yLRS+3, font=LRSScaleFont, color=self.LRS_COLOR)
 
-
-        #"Significant" and "Suggestive" Drawing Routine
-        # ======= Draw the thick lines for "Significant" and "Suggestive" =====  (crowell: I tried to make the SNPs draw over these lines, but piddle wouldn't have it...)
-        if self.permChecked and not self.multipleInterval:
-            significantY = yZero - self.significance*LRSHeightThresh/LRSMax
+        if self.permChecked and self.nperm > 0 and not self.multipleInterval:
+            significantY = yZero - self.significant*LRSHeightThresh/LRSMax
             suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRSMax
             startPosX = xLeftOffset
-            for i, _chr in enumerate(self.genotype):
-                rightEdge = int(startPosX + self.ChrLengthDistList[i]*plotXScale - self.SUGGESTIVE_WIDTH/1.5)
-                canvas.drawLine(startPosX+self.SUGGESTIVE_WIDTH/1.5, suggestiveY, rightEdge, suggestiveY, color=self.SUGGESTIVE_COLOR,
+
+            #"Significant" and "Suggestive" Drawing Routine
+            # ======= Draw the thick lines for "Significant" and "Suggestive" =====  (crowell: I tried to make the SNPs draw over these lines, but piddle wouldn't have it...)
+            
+            #ZS: I don't know if what I did here with this inner function is clever or overly complicated, but it's the only way I could think of to avoid duplicating the code inside this function
+            def add_suggestive_significant_lines_and_legend(start_pos_x, chr_length_dist):
+                rightEdge = int(start_pos_x + chr_length_dist*plotXScale - self.SUGGESTIVE_WIDTH/1.5)
+                canvas.drawLine(start_pos_x+self.SUGGESTIVE_WIDTH/1.5, suggestiveY, rightEdge, suggestiveY, color=self.SUGGESTIVE_COLOR,
                         width=self.SUGGESTIVE_WIDTH*zoom, clipX=(xLeftOffset, xLeftOffset + plotWidth-2))
-                canvas.drawLine(startPosX+self.SUGGESTIVE_WIDTH/1.5, significantY, rightEdge, significantY, color=self.SIGNIFICANT_COLOR,
+                canvas.drawLine(start_pos_x+self.SUGGESTIVE_WIDTH/1.5, significantY, rightEdge, significantY, color=self.SIGNIFICANT_COLOR,
                         width=self.SIGNIFICANT_WIDTH*zoom, clipX=(xLeftOffset, xLeftOffset + plotWidth-2))
-                sugg_coords = "%d, %d, %d, %d" % (startPosX, suggestiveY-2, rightEdge + 2*zoom, suggestiveY+2)
-                sig_coords = "%d, %d, %d, %d" % (startPosX, significantY-2, rightEdge + 2*zoom, significantY+2)
+                sugg_coords = "%d, %d, %d, %d" % (start_pos_x, suggestiveY-2, rightEdge + 2*zoom, suggestiveY+2)
+                sig_coords = "%d, %d, %d, %d" % (start_pos_x, significantY-2, rightEdge + 2*zoom, significantY+2)
                 if self.LRS_LOD == 'LRS':
                     sugg_title = "Suggestive LRS = %0.2f" % self.suggestive
-                    sig_title = "Significant LRS = %0.2f" % self.significance
+                    sig_title = "Significant LRS = %0.2f" % self.significant
                 else:
                     sugg_title = "Suggestive LOD = %0.2f" % (self.suggestive/4.61)
-                    sig_title = "Significant LOD = %0.2f" % (self.significance/4.61)
+                    sig_title = "Significant LOD = %0.2f" % (self.significant/4.61)
                 Areas1 = HT.Area(shape='rect',coords=sugg_coords,title=sugg_title)
                 Areas2 = HT.Area(shape='rect',coords=sig_coords,title=sig_title)
                 gifmap.areas.append(Areas1)
                 gifmap.areas.append(Areas2)
 
-                startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
-
+                start_pos_x +=  (chr_length_dist+self.GraphInterval)*plotXScale
+                return start_pos_x
+            
+            for i, _chr in enumerate(self.genotype):
+                if self.selectedChr != -1:
+                    if _chr.name == self.ChrList[self.selectedChr][0]:
+                        startPosX = add_suggestive_significant_lines_and_legend(startPosX, self.ChrLengthDistList[0])
+                        break
+                    else: 
+                        continue
+                else:
+                    startPosX = add_suggestive_significant_lines_and_legend(startPosX, self.ChrLengthDistList[i])
 
         if self.multipleInterval:
             lrsEdgeWidth = 1
@@ -2217,17 +2228,17 @@ class MarkerRegression(object):
 
         if self.multipleInterval:
             self.suggestive = 0
-            self.significance = 0
+            self.significant = 0
             if self.selectedChr > -1:
                 self.genotype.chromosome = [self.genotype[self.selectedChr]]
         else:
             #single interval mapping
             try:
                 self.suggestive = float(fd.formdata.getvalue('permSuggestive'))
-                self.significance = float(fd.formdata.getvalue('permSignificance'))
+                self.significant = float(fd.formdata.getvalue('permSignificance'))
             except:
                 self.suggestive = None
-                self.significance = None
+                self.significant = None
 
             _strains, _vals, _vars = self.traitList[0].exportInformative(weightedRegression)
 
@@ -2258,21 +2269,21 @@ class MarkerRegression(object):
                     return "The control marker you selected is not in the genofile."
 
             if weightedRegression:
-                self.LRSArray = self.genotype.permutation(strains = _strains, trait = _vals,
+                self.perm_output = self.genotype.permutation(strains = _strains, trait = _vals,
                         variance = _vars, nperm=self.nperm)
             else:
-                self.LRSArray = self.genotype.permutation(strains = _strains, trait = _vals,
+                self.perm_output = self.genotype.permutation(strains = _strains, trait = _vals,
                         nperm=self.nperm)
 
-            if self.significance and self.suggestive:
+            if self.significant and self.suggestive:
                 pass
             else:
                 if self.nperm < 100:
                     self.suggestive = 0
-                    self.significance = 0
+                    self.significant = 0
                 else:
-                    self.suggestive = self.LRSArray[int(self.nperm*0.37-1)]
-                    self.significance = self.LRSArray[int(self.nperm*0.95-1)]
+                    self.suggestive = self.perm_output[int(self.nperm*0.37-1)]
+                    self.significant = self.perm_output[int(self.nperm*0.95-1)]
 
             #calculating bootstrap
             #from now on, genotype could only contain a single chromosome
@@ -2443,7 +2454,7 @@ class MarkerRegression(object):
         controlsForm.append(controlsTable)
 
         controlsForm.append(HT.Input(name="permSuggestive", value=self.suggestive, type="hidden"))
-        controlsForm.append(HT.Input(name="permSignificance", value=self.significance, type="hidden"))
+        controlsForm.append(HT.Input(name="permSignificance", value=self.significant, type="hidden"))
 
 ## BEGIN HaplotypeAnalyst #### haplotypeAnalystCheck added below
 ## END HaplotypeAnalyst
@@ -2504,26 +2515,27 @@ class MarkerRegression(object):
         #      Permutation Graph
         #########################################
         myCanvas = pid.PILCanvas(size=(400,300))
-        #plotBar(myCanvas,10,10,390,290,LRSArray,XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test',identification=fd.identification)
-        Plot.plotBar(myCanvas, self.LRSArray,XLabel='LRS',YLabel='Frequency',title=' Histogram of Permutation Test')
+        Plot.plotBar(myCanvas, self.perm_output, XLabel='LRS', YLabel='Frequency', title=' Histogram of Permutation Test')
         filename= webqtlUtil.genRandStr("Reg_")
         myCanvas.save(webqtlConfig.IMGDIR+filename, format='gif')
-        img=HT.Image('/image/'+filename+'.gif',border=0,alt='Histogram of Permutation Test')
-
-
-        self.suggestive = self.LRSArray[int(self.nperm*0.37-1)]
-        self.significant = self.LRSArray[int(self.nperm*0.95-1)]
-        self.highlysignificant = self.LRSArray[int(self.nperm*0.99-1)]
-
-        permutationHeading = HT.Paragraph('Histogram of Permutation Test')
-        permutationHeading.__setattr__("class","title")
-
-        permutation = HT.TableLite()
-        permutation.append(HT.TR(HT.TD(img)),
-                           HT.TR(HT.TD('')),
-                           HT.TR(HT.TD('Total of %d permutations'%self.nperm)))
         
-        return permutation
+        return filename
+        
+        # img=HT.Image('/image/'+filename+'.gif',border=0,alt='Histogram of Permutation Test')
+
+        # self.suggestive = self.perm_output[int(self.nperm*0.37-1)]
+        # self.significant = self.perm_output[int(self.nperm*0.95-1)]
+        # self.highlysignificant = self.perm_output[int(self.nperm*0.99-1)]
+
+        # permutationHeading = HT.Paragraph('Histogram of Permutation Test')
+        # permutationHeading.__setattr__("class","title")
+
+        # permutation = HT.TableLite()
+        # permutation.append(HT.TR(HT.TD(img)),
+                           # HT.TR(HT.TD('')),
+                           # HT.TR(HT.TD('Total of %d permutations'%self.nperm)))
+        
+        # return permutation
     
     def permutationTextFile(self):
         filename= webqtlUtil.genRandStr("Reg_")
@@ -2531,14 +2543,14 @@ class MarkerRegression(object):
         fpText.write('Suggestive LRS (p = 0.63) = %3.2f\n'%self.suggestive)
         fpText.write('Significant LRS (p = 0.05) = %3.2f\n'%self.significant)
         fpText.write('Highly Significant LRS (p = 0.01) = %3.2f\n\n'%self.highlysignificant)
-        fpText.write('%s Permutations\n\n' % str(len(self.LRSArray)))
+        fpText.write('%s Permutations\n\n' % str(len(self.perm_output)))
         LRSInfo =HT.Paragraph('&nbsp;&nbsp;&nbsp;&nbsp;Suggestive LRS = %3.2f\n'%self.suggestive,
                               HT.BR(),
                               '&nbsp;&nbsp;&nbsp;&nbsp;Significant LRS =%3.2f\n'%self.significant,
                               HT.BR(),
                               '&nbsp;&nbsp;&nbsp;&nbsp;Highly Significant LRS =%3.2f\n' % self.highlysignificant)
         
-        for lrs_value in self.LRSArray:
+        for lrs_value in self.perm_output:
             fpText.write(str(lrs_value) + "\n")
         
         textUrl = HT.Href(text = 'Download Permutation Results', url= '/tmp/'+filename+'.txt', target = "_blank", Class='fs12 fwn')

@@ -79,10 +79,8 @@ class MarkerRegression(object):
         self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
         self.score_type = "LRS" #ZS: LRS or LOD
         self.mapping_scale = "physic"
-        self.num_perm = 0
         self.bootstrap_results = []
         
-
         #ZS: This is passed to GN1 code for single chr mapping
         self.selected_chr = -1
         if "selected_chr" in start_vars:
@@ -99,6 +97,12 @@ class MarkerRegression(object):
         if "haplotypeAnalystCheck" in start_vars:
             self.haplotypeAnalystCheck = start_vars['haplotypeAnalystCheck']
         if "startMb" in start_vars: #ZS: This is to ensure showGenes, Legend, etc are checked the first time you open the mapping page, since startMb will only not be set during the first load
+            if "permCheck" in start_vars:
+                self.permCheck = "ON"
+            else:
+                self.permCheck = False
+            self.num_perm = int(start_vars['num_perm'])
+        
             if "showGenes" in start_vars:
                 self.showGenes = start_vars['showGenes']
             else:
@@ -108,6 +112,15 @@ class MarkerRegression(object):
             else:
                 self.viewLegend = False
         else:
+            try:
+                if int(start_vars['num_perm']) > 0:
+                    self.num_perm = int(start_vars['num_perm'])
+                else:
+                    self.num_perm = 0
+            except:
+                self.num_perm = 0
+            
+            self.permCheck = "ON"
             self.showGenes = "ON"
             self.viewLegend = "ON"
  
@@ -120,45 +133,32 @@ class MarkerRegression(object):
             with Bench("Getting markers from csv"):
                 marker_obs = get_markers_from_csv(included_markers, p_values, self.dataset.group.name)
             results = marker_obs
-            #self.dataset.group.get_specified_markers(markers = included_markers)
-            #self.dataset.group.markers.add_pvalues(p_values)
-            #results = self.dataset.group.markers.markers
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
             self.score_type = "LOD"
             self.mapping_scale = "morgan"
-            if start_vars['num_perm'] == "":
-                self.num_perm = 0
-            else:
-                self.num_perm = start_vars['num_perm']
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             self.method = start_vars['mapmethod_rqtl_geno']
             self.model = start_vars['mapmodel_rqtl_geno']
-
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
-
             results = self.run_rqtl_geno()
-        elif self.mapping_method == "reaper":
-            if start_vars['num_perm'] == "":
-                self.num_perm = 0
-            else:
-                self.num_perm = int(start_vars['num_perm']) 
-                
+        elif self.mapping_method == "reaper":    
             if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
-                if "bootCheck" in start_vars:
-                    self.bootCheck = "ON"
-                    self.num_bootstrap = int(start_vars['num_bootstrap'])
-                else:
-                    self.bootCheck = False
-                    self.num_bootstrap = int(start_vars['num_bootstrap'])
                 if "additiveCheck" in start_vars:
                     self.additiveCheck = start_vars['additiveCheck']
                 else:
                     self.additiveCheck = False 
+                    
+                if "bootCheck" in start_vars:
+                    self.bootCheck = "ON"
+                else:
+                    self.bootCheck = False
+                self.num_bootstrap = int(start_vars['num_bootstrap'])
             else:
+                self.additiveCheck = "ON"
                 try:
                     if int(start_vars['num_bootstrap']) > 0:
                         self.bootCheck = "ON"
@@ -166,12 +166,9 @@ class MarkerRegression(object):
                     else:
                         self.bootCheck = False
                         self.num_bootstrap = 0 
-                #ZS: If some string that can't be converted to int is input for num_bootstrap
                 except: 
-                    self.num_bootstrap = 0
                     self.bootCheck = False
-
-                self.additiveCheck = "ON"
+                    self.num_bootstrap = 0
                 
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
@@ -180,10 +177,8 @@ class MarkerRegression(object):
             results = self.run_plink()
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
-            self.num_perm = start_vars['num_perm']
-            if self.num_perm != "":
-                if int(self.num_perm) > 0:
-	             self.run_permutations(str(temp_uuid))
+            if self.num_perm > 0:
+                self.run_permutations(str(temp_uuid))
             results = self.gen_data(str(temp_uuid))
         else:
             print("RUNNING NOTHING")
@@ -449,11 +444,11 @@ class MarkerRegression(object):
             else:
                 print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=self.model, method=self.method)
 
-            if int(self.num_perm) > 0:                                                                   # Do permutation (if requested by user)
+            if self.num_perm > 0 and self.permCheck == "ON":                                                                   # Do permutation (if requested by user)
                 if self.do_control == "true":
-                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm), model=self.model, method=self.method)
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = self.num_perm, model=self.model, method=self.method)
                 else:
-                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm), model=self.model, method=self.method)
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = self.num_perm, model=self.model, method=self.method)
 
                 self.process_rqtl_perm_results(perm_data_frame)                                          # Functions that sets the thresholds for the webinterface
 
@@ -531,10 +526,11 @@ class MarkerRegression(object):
 
     def process_rqtl_perm_results(self, results):
         perm_vals = []
-        for line in str(results).split("\n")[1:(int(self.num_perm)+1)]:
+        for line in str(results).split("\n")[1:(self.num_perm+1)]:
             #print("R/qtl permutation line:", line.split())
             perm_vals.append(float(line.split()[1]))
 
+        self.perm_output = perm_vals
         self.suggestive = np.percentile(np.array(perm_vals), 67)
         self.significant = np.percentile(np.array(perm_vals), 95)
 
@@ -666,8 +662,8 @@ class MarkerRegression(object):
                 trimmed_values.append(values[i])
                 
         self.lrs_array = genotype.permutation(strains = trimmed_samples,
-                                                   trait = trimmed_values, 
-                                                   nperm= self.num_perm)
+                                              trait = trimmed_values, 
+                                              nperm= self.num_perm)
         
         self.suggestive = self.lrs_array[int(self.num_perm*0.37-1)]
         self.significant = self.lrs_array[int(self.num_perm*0.95-1)]
@@ -699,17 +695,25 @@ class MarkerRegression(object):
                         control_geno.append(control_geno2[_idx])
             
                 self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
-                                                       trait = trimmed_values,
-                                                       control = control_geno,
-                                                       nboot = self.num_bootstrap)
+                                                            trait = trimmed_values,
+                                                            control = control_geno,
+                                                            nboot = self.num_bootstrap)
         else:
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                  trait = trimmed_values)
                                                  
             if self.bootCheck:
                 self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
-                                                       trait = trimmed_values,
-                                                       nboot = self.num_bootstrap)
+                                                            trait = trimmed_values,
+                                                            nboot = self.num_bootstrap)
+                                                            
+        if self.num_perm < 100:
+            self.suggestive = 0
+            self.significant = 0
+        else:
+            self.perm_output = genotype.permutation(strains = trimmed_samples, trait = trimmed_values, nperm=self.num_perm)
+            self.suggestive = self.perm_output[int(self.num_perm*0.37-1)]
+            self.significant = self.perm_output[int(self.num_perm*0.95-1)]
 
         self.json_data['chr'] = []
         self.json_data['pos'] = []
@@ -823,7 +827,7 @@ class MarkerRegression(object):
 	
         #print("self.num_perm:", self.num_perm)
 
-        for permutation in range(int(self.num_perm)):
+        for permutation in range(self.num_perm):
 
             pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
             np.random.shuffle(pheno_vector)
