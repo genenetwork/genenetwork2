@@ -1869,17 +1869,19 @@ class MarkerRegression(object):
         #LRSTop is then defined to be above the LRSMax by enough to add one additional LRSScale increment.
         #if we are using a set-scale, then we set LRSTop to be the user's value, and LRSMax doesn't matter.
 
-        if self.LRS_LOD == 'LRS':
-            lodm = self.LODFACTOR
-        else:
-            lodm = 1.0
+        #ZS: I'm not sure what this if statement is supposed to do. It appears to work correctly for both LOD and LRS if I just set lodm to 1.0
+        #if self.LRS_LOD == 'LRS':
+        #    lodm = self.LODFACTOR
+        #else:
+        #     lodm = 1.0
+        lodm = 1.0
  
         if self.lrsMax <= 0:  #sliding scale
-            if "lod_score" in self.qtlresults[0]:
-                LRSMax = max([result['lod_score'] for result in self.qtlresults])
+            if self.LRS_LOD == "LRS" and "lrs_value" in self.qtlresults[0]:
+                LRSMax = max([result['lrs_value'] for result in self.qtlresults])
                 #LRSMax = max(map(max, self.qtlresults)).lrs_value
             else: 
-                LRSMax = max([result['lrs_value'] for result in self.qtlresults])
+                LRSMax = max([result['lod_score'] for result in self.qtlresults])
                 #LRSMax = max(map(max, self.qtlresults)).lod_score
             #genotype trait will give infinite LRS
             LRSMax = min(LRSMax, webqtlConfig.MAXLRS)
