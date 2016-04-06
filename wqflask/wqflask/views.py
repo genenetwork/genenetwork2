@@ -354,6 +354,7 @@ def marker_regression_page():
         'num_bootstrap',
         'bootCheck',
         'bootstrap_results',
+        'LRSCheck',
         'maf',
         'manhattan_plot',
         'control_marker',

@@ -293,7 +293,7 @@ class MarkerRegression(object):
         self.graphHeight = self.GRAPH_DEFAULT_HEIGHT
         self.manhattan_plot = start_vars['manhattan_plot']
         self.dominanceChecked = False
-        self.LRS_LOD = start_vars['score_type']
+        self.LRS_LOD = start_vars['LRSCheck']
         self.cutoff = start_vars['cutoff']
         self.intervalAnalystChecked = False
         if 'additiveCheck' in start_vars.keys():
@@ -1108,7 +1108,6 @@ class MarkerRegression(object):
         if zoom == 2:
             fontZoom = 1.5
 
-
         labelFont=pid.Font(ttf="trebuc",size=12*fontZoom, bold=1)
         startPosY = 15
         stepPosY = 12*fontZoom
@@ -1146,10 +1145,8 @@ class MarkerRegression(object):
             lod = 1
             if self.LRS_LOD == 'LOD':
                 lod = self.LODFACTOR
-            canvas.drawString('Significant %s = %2.2f' % (self.LRS_LOD, self.significant/lod),xLeftOffset+42,startPosY +5,font=labelFont,color=pid.black)
-            canvas.drawString('Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive/lod),xLeftOffset+42,startPosY + 5 +stepPosY,font=labelFont,color=pid.black)
-
-
+            canvas.drawString('Significant %s = %2.2f' % (self.LRS_LOD, self.significant),xLeftOffset+42,startPosY +5,font=labelFont,color=pid.black)
+            canvas.drawString('Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),xLeftOffset+42,startPosY + 5 +stepPosY,font=labelFont,color=pid.black)
 
         labelFont=pid.Font(ttf="verdana",size=12*fontZoom)
         labelColor = pid.black
@@ -1865,46 +1862,66 @@ class MarkerRegression(object):
 
         #draw the LRS scale
         #We first determine whether or not we are using a sliding scale.
-        #If so, we need to compute the maximum LRS value to determine where the max y-value should be, and call this LRSMax.
-        #LRSTop is then defined to be above the LRSMax by enough to add one additional LRSScale increment.
-        #if we are using a set-scale, then we set LRSTop to be the user's value, and LRSMax doesn't matter.
+        #If so, we need to compute the maximum LRS value to determine where the max y-value should be, and call this LRS_LOD_Max.
+        #LRSTop is then defined to be above the LRS_LOD_Max by enough to add one additional LRSScale increment.
+        #if we are using a set-scale, then we set LRSTop to be the user's value, and LRS_LOD_Max doesn't matter.
 
         #ZS: I'm not sure what this if statement is supposed to do. It appears to work correctly for both LOD and LRS if I just set lodm to 1.0
-        #if self.LRS_LOD == 'LRS':
-        #    lodm = self.LODFACTOR
-        #else:
-        #     lodm = 1.0
-        lodm = 1.0
+        # if self.LRS_LOD == 'LRS':
+            # lodm = self.LODFACTOR
+        # else:
+            # lodm = 1.0
  
+        #ZS: This is a mess, but I don't know a better way to account for different mapping methods returning results in different formats + the option to change between LRS and LOD
         if self.lrsMax <= 0:  #sliding scale
-            if self.LRS_LOD == "LRS" and "lrs_value" in self.qtlresults[0]:
-                LRSMax = max([result['lrs_value'] for result in self.qtlresults])
-                #LRSMax = max(map(max, self.qtlresults)).lrs_value
-            else: 
-                LRSMax = max([result['lod_score'] for result in self.qtlresults])
-                #LRSMax = max(map(max, self.qtlresults)).lod_score
-            #genotype trait will give infinite LRS
-            LRSMax = min(LRSMax, webqtlConfig.MAXLRS)
+            if "lrs_value" in self.qtlresults[0]:
+                LRS_LOD_Max = max([result['lrs_value'] for result in self.qtlresults])
+                if self.LRS_LOD == "LOD":
+                    LRS_LOD_Max = LRS_LOD_Max / self.LODFACTOR
+                    if self.permChecked and self.nperm > 0 and not self.multipleInterval:
+                        self.significant = min(self.significant / self.LODFACTOR, webqtlConfig.MAXLRS)
+                        self.suggestive = min(self.suggestive / self.LODFACTOR, webqtlConfig.MAXLRS)
+                else:
+                    if self.permChecked and self.nperm > 0 and not self.multipleInterval:
+                        self.significant = min(self.significant, webqtlConfig.MAXLRS)
+                        self.suggestive = min(self.suggestive, webqtlConfig.MAXLRS)                    
+                    else:
+                        pass
+            else:
+                LRS_LOD_Max = max([result['lod_score'] for result in self.qtlresults])
+                if self.LRS_LOD == "LRS":
+                    LRS_LOD_Max = LRS_LOD_Max * self.LODFACTOR
+                    if self.permChecked and self.nperm > 0 and not self.multipleInterval:
+                        self.significant = min(self.significant * self.LODFACTOR, webqtlConfig.MAXLRS)
+                        self.suggestive = min(self.suggestive * self.LODFACTOR, webqtlConfig.MAXLRS)
+                else:
+                    if self.permChecked and self.nperm > 0 and not self.multipleInterval:
+                        self.significant = min(self.significant, webqtlConfig.MAXLRS)
+                        self.suggestive = min(self.suggestive, webqtlConfig.MAXLRS)  
+                    else:
+                        pass
+                        
             if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-                self.significant = min(self.significant, webqtlConfig.MAXLRS)
-                self.suggestive = min(self.suggestive, webqtlConfig.MAXLRS)
-                LRSMax = max(self.significant, LRSMax)
-        else:
-            LRSMax = self.lrsMax*lodm
+                LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
 
-        if LRSMax/lodm > 100:
+            #genotype trait will give infinite LRS
+            LRS_LOD_Max = min(LRS_LOD_Max, webqtlConfig.MAXLRS)
+        else:
+            LRS_LOD_Max = self.lrsMax
+
+        if LRS_LOD_Max > 100:
             LRSScale = 20.0
-        elif LRSMax/lodm > 20:
+        elif LRS_LOD_Max > 20:
             LRSScale = 5.0
-        elif LRSMax/lodm > 7.5:
+        elif LRS_LOD_Max > 7.5:
             LRSScale = 2.5
         else:
             LRSScale = 1.0
            
-        LRSAxisList = Plot.frange(LRSScale, LRSMax/lodm, LRSScale)
+        LRSAxisList = Plot.frange(LRSScale, LRS_LOD_Max, LRSScale)
         #make sure the user's value appears on the y-axis
-        #update by NL 6-21-2011: round the LOD value to 100 when LRSMax is equal to 460
-        LRSAxisList.append(round(LRSMax/lodm))
+        #update by NL 6-21-2011: round the LOD value to 100 when LRS_LOD_Max is equal to 460
+        LRSAxisList.append(round(LRS_LOD_Max))
 
         #draw the "LRS" or "LOD" string to the left of the axis
         LRSScaleFont=pid.Font(ttf="verdana", size=16*zoom, bold=0)
@@ -1915,17 +1932,17 @@ class MarkerRegression(object):
                                           yZero - 150 - 300*(zoom - 1), font=LRSLODFont, color=pid.black, angle=90)
 
         for item in LRSAxisList:
-            if LRSMax == 0.0:
-                LRSMax = 0.000001
-            yLRS = yZero - (item*lodm/LRSMax) * LRSHeightThresh
+            if LRS_LOD_Max == 0.0:
+                LRS_LOD_Max = 0.000001
+            yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
             canvas.drawLine(xLeftOffset, yLRS, xLeftOffset - 4, yLRS, color=self.LRS_COLOR, width=1*zoom)
             scaleStr = "%2.1f" % item
             #Draw the LRS/LOD Y axis label
             canvas.drawString(scaleStr, xLeftOffset-4-canvas.stringWidth(scaleStr, font=LRSScaleFont)-5, yLRS+3, font=LRSScaleFont, color=self.LRS_COLOR)
 
         if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-            significantY = yZero - self.significant*LRSHeightThresh/LRSMax
-            suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRSMax
+            significantY = yZero - self.significant*LRSHeightThresh/LRS_LOD_Max
+            suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRS_LOD_Max
             startPosX = xLeftOffset
 
             #"Significant" and "Suggestive" Drawing Routine
@@ -2025,21 +2042,30 @@ class MarkerRegression(object):
                     # updated by NL 06-18-2011:
                     # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                     # for any lrs is over than 460(LRS max in this system), it will be reset to 460
-                    if self.LRS_LOD == "LRS":
-                        if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSMax
+                    if 'lrs_value' in qtlresult:
+                        if self.LRS_LOD == "LOD":
+                            if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                                Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
+                            else:
+                                Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                         else:
-                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSMax
+                            if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                                Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
+                            else:
+                                Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
                     else:
                         if qtlresult['lod_score'] > 100 or qtlresult['lod_score']=='inf':
-                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSMax
+                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                         else:
-                            Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRSMax
+                            if self.LRS_LOD == "LRS":
+                                Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
+                            else:
+                                Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
                     #if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
                     #if self.qtlresults[j]['lrs_value'] > 460 or self.qtlresults[j]['lrs_value']=='inf':
-                    #    Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSMax
+                    #    Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                     #else:
-                    #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSMax
+                    #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
 
                     if self.manhattan_plot == True:
                         canvas.drawEllipse(Xc-1, Yc-1, Xc+1, Yc+1, fillColor=pid.black)

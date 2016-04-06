@@ -61,6 +61,20 @@
                   </td>
                 </tr>
                 <tr>
+                  <td><b>Units:&nbsp;</b></td>
+                  <td style="padding: 5px;">
+                    <label class="radio-inline">
+                      <input type="radio" name="LRSCheck" value="LRS" {% if LRS_LOD == "LRS" %}checked{% endif %}>LRS
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="LRSCheck" value="LOD" {% if LRS_LOD == "LOD" %}checked{% endif %}>LOD
+                    </label>
+                    <a href="http://genenetwork.org/glossary.html#LOD" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                  </td>
+                </tr>
+                <tr>
                   <td><b>Width:&nbsp;</b></td>
                   <td>
                     <input type="text" name="graphWidth" value="{% if graphWidth is defined %}{{ graphWidth }}{% else %}1600{% endif %}" size="5"><span style="font-size: 11px;"> pixels (minimum=900)</span>
@@ -70,13 +84,25 @@
               </div>
               <div class="col-xs-4" style="padding: 0px;">
                   {% if (mapping_method == "reaper" or mapping_method == "rqtl_geno") and nperm > 0 %}
-                  <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test <br>
+                  <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test 
+                    <a href="http://genenetwork.org/glossary.html#Permutation" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                  <br>
                   {% endif %}
                   {% if mapping_method == "reaper" and nboot > 0 %}
-                  <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test <br>
+                  <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test 
+                    <a href="http://genenetwork.org/glossary.html#bootstrap" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                  <br>
                   {% endif %}
                   {% if mapping_method == "reaper" %}
-                  <input type="checkbox" name="additiveCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if additiveChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Allele Effects<br>
+                  <input type="checkbox" name="additiveCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if additiveChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Allele Effects
+                    <a href="http://genenetwork.org/glossary.html#additive" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                  <br>
                   {% endif %}
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
                   <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span><br>
@@ -151,11 +177,19 @@
                                        class="checkbox edit_sample_checkbox"
                                        value="{{ marker.name }}" checked="checked">
                             </td>
-                            <Td align="right">{{ loop.index }}</Td>
+                            <td align="right">{{ loop.index }}</td>
                             {% if LRS_LOD == "LOD" %}
+                            {% if 'lod_score' in marker %}
                             <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
                             {% else %}
+                            <td>{{ '%0.2f' | format(marker.lrs_value|float / 4.16) }}</td>
+                            {% endif %}
+                            {% else %}
+                            {% if 'lod_score' in marker %}
+                            <td>{{ '%0.2f' | format(marker.lod_score|float * 4.16) }}</td>
+                            {% else %}
                             <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
+                            {% endif %}
                             {% endif %}
                             <td>{{marker.chr}}</td>
                             <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>

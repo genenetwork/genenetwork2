@@ -103,10 +103,13 @@ class MarkerRegression(object):
                 self.permCheck = False
             self.num_perm = int(start_vars['num_perm'])
         
+            self.LRSCheck = start_vars['LRSCheck']
+        
             if "showGenes" in start_vars:
                 self.showGenes = start_vars['showGenes']
             else:
                 self.showGenes = False 
+                
             if "viewLegend" in start_vars:
                 self.viewLegend = start_vars['viewLegend']
             else:
@@ -120,6 +123,7 @@ class MarkerRegression(object):
             except:
                 self.num_perm = 0
             
+            self.LRSCheck = self.score_type
             self.permCheck = "ON"
             self.showGenes = "ON"
             self.viewLegend = "ON"
@@ -660,17 +664,17 @@ class MarkerRegression(object):
             if samples[i] in self.dataset.group.samplelist:
                 trimmed_samples.append(samples[i])
                 trimmed_values.append(values[i])
-                
-        self.lrs_array = genotype.permutation(strains = trimmed_samples,
-                                              trait = trimmed_values, 
-                                              nperm= self.num_perm)
-        
-        self.suggestive = self.lrs_array[int(self.num_perm*0.37-1)]
-        self.significant = self.lrs_array[int(self.num_perm*0.95-1)]
+
+        if self.num_perm < 100:
+            self.suggestive = 0
+            self.significant = 0
+        else:
+            self.perm_output = genotype.permutation(strains = trimmed_samples, trait = trimmed_values, nperm=self.num_perm)
+            self.suggestive = self.perm_output[int(self.num_perm*0.37-1)]
+            self.significant = self.perm_output[int(self.num_perm*0.95-1)]
+            
         self.json_data['suggestive'] = self.suggestive
         self.json_data['significant'] = self.significant
-
-        #print("samples:", trimmed_samples)
 
         if self.control_marker != "" and self.do_control == "true":
             reaper_results = genotype.regression(strains = trimmed_samples,
@@ -706,14 +710,6 @@ class MarkerRegression(object):
                 self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
                                                             trait = trimmed_values,
                                                             nboot = self.num_bootstrap)
-                                                            
-        if self.num_perm < 100:
-            self.suggestive = 0
-            self.significant = 0
-        else:
-            self.perm_output = genotype.permutation(strains = trimmed_samples, trait = trimmed_values, nperm=self.num_perm)
-            self.suggestive = self.perm_output[int(self.num_perm*0.37-1)]
-            self.significant = self.perm_output[int(self.num_perm*0.95-1)]
 
         self.json_data['chr'] = []
         self.json_data['pos'] = []
