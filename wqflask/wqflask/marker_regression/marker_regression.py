@@ -94,6 +94,8 @@ class MarkerRegression(object):
             self.endMb = start_vars['endMb']
         if "graphWidth" in start_vars:
             self.graphWidth = start_vars['graphWidth']
+        if "lrsMax" in start_vars:
+            self.lrsMax = start_vars['lrsMax']
         if "haplotypeAnalystCheck" in start_vars:
             self.haplotypeAnalystCheck = start_vars['haplotypeAnalystCheck']
         if "startMb" in start_vars: #ZS: This is to ensure showGenes, Legend, etc are checked the first time you open the mapping page, since startMb will only not be set during the first load

@@ -75,9 +75,15 @@
                   </td>
                 </tr>
                 <tr>
+                  <td></td>
+                  <td style="padding: 5px;">
+                    <input type="text" name="lrsMax" value="{{ '%0.1f' | format(lrsMax|float) }}" size="3"> <span style="font-size: 12px;">units on the y-axis (0 for default)</span>   
+                  </td>
+                </tr>
+                <tr>
                   <td><b>Width:&nbsp;</b></td>
                   <td>
-                    <input type="text" name="graphWidth" value="{% if graphWidth is defined %}{{ graphWidth }}{% else %}1600{% endif %}" size="5"><span style="font-size: 11px;"> pixels (minimum=900)</span>
+                    <input type="text" name="graphWidth" value="{% if graphWidth is defined %}{{ graphWidth }}{% else %}1600{% endif %}" size="5"><span style="font-size: 12px;"> pixels (minimum=900)</span>
                   </td>
                 </tr>
               </table>

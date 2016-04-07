@@ -296,6 +296,7 @@ class MarkerRegression(object):
         self.LRS_LOD = start_vars['LRSCheck']
         self.cutoff = start_vars['cutoff']
         self.intervalAnalystChecked = False
+        self.draw2X = False
         if 'additiveCheck' in start_vars.keys():
             self.additiveChecked = start_vars['additiveCheck']
         else:
@@ -312,8 +313,6 @@ class MarkerRegression(object):
             self.geneChecked = start_vars['showGenes']
         else:
             self.geneChecked = False
-        self.draw2X = False
-        self.lrsMax = 0
         try:
             self.startMb = float(start_vars['startMb'])
         except:
@@ -322,6 +321,10 @@ class MarkerRegression(object):
             self.endMb = float(start_vars['endMb'])
         except:
             self.endMb = -1
+        try: 
+            self.lrsMax = float(start_vars['lrsMax'])
+        except:
+            self.lrsMax = 0
 
         #self.additiveChecked = fd.formdata.getvalue('additiveCheck')
         #self.dominanceChecked = fd.formdata.getvalue('dominanceCheck')
