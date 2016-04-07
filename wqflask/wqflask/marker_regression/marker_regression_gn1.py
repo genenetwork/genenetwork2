@@ -304,11 +304,14 @@ class MarkerRegression(object):
             self.legendChecked = start_vars['viewLegend']
         else:
             self.legendChecked = False
+        if 'showSNP' in start_vars.keys():
+            self.SNPChecked = start_vars['showSNP']
+        else:
+            self.SNPChecked = False  
         if 'showGenes' in start_vars.keys():
             self.geneChecked = start_vars['showGenes']
         else:
             self.geneChecked = False
-        self.SNPChecked  = False
         self.draw2X = False
         self.lrsMax = 0
         try:
@@ -1047,14 +1050,14 @@ class MarkerRegression(object):
         SNPCounts = []
 
         while startMb<endMb:
-            self.cursor.execute("""
+            snp_count = g.db.execute("""
                     select
                             count(*) from BXDSnpPosition
                     where
                             Chr = '%s' AND Mb >= %2.6f AND Mb < %2.6f AND
                             StrainId1 = %d AND StrainId2 = %d
-                    """ % (chrName, startMb, startMb+stepMb, strainId1, strainId2))
-            SNPCounts.append(self.cursor.fetchone()[0])
+                    """ % (chrName, startMb, startMb+stepMb, strainId1, strainId2)).fetchone()[0]
+            SNPCounts.append(snp_count)
             startMb += stepMb
 
         if (len(SNPCounts) > 0):
@@ -2538,7 +2541,7 @@ class MarkerRegression(object):
             heading2.append(HT.Strong("Trait Name: "), fd.identification)
         return HT.TD(intMapHeading, heading2, valign="top")
 
-    def drawPermutationHistogram(self):
+    def drawPermutationHistogram(self, x_label='LRS'):
         #########################################
         #      Permutation Graph
         #########################################

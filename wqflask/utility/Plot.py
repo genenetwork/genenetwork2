@@ -497,6 +497,7 @@ def plotBar(canvas, data, barColor=pid.blue, axesColor=pid.black, labelColor=pid
     xLow, xTop, stepX = detScale(min_D, max_D)
 
     #reduce data
+    #ZS: Used to determine number of bins for permutation output
     step = ceil((xTop-xLow)/50.0)
     j = xLow
     dataXY = []

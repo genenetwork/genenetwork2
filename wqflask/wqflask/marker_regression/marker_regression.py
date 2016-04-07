@@ -104,7 +104,12 @@ class MarkerRegression(object):
             self.num_perm = int(start_vars['num_perm'])
         
             self.LRSCheck = start_vars['LRSCheck']
-        
+            
+            if "showSNP" in start_vars:
+                self.showSNP = start_vars['showSNP']
+            else:
+                self.showSNP = False 
+                
             if "showGenes" in start_vars:
                 self.showGenes = start_vars['showGenes']
             else:
@@ -125,6 +130,7 @@ class MarkerRegression(object):
             
             self.LRSCheck = self.score_type
             self.permCheck = "ON"
+            self.showSNP = "ON"
             self.showGenes = "ON"
             self.viewLegend = "ON"
  

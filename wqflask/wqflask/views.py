@@ -365,6 +365,7 @@ def marker_regression_page():
         'endMb',
         'graphWidth',
         'additiveCheck',
+        'showSNP',
         'showGenes',
         'viewLegend',
         'haplotypeAnalystCheck',

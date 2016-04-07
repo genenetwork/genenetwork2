@@ -104,6 +104,12 @@
                     </a>
                   <br>
                   {% endif %}
+                  <input type="checkbox" name="showSNP" class="checkbox" style="display: inline; margin-top: 0px;" {% if SNPChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">SNP Track </span>
+                    <a href="http://genenetwork.org/glossary.html#snpSeismograph" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                    <span style="color:red;">*</span>
+                  <br>
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
                   <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span><br>
                   {% if plotScale != "morgan" %}
