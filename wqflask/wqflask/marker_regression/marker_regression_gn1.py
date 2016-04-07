@@ -2541,12 +2541,19 @@ class MarkerRegression(object):
             heading2.append(HT.Strong("Trait Name: "), fd.identification)
         return HT.TD(intMapHeading, heading2, valign="top")
 
-    def drawPermutationHistogram(self, x_label='LRS'):
+    def drawPermutationHistogram(self):
         #########################################
         #      Permutation Graph
         #########################################
         myCanvas = pid.PILCanvas(size=(400,300))
-        Plot.plotBar(myCanvas, self.perm_output, XLabel='LRS', YLabel='Frequency', title=' Histogram of Permutation Test')
+        if 'lod_score' in self.qtlresults[0] and self.LRS_LOD == "LRS":
+            perm_output = [value*4.16 for value in self.perm_output]
+        elif 'lod_score' not in self.qtlresults[0] and self.LRS_LOD == "LOD":
+            perm_output = [value/4.16 for value in self.perm_output]
+        else:
+            perm_output = self.perm_output
+            
+        Plot.plotBar(myCanvas, perm_output, XLabel=self.LRS_LOD, YLabel='Frequency', title=' Histogram of Permutation Test')
         filename= webqtlUtil.genRandStr("Reg_")
         myCanvas.save(webqtlConfig.IMGDIR+filename, format='gif')
         

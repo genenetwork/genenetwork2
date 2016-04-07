@@ -139,7 +139,7 @@
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
                   {% endif %}
-                  {% if permChecked|upper == "ON" %}
+                  {% if nperm > 0 %}
                   <br><br>
                   <img src="/static/output/{{ perm_filename }}.gif">
                   {% endif %}
