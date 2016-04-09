@@ -1,12 +1,189 @@
 - github Document reduction issue
 
+
 * GeneNetwork Database
+
+** Estimated table sizes 
+
+
+select table_name,round(((data_length + index_length) / 1024 / 1024), 2) `Size in MB` from information_schema.TABLES where table_schema = "db_webqtl" order by data_length;
+
++-------------------------+------------+
+| table_name              | Size in MB |
++-------------------------+------------+
+| ProbeSetData            |   59358.80 |
+| SnpAll                  |   15484.67 |
+| ProbeData               |   22405.44 |
+| SnpPattern              |    9177.05 |
+| ProbeSetSE              |   14551.02 |
+| QuickSearch             |    5972.86 |
+| ProbeSetXRef            |    4532.89 |
+| LCorrRamin3             |   18506.53 |
+| ProbeSE                 |    6263.83 |
+| ProbeSet                |    2880.21 |
+| Probe                   |    2150.30 |
+| GenoData                |    3291.91 |
+| CeleraINFO_mm6          |     989.80 |
+| pubmedsearch            |    1032.50 |
+| ProbeXRef               |     743.38 |
+| GeneRIF_BASIC           |     448.54 |
+| BXDSnpPosition          |     224.44 |
+| EnsemblProbe            |     133.66 |
+| EnsemblProbeLocation    |     105.49 |
+| Genbank                 |      37.71 |
+| TissueProbeSetData      |      74.42 |
+| AccessLog               |      42.38 |
+| GeneList                |      34.11 |
+| Geno                    |      33.90 |
+| MachineAccessLog        |      28.34 |
+| IndelAll                |      22.42 |
+| PublishData             |      22.54 |
+| TissueProbeSetXRef      |      14.73 |
+| ProbeH2                 |      13.26 |
+| GenoXRef                |      22.83 |
+| TempData                |       8.35 |
+| GeneList_rn3            |       5.54 |
+| GORef                   |       4.97 |
+| Phenotype               |       6.50 |
+| temporary               |       3.59 |
+| InfoFiles               |       3.32 |
+| Publication             |       3.42 |
+| Homologene              |       5.69 |
+| Datasets                |       2.31 |
+| GeneList_rn33           |       2.61 |
+| PublishSE               |       4.71 |
+| GeneRIF                 |       2.18 |
+| Vlookup                 |       1.87 |
+| H2                      |       2.18 |
+| PublishXRef             |       2.18 |
+| NStrain                 |       4.80 |
+| IndelXRef               |       2.91 |
+| Strain                  |       1.07 |
+| GeneMap_cuiyan          |       0.51 |
+| user_collection         |       0.30 |
+| CaseAttributeXRef       |       0.44 |
+| StrainXRef              |       0.56 |
+| GeneIDXRef              |       0.77 |
+| Docs                    |       0.17 |
+| News                    |       0.17 |
+| ProbeSetFreeze          |       0.22 |
+| GeneRIFXRef             |       0.24 |
+| Sample                  |       0.06 |
+| login                   |       0.06 |
+| user                    |       0.04 |
+| TableFieldAnnotation    |       0.05 |
+| DatasetMapInvestigator  |       0.05 |
+| User                    |       0.04 |
+| ProbeFreeze             |       0.06 |
+| TableComments           |       0.02 |
+| Investigators           |       0.02 |
+| DBList                  |       0.03 |
+| Tissue                  |       0.02 |
+| GeneChip                |       0.01 |
+| GeneCategory            |       0.01 |
+| SampleXRef              |       0.01 |
+| InbredSet               |       0.01 |
+| SnpAllele_to_be_deleted |       0.00 |
+| Organizations           |       0.01 |
+| PublishFreeze           |       0.00 |
+| GenoFreeze              |       0.00 |
+| Chr_Length              |       0.01 |
+| SnpSource               |       0.00 |
+| AvgMethod               |       0.00 |
+| Species                 |       0.00 |
+| Dataset_mbat            |       0.00 |
+| TissueProbeFreeze       |       0.00 |
+| EnsemblChip             |       0.00 |
+| TissueProbeSetFreeze    |       0.01 |
+| UserPrivilege           |       0.00 |
+| CaseAttribute           |       0.00 |
+| MappingMethod           |       0.00 |
+| DBType                  |       0.00 |
+| InfoFilesUser_md5       |       0.00 |
+| GenoCode                |       0.00 |
+| DatasetStatus           |       0.00 |
+| GeneChipEnsemblXRef     |       0.00 |
+| GenoSE                  |       0.00 |
+| user_openids            |       0.00 |
+| roles_users             |       0.00 |
+| role                    |       0.00 |
+| Temp                    |       NULL |
++-------------------------+------------+
+97 rows in set, 1 warning (0.01 sec)
 
 All *Data tables are large
 
 ** User access
 
-GN1 uses access table and GN2 uses user table.
+According to the meta data:
+
+This table tracks access time and IP addresses. Used for logging in
+registered users and tracking cookies.
+
+# GN1 uses access table and GN2 uses user table (true/false?)
+
+ select * from AccessLog limit 5;
++-------+---------------------+----------------+
+| id    | accesstime          | ip_address     |
++-------+---------------------+----------------+
+| 12174 | 2003-10-28 02:17:41 | 130.120.104.71 |
+| 12173 | 2003-10-28 02:16:27 | 130.120.104.71 |
+|     3 | 2003-02-22 07:38:33 | 192.117.159.1  |
+|     4 | 2003-02-22 07:49:13 | 192.117.159.1  |
+|     5 | 2003-02-22 07:51:08 | 192.117.159.1  |
++-------+---------------------+----------------+
+
+select * from AccessLog order by accesstime desc limit 5;
++---------+---------------------+---------------+
+| id      | accesstime          | ip_address    |
++---------+---------------------+---------------+
+| 1025735 | 2016-02-08 14:23:29 | 100.43.81.157 |
+| 1025734 | 2016-02-08 13:54:28 | 180.76.15.144 |
+| 1025733 | 2016-02-08 13:43:37 | 66.249.65.217 |
+| 1025732 | 2016-02-08 13:39:50 | 66.249.65.217 |
+| 1025731 | 2016-02-08 13:15:46 | 66.249.65.217 |
++---------+---------------------+---------------+
+
+Quite a few trait page hits:
+
+select count(*) from AccessLog;
+
++----------+
+| count(*) |
++----------+
+|  1025685 |
++----------+
+
+show indexes from AccessLog;
++-----------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table     | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++-----------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| AccessLog |          0 | PRIMARY  |            1 | id          | A         |     1025685 |     NULL | NULL   |      | BTREE      |         |               |
++-----------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+
+This table is being used by both GN1 and GN2 from the trait pages!
+
+: grep -ir AccessLog *|grep -e "^gn1\|^gn2"|grep \.py|grep -v doc
+
+gn1/web/webqtl/showTrait/ShowTraitPage.py:              query = "SELECT count(id) FROM AccessLog WHERE ip_address = %s and \
+gn1/web/webqtl/showTrait/ShowTraitPage.py:                      self.cursor.execute("insert into AccessLog(accesstime,ip_address) values(Now(),%s)" ,user_ip)
+gn1/web/webqtl/textUI/cmdClass.py:                      query = """SELECT count(id) FROM AccessLog WHERE ip_address = %s AND UNIX_TIMESTAMP()-UNIX_TIMESTAMP(accesstime)<86400"""
+gn1/web/webqtl/textUI/cmdClass.py:                      query = """INSERT INTO AccessLog(accesstime,ip_address) values(Now(),%s)""" 
+gn2/wqflask/wqflask/show_trait/show_trait_page.py:        query = "SELECT count(id) FROM AccessLog WHERE ip_address = %s and \
+gn2/wqflask/wqflask/show_trait/show_trait_page.py:        self.cursor.execute("insert into AccessLog(accesstime,ip_address) values(Now(),%s)", user_ip)
+
+When looking at the code in GN1 and GN2 it restricts the daily use of
+the trait data page (set to 1,000 - whoever reaches that?). Unlike
+mentioned in the schema description, this table does *not* keep track
+of cookies. 
+
+From the code it looks like GN2 uses a mixture of Redis and sqlalchemy
+to keep track of logged in sessions (see
+gn2/wqflask/wqflask/user_manager.py) and cookies through a user_uuid in 
+model.py.
+
+In gn2/wqflask/wqflask/templates/collections/view_anonymous.html it
+show_trait_page appears to be loaded (need to check).
 
 ** AvgMethod 
 
@@ -189,9 +366,299 @@ NStrain = number of phenotype samples
 
 ProbesetFreeze contains all data, incl. metabolomic.
 
-** Probe
+** Phenotype
+
+This table contains names, full descriptions, and short symbols for
+traits and phenotype used primarily in the Published Phenotypes
+databases.
+
+Contains 10k rows, March 2016, of which 5000 are for the BXDs). 
+
+| Id | Pre_publication_description | Post_publication_description                                                                                         | Original_description                                                                                                                                        | Units                | Pre_publication_abbreviation | Post_publication_abbreviation | Lab_code | Submitter   | Owner | Authorized_Users |
++----+-----------------------------+----------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------+------------------------------+-------------------------------+----------+-------------+-------+------------------+
+|  1 | NULL                        | Hippocampus weight                                                                                                   | Original post publication description: Hippocampus weight                                                                                                   | Unknown              | NULL                         | HPCWT                         | NULL     | robwilliams | NULL  | robwilliams      |
+|  2 | NULL                        | Cerebellum weight                                                                                                    | Original post publication description: Cerebellum weight                                                                                                    | mg                   | NULL                         | CBLWT                         | NULL     | robwilliams | NULL  | robwilliams      |
+|  3 | NULL                        | Interleukin 1 activity by peritoneal macrophages stimulated with 10 ug/ml lipopolysaccharide  [units/100 ug protein] | Original post publication description: Interleukin 1 activity by peritoneal macrophages stimulated with 10 ug/ml lipopolysaccharide  [units/100 ug protein] | units/100 ug protein | NULL                         | IL1Activity                   | NULL     | robwilliams | NULL  | robwilliams      |
+|  4 | NULL                        | Central nervous system, morphology: Cerebellum weight, whole, bilateral in adults of both sexes [mg]                 | Original post publication description: Cerebellum weight [mg]                                                                                               | mg                   | NULL                         | CBLWT2                        | NULL     | robwilliams | NULL  | robwilliams      |
+|  5 | NULL                        | The coat color of 79 BXD RI strain                                                                                   | Original post publication description: The coat color of 79 BXD RI strain                                                                                   | Unknown              | NULL                         | CoatColor                     | NULL     | robwilliams | NULL  | robwilliams      |
++----+-----------------------------+----------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------+------------------------------+-------------------------------+----------+-------------+-------+------------------+
+5 rows in set (0.00 sec)
+
+** ProbeData
+
+Table with fine-grained probe level Affymetrix data only. Contains 1
+billion rows March 2016. This table may be deletable since it is only
+used by the Probe Table display in GN1. Not used in GN2
+(double-check).
+
+In comparison the "ProbeSetData" table contains more molecular assay
+data, including probe set data, RNA-seq data, proteomic data, and
+metabolomic data. 2.5 billion rows March 2016. In comparison,
+ProbeData contains data only for Affymetrix probe level data
+(e.g. Exon array probes and M430 probes).
+
+"ProbeData.StrainId" should be "CaseId" or "SampleId".
+
+"ProbeData" should probably be "AssayData" or something more neutral.
+
+select * from ProbeData limit 2;
++--------+----------+---------+
+| Id     | StrainId | value   |
++--------+----------+---------+
+| 503636 |       42 | 11.6906 |
+| 503636 |       43 | 11.4205 |
++--------+----------+---------+
+2 rows in set (0.00 sec)
+
+select count(*) from ProbeData limit 2;
++-----------+
+| count(*)  |
++-----------+
+| 976753435 |
++-----------+
+1 row in set (0.00 sec)
+
+** ProbeSet
+
+Comment: PLEASE CHANGE TABLE NAME and rework fields carefully. This is
+a terrible table but it works well (RWW March 2016). It is used in
+combination with the crucial TRAIT DATA and ANALYSIS pages in GN1 and
+GN2. It is also used by annotators using the UPDATE INFO AND DATA web
+form to correct and update annotation. It is used by Arthur to enter
+new annotation files and metadata for arrays, genes, proteins,
+metabolites. The main problem with this table is that it is doing too
+much work.
+
+Initially (2003) this table contained only Affymetrix ProbeSet data
+for mouse (U74aV2 initially). Many other array platforms for different
+species were added. At least four other major categories of molecular
+assays have been added since about 2010.
+
+1. RNA-seq annotation and sequence data for transcripts using ENSEMBL
+   identifiers or NCBI NM_XXXXX and NR_XXXXX type identifiers
+
+2. Protein and peptide annotation and sequence data (see BXD Liver
+   Proteome data, SRM and SWATH type data) with identifiers such as
+   "abcb10_q9ji39_t311" for SRM data and "LLGNMIVIVLGHHLGKDFTPAAQAA"
+   for SWATH data where the latter is just the peptide fragment that
+   has been quantified. Data first entered in 2015 for work by Rudi
+   Aebersold and colleagues.
+
+3. Metabolite annotation and metadata (see BXD Liver Metabolome data)
+   with identifiers that are usually Mass charge ratios such as
+   "149.0970810_MZ"
+
+4. Epigenomic and methylome data (e.g. Human CANDLE Methylation data
+   with identifiers such as "cg24523000")
+
+It would make good sense to break this table into four or more types
+of molecular assay metadata or annotation tables) (AssayRNA_Anno,
+AssayProtein_Anno, AssayMetabolite_Anno, AssayEpigenome_Anno,
+AssayMetagenome_Anno), since these assays will have many differences
+in annotation content compared to RNAs.
+
+Some complex logic is used to update contents of this table when
+annotators modify and correct the information (for example, updating
+gene symbols). These features requested by Rob so that annotating one
+gene symbol in one species would annotate all gene symbols in the same
+species based on common NCBI GeneID number. For example, changing the
+gene alias for one ProbeSet.Id will changing the list of aliases in
+all instances with the same gene symbol.
+
+If the ProbeSet.BlatSeq (or is this ProbSetTargetSeq) is identical
+between different ProbeSet.Ids then annotation is forced to be the
+same even if the symbol or geneID is different. This "feature" was
+implemented when we found many probe sets with identical sequence but
+different annotations and identifiers.
+
+
+select count(*) from ProbeSet limit 5;
++----------+
+| count(*) |
++----------+
+|  4351030 |
++----------+
+
+| Id   | ChipId | Name     | TargetId | Symbol | description                                  | Chr  | Mb        | alias    | GeneId | GenbankId | SNP  | BlatSeq                                                                                                                                                                      | TargetSeq                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | UniGeneId | Strand_Probe | Strand_Gene | OMIM   | comments | Probe_set_target_region | Probe_set_specificity | Probe_set_BLAT_score | Probe_set_Blat_Mb_start | Probe_set_Blat_Mb_end | Probe_set_strand | Probe_set_Note_by_RW | flag | Symbol_H | description_H | chromosome_H | MB_H | alias_H | GeneId_H | chr_num | name_num | Probe_Target_Description | RefSeq_TranscriptId | Chr_mm8 | Mb_mm8    | Probe_set_Blat_Mb_start_mm8 | Probe_set_Blat_Mb_end_mm8 | HomoloGeneID | Biotype_ENS | ProteinID | ProteinName | Flybase_Id | HMDB_ID | Confidence | ChEBI_ID | ChEMBL_ID | CAS_number | PubChem_ID | ChemSpider_ID | UNII_ID | EC_number | KEGG_ID | Molecular_Weight | Nugowiki_ID | Type | Tissue | PrimaryName | SecondaryNames | PeptideSequence |
++------+--------+----------+----------+--------+----------------------------------------------+------+-----------+----------+--------+-----------+------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------------+-------------+--------+----------+-------------------------+-----------------------+----------------------+-------------------------+-----------------------+------------------+----------------------+------+----------+---------------+--------------+------+---------+----------+---------+----------+--------------------------+---------------------+---------+-----------+-----------------------------+---------------------------+--------------+-------------+-----------+-------------+------------+---------+------------+----------+-----------+------------+------------+---------------+---------+-----------+---------+------------------+-------------+------+--------+-------------+----------------+-----------------+
+| 7282 |      1 | 93288_at | NULL     | Arpc2  | actin related protein 2/3 complex, subunit 2 | 1    | 74.310961 | AK008777 | 76709  | AI835883  |    0 | CCGACTTCCTTAAGGTGCTCAACCGGACTGCTTGCTACTGGATAATCGTGAGGGATTCTCCATTTGGGTTCCATTTTGTACGAGTTTGGCAAATAACCTGCAGAAACGAGCTGTGCTTGCAAGGACTTGATAGTTCCTAATCCTTTTCCAAGCTGTTTGCTTTGCAATATGT | ccgacttccttaaggtgctcaaccgtnnnnnnccnannnnccnagaaaaaagaaatgaaaannnnnnnnnnnnnnnnnnnttcatcccgctaactcttgggaactgaggaggaagcgctgtcgaccgaagnntggactgcttgctactggataatcgtnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnntgagggattctccatttgggttccattttgtacgagtttggcaaataacctgcagaaacgagctgtgcttgcaaggacttgatagttcctaagaattanaanaaaaaaaanaanttccacttgatcaanttaattcccttttatttttcctccctcantccccttccttttccaagctgtttgctttgcaatatgt                                                                                                                                                                                                                                     | Mm.337038 | +            |             | 604224 |          | NULL                    |                  8.45 |                  169 |               74.310961 |              74.31466 | NULL             | NULL                 | 3    | NULL     | NULL          | NULL         | NULL | NULL    | NULL     |       1 |    93288 | NULL                     | XM_129773           | 1       | 74.197594 |                   74.197594 |                 74.201293 | 4187         | NULL        | NULL      | NULL        | NULL       | NULL    |       NULL |     NULL | NULL      | NULL       |       NULL |          NULL | NULL    | NULL      | NULL    |             NULL |        NULL | NULL | NULL   | NULL        | NULL           | NULL            |
++------+--------+----------+----------+--------+----------------------------------------------+------+-----------+----------+--------+-----------+------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------------+-------------+--------+----------+-------------------------+-----------------------+----------------------+-------------------------+-----------------------+------------------+----------------------+------+----------+---------------+--------------+------+---------+----------+---------+----------+--------------------------+---------------------+---------+-----------+-----------------------------+---------------------------+--------------+-------------+-----------+-------------+------------+---------+------------+----------+-----------+------------+------------+---------------+---------+-----------+---------+------------------+-------------+------+--------+-------------+----------------+-----------------+
+2 rows in set (0.00 sec)
+
+
+
+
+** ProbeSetData
 
 Probedata - main molecular data. Probesets, metabolome, 
+
+Almost all important molecular assay data is in this table including
+probe set data, RNA-seq data, proteomic data, and metabolomic
+data. 2.5 billion rows March 2016. In comparison, ProbeData contains
+data only for Affymetrix probe level data (e.g. Exon array probes and
+M430 probes).
+
+select count(*) from ProbeSetData limit 5;
++---------------+
+| count(*)      |
++---------------+
+| 2,510,566,472 |
++---------------+
+
+
+select * from ProbeSetData limit 5;
++----+----------+-------+
+| Id | StrainId | value |
++----+----------+-------+
+|  1 |        1 | 5.742 |
+|  1 |        2 | 5.006 |
+|  1 |        3 | 6.079 |
+|  1 |        4 | 6.414 |
+|  1 |        5 | 4.885 |
++----+----------+-------+
+
+show indexes  from ProbeSetData;
++--------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table        | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++--------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| ProbeSetData |          0 | DataId   |            1 | Id          | A         |    34868978 |     NULL | NULL   |      | BTREE      |         |               |
+| ProbeSetData |          0 | DataId   |            2 | StrainId    | A         |  2510566472 |     NULL | NULL   |      | BTREE      |         |               |
++--------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+
+select * from Strain limit 5;
++----+----------+----------+-----------+--------+-------+
+| Id | Name     | Name2    | SpeciesId | Symbol | Alias |
++----+----------+----------+-----------+--------+-------+
+|  1 | B6D2F1   | B6D2F1   |         1 | NULL   | NULL  |
+|  2 | C57BL/6J | C57BL/6J |         1 | B6J    | NULL  |
+|  3 | DBA/2J   | DBA/2J   |         1 | D2J    | NULL  |
+|  4 | BXD1     | BXD1     |         1 | NULL   | NULL  |
+|  5 | BXD2     | BXD2     |         1 | NULL   | NULL  |
++----+----------+----------+-----------+--------+-------+
+
+show indexes from Strain;
++--------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table  | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++--------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Strain |          0 | PRIMARY  |            1 | Id          | A         |       14368 |     NULL | NULL   |      | BTREE      |         |               |
+| Strain |          0 | Name     |            1 | Name        | A         |       14368 |     NULL | NULL   | YES  | BTREE      |         |               |
+| Strain |          0 | Name     |            2 | SpeciesId   | A         |       14368 |     NULL | NULL   |      | BTREE      |         |               |
+| Strain |          1 | Symbol   |            1 | Symbol      | A         |       14368 |     NULL | NULL   | YES  | BTREE      |         |               |
++--------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+
+A typical query may look like
+
+SELECT Strain.Name, ProbeSetData.value, ProbeSetSE.error, ProbeSetData.Id
+                    FROM (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
+                    left join ProbeSetSE on
+                      (ProbeSetSE.DataId = ProbeSetData.Id AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
+                    WHERE
+                      ProbeSetFreeze.name = 'B139_K_1206_M' AND
+                      ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                      ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                      ProbeSetXRef.DataId = ProbeSetData.Id AND
+                      ProbeSetData.StrainId = Strain.Id
+                    Order BY Strain.Name
+
++-------+-------+-------+----------+
+| Name  | value | error | Id       |
++-------+-------+-------+----------+
+| SM001 |  38.3 |  NULL | 25309550 |
+| SM001 |   2.7 |  NULL | 25309520 |
+| SM001 |  20.3 |  NULL | 25309507 |
+| SM001 | 125.8 |  NULL | 25309511 |
+| SM001 |   8.2 |  NULL | 25309534 |
++-------+-------+-------+----------+
+5 rows in set (22.28 sec)
+
+select * from ProbeSetFreeze limit 5;
++----+---------------+-------+-------------+---------------------------------+---------------------------------------------+-------------------------+------------+-----------+--------+-----------------+-----------------+-----------+
+| Id | ProbeFreezeId | AvgID | Name        | Name2                           | FullName                                    | ShortName               | CreateTime | OrderList | public | confidentiality | AuthorisedUsers | DataScale |
++----+---------------+-------+-------------+---------------------------------+---------------------------------------------+-------------------------+------------+-----------+--------+-----------------+-----------------+-----------+
+|  1 |             3 |     1 | Br_U_0803_M | BXDMicroArray_ProbeSet_August03 | UTHSC Brain mRNA U74Av2 (Aug03) MAS5        | Brain U74Av2 08/03 MAS5 | 2003-08-01 |      NULL |      0 |               0 | NULL            | log2      |
+|  2 |            10 |     1 | Br_U_0603_M | BXDMicroArray_ProbeSet_June03   | UTHSC Brain mRNA U74Av2 (Jun03) MAS5        | Brain U74Av2 06/03 MAS5 | 2003-06-01 |      NULL |      0 |               0 | NULL            | log2      |
+|  3 |             8 |     1 | Br_U_0303_M | BXDMicroArray_ProbeSet_March03  | UTHSC Brain mRNA U74Av2 (Mar03) MAS5        | Brain U74Av2 03/03 MAS5 | 2003-03-01 |      NULL |      0 |               0 | NULL            | log2      |
+|  4 |             5 |     1 | Br_U_0503_M | BXDMicroArray_ProbeSet_May03    | UTHSC Brain mRNA U74Av2 (May03) MAS5        | Brain U74Av2 05/03 MAS5 | 2003-05-01 |      NULL |      0 |               0 | NULL            | log2      |
+|  5 |             4 |     1 | HC_U_0303_M | GNFMicroArray_ProbeSet_March03  | GNF Hematopoietic Cells U74Av2 (Mar03) MAS5 | GNF U74Av2 03/03 MAS5   | 2003-03-01 |      NULL |      0 |               0 | NULL            | log2      |
++----+---------------+-------+-------------+---------------------------------+---------------------------------------------+-------------------------+------------+-----------+--------+-----------------+-----------------+-----------+
+
+ select * from ProbeSetXRef limit 5;
++------------------+------------+--------+------------+--------------------+------------+-------------------+---------------------+-----------------+--------------------+--------+----------------------+------+
+| ProbeSetFreezeId | ProbeSetId | DataId | Locus_old  | LRS_old            | pValue_old | mean              | se                  | Locus           | LRS                | pValue | additive             | h2   |
++------------------+------------+--------+------------+--------------------+------------+-------------------+---------------------+-----------------+--------------------+--------+----------------------+------+
+|                1 |          1 |      1 | 10.095.400 |   13.3971627898894 |      0.163 |  5.48794285714286 | 0.08525787814808819 | rs13480619      | 12.590069931048001 |  0.269 |          -0.28515625 | NULL |
+|                1 |          2 |      2 | D15Mit189  | 10.042057464356201 |      0.431 |  9.90165714285714 |  0.0374686634976217 | CEL-17_50896182 |   10.5970737900941 |  0.304 | -0.11678333333333299 | NULL |
+|                1 |          3 |      3 | D5Mit139   |   5.43678531742749 |      0.993 |  7.83948571428571 |  0.0457583416912569 | rs13478499      |    6.0970532702754 |  0.988 |    0.112957489878542 | NULL |
+|                1 |          4 |      4 | D1Mit511   |   9.87815279480766 |      0.483 | 8.315628571428569 |  0.0470396593931327 | rs6154379       | 11.774867551173099 |  0.286 |   -0.157113725490196 | NULL |
+|                1 |          5 |      5 | D16H21S16  | 10.191723834264499 |      0.528 |  9.19345714285714 |  0.0354801718293322 | rs4199265       | 10.923263374016202 |  0.468 |  0.11476470588235299 | NULL |
++------------------+------------+--------+------------+--------------------+------------+-------------------+---------------------+-----------------+--------------------+--------+----------------------+------+
+
+
+Note that the following unlimited search is very slow:
+
+select max(value) from ProbeSetData; 
+
++------------+
+| max(value) |
++------------+
+|   26436006 |
++------------+
+1 row in set (2 min 16.31 sec)
+
+which is in some form is used in the search page, see [[https://github.com/genenetwork/genenetwork2_diet/blob/master/wqflask/wqflask/do_search.py#L811][the search code]].
+
+
+*** Improvements?
+
+Suggestions on the schema page:
+
+"StrainId" should be "CaseId" or "SampleId".
+
+"ProbeSetData" should probably be "AssayData" or something more neutral. 
+
+*** Comments
+
+I think the ProbeSetData table should be generalized to a 'phenotypes'
+table with an 'sample_id' column and a 'value' column. 
+
+A new table 'samples' will link each sample against an 'experiment',
+an 'individual' and which in turn can link to a 'strain'.
+
+Experiment is here in a wide sense, GTex can be one - I don't want to
+use dataset ;)
+
+This means a (slight) reordering:
+
+phenotypes:  (id), sample_id, value
+samples:     experiment_id, individual_id
+experiments: name, version
+individual:  strain_id
+strains:     species_id
+species:     ...
+
+ProbeData is also interesting, because it has the same structure as
+ProbeSetData, but only contains microarrays. This tables should be one
+(when we clear up the cross-referencing) as they both contain
+phenotype values. Both are large tables.
+
+PublishData is another phenotype table with values only which can be
+merged into that same table.
+
+So we have phenotype data in 3 tables with exactly the same
+layout. There is also TissueProbeSet*, but we'll ignore those for
+now. I think we should merge these into one and have the sample ref
+refer to the type of data (probeset, probe, metabolomics,
+whatever). These are all phenotype values and by having them split
+into different tables they won't play well when looking for
+correlations.
+
+ProbeSet contains the metadata on the probes and should (eventually)
+move into NoSQL. There is plenty redundancy in that table now.
+
+I know it is going to be a pain to reorganize the database, but if we
+want to use it in the long run we are going to have to simplify it.
+
+
 
 ** Publication and publishdata (all pheno)
 

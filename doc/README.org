@@ -43,8 +43,8 @@ repositories:
 cd ~
 mkdir genenetwork
 cd genenetwork
-git clone --branch gn-latest https://github.com/genenetwork/guix-bioinformatics 
-git clone --recursive --branch gn-latest https://github.com/genenetwork/guix guix-gn-latest
+git clone --branch gn-latest https://github.com/genenetwork/guix-bioinformatics
+git clone --branch gn-latest --recursive https://github.com/genenetwork/guix guix-gn-latest
 cd guix-gn-latest
 #+end_src bash
 
