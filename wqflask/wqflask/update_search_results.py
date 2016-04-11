@@ -14,7 +14,6 @@ class GSearch(object):
     def __init__(self, kw):
         self.type = kw['type']
         self.terms = kw['terms']
-        self.draw = int(kw['draw'])
         #self.row_range = kw['row_range']
         if self.type == "gene":
             sql = """
@@ -43,8 +42,8 @@ class GSearch(object):
                 AND ProbeSetXRef.ProbeSetFreezeId=ProbeSetFreeze.Id
                 AND ProbeSetFreeze.public > 0
                 ORDER BY species_name, inbredset_name, tissue_name, probesetfreeze_name, probeset_name
-                LIMIT %s
-                """ % (self.terms, self.draw)
+                LIMIT 6000
+                """ % (self.terms)
             with Bench("Running query"):
                 re = g.db.execute(sql).fetchall()
             self.trait_list = []
@@ -101,7 +100,7 @@ class GSearch(object):
                     
     def convert_to_json(self):
         json_dict = {}
-        json_dict['draw'] = self.draw,
+        #json_dict['draw'] = self.draw,
         json_dict['recordsTotal'] = len(self.trait_list),
         json_dict['data'] = []
         

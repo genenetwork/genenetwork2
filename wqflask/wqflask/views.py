@@ -164,7 +164,7 @@ def gsearchact():
     result = gsearch.GSearch(request.args).__dict__
     type = request.args['type']
     if type == "gene":
-        return render_template("gsearch_gene_updating.html", **result)
+        return render_template("gsearch_gene.html", **result)
     elif type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
         
