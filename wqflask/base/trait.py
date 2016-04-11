@@ -256,10 +256,10 @@ class GeneralTrait(object):
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                             PublishFreeze.Id = %s
                     """ % (self.name, self.dataset.id)
-            
-            #print("query is:", query) 
         
             trait_info = g.db.execute(query).fetchone()
+            
+            
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
         #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
         elif self.dataset.type == 'ProbeSet':
@@ -294,7 +294,6 @@ class GeneralTrait(object):
                            escape(self.dataset.name),
                            escape(self.name))
             trait_info = g.db.execute(query).fetchone()
-            #print("trait_info is: ", pf(trait_info))
         else: #Temp type
             query = """SELECT %s FROM %s WHERE Name = %s"""
             trait_info = g.db.execute(query,
@@ -305,7 +304,6 @@ class GeneralTrait(object):
 
             #XZ: assign SQL query result to trait attributes.
             for i, field in enumerate(self.dataset.display_fields):
-                #print("  mike: {} -> {} - {}".format(field, type(trait_info[i]), trait_info[i]))
                 holder = trait_info[i]
                 if isinstance(trait_info[i], basestring):
                     holder = unicode(trait_info[i], "utf8", "ignore")
@@ -315,12 +313,37 @@ class GeneralTrait(object):
                 self.confidential = 0
                 if self.pre_publication_description and not self.pubmed_id:
                     self.confidential = 1
+                    
+                description = self.post_publication_description
+                
+                #If the dataset is confidential and the user has access to confidential
+                #phenotype traits, then display the pre-publication description instead
+                #of the post-publication description
+                if self.confidential:
+                    self.description_display = ""
+                
+                    #if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
+                    #        privilege=self.dataset.privilege,
+                    #        userName=self.dataset.userName,
+                    #        authorized_users=self.authorized_users):
+                    #        
+                    #    description = self.pre_publication_description
+                
+                if len(description) > 0:
+                    self.description_display = description.strip()
+                else:
+                    self.description_display = ""
 
+                if not self.year.isdigit():
+                    self.pubmed_text = "N/A"
+                else:
+                    self.pubmed_text = self.year
+
+                if self.pubmed_id:
+                    self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.pubmed_id
+                    
             self.homologeneid = None
 
-            #print("self.geneid is:", self.geneid)
-            #print("  type:", type(self.geneid))
-            #print("self.dataset.group.name is:", self.dataset.group.name)
             if self.dataset.type == 'ProbeSet' and self.dataset.group and self.geneid:
                 #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
                 #XZ: So I have to test if geneid is number before execute the query.
@@ -330,10 +353,7 @@ class GeneralTrait(object):
                 #    geneidIsNumber = True
                 #except ValueError:
                 #    geneidIsNumber = False
-
                 #if geneidIsNumber:
-
-
                 query = """
                         SELECT
                                 HomologeneId
@@ -353,6 +373,11 @@ class GeneralTrait(object):
                     self.homologeneid = result[0]
 
             if get_qtl_info:
+                #LRS and its location
+                self.LRS_score_repr = "N/A"
+                self.LRS_score_value = 0
+                self.LRS_location_repr = "N/A"
+                self.LRS_location_value = 1000000
                 if self.dataset.type == 'ProbeSet' and not self.cellid:
                     query = """
                             SELECT
@@ -365,12 +390,8 @@ class GeneralTrait(object):
                                     ProbeSetXRef.ProbeSetFreezeId ={}
                             """.format(self.name, self.dataset.id)
                     trait_qtl = g.db.execute(query).fetchone()
-                    #self.cursor.execute(query)
-                    #trait_qtl = self.cursor.fetchone()
                     if trait_qtl:
-                        #print("trait_qtl:", trait_qtl)
                         self.locus, self.lrs, self.pvalue, self.mean, self.additive= trait_qtl
-                        #print("self.locus:", self.locus)
                         if self.locus:
                             query = """
                                 select Geno.Chr, Geno.Mb from Geno, Species
@@ -403,8 +424,37 @@ class GeneralTrait(object):
                             """, (self.name, self.dataset.id)).fetchone()
                     if trait_qtl:
                         self.locus, self.lrs, self.additive = trait_qtl
+                        if self.locus:
+                            query = """
+                                select Geno.Chr, Geno.Mb from Geno, Species
+                                where Species.Name = '{}' and
+                                Geno.Name = '{}' and
+                                Geno.SpeciesId = Species.Id
+                                """.format(self.dataset.group.species, self.locus)
+                            result = g.db.execute(query).fetchone()
+                            if result:
+                                self.locus_chr = result[0]
+                                self.locus_mb = result[1]
+                            else:
+                                self.locus = self.locus_chr = self.locus_mb = ""
+                        else:
+                            self.locus = self.locus_chr = self.locus_mb = ""
                     else:
                         self.locus = self.lrs = self.additive = ""
+                
+                if self.locus_chr != "" and self.locus_mb != "":
+                    #XZ: LRS_location_value is used for sorting
+                    try:
+                        LRS_location_value = int(self.locus_chr)*1000 + float(self.locus_mb)
+                    except:
+                        if self.locus_chr.upper() == 'X':
+                            LRS_location_value = 20*1000 + float(self.locus_mb)
+                        else:
+                            LRS_location_value = ord(str(self.locus_chr).upper()[0])*1000 + float(self.locus_mb)
+
+                    self.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (self.locus_chr, float(self.locus_mb))                                        
+                    self.LRS_score_repr = LRS_score_repr = '%3.1f' % self.lrs
+                    self.LRS_score_value = LRS_score_value = self.lrs
         else:
             raise KeyError, `self.name`+' information is not found in the database.'
 
