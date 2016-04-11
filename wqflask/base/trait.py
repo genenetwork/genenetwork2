@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import string
 import resource
-
+import codecs
 
 from htmlgen import HTMLgen2 as HT
 
@@ -309,13 +309,50 @@ class GeneralTrait(object):
                     holder = unicode(trait_info[i], "utf8", "ignore")
                 setattr(self, field, holder)
 
+            description_string = unicode(str(self.description).strip(codecs.BOM_UTF8), 'utf-8')
+            target_string = unicode(str(self.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
+
+            if len(description_string) > 1 and description_string != 'None':
+                description_display = description_string
+            else:
+                description_display = self.symbol
+
+            if (len(description_display) > 1 and description_display != 'N/A' and
+                    len(target_string) > 1 and target_string != 'None'):
+                description_display = description_display + '; ' + target_string.strip()
+
+            # Save it for the jinja2 template
+            self.description_display = description_display
+
+            #XZ: trait_location_value is used for sorting
+            trait_location_repr = 'N/A'
+            trait_location_value = 1000000
+
+            if self.chr and self.mb:
+                #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
+                #This is so we can convert the location to a number used for sorting
+                trait_location_value = convert_location_to_value(self.chr, self.mb)
+                #try:
+                #    trait_location_value = int(self.chr)*1000 + self.mb
+                #except ValueError:
+                #    if self.chr.upper() == 'X':
+                #        trait_location_value = 20*1000 + self.mb
+                #    else:
+                #        trait_location_value = (ord(str(self.chr).upper()[0])*1000 +
+                #                               self.mb)
+
+                #ZS: Put this in function currently called "convert_location_to_value"
+                self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
+                self.location_value = trait_location_value
+                
+                
             if self.dataset.type == 'Publish':
                 self.confidential = 0
                 if self.pre_publication_description and not self.pubmed_id:
                     self.confidential = 1
-                    
-                description = self.post_publication_description
                 
+                description = self.post_publication_description
+            
                 #If the dataset is confidential and the user has access to confidential
                 #phenotype traits, then display the pre-publication description instead
                 #of the post-publication description
@@ -662,7 +699,17 @@ class GeneralTrait(object):
                 ZValue = ZValue*sqrt(self.overlap-3)
                 self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))
 
-
+def convert_location_to_value(chromosome, mb):
+    try:
+        location_value = int(chromosome)*1000 + float(mb)
+    except ValueError:
+        if chromosome.upper() == 'X':
+            location_value = 20*1000 + float(mb)
+        else:
+            location_value = (ord(str(chromosome).upper()[0])*1000 +
+                              float(mb))
+    
+    return location_value
 
 @app.route("/trait/get_sample_data")
 def get_sample_data():

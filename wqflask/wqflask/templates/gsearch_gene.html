@@ -13,6 +13,7 @@
 
     <div class="container">
 
+        <p>You searched for {{ terms }}.</p>
         <p>To study a record, click on its ID below.<br />Check records below and click Add button to add to selection.</p>
 
         <div>
@@ -27,44 +28,6 @@
             <br />
             <br />
             <table width="2000px" class="table table-hover table-striped" id="trait_table">
-                <thead>
-                    <tr>
-                        <th style="width: 30px;"></th>
-                        <th>Index</th>
-                        <th>Species</th>
-                        <th>Group</th>
-                        <th>Tissue</th>
-                        <th>Dataset</th>
-                        <th>Record</th>
-                        <th>Symbol</th>
-                        <th>Description</th>
-                        <th>Location</th>
-                        <th>Mean</th>
-                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                        <th>Max LRS Location</th>
-                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for this_trait in trait_list %}
-                    <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
-                        <TD>{{ loop.index }}</TD>
-                        <TD>{{ this_trait.dataset.group.species }}</TD>
-                        <TD>{{ this_trait.dataset.group.name }}</TD>
-                        <TD>{{ this_trait.dataset.tissue }}</TD>
-                        <TD>{{ this_trait.dataset.fullname }}</TD>
-                        <TD><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></TD>
-                        <TD>{{ this_trait.symbol }}</TD>
-                        <TD>{{ this_trait.description_display }}</TD>
-                        <TD>{{ this_trait.location_repr }}</TD>
-                        <TD align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
-                        <TD align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
-                        <TD>{{ this_trait.LRS_location_repr }}</TD>
-                        <TD align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
-                    </TR>
-                {% endfor %}
-                </tbody>
             </table>
         </div>
     </div>
@@ -156,6 +119,17 @@
 
             console.time("Creating table");
             $('#trait_table').DataTable( {
+                "processing": true,
+                "serverSide": true,
+                "paging": false,
+                "ajax": {
+                    "url": "/gsearch_updating?terms={{ terms }}&type={{ type }}&draw=100",
+                    "dataType": "json",
+                    "contentType": "application/json; charset=utf-8",
+                    "complete": function(response) {
+                        console.log("Response:" + JSON.stringify(response));
+                    }
+                },
                 "columns": [
                     { "type": "natural" },
                     { "type": "natural" },
@@ -184,15 +158,15 @@
                        }
                     }
                 ],
-                "sDom": "RZBtir",
-                "autoWidth": false,
-                "bLengthChange": true,
+                "sDom": "RZBfrtiS",
+                "scrollY": 800,
                 "bDeferRender": true,
-                "scrollCollapse": false,
+                "scroller": {
+                    "loadingIndicator": true
+                },
                 "colResize": {
                     "tableWidthFixed": false,
                 },
-                "paging": false
             } );
 
             console.timeEnd("Creating table");
