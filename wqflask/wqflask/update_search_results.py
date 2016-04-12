@@ -111,7 +111,7 @@ class GSearch(object):
                          trait.dataset.group.name, 
                          trait.dataset.tissue, 
                          trait.dataset.fullname, 
-                         trait.name, 
+                         "<a href=\"/show_trait?trait_id=" + trait.name + "&dataset=" + trait.dataset.name + "\">" + trait.name + "</a>", 
                          trait.symbol, 
                          trait.description_display, 
                          trait.location_repr, 
