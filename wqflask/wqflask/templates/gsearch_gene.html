@@ -140,10 +140,11 @@
                 "paging": false,
                 "ajax": {
                     "url": "/gsearch_updating?terms={{ terms }}&type={{ type }}",
+                    "type": "POST",
                     "dataType": "json",
                     "contentType": "application/json; charset=utf-8",
-                    "complete": function(response) {
-                        console.log("Response:" + JSON.stringify(response));
+                    "data": function ( args ) {
+                         return { "args": JSON.stringify( args ) };
                     }
                 },
                 "buttons": [
@@ -156,6 +157,22 @@
                            columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
                        }
                     }
+                ],
+                "columns": [
+                    { "data": "checkbox", "orderable" : false },
+                    { "data": "index", "orderable" : true },
+                    { "data": "species", "orderable" : true },
+                    { "data": "group", "orderable" : true },
+                    { "data": "tissue", "orderable" : true },
+                    { "data": "dataset", "orderable" : true },
+                    { "data": "record", "orderable" : true },
+                    { "data": "symbol", "orderable" : true },
+                    { "data": "description", "orderable" : true },
+                    { "data": "location", "orderable" : true },
+                    { "data": "mean", "orderable" : true },
+                    { "data": "max_lrs", "orderable" : true },
+                    { "data": "max_lrs_location", "orderable" : true },
+                    { "data": "additive_effect", "orderable" : true }
                 ],
                 "sDom": "Bfrti",
                 "autoWidth": false,

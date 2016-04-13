@@ -105,20 +105,20 @@ class GSearch(object):
         json_dict['data'] = []
         
         for i, trait in enumerate(self.trait_list):
-            trait_row = ["<INPUT TYPE=\"checkbox\" NAME=\"searchResult\" class=\"checkbox trait_checkbox\" style=\"transform: scale(1.5);\" VALUE=\"{}:{}\">".format(trait.name, trait.dataset.name),
-                         i+1, 
-                         trait.dataset.group.species, 
-                         trait.dataset.group.name, 
-                         trait.dataset.tissue, 
-                         trait.dataset.fullname, 
-                         "<a href=\"/show_trait?trait_id=" + trait.name + "&dataset=" + trait.dataset.name + "\">" + trait.name + "</a>", 
-                         trait.symbol, 
-                         trait.description_display, 
-                         trait.location_repr, 
-                         trait.mean, 
-                         trait.LRS_score_repr, 
-                         trait.LRS_location_repr, 
-                         trait.additive]
+            trait_row = { "checkbox": "<INPUT TYPE=\"checkbox\" NAME=\"searchResult\" class=\"checkbox trait_checkbox\" style=\"transform: scale(1.5);\" VALUE=\"{}:{}\">".format(trait.name, trait.dataset.name),
+                         "index": i+1, 
+                         "species": trait.dataset.group.species, 
+                         "group": trait.dataset.group.name, 
+                         "tissue": trait.dataset.tissue, 
+                         "dataset": trait.dataset.fullname, 
+                         "record": "<a href=\"/show_trait?trait_id=" + trait.name + "&dataset=" + trait.dataset.name + "\" target=\"_blank\">" + trait.name + "</a>", 
+                         "symbol": trait.symbol, 
+                         "description": trait.description_display, 
+                         "location": trait.location_repr, 
+                         "mean": trait.mean, 
+                         "max_lrs": trait.LRS_score_repr, 
+                         "max_lrs_location": trait.LRS_location_repr, 
+                         "additive_effect": trait.additive}
             json_dict['data'].append(trait_row)
             
         json_results = json.dumps(json_dict)

@@ -168,8 +168,9 @@ def gsearchact():
     elif type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
         
-@app.route("/gsearch_updating", methods=('GET',))
+@app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
+    print("REQUEST ARGS:", request.values)
     result = update_search_results.GSearch(request.args).__dict__
     return result['results']
     # type = request.args['type']
