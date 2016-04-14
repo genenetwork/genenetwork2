@@ -186,6 +186,9 @@
       the_rows = "<tbody>";
       for (_i = 0, _len = Stat_Table_Rows.length; _i < _len; _i++) {
         row = Stat_Table_Rows[_i];
+        if ((row.vn == "range_fold" || row.vn == "range") && js_data.dataset_type == "Publish"){
+            continue;
+        }
         console.log("rowing");
         row_line = "<tr>";
         if (row.url != null) {

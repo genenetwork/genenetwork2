@@ -152,10 +152,11 @@ class ShowTrait(object):
 
         self.trait_table_width = get_trait_table_width(self.sample_groups)
 
-        js_data = dict(sample_group_types = self.sample_group_types,
-                        sample_lists = sample_lists,
-                        attribute_names = self.sample_groups[0].attributes,
-                        temp_uuid = self.temp_uuid)
+        js_data = dict(dataset_type = self.dataset.type,
+                       sample_group_types = self.sample_group_types,
+                       sample_lists = sample_lists,
+                       attribute_names = self.sample_groups[0].attributes,
+                       temp_uuid = self.temp_uuid)
         self.js_data = js_data
 
     def get_mapping_methods(self):

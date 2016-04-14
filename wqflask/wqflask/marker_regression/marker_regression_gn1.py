@@ -2015,6 +2015,9 @@ class MarkerRegression(object):
             thisLRSColor = self.colorCollection[0]
 
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
+                if self.manhattan_plot != True:
+                    canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                LRSCoordXY = []
                 previous_chr = qtlresult['chr']
                 previous_chr_as_int += 1
 
@@ -2032,7 +2035,6 @@ class MarkerRegression(object):
             else:
                 this_chr = str(self.ChrList[self.selectedChr][1]+1)
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
-                #LRSCoordXY = []
                 #AdditiveCoordXY = []
                 #DominanceCoordXY = []
                 #for k, _locus in enumerate(_chr):
@@ -2087,7 +2089,6 @@ class MarkerRegression(object):
                        # Yc = yZero - qtlresult['dominance']*DominanceHeightThresh/dominanceMax
                        # DominanceCoordXY.append((Xc, Yc))
                     m += 1
-        
                     #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
         lineWidth = 1
@@ -2150,9 +2151,6 @@ class MarkerRegression(object):
                         else:
                             canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
                 
-
-        if self.manhattan_plot != True:
-		    canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
         ###draw additive scale
         if not self.multipleInterval and self.additiveChecked:
