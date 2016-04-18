@@ -174,7 +174,6 @@
     make_table = function() {
       var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
       header = "<thead><tr><th>&nbsp;</th>";
-      console.log("js_data.sample_group_types:", js_data.sample_group_types);
       _ref = js_data.sample_group_types;
       for (key in _ref) {
         if (!__hasProp.call(_ref, key)) continue;
@@ -189,14 +188,12 @@
         if ((row.vn == "range_fold" || row.vn == "range") && js_data.dataset_type == "Publish"){
             continue;
         }
-        console.log("rowing");
         row_line = "<tr>";
         if (row.url != null) {
           row_line += "<td id=\"" + row.vn + "\"><a href=\"" + row.url + "\">" + row.pretty + "</a></td>";
         } else {
           row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
         }
-        console.log("box - js_data.sample_group_types:", js_data.sample_group_types);
         _ref1 = js_data.sample_group_types;
         for (key in _ref1) {
           if (!__hasProp.call(_ref1, key)) continue;
@@ -205,12 +202,10 @@
           row_line += "<td id=\"" + the_id + "\">foo</td>";
         }
         row_line += "</tr>";
-        console.log("row line:", row_line);
         the_rows += row_line;
       }
       the_rows += "</tbody>";
       table = header + the_rows;
-      console.log("table is:", table);
       return $("#stats_table").append(table);
     };
     process_id = function() {
