@@ -308,6 +308,7 @@ class GeneralTrait(object):
                 if isinstance(trait_info[i], basestring):
                     holder = unicode(trait_info[i], "utf8", "ignore")
                 setattr(self, field, holder)
+<<<<<<< HEAD
 
             description_string = unicode(str(self.description).strip(codecs.BOM_UTF8), 'utf-8')
             target_string = unicode(str(self.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
@@ -345,6 +346,8 @@ class GeneralTrait(object):
                 self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
                 self.location_value = trait_location_value
                 
+=======
+>>>>>>> e0c5c1aae3aaaa1d81bcec36835a97e169dcc2e2
                 
             if self.dataset.type == 'Publish':
                 self.confidential = 0
@@ -379,8 +382,8 @@ class GeneralTrait(object):
                 if self.pubmed_id:
                     self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.pubmed_id
                     
+                    
             self.homologeneid = None
-
             if self.dataset.type == 'ProbeSet' and self.dataset.group and self.geneid:
                 #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
                 #XZ: So I have to test if geneid is number before execute the query.
@@ -408,6 +411,43 @@ class GeneralTrait(object):
 
                 if result:
                     self.homologeneid = result[0]
+                    
+                description_string = unicode(str(self.description).strip(codecs.BOM_UTF8), 'utf-8')
+                target_string = unicode(str(self.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
+
+                if len(description_string) > 1 and description_string != 'None':
+                    description_display = description_string
+                else:
+                    description_display = self.symbol
+
+                if (len(description_display) > 1 and description_display != 'N/A' and
+                        len(target_string) > 1 and target_string != 'None'):
+                    description_display = description_display + '; ' + target_string.strip()
+
+                # Save it for the jinja2 template
+                self.description_display = description_display
+
+                #XZ: trait_location_value is used for sorting
+                trait_location_repr = 'N/A'
+                trait_location_value = 1000000
+
+                if self.chr and self.mb:
+                    #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
+                    #This is so we can convert the location to a number used for sorting
+                    trait_location_value = convert_location_to_value(self.chr, self.mb)
+                     #try:
+                    #    trait_location_value = int(self.chr)*1000 + self.mb
+                    #except ValueError:
+                    #    if self.chr.upper() == 'X':
+                    #        trait_location_value = 20*1000 + self.mb
+                    #    else:
+                    #        trait_location_value = (ord(str(self.chr).upper()[0])*1000 +
+                    #                               self.mb)
+
+                    #ZS: Put this in function currently called "convert_location_to_value"
+                    self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
+                    self.location_value = trait_location_value
+                    
 
             if get_qtl_info:
                 #LRS and its location

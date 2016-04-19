@@ -257,12 +257,10 @@
                 console.log("SAMPLE GROUP TYPES:", js_data.sample_group_types)
                 if (Object.keys(js_data.sample_group_types).length > 1) {
                     $('#stats_table').DataTable( {
-                        "columns": [
-                            { "bSortable": false },
-                            { "bSortable": false },
-                            { "bSortable": false },
-                            { "bSortable": false }
+                        "columnDefs": [
+                            { "orderable": false, "targets": [0, 1, 2, 3] }
                         ],
+                        "order": [],
                         "sDom": "tr",
                         "iDisplayLength": -1,
                         "autoWidth": false,
@@ -274,10 +272,10 @@
                 }
                 else {
                     $('#stats_table').DataTable( {
-                        "columns": [
-                            { "bSortable": false },
-                            { "bSortable": false }
+                        "columnDefs": [
+                            { "orderable": false, "targets": [0, 1] }
                         ],
+                        "order": [],
                         "sDom": "tr",
                         "iDisplayLength": -1,
                         "autoWidth": false,

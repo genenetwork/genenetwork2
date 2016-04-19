@@ -87,8 +87,8 @@
                   </td>
                 </tr>
               </table>
-              </div>
-              <div class="col-xs-4" style="padding: 0px;">
+            </div>
+            <div class="col-xs-4" style="padding: 0px;">
                   {% if (mapping_method == "reaper" or mapping_method == "rqtl_geno") and nperm > 0 %}
                   <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test 
                     <a href="http://genenetwork.org/glossary.html#Permutation" target="_blank">
@@ -121,7 +121,10 @@
                   {% if plotScale != "morgan" %}
                   <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Analyst </span> <span style="color:red;">*</span>
                   {% endif %}
-              </div>
+            </div>
+            <div class="col-xs-12" align="center" style="padding: 5px;">
+              <span style="color:red;">*</span> <span style="font-size: 12px;">only apply to single chromosome physical mapping</span>
+            </div>
           </div>
         </div>
  
@@ -162,6 +165,7 @@
         </div>
 
         </form>
+        {% if selectedChr == -1 %}
         <div style="width:48%;">
             <h2>
                 Results
@@ -219,6 +223,7 @@
                 </tbody>
             </table>
         </div>
+        {% endif %}
     </div>
 
     <!-- End of body -->

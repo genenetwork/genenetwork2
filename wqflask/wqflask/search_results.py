@@ -119,9 +119,9 @@ class SearchResultPage(object):
             
             #### Excel file needs to be generated ####
 
-            print("foo locals are:", locals())
+            #print("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True)
+            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
             self.trait_list.append(this_trait)
 
         self.dataset.get_trait_info(self.trait_list, species)
