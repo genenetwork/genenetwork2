@@ -31,5 +31,12 @@ Next build guix (and run) following the instructions in [[https://github.com/pjo
 
 Once that is done we can add the guix-bioinformatics path with
 
-: env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix package -A slurm
+: env GUIX_PACKAGE_PATH=../guix-bioinformatics command
 
+such as 
+
+#+begin_src sh   :lang bash
+gn-stable-guix$ env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix package -A genenetwork
+genenetwork1    1.0-d622c803b   out     ../guix-bioinformatics/gn/packages/bioinformatics.scm:163:2
+genenetwork2    2.0-9e9475053   out     ../guix-bioinformatics/gn/packages/bioinformatics.scm:215:2
+#+end_src sh   :lang bash
