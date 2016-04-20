@@ -159,7 +159,7 @@ class ShowTrait(object):
     def get_mapping_methods(self):
         '''Only display mapping methods when the dataset group's genotype file exists'''
         def check_plink_gemma():
-            if (os.path.isfile(MAPPYING_PATH+"/"+self.dataset.group.name+".bed") and
+            if (os.path.isfile(MAPPING_PATH+"/"+self.dataset.group.name+".bed") and
                 os.path.isfile(MAPPING_PATH+"/"+self.dataset.group.name+".map")):
                 return True
             else:
