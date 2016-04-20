@@ -1,3 +1,5 @@
+import os
+
 LOGFILE = "/var/log/genenetwork/wqflask.log"
 
 # This is needed because Flask turns key errors into a
@@ -20,5 +22,7 @@ SERVER_PORT = 5003
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
 
 # Path overrides for Genenetwork
-# PYLMM_PATH = 'UNUSED'
-
+HOME=os.environ.get('HOME')
+PYLMM_PATH = HOME+"/izip/git/opensource/python/pylmm_gn2/"
+PLINK_PATH = HOME+"/.guix-profile/bin"
+GEMMA_PATH = HOME+"/.guix-profile/bin"

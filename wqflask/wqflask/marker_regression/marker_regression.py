@@ -42,9 +42,15 @@ from wqflask.marker_regression import gemma_mapping
 #from wqflask.marker_regression import plink_mapping
 #from wqflask.marker_regression import rqtl_mapping
 
+# Check for valid binary paths of pylmm, plink, rqtl etc. This code
+# runs at startup, so a missing binary will balk before running the
+# service
+
+GEMMA_PATH,GEMMA_COMMAND = gemma_command()
 PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
 PLINK_PATH,PLINK_COMMAND = plink_command()
-GEMMA_PATH,GEMMA_COMMAND = gemma_command()
+# RQTL_PATH,RQTL_COMMAND   = rqtl_command()
+
 
 class MarkerRegression(object):
 
