@@ -3,7 +3,6 @@
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
  - [[#binary-deployment][Binary deployment]]
- - [[#from-source-deployment][From source deployment]]
 
 * Introduction
 
@@ -15,14 +14,3 @@ explain the GeneNetwork deployment system which is based on GNU Guix
 
 NYA
 
-* From source deployment
-
-GNU Guix allows for [[https://github.com/pjotrp/guix-notes/blob/master/REPRODUCIBLE.org][reproducible deployment]] based on a checked out
-Guix repository - use gn-stable for that:
-
-#+begin_src sh   :lang bash
-mkdir genenetwork
-cd genenetwork
-git checkout https://github.com/genenetwork/guix.git gn-stable-guix
-git checkout https://github.com/genenetwork/guix-bioinformatics.git
-#+end_src
