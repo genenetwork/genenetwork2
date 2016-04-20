@@ -41,7 +41,7 @@ from wqflask.marker_regression import gemma_mapping
 #from wqflask.marker_regression import plink_mapping
 #from wqflask.marker_regression import rqtl_mapping
 
-from utility.tools import PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND
+from utility.tools import locate, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND
 
 class MarkerRegression(object):
 
@@ -979,8 +979,7 @@ class MarkerRegression(object):
 
     #def gen_human_results(self, pheno_vector, tempdata):
     def gen_human_results(self, pheno_vector, key, temp_uuid):
-        file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
-        print("file_base:", file_base)
+        file_base = locate(self.dataset.group.name,"mapping")
 
         plink_input = input.plink(file_base, type='b')
         input_file_name = os.path.join(webqtlConfig.SNP_PATH, self.dataset.group.name + ".snps.gz")

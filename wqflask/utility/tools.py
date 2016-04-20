@@ -78,11 +78,23 @@ def flat_files(subdir=None):
         return valid_path(base+"/"+subdir)
     return valid_path(base)
 
+def locate(name, subdir=None):
+    base = get_setting("GENENETWORK_FILES")
+    if subdir:
+        base = base+"/"+subdir
+    if valid_path(base):
+        lookfor = base + "/" + name
+        if valid_path(lookfor):
+            return lookfor
+        else:
+            raise IOError("Can not locate "+lookfor)
+    raise IOError("Can not locate "+name)
+     
 def tempdir():
     return valid_path(get_setting("TEMPDIR","/tmp"))
 
+    
 # Cached values
-
 PYLMM_COMMAND = pylmm_command()
 GEMMA_COMMAND = pylmm_command()
 PLINK_COMMAND = pylmm_command()
