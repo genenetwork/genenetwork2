@@ -4,6 +4,7 @@
  - [[#introduction][Introduction]]
  - [[#binary-deployment][Binary deployment]]
  - [[#from-source-deployment][From source deployment]]
+ - [[#create-archive][Create archive]]
 
 * Introduction
 
@@ -33,10 +34,21 @@ Once that is done we can add the guix-bioinformatics path with
 
 : env GUIX_PACKAGE_PATH=../guix-bioinformatics command
 
-such as 
+So
 
+#+begin_src sh   :lang bash
 #+begin_src sh   :lang bash
 gn-stable-guix$ env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix package -A genenetwork
 genenetwork1    1.0-d622c803b   out     ../guix-bioinformatics/gn/packages/bioinformatics.scm:163:2
 genenetwork2    2.0-9e9475053   out     ../guix-bioinformatics/gn/packages/bioinformatics.scm:215:2
 #+end_src sh   :lang bash
+
+Install with
+
+#+begin_src sh   :lang bash
+gn-stable-guix$ env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix package -i genenetwork2
+#+end_src sh   :lang bash
+
+* Create archive
+
+: env GUIX_PACKAGE_PATH=../../genenetwork/guix-bioinformatics/ ./pre-inst-env guix archive --export -r genenetwork2 > guix_gn2-2.0-9e9475053.nar

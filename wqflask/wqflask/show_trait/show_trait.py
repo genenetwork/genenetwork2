@@ -16,7 +16,8 @@ from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
 from utility import webqtlUtil, Plot, Bunch, helper_functions
-from utility.tools import pylmm_command, plink_command
+# from utility.tools import plink_command
+from utility.tools import flat_files
 from base.trait import GeneralTrait
 from base import data_set
 from dbFunction import webqtlDatabaseFunction
@@ -24,8 +25,7 @@ from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf
 
-PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
-PLINK_PATH,PLINK_COMMAND = plink_command()
+MAPPING_FILES = flat_files("mapping")
 
 ###############################################
 #
@@ -162,8 +162,8 @@ class ShowTrait(object):
     def get_mapping_methods(self):
         '''Only display mapping methods when the dataset group's genotype file exists'''
         def check_plink_gemma():
-            if (os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".bed") and
-                os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".map")):
+            if (os.path.isfile(MAPPYING_FILES+"/"+self.dataset.group.name+".bed") and
+                os.path.isfile(MAPPING_FILES+"/"+self.dataset.group.name+".map")):
                 return True
             else:
                 return False

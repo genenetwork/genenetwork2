@@ -405,10 +405,11 @@ class DatasetGroup(object):
             #print("Cache not hit")
 
             from utility.tools import plink_command
-            PLINK_PATH,PLINK_COMMAND = plink_command()
+            PLINK_RUN = plink_command()
 
             geno_file_path = webqtlConfig.GENODIR+self.name+".geno"
             plink_file_path = PLINK_PATH+"/"+self.name+".fam"
+            # @FIXME PJOTR/ZACH: .fam files should go into FLATFILES
 
             if os.path.isfile(plink_file_path):
                 self.samplelist = get_group_samplelists.get_samplelist("plink", plink_file_path)

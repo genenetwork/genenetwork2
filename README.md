@@ -17,6 +17,8 @@ Elissa Chesler, Jintao Wang, Kenneth Manly, Robert W. Williams, and colleagues.
 Code and primary web service managed by Dr. Robert W. Williams and the University of Tennessee Health Science Center,
 Memphis TN, USA. 
 
+Join #genenetwork on irc.freenode.net.
+
 Email labwilliams@gmail.com or rwilliams@uthsc.edu
 
 Older version available on SourceForge  http://sourceforge.net/projects/genenetwork/

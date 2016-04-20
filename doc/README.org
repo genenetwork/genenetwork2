@@ -3,6 +3,7 @@
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
  - [[#binary-deployment-wip][Binary deployment (WIP)]]
+   - [[#install-genenetwork-server][Install genenetwork server]]
    - [[#run-mysql-server][Run MySQL server]]
    - [[#start-the-gn2-server][Start the GN2 server]]
  - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
@@ -16,7 +17,27 @@ explain the GeneNetwork deployment system which is based on GNU Guix
 * Binary deployment (WIP)
 
 GN can be deployed either as a binary tarball or as a GNU Guix
-package.
+package. First install GNU Guix following the instructions of the
+[[https://www.gnu.org/software/guix/manual/html_node/Binary-Installation.html#Binary-Installation][binary installation]] using a tar ball from [[https://www.gnu.org/software/guix/download/][here]] and, update guix with a 
+'guix pull' and make guix visible in the path.  More information
+exists also in my [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org][guix-notes]].
+
+With guix running you should be able to install python, for example.
+
+: guix package -i python2
+
+This will make python appear in $HOME/.guix-profile/bin/python. Suggested
+environment settings can be seen with
+
+: guix package --search-paths
+
+** Install genenetwork server
+
+Fetch the nar file and install it after adding the key with, for
+example
+
+: cat signing-key.pub |.guix-profile/bin/guix archive --authorize
+: guix archive --import < guix_gn2-2.0-9e9475053.nar
 
 ** Run MySQL server
 
