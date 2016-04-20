@@ -81,4 +81,10 @@ def flat_files(subdir=None):
 def tempdir():
     return valid_path(get_setting("TEMPDIR","/tmp"))
 
-TEMPDIR = tempdir()
+# Cached values
+
+PYLMM_COMMAND = pylmm_command()
+GEMMA_COMMAND = pylmm_command()
+PLINK_COMMAND = pylmm_command()
+FLAT_FILES    = flat_files()
+TEMPDIR       = tempdir()
