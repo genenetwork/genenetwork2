@@ -52,17 +52,27 @@ def get_setting(command_id,guess=None):
                 raise Exception(command_id+' path unknown or faulty (update settings.py?). '+command_id+' should point to the path')
     return command
 
+def valid_bin(bin):
+    if os.path.islink(bin) or os.path.isfile(bin):
+        return bin
+    return None
+
+def valid_path(dir):
+    if os.path.isdir(dir):
+        return dir
+    return None
+
 def pylmm_command(guess=None):
-    return get_setting("PYLMM_RUN",guess)
+    return valid_bin(get_setting("PYLMM_RUN",guess))
 
 def gemma_command(guess=None):
-    return get_setting("GEMMA_RUN",guess)
+    return valid_bin(get_setting("GEMMA_RUN",guess))
 
 def plink_command(guess=None):
-    return get_setting("PLINK_RUN",guess)
+    return valid_bin(get_setting("PLINK_RUN",guess))
 
 def flat_files(subdir=None):
     base = get_setting("GENENETWORK_FILES")
     if subdir:
-        return base+"/"+subdir
-    return base
+        return valid_path(base+"/"+subdir)
+    return valid_path(base)

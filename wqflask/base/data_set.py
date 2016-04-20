@@ -44,11 +44,14 @@ from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
 from utility import chunks
+from utility.tools import flat_files
 
 from maintenance import get_group_samplelists
 
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
+
+MAPPING_PATH = flat_files("mapping")
 
 # Used by create_database to instantiate objects
 # Each subclass will add to this
@@ -404,15 +407,11 @@ class DatasetGroup(object):
         else:
             #print("Cache not hit")
 
-            from utility.tools import plink_command
-            PLINK_RUN = plink_command()
-
             geno_file_path = webqtlConfig.GENODIR+self.name+".geno"
-            plink_file_path = PLINK_PATH+"/"+self.name+".fam"
-            # @FIXME PJOTR/ZACH: .fam files should go into FLATFILES
 
-            if os.path.isfile(plink_file_path):
-                self.samplelist = get_group_samplelists.get_samplelist("plink", plink_file_path)
+            mapping_file_path = MAPPING_PATH+"/"+self.name+".fam"
+            if os.path.isfile(mapping_file_path):
+                self.samplelist = get_group_samplelists.get_samplelist("plink", mapping_file_path)
             elif os.path.isfile(geno_file_path):
                 self.samplelist = get_group_samplelists.get_samplelist("geno", geno_file_path)
             else:
@@ -441,18 +440,10 @@ class DatasetGroup(object):
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         full_filename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
-        if os.path.isfile(full_filename):
-            #print("Reading file: ", full_filename)
-            genotype_1.read(full_filename)
-            #print("File read")
-        else:
-            try:
-                full_filename = str(os.path.join(webqtlConfig.TMPDIR, self.name + '.geno'))
-                #print("Reading file")
-                genotype_1.read(full_filename)
-                #print("File read")
-            except IOError:
-                print("File doesn't exist!")
+        if not os.path.isfile(full_filename):
+            raise SystemError("File "+full_filename+" does not exist")
+        print("Reading file: ", full_filename)
+        genotype_1.read(full_filename)
 
         if genotype_1.type == "group" and self.parlist:
             genotype_2 = genotype_1.add(Mat=self.parlist[0], Pat=self.parlist[1])       #, F1=_f1)
