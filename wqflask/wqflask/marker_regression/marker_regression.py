@@ -1103,5 +1103,5 @@ def get_markers_from_csv(included_markers, p_values, group_name):
 
     return markers
     
- if __name__ == '__main__':
-     import cPickle as pickle
+if __name__ == '__main__':
+    import cPickle as pickle

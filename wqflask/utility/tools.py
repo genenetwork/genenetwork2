@@ -5,7 +5,6 @@ import os
 import sys
 from wqflask import app
 
-
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
     app.config, with get_valid_path is a function checking whether the

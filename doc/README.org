@@ -134,12 +134,17 @@ configuration.
 
 ** Run your own copy of GN2
 
-At some point you may want to fix the source code. Clone the GN2
-repository from  https://github.com/genenetwork/genenetwork2_diet
+At some point you may want to fix the source code. Assuming you have
+Guix and Genenetwork2 installed (as described above) clone the GN2
+repository from https://github.com/genenetwork/genenetwork2_diet
+
+Copy the paths into your terminal from (mainly so PYTHON_PATH and
+R_LIBS_SITE are set)
+
+: guix package --search-paths
 
 Inside the repository:
 
-: git clone 
 : cd genenetwork2_diet
 : ./bin/genenetwork2 
 

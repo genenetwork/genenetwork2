@@ -1,9 +1,7 @@
 import os
 
 from base import webqtlConfig
-from utility.tools import gemma_command
-
-GEMMA_PATH,GEMMA_COMMAND = gemma_command()
+from utility.tools import GEMMA_COMMAND
 
 def run_gemma(this_dataset, samples, vals): 
     """Generates p-values for each marker using GEMMA"""
