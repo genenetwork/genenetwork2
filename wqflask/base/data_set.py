@@ -44,14 +44,12 @@ from dbFunction import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
 from utility import chunks
-from utility.tools import flat_files
+from utility.tools import locate
 
 from maintenance import get_group_samplelists
 
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
-
-MAPPING_PATH = flat_files("mapping")
 
 # Used by create_database to instantiate objects
 # Each subclass will add to this
@@ -405,11 +403,10 @@ class DatasetGroup(object):
             #print("  type: ", type(self.samplelist))
             #print("  self.samplelist: ", self.samplelist)
         else:
-            #print("Cache not hit")
+            print("Cache not hit")
 
-            geno_file_path = webqtlConfig.GENODIR+self.name+".geno"
-
-            mapping_file_path = MAPPING_PATH+"/"+self.name+".fam"
+            geno_file_path = locate(self.name+".geno",'genotype')
+            mapping_file_path = locate(self.name+".fam",'mapping')
             if os.path.isfile(mapping_file_path):
                 self.samplelist = get_group_samplelists.get_samplelist("plink", mapping_file_path)
             elif os.path.isfile(geno_file_path):
@@ -439,10 +436,7 @@ class DatasetGroup(object):
         genotype_1 = reaper.Dataset()
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
-        full_filename = str(os.path.join(webqtlConfig.GENODIR, self.name + '.geno'))
-        if not os.path.isfile(full_filename):
-            raise SystemError("File "+full_filename+" does not exist")
-        print("Reading file: ", full_filename)
+        full_filename = str(locate(self.name+'.geno','genotype'))
         genotype_1.read(full_filename)
 
         if genotype_1.type == "group" and self.parlist:
