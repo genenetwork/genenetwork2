@@ -664,6 +664,9 @@ class MarkerRegression(object):
     def gen_reaper_results(self):
         genotype = self.dataset.group.read_genotype_file()
 
+        if self.manhattan_plot != True:
+            genotype = genotype.addinterval()
+        
         samples, values, variances = self.this_trait.export_informative()
 
         trimmed_samples = []
