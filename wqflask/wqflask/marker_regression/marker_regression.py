@@ -68,7 +68,7 @@ class MarkerRegression(object):
             self.vals.append(value)
  
         self.mapping_method = start_vars['method']
-        if start_vars['manhattan_plot'] == "true":
+        if start_vars['manhattan_plot'] == "True":
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False

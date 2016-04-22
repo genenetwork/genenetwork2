@@ -2066,63 +2066,62 @@ class MarkerRegression(object):
             if self.plotScale == "physic":
                 this_chr = str(self.ChrList[self.selectedChr][0])
             else:
-                this_chr = str(self.ChrList[self.selectedChr][1]+1)
+                this_chr = str(self.ChrList[self.selectedChr][1]+1)                                                                                                                    
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
                 #AdditiveCoordXY = []
                 #DominanceCoordXY = []
                 #for k, _locus in enumerate(_chr):
-                if 1 == 1:
-                    Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
-                    #if self.plotScale == 'physic':
-                        #Xc = startPosX + (_locus.Mb-startMb)*plotXScale
-                        #Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
-                    #else:
-                        #Xc = startPosX + (_locus.cM-_chr[0].cM)*plotXScale
-                        #Xc = startPosX + (qtlresult['cM']-qtlresult[0]['cM'])*plotXScale
+                Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+                #if self.plotScale == 'physic':
+                    #Xc = startPosX + (_locus.Mb-startMb)*plotXScale
+                    #Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+                #else:
+                    #Xc = startPosX + (_locus.cM-_chr[0].cM)*plotXScale
+                    #Xc = startPosX + (qtlresult['cM']-qtlresult[0]['cM'])*plotXScale
 
-                    # updated by NL 06-18-2011:
-                    # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
-                    # for any lrs is over than 460(LRS max in this system), it will be reset to 460
-                    if 'lrs_value' in qtlresult:
-                        if self.LRS_LOD == "LOD":
-                            if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                                Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
-                            else:
-                                Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
+                # updated by NL 06-18-2011:
+                # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
+                # for any lrs is over than 460(LRS max in this system), it will be reset to 460
+                if 'lrs_value' in qtlresult:
+                    if self.LRS_LOD == "LOD":
+                        if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                         else:
-                            if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                                Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
-                            else:
-                                Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
+                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                     else:
-                        if qtlresult['lod_score'] > 100 or qtlresult['lod_score']=='inf':
+                        if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
                             Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                         else:
-                            if self.LRS_LOD == "LRS":
-                                Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
-                            else:
-                                Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
-                    #if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                    #if self.qtlresults[j]['lrs_value'] > 460 or self.qtlresults[j]['lrs_value']=='inf':
-                    #    Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
-                    #else:
-                    #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
-
-                    if self.manhattan_plot == True:
-                        canvas.drawEllipse(Xc-1, Yc-1, Xc+1, Yc+1, fillColor=pid.black)
+                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
+                else:
+                    if qtlresult['lod_score'] > 100 or qtlresult['lod_score']=='inf':
+                        Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                     else:
-                        LRSCoordXY.append((Xc, Yc))
+                        if self.LRS_LOD == "LRS":
+                            Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
+                        else:
+                            Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
+                #if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                #if self.qtlresults[j]['lrs_value'] > 460 or self.qtlresults[j]['lrs_value']=='inf':
+                #    Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
+                #else:
+                #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
 
-                    if not self.multipleInterval and self.additiveChecked:
-                       if additiveMax == 0.0:
-                           additiveMax = 0.000001
-                       Yc = yZero - qtlresult['additive']*AdditiveHeightThresh/additiveMax
-                       AdditiveCoordXY.append((Xc, Yc))
-                    # if not self.multipleInterval and INTERCROSS and self.additiveChecked:
-                       # Yc = yZero - qtlresult['dominance']*DominanceHeightThresh/dominanceMax
-                       # DominanceCoordXY.append((Xc, Yc))
-                    m += 1
-                    #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                if self.manhattan_plot == True:
+                    canvas.drawEllipse(Xc-1, Yc-1, Xc+1, Yc+1, fillColor=pid.black)
+                else:
+                    LRSCoordXY.append((Xc, Yc))
+
+                if not self.multipleInterval and self.additiveChecked:
+                   if additiveMax == 0.0:
+                       additiveMax = 0.000001
+                   Yc = yZero - qtlresult['additive']*AdditiveHeightThresh/additiveMax
+                   AdditiveCoordXY.append((Xc, Yc))
+                # if not self.multipleInterval and INTERCROSS and self.additiveChecked:
+                   # Yc = yZero - qtlresult['dominance']*DominanceHeightThresh/dominanceMax
+                   # DominanceCoordXY.append((Xc, Yc))
+                m += 1
+                #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
         if self.manhattan_plot != True:
             canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
