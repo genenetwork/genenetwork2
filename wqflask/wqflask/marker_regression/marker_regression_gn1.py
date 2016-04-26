@@ -42,6 +42,7 @@ from utility import webqtlUtil
 from utility import helper_functions
 from utility import Plot
 from wqflask.interval_analyst import GeneUtil
+from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
 
 #########################################
 #      Inteval Mapping Plot Page
@@ -930,7 +931,7 @@ class MarkerRegression(object):
         bootScale = bootScale[:-1] + [highestPercent]
 
         bootOffset = 50*fontZoom
-        bootScaleFont=Font(ttf="verdana",size=13*fontZoom,bold=0)
+        bootScaleFont=pid.Font(ttf="verdana",size=13*fontZoom,bold=0)
         canvas.drawRect(canvas.size[0]-bootOffset,yZero-bootHeightThresh,canvas.size[0]-bootOffset-15*zoom,yZero,fillColor = pid.yellow)
         canvas.drawLine(canvas.size[0]-bootOffset+4, yZero, canvas.size[0]-bootOffset, yZero, color=pid.black)
         canvas.drawString('0%' ,canvas.size[0]-bootOffset+10,yZero+5,font=bootScaleFont,color=pid.black)
@@ -2581,7 +2582,7 @@ class MarkerRegression(object):
 
         Plot.plotBar(myCanvas, perm_output, XLabel=self.LRS_LOD, YLabel='Frequency', title=' Histogram of Permutation Test')
         filename= webqtlUtil.genRandStr("Reg_")
-        myCanvas.save(webqtlConfig.IMGDIR+filename, format='gif')
+        myCanvas.save(GENERATED_IMAGE_DIR+filename, format='gif')
 
         return filename
 
