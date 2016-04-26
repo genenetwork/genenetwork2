@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+
+USAGE = <<EOT
+This is Mechanical-Rob - an automated web server tester for 
+                         Genenetwork.org that uses the brilliant 
+                         mechanize gem.
+
+To use this software you need to install mechanize. Run it from
+the root of the genenetwork2 source tree as, for example,
+
+  ./bin/test-website http://localhost:5003/ (default)
+
+For more information see http://genenetwork.org/
+                        
+EOT
+
+libpath = File.dirname(File.dirname(__FILE__))
+$: << File.join(libpath,'test/lib')
+  
+$stderr.print USAGE
+
+$host = 
+  if ARGV.size>0
+    ARGV.shift
+  else
+    "http://localhost:5003"
+  end
+
+$stderr.print "Testing <",$host,">\n"
+
+require 'mechanize'
+require 'minitest/spec'
+require 'minitest/autorun'
+require 'main_web_functionality'
+
+
