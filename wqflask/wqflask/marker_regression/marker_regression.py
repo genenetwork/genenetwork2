@@ -63,7 +63,7 @@ class MarkerRegression(object):
             self.vals.append(value)
  
         self.mapping_method = start_vars['method']
-        if start_vars['manhattan_plot'] == "true":
+        if start_vars['manhattan_plot'] == "True":
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False
@@ -633,6 +633,9 @@ class MarkerRegression(object):
     def gen_reaper_results(self):
         genotype = self.dataset.group.read_genotype_file()
 
+        if self.manhattan_plot != True:
+            genotype = genotype.addinterval()
+        
         samples, values, variances = self.this_trait.export_informative()
 
         trimmed_samples = []
