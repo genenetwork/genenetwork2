@@ -11,6 +11,8 @@
    - [[#run-mysql-server][Run MySQL server]]
    - [[#run-your-own-copy-of-gn2][Run your own copy of GN2]]
  - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
+ - [[#trouble-shooting][Trouble shooting]]
+   - [[#importerror-no-module-named-jinja2][ImportError: No module named jinja2]]
 
 * Introduction
 
@@ -138,8 +140,8 @@ At some point you may want to fix the source code. Assuming you have
 Guix and Genenetwork2 installed (as described above) clone the GN2
 repository from https://github.com/genenetwork/genenetwork2_diet
 
-Copy the paths into your terminal from (mainly so PYTHON_PATH and
-R_LIBS_SITE are set)
+Copy-paste the paths into your terminal (mainly so PYTHON_PATH and
+R_LIBS_SITE are set) from the information given by guix:
 
 : guix package --search-paths
 
@@ -164,3 +166,21 @@ software.
 
 See the document [[GUIX-Reproducible-from-source.org]].
 
+* Trouble shooting
+
+** ImportError: No module named jinja2
+
+If you have all the Guix packages installed this error points out that
+the environment variables are not set. Copy-paste the paths into your
+terminal (mainly so PYTHON_PATH and R_LIBS_SITE are set) from the
+information given by guix:
+
+: guix package --search-paths
+
+On one system:
+
+: export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
+: export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
+: export GEM_PATH="$HOME/.guix-profile/lib/ruby/gems/2.2.0"
+
+and perhaps a few more. 
