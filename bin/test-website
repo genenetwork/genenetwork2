@@ -32,6 +32,9 @@ $stderr.print "Testing <",$host,">\n"
 require 'mechanize'
 require 'minitest/spec'
 require 'minitest/autorun'
+
+# These are the actual testing modules
+
 require 'main_web_functionality'
 
 
