@@ -13,6 +13,7 @@
  - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
  - [[#trouble-shooting][Trouble shooting]]
    - [[#importerror-no-module-named-jinja2][ImportError: No module named jinja2]]
+   - [[#error-can-not-find-directory-homegn2_data][ERROR: can not find directory $HOME/gn2_data]]
 
 * Introduction
 
@@ -59,12 +60,14 @@ version of the guix-daemon by compiling the guix repository. Follow
 ** Install GN2
 
 #+begin_src bash
-env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env guix package -i genenetwork2 --fallback 
+env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env \
+  guix package -i genenetwork2 --fallback 
 #+end_src bash
 
 Note that you can use the genenetwork.org guix substitute caching
 server at http://guix.genenetwork.org (which speeds up installs
-significantly because all packages are pre-built).
+significantly because all packages are pre-built). And/or use the Guix
+mirror with option --substitute-urls=http://mirror.guixsd.org
 
 Make a note of the paths with
 
@@ -147,13 +150,12 @@ R_LIBS_SITE are set) from the information given by guix:
 
 Inside the repository:
 
-: cd genenetwork2_diet
+: cd genenetwork2
 : ./bin/genenetwork2 
 
 Will fire up your local repo http://localhost:5003/ using the  
-settings in ./etc/default_settings.py
-
-To override settings create your own from a copy of
+settings in ./etc/default_settings.py. These settings may 
+not reflect your system. To override settings create your own from a copy of
 default_settings.py and pass it into GN2 with
 
 : ./bin/genenetwork2 $HOME/my_settings.py
@@ -161,6 +163,13 @@ default_settings.py and pass it into GN2 with
 and everything *should* work (note the full path to the settings
 file). This way we develop against the exact same dependency graph of
 software.
+
+If something is not working, take a hint from the settings file
+that comes in the Guix installation. It sits in something like
+
+: cat ~/.guix-profile/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
+
+
 
 * Source deployment and other information on reproducibility
 
@@ -184,3 +193,9 @@ On one system:
 : export GEM_PATH="$HOME/.guix-profile/lib/ruby/gems/2.2.0"
 
 and perhaps a few more. 
+** ERROR: can not find directory $HOME/gn2_data
+
+The default settings file looks in your $HOME/gn2_data. Since these
+files come with a Guix installation you should take a hint from the
+values in the installed version of default_settings.py (see above in
+this document).
