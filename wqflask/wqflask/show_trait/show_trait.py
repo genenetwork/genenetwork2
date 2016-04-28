@@ -153,6 +153,7 @@ class ShowTrait(object):
         self.trait_table_width = get_trait_table_width(self.sample_groups)
 
         js_data = dict(dataset_type = self.dataset.type,
+                       data_scale = self.dataset.data_scale,
                        sample_group_types = self.sample_group_types,
                        sample_lists = sample_lists,
                        attribute_names = self.sample_groups[0].attributes,

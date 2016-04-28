@@ -265,6 +265,29 @@ def export_trait_csv():
     return Response(csv_data,
                     mimetype='text/csv',
                     headers={"Content-Disposition":"attachment;filename=sample_data.csv"})
+                    
+@app.route('/export_perm_data', methods=('POST',))
+def export_perm_data():
+    """CSV file consisting of the permutation data for the mapping results"""
+    num_perm = float(request.form['num_perm'])
+    perm_data = json.loads(request.form['perm_results'])
+    
+    buff = StringIO.StringIO()
+    writer = csv.writer(buff)
+    writer.writerow(["Suggestive LRS (p=0.63) = " + str(perm_data[int(num_perm*0.37-1)])])
+    writer.writerow(["Significant LRS (p=0.05) = " + str(perm_data[int(num_perm*0.95-1)])])
+    writer.writerow(["Highly Significant LRS (p=0.01) = " + str(perm_data[int(num_perm*0.99-1)])])
+    writer.writerow("")
+    writer.writerow([str(num_perm) + " Permutations"])
+    writer.writerow("")
+    for item in perm_data:
+        writer.writerow([item])
+    csv_data = buff.getvalue()
+    buff.close()
+
+    return Response(csv_data,
+                    mimetype='text/csv',
+                    headers={"Content-Disposition":"attachment;filename=perm_data.csv"})
 
 @app.route("/show_trait")
 def show_trait_page():
