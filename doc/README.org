@@ -14,6 +14,7 @@
  - [[#trouble-shooting][Trouble shooting]]
    - [[#importerror-no-module-named-jinja2][ImportError: No module named jinja2]]
    - [[#error-can-not-find-directory-homegn2_data][ERROR: can not find directory $HOME/gn2_data]]
+   - [[#cant-run-a-module][Can't run a module]]
 
 * Introduction
 
@@ -199,3 +200,10 @@ The default settings file looks in your $HOME/gn2_data. Since these
 files come with a Guix installation you should take a hint from the
 values in the installed version of default_settings.py (see above in
 this document).
+
+** Can't run a module
+
+In rare cases, development modules are not brought in with Guix
+because no source code is available. This can lead to missing modules
+on a running server. Please check with the authors when a module
+is missing.
