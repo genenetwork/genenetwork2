@@ -22,6 +22,7 @@
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
         <input type="hidden" name="manhattan_plot" value="{{ manhattan_plot }}">
         <input type="hidden" name="num_perm" value="{{ nperm }}">
+        <input type="hidden" name="perm_results" value="">
         <input type="hidden" name="num_bootstrap" value="{{ nboot }}">
         <input type="hidden" name="do_control" value="{{ doControl }}">
         <input type="hidden" name="control_marker" value="{{ controlLocus }}">
@@ -148,9 +149,12 @@
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
                   {% endif %}
-                  {% if nperm > 0 %}
+                  {% if nperm > 0 and permChecked == "ON" %}
                   <br><br>
                   <img src="/static/output/{{ perm_filename }}.gif">
+                  <br><br>
+                  Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
+                  <br>
                   {% endif %}
               </div>
             </div>
@@ -292,7 +296,20 @@
                 "scrollCollapse": true,
                 "paging": false
             } );
-            console.timeEnd("Creating table");
+
+            $('#interval_analyst').dataTable( {
+                "columnDefs": [ {
+                    "targets": 0,
+                    "sortable": false
+                }],
+                "order": [[3, "asc"]],
+                "sDom": "RZtir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
+                "bDeferRender": true,
+                "bSortClasses": false,
+                "paging": false
+            } );
 
             $('#vector_map_tab').click(function(){
                 $('div#gn1_map_options').hide();
@@ -324,6 +341,16 @@
             $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
             return $('#marker_regression_form').submit(); 
         };
+
+        export_perm_data = function() {
+            var num_perm, perm_data;
+            num_perm = js_data.num_perm
+            perm_data = js_data.perm_results
+            json_perm_data = JSON.stringify(perm_data);
+            $('input[name=perm_results]').val(json_perm_data);
+            $('#marker_regression_form').attr('action', '/export_perm_data');
+            return $('#marker_regression_form').submit();
+    };
 
     </script>
 

@@ -190,9 +190,9 @@
         }
         row_line = "<tr>";
         if (row.url != null) {
-          row_line += "<td id=\"" + row.vn + "\" style=\"border-right: 1px solid #000000;\"><a href=\"" + row.url + "\">" + row.pretty + "</a></td>";
+          row_line += "<td id=\"" + row.vn + "\"><a href=\"" + row.url + "\">" + row.pretty + "</a></td>";
         } else {
-          row_line += "<td id=\"" + row.vn + "\" style=\"border-right: 1px solid #000000;\">" + row.pretty + "</td>";
+          row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
         }
         _ref1 = js_data.sample_group_types;
         for (key in _ref1) {

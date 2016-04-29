@@ -74,6 +74,8 @@ class MarkerRegression(object):
         self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
         self.score_type = "LRS" #ZS: LRS or LOD
         self.mapping_scale = "physic"
+        self.num_perm = 0
+        self.perm_output = []
         self.bootstrap_results = []
         
         #ZS: This is passed to GN1 code for single chr mapping
@@ -120,13 +122,14 @@ class MarkerRegression(object):
             try:
                 if int(start_vars['num_perm']) > 0:
                     self.num_perm = int(start_vars['num_perm'])
-                else:
-                    self.num_perm = 0
             except:
                 self.num_perm = 0
             
             self.LRSCheck = self.score_type
-            self.permCheck = "ON"
+            if self.num_perm > 0:
+                self.permCheck = "ON"
+            else:
+                self.permCheck = False
             self.showSNP = "ON"
             self.showGenes = "ON"
             self.viewLegend = "ON"
@@ -273,6 +276,8 @@ class MarkerRegression(object):
                 mapping_scale = self.mapping_scale,
                 chromosomes = chromosome_mb_lengths,
                 qtl_results = self.qtl_results,
+                num_perm = self.num_perm,
+                perm_results = self.perm_output,
             )
         
 
@@ -652,6 +657,7 @@ class MarkerRegression(object):
             self.perm_output = genotype.permutation(strains = trimmed_samples, trait = trimmed_values, nperm=self.num_perm)
             self.suggestive = self.perm_output[int(self.num_perm*0.37-1)]
             self.significant = self.perm_output[int(self.num_perm*0.95-1)]
+            self.highly_significant = self.perm_output[int(self.num_perm*0.99-1)]
             
         self.json_data['suggestive'] = self.suggestive
         self.json_data['significant'] = self.significant

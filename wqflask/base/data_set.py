@@ -417,6 +417,7 @@ class DataSet(object):
         self.shortname = None
         self.fullname = None
         self.type = None
+        self.data_scale = None #ZS: For example log2
 
         self.setup()
 
@@ -456,8 +457,8 @@ class DataSet(object):
                     self.name,
                     self.name))
 
-                self.id, self.name, self.fullname, self.shortname, self.tissue = g.db.execute("""
-                        SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, Tissue.Name
+                self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue = g.db.execute("""
+                        SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
                         FROM ProbeSetFreeze, ProbeFreeze, Tissue
                         WHERE ProbeSetFreeze.public > %s AND
                               ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
