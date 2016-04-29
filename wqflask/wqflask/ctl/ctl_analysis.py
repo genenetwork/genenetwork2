@@ -152,7 +152,7 @@ class CTL(object):
         self.results['requestform'] = requestform             # Store the user specified parameters for the output page
 
         # Create the lineplot
-        r_png(self.results['imgloc1'], width=1000, height=600)
+        r_png(self.results['imgloc1'], width=1000, height=600, type='cairo-png')
         self.r_lineplot(res, significance = significance)
         r_dev_off()
 
@@ -161,7 +161,7 @@ class CTL(object):
           # Create the QTL like CTL plots
           self.results['imgurl' + str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
           self.results['imgloc' + str(n)] = GENERATED_IMAGE_DIR + self.results['imgurl' + str(n)]
-          r_png(self.results['imgloc' + str(n)], width=1000, height=600)
+          r_png(self.results['imgloc' + str(n)], width=1000, height=600, type='cairo-png')
           self.r_plotCTLobject(res, (n-1), significance = significance, main='Phenotype ' + trait)
           r_dev_off()
           n = n + 1
