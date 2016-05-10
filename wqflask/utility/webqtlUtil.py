@@ -509,7 +509,7 @@ def calCorrelationRank(xVals,yVals,N):
     j = 0
 
     for i in range(len(xVals)):
-        if xVals[i]!= None and yVals[i]!= None:
+        if (xVals[i]!= None and yVals[i]!= None) and (xVals[i] != "None" and yVals[i] != "None"):
             XX.append((j,xVals[i]))
             YY.append((j,yVals[i]))
             j = j+1

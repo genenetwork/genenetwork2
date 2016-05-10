@@ -50,6 +50,7 @@ from dbFunction import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
+import utility.webqtlUtil
 
 from MySQLdb import escape_string as escape
 
@@ -159,6 +160,9 @@ class CorrelationResults(object):
 
             self.correlation_data = {}
 
+            db_filename = self.getFileName(target_db_name = self.target_dataset.name)
+            cache_available = db_filename in os.listdir(webqtlConfig.TEXTDIR)
+            
             if self.corr_type == "tissue":
                 self.trait_symbol_dict = self.dataset.retrieve_genes("Symbol")
                 
@@ -174,9 +178,25 @@ class CorrelationResults(object):
                     self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
                     
             elif self.corr_type == "sample":
-                # print("self.target_dataset.trait_data: %d" % len(self.target_dataset.trait_data))
-                for trait, values in self.target_dataset.trait_data.iteritems():
-                    self.get_sample_r_and_p_values(trait, values)
+                if self.dataset.type == "ProbeSet" and cache_available:
+                    dataset_file = open(webqtlConfig.TEXTDIR+db_filename,'r')
+
+                    #XZ, 01/08/2009: read the first line
+                    line = dataset_file.readline()
+                    dataset_strains = webqtlUtil.readLineCSV(line)[1:]      
+
+                    self.this_trait_vals = []
+                    for item in dataset_strains:
+                        if item in self.sample_data:
+                            self.this_trait_vals.append(self.sample_data[item])
+                        else:
+                            self.this_trait_vals.append("None")
+                    num_overlap = len(self.this_trait_vals)
+                
+                    self.do_parallel_correlation(db_filename, num_overlap)
+                else:
+                    for trait, values in self.target_dataset.trait_data.iteritems():
+                        self.get_sample_r_and_p_values(trait, values)
                     
                 self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
                                                                        key=lambda t: -abs(t[1][0])))
@@ -308,7 +328,7 @@ class CorrelationResults(object):
 
         #traitList = self.correlate()
 
-        #_log.info("Done doing correlation calculation")
+        #print("Done doing correlation calculation")
 
 ############################################################################################################################################
 
@@ -521,27 +541,125 @@ class CorrelationResults(object):
         
         """
         
-        # print("len(self.sample_data):", len(self.sample_data))
-        
-        this_trait_vals = []
+        self.this_trait_vals = []
         target_vals = []        
         for index, sample in enumerate(self.target_dataset.samplelist):
             if sample in self.sample_data:
                 sample_value = self.sample_data[sample]
                 target_sample_value = target_samples[index]
-                this_trait_vals.append(sample_value)
+                self.this_trait_vals.append(sample_value)
                 target_vals.append(target_sample_value)
 
-        this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
-            this_trait_vals, target_vals)
+        self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(self.this_trait_vals, target_vals)	        
 
         #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/ 
         if self.corr_method == 'pearson':
-            sample_r, sample_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
+            sample_r, sample_p = scipy.stats.pearsonr(self.this_trait_vals, target_vals)
         else:
-            sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
+            sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
 
         self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
+		
+		
+        """
+        correlations = []
+
+        #XZ: Use the fast method only for probeset dataset, and this dataset must have been created.
+        #XZ: Otherwise, use original method
+        #print("Entering correlation")
+
+        #db_filename = self.getFileName(target_db_name=self.target_db_name)
+        #
+        #cache_available = db_filename in os.listdir(webqtlConfig.TEXTDIR)
+
+         # If the cache file exists, do a cached correlation for probeset data
+        if self.dataset.type == "ProbeSet":
+#           if self.method in [METHOD_SAMPLE_PEARSON, METHOD_SAMPLE_RANK] and cache_available:
+#               traits = do_parallel_correlation()
+#
+#           else:
+
+            traits = self.get_traits(self.vals)
+
+            for trait in traits:
+                trait.calculate_correlation(vals, self.method)
+
+        self.record_count = len(traits) #ZS: This isn't a good way to get this value, so I need to change it later
+
+        #XZ, 3/31/2010: Theoretically, we should create one function 'comTissueCorr'
+        #to compare each trait by their tissue corr p values.
+        #But because the tissue corr p values are generated by permutation test,
+        #the top ones always have p value 0. So comparing p values actually does nothing.
+        #In addition, for the tissue data in our database, the N is always the same.
+        #So it's safe to compare with tissue corr statistic value.
+        #That's the same as literature corr.
+        #if self.method in [METHOD_LIT, METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK] and self.gene_id:
+        #    traits.sort(webqtlUtil.cmpLitCorr)
+        #else:
+        #if self.method in TISSUE_METHODS:
+        #    sort(traits, key=lambda A: math.fabs(A.tissue_corr))
+        #elif self.method == METHOD_LIT:
+        #    traits.sort(traits, key=lambda A: math.fabs(A.lit_corr))
+        #else:
+        traits = sortTraitCorrelations(traits, self.method)
+
+        # Strip to the top N correlations
+        traits = traits[:min(self.returnNumber, len(traits))]
+
+        addLiteratureCorr = False
+        addTissueCorr = False
+
+        trait_list = []
+        for trait in traits:
+            db_trait = webqtlTrait(db=self.db, name=trait.name, cursor=self.cursor)
+            db_trait.retrieveInfo( QTL='Yes' )
+
+            db_trait.Name = trait.name
+            db_trait.corr = trait.correlation
+            db_trait.nOverlap = trait.overlap
+            db_trait.corrPValue = trait.p_value
+
+            # NL, 07/19/2010
+            # js function changed, add a new parameter rankOrder for js function 'showTissueCorrPlot'
+            db_trait.RANK_ORDER = self.RANK_ORDERS[self.method]
+
+            #XZ, 26/09/2008: Method is 4 or 5. Have fetched tissue corr, but no literature correlation yet.
+            if self.method in TISSUE_METHODS:
+                db_trait.tissueCorr = trait.tissue_corr
+                db_trait.tissuePValue = trait.p_tissue
+                addTissueCorr = True
+
+
+            #XZ, 26/09/2008: Method is 3,  Have fetched literature corr, but no tissue corr yet.
+            elif self.method == METHOD_LIT:
+                db_trait.LCorr = trait.lit_corr
+                db_trait.mouse_geneid = self.translateToMouseGeneID(self.species, db_trait.geneid)
+                addLiteratureCorr = True
+
+            #XZ, 26/09/2008: Method is 1 or 2. Have NOT fetched literature corr and tissue corr yet.
+            # Phenotype data will not have geneid, and neither will some probes
+            # we need to handle this because we will get an attribute error
+            else:
+                if self.input_trait_mouse_gene_id and self.db.type=="ProbeSet":
+                    addLiteratureCorr = True
+                if self.trait_symbol and self.db.type=="ProbeSet":
+                    addTissueCorr = True
+
+            trait_list.append(db_trait)
+
+        if addLiteratureCorr:
+            trait_list = self.getLiteratureCorrelationByList(self.input_trait_mouse_gene_id,
+                                                    self.species, trait_list)
+        if addTissueCorr:
+            trait_list = self.getTissueCorrelationByList(
+                        primaryTraitSymbol = self.trait_symbol,
+                        traitList = trait_list,
+                        TissueProbeSetFreezeId = TISSUE_MOUSE_DB,
+                        method=self.method)
+
+        return trait_list
+        """		
+		
 
     def do_tissue_corr_for_all_traits_2(self):
         """Comments Possibly Out of Date!!!!!
@@ -669,38 +787,6 @@ class CorrelationResults(object):
     #        else: raise
     #    except: return False
 
-
-    def get_all_dataset_data(self):
-        
-        """
-        SELECT ProbeSet.Name, T128.value, T129.value, T130.value, T131.value, T132.value, T134.value, T135.value, T138.value, T139.value, T140.value, T141.value, T142.value, T144
-        .value, T145.value, T147.value, T148.value, T149.value, T487.value, T919.value, T920.value, T922.value
-        FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze)
-        left join ProbeSetData as T128 on T128.Id = ProbeSetXRef.DataId and T128.StrainId=128
-        left join ProbeSetData as T129 on T129.Id = ProbeSetXRef.DataId and T129.StrainId=129
-        left join ProbeSetData as T130 on T130.Id = ProbeSetXRef.DataId and T130.StrainId=130
-        left join ProbeSetData as T131 on T131.Id = ProbeSetXRef.DataId and T131.StrainId=131
-        left join ProbeSetData as T132 on T132.Id = ProbeSetXRef.DataId and T132.StrainId=132
-        left join ProbeSetData as T134 on T134.Id = ProbeSetXRef.DataId and T134.StrainId=134
-        left join ProbeSetData as T135 on T135.Id = ProbeSetXRef.DataId and T135.StrainId=135
-        left join ProbeSetData as T138 on T138.Id = ProbeSetXRef.DataId and T138.StrainId=138
-        left join ProbeSetData as T139 on T139.Id = ProbeSetXRef.DataId and T139.StrainId=139
-        left join ProbeSetData as T140 on T140.Id = ProbeSetXRef.DataId and T140.StrainId=140
-        left join ProbeSetData as T141 on T141.Id = ProbeSetXRef.DataId and T141.StrainId=141
-        left join ProbeSetData as T142 on T142.Id = ProbeSetXRef.DataId and T142.StrainId=142
-        left join ProbeSetData as T144 on T144.Id = ProbeSetXRef.DataId and T144.StrainId=144
-        left join ProbeSetData as T145 on T145.Id = ProbeSetXRef.DataId and T145.StrainId=145
-        left join ProbeSetData as T147 on T147.Id = ProbeSetXRef.DataId and T147.StrainId=147
-        left join ProbeSetData as T148 on T148.Id = ProbeSetXRef.DataId and T148.StrainId=148
-        left join ProbeSetData as T149 on T149.Id = ProbeSetXRef.DataId and T149.StrainId=149
-        left join ProbeSetData as T487 on T487.Id = ProbeSetXRef.DataId and T487.StrainId=487
-        left join ProbeSetData as T919 on T919.Id = ProbeSetXRef.DataId and T919.StrainId=919
-        left join ProbeSetData as T920 on T920.Id = ProbeSetXRef.DataId and T920.StrainId=920
-        left join ProbeSetData as T922 on T922.Id = ProbeSetXRef.DataId and T922.StrainId=922
-        WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id and
-        ProbeSetFreeze.Name = 'HC_M2_0606_P' and
-        ProbeSet.Id = ProbeSetXRef.ProbeSetId order by ProbeSet.Id
-        """
 
     def process_samples(self, start_vars, sample_names, excluded_samples=None):
         if not excluded_samples:
@@ -990,59 +1076,7 @@ class CorrelationResults(object):
             totalTraits = len(traits) #XZ, 09/18/2008: total trait number
 
         return traits
-
-
-        def do_parallel_correlation(self):
-            _log.info("Invoking parallel computing")
-            input_line_list = datasetFile.readlines()
-            _log.info("Read lines from the file")
-            all_line_number = len(input_line_list)
-
-            step = 1000
-            job_number = math.ceil( float(all_line_number)/step )
-
-            job_input_lists = []
-
-            _log.info("Configuring jobs")
-
-            for job_index in range( int(job_number) ):
-                starti = job_index*step
-                endi = min((job_index+1)*step, all_line_number)
-
-                one_job_input_list = []
-
-                for i in range( starti, endi ):
-                    one_job_input_list.append( input_line_list[i] )
-
-                job_input_lists.append( one_job_input_list )
-
-            _log.info("Creating pp servers")
-
-            ppservers = ()
-            # Creates jobserver with automatically detected number of workers
-            job_server = pp.Server(ppservers=ppservers)
-
-            _log.info("Done creating servers")
-
-            jobs = []
-            results = []
-
-            _log.info("Starting parallel computation, submitting jobs")
-            for one_job_input_list in job_input_lists: #pay attention to modules from outside
-                jobs.append( job_server.submit(func=compute_corr, args=(nnCorr, _newvals, one_job_input_list, self.method), depfuncs=(), modules=("utility.webqtlUtil",)) )
-            _log.info("Done submitting jobs")
-
-            for one_job in jobs:
-                one_result = one_job()
-                results.append( one_result )
-
-            _log.info("Acquiring results")
-
-            for one_result in results:
-                for one_traitinfo in one_result:
-                    allcorrelations.append( one_traitinfo )
-
-            _log.info("Appending the results")
+			
     def calculate_corr_for_all_tissues(self, tissue_dataset_id=None):
 
         symbol_corr_dict = {}
@@ -1067,10 +1101,7 @@ class CorrelationResults(object):
         #        SymbolValueDict)
 
         return (symbolCorrDict, symbolPvalueDict)
-        datasetFile.close()
-        totalTraits = len(allcorrelations)
-        _log.info("Done correlating using the fast method")
-        
+
 
     def correlate(self):
         self.correlation_data = collections.defaultdict(list)
@@ -1085,107 +1116,254 @@ class CorrelationResults(object):
                     values_2.append(target_value)
             correlation = calCorrelation(values_1, values_2)
             self.correlation_data[trait] = correlation
+			
+    def getFileName(self, target_db_name):  ### dcrowell  August 2008
+        """Returns the name of the reference database file with which correlations are calculated.
+        Takes argument cursor which is a cursor object of any instance of a subclass of templatePage
+        Used by correlationPage"""
+
+        dataset_id = str(self.target_dataset.id)
+        dataset_fullname = self.target_dataset.fullname.replace(' ','_')
+        dataset_fullname = dataset_fullname.replace('/','_')
         
+        FileName = 'ProbeSetFreezeId_' + dataset_id + '_FullName_' + dataset_fullname + '.txt'
 
-        """
-        correlations = []
+        return FileName
+        
+    def do_parallel_correlation(self, db_filename, num_overlap):
+	
+        #XZ, 01/14/2009: This method is for parallel computing only.
+        #XZ: It is supposed to be called when "Genetic Correlation, Pearson's r" (method 1)
+        #XZ: or "Genetic Correlation, Spearman's rho" (method 2) is selected
+        def compute_corr(input_nnCorr, input_trait, input_list, corr_method):
+        
+            import math
+            import reaper
+        
+            def calCorrelation(dbdata,userdata,N):
+                X = []
+                Y = []
+                for i in range(N):
+                    if (dbdata[i] != None and userdata[i] != None) and (dbdata[i] != "None" and userdata[i] != "None"):
+                        X.append(float(dbdata[i]))
+                        Y.append(float(userdata[i]))
+                NN = len(X)
+                if NN <6:
+                    return (0.0,NN)
+                sx = reduce(lambda x,y:x+y,X,0.0)
+                sy = reduce(lambda x,y:x+y,Y,0.0)
+                meanx = sx/NN
+                meany = sy/NN
+                xyd = 0.0
+                sxd = 0.0
+                syd = 0.0
+                for i in range(NN):
+                    xyd += (X[i] - meanx)*(Y[i]-meany)
+                    sxd += (X[i] - meanx)*(X[i] - meanx)
+                    syd += (Y[i] - meany)*(Y[i] - meany)
+                try:
+                    corr = xyd/(math.sqrt(sxd)*math.sqrt(syd))
+                except:
+                    corr = 0
+                return (corr,NN)
+            
+            def calCorrelationRank(xVals,yVals,N):
+                """
+                Calculated Spearman Ranked Correlation. The algorithm works
+                by setting all tied ranks to the average of those ranks (for
+                example, if ranks 5-10 all have the same value, each will be set
+                to rank 7.5).
+                """
 
-        #XZ: Use the fast method only for probeset dataset, and this dataset must have been created.
-        #XZ: Otherwise, use original method
-        #_log.info("Entering correlation")
+                XX = []
+                YY = []
+                j = 0
 
-        #db_filename = self.getFileName(target_db_name=self.target_db_name)
-        #
-        #cache_available = db_filename in os.listdir(webqtlConfig.TEXTDIR)
+                for i in range(len(xVals)):
+                    if (xVals[i]!= None and yVals[i]!= None) and (xVals[i] != "None" and yVals[i] != "None"):
+                        XX.append((j,float(xVals[i])))
+                        YY.append((j,float(yVals[i])))
+                        j = j+1
 
-         # If the cache file exists, do a cached correlation for probeset data
-        if self.dataset.type == "ProbeSet":
-#           if self.method in [METHOD_SAMPLE_PEARSON, METHOD_SAMPLE_RANK] and cache_available:
-#               traits = do_parallel_correlation()
-#
-#           else:
+                NN = len(XX)
+                if NN <6:
+                    return (0.0,NN)
+                XX.sort(cmpOrder2)
+                YY.sort(cmpOrder2)
+                X = [0]*NN
+                Y = [0]*NN
 
-            traits = self.get_traits(self.vals)
+                j = 1
+                rank = 0.0
+                t = 0.0
+                sx = 0.0
 
-            for trait in traits:
-                trait.calculate_correlation(vals, self.method)
+                while j < NN:
 
-        self.record_count = len(traits) #ZS: This isn't a good way to get this value, so I need to change it later
+                    if XX[j][1] != XX[j-1][1]:
+                        X[XX[j-1][0]] = j
+                        j = j+1
 
-        #XZ, 3/31/2010: Theoretically, we should create one function 'comTissueCorr'
-        #to compare each trait by their tissue corr p values.
-        #But because the tissue corr p values are generated by permutation test,
-        #the top ones always have p value 0. So comparing p values actually does nothing.
-        #In addition, for the tissue data in our database, the N is always the same.
-        #So it's safe to compare with tissue corr statistic value.
-        #That's the same as literature corr.
-        #if self.method in [METHOD_LIT, METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK] and self.gene_id:
-        #    traits.sort(webqtlUtil.cmpLitCorr)
-        #else:
-        #if self.method in TISSUE_METHODS:
-        #    sort(traits, key=lambda A: math.fabs(A.tissue_corr))
-        #elif self.method == METHOD_LIT:
-        #    traits.sort(traits, key=lambda A: math.fabs(A.lit_corr))
-        #else:
-        traits = sortTraitCorrelations(traits, self.method)
+                    else:
+                        jt = j+1
+                        ji = j
+                        for jt in range(j+1, NN):
+                            if (XX[jt][1] != XX[j-1][1]):
+                                break
+                        rank = 0.5*(j+jt)
+                        for ji in range(j-1, jt):
+                            X[XX[ji][0]] = rank
+                        t = jt-j
+                        sx = sx + (t*t*t-t)
+                        if (jt == NN-1):
+                            if (XX[jt][1] == XX[j-1][1]):
+                                X[XX[NN-1][0]] = rank
+                        j = jt+1
 
-        # Strip to the top N correlations
-        traits = traits[:min(self.returnNumber, len(traits))]
+                if j == NN:
+                    if X[XX[NN-1][0]] == 0:
+                        X[XX[NN-1][0]] = NN
 
-        addLiteratureCorr = False
-        addTissueCorr = False
+                j = 1
+                rank = 0.0
+                t = 0.0
+                sy = 0.0
 
-        trait_list = []
-        for trait in traits:
-            db_trait = webqtlTrait(db=self.db, name=trait.name, cursor=self.cursor)
-            db_trait.retrieveInfo( QTL='Yes' )
+                while j < NN:
 
-            db_trait.Name = trait.name
-            db_trait.corr = trait.correlation
-            db_trait.nOverlap = trait.overlap
-            db_trait.corrPValue = trait.p_value
+                    if YY[j][1] != YY[j-1][1]:
+                        Y[YY[j-1][0]] = j
+                        j = j+1
+                    else:
+                        jt = j+1
+                        ji = j
+                        for jt in range(j+1, NN):
+                            if (YY[jt][1] != YY[j-1][1]):
+                                break
+                        rank = 0.5*(j+jt)
+                        for ji in range(j-1, jt):
+                            Y[YY[ji][0]] = rank
+                        t = jt - j
+                        sy = sy + (t*t*t-t)
+                        if (jt == NN-1):
+                            if (YY[jt][1] == YY[j-1][1]):
+                                Y[YY[NN-1][0]] = rank
+                        j = jt+1
 
-            # NL, 07/19/2010
-            # js function changed, add a new parameter rankOrder for js function 'showTissueCorrPlot'
-            db_trait.RANK_ORDER = self.RANK_ORDERS[self.method]
+                if j == NN:
+                    if Y[YY[NN-1][0]] == 0:
+                        Y[YY[NN-1][0]] = NN
 
-            #XZ, 26/09/2008: Method is 4 or 5. Have fetched tissue corr, but no literature correlation yet.
-            if self.method in TISSUE_METHODS:
-                db_trait.tissueCorr = trait.tissue_corr
-                db_trait.tissuePValue = trait.p_tissue
-                addTissueCorr = True
+                D = 0.0
 
+                for i in range(NN):
+                    D += (X[i]-Y[i])*(X[i]-Y[i])
 
-            #XZ, 26/09/2008: Method is 3,  Have fetched literature corr, but no tissue corr yet.
-            elif self.method == METHOD_LIT:
-                db_trait.LCorr = trait.lit_corr
-                db_trait.mouse_geneid = self.translateToMouseGeneID(self.species, db_trait.geneid)
-                addLiteratureCorr = True
+                fac = (1.0 -sx/(NN*NN*NN-NN))*(1.0-sy/(NN*NN*NN-NN))
 
-            #XZ, 26/09/2008: Method is 1 or 2. Have NOT fetched literature corr and tissue corr yet.
-            # Phenotype data will not have geneid, and neither will some probes
-            # we need to handle this because we will get an attribute error
-            else:
-                if self.input_trait_mouse_gene_id and self.db.type=="ProbeSet":
-                    addLiteratureCorr = True
-                if self.trait_symbol and self.db.type=="ProbeSet":
-                    addTissueCorr = True
+                return ((1-(6.0/(NN*NN*NN-NN))*(D+(sx+sy)/12.0))/math.sqrt(fac),NN)
+        
+            # allcorrelations = []
+            
+            correlation_data = {}
+            for i, line in enumerate(input_list):
+                if i == 0:
+                    continue
+                tokens = line.split('","')
+                tokens[-1] = tokens[-1][:-2] #remove the last "
+                tokens[0] = tokens[0][1:] #remove the first "
 
-            trait_list.append(db_trait)
+                traitdataName = tokens[0]
+                database_trait = tokens[1:]
 
-        if addLiteratureCorr:
-            trait_list = self.getLiteratureCorrelationByList(self.input_trait_mouse_gene_id,
-                                                    self.species, trait_list)
-        if addTissueCorr:
-            trait_list = self.getTissueCorrelationByList(
-                        primaryTraitSymbol = self.trait_symbol,
-                        traitList = trait_list,
-                        TissueProbeSetFreezeId = TISSUE_MOUSE_DB,
-                        method=self.method)
+                #print("database_trait:", database_trait)
+                
+                #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/ 
+                # if corr_method == 'pearson':
+                    # sample_r, sample_p = scipy.stats.pearsonr(input_trait, database_trait)
+                # else:
+                    # sample_r, sample_p = scipy.stats.spearmanr(input_trait, database_trait)
+                    
+                if corr_method == "pearson": #XZ: Pearson's r
+                    sample_r, nOverlap = calCorrelation(input_trait, database_trait, input_nnCorr)
+                else: #XZ: Spearman's rho
+                    sample_r, nOverlap = calCorrelationRank(input_trait, database_trait, input_nnCorr)
+                    
+                #XZ: calculate corrPValue
+                if nOverlap < 3:
+                    sample_p = 1.0
+                else:
+                    if abs(sample_r) >= 1.0:
+                        sample_p = 0.0
+                    else:
+                        z_value = 0.5*math.log((1.0+sample_r)/(1.0-sample_r))
+                        z_value = z_value*math.sqrt(nOverlap-3)
+                        sample_p = 2.0*(1.0 - reaper.normp(abs(z_value))) 
+                    
+                correlation_data[traitdataName] = [sample_r, sample_p, nOverlap]	
+                    
+                # traitinfo = [traitdataName, sample_r, nOverlap]
+                # allcorrelations.append(traitinfo)
 
-        return trait_list
-        """
+            return correlation_data
+            # return allcorrelations
+            
+	
+        datasetFile = open(webqtlConfig.TEXTDIR+db_filename,'r')
+    
+        print("Invoking parallel computing")
+        input_line_list = datasetFile.readlines()
+        print("Read lines from the file")
+        all_line_number = len(input_line_list)
 
+        step = 1000
+        job_number = math.ceil( float(all_line_number)/step )
 
+        print("JOB NUMBER", job_number)
+        
+        job_input_lists = []
+
+        print("Configuring jobs")
+
+        for job_index in range( int(job_number) ):
+            starti = job_index*step
+            endi = min((job_index+1)*step, all_line_number)
+
+            one_job_input_list = []
+
+            for i in range( starti, endi ):
+                one_job_input_list.append( input_line_list[i] )
+
+            job_input_lists.append( one_job_input_list )
+
+        print("Creating pp servers")
+
+        ppservers = ()
+        # Creates jobserver with automatically detected number of workers
+        job_server = pp.Server(ppservers=ppservers)
+
+        print("Done creating servers")
+
+        jobs = []
+        results = []
+
+        print("Starting parallel computation, submitting jobs")
+        for one_job_input_list in job_input_lists: #pay attention to modules from outside
+            jobs.append( job_server.submit(func=compute_corr, args=(num_overlap, self.this_trait_vals, one_job_input_list, self.corr_method), depfuncs=(), modules=("webqtlUtil",)) )
+        print("Done submitting jobs")
+
+        for one_job in jobs:
+            one_result = one_job()
+            self.correlation_data.update(one_result)
+            # one_result = one_job()
+            # results.append( one_result )
+
+        #print("CORRELATION DATA:", self.correlation_data)
+            
+        # print("Acquiring results")
+
+        # for one_result in results:
+            # for one_traitinfo in one_result:
+                # allcorrelations.append( one_traitinfo )
 
 

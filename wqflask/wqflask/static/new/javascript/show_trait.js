@@ -313,6 +313,12 @@
       return $("#trait_data_form").submit();
     };
 
+	submit_corr = function(){
+        var url;
+        url = "/corr_compute";
+        return submit_special(url);
+	};
+	
     $(".corr_compute").on("click", (function(_this) {
       return function() {
         var url;
