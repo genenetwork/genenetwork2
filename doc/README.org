@@ -1,3 +1,4 @@
+
 #+TITLE: Installing GeneNetwork services
 
 * Table of Contents                                                     :TOC:
@@ -10,6 +11,7 @@
    - [[#run-gn2][Run GN2]]
    - [[#run-mysql-server][Run MySQL server]]
    - [[#run-your-own-copy-of-gn2][Run your own copy of GN2]]
+   - [[#set-up-nginx-port-forwarding][Set up nginx port forwarding]]
  - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
  - [[#trouble-shooting][Trouble shooting]]
    - [[#importerror-no-module-named-jinja2][ImportError: No module named jinja2]]
@@ -170,7 +172,44 @@ that comes in the Guix installation. It sits in something like
 
 : cat ~/.guix-profile/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
 
+** Set up nginx port forwarding
 
+Install the webserver (as root)
+
+: guix package -i nginx
+
+The configuration examples can be found in the Guix store through
+
+: ls -l /root/.guix-profile/sbin/nginx
+: lrwxrwxrwx 3 root guixbuild 66 Dec 31  1969 /root/.guix-profile/sbin/nginx -> /gnu/store/g0wrcl5z27rmk5b52rldzvk1bzzbnz2l-nginx-1.8.1/sbin/nginx
+
+Use that path
+
+: ls /gnu/store/g0wrcl5z27rmk5b52rldzvk1bzzbnz2l-nginx-1.8.1/share/nginx/conf/
+:   fastcgi.conf            koi-win             scgi_params
+:   fastcgi.conf.default    mime.types          scgi_params.default
+:   fastcgi_params          mime.types.default  uwsgi_params
+:   fastcgi_params.default  nginx.conf          uwsgi_params.default
+:   koi-utf                 nginx.conf.default  win-utf
+
+And copy any relevant files to /etc/nginx.  A configuration file for
+GeneNetwork (reverse proxy) port forwarding can be found in the source
+repository under ./etc/nginx-genenetwork.conf. Copy this file to /etc
+(still as root)
+
+: cp ./etc/nginx-genenetwork.conf /etc/nginx/
+
+Make dirs
+
+: mkdir -p /var/spool/nginx/logs
+
+Add users
+
+: adduser nobody ; addgroup nobody 
+
+Run nginx
+
+: /root/.guix-profile/sbin/nginx -c /etc/nginx/nginx-genenetwork.conf -p /var/spool/nginx
 
 * Source deployment and other information on reproducibility
 
