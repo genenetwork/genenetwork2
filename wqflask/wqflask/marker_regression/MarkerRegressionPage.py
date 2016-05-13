@@ -72,7 +72,7 @@ class MarkerRegressionPage(templatePage):
             #automatically generate pheno txt file for PLINK
             self.genPhenoTxtFileForPlink(phenoFileName=plinkOutputFileName,RISetName=fd.RISet,probesetName=probesetName, valueDict=allTraitValueDict)
             # os.system full path is required for input and output files; specify missing value is -9999
-            plink_command = '%splink/plink --noweb --ped %splink/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %splink/%s.map --pheno %s/%s.txt --pheno-name %s --missing-phenotype -9999 --out %s%s --assoc ' % (webqtlConfig.HTMLPATH, webqtlConfig.HTMLPATH,  fd.RISet, webqtlConfig.HTMLPATH, fd.RISet, webqtlConfig.TMPDIR, plinkOutputFileName, probesetName, webqtlConfig.TMPDIR, plinkOutputFileName)
+            plink_command = '%splink/plink --noweb --ped %splink/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %splink/%s.map --pheno %s/%s.txt --pheno-name %s --missing-phenotype -9999 --out %s%s --assoc ' % (webqtlConfig.GENODIR, webqtlConfig.GENODIR,  fd.RISet, webqtlConfig.GENODIR, fd.RISet, webqtlConfig.TMPDIR, plinkOutputFileName, probesetName, webqtlConfig.TMPDIR, plinkOutputFileName)
 
             os.system(plink_command)
 
@@ -1597,7 +1597,7 @@ class MarkerRegressionPage(templatePage):
 
     # get strain name from ped file in order
     def getStrainNameFromPedFile(self, RISetName=''):
-        pedFileopen= open("%splink/%s.ped"%(webqtlConfig.HTMLPATH, RISetName),"r")
+        pedFileopen= open("%splink/%s.ped"%(webqtlConfig.GENODIR, RISetName),"r")
         line =pedFileopen.readline()
         strainNameList=[]
 

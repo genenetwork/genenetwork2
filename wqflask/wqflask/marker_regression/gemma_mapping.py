@@ -11,7 +11,7 @@ def run_gemma(this_dataset, samples, vals):
     gen_pheno_txt_file(this_dataset, samples, vals)
 
     # Don't do this!
-    # os.chdir("{}gemma".format(webqtlConfig.HTMLPATH))
+    # os.chdir("{}gemma".format(webqtlConfig.GENODIR))
 
     # use GEMMA_RUN in the next one, create a unique temp file
     
