@@ -674,7 +674,7 @@ class MarkerRegression(object):
 
         fpText.write("Source: WebQTL, The GeneNetwork (%s)\n" % webqtlConfig.PORTADDR)
         #
-        fpText.write("Site: %s\n" % webqtlConfig.SITENAME)
+        fpText.write("Site: GN\n")
         fpText.write("Page: Map Viewer\n")
         fpText.write(time.strftime("Date and Time (US Center): %b %d, %Y at %I.%M %p\n", time.localtime()))
         fpText.write("Trait ID: %s\n" % self.this_trait.name)

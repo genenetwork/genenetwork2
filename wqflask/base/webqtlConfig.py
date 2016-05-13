@@ -71,14 +71,9 @@ GENERATED_TEXT_DIR   = mk_dir(TMPDIR+'/generated_text/')
 GENODIR              = flat_files('genotype')+'/'
 JSON_GENODIR         = assert_dir(GENODIR+'json/')
 
-# SITENAME = 'GN'
-# PORTADDR = "http://50.16.251.170"
-# BASEHREF = '<base href="http://50.16.251.170/">'
+PORTADDR = "http://50.16.251.170"
 
 INFOPAGEHREF = '/dbdoc/%s.html'
 CGIDIR = '/webqtl/' #XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
 SCRIPTFILE = 'main.py'
 
-# GLOSSARYFILE = "/glossary.html"
-# REFRESHSTR = '<meta http-equiv="refresh" content="5;url=%s' + SCRIPTFILE +'?sid=%s">'
-# REFRESHDIR = '%s' + SCRIPTFILE +'?sid=%s'
