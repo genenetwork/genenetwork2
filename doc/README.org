@@ -578,11 +578,38 @@ that comes in the Guix installation. It sits in something like
 
 ** Set up nginx port forwarding
 
-Install the webserver (as root)
+nginx can be used as a reverse proxy for GN2. For example, we want to
+expose GN2 on port 80 while it is running on port 5003. Essentially
+the configuration looks like
+
+#+begin_src js
+    server {
+        listen 80;
+        server_name test-gn2.genenetwork.org;
+        access_log  logs/test-gn2.access.log;
+
+        proxy_connect_timeout       3000;
+        proxy_send_timeout          3000;
+        proxy_read_timeout          3000;
+        send_timeout                3000;
+
+        location / {
+            proxy_set_header   Host      $http_host;
+            proxy_set_header   Connection keep-alive;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Host $server_name;
+            proxy_pass         http://127.0.0.1:5003;
+        }
+}
+#+end_src js
+
+Install the nginx webserver (as root)
 
 : guix package -i nginx
 
-The configuration examples can be found in the Guix store through
+The nginx example configuration examples can be found in the Guix
+store through
 
 : ls -l /root/.guix-profile/sbin/nginx
 : lrwxrwxrwx 3 root guixbuild 66 Dec 31  1969 /root/.guix-profile/sbin/nginx -> /gnu/store/g0wrcl5z27rmk5b52rldzvk1bzzbnz2l-nginx-1.8.1/sbin/nginx
