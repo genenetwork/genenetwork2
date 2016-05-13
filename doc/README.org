@@ -73,7 +73,7 @@ significantly because all packages are pre-built). Here an IRC session
 where we installed GN2 from scratch using GNU Guix and a download
 of the test database:
 
-#+begin_src bash
+#+begin_src
 <pjotrp> time to get binary install sorted :)  [07:03]
 <pjotrp> Guix is designed for distributed installation servers
 <pjotrp> we have one on guix.genenetwork.org
@@ -474,7 +474,7 @@ The following derivations would be built:
 <pjotrp> 
 <pjotrp> I am building it on guix.genenetwork.org right now  [10:09]
 <user01> nice  [10:10]
-#+end_src bash
+#+end_src
 
 ** Run GN2
 
