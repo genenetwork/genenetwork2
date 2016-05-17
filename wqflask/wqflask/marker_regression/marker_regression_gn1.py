@@ -38,20 +38,11 @@ from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
 from base.GeneralObject import GeneralObject
-#from base.webqtlTrait import webqtlTrait
-#from base.templatePage import templatePage
 from utility import webqtlUtil
 from utility import helper_functions
 from utility import Plot
-#from utility.THCell import THCell
-#from utility.TDCell import TDCell
 from wqflask.interval_analyst import GeneUtil
-
-#from dbFunction import webqtlDatabaseFunction
-
-#import logging
-#logging.basicConfig(filename="/tmp/gn_leiyan.log", level=logging.INFO)
-#_log = logging.getLogger("gn\web\webqtl\intervalMapping\IntervalMappingPage.py")
+from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
 
 #########################################
 #      Inteval Mapping Plot Page
@@ -178,8 +169,8 @@ class MarkerRegression(object):
         self.species = start_vars['species']
 
         #Needing for form submission when doing single chr mapping or remapping after changing options
-        self.vals = start_vars['vals'] 
-        self.mapping_method = start_vars['mapping_method'] 
+        self.vals = start_vars['vals']
+        self.mapping_method = start_vars['mapping_method']
         if self.mapping_method == "rqtl_geno":
             self.mapmethod_rqtl_geno = start_vars['method']
             self.mapmodel_rqtl_geno = start_vars['model']
@@ -203,9 +194,9 @@ class MarkerRegression(object):
         #
         #self.species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
 
-        if self.dataset.species == "rat":
+        if self.dataset.group.species == "rat":
             self._ucscDb = "rn3"
-        elif self.dataset.species == "mouse":
+        elif self.dataset.group.species == "mouse":
             self._ucscDb = "mm9"
         else:
             self._ucscDb = ""
@@ -232,7 +223,7 @@ class MarkerRegression(object):
                 self.significant = start_vars['significant']
         else:
             self.nperm = 0
-           
+
         if 'bootCheck' in start_vars.keys():
             self.bootChecked = start_vars['bootCheck']
         else:
@@ -295,7 +286,7 @@ class MarkerRegression(object):
         self.dominanceChecked = False
         self.LRS_LOD = start_vars['LRSCheck']
         self.cutoff = start_vars['cutoff']
-        self.intervalAnalystChecked = False
+        self.intervalAnalystChecked = True
         self.draw2X = False
         if 'additiveCheck' in start_vars.keys():
             self.additiveChecked = start_vars['additiveCheck']
@@ -308,7 +299,7 @@ class MarkerRegression(object):
         if 'showSNP' in start_vars.keys():
             self.SNPChecked = start_vars['showSNP']
         else:
-            self.SNPChecked = False  
+            self.SNPChecked = False
         if 'showGenes' in start_vars.keys():
             self.geneChecked = start_vars['showGenes']
         else:
@@ -321,7 +312,7 @@ class MarkerRegression(object):
             self.endMb = float(start_vars['endMb'])
         except:
             self.endMb = -1
-        try: 
+        try:
             self.lrsMax = float(start_vars['lrsMax'])
         except:
             self.lrsMax = 0
@@ -363,7 +354,7 @@ class MarkerRegression(object):
             self.ChrList.append((indChr.name, i))
 
 
-        
+
         self.ChrLengthMbList = g.db.execute("""
                 Select
                         Length from Chr_Length, InbredSet
@@ -514,34 +505,34 @@ class MarkerRegression(object):
 
         self.geneCol = None
         if self.plotScale == 'physic' and self.selectedChr > -1 and (self.intervalAnalystChecked  or self.geneChecked):
-           chrName = self.selectedChr
-           # Draw the genes for this chromosome / region of this chromosome
-           webqtldatabase = self.dataset.name
-        
-           if self.dataset.group.species == "mouse":
-               self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "mouse")
-           elif self.dataset.group.species == "rat":
+            chrName = self.selectedChr
+            # Draw the genes for this chromosome / region of this chromosome
+            webqtldatabase = self.dataset.name
+
+            if self.dataset.group.species == "mouse":
+                self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "mouse")
+            elif self.dataset.group.species == "rat":
                self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "rat")
 
-        #
-        #    if self.geneCol and self.intervalAnalystChecked:
-        #        #######################################################################
-        #        #Nick use GENEID as RefGene to get Literature Correlation Informations#
-        #        #For Interval Mapping, Literature Correlation isn't useful, so skip it#
-        #        #through set GENEID is None                                           #
-        #        #######################################################################
-        #
-        #        #GENEID = fd.formdata.getvalue('GeneId') or None
-        #        GENEID = None
-        # 
-        #        geneTableContainer = HT.Div(Id="sortable") #Div to hold table
-        #        geneTable = self.geneTable(self.geneCol,GENEID)
-        #        geneTableContainer.append(geneTable)
-        #        
-        #        mainfmName = webqtlUtil.genRandStr("fm_")
-        #        tableForm = HT.Form(cgi=os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=mainfmName, submit=HT.Input(type='hidden'))
-        #        tableForm.append(HT.Input(name='FormID', value='', type='hidden'))
-        #        tableForm.append(geneTableContainer)
+            if self.geneCol and self.intervalAnalystChecked:
+               #######################################################################
+               #Nick use GENEID as RefGene to get Literature Correlation Informations#
+               #For Interval Mapping, Literature Correlation isn't useful, so skip it#
+               #through set GENEID is None                                           #
+               #######################################################################
+
+               #GENEID = fd.formdata.getvalue('GeneId') or None
+               GENEID = None
+
+               geneTableContainer = HT.Div(Id="sortable") #Div to hold table
+               self.geneTable(self.geneCol, GENEID)
+               #geneTable = self.geneTable(self.geneCol, GENEID)
+               #geneTableContainer.append(geneTable)
+
+               #mainfmName = webqtlUtil.genRandStr("fm_")
+               #tableForm = HT.Form(cgi=os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data', name=mainfmName, submit=HT.Input(type='hidden'))
+               #tableForm.append(HT.Input(name='FormID', value='', type='hidden'))
+               #tableForm.append(geneTableContainer)
 
 
         ################################################################
@@ -552,22 +543,22 @@ class MarkerRegression(object):
         #else:
         showLocusForm = ""
         intCanvas = pid.PILCanvas(size=(self.graphWidth, self.graphHeight))
-        gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)    
+        gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
 
         self.gifmap = gifmap.__str__()
         #print("GIFMAP:", gifmap.__str__())
 
         self.filename= webqtlUtil.genRandStr("Itvl_")
-        intCanvas.save(os.path.join(webqtlConfig.IMGDIR, self.filename), format='jpeg')
+        intCanvas.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename), format='jpeg')
         intImg=HT.Image('/image/'+self.filename+'.png', border=0, usemap='#WebQTLImageMap')
 
         #Scales plot differently for high resolution
         if self.draw2X:
             intCanvasX2 = pid.PILCanvas(size=(self.graphWidth*2,self.graphHeight*2))
             gifmapX2 = self.plotIntMapping(intCanvasX2, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm, zoom=2)
-            intCanvasX2.save(os.path.join(webqtlConfig.IMGDIR, self.filename+"X2"), format='png')
+            intCanvasX2.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename+"X2"), format='png')
             #DLintImgX2=HT.Href(text='Download',url = '/image/'+self.filename+'X2.png', Class='smallsize', target='_blank')
- 
+
         #textUrl = self.writeQTL2Text(fd, self.filename)
 
         ################################################################
@@ -597,7 +588,7 @@ class MarkerRegression(object):
             showLocusForm.append(intImg)
         else:
             showLocusForm = intImg
-        
+
         if self.permChecked and self.nperm > 0 and not self.multipleInterval and 0 < self.nperm:
             self.perm_filename = self.drawPermutationHistogram()
             #perm_text_file = self.permutationTextFile()
@@ -667,7 +658,7 @@ class MarkerRegression(object):
             TD_LR.append(HT.Blockquote(tableForm))
 
         self.body = TD_LR
-       
+
         #self.dict['body'] = TD_LR
         #self.dict['title'] = "Mapping"
 
@@ -683,7 +674,7 @@ class MarkerRegression(object):
 
         fpText.write("Source: WebQTL, The GeneNetwork (%s)\n" % webqtlConfig.PORTADDR)
         #
-        fpText.write("Site: %s\n" % webqtlConfig.SITENAME)
+        fpText.write("Site: GN\n")
         fpText.write("Page: Map Viewer\n")
         fpText.write(time.strftime("Date and Time (US Center): %b %d, %Y at %I.%M %p\n", time.localtime()))
         fpText.write("Trait ID: %s\n" % self.this_trait.name)
@@ -858,7 +849,7 @@ class MarkerRegression(object):
         BootCoord = []
         i = 0
         startX = xLeftOffset
-        
+
         if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
             for j, _chr in enumerate(self.genotype):
                 BootCoord.append( [])
@@ -881,8 +872,8 @@ class MarkerRegression(object):
                         else:
                             Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
                         BootCoord[-1].append([Xc, self.bootResult[i]])
-                    i += 1      
-                
+                    i += 1
+
         #reduce bootResult
         if self.selectedChr > -1:
             maxBootBar = 80.0
@@ -1411,7 +1402,7 @@ class MarkerRegression(object):
             if _strains[ii] in self.dataset.group.samplelist:
                 temp = GeneralObject(name=_strains[ii], value=_val)
                 smd.append(temp)
-            
+
 
         smd.sort(lambda A, B: cmp(A.value, B.value))
         smd.reverse()
@@ -1566,14 +1557,14 @@ class MarkerRegression(object):
                     firstGene = 0
                 else:
                     lastGene = 0
-                     
+
         for j, _geno in enumerate (self.genotype[0][1].genotype):
 
             plotbxd=0
             for item in smd:
                 if item.name == samplelist[j]:
-                    plotbxd=1    
-                    
+                    plotbxd=1
+
             if (plotbxd == 1):
 
                 ind = 0
@@ -1620,30 +1611,30 @@ class MarkerRegression(object):
 
         currentChromosome = self.genotype[0].name
         i = 0
-        
+
         paddingTop = yTopOffset
         ucscPaddingTop = paddingTop + self.WEBQTL_BAND_HEIGHT + self.BAND_SPACING
         ensemblPaddingTop = ucscPaddingTop + self.UCSC_BAND_HEIGHT + self.BAND_SPACING
-        
+
         if zoom == 1:
             for pixel in range(xLeftOffset, xLeftOffset + plotWidth, pixelStep):
-    
+
                 calBase = self.kONE_MILLION*(startMb + (endMb-startMb)*(pixel-xLeftOffset-0.0)/plotWidth)
-    
+
                 xBrowse1 = pixel
                 xBrowse2 = min(xLeftOffset + plotWidth, (pixel + pixelStep - 1))
-    
+
                 WEBQTL_COORDS = "%d, %d, %d, %d" % (xBrowse1, paddingTop, xBrowse2, (paddingTop+self.WEBQTL_BAND_HEIGHT))
                 bandWidth = xBrowse2 - xBrowse1
                 WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr - 1, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
-    
+
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
                 gifmap.areas.append(HT.Area(shape='rect',coords=WEBQTL_COORDS,href=WEBQTL_HREF, title=WEBQTL_TITLE))
                 canvas.drawRect(xBrowse1, paddingTop, xBrowse2, (paddingTop + self.WEBQTL_BAND_HEIGHT), edgeColor=self.CLICKABLE_WEBQTL_REGION_COLOR, fillColor=self.CLICKABLE_WEBQTL_REGION_COLOR)
                 canvas.drawLine(xBrowse1, paddingTop, xBrowse1, (paddingTop + self.WEBQTL_BAND_HEIGHT), color=self.CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR)
-    
+
                 UCSC_COORDS = "%d, %d, %d, %d" %(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.UCSC_BAND_HEIGHT))
-                if self.species == "mouse":
+                if self.dataset.group.species == "mouse":
                     UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d&hgt.customText=%s/snp/chr%s" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases, webqtlConfig.PORTADDR, self.selectedChr)
                 else:
                     UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
@@ -1651,9 +1642,9 @@ class MarkerRegression(object):
                 gifmap.areas.append(HT.Area(shape='rect',coords=UCSC_COORDS,href=UCSC_HREF, title=UCSC_TITLE))
                 canvas.drawRect(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.UCSC_BAND_HEIGHT), edgeColor=self.CLICKABLE_UCSC_REGION_COLOR, fillColor=self.CLICKABLE_UCSC_REGION_COLOR)
                 canvas.drawLine(xBrowse1, ucscPaddingTop, xBrowse1, (ucscPaddingTop+self.UCSC_BAND_HEIGHT), color=self.CLICKABLE_UCSC_REGION_OUTLINE_COLOR)
-    
+
                 ENSEMBL_COORDS = "%d, %d, %d, %d" %(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.ENSEMBL_BAND_HEIGHT))
-                if self.species == "mouse":
+                if self.dataset.group.species == "mouse":
                     ENSEMBL_HREF = "http://www.ensembl.org/Mus_musculus/contigview?highlight=&chr=%s&vc_start=%d&vc_end=%d&x=35&y=12" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 else:
                     ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
@@ -1766,7 +1757,7 @@ class MarkerRegression(object):
             ChrAInfo = []
             preLpos = -1
             distinctCount = 0.0
-            
+
             #if len(self.genotype) > 1:
             if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
                 for i, _chr in enumerate(self.genotype):
@@ -1809,7 +1800,7 @@ class MarkerRegression(object):
             offsetA = -stepA
             lineColor = pid.lightblue
             startPosX = xLeftOffset
-            
+
             for j, ChrInfo in enumerate(ChrAInfo):
                 preLpos = -1
                 for i, item in enumerate(ChrInfo):
@@ -1877,7 +1868,7 @@ class MarkerRegression(object):
             # lodm = self.LODFACTOR
         # else:
             # lodm = 1.0
- 
+
         #ZS: This is a mess, but I don't know a better way to account for different mapping methods returning results in different formats + the option to change between LRS and LOD
         if self.lrsMax <= 0:  #sliding scale
             if "lrs_value" in self.qtlresults[0]:
@@ -1890,7 +1881,7 @@ class MarkerRegression(object):
                 else:
                     if self.permChecked and self.nperm > 0 and not self.multipleInterval:
                         self.significant = min(self.significant, webqtlConfig.MAXLRS)
-                        self.suggestive = min(self.suggestive, webqtlConfig.MAXLRS)                    
+                        self.suggestive = min(self.suggestive, webqtlConfig.MAXLRS)
                     else:
                         pass
             else:
@@ -1903,10 +1894,10 @@ class MarkerRegression(object):
                 else:
                     if self.permChecked and self.nperm > 0 and not self.multipleInterval:
                         self.significant = min(self.significant, webqtlConfig.MAXLRS)
-                        self.suggestive = min(self.suggestive, webqtlConfig.MAXLRS)  
+                        self.suggestive = min(self.suggestive, webqtlConfig.MAXLRS)
                     else:
                         pass
-                        
+
             if self.permChecked and self.nperm > 0 and not self.multipleInterval:
                 LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
 
@@ -1923,7 +1914,7 @@ class MarkerRegression(object):
             LRSScale = 2.5
         else:
             LRSScale = 1.0
-           
+
         LRSAxisList = Plot.frange(LRSScale, LRS_LOD_Max, LRSScale)
         #make sure the user's value appears on the y-axis
         #update by NL 6-21-2011: round the LOD value to 100 when LRS_LOD_Max is equal to 460
@@ -1953,7 +1944,7 @@ class MarkerRegression(object):
 
             #"Significant" and "Suggestive" Drawing Routine
             # ======= Draw the thick lines for "Significant" and "Suggestive" =====  (crowell: I tried to make the SNPs draw over these lines, but piddle wouldn't have it...)
-            
+
             #ZS: I don't know if what I did here with this inner function is clever or overly complicated, but it's the only way I could think of to avoid duplicating the code inside this function
             def add_suggestive_significant_lines_and_legend(start_pos_x, chr_length_dist):
                 rightEdge = int(start_pos_x + chr_length_dist*plotXScale - self.SUGGESTIVE_WIDTH/1.5)
@@ -1976,13 +1967,13 @@ class MarkerRegression(object):
 
                 start_pos_x +=  (chr_length_dist+self.GraphInterval)*plotXScale
                 return start_pos_x
-            
+
             for i, _chr in enumerate(self.genotype):
                 if self.selectedChr != -1:
                     if _chr.name == self.ChrList[self.selectedChr][0]:
                         startPosX = add_suggestive_significant_lines_and_legend(startPosX, self.ChrLengthDistList[0])
                         break
-                    else: 
+                    else:
                         continue
                 else:
                     startPosX = add_suggestive_significant_lines_and_legend(startPosX, self.ChrLengthDistList[i])
@@ -1997,7 +1988,7 @@ class MarkerRegression(object):
             #else:
             #    dominanceMax = -1
             lrsEdgeWidth = 2
-            
+
         if zoom == 2:
             lrsEdgeWidth = 2 * lrsEdgeWidth
 
@@ -2018,7 +2009,7 @@ class MarkerRegression(object):
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
                 if self.manhattan_plot != True:
                     canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                    
+
                 if not self.multipleInterval and self.additiveChecked:
                     plusColor = self.ADDITIVE_COLOR_POSITIVE
                     minusColor = self.ADDITIVE_COLOR_NEGATIVE
@@ -2048,7 +2039,7 @@ class MarkerRegression(object):
                                     canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
                                 else:
                                     canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                    
+
                 LRSCoordXY = []
                 AdditiveCoordXY = []
                 previous_chr = qtlresult['chr']
@@ -2061,72 +2052,71 @@ class MarkerRegression(object):
 
             #startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
 
-            #for j, _chr in enumerate(self.genotype):   
+            #for j, _chr in enumerate(self.genotype):
             #ZS: This is beause the chromosome value stored in qtlresult['chr'] can be (for example) either X or 20 depending upon the mapping method/scale used
             if self.plotScale == "physic":
                 this_chr = str(self.ChrList[self.selectedChr][0])
             else:
-                this_chr = str(self.ChrList[self.selectedChr][1]+1)
+                this_chr = str(self.ChrList[self.selectedChr][1]+1)                                                                                                                    
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
                 #AdditiveCoordXY = []
                 #DominanceCoordXY = []
                 #for k, _locus in enumerate(_chr):
-                if 1 == 1:
-                    Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
-                    #if self.plotScale == 'physic':
-                        #Xc = startPosX + (_locus.Mb-startMb)*plotXScale
-                        #Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
-                    #else:
-                        #Xc = startPosX + (_locus.cM-_chr[0].cM)*plotXScale
-                        #Xc = startPosX + (qtlresult['cM']-qtlresult[0]['cM'])*plotXScale
+                Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+                #if self.plotScale == 'physic':
+                    #Xc = startPosX + (_locus.Mb-startMb)*plotXScale
+                    #Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+                #else:
+                    #Xc = startPosX + (_locus.cM-_chr[0].cM)*plotXScale
+                    #Xc = startPosX + (qtlresult['cM']-qtlresult[0]['cM'])*plotXScale
 
-                    # updated by NL 06-18-2011:
-                    # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
-                    # for any lrs is over than 460(LRS max in this system), it will be reset to 460
-                    if 'lrs_value' in qtlresult:
-                        if self.LRS_LOD == "LOD":
-                            if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                                Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
-                            else:
-                                Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
+                # updated by NL 06-18-2011:
+                # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
+                # for any lrs is over than 460(LRS max in this system), it will be reset to 460
+                if 'lrs_value' in qtlresult:
+                    if self.LRS_LOD == "LOD":
+                        if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                         else:
-                            if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                                Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
-                            else:
-                                Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
+                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                     else:
-                        if qtlresult['lod_score'] > 100 or qtlresult['lod_score']=='inf':
+                        if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
                             Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                         else:
-                            if self.LRS_LOD == "LRS":
-                                Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
-                            else:
-                                Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
-                    #if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                    #if self.qtlresults[j]['lrs_value'] > 460 or self.qtlresults[j]['lrs_value']=='inf':
-                    #    Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
-                    #else:
-                    #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
-
-                    if self.manhattan_plot == True:
-                        canvas.drawEllipse(Xc-1, Yc-1, Xc+1, Yc+1, fillColor=pid.black)
+                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
+                else:
+                    if qtlresult['lod_score'] > 100 or qtlresult['lod_score']=='inf':
+                        Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                     else:
-                        LRSCoordXY.append((Xc, Yc))
+                        if self.LRS_LOD == "LRS":
+                            Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
+                        else:
+                            Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
+                #if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                #if self.qtlresults[j]['lrs_value'] > 460 or self.qtlresults[j]['lrs_value']=='inf':
+                #    Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
+                #else:
+                #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
 
-                    if not self.multipleInterval and self.additiveChecked:
-                       if additiveMax == 0.0:
-                           additiveMax = 0.000001
-                       Yc = yZero - qtlresult['additive']*AdditiveHeightThresh/additiveMax
-                       AdditiveCoordXY.append((Xc, Yc))
-                    # if not self.multipleInterval and INTERCROSS and self.additiveChecked:
-                       # Yc = yZero - qtlresult['dominance']*DominanceHeightThresh/dominanceMax
-                       # DominanceCoordXY.append((Xc, Yc))
-                    m += 1
-                    #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                if self.manhattan_plot == True:
+                    canvas.drawEllipse(Xc-1, Yc-1, Xc+1, Yc+1, fillColor=pid.black)
+                else:
+                    LRSCoordXY.append((Xc, Yc))
+
+                if not self.multipleInterval and self.additiveChecked:
+                   if additiveMax == 0.0:
+                       additiveMax = 0.000001
+                   Yc = yZero - qtlresult['additive']*AdditiveHeightThresh/additiveMax
+                   AdditiveCoordXY.append((Xc, Yc))
+                # if not self.multipleInterval and INTERCROSS and self.additiveChecked:
+                   # Yc = yZero - qtlresult['dominance']*DominanceHeightThresh/dominanceMax
+                   # DominanceCoordXY.append((Xc, Yc))
+                m += 1
+                #canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
         if self.manhattan_plot != True:
             canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-            
+
         if not self.multipleInterval and self.additiveChecked:
             plusColor = self.ADDITIVE_COLOR_POSITIVE
             minusColor = self.ADDITIVE_COLOR_NEGATIVE
@@ -2156,7 +2146,7 @@ class MarkerRegression(object):
                             canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
                         else:
                             canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                    
+
         if not self.multipleInterval and INTERCROSS and self.dominanceChecked:
             plusColor = self.DOMINANCE_COLOR_POSITIVE
             minusColor = self.DOMINANCE_COLOR_NEGATIVE
@@ -2186,7 +2176,7 @@ class MarkerRegression(object):
                             canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
                         else:
                             canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                
+
 
         ###draw additive scale
         if not self.multipleInterval and self.additiveChecked:
@@ -2222,7 +2212,7 @@ class MarkerRegression(object):
         if zoom == 2:
             fontZoom = 1.5
             yTopOffset += 30
-        
+
         #calculate plot scale
         if self.plotScale != 'physic':
             self.ChrLengthDistList = self.ChrLengthCMList
@@ -2589,13 +2579,13 @@ class MarkerRegression(object):
             perm_output = [value/4.16 for value in self.perm_output]
         else:
             perm_output = self.perm_output
-            
+
         Plot.plotBar(myCanvas, perm_output, XLabel=self.LRS_LOD, YLabel='Frequency', title=' Histogram of Permutation Test')
         filename= webqtlUtil.genRandStr("Reg_")
-        myCanvas.save(webqtlConfig.IMGDIR+filename, format='gif')
-        
+        myCanvas.save(GENERATED_IMAGE_DIR+filename, format='gif')
+
         return filename
-        
+
         # img=HT.Image('/image/'+filename+'.gif',border=0,alt='Histogram of Permutation Test')
 
         # self.suggestive = self.perm_output[int(self.nperm*0.37-1)]
@@ -2609,9 +2599,9 @@ class MarkerRegression(object):
         # permutation.append(HT.TR(HT.TD(img)),
                            # HT.TR(HT.TD('')),
                            # HT.TR(HT.TD('Total of %d permutations'%self.nperm)))
-        
+
         # return permutation
-    
+
     def permutationTextFile(self):
         filename= webqtlUtil.genRandStr("Reg_")
         fpText = open('%s.txt' % (webqtlConfig.TMPDIR+filename), 'wb')
@@ -2624,124 +2614,152 @@ class MarkerRegression(object):
                               '&nbsp;&nbsp;&nbsp;&nbsp;Significant LRS =%3.2f\n'%self.significant,
                               HT.BR(),
                               '&nbsp;&nbsp;&nbsp;&nbsp;Highly Significant LRS =%3.2f\n' % self.highlysignificant)
-        
+
         for lrs_value in self.perm_output:
             fpText.write(str(lrs_value) + "\n")
-        
+
         textUrl = HT.Href(text = 'Download Permutation Results', url= '/tmp/'+filename+'.txt', target = "_blank", Class='fs12 fwn')
-        
+
         return textUrl
 
     def geneTable(self, geneCol, refGene=None):
         #SNPLink = 0 #Not sure what this is used for
 
-        if self.species == 'mouse' or self.species == 'rat':
+        if self.dataset.group.species == 'mouse' or self.dataset.group.species == 'rat':
+            #gene_tblobj = {}
+            self.gene_table_header = self.getGeneTableHeader(refGene=None)
+            self.gene_table_body = self.getGeneTableBody(geneCol, refGene=None)
+            #gene_tblobj["header"] = self.getGeneTableHeader(refGene=None)
+            #gene_tblobj["body"] = self.getGeneTableBody(geneCol, refGene=None)
 
-            gene_tblobj = {}
-            gene_tblobj["header"] = self.getGeneTableHeader(refGene=None)
-            gene_tblobj["body"] = self.getGeneTableBody(geneCol, refGene=None)
+            #sortby = self.getSortByValue()
 
-            sortby = self.getSortByValue()
+            #filename= webqtlUtil.genRandStr("Mapping_")
 
-            filename= webqtlUtil.genRandStr("Mapping_")
+            #objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
+            #cPickle.dump(gene_tblobj, objfile)
+            #objfile.close()
 
-            objfile = open('%s.obj' % (webqtlConfig.TMPDIR+filename), 'wb')
-            cPickle.dump(gene_tblobj, objfile)
-            objfile.close()
-
-            gene_table = webqtlUtil.genTableObj(tblobj=gene_tblobj, file=filename, sortby=sortby, tableID="sortable", addIndex="0")
-
+            #gene_table = webqtlUtil.genTableObj(tblobj=gene_tblobj, file=filename, sortby=sortby, tableID="sortable", addIndex="0")
         else:
-            gene_table = ""
+            self.gene_table_header = None
+            self.gene_table_body = None
+            #gene_table = ""
 
-        return gene_table    
-
-    def getLiteratureCorrelation(cursor,geneId1=None,geneId2=None):
-        if not geneId1 or not geneId2:
-            return None
-        if geneId1 == geneId2:
-            return 1.0
-        geneId1 = str(geneId1)
-        geneId2 = str(geneId2)
-        lCorr = None
-        try:
-            query = 'SELECT Value FROM LCorrRamin3 WHERE GeneId1 = %s and GeneId2 = %s'
-            for x,y in [(geneId1,geneId2),(geneId2,geneId1)]:
-                cursor.execute(query,(x,y))
-                lCorr =  cursor.fetchone()
-                if lCorr:
-                    lCorr = lCorr[0]
-                    break
-        except: raise #lCorr = None
-        return lCorr
+        #return gene_table    
 
     def getGeneTableHeader(self, refGene=None):
 
         gene_tblobj_header = []
+        
+        gene_table_header_list = []
 
         col_class = "fs14 fwb ffl b1 cw cbrb"
 
-        if self.species == "mouse":
+        if self.dataset.group.species == "mouse":
 
             if refGene:
-                gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
-                        THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
-                        THCell(HT.TD('Mb Start',HT.BR(),'(mm9)', align='left', width=100, Class=col_class), text="mb_start_mm9", idx=2),
-                        THCell(HT.TD('Length (Kb)', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="length", idx=3),
-                        THCell(HT.TD('SNP',HT.BR(),'Count', align='left', width=47, Class=col_class), text="snp_count", idx=4),
-                        THCell(HT.TD('SNP',HT.BR(),'Density', align='left', width=78, Class=col_class), text="snp_density", idx=5),
-                        THCell(HT.TD('Avg',HT.BR(),'Expr', HT.BR(), HT.BR(), align='left', width=44, Class=col_class), sort=0, idx=6),
-                        THCell(HT.TD('Human',HT.BR(),'Chr', align='left', width=60, Class=col_class), text="human_chr", idx=7),
-                        THCell(HT.TD('Mb Start',HT.BR(),'(hg19)', align='left', width=100, Class=col_class), text="mb_start_hg19", idx=8),
-                        THCell(HT.TD('Literature',HT.BR(),'Correlation', align='left', width=100, Class=col_class), text="lit_corr", idx=9),
-                        THCell(HT.TD('Gene Description', HT.BR(), HT.BR(), align='left', width=290, Class=col_class), text="description", idx=10),
-                        THCell(HT.TD('PolymiRTS',HT.BR(),'Database', HT.BR(), HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank", Class="normalsize"),
-                                        align='left', width=100, Class=col_class), sort=0, idx=11),
-                        THCell(HT.TD('Gene Weaver', HT.BR(), 'Info Content', HT.BR(), HT.Href(url='http://geneweaver.org/', text='>>', target="_blank", Class="normalsize"),
-                                        align='left', width=110, Class=col_class), sort=0, idx=12),
-                                        ]]
+                gene_table_header_list = ["Index", 
+                                               "Symbol", 
+                                               "Mb Start", 
+                                               "Length (Kb)", 
+                                               "SNP Count", 
+                                               "SNP Density", 
+                                               "Avg Expr", 
+                                               "Human Chr", 
+                                               "Mb Start (hg19)", 
+                                               "Literature Correlation",
+                                               "Gene Description", 
+                                               "PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(), 
+                                               "Gene Weaver Info Content" + HT.Href(url='http://geneweaver.org/', text='>>', target="_blank").__str__()]
+            
+                # gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
+                        # THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
+                        # THCell(HT.TD('Mb Start',HT.BR(),'(mm9)', align='left', width=100, Class=col_class), text="mb_start_mm9", idx=2),
+                        # THCell(HT.TD('Length (Kb)', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="length", idx=3),
+                        # THCell(HT.TD('SNP',HT.BR(),'Count', align='left', width=47, Class=col_class), text="snp_count", idx=4),
+                        # THCell(HT.TD('SNP',HT.BR(),'Density', align='left', width=78, Class=col_class), text="snp_density", idx=5),
+                        # THCell(HT.TD('Avg',HT.BR(),'Expr', HT.BR(), HT.BR(), align='left', width=44, Class=col_class), sort=0, idx=6),
+                        # THCell(HT.TD('Human',HT.BR(),'Chr', align='left', width=60, Class=col_class), text="human_chr", idx=7),
+                        # THCell(HT.TD('Mb Start',HT.BR(),'(hg19)', align='left', width=100, Class=col_class), text="mb_start_hg19", idx=8),
+                        # THCell(HT.TD('Literature',HT.BR(),'Correlation', align='left', width=100, Class=col_class), text="lit_corr", idx=9),
+                        # THCell(HT.TD('Gene Description', HT.BR(), HT.BR(), align='left', width=290, Class=col_class), text="description", idx=10),
+                        # THCell(HT.TD('PolymiRTS',HT.BR(),'Database', HT.BR(), HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank", Class="normalsize"),
+                                        # align='left', width=100, Class=col_class), sort=0, idx=11),
+                        # THCell(HT.TD('Gene Weaver', HT.BR(), 'Info Content', HT.BR(), HT.Href(url='http://geneweaver.org/', text='>>', target="_blank", Class="normalsize"),
+                                        # align='left', width=110, Class=col_class), sort=0, idx=12),
+                                        # ]]
             else:
-                gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
-                        THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
-                        THCell(HT.TD('Mb Start',HT.BR(),'(mm9)', align='left', width=100, Class=col_class), text="mb_start_mm9", idx=2),
-                        THCell(HT.TD('Length (Kb)', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="length", idx=3),
-                        THCell(HT.TD('SNP',HT.BR(),'Count', align='left', width=47, Class=col_class), text="snp_count", idx=4),
-                        THCell(HT.TD('SNP',HT.BR(),'Density', align='left', width=78, Class=col_class), text="snp_density", idx=5),
-                        THCell(HT.TD('Avg',HT.BR(),'Expr', HT.BR(), HT.BR(), align='left', width=44, Class=col_class), sort=0, idx=6),
-                        THCell(HT.TD('Human',HT.BR(),'Chr', align='left', width=60, Class=col_class), text="human_chr", idx=7),
-                        THCell(HT.TD('Mb Start',HT.BR(),'(hg19)', align='left', width=100, Class=col_class), text="mb_start_hg19", idx=8),
-                        THCell(HT.TD('Gene Description', HT.BR(), HT.BR(), align='left', width=290, Class=col_class), text="description", idx=9),
-                        THCell(HT.TD('PolymiRTS',HT.BR(),'Database', HT.BR(), HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank", Class="normalsize"),
-                                        align='left', width=100, Class=col_class), sort=0, idx=10),
-                        THCell(HT.TD('Gene Weaver', HT.BR(), 'Info Content', HT.BR(), HT.Href(url='http://geneweaver.org/', text='>>', target="_blank", Class="normalsize"),
-                                        align='left', width=110, Class=col_class), sort=0, idx=11),
-                                        ]]
+                gene_table_header_list = ["",
+                                          "Index", 
+                                          "Symbol", 
+                                          "Mb Start", 
+                                          "Length (Kb)", 
+                                          "SNP Count", 
+                                          "SNP Density", 
+                                          "Avg Expr", 
+                                          "Human Chr", 
+                                          "Mb Start (hg19)", 
+                                          "Gene Description", 
+                                          "PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(), 
+                                          "Gene Weaver Info Content" + HT.Href(url='http://geneweaver.org/', text='>>', target="_blank").__str__()]
 
-        elif self.species == "rat":
+                # gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
+                        # THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
+                        # THCell(HT.TD('Mb Start',HT.BR(),'(mm9)', align='left', width=100, Class=col_class), text="mb_start_mm9", idx=2),
+                        # THCell(HT.TD('Length (Kb)', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="length", idx=3),
+                        # THCell(HT.TD('SNP',HT.BR(),'Count', align='left', width=47, Class=col_class), text="snp_count", idx=4),
+                        # THCell(HT.TD('SNP',HT.BR(),'Density', align='left', width=78, Class=col_class), text="snp_density", idx=5),
+                        # THCell(HT.TD('Avg',HT.BR(),'Expr', HT.BR(), HT.BR(), align='left', width=44, Class=col_class), sort=0, idx=6),
+                        # THCell(HT.TD('Human',HT.BR(),'Chr', align='left', width=60, Class=col_class), text="human_chr", idx=7),
+                        # THCell(HT.TD('Mb Start',HT.BR(),'(hg19)', align='left', width=100, Class=col_class), text="mb_start_hg19", idx=8),
+                        # THCell(HT.TD('Gene Description', HT.BR(), HT.BR(), align='left', width=290, Class=col_class), text="description", idx=9),
+                        # THCell(HT.TD('PolymiRTS',HT.BR(),'Database', HT.BR(), HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank", Class="normalsize"),
+                                        # align='left', width=100, Class=col_class), sort=0, idx=10),
+                        # THCell(HT.TD('Gene Weaver', HT.BR(), 'Info Content', HT.BR(), HT.Href(url='http://geneweaver.org/', text='>>', target="_blank", Class="normalsize"),
+                                        # align='left', width=110, Class=col_class), sort=0, idx=11),
+                                        # ]]
 
-            gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
-                    THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
-                    THCell(HT.TD('Mb Start',HT.BR(),'(rn3)', align='left', width=100, Class=col_class), text="mb_start_rn3", idx=2),
-                    THCell(HT.TD('Length (Kb)', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="length", idx=3),
-                    THCell(HT.TD('Avg',HT.BR(),'Expr', HT.BR(), HT.BR(), align='left', width=44, Class=col_class), sort=0, idx=4),
-                    THCell(HT.TD('Mouse',HT.BR(),'Chr', align='left', width=60, Class=col_class), text="mouse_chr", idx=5),
-                    THCell(HT.TD('Mb Start',HT.BR(),'(mm9)', align='left', width=100, Class=col_class), text="mb_start_mm9", idx=6),
-                    THCell(HT.TD('Human',HT.BR(),'Chr', align='left', width=60, Class=col_class), text="human_chr", idx=7),
-                    THCell(HT.TD('Mb Start',HT.BR(),'(hg19)', align='left', width=100, Class=col_class), text="mb_start_hg19", idx=8),
-                    THCell(HT.TD('Gene Description', HT.BR(), HT.BR(), align='left', Class=col_class), text="description", idx=9)]]
+        elif self.dataset.group.species == "rat":
+
+            gene_table_header_list = ["",
+                                      "Index", 
+                                      "Symbol", 
+                                      "Mb Start", 
+                                      "Length (Kb)", 
+                                      "Avg Expr", 
+                                      "Mouse Chr", 
+                                      "Mb Start (mm9)", 
+                                      "Human Chr", 
+                                      "Mb Start (hg19)", 
+                                      "Gene Description"]
+        
+            # gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
+                    # THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
+                    # THCell(HT.TD('Mb Start',HT.BR(),'(rn3)', align='left', width=100, Class=col_class), text="mb_start_rn3", idx=2),
+                    # THCell(HT.TD('Length (Kb)', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="length", idx=3),
+                    # THCell(HT.TD('Avg',HT.BR(),'Expr', HT.BR(), HT.BR(), align='left', width=44, Class=col_class), sort=0, idx=4),
+                    # THCell(HT.TD('Mouse',HT.BR(),'Chr', align='left', width=60, Class=col_class), text="mouse_chr", idx=5),
+                    # THCell(HT.TD('Mb Start',HT.BR(),'(mm9)', align='left', width=100, Class=col_class), text="mb_start_mm9", idx=6),
+                    # THCell(HT.TD('Human',HT.BR(),'Chr', align='left', width=60, Class=col_class), text="human_chr", idx=7),
+                    # THCell(HT.TD('Mb Start',HT.BR(),'(hg19)', align='left', width=100, Class=col_class), text="mb_start_hg19", idx=8),
+                    # THCell(HT.TD('Gene Description', HT.BR(), HT.BR(), align='left', Class=col_class), text="description", idx=9)]]
 
         else:
             pass
 
-        return gene_tblobj_header
+        return gene_table_header_list
+        #return gene_tblobj_header
 
     def getGeneTableBody(self, geneCol, refGene=None):
 
         tblobj_body = [] #contains table rows
         className = "fs13 b1 c222"
+        
+        gene_table_body = []
 
         tableIterationsCnt = 0
-        if self.species == "mouse":
+        if self.dataset.group.species == "mouse":
 
             # polymiRTS
             # http://lily.uthsc.edu:8080/20090422_UTHSC_cuiyan/PolymiRTS_CLS?chrom=2&chrom_from=115&chrom_to=125
@@ -2780,8 +2798,8 @@ class MarkerRegression(object):
 
                     allProbeString = '%s?cmd=sch&gene=%s&alias=1' % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), theGO["GeneSymbol"])
                     if theGO["snpCount"]:
-                        snpString = HT.Href(url="%s&chr=%s&start=%s&end=%s&geneName=%s&s1=%d&s2=%d" % (os.path.join(webqtlConfig.CGIDIR, 'main.py?FormID=snpBrowser'),
-                                theGO["Chromosome"], theGO["TxStart"], theGO["TxEnd"], theGO["GeneSymbol"], self.diffCol[0], self.diffCol[1]),
+                        snpString = HT.Href(url="http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&chr=%s&start=%s&end=%s&geneName=%s&s1=%d&s2=%d" % (theGO["Chromosome"],
+                                theGO["TxStart"], theGO["TxEnd"], theGO["GeneSymbol"], self.diffCol[0], self.diffCol[1]),
                                 text=theGO["snpCount"], target="_blank", Class="normalsize")
                     else:
                         snpString = 0
@@ -2818,7 +2836,7 @@ class MarkerRegression(object):
                     geneDescription = theGO["GeneDescription"]
                     if len(geneDescription) > 26:
                         geneDescription = geneDescription[:26]+"..."
-                    probeSetSearch = HT.Href(allProbeString, HT.Image("/images/webqtl_search.gif", border=0), target="_blank")
+                    probeSetSearch = HT.Href(allProbeString, ">>", target="_blank")
 
                     if theGO["snpDensity"] < 0.000001:
                         snpDensityStr = "0"
@@ -2845,37 +2863,69 @@ class MarkerRegression(object):
 
                         literatureCorrelationString = str(self.getLiteratureCorrelation(self.cursor,refGene,theGO['GeneID']) or "N/A")
 
-                        this_row.append(TDCell(HT.TD(tableIterationsCnt, selectCheck, width=30, align='right', Class=className), tableIterationsCnt, tableIterationsCnt))
-                        this_row.append(TDCell(HT.TD(HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank"), "&nbsp;", probeSetSearch, align='right', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
-                        this_row.append(TDCell(HT.TD(HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank"), align='right', Class=className), str(mouseStartValue), mouseStartValue))
-                        this_row.append(TDCell(HT.TD(HT.Href("javascript:centerIntervalMapOnRange2('%s', " % theGO["Chromosome"]+str(txStart-tenPercentLength) + ", " + str(txEnd+tenPercentLength) + ", document.changeViewForm)", "%0.3f" % geneLength), align='right', Class=className), "%0.3f" % geneLength, geneLength))
-                        this_row.append(TDCell(HT.TD(snpString, align='right', Class=className), str(theGO["snpCount"]), theGO["snpCount"]))
-                        this_row.append(TDCell(HT.TD(snpDensityStr, align='right', Class=className), snpDensityStr, theGO["snpDensity"]))
-                        this_row.append(TDCell(HT.TD(avgExpr, align='right', Class=className), "--", "--"))
-                        this_row.append(TDCell(HT.TD(humanChr, align='right', Class=className), humanChr, humanChrSort))
-                        this_row.append(TDCell(HT.TD(HT.Href(humanStartString, humanStartDisplay, target="_blank"), align='right', Class=className), humanStartDisplay, humanStartValue))
-                        this_row.append(TDCell(HT.TD(literatureCorrelationString, align='right', Class=className), literatureCorrelationString, literatureCorrelation))
-                        this_row.append(TDCell(HT.TD(geneDescription, align='right', Class=className), geneDescription, geneDescription))
-                        this_row.append(TDCell(HT.TD(polymiRTS, align='right', Class=className), "", ""))
-                        this_row.append(TDCell(HT.TD("", align='right', Class=className), "", ""))
+                        this_row = [selectCheck.__str__(),
+                                    str(tableIterationsCnt),
+                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__() +  "&nbsp;" + probeSetSearch.__str__(),
+                                    HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
+                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(int(theGO["Chromosome"])-1), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    snpString,
+                                    snpDensityStr,
+                                    avgExpr,
+                                    humanChr,
+                                    HT.Href(humanStartString, humanStartDisplay, target="_blank").__str__(),
+                                    literatureCorrelationString,
+                                    geneDescription,
+                                    polymiRTS,
+                                    ""]
+                                    
+                        # this_row.append(TDCell(HT.TD(tableIterationsCnt, selectCheck, width=30, align='right', Class=className), tableIterationsCnt, tableIterationsCnt))
+                        # this_row.append(TDCell(HT.TD(HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank"), "&nbsp;", probeSetSearch, align='right', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
+                        # this_row.append(TDCell(HT.TD(HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank"), align='right', Class=className), str(mouseStartValue), mouseStartValue))
+                        # this_row.append(TDCell(HT.TD(HT.Href("javascript:centerIntervalMapOnRange2('%s', " % theGO["Chromosome"]+str(txStart-tenPercentLength) + ", " + str(txEnd+tenPercentLength) + ", document.changeViewForm)", "%0.3f" % geneLength), align='right', Class=className), "%0.3f" % geneLength, geneLength))
+                        # this_row.append(TDCell(HT.TD(snpString, align='right', Class=className), str(theGO["snpCount"]), theGO["snpCount"]))
+                        # this_row.append(TDCell(HT.TD(snpDensityStr, align='right', Class=className), snpDensityStr, theGO["snpDensity"]))
+                        # this_row.append(TDCell(HT.TD(avgExpr, align='right', Class=className), "--", "--"))
+                        # this_row.append(TDCell(HT.TD(humanChr, align='right', Class=className), humanChr, humanChrSort))
+                        # this_row.append(TDCell(HT.TD(HT.Href(humanStartString, humanStartDisplay, target="_blank"), align='right', Class=className), humanStartDisplay, humanStartValue))
+                        # this_row.append(TDCell(HT.TD(literatureCorrelationString, align='right', Class=className), literatureCorrelationString, literatureCorrelation))
+                        # this_row.append(TDCell(HT.TD(geneDescription, align='right', Class=className), geneDescription, geneDescription))
+                        # this_row.append(TDCell(HT.TD(polymiRTS, align='right', Class=className), "", ""))
+                        # this_row.append(TDCell(HT.TD("", align='right', Class=className), "", ""))
 
                     else:
-                        this_row.append(TDCell(HT.TD(tableIterationsCnt, selectCheck, width=30, align='right', Class=className), tableIterationsCnt, tableIterationsCnt))
-                        this_row.append(TDCell(HT.TD(HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank"), "&nbsp;", probeSetSearch, align='right', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
-                        this_row.append(TDCell(HT.TD(HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank"), align='right', Class=className), str(mouseStartValue), mouseStartValue))
-                        this_row.append(TDCell(HT.TD(HT.Href("javascript:centerIntervalMapOnRange2('%s', " % theGO["Chromosome"]+str(txStart-tenPercentLength) + ", " + str(txEnd+tenPercentLength) + ", document.changeViewForm)", "%0.3f" % geneLength), align='right', Class=className), "%0.3f" % geneLength, geneLength))
-                        this_row.append(TDCell(HT.TD(snpString, align='right', Class=className), str(theGO["snpCount"]), theGO["snpCount"]))
-                        this_row.append(TDCell(HT.TD(snpDensityStr, align='right', Class=className), snpDensityStr, theGO["snpDensity"]))
-                        this_row.append(TDCell(HT.TD(avgExpr, align='right', Class=className), "--", "--"))
-                        this_row.append(TDCell(HT.TD(humanChr, align='right', Class=className), humanChr, humanChrSort))
-                        this_row.append(TDCell(HT.TD(HT.Href(humanStartString, humanStartDisplay, target="_blank"), align='right', Class=className), humanStartDisplay, humanStartValue))
-                        this_row.append(TDCell(HT.TD(geneDescription, align='right', Class=className), geneDescription, geneDescription))
-                        this_row.append(TDCell(HT.TD(polymiRTS, align='right', Class=className), "", ""))
-                        this_row.append(TDCell(HT.TD("", align='right', Class=className), "", ""))
+                    
+                        this_row = [selectCheck.__str__(),
+                                    str(tableIterationsCnt),
+                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__() +  "&nbsp;" + probeSetSearch.__str__(),
+                                    HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
+                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(int(theGO["Chromosome"])-1), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    snpString,
+                                    snpDensityStr,
+                                    avgExpr,
+                                    humanChr,
+                                    HT.Href(humanStartString, humanStartDisplay, target="_blank").__str__(),
+                                    geneDescription,
+                                    polymiRTS,
+                                    ""]
+                    
+                    
+                        # this_row.append(TDCell(HT.TD(tableIterationsCnt, selectCheck, width=30, align='right', Class=className), tableIterationsCnt, tableIterationsCnt))
+                        # this_row.append(TDCell(HT.TD(HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank"), "&nbsp;", probeSetSearch, align='right', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
+                        # this_row.append(TDCell(HT.TD(HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank"), align='right', Class=className), str(mouseStartValue), mouseStartValue))
+                        # this_row.append(TDCell(HT.TD(HT.Href("javascript:centerIntervalMapOnRange2('%s', " % theGO["Chromosome"]+str(txStart-tenPercentLength) + ", " + str(txEnd+tenPercentLength) + ", document.changeViewForm)", "%0.3f" % geneLength), align='right', Class=className), "%0.3f" % geneLength, geneLength))
+                        # this_row.append(TDCell(HT.TD(snpString, align='right', Class=className), str(theGO["snpCount"]), theGO["snpCount"]))
+                        # this_row.append(TDCell(HT.TD(snpDensityStr, align='right', Class=className), snpDensityStr, theGO["snpDensity"]))
+                        # this_row.append(TDCell(HT.TD(avgExpr, align='right', Class=className), "--", "--"))
+                        # this_row.append(TDCell(HT.TD(humanChr, align='right', Class=className), humanChr, humanChrSort))
+                        # this_row.append(TDCell(HT.TD(HT.Href(humanStartString, humanStartDisplay, target="_blank"), align='right', Class=className), humanStartDisplay, humanStartValue))
+                        # this_row.append(TDCell(HT.TD(geneDescription, align='right', Class=className), geneDescription, geneDescription))
+                        # this_row.append(TDCell(HT.TD(polymiRTS, align='right', Class=className), "", ""))
+                        # this_row.append(TDCell(HT.TD("", align='right', Class=className), "", ""))
 
-                tblobj_body.append(this_row)
+                gene_table_body.append(this_row)        
+                #tblobj_body.append(this_row)
 
-        elif self.species == 'rat':
+        elif self.dataset.group.species == 'rat':
 
             for gIndex, theGO in enumerate(geneCol):
 
@@ -2923,32 +2973,57 @@ class MarkerRegression(object):
                 if geneDesc == "---":
                     geneDesc = ""
 
-                """
-                if len(geneDesc) > 40:
-                        geneDesc = gene0So apparently Angola prison (which used to be a slave plantation) has a rodeo that they invite the general public to.
-The prisoners are not trained before hand
-But its cool because its completely voluntary.
-And by voluntary, according to HFG when I talked to him, they have a choice between doing it or door number two and "door number 2 is... rather worse than volunteering"Desc[:37] + "..."
-                """
+                this_row = [selectCheck.__str__(),
+                            str(gIndex+1),
+                            webqtlSearch.__str__() + geneSymbolNCBI,
+                            theGO["TxStart"],
+                            HT.Href(geneLengthURL, "%0.3f" % (geneLength*1000.0)).__str__(),
+                            avgExprVal,
+                            mouseChr,
+                            mouseTxStart,
+                            humanChr,
+                            humanTxStart,
+                            geneDesc]
+                    
+                    
+                #this_row.append(TDCell(HT.TD(gIndex + 1, selectCheck, align='left', Class=className), str(gIndex+1), gIndex+1))
+                #this_row.append(TDCell(HT.TD(webqtlSearch, geneSymbolNCBI, align='left', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
+                #this_row.append(TDCell(HT.TD(theGO["TxStart"], align='left', Class=className), theGO["TxStart"], theGO["TxStart"]))
+                #this_row.append(TDCell(HT.TD(HT.Href(geneLengthURL, "%0.3f" % (geneLength*1000.0)), align='left', Class=className), "%0.3f" % (geneLength*1000.0), (geneLength*1000.0)))
+                #this_row.append(TDCell(HT.TD(avgExprVal, align='left', Class=className), "", ""))
+                #this_row.append(TDCell(HT.TD(mouseChr, align='left', Class=className), mouseChr, mouseChr))
+                #this_row.append(TDCell(HT.TD(mouseTxStart, align='left', Class=className), mouseTxStart, mouseTxStart))
+                #this_row.append(TDCell(HT.TD(humanChr, align='left', Class=className), humanChr, humanChrSort))
+                #this_row.append(TDCell(HT.TD(humanTxStart, align='left', Class=className), humanTxStart, humanTxStart))
+                #this_row.append(TDCell(HT.TD(geneDesc, align='left', Class=className), geneDesc, geneDesc))
 
-                this_row.append(TDCell(HT.TD(gIndex + 1, selectCheck, align='left', Class=className), str(gIndex+1), gIndex+1))
-                this_row.append(TDCell(HT.TD(webqtlSearch, geneSymbolNCBI, align='left', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
-                this_row.append(TDCell(HT.TD(theGO["TxStart"], align='left', Class=className), theGO["TxStart"], theGO["TxStart"]))
-                this_row.append(TDCell(HT.TD(HT.Href(geneLengthURL, "%0.3f" % (geneLength*1000.0)), align='left', Class=className), "%0.3f" % (geneLength*1000.0), (geneLength*1000.0)))
-                this_row.append(TDCell(HT.TD(avgExprVal, align='left', Class=className), "", ""))
-                this_row.append(TDCell(HT.TD(mouseChr, align='left', Class=className), mouseChr, mouseChr))
-                this_row.append(TDCell(HT.TD(mouseTxStart, align='left', Class=className), mouseTxStart, mouseTxStart))
-                this_row.append(TDCell(HT.TD(humanChr, align='left', Class=className), humanChr, humanChrSort))
-                this_row.append(TDCell(HT.TD(humanTxStart, align='left', Class=className), humanTxStart, humanTxStart))
-                this_row.append(TDCell(HT.TD(geneDesc, align='left', Class=className), geneDesc, geneDesc))
-
-                tblobj_body.append(this_row)
+                gene_table_body.append(this_row)
+                #tblobj_body.append(this_row)
 
         else:
             pass
 
-        return tblobj_body
-
+        return gene_table_body
+        #return tblobj_body        
+        
+    def getLiteratureCorrelation(cursor,geneId1=None,geneId2=None):
+        if not geneId1 or not geneId2:
+            return None
+        if geneId1 == geneId2:
+            return 1.0
+        geneId1 = str(geneId1)
+        geneId2 = str(geneId2)
+        lCorr = None
+        try:
+            query = 'SELECT Value FROM LCorrRamin3 WHERE GeneId1 = %s and GeneId2 = %s'
+            for x,y in [(geneId1,geneId2),(geneId2,geneId1)]:
+                cursor.execute(query,(x,y))
+                lCorr =  cursor.fetchone()
+                if lCorr:
+                    lCorr = lCorr[0]
+                    break
+        except: raise #lCorr = None
+        return lCorr
 
     def getSortByValue(self):
 

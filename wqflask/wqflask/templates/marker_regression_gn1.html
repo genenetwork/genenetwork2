@@ -20,8 +20,9 @@
         {% endfor %}
         <input type="hidden" name="maf">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
-        <input type="hidden" name="manhattan_plot">
+        <input type="hidden" name="manhattan_plot" value="{{ manhattan_plot }}">
         <input type="hidden" name="num_perm" value="{{ nperm }}">
+        <input type="hidden" name="perm_results" value="">
         <input type="hidden" name="num_bootstrap" value="{{ nboot }}">
         <input type="hidden" name="do_control" value="{{ doControl }}">
         <input type="hidden" name="control_marker" value="{{ controlLocus }}">
@@ -117,10 +118,10 @@
                     <span style="color:red;">*</span>
                   <br>
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
-                  <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span><br>
                   {% if plotScale != "morgan" %}
-                  <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Analyst </span> <span style="color:red;">*</span>
+                  <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Analyst </span> <span style="color:red;">*</span><br>
                   {% endif %}
+                  <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span>
             </div>
             <div class="col-xs-12" align="center" style="padding: 5px;">
               <span style="color:red;">*</span> <span style="font-size: 12px;">only apply to single chromosome physical mapping</span>
@@ -143,14 +144,17 @@
             <div class="tab-pane active" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
-                  <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
+                  <img src="/generated/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
                   {% if additiveChecked|upper == "ON" %}
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
                   {% endif %}
-                  {% if nperm > 0 %}
+                  {% if nperm > 0 and permChecked == "ON" %}
                   <br><br>
-                  <img src="/static/output/{{ perm_filename }}.gif">
+                  <img src="/generated/{{ perm_filename }}.gif">
+                  <br><br>
+                  Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
+                  <br>
                   {% endif %}
               </div>
             </div>
@@ -165,65 +169,75 @@
         </div>
 
         </form>
-        {% if selectedChr == -1 %}
         <div style="width:48%;">
-            <h2>
-                Results
-            </h2>
-            <table id="qtl_results" class="table table-hover table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Index</th>
-                        <th>{{ LRS_LOD }}</th>
-                        <th>Chr</th>
-                        {% if plotScale == "centimorgan" %}
-                        <th>cM</th>
-                        {% else %}
-                        <th>Mb</th>
-                        {% endif %}
-                        <th>Locus</th>
-                   </tr>
-                </thead>
-                <tbody>
-                    {% for marker in trimmed_markers %}
-                        <tr>
-                            <td>
-                                <input type="checkbox" name="selectCheck"
-                                       class="checkbox edit_sample_checkbox"
-                                       value="{{ marker.name }}" checked="checked">
-                            </td>
-                            <td align="right">{{ loop.index }}</td>
-                            {% if LRS_LOD == "LOD" %}
-                            {% if 'lod_score' in marker %}
-                            <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
-                            {% else %}
-                            <td>{{ '%0.2f' | format(marker.lrs_value|float / 4.16) }}</td>
-                            {% endif %}
-                            {% else %}
-                            {% if 'lod_score' in marker %}
-                            <td>{{ '%0.2f' | format(marker.lod_score|float * 4.16) }}</td>
-                            {% else %}
-                            <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
-                            {% endif %}
-                            {% endif %}
-                            <td>{{marker.chr}}</td>
-                            <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
-                            <td>
-                                {{ marker.name }}
-                                <!--<a href="{{ url_for('show_trait_page',
-                                        trait_id = marker.name,
-                                        dataset = dataset.name
-                                        )}}">
-                                    {{ marker.name }}
-                                </a>-->
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+          {% if selectedChr == -1 %}
+          <h2>Results</h2>
+          <table id="qtl_results" class="table table-hover table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Index</th>
+                <th>{{ LRS_LOD }}</th>
+                <th>Chr</th>
+                {% if plotScale == "centimorgan" %}
+                <th>cM</th>
+                {% else %}
+                <th>Mb</th>
+                {% endif %}
+                <th>Locus</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for marker in trimmed_markers %}
+              <tr>
+                <td>
+                  <input type="checkbox" name="selectCheck"
+                         class="checkbox edit_sample_checkbox"
+                         value="{{ marker.name }}" checked="checked">
+                </td>
+                <td align="right">{{ loop.index }}</td>
+                {% if LRS_LOD == "LOD" %}
+                {% if 'lod_score' in marker %}
+                <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
+                {% else %}
+                <td>{{ '%0.2f' | format(marker.lrs_value|float / 4.16) }}</td>
+                {% endif %}
+                {% else %}
+                {% if 'lod_score' in marker %}
+                <td>{{ '%0.2f' | format(marker.lod_score|float * 4.16) }}</td>
+                {% else %}
+                <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
+                {% endif %}
+                {% endif %}
+                <td>{{marker.chr}}</td>
+                <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
+                <td>{{ marker.name }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% elif selectedChr > -1 %}
+          <h2>Interval Analyst</h2>
+          <table id="interval_analyst" class="table table-hover table-striped">
+            <thead>
+              <tr>
+                {% for header in gene_table_header %}
+                <th>{{ header|safe }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in gene_table_body %}
+              <tr>
+                {% for n in range(row|length) %}
+                <td>{{ row[n]|safe }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
         </div>
-        {% endif %}
     </div>
 
     <!-- End of body -->
@@ -282,7 +296,20 @@
                 "scrollCollapse": true,
                 "paging": false
             } );
-            console.timeEnd("Creating table");
+
+            $('#interval_analyst').dataTable( {
+                "columnDefs": [ {
+                    "targets": 0,
+                    "sortable": false
+                }],
+                "order": [[3, "asc"]],
+                "sDom": "RZtir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
+                "bDeferRender": true,
+                "bSortClasses": false,
+                "paging": false
+            } );
 
             $('#vector_map_tab').click(function(){
                 $('div#gn1_map_options').hide();
@@ -314,6 +341,16 @@
             $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
             return $('#marker_regression_form').submit(); 
         };
+
+        export_perm_data = function() {
+            var num_perm, perm_data;
+            num_perm = js_data.num_perm
+            perm_data = js_data.perm_results
+            json_perm_data = JSON.stringify(perm_data);
+            $('input[name=perm_results]').val(json_perm_data);
+            $('#marker_regression_form').attr('action', '/export_perm_data');
+            return $('#marker_regression_form').submit();
+    };
 
     </script>
 

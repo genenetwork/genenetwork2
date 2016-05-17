@@ -296,18 +296,17 @@
     };
     on_corr_method_change = function() {
       var corr_method;
-      console.log("in beginning of on_corr_method_change");
-      corr_method = $('select[name=corr_method]').val();
+      corr_method = $('select[name=corr_type]').val();
       console.log("corr_method is:", corr_method);
       $('.correlation_desc').hide();
       $('#' + corr_method + "_r_desc").show().effect("highlight");
       if (corr_method === "lit") {
-        return $("#corr_sample_method_options").hide();
+        return $("#corr_sample_method").hide();
       } else {
-        return $("#corr_sample_method_options").show();
+        return $("#corr_sample_method").show();
       }
     };
-    $('select[name=corr_method]').change(on_corr_method_change);
+    $('select[name=corr_type]').change(on_corr_method_change);
 
     submit_special = function(url) {
       $("#trait_data_form").attr("action", url);

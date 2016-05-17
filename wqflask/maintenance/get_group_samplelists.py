@@ -6,7 +6,6 @@ import gzip
 
 from base import webqtlConfig
 
-
 def process_genofiles(geno_dir=webqtlConfig.GENODIR):
     print("Yabba")
     #sys.exit("Dabba")

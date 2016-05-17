@@ -25,8 +25,8 @@ file_handler = logging.FileHandler(app.config['LOGFILE'])
 file_handler.setLevel(logging.DEBUG)
 app.logger.addHandler(file_handler)
 
-import logging_tree
-logging_tree.printout()
+# import logging_tree
+# logging_tree.printout()
 
 app.run(host='0.0.0.0',
         port=app.config['SERVER_PORT'],
