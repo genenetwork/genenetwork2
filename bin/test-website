@@ -25,6 +25,10 @@ opts = OptionParser.new do |o|
   o.on('-l','--link-checker', 'Check for dead links') do
     options[:link_checker] = true
   end
+  
+  o.on('-n','--navigation-test', 'Check for navigation test results') do
+    options[:navigation_test] = true
+  end
 
   o.separator ""
   o.on_tail('-h', '--help', 'display this help and exit') do
@@ -63,4 +67,7 @@ else
   require 'main_web_functionality'
 end
   
+if options[:navigation_test]
+  require 'NavigationTest'
+end
 
