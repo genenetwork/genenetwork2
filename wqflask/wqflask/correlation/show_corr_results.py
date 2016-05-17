@@ -183,7 +183,7 @@ class CorrelationResults(object):
 
                     #XZ, 01/08/2009: read the first line
                     line = dataset_file.readline()
-                    dataset_strains = webqtlUtil.readLineCSV(line)[1:]      
+                    dataset_strains = webqtlUtil.readLineCSV(line)[1:]  
 
                     self.this_trait_vals = []
                     for item in dataset_strains:
@@ -210,7 +210,7 @@ class CorrelationResults(object):
                         range_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
-                trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True)
+                trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
                 
                 if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
                     #ZS: Convert trait chromosome to an int for the location range option
@@ -558,7 +558,8 @@ class CorrelationResults(object):
         else:
             sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
 
-        self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
+        if num_overlap > 5:
+            self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
 		
 		
         """
