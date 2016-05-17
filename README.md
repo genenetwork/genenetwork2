@@ -1,28 +1,27 @@
-genenetwork on github  (May 7, 2012 by Lei Yan and Rob Williams)
+# GENENETWORK
 
-www.genenetwork.org 
+This repository contains the source code for the GeneNetwork server
+http://www.genenetwork.org/ (version 2 aka GN2).
 
-Released under Affero General Public License 3 (AGPLv3). See also
-LICENSE.txt
+## Install
 
-For background see: http://en.wikipedia.org/wiki/Genenetwork
+The recommended installation is with GNU Guix which allows you to
+deploy GN2 and dependencies as a self contained unit on any machine.
+The database can be run separately as well as the source tree (for
+developers).  See the [installation docs](doc/README.org).
 
-WWW service initiated January, 1994 as The Portable Dictionary of the Mouse Genome and 
-June 15, 2001 as WebQTL. 
+## License
 
-This code and the main web service is currently operated by Lei Yan, Zachary Sloan, 
-Arthur Centeno. Design and code by Xiaodong Zhou, Christian Fernandez, Sam Ockman, Ning Liu, Rudi Alberts, 
-Elissa Chesler, Jintao Wang, Kenneth Manly, Robert W. Williams, and colleagues.
+The GeneNetwork2 source code is released under the Affero General
+Public License 3 (AGPLv3). See [LICENSE.txt](LICENSE.txt).
 
-Code and primary web service managed by Dr. Robert W. Williams and the University of Tennessee Health Science Center,
-Memphis TN, USA. 
+## More information
 
-Email labwilliams@gmail.com or rwilliams@uthsc.edu
+For more information visit http://www.genenetwork.org/
 
-Older version available on SourceForge  http://sourceforge.net/projects/genenetwork/
+## Contact
 
-Funded by the National Institutes of Health and
-University of Tennessee Center for Integrative and Translational Genomics
+IRC on #genenetwork on irc.freenode.net.
 
-
-===========
+Code and primary web service managed by Dr. Robert W. Williams and the
+University of Tennessee Health Science Center, Memphis TN, USA. 

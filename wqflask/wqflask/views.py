@@ -30,7 +30,7 @@ import sqlalchemy
 from wqflask import app
 
 from flask import (render_template, request, make_response, Response,
-                   Flask, g, config, jsonify, redirect, url_for)
+                   Flask, g, config, jsonify, redirect, url_for, send_from_directory)
 
 from wqflask import search_results
 from wqflask import gsearch
@@ -48,10 +48,13 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 
 from wqflask.wgcna import wgcna_analysis
+from wqflask.ctl import ctl_analysis
 
 from utility import temp_data
+from utility.tools import TEMPDIR
 
 from base import webqtlFormData
+from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
@@ -96,7 +99,7 @@ def tmp_page(img_path):
     print("img_path:", img_path)
     initial_start_vars = request.form
     print("initial_start_vars:", initial_start_vars)
-    imgfile = open(webqtlConfig.TMPDIR + img_path, 'rb')
+    imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = imgdata.encode("base64")
     bytesarray = array.array('B', imgB64)
@@ -172,6 +175,10 @@ def docedit():
     doc = docs.Docs(request.args['entry'])
     return render_template("docedit.html", **doc.__dict__)
 
+@app.route('/generated/<filename>')
+def generated_file(filename):
+    return send_from_directory(GENERATED_IMAGE_DIR,filename)
+
 @app.route("/help")
 def help():
     doc = docs.Docs("help")
@@ -190,6 +197,18 @@ def wcgna_results():
     result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
     return render_template("wgcna_results.html", **result)        # Display them using the template
 
+@app.route("/ctl_setup", methods=('POST',))
+def ctl_setup():
+    print("In ctl, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("ctl_setup.html", **request.form)          # Display them using the template
+
+@app.route("/ctl_results", methods=('POST',))
+def ctl_results():
+    print("In ctl, request.form is:", request.form)
+    ctl = ctl_analysis.CTL()                                  # Start R, load the package and pointers and create the analysis
+    ctlA = ctl.run_analysis(request.form)                     # Start the analysis, a ctlA object should be a separate long running thread
+    result = ctl.process_results(ctlA)                        # After the analysis is finished store the result
+    return render_template("ctl_results.html", **result)      # Display them using the template
 
 @app.route("/news")
 def news_route():
@@ -446,7 +465,7 @@ def marker_regression_page():
             print("img_path:", img_path)
             initial_start_vars = request.form
             print("initial_start_vars:", initial_start_vars)
-            imgfile = open('/home/zas1024/tmp/' + img_path, 'rb')
+            imgfile = open(TEMPDIR + '/' + img_path, 'rb')
             imgdata = imgfile.read()
             imgB64 = imgdata.encode("base64")
             bytesarray = array.array('B', imgB64)
@@ -475,7 +494,7 @@ def export_pdf():
     svg_xml = request.form.get("data", "Invalid data")
     print("svg_xml:", svg_xml)
     filename = request.form.get("filename", "interval_map_pdf")
-    filepath = "/home/zas1024/gene/wqflask/output/"+filename
+    filepath = GENERATED_IMAGE_DIR+filename
     pdf_file = cairosvg.svg2pdf(bytestring=svg_xml)
     response = Response(pdf_file, mimetype="application/pdf")
     response.headers["Content-Disposition"] = "attachment; filename=%s"%filename

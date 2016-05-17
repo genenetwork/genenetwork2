@@ -144,14 +144,14 @@
             <div class="tab-pane active" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
-                  <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
+                  <img src="/generated/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
                   {% if additiveChecked|upper == "ON" %}
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
                   {% endif %}
                   {% if nperm > 0 and permChecked == "ON" %}
                   <br><br>
-                  <img src="/static/output/{{ perm_filename }}.gif">
+                  <img src="/generated/{{ perm_filename }}.gif">
                   <br><br>
                   Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
                   <br>
