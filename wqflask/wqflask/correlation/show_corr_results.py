@@ -708,13 +708,11 @@ class CorrelationResults(object):
         
         for sample in sample_names:
             if sample not in excluded_samples:
-                value = start_vars['value:' + sample]
-                if value.strip().lower() == 'x':
-                    self.sample_data[str(sample)] = None
-                else:
-                    self.sample_data[str(sample)] = float(value)
-
-
+                # print("Looking for",sample,"in",start_vars)
+                value = start_vars.get('value:' + sample)
+                if value:
+                    if not value.strip().lower() == 'x':
+                        self.sample_data[str(sample)] = float(value)
 
     ##XZ, 12/16/2008: the input geneid is of mouse type
     #def checkForLitInfo(self,geneId):
@@ -942,7 +940,7 @@ class CorrelationResults(object):
                 use_tissue_corr = True
 
             DatabaseFileName = self.getFileName( target_db_name=self.target_db_name )
-            datasetFile = open(webqtlConfig.TEXTDIR+DatabaseFileName,'r')
+            datasetFile = open(webqtlConfig.CACHEDIR+DatabaseFileName,'r')
 
             #XZ, 01/08/2009: read the first line
             line = datasetFile.readline()

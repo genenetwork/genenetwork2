@@ -1,9 +1,7 @@
 import os
 
 from base import webqtlConfig
-from utility.tools import gemma_command
-
-GEMMA_PATH,GEMMA_COMMAND = gemma_command()
+from utility.tools import GEMMA_COMMAND
 
 def run_gemma(this_dataset, samples, vals): 
     """Generates p-values for each marker using GEMMA"""
@@ -12,8 +10,11 @@ def run_gemma(this_dataset, samples, vals):
 
     gen_pheno_txt_file(this_dataset, samples, vals)
 
-    os.chdir(GEMMA_PATH)
+    # Don't do this!
+    # os.chdir("{}gemma".format(webqtlConfig.GENODIR))
 
+    # use GEMMA_RUN in the next one, create a unique temp file
+    
     gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/output/%s.cXX.txt -lmm 1 -o %s_output' % (GEMMA_PATH,
                                                                                     this_dataset.group.name,
                                                                                     GEMMA_PATH,

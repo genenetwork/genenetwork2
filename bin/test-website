@@ -1,0 +1,73 @@
+#!/usr/bin/env ruby
+
+
+USAGE = <<EOT
+This is Mechanical-Rob - an automated web server tester for 
+                         Genenetwork.org that uses the brilliant 
+                         mechanize gem.
+
+To use this software you need to install mechanize. Run it from
+the root of the genenetwork2 source tree as, for example,
+
+  ./bin/test-website http://localhost:5003/ (default)
+
+For more information see http://genenetwork.org/
+                        
+EOT
+$stderr.print USAGE
+
+require 'optparse'
+
+options = {}
+opts = OptionParser.new do |o|
+  o.banner = "Usage: #{File.basename($0)} [options] URL"
+  
+  o.on('-l','--link-checker', 'Check for dead links') do
+    options[:link_checker] = true
+  end
+  
+  o.on('-n','--navigation-test', 'Check for navigation test results') do
+    options[:navigation_test] = true
+  end
+
+  o.separator ""
+  o.on_tail('-h', '--help', 'display this help and exit') do
+    options[:show_help] = true
+  end
+end
+
+opts.parse!(ARGV)
+
+if options[:show_help]
+  print opts
+  exit 1
+end
+
+$host = 
+  if ARGV.size>0
+    ARGV.shift
+  else
+    "http://localhost:5003"
+  end
+
+$stderr.print "Testing <",$host,">\n"
+
+require 'mechanize'
+require 'minitest/spec'
+require 'minitest/autorun'
+
+# These are the actual testing modules
+
+libpath = File.dirname(File.dirname(__FILE__))
+$: << File.join(libpath,'test/lib')
+
+if options[:link_checker]
+  require 'link_checker'
+else
+  require 'main_web_functionality'
+end
+  
+if options[:navigation_test]
+  require 'NavigationTest'
+end
+

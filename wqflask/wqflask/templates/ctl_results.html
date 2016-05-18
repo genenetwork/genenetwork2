@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}CTL results{% endblock %}
+
+{% block content %} <!-- Start of body -->
+<div class="container">
+  <h1>CTL Results</h1>
+  {{(request.form['trait_list'].split(',')|length -1)}} phenotypes as input<br>
+  <h3>Network Figure</h3>
+  <a href="/tmp/{{ results['imgurl1'] }}">
+      <img alt="Embedded Image" src="data:image/png;base64,
+      {% for elem in results['imgdata1'] -%}
+      {% print("%c"|format(elem)) %}
+      {%- endfor %}
+      " /></a>
+  <h3>CTL/QTL Plots for individual traits</h3>
+  {% for r in range(2, (request.form['trait_list'].split(',')|length +1)) %}
+  <a href="/tmp/{{ results['imgurl' + r|string] }}">
+      <img width=100 height=100 alt="Embedded Image" src="data:image/png;base64,
+      {% for elem in results['imgdata' + r|string] -%}
+      {% print("%c"|format(elem)) %}
+      {%- endfor %}
+      " /></a>
+  {% endfor %}
+  <h3>Tabular results</h3>
+  <table width="80%">
+  <tr><th>trait</th><th>marker</th><th>trait</th><th>LOD</th><th>dCor</th></tr>
+  significant CTL:<br>
+  {% for r in range(results['ctlresult'][0]|length) %}
+    <tr>
+    {% for c in range(results['ctlresult']|length) %}
+      <td>
+      {% if c > 2 %}
+      {{results['ctlresult'][c][r]|float|round(2)}}
+      {% else %}
+      {{results['ctlresult'][c][r]}}
+      {% endif %}
+      </td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+  </table>
+
+
+
+
+</div>
+{% endblock %}

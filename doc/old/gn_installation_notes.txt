@@ -96,7 +96,7 @@ Before installing from requirements.txt, install numpy separately:
 pip install numpy==1.7.0 (or whatever version we're using)
 
 Install from requirements.txt (after activating virtualenv):
-pip install -r gene/misc/requirements.txt
+pip install -r gene/doc/requirements.txt
 
 ===========================================
 
