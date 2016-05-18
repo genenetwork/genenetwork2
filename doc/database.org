@@ -1,7 +1,11 @@
 - github Document reduction issue
 
+* The small test database (2GB)
 
-* GeneNetwork Database
+The default install comes with a smaller database which includes a
+number of the BSD's and the Human liver dataset (GSE9588).
+
+* GeneNetwork database
 
 ** Estimated table sizes 
 
@@ -487,7 +491,6 @@ select count(*) from ProbeSet limit 5;
 
 
 
-
 ** ProbeSetData
 
 Probedata - main molecular data. Probesets, metabolome, 
@@ -708,3 +711,38 @@ User selection - retained
 
 ** Vlookup 
 
+* Fetching Data
+
+** Fetch phenotypes
+
+To get at phenotype data ProbeSetData is the main table (almost all
+important molecular assay data is in this table including probe set
+data, RNA-seq data, proteomic data, and metabolomic data. 2.5 billion
+rows March 2016)
+
+select count(*) from ProbeSetData limit 5;
++---------------+
+| count(*)      |
++---------------+
+| 2,510,566,472 |
++---------------+
+
+select * from ProbeSetData limit 5;
++----+----------+-------+
+| Id | StrainId | value |
++----+----------+-------+
+|  1 |        1 | 5.742 |
+|  1 |        2 | 5.006 |
+|  1 |        3 | 6.079 |
+|  1 |        4 | 6.414 |
+|  1 |        5 | 4.885 |
++----+----------+-------+
+
+This table is used in
+
+: wqflask/base/do_search.py
+: wqflask/base/data_set.py
+: wqflask/utility/AJAX_table.py
+: wqflask/wqflask/correlation/show_corr_results.py
+
+In there we find 'ProbeSetData.Id = ProbeSetXRef.dataId'.
