@@ -62,5 +62,3 @@ if options[:link_checker]
 else
   require 'main_web_functionality'
 end
-  
-
