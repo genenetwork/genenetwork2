@@ -1184,17 +1184,16 @@ class ShowTrait(object):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
 
         primary_sample_names = list(all_samples_ordered)
-
-        print("self.dataset.group", pf(self.dataset.group.__dict__))
-        print("-*- primary_samplelist is:", pf(primary_sample_names))
-
+        
         other_sample_names = []
         for sample in this_trait.data.keys():
+            if (this_trait.data[sample].name2 in primary_sample_names) and (this_trait.data[sample].name not in primary_sample_names):
+                primary_sample_names.append(this_trait.data[sample].name)
+                primary_sample_names.remove(this_trait.data[sample].name2)
             if sample not in all_samples_ordered:
                 all_samples_ordered.append(sample)
                 other_sample_names.append(sample)
 
-        print("species:", self.dataset.group.species)
         if self.dataset.group.species == "human":
             primary_sample_names += other_sample_names
 

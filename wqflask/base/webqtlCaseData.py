@@ -29,8 +29,9 @@ print("Mr. Mojo Risin 2")
 class webqtlCaseData(object):
     """one case data in one trait"""
 
-    def __init__(self, name, value=None, variance=None, num_cases=None):
+    def __init__(self, name, value=None, variance=None, num_cases=None, name2=None):
         self.name = name
+        self.name2 = name2                  # Other name (for traits like BXD65a)
         self.value = value                  # Trait Value
         self.variance = variance            # Trait Variance
         self.num_cases = num_cases          # Number of individuals/cases

@@ -180,13 +180,15 @@ class GeneralTrait(object):
         samples = []
         vals = []
         the_vars = []
+        sample_aliases = []
         for sample_name, sample_data in self.data.items():
             if sample_data.value != None:
                 if not include_variance or sample_data.variance != None:
                     samples.append(sample_name)
                     vals.append(sample_data.value)
                     the_vars.append(sample_data.variance)
-        return  samples, vals, the_vars
+                    sample_aliases.append(sample_data.name2)
+        return  samples, vals, the_vars, sample_aliases
 
 
     #
@@ -230,7 +232,7 @@ class GeneralTrait(object):
 
         if results:
             for item in results:
-                name, value, variance, num_cases = item
+                name, value, variance, num_cases, name2 = item
                 if not samplelist or (samplelist and name in samplelist):
                     self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
 
@@ -308,46 +310,6 @@ class GeneralTrait(object):
                 if isinstance(trait_info[i], basestring):
                     holder = unicode(trait_info[i], "utf8", "ignore")
                 setattr(self, field, holder)
-<<<<<<< HEAD
-
-            description_string = unicode(str(self.description).strip(codecs.BOM_UTF8), 'utf-8')
-            target_string = unicode(str(self.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
-
-            if len(description_string) > 1 and description_string != 'None':
-                description_display = description_string
-            else:
-                description_display = self.symbol
-
-            if (len(description_display) > 1 and description_display != 'N/A' and
-                    len(target_string) > 1 and target_string != 'None'):
-                description_display = description_display + '; ' + target_string.strip()
-
-            # Save it for the jinja2 template
-            self.description_display = description_display
-
-            #XZ: trait_location_value is used for sorting
-            trait_location_repr = 'N/A'
-            trait_location_value = 1000000
-
-            if self.chr and self.mb:
-                #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
-                #This is so we can convert the location to a number used for sorting
-                trait_location_value = convert_location_to_value(self.chr, self.mb)
-                #try:
-                #    trait_location_value = int(self.chr)*1000 + self.mb
-                #except ValueError:
-                #    if self.chr.upper() == 'X':
-                #        trait_location_value = 20*1000 + self.mb
-                #    else:
-                #        trait_location_value = (ord(str(self.chr).upper()[0])*1000 +
-                #                               self.mb)
-
-                #ZS: Put this in function currently called "convert_location_to_value"
-                self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
-                self.location_value = trait_location_value
-                
-=======
->>>>>>> e0c5c1aae3aaaa1d81bcec36835a97e169dcc2e2
                 
             if self.dataset.type == 'Publish':
                 self.confidential = 0
