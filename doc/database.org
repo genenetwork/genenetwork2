@@ -1,7 +1,11 @@
 - github Document reduction issue
 
+* The small test database (2GB)
 
-* GeneNetwork Database
+The default install comes with a smaller database which includes a
+number of the BSD's and the Human liver dataset (GSE9588).
+
+* GeneNetwork database
 
 ** Estimated table sizes 
 
@@ -487,7 +491,6 @@ select count(*) from ProbeSet limit 5;
 
 
 
-
 ** ProbeSetData
 
 Probedata - main molecular data. Probesets, metabolome, 
@@ -707,4 +710,63 @@ User selection - retained
 ** UserPrivilege
 
 ** Vlookup 
+
+* Fetching Data
+
+** Fetch phenotypes
+
+To get at phenotype data ProbeSetData is the main table (almost all
+important molecular assay data is in this table including probe set
+data, RNA-seq data, proteomic data, and metabolomic data. 2.5 billion
+rows March 2016)
+
+select count(*) from ProbeSetData limit 5;
++---------------+
+| count(*)      |
++---------------+
+| 2,510,566,472 |
++---------------+
+
+select * from ProbeSetData limit 5;
++----+----------+-------+
+| Id | StrainId | value |
++----+----------+-------+
+|  1 |        1 | 5.742 |
+|  1 |        2 | 5.006 |
+|  1 |        3 | 6.079 |
+|  1 |        4 | 6.414 |
+|  1 |        5 | 4.885 |
++----+----------+-------+
+
+This table is used in
+
+: wqflask/base/do_search.py
+: wqflask/base/data_set.py
+: wqflask/utility/AJAX_table.py
+: wqflask/wqflask/correlation/show_corr_results.py
+
+In there we find 'ProbeSetData.Id = ProbeSetXRef.dataId'.
+
+select * from ProbeSetXRef limit 5;
++------------------+------------+--------+------------+--------------------+------------+-------------------+---------------------+-----------------+--------------------+--------+----------------------+------+
+| ProbeSetFreezeId | ProbeSetId | DataId | Locus_old  | LRS_old            | pValue_old | mean              | se                  | Locus           | LRS                | pValue | additive             | h2   |
++------------------+------------+--------+------------+--------------------+------------+-------------------+---------------------+-----------------+--------------------+--------+----------------------+------+
+|                1 |          1 |      1 | 10.095.400 |   13.3971627898894 |      0.163 |  5.48794285714286 | 0.08525787814808819 | rs13480619      | 12.590069931048001 |  0.269 |          -0.28515625 | NULL |
+|                1 |          2 |      2 | D15Mit189  | 10.042057464356201 |      0.431 |  9.90165714285714 |  0.0374686634976217 | CEL-17_50896182 |   10.5970737900941 |  0.304 | -0.11678333333333299 | NULL |
+|                1 |          3 |      3 | D5Mit139   |   5.43678531742749 |      0.993 |  7.83948571428571 |  0.0457583416912569 | rs13478499      |    6.0970532702754 |  0.988 |    0.112957489878542 | NULL |
+|                1 |          4 |      4 | D1Mit511   |   9.87815279480766 |      0.483 | 8.315628571428569 |  0.0470396593931327 | rs6154379       | 11.774867551173099 |  0.286 |   -0.157113725490196 | NULL |
+|                1 |          5 |      5 | D16H21S16  | 10.191723834264499 |      0.528 |  9.19345714285714 |  0.0354801718293322 | rs4199265       | 10.923263374016202 |  0.468 |  0.11476470588235299 | NULL |
++------------------+------------+--------+------------+--------------------+------------+-------------------+---------------------+-----------------+--------------------+--------+----------------------+------+
+
+i.e., for Strain Id 1 (DataId) 1, the locus '10.095.400' has a
+phenotype value of 5.742.
+
+GeneNetwork1 already has a limited REST interface, if you do
+
+: curl "http://robot.genenetwork.org/webqtl/mairobeset=1443823_s_at&db=HC_M2_0606_P"
+
+you get
+
+: ProbeSetID      B6D2F1  C57BL/6J        DBA/2J  BXD1    BXD2    BXD5    BXD6   BXD8     BXD9    BXD11   BXD12   BXD13   BXD15   BXD16   BXD19   BXD20   BXD21  BXD22    BXD23   BXD24   BXD27   BXD28   BXD29   BXD31   BXD32   BXD33   BXD34  BXD38    BXD39   BXD40   BXD42   BXD67   BXD68   BXD43   BXD44   BXD45   BXD48  BXD50    BXD51   BXD55   BXD60   BXD61   BXD62   BXD63   BXD64   BXD65   BXD66  BXD69    BXD70   BXD73   BXD74   BXD75   BXD76   BXD77   BXD79   BXD73a  BXD83  BXD84    BXD85   BXD86   BXD87   BXD89   BXD90   BXD65b  BXD93   BXD94   A/J    AKR/J    C3H/HeJ C57BL/6ByJ      CXB1    CXB2    CXB3    CXB4    CXB5    CXB6   CXB7     CXB8    CXB9    CXB10   CXB11   CXB12   CXB13   BXD48a  129S1/SvImJ    BALB/cJ  BALB/cByJ       LG/J    NOD/ShiLtJ      PWD/PhJ BXD65a  BXD98   BXD99  CAST/EiJ KK/HlJ  WSB/EiJ NZO/HlLtJ       PWK/PhJ D2B6F1
+: 1443823_s_at    15.251  15.626  14.716  15.198  14.918  15.057  15.232  14.968 14.87    15.084  15.192  14.924  15.343  15.226  15.364  15.36   14.792  14.908 15.344   14.948  15.08   15.021  15.176  15.14   14.796  15.443  14.636  14.921 15.22    15.62   14.816  15.39   15.428  14.982  15.05   15.13   14.722  14.636 15.242   15.527  14.825  14.416  15.125  15.362  15.226  15.176  15.328  14.895 15.141   15.634  14.922  14.764  15.122  15.448  15.398  15.089  14.765  15.234 15.302   14.774  14.979  15.212  15.29   15.012  15.041  15.448  14.34   14.338 14.809   15.046  14.816  15.232  14.933  15.255  15.21   14.766  14.8    15.506 15.749   15.274  15.599  15.673  14.651  14.692  14.552  14.563  14.164  14.546 15.044   14.695  15.162  14.772  14.645  15.493  14.75   14.786  15.003  15.148 15.221
 
