@@ -763,10 +763,93 @@ phenotype value of 5.742.
 
 GeneNetwork1 already has a limited REST interface, if you do
 
-: curl "http://robot.genenetwork.org/webqtl/mairobeset=1443823_s_at&db=HC_M2_0606_P"
+: curl "http://robot.genenetwork.org/webqtl/main.py?cmd=get&probeset=1443823_s_at&db=HC_M2_0606_P"
 
-you get
+we get
 
 : ProbeSetID      B6D2F1  C57BL/6J        DBA/2J  BXD1    BXD2    BXD5    BXD6   BXD8     BXD9    BXD11   BXD12   BXD13   BXD15   BXD16   BXD19   BXD20   BXD21  BXD22    BXD23   BXD24   BXD27   BXD28   BXD29   BXD31   BXD32   BXD33   BXD34  BXD38    BXD39   BXD40   BXD42   BXD67   BXD68   BXD43   BXD44   BXD45   BXD48  BXD50    BXD51   BXD55   BXD60   BXD61   BXD62   BXD63   BXD64   BXD65   BXD66  BXD69    BXD70   BXD73   BXD74   BXD75   BXD76   BXD77   BXD79   BXD73a  BXD83  BXD84    BXD85   BXD86   BXD87   BXD89   BXD90   BXD65b  BXD93   BXD94   A/J    AKR/J    C3H/HeJ C57BL/6ByJ      CXB1    CXB2    CXB3    CXB4    CXB5    CXB6   CXB7     CXB8    CXB9    CXB10   CXB11   CXB12   CXB13   BXD48a  129S1/SvImJ    BALB/cJ  BALB/cByJ       LG/J    NOD/ShiLtJ      PWD/PhJ BXD65a  BXD98   BXD99  CAST/EiJ KK/HlJ  WSB/EiJ NZO/HlLtJ       PWK/PhJ D2B6F1
 : 1443823_s_at    15.251  15.626  14.716  15.198  14.918  15.057  15.232  14.968 14.87    15.084  15.192  14.924  15.343  15.226  15.364  15.36   14.792  14.908 15.344   14.948  15.08   15.021  15.176  15.14   14.796  15.443  14.636  14.921 15.22    15.62   14.816  15.39   15.428  14.982  15.05   15.13   14.722  14.636 15.242   15.527  14.825  14.416  15.125  15.362  15.226  15.176  15.328  14.895 15.141   15.634  14.922  14.764  15.122  15.448  15.398  15.089  14.765  15.234 15.302   14.774  14.979  15.212  15.29   15.012  15.041  15.448  14.34   14.338 14.809   15.046  14.816  15.232  14.933  15.255  15.21   14.766  14.8    15.506 15.749   15.274  15.599  15.673  14.651  14.692  14.552  14.563  14.164  14.546 15.044   14.695  15.162  14.772  14.645  15.493  14.75   14.786  15.003  15.148 15.221
 
+getTraitData is defined in the file [[https://github.com/genenetwork/genenetwork/blob/master/web/webqtl/textUI/cmdClass.py#L134][web/webqtl/textUI/cmdClass.py]].
+probe is None, so the code at line 199 is run
+
+query = "SELECT Strain.Name, %sData.value from %sData, Strain, %s,
+%sXRef WHERE %s.Name = '%s' and %sXRef.%sId = %s.Id and
+%sXRef.%sFreezeId = %d and %sXRef.DataId = %sData.Id and
+%sData.StrainId = Strain.Id order by Strain.Id" % (prefix, prefix,
+prefix, prefix, prefix, probeset,prefix, prefix, prefix, prefix,
+prefix, dbId, prefix, prefix, prefix)
+
+where prefix is ProbeSet (one presumes). So, let's see if we can do this by hand
+
+SELECT Strain.Name, ProbeSetData.value from ProbeSetData, Strain, ProbeSet,
+ProbeSetXRef WHERE ProbeSet.Name = '1443823_s_at' and ProbeSetXRef.ProbeSetId = ProbeSet.Id and
+ProbeSetXRef.ProbeSetFreezeId = $dbid and ProbeSetXRef.DataId = ProbeSetData.Id and
+ProbeSetData.StrainId = Strain.Id ORDER BY Strain.Id
+
+The $dbid is listed in the ProbeSetFreeze table,
+
+SELECT ProbeFreezeId,Name FROM ProbeSetFreeze WHERE Name='HC_M2_0606_P' limit 5;
+
++---------------+--------------+
+| ProbeFreezeId | Name         |
++---------------+--------------+
+|            30 | HC_M2_0606_P |
++---------------+--------------+
+
+select id,name from ProbeSet WHERE Name = '1443823_s_at' limit 5;
++--------+--------------+
+| id     | name         |
++--------+--------------+
+| 106556 | 1443823_s_at |
++--------+--------------+
+
+So
+
+query = "SELECT Strain.Name, %sData.value from %sData, Strain, %s,
+%sXRef WHERE %s.Name = '%s' and %sXRef.%sId = %s.Id and
+%sXRef.%sFreezeId = %d and %sXRef.DataId = %sData.Id and
+%sData.StrainId = Strain.Id order by Strain.Id" % (prefix, prefix,
+prefix, prefix, prefix, probeset,prefix, prefix, prefix, prefix,
+prefix, dbId, prefix, prefix, prefix)
+
+CORRECT NAME:
+
+SELECT Strain.Name, ProbeSetData.value from ProbeSetData, Strain,
+ProbeSet, ProbeSetXRef WHERE ProbeSet.Name = 'at_probe' and
+ProbeSetXRef.ProbeSetId = ProbeSet.Id and
+ProbeSetXRef.ProbeSetFreezeId = dbid and ProbeSetXRef.DataId =
+ProbeSetData.Id and ProbeSetData.StrainId = Strain.Id order by
+Strain.Id
+
+
+select * from ProbeSetXRef WHERE probesetfreezeid=30 limit 5;
++------------------+------------+--------+------------+--------------------+------------+--------------------+--------------------+-----------------+--------------------+--------+-------------------+------+
+| ProbeSetFreezeId | ProbeSetId | DataId | Locus_old  | LRS_old            | pValue_old | mean               | se                 | Locus           | LRS                | pValue | additive          | h2   |
++------------------+------------+--------+------------+--------------------+------------+--------------------+--------------------+-----------------+--------------------+--------+-------------------+------+
+|               30 |          1 | 445962 | 01.059.350 | 7.1753152078069595 |      0.961 |            30.0646 |   1.79763935596594 | rs13475891      | 7.1753152078069204 |  0.973 |        4.71778125 | NULL |
+|               30 |          2 | 445963 | D4Mit156   |   7.58944292943285 |      0.724 | 232.38328571428602 |   9.00278909374791 | CEL-4_118751423 |   7.57513435426218 |  0.793 |  25.2660951417004 | NULL |
+|               30 |          3 | 445964 | D1Mit134   |  9.766065497826819 |      0.737 |             47.206 |   1.58413526287766 | mCV23431007     |   9.76606549782677 |  0.797 | -4.82405952380952 | NULL |
+|               30 |          4 | 445965 | D1Mit155   |   18.0045829157241 |      0.033 | 132.29248571428602 |   4.37799472291842 | rs3689947       |   17.9365068406286 |  0.049 |  -16.945619047619 | NULL |
+|               30 |          5 | 445966 | D5Mit197   |   9.51068902627823 |      0.476 |   271.309971428571 | 7.4294268316065395 | rs6239372       |   10.4214974316601 |   0.41 | -25.6148045454546 | NULL |
++------------------+------------+--------+------------+--------------------+------------+--------------------+--------------------+-----------------+--------------------+--------+-------------------+------+
+
+So, apparently ProbeSetFreezeID points to the database identifier in
+ProbeSetFreeze which has the name of the 'DB'. OK, that kinda makes
+sense now. Meanwhile Probeset.name points to the phenotype name.
+
+ProbeSetXRef binds these tables together. Finally there is the data in
+
+select * from ProbeSetData limit 5;
++----+----------+-------+
+| Id | StrainId | value |
++----+----------+-------+
+|  1 |        1 | 5.742 |
+|  1 |        2 | 5.006 |
+|  1 |        3 | 6.079 |
+|  1 |        4 | 6.414 |
+|  1 |        5 | 4.885 |
++----+----------+-------+
+5 rows in set (0.00 sec)
+
+linked by ProbeSetXRef.dataid.
