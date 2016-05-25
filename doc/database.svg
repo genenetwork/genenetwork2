@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="drawing.svg">
+   sodipodi:docname="database.svg">
   <defs
      id="defs4">
     <marker
@@ -228,7 +228,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="359.48602"
+     inkscape:cx="361.50633"
      inkscape:cy="527.18241"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -252,7 +252,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -863,5 +863,20 @@
        inkscape:connector-curvature="0"
        inkscape:transform-center-x="-32.453094"
        inkscape:transform-center-y="114.65633" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:12.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="150.51273"
+       y="40.18935"
+       id="text3465"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3467"
+         x="150.51273"
+         y="40.18935">speciesid</tspan><tspan
+         sodipodi:role="line"
+         x="150.51273"
+         y="55.81435"
+         id="tspan3469" /></text>
   </g>
 </svg>

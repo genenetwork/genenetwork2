@@ -681,7 +681,21 @@ No longer used
 
 ** Species & Strain (should be sample)
 
-Menu
+select * from Species;
++----+-----------+----------------------+----------------+----------------------+-------------------------+------------+---------+
+| Id | SpeciesId | SpeciesName          | Name           | MenuName             | FullName                | TaxonomyId | OrderId |
++----+-----------+----------------------+----------------+----------------------+-------------------------+------------+---------+
+|  1 |         1 | Mouse                | mouse          | Mouse                | Mus musculus            |      10090 |      30 |
+|  2 |         2 | Rat                  | rat            | Rat                  | Rattus norvegicus       |      10116 |      40 |
+|  3 |         3 | Arabidopsis thaliana | arabidopsis    | Arabidopsis thaliana | Arabidopsis thaliana    |       3702 |      60 |
+|  4 |         4 | Human                | human          | Human                | Homo sapiens            |       9606 |      10 |
+|  5 |         5 | Barley               | barley         | Barley               | Hordeum vulgare         |       4513 |      70 |
+|  6 |         6 | Drosophila           | drosophila     | Drosophila           | Drosophila melanogaster |       7227 |      50 |
+|  7 |         7 | Macaque monkey       | macaque monkey | Macaque monkey       | Macaca mulatta          |       9544 |      20 |
+|  8 |         8 | Soybean              | soybean        | Soybean              | Soybean                 |       3847 |      80 |
+|  9 |         9 | Tomato               | tomato         | Tomato               | Tomato                  |       4081 |      90 |
++----+-----------+----------------------+----------------+----------------------+-------------------------+------------+---------+
+
 
 ** InbredSet 
 
