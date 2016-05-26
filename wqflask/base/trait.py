@@ -331,7 +331,7 @@ class GeneralTrait(object):
                     #        
                     #    description = self.pre_publication_description
                 
-                if len(description) > 0:
+                if description:
                     self.description_display = description.strip()
                 else:
                     self.description_display = ""
