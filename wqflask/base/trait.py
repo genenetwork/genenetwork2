@@ -481,7 +481,7 @@ class GeneralTrait(object):
                     else:
                         self.locus = self.lrs = self.additive = ""
                 
-                if self.locus_chr != "" and self.locus_mb != "":
+                if (self.dataset.type == 'Publish' or self.dataset.type == "ProbeSet") and self.locus_chr != "" and self.locus_mb != "":
                     #XZ: LRS_location_value is used for sorting
                     try:
                         LRS_location_value = int(self.locus_chr)*1000 + float(self.locus_mb)

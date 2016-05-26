@@ -213,6 +213,8 @@ class MarkerRegression(object):
                     if 'lod_score' in marker.keys():
                         self.qtl_results.append(marker)
 
+            self.trimmed_markers = trim_markers_for_table(results)            
+                        
             for qtl in enumerate(self.qtl_results):
                 self.json_data['chr1'].append(str(qtl['chr1']))
                 self.json_data['chr2'].append(str(qtl['chr2']))
