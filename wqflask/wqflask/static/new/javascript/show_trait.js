@@ -50,7 +50,7 @@
     }, {
       vn: "interquartile",
       pretty: "Interquartile Range",
-      url: "/glossary.html#Interquartile",
+      url: "http://www.genenetwork.org/glossary.html#Interquartile",
       digits: 2
     }
   ];

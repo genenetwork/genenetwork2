@@ -1190,7 +1190,7 @@ class ShowTrait(object):
             if (this_trait.data[sample].name2 in primary_sample_names) and (this_trait.data[sample].name not in primary_sample_names):
                 primary_sample_names.append(this_trait.data[sample].name)
                 primary_sample_names.remove(this_trait.data[sample].name2)
-            if sample not in all_samples_ordered:
+            elif sample not in all_samples_ordered:
                 all_samples_ordered.append(sample)
                 other_sample_names.append(sample)
 
