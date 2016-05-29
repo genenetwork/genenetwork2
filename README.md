@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2)
+
 # GENENETWORK
 
 This repository contains the source code for the GeneNetwork server
