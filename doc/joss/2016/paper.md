@@ -41,10 +41,10 @@ bibliography: paper.bib
 
 # Summary
 
-GeneNetwork (GN) is a free and open source (FOSS) framework for web
-based genetics that can be deployed anywhere. GN allows biologists to
-upload experimental data and map phenotypes interactively against
-genotypes using tools, such as R/QTL [@mqm paper] mapping, interval
+GeneNetwork (GN) is a free and open source (FOSS) framework for
+web-based genetics that can be deployed anywhere. GN allows biologists
+to upload experimental data and map phenotypes interactively against
+genotypes using tools, such as R/QTL [@Arends:2010] mapping, interval
 mapping for model organisms and pylmm; an implementation of FaST-LMM
 [@Lippert:2011] which is suitable for human populations and outbred
 crosses, such as the mouse diversity outcross. Interactive D3 graphics
