@@ -21,9 +21,15 @@ Public License 3 (AGPLv3). See [LICENSE.txt](LICENSE.txt).
 
 For more information visit http://www.genenetwork.org/
 
+## Cite
+
+You can cite this software using
+[![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2). 
+
 ## Contact
 
 IRC on #genenetwork on irc.freenode.net.
 
 Code and primary web service managed by Dr. Robert W. Williams and the
 University of Tennessee Health Science Center, Memphis TN, USA. 
+
