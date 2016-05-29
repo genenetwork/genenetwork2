@@ -548,7 +548,7 @@ configuration.
 
 At some point you may want to fix the source code. Assuming you have
 Guix and Genenetwork2 installed (as described above) clone the GN2
-repository from https://github.com/genenetwork/genenetwork2_diet
+repository from https://github.com/genenetwork/genenetwork2.
 
 Copy-paste the paths into your terminal (mainly so PYTHON_PATH and
 R_LIBS_SITE are set) from the information given by guix:
