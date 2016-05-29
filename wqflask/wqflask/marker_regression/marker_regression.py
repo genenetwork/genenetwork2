@@ -56,11 +56,21 @@ class MarkerRegression(object):
         
         self.samples = [] # Want only ones with values
         self.vals = []
-
+        
+        #for sample in self.this_trait.data.keys():
         for sample in self.dataset.group.samplelist:
-            value = start_vars['value:' + sample]
-            self.samples.append(str(sample))
-            self.vals.append(value)
+            in_trait_data = False        
+            for item in self.this_trait.data:
+                if self.this_trait.data[item].name2 == sample:
+                    value = start_vars['value:' + self.this_trait.data[item].name]
+                    self.samples.append(self.this_trait.data[item].name)
+                    self.vals.append(value)
+                    in_trait_data = True
+                    break
+            if not in_trait_data:
+                value = start_vars['value:' + sample]
+                self.samples.append(sample)
+                self.vals.append(value)
  
         self.mapping_method = start_vars['method']
         if start_vars['manhattan_plot'] == "True":
@@ -203,6 +213,8 @@ class MarkerRegression(object):
                     if 'lod_score' in marker.keys():
                         self.qtl_results.append(marker)
 
+            self.trimmed_markers = trim_markers_for_table(results)            
+                        
             for qtl in enumerate(self.qtl_results):
                 self.json_data['chr1'].append(str(qtl['chr1']))
                 self.json_data['chr2'].append(str(qtl['chr2']))
@@ -641,15 +653,17 @@ class MarkerRegression(object):
         if self.manhattan_plot != True:
             genotype = genotype.addinterval()
         
-        samples, values, variances = self.this_trait.export_informative()
-
+        samples, values, variances, sample_aliases = self.this_trait.export_informative()
+        
         trimmed_samples = []
         trimmed_values = []
         for i in range(0, len(samples)):
-            if samples[i] in self.dataset.group.samplelist:
-                trimmed_samples.append(samples[i])
+            if self.this_trait.data[samples[i]].name2 in self.dataset.group.samplelist:
+                trimmed_samples.append(sample_aliases[i])
                 trimmed_values.append(values[i])
 
+        #print("THE SAMPLES:", trimmed_samples)
+                
         if self.num_perm < 100:
             self.suggestive = 0
             self.significant = 0

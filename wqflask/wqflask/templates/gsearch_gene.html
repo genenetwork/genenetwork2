@@ -2,10 +2,6 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
 {% endblock %}
 {% block content %}
@@ -13,6 +9,7 @@
 
     <div class="container">
 
+        <p>You searched for {{ terms }}.</p>
         <p>To study a record, click on its ID below.<br />Check records below and click Add button to add to selection.</p>
 
         <div>
@@ -26,46 +23,28 @@
 
             <br />
             <br />
-            <table width="2000px" class="table table-hover table-striped" id="trait_table">
+            <div style="width: 2000px;">
+              <table width="2000px" id="trait_table" class="table table-hover table-striped" >
                 <thead>
-                    <tr>
-                        <th style="width: 30px;"></th>
-                        <th>Index</th>
-                        <th>Species</th>
-                        <th>Group</th>
-                        <th>Tissue</th>
-                        <th>Dataset</th>
-                        <th>Record</th>
-                        <th>Symbol</th>
-                        <th>Description</th>
-                        <th>Location</th>
-                        <th>Mean</th>
-                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                        <th>Max LRS Location</th>
-                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for this_trait in trait_list %}
-                    <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
-                        <TD>{{ loop.index }}</TD>
-                        <TD>{{ this_trait.dataset.group.species }}</TD>
-                        <TD>{{ this_trait.dataset.group.name }}</TD>
-                        <TD>{{ this_trait.dataset.tissue }}</TD>
-                        <TD>{{ this_trait.dataset.fullname }}</TD>
-                        <TD><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></TD>
-                        <TD>{{ this_trait.symbol }}</TD>
-                        <TD>{{ this_trait.description_display }}</TD>
-                        <TD>{{ this_trait.location_repr }}</TD>
-                        <TD align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
-                        <TD align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
-                        <TD>{{ this_trait.LRS_location_repr }}</TD>
-                        <TD align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
-                    </TR>
-                {% endfor %}
-                </tbody>
-            </table>
+                  <tr>
+                    <th></th>
+                    <th>Index</th>
+                    <th>Species</th> 
+                    <th>Group</th> 
+                    <th>Tissue</th> 
+                    <th>Dataset</th> 
+                    <th>Record</th> 
+                    <th>Symbol</th> 
+                    <th>Description</th> 
+                    <th>Location</th>
+                    <th>Mean</th>
+                    <th>Max<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th>Max LRS Location</th>
+                    <th>Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                  </tr>
+                </thead> 
+              </table>
+            </div>
         </div>
     </div>
 
@@ -156,23 +135,18 @@
 
             console.time("Creating table");
             $('#trait_table').DataTable( {
-                "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "cust-txt" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "15%"  },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" }, 
-                    { "type": "cust-txt" }
-                ],
-                "order": [[ 1, "asc" ]],
+                "processing": true,
+                "serverSide": true,
+                "paging": false,
+                "ajax": {
+                    "url": "/gsearch_updating?terms={{ terms }}&type={{ type }}",
+                    "type": "POST",
+                    "dataType": "json",
+                    "contentType": "application/json; charset=utf-8",
+                    "data": function ( args ) {
+                         return { "args": JSON.stringify( args ) };
+                    }
+                },
                 "buttons": [
                     {
                        extend: 'csvHtml5',
@@ -184,15 +158,26 @@
                        }
                     }
                 ],
-                "sDom": "RZBtir",
+                "columns": [
+                    { "data": "checkbox", "orderable" : false },
+                    { "data": "index", "orderable" : true },
+                    { "data": "species", "orderable" : true },
+                    { "data": "group", "orderable" : true },
+                    { "data": "tissue", "orderable" : true },
+                    { "data": "dataset", "orderable" : true },
+                    { "data": "record", "orderable" : true },
+                    { "data": "symbol", "orderable" : true },
+                    { "data": "description", "orderable" : true },
+                    { "data": "location", "orderable" : true },
+                    { "data": "mean", "orderable" : true },
+                    { "data": "max_lrs", "orderable" : true },
+                    { "data": "max_lrs_location", "orderable" : true },
+                    { "data": "additive_effect", "orderable" : true }
+                ],
+                "sDom": "Bfrti",
                 "autoWidth": false,
-                "bLengthChange": true,
-                "bDeferRender": true,
-                "scrollCollapse": false,
-                "colResize": {
-                    "tableWidthFixed": false,
-                },
-                "paging": false
+                "scrollY": "800px",
+                "bDeferRender": true
             } );
 
             console.timeEnd("Creating table");

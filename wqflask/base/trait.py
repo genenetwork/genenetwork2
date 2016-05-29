@@ -180,13 +180,15 @@ class GeneralTrait(object):
         samples = []
         vals = []
         the_vars = []
+        sample_aliases = []
         for sample_name, sample_data in self.data.items():
             if sample_data.value != None:
                 if not include_variance or sample_data.variance != None:
                     samples.append(sample_name)
                     vals.append(sample_data.value)
                     the_vars.append(sample_data.variance)
-        return  samples, vals, the_vars
+                    sample_aliases.append(sample_data.name2)
+        return  samples, vals, the_vars, sample_aliases
 
 
     #
@@ -230,7 +232,7 @@ class GeneralTrait(object):
 
         if results:
             for item in results:
-                name, value, variance, num_cases = item
+                name, value, variance, num_cases, name2 = item
                 if not samplelist or (samplelist and name in samplelist):
                     self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
 
@@ -313,9 +315,9 @@ class GeneralTrait(object):
                 self.confidential = 0
                 if self.pre_publication_description and not self.pubmed_id:
                     self.confidential = 1
-                    
-                description = self.post_publication_description
                 
+                description = self.post_publication_description
+            
                 #If the dataset is confidential and the user has access to confidential
                 #phenotype traits, then display the pre-publication description instead
                 #of the post-publication description
@@ -329,7 +331,7 @@ class GeneralTrait(object):
                     #        
                     #    description = self.pre_publication_description
                 
-                if len(description) > 0:
+                if description:
                     self.description_display = description.strip()
                 else:
                     self.description_display = ""
@@ -479,7 +481,7 @@ class GeneralTrait(object):
                     else:
                         self.locus = self.lrs = self.additive = ""
                 
-                if self.locus_chr != "" and self.locus_mb != "":
+                if (self.dataset.type == 'Publish' or self.dataset.type == "ProbeSet") and self.locus_chr != "" and self.locus_mb != "":
                     #XZ: LRS_location_value is used for sorting
                     try:
                         LRS_location_value = int(self.locus_chr)*1000 + float(self.locus_mb)

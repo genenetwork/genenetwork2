@@ -29,7 +29,7 @@
         <h3>{{ this_trait.description_fmt }}</h3>
     </div>
 
-    <form method="post" target="_blank" action="/corr_compute" name="trait_page" id="trait_data_form"
+    <form method="post" action="/corr_compute" target="_blank" name="trait_page" id="trait_data_form"
     class="form-horizontal">
         <div id="hidden_inputs">
         <input type="hidden" name="trait_hmac" value="{{ data_hmac('{}:{}'.format(this_trait.name, dataset.name)) }}">

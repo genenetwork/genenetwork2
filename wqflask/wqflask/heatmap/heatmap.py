@@ -136,7 +136,7 @@ class Heatmap(object):
             this_trait = trait_db[0]
             #this_db = trait_db[1]
             genotype = self.dataset.group.read_genotype_file()
-            samples, values, variances = this_trait.export_informative()
+            samples, values, variances, sample_aliases = this_trait.export_informative()
 
             trimmed_samples = []
             trimmed_values = []

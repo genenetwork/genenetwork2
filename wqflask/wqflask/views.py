@@ -34,6 +34,7 @@ from flask import (render_template, request, make_response, Response,
 
 from wqflask import search_results
 from wqflask import gsearch
+from wqflask import update_search_results
 from wqflask import docs
 from wqflask import news
 from base.data_set import DataSet    # Used by YAML in marker_regression
@@ -169,6 +170,17 @@ def gsearchact():
         return render_template("gsearch_gene.html", **result)
     elif type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
+        
+@app.route("/gsearch_updating", methods=('POST',))
+def gsearch_updating():
+    print("REQUEST ARGS:", request.values)
+    result = update_search_results.GSearch(request.args).__dict__
+    return result['results']
+    # type = request.args['type']
+    # if type == "gene":
+        # return render_template("gsearch_gene_updating.html", **result)
+    # elif type == "phenotype":
+        # return render_template("gsearch_pheno.html", **result)
 	
 @app.route("/docedit")
 def docedit():

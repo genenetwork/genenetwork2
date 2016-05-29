@@ -69,7 +69,7 @@ GENERATED_TEXT_DIR   = mk_dir(TMPDIR+'/generated_text/')
 
 # Flat file directories
 GENODIR              = flat_files('genotype')+'/'
-JSON_GENODIR         = assert_dir(GENODIR+'json/')
+JSON_GENODIR         = flat_files('json')+'/'
 
 PORTADDR = "http://50.16.251.170"
 

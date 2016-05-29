@@ -711,7 +711,7 @@ class PhenotypeDataSet(DataSet):
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
-                            Strain.Name, PublishData.value, PublishSE.error, NStrain.count
+                            Strain.Name, PublishData.value, PublishSE.error, NStrain.count, Strain.Name2
                     FROM
                             (PublishData, Strain, PublishXRef, PublishFreeze)
                     left join PublishSE on
@@ -803,7 +803,7 @@ class GenotypeDataSet(DataSet):
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
-                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id
+                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id, Sample.Name2
                     FROM
                             (GenoData, GenoFreeze, Strain, Geno, GenoXRef)
                     left join GenoSE on
@@ -1031,7 +1031,7 @@ class MrnaAssayDataSet(DataSet):
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
-                            Strain.Name, ProbeSetData.value, ProbeSetSE.error, ProbeSetData.Id
+                            Strain.Name, ProbeSetData.value, ProbeSetSE.error, ProbeSetData.Id, Strain.Name2
                     FROM
                             (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
                     left join ProbeSetSE on
