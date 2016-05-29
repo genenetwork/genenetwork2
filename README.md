@@ -3,7 +3,7 @@
 # GENENETWORK
 
 This repository contains the source code for the GeneNetwork server
-http://www.genenetwork.org/ (version 2 aka GN2).
+http://gn2.genenetwork.org/ (version 2 aka GN2).
 
 ## Install
 
