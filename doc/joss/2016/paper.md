@@ -31,7 +31,7 @@ authors:
     orcid: 0000-0001-8924-4447
     affiliation: University of Tennessee Health Science Center, USA
   - name: Pjotr Prins
-    orcid: orcid.org/0000-0002-8021-9162
+    orcid: 0000-0002-8021-9162
     affiliation: University Medical Center Utrecht, The Netherlands, University of Tennessee Health Science Center, USA
 date: 29 May 2016
 bibliography: paper.bib
