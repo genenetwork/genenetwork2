@@ -10,7 +10,7 @@ authors:
     affiliation: University of Tennessee Health Science Center, USA
   - name: Danny Arends
     orcid: 0000-0001-8738-0162
-    affiliation: Humboldt Universityl, Berlin, Germany
+    affiliation: Humboldt University, Berlin, Germany
   - name: Karl W. Broman
     orcid: 0000-0002-4914-6671
     affiliation: University of Wisconsin, USA
