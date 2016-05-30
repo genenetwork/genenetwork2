@@ -18,7 +18,6 @@ authors:
     orcid: 0000-0003-3142-2081
     affiliation: University of Tennessee Health Science Center, USA
   - name: Nick Furlotte
-    orcid: ?
   - name: Harm Nijveen
     orcid: 0000-0002-9167-4945
     affiliation: Wageningen University, The Netherlands
@@ -33,8 +32,7 @@ authors:
     affiliation: University of Tennessee Health Science Center, USA
   - name: Pjotr Prins
     orcid: orcid.org/0000-0002-8021-9162
-    affiliation: University Medical Center Utrecht, The Netherlands
-    affiliation: University of Tennessee Health Science Center, USA
+    affiliation: University Medical Center Utrecht, The Netherlands, University of Tennessee Health Science Center, USA
 date: 29 May 2016
 bibliography: paper.bib
 ---
