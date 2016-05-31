@@ -346,33 +346,34 @@ class GeneralTrait(object):
                     
                     
             self.homologeneid = None
-            if self.dataset.type == 'ProbeSet' and self.dataset.group and self.geneid:
-                #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
-                #XZ: So I have to test if geneid is number before execute the query.
-                #XZ: The geneid values in database should be cleaned up.
-                #try:
-                #    float(self.geneid)
-                #    geneidIsNumber = True
-                #except ValueError:
-                #    geneidIsNumber = False
-                #if geneidIsNumber:
-                query = """
-                        SELECT
-                                HomologeneId
-                        FROM
-                                Homologene, Species, InbredSet
-                        WHERE
-                                Homologene.GeneId =%s AND
-                                InbredSet.Name = '%s' AND
-                                InbredSet.SpeciesId = Species.Id AND
-                                Species.TaxonomyId = Homologene.TaxonomyId
-                        """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
-                result = g.db.execute(query).fetchone()
-                #else:
-                #    result = None
+            if self.dataset.type == 'ProbeSet' and self.dataset.group:
+                if self.geneid:
+                    #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
+                    #XZ: So I have to test if geneid is number before execute the query.
+                    #XZ: The geneid values in database should be cleaned up.
+                    #try:
+                    #    float(self.geneid)
+                    #    geneidIsNumber = True
+                    #except ValueError:
+                    #    geneidIsNumber = False
+                    #if geneidIsNumber:
+                    query = """
+                            SELECT
+                                    HomologeneId
+                            FROM
+                                    Homologene, Species, InbredSet
+                            WHERE
+                                    Homologene.GeneId =%s AND
+                                    InbredSet.Name = '%s' AND
+                                    InbredSet.SpeciesId = Species.Id AND
+                                    Species.TaxonomyId = Homologene.TaxonomyId
+                            """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
+                    result = g.db.execute(query).fetchone()
+                    #else:
+                    #    result = None
 
-                if result:
-                    self.homologeneid = result[0]
+                    if result:
+                        self.homologeneid = result[0]
                     
                 description_string = unicode(str(self.description).strip(codecs.BOM_UTF8), 'utf-8')
                 target_string = unicode(str(self.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
