@@ -161,7 +161,7 @@ class CorrelationResults(object):
             self.correlation_data = {}
 
             db_filename = self.getFileName(target_db_name = self.target_dataset.name)
-            cache_available = db_filename in os.listdir(webqtlConfig.TEXTDIR)
+            cache_available = db_filename in os.listdir(webqtlConfig.GENERATED_TEXT_DIR)
             
             if self.corr_type == "tissue":
                 self.trait_symbol_dict = self.dataset.retrieve_genes("Symbol")
@@ -179,7 +179,7 @@ class CorrelationResults(object):
                     
             elif self.corr_type == "sample":
                 if self.dataset.type == "ProbeSet" and cache_available:
-                    dataset_file = open(webqtlConfig.TEXTDIR+db_filename,'r')
+                    dataset_file = open(webqtlConfig.GENERATED_TEXT_DIR+db_filename,'r')
 
                     #XZ, 01/08/2009: read the first line
                     line = dataset_file.readline()
@@ -571,7 +571,7 @@ class CorrelationResults(object):
 
         #db_filename = self.getFileName(target_db_name=self.target_db_name)
         #
-        #cache_available = db_filename in os.listdir(webqtlConfig.TEXTDIR)
+        #cache_available = db_filename in os.listdir(webqtlConfig.GENERATED_TEXT_DIR)
 
          # If the cache file exists, do a cached correlation for probeset data
         if self.dataset.type == "ProbeSet":
@@ -1308,7 +1308,7 @@ class CorrelationResults(object):
             # return allcorrelations
             
 	
-        datasetFile = open(webqtlConfig.TEXTDIR+db_filename,'r')
+        datasetFile = open(webqtlConfig.GENERATED_TEXT_DIR+db_filename,'r')
     
         print("Invoking parallel computing")
         input_line_list = datasetFile.readlines()
