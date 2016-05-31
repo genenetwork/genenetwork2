@@ -8,7 +8,7 @@
 # 
 #########################################
 
-from utility.tools import mk_dir, assert_dir, flat_files, TEMPDIR
+from utility.tools import valid_path, mk_dir, assert_dir, flat_files, TEMPDIR
 
 #Debug Level
 #1 for debug, mod python will reload import each time
@@ -69,7 +69,11 @@ GENERATED_TEXT_DIR   = mk_dir(TMPDIR+'/generated_text/')
 
 # Flat file directories
 GENODIR              = flat_files('genotype')+'/'
-JSON_GENODIR         = flat_files('json')+'/'
+JSON_GENODIR         = flat_files('genotype/json')+'/'
+if not valid_path(JSON_GENODIR):
+    # fall back on old location (move the dir, FIXME)
+    JSON_GENODIR = flat_files('json')
+assert_dir(GENODIR)
 
 PORTADDR = "http://50.16.251.170"
 
