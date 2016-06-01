@@ -155,9 +155,7 @@ def search_page():
             Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
             Redis.expire(key, 60*60)
 
-        if result['quick']:
-            return render_template("quick_search.html", **result)
-        elif result['search_term_exists']:
+        if result['search_term_exists']:
             return render_template("search_result_page.html", **result)
         else:
             return render_template("search_error.html")

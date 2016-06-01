@@ -43,6 +43,25 @@
                     <th>Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                   </tr>
                 </thead> 
+                <tbody>
+                  {% for this_trait in trait_list %}
+                  <tr id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
+                    <td><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></td>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ this_trait.dataset.group.species }}</td>
+                    <td>{{ this_trait.dataset.group.name }}</td>
+                    <td>{{ this_trait.dataset.tissue }}</td>
+                    <td>{{ this_trait.dataset.name }}</td>
+                    <td><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></td>
+                    <td>{{ this_trait.symbol }}</td>
+                    <td>{{ this_trait.description_display }}</td>
+                    <td>{{ this_trait.location_repr }}</td>
+                    <td>{{ this_trait.mean }}</td>
+                    <td>{{ this_trait.LRS_score_repr }}</td>
+                    <td>{{ this_trait.LRS_location_repr }}</td>
+                    <td>{{ this_trait.additive }}</td>
+                  </tr>
+                  {% endfor %}
               </table>
             </div>
         </div>
@@ -135,18 +154,7 @@
 
             console.time("Creating table");
             $('#trait_table').DataTable( {
-                "processing": true,
-                "serverSide": true,
                 "paging": false,
-                "ajax": {
-                    "url": "/gsearch_updating?terms={{ terms }}&type={{ type }}",
-                    "type": "POST",
-                    "dataType": "json",
-                    "contentType": "application/json; charset=utf-8",
-                    "data": function ( args ) {
-                         return { "args": JSON.stringify( args ) };
-                    }
-                },
                 "buttons": [
                     {
                        extend: 'csvHtml5',
@@ -174,7 +182,7 @@
                     { "data": "max_lrs_location", "orderable" : true },
                     { "data": "additive_effect", "orderable" : true }
                 ],
-                "sDom": "Bfrti",
+                "sDom": "RZBtir",
                 "autoWidth": false,
                 "scrollY": "800px",
                 "bDeferRender": true

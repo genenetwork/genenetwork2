@@ -63,40 +63,29 @@ class SearchResultPage(object):
         #    self.dataset_group_ids = map(lambda x: x[2], results)
         #else:
 
-        self.quick = False
-
         self.uc_id = uuid.uuid4()
         print("uc_id:", self.uc_id)
 
-        if 'q' in kw:
-            self.results = {}
-            self.quick = True
-            self.search_terms = kw['q']
-            print("self.search_terms is: ", self.search_terms)
-            self.trait_type = kw['trait_type']
-            self.quick_search()
+        print("kw is:", kw)
+        if kw['search_terms_or']:
+            self.and_or = "or"
+            self.search_terms = kw['search_terms_or']
         else:
-            print("kw is:", kw)
-            if kw['search_terms_or']:
-                self.and_or = "or"
-                self.search_terms = kw['search_terms_or']
-            else:
-                self.and_or = "and"
-                self.search_terms = kw['search_terms_and']
-            self.search_term_exists = True
-            self.results = []
-            if kw['type'] == "Phenotypes":
-                dataset_type = "Publish"
-            elif kw['type'] == "Genotypes":
-                dataset_type = "Geno"
-            else:
-                dataset_type = "ProbeSet"
-            self.dataset = create_dataset(kw['dataset'], dataset_type)
-            print("KEYWORD:", self.search_terms)
-            self.search()
-            if self.search_term_exists:
-                self.gen_search_result()
-
+            self.and_or = "and"
+            self.search_terms = kw['search_terms_and']
+        self.search_term_exists = True
+        self.results = []
+        if kw['type'] == "Phenotypes":
+            dataset_type = "Publish"
+        elif kw['type'] == "Genotypes":
+            dataset_type = "Geno"
+        else:
+            dataset_type = "ProbeSet"
+        self.dataset = create_dataset(kw['dataset'], dataset_type)
+        print("KEYWORD:", self.search_terms)
+        self.search()
+        if self.search_term_exists:
+            self.gen_search_result()
 
 
     def gen_search_result(self):
@@ -124,56 +113,6 @@ class SearchResultPage(object):
             self.trait_list.append(this_trait)
 
         self.dataset.get_trait_info(self.trait_list, species)
-
-    def quick_search(self):
-        #search_terms = ""
-        #for term in self.search_terms.split():
-        #    search_terms += '+{} '.format(term)
-            
-        search_terms = ' '.join('+{}'.format(escape(term)) for term in self.search_terms.split())
-        print("search_terms are:", search_terms)
-        
-        query = """ SELECT table_name, the_key, result_fields
-                    FROM QuickSearch
-                    WHERE MATCH (terms)
-                          AGAINST ('{}' IN BOOLEAN MODE) """.format(search_terms)
-        
-        with Bench("Doing QuickSearch Query: "):
-            dbresults = g.db.execute(query, no_parameters=True).fetchall()
-        #print("results: ", pf(results))
-        
-        self.results = collections.defaultdict(list)
-        
-        type_dict = {'PublishXRef': 'phenotype',
-                   'ProbeSetXRef': 'mrna_assay',
-                   'GenoXRef': 'genotype'}
-        
-        self.species_groups = {}
-        
-        for dbresult in dbresults:
-            this_result = {}
-            this_result['table_name'] = dbresult.table_name
-            if self.trait_type == type_dict[dbresult.table_name] or self.trait_type == 'all':
-                this_result['key'] = dbresult.the_key
-                this_result['result_fields'] = json.loads(dbresult.result_fields)
-                this_species = this_result['result_fields']['species']
-                this_group = this_result['result_fields']['group_name']
-                if this_species not in self.species_groups:
-                    self.species_groups[this_species] = {}
-                if type_dict[dbresult.table_name] not in self.species_groups[this_species]:
-                    self.species_groups[this_species][type_dict[dbresult.table_name]] = []
-                if this_group not in self.species_groups[this_species][type_dict[dbresult.table_name]]:
-                    self.species_groups[this_species][type_dict[dbresult.table_name]].append(this_group)
-                #if type_dict[dbresult.table_name] not in self.species_groups:
-                #    self.species_groups[type_dict[dbresult.table_name]] = {}
-                #if this_species not in self.species_groups[type_dict[dbresult.table_name]]:
-                #    self.species_groups[type_dict[dbresult.table_name]][this_species] = []
-                #if this_group not in self.species_groups[type_dict[dbresult.table_name]][this_species]:
-                #    self.species_groups[type_dict[dbresult.table_name]][this_species].append(this_group)
-                self.results[type_dict[dbresult.table_name]].append(this_result)
-            
-        import redis
-        Redis = redis.Redis()
         
     #def get_group_species_tree(self):
     #    self.species_groups = collections.default_dict(list)
@@ -181,43 +120,6 @@ class SearchResultPage(object):
     #        for item in self.results[key]:
     #            self.species_groups[item['result_fields']['species']].append(
     #                                        item['result_fields']['group_name'])
-
-
-    #def quick_search(self):
-    #    self.search_terms = parser.parse(self.search_terms)
-    #
-    #    search_types = ["quick_mrna_assay", "quick_phenotype"]
-    #
-    #    for search_category in search_types:
-    #        these_results = []
-    #        search_ob = do_search.DoSearch.get_search(search_category)
-    #        search_class = getattr(do_search, search_ob)
-    #        for a_search in self.search_terms:
-    #            search_term = a_search['search_term']
-    #            the_search = search_class(search_term)
-    #            these_results.extend(the_search.run())
-    #            print("in the search results are:", self.results)
-    #        self.results[search_category] = these_results
-    #
-    #    #for a_search in self.search_terms:
-    #    #    search_term = a_search['search_term']
-    #    #
-    #    #    #Do mRNA assay search
-    #    #    search_ob = do_search.DoSearch.get_search("quick_mrna_assay")
-    #    #    search_class = getattr(do_search, search_ob)
-    #    #    the_search = search_class(search_term)
-    #    #    
-    #    #    self.results.extend(the_search.run())
-    #    #    print("in the search results are:", self.results)
-    #
-    #
-    #    #return True
-    #
-    #    #search_gene
-    #    #search_geno
-    #    #search_pheno
-    #    #search_mrn
-    #    #search_publish
 
 
     def search(self):
