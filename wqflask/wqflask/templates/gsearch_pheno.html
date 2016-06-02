@@ -25,10 +25,11 @@
             <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
             <br />
             <br />
-            <table class="table table-hover table-striped" id='trait_table'  style="float: left;">
+            <div style="width: 1500px;">
+            <table width="1500px" id="trait_table" class="table table-hover table-striped">
                 <thead>
                     <tr>
-                        <th style="width: 30px;"></th>
+                        <th></th>
                         <th>Index</th>
                         <th>Species</th>
                         <th>Group</th>
@@ -44,21 +45,22 @@
                 <tbody>
                  {% for this_trait in trait_list %}
                     <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
-                        <TD>{{ loop.index }}</TD>
-                        <TD>{{ this_trait.dataset.group.species }}</TD>
-                        <TD>{{ this_trait.dataset.group.name }}</TD>
-                        <TD><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></TD>
-                        <TD>{{ this_trait.description_display }}</TD>
-                        <TD>{{ this_trait.authors }}</TD>
-                        <TD><a href="{{ this_trait.pubmed_link }}">{{ this_trait.pubmed_text }}</a></TD>
-                        <TD>{{ this_trait.LRS_score_repr }}</TD>
-                        <TD>{{ this_trait.LRS_location_repr }}</TD>
-                        <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
+                        <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></td>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ this_trait.dataset.group.species }}</td>
+                        <td>{{ this_trait.dataset.group.name }}</td>
+                        <td><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></td>
+                        <td>{{ this_trait.description_display }}</td>
+                        <td>{{ this_trait.authors }}</td>
+                        <td><a href="{{ this_trait.pubmed_link }}">{{ this_trait.pubmed_text }}</a></td>
+                        <td align="right">{{ '%0.1f' % this_trait.LRS_score_repr|float }}</td>
+                        <td align="right">{{ this_trait.LRS_location_repr }}</td>
+                        <td align="right">{{ '%0.3f' % this_trait.additive|float }}</td>
                     </TR>
                 {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 
@@ -127,20 +129,7 @@
 
             console.time("Creating table");
             $('#trait_table').DataTable( {
-                "columns": [
-                    { "bSortClasses": false },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "20%"},
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "12%"},
-                    { "type": "natural" }
-                ],
-                "order": [[ 1, "asc" ]],
+                "paging": false,
                 "buttons": [
                     {
                        extend: 'csvHtml5',
@@ -152,15 +141,25 @@
                        }
                     }
                 ],
-                "sDom": "RZBtir",
+                "columns": [
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "30%"},
+                    { "type": "natural", "width": "25%"},
+                    { "type": "natural" },
+                    { "type": "natural", "width": "8%"},
+                    { "type": "natural", "width": "12%"},
+                    { "type": "natural" }
+                ],
+                "order": [[1, "asc" ]],
+                "sDom": "Btir",
                 "autoWidth": false,
-                "bLengthChange": true,
                 "bDeferRender": true,
-                "scrollCollapse": false,
-                "colResize": {
-                    "tableWidthFixed": false,
-                },
-                "paging": false
+                "scrollY": "800px",
+                "scrollCollapse": false
             } );
             console.timeEnd("Creating table");
         });

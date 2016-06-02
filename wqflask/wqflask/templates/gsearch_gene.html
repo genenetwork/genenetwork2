@@ -38,7 +38,7 @@
                     <th>Description</th> 
                     <th>Location</th>
                     <th>Mean</th>
-                    <th>Max<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th>Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                     <th>Max LRS Location</th>
                     <th>Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                   </tr>
@@ -55,11 +55,11 @@
                     <td><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></td>
                     <td>{{ this_trait.symbol }}</td>
                     <td>{{ this_trait.description_display }}</td>
-                    <td>{{ this_trait.location_repr }}</td>
-                    <td>{{ this_trait.mean }}</td>
-                    <td>{{ this_trait.LRS_score_repr }}</td>
-                    <td>{{ this_trait.LRS_location_repr }}</td>
-                    <td>{{ this_trait.additive }}</td>
+                    <td align="right">{{ this_trait.location_repr }}</td>
+                    <td align="right">{{ '%0.3f' % this_trait.mean|float }}</td>
+                    <td align="right">{{ '%0.1f' % this_trait.LRS_score_repr|float }}</td>
+                    <td align="right">{{ this_trait.LRS_location_repr }}</td>
+                    <td align="right">{{ '%0.3f' % this_trait.additive|float }}</td>
                   </tr>
                   {% endfor %}
               </table>
@@ -100,42 +100,6 @@
             }
             return parseFloat(x);
         }
-            
-        jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b); 
-            
-            if (x == 'N/A' || x == '') {
-                return 1;
-            }
-            else if (y == 'N/A' || y == '') {
-                return -1;
-            }
-            else {
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-            }
-        };
-
-        jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b); 
-            
-            if (x == 'N/A' || x == '') {
-                return 1;
-            }
-            else if (y == 'N/A' || y == '') {
-                return -1;
-            }
-            else {
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-            }
-        };
-  
-        jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b);
-            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
-        };
 
         $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
         {
@@ -167,25 +131,27 @@
                     }
                 ],
                 "columns": [
-                    { "data": "checkbox", "orderable" : false },
-                    { "data": "index", "orderable" : true },
-                    { "data": "species", "orderable" : true },
-                    { "data": "group", "orderable" : true },
-                    { "data": "tissue", "orderable" : true },
-                    { "data": "dataset", "orderable" : true },
-                    { "data": "record", "orderable" : true },
-                    { "data": "symbol", "orderable" : true },
-                    { "data": "description", "orderable" : true },
-                    { "data": "location", "orderable" : true },
-                    { "data": "mean", "orderable" : true },
-                    { "data": "max_lrs", "orderable" : true },
-                    { "data": "max_lrs_location", "orderable" : true },
-                    { "data": "additive_effect", "orderable" : true }
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "8%"  },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural" }
                 ],
-                "sDom": "RZBtir",
+                "order": [[1, "asc" ]],
+                "sDom": "Btir",
                 "autoWidth": false,
+                "bDeferRender": true,
                 "scrollY": "800px",
-                "bDeferRender": true
+                "scrollCollapse": false
             } );
 
             console.timeEnd("Creating table");
