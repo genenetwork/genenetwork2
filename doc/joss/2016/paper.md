@@ -57,7 +57,8 @@ analysis [@WGCNA:2008].
 
 GN is written in python and javascript and contains a rich set of
 tools and libraries that can be written in any computer language. A
-full list of included software can be found in
+full list of included software can be found in the package named
+`genenetwork2' and defined in
 [guix-bioinformatics](https://github.com/genenetwork/guix-bioinformatics/blob/master/gn/packages/genenetwork.scm). To
 make it easy to install GN locally in a byte reproducible way,
 including all dependencies and a 2GB MySQL test database (the full
