@@ -41,14 +41,17 @@ bibliography: paper.bib
 
 GeneNetwork (GN) is a free and open source (FOSS) framework for
 web-based genetics that can be deployed anywhere. GN allows biologists
-to upload experimental data and map phenotypes interactively against
-genotypes using tools, such as R/QTL [@Arends:2010] mapping, interval
-mapping for model organisms and pylmm; an implementation of FaST-LMM
-[@Lippert:2011] which is suitable for human populations and outbred
-crosses, such as the mouse diversity outcross. Interactive D3 graphics
-are included from R/qtlcharts and presentation-ready figures can be
-generated. Recently we have added functionality for phenotype
-correlation [@Wang:2016] and network analysis [@WGCNA:2008].
+to upload high-throughput experimental data, such as expression data
+from microarrays and RNA-seq, and also `classic' phenotypes, such as
+disease phenotypes.  These phenotypes can be mapped interactively
+against genotypes using embedded tools, such as R/QTL [@Arends:2010]
+mapping, interval mapping for model organisms and pylmm; an
+implementation of FaST-LMM [@Lippert:2011] which is more suitable for
+human populations and outbred crosses, such as the mouse diversity
+outcross. Interactive D3 graphics are included from R/qtlcharts and
+presentation-ready figures can be generated. Recently we have added
+functionality for phenotype correlation [@Wang:2016] and network
+analysis [@WGCNA:2008].
 
 -![Mouse LMM mapping example](qtl2.png)
 
