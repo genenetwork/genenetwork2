@@ -41,20 +41,24 @@ bibliography: paper.bib
 
 GeneNetwork (GN) is a free and open source (FOSS) framework for
 web-based genetics that can be deployed anywhere. GN allows biologists
-to upload experimental data and map phenotypes interactively against
-genotypes using tools, such as R/QTL [@Arends:2010] mapping, interval
-mapping for model organisms and pylmm; an implementation of FaST-LMM
-[@Lippert:2011] which is suitable for human populations and outbred
-crosses, such as the mouse diversity outcross. Interactive D3 graphics
-are included from R/qtlcharts and presentation-ready figures can be
-generated. Recently we have added functionality for phenotype
-correlation [@Wang:2016] and network analysis [@WGCNA:2008].
+to upload high-throughput experimental data, such as expression data
+from microarrays and RNA-seq, and also `classic' phenotypes, such as
+disease phenotypes.  These phenotypes can be mapped interactively
+against genotypes using embedded tools, such as R/QTL [@Arends:2010]
+mapping, interval mapping for model organisms and pylmm; an
+implementation of FaST-LMM [@Lippert:2011] which is more suitable for
+human populations and outbred crosses, such as the mouse diversity
+outcross. Interactive D3 graphics are included from R/qtlcharts and
+presentation-ready figures can be generated. Recently we have added
+functionality for phenotype correlation [@Wang:2016] and network
+analysis [@WGCNA:2008].
 
 -![Mouse LMM mapping example](qtl2.png)
 
 GN is written in python and javascript and contains a rich set of
 tools and libraries that can be written in any computer language. A
-full list of included software can be found in
+full list of included software can be found in the package named
+`genenetwork2' and defined in
 [guix-bioinformatics](https://github.com/genenetwork/guix-bioinformatics/blob/master/gn/packages/genenetwork.scm). To
 make it easy to install GN locally in a byte reproducible way,
 including all dependencies and a 2GB MySQL test database (the full
@@ -76,7 +80,7 @@ worked on, including GPU support.
 A REST interface is being added so that data can be uploaded to a
 server, analysis run remotely on high performance hardware, and
 results downloaded and used for further analysis. This feature will
-allow biologist-programmers to use R and python on their computer and
+allow biologist-programmers to use R and Python on their computer and
 execute computations on GN enabled servers.
 
 # References
