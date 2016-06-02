@@ -80,7 +80,7 @@ worked on, including GPU support.
 A REST interface is being added so that data can be uploaded to a
 server, analysis run remotely on high performance hardware, and
 results downloaded and used for further analysis. This feature will
-allow biologist-programmers to use R and python on their computer and
+allow biologist-programmers to use R and Python on their computer and
 execute computations on GN enabled servers.
 
 # References
