@@ -145,6 +145,7 @@
                     </TR>
                 {% endfor %}
                 </tbody>
+                {% if trait_list|length > 20 %}
                 <tfoot>
                     <tr>
                         <th style="width: 30px;"></th>
@@ -159,6 +160,7 @@
                     {% endfor %}
                     </tr>
                 </tfoot>
+                {% endif %}
             </table>
           </div>
         </div>

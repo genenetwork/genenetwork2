@@ -49,16 +49,16 @@ function naturalSort (a, b) {
 jQuery.extend( jQuery.fn.dataTableExt.oSort, {
     "natural-asc": function ( a, b ) {
         // first check if null or n/a
-        if (a == "N/A" || a == "NA" || a == "") return 1;
-        else if (b == "N/A" || b == "NA" || b == "") return -1;
+        if (a == "N/A" || a == "NA" || a == "" || a == "--") return 1;
+        else if (b == "N/A" || b == "NA" || b == "" || b == "--") return -1;
         else {
             return naturalSort(a,b);
         }
     },
  
     "natural-desc": function ( a, b ) {
-        if (a == "N/A" || a == "NA" || a == "") return 1;
-        else if (b == "N/A" || b == "NA" || b == "") return -1;
+        if (a == "N/A" || a == "NA" || a == "" || a == "--") return 1;
+        else if (b == "N/A" || b == "NA" || b == "" || b == "--") return -1;
         else {
             return naturalSort(a,b) * -1;
         }
