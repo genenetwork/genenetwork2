@@ -444,9 +444,9 @@ class GeneralTrait(object):
                                 self.locus_chr = result[0]
                                 self.locus_mb = result[1]
                             else:
-                                self.locus = self.locus_chr = self.locus_mb = ""
+                                self.locus = self.locus_chr = self.locus_mb = self.additive = ""
                         else:
-                            self.locus = self.locus_chr = self.locus_mb = ""
+                            self.locus = self.locus_chr = self.locus_mb = self.additive = ""
                     else:
                         self.locus = self.locus_chr = self.locus_mb = self.lrs = self.pvalue = self.mean = self.additive = ""
 
@@ -476,9 +476,9 @@ class GeneralTrait(object):
                                 self.locus_chr = result[0]
                                 self.locus_mb = result[1]
                             else:
-                                self.locus = self.locus_chr = self.locus_mb = ""
+                                self.locus = self.locus_chr = self.locus_mb = self.additive = ""
                         else:
-                            self.locus = self.locus_chr = self.locus_mb = ""
+                            self.locus = self.locus_chr = self.locus_mb = self.additive = ""
                     else:
                         self.locus = self.lrs = self.additive = ""
                 
@@ -492,9 +492,10 @@ class GeneralTrait(object):
                         else:
                             LRS_location_value = ord(str(self.locus_chr).upper()[0])*1000 + float(self.locus_mb)
 
-                    self.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (self.locus_chr, float(self.locus_mb))                                        
-                    self.LRS_score_repr = LRS_score_repr = '%3.1f' % self.lrs
-                    self.LRS_score_value = LRS_score_value = self.lrs
+                    self.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (self.locus_chr, float(self.locus_mb))
+                    if self.lrs != "":                                     
+                        self.LRS_score_repr = LRS_score_repr = '%3.1f' % self.lrs
+                        self.LRS_score_value = LRS_score_value = self.lrs
         else:
             raise KeyError, `self.name`+' information is not found in the database.'
 

@@ -89,18 +89,18 @@
           {% endif %}
 -->
 
-          <div id="table_container">
+          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black;">
             <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
                 <thead>
                     <tr>
-                        <th style="width: 30px;"></th>
+                        <th style="background-color: #eeeeee;"></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS</th>
+                        <th style="background-color: #eeeeee; text-align: right;">Max<br>LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th style="background-color: #eeeeee; text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
-                        <th>{{header}}</th>
+                        <th style="background-color: #eeeeee;">{{header}}</th>
                         {% endif %}
                     {% endfor %}
                     </tr>
@@ -145,7 +145,20 @@
                     </TR>
                 {% endfor %}
                 </tbody>
-
+                <tfoot>
+                    <tr>
+                        <th style="width: 30px;"></th>
+                    {% for header in header_fields %}
+                        {% if header == 'Max LRS' %}
+                        <th style="text-align: right;">Max<br>LRS</th>
+                        {% elif header == 'Additive Effect' %}
+                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        {% else %}
+                        <th>{{header}}</th>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                </tfoot>
             </table>
           </div>
         </div>
@@ -251,7 +264,7 @@
                 "iDisplayLength": -1,
                 "bDeferRender": true,
                 "bSortClasses": false,
-                "scrollY": "700px",
+                "scrollY": true,
                 "scrollCollapse": false,
                 "paging": false
             } );

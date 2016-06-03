@@ -23,24 +23,24 @@
 
             <br />
             <br />
-            <div style="width: 2000px;">
+            <div style="width: 2000px; background-color: #eeeeee; border: 1px solid black;">
               <table width="2000px" id="trait_table" class="table table-hover table-striped" >
                 <thead>
                   <tr>
-                    <th></th>
-                    <th>Index</th>
-                    <th>Species</th> 
-                    <th>Group</th> 
-                    <th>Tissue</th> 
-                    <th>Dataset</th> 
-                    <th>Record</th> 
-                    <th>Symbol</th> 
-                    <th>Description</th> 
-                    <th>Location</th>
-                    <th>Mean</th>
-                    <th>Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                    <th>Max LRS Location</th>
-                    <th>Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th style="background-color: #eeeeee;"></th>
+                    <th style="background-color: #eeeeee;">Index</th>
+                    <th style="background-color: #eeeeee;">Species</th> 
+                    <th style="background-color: #eeeeee;">Group</th> 
+                    <th style="background-color: #eeeeee;">Tissue</th> 
+                    <th style="background-color: #eeeeee;">Dataset</th> 
+                    <th style="background-color: #eeeeee;">Record</th> 
+                    <th style="background-color: #eeeeee;">Symbol</th> 
+                    <th style="background-color: #eeeeee;">Description</th> 
+                    <th style="background-color: #eeeeee;">Location</th>
+                    <th style="background-color: #eeeeee;">Mean</th>
+                    <th style="background-color: #eeeeee;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th style="background-color: #eeeeee;">Max LRS Location</th>
+                    <th style="background-color: #eeeeee;">Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                   </tr>
                 </thead> 
                 <tbody>
@@ -57,11 +57,30 @@
                     <td>{{ this_trait.description_display }}</td>
                     <td align="right">{{ this_trait.location_repr }}</td>
                     <td align="right">{{ '%0.3f' % this_trait.mean|float }}</td>
-                    <td align="right">{{ '%0.1f' % this_trait.LRS_score_repr|float }}</td>
+                    <td align="right">{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
                     <td align="right">{{ this_trait.LRS_location_repr }}</td>
-                    <td align="right">{{ '%0.3f' % this_trait.additive|float }}</td>
+                    <td align="right">{% if this_trait.additive != "" %}{{ '%0.3f' % this_trait.additive|float }}{% else %}N/A{% endif %}</td>
                   </tr>
                   {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th style="background-color: #eeeeee;"></th>
+                    <th style="background-color: #eeeeee;">Index</th>
+                    <th style="background-color: #eeeeee;">Species</th> 
+                    <th style="background-color: #eeeeee;">Group</th> 
+                    <th style="background-color: #eeeeee;">Tissue</th> 
+                    <th style="background-color: #eeeeee;">Dataset</th> 
+                    <th style="background-color: #eeeeee;">Record</th> 
+                    <th style="background-color: #eeeeee;">Symbol</th> 
+                    <th style="background-color: #eeeeee;">Description</th> 
+                    <th style="background-color: #eeeeee;">Location</th>
+                    <th style="background-color: #eeeeee;">Mean</th>
+                    <th style="background-color: #eeeeee;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th style="background-color: #eeeeee;">Max LRS Location</th>
+                    <th style="background-color: #eeeeee;">Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                  </tr>
+                </tfoot> 
               </table>
             </div>
         </div>
