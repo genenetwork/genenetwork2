@@ -135,6 +135,8 @@
 
   outlier_text = "One or more outliers exist in this data set. Please review values before mapping. Including outliers when mapping may lead to misleading results. We recommend <A HREF=\"http://en.wikipedia.org/wiki/Winsorising\">winsorising</A> the outliers or simply deleting them.";
 
+  runtime_warning_text = "This function could take as long as 10-20 minutes to run, so please do not close your browser window until it finishes."
+  
   showalert = function(message, alerttype) {
     return $('#alert_placeholder').append('<div id="alertdiv" class="alert ' + alerttype + '"><a class="close" data-dismiss="alert">�</a><span>' + message + '</span></div>');
   };
@@ -187,8 +189,20 @@
       $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
       form_data = $('#trait_data_form').serialize();
       console.log("form_data is:", form_data);
-      return submit_special(url);
-      //return do_ajax_post(url, form_data);
+      if ($('input[name=pair_scan]:checked').val() == "true") {
+        console.log("PAIR SCAN:", $('input[name=pair_scan]:checked').val())
+        run_pair_scan = confirm(runtime_warning_text)
+        if (run_pair_scan == true) {
+          submit_special(url);
+        }
+        else {
+          return false
+        }
+      }
+      else {
+        return submit_special(url);
+        //return do_ajax_post(url, form_data);
+      }
     };
   })(this));
 

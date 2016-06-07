@@ -77,20 +77,20 @@
     {% for sample_type in sample_groups %}
         <div class="sample_group" style="width:{{ trait_table_width }}%;">
             <h3>{{ sample_type.header }}</h3>
-
+            <div id="table_container" style="background-color: #eeeeee; border: 1px solid black;">
             <table class="table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left;">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th>Index</th>
-                        <th>Sample</th>
-                        <th>Value</th>
+                        <th style="background-color: #eeeeee;"></th>
+                        <th style="background-color: #eeeeee;">Index</th>
+                        <th style="background-color: #eeeeee;">Sample</th>
+                        <th style="background-color: #eeeeee;">Value</th>
                         {% if sample_type.se_exists() %}
-                        <th>&nbsp;</th>
-                        <th>SE</th>
+                        <th style="background-color: #eeeeee;">&nbsp;</th>
+                        <th style="background-color: #eeeeee;">SE</th>
                         {% endif %}
                         {% for attribute in sample_type.attributes|sort() %}
-                        <th>
+                        <th style="background-color: #eeeeee;">
                             {{ sample_type.attributes[attribute].name }}
                         </th>
                         {% endfor %}
@@ -144,6 +144,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
         {% endfor %}
     <!--</div>-->

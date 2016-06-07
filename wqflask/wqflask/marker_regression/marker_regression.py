@@ -37,7 +37,7 @@ from utility import temp_data
 from utility.benchmark import Bench
 from wqflask.marker_regression import gemma_mapping
 
-from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND
+from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
 from utility.external import shell
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
@@ -213,7 +213,8 @@ class MarkerRegression(object):
                     if 'lod_score' in marker.keys():
                         self.qtl_results.append(marker)
 
-            self.trimmed_markers = trim_markers_for_table(results)            
+            
+            self.trimmed_markers = results    
                         
             for qtl in enumerate(self.qtl_results):
                 self.json_data['chr1'].append(str(qtl['chr1']))
@@ -228,7 +229,7 @@ class MarkerRegression(object):
                 maf = self.maf,
                 manhattan_plot = self.manhattan_plot,
                 mapping_scale = self.mapping_scale,
-                qtl_results = self.qtl_results,
+                qtl_results = self.qtl_results
             )
 
         else:
@@ -388,7 +389,7 @@ class MarkerRegression(object):
         r_sum         = ro.r["sum"]                     # Map the sum function
         plot          = ro.r["plot"]                    # Map the plot function
         postscript    = ro.r["postscript"]              # Map the postscript function
-        png           = ro.r["png"]              # Map the png function
+        png           = ro.r["png"]                     # Map the png function
         dev_off       = ro.r["dev.off"]                 # Map the device off function
 
         print(r_library("qtl"))                         # Load R/qtl
@@ -430,7 +431,7 @@ class MarkerRegression(object):
             #print("Pair scan results:", result_data_frame)
 
             self.pair_scan_filename = webqtlUtil.genRandStr("scantwo_") + ".png"
-            png(file=TMPDIR+self.pair_scan_filename)
+            png(file=TEMPDIR+self.pair_scan_filename)
             plot(result_data_frame)
             dev_off()
             

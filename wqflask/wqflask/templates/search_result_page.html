@@ -21,44 +21,30 @@
            to find all records
                 {% for word in search_terms %}
                     {% if word.key|lower == "rif" %}
-                    with <u>GeneRIF</u> containing <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>GeneRIF</u> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "go" %}
-                    with <u>Gene Ontology ID</u> <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>Gene Ontology ID</u> <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "wiki" %}
-                    with <u>GeneWiki</u> containing <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>GeneWiki</u> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "mean" %}
-                    with <u>MEAN</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>MEAN</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "lrs" or word.key|lower == "translrs" or word.key|lower == "cislrs" %}
                     {% if word.search_term|length == 1 %}
-                    with {% if word.key|lower == "translrs" %}trans{% elif word.key|lower == "cislrs" %}cis{% endif %}LRS {% if word.separator == ">" %} greater than {% elif word.separator == "<" %} less than {% elif word.separator == ">=" %} greater than or equal to {% elif word.separator == "<=" %} less than or equal to {% endif %} <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    with {% if word.key|lower == "translrs" %}trans{% elif word.key|lower == "cislrs" %}cis{% endif %}LRS {% if word.separator == ">" %} greater than {% elif word.separator == "<" %} less than {% elif word.separator == ">=" %} greater than or equal to {% elif word.separator == "<=" %} less than or equal to {% endif %} <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 2 %}
-                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 3 %}
-                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 5 %}
-                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if not loop.last %} and {% endif %}
+                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% endif %}
                     {% elif word.key|lower == "position" %}
-                    with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if not loop.last %} and {% endif %}
+                    with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% else %}
-                    with {{ word.key|lower }} matching {{ word.search_term[0] }}
+                    that match the term {{ word.search_term[0] }}.
                     {% endif %}
-                    <!--<strong>{{word.search_term[0]}}</strong> {% if not loop.last %} or {% endif %}-->
-                {% endfor %}.
-
-        </p>
-
-        <!--
-        <ul>
-            {% if search_terms %}
-            <li>
-                {% for word in search_terms %}
-                    <strong>{{word.search_term[0]}}</strong> {% if not loop.last %} or {% endif %}
                 {% endfor %}
-            </li>
-            {% endif %}
-        </ul>
-        -->
+        </p>
 
         <p>To study a record, click on its ID below. Check records below and click Add button to add to selection.</p>
 

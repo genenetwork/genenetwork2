@@ -457,33 +457,47 @@ def marker_regression_page():
 
         result = template_vars.__dict__
 
-        #for item in template_vars.__dict__.keys():
-        #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-        
-        gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
-
-        #qtl_length = len(result['js_data']['qtl_results'])
-        #print("qtl_length:", qtl_length)
-        pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-        #print("pickled result length:", len(pickled_result))
-        Redis.set(key, pickled_result)
-        Redis.expire(key, 1*60)
-
-    with Bench("Rendering template"):
-        if result['pair_scan'] == True:
-            img_path = result['pair_scan_filename']
-            print("img_path:", img_path)
-            initial_start_vars = request.form
-            print("initial_start_vars:", initial_start_vars)
-            imgfile = open(TEMPDIR + '/' + img_path, 'rb')
-            imgdata = imgfile.read()
-            imgB64 = imgdata.encode("base64")
-            bytesarray = array.array('B', imgB64)
-            result['pair_scan_array'] = bytesarray
-            rendered_template = render_template("pair_scan_results.html", **result)
+        if result['pair_scan']:
+            with Bench("Rendering template"):
+                img_path = result['pair_scan_filename']
+                print("img_path:", img_path)
+                initial_start_vars = request.form
+                print("initial_start_vars:", initial_start_vars)
+                imgfile = open(TEMPDIR + img_path, 'rb')
+                imgdata = imgfile.read()
+                imgB64 = imgdata.encode("base64")
+                bytesarray = array.array('B', imgB64)
+                result['pair_scan_array'] = bytesarray
+                rendered_template = render_template("pair_scan_results.html", **result)        
         else:
-            #rendered_template = render_template("marker_regression.html", **result)
-            rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
+            #for item in template_vars.__dict__.keys():
+            #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
+            
+            gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+
+            pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+            print("pickled result length:", len(pickled_result))
+            Redis.set(key, pickled_result)
+            Redis.expire(key, 1*60)
+            
+            with Bench("Rendering template"):
+                rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
+
+    # with Bench("Rendering template"):
+        # if result['pair_scan'] == True:
+            # img_path = result['pair_scan_filename']
+            # print("img_path:", img_path)
+            # initial_start_vars = request.form
+            # print("initial_start_vars:", initial_start_vars)
+            # imgfile = open(TEMPDIR + '/' + img_path, 'rb')
+            # imgdata = imgfile.read()
+            # imgB64 = imgdata.encode("base64")
+            # bytesarray = array.array('B', imgB64)
+            # result['pair_scan_array'] = bytesarray
+            # rendered_template = render_template("pair_scan_results.html", **result)
+        # else:
+            # rendered_template = render_template("marker_regression.html", **result)
+            # rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
 
     return rendered_template
 
