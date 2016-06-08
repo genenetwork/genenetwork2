@@ -187,7 +187,7 @@ genenetwork2
 It will complain that the database is missing. See the section on [[#run-mysql-server][Run
 MySQL server]] for downloading and installing a MySQL GN2
 database. After installing the database restart genenetwork2 and point
-your browser at http://localhost:5003/.
+your browser at [[http://localhost:5003/]].
 
 End of recipe!
 
