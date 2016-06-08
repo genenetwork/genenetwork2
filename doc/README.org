@@ -178,7 +178,7 @@ export PYTHONPATH="/root/.guix-profile/lib/python2.7/site-packages"
 export R_LIBS_SITE="/root/.guix-profile/site-library/"
 #+end_src
 
-and copy-paste the exports into the terminal befor running:
+and copy-paste the exports into the terminal before running:
 
 #+begin_src bash
 genenetwork2
