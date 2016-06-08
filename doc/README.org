@@ -3,9 +3,12 @@
 
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
+ - [[#quick-installation-recipe][Quick installation recipe]]
+   - [[#step-1-install-gnu-guix][Step 1: Install GNU Guix]]
+   - [[#step-2-checkout-the-gn2-git-repositories][Step 2: Checkout the GN2 git repositories]]
+   - [[#step-3-authorize-the-gn-guix-server][Step 3: Authorize the GN Guix server]]
+   - [[#step-4-install-and-run-gn2-][Step 4: Install and run GN2 ]]
  - [[#source-deployment][Source deployment]]
-   - [[#install-guix][Install guix]]
-   - [[#checkout-the-git-repositories][Checkout the git repositories]]
    - [[#update-guix][Update guix]]
    - [[#install-gn2][Install GN2]]
    - [[#run-gn2][Run GN2]]
@@ -30,20 +33,69 @@ main Guix package tree and that of the Genenetwork package
 tree. Current supported versions can be found as the SHA values of
 'gn-latest' branches of [[https://github.com/genenetwork/guix-bioinformatics/tree/gn-latest][Guix bioinformatics]] and [[https://github.com/genenetwork/guix/tree/gn-latest][GNU Guix main]].
 
-* Source deployment
-** Install guix
+* Quick installation recipe
 
-Deploying from source is also straightforward. Install GNU Guix using
-a binary tar ball as described [[https://github.com/pjotrp/guix-notes][here]].
+This is a recipe for quick and dirty installation of GN2. For
+convenience everything is installed as root, though in reality only
+GNU Guix has to be installed as root. I tested this recipe on a fresh
+install of Debian 8.3.0 (in KVM) though it should work on any modern
+Linux distribution (including CentOS). For more elaborate installation
+instructions see [[#source-deployment][Source deployment]].
 
-If it works you should be able to install a package with
+** Step 1: Install GNU Guix
+
+Fetch the GNU Guix binary from [[https://www.gnu.org/software/guix/download/][here]] (middle panel) and follow
+[[https://www.gnu.org/software/guix/manual/html_node/Binary-Installation.html][instructions]]. Essentially download and unpack the tar ball (which
+creates directories in /gnu and /var/guix), add build users and group
+(Guix builds software as unpriviliged users) and run the Guix daemon
+after fixing the paths (aka known as the 'profile'). 
+
+You have succeeded and you have set the [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-the-key][set the key]] (getting
+permission to download binaries), you should be able to install the
+hello package using binary install
+
+: export PATH=~/.guix-profile/bin:$PATH
+: guix pull
+: guix package -i hello --dry-run
+
+Which should show something like
+
+: The following files would be downloaded:
+:   /gnu/store/zby49aqfbd9w9br4l52mvb3y6f9vfv22-hello-2.10
+:   ...
+
+where 'downloaded' means binary installs.  The actual installation
+command of 'hello' is
 
 : guix package -i hello
+: hello
+:   Hello, world!
 
-** Checkout the git repositories
+If you see things building it means that Guix is not yet properly
+installed and up-to-date, i.e., the key is missing or you need to do a
+'guix pull'.
 
-Check out the two relevant guix and guix-bioinformatics git
-repositories:
+If you need more help we have another writeup in [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#binary-installation][guix-notes]]. To get
+rid of the locale warning see [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-locale][set-locale]].
+
+Probably a good idea to update guix to the latest
+
+: guix pull
+: guix package -i guix
+: guix --version
+:   guix (GNU Guix) 0.10.0
+
+and then best restart the daemon (see above).
+
+** Step 2: Checkout the GN2 git repositories
+
+To fixate the software dependency graph GN2 uses git repositories of
+Guix packages. First install git if it is missing
+
+: guix package -i git
+: export GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt
+
+check out the git repsitories (gn-latest branch)
 
 #+begin_src bash
 cd ~
@@ -54,24 +106,87 @@ git clone --branch gn-latest --recursive https://github.com/genenetwork/guix gui
 cd guix-gn-latest
 #+end_src bash
 
+** Step 3: Authorize the GN Guix server
+
+GN2 has its own GNU Guix binary distribution server. To trust it you have
+to add the following key 
+
+#+begin_src scheme
+(public-key
+ (ecc
+  (curve Ed25519)
+  (q #11217788B41ADC8D5B8E71BD87EF699C65312EC387752899FE9C888856F5C769#)
+ )
+)
+#+end_src
+
+by pasting it into the command
+
+: guix archive --authorize
+
+and hit Ctrl-D.
+
+Now you can use the substitute server to install GN2 binaries. 
+
+** Step 4: Install and run GN2 
+
+Since this is a quick and dirty install we are going to override the
+GNU Guix package path by pointing the package path to our repository:
+
+: rm /root/.config/guix/latest
+: ln -s ~/genenetwork/guix-gn-latest/ /root/.config/guix/latest
+
+Now check whether you can find the GN2 package with
+
+: env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ guix package -A genenetwork2
+:   genenetwork2    2.0-a8fcff4     out     gn/packages/genenetwork.scm:144:2
+
+(ignore the source file newer then ... messages, this is caused by the
+/root/.config/guix/latest override).
+
+And install with
+
+: env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ guix package -i genenetwork2 --substitute-urls="http://guix.genenetwork.org:8080 https://mirror.guixsd.org"
+
+After installation you should be able to run genenetwork2
+
+: genenetwork2
+
+It will complain that the database is missing. See the section on [[#run-mysql-server][Run
+MySQL server]] for downloading and installing a MySQL GN2
+database. After installing the database restart genenetwork2 and point
+your browser at http://localhost:5003/.
+
+End of recipe!
+
+* Source deployment
+
+This section gives a more elaborate instruction for installing GN2
+from source.
+
+First execute above 3 steps:
+
+   - [[#step-1-install-gnu-guix][Step 1: Install GNU Guix]]
+   - [[#step-2-checkout-the-gn2-git-repositories][Step 2: Checkout the GN2 git repositories]]
+   - [[#step-3-authorize-the-gn-guix-server][Step 3: Authorize the GN Guix server]]
+
 ** Update guix
 
-At some point you may decide to create, install and run a recent
-version of the guix-daemon by compiling the guix repository. Follow
-[[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully.
+Instead of Step 4 we now compile Guix from scratch.
+
+Create, install and run a recent version of the guix-daemon by
+compiling the guix repository. Follow [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully.
 
 ** Install GN2
 
 #+begin_src bash
-env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env \
-  guix package -i genenetwork2 --fallback 
+env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ ./pre-inst-env guix package -i genenetwork2 --substitute-urls="http://guix.genenetwork.org:8080 https://mirror.guixsd.org"
 #+end_src bash
 
-Note that you can use the genenetwork.org guix substitute caching
-server at http://guix.genenetwork.org:8080 (which speeds up installs
-significantly because all packages are pre-built). Here an IRC session
-where we installed GN2 from scratch using GNU Guix and a download
-of the test database:
+Note the use of ./pre-inst-env here!
+
+Here an IRC session where we installed GN2 from scratch using GNU Guix
+and a download of the test database:
 
 #+begin_src
 <pjotrp> time to get binary install sorted :)  [07:03]
