@@ -42,7 +42,7 @@ install of Debian 8.3.0 (in KVM) though it should work on any modern
 Linux distribution (including CentOS). For more elaborate installation
 instructions see [[#source-deployment][Source deployment]].
 
-Note that GN2 consists of an approx. 4GB installation including
+Note that GN2 consists of an approx. 5 GB installation including
 database.
 
 ** Step 1: Install GNU Guix
@@ -169,7 +169,16 @@ which can be fixed with using the --fallback switch, or install
 
 and restart the genenetwork2 install.
 
-After installation you should be able to run genenetwork2.
+After installation you should be able to run genenetwork2 after updating
+the Guix suggested environment vars. Check the ouput of
+
+#+begin_src bash
+guix package --search-paths
+export PYTHONPATH="/root/.guix-profile/lib/python2.7/site-packages"
+export R_LIBS_SITE="/root/.guix-profile/site-library/"
+#+end_src
+
+and copy-paste the exports into the terminal befor running:
 
 #+begin_src bash
 genenetwork2
