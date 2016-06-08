@@ -42,58 +42,58 @@ install of Debian 8.3.0 (in KVM) though it should work on any modern
 Linux distribution (including CentOS). For more elaborate installation
 instructions see [[#source-deployment][Source deployment]].
 
+Note that GN2 consists of an approx. 4GB installation including
+database.
+
 ** Step 1: Install GNU Guix
 
 Fetch the GNU Guix binary from [[https://www.gnu.org/software/guix/download/][here]] (middle panel) and follow
-[[https://www.gnu.org/software/guix/manual/html_node/Binary-Installation.html][instructions]]. Essentially download and unpack the tar ball (which
-creates directories in /gnu and /var/guix), add build users and group
-(Guix builds software as unpriviliged users) and run the Guix daemon
-after fixing the paths (aka known as the 'profile'). 
+[[https://www.gnu.org/software/guix/manual/html_node/Binary-Installation.html][instructions]]. Essentially you have to download and unpack the tar ball
+(which creates directories in /gnu and /var/guix), add build users and
+group (Guix builds software as unpriviliged users) and run the Guix
+daemon after fixing the paths (also known as the 'profile').
 
-You have succeeded and you have set the [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-the-key][set the key]] (getting
-permission to download binaries), you should be able to install the
-hello package using binary install
+Once you have succeeded, you have to [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-the-key][set the key]] (getting permission
+to download binaries from the GNU server) and you should be able to
+install the hello package using binary packages (no building)
 
-: export PATH=~/.guix-profile/bin:$PATH
-: guix pull
-: guix package -i hello --dry-run
+#+begin_src bash
+export PATH=~/.guix-profile/bin:$PATH
+guix pull
+guix package -i hello --dry-run
+#+end_src
 
 Which should show something like
 
 : The following files would be downloaded:
 :   /gnu/store/zby49aqfbd9w9br4l52mvb3y6f9vfv22-hello-2.10
 :   ...
+#+end_src
 
-where 'downloaded' means binary installs.  The actual installation
-command of 'hello' is
+means binary installs.  The actual installation command of 'hello' is
 
-: guix package -i hello
-: hello
-:   Hello, world!
+#+begin_src bash
+guix package -i hello
+hello
+  Hello, world!
+#+end_src
 
-If you see things building it means that Guix is not yet properly
-installed and up-to-date, i.e., the key is missing or you need to do a
-'guix pull'.
+If you actually see things building it means that Guix is not yet
+properly installed and up-to-date, i.e., the key is missing or you
+need to do a 'guix pull'. Press Ctrl-C to interrupt.
 
 If you need more help we have another writeup in [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#binary-installation][guix-notes]]. To get
 rid of the locale warning see [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-locale][set-locale]].
-
-Probably a good idea to update guix to the latest
-
-: guix pull
-: guix package -i guix
-: guix --version
-:   guix (GNU Guix) 0.10.0
-
-and then best restart the daemon (see above).
 
 ** Step 2: Checkout the GN2 git repositories
 
 To fixate the software dependency graph GN2 uses git repositories of
 Guix packages. First install git if it is missing
 
-: guix package -i git
-: export GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt
+#+begin_src bash
+guix package -i git
+export GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt
+#+end_src
 
 check out the git repsitories (gn-latest branch)
 
@@ -122,7 +122,9 @@ to add the following key
 
 by pasting it into the command
 
-: guix archive --authorize
+#+begin_src bash
+guix archive --authorize
+#+end_src
 
 and hit Ctrl-D.
 
@@ -133,24 +135,45 @@ Now you can use the substitute server to install GN2 binaries.
 Since this is a quick and dirty install we are going to override the
 GNU Guix package path by pointing the package path to our repository:
 
-: rm /root/.config/guix/latest
-: ln -s ~/genenetwork/guix-gn-latest/ /root/.config/guix/latest
+#+begin_src bash
+rm /root/.config/guix/latest
+ln -s ~/genenetwork/guix-gn-latest/ /root/.config/guix/latest
+#+end_src
 
 Now check whether you can find the GN2 package with
 
-: env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ guix package -A genenetwork2
-:   genenetwork2    2.0-a8fcff4     out     gn/packages/genenetwork.scm:144:2
+#+begin_src bash
+env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ guix package -A genenetwork2
+  genenetwork2    2.0-a8fcff4     out     gn/packages/genenetwork.scm:144:2
+#+end_src
 
 (ignore the source file newer then ... messages, this is caused by the
 /root/.config/guix/latest override).
 
 And install with
 
-: env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ guix package -i genenetwork2 --substitute-urls="http://guix.genenetwork.org:8080 https://mirror.guixsd.org"
+#+begin_src bash
+env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ \
+  guix package -i genenetwork2 \
+  --substitute-urls="http://guix.genenetwork.org:8080 https://mirror.guixsd.org" \
+  --fallback
+#+end_src
 
-After installation you should be able to run genenetwork2
+Note that you may (currently) get an error:
 
-: genenetwork2
+: guix substitute: error: download from 'http://guix.genenetwork.org:8080/nar/sqd3q1xq5fsbga00bwhghi9shi7xdaac-gtk+-3.18.2' failed: 404, "Not Found"
+
+which can be fixed with using the --fallback switch, or install
+
+: guix package -i gtk+@3.18.2
+
+and restart the genenetwork2 install.
+
+After installation you should be able to run genenetwork2.
+
+#+begin_src bash
+genenetwork2
+#+end_src
 
 It will complain that the database is missing. See the section on [[#run-mysql-server][Run
 MySQL server]] for downloading and installing a MySQL GN2
