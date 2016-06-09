@@ -34,6 +34,11 @@ main Guix package tree and that of the Genenetwork package
 tree. Current supported versions can be found as the SHA values of
 'gn-latest' branches of [[https://github.com/genenetwork/guix-bioinformatics/tree/gn-latest][Guix bioinformatics]] and [[https://github.com/genenetwork/guix/tree/gn-latest][GNU Guix main]].
 
+Graph of all runtime dependencies as installed by GNU Guix.
+
+-![GN2 dependency graph](http://biobeat.org/gn2.svg)
+
+
 * Quick installation recipe
 
 This is a recipe for quick and dirty installation of GN2. For

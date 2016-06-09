@@ -69,8 +69,6 @@ database is 160GB and growing), GN is packaged with
 GNU Guix deployment makes it feasible to deploy and rebrand GN
 anywhere.
 
--![GN2 dependency graph](http://biobeat.org/gn2.svg)
-
 # Future work
 
 More mapping tools will be added, including support for Genome-wide
