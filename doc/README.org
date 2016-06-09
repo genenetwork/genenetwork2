@@ -8,18 +8,19 @@
    - [[#step-2-checkout-the-gn2-git-repositories][Step 2: Checkout the GN2 git repositories]]
    - [[#step-3-authorize-the-gn-guix-server][Step 3: Authorize the GN Guix server]]
    - [[#step-4-install-and-run-gn2-][Step 4: Install and run GN2 ]]
+ - [[#run-mysql-server][Run MySQL server]]
  - [[#source-deployment][Source deployment]]
-   - [[#update-guix][Update guix]]
-   - [[#install-gn2][Install GN2]]
-   - [[#run-gn2][Run GN2]]
-   - [[#run-mysql-server][Run MySQL server]]
    - [[#run-your-own-copy-of-gn2][Run your own copy of GN2]]
    - [[#set-up-nginx-port-forwarding][Set up nginx port forwarding]]
  - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
+   - [[#update-to-recent-guix][Update to recent guix]]
+   - [[#install-gn2][Install GN2]]
+   - [[#run-gn2][Run GN2]]
  - [[#trouble-shooting][Trouble shooting]]
    - [[#importerror-no-module-named-jinja2][ImportError: No module named jinja2]]
    - [[#error-can-not-find-directory-homegn2_data][ERROR: can not find directory $HOME/gn2_data]]
    - [[#cant-run-a-module][Can't run a module]]
+ - [[#irc-session][IRC session]]
 
 * Introduction
 
@@ -184,32 +185,188 @@ and copy-paste the exports into the terminal befor running:
 genenetwork2
 #+end_src
 
-It will complain that the database is missing. See the section on [[#run-mysql-server][Run
-MySQL server]] for downloading and installing a MySQL GN2
+It will complain that the database is missing. See the next section on
+running MySQL server for downloading and installing a MySQL GN2
 database. After installing the database restart genenetwork2 and point
 your browser at [[http://localhost:5003/]].
 
-End of recipe!
+End of the GN2 installation recipe!
+
+* Run MySQL server
+
+At this point we require the underlying distribution to install and
+run mysqld. Currently we have two databases for deployment,
+'db_webqtl_s' is the small testing database containing experiments
+from BXD mice and 'db_webqtl_plant' which contains all plant related
+material.
+
+Download one database from
+
+http://files.genenetwork.org/raw_database/
+https://s3.amazonaws.com/genenetwork2/db_webqtl_s.zip
+
+Check the md5sum.
+
+After installation inflate the database binary in the MySQL directory
+(this installation path is subject to change soon) 
+
+: chown -R mysql:mysql db_webqtl_s/
+: chmod 700 db_webqtl_s/
+: chmod 660 db_webqtl_s/*
+
+restart MySQL service (mysqld). Login as root and
+
+: mysql> show databases;
+: +--------------------+
+: | Database           |
+: +--------------------+
+: | information_schema |
+: | db_webqtl_s        |
+: | mysql              |
+: | performance_schema |
+: +--------------------+
+
+Set permissions and match password in your settings file below:
+
+: mysql> grant all privileges on db_webqtl_s.* to gn2@"localhost" identified by 'mysql_password';
+
+Note that if the mysql connection is not working, try connecting to
+the IP address and check server firewall, hosts.allow and mysql IP
+configuration.
+
+Note for the plant database you can rename it to db_webqtl_s, or
+change the settings in etc/default_settings.py to match your path.
 
 * Source deployment
 
 This section gives a more elaborate instruction for installing GN2
 from source.
 
-First execute above 3 steps:
+First execute above 4 steps:
 
    - [[#step-1-install-gnu-guix][Step 1: Install GNU Guix]]
    - [[#step-2-checkout-the-gn2-git-repositories][Step 2: Checkout the GN2 git repositories]]
    - [[#step-3-authorize-the-gn-guix-server][Step 3: Authorize the GN Guix server]]
+   - [[#step-4-install-and-run-gn2-][Step 4: Install and run GN2 ]]
 
-** Update guix
 
-Instead of Step 4 we now compile Guix from scratch.
+** Run your own copy of GN2
+
+At some point you may want to fix the source code. Assuming you have
+Guix and Genenetwork2 installed (as described above) clone the GN2
+repository from https://github.com/genenetwork/genenetwork2.
+
+Copy-paste the paths into your terminal (mainly so PYTHON_PATH and
+R_LIBS_SITE are set) from the information given by guix:
+
+: guix package --search-paths
+
+Inside the repository:
+
+: cd genenetwork2
+: ./bin/genenetwork2 
+
+Will fire up your local repo http://localhost:5003/ using the  
+settings in ./etc/default_settings.py. These settings may 
+not reflect your system. To override settings create your own from a copy of
+default_settings.py and pass it into GN2 with
+
+: ./bin/genenetwork2 $HOME/my_settings.py
+
+and everything *should* work (note the full path to the settings
+file). This way we develop against the exact same dependency graph of
+software.
+
+If something is not working, take a hint from the settings file
+that comes in the Guix installation. It sits in something like
+
+: cat ~/.guix-profile/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
+
+** Set up nginx port forwarding
+
+nginx can be used as a reverse proxy for GN2. For example, we want to
+expose GN2 on port 80 while it is running on port 5003. Essentially
+the configuration looks like
+
+#+begin_src js
+    server {
+        listen 80;
+        server_name test-gn2.genenetwork.org;
+        access_log  logs/test-gn2.access.log;
+
+        proxy_connect_timeout       3000;
+        proxy_send_timeout          3000;
+        proxy_read_timeout          3000;
+        send_timeout                3000;
+
+        location / {
+            proxy_set_header   Host      $http_host;
+            proxy_set_header   Connection keep-alive;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Host $server_name;
+            proxy_pass         http://127.0.0.1:5003;
+        }
+}
+#+end_src js
+
+Install the nginx webserver (as root)
+
+: guix package -i nginx
+
+The nginx example configuration examples can be found in the Guix
+store through
+
+: ls -l /root/.guix-profile/sbin/nginx
+: lrwxrwxrwx 3 root guixbuild 66 Dec 31  1969 /root/.guix-profile/sbin/nginx -> /gnu/store/g0wrcl5z27rmk5b52rldzvk1bzzbnz2l-nginx-1.8.1/sbin/nginx
+
+Use that path
+
+: ls /gnu/store/g0wrcl5z27rmk5b52rldzvk1bzzbnz2l-nginx-1.8.1/share/nginx/conf/
+:   fastcgi.conf            koi-win             scgi_params
+:   fastcgi.conf.default    mime.types          scgi_params.default
+:   fastcgi_params          mime.types.default  uwsgi_params
+:   fastcgi_params.default  nginx.conf          uwsgi_params.default
+:   koi-utf                 nginx.conf.default  win-utf
+
+And copy any relevant files to /etc/nginx.  A configuration file for
+GeneNetwork (reverse proxy) port forwarding can be found in the source
+repository under ./etc/nginx-genenetwork.conf. Copy this file to /etc
+(still as root)
+: cp ./etc/nginx-genenetwork.conf /etc/nginx/
+
+Make dirs
+
+: mkdir -p /var/spool/nginx/logs
+
+Add users
+
+: adduser nobody ; addgroup nobody 
+
+Run nginx
+
+: /root/.guix-profile/sbin/nginx -c /etc/nginx/nginx-genenetwork.conf -p /var/spool/nginx
+
+* Source deployment and other information on reproducibility
+
+See the document [[GUIX-Reproducible-from-source.org]].
+
+** Update to recent guix
+
+We now compile Guix from scratch.
 
 Create, install and run a recent version of the guix-daemon by
-compiling the guix repository. Follow [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully.
+compiling the guix repository you have installed with git in
+step 2. Follow [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully after
+
+: cd ~/genenetwork/guix-gn-latest
+
+Make sure to restart the guix daemon and run guix client from this
+directory.
 
 ** Install GN2
+
+Reinstall genenetwork2 using the new tree
 
 #+begin_src bash
 env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ ./pre-inst-env guix package -i genenetwork2 --substitute-urls="http://guix.genenetwork.org:8080 https://mirror.guixsd.org"
@@ -217,8 +374,76 @@ env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ ./pre-inst-env guix pac
 
 Note the use of ./pre-inst-env here!
 
+Actually, it should be the same installation as in step 4, so nothing
+gets downloaded.
+
+** Run GN2
+
+Make a note of the paths with
+
+#+begin_src bash
+./pre-inst-env guix package --search-paths
+#+end_src bash
+
+After setting the paths for the server
+
+#+begin_src bash
+export PATH=~/.guix-profile/bin:$PATH
+export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
+export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
+export GUIX_GTK3_PATH="$HOME/.guix-profile/lib/gtk-3.0"
+export GI_TYPELIB_PATH="$HOME/.guix-profile/lib/girepository-1.0"
+export XDG_DATA_DIRS="$HOME/.guix-profile/share"
+export GIO_EXTRA_MODULES="$HOME/.guix-profile/lib/gio/modules"
+#+end_src bash
+
+run the main script (in ~/.guix-profile/bin)
+
+#+begin_src bash
+genenetwork2
+#+end_src bash
+
+will start the default server which listens on port 5003, i.e.,
+http://localhost:5003/.
+
+OK, we are where we were before with step 4. Only difference is that we 
+used our own compiled guix server.
+
+* Trouble shooting
+
+** ImportError: No module named jinja2
+
+If you have all the Guix packages installed this error points out that
+the environment variables are not set. Copy-paste the paths into your
+terminal (mainly so PYTHON_PATH and R_LIBS_SITE are set) from the
+information given by guix:
+
+: guix package --search-paths
+
+On one system:
+
+: export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
+: export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
+: export GEM_PATH="$HOME/.guix-profile/lib/ruby/gems/2.2.0"
+
+and perhaps a few more. 
+** ERROR: can not find directory $HOME/gn2_data
+
+The default settings file looks in your $HOME/gn2_data. Since these
+files come with a Guix installation you should take a hint from the
+values in the installed version of default_settings.py (see above in
+this document).
+
+** Can't run a module
+
+In rare cases, development modules are not brought in with Guix
+because no source code is available. This can lead to missing modules
+on a running server. Please check with the authors when a module
+is missing.
+* IRC session
+
 Here an IRC session where we installed GN2 from scratch using GNU Guix
-and a download of the test database:
+and a download of the test database.
 
 #+begin_src
 <pjotrp> time to get binary install sorted :)  [07:03]
@@ -622,204 +847,3 @@ The following derivations would be built:
 <pjotrp> I am building it on guix.genenetwork.org right now  [10:09]
 <user01> nice  [10:10]
 #+end_src
-
-** Run GN2
-
-Make a note of the paths with
-
-#+begin_src bash
-./pre-inst-env guix package --search-paths
-#+end_src bash
-
-After setting the paths for the server
-
-#+begin_src bash
-export PATH=~/.guix-profile/bin:$PATH
-export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
-export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
-export GUIX_GTK3_PATH="$HOME/.guix-profile/lib/gtk-3.0"
-export GI_TYPELIB_PATH="$HOME/.guix-profile/lib/girepository-1.0"
-export XDG_DATA_DIRS="$HOME/.guix-profile/share"
-export GIO_EXTRA_MODULES="$HOME/.guix-profile/lib/gio/modules"
-#+end_src bash
-
-run the main script (in ~/.guix-profile/bin)
-
-#+begin_src bash
-genenetwork2
-#+end_src bash
-
-will start the default server which listens on port 5003, i.e.,
-http://localhost:5003/.
-
-** Run MySQL server
-
-At this point we require the underlying distribution to install
-and run mysqld. 
-
-Download one of
-
-http://files.genenetwork.org/raw_database/
-https://s3.amazonaws.com/genenetwork2/db_webqtl_s.zip
-
-Check the md5sum.
-
-After installation inflate the database binary in the MySQL directory
-(this is subject to change soon) 
-
-: chown -R mysql:mysql db_webqtl_s/
-: chmod 700 db_webqtl_s/
-: chmod 660 db_webqtl_s/*
-
-restart MySQL service (mysqld). Login as root and
-
-: mysql> show databases;
-: +--------------------+
-: | Database           |
-: +--------------------+
-: | information_schema |
-: | db_webqtl_s        |
-: | mysql              |
-: | performance_schema |
-: +--------------------+
-
-Set permissions and match password in your settings file below:
-
-: mysql> grant all privileges on db_webqtl_s.* to gn2@"localhost" identified by 'mysql_password';
-
-Note that if the mysql connection is not working, try connecting to
-the IP address and check server firewall, hosts.allow and mysql IP
-configuration.
-
-** Run your own copy of GN2
-
-At some point you may want to fix the source code. Assuming you have
-Guix and Genenetwork2 installed (as described above) clone the GN2
-repository from https://github.com/genenetwork/genenetwork2.
-
-Copy-paste the paths into your terminal (mainly so PYTHON_PATH and
-R_LIBS_SITE are set) from the information given by guix:
-
-: guix package --search-paths
-
-Inside the repository:
-
-: cd genenetwork2
-: ./bin/genenetwork2 
-
-Will fire up your local repo http://localhost:5003/ using the  
-settings in ./etc/default_settings.py. These settings may 
-not reflect your system. To override settings create your own from a copy of
-default_settings.py and pass it into GN2 with
-
-: ./bin/genenetwork2 $HOME/my_settings.py
-
-and everything *should* work (note the full path to the settings
-file). This way we develop against the exact same dependency graph of
-software.
-
-If something is not working, take a hint from the settings file
-that comes in the Guix installation. It sits in something like
-
-: cat ~/.guix-profile/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
-
-** Set up nginx port forwarding
-
-nginx can be used as a reverse proxy for GN2. For example, we want to
-expose GN2 on port 80 while it is running on port 5003. Essentially
-the configuration looks like
-
-#+begin_src js
-    server {
-        listen 80;
-        server_name test-gn2.genenetwork.org;
-        access_log  logs/test-gn2.access.log;
-
-        proxy_connect_timeout       3000;
-        proxy_send_timeout          3000;
-        proxy_read_timeout          3000;
-        send_timeout                3000;
-
-        location / {
-            proxy_set_header   Host      $http_host;
-            proxy_set_header   Connection keep-alive;
-            proxy_set_header   X-Real-IP $remote_addr;
-            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header   X-Forwarded-Host $server_name;
-            proxy_pass         http://127.0.0.1:5003;
-        }
-}
-#+end_src js
-
-Install the nginx webserver (as root)
-
-: guix package -i nginx
-
-The nginx example configuration examples can be found in the Guix
-store through
-
-: ls -l /root/.guix-profile/sbin/nginx
-: lrwxrwxrwx 3 root guixbuild 66 Dec 31  1969 /root/.guix-profile/sbin/nginx -> /gnu/store/g0wrcl5z27rmk5b52rldzvk1bzzbnz2l-nginx-1.8.1/sbin/nginx
-
-Use that path
-
-: ls /gnu/store/g0wrcl5z27rmk5b52rldzvk1bzzbnz2l-nginx-1.8.1/share/nginx/conf/
-:   fastcgi.conf            koi-win             scgi_params
-:   fastcgi.conf.default    mime.types          scgi_params.default
-:   fastcgi_params          mime.types.default  uwsgi_params
-:   fastcgi_params.default  nginx.conf          uwsgi_params.default
-:   koi-utf                 nginx.conf.default  win-utf
-
-And copy any relevant files to /etc/nginx.  A configuration file for
-GeneNetwork (reverse proxy) port forwarding can be found in the source
-repository under ./etc/nginx-genenetwork.conf. Copy this file to /etc
-(still as root)
-: cp ./etc/nginx-genenetwork.conf /etc/nginx/
-
-Make dirs
-
-: mkdir -p /var/spool/nginx/logs
-
-Add users
-
-: adduser nobody ; addgroup nobody 
-
-Run nginx
-
-: /root/.guix-profile/sbin/nginx -c /etc/nginx/nginx-genenetwork.conf -p /var/spool/nginx
-
-* Source deployment and other information on reproducibility
-
-See the document [[GUIX-Reproducible-from-source.org]].
-
-* Trouble shooting
-
-** ImportError: No module named jinja2
-
-If you have all the Guix packages installed this error points out that
-the environment variables are not set. Copy-paste the paths into your
-terminal (mainly so PYTHON_PATH and R_LIBS_SITE are set) from the
-information given by guix:
-
-: guix package --search-paths
-
-On one system:
-
-: export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
-: export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
-: export GEM_PATH="$HOME/.guix-profile/lib/ruby/gems/2.2.0"
-
-and perhaps a few more. 
-** ERROR: can not find directory $HOME/gn2_data
-
-The default settings file looks in your $HOME/gn2_data. Since these
-files come with a Guix installation you should take a hint from the
-values in the installed version of default_settings.py (see above in
-this document).
-
-** Can't run a module
-
-In rare cases, development modules are not brought in with Guix
-because no source code is available. This can lead to missing modules
-on a running server. Please check with the authors when a module
-is missing.
