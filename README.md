@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2)
 
-# GENENETWORK
+# GeneNetwork
 
 This repository contains the source code for the GeneNetwork (GN)
 server http://gn2.genenetwork.org/ (version 2 aka GN2). GN is a Web
