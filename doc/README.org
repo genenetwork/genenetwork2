@@ -9,6 +9,7 @@
    - [[#step-3-authorize-the-gn-guix-server][Step 3: Authorize the GN Guix server]]
    - [[#step-4-install-and-run-gn2-][Step 4: Install and run GN2 ]]
  - [[#run-mysql-server][Run MySQL server]]
+ - [[#gn2-dependency-graph][GN2 Dependency Graph]]
  - [[#source-deployment][Source deployment]]
    - [[#run-your-own-copy-of-gn2][Run your own copy of GN2]]
    - [[#set-up-nginx-port-forwarding][Set up nginx port forwarding]]
@@ -34,11 +35,8 @@ main Guix package tree and that of the Genenetwork package
 tree. Current supported versions can be found as the SHA values of
 'gn-latest' branches of [[https://github.com/genenetwork/guix-bioinformatics/tree/gn-latest][Guix bioinformatics]] and [[https://github.com/genenetwork/guix/tree/gn-latest][GNU Guix main]].
 
-Graph of all runtime dependencies as installed by GNU Guix.
-
-#+ATTR_HTML: :title GN2_graph
-[[http://biobeat.org/gn2.svg]]
-
+For a full view of runtime dependencies as defined by GNU Guix, see
+the [[#gn2-dependency-graph][GN2 Dependency Graph]].
 
 * Quick installation recipe
 
@@ -242,6 +240,13 @@ configuration.
 
 Note for the plant database you can rename it to db_webqtl_s, or
 change the settings in etc/default_settings.py to match your path.
+
+* GN2 Dependency Graph
+
+Graph of all runtime dependencies as installed by GNU Guix.
+
+#+ATTR_HTML: :title GN2_graph
+[[http://biobeat.org/gn2.svg]]
 
 * Source deployment
 
