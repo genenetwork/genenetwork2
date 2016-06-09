@@ -24,7 +24,7 @@
 
 * Introduction
 
-Large system deployments can get very complex. In this document we
+Large system deployments can get very [[http://biobeat.org/gn2.svg][complex]]. In this document we
 explain the GeneNetwork version 2 (GN2) reproducible deployment system
 which is based on GNU Guix (see also Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]). The Guix
 system can be used to install GN with all its files and dependencies.
