@@ -36,7 +36,8 @@ tree. Current supported versions can be found as the SHA values of
 
 Graph of all runtime dependencies as installed by GNU Guix.
 
--![GN2 dependency graph](http://biobeat.org/gn2.svg)
+#+ATTR_HTML: :title GN2_graph
+http://biobeat.org/gn2.svg]]
 
 
 * Quick installation recipe
