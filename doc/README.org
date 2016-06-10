@@ -164,18 +164,11 @@ env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ \
   --fallback
 #+end_src
 
-Note that you may (currently) get an error:
-
-: guix substitute: error: download from 'http://guix.genenetwork.org:8080/nar/sqd3q1xq5fsbga00bwhghi9shi7xdaac-gtk+-3.18.2' failed: 404, "Not Found"
-
-which can be fixed with using the --fallback switch, or install
-
-: guix package -i gtk+@3.18.2
-
-and restart the genenetwork2 install.
+Note: the order of the substitute url's may make a difference in speed
+(put the one first that is fastest for your location and time of day).
 
 After installation you should be able to run genenetwork2 after updating
-the Guix suggested environment vars. Check the ouput of
+the Guix suggested environment vars. Check the output of
 
 #+begin_src bash
 guix package --search-paths
@@ -183,7 +176,7 @@ export PYTHONPATH="/root/.guix-profile/lib/python2.7/site-packages"
 export R_LIBS_SITE="/root/.guix-profile/site-library/"
 #+end_src
 
-and copy-paste the exports into the terminal before running:
+and copy-paste the listed exports into the terminal before running:
 
 #+begin_src bash
 genenetwork2
