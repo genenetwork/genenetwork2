@@ -1,6 +1,6 @@
-[![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2)
+[![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2) [![JOSS](http://joss.theoj.org/papers/10.21105/joss.00025/status.svg)](http://joss.theoj.org/papers/10.21105/joss.00025)
 
-# GENENETWORK
+# GeneNetwork
 
 This repository contains the source code for the GeneNetwork (GN)
 server http://gn2.genenetwork.org/ (version 2 aka GN2). GN is a Web
@@ -35,10 +35,12 @@ testing using [mechanize](https://github.com/genenetwork/genenetwork2/tree/maste
 ## Documentation
 
 User documentation can be found
-[here](http://gn2.genenetwork.org/help).  The database schema is
-shared with GN1 and described
+[here](http://gn2.genenetwork.org/help).  The architecture of the
+software stack is described [here](./doc/Architecture.org).  The
+database schema is (still) shared with GN1 and currently described
 [here](http://www.genenetwork.org/webqtl/main.py?FormID=schemaShowPage). Software
-documentation is being expanded in the [source code repository](https://github.com/genenetwork/genenetwork2/tree/master/doc).
+documentation is being expanded in the
+[source code repository](https://github.com/genenetwork/genenetwork2/tree/master/doc).
 
 ## Contributing
 
@@ -66,7 +68,12 @@ For more information visit http://www.genenetwork.org/
 
 ## Cite
 
-You can cite this software using
+[![JOSS](http://joss.theoj.org/papers/10.21105/joss.00025/status.svg)](http://joss.theoj.org/papers/10.21105/joss.00025)
+
+GeneNetwork was published in the Journal of Open Source Software as 'GeneNetwork: framework for web-based genetics' by Zachary Sloan, Danny Arends, Karl W. Broman, Arthur Centeno, Nicholas Furlotte, Harm Nijveen, Lei Yan, Xiang Zhou, Robert W. WIlliams and Pjotr Prins 
+
+You may also cite the software using
+
 [![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2). 
 
 ## Contact

@@ -17,7 +17,8 @@ authors:
   - name: Arthur Centeno
     orcid: 0000-0003-3142-2081
     affiliation: University of Tennessee Health Science Center, USA
-  - name: Nick Furlotte
+  - name: Nicholas Furlotte
+    orcid: 0000-0002-9096-6276
   - name: Harm Nijveen
     orcid: 0000-0002-9167-4945
     affiliation: Wageningen University, The Netherlands
