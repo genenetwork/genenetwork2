@@ -10,17 +10,16 @@ $(function() {
     dataType: 'json',
     success: process_json
   });
-  $.getJSON("http://localhost:8880/int/menu/species",
+  $.getJSON("http://localhost:8880/int/menu/main",
     function(data) {
         console.log("***** GOT DATA from GN_SERVER ****");
-        console.log(data[0]);
-        var species = data.map(function(item) {
+        console.log(data);
+        var species = data["species"].map(function(item) {
             console.log(item)
             menu = [item[1],item[2]]
             console.log(menu)
             return menu;
         });
-
       console.log(species);
       redo_dropdown($('#species'), species);
   });
