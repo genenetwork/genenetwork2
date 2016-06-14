@@ -35,10 +35,12 @@ testing using [mechanize](https://github.com/genenetwork/genenetwork2/tree/maste
 ## Documentation
 
 User documentation can be found
-[here](http://gn2.genenetwork.org/help).  The database schema is
-shared with GN1 and described
+[here](http://gn2.genenetwork.org/help).  The architecture of the
+software stack is described [here](./doc/Architecture.org).  The
+database schema is (still) shared with GN1 and currently described
 [here](http://www.genenetwork.org/webqtl/main.py?FormID=schemaShowPage). Software
-documentation is being expanded in the [source code repository](https://github.com/genenetwork/genenetwork2/tree/master/doc).
+documentation is being expanded in the
+[source code repository](https://github.com/genenetwork/genenetwork2/tree/master/doc).
 
 ## Contributing
 
