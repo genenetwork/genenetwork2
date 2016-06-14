@@ -12,6 +12,7 @@ import os
 import hashlib
 import datetime
 import time
+import logging
 
 import uuid
 import hashlib
@@ -141,6 +142,9 @@ class UserSession(object):
         """Actual sqlalchemy record"""
         # Only look it up once if needed, then store it
         try:
+            logging.basicConfig()
+            logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
+
             # Already did this before
             return self.db_object
         except AttributeError:

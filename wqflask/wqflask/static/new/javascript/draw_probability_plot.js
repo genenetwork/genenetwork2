@@ -46,7 +46,7 @@
         chart.pointRange([50, 50]);
         chart.legend.updateState(false);
         chart.xAxis.axisLabel("Theoretical quantiles").tickFormat(d3.format('.02f'));
-        chart.yAxis.axisLabel("Sample quantiles").tickFormat(d3.format('.02f'));
+        //chart.yAxis.axisLabel("Sample quantiles").tickFormat(d3.format('.02f'));
         chart.tooltipContent(function(obj) {
           return '<b style="font-size: 20px">' + obj.point.name + '</b>';
         });
@@ -66,15 +66,20 @@
         sorted_names = names.sort(function(x, y) {
           return all_samples[x].value - all_samples[y].value;
         });
+        max_decimals = 0
         sorted_values = (function() {
           var j, len, results;
           results = [];
           for (j = 0, len = sorted_names.length; j < len; j++) {
             x = sorted_names[j];
             results.push(all_samples[x].value);
+            if (all_samples[x].value.countDecimals() > max_decimals) {
+                max_decimals = all_samples[x].value.countDecimals()-1
+            }
           }
           return results;
         })();
+        chart.yAxis.axisLabel("Sample quantiles").tickFormat(d3.format('.0'+max_decimals.toString()+'f'));
         sw_result = ShapiroWilkW(sorted_values);
         W = sw_result.w.toFixed(3);
         pvalue = sw_result.p.toFixed(3);
