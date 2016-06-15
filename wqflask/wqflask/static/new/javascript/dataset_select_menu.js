@@ -10,27 +10,23 @@ $(function() {
     dataType: 'json',
     success: process_json
   });
-  $.getJSON("http://localhost:8880/int/menu/main",
+  $.getJSON("http://localhost:8880/int/menu/main.json",
      function(data) {
         gndata = data;
         console.log("***** GOT DATA from GN_SERVER ****");
         console.log(gndata);
-        var species = gndata.species.map(function(item) {
-            // console.log(item)
-            menu = [item[1],item[2]]
-            // console.log(menu)
-            return menu;
-        });
-        console.log(species);
-        redo_dropdown($('#species'), species);
-        populate_group();
-  });
+        populate_species();
+     }).error(function() {
+         console.log("ERROR: GN_SERVER not responding");
+         alert("ERROR: GN_SERVER internal REST API is not responding");
+     });
     
   populate_species = function() {
-    // var species_list;
-    // species_list = this.jdata.species;
-    // redo_dropdown($('#species'), species_list);
-    return populate_group();
+      var species = gndata.species.map(function(item) {
+          return item.slice(1,3);
+      });
+      redo_dropdown($('#species'), species);
+      return populate_group();
   };
   window.populate_species = populate_species;
   populate_group = function() {
