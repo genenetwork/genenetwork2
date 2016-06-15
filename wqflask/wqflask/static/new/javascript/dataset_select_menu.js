@@ -20,7 +20,7 @@ $(function() {
          console.log("ERROR: GN_SERVER not responding");
          alert("ERROR: GN_SERVER internal REST API is not responding");
      });
-    
+
   populate_species = function() {
       var species = gndata.species.map(function(item) {
           return item.slice(1,3);
@@ -29,39 +29,41 @@ $(function() {
       return populate_group();
   };
   window.populate_species = populate_species;
+
   populate_group = function() {
-    console.log("in populate group");
     var species = $('#species').val();
     var groups = gndata.groups[species].map(function(item) {
-        console.log(item);
-        return [item[1],item[2]];
+          return item.slice(1,3);
     })
     redo_dropdown($('#group'), groups);
     return populate_type();
   };
   window.populate_group = populate_group;
+
   populate_type = function() {
-    var group, species, type_list;
-    console.log("in populate type");
-    species = $('#species').val();
-    group = $('#group').val();
-    type_list = this.jdata.types[species][group];
+    var species = $('#species').val();
+    var group = $('#group').val();
+    // var type_list = this.jdata.types[species][group];
+    console.log(species,group,gndata.types[species][group])
+    var type_list = gndata.types[species][group].map(function(item) {
+        return [item,item];
+    })
     redo_dropdown($('#type'), type_list);
     return populate_dataset();
   };
   window.populate_type = populate_type;
+
   populate_dataset = function() {
-    var dataset_list, group, species, type;
-    console.log("in populate dataset");
-    species = $('#species').val();
-    group = $('#group').val();
-    type = $('#type').val();
+    var species = $('#species').val();
+    var group = $('#group').val();
+    var type = $('#type').val();
     console.log("sgt:", species, group, type);
     dataset_list = this.jdata.datasets[species][group][type];
     console.log("pop_dataset:", dataset_list);
     return redo_dropdown($('#dataset'), dataset_list);
   };
   window.populate_dataset = populate_dataset;
+
   redo_dropdown = function(dropdown, items) {
     var item, _i, _len, _results;
     console.log("in redo:", dropdown, items);
