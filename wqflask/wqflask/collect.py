@@ -15,7 +15,7 @@ import urlparse
 
 import simplejson as json
 
-from sqlalchemy import orm
+#from sqlalchemy import orm
 
 #from redis import StrictRedis
 import redis
