@@ -5,6 +5,7 @@ It needs to be run manually when database has been changed.
 
 """
 
+
 # Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
@@ -36,11 +37,11 @@ from __future__ import print_function, division
 #print("cdict is:", cdict)
 
 import sys
-import zach_settings # no hard code paths!
+# import zach_settings # no hard code paths!
 
-import MySQLdb
+# import MySQLdb
 
-import simplejson as json
+# import simplejson as json
 import urlparse
 
 
@@ -54,8 +55,8 @@ from pprint import pformat as pf
 
 #conn = Engine.connect()
 
-
-
+print('ERROR: This conversion is now OBSOLETE as the menu gets built from the database in Javascript using GN_SERVER instead!')
+sys.exit()
 
 
 def parse_db_uri(db_uri):
