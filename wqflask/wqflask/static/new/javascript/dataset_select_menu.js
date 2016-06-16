@@ -34,6 +34,7 @@ $(function() {
   var populate_group = function() {
     var species = $('#species').val();
     var groups = gndata.groups[species].map(function(item) {
+        console.log("group:",item);
         return item.slice(1,3);
     })
     redo_dropdown($('#group'), groups);
@@ -44,9 +45,13 @@ $(function() {
   var populate_type = function() {
     var species = $('#species').val();
     var group = $('#group').val();
-    var type_list = gndata.types[species][group].map(function(item) {
+    // var type_list = gndata.types[species][group].map(function(item) {
+    //    return [item[1],item[1]];
+    //})
+    var type_list = gndata.types[species][1][group].map(function(item) {
         return [item,item];
-    })
+    });
+
     redo_dropdown($('#type'), type_list);
     return populate_dataset();
   };
