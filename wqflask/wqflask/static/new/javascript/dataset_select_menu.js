@@ -2,7 +2,6 @@
 $(function() {
     var apply_default, check_search_term, dataset_info, group_info, make_default, open_window, populate_dataset, populate_group, populate_species, populate_type, process_json, redo_dropdown, gndata;
   process_json = function(data) {
-    window.jdata = data;
     populate_species();
     return apply_default();
   };
@@ -43,8 +42,6 @@ $(function() {
   populate_type = function() {
     var species = $('#species').val();
     var group = $('#group').val();
-    // var type_list = this.jdata.types[species][group];
-    // console.log(species,group,gndata.types[species][group])
     var type_list = gndata.types[species][group].map(function(item) {
         return [item,item];
     })
@@ -57,9 +54,6 @@ $(function() {
     var species = $('#species').val();
     var group = $('#group').val();
     var type = $('#type').val();
-    // console.log("sgt:", species, group, type);
-    // dataset_list = this.jdata.datasets[species][group][type];
-    // console.log("pop_dataset:", dataset_list);
     var dataset_list = gndata.datasets[species][group][type].map(function(item) {
         return item.slice(1,3);
     })
