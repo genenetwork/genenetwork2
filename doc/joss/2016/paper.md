@@ -28,7 +28,7 @@ authors:
   - name: Xiang Zhou
     orcid: 0000-0002-4331-7599
     affiliation: University of Michigan
-  - name: Robert W. WIlliams
+  - name: Robert W. Williams
     orcid: 0000-0001-8924-4447
     affiliation: University of Tennessee Health Science Center, USA
   - name: Pjotr Prins
@@ -65,7 +65,7 @@ make it easy to install GN locally in a byte reproducible way,
 including all dependencies and a 2GB MySQL test database (the full
 database is 160GB and growing), GN is packaged with
 [GNU Guix](https://www.gnu.org/software/guix/), as described
-[here](https://github.com/genenetwork/genenetwork2/blob/staging/doc/README.org).
+[here](https://github.com/genenetwork/genenetwork2/blob/master/doc/README.org).
 GNU Guix deployment makes it feasible to deploy and rebrand GN
 anywhere.
 
