@@ -1,7 +1,8 @@
 import os
 import sys
 
-LOGFILE = "/tmp/genenetwork2.log"
+HOME=os.environ['HOME']
+LOGFILE = HOME+"/genenetwork2.log"
 
 # This is needed because Flask turns key errors into a
 # 400 bad request response with no exception/log
@@ -23,7 +24,7 @@ SERVER_PORT = 5003
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
 
 # Path overrides for Genenetwork
-GENENETWORK_FILES = os.environ['HOME']+"/gn2_data"
+GENENETWORK_FILES = HOME+"/gn2_data"
 PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())
 PLINK_COMMAND = str.strip(os.popen("which plink2").read())
 GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
