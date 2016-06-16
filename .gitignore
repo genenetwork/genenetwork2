@@ -6,9 +6,9 @@
 *~
 web/new_genotypes/HSNIH.json
 wqflask/secure_server.py
-wqflask/base/webqtlConfig.py
 build/
 dist/
 *.egg-info/
 EGG-INFO/
 wqflask/output/*
+wqflask/wqflask/static/output/*

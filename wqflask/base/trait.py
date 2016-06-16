@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import string
 import resource
-
+import codecs
 
 from htmlgen import HTMLgen2 as HT
 
@@ -31,16 +31,16 @@ class GeneralTrait(object):
 
     """
 
-    def __init__(self, get_qtl_info=False, **kw):
+    def __init__(self, get_qtl_info=False, get_sample_info=True, **kw):
         # xor assertion
         assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. or name";
         if kw.get('dataset_name'):
             self.dataset = create_dataset(kw.get('dataset_name'))
-            print(" in GeneralTrait created dataset:", self.dataset)
+            #print(" in GeneralTrait created dataset:", self.dataset)
         else:
             self.dataset = kw.get('dataset')
         self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
-        print("THE NAME IS:", self.name)
+        #print("THE NAME IS:", self.name)
         self.cellid = kw.get('cellid')
         self.identification = kw.get('identification', 'un-named trait')
         self.haveinfo = kw.get('haveinfo', False)
@@ -67,7 +67,8 @@ class GeneralTrait(object):
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
         self.retrieve_info(get_qtl_info=get_qtl_info)
-        self.retrieve_sample_data()
+        if get_sample_info != False:
+            self.retrieve_sample_data()
         
         
     def jsonable(self):
@@ -179,13 +180,15 @@ class GeneralTrait(object):
         samples = []
         vals = []
         the_vars = []
+        sample_aliases = []
         for sample_name, sample_data in self.data.items():
             if sample_data.value != None:
                 if not include_variance or sample_data.variance != None:
                     samples.append(sample_name)
                     vals.append(sample_data.value)
                     the_vars.append(sample_data.variance)
-        return  samples, vals, the_vars
+                    sample_aliases.append(sample_data.name2)
+        return  samples, vals, the_vars, sample_aliases
 
 
     #
@@ -220,32 +223,6 @@ class GeneralTrait(object):
         if samplelist == None:
             samplelist = []
 
-        #assert self.dataset
-
-        #if self.cellid:
-        #     #Probe Data
-        #    query = '''
-        #            SELECT
-        #                    Strain.Name, ProbeData.value, ProbeSE.error, ProbeData.Id
-        #            FROM
-        #                    (ProbeData, ProbeFreeze, ProbeSetFreeze, ProbeXRef,
-        #                    Strain, Probe, ProbeSet)
-        #            left join ProbeSE on
-        #                    (ProbeSE.DataId = ProbeData.Id AND ProbeSE.StrainId = ProbeData.StrainId)
-        #            WHERE
-        #                    Probe.Name = '%s' AND ProbeSet.Name = '%s' AND
-        #                    Probe.ProbeSetId = ProbeSet.Id AND
-        #                    ProbeXRef.ProbeId = Probe.Id AND
-        #                    ProbeXRef.ProbeFreezeId = ProbeFreeze.Id AND
-        #                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
-        #                    ProbeSetFreeze.Name = '%s' AND
-        #                    ProbeXRef.DataId = ProbeData.Id AND
-        #                    ProbeData.StrainId = Strain.Id
-        #            Order BY
-        #                    Strain.Name
-        #            ''' % (self.cellid, self.name, self.dataset.name)
-        #
-        #else:
         results = self.dataset.retrieve_sample_data(self.name)
 
         # Todo: is this necessary? If not remove
@@ -255,18 +232,9 @@ class GeneralTrait(object):
 
         if results:
             for item in results:
-                name, value, variance, num_cases = item
+                name, value, variance, num_cases, name2 = item
                 if not samplelist or (samplelist and name in samplelist):
                     self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
-
-    #def keys(self):
-    #    return self.__dict__.keys()
-    #
-    #def has_key(self, key):
-    #    return self.__dict__.has_key(key)
-    #
-    #def items(self):
-    #    return self.__dict__.items()
 
     def retrieve_info(self, get_qtl_info=False):
         assert self.dataset, "Dataset doesn't exist"
@@ -290,10 +258,10 @@ class GeneralTrait(object):
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                             PublishFreeze.Id = %s
                     """ % (self.name, self.dataset.id)
-            
-            print("query is:", query) 
         
             trait_info = g.db.execute(query).fetchone()
+            
+            
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
         #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
         elif self.dataset.type == 'ProbeSet':
@@ -328,7 +296,6 @@ class GeneralTrait(object):
                            escape(self.dataset.name),
                            escape(self.name))
             trait_info = g.db.execute(query).fetchone()
-            #print("trait_info is: ", pf(trait_info))
         else: #Temp type
             query = """SELECT %s FROM %s WHERE Name = %s"""
             trait_info = g.db.execute(query,
@@ -339,54 +306,118 @@ class GeneralTrait(object):
 
             #XZ: assign SQL query result to trait attributes.
             for i, field in enumerate(self.dataset.display_fields):
-                #print("  mike: {} -> {} - {}".format(field, type(trait_info[i]), trait_info[i]))
                 holder = trait_info[i]
                 if isinstance(trait_info[i], basestring):
                     holder = unicode(trait_info[i], "utf8", "ignore")
                 setattr(self, field, holder)
-
+                
             if self.dataset.type == 'Publish':
                 self.confidential = 0
                 if self.pre_publication_description and not self.pubmed_id:
                     self.confidential = 1
+                
+                description = self.post_publication_description
+            
+                #If the dataset is confidential and the user has access to confidential
+                #phenotype traits, then display the pre-publication description instead
+                #of the post-publication description
+                if self.confidential:
+                    self.description_display = ""
+                
+                    #if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
+                    #        privilege=self.dataset.privilege,
+                    #        userName=self.dataset.userName,
+                    #        authorized_users=self.authorized_users):
+                    #        
+                    #    description = self.pre_publication_description
+                
+                if description:
+                    self.description_display = description.strip()
+                else:
+                    self.description_display = ""
 
+                if not self.year.isdigit():
+                    self.pubmed_text = "N/A"
+                else:
+                    self.pubmed_text = self.year
+
+                if self.pubmed_id:
+                    self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.pubmed_id
+                    
+                    
             self.homologeneid = None
+            if self.dataset.type == 'ProbeSet' and self.dataset.group:
+                if self.geneid:
+                    #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
+                    #XZ: So I have to test if geneid is number before execute the query.
+                    #XZ: The geneid values in database should be cleaned up.
+                    #try:
+                    #    float(self.geneid)
+                    #    geneidIsNumber = True
+                    #except ValueError:
+                    #    geneidIsNumber = False
+                    #if geneidIsNumber:
+                    query = """
+                            SELECT
+                                    HomologeneId
+                            FROM
+                                    Homologene, Species, InbredSet
+                            WHERE
+                                    Homologene.GeneId =%s AND
+                                    InbredSet.Name = '%s' AND
+                                    InbredSet.SpeciesId = Species.Id AND
+                                    Species.TaxonomyId = Homologene.TaxonomyId
+                            """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
+                    result = g.db.execute(query).fetchone()
+                    #else:
+                    #    result = None
 
-            #print("self.geneid is:", self.geneid)
-            #print("  type:", type(self.geneid))
-            #print("self.dataset.group.name is:", self.dataset.group.name)
-            if self.dataset.type == 'ProbeSet' and self.dataset.group and self.geneid:
-                #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
-                #XZ: So I have to test if geneid is number before execute the query.
-                #XZ: The geneid values in database should be cleaned up.
-                #try:
-                #    float(self.geneid)
-                #    geneidIsNumber = True
-                #except ValueError:
-                #    geneidIsNumber = False
+                    if result:
+                        self.homologeneid = result[0]
+                    
+                description_string = unicode(str(self.description).strip(codecs.BOM_UTF8), 'utf-8')
+                target_string = unicode(str(self.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
-                #if geneidIsNumber:
+                if len(description_string) > 1 and description_string != 'None':
+                    description_display = description_string
+                else:
+                    description_display = self.symbol
 
+                if (len(description_display) > 1 and description_display != 'N/A' and
+                        len(target_string) > 1 and target_string != 'None'):
+                    description_display = description_display + '; ' + target_string.strip()
 
-                query = """
-                        SELECT
-                                HomologeneId
-                        FROM
-                                Homologene, Species, InbredSet
-                        WHERE
-                                Homologene.GeneId =%s AND
-                                InbredSet.Name = '%s' AND
-                                InbredSet.SpeciesId = Species.Id AND
-                                Species.TaxonomyId = Homologene.TaxonomyId
-                        """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
-                result = g.db.execute(query).fetchone()
-                #else:
-                #    result = None
+                # Save it for the jinja2 template
+                self.description_display = description_display
 
-                if result:
-                    self.homologeneid = result[0]
+                #XZ: trait_location_value is used for sorting
+                trait_location_repr = 'N/A'
+                trait_location_value = 1000000
+
+                if self.chr and self.mb:
+                    #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
+                    #This is so we can convert the location to a number used for sorting
+                    trait_location_value = convert_location_to_value(self.chr, self.mb)
+                     #try:
+                    #    trait_location_value = int(self.chr)*1000 + self.mb
+                    #except ValueError:
+                    #    if self.chr.upper() == 'X':
+                    #        trait_location_value = 20*1000 + self.mb
+                    #    else:
+                    #        trait_location_value = (ord(str(self.chr).upper()[0])*1000 +
+                    #                               self.mb)
+
+                    #ZS: Put this in function currently called "convert_location_to_value"
+                    self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
+                    self.location_value = trait_location_value
+                    
 
             if get_qtl_info:
+                #LRS and its location
+                self.LRS_score_repr = "N/A"
+                self.LRS_score_value = 0
+                self.LRS_location_repr = "N/A"
+                self.LRS_location_value = 1000000
                 if self.dataset.type == 'ProbeSet' and not self.cellid:
                     query = """
                             SELECT
@@ -399,12 +430,8 @@ class GeneralTrait(object):
                                     ProbeSetXRef.ProbeSetFreezeId ={}
                             """.format(self.name, self.dataset.id)
                     trait_qtl = g.db.execute(query).fetchone()
-                    #self.cursor.execute(query)
-                    #trait_qtl = self.cursor.fetchone()
                     if trait_qtl:
-                        print("trait_qtl:", trait_qtl)
                         self.locus, self.lrs, self.pvalue, self.mean, self.additive= trait_qtl
-                        print("self.locus:", self.locus)
                         if self.locus:
                             query = """
                                 select Geno.Chr, Geno.Mb from Geno, Species
@@ -417,9 +444,9 @@ class GeneralTrait(object):
                                 self.locus_chr = result[0]
                                 self.locus_mb = result[1]
                             else:
-                                self.locus = self.locus_chr = self.locus_mb = ""
+                                self.locus = self.locus_chr = self.locus_mb = self.additive = ""
                         else:
-                            self.locus = self.locus_chr = self.locus_mb = ""
+                            self.locus = self.locus_chr = self.locus_mb = self.additive = ""
                     else:
                         self.locus = self.locus_chr = self.locus_mb = self.lrs = self.pvalue = self.mean = self.additive = ""
 
@@ -437,8 +464,38 @@ class GeneralTrait(object):
                             """, (self.name, self.dataset.id)).fetchone()
                     if trait_qtl:
                         self.locus, self.lrs, self.additive = trait_qtl
+                        if self.locus:
+                            query = """
+                                select Geno.Chr, Geno.Mb from Geno, Species
+                                where Species.Name = '{}' and
+                                Geno.Name = '{}' and
+                                Geno.SpeciesId = Species.Id
+                                """.format(self.dataset.group.species, self.locus)
+                            result = g.db.execute(query).fetchone()
+                            if result:
+                                self.locus_chr = result[0]
+                                self.locus_mb = result[1]
+                            else:
+                                self.locus = self.locus_chr = self.locus_mb = self.additive = ""
+                        else:
+                            self.locus = self.locus_chr = self.locus_mb = self.additive = ""
                     else:
                         self.locus = self.lrs = self.additive = ""
+                
+                if (self.dataset.type == 'Publish' or self.dataset.type == "ProbeSet") and self.locus_chr != "" and self.locus_mb != "":
+                    #XZ: LRS_location_value is used for sorting
+                    try:
+                        LRS_location_value = int(self.locus_chr)*1000 + float(self.locus_mb)
+                    except:
+                        if self.locus_chr.upper() == 'X':
+                            LRS_location_value = 20*1000 + float(self.locus_mb)
+                        else:
+                            LRS_location_value = ord(str(self.locus_chr).upper()[0])*1000 + float(self.locus_mb)
+
+                    self.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (self.locus_chr, float(self.locus_mb))
+                    if self.lrs != "":                                     
+                        self.LRS_score_repr = LRS_score_repr = '%3.1f' % self.lrs
+                        self.LRS_score_value = LRS_score_value = self.lrs
         else:
             raise KeyError, `self.name`+' information is not found in the database.'
 
@@ -646,7 +703,17 @@ class GeneralTrait(object):
                 ZValue = ZValue*sqrt(self.overlap-3)
                 self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))
 
-
+def convert_location_to_value(chromosome, mb):
+    try:
+        location_value = int(chromosome)*1000 + float(mb)
+    except ValueError:
+        if chromosome.upper() == 'X':
+            location_value = 20*1000 + float(mb)
+        else:
+            location_value = (ord(str(chromosome).upper()[0])*1000 +
+                              float(mb))
+    
+    return location_value
 
 @app.route("/trait/get_sample_data")
 def get_sample_data():

@@ -21,6 +21,19 @@ def export_sample_table(targs):
      
 def dict_to_sorted_list(dictionary):
     sorted_list = [item for item in dictionary.iteritems()]
-    sorted_list = sorted(sorted_list, key=operator.itemgetter(0))
+    sorted_list = sorted(sorted_list, cmp=cmp_samples)
     sorted_values = [item[1] for item in sorted_list]
     return sorted_values    
+
+def cmp_samples(a, b):
+    if b[0] == 'name':
+        return 1
+    elif b[0] == 'value':
+        if a[0] == 'se':
+            return 1
+        else:
+            return -1
+    elif b[0] == 'se':
+        return -1
+    else:
+        return 0

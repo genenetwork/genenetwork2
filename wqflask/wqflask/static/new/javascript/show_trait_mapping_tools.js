@@ -3,11 +3,9 @@
   var block_outliers, composite_mapping_fields, do_ajax_post, get_progress, mapping_method_fields, open_mapping_results, outlier_text, showalert, submit_special, toggle_enable_disable, update_time_remaining;
 
   submit_special = function(url) {
-    //var url;
     console.log("In submit_special");
     console.log("this is:", this);
     console.log("$(this) is:", $(this));
-    //url = $(this).data("url");
     console.log("url is:", url);
     $("#trait_data_form").attr("action", url);
     return $("#trait_data_form").submit();
@@ -137,6 +135,8 @@
 
   outlier_text = "One or more outliers exist in this data set. Please review values before mapping. Including outliers when mapping may lead to misleading results. We recommend <A HREF=\"http://en.wikipedia.org/wiki/Winsorising\">winsorising</A> the outliers or simply deleting them.";
 
+  runtime_warning_text = "This function could take as long as 10-20 minutes to run, so please do not close your browser window until it finishes."
+  
   showalert = function(message, alerttype) {
     return $('#alert_placeholder').append('<div id="alertdiv" class="alert ' + alerttype + '"><a class="close" data-dismiss="alert">�</a><span>' + message + '</span></div>');
   };
@@ -189,8 +189,20 @@
       $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
       form_data = $('#trait_data_form').serialize();
       console.log("form_data is:", form_data);
-      return submit_special(url);
-      //return do_ajax_post(url, form_data);
+      if ($('input[name=pair_scan]:checked').val() == "true") {
+        console.log("PAIR SCAN:", $('input[name=pair_scan]:checked').val())
+        run_pair_scan = confirm(runtime_warning_text)
+        if (run_pair_scan == true) {
+          submit_special(url);
+        }
+        else {
+          return false
+        }
+      }
+      else {
+        return submit_special(url);
+        //return do_ajax_post(url, form_data);
+      }
     };
   })(this));
 
@@ -230,9 +242,10 @@
       //$("#progress_bar_container").modal();
       url = "/marker_regression";
       $('input[name=method]').val("reaper");
-      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
+      $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
       $('input[name=control_marker]').val($('input[name=control_reaper]').val());
       $('input[name=do_control]').val($('input[name=do_control_reaper]:checked').val());
+      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
       $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'));
       $('input[name=suggestive]').val($('input[name=suggestive_reaper]'));
       form_data = $('#trait_data_form').serialize();

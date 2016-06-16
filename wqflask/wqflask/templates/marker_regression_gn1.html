@@ -3,88 +3,240 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+
+    <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
 {% endblock %}
 {% from "base_macro.html" import header %}
 {% block content %}
-    {{ header("Whole Genome Mapping Results",
-        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
-
     <div class="container">
         <form method="post" target="_blank" action="/marker_regression" name="marker_regression" id="marker_regression_form">
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
+        <input type="hidden" name="method" value="{{ mapping_method }}">
         {% for sample in dataset.group.samplelist %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
         <input type="hidden" name="maf">
-        <input type="hidden" name="method" value="{{ mapping_method }}">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
-        <input type="hidden" name="manhattan_plot">
-        <input type="hidden" name="num_perm">
+        <input type="hidden" name="manhattan_plot" value="{{ manhattan_plot }}">
+        <input type="hidden" name="num_perm" value="{{ nperm }}">
+        <input type="hidden" name="perm_results" value="">
+        <input type="hidden" name="num_bootstrap" value="{{ nboot }}">
         <input type="hidden" name="do_control" value="{{ doControl }}">
         <input type="hidden" name="control_marker" value="{{ controlLocus }}">
         <input type="hidden" name="mapmethod_rqtl_geno" value="{{ mapmethod_rqtl_geno }}">
         <input type="hidden" name="mapmodel_rqtl_geno" value="{{ mapmodel_rqtl_geno }}">
         <input type="hidden" name="pair_scan" value="{{ pair_scan }}">
-        <div id="chart_container">
-            <div class="qtlcharts" id="topchart">
-                {{ gifmap|safe }}
-                <img src="/static/output/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
+        
+        <div class="container">
+          <div class="col-xs-5">
+              <h2>Map Viewer: Whole Genome</h2><br>
+              <b>Population:</b> {{ dataset.group.species|capitalize }} {{ dataset.group.name }}<br>
+              <b>Database:</b> {{ dataset.fullname }}<br>
+              {% if dataset.type == "ProbeSet" %}<b>Trait ID:</b>{% else %}<b>Record ID:</b>{% endif %} <a href="/show_trait?trait_id={{ this_trait.name }}&dataset={{ dataset.name }}">{{ this_trait.name }}</a><br>
+              {% if dataset.type == "ProbeSet" %}
+              <b>Gene Symbol:</b> <i>{{ this_trait.symbol }}</i><br>
+              <b>Location:</b> Chr {{ this_trait.chr }} @ {{ this_trait.mb }} Mb
+              {% endif %}
+          </div>
+          <div id="gn1_map_options" class="col-xs-5" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
+            <div class="col-xs-8" style="padding: 0px;">
+              <table>
+                <tr>
+                  <td><b>Chr:&nbsp;</b></td>
+                  <td>
+                    <select name="chromosomes" size="1">
+                        {% for chr in ChrList %}
+                        <option value="{{ chr[1] }}" {% if (chr[1] + 1) == selectedChr %}selected{% endif %}>{{ chr[0] }}</option>
+                        {% endfor %}
+                    </select>&nbsp;
+                    <button type="button" class="btn btn-primary" style="padding-bottom: 2px; padding-top: 2px;" onclick="javascript:remap();">Remap</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>View:&nbsp;</b></td>
+                  <td style="padding: 5px;">
+                    <input type="text" name="startMb" size="10" value="{% if startMb != -1 %}{{ startMb }}{% endif %}"> to <input type="text" name="endMb" size="10" value="{% if endMb != -1 %}{{ endMb }}{% endif %}">
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Units:&nbsp;</b></td>
+                  <td style="padding: 5px;">
+                    <label class="radio-inline">
+                      <input type="radio" name="LRSCheck" value="LRS" {% if LRS_LOD == "LRS" %}checked{% endif %}>LRS
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="LRSCheck" value="LOD" {% if LRS_LOD == "LOD" %}checked{% endif %}>LOD
+                    </label>
+                    <a href="http://genenetwork.org/glossary.html#LOD" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td style="padding: 5px;">
+                    <input type="text" name="lrsMax" value="{{ '%0.1f' | format(lrsMax|float) }}" size="3"> <span style="font-size: 12px;">units on the y-axis (0 for default)</span>   
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Width:&nbsp;</b></td>
+                  <td>
+                    <input type="text" name="graphWidth" value="{% if graphWidth is defined %}{{ graphWidth }}{% else %}1600{% endif %}" size="5"><span style="font-size: 12px;"> pixels (minimum=900)</span>
+                  </td>
+                </tr>
+              </table>
             </div>
+            <div class="col-xs-4" style="padding: 0px;">
+                  {% if (mapping_method == "reaper" or mapping_method == "rqtl_geno") and nperm > 0 %}
+                  <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test 
+                    <a href="http://genenetwork.org/glossary.html#Permutation" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                  <br>
+                  {% endif %}
+                  {% if mapping_method == "reaper" and nboot > 0 %}
+                  <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test 
+                    <a href="http://genenetwork.org/glossary.html#bootstrap" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                  <br>
+                  {% endif %}
+                  {% if mapping_method == "reaper" %}
+                  <input type="checkbox" name="additiveCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if additiveChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Allele Effects
+                    <a href="http://genenetwork.org/glossary.html#additive" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                  <br>
+                  {% endif %}
+                  <input type="checkbox" name="showSNP" class="checkbox" style="display: inline; margin-top: 0px;" {% if SNPChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">SNP Track </span>
+                    <a href="http://genenetwork.org/glossary.html#snpSeismograph" target="_blank">
+                      <sup style="color:#f00"> ?</sup>
+                    </a>
+                    <span style="color:red;">*</span>
+                  <br>
+                  <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
+                  {% if plotScale != "morgan" %}
+                  <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Analyst </span> <span style="color:red;">*</span><br>
+                  {% endif %}
+                  <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span>
+            </div>
+            <div class="col-xs-12" align="center" style="padding: 5px;">
+              <span style="color:red;">*</span> <span style="font-size: 12px;">only apply to single chromosome physical mapping</span>
+            </div>
+          </div>
         </div>
+ 
+        <div class="tabbable" style="margin: 10px;">
+          <ul class="nav nav-tabs">
+            <li id="gn1_map_tab">
+              <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
+            </li>
+            {% if mapping_method != "gemma" %}
+            <li id="vector_map_tab">
+              <a href="#vector_map" data-toggle="tab" {% if mapping_method != "gemma" %}aria-expanded="false"{% else %}aria-expanded="true"{% endif %}>Vector Map</a>
+            </li>
+            {% endif %}
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="gn1_map">
+              <div class="qtlcharts">
+                  {{ gifmap|safe }}
+                  <img src="/generated/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
+                  {% if additiveChecked|upper == "ON" %}
+                  <br>
+                  <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
+                  {% endif %}
+                  {% if nperm > 0 and permChecked == "ON" %}
+                  <br><br>
+                  <img src="/generated/{{ perm_filename }}.gif">
+                  <br><br>
+                  Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
+                  <br>
+                  {% endif %}
+              </div>
+            </div>
+            {% if mapping_method != "gemma" %}
+            <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
+              <div id="chart_container">
+                <div class="qtlcharts" id="topchart"></div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
         </form>
         <div style="width:48%;">
-            <h2>
-                Results
-            </h2>
-            <table id="qtl_results" class="table table-hover table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Index</th>
-                        <th>{{ LRS_LOD }}</th>
-                        <th>Chr</th>
-                        {% if plotScale == "centimorgan" %}
-                        <th>cM</th>
-                        {% else %}
-                        <th>Mb</th>
-                        {% endif %}
-                        <th>Locus</th>
-                   </tr>
-                </thead>
-                <tbody>
-                    {% for marker in qtlresults %}
-                        {% if (LRS_LOD == "LOD" and marker.lod_score|float > cutoff|float) or
-                              (LRS_LOD == "LRS" and marker.lrs_value|float > cutoff|float) %}
-                        <tr>
-                            <td>
-                                <input type="checkbox" name="selectCheck"
-                                       class="checkbox edit_sample_checkbox"
-                                       value="{{ marker.name }}" checked="checked">
-                            </td>
-                            <Td align="right">{{ loop.index }}</Td>
-                            {% if LRS_LOD == "LOD" %}
-                            <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
-                            {% else %}
-                            <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
-                            {% endif %}
-                            <td>{{marker.chr}}</td>
-                            <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
-                            <td>
-                                {{ marker.name }}
-                                <!--<a href="{{ url_for('show_trait_page',
-                                        trait_id = marker.name,
-                                        dataset = dataset.name
-                                        )}}">
-                                    {{ marker.name }}
-                                </a>-->
-                            </td>
-                        </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
+          {% if selectedChr == -1 %}
+          <h2>Results</h2>
+          <table id="qtl_results" class="table table-hover table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Index</th>
+                <th>{{ LRS_LOD }}</th>
+                <th>Chr</th>
+                {% if plotScale == "centimorgan" %}
+                <th>cM</th>
+                {% else %}
+                <th>Mb</th>
+                {% endif %}
+                <th>Locus</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for marker in trimmed_markers %}
+              <tr>
+                <td>
+                  <input type="checkbox" name="selectCheck"
+                         class="checkbox edit_sample_checkbox"
+                         value="{{ marker.name }}" checked="checked">
+                </td>
+                <td align="right">{{ loop.index }}</td>
+                {% if LRS_LOD == "LOD" %}
+                {% if 'lod_score' in marker %}
+                <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
+                {% else %}
+                <td>{{ '%0.2f' | format(marker.lrs_value|float / 4.16) }}</td>
+                {% endif %}
+                {% else %}
+                {% if 'lod_score' in marker %}
+                <td>{{ '%0.2f' | format(marker.lod_score|float * 4.16) }}</td>
+                {% else %}
+                <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
+                {% endif %}
+                {% endif %}
+                <td>{{marker.chr}}</td>
+                <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
+                <td>{{ marker.name }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% elif selectedChr > -1 %}
+          <h2>Interval Analyst</h2>
+          <table id="interval_analyst" class="table table-hover table-striped">
+            <thead>
+              <tr>
+                {% for header in gene_table_header %}
+                <th>{{ header|safe }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in gene_table_body %}
+              <tr>
+                {% for n in range(row|length) %}
+                <td>{{ row[n]|safe }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
         </div>
     </div>
 
@@ -94,8 +246,10 @@
 
 {% block js %}  
 
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
 
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
@@ -110,6 +264,13 @@
         js_data = {{ js_data | safe }}
     </script>
 
+    {% if mapping_method != "gemma" %}
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
+    {% endif %}
+
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");
@@ -122,6 +283,7 @@
                     { "type": "natural" },
                     { "type": "natural", "sWidth": "30%"}
                     ],
+                "order": [[1, "asc"]],
                 "buttons": [
                     'csv'
                 ],
@@ -134,16 +296,61 @@
                 "scrollCollapse": true,
                 "paging": false
             } );
-            console.timeEnd("Creating table");
+
+            $('#interval_analyst').dataTable( {
+                "columnDefs": [ {
+                    "targets": 0,
+                    "sortable": false
+                }],
+                "order": [[3, "asc"]],
+                "sDom": "RZtir",
+                "iDisplayLength": -1,
+                "autoWidth": true,
+                "bDeferRender": true,
+                "bSortClasses": false,
+                "paging": false
+            } );
+
+            $('#vector_map_tab').click(function(){
+                $('div#gn1_map_options').hide();
+            });
+
+            $('#gn1_map_tab').click(function(){
+                $('div#gn1_map_options').show();
+            });
 
         });
 
         chrView = function(this_chr, chr_mb_list) {
-            $('input[name=selected_chr]').val(this_chr + 1)
+            $('input[name=selected_chr]').val(this_chr)
             $('input[name=chr_mb_list]').val(chr_mb_list)
 
             return $('#marker_regression_form').submit();
         };
+
+        rangeView = function(this_chr, start_mb, end_mb) {
+            $('input[name=selected_chr]').val(this_chr)
+            $('input[name=startMb]').val(start_mb)
+            $('input[name=endMb]').val(end_mb)
+            //$('input[name=mb_range]').val(start_mb + "," + end_mb)
+
+            return $('#marker_regression_form').submit();
+        };
+
+        remap = function() { 
+            $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
+            return $('#marker_regression_form').submit(); 
+        };
+
+        export_perm_data = function() {
+            var num_perm, perm_data;
+            num_perm = js_data.num_perm
+            perm_data = js_data.perm_results
+            json_perm_data = JSON.stringify(perm_data);
+            $('input[name=perm_results]').val(json_perm_data);
+            $('#marker_regression_form').attr('action', '/export_perm_data');
+            return $('#marker_regression_form').submit();
+    };
 
     </script>
 

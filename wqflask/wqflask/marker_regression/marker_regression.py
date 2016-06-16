@@ -18,6 +18,7 @@ import numpy as np
 from scipy import linalg
 
 import cPickle as pickle
+import itertools
 
 import simplejson as json
 
@@ -29,21 +30,16 @@ from flask import Flask, g
 from base.trait import GeneralTrait
 from base import data_set
 from base import species
-from base import webqtlConfig
 from utility import webqtlUtil
-#from wqflask.marker_regression import qtl_reaper_mapping
-#from wqflask.marker_regression import plink_mapping
-from wqflask.marker_regression import gemma_mapping
-#from wqflask.marker_regression import rqtl_mapping
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
-from utility.tools import pylmm_command, plink_command, gemma_command
+from wqflask.marker_regression import gemma_mapping
 
-PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
-PLINK_PATH,PLINK_COMMAND = plink_command()
-GEMMA_PATH,GEMMA_COMMAND = gemma_command()
+from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
+from utility.external import shell
+from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
 class MarkerRegression(object):
 
@@ -60,14 +56,24 @@ class MarkerRegression(object):
         
         self.samples = [] # Want only ones with values
         self.vals = []
-
+        
+        #for sample in self.this_trait.data.keys():
         for sample in self.dataset.group.samplelist:
-            value = start_vars['value:' + sample]
-            self.samples.append(str(sample))
-            self.vals.append(value)
+            in_trait_data = False        
+            for item in self.this_trait.data:
+                if self.this_trait.data[item].name2 == sample:
+                    value = start_vars['value:' + self.this_trait.data[item].name]
+                    self.samples.append(self.this_trait.data[item].name)
+                    self.vals.append(value)
+                    in_trait_data = True
+                    break
+            if not in_trait_data:
+                value = start_vars['value:' + sample]
+                self.samples.append(sample)
+                self.vals.append(value)
  
         self.mapping_method = start_vars['method']
-        if start_vars['manhattan_plot'] == "true":
+        if start_vars['manhattan_plot'] == "True":
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False
@@ -79,54 +85,120 @@ class MarkerRegression(object):
         self.score_type = "LRS" #ZS: LRS or LOD
         self.mapping_scale = "physic"
         self.num_perm = 0
-
+        self.perm_output = []
+        self.bootstrap_results = []
+        
         #ZS: This is passed to GN1 code for single chr mapping
-        self.selected_chr = -1        
+        self.selected_chr = -1
         if "selected_chr" in start_vars:
-            self.selected_chr = int(start_vars['selected_chr'])
+            if int(start_vars['selected_chr']) != -1: #ZS: Needs to be -1 if showing full map; there's probably a better way to fix this
+                self.selected_chr = int(start_vars['selected_chr']) + 1
+            else:
+                self.selected_chr = int(start_vars['selected_chr'])
+        if "startMb" in start_vars:
+            self.startMb = start_vars['startMb']
+        if "endMb" in start_vars:
+            self.endMb = start_vars['endMb']
+        if "graphWidth" in start_vars:
+            self.graphWidth = start_vars['graphWidth']
+        if "lrsMax" in start_vars:
+            self.lrsMax = start_vars['lrsMax']
+        if "haplotypeAnalystCheck" in start_vars:
+            self.haplotypeAnalystCheck = start_vars['haplotypeAnalystCheck']
+        if "startMb" in start_vars: #ZS: This is to ensure showGenes, Legend, etc are checked the first time you open the mapping page, since startMb will only not be set during the first load
+            if "permCheck" in start_vars:
+                self.permCheck = "ON"
+            else:
+                self.permCheck = False
+            self.num_perm = int(start_vars['num_perm'])
+        
+            self.LRSCheck = start_vars['LRSCheck']
+            
+            if "showSNP" in start_vars:
+                self.showSNP = start_vars['showSNP']
+            else:
+                self.showSNP = False 
+                
+            if "showGenes" in start_vars:
+                self.showGenes = start_vars['showGenes']
+            else:
+                self.showGenes = False 
+                
+            if "viewLegend" in start_vars:
+                self.viewLegend = start_vars['viewLegend']
+            else:
+                self.viewLegend = False
+        else:
+            try:
+                if int(start_vars['num_perm']) > 0:
+                    self.num_perm = int(start_vars['num_perm'])
+            except:
+                self.num_perm = 0
+            
+            self.LRSCheck = self.score_type
+            if self.num_perm > 0:
+                self.permCheck = "ON"
+            else:
+                self.permCheck = False
+            self.showSNP = "ON"
+            self.showGenes = "ON"
+            self.viewLegend = "ON"
  
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
-            self.score_type = "LRS"
-            included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
-            self.dataset.group.get_specified_markers(markers = included_markers)
-            self.dataset.group.markers.add_pvalues(p_values)
-            results = self.dataset.group.markers.markers
+            self.score_type = "LOD"
+            self.manhattan_plot = True
+            with Bench("Running GEMMA"):
+                included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
+            with Bench("Getting markers from csv"):
+                marker_obs = get_markers_from_csv(included_markers, p_values, self.dataset.group.name)
+            results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
             self.score_type = "LOD"
             self.mapping_scale = "morgan"
-            if start_vars['num_perm'] == "":
-                self.num_perm = 0
-            else:
-                self.num_perm = start_vars['num_perm']
-            self.control = start_vars['control_marker']
+            self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             self.method = start_vars['mapmethod_rqtl_geno']
             self.model = start_vars['mapmodel_rqtl_geno']
-
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
-
             results = self.run_rqtl_geno()
-        elif self.mapping_method == "reaper":
-            if start_vars['num_perm'] == "":
-                self.num_perm = 0
+        elif self.mapping_method == "reaper":    
+            if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
+                if "additiveCheck" in start_vars:
+                    self.additiveCheck = start_vars['additiveCheck']
+                else:
+                    self.additiveCheck = False 
+                    
+                if "bootCheck" in start_vars:
+                    self.bootCheck = "ON"
+                else:
+                    self.bootCheck = False
+                self.num_bootstrap = int(start_vars['num_bootstrap'])
             else:
-                self.num_perm = int(start_vars['num_perm'])
-            self.additive = False
-            self.control = start_vars['control_marker']
+                self.additiveCheck = "ON"
+                try:
+                    if int(start_vars['num_bootstrap']) > 0:
+                        self.bootCheck = "ON"
+                        self.num_bootstrap = int(start_vars['num_bootstrap'])
+                    else:
+                        self.bootCheck = False
+                        self.num_bootstrap = 0 
+                except: 
+                    self.bootCheck = False
+                    self.num_bootstrap = 0
+                
+            self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             results = self.gen_reaper_results()
         elif self.mapping_method == "plink":
             results = self.run_plink()
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
-            self.num_perm = start_vars['num_perm']
-            if self.num_perm != "":
-                if int(self.num_perm) > 0:
-	             self.run_permutations(str(temp_uuid))
+            if self.num_perm > 0:
+                self.run_permutations(str(temp_uuid))
             results = self.gen_data(str(temp_uuid))
         else:
             print("RUNNING NOTHING")
@@ -141,6 +213,9 @@ class MarkerRegression(object):
                     if 'lod_score' in marker.keys():
                         self.qtl_results.append(marker)
 
+            
+            self.trimmed_markers = results    
+                        
             for qtl in enumerate(self.qtl_results):
                 self.json_data['chr1'].append(str(qtl['chr1']))
                 self.json_data['chr2'].append(str(qtl['chr2']))
@@ -154,7 +229,7 @@ class MarkerRegression(object):
                 maf = self.maf,
                 manhattan_plot = self.manhattan_plot,
                 mapping_scale = self.mapping_scale,
-                qtl_results = self.qtl_results,
+                qtl_results = self.qtl_results
             )
 
         else:
@@ -168,6 +243,8 @@ class MarkerRegression(object):
                     if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                         self.qtl_results.append(marker)
 
+            self.trimmed_markers = trim_markers_for_table(results)
+			
             self.json_data['chr'] = []
             self.json_data['pos'] = []
             self.json_data['lod.hk'] = []
@@ -181,7 +258,7 @@ class MarkerRegression(object):
                 #if index<40:
                 #    print("lod score is:", qtl['lod_score'])
                 if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
-                    print("changing to X")
+                    #print("changing to X")
                     self.json_data['chr'].append("X")
                 else:
                     self.json_data['chr'].append(str(qtl['chr']))
@@ -212,6 +289,8 @@ class MarkerRegression(object):
                 mapping_scale = self.mapping_scale,
                 chromosomes = chromosome_mb_lengths,
                 qtl_results = self.qtl_results,
+                num_perm = self.num_perm,
+                perm_results = self.perm_output,
             )
         
 
@@ -226,29 +305,21 @@ class MarkerRegression(object):
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name)
-        print("gemma_command:" + gemma_command)
+        #print("gemma_command:" + gemma_command)
         
         os.system(gemma_command)
         
         included_markers, p_values = self.parse_gemma_output()
         
         self.dataset.group.get_specified_markers(markers = included_markers)
-        
-        #for marker in self.dataset.group.markers.markers:
-        #    if marker['name'] not in included_markers:
-        #        print("marker:", marker)
-        #        self.dataset.group.markers.markers.remove(marker)
-        #        #del self.dataset.group.markers.markers[marker]
-        
         self.dataset.group.markers.add_pvalues(p_values)
-
         return self.dataset.group.markers.markers
-
 
     def parse_gemma_output(self):
         included_markers = []
         p_values = []
-        with open("/home/zas1024/gene/web/gemma/output/{}_output.assoc.txt".format(self.dataset.group.name)) as output_file:
+        # Use a temporary file name here!
+        with open(webqtlConfig.GENERATED_TEXT_DIR+"/{}_output.assoc.txt".format(self.dataset.group.name)) as output_file:
             for line in output_file:
                 if line.startswith("chr"):
                     continue
@@ -261,46 +332,24 @@ class MarkerRegression(object):
 
     def gen_pheno_txt_file(self):
         """Generates phenotype file for GEMMA"""
-        
-        #with open("/home/zas1024/gene/web/gemma/tmp_pheno/{}.txt".format(filename), "w") as outfile:
-        #    for sample, i in enumerate(self.samples):
-        #        print("sample:" + str(i))
-        #        print("self.vals[i]:" + str(self.vals[sample]))
-        #        outfile.write(str(i) + "\t" + str(self.vals[sample]) + "\n")
-                
-        with open("/home/zas1024/gene/web/gemma/{}.fam".format(self.dataset.group.name), "w") as outfile:
+        with open(webqtlConfig.GENERATED_TEXT_DIR+"{}.fam".format(self.dataset.group.name), "w") as outfile:
             for i, sample in enumerate(self.samples):
                 outfile.write(str(sample) + " " + str(sample) + " 0 0 0 " + str(self.vals[i]) + "\n")
-
-    #def gen_plink_for_gemma(self, filename):
-    #    
-    #    make_bed = "/home/zas1024/plink/plink --file /home/zas1024/plink/%s --noweb --no-fid --no-parents --no-sex --no-pheno --pheno %s%s.txt --out %s%s --make-bed" % (webqtlConfig.HTMLPATH,
-    #                                                                                                                                             webqtlConfig.HTMLPATH,
-    #                                                                                                                                             self.dataset.group.name,
-    #                                                                                                                                             webqtlConfig.TMPDIR,
-    #                                                                                                                                             filename,
-    #                                                                                                                                             webqtlConfig.TMPDIR,
-    #                                                                                                                                             filename)
-    #
-    #
     
     def run_rqtl_plink(self):
-        os.chdir("/home/zas1024/plink")
+        # os.chdir("") never do this inside a webserver!!
         
         output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
         
         self.gen_pheno_txt_file_plink(pheno_filename = output_filename)
         
-        rqtl_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
+        rqtl_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
         
         os.system(rqtl_command)
         
         count, p_values = self.parse_rqtl_output(plink_output_filename)
 
     def geno_to_rqtl_function(self):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
-        print("Adding some custom helper functions to the R environment")
-
-
 
         ro.r("""
            trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
@@ -332,8 +381,6 @@ class MarkerRegression(object):
         """ % (self.dataset.group.name + ".geno"))
     
     def run_rqtl_geno(self):
-        print("Calling R/qtl")
-
         self.geno_to_rqtl_function()
 
         ## Get pointers to some common R functions
@@ -342,7 +389,7 @@ class MarkerRegression(object):
         r_sum         = ro.r["sum"]                     # Map the sum function
         plot          = ro.r["plot"]                    # Map the plot function
         postscript    = ro.r["postscript"]              # Map the postscript function
-        png           = ro.r["png"]              # Map the png function
+        png           = ro.r["png"]                     # Map the png function
         dev_off       = ro.r["dev.off"]                 # Map the device off function
 
         print(r_library("qtl"))                         # Load R/qtl
@@ -353,12 +400,13 @@ class MarkerRegression(object):
         calc_genoprob   = ro.r["calc.genoprob"]         # Map the calc.genoprob function
         read_cross      = ro.r["read.cross"]            # Map the read.cross function
         write_cross     = ro.r["write.cross"]           # Map the write.cross function
-        GENOtoCSVR      = ro.r["GENOtoCSVR"]            # Map the GENOtoCSVR function
+        GENOtoCSVR      = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
 
-        genofilelocation  = webqtlConfig.HTMLPATH + "genotypes/" + self.dataset.group.name + ".geno"
-        crossfilelocation = webqtlConfig.HTMLPATH + "genotypes/" + self.dataset.group.name + ".cross"
+        crossname = self.dataset.group.name
+        genofilelocation  = locate(crossname + ".geno", "genotype")
+        crossfilelocation = TMPDIR + crossname + ".cross"
 
-        print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
+        #print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
 
         cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)                                  # TODO: Add the SEX if that is available
 
@@ -380,10 +428,10 @@ class MarkerRegression(object):
             else:
                 print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=self.model, method=self.method, n_cluster = 16)
  
-            print("Pair scan results:", result_data_frame)
+            #print("Pair scan results:", result_data_frame)
 
             self.pair_scan_filename = webqtlUtil.genRandStr("scantwo_") + ".png"
-            png(file=webqtlConfig.TMPDIR+self.pair_scan_filename)
+            png(file=TEMPDIR+self.pair_scan_filename)
             plot(result_data_frame)
             dev_off()
             
@@ -395,11 +443,11 @@ class MarkerRegression(object):
             else:
                 print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=self.model, method=self.method)
 
-            if int(self.num_perm) > 0:                                                                   # Do permutation (if requested by user)
+            if self.num_perm > 0 and self.permCheck == "ON":                                                                   # Do permutation (if requested by user)
                 if self.do_control == "true":
-                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = int(self.num_perm), model=self.model, method=self.method)
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = self.num_perm, model=self.model, method=self.method)
                 else:
-                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = int(self.num_perm), model=self.model, method=self.method)
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = self.num_perm, model=self.model, method=self.method)
 
                 self.process_rqtl_perm_results(perm_data_frame)                                          # Functions that sets the thresholds for the webinterface
 
@@ -413,15 +461,15 @@ class MarkerRegression(object):
     def create_covariates(self, cross):
         ro.globalenv["the_cross"] = cross
         ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
-        userinputS = self.control.replace(" ", "").split(",")                 # TODO: sanitize user input, Never Ever trust a user
+        userinputS = self.control_marker.replace(" ", "").split(",")                 # TODO: sanitize user input, Never Ever trust a user
         covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
-        print("Marker names of selected covariates:", covariate_names)
+        #print("Marker names of selected covariates:", covariate_names)
         ro.r('covnames <- c(' + covariate_names + ')')
         ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
         ro.r('covnames <- covnames[covInGeno]')
         ro.r("cat('covnames (purged): ', covnames,'\n')")
         ro.r('covariates <- genotypes[,covnames]')                            # Get the covariate matrix by using the marker name as index to the genotype file
-        print("R/qtl matrix of covariates:", ro.r["covariates"])
+        #print("R/qtl matrix of covariates:", ro.r["covariates"])
         return ro.r["covariates"]
 
     def sanitize_rqtl_phenotype(self):
@@ -445,7 +493,7 @@ class MarkerRegression(object):
 
         result = result[1]
         output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
-        print("R/qtl scantwo output:", output)
+        #print("R/qtl scantwo output:", output)
 
         for i, line in enumerate(result.iter_row()):
             marker = {}
@@ -455,7 +503,7 @@ class MarkerRegression(object):
             marker['chr2'] = int(output[i][2])
             pair_scan_results.append(marker)
 
-        print("pair_scan_results:", pair_scan_results)
+        #print("pair_scan_results:", pair_scan_results)
 
         return pair_scan_results
 
@@ -463,7 +511,7 @@ class MarkerRegression(object):
         qtl_results = []
 
         output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
-        print("R/qtl scanone output:", output)
+        #print("R/qtl scanone output:", output)
 
         for i, line in enumerate(result.iter_row()):
             marker = {}
@@ -477,10 +525,11 @@ class MarkerRegression(object):
 
     def process_rqtl_perm_results(self, results):
         perm_vals = []
-        for line in str(results).split("\n")[1:(int(self.num_perm)+1)]:
-            print("R/qtl permutation line:", line.split())
+        for line in str(results).split("\n")[1:(self.num_perm+1)]:
+            #print("R/qtl permutation line:", line.split())
             perm_vals.append(float(line.split()[1]))
 
+        self.perm_output = perm_vals
         self.suggestive = np.percentile(np.array(perm_vals), 67)
         self.significant = np.percentile(np.array(perm_vals), 95)
 
@@ -492,7 +541,7 @@ class MarkerRegression(object):
         
         self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
         
-        plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, webqtlConfig.TMPDIR, plink_output_filename, self.this_trait.name, self.maf, webqtlConfig.TMPDIR, plink_output_filename)
+        plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
         print("plink_command:", plink_command)        
 
         os.system(plink_command)
@@ -514,7 +563,7 @@ class MarkerRegression(object):
 
     def gen_pheno_txt_file_plink(self, pheno_filename = ''):
         ped_sample_list = self.get_samples_from_ped_file()	
-        output_file = open("%s%s.txt" % (webqtlConfig.TMPDIR, pheno_filename), "wb")
+        output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
         header = 'FID\tIID\t%s\n' % self.this_trait.name
         output_file.write(header)
     
@@ -549,7 +598,7 @@ class MarkerRegression(object):
         
     def gen_pheno_txt_file_rqtl(self, pheno_filename = ''):
         ped_sample_list = self.get_samples_from_ped_file()	
-        output_file = open("%s%s.txt" % (webqtlConfig.TMPDIR, pheno_filename), "wb")
+        output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
         header = 'FID\tIID\t%s\n' % self.this_trait.name
         output_file.write(header)
     
@@ -602,41 +651,73 @@ class MarkerRegression(object):
     def gen_reaper_results(self):
         genotype = self.dataset.group.read_genotype_file()
 
-        samples, values, variances = self.this_trait.export_informative()
-
+        if self.manhattan_plot != True:
+            genotype = genotype.addinterval()
+        
+        samples, values, variances, sample_aliases = self.this_trait.export_informative()
+        
         trimmed_samples = []
         trimmed_values = []
         for i in range(0, len(samples)):
-            if samples[i] in self.dataset.group.samplelist:
-                trimmed_samples.append(samples[i])
+            if self.this_trait.data[samples[i]].name2 in self.dataset.group.samplelist:
+                trimmed_samples.append(sample_aliases[i])
                 trimmed_values.append(values[i])
+
+        #print("THE SAMPLES:", trimmed_samples)
                 
-        self.lrs_array = genotype.permutation(strains = trimmed_samples,
-                                                   trait = trimmed_values, 
-                                                   nperm= self.num_perm)
-        
-        self.suggestive = self.lrs_array[int(self.num_perm*0.37-1)]
-        self.significant = self.lrs_array[int(self.num_perm*0.95-1)]
+        if self.num_perm < 100:
+            self.suggestive = 0
+            self.significant = 0
+        else:
+            self.perm_output = genotype.permutation(strains = trimmed_samples, trait = trimmed_values, nperm=self.num_perm)
+            self.suggestive = self.perm_output[int(self.num_perm*0.37-1)]
+            self.significant = self.perm_output[int(self.num_perm*0.95-1)]
+            self.highly_significant = self.perm_output[int(self.num_perm*0.99-1)]
+            
         self.json_data['suggestive'] = self.suggestive
         self.json_data['significant'] = self.significant
 
-        print("samples:", trimmed_samples)
-
-        if self.control != "" and self.do_control == "true":
-            print("CONTROL IS:", self.control)
+        if self.control_marker != "" and self.do_control == "true":
             reaper_results = genotype.regression(strains = trimmed_samples,
-                                                          trait = trimmed_values,
-                                                          control = str(self.control))
+                                                 trait = trimmed_values,
+                                                 control = str(self.control_marker))
+            if self.bootCheck:
+                control_geno = []
+                control_geno2 = []
+                _FIND = 0
+                for _chr in genotype:
+                    for _locus in _chr:
+                        if _locus.name == self.control_marker:
+                            control_geno2 = _locus.genotype
+                            _FIND = 1
+                            break
+                    if _FIND:
+                        break
+                if control_geno2:
+                    _prgy = list(genotype.prgy)
+                    for _strain in trimmed_samples:
+                        _idx = _prgy.index(_strain)
+                        control_geno.append(control_geno2[_idx])
+            
+                self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
+                                                            trait = trimmed_values,
+                                                            control = control_geno,
+                                                            nboot = self.num_bootstrap)
         else:
             reaper_results = genotype.regression(strains = trimmed_samples,
-                                                          trait = trimmed_values)
+                                                 trait = trimmed_values)
+                                                 
+            if self.bootCheck:
+                self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
+                                                            trait = trimmed_values,
+                                                            nboot = self.num_bootstrap)
 
         self.json_data['chr'] = []
         self.json_data['pos'] = []
         self.json_data['lod.hk'] = []
         self.json_data['markernames'] = []
-        if self.additive:
-            self.json_data['additive'] = []
+        #if self.additive:
+        #    self.json_data['additive'] = []
 
         #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
         qtl_results = []
@@ -650,8 +731,8 @@ class MarkerRegression(object):
             self.json_data['pos'].append(reaper_locus.Mb)
             self.json_data['lod.hk'].append(qtl.lrs)
             self.json_data['markernames'].append(reaper_locus.name)
-            if self.additive:
-                self.json_data['additive'].append(qtl.additive)
+            #if self.additive:
+            #    self.json_data['additive'].append(qtl.additive)
             locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
             qtl = {"lrs_value": qtl.lrs, "chr":converted_chr, "Mb":reaper_locus.Mb,
                    "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
@@ -665,7 +746,7 @@ class MarkerRegression(object):
     
         threshold_p_value = 0.01
     
-        result_fp = open("%s%s.qassoc"% (webqtlConfig.TMPDIR, output_filename), "rb")
+        result_fp = open("%s%s.qassoc"% (TMPDIR, output_filename), "rb")
         
         header_line = result_fp.readline()# read header line
         line = result_fp.readline()
@@ -741,9 +822,9 @@ class MarkerRegression(object):
 
         top_lod_scores = []
 	
-        print("self.num_perm:", self.num_perm)
+        #print("self.num_perm:", self.num_perm)
 
-        for permutation in range(int(self.num_perm)):
+        for permutation in range(self.num_perm):
 
             pheno_vector = np.array([val == "x" and np.nan or float(val) for val in self.vals])
             np.random.shuffle(pheno_vector)
@@ -775,9 +856,7 @@ class MarkerRegression(object):
                 Redis.expire(key, 60*60)
     
                 command = PYLMM_COMMAND+' --key {} --species {}'.format(key,"other")
-    
-                os.system(command)
-    
+                shell(command)
                 
                 json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
                 results = json.loads(json_results[1])
@@ -788,10 +867,10 @@ class MarkerRegression(object):
                     if p_value < lowest_p_value:
                         lowest_p_value = p_value
                 
-                print("lowest_p_value:", lowest_p_value)        
+                #print("lowest_p_value:", lowest_p_value)        
                 top_lod_scores.append(-math.log10(lowest_p_value))
 
-        print("top_lod_scores:", top_lod_scores)
+        #print("top_lod_scores:", top_lod_scores)
 
         self.suggestive = np.percentile(top_lod_scores, 67)
         self.significant = np.percentile(top_lod_scores, 95)
@@ -852,12 +931,11 @@ class MarkerRegression(object):
             Redis.expire(key, 60*60)
             print("before printing command")
 
-            command = PYLMM_COMMAND + ' --key {} --species {}'.format(key,
-                                                                                                                    "other")
+            command = PYLMM_COMMAND + ' --key {} --species {}'.format(key, "other")
             print("command is:", command)
             print("after printing command")
 
-            os.system(command)
+            shell(command)
 
             #t_stats, p_values = lmm.run(key)
             #lmm.run(key)
@@ -894,8 +972,7 @@ class MarkerRegression(object):
 
     #def gen_human_results(self, pheno_vector, tempdata):
     def gen_human_results(self, pheno_vector, key, temp_uuid):
-        file_base = os.path.join(webqtlConfig.PYLMM_PATH, self.dataset.group.name)
-        print("file_base:", file_base)
+        file_base = locate(self.dataset.group.name,"mapping")
 
         plink_input = input.plink(file_base, type='b')
         input_file_name = os.path.join(webqtlConfig.SNP_PATH, self.dataset.group.name + ".snps.gz")
@@ -987,7 +1064,11 @@ class MarkerRegression(object):
         return trimmed_genotype_data
     
 def create_snp_iterator_file(group):
-    plink_file_base = os.path.join(webqtlConfig.PYLMM_PATH, group)
+    """ 
+    This function is only called by main below
+    """
+    raise Exception("Paths are undefined here")
+    plink_file_base = os.path.join(TMPDIR, group)
     plink_input = input.plink(plink_file_base, type='b')
     
     data = dict(plink_input = list(plink_input),
@@ -1004,12 +1085,47 @@ def create_snp_iterator_file(group):
     with gzip.open(snp_file_base, "wb") as fh:
         pickle.dump(data, fh, pickle.HIGHEST_PROTOCOL)
 
-#if __name__ == '__main__':
-#    import cPickle as pickle
-#    import gzip
-#    create_snp_iterator_file("HLC")
+def trim_markers_for_table(markers):
+    num_markers = len(markers)
+	
+    if 'lod_score' in markers[0].keys():
+        sorted_markers = sorted(markers, key=lambda k: k['lod_score'], reverse=True)
+    else:
+        sorted_markers = sorted(markers, key=lambda k: k['lrs_value'], reverse=True)
+    
+    #ZS: So we end up with a list of just 200 markers
+    if len(sorted_markers) >= 200:
+        trimming_factor = 200 / len(sorted_markers) 
+        trimmed_sorted_markers = sorted_markers[:int(len(sorted_markers) * trimming_factor)]
+        return trimmed_sorted_markers
+    else:
+        return sorted_markers
+
+
+def get_markers_from_csv(included_markers, p_values, group_name):
+    marker_data_fh = open(os.path.join(webqtlConfig.PYLMM_PATH + group_name + '_markers.csv'))
+    markers = []
+    for marker_name, p_value in itertools.izip(included_markers, p_values):
+        if not p_value or len(included_markers) < 1: 
+            continue   
+        for line in marker_data_fh:
+            splat = line.strip().split()
+            if splat[0] == marker_name:
+                marker = {}
+                marker['name'] = splat[0]
+                marker['chr'] = int(splat[1])
+                marker['Mb'] = float(splat[2])
+                marker['p_value'] = p_value
+                if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
+                    marker['lod_score'] = 0
+                    marker['lrs_value'] = 0
+                else:
+                    marker['lod_score'] = -math.log10(marker['p_value'])
+                    marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
+                markers.append(marker)
+                break
+
+    return markers
     
 if __name__ == '__main__':
     import cPickle as pickle
-    import gzip
-    create_snp_iterator_file("HLC")

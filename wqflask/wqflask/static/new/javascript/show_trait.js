@@ -50,7 +50,7 @@
     }, {
       vn: "interquartile",
       pretty: "Interquartile Range",
-      url: "/glossary.html#Interquartile",
+      url: "http://www.genenetwork.org/glossary.html#Interquartile",
       digits: 2
     }
   ];
@@ -174,7 +174,6 @@
     make_table = function() {
       var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
       header = "<thead><tr><th>&nbsp;</th>";
-      console.log("js_data.sample_group_types:", js_data.sample_group_types);
       _ref = js_data.sample_group_types;
       for (key in _ref) {
         if (!__hasProp.call(_ref, key)) continue;
@@ -186,14 +185,15 @@
       the_rows = "<tbody>";
       for (_i = 0, _len = Stat_Table_Rows.length; _i < _len; _i++) {
         row = Stat_Table_Rows[_i];
-        console.log("rowing");
+        if ((row.vn == "range_fold" || row.vn == "range") && js_data.dataset_type == "Publish"){
+            continue;
+        }
         row_line = "<tr>";
         if (row.url != null) {
           row_line += "<td id=\"" + row.vn + "\"><a href=\"" + row.url + "\">" + row.pretty + "</a></td>";
         } else {
           row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
         }
-        console.log("box - js_data.sample_group_types:", js_data.sample_group_types);
         _ref1 = js_data.sample_group_types;
         for (key in _ref1) {
           if (!__hasProp.call(_ref1, key)) continue;
@@ -202,12 +202,10 @@
           row_line += "<td id=\"" + the_id + "\">foo</td>";
         }
         row_line += "</tr>";
-        console.log("row line:", row_line);
         the_rows += row_line;
       }
       the_rows += "</tbody>";
       table = header + the_rows;
-      console.log("table is:", table);
       return $("#stats_table").append(table);
     };
     process_id = function() {
@@ -298,18 +296,37 @@
     };
     on_corr_method_change = function() {
       var corr_method;
-      console.log("in beginning of on_corr_method_change");
-      corr_method = $('select[name=corr_method]').val();
+      corr_method = $('select[name=corr_type]').val();
       console.log("corr_method is:", corr_method);
       $('.correlation_desc').hide();
       $('#' + corr_method + "_r_desc").show().effect("highlight");
       if (corr_method === "lit") {
-        return $("#corr_sample_method_options").hide();
+        return $("#corr_sample_method").hide();
       } else {
-        return $("#corr_sample_method_options").show();
+        return $("#corr_sample_method").show();
       }
     };
-    $('select[name=corr_method]').change(on_corr_method_change);
+    $('select[name=corr_type]').change(on_corr_method_change);
+
+    submit_special = function(url) {
+      $("#trait_data_form").attr("action", url);
+      return $("#trait_data_form").submit();
+    };
+
+	submit_corr = function(){
+        var url;
+        url = "/corr_compute";
+        return submit_special(url);
+	};
+	
+    $(".corr_compute").on("click", (function(_this) {
+      return function() {
+        var url;
+        url = "/corr_compute";
+        return submit_special(url);
+      };
+    })(this));
+
     create_value_dropdown = function(value) {
       return "<option val=" + value + ">" + value + "</option>";
     };
@@ -504,5 +521,10 @@
     $('#reset').click(edit_data_change);
     return console.log("end");
   });
+  
+  Number.prototype.countDecimals = function () {
+    if(Math.floor(this.valueOf()) === this.valueOf()) return 0;
+      return this.toString().split(".")[1].length || 0; 
+  }
 
 }).call(this);

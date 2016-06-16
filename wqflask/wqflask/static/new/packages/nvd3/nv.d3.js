@@ -1556,7 +1556,7 @@ nv.models.axis = function() {
         , width = 75 //only used for tickLabel currently
         , height = 60 //only used for tickLabel currently
         , axisLabelText = null
-        , showMaxMin = true //TODO: showMaxMin should be disabled on all ordinal scaled axes
+        , showMaxMin = false //TODO: showMaxMin should be disabled on all ordinal scaled axes
         , rotateLabels = 0
         , rotateYLabel = true
         , staggerLabels = false
@@ -7894,7 +7894,8 @@ nv.models.multiBar = function() {
 
                 bars.select('polyline')
                     .attr('fill', 'none')
-                    .attr('stroke', function(d, i, j) { return errorBarColor(d, j, i); })
+                    .attr('stroke', 'black')
+                    //.attr('stroke', function(d, i, j) { return errorBarColor(d, j, i); })
                     .attr('points', function(d,i) {
                         var yerr = getYerr(d,i)
                             , mid = 0.8 * x.rangeBand() / ((stacked ? 1 : data.length) * 2);

@@ -26,13 +26,12 @@ import reaper
 from base.trait import GeneralTrait
 from base import data_set
 from base import species
-from base import webqtlConfig
-from utility import webqtlUtil
 # from wqflask.my_pylmm.pyLMM import lmm
 # from wqflask.my_pylmm.pyLMM import input
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
+from utility.tools import PYLMM_COMMAND
 
 from MySQLdb import escape_string as escape
 
@@ -137,7 +136,7 @@ class Heatmap(object):
             this_trait = trait_db[0]
             #this_db = trait_db[1]
             genotype = self.dataset.group.read_genotype_file()
-            samples, values, variances = this_trait.export_informative()
+            samples, values, variances, sample_aliases = this_trait.export_informative()
 
             trimmed_samples = []
             trimmed_values = []
@@ -214,7 +213,7 @@ class Heatmap(object):
             #Redis.expire(key, 60*60)
             #print("before printing command")
             #
-            #command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+            #command = 'python lmm.py --key {} --species {}'.format(key,
             #                                                                                                        "other")
             #print("command is:", command)
             #print("after printing command")
@@ -273,7 +272,7 @@ class Heatmap(object):
             Redis.expire(key, 60*60)
             print("before printing command")
             
-            command = 'python /home/zas1024/gene/wqflask/wqflask/my_pylmm/pyLMM/lmm.py --key {} --species {}'.format(key,
+            command = PYLMM_COMMAND+' --key {} --species {}'.format(key,
                                                                                                                     "other")
             print("command is:", command)
             print("after printing command")

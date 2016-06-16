@@ -15,7 +15,7 @@ import urlparse
 
 import simplejson as json
 
-from sqlalchemy import orm
+#from sqlalchemy import orm
 
 #from redis import StrictRedis
 import redis
@@ -243,8 +243,6 @@ def list_collections():
                                )
     except:
         return redirect(url_for('view_collection'))
-        #return render_template("collections/view_anonymous.html",
-        #                        params = params)
 
 
 @app.route("/collections/remove", methods=('POST',))

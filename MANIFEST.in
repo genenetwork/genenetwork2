@@ -17,10 +17,6 @@ include wqflask/wqflask/templates/new_security/*
 include wqflask/wqflask/correlation/*
 include wqflask/wqflask/interval_mapping/*
 include wqflask/wqflask/interval_analyst/*
-include wqflask/wqflask/my_pylmm/*
-include wqflask/wqflask/my_pylmm/scripts/*
-include wqflask/wqflask/my_pylmm/pyLMM/*
-include wqflask/wqflask/my_pylmm/data/*
 include wqflask/wqflask/static/*
 include wqflask/wqflask/static/dbdoc/*
 include wqflask/wqflask/static/new/*
@@ -260,3 +256,4 @@ include wqflask/flask_security/templates/security/email/*
 include wqflask/dbFunction/*
 include wqflask/basicStatistics/*
 include wqflask/base/*
+include etc/*.py

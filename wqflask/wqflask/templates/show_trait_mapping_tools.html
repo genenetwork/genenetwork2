@@ -6,13 +6,13 @@
             <ul class="nav nav-pills">
                 {% if use_pylmm_rqtl and not use_plink_gemma and dataset.group.species != "human" %}
                 <li class="active">
+                    <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
+                </li>
+                <li>
                     <a href="#pylmm" data-toggle="tab">pyLMM</a>
                 </li>
                 <li>
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
-                </li>
-                <li>
-                    <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
                 </li>
                 {% endif %}
                 {% if use_plink_gemma %}
@@ -30,7 +30,89 @@
 
             <div class="tab-content">
                 {% if use_pylmm_rqtl and not use_plink_gemma and dataset.group.species != "human" %}
-                <div class="tab-pane active" id="pylmm">
+                <div class="tab-pane active" id="interval_mapping">
+                    <div style="margin-top: 20px" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                <input name="num_perm_reaper" value="2000" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapping_bootstraps" class="col-xs-3 control-label">Bootstraps</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                <input name="num_bootstrap" value="2000" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
+                                <input name="control_reaper" value="{{ nearest_marker }}" type="text" style="width: 160px;" class="form-control" />
+                                {% else %}
+                                <input name="control_reaper" value="" type="text" class="form-control" />
+                                {% endif %}
+                                <label class="radio-inline">
+                                    <input type="radio" name="do_control_reaper" value="true">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="do_control_reaper" value="false" checked="">
+                                    No
+                                </label>
+                            </div>
+                        </div> 
+
+<!--
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapping_bootstraps" class="col-xs-3 control-label" title="Bootstrapping Resamples">Bootstrap Test (n=2000)</label>
+                            <div class="col-xs-4 controls">
+                                <label>
+                                    <input type="checkbox" name="bootCheck" id="bootCheck"> Bootstrap Test (n=2000)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mapping_method_fields form-group">
+                            <label style="text-align:left;" class="col-xs-12 control-label">Display Additive Effect</label>
+                            <div class="col-xs-12 controls" id="display_additive_effect">                      
+                                <label class="radio-inline">
+                                    <input type="radio" name="display_additive" id="display_additive" value="yes" checked="">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="display_additive" id="display_additive" value="no">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+-->
+
+
+                        <div class="mapping_method_fields form-group">
+                            <label style="text-align:left;" class="col-xs-12 control-label">Marker Regr.</label>
+                            <div class="col-xs-12 controls">                      
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_reaper" value="True">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_reaper" value="False" checked="">
+                                    No
+                               </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div style="padding-left:15px;" class="controls">
+                                <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Interval Mapping">
+                                    <i class="icon-ok-circle icon-white"></i> Compute
+                                </button>
+                            </div>
+                        </div>
+                        <!--<div id="alert_placeholder"></div>-->
+                    </div>
+                </div>
+                <div class="tab-pane" id="pylmm">
                     <div style="margin-top: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
                             <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
@@ -66,11 +148,11 @@
                             <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
                             <div class="col-xs-12 controls">                      
                                 <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_pylmm" value="true">
+                                    <input type="radio" name="manhattan_plot_pylmm" value="True">
                                     Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_pylmm" value="false" checked="">
+                                    <input type="radio" name="manhattan_plot_pylmm" value="False" checked="">
                                     No
                                </label>
                             </div>
@@ -160,11 +242,11 @@
                             <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
                             <div class="col-xs-12 controls">                      
                                 <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_rqtl" value="true">
+                                    <input type="radio" name="manhattan_plot_rqtl" value="True">
                                     Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_rqtl" value="false" checked="">
+                                    <input type="radio" name="manhattan_plot_rqtl" value="False" checked="">
                                     No
                                </label>
                             </div>
@@ -179,85 +261,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane" id="interval_mapping">
-                    <div style="margin-top: 20px" class="form-horizontal">
-                        <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                <input name="num_perm_reaper" value="2000" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="mapping_method_fields form-group">
-                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
-                                <input name="control_reaper" value="{{ nearest_marker }}" type="text" style="width: 160px;" class="form-control" />
-                                {% else %}
-                                <input name="control_reaper" value="" type="text" class="form-control" />
-                                {% endif %}
-                                <label class="radio-inline">
-                                    <input type="radio" name="do_control_reaper" value="true">
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="do_control_reaper" value="false" checked="">
-                                    No
-                                </label>
-                            </div>
-                        </div>
-<!-- 
-                        <div class="mapping_method_fields form-group">
-                            <label for="mapping_bootstraps" class="col-xs-3 control-label" title="Bootstrapping Resamples">Bootstrap</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                <input name="mapping_bootstraps" value="2000" type="text" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-12 control-label">Display Additive Effect</label>
-                            <div class="col-xs-12 controls" id="display_additive_effect">                      
-                                <label class="radio-inline">
-                                    <input type="radio" name="display_additive" id="display_additive" value="yes" checked="">
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="display_additive" id="display_additive" value="no">
-                                    No
-                                </label>
-                            </div>
-                        </div>
--->
-
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
-                            <div class="col-xs-12 controls">                      
-                                <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_reaper" value="true">
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_reaper" value="false" checked="">
-                                    No
-                               </label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div style="padding-left:15px;" class="controls">
-                                <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Interval Mapping">
-                                    <i class="icon-ok-circle icon-white"></i> Compute
-                                </button>
-                            </div>
-                        </div>
-                        <!--<div id="alert_placeholder"></div>-->
-                    </div>
-                </div>
                 {% endif %}
                 {% if use_plink_gemma %}
                 <div class="tab-pane" id="plink">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="maf_plink" class="col-xs-2 control-label">Minor allele threshold</label>
-                            <div style="margin-left: 20px;" class="col-xs-2 controls">
+                            <label for="maf_plink" class="col-xs-3 control-label">Minor allele threshold</label>
+                            <div style="margin-left: 20px;" class="col-xs-3 controls">
                                 <input name="maf_plink" value="0.01" type="text" class="form-control">
                             </div>
                         </div>
@@ -276,8 +286,8 @@
                 <div class="tab-pane" id="gemma">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="maf_gemma" class="col-xs-2 control-label">Minor allele threshold</label>
-                            <div style="margin-left: 20px;" class="col-xs-2 controls">
+                            <label for="maf_gemma" class="col-xs-3 control-label">Minor allele threshold</label>
+                            <div style="margin-left: 20px;" class="col-xs-3 controls">
                                 <input name="maf_gemma" value="0.01" type="text" class="form-control">
                             </div>
                         </div>

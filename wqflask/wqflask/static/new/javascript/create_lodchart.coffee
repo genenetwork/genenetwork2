@@ -46,9 +46,5 @@ create_lod_chart = ->
                       .transition().duration(500).attr("r", r)
 
 $ ->
-    #window.setTimeout ( ->
-    #    console.log(js_data)
-    #), 1000
-    #window.setTimeout(create_lod_chart(), 1000)
     root.create_lod_chart = create_lod_chart
 

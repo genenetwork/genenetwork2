@@ -24,10 +24,9 @@
 #
 # Last updated by GeneNetwork Core Team 2010/10/20
 
-#import piddle as pid
-
 from __future__ import print_function
 
+import piddle as pid
 from pprint import pformat as pf
 
 print("Lysol")
@@ -478,181 +477,181 @@ def plotSecurity(canvas, text="12345"):
 
 # parameter: data is either object returned by reaper permutation function (called by MarkerRegressionPage.py)
 # or the first object returned by direct (pair-scan) permu function (called by DirectPlotPage.py)
-#def plotBar(canvas, data, barColor=pid.blue, axesColor=pid.black, labelColor=pid.black, XLabel=None, YLabel=None, title=None, offset= (60, 20, 40, 40), zoom = 1):
-#
-#    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
-#
-#    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
-#    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
-#    if plotHeight<=0 or plotWidth<=0:
-#        return
-#
-#    if len(data) < 2:
-#        return
-#
-#    max_D = max(data)
-#    min_D = min(data)
-#    #add by NL 06-20-2011: fix the error: when max_D is infinite, log function in detScale will go wrong
-#    if max_D == float('inf') or max_D>webqtlConfig.MAXLRS:
-#        max_D=webqtlConfig.MAXLRS #maximum LRS value
-#
-#    xLow, xTop, stepX = detScale(min_D, max_D)
-#
-#    #reduce data
-#    step = ceil((xTop-xLow)/50.0)
-#    j = xLow
-#    dataXY = []
-#    Count = []
-#    while j <= xTop:
-#        dataXY.append(j)
-#        Count.append(0)
-#        j += step
-#
-#    for i, item in enumerate(data):
-#        if item == float('inf') or item>webqtlConfig.MAXLRS:
-#            item = webqtlConfig.MAXLRS #maximum LRS value
-#        j = int((item-xLow)/step)
-#        Count[j] += 1
-#
-#    yLow, yTop, stepY=detScale(0,max(Count))
-#
-#    #draw data
-#    xScale = plotWidth/(xTop-xLow)
-#    yScale = plotHeight/(yTop-yLow)
-#    barWidth = xScale*step
-#
-#    for i, count in enumerate(Count):
-#        if count:
-#            xc = (dataXY[i]-xLow)*xScale+xLeftOffset
-#            yc =-(count-yLow)*yScale+yTopOffset+plotHeight
-#            canvas.drawRect(xc+2,yc,xc+barWidth-2,yTopOffset+plotHeight,edgeColor=barColor,fillColor=barColor)
-#
-#    #draw drawing region
-#    canvas.drawRect(xLeftOffset, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight)
-#
-#    #draw scale
-#    scaleFont=pid.Font(ttf="cour",size=11,bold=1)
-#    x=xLow
-#    for i in range(stepX+1):
-#        xc=xLeftOffset+(x-xLow)*xScale
-#        canvas.drawLine(xc,yTopOffset+plotHeight,xc,yTopOffset+plotHeight+5, color=axesColor)
-#        strX = cformat(d=x, rank=0)
-#        canvas.drawString(strX,xc-canvas.stringWidth(strX,font=scaleFont)/2,yTopOffset+plotHeight+14,font=scaleFont)
-#        x+= (xTop - xLow)/stepX
-#
-#    y=yLow
-#    for i in range(stepY+1):
-#        yc=yTopOffset+plotHeight-(y-yLow)*yScale
-#        canvas.drawLine(xLeftOffset,yc,xLeftOffset-5,yc, color=axesColor)
-#        strY = "%d" %y
-#        canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)-6,yc+5,font=scaleFont)
-#        y+= (yTop - yLow)/stepY
-#
-#    #draw label
-#    labelFont=pid.Font(ttf="tahoma",size=17,bold=0)
-#    if XLabel:
-#        canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,
-#                yTopOffset+plotHeight+yBottomOffset-10,font=labelFont,color=labelColor)
-#
-#    if YLabel:
-#        canvas.drawString(YLabel, 19, yTopOffset+plotHeight-(plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,
-#                font=labelFont,color=labelColor,angle=90)
-#
-#    labelFont=pid.Font(ttf="verdana",size=16,bold=0)
-#    if title:
-#        canvas.drawString(title,xLeftOffset+(plotWidth-canvas.stringWidth(title,font=labelFont))/2.0,
-#                20,font=labelFont,color=labelColor)
-#
-#def plotBarText(canvas, data, label, variance=None, barColor=pid.blue, axesColor=pid.black, labelColor=pid.black, XLabel=None, YLabel=None, title=None, sLabel = None, offset= (80, 20, 40, 100), barSpace = 2, zoom = 1):
-#    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
-#    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
-#    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
-#    if plotHeight<=0 or plotWidth<=0:
-#        return
-#
-#    NNN = len(data)
-#    if NNN < 2 or NNN != len(label):
-#        return
-#    if variance and len(variance)!=NNN:
-#        variance = []
-#
-#    Y2 = data[:]
-#    if variance:
-#        for i in range(NNN):
-#            if variance[i]:
-#                Y2 += [data[i]-variance[i]]
-#
-#    #Y axis
-#    YLow, YTop, stepY = detScale(min(Y2), max(Y2))
-#    YScale = plotHeight/(YTop - YLow)
-#
-#    if YLow < 0  and  YTop > 0:
-#        drawZero = 1
-#    else:
-#        drawZero = 0
-#
-#    #X axis
-#    X = range(NNN)
-#    Xll= 0
-#    Xur= NNN-1
-#
-#
-#    if drawZero:
-#        YZero = yTopOffset+plotHeight-YScale*(0-YLow)
-#        canvas.drawLine(xLeftOffset, YZero, xLeftOffset+plotWidth, YZero)
-#    else:
-#        YZero = yTopOffset+plotHeight
-#    #draw data
-#    spaceWidth = barSpace
-#    if spaceWidth < 1:
-#        spaceWidth = 1
-#    barWidth = int((plotWidth - (NNN-1.0)*spaceWidth)/NNN)
-#
-#    xc= xLeftOffset
-#    scaleFont=pid.Font(ttf="verdana",size=11,bold=0)
-#    for i in range(NNN):
-#        yc = yTopOffset+plotHeight-(data[i]-YLow)*YScale
-#        canvas.drawRect(xc,YZero,xc+barWidth-1, yc, edgeColor=barColor,fillColor=barColor)
-#        if variance and variance[i]:
-#            varlen = variance[i]*YScale
-#            if yc-varlen < yTopOffset:
-#                topYd = yTopOffset
-#            else:
-#                topYd = yc-varlen
-#                canvas.drawLine(xc+barWidth/2-2,yc-varlen,xc+barWidth/2+2,yc-varlen,color=pid.red)
-#            canvas.drawLine(xc+barWidth/2,yc+varlen,xc+barWidth/2,topYd,color=pid.red)
-#            canvas.drawLine(xc+barWidth/2-2,yc+varlen,xc+barWidth/2+2,yc+varlen,color=pid.red)
-#        strX = label[i]
-#        canvas.drawString(strX,xc+barWidth/2.0+2,yTopOffset+plotHeight+2+canvas.stringWidth(strX,font=scaleFont),font=scaleFont,angle=90)
-#        xc += barWidth + spaceWidth
-#
-#    #draw drawing region
-#    canvas.drawRect(xLeftOffset, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight)
-#
-#    #draw Y scale
-#    scaleFont=pid.Font(ttf="cour",size=16,bold=1)
-#    y=YLow
-#    for i in range(stepY+1):
-#        yc=yTopOffset+plotHeight-(y-YLow)*YScale
-#        canvas.drawLine(xLeftOffset,yc,xLeftOffset-5,yc, color=axesColor)
-#        strY = cformat(d=y, rank=0)
-#        canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)-6,yc+5,font=scaleFont)
-#        y+= (YTop - YLow)/stepY
-#
-#    #draw label
-#    labelFont=pid.Font(ttf="verdana",size=17,bold=0)
-#    if XLabel:
-#        canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,yTopOffset+plotHeight+65,font=labelFont,color=labelColor)
-#
-#    if YLabel:
-#        canvas.drawString(YLabel,xLeftOffset-50, yTopOffset+plotHeight-(plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,font=labelFont,color=labelColor,angle=90)
-#
-#    labelFont=pid.Font(ttf="verdana",size=18,bold=0)
-#    if title:
-#        canvas.drawString(title,xLeftOffset,yTopOffset-15,font=labelFont,color=labelColor)
-#
-#    return
-#
+def plotBar(canvas, data, barColor=pid.blue, axesColor=pid.black, labelColor=pid.black, XLabel=None, YLabel=None, title=None, offset= (60, 20, 40, 40), zoom = 1):
+    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
+
+    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
+    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
+    if plotHeight<=0 or plotWidth<=0:
+       return
+
+    if len(data) < 2:
+       return
+
+    max_D = max(data)
+    min_D = min(data)
+    #add by NL 06-20-2011: fix the error: when max_D is infinite, log function in detScale will go wrong
+    if max_D == float('inf') or max_D>webqtlConfig.MAXLRS:
+       max_D=webqtlConfig.MAXLRS #maximum LRS value
+
+    xLow, xTop, stepX = detScale(min_D, max_D)
+
+    #reduce data
+    #ZS: Used to determine number of bins for permutation output
+    step = ceil((xTop-xLow)/50.0)
+    j = xLow
+    dataXY = []
+    Count = []
+    while j <= xTop:
+       dataXY.append(j)
+       Count.append(0)
+       j += step
+
+    for i, item in enumerate(data):
+       if item == float('inf') or item>webqtlConfig.MAXLRS:
+           item = webqtlConfig.MAXLRS #maximum LRS value
+       j = int((item-xLow)/step)
+       Count[j] += 1
+
+    yLow, yTop, stepY=detScale(0,max(Count))
+
+    #draw data
+    xScale = plotWidth/(xTop-xLow)
+    yScale = plotHeight/(yTop-yLow)
+    barWidth = xScale*step
+
+    for i, count in enumerate(Count):
+       if count:
+           xc = (dataXY[i]-xLow)*xScale+xLeftOffset
+           yc =-(count-yLow)*yScale+yTopOffset+plotHeight
+           canvas.drawRect(xc+2,yc,xc+barWidth-2,yTopOffset+plotHeight,edgeColor=barColor,fillColor=barColor)
+
+    #draw drawing region
+    canvas.drawRect(xLeftOffset, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight)
+
+    #draw scale
+    scaleFont=pid.Font(ttf="cour",size=11,bold=1)
+    x=xLow
+    for i in range(int(stepX)+1):
+       xc=xLeftOffset+(x-xLow)*xScale
+       canvas.drawLine(xc,yTopOffset+plotHeight,xc,yTopOffset+plotHeight+5, color=axesColor)
+       strX = cformat(d=x, rank=0)
+       canvas.drawString(strX,xc-canvas.stringWidth(strX,font=scaleFont)/2,yTopOffset+plotHeight+14,font=scaleFont)
+       x+= (xTop - xLow)/stepX
+
+    y=yLow
+    for i in range(int(stepY)+1):
+       yc=yTopOffset+plotHeight-(y-yLow)*yScale
+       canvas.drawLine(xLeftOffset,yc,xLeftOffset-5,yc, color=axesColor)
+       strY = "%d" %y
+       canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)-6,yc+5,font=scaleFont)
+       y+= (yTop - yLow)/stepY
+
+    #draw label
+    labelFont=pid.Font(ttf="tahoma",size=17,bold=0)
+    if XLabel:
+       canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,
+               yTopOffset+plotHeight+yBottomOffset-10,font=labelFont,color=labelColor)
+
+    if YLabel:
+       canvas.drawString(YLabel, 19, yTopOffset+plotHeight-(plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,
+               font=labelFont,color=labelColor,angle=90)
+
+    labelFont=pid.Font(ttf="verdana",size=16,bold=0)
+    if title:
+       canvas.drawString(title,xLeftOffset+(plotWidth-canvas.stringWidth(title,font=labelFont))/2.0,
+               20,font=labelFont,color=labelColor)
+
+def plotBarText(canvas, data, label, variance=None, barColor=pid.blue, axesColor=pid.black, labelColor=pid.black, XLabel=None, YLabel=None, title=None, sLabel = None, offset= (80, 20, 40, 100), barSpace = 2, zoom = 1):
+    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
+    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
+    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
+    if plotHeight<=0 or plotWidth<=0:
+       return
+
+    NNN = len(data)
+    if NNN < 2 or NNN != len(label):
+       return
+    if variance and len(variance)!=NNN:
+       variance = []
+
+    Y2 = data[:]
+    if variance:
+       for i in range(NNN):
+           if variance[i]:
+               Y2 += [data[i]-variance[i]]
+
+    #Y axis
+    YLow, YTop, stepY = detScale(min(Y2), max(Y2))
+    YScale = plotHeight/(YTop - YLow)
+
+    if YLow < 0  and  YTop > 0:
+       drawZero = 1
+    else:
+       drawZero = 0
+
+    #X axis
+    X = range(NNN)
+    Xll= 0
+    Xur= NNN-1
+
+
+    if drawZero:
+       YZero = yTopOffset+plotHeight-YScale*(0-YLow)
+       canvas.drawLine(xLeftOffset, YZero, xLeftOffset+plotWidth, YZero)
+    else:
+       YZero = yTopOffset+plotHeight
+    #draw data
+    spaceWidth = barSpace
+    if spaceWidth < 1:
+       spaceWidth = 1
+    barWidth = int((plotWidth - (NNN-1.0)*spaceWidth)/NNN)
+
+    xc= xLeftOffset
+    scaleFont=pid.Font(ttf="verdana",size=11,bold=0)
+    for i in range(NNN):
+       yc = yTopOffset+plotHeight-(data[i]-YLow)*YScale
+       canvas.drawRect(xc,YZero,xc+barWidth-1, yc, edgeColor=barColor,fillColor=barColor)
+       if variance and variance[i]:
+           varlen = variance[i]*YScale
+           if yc-varlen < yTopOffset:
+               topYd = yTopOffset
+           else:
+               topYd = yc-varlen
+               canvas.drawLine(xc+barWidth/2-2,yc-varlen,xc+barWidth/2+2,yc-varlen,color=pid.red)
+           canvas.drawLine(xc+barWidth/2,yc+varlen,xc+barWidth/2,topYd,color=pid.red)
+           canvas.drawLine(xc+barWidth/2-2,yc+varlen,xc+barWidth/2+2,yc+varlen,color=pid.red)
+       strX = label[i]
+       canvas.drawString(strX,xc+barWidth/2.0+2,yTopOffset+plotHeight+2+canvas.stringWidth(strX,font=scaleFont),font=scaleFont,angle=90)
+       xc += barWidth + spaceWidth
+
+    #draw drawing region
+    canvas.drawRect(xLeftOffset, yTopOffset, xLeftOffset+plotWidth, yTopOffset+plotHeight)
+
+    #draw Y scale
+    scaleFont=pid.Font(ttf="cour",size=16,bold=1)
+    y=YLow
+    for i in range(stepY+1):
+       yc=yTopOffset+plotHeight-(y-YLow)*YScale
+       canvas.drawLine(xLeftOffset,yc,xLeftOffset-5,yc, color=axesColor)
+       strY = cformat(d=y, rank=0)
+       canvas.drawString(strY,xLeftOffset-canvas.stringWidth(strY,font=scaleFont)-6,yc+5,font=scaleFont)
+       y+= (YTop - YLow)/stepY
+
+    #draw label
+    labelFont=pid.Font(ttf="verdana",size=17,bold=0)
+    if XLabel:
+       canvas.drawString(XLabel,xLeftOffset+(plotWidth-canvas.stringWidth(XLabel,font=labelFont))/2.0,yTopOffset+plotHeight+65,font=labelFont,color=labelColor)
+
+    if YLabel:
+       canvas.drawString(YLabel,xLeftOffset-50, yTopOffset+plotHeight-(plotHeight-canvas.stringWidth(YLabel,font=labelFont))/2.0,font=labelFont,color=labelColor,angle=90)
+
+    labelFont=pid.Font(ttf="verdana",size=18,bold=0)
+    if title:
+       canvas.drawString(title,xLeftOffset,yTopOffset-15,font=labelFont,color=labelColor)
+
+    return
+
 #def plotXY(canvas, dataX, dataY, rank=0, dataLabel=[], plotColor = pid.black, axesColor=pid.black, labelColor=pid.black, lineSize="thin", lineColor=pid.grey, idFont="arial", idColor=pid.blue, idSize="14", symbolColor=pid.black, symbolType="circle", filled="yes", symbolSize="tiny", XLabel=None, YLabel=None, title=None, fitcurve=None, connectdot=1, displayR=None, loadingPlot = 0, offset= (80, 20, 40, 60), zoom = 1, specialCases=[], showLabel = 1, bufferSpace = 15):
 #    'displayR : correlation scatter plot, loadings : loading plot'
 #

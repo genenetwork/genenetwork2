@@ -2,6 +2,7 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/scroller/1.4.1/css/scroller.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
@@ -20,44 +21,30 @@
            to find all records
                 {% for word in search_terms %}
                     {% if word.key|lower == "rif" %}
-                    with <u>GeneRIF</u> containing <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>GeneRIF</u> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "go" %}
-                    with <u>Gene Ontology ID</u> <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>Gene Ontology ID</u> <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "wiki" %}
-                    with <u>GeneWiki</u> containing <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>GeneWiki</u> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "mean" %}
-                    with <u>MEAN</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>MEAN</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "lrs" or word.key|lower == "translrs" or word.key|lower == "cislrs" %}
                     {% if word.search_term|length == 1 %}
-                    with {% if word.key|lower == "translrs" %}trans{% elif word.key|lower == "cislrs" %}cis{% endif %}LRS {% if word.separator == ">" %} greater than {% elif word.separator == "<" %} less than {% elif word.separator == ">=" %} greater than or equal to {% elif word.separator == "<=" %} less than or equal to {% endif %} <strong>{{ word.search_term[0] }}</strong>{% if not loop.last %} and {% endif %}
+                    with {% if word.key|lower == "translrs" %}trans{% elif word.key|lower == "cislrs" %}cis{% endif %}LRS {% if word.separator == ">" %} greater than {% elif word.separator == "<" %} less than {% elif word.separator == ">=" %} greater than or equal to {% elif word.separator == "<=" %} less than or equal to {% endif %} <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 2 %}
-                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 3 %}
-                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if not loop.last %} and {% endif %}
+                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 5 %}
-                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if not loop.last %} and {% endif %}
+                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% endif %}
                     {% elif word.key|lower == "position" %}
-                    with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if not loop.last %} and {% endif %}
+                    with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% else %}
-                    with {{ word.key|lower }} matching {{ word.search_term[0] }}
+                    that match the term {{ word.search_term[0] }}.
                     {% endif %}
-                    <!--<strong>{{word.search_term[0]}}</strong> {% if not loop.last %} or {% endif %}-->
-                {% endfor %}.
-
-        </p>
-
-        <!--
-        <ul>
-            {% if search_terms %}
-            <li>
-                {% for word in search_terms %}
-                    <strong>{{word.search_term[0]}}</strong> {% if not loop.last %} or {% endif %}
                 {% endfor %}
-            </li>
-            {% endif %}
-        </ul>
-        -->
+        </p>
 
         <p>To study a record, click on its ID below. Check records below and click Add button to add to selection.</p>
 
@@ -88,18 +75,18 @@
           {% endif %}
 -->
 
-          <div id="table_container">
+          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black;">
             <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
                 <thead>
                     <tr>
-                        <th style="width: 30px;"></th>
+                        <th style="background-color: #eeeeee;"></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th style="text-align: right;">Max&nbsp;&nbsp;<br>LRS</th>
+                        <th style="background-color: #eeeeee; text-align: right;">Max<br>LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th style="background-color: #eeeeee; text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
-                        <th>{{header}}</th>
+                        <th style="background-color: #eeeeee;">{{header}}</th>
                         {% endif %}
                     {% endfor %}
                     </tr>
@@ -144,7 +131,22 @@
                     </TR>
                 {% endfor %}
                 </tbody>
-
+                {% if trait_list|length > 20 %}
+                <tfoot>
+                    <tr>
+                        <th style="width: 30px;"></th>
+                    {% for header in header_fields %}
+                        {% if header == 'Max LRS' %}
+                        <th style="text-align: right;">Max<br>LRS</th>
+                        {% elif header == 'Additive Effect' %}
+                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        {% else %}
+                        <th>{{header}}</th>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                </tfoot>
+                {% endif %}
             </table>
           </div>
         </div>
@@ -161,13 +163,14 @@
     
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/scroller/1.4.1/js/dataTables.scroller.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.min.js"></script>
     <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
 	
     <script type="text/javascript" charset="utf-8">
@@ -219,6 +222,7 @@
 
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
+            //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
             $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural" },
@@ -234,13 +238,21 @@
                 ],
                 "order": [[1, "asc" ]],
                 "buttons": [
-                    'csv'
+                    {
+                       extend: 'csvHtml5',
+                       text: 'Download CSV',
+                       title: 'search_results',
+                       fieldBoundary: '"',
+                       exportOptions: {
+                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                       }
+                    }
                 ],
                 "sDom": "RZBtir",
                 "iDisplayLength": -1,
                 "bDeferRender": true,
                 "bSortClasses": false,
-                "scrollY": "700px",
+                "scrollY": true,
                 "scrollCollapse": false,
                 "paging": false
             } );
@@ -260,7 +272,15 @@
                 ],
                 "order": [[1, "asc" ]],
                 "buttons": [
-                    'csv'
+                    {
+                       extend: 'csvHtml5',
+                       text: 'Download CSV',
+                       title: 'search_results',
+                       fieldBoundary: '"',
+                       exportOptions: {
+                           columns: [1, 2, 3, 4, 5, 6, 7]
+                       }
+                    }
                 ],
                 "sDom": "RZBtir",
                 "iDisplayLength": -1,
@@ -281,7 +301,15 @@
                 ],
                 "order": [[1, "asc" ]],
                 "buttons": [
-                    'csv'
+                    {
+                       extend: 'csvHtml5',
+                       text: 'Download CSV',
+                       title: 'search_results',
+                       fieldBoundary: '"',
+                       exportOptions: {
+                           columns: [1, 2, 3]
+                       }
+                    }
                 ],
                 "sDom": "RZBtir",
                 "iDisplayLength": -1,

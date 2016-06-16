@@ -30,10 +30,11 @@ import sqlalchemy
 from wqflask import app
 
 from flask import (render_template, request, make_response, Response,
-                   Flask, g, config, jsonify, redirect, url_for)
+                   Flask, g, config, jsonify, redirect, url_for, send_from_directory)
 
 from wqflask import search_results
 from wqflask import gsearch
+from wqflask import update_search_results
 from wqflask import docs
 from wqflask import news
 from base.data_set import DataSet    # Used by YAML in marker_regression
@@ -48,10 +49,13 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 
 from wqflask.wgcna import wgcna_analysis
+from wqflask.ctl import ctl_analysis
 
 from utility import temp_data
+from utility.tools import TEMPDIR
 
 from base import webqtlFormData
+from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
@@ -96,7 +100,7 @@ def tmp_page(img_path):
     print("img_path:", img_path)
     initial_start_vars = request.form
     print("initial_start_vars:", initial_start_vars)
-    imgfile = open(webqtlConfig.TMPDIR + img_path, 'rb')
+    imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = imgdata.encode("base64")
     bytesarray = array.array('B', imgB64)
@@ -151,9 +155,7 @@ def search_page():
             Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
             Redis.expire(key, 60*60)
 
-        if result['quick']:
-            return render_template("quick_search.html", **result)
-        elif result['search_term_exists']:
+        if result['search_term_exists']:
             return render_template("search_result_page.html", **result)
         else:
             return render_template("search_error.html")
@@ -166,11 +168,26 @@ def gsearchact():
         return render_template("gsearch_gene.html", **result)
     elif type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
+        
+@app.route("/gsearch_updating", methods=('POST',))
+def gsearch_updating():
+    print("REQUEST ARGS:", request.values)
+    result = update_search_results.GSearch(request.args).__dict__
+    return result['results']
+    # type = request.args['type']
+    # if type == "gene":
+        # return render_template("gsearch_gene_updating.html", **result)
+    # elif type == "phenotype":
+        # return render_template("gsearch_pheno.html", **result)
 	
 @app.route("/docedit")
 def docedit():
     doc = docs.Docs(request.args['entry'])
     return render_template("docedit.html", **doc.__dict__)
+
+@app.route('/generated/<filename>')
+def generated_file(filename):
+    return send_from_directory(GENERATED_IMAGE_DIR,filename)
 
 @app.route("/help")
 def help():
@@ -190,6 +207,18 @@ def wcgna_results():
     result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
     return render_template("wgcna_results.html", **result)        # Display them using the template
 
+@app.route("/ctl_setup", methods=('POST',))
+def ctl_setup():
+    print("In ctl, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("ctl_setup.html", **request.form)          # Display them using the template
+
+@app.route("/ctl_results", methods=('POST',))
+def ctl_results():
+    print("In ctl, request.form is:", request.form)
+    ctl = ctl_analysis.CTL()                                  # Start R, load the package and pointers and create the analysis
+    ctlA = ctl.run_analysis(request.form)                     # Start the analysis, a ctlA object should be a separate long running thread
+    result = ctl.process_results(ctlA)                        # After the analysis is finished store the result
+    return render_template("ctl_results.html", **result)      # Display them using the template
 
 @app.route("/news")
 def news_route():
@@ -236,13 +265,15 @@ def export_trait_excel():
     for i, row in enumerate(sample_data):
         worksheet.write(i, 0, row[0])
         worksheet.write(i, 1, row[1])
+        if len(row) > 2:
+            worksheet.write(i, 2, row[2])
     workbook.close()
     excel_data = buff.getvalue()
     buff.close()
 
     return Response(excel_data,
                     mimetype='application/vnd.ms-excel',
-                    headers={"Content-Disposition":"attachment;filename=test.xlsx"})
+                    headers={"Content-Disposition":"attachment;filename=sample_data.xlsx"})
 
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_csv():
@@ -262,7 +293,30 @@ def export_trait_csv():
 
     return Response(csv_data,
                     mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=test.csv"})
+                    headers={"Content-Disposition":"attachment;filename=sample_data.csv"})
+                    
+@app.route('/export_perm_data', methods=('POST',))
+def export_perm_data():
+    """CSV file consisting of the permutation data for the mapping results"""
+    num_perm = float(request.form['num_perm'])
+    perm_data = json.loads(request.form['perm_results'])
+    
+    buff = StringIO.StringIO()
+    writer = csv.writer(buff)
+    writer.writerow(["Suggestive LRS (p=0.63) = " + str(perm_data[int(num_perm*0.37-1)])])
+    writer.writerow(["Significant LRS (p=0.05) = " + str(perm_data[int(num_perm*0.95-1)])])
+    writer.writerow(["Highly Significant LRS (p=0.01) = " + str(perm_data[int(num_perm*0.99-1)])])
+    writer.writerow("")
+    writer.writerow([str(num_perm) + " Permutations"])
+    writer.writerow("")
+    for item in perm_data:
+        writer.writerow([item])
+    csv_data = buff.getvalue()
+    buff.close()
+
+    return Response(csv_data,
+                    mimetype='text/csv',
+                    headers={"Content-Disposition":"attachment;filename=perm_data.csv"})
 
 @app.route("/show_trait")
 def show_trait_page():
@@ -339,17 +393,35 @@ def marker_regression_page():
         'trait_id',
         'dataset',
         'method',
+        'trimmed_markers',
         'selected_chr',
+        'chromosomes',
         'mapping_scale',
         'score_type',
         'suggestive',
+        'significant',
         'num_perm',
+        'permCheck',
+        'perm_output',
+        'num_bootstrap',
+        'bootCheck',
+        'bootstrap_results',
+        'LRSCheck',
         'maf',
         'manhattan_plot',
         'control_marker',
         'control_marker_db',
         'do_control',
         'pair_scan',
+        'startMb',
+        'endMb',
+        'graphWidth',
+        'lrsMax',
+        'additiveCheck',
+        'showSNP',
+        'showGenes',
+        'viewLegend',
+        'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )
@@ -376,42 +448,56 @@ def marker_regression_page():
             result = pickle.loads(result)
     else:
         print("Cache miss!!!")
-        template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
+        with Bench("Total time in MarkerRegression"):
+            template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
 
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
 
         result = template_vars.__dict__
-        #print("initial result:", result['qtl_results'])
 
-        #for item in template_vars.__dict__.keys():
-        #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-        
-        gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
-
-        #qtl_length = len(result['js_data']['qtl_results'])
-        #print("qtl_length:", qtl_length)
-        pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-        print("pickled result length:", len(pickled_result))
-        Redis.set(key, pickled_result)
-        Redis.expire(key, 1*60)
-
-    with Bench("Rendering template"):
-        if result['pair_scan'] == True:
-            img_path = result['pair_scan_filename']
-            print("img_path:", img_path)
-            initial_start_vars = request.form
-            print("initial_start_vars:", initial_start_vars)
-            imgfile = open('/home/zas1024/tmp/' + img_path, 'rb')
-            imgdata = imgfile.read()
-            imgB64 = imgdata.encode("base64")
-            bytesarray = array.array('B', imgB64)
-            result['pair_scan_array'] = bytesarray
-            rendered_template = render_template("pair_scan_results.html", **result)
+        if result['pair_scan']:
+            with Bench("Rendering template"):
+                img_path = result['pair_scan_filename']
+                print("img_path:", img_path)
+                initial_start_vars = request.form
+                print("initial_start_vars:", initial_start_vars)
+                imgfile = open(TEMPDIR + img_path, 'rb')
+                imgdata = imgfile.read()
+                imgB64 = imgdata.encode("base64")
+                bytesarray = array.array('B', imgB64)
+                result['pair_scan_array'] = bytesarray
+                rendered_template = render_template("pair_scan_results.html", **result)        
         else:
-            #rendered_template = render_template("marker_regression.html", **result)
-            rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
+            #for item in template_vars.__dict__.keys():
+            #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
+            
+            gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+
+            pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+            print("pickled result length:", len(pickled_result))
+            Redis.set(key, pickled_result)
+            Redis.expire(key, 1*60)
+            
+            with Bench("Rendering template"):
+                rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
+
+    # with Bench("Rendering template"):
+        # if result['pair_scan'] == True:
+            # img_path = result['pair_scan_filename']
+            # print("img_path:", img_path)
+            # initial_start_vars = request.form
+            # print("initial_start_vars:", initial_start_vars)
+            # imgfile = open(TEMPDIR + '/' + img_path, 'rb')
+            # imgdata = imgfile.read()
+            # imgB64 = imgdata.encode("base64")
+            # bytesarray = array.array('B', imgB64)
+            # result['pair_scan_array'] = bytesarray
+            # rendered_template = render_template("pair_scan_results.html", **result)
+        # else:
+            # rendered_template = render_template("marker_regression.html", **result)
+            # rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
 
     return rendered_template
 
@@ -432,7 +518,7 @@ def export_pdf():
     svg_xml = request.form.get("data", "Invalid data")
     print("svg_xml:", svg_xml)
     filename = request.form.get("filename", "interval_map_pdf")
-    filepath = "/home/zas1024/gene/wqflask/output/"+filename
+    filepath = GENERATED_IMAGE_DIR+filename
     pdf_file = cairosvg.svg2pdf(bytestring=svg_xml)
     response = Response(pdf_file, mimetype="application/pdf")
     response.headers["Content-Disposition"] = "attachment; filename=%s"%filename

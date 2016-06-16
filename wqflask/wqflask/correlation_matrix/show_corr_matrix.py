@@ -43,7 +43,6 @@ from pprint import pformat as pf
 from htmlgen import HTMLgen2 as HT
 import reaper
 
-from base import webqtlConfig
 from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.trait import GeneralTrait

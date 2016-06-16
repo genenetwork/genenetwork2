@@ -16,7 +16,6 @@ from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
 from utility import webqtlUtil, Plot, Bunch, helper_functions
-from utility.tools import pylmm_command, plink_command
 from base.trait import GeneralTrait
 from base import data_set
 from dbFunction import webqtlDatabaseFunction
@@ -24,8 +23,8 @@ from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf
 
-PYLMM_PATH,PYLMM_COMMAND = pylmm_command()
-PLINK_PATH,PLINK_COMMAND = plink_command()
+from utility.tools import flat_files
+MAPPING_PATH = flat_files("mapping")
 
 ###############################################
 #
@@ -33,8 +32,6 @@ PLINK_PATH,PLINK_COMMAND = plink_command()
 # And add i.p.limiting as necessary
 #
 ##############################################
-
-
 
 class ShowTrait(object):
 
@@ -150,24 +147,27 @@ class ShowTrait(object):
         
         self.get_mapping_methods()
 
-        js_data = dict(sample_group_types = self.sample_group_types,
-                        sample_lists = sample_lists,
-                        attribute_names = self.sample_groups[0].attributes,
-                        temp_uuid = self.temp_uuid)
+        self.trait_table_width = get_trait_table_width(self.sample_groups)
+
+        js_data = dict(dataset_type = self.dataset.type,
+                       data_scale = self.dataset.data_scale,
+                       sample_group_types = self.sample_group_types,
+                       sample_lists = sample_lists,
+                       attribute_names = self.sample_groups[0].attributes,
+                       temp_uuid = self.temp_uuid)
         self.js_data = js_data
 
     def get_mapping_methods(self):
         '''Only display mapping methods when the dataset group's genotype file exists'''
         def check_plink_gemma():
-            if (os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".bed") and
-                os.path.isfile(PLINK_PATH+"/"+self.dataset.group.name+".map")):
-
+            if (os.path.isfile(MAPPING_PATH+"/"+self.dataset.group.name+".bed") and
+                os.path.isfile(MAPPING_PATH+"/"+self.dataset.group.name+".map")):
                 return True
             else:
                 return False
 
         def check_pylmm_rqtl():
-            if os.path.isfile(webqtlConfig.GENODIR+self.dataset.group.name+".geno") and (os.path.getsize(webqtlConfig.NEWGENODIR+self.dataset.group.name+".json") > 0):
+            if os.path.isfile(webqtlConfig.GENODIR+self.dataset.group.name+".geno") and (os.path.getsize(webqtlConfig.JSON_GENODIR+self.dataset.group.name+".json") > 0):
                 return True
             else:
                 return False
@@ -1184,17 +1184,16 @@ class ShowTrait(object):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
 
         primary_sample_names = list(all_samples_ordered)
-
-        print("self.dataset.group", pf(self.dataset.group.__dict__))
-        print("-*- primary_samplelist is:", pf(primary_sample_names))
-
+        
         other_sample_names = []
         for sample in this_trait.data.keys():
-            if sample not in all_samples_ordered:
+            if (this_trait.data[sample].name2 in primary_sample_names) and (this_trait.data[sample].name not in primary_sample_names):
+                primary_sample_names.append(this_trait.data[sample].name)
+                primary_sample_names.remove(this_trait.data[sample].name2)
+            elif sample not in all_samples_ordered:
                 all_samples_ordered.append(sample)
                 other_sample_names.append(sample)
 
-        print("species:", self.dataset.group.species)
         if self.dataset.group.species == "human":
             primary_sample_names += other_sample_names
 
@@ -1257,5 +1256,16 @@ def get_nearest_marker(this_trait, this_db):
     else:
         return result[0][0]
         #return result[0][0], result[1][0]
+
+def get_trait_table_width(sample_groups):
+    table_width = 35
+    if sample_groups[0].se_exists():
+        table_width += 10
+    if (table_width + len(sample_groups[0].attributes)*10) > 100:
+        table_width = 100
+    else:
+        table_width += len(sample_groups[0].attributes)*10
+
+    return table_width
     
     

@@ -24,8 +24,9 @@ def init_db():
     # you will have to import them first before calling init_db()
     #import yourapplication.models
     import wqflask.model
-    print("Creating all..")
+    print("database.py: Creating all model metadata..")
     Base.metadata.create_all(bind=engine)
-    print("Done creating all...")
+    print("database.py: Done creating all model metadata...")
+    print("Point your browser at http://localhost:5003/")
     
 init_db()

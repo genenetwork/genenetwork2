@@ -1,0 +1,15 @@
+* GeneNetwork Architecture
+
+** Introduction
+
+This document describes the architecture of GN2. Because GN2 is
+evolving, only a high-level overview is given here.
+
+** Webserver
+
+The webserver is built on [[http://flask.pocoo.org/][Python flask]] and this GN2 source code can be
+found on [[https://github.com/genenetwork/genenetwork2/tree/master/wqflask/wqflask][github]] in the wqflask directory. The routing tables are
+defined in [[https://github.com/genenetwork/genenetwork2/blob/master/wqflask/wqflask/views.py][views.py]]. For example the main page is loaded from a
+template named [[https://github.com/genenetwork/genenetwork2/blob/master/wqflask/wqflask/templates/index_page.htm][index_page.html]] in the [[https://github.com/genenetwork/genenetwork2/tree/master/wqflask/wqflask/templates][templates]] directory. In the 
+template you can find get the form gets filled by a Javascript
+routine defined in [[https://github.com/genenetwork/genenetwork2/blob/master/wqflask/wqflask/static/new/javascript/dataset_select_menu.js][data_select_menu.js]].
