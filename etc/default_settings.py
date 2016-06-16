@@ -23,6 +23,11 @@ SQLALCHEMY_POOL_RECYCLE = 3600
 SERVER_PORT = 5003
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
 
+# Other settings (defaults)
+LOGGING        = WARNING        # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
+DEBUG_MODE     = 1              # Debug level (0-5)
+USE_REDIS      = True           # REDIS caching (redis will be phased out)
+
 # Path overrides for Genenetwork
 GENENETWORK_FILES = HOME+"/gn2_data"
 PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())
