@@ -10,34 +10,31 @@ $(function() {
   //   success: process_json
   // });
   $.getJSON("http://localhost:8880/int/menu/main.json",
-     function(data) {
-        gndata = data;
-        console.log("***** GOT DATA from GN_SERVER ****");
-        console.log(gndata);
-        populate_species();
-     }).error(function() {
-         console.log("ERROR: GN_SERVER not responding");
-         alert("ERROR: GN_SERVER internal REST API is not responding");
-     });
+  function(data) {
+    gndata = data;
+    console.log("***** GOT DATA from GN_SERVER ****");
+    console.log(gndata);
+    populate_species();
+  }).error(function() {
+    console.log("ERROR: GN_SERVER not responding");
+    alert("ERROR: GN_SERVER internal REST API is not responding");
+  });
 
-    var populate_species = function() {
-        var species_list = Object.keys(gndata.types).map(function(species) {
-            var mitem = gndata.types[species][0]
-            // console.log("Species menu:",species,mitem)
-            return [species,mitem];
-        });
-        redo_dropdown($('#species'), species_list);
-        return populate_group();
+  var populate_species = function() {
+    var species_list = Object.keys(gndata.types).map(function(species) {
+      var mitem = gndata.types[species][0]
+      // console.log("Species menu:",species,mitem)
+      return [species,mitem];
+    });
+    redo_dropdown($('#species'), species_list);
+    return populate_group();
   };
   window.populate_species = populate_species;
 
   var populate_group = function() {
     var species = $('#species').val();
-
-    // var groups = gndata.groups[species].map(function(item) {
-    var type_list = gndata.types.map(function(name) {
-        console.log("Group menu:",species,gndata.types[name])
-        return species.slice(1,3);
+    var groups = gndata.groups[species].map(function(item) {
+        return item.slice(1,3);
     })
     redo_dropdown($('#group'), groups);
     return populate_type();
