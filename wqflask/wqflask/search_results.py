@@ -31,7 +31,7 @@ from base.data_set import create_dataset
 from base.trait import GeneralTrait
 from wqflask import parser
 from wqflask import do_search
-from utility import webqtlUtil
+from utility import webqtlUtil,tools
 from dbFunction import webqtlDatabaseFunction
 
 from utility import formatting

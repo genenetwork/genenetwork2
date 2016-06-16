@@ -1,3 +1,13 @@
+# Default settings file defines a single Flask process for the Python
+# webserver running in developer mode with limited console
+# output. Copy this file and run it from ./bin/genenetwork2 configfile
+#
+# Note that these settings are fetched in ./wqflask/utilities/tools.py
+# which has support for overriding them through environment variables,
+# e.g.
+#
+#   env LOG_SQL=True USE_REDIS=False ./bin/genenetwork2 
+
 import os
 import sys
 
@@ -23,10 +33,13 @@ SQLALCHEMY_POOL_RECYCLE = 3600
 SERVER_PORT = 5003
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
 
-# Other settings (defaults)
-LOGGING        = WARNING        # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
-DEBUG_MODE     = 1              # Debug level (0-5)
-USE_REDIS      = True           # REDIS caching (redis will be phased out)
+# Behavioural settings (defaults) note that logger and log levels can
+# be overridden at the module level
+WEBSERVER_MODE  = 'DEV'     # Python webserver mode (DEBUG|DEV|PROD)
+LOGGING         = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
+DEBUG_LOG_LEVEL = 1         # Debug log level (0-5)
+LOG_SQL         = False     # Log SQL/backend calls
+USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
 
 # Path overrides for Genenetwork
 GENENETWORK_FILES = HOME+"/gn2_data"

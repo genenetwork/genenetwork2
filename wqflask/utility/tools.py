@@ -7,12 +7,12 @@ from wqflask import app
 
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
-    app.config, with get_valid_path is a function checking whether the
+    app.config, with valid_path is a function checking whether the
     path points to an expected directory and returns the full path to
     the binary command
 
       guess = os.environ.get('HOME')+'/pylmm'
-      get_setting('PYLMM_PATH',guess)
+      valid_path(get_setting('PYLMM_PATH',guess))
 
     first tries the environment variable in +id+, next gets the Flask
     app setting for the same +id+ and finally does an educated
@@ -31,13 +31,13 @@ def get_setting(command_id,guess=None):
     """
     def value(command):
         if command:
-            sys.stderr.write("Found path "+command+"\n")
+            # sys.stderr.write("Found "+command+"\n")
             return command
         else:
             return None
     
     # ---- Check whether environment exists
-    sys.stderr.write("Looking for "+command_id+"\n")
+    # sys.stderr.write("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if not command:
         # ---- Check whether setting exists in app
@@ -45,7 +45,8 @@ def get_setting(command_id,guess=None):
         if not command:
             command = value(guess)
             if not command:
-                raise Exception(command_id+' path unknown or faulty (update settings.py?). '+command_id+' should point to the path')
+                raise Exception(command_id+' setting unknown or faulty (update settings.py?).')
+    sys.stderr.write("Set "+command_id+"="+str(command)+"\n")
     return command
 
 def valid_bin(bin):
@@ -127,11 +128,17 @@ def locate_ignore_error(name, subdir=None):
 
 def tempdir():
     return valid_path(get_setting("TEMPDIR","/tmp"))
-
     
 # Cached values
-PYLMM_COMMAND = pylmm_command()
-GEMMA_COMMAND = gemma_command()
-PLINK_COMMAND = plink_command()
-FLAT_FILES    = flat_files()
-TEMPDIR       = tempdir()
+WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')
+LOGGING            = get_setting('LOGGING')
+DEBUG_LOG_LEVEL    = get_setting('DEBUG_LOG_LEVEL')
+LOG_SQL            = get_setting('LOG_SQL') in [True,'TRUE','True','true']
+USE_REDIS          = get_setting('USE_REDIS') in [True,'TRUE','True','true']
+
+PYLMM_COMMAND      = pylmm_command()
+GEMMA_COMMAND      = gemma_command()
+PLINK_COMMAND      = plink_command()
+FLAT_FILES         = flat_files()
+TEMPDIR            = tempdir()
+
