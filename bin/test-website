@@ -11,6 +11,10 @@ the root of the genenetwork2 source tree as, for example,
 
   ./bin/test-website http://localhost:5003/ (default)
 
+If you are using the small deployment database you can use
+
+  ./bin/test-website --skip -n
+
 For more information see http://genenetwork.org/
                         
 EOT
