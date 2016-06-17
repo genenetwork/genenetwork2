@@ -11,14 +11,14 @@ $(document).ready( function () {
 	var oSettings = oTable.fnSettings();
 	var mPass;
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Default should be null",
 		null,
 		function () { return oSettings.fnInitComplete == null; }
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Two arguments passed (for Ajax!)",
 		function () {
 			oSession.fnRestore();
@@ -35,7 +35,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"That one argument is the settings object",
 		function () {
 			oSession.fnRestore();
@@ -51,7 +51,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"fnInitComplete called once on first draw",
 		function () {
 			oSession.fnRestore();
@@ -67,7 +67,7 @@ $(document).ready( function () {
 		function () { return mPass == 1; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"fnInitComplete never called there after",
 		function () {
 			$('#example_next').click();
@@ -78,7 +78,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"10 rows in the table on complete",
 		function () {
 			oSession.fnRestore();

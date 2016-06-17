@@ -10,14 +10,14 @@ $(document).ready( function () {
 	var oSettings = oTable.fnSettings();
 	var mPass, bInit;
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Default should be null",
 		null,
 		function () { return oSettings.fnHeaderCallback == null; }
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Five arguments passed",
 		function () {
 			oSession.fnRestore();
@@ -40,7 +40,7 @@ $(document).ready( function () {
 	
 	
 	/* The header callback is called once for the init and then when the data is added */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"fnHeaderCallback called once per draw",
 		function () {
 			oSession.fnRestore();
@@ -61,14 +61,14 @@ $(document).ready( function () {
 		function () { return mPass == 2 && bInit; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"fnRowCallback called on paging (i.e. another draw)",
 		function () { $('#example_next').click(); },
 		function () { return mPass == 3; }
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"fnRowCallback allows us to alter row information",
 		function () {
 			oSession.fnRestore();
@@ -84,7 +84,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"iStart correct on first page",
 		function () {
 			oSession.fnRestore();
@@ -105,7 +105,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"iStart correct on second page",
 		function () {
 			oSession.fnRestore();
@@ -129,7 +129,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"iEnd correct on second page",
 		function () {
 			oSession.fnRestore();
@@ -153,7 +153,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"aiDisplay length is full data when not filtered",
 		function () {
 			oSession.fnRestore();
@@ -173,7 +173,7 @@ $(document).ready( function () {
 		function () { return mPass; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"aiDisplay length is 9 when filtering on 'Mozilla'",
 		function () {
 			oSession.fnRestore();

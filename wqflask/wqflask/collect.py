@@ -57,7 +57,7 @@ class AnonCollection(object):
     def __init__(self):
         self.anon_user = user_manager.AnonUser()
         self.key = "anon_collection:v5:{}".format(self.anon_user.anon_id)
-    
+
     def add_traits(self, params, collection_name):
         assert collection_name == "Default", "Unexpected collection name for anonymous user"
         print("params[traits]:", params['traits'])
@@ -70,7 +70,7 @@ class AnonCollection(object):
         print("currently in redis:", Redis.smembers(self.key))
         len_now = len(Redis.smembers(self.key))
         report_change(len_before, len_now)
-        
+
     def remove_traits(self, params):
         traits_to_remove = params.getlist('traits[]')
         print("traits_to_remove:", process_traits(traits_to_remove))
@@ -82,15 +82,15 @@ class AnonCollection(object):
         # We need to return something so we'll return this...maybe in the future
         # we can use it to check the results
         return str(len_now)
-    
+
     def get_traits(self):
         traits = Redis.smembers(self.key)
         print("traits:", traits)
         return traits
-    
+
 class UserCollection(object):
     """User is logged in"""
-    
+
     def add_traits(self, params, collection_name):
         print("---> params are:", params.keys())
         print("     type(params):", type(params))
@@ -103,25 +103,25 @@ class UserCollection(object):
             uc = model.UserCollection.query.get(params['existing_collection'])
         members =  uc.members_as_set() #set(json.loads(uc.members))
         len_before = len(members)
-    
+
         traits = process_traits(params['traits'])
-    
+
         members_now = list(members | traits)
         len_now = len(members_now)
         uc.members = json.dumps(members_now)
-    
+
         uc.changed_timestamp = datetime.datetime.utcnow()
-    
+
         db_session.commit()
-    
+
         print("added to existing, now set is:" + str(uc.members))
         report_change(len_before, len_now)
-        
+
         # Probably have to change that
         return redirect(url_for('view_collection', uc_id=uc.id))
-    
+
     def remove_traits(self, params):
-    
+
         #params = request.form
         print("params are:", params)
         uc_id = params['uc_id']
@@ -138,11 +138,11 @@ class UserCollection(object):
         uc.members = json.dumps(list(members_now))
         uc.changed_timestamp = datetime.datetime.utcnow()
         db_session.commit()
-    
+
         # We need to return something so we'll return this...maybe in the future
         # we can use it to check the results
         return str(len(members_now))
-    
+
 def report_change(len_before, len_now):
     new_length = len_now - len_before
     if new_length:
@@ -268,7 +268,7 @@ def remove_traits():
         db_session.commit()
     else:
         members_now = AnonCollection().remove_traits(params)
-             
+
 
     # We need to return something so we'll return this...maybe in the future
     # we can use it to check the results
@@ -296,7 +296,7 @@ def delete_collection():
 def view_collection():
     params = request.args
     print("PARAMS in view collection:", params)
-    
+
     if "uc_id" in params:
         uc_id = params['uc_id']
         uc = model.UserCollection.query.get(uc_id)
@@ -328,10 +328,10 @@ def view_collection():
         #                         lrs_location=trait_ob.LRS_location_repr))
         #                         dis=trait_ob.description))
         #json_version.append(trait_ob.__dict__th)
-       
+
     print("trait_obs:", trait_obs)
 
-    if "uc_id" in params: 
+    if "uc_id" in params:
         collection_info = dict(trait_obs=trait_obs,
                            uc = uc)
     else:

@@ -11,11 +11,11 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Default should be to have a empty colums array",
 		null,
 		function () {
-			var bReturn = 
+			var bReturn =
 				oSettings.aoPreSearchCols[0].sSearch == 0 && !oSettings.aoPreSearchCols[0].bRegex &&
 				oSettings.aoPreSearchCols[1].sSearch == 0 && !oSettings.aoPreSearchCols[1].bRegex &&
 				oSettings.aoPreSearchCols[2].sSearch == 0 && !oSettings.aoPreSearchCols[2].bRegex &&
@@ -26,7 +26,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Search on a single column - no regex statement given",
 		function () {
 			oSession.fnRestore();
@@ -45,7 +45,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody tr:eq(0) td:eq(3)').html() == "1"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Search on two columns - no regex statement given",
 		function () {
 			oSession.fnRestore();

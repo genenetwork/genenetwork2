@@ -7,8 +7,8 @@ from flask import Flask, g
 #Just return a list of dictionaries
 #each dictionary contains sub-dictionary
 def loadGenes(chrName, diffCol, startMb, endMb, webqtlDb =None, species='mouse'):
-	fetchFields = ['SpeciesId', 'Id', 'GeneSymbol', 'GeneDescription', 'Chromosome', 'TxStart', 'TxEnd', 
-	'Strand', 'GeneID', 'NM_ID', 'kgID', 'GenBankID', 'UnigenID', 'ProteinID', 'AlignID', 
+	fetchFields = ['SpeciesId', 'Id', 'GeneSymbol', 'GeneDescription', 'Chromosome', 'TxStart', 'TxEnd',
+	'Strand', 'GeneID', 'NM_ID', 'kgID', 'GenBankID', 'UnigenID', 'ProteinID', 'AlignID',
 	'exonCount', 'exonStarts', 'exonEnds', 'cdsStart', 'cdsEnd']
 	
 	##List All Species in the Gene Table
@@ -16,7 +16,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, webqtlDb =None, species='mouse')
 	results = g.db.execute("""
                 SELECT Species.Name, GeneList.SpeciesId
                 FROM Species, GeneList
-                WHERE GeneList.SpeciesId = Species.Id 
+                WHERE GeneList.SpeciesId = Species.Id
                 GROUP BY GeneList.SpeciesId""").fetchall()
 
 	for item in results:
@@ -28,14 +28,14 @@ def loadGenes(chrName, diffCol, startMb, endMb, webqtlDb =None, species='mouse')
 	otherSpecies.remove([species, speciesId])
 
 	results = g.db.execute("""
-                SELECT %s FROM GeneList 
-				WHERE SpeciesId = %d AND 
+                SELECT %s FROM GeneList
+				WHERE SpeciesId = %d AND
                       Chromosome = '%s' AND
 					  ((TxStart > %f and TxStart <= %f) OR (TxEnd > %f and TxEnd <= %f))
 				ORDER BY txStart
-                """ % (string.join(fetchFields, ", "), 
-                       speciesId, chrName, 
-                       startMb, endMb, 
+                """ % (string.join(fetchFields, ", "),
+                       speciesId, chrName,
+                       startMb, endMb,
                        startMb, endMb)).fetchall()
 
 	GeneList = []
@@ -48,9 +48,9 @@ def loadGenes(chrName, diffCol, startMb, endMb, webqtlDb =None, species='mouse')
 			#count SNPs if possible	
 			if diffCol and species=='mouse':
 				newdict["snpCount"] = g.db.execute("""
-                                        SELECT count(*) 
+                                        SELECT count(*)
                                         FROM BXDSnpPosition
-                                        WHERE Chr = '%s' AND 
+                                        WHERE Chr = '%s' AND
                                               Mb >= %2.6f AND Mb < %2.6f AND
                                               StrainId1 = %d AND StrainId2 = %d
                                         """ % (chrName, newdict["TxStart"], newdict["TxEnd"], diffCol[0], diffCol[1])).fetchone()[0]
@@ -68,8 +68,8 @@ def loadGenes(chrName, diffCol, startMb, endMb, webqtlDb =None, species='mouse')
 				othSpec, othSpecId = item
 				newdict2 = {}
 				
-				resultsOther = g.db.execute("SELECT %s FROM GeneList WHERE SpeciesId = %d AND geneSymbol= '%s' LIMIT 1" % (string.join(fetchFields, ", "), 
-                                                                                                                           othSpecId, 
+				resultsOther = g.db.execute("SELECT %s FROM GeneList WHERE SpeciesId = %d AND geneSymbol= '%s' LIMIT 1" % (string.join(fetchFields, ", "),
+                                                                                                                           othSpecId,
                                                                                                                            newdict["GeneSymbol"])).fetchone()
 
 				if resultsOther:
@@ -79,9 +79,9 @@ def loadGenes(chrName, diffCol, startMb, endMb, webqtlDb =None, species='mouse')
 					#count SNPs if possible, could be a separate function	
 					if diffCol and othSpec == 'mouse':
 						newdict2["snpCount"] = g.db.execute("""
-                                                    SELECT count(*) 
+                                                    SELECT count(*)
                                                     FROM BXDSnpPosition
-                                                    WHERE Chr = '%s' AND 
+                                                    WHERE Chr = '%s' AND
                                                           Mb >= %2.6f AND Mb < %2.6f AND
                                                           StrainId1 = %d AND StrainId2 = %d
                                                     """ % (chrName, newdict["TxStart"], newdict["TxEnd"], diffCol[0], diffCol[1])).fetchone()[0]

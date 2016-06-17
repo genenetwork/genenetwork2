@@ -7,14 +7,14 @@ $(document).ready( function () {
 		"sAjaxSource": "../../../examples/ajax/sources/arrays.txt"
 	} );
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Filtering div exists by default",
 		null,
 		function () { return document.getElementById('example_filter') != null; }
 	);
 	
 	/* Check can disable */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Fltering can be disabled",
 		function () {
 			oSession.fnRestore();
@@ -27,7 +27,7 @@ $(document).ready( function () {
 	);
 	
 	/* Enable makes no difference */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Filtering enabled override",
 		function () {
 			oSession.fnRestore();

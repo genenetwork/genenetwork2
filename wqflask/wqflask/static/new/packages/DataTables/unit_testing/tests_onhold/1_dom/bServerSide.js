@@ -8,7 +8,7 @@ $(document).ready( function () {
 	var oTable = $('#example').dataTable();
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Server side is off by default",
 		null,
 		function () { return oSettings.oFeatures.bServerSide == false; }

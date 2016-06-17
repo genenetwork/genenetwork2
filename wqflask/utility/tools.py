@@ -35,7 +35,7 @@ def get_setting(command_id,guess=None):
             return command
         else:
             return None
-    
+
     # ---- Check whether environment exists
     sys.stderr.write("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
@@ -128,7 +128,7 @@ def locate_ignore_error(name, subdir=None):
 def tempdir():
     return valid_path(get_setting("TEMPDIR","/tmp"))
 
-    
+
 # Cached values
 PYLMM_COMMAND = pylmm_command()
 GEMMA_COMMAND = gemma_command()

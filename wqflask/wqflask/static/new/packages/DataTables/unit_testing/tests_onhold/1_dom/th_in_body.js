@@ -1,7 +1,7 @@
 // DATA_TEMPLATE: dom_data_th
 oTest.fnStart( "Sanity checks for DataTables with DOM data and a TH in the body" );
 
-oTest.fnTest( 
+oTest.fnTest(
 	"jQuery.dataTable function",
 	null,
 	function () { return typeof jQuery().dataTable == "function"; }
@@ -23,135 +23,135 @@ $(document).ready( function () {
 	$('#example').dataTable();
 	
 	/* Basic checks */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Length changing div exists",
 		null,
 		function () { return document.getElementById('example_length') != null; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Filtering div exists",
 		null,
 		function () { return document.getElementById('example_filter') != null; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Information div exists",
 		null,
 		function () { return document.getElementById('example_info') != null; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Pagination div exists",
 		null,
 		function () { return document.getElementById('example_paginate') != null; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Processing div is off by default",
 		null,
 		function () { return document.getElementById('example_processing') == null; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"10 rows shown on the first page",
 		null,
 		function () { return $('#example tbody tr').length == 10; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Initial sort occured",
 		null,
 		function () { return $('#example tbody td:eq(0)').html() == "Gecko"; }
 	);
 	
 	/* Need to use the WaitTest for sorting due to the setTimeout datatables uses */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Sorting (first click) on second column",
 		function () { $('#example thead th:eq(1)').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "All others"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Sorting (second click) on second column",
 		function () { $('#example thead th:eq(1)').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "Seamonkey 1.1"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Sorting (third click) on second column",
 		function () { $('#example thead th:eq(1)').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "All others"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Sorting (first click) on numeric column",
 		function () { $('#example thead th:eq(3)').click(); },
 		function () { return $('#example tbody td:eq(3)').html() == "-"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Sorting (second click) on numeric column",
 		function () { $('#example thead th:eq(3)').click(); },
 		function () { return $('#example tbody td:eq(3)').html() == "522.1"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Sorting multi-column (first click)",
-		function () { 
+		function () {
 			$('#example thead th:eq(0)').click();
 			oDispacher.click( $('#example thead th:eq(1)')[0], { 'shift': true } ); },
-		function () { var b = 
-			$('#example tbody td:eq(0)').html() == "Gecko" && 
+		function () { var b =
+			$('#example tbody td:eq(0)').html() == "Gecko" &&
 			$('#example tbody td:eq(1)').html() == "Camino 1.0"; return b; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Sorting multi-column - sorting second column only",
-		function () { 
+		function () {
 			$('#example thead th:eq(1)').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "All others"; }
 	);
 	
 	/* Basic paging */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Paging to second page",
 		function () { $('#example_next').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "IE Mobile"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Paging to first page",
 		function () { $('#example_previous').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "All others"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Attempting to page back beyond the first page",
 		function () { $('#example_previous').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "All others"; }
 	);
 	
 	/* Changing length */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Changing table length to 25 records",
 		function () { $("select[name=example_length]").val('25').change(); },
 		function () { return $('#example tbody tr').length == 25; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Changing table length to 50 records",
 		function () { $("select[name=example_length]").val('50').change(); },
 		function () { return $('#example tbody tr').length == 50; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Changing table length to 100 records",
 		function () { $("select[name=example_length]").val('100').change(); },
 		function () { return $('#example tbody tr').length == 57; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Changing table length to 10 records",
 		function () { $("select[name=example_length]").val('10').change(); },
 		function () { return $('#example tbody tr').length == 10; }
@@ -233,14 +233,14 @@ $(document).ready( function () {
 	oTest.fnTest(
 		"Information with filter 'Win'",
 		function () { $('#example_filter input').val("Win").keyup(); },
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 31 entries (filtered from 57 total entries)"; }
 	);
 	
 	oTest.fnTest(
 		"Information with filter 'Win' second page",
 		function () { $('#example_next').click(); },
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 11 to 20 of 31 entries (filtered from 57 total entries)"; }
 	);
 	
@@ -250,7 +250,7 @@ $(document).ready( function () {
 			$('#example_next').click();
 			$('#example_next').click();
 		},
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 31 to 31 of 31 entries (filtered from 57 total entries)"; }
 	);
 	
@@ -261,7 +261,7 @@ $(document).ready( function () {
 			$('#example_previous').click();
 			$('#example_previous').click();
 		},
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 31 entries (filtered from 57 total entries)"; }
 	);
 	
@@ -270,21 +270,21 @@ $(document).ready( function () {
 		function () {
 			$('#example_next').click();
 		},
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 11 to 20 of 31 entries (filtered from 57 total entries)"; }
 	);
 	
 	oTest.fnTest(
 		"Information with filter increased to 'Win 98'",
 		function () { $('#example_filter input').val("Win 98").keyup(); },
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 9 of 9 entries (filtered from 57 total entries)"; }
 	);
 	
 	oTest.fnTest(
 		"Information with filter decreased to 'Win'",
 		function () { $('#example_filter input').val("Win").keyup(); },
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 31 entries (filtered from 57 total entries)"; }
 	);
 	
@@ -293,14 +293,14 @@ $(document).ready( function () {
 		function () {
 			$('#example_next').click();
 		},
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 11 to 20 of 31 entries (filtered from 57 total entries)"; }
 	);
 	
 	oTest.fnTest(
 		"Information with filter removed",
 		function () { $('#example_filter input').val("").keyup(); },
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 57 entries"; }
 	);
 	
@@ -310,7 +310,7 @@ $(document).ready( function () {
 	 */
 	oTest.fnTest(
 		"Filter 'W' - rows",
-		function () { 
+		function () {
 			/* Reset the table such that the old sorting doesn't mess things up */
 			oSession.fnRestore();
 			$('#example').dataTable();
@@ -321,21 +321,21 @@ $(document).ready( function () {
 	oTest.fnTest(
 		"Filter 'W' - info",
 		null,
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 42 entries (filtered from 57 total entries)"; }
 	);
 	
 	oTest.fnTest(
 		"Filter 'Wi'",
 		function () { $('#example_filter input').val("Wi").keyup(); },
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 32 entries (filtered from 57 total entries)"; }
 	);
 	
 	oTest.fnTest(
 		"Filter 'Win'",
 		function () { $('#example_filter input').val("Win").keyup(); },
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 31 entries (filtered from 57 total entries)"; }
 	);
 	
@@ -348,7 +348,7 @@ $(document).ready( function () {
 	oTest.fnTest(
 		"Filter 'Win' - sorting column 1 info",
 		null,
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 31 entries (filtered from 57 total entries)"; }
 	);
 	
@@ -379,21 +379,21 @@ $(document).ready( function () {
 	oTest.fnTest(
 		"Filter 'Win' - sorting col 3 - reversed info",
 		null,
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 6 of 6 entries (filtered from 57 total entries)"; }
 	);
 	
 	oTest.fnTest(
 		"Filter 'nothinghere'",
 		function () { $('#example_filter input').val("nothinghere").keyup(); },
-		function () { return $('#example tbody tr:eq(0) td:eq(0)').html() == 
+		function () { return $('#example tbody tr:eq(0) td:eq(0)').html() ==
 			"No matching records found"; }
 	);
 	
 	oTest.fnTest(
 		"Filter 'nothinghere' - info",
 		null,
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 0 to 0 of 0 entries (filtered from 57 total entries)"; }
 	);
 	
@@ -403,7 +403,7 @@ $(document).ready( function () {
 			$('#example_filter input').val("").keyup();
 			$('#example thead th:eq(0)').click();
 		},
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 57 entries"; }
 	);
 	
@@ -413,7 +413,7 @@ $(document).ready( function () {
 			$('#example_filter input').val("Win").keyup();
 			$('#example_filter input').val("GeckoWin").keyup();
 		},
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 0 to 0 of 0 entries (filtered from 57 total entries)"; }
 	);
 	
@@ -422,7 +422,7 @@ $(document).ready( function () {
 		function () {
 			$('#example_filter input').val("Gecko Win").keyup();
 		},
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 17 entries (filtered from 57 total entries)"; }
 	);
 	

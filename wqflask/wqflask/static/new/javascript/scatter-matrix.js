@@ -135,7 +135,7 @@ ScatterMatrix.prototype.render = function () {
                      var new_selected_colors = [];
                      for (var j in selected_colors) {
                        var v = selected_colors[j];
-                       if (v !== d || this.checked) { new_selected_colors.push(v); } 
+                       if (v !== d || this.checked) { new_selected_colors.push(v); }
                      }
                      if (this.checked) { new_selected_colors.push(d); }
                      selected_colors = new_selected_colors;
@@ -194,7 +194,7 @@ ScatterMatrix.prototype.render = function () {
                  var new_to_include = [];
                  for (var j in to_include) {
                    var v = to_include[j];
-                   if (v !== d || this.checked) { new_to_include.push(v); } 
+                   if (v !== d || this.checked) { new_to_include.push(v); }
                  }
                  if (this.checked) { new_to_include.push(d); }
                  to_include = new_to_include;
@@ -203,7 +203,7 @@ ScatterMatrix.prototype.render = function () {
     variable_li.append('label')
                .html(function(d) { return d; });
 
-    drill_li = 
+    drill_li =
       drill_control
         .append('p').text('Drill and Expand: ')
         .append('ul')
@@ -217,7 +217,7 @@ ScatterMatrix.prototype.render = function () {
                var new_drill_variables = [];
                for (var j in drill_variables) {
                  var v = drill_variables[j];
-                 if (v !== d || this.checked) { new_drill_variables.push(v); } 
+                 if (v !== d || this.checked) { new_drill_variables.push(v); }
                }
                if (this.checked) { new_drill_variables.push(d); }
                drill_variables = new_drill_variables;
@@ -545,7 +545,7 @@ ScatterMatrix.prototype.__draw =
       for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({x: a[i], i: i, y: b[j], j: j});
       return c;
     }
-  }); 
+  });
 
 };
 

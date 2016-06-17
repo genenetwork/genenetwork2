@@ -5,7 +5,7 @@ $(document).ready( function () {
 	/* Check the default */
 	$('#example').dataTable();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Pagiantion div exists by default",
 		null,
 		function () { return document.getElementById('example_paginate') != null; }
@@ -14,12 +14,12 @@ $(document).ready( function () {
 	oTest.fnTest(
 		"Information div takes paging into account",
 		null,
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 10 of 57 entries"; }
 	);
 	
 	/* Check can disable */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Pagiantion can be disabled",
 		function () {
 			oSession.fnRestore();
@@ -33,12 +33,12 @@ $(document).ready( function () {
 	oTest.fnTest(
 		"Information div takes paging disabled into account",
 		null,
-		function () { return document.getElementById('example_info').innerHTML == 
+		function () { return document.getElementById('example_info').innerHTML ==
 			"Showing 1 to 57 of 57 entries"; }
 	);
 	
 	/* Enable makes no difference */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Pagiantion enabled override",
 		function () {
 			oSession.fnRestore();

@@ -13,14 +13,14 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"sUrl is blank by default",
 		null,
 		function () { return oSettings.oLanguage.sUrl == ""; }
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Loading of German file loads language information",
 		function () {
 			oSession.fnRestore();
@@ -34,7 +34,7 @@ $(document).ready( function () {
 			oSettings = oTable.fnSettings();
 		},
 		function () {
-			var bReturn = 
+			var bReturn =
 				oSettings.oLanguage.sProcessing == "Bitte warten..." &&
 				oSettings.oLanguage.sLengthMenu == "_MENU_ Einträge anzeigen" &&
 				oSettings.oLanguage.sZeroRecords == "Keine Einträge vorhanden." &&

@@ -18,13 +18,13 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Single column - fnRender is called once for each row",
 		null,
 		function () { return mTmp == 57; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Confirm that fnRender passes two arguments with four parameters",
 		function () {
 			mTmp = true;
@@ -50,7 +50,7 @@ $(document).ready( function () {
 		function () { return mTmp; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"fnRender iDataColumn is row number",
 		function () {
 			var iCount = 0;
@@ -76,7 +76,7 @@ $(document).ready( function () {
 		function () { return mTmp; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"fnRender iDataColumn is the column",
 		function () {
 			mTmp = true;
@@ -100,7 +100,7 @@ $(document).ready( function () {
 		function () { return mTmp; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"fnRender aData is data array of correct size",
 		function () {
 			mTmp = true;
@@ -124,7 +124,7 @@ $(document).ready( function () {
 		function () { return mTmp; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Passed back data is put into the DOM",
 		function () {
 			oSession.fnRestore();
@@ -143,7 +143,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody tr:eq(0) td:eq(1)').html() == 'unittest'; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Passed back data is put into the DOM",
 		function () {
 			oSession.fnRestore();
@@ -162,7 +162,7 @@ $(document).ready( function () {
 			} );
 		},
 		function () {
-			var bReturn = 
+			var bReturn =
 				$('#example tbody tr:eq(0) td:eq(2)').html() == 'unittest1' &&
 				$('#example tbody tr:eq(0) td:eq(3)').html() == 'unittest2';
 			return bReturn; }

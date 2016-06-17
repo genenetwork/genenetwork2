@@ -108,7 +108,7 @@ function _fnCreateCookie ( sName, sValue, iSecs, sBaseName, fnCallback )
 	var date = new Date();
 	date.setTime( date.getTime()+(iSecs*1000) );
 	
-	/* 
+	/*
 	 * Shocking but true - it would appear IE has major issues with having the path not having
 	 * a trailing slash on it. We need the cookie to be available based on the path, so we
 	 * have to append the file name to the cookie name. Appalling. Thanks to vex for adding the
@@ -120,7 +120,7 @@ function _fnCreateCookie ( sName, sValue, iSecs, sBaseName, fnCallback )
 	
 	if ( fnCallback !== null )
 	{
-		oData = (typeof $.parseJSON === 'function') ? 
+		oData = (typeof $.parseJSON === 'function') ?
 			$.parseJSON( sValue ) : eval( '('+sValue+')' );
 		sFullCookie = fnCallback( sNameFile, oData, date.toGMTString(),
 			aParts.join('/')+"/" );

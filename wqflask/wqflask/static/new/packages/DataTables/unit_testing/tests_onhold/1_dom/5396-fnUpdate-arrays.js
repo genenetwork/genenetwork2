@@ -30,7 +30,7 @@ $(document).ready( function () {
         "etc2",
         [
             [ "test2@daum.net", "2009-09-26" ],
-            [ "test2@naver.com", "2009-05-21,hide" ], 
+            [ "test2@naver.com", "2009-05-21,hide" ],
             [ "lsb@naver.com", "2010-03-05" ],
             [ "lsb3@naver.com", ",hide" ],
             [ "sooboklee9@daum.net", "2010-03-05" ]
@@ -57,7 +57,7 @@ $(document).ready( function () {
     });
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Initialisation",
 		null,
 		function () {
@@ -65,7 +65,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Update row",
 		function () {
       $('#example').dataTable().fnUpdate( [
@@ -75,7 +75,7 @@ $(document).ready( function () {
           "etc2",
           [
               [ "test2@daum.net", "2009-09-26" ],
-              [ "test2@naver.com", "2009-05-21,hide" ], 
+              [ "test2@naver.com", "2009-05-21,hide" ],
               [ "lsb@naver.com", "2010-03-05" ],
               [ "lsb3@naver.com", ",hide" ],
               [ "sooboklee9@daum.net", "2010-03-05" ]
@@ -89,7 +89,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Original row preserved",
 		null,
 		function () {

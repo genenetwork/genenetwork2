@@ -45,7 +45,7 @@ class DoSearch(object):
     def handle_wildcard(self, str):
         keyword = str.strip()
         keyword.replace("*",".*")
-        keyword.replace("?",".")        
+        keyword.replace("?",".")
 
         return keyword
 
@@ -73,7 +73,7 @@ class DoSearch(object):
             search_type_string += '_' + search_type['key']
 
         print("search_type_string is:", search_type_string)
-        
+
         if search_type_string in cls.search_types:
             return cls.search_types[search_type_string]
         else:
@@ -154,7 +154,7 @@ class MrnaAssaySearch(DoSearch):
         else:
             match_clause = ""
 
-        where_clause = (match_clause + 
+        where_clause = (match_clause +
             """ProbeSet.Id = ProbeSetXRef.ProbeSetId
                and ProbeSetXRef.ProbeSetFreezeId = %s
                         """ % (escape(str(self.dataset.id))))
@@ -315,7 +315,7 @@ class PhenotypeSearch(DoSearch):
 
         print("final query is:", pf(query))
 
-        
+
         return self.execute(query)
 
     def run(self):
@@ -485,7 +485,7 @@ class WikiSearch(MrnaAssaySearch):
             and (GeneRIF.comment REGEXP '%s' or GeneRIF.initial = '%s')
                 """ % (self.dataset.type,
                        "[[:<:]]"+str(self.search_term[0])+"[[:>:]]",
-                       str(self.search_term[0])) 
+                       str(self.search_term[0]))
         return where_clause
 
     def run(self):
@@ -590,7 +590,7 @@ class LrsSearch(DoSearch):
             where_clause = """ %sXRef.LRS %s %s """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
                                                                         self.search_term[0])
-       
+
         return where_clause
 
 
@@ -604,7 +604,7 @@ class LrsSearch(DoSearch):
         return self.execute(self.query)
 
 class MrnaLrsSearch(LrsSearch, MrnaAssaySearch):
-    
+
     DoSearch.search_types['ProbeSet_LRS'] = 'MrnaLrsSearch'
 
     def run(self):
@@ -617,7 +617,7 @@ class MrnaLrsSearch(LrsSearch, MrnaAssaySearch):
         return self.execute(self.query)
 
 class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
-    
+
     DoSearch.search_types['Publish_LRS'] = 'PhenotypeLrsSearch'
 
     def run(self):
@@ -699,7 +699,7 @@ class CisTransLrsSearch(DoSearch):
                         )
 
         return where_clause
-    
+
 class CisLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
     """
     Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
@@ -781,7 +781,7 @@ class MeanSearch(MrnaAssaySearch):
             # Deal with >, <, >=, and <=
             where_clause = """ %sXRef.mean %s %s """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
-                                                                        self.search_term[0])        
+                                                                        self.search_term[0])
 
         return where_clause
 
@@ -790,7 +790,7 @@ class MeanSearch(MrnaAssaySearch):
         print("where_clause is:", pf(self.where_clause))
 
         self.query = self.compile_final_query(where_clause = self.where_clause)
-        
+
         return self.query
 
     def run(self):
@@ -862,7 +862,7 @@ class PositionSearch(DoSearch):
     def get_chr(self):
         try:
             self.chr = int(self.chr)
-        except: 
+        except:
             if 'chr' in self.chr:
                 self.chr = int(self.chr.replace('chr', ''))
             else:

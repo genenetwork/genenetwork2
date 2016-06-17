@@ -7,7 +7,7 @@ import time
 
 class Bench(object):
     entries = collections.OrderedDict()
-    
+
     def __init__(self, name=None):
         self.name = name
 
@@ -26,10 +26,10 @@ class Bench(object):
 
         time_taken = time.time() - self.start_time
         print("  %s took: %f seconds" % (name, (time_taken)))
-        
+
         if self.name:
             Bench.entries[self.name] = Bench.entries.get(self.name, 0) + time_taken
-            
+
 
     @classmethod
     def report(cls):
@@ -39,7 +39,7 @@ class Bench(object):
             percent = int(round((time_taken/total_time) * 100))
             print("[{}%] {}: {}".format(percent, name, time_taken))
         print()
-        
+
     def reset(cls):
         """Reset the entries"""
         cls.entries = collections.OrderedDict()

@@ -8,11 +8,11 @@ $(document).ready( function () {
 	var oTable = $('#example').dataTable( { "sPaginationType": "full_numbers" } );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"oLanguage.oPaginate defaults",
 		null,
 		function () {
-			var bReturn = 
+			var bReturn =
 				oSettings.oLanguage.oPaginate.sFirst == "First" &&
 				oSettings.oLanguage.oPaginate.sPrevious == "Previous" &&
 				oSettings.oLanguage.oPaginate.sNext == "Next" &&
@@ -21,11 +21,11 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"oLanguage.oPaginate defaults are in the DOM",
 		null,
 		function () {
-			var bReturn = 
+			var bReturn =
 				$('#example_paginate .first').html() == "First" &&
 				$('#example_paginate .previous').html() == "Previous" &&
 				$('#example_paginate .next').html() == "Next" &&
@@ -35,7 +35,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"oLanguage.oPaginate can be defined",
 		function () {
 			oSession.fnRestore();
@@ -53,7 +53,7 @@ $(document).ready( function () {
 			oSettings = oTable.fnSettings();
 		},
 		function () {
-			var bReturn = 
+			var bReturn =
 				oSettings.oLanguage.oPaginate.sFirst == "unit1" &&
 				oSettings.oLanguage.oPaginate.sPrevious == "test2" &&
 				oSettings.oLanguage.oPaginate.sNext == "unit3" &&
@@ -62,11 +62,11 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"oLanguage.oPaginate definitions are in the DOM",
 		null,
 		function () {
-			var bReturn = 
+			var bReturn =
 				$('#example_paginate .first').html() == "unit1" &&
 				$('#example_paginate .previous').html() == "test2" &&
 				$('#example_paginate .next').html() == "unit3" &&
