@@ -25,19 +25,24 @@ describe MainWebFunctionality do
       probe_link = search_page.links.find { |l| l.text =~ /1435395_s_at/ }
       probe_link.uri.to_s.must_equal "/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P"
       show_trait_page = probe_link.click
-      p show_trait_page
+      # p show_trait_page
 
       # Get to trait page for 1435395_s_at
       form2 = show_trait_page.forms_with("trait_page")[0]
-      form2.fields[30].name.must_equal  "variance:C57BL/6J"
+      if $options[:database] == :small
+        form2.fields[30].name.must_equal  "value:DBA/2J"
+      else
+        form2.fields[30].name.must_equal  "variance:C57BL/6J"
+      end
       # form2.fields[30].value.must_equal "15.287"
 
       # Test every link on the page to check if it's broken or not
+      break if not $options[:link_checker]
       show_trait_page.links.each do |link|
         puts link.href
         if link.href !~ /static\/dbdoc\/Hippocampus/ and link.href !~ /glossary.html|sample_r|grits.eecs.utk.edu|correlationAnnotation.html/
-           # Fetch link, program will crash with exception if link is broken
-           linkpage = @agent.get(link.href)
+          # Fetch link, program will crash with exception if link is broken
+          linkpage = @agent.get(link.href)
           puts "Link to #{link.href} is valid, response code #{linkpage.code}"
         end
       end
