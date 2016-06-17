@@ -28,10 +28,10 @@ class ConvertGenoFile(object):
     self.mb_exists = False
     self.cm_exists = False
     self.markers = []
-    
+
     self.latest_row_pos = None
     self.latest_col_pos = None
-    
+
     self.latest_row_value = None
     self.latest_col_value = None
     self.input_fh = open(input_file)

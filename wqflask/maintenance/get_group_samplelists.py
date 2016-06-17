@@ -28,7 +28,7 @@ def get_samplelist_from_geno(genofilename):
         genofile = gzip.open(genofilename)
     else:
         genofile = open(genofilename)
-        
+
     for line in genofile:
         line = line.strip()
         if not line:
@@ -36,9 +36,9 @@ def get_samplelist_from_geno(genofilename):
         if line.startswith(("#", "@")):
             continue
         break
-    
+
     headers = line.split()
-    
+
     if headers[3] == "Mb":
         samplelist = headers[4:]
     else:
@@ -47,7 +47,7 @@ def get_samplelist_from_geno(genofilename):
 
 def get_samplelist_from_plink(genofilename):
     genofile = open(genofilename)
-    
+
     samplelist = []
     for line in genofile:
         line = line.split(" ")

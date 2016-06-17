@@ -6,13 +6,13 @@ $(document).ready( function () {
 	var oTable = $('#example').dataTable();
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"All columns are visible by default",
 		null,
 		function () { return $('#example tbody tr:eq(0) td').length == 5; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Hide the first column",
 		function () {
 			$('#example').dataTable().fnSetColumnVis( 0, false );
@@ -51,7 +51,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Hide the second column",
 		function () {
 			$('#example').dataTable().fnSetColumnVis( 0, true );
@@ -115,7 +115,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Hide the first two columns",
 		function () {
 			$('#example').dataTable().fnSetColumnVis( 0, false );
@@ -167,7 +167,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Hide the third column",
 		function () {
 			$('#example').dataTable().fnSetColumnVis( 0, true );

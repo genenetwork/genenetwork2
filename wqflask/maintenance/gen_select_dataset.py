@@ -22,7 +22,7 @@ It needs to be run manually when database has been changed.
 # (sourceforge.net/projects/genenetwork/).
 #
 # Contact Drs. Robert W. Williams
-# at rwilliams@uthsc.edu 
+# at rwilliams@uthsc.edu
 #
 #
 #
@@ -61,15 +61,15 @@ sys.exit()
 
 def parse_db_uri(db_uri):
     """Converts a database URI to the db name, host name, user name, and password"""
-    
+
     parsed_uri = urlparse.urlparse(zach_settings.DB_URI)
-    
+
     db_conn_info = dict(
                         db = parsed_uri.path[1:],
                         host = parsed_uri.hostname,
                         user = parsed_uri.username,
                         passwd = parsed_uri.password)
-    
+
     return db_conn_info
 
 
@@ -150,12 +150,12 @@ def genotypes_exist(group_name):
 
 def build_types(species, group):
     """Fetches tissues
-    
+
     Gets the tissues with data for this species/group
     (all types except phenotype/genotype are tissues)
-     
+
     """
-    
+
     Cursor.execute("""select distinct Tissue.Name
                        from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
                        where Species.Name = %s and Species.Id = InbredSet.SpeciesId and
@@ -165,14 +165,14 @@ def build_types(species, group):
                        ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
                        ProbeSetFreeze.public > 0
                        order by Tissue.Name""", (species, group))
-    
+
     results = []
     for result in Cursor.fetchall():
         if len(result):
             these_datasets = build_datasets(species, group, result[0])
             if len(these_datasets) > 0:
                 results.append((result[0], result[0]))
-    
+
     return results
 
 def get_datasets(types):
@@ -197,10 +197,10 @@ def build_datasets(species, group, type_name):
     if type_name == "Phenotypes":
         print("GROUP:", group)
         Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
-                    InbredSet.Name = %s and 
+                    InbredSet.Name = %s and
                     PublishFreeze.InbredSetId = InbredSet.Id and
                     InfoFiles.InfoPageName = PublishFreeze.Name and
-                    PublishFreeze.public > 0 and 
+                    PublishFreeze.public > 0 and
                     PublishFreeze.confidentiality < 1 order by
                     PublishFreeze.CreateTime desc""", (group))
 
@@ -217,10 +217,10 @@ def build_datasets(species, group, type_name):
 
     elif type_name == "Genotypes":
         Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where
-                    InbredSet.Name = %s and 
+                    InbredSet.Name = %s and
                     GenoFreeze.InbredSetId = InbredSet.Id and
                     InfoFiles.InfoPageName = GenoFreeze.ShortName and
-                    GenoFreeze.public > 0 and 
+                    GenoFreeze.public > 0 and
                     GenoFreeze.confidentiality < 1 order by
                     GenoFreeze.CreateTime desc""", (group))
 
@@ -239,11 +239,11 @@ def build_datasets(species, group, type_name):
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
                     Species.Name = %s and Species.Id = InbredSet.SpeciesId and
                     InbredSet.Name = %s and
-                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = %s and 
-                    ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id and 
+                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = %s and
+                    ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id and
                     ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0 order by
                     ProbeSetFreeze.CreateTime desc""", (species, group, type_name))
- 
+
         dataset_results = Cursor.fetchall()
         datasets = []
         for dataset_info in dataset_results:
@@ -296,7 +296,7 @@ def _test_it():
     datasets = build_datasets("Mouse", "BXD", "Hippocampus")
     #print("build_datasets:", pf(datasets))
 
-if __name__ == '__main__':   
+if __name__ == '__main__':
     Conn = MySQLdb.Connect(**parse_db_uri(zach_settings.DB_URI))
     Cursor = Conn.cursor()
     main()

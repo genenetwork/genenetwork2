@@ -1,16 +1,16 @@
 def normalize_values(a_values, b_values):
     """
     Trim two lists of values to contain only the values they both share
-    
+
     Given two lists of sample values, trim each list so that it contains
     only the samples that contain a value in both lists. Also returns
     the number of such samples.
-    
+
     >>> normalize_values([2.3, None, None, 3.2, 4.1, 5], [3.4, 7.2, 1.3, None, 6.2, 4.1])
     ([2.3, 4.1, 5], [3.4, 6.2, 4.1], 3)
-    
+
     """
-    
+
     min_length = min(len(a_values), len(b_values))
     a_new = []
     b_new = []
@@ -18,10 +18,10 @@ def normalize_values(a_values, b_values):
         if a_values[counter] and b_values[counter]:
             a_new.append(a_values[counter])
             b_new.append(b_values[counter])
-        
+
     num_overlap = len(a_new)
     assert num_overlap == len(b_new), "Lengths should be the same"
-    
+
     return a_new, b_new, num_overlap
 
 
@@ -37,16 +37,16 @@ def common_keys(a_samples, b_samples):
 
 def normalize_values_with_samples(a_samples, b_samples):
     common_samples = common_keys(a_samples, b_samples)
-    
+
     a_new = {}
     b_new = {}
     for sample in common_samples:
         a_new[sample] = a_samples[sample]
         b_new[sample] = b_samples[sample]
-        
+
     num_overlap = len(a_new)
     assert num_overlap == len(b_new), "Lengths should be the same"
-    
+
     return a_new, b_new, num_overlap
 
 

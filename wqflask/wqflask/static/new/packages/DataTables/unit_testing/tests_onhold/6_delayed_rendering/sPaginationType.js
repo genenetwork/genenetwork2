@@ -9,43 +9,43 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check two button paging is the default",
 		null,
 		function () { return oSettings.sPaginationType == "two_button"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check class is applied",
 		null,
 		function () { return $('#example_paginate').hasClass('paging_two_button'); }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Two A elements are in the wrapper",
 		null,
 		function () { return $('#example_paginate a').length == 2; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"We have the previous button",
 		null,
 		function () { return document.getElementById('example_previous'); }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"We have the next button",
 		null,
 		function () { return document.getElementById('example_next'); }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Previous button is disabled",
 		null,
 		function () { return $('#example_previous').hasClass('paginate_disabled_previous'); }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Next button is enabled",
 		null,
 		function () { return $('#example_next').hasClass('paginate_enabled_next'); }
@@ -56,7 +56,7 @@ $(document).ready( function () {
 	
 	/* Two buttons paging */
 	var bComplete = false;
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Can enabled full numbers paging",
 		function () {
 			oSession.fnRestore();
@@ -78,7 +78,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check full numbers class is applied",
 		null,
 		function () { return $('#example_paginate').hasClass('paging_full_numbers'); }
@@ -86,7 +86,7 @@ $(document).ready( function () {
 	
 	
 	var nFirst, nPrevious, nNext, nLast;
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Jump to last page",
 		function () {
 			nFirst = $('div.dataTables_paginate a.first');
@@ -100,7 +100,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Go to two pages previous",
 		function () {
 			nPrevious.click();
@@ -111,7 +111,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Next (second last) page",
 		function () {
 			nNext.click();
@@ -121,7 +121,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Jump to first page",
 		function () {
 			nFirst.click();

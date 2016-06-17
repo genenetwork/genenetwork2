@@ -6,7 +6,7 @@ $(document).ready( function () {
 		"bStateSave": true
 	} );
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Set the filter",
 		function () {
 			$('#example_filter input').val( '\\s*CVM\\s*$' );
@@ -15,7 +15,7 @@ $(document).ready( function () {
 		function () { return $('#example_filter input').val() == '\\s*CVM\\s*$'; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Destroy the table and remake it - checking the filter was saved",
 		function () {
 			$('#example').dataTable( {
@@ -26,7 +26,7 @@ $(document).ready( function () {
 		function () { return $('#example_filter input').val() == '\\s*CVM\\s*$'; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Do it again without state saving and make sure filter is empty",
 		function () {
 			$('#example').dataTable( {
@@ -36,7 +36,7 @@ $(document).ready( function () {
 		function () { return $('#example_filter input').val() == ''; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Clean up",
 		function () {
 			$('#example').dataTable( {

@@ -5,8 +5,8 @@
  * Template object for the column information object in DataTables. This object
  * is held in the settings aoColumns array and contains all the information that
  * DataTables needs about each individual column.
- * 
- * Note that this object is related to {@link DataTable.defaults.columns} 
+ *
+ * Note that this object is related to {@link DataTable.defaults.columns}
  * but this one is the internal data store for DataTables's cache of columns.
  * It should NOT be manipulated outside of DataTables. Any configuration should
  * be done through the initialisation options.
@@ -48,9 +48,9 @@ DataTable.models.oColumn = {
 	"bSortable": null,
 	
 	/**
-	 * <code>Deprecated</code> When using fnRender, you have two options for what 
-	 * to do with the data, and this property serves as the switch. Firstly, you 
-	 * can have the sorting and filtering use the rendered value (true - default), 
+	 * <code>Deprecated</code> When using fnRender, you have two options for what
+	 * to do with the data, and this property serves as the switch. Firstly, you
+	 * can have the sorting and filtering use the rendered value (true - default),
 	 * or you can have the sorting and filtering us the original value (false).
 	 *
 	 * Please note that this option has now been deprecated and will be removed
@@ -94,12 +94,12 @@ DataTable.models.oColumn = {
 	 * Function to get data from a cell in a column. You should <b>never</b>
 	 * access data directly through _aData internally in DataTables - always use
 	 * the method attached to this property. It allows mData to function as
-	 * required. This function is automatically assigned by the column 
+	 * required. This function is automatically assigned by the column
 	 * initialisation method
 	 *  @type function
-	 *  @param {array|object} oData The data array/object for the array 
+	 *  @param {array|object} oData The data array/object for the array
 	 *    (i.e. aoData[]._aData)
-	 *  @param {string} sSpecific The specific data type you want to get - 
+	 *  @param {string} sSpecific The specific data type you want to get -
 	 *    'display', 'type' 'filter' 'sort'
 	 *  @returns {*} The data for the cell from the given row's data
 	 *  @default null
@@ -107,7 +107,7 @@ DataTable.models.oColumn = {
 	"fnGetData": null,
 	
 	/**
-	 * <code>Deprecated</code> Custom display function that will be called for the 
+	 * <code>Deprecated</code> Custom display function that will be called for the
 	 * display of each cell in this column.
 	 *
 	 * Please note that this option has now been deprecated and will be removed
@@ -126,12 +126,12 @@ DataTable.models.oColumn = {
 	"fnRender": null,
 	
 	/**
-	 * Function to set data for a cell in the column. You should <b>never</b> 
+	 * Function to set data for a cell in the column. You should <b>never</b>
 	 * set the data directly to _aData internally in DataTables - always use
 	 * this method. It allows mData to function as required. This function
 	 * is automatically assigned by the column initialisation method
 	 *  @type function
-	 *  @param {array|object} oData The data array/object for the array 
+	 *  @param {array|object} oData The data array/object for the array
 	 *    (i.e. aoData[]._aData)
 	 *  @param {*} sValue Value to set
 	 *  @default null
@@ -139,7 +139,7 @@ DataTable.models.oColumn = {
 	"fnSetData": null,
 	
 	/**
-	 * Property to read the value for the cells in the column from the data 
+	 * Property to read the value for the cells in the column from the data
 	 * source array / object. If null, then the default content is used, if a
 	 * function is given then the return from the function is used.
 	 *  @type function|int|string|null
@@ -166,8 +166,8 @@ DataTable.models.oColumn = {
 	"nTh": null,
 	
 	/**
-	 * Unique footer TH/TD element for this column (if there is one). Not used 
-	 * in DataTables as such, but can be used for plug-ins to reference the 
+	 * Unique footer TH/TD element for this column (if there is one). Not used
+	 * in DataTables as such, but can be used for plug-ins to reference the
 	 * footer for each column.
 	 *  @type node
 	 *  @default null
@@ -185,7 +185,7 @@ DataTable.models.oColumn = {
 	 * When DataTables calculates the column widths to assign to each column,
 	 * it finds the longest string in each column and then constructs a
 	 * temporary table and reads the widths from that. The problem with this
-	 * is that "mmm" is much wider then "iiii", but the latter is a longer 
+	 * is that "mmm" is much wider then "iiii", but the latter is a longer
 	 * string - thus the calculation can go wrong (doing it properly and putting
 	 * it into an DOM object and measuring that is horribly(!) slow). Thus as
 	 * a "work around" we provide this option. It will append its value to the

@@ -95,16 +95,16 @@ class SearchResultPage(object):
 
         """
         self.trait_list = []
-        
+
         species = webqtlDatabaseFunction.retrieve_species(self.dataset.group.name)
-        
-        # result_set represents the results for each search term; a search of 
+
+        # result_set represents the results for each search term; a search of
         # "shh grin2b" would have two sets of results, one for each term
         print("self.results is:", pf(self.results))
         for result in self.results:
             if not result:
                 continue
-            
+
             #### Excel file needs to be generated ####
 
             #print("foo locals are:", locals())
@@ -113,7 +113,7 @@ class SearchResultPage(object):
             self.trait_list.append(this_trait)
 
         self.dataset.get_trait_info(self.trait_list, species)
-        
+
     #def get_group_species_tree(self):
     #    self.species_groups = collections.default_dict(list)
     #    for key in self.results:
@@ -128,7 +128,7 @@ class SearchResultPage(object):
 
         if len(self.search_terms) > 1:
             combined_from_clause = ""
-            combined_where_clause = "" 
+            combined_where_clause = ""
             previous_from_clauses = [] #The same table can't be referenced twice in the from clause
             for i, a_search in enumerate(self.search_terms):
                 the_search = self.get_search_ob(a_search)
@@ -177,7 +177,7 @@ class SearchResultPage(object):
         search_type = {}
         search_type['dataset_type'] = self.dataset.type
         if a_search['key']:
-            search_type['key'] = a_search['key'].upper()       
+            search_type['key'] = a_search['key'].upper()
         print("search_type is:", pf(search_type))
 
         search_ob = do_search.DoSearch.get_search(search_type)

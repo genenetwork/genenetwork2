@@ -43,14 +43,14 @@ class SampleList(object):
             except KeyError:
                 print("No sample %s, let's create it now" % sample_name)
                 sample = webqtlCaseData.webqtlCaseData(sample_name)
-            
+
             #sampleNameAdd = ''
             #if fd.RISet == 'AXBXA' and sampleName in ('AXB18/19/20','AXB13/14','BXA8/17'):
             #    sampleNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
             sample.extra_info = {}
-            if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):   
+            if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
-                sample.extra_info['css_class'] = "fs12" 
+                sample.extra_info['css_class'] = "fs12"
 
             print("  type of sample:", type(sample))
 
@@ -63,7 +63,7 @@ class SampleList(object):
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
                 print("sample.extra_attributes is", pf(sample.extra_attributes))
-            
+
             self.sample_list.append(sample)
 
         print("self.attributes is", pf(self.attributes))
@@ -81,7 +81,7 @@ class SampleList(object):
     def do_outliers(self):
         values = [sample.value for sample in self.sample_list if sample.value != None]
         upper_bound, lower_bound = Plot.find_outliers(values)
-        
+
         for sample in self.sample_list:
             if sample.value:
                 if upper_bound and sample.value > upper_bound:
@@ -90,7 +90,7 @@ class SampleList(object):
                     sample.outlier = True
                 else:
                     sample.outlier = False
-                    
+
     def get_attributes(self):
         """Finds which extra attributes apply to this dataset"""
 
@@ -141,21 +141,21 @@ class SampleList(object):
 
     def se_exists(self):
         """Returns true if SE values exist for any samples, otherwise false"""
-        
+
         return any(sample.variance for sample in self.sample_list)
 
 #def z_score(vals):
 #    vals_array = np.array(vals)
 #    mean = np.mean(vals_array)
 #    stdv = np.std(vals_array)
-#    
+#
 #    z_scores = []
 #    for val in vals_array:
 #        z_score = (val - mean)/stdv
 #        z_scores.append(z_score)
-#        
-#        
-#        
+#
+#
+#
 #    return z_scores
 
 
@@ -177,7 +177,7 @@ class SampleList(object):
 
 def natural_sort_key(x):
     """Get expected results when using as a key for sort - ints or strings are sorted properly"""
-    
+
     try:
         x = int(x)
     except ValueError:

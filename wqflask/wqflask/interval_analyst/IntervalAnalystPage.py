@@ -219,7 +219,7 @@ class IntervalAnalystPage(templatePage):
 					keyValue = ""
 				return HT.TD(keyValue, Class="fs12 fwn b1", width=300)
 			elif fieldName in ("GeneSymbol"):
-				webqtlLink = HT.Href("./%s?cmd=sch&gene=%s&alias=1&species=%s" % (webqtlConfig.SCRIPTFILE, keyValue, Species), 
+				webqtlLink = HT.Href("./%s?cmd=sch&gene=%s&alias=1&species=%s" % (webqtlConfig.SCRIPTFILE, keyValue, Species),
 					HT.Image("/images/webqtl_search.gif", border=0, valign="top"), target="_blank")
 				if theGO['GeneID']:
 					geneSymbolLink = HT.Href(webqtlConfig.NCBI_LOCUSID % theGO['GeneID'], keyValue, Class="normalsize", target="_blank")

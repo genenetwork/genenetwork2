@@ -16,14 +16,14 @@ def export_sample_table(targs):
             sorted_row = dict_to_sorted_list(row)
             print("sorted_row is:", pf(sorted_row))
             final_sample_data.append(sorted_row)
-            
+
     return final_sample_data
-     
+
 def dict_to_sorted_list(dictionary):
     sorted_list = [item for item in dictionary.iteritems()]
     sorted_list = sorted(sorted_list, cmp=cmp_samples)
     sorted_values = [item[1] for item in sorted_list]
-    return sorted_values    
+    return sorted_values
 
 def cmp_samples(a, b):
     if b[0] == 'name':

@@ -46,11 +46,11 @@ function _fnFeatureHtmlFilter ( oSettings )
 		/* Now do the filter */
 		if ( val != oPreviousSearch.sSearch )
 		{
-			_fnFilterComplete( oSettings, { 
-				"sSearch": val, 
+			_fnFilterComplete( oSettings, {
+				"sSearch": val,
 				"bRegex": oPreviousSearch.bRegex,
 				"bSmart": oPreviousSearch.bSmart ,
-				"bCaseInsensitive": oPreviousSearch.bCaseInsensitive 
+				"bCaseInsensitive": oPreviousSearch.bCaseInsensitive
 			} );
 		}
 	} );
@@ -99,7 +99,7 @@ function _fnFilterComplete ( oSettings, oInput, iForce )
 		/* Now do the individual column filter */
 		for ( var i=0 ; i<oSettings.aoPreSearchCols.length ; i++ )
 		{
-			_fnFilterColumn( oSettings, aoPrevSearch[i].sSearch, i, aoPrevSearch[i].bRegex, 
+			_fnFilterColumn( oSettings, aoPrevSearch[i].sSearch, i, aoPrevSearch[i].bRegex,
 				aoPrevSearch[i].bSmart, aoPrevSearch[i].bCaseInsensitive );
 		}
 		
@@ -230,7 +230,7 @@ function _fnFilter( oSettings, sInput, iForce, bRegex, bSmart, bCaseInsensitive 
 	else
 	{
 		/*
-		 * We are starting a new search or the new search string is smaller 
+		 * We are starting a new search or the new search string is smaller
 		 * then the old one (i.e. delete). Search from the master array
 	 	 */
 		if ( oSettings.aiDisplay.length == oSettings.aiDisplayMaster.length ||
@@ -244,7 +244,7 @@ function _fnFilter( oSettings, sInput, iForce, bRegex, bSmart, bCaseInsensitive 
 			_fnBuildSearchArray( oSettings, 1 );
 			
 			/* Search through all records to populate the search array
-			 * The the oSettings.aiDisplayMaster and asDataSearch arrays have 1 to 1 
+			 * The the oSettings.aiDisplayMaster and asDataSearch arrays have 1 to 1
 			 * mapping
 			 */
 			for ( i=0 ; i<oSettings.aiDisplayMaster.length ; i++ )

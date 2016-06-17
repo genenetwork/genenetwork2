@@ -9,7 +9,7 @@ var gtoTest;
 function fnTestStart ( sTestInfo )
 {
 	gaoTest[ giActiveModule ].iTests++;
-	document.getElementById('test_info').innerHTML += 
+	document.getElementById('test_info').innerHTML +=
 		(giActiveModule+1)+'.'+(giModuleTests+1)+'. '+sTestInfo+'... ';
 	document.getElementById('test_number').innerHTML = giTotalTestCount+1;
 	giModuleTests++;
@@ -42,7 +42,7 @@ function fnUnitStart( iTest )
 	if ( !gbStop )
 	{
 		giModuleTests = 0;
-		window.parent.test_arena.location.href = 
+		window.parent.test_arena.location.href =
 			(iTest==0?"":"../")+'templates/'+gaoTest[iTest].sTemplate+'.php?scripts='+gaoTest[iTest].sTest;
 		giTest = iTest;
 	}
@@ -73,7 +73,7 @@ function fnUnitComplete()
 }
 
 function fnEnd( bSuccess )
-{ 
+{
 	var iEndTime = new Date().getTime();
 	var sTime = '<br>This test run took '+parseInt((iEndTime-giStartTime)/1000, 10)+
 			' second(s) to complete.';

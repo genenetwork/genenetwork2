@@ -5,7 +5,7 @@
 # scripts. But rather than migrating everything in one go, we'll
 # take it a step at a time. First the hard coded paths get replaced
 # with those in utility/tools.py
-# 
+#
 #########################################
 
 from utility.tools import valid_path, mk_dir, assert_dir, flat_files, TEMPDIR

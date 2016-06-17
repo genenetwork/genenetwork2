@@ -12,6 +12,7 @@ import os
 import hashlib
 import datetime
 import time
+import logging
 
 import uuid
 import hashlib
@@ -30,7 +31,7 @@ import redis
 Redis = redis.StrictRedis()
 
 
-from flask import (Flask, g, render_template, url_for, request, make_response, 
+from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, abort)
 
 from wqflask import app
@@ -59,7 +60,7 @@ def timestamp():
 
 class AnonUser(object):
     cookie_name = 'anon_user_v1'
-    
+
     def __init__(self):
         self.cookie = request.cookies.get(self.cookie_name)
         if self.cookie:
@@ -68,7 +69,7 @@ class AnonUser(object):
         else:
             print("creating new cookie")
             self.anon_id, self.cookie = create_signed_cookie()
-            
+
         @after.after_this_request
         def set_cookie(response):
             response.set_cookie(self.cookie_name, self.cookie)
@@ -110,7 +111,7 @@ class UserSession(object):
                 # This will occur, for example, when the browser has been left open over a long
                 # weekend and the site hasn't been visited by the user
                 self.logged_in = False
-                
+
                 ########### Grrr...this won't work because of the way flask handles cookies
                 # Delete the cookie
                 #response = make_response(redirect(url_for('login')))
@@ -124,7 +125,7 @@ class UserSession(object):
                 # (Almost) everytime the user does something we extend the session_id in Redis...
                 print("Extending ttl...")
                 Redis.expire(self.redis_key, THREE_DAYS)
-            
+
             print("record is:", self.record)
             self.logged_in = True
 
@@ -141,6 +142,9 @@ class UserSession(object):
         """Actual sqlalchemy record"""
         # Only look it up once if needed, then store it
         try:
+            logging.basicConfig()
+            logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
+
             # Already did this before
             return self.db_object
         except AttributeError:

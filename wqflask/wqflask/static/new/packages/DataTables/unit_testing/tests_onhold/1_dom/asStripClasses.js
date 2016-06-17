@@ -5,7 +5,7 @@ $(document).ready( function () {
 	/* Check the default */
 	$('#example').dataTable();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Default row striping is applied",
 		null,
 		function () {
@@ -16,7 +16,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Row striping does not effect current classes",
 		null,
 		function () {
@@ -27,7 +27,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Row striping on the second page",
 		function () { $('#example_next').click(); },
 		function () {
@@ -39,7 +39,7 @@ $(document).ready( function () {
 	);
 	
 	/* No striping */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"No row striping",
 		function () {
 			oSession.fnRestore();
@@ -56,7 +56,7 @@ $(document).ready( function () {
 	);
 	
 	/* Custom striping */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Custom striping [2]",
 		function () {
 			oSession.fnRestore();
@@ -74,7 +74,7 @@ $(document).ready( function () {
 	
 	
 	/* long array of striping */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Custom striping [4]",
 		function () {
 			oSession.fnRestore();
@@ -90,7 +90,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Custom striping is restarted on second page [2]",
 		function () { $('#example_next').click(); },
 		function () {

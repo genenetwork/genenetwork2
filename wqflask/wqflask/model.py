@@ -176,7 +176,7 @@ class UserCollection(Base):
             return len(json.loads(self.members))
         except:
             return 0
-        
+
 
     #@property
     #def display_num_members(self):
@@ -197,4 +197,4 @@ def display_collapsible(number):
 def user_uuid():
     """Unique cookie for a user"""
     user_uuid = request.cookies.get('user_uuid')
-    
+

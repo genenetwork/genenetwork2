@@ -5,7 +5,7 @@ $(document).ready( function () {
 	$('#example')[0].style.width = "80%";
 	$('#example').dataTable();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Check user width is left",
 		null,
 		function () { return $('#example').width() == 640; }

@@ -70,7 +70,7 @@ $(function() {
           });
       }
       change_buttons();
-  });            
+  });
 
   $('.trait_checkbox:checkbox').change(function() {
       console.log("CHANGED")
@@ -85,8 +85,8 @@ $(function() {
           if ($(this).closest('tr').hasClass('selected')) {
               $(this).closest('tr').removeClass('selected')
           }
-      }  
-       
+      }
+
   });
 
   add = function() {

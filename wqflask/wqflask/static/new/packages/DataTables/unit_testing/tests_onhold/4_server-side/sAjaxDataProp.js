@@ -14,107 +14,107 @@ $(document).ready( function () {
 		"sAjaxDataProp": "test"
 	} );
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"10 rows shown on the first page",
 		null,
 		function () { return $('#example tbody tr').length == 10; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Initial sort occured",
 		null,
 		function () { return $('#example tbody td:eq(0)').html() == "Gecko"; }
 	);
 	
 	/* Need to use the WaitTest for sorting due to the setTimeout datatables uses */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting (first click) on second column",
 		function () { $('#example thead th:eq(1)').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "All others"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting (second click) on second column",
 		function () { $('#example thead th:eq(1)').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "Seamonkey 1.1"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting (third click) on second column",
 		function () { $('#example thead th:eq(1)').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "All others"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting (first click) on numeric column",
 		function () { $('#example thead th:eq(3)').click(); },
 		function () { return $('#example tbody td:eq(3)').html() == "-"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting (second click) on numeric column",
 		function () { $('#example thead th:eq(3)').click(); },
 		function () { return $('#example tbody td:eq(3)').html() == "522.1"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting multi-column (first click)",
-		function () { 
+		function () {
 			$('#example thead th:eq(0)').click();
 			oDispacher.click( $('#example thead th:eq(1)')[0], { 'shift': true } ); },
-		function () { var b = 
-			$('#example tbody td:eq(0)').html() == "Gecko" && 
+		function () { var b =
+			$('#example tbody td:eq(0)').html() == "Gecko" &&
 			$('#example tbody td:eq(1)').html() == "Camino 1.0"; return b; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting multi-column - sorting first column only",
-		function () { 
+		function () {
 			$('#example thead th:eq(0)').click(); },
-		function () { var b = 
-			$('#example tbody td:eq(0)').html() == "Gecko" && 
+		function () { var b =
+			$('#example tbody td:eq(0)').html() == "Gecko" &&
 			$('#example tbody td:eq(1)').html() == "Firefox 1.0"; return b; }
 	);
 	
 	/* Basic paging */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Paging to second page",
 		function () { $('#example_next').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "Mozilla 1.1"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Paging to first page",
 		function () { $('#example_previous').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "Firefox 1.0"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Attempting to page back beyond the first page",
 		function () { $('#example_previous').click(); },
 		function () { return $('#example tbody td:eq(1)').html() == "Firefox 1.0"; }
 	);
 	
 	/* Changing length */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Changing table length to 25 records",
 		function () { $("select[name=example_length]").val('25').change(); },
 		function () { return $('#example tbody tr').length == 25; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Changing table length to 50 records",
 		function () { $("select[name=example_length]").val('50').change(); },
 		function () { return $('#example tbody tr').length == 50; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Changing table length to 100 records",
 		function () { $("select[name=example_length]").val('100').change(); },
 		function () { return $('#example tbody tr').length == 57; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Changing table length to 10 records",
 		function () { $("select[name=example_length]").val('10').change(); },
 		function () { return $('#example tbody tr').length == 10; }

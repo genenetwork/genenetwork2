@@ -6,7 +6,7 @@ $(document).ready( function () {
 	var oTable = $('#example').dataTable();
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Search language is 'Search:' by default",
 		null,
 		function () { return oSettings.oLanguage.sSearch == "Search:"; }
@@ -18,7 +18,7 @@ $(document).ready( function () {
 		function () { return $('label', oSettings.aanFeatures.f[0]).length == 1 }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Search language default is in the DOM",
 		null,
 		function () { return $('label', oSettings.aanFeatures.f[0]).text()
@@ -26,7 +26,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Search language can be defined",
 		function () {
 			oSession.fnRestore();
@@ -40,14 +40,14 @@ $(document).ready( function () {
 		function () { return oSettings.oLanguage.sSearch == "unit test"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Info language definition is in the DOM",
 		null,
 		function () { return $('label', oSettings.aanFeatures.f[0]).text().indexOf('unit test') !== -1; }
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Blank search has a no (separator) inserted",
 		function () {
 			oSession.fnRestore();

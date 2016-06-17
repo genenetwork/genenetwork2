@@ -282,11 +282,11 @@ def gpercentile(lst2, np):
 
 def find_outliers(vals):
     """Calculates the upper and lower bounds of a set of sample/case values
-    
-    
+
+
     >>> find_outliers([3.504, 5.234, 6.123, 7.234, 3.542, 5.341, 7.852, 4.555, 12.537])
     (11.252500000000001, 0.5364999999999993)
-    
+
     >>> >>> find_outliers([9,12,15,17,31,50,7,5,6,8])
     (32.0, -8.0)
 
@@ -294,7 +294,7 @@ def find_outliers(vals):
     which code that calls it will have to deal with.
     >>> find_outliers([])
     (None, None)
-    
+
     """
 
     print("xerxes vals is:", pf(vals))
