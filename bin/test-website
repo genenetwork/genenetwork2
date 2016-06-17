@@ -83,6 +83,6 @@ else
 end
   
 if options[:navigation_test]
-  require 'NavigationTest'
+  require 'navigation'
 end
 
