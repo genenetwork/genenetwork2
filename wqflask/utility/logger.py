@@ -5,4 +5,22 @@
 # settings for log levels (global and by module) and (potentially)
 # offers some fine grained log levels for the standard levels.
 #
-# Global settings (defined in default_settings.py).
+# All behaviour is defined here.  Global settings (defined in
+# default_settings.py).
+
+import logging
+
+from utility.tools import LOG_LEVEL
+
+print("Set global log level to "+LOG_LEVEL)
+
+log_level = getattr(logging, LOG_LEVEL.upper())
+logging.basicConfig(level=log_level)
+
+# Get the module logger. You can override log levels at the
+# module level
+def getLogger(name, level = None):
+    logger = logging.getLogger(name)
+    if level:
+        logger.setLevel(level)
+    return logger

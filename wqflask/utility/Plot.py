@@ -29,8 +29,6 @@ from __future__ import print_function
 import piddle as pid
 from pprint import pformat as pf
 
-print("Lysol")
-
 from math import *
 import random
 import sys, os

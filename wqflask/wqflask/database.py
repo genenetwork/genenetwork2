@@ -12,10 +12,8 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 
-import logging
-logger = logging.getLogger(__name__ )
-logging.basicConfig(level=logging.INFO)
-
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
 
 def init_db():
     # import all modules here that might define models so that

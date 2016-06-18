@@ -22,16 +22,28 @@ from wqflask import app
 
 print app.config
 
-import logging
-file_handler = logging.FileHandler(app.config['LOGFILE'])
-file_handler.setLevel(logging.DEBUG)
-app.logger.addHandler(file_handler)
-
 from utility.tools import WEBSERVER_MODE
 
-app.run(host='0.0.0.0',
-        port=app.config['SERVER_PORT'],
-        debug=(WEBSERVER_MODE=='DEBUG'),
-        use_debugger=(WEBSERVER_MODE=='DEBUG'),
-        threaded=(WEBSERVER_MODE=='PROD'),
-        use_reloader=True)
+if WEBSERVER_MODE == 'DEBUG':
+    app.run(host='0.0.0.0',
+            port=app.config['SERVER_PORT'],
+            debug=True,
+            use_debugger=True,
+            threaded=False,
+            use_reloader=True)
+elif WEBSERVER_MODE == 'DEV':
+    app.run(host='0.0.0.0',
+            port=app.config['SERVER_PORT'],
+            debug=False,
+            use_debugger=False,
+            threaded=False,
+            processes=0,
+            use_reloader=True)
+else: #production mode
+    app.run(host='0.0.0.0',
+            port=app.config['SERVER_PORT'],
+            debug=False,
+            use_debugger=False,
+            threaded=True,
+            processes=8,
+            use_reloader=True)

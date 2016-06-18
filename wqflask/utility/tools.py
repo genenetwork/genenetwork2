@@ -5,6 +5,7 @@ import os
 import sys
 from wqflask import app
 
+# Use the standard logger here to avoid a circular dependency
 import logging
 logger = logging.getLogger(__name__ )
 logging.basicConfig(level=logging.INFO)
@@ -135,7 +136,7 @@ def tempdir():
 
 # Cached values
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')
-LOGGING            = get_setting('LOGGING')
+LOG_LEVEL          = get_setting('LOG_LEVEL')
 DEBUG_LOG_LEVEL    = get_setting('DEBUG_LOG_LEVEL')
 LOG_SQL            = get_setting('LOG_SQL') in [True,'TRUE','True','true']
 USE_REDIS          = get_setting('USE_REDIS') in [True,'TRUE','True','true']
