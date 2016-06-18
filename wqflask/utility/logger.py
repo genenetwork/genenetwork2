@@ -7,6 +7,19 @@
 #
 # All behaviour is defined here.  Global settings (defined in
 # default_settings.py).
+#
+# To use logging and settings put this at the top of a module:
+#
+#   import utility.logger
+#   logger = utility.logger.getLogger(__name__ )
+#
+# To override log level for a module replace that with, for example,
+#
+#   import logging
+#   import utility.logger
+#   logger = utility.logger.getLogger(__name__,level=logging.DEBUG)
+#
+# We'll add more overrides soon.
 
 import logging
 
