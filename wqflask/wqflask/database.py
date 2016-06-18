@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-
 from wqflask import app
 
 #engine = create_engine('sqlite:////tmp/test.db', convert_unicode=True)
@@ -13,10 +12,10 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 
-#import logging
-#
-#logging.basicConfig()
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+import logging
+logger = logging.getLogger(__name__ )
+logging.basicConfig(level=logging.INFO)
+
 
 def init_db():
     # import all modules here that might define models so that
@@ -24,9 +23,9 @@ def init_db():
     # you will have to import them first before calling init_db()
     #import yourapplication.models
     import wqflask.model
-    print("database.py: Creating all model metadata..")
+    logger.debug("database.py: Creating all model metadata..")
     Base.metadata.create_all(bind=engine)
-    print("database.py: Done creating all model metadata...")
-    print("Point your browser at http://localhost:5003/")
+    logger.info("database.py: Done creating all model metadata...")
+    logger.info("Point your browser at http://localhost:5003/")
 
 init_db()

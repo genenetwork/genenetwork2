@@ -1,5 +1,7 @@
 from wqflask import app
 
+# Start the webserver with ./bin/genenetwork2
+#
 # Please note, running with host set externally below combined with debug mode
 # is a big security no-no
 # Unless you have a firewall setup
@@ -25,12 +27,11 @@ file_handler = logging.FileHandler(app.config['LOGFILE'])
 file_handler.setLevel(logging.DEBUG)
 app.logger.addHandler(file_handler)
 
-# import logging_tree
-# logging_tree.printout()
+from utility.tools import WEBSERVER_MODE
 
 app.run(host='0.0.0.0',
         port=app.config['SERVER_PORT'],
-        debug=True,
-        use_debugger=True,
-        threaded=True,
+        debug=(WEBSERVER_MODE=='DEBUG'),
+        use_debugger=(WEBSERVER_MODE=='DEBUG'),
+        threaded=(WEBSERVER_MODE=='PROD'),
         use_reloader=True)

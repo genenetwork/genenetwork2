@@ -6,7 +6,7 @@
 # which has support for overriding them through environment variables,
 # e.g.
 #
-#   env LOG_SQL=True USE_REDIS=False ./bin/genenetwork2 
+#   env LOG_SQL=True USE_REDIS=False ./bin/genenetwork2
 
 import os
 import sys

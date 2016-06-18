@@ -3,9 +3,9 @@
 
 import os
 import sys
-import logging
 from wqflask import app
 
+import logging
 logger = logging.getLogger(__name__ )
 logging.basicConfig(level=logging.INFO)
 
