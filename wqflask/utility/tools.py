@@ -43,15 +43,25 @@ def get_setting(command_id,guess=None):
     # ---- Check whether environment exists
     logger.debug("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
-    if not command:
+    if command == None or command == "":
         # ---- Check whether setting exists in app
         command = value(app.config.get(command_id))
-        if not command:
+        if command == None:
             command = value(guess)
-            if not command:
-                raise Exception(command_id+' setting unknown or faulty (update settings.py?).')
+            if command == None or command == "":
+                raise Exception(command_id+' setting unknown or faulty (update default_settings.py?).')
     logger.info("Set "+command_id+"="+str(command))
     return command
+
+def get_setting_bool(id):
+    v = get_setting(id)
+    if v not in [0,False,'False','FALSE',None]:
+      return True
+    return False
+
+def get_setting_int(id):
+    v = get_setting(id)
+    return int(v)
 
 def valid_bin(bin):
     if os.path.islink(bin) or valid_file(bin):
@@ -136,9 +146,9 @@ def tempdir():
 # Cached values
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')
 LOG_LEVEL          = get_setting('LOG_LEVEL')
-DEBUG_LOG_LEVEL    = get_setting('DEBUG_LOG_LEVEL')
-LOG_SQL            = get_setting('LOG_SQL') in [True,'TRUE','True','true']
-USE_REDIS          = get_setting('USE_REDIS') in [True,'TRUE','True','true']
+DEBUG_LOG_LEVEL    = get_setting_int('DEBUG_LOG_LEVEL')
+LOG_SQL            = get_setting_bool('LOG_SQL')
+USE_REDIS          = get_setting_bool('USE_REDIS')
 
 PYLMM_COMMAND      = pylmm_command()
 GEMMA_COMMAND      = gemma_command()

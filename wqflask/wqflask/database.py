@@ -24,6 +24,5 @@ def init_db():
     logger.debug("database.py: Creating all model metadata..")
     Base.metadata.create_all(bind=engine)
     logger.info("database.py: Done creating all model metadata...")
-    logger.info("Point your browser at http://localhost:5003/")
 
 init_db()

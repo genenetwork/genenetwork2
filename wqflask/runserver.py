@@ -24,7 +24,19 @@ import logging
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-logger.info(app.config)
+BLUE  = '\033[94m'
+GREEN = '\033[92m'
+BOLD  = '\033[1m'
+ENDC  = '\033[0m'
+
+# We always output this information on startup
+print "runserver.py: ****** The webserver has the following configuration ******"
+keylist = app.config.keys()
+keylist.sort()
+for k in keylist:
+    print("%s %s%s%s%s" % (k,BLUE,BOLD,app.config[k],ENDC))
+
+logger.info("GN2 is running. Visit %shttp://localhost:5003/%s" % (BLUE,ENDC))
 
 from utility.tools import WEBSERVER_MODE
 
