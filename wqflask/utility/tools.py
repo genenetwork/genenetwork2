@@ -3,7 +3,11 @@
 
 import os
 import sys
+import logging
 from wqflask import app
+
+logger = logging.getLogger(__name__ )
+logging.basicConfig(level=logging.INFO)
 
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
@@ -37,7 +41,7 @@ def get_setting(command_id,guess=None):
             return None
 
     # ---- Check whether environment exists
-    # sys.stderr.write("Looking for "+command_id+"\n")
+    logger.debug("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if not command:
         # ---- Check whether setting exists in app
@@ -46,7 +50,7 @@ def get_setting(command_id,guess=None):
             command = value(guess)
             if not command:
                 raise Exception(command_id+' setting unknown or faulty (update settings.py?).')
-    sys.stderr.write("Set "+command_id+"="+str(command)+"\n")
+    logger.info("Set "+command_id+"="+str(command))
     return command
 
 def valid_bin(bin):
@@ -101,7 +105,7 @@ def locate(name, subdir=None):
     if valid_path(base):
         lookfor = base + "/" + name
         if valid_file(lookfor):
-            print("Found: file "+lookfor+"\n")
+            logger.info("Found: file "+lookfor+"\n")
             return lookfor
         else:
             raise Exception("Can not locate "+lookfor)
@@ -121,9 +125,9 @@ def locate_ignore_error(name, subdir=None):
     if valid_path(base):
         lookfor = base + "/" + name
         if valid_file(lookfor):
-            print("Found: file "+name+"\n")
+            logger.debug("Found: file "+name+"\n")
             return lookfor
-    sys.stderr.write("WARNING: file "+name+" not found\n")
+    logger.info("WARNING: file "+name+" not found\n")
     return None
 
 def tempdir():
@@ -141,4 +145,3 @@ GEMMA_COMMAND      = gemma_command()
 PLINK_COMMAND      = plink_command()
 FLAT_FILES         = flat_files()
 TEMPDIR            = tempdir()
-
