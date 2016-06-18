@@ -20,12 +20,15 @@ from wqflask import app
 #_ch = logging.StreamHandler()
 #_log.addHandler(_ch)
 
+import logging
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 logger.info(app.config)
 
 from utility.tools import WEBSERVER_MODE
+
+werkzeug_logger = logging.getLogger('werkzeug')
 
 if WEBSERVER_MODE == 'DEBUG':
     app.run(host='0.0.0.0',
@@ -35,6 +38,7 @@ if WEBSERVER_MODE == 'DEBUG':
             threaded=False,
             use_reloader=True)
 elif WEBSERVER_MODE == 'DEV':
+    werkzeug_logger.setLevel(logging.WARNING)
     app.run(host='0.0.0.0',
             port=app.config['SERVER_PORT'],
             debug=False,

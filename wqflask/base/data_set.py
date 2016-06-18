@@ -51,6 +51,9 @@ from maintenance import get_group_samplelists
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
+
 # Used by create_database to instantiate objects
 # Each subclass will add to this
 DS_NAME_MAP = {}
@@ -59,7 +62,7 @@ def create_dataset(dataset_name, dataset_type = None, get_samplelist = True):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
 
-        print("dataset_type is:", dataset_type)
+        logger.debug("dataset_type is:", dataset_type)
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     dataset_class = globals()[dataset_ob]
@@ -73,7 +76,7 @@ class Dataset_Types(object):
         with open(file_name, 'r') as fh:
             data = json.load(fh)
 
-        print("*" * 70)
+        logger.debug("*" * 70)
         for species in data['datasets']:
             for group in data['datasets'][species]:
                 for dataset_type in data['datasets'][species][group]:
@@ -98,7 +101,7 @@ def create_datasets_list():
     result = Redis.get(key)
 
     if result:
-        print("Cache hit!!!")
+        logger.debug("Cache hit!!!")
         datasets = pickle.loads(result)
 
     else:
@@ -113,7 +116,7 @@ def create_datasets_list():
                 for result in g.db.execute(query).fetchall():
                     #The query at the beginning of this function isn't necessary here, but still would
                     #rather just reuse it
-                    #print("type: {}\tname: {}".format(dataset_type, result.Name))
+                    #logger.debug("type: {}\tname: {}".format(dataset_type, result.Name))
                     dataset = create_dataset(result.Name, dataset_type)
                     datasets.append(dataset)
 
@@ -133,7 +136,7 @@ def create_in_clause(items):
 def mescape(*items):
     """Multiple escape"""
     escaped = [escape(str(item)) for item in items]
-    #print("escaped is:", escaped)
+    #logger.debug("escaped is:", escaped)
     return escaped
 
 
@@ -152,12 +155,12 @@ class Markers(object):
             marker['Mb'] = float(marker['Mb'])
 
         self.markers = markers
-        #print("self.markers:", self.markers)
+        #logger.debug("self.markers:", self.markers)
 
 
     def add_pvalues(self, p_values):
-        print("length of self.markers:", len(self.markers))
-        print("length of p_values:", len(p_values))
+        logger.debug("length of self.markers:", len(self.markers))
+        logger.debug("length of p_values:", len(p_values))
 
         if type(p_values) is list:
             # THIS IS only needed for the case when we are limiting the number of p-values calculated
@@ -178,10 +181,10 @@ class Markers(object):
         elif type(p_values) is dict:
             filtered_markers = []
             for marker in self.markers:
-                #print("marker[name]", marker['name'])
-                #print("p_values:", p_values)
+                #logger.debug("marker[name]", marker['name'])
+                #logger.debug("p_values:", p_values)
                 if marker['name'] in p_values:
-                    #print("marker {} IS in p_values".format(i))
+                    #logger.debug("marker {} IS in p_values".format(i))
                     marker['p_value'] = p_values[marker['name']]
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
@@ -192,7 +195,7 @@ class Markers(object):
                         marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
                     filtered_markers.append(marker)
                 #else:
-                    #print("marker {} NOT in p_values".format(i))
+                    #logger.debug("marker {} NOT in p_values".format(i))
                     #self.markers.remove(marker)
                     #del self.markers[i]
             self.markers = filtered_markers
@@ -204,7 +207,7 @@ class HumanMarkers(Markers):
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
-            #print("splat:", splat)
+            #logger.debug("splat:", splat)
             if len(specified_markers) > 0:
                 if splat[1] in specified_markers:
                     marker = {}
@@ -220,7 +223,7 @@ class HumanMarkers(Markers):
                 marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
 
-        #print("markers is: ", pf(self.markers))
+        #logger.debug("markers is: ", pf(self.markers))
 
 
     def add_pvalues(self, p_values):
@@ -237,7 +240,7 @@ class DatasetGroup(object):
     """
     def __init__(self, dataset):
         """This sets self.group and self.group_id"""
-        #print("DATASET NAME2:", dataset.name)
+        #logger.debug("DATASET NAME2:", dataset.name)
         self.name, self.id = g.db.execute(dataset.query_for_group).fetchone()
         if self.name == 'BXD300':
             self.name = "BXD"
@@ -245,7 +248,7 @@ class DatasetGroup(object):
         self.f1list = None
         self.parlist = None
         self.get_f1_parent_strains()
-        #print("parents/f1s: {}:{}".format(self.parlist, self.f1list))
+        #logger.debug("parents/f1s: {}:{}".format(self.parlist, self.f1list))
 
         self.species = webqtlDatabaseFunction.retrieve_species(self.name)
 
@@ -257,7 +260,7 @@ class DatasetGroup(object):
         self.markers = HumanMarkers(self.name, markers)
 
     def get_markers(self):
-        #print("self.species is:", self.species)
+        #logger.debug("self.species is:", self.species)
         if self.species == "human":
             marker_class = HumanMarkers
         else:
@@ -267,10 +270,10 @@ class DatasetGroup(object):
 
     def datasets(self):
         key = "group_dataset_menu:v2:" + self.name
-        print("key is2:", key)
+        logger.debug("key is2:", key)
         dataset_menu = []
-        print("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
-        print("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
+        logger.debug("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
+        logger.debug("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
         results = g.db.execute('''
              (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
               FROM PublishFreeze,InbredSet
@@ -317,7 +320,7 @@ class DatasetGroup(object):
                         break
 
                 if tissue_already_exists:
-                    #print("dataset_menu:", dataset_menu[i]['datasets'])
+                    #logger.debug("dataset_menu:", dataset_menu[i]['datasets'])
                     dataset_menu[i]['datasets'].append((dataset, dataset_short))
                 else:
                     dataset_menu.append(dict(tissue=tissue_name,
@@ -343,18 +346,18 @@ class DatasetGroup(object):
 
     def get_samplelist(self):
         key = "samplelist:v2:" + self.name
-        #print("key is:", key)
+        #logger.debug("key is:", key)
         #with Bench("Loading cache"):
         result = Redis.get(key)
 
         if result:
-            #print("Sample List Cache hit!!!")
-            #print("Before unjsonifying {}: {}".format(type(result), result))
+            #logger.debug("Sample List Cache hit!!!")
+            #logger.debug("Before unjsonifying {}: {}".format(type(result), result))
             self.samplelist = json.loads(result)
-            #print("  type: ", type(self.samplelist))
-            #print("  self.samplelist: ", self.samplelist)
+            #logger.debug("  type: ", type(self.samplelist))
+            #logger.debug("  self.samplelist: ", self.samplelist)
         else:
-            print("Cache not hit")
+            logger.debug("Cache not hit")
 
             genotype_fn = locate_ignore_error(self.name+".geno",'genotype')
             mapping_fn = locate_ignore_error(self.name+".fam",'mapping')
@@ -364,7 +367,7 @@ class DatasetGroup(object):
                 self.samplelist = get_group_samplelists.get_samplelist("geno", genotype_fn)
             else:
                 self.samplelist = None
-            print("Sample list: ",self.samplelist)
+            logger.debug("Sample list: ",self.samplelist)
             Redis.set(key, json.dumps(self.samplelist))
             Redis.expire(key, 60*5)
 
@@ -482,7 +485,7 @@ class DataSet(object):
                   """ % (query_args)).fetchone()
 
         except TypeError:
-            print("Dataset {} is not yet available in GeneNetwork.".format(self.name))
+            logger.debug("Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass
 
     def get_trait_data(self, sample_list=None):
@@ -549,10 +552,10 @@ class DataSet(object):
                         """.format(*mescape(self.type, self.type, self.type, self.type,
                                    self.name, dataset_type, self.type, self.type, dataset_type))
 
-            #print("trait data query: ", query)
+            #logger.debug("trait data query: ", query)
 
             results = g.db.execute(query).fetchall()
-            #print("query results:", results)
+            #logger.debug("query results:", results)
             trait_sample_data.append(results)
 
         trait_count = len(trait_sample_data[0])
@@ -571,7 +574,7 @@ class PhenotypeDataSet(DataSet):
 
     def setup(self):
 
-        #print("IS A PHENOTYPEDATASET")
+        #logger.debug("IS A PHENOTYPEDATASET")
 
         # Fields in the database table
         self.search_fields = ['Phenotype.Post_publication_description',
@@ -967,7 +970,7 @@ class MrnaAssayDataSet(DataSet):
             """ % (escape(str(this_trait.dataset.id)),
                    escape(this_trait.name)))
 
-            #print("query is:", pf(query))
+            #logger.debug("query is:", pf(query))
 
             result = g.db.execute(query).fetchone()
 
@@ -1046,7 +1049,7 @@ class MrnaAssayDataSet(DataSet):
                             Strain.Name
                     """ % (escape(trait), escape(self.name))
         results = g.db.execute(query).fetchall()
-        #print("RETRIEVED RESULTS HERE:", results)
+        #logger.debug("RETRIEVED RESULTS HERE:", results)
         return results
 
 
@@ -1130,7 +1133,7 @@ class TempDataSet(DataSet):
 
 def geno_mrna_confidentiality(ob):
     dataset_table = ob.type + "Freeze"
-    #print("dataset_table [%s]: %s" % (type(dataset_table), dataset_table))
+    #logger.debug("dataset_table [%s]: %s" % (type(dataset_table), dataset_table))
 
     query = '''SELECT Id, Name, FullName, confidentiality,
                         AuthorisedUsers FROM %s WHERE Name = %%s''' % (dataset_table)
@@ -1145,4 +1148,3 @@ def geno_mrna_confidentiality(ob):
 
     if confidential:
         return True
-

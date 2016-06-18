@@ -36,6 +36,9 @@ from dbFunction import webqtlDatabaseFunction
 
 from utility import formatting
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
+
 #class QuickSearchResult(object):
     #def __init__(self, key, result_fields):
     #    self.key = key
@@ -64,9 +67,9 @@ class SearchResultPage(object):
         #else:
 
         self.uc_id = uuid.uuid4()
-        print("uc_id:", self.uc_id)
+        logger.debug("uc_id:", self.uc_id)
 
-        print("kw is:", kw)
+        logger.debug("kw is:", kw)
         if kw['search_terms_or']:
             self.and_or = "or"
             self.search_terms = kw['search_terms_or']
@@ -82,7 +85,7 @@ class SearchResultPage(object):
         else:
             dataset_type = "ProbeSet"
         self.dataset = create_dataset(kw['dataset'], dataset_type)
-        print("KEYWORD:", self.search_terms)
+        logger.debug("KEYWORD:", self.search_terms)
         self.search()
         if self.search_term_exists:
             self.gen_search_result()
@@ -100,14 +103,14 @@ class SearchResultPage(object):
 
         # result_set represents the results for each search term; a search of
         # "shh grin2b" would have two sets of results, one for each term
-        print("self.results is:", pf(self.results))
+        logger.debug("self.results is:", pf(self.results))
         for result in self.results:
             if not result:
                 continue
 
             #### Excel file needs to be generated ####
 
-            #print("foo locals are:", locals())
+            #logger.debug("foo locals are:", locals())
             trait_id = result[0]
             this_trait = GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
             self.trait_list.append(this_trait)
@@ -124,7 +127,7 @@ class SearchResultPage(object):
 
     def search(self):
         self.search_terms = parser.parse(self.search_terms)
-        print("After parsing:", self.search_terms)
+        logger.debug("After parsing:", self.search_terms)
 
         if len(self.search_terms) > 1:
             combined_from_clause = ""
@@ -171,19 +174,19 @@ class SearchResultPage(object):
                 self.header_fields = the_search.header_fields
 
     def get_search_ob(self, a_search):
-        print("[kodak] item is:", pf(a_search))
+        logger.debug("[kodak] item is:", pf(a_search))
         search_term = a_search['search_term']
         search_operator = a_search['separator']
         search_type = {}
         search_type['dataset_type'] = self.dataset.type
         if a_search['key']:
             search_type['key'] = a_search['key'].upper()
-        print("search_type is:", pf(search_type))
+        logger.debug("search_type is:", pf(search_type))
 
         search_ob = do_search.DoSearch.get_search(search_type)
         if search_ob:
             search_class = getattr(do_search, search_ob)
-            print("search_class is: ", pf(search_class))
+            logger.debug("search_class is: ", pf(search_class))
             the_search = search_class(search_term,
                                     search_operator,
                                     self.dataset,

@@ -1,6 +1,3 @@
-#!/usr/bin/python
-
-
 from __future__ import print_function, division
 
 import string
@@ -15,6 +12,9 @@ import sys
 
 from dbFunction import webqtlDatabaseFunction
 
+import logging
+from utility.logger import getLogger
+logger = getLogger(__name__ , level = logging.INFO)
 
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""
@@ -30,15 +30,15 @@ class DoSearch(object):
         self.dataset = dataset
 
         if self.dataset:
-            print("self.dataset is boo: ", type(self.dataset), pf(self.dataset))
-            print("self.dataset.group is: ", pf(self.dataset.group))
+            logger.debug("self.dataset is boo: ", type(self.dataset), pf(self.dataset))
+            logger.debug("self.dataset.group is: ", pf(self.dataset.group))
             #Get group information for dataset and the species id
             self.species_id = webqtlDatabaseFunction.retrieve_species_id(self.dataset.group.name)
 
     def execute(self, query):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
-        print("in do_search query is:", pf(query))
+        logger.debug("in do_search query is:", pf(query))
         results = g.db.execute(query, no_parameters=True).fetchall()
         return results
 
@@ -56,7 +56,7 @@ class DoSearch(object):
     def mescape(self, *items):
         """Multiple escape"""
         escaped = [escape(str(item)) for item in items]
-        print("escaped is:", escaped)
+        logger.debug("escaped is:", escaped)
         return tuple(escaped)
 
     def normalize_spaces(self, stringy):
@@ -66,13 +66,13 @@ class DoSearch(object):
 
     @classmethod
     def get_search(cls, search_type):
-        print("search_types are:", pf(cls.search_types))
+        logger.debug("search_types are:", pf(cls.search_types))
 
         search_type_string = search_type['dataset_type']
         if 'key' in search_type:
             search_type_string += '_' + search_type['key']
 
-        print("search_type_string is:", search_type_string)
+        logger.debug("search_type_string is:", search_type_string)
 
         if search_type_string in cls.search_types:
             return cls.search_types[search_type_string]
@@ -100,7 +100,7 @@ class QuickMrnaAssaySearch(DoSearch):
     def run(self):
         """Generates and runs a search for assays across all mRNA expression datasets"""
 
-        print("Running ProbeSetSearch")
+        logger.debug("Running ProbeSetSearch")
         query = self.base_query + """WHERE (MATCH (ProbeSet.Name,
                     ProbeSet.description,
                     ProbeSet.symbol,
@@ -108,7 +108,7 @@ class QuickMrnaAssaySearch(DoSearch):
                     AGAINST ('%s' IN BOOLEAN MODE))
                             """ % (escape(self.search_term[0]))
 
-        print("final query is:", pf(query))
+        logger.debug("final query is:", pf(query))
 
         return self.execute(query)
 
@@ -176,14 +176,14 @@ class MrnaAssaySearch(DoSearch):
                                     where_clause,
                                     escape(str(self.dataset.id))))
 
-        #print("query is:", pf(query))
+        #logger.debug("query is:", pf(query))
 
         return query
 
     def run_combined(self, from_clause = '', where_clause = ''):
         """Generates and runs a combined search of an mRNA expression dataset"""
 
-        print("Running ProbeSetSearch")
+        logger.debug("Running ProbeSetSearch")
         #query = self.base_query + from_clause + " WHERE " + where_clause
 
         from_clause = self.normalize_spaces(from_clause)
@@ -198,18 +198,18 @@ class MrnaAssaySearch(DoSearch):
                                     where_clause,
                                     escape(str(self.dataset.id))))
 
-        print("final query is:", pf(query))
+        logger.debug("final query is:", pf(query))
 
         return self.execute(query)
 
     def run(self):
         """Generates and runs a simple search of an mRNA expression dataset"""
 
-        print("Running ProbeSetSearch")
+        logger.debug("Running ProbeSetSearch")
         where_clause = self.get_where_clause()
         query = self.base_query + "WHERE " + where_clause + "ORDER BY ProbeSet.symbol ASC"
 
-        #print("final query is:", pf(query))
+        #logger.debug("final query is:", pf(query))
 
         return self.execute(query)
 
@@ -290,14 +290,14 @@ class PhenotypeSearch(DoSearch):
                             escape(str(self.dataset.group.id)),
                             escape(str(self.dataset.id))))
 
-        print("query is:", pf(query))
+        logger.debug("query is:", pf(query))
 
         return query
 
     def run_combined(self, from_clause, where_clause):
         """Generates and runs a combined search of an phenotype dataset"""
 
-        print("Running PhenotypeSearch")
+        logger.debug("Running PhenotypeSearch")
 
         from_clause = self.normalize_spaces(from_clause)
 
@@ -313,7 +313,7 @@ class PhenotypeSearch(DoSearch):
                         escape(str(self.dataset.group.id)),
                         escape(str(self.dataset.id))))
 
-        print("final query is:", pf(query))
+        logger.debug("final query is:", pf(query))
 
 
         return self.execute(query)
@@ -364,7 +364,7 @@ class QuickPhenotypeSearch(PhenotypeSearch):
                     PublishXRef.InbredSetId = InbredSet.Id and
                     InbredSet.SpeciesId = Species.Id""" % where_clause)
 
-        print("query is:", pf(query))
+        logger.debug("query is:", pf(query))
 
         return query
 
@@ -408,7 +408,7 @@ class GenotypeSearch(DoSearch):
             where_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
                                                                                field),
                                                                                self.search_term))
-        print("hello ;where_clause is:", pf(where_clause))
+        logger.debug("hello ;where_clause is:", pf(where_clause))
         where_clause = "(%s) " % ' OR '.join(where_clause)
 
         return where_clause
@@ -432,7 +432,7 @@ class GenotypeSearch(DoSearch):
                         and GenoFreeze.Id = %s"""% (where_clause,
                                                 escape(str(self.dataset.id))))
 
-        print("query is:", pf(query))
+        logger.debug("query is:", pf(query))
 
         return query
 
@@ -586,7 +586,7 @@ class LrsSearch(DoSearch):
                                                            self.species_id)
         else:
             # Deal with >, <, >=, and <=
-            print("self.search_term is:", self.search_term)
+            logger.debug("self.search_term is:", self.search_term)
             where_clause = """ %sXRef.LRS %s %s """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
                                                                         self.search_term[0])
@@ -787,7 +787,7 @@ class MeanSearch(MrnaAssaySearch):
 
     def get_final_query(self):
         self.where_clause = self.get_where_clause()
-        print("where_clause is:", pf(self.where_clause))
+        logger.debug("where_clause is:", pf(self.where_clause))
 
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
@@ -795,7 +795,7 @@ class MeanSearch(MrnaAssaySearch):
 
     def run(self):
         self.where_clause = self.get_where_clause()
-        print("where_clause is:", pf(self.where_clause))
+        logger.debug("where_clause is:", pf(self.where_clause))
 
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
@@ -825,7 +825,7 @@ class RangeSearch(MrnaAssaySearch):
                                      WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s
                                     """ % (escape(self.search_term[0]))
 
-        print("where_clause is:", pf(where_clause))
+        logger.debug("where_clause is:", pf(where_clause))
 
         return where_clause
 
@@ -927,7 +927,7 @@ class PvalueSearch(MrnaAssaySearch):
                                         self.search_operator,
                                         self.search_term[0])
 
-        print("where_clause is:", pf(self.where_clause))
+        logger.debug("where_clause is:", pf(self.where_clause))
 
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
@@ -992,7 +992,7 @@ if __name__ == "__main__":
     #            ProbeSet.Id = ProbeSetXRef.ProbeSetId and
     #            ProbeSetXRef.ProbeSetFreezeId = 112""")
 
-    #print(pf(cursor.fetchall()))
+    #logger.debug(pf(cursor.fetchall()))
     #results = ProbeSetSearch("shh", None, dataset, cursor, db_conn).run()
     results = PvalueSearch(['0.005'], '<', dataset, cursor, db_conn).run()
     #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
@@ -1004,4 +1004,4 @@ if __name__ == "__main__":
     #results = GenotypeSearch("rs13475699", dataset, cursor, db_conn).run()
     #results = GoSearch("0045202", dataset, cursor, db_conn).run()
 
-    print("results are:", pf(results))
+    logger.debug("results are:", pf(results))

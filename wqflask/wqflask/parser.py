@@ -23,6 +23,9 @@ import re
 
 from pprint import pformat as pf
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
+
 def parse(pstring):
     """
 
@@ -40,13 +43,13 @@ def parse(pstring):
     separators = [re.escape(x) for x in ("<=", ">=", ":", "=", "<", ">")]
     separators = '(%s)' % ("|".join(separators))
 
-    print("separators:", separators)
+    logger.debug("separators:", separators)
 
 
 
     for item in pstring:
         splat = re.split(separators, item)
-        print("splat is:", splat)
+        logger.debug("splat is:", splat)
 
         # splat is an array of 1 if no match, otherwise more than 1
         if len(splat) > 1:
@@ -72,7 +75,7 @@ def parse(pstring):
                         search_term=[item])
 
         items.append(term)
-    print("* items are:", pf(items) + "\n")
+    logger.debug("* items are:", pf(items) + "\n")
     return(items)
 
     #def encregexp(self,str):

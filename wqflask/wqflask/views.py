@@ -132,7 +132,7 @@ def search_page():
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
         key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
-        logger.info("key is:", pf(key))
+        logger.debug("key is:", pf(key))
         if USE_REDIS:
             with Bench("Trying Redis cache"):
                 result = Redis.get(key)
@@ -142,7 +142,7 @@ def search_page():
 
         if result:
             logger.info("Cache hit on search results!!!")
-            logger.info("USE_REDIS=",USE_REDIS)
+            logger.debug("USE_REDIS=",USE_REDIS)
             with Bench("Loading results"):
                 result = pickle.loads(result)
         else:
@@ -151,7 +151,7 @@ def search_page():
             the_search = search_results.SearchResultPage(request.args)
             result = the_search.__dict__
 
-            logger.info("result: ", pf(result))
+            logger.debug("result: ", pf(result))
             if USE_REDIS:
                 Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
                 Redis.expire(key, 60*60)

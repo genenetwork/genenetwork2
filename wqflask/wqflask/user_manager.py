@@ -47,7 +47,9 @@ from wqflask import model
 
 from utility import Bunch, Struct, after
 
-
+import logging
+from utility.logger import getLogger
+logger = getLogger(__name__)
 
 from base.data_set import create_datasets_list
 
@@ -64,10 +66,10 @@ class AnonUser(object):
     def __init__(self):
         self.cookie = request.cookies.get(self.cookie_name)
         if self.cookie:
-            print("already is cookie")
+            logger.debug("already is cookie")
             self.anon_id = verify_cookie(self.cookie)
         else:
-            print("creating new cookie")
+            logger.debug("creating new cookie")
             self.anon_id, self.cookie = create_signed_cookie()
 
         @after.after_this_request
@@ -87,7 +89,7 @@ def create_signed_cookie():
     the_uuid = str(uuid.uuid4())
     signature = actual_hmac_creation(the_uuid)
     uuid_signed = the_uuid + ":" + signature
-    print("uuid_signed:", uuid_signed)
+    logger.debug("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
 
 class UserSession(object):
@@ -102,7 +104,7 @@ class UserSession(object):
             session_id = verify_cookie(cookie)
 
             self.redis_key = self.cookie_name + ":" + session_id
-            print("self.redis_key is:", self.redis_key)
+            logger.debug("self.redis_key is:", self.redis_key)
             self.session_id = session_id
             self.record = Redis.hgetall(self.redis_key)
 
@@ -123,10 +125,10 @@ class UserSession(object):
 
             if Redis.ttl(self.redis_key) < THREE_DAYS:
                 # (Almost) everytime the user does something we extend the session_id in Redis...
-                print("Extending ttl...")
+                logger.debug("Extending ttl...")
                 Redis.expire(self.redis_key, THREE_DAYS)
 
-            print("record is:", self.record)
+            logger.debug("record is:", self.record)
             self.logged_in = True
 
     @property
@@ -156,7 +158,7 @@ class UserSession(object):
     def delete_session(self):
         # And more importantly delete the redis record
         Redis.delete(self.cookie_name)
-        print("At end of delete_session")
+        logger.debug("At end of delete_session")
 
 @app.before_request
 def before_request():
@@ -165,26 +167,26 @@ def before_request():
 class UsersManager(object):
     def __init__(self):
         self.users = model.User.query.all()
-        print("Users are:", self.users)
+        logger.debug("Users are:", self.users)
 
 
 class UserManager(object):
     def __init__(self, kw):
         self.user_id = kw['user_id']
-        print("In UserManager locals are:", pf(locals()))
+        logger.debug("In UserManager locals are:", pf(locals()))
         #self.user = model.User.get(user_id)
-        #print("user is:", user)
+        #logger.debug("user is:", user)
         self.user = model.User.query.get(self.user_id)
-        print("user is:", self.user)
+        logger.debug("user is:", self.user)
         datasets = create_datasets_list()
         for dataset in datasets:
             if not dataset.check_confidentiality():
                 continue
-            print("\n  Name:", dataset.name)
-            print("  Type:", dataset.type)
-            print("  ID:", dataset.id)
-            print("  Confidential:", dataset.check_confidentiality())
-        #print("   ---> self.datasets:", self.datasets)
+            logger.debug("\n  Name:", dataset.name)
+            logger.debug("  Type:", dataset.type)
+            logger.debug("  ID:", dataset.id)
+            logger.debug("  Confidential:", dataset.check_confidentiality())
+        #logger.debug("   ---> self.datasets:", self.datasets)
 
 
 class RegisterUser(object):
@@ -215,7 +217,7 @@ class RegisterUser(object):
         if self.errors:
             return
 
-        print("No errors!")
+        logger.debug("No errors!")
 
         set_password(password, self.user)
 
@@ -233,10 +235,10 @@ class RegisterUser(object):
                                "Click the button above to sign in using an existing account.")
             return
 
-        print("Adding verification email to queue")
+        logger.debug("Adding verification email to queue")
         #self.send_email_verification()
         VerificationEmail(self.new_user)
-        print("Added verification email to queue")
+        logger.debug("Added verification email to queue")
 
         self.thank_you_mode = True
 
@@ -259,8 +261,8 @@ def set_password(password, user):
     # One more check on password length
     assert len(password) >= 6, "Password shouldn't be so short here"
 
-    print("pwfields:", vars(pwfields))
-    print("locals:", locals())
+    logger.debug("pwfields:", vars(pwfields))
+    logger.debug("locals:", locals())
 
     enc_password = Password(password,
                             pwfields.salt,
@@ -324,14 +326,14 @@ class ForgotPasswordEmail(VerificationEmail):
 class Password(object):
     def __init__(self, unencrypted_password, salt, iterations, keylength, hashfunc):
         hashfunc = getattr(hashlib, hashfunc)
-        print("hashfunc is:", hashfunc)
+        logger.debug("hashfunc is:", hashfunc)
         # On our computer it takes around 1.4 seconds in 2013
         start_time = time.time()
         salt = base64.b64decode(salt)
         self.password = pbkdf2.pbkdf2_hex(str(unencrypted_password),
                                           salt, iterations, keylength, hashfunc)
         self.encrypt_time = round(time.time() - start_time, 3)
-        print("Creating password took:", self.encrypt_time)
+        logger.debug("Creating password took:", self.encrypt_time)
 
 
 def basic_info():
@@ -355,7 +357,7 @@ def verify_email():
 
 @app.route("/n/password_reset")
 def password_reset():
-    print("in password_reset request.url is:", request.url)
+    logger.debug("in password_reset request.url is:", request.url)
 
     # We do this mainly just to assert that it's in proper form for displaying next page
     # Really not necessary but doesn't hurt
@@ -365,7 +367,7 @@ def password_reset():
 
 @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
-    print("in password_reset request.url is:", request.url)
+    logger.debug("in password_reset request.url is:", request.url)
 
     errors = []
 
@@ -373,13 +375,13 @@ def password_reset_step2():
     verification_code, separator, hmac = user_encode.partition(':')
 
     hmac_verified = actual_hmac_creation(verification_code)
-    print("locals are:", locals())
+    logger.debug("locals are:", locals())
 
 
     assert hmac == hmac_verified, "Someone has been naughty"
 
     user = DecodeUser.actual_get_user(ForgotPasswordEmail.key_prefix, verification_code)
-    print("user is:", user)
+    logger.debug("user is:", user)
 
     password = request.form['password']
 
@@ -408,9 +410,9 @@ class DecodeUser(object):
     @staticmethod
     def actual_get_user(code_prefix, verification_code):
         data = Redis.get(code_prefix + ":" + verification_code)
-        print("in get_coded_user, data is:", data)
+        logger.debug("in get_coded_user, data is:", data)
         data = json.loads(data)
-        print("data is:", data)
+        logger.debug("data is:", data)
         return model.User.query.get(data['id'])
 
 @app.route("/n/login", methods=('GET', 'POST'))
@@ -428,14 +430,14 @@ class LoginUser(object):
     def standard_login(self):
         """Login through the normal form"""
         params = request.form if request.form else request.args
-        print("in login params are:", params)
+        logger.debug("in login params are:", params)
         if not params:
             return render_template("new_security/login_user.html")
         else:
             try:
                 user = model.User.query.filter_by(email_address=params['email_address']).one()
             except sqlalchemy.orm.exc.NoResultFound:
-                print("No account exists for that email address")
+                logger.debug("No account exists for that email address")
                 valid = False
                 user = None
             else:
@@ -446,9 +448,9 @@ class LoginUser(object):
                                               pwfields.iterations,
                                               pwfields.keylength,
                                               pwfields.hashfunc)
-                print("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
+                logger.debug("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
                 valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
-                print("valid is:", valid)
+                logger.debug("valid is:", valid)
 
         if valid and not user.confirmed:
             VerificationEmail(user)
@@ -458,7 +460,7 @@ class LoginUser(object):
 
         if valid:
             if params.get('remember'):
-                print("I will remember you")
+                logger.debug("I will remember you")
                 self.remember_me = True
 
             return self.actual_login(user)
@@ -492,14 +494,14 @@ class LoginUser(object):
         #session_id = "session_id:{}".format(login_rec.session_id)
         session_id_signature = actual_hmac_creation(login_rec.session_id)
         session_id_signed = login_rec.session_id + ":" + session_id_signature
-        print("session_id_signed:", session_id_signed)
+        logger.debug("session_id_signed:", session_id_signed)
 
         session = dict(login_time = time.time(),
                        user_id = user.id,
                        user_email_address = user.email_address)
 
         key = UserSession.cookie_name + ":" + login_rec.session_id
-        print("Key when signing:", key)
+        logger.debug("Key when signing:", key)
         Redis.hmset(key, session)
         if self.remember_me:
             expire_time = self.remember_time
@@ -518,7 +520,7 @@ class LoginUser(object):
 
 @app.route("/n/logout")
 def logout():
-    print("Logging out...")
+    logger.debug("Logging out...")
     UserSession().delete_session()
     flash("You are now logged out. We hope you come back soon!")
     response = make_response(redirect(url_for('index_page')))
@@ -610,7 +612,7 @@ def register():
     params = request.form if request.form else request.args
 
     if params:
-        print("Attempting to register the user...")
+        logger.debug("Attempting to register the user...")
         result = RegisterUser(params)
         errors = result.errors
 
@@ -656,16 +658,16 @@ def data_hmac(stringy):
 
 def verify_url_hmac(url):
     """Pass in a url that was created with url_hmac and this assures it hasn't been tampered with"""
-    print("url passed in to verify is:", url)
+    logger.debug("url passed in to verify is:", url)
     # Verify parts are correct at the end - we expect to see &hm= or ?hm= followed by an hmac
     assert url[-23:-20] == "hm=", "Unexpected url (stage 1)"
     assert url[-24] in ["?", "&"], "Unexpected url (stage 2)"
     hmac = url[-20:]
     url = url[:-24]  # Url without any of the hmac stuff
 
-    #print("before urlsplit, url is:", url)
+    #logger.debug("before urlsplit, url is:", url)
     #url = divide_up_url(url)[1]
-    #print("after urlsplit, url is:", url)
+    #logger.debug("after urlsplit, url is:", url)
 
     hm = actual_hmac_creation(url)
 
@@ -706,4 +708,4 @@ class GroupsManager(object):
 class RolesManager(object):
     def __init__(self):
         self.roles = model.Role.query.all()
-        print("Roles are:", self.roles)
+        logger.debug("Roles are:", self.roles)
