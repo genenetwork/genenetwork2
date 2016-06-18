@@ -14,7 +14,7 @@ from dbFunction import webqtlDatabaseFunction
 
 import logging
 from utility.logger import getLogger
-logger = getLogger(__name__ , level = logging.INFO)
+logger = getLogger(__name__)
 
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""

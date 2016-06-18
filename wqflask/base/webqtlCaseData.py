@@ -24,7 +24,9 @@
 #
 # Last updated by GeneNetwork Core Team 2010/10/20
 
-print("Mr. Mojo Risin 2")
+from utility.logger import getLogger
+logger = getLogger(__name__)
+logger.info("Mr. Mojo Risin 2")
 
 class webqtlCaseData(object):
     """one case data in one trait"""
