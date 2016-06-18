@@ -11,7 +11,7 @@ from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
 import sys
-sys.path.append("..")
+# sys.path.append("..") Never in a running webserver
 
 from dbFunction import webqtlDatabaseFunction
 

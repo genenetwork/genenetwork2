@@ -2,8 +2,6 @@
 from __future__ import absolute_import, division, print_function
 
 import sys
-print("sys.path is:", sys.path)
-
 import csv
 import xlsxwriter
 import StringIO  # Todo: Use cStringIO?

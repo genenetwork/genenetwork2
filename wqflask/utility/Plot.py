@@ -38,8 +38,7 @@ from numarray import linear_algebra as la
 from numarray import ones, array, dot, swapaxes
 
 import reaper
-sys.path.append("..")
-print(sys.path)
+# sys.path.append("..") Never in a running webserver
 from basicStatistics import corestats
 
 import svg
