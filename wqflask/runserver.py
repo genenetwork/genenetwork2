@@ -20,7 +20,10 @@ from wqflask import app
 #_ch = logging.StreamHandler()
 #_log.addHandler(_ch)
 
-print app.config
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
+
+logger.info(app.config)
 
 from utility.tools import WEBSERVER_MODE
 

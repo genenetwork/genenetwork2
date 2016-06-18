@@ -8,7 +8,6 @@ from wqflask import app
 # Use the standard logger here to avoid a circular dependency
 import logging
 logger = logging.getLogger(__name__ )
-logging.basicConfig(level=logging.INFO)
 
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
