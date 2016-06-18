@@ -26,7 +26,10 @@
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
-logger.info("Mr. Mojo Risin 2")
+
+import utility.tools
+
+utility.tools.show_settings()
 
 class webqtlCaseData(object):
     """one case data in one trait"""
@@ -72,4 +75,3 @@ class webqtlCaseData(object):
             return "%2.3f" % self.variance
         else:
             return "x"
-

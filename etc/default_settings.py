@@ -34,7 +34,7 @@ SERVER_PORT = 5003
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
 
 # Behavioural settings (defaults) note that logger and log levels can
-# be overridden at the module level
+# be overridden at the module level and with enviroment settings
 WEBSERVER_MODE  = 'DEV'     # Python webserver mode (DEBUG|DEV|PROD)
 LOG_LEVEL       = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
 DEBUG_LOG_LEVEL = 1         # Debug log level (0-5)

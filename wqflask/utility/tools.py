@@ -50,7 +50,7 @@ def get_setting(command_id,guess=None):
             command = value(guess)
             if command == None or command == "":
                 raise Exception(command_id+' setting unknown or faulty (update default_settings.py?).')
-    logger.info("Set "+command_id+"="+str(command))
+    logger.debug("Set "+command_id+"="+str(command))
     return command
 
 def get_setting_bool(id):
@@ -142,6 +142,29 @@ def locate_ignore_error(name, subdir=None):
 
 def tempdir():
     return valid_path(get_setting("TEMPDIR","/tmp"))
+
+BLUE  = '\033[94m'
+GREEN = '\033[92m'
+BOLD  = '\033[1m'
+ENDC  = '\033[0m'
+
+def show_settings():
+    from utility.tools import LOG_LEVEL
+
+    print("Set global log level to "+BLUE+LOG_LEVEL+ENDC)
+    log_level = getattr(logging, LOG_LEVEL.upper())
+    logging.basicConfig(level=log_level)
+
+    logger.info(BLUE+"Mr. Mojo Risin 2"+ENDC)
+    print "runserver.py: ****** The webserver has the following configuration ******"
+    keylist = app.config.keys()
+    keylist.sort()
+    for k in keylist:
+        try:
+            print("%s %s%s%s%s" % (k,BLUE,BOLD,get_setting(k),ENDC))
+        except:
+            print("%s %s%s%s%s" % (k,GREEN,BOLD,app.config[k],ENDC))
+
 
 # Cached values
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')

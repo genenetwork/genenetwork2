@@ -13,6 +13,11 @@
 #   import utility.logger
 #   logger = utility.logger.getLogger(__name__ )
 #
+# To override global behaviour set the LOG_LEVEL in default_settings.py
+# or use an environment variable, e.g.
+#
+#    env LOG_LEVEL=INFO ./bin/genenetwork2
+#
 # To override log level for a module replace that with, for example,
 #
 #   import logging
@@ -22,13 +27,7 @@
 # We'll add more overrides soon.
 
 import logging
-
 from utility.tools import LOG_LEVEL
-
-print("Set global log level to "+LOG_LEVEL)
-
-log_level = getattr(logging, LOG_LEVEL.upper())
-logging.basicConfig(level=log_level)
 
 # Get the module logger. You can override log levels at the
 # module level
@@ -36,4 +35,8 @@ def getLogger(name, level = None):
     logger = logging.getLogger(name)
     if level:
         logger.setLevel(level)
+    else:
+        logger.setLevel(LOG_LEVEL)
+
+    logger.debug("Log "+name+" at level "+logging.getLevelName(logger.getEffectiveLevel()))
     return logger
