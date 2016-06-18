@@ -67,5 +67,5 @@ def getLogger(name, level = None):
     else:
         logger.setLevel(LOG_LEVEL)
 
-    logger.debug("Log level of "+name+" set to "+logging.getLevelName(logger.getEffectiveLevel()))
+    logger.info("Log level of "+name+" set to "+logging.getLevelName(logger.getEffectiveLevel()))
     return gnlogger
