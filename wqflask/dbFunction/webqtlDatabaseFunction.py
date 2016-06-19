@@ -20,12 +20,14 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-
 from flask import Flask, g
 
 import MySQLdb
 import string
 from base import webqtlConfig
+
+from utility.logger import getLogger
+logger = getLogger(__name__ )
 
 ###########################################################################
 #output: cursor instance
@@ -76,33 +78,23 @@ def getAllSpecies(cursor=None):
     allSpecies = cursor.fetchall()
     return allSpecies
 
-###########################################################################
-#input: cursor, RISet (string)
-#output: specie's name (string), value will be None or else
-#function: retrieve specie's name info based on RISet
-###########################################################################
-
 def retrieve_species(group):
-    return g.db.execute("""select Species.Name
-                           from Species, InbredSet
-                           where InbredSet.Name = %s and
-                           InbredSet.SpeciesId = Species.Id""", (group)).fetchone()[0]
+    logger.debug("retrieve_species",group)
+    logger.sql(""""select Species.Name from Species, InbredSet where InbredSet.Name = %s and InbredSet.SpeciesId = Species.Id""", (group))
+
+    return g.db.execute("""select Species.Name from Species, InbredSet where InbredSet.Name =
+%s and InbredSet.SpeciesId = Species.Id""", (group)).fetchone()[0]
 
 def retrieve_species_id(group):
     return g.db.execute("select SpeciesId from InbredSet where Name = %s", (group)).fetchone()[0]
 
 
-###########################################################################
-# input: cursor
-# output: tissProbeSetFreezeIdList (list),
-#         nameList (list),
-#         fullNameList (list)
-# function: retrieve all TissueProbeSetFreezeId,Name,FullName info
-#           from TissueProbeSetFreeze table.
-#           These data will listed in the dropdown menu in the first page of Tissue Correlation
-###########################################################################
-
 def getTissueDataSet(cursor=None):
+    """Retrieve all TissueProbeSetFreezeId,Name,FullName info from
+TissueProbeSetFreeze table.  These data will listed in the dropdown
+menu in the first page of Tissue Correlation
+
+    """
     tissProbeSetFreezeIdList=[]
     nameList =[]
     fullNameList = []

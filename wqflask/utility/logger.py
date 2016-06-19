@@ -28,6 +28,7 @@
 
 import logging
 import string
+from inspect import isfunction
 from utility.tools import LOG_LEVEL
 
 class GNLogger:
@@ -62,8 +63,10 @@ class GNLogger:
         self.collect(self.logger.error,*args)
 
     def debugf(self,*args):
-        """Call logging.debug for multiple args"""
-        self.collect(self.logger.debug,*args)
+        """Call logging.debug for multiple args lazily"""
+        if self.logger.getEffectiveLevel() <= 10:
+            self.debug("Calling debug function!")
+            self.collectf(self.logger.debug,*args)
 
     def sql(self, sqlcommand, fun = None):
         """Log SQL command, optionally invoking a timed fun"""
@@ -72,6 +75,14 @@ class GNLogger:
         """Collect arguments and use fun to output one by one"""
         for a in args:
             fun(a)
+
+    def collectf(self,fun,*args):
+        """Collect arguments and use fun to output one by one"""
+        for a in args:
+            if isfunction(a):
+                fun(a())
+            else:
+                fun(a)
 
 # Get the module logger. You can override log levels at the
 # module level

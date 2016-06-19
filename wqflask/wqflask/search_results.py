@@ -100,7 +100,6 @@ class SearchResultPage(object):
         self.trait_list = []
 
         species = webqtlDatabaseFunction.retrieve_species(self.dataset.group.name)
-
         # result_set represents the results for each search term; a search of
         # "shh grin2b" would have two sets of results, one for each term
         logger.debug("self.results is:", pf(self.results))

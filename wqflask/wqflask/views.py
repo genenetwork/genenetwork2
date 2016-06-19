@@ -119,11 +119,11 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        logger.debug("key is:", pf(key))
         result = None
         if USE_REDIS:
             with Bench("Trying Redis cache"):
                 key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
+                logger.debug("key is:", pf(key))
                 result = Redis.get(key)
                 if result:
                     logger.info("Redis cache hit on search results!")
@@ -131,7 +131,6 @@ def search_page():
         else:
             logger.info("Skipping Redis cache (USE_REDIS=False)")
 
-        logger.info("calling search_results.SearchResultPage")
         logger.info("request.args is", request.args)
         the_search = search_results.SearchResultPage(request.args)
         result = the_search.__dict__
