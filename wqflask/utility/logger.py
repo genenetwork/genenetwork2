@@ -31,28 +31,45 @@ import string
 from utility.tools import LOG_LEVEL
 
 class GNLogger:
-    """A stub for multiple parameter logging"""
+    """A logger class with some additional functionality, such as
+    multiple parameter logging, SQL logging, timing, colors, and lazy
+    functions.
+
+    """
 
     def __init__(self,name):
         self.logger = logging.getLogger(name)
 
     def setLevel(self,value):
+        """Set the undelying log level"""
         self.logger.setLevel(value)
 
     def debug(self,*args):
+        """Call logging.debug for multiple args"""
         self.collect(self.logger.debug,*args)
 
     def info(self,*args):
+        """Call logging.info for multiple args"""
         self.collect(self.logger.info,*args)
 
     def warning(self,*args):
+        """Call logging.warning for multiple args"""
         self.collect(self.logger.warning,*args)
         self.logger.warning(self.collect(*args))
 
     def error(self,*args):
+        """Call logging.error for multiple args"""
         self.collect(self.logger.error,*args)
 
+    def debugf(self,*args):
+        """Call logging.debug for multiple args"""
+        self.collect(self.logger.debug,*args)
+
+    def sql(self, sqlcommand, fun = None):
+        """Log SQL command, optionally invoking a timed fun"""
+
     def collect(self,fun,*args):
+        """Collect arguments and use fun to output one by one"""
         for a in args:
             fun(a)
 

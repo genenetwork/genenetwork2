@@ -119,30 +119,28 @@ def search_page():
         else:
             return render_template("data_sharing.html", **template_vars.__dict__)
     else:
-        key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
         logger.debug("key is:", pf(key))
+        result = None
         if USE_REDIS:
             with Bench("Trying Redis cache"):
+                key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
                 result = Redis.get(key)
-        else:
-            logger.info("Skipping Redis cache (USE_REDIS=False)")
-            result = None
-
-        if result:
-            logger.info("Redis cache hit on search results!")
-            logger.debug("USE_REDIS=",USE_REDIS)
-            with Bench("Loading results"):
+                if result:
+                    logger.info("Redis cache hit on search results!")
                 result = pickle.loads(result)
         else:
-            logger.info("calling search_results.SearchResultPage")
-            logger.info("request.args is", request.args)
-            the_search = search_results.SearchResultPage(request.args)
-            result = the_search.__dict__
+            logger.info("Skipping Redis cache (USE_REDIS=False)")
 
-            logger.debugf("result: ", lambda: pf(result))
-            if USE_REDIS:
-                Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
-                Redis.expire(key, 60*60)
+        logger.info("calling search_results.SearchResultPage")
+        logger.info("request.args is", request.args)
+        the_search = search_results.SearchResultPage(request.args)
+        result = the_search.__dict__
+
+        logger.debugf("result: ", lambda: pf(result))
+
+        if USE_REDIS:
+            Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
+            Redis.expire(key, 60*60)
 
         if result['search_term_exists']:
             return render_template("search_result_page.html", **result)
