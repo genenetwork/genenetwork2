@@ -258,7 +258,7 @@ def build_datasets(species, group, type_name):
 def main():
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
 
-    parse_db_uri(zach_settings.DB_URI)
+    parse_db_uri(zach_settings.SQL_URI)
 
     species = get_species()
     groups = get_groups(species)
@@ -297,6 +297,6 @@ def _test_it():
     #print("build_datasets:", pf(datasets))
 
 if __name__ == '__main__':
-    Conn = MySQLdb.Connect(**parse_db_uri(zach_settings.DB_URI))
+    Conn = MySQLdb.Connect(**parse_db_uri(zach_settings.SQL_URI))
     Cursor = Conn.cursor()
     main()

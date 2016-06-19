@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from wqflask import app
 
 #engine = create_engine('sqlite:////tmp/test.db', convert_unicode=True)
-engine = create_engine(app.config['DB_URI'], convert_unicode=True)
+engine = create_engine(app.config['SQL_URI'], convert_unicode=True)
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,

@@ -169,7 +169,7 @@ def show_settings():
 # Cached values
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')
 LOG_LEVEL          = get_setting('LOG_LEVEL')
-DEBUG_LOG_LEVEL    = get_setting_int('DEBUG_LOG_LEVEL')
+LOG_LEVEL_DEBUG    = get_setting_int('LOG_LEVEL_DEBUG')
 LOG_SQL            = get_setting_bool('LOG_SQL')
 USE_REDIS          = get_setting_bool('USE_REDIS')
 

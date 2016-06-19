@@ -18,8 +18,9 @@ LOGFILE = HOME+"/genenetwork2.log"
 # 400 bad request response with no exception/log
 TRAP_BAD_REQUEST_ERRORS = True
 
-DB_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
+SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQLALCHEMY_DATABASE_URI = 'mysql://gn2:mysql_password@localhost/db_webqtl_s'
+SQLALCHEMY_POOL_RECYCLE = 3600
 
 # http://pythonhosted.org/Flask-Security/configuration.html
 SECURITY_CONFIRMABLE = True
@@ -28,7 +29,6 @@ SECURITY_REGISTERABLE = True
 SECURITY_RECOVERABLE = True
 SECURITY_EMAIL_SENDER = "no-reply@genenetwork.org"
 SECURITY_POST_LOGIN_VIEW = "/thank_you"
-SQLALCHEMY_POOL_RECYCLE = 3600
 
 SERVER_PORT = 5003
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
@@ -37,9 +37,10 @@ SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a
 # be overridden at the module level and with enviroment settings
 WEBSERVER_MODE  = 'DEV'     # Python webserver mode (DEBUG|DEV|PROD)
 LOG_LEVEL       = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
-DEBUG_LOG_LEVEL = 1         # Debug log level (0-5)
-USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
+LOG_LEVEL_DEBUG = 1         # Debug log level (0-5)
 LOG_SQL         = 'False'   # Log SQL/backend calls
+
+USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
 
 # Path overrides for Genenetwork
 GENENETWORK_FILES = HOME+"/gn2_data"
