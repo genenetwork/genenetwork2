@@ -62,14 +62,24 @@ class GNLogger:
         """Call logging.error for multiple args"""
         self.collect(self.logger.error,*args)
 
-    def debugf(self,*args):
-        """Call logging.debug for multiple args lazily"""
-        if self.logger.getEffectiveLevel() <= 10:
-            self.debug("Calling debug function!")
+    def infof(self,*args):
+        """Call logging.info for multiple args lazily"""
+        # only evaluate function when logging
+        if self.logger.getEffectiveLevel() < 30:
             self.collectf(self.logger.debug,*args)
 
-    def sql(self, sqlcommand, fun = None):
+    def debugf(self,*args):
+        """Call logging.debug for multiple args lazily"""
+        # only evaluate function when logging
+        if self.logger.getEffectiveLevel() < 20:
+            self.collectf(self.logger.debug,*args)
+
+    def sql(self, description, sqlcommand, fun = None):
         """Log SQL command, optionally invoking a timed fun"""
+        self.info(description,sqlcommand)
+        if fun:
+            self.info("Invoking function")
+            return fun(sqlcommand)
 
     def collect(self,fun,*args):
         """Collect arguments and use fun to output one by one"""

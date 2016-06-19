@@ -41,6 +41,7 @@ LOG_LEVEL_DEBUG = 1         # Debug log level (0-5) (nyi)
 LOG_SQL         = 'False'   # Log SQL/backend calls
 
 USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
+USE_GN_SERVER   = True      # Use GN_SERVER SQL calls
 
 # Path overrides for Genenetwork
 HOME=os.environ['HOME']

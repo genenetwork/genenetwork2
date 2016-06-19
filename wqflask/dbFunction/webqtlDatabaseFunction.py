@@ -20,11 +20,13 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
+from inspect import stack
 from flask import Flask, g
 
 import MySQLdb
 import string
 from base import webqtlConfig
+from utility.tools import USE_GN_SERVER
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -35,13 +37,31 @@ logger = getLogger(__name__ )
 ###########################################################################
 def getCursor():
     try:
+        logger.warning("Creating new MySQLdb cursor")
         con = MySQLdb.Connect(db=webqtlConfig.DB_NAME, host=webqtlConfig.MYSQL_SERVER, user=webqtlConfig.DB_USER, passwd=webqtlConfig.DB_PASSWD)
         cursor = con.cursor()
         return cursor
     except:
         return None
 
+def fetchone(cursor,query):
+    result = g.db.execute("""select Species.Name from Species, InbredSet where InbredSet.Name = %s and InbredSet.SpeciesId = Species.Id""", (group)).fetchone()[0]
+    return cursor.execute(query)
 
+def retrieve_species(group):
+    """Get the species of a group (e.g. returns string "mouse" on "BXD"
+
+    """
+    if USE_GN_SERVER:
+        raise Exception("NYI")
+    else:
+        res = logger.sql(stack()[0][3],"select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (group), g.db.execute)
+        result = res.fetchone()[0]
+
+        # result = g.db.execute("""select Species.Name from Species, InbredSet where InbredSet.Name = %s and InbredSet.SpeciesId = Species.Id""", (group)).fetchone()[0]
+
+    logger.info(result,type(result))
+    return result
 
 ###########################################################################
 #input: cursor, groupName (string)
@@ -78,12 +98,6 @@ def getAllSpecies(cursor=None):
     allSpecies = cursor.fetchall()
     return allSpecies
 
-def retrieve_species(group):
-    logger.debug("retrieve_species",group)
-    logger.sql(""""select Species.Name from Species, InbredSet where InbredSet.Name = %s and InbredSet.SpeciesId = Species.Id""", (group))
-
-    return g.db.execute("""select Species.Name from Species, InbredSet where InbredSet.Name =
-%s and InbredSet.SpeciesId = Species.Id""", (group)).fetchone()[0]
 
 def retrieve_species_id(group):
     return g.db.execute("select SpeciesId from InbredSet where Name = %s", (group)).fetchone()[0]

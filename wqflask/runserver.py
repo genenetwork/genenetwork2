@@ -16,8 +16,10 @@ GREEN = '\033[92m'
 BOLD  = '\033[1m'
 ENDC  = '\033[0m'
 
-
 logger.info("GN2 is running. Visit %shttp://localhost:5003/%s" % (BLUE,ENDC))
+
+import os
+app.config['SECRET_KEY'] = os.urandom(24)
 
 from utility.tools import WEBSERVER_MODE
 

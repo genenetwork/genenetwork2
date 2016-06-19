@@ -172,6 +172,7 @@ LOG_LEVEL          = get_setting('LOG_LEVEL')
 LOG_LEVEL_DEBUG    = get_setting_int('LOG_LEVEL_DEBUG')
 LOG_SQL            = get_setting_bool('LOG_SQL')
 USE_REDIS          = get_setting_bool('USE_REDIS')
+USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
 
 PYLMM_COMMAND      = pylmm_command()
 GEMMA_COMMAND      = gemma_command()
