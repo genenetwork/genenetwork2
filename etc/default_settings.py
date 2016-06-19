@@ -11,18 +11,12 @@
 import os
 import sys
 
-HOME=os.environ['HOME']
-LOGFILE = HOME+"/genenetwork2.log"
-
-# This is needed because Flask turns key errors into a
-# 400 bad request response with no exception/log
-TRAP_BAD_REQUEST_ERRORS = True
-
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQLALCHEMY_DATABASE_URI = 'mysql://gn2:mysql_password@localhost/db_webqtl_s'
 SQLALCHEMY_POOL_RECYCLE = 3600
 
-# http://pythonhosted.org/Flask-Security/configuration.html
+# Flask configuration (see website)
+TRAP_BAD_REQUEST_ERRORS = True
 SECURITY_CONFIRMABLE = True
 SECURITY_TRACKABLE = True
 SECURITY_REGISTERABLE = True
@@ -46,6 +40,8 @@ LOG_SQL         = 'False'   # Log SQL/backend calls
 USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
 
 # Path overrides for Genenetwork
+HOME=os.environ['HOME']
+LOGFILE = HOME+"/genenetwork2.log"
 GENENETWORK_FILES = HOME+"/gn2_data"
 PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())
 PLINK_COMMAND = str.strip(os.popen("which plink2").read())
