@@ -25,8 +25,11 @@ from flask import Flask, g
 
 import MySQLdb
 import string
+import urllib2
+import json
 from base import webqtlConfig
 from utility.tools import USE_GN_SERVER
+from utility.benchmark import Bench
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -44,24 +47,37 @@ def getCursor():
     except:
         return None
 
-def fetchone(cursor,query):
-    result = g.db.execute("""select Species.Name from Species, InbredSet where InbredSet.Name = %s and InbredSet.SpeciesId = Species.Id""", (group)).fetchone()[0]
-    return cursor.execute(query)
+def fetchone(callername,query):
+    """Return tuple containing one row by calling SQL directly
+
+    """
+    with Bench("SQL took"):
+        def helper(query):
+            res = g.db.execute(query)
+            return res.fetchone()
+        return logger.sql(callername, query, helper)
+
+def gn_server(path):
+    """Return JSON record by calling GN_SERVER
+
+    """
+    with Bench("GN_SERVER took"):
+        res = urllib2.urlopen("http://localhost:8880/"+path)
+        rest = res.read()
+        res2 = json.loads(rest)
+        logger.info(res2)
+        return res2
 
 def retrieve_species(group):
     """Get the species of a group (e.g. returns string "mouse" on "BXD"
 
     """
     if USE_GN_SERVER:
-        raise Exception("NYI")
+        result = gn_server("/cross/"+group)
+        return result["species"]
     else:
-        res = logger.sql(stack()[0][3],"select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (group), g.db.execute)
-        result = res.fetchone()[0]
-
-        # result = g.db.execute("""select Species.Name from Species, InbredSet where InbredSet.Name = %s and InbredSet.SpeciesId = Species.Id""", (group)).fetchone()[0]
-
-    logger.info(result,type(result))
-    return result
+        result = fetchone(stack()[0][3],"select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (group))
+        return result[0]
 
 ###########################################################################
 #input: cursor, groupName (string)

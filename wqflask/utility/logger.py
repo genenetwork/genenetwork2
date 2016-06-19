@@ -78,8 +78,9 @@ class GNLogger:
         """Log SQL command, optionally invoking a timed fun"""
         self.info(description,sqlcommand)
         if fun:
-            self.info("Invoking function")
-            return fun(sqlcommand)
+            result = fun(sqlcommand)
+            self.info("result:",result)
+            return result
 
     def collect(self,fun,*args):
         """Collect arguments and use fun to output one by one"""
