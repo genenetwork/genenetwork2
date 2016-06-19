@@ -7,6 +7,9 @@
 # e.g.
 #
 #   env LOG_SQL=True USE_REDIS=False ./bin/genenetwork2
+#
+# Note also that in the near future we will additionally fetch
+# settings from a JSON file
 
 import os
 import sys
