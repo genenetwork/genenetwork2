@@ -64,7 +64,7 @@ logger = utility.logger.getLogger(__name__ )
 
 @app.before_request
 def connect_db():
-    g.db = sqlalchemy.create_engine(app.config['DB_URI'])
+    g.db = sqlalchemy.create_engine(app.config['SQL_URI'])
 
 #@app.before_request
 #def trace_it():
@@ -74,18 +74,6 @@ def connect_db():
 @app.route("/")
 def index_page():
     logger.info("Sending index_page")
-    #create_datasets_list()
-    #key = "all_datasets"
-    #result = Redis.get(key)
-    #if result:
-    #    logger.info("Cache hit!!!")
-    #    result = pickle.loads(result)
-    #else:
-    #    with Bench("Creating DataSets object"):
-    #        ds = DataSets()
-    #    Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
-    #    Redis.expire(key, 2*60)
-    #logger.info("[orange] ds:", ds.datasets)
     return render_template("index_page.html")
 
 
@@ -141,7 +129,7 @@ def search_page():
             result = None
 
         if result:
-            logger.info("Cache hit on search results!!!")
+            logger.info("Redis cache hit on search results!")
             logger.debug("USE_REDIS=",USE_REDIS)
             with Bench("Loading results"):
                 result = pickle.loads(result)
@@ -151,7 +139,7 @@ def search_page():
             the_search = search_results.SearchResultPage(request.args)
             result = the_search.__dict__
 
-            logger.debug("result: ", pf(result))
+            logger.debugf("result: ", lambda: pf(result))
             if USE_REDIS:
                 Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
                 Redis.expire(key, 60*60)
@@ -570,12 +558,6 @@ def sharing_info_page():
 def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
-
-
-
-###################################################################################################
-
-
 
 ##########################################################################
 
