@@ -69,11 +69,11 @@ class GeneralTrait(object):
         self.retrieve_info(get_qtl_info=get_qtl_info)
         if get_sample_info != False:
             self.retrieve_sample_data()
-        
-        
+
+
     def jsonable(self):
         """Return a dict suitable for using as json
-        
+
         Actual turning into json doesn't happen here though"""
         return dict(name=self.name,
                     dataset=self.dataset.name,
@@ -258,10 +258,10 @@ class GeneralTrait(object):
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                             PublishFreeze.Id = %s
                     """ % (self.name, self.dataset.id)
-        
+
             trait_info = g.db.execute(query).fetchone()
-            
-            
+
+
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
         #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
         elif self.dataset.type == 'ProbeSet':
@@ -310,27 +310,27 @@ class GeneralTrait(object):
                 if isinstance(trait_info[i], basestring):
                     holder = unicode(trait_info[i], "utf8", "ignore")
                 setattr(self, field, holder)
-                
+
             if self.dataset.type == 'Publish':
                 self.confidential = 0
                 if self.pre_publication_description and not self.pubmed_id:
                     self.confidential = 1
-                
+
                 description = self.post_publication_description
-            
+
                 #If the dataset is confidential and the user has access to confidential
                 #phenotype traits, then display the pre-publication description instead
                 #of the post-publication description
                 if self.confidential:
                     self.description_display = ""
-                
+
                     #if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
                     #        privilege=self.dataset.privilege,
                     #        userName=self.dataset.userName,
                     #        authorized_users=self.authorized_users):
-                    #        
+                    #
                     #    description = self.pre_publication_description
-                
+
                 if description:
                     self.description_display = description.strip()
                 else:
@@ -343,8 +343,8 @@ class GeneralTrait(object):
 
                 if self.pubmed_id:
                     self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.pubmed_id
-                    
-                    
+
+
             self.homologeneid = None
             if self.dataset.type == 'ProbeSet' and self.dataset.group:
                 if self.geneid:
@@ -374,7 +374,7 @@ class GeneralTrait(object):
 
                     if result:
                         self.homologeneid = result[0]
-                    
+
                 description_string = unicode(str(self.description).strip(codecs.BOM_UTF8), 'utf-8')
                 target_string = unicode(str(self.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
@@ -410,7 +410,7 @@ class GeneralTrait(object):
                     #ZS: Put this in function currently called "convert_location_to_value"
                     self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
                     self.location_value = trait_location_value
-                    
+
 
             if get_qtl_info:
                 #LRS and its location
@@ -481,7 +481,7 @@ class GeneralTrait(object):
                             self.locus = self.locus_chr = self.locus_mb = self.additive = ""
                     else:
                         self.locus = self.lrs = self.additive = ""
-                
+
                 if (self.dataset.type == 'Publish' or self.dataset.type == "ProbeSet") and self.locus_chr != "" and self.locus_mb != "":
                     #XZ: LRS_location_value is used for sorting
                     try:
@@ -493,7 +493,7 @@ class GeneralTrait(object):
                             LRS_location_value = ord(str(self.locus_chr).upper()[0])*1000 + float(self.locus_mb)
 
                     self.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (self.locus_chr, float(self.locus_mb))
-                    if self.lrs != "":                                     
+                    if self.lrs != "":
                         self.LRS_score_repr = LRS_score_repr = '%3.1f' % self.lrs
                         self.LRS_score_value = LRS_score_value = self.lrs
         else:
@@ -712,7 +712,7 @@ def convert_location_to_value(chromosome, mb):
         else:
             location_value = (ord(str(chromosome).upper()[0])*1000 +
                               float(mb))
-    
+
     return location_value
 
 @app.route("/trait/get_sample_data")
@@ -720,11 +720,11 @@ def get_sample_data():
     params = request.args
     trait = params['trait']
     dataset = params['dataset']
-    
+
     trait_ob = GeneralTrait(name=trait, dataset_name=dataset)
-    
+
     return json.dumps([trait, {key: value.value for key, value in trait_ob.data.iteritems() }])
-    
+
     #jsonable_sample_data = {}
     #for sample in trait_ob.data.iteritems():
     #    jsonable_sample_data[sample] = trait_ob.data[sample].value

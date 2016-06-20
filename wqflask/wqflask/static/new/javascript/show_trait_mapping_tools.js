@@ -136,7 +136,7 @@
   outlier_text = "One or more outliers exist in this data set. Please review values before mapping. Including outliers when mapping may lead to misleading results. We recommend <A HREF=\"http://en.wikipedia.org/wiki/Winsorising\">winsorising</A> the outliers or simply deleting them.";
 
   runtime_warning_text = "This function could take as long as 10-20 minutes to run, so please do not close your browser window until it finishes."
-  
+
   showalert = function(message, alerttype) {
     return $('#alert_placeholder').append('<div id="alertdiv" class="alert ' + alerttype + '"><a class="close" data-dismiss="alert">�</a><span>' + message + '</span></div>');
   };

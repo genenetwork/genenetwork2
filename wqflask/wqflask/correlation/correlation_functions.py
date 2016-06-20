@@ -757,7 +757,7 @@ def getTissueProbeSetXRefInfo(GeneNameLst=[],TissueProbeSetFreezeId=0):
 #Attention! All keys are lower case!
 ###########################################################################
 def get_symbol_value_pairs(tissue_data):
-    
+
     id_list = [tissue_data[symbol.lower()].data_id for item in tissue_data]
 
     symbol_value_pairs = {}
@@ -809,7 +809,7 @@ def get_trait_symbol_and_tissue_values(symbol_list=None):
 
     if len(tissue_data.gene_symbols):
         return tissue_data.get_symbol_values_pairs()
-        
+
     #symbolList,
     #geneIdDict,
     #dataIdDict,
@@ -818,7 +818,7 @@ def get_trait_symbol_and_tissue_values(symbol_list=None):
     #descDict,
     #pTargetDescDict = getTissueProbeSetXRefInfo(
     #                    GeneNameLst=GeneNameLst,TissueProbeSetFreezeId=TissueProbeSetFreezeId)
-    
+
     #limit_num=1000
     #count = len(symbol_list)
     #
@@ -858,14 +858,14 @@ def get_trait_symbol_and_tissue_values(symbol_list=None):
 
 #def get_trait_symbol_and_tissue_values(cursor=None,GeneNameLst=[],TissueProbeSetFreezeId=0):
 #    SymbolValuePairDict={}
-#    
+#
 #    symbolList,geneIdDict,dataIdDict,ChrDict,MbDict,descDict,pTargetDescDict = getTissueProbeSetXRefInfo(
 #        cursor=cursor,GeneNameLst=GeneNameLst,TissueProbeSetFreezeId=TissueProbeSetFreezeId)
-#    
+#
 #    if symbolList:
 #        SymbolValuePairDict = get_gene_symbol_and_tissue_values(symbolList=symbolList,
 #                                                                dataIdDict=dataIdDict)
-#    
+#
 #    return SymbolValuePairDict
 
 ########################################################################################################

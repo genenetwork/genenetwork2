@@ -8,21 +8,21 @@ import sys
 
 # Originally based on http://stackoverflow.com/a/8315566
 def tracefunc(frame, event, arg, indent=[0]):
-    
+
     func = dict(funcname = frame.f_code.co_name,
                      filename = frame.f_code.co_filename,
                      lineno = frame.f_lineno)
-    
+
     #These are too common to bother printing...
     too_common = (
         '/home/sam/ve27/local/lib/python2.7/site-packages/werkzeug/',
         '/home/sam/ve27/local/lib/python2.7/site-packages/jinja2/',
     )
-    
-    
+
+
     if func['filename'].startswith(too_common):
         return tracefunc
-    
+
     info = "{funcname} [{filename}: {lineno}]".format(**func)
 
     if event == "call":
@@ -36,6 +36,6 @@ def tracefunc(frame, event, arg, indent=[0]):
 
 def turn_on():
     sys.settrace(tracefunc)
-    print("Tracing turned on!!!!")  
+    print("Tracing turned on!!!!")
 ####################################################################################
 

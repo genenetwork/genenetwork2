@@ -61,10 +61,10 @@ from flask import Flask, g
 
 
 class CorrelationMatrix(object):
-    
+
     def __init__(self, start_vars):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
-        
+
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.all_sample_list = []
@@ -73,7 +73,7 @@ class CorrelationMatrix(object):
             this_trait = trait_db[0]
             self.traits.append(this_trait)
             this_sample_data = this_trait.data
-            
+
             for sample in this_sample_data:
                 if sample not in self.all_sample_list:
                     self.all_sample_list.append(sample)
@@ -82,7 +82,7 @@ class CorrelationMatrix(object):
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
             this_sample_data = this_trait.data
-            
+
             #self.sample_data[this_trait.name] = []
             this_trait_vals = []
             for sample in self.all_sample_list:
@@ -101,10 +101,10 @@ class CorrelationMatrix(object):
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
             this_db = trait_db[1]
-            
+
             this_db_samples = this_db.group.samplelist
             this_sample_data = this_trait.data
-            
+
             corr_result_row = []
             pca_corr_result_row = []
             is_spearman = False #ZS: To determine if it's above or below the diagonal
@@ -115,17 +115,17 @@ class CorrelationMatrix(object):
 
                 target_sample_data = target_trait.data
                 print("target_samples", len(target_samples))
-                
+
                 this_trait_vals = []
                 target_vals = []
                 for index, sample in enumerate(target_samples):
-                    
+
                     if (sample in this_sample_data) and (sample in target_sample_data):
                         sample_value = this_sample_data[sample].value
                         target_sample_value = target_sample_data[sample].value
                         this_trait_vals.append(sample_value)
                         target_vals.append(target_sample_value)
-        
+
                 this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(this_trait_vals, target_vals)
 
                 if num_overlap < self.lowest_overlap:
@@ -144,7 +144,7 @@ class CorrelationMatrix(object):
 
                     corr_result_row.append([target_trait, sample_r, num_overlap])
                     pca_corr_result_row.append(pearson_r)
-                
+
             self.corr_results.append(corr_result_row)
             self.pca_corr_results.append(pca_corr_result_row)
 
@@ -174,11 +174,11 @@ class CorrelationMatrix(object):
         #                    samples = self.all_sample_list,
         #                    sample_data = self.sample_data,
         #                    corr_results = self.corr_results,)
-        
-        
-        
+
+
+
     def get_trait_db_obs(self, trait_db_list):
-    
+
         self.trait_list = []
         for i, trait_db in enumerate(trait_db_list):
             if i == (len(trait_db_list) - 1):
@@ -190,13 +190,13 @@ class CorrelationMatrix(object):
                                    name=trait_name,
                                    cellid=None)
             self.trait_list.append((trait_ob, dataset_ob))
-            
+
         #print("trait_list:", self.trait_list)
 
-        
-    def calculate_pca(self, corr_results, cols): 
+
+    def calculate_pca(self, corr_results, cols):
         base = importr('base')
-        stats = importr('stats')        
+        stats = importr('stats')
         print("checking:", pf(stats.rnorm(100)))
 
         corr_results_to_list = robjects.FloatVector([item for sublist in corr_results for item in sublist])

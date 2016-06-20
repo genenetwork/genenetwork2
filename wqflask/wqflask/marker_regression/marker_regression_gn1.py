@@ -2057,7 +2057,7 @@ class MarkerRegression(object):
             if self.plotScale == "physic":
                 this_chr = str(self.ChrList[self.selectedChr][0])
             else:
-                this_chr = str(self.ChrList[self.selectedChr][1]+1)                                                                                                                    
+                this_chr = str(self.ChrList[self.selectedChr][1]+1)
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
                 #AdditiveCoordXY = []
                 #DominanceCoordXY = []
@@ -2646,12 +2646,12 @@ class MarkerRegression(object):
             self.gene_table_body = None
             #gene_table = ""
 
-        #return gene_table    
+        #return gene_table
 
     def getGeneTableHeader(self, refGene=None):
 
         gene_tblobj_header = []
-        
+
         gene_table_header_list = []
 
         col_class = "fs14 fwb ffl b1 cw cbrb"
@@ -2659,20 +2659,20 @@ class MarkerRegression(object):
         if self.dataset.group.species == "mouse":
 
             if refGene:
-                gene_table_header_list = ["Index", 
-                                               "Symbol", 
-                                               "Mb Start", 
-                                               "Length (Kb)", 
-                                               "SNP Count", 
-                                               "SNP Density", 
-                                               "Avg Expr", 
-                                               "Human Chr", 
-                                               "Mb Start (hg19)", 
+                gene_table_header_list = ["Index",
+                                               "Symbol",
+                                               "Mb Start",
+                                               "Length (Kb)",
+                                               "SNP Count",
+                                               "SNP Density",
+                                               "Avg Expr",
+                                               "Human Chr",
+                                               "Mb Start (hg19)",
                                                "Literature Correlation",
-                                               "Gene Description", 
-                                               "PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(), 
+                                               "Gene Description",
+                                               "PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(),
                                                "Gene Weaver Info Content" + HT.Href(url='http://geneweaver.org/', text='>>', target="_blank").__str__()]
-            
+
                 # gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
                         # THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
                         # THCell(HT.TD('Mb Start',HT.BR(),'(mm9)', align='left', width=100, Class=col_class), text="mb_start_mm9", idx=2),
@@ -2691,17 +2691,17 @@ class MarkerRegression(object):
                                         # ]]
             else:
                 gene_table_header_list = ["",
-                                          "Index", 
-                                          "Symbol", 
-                                          "Mb Start", 
-                                          "Length (Kb)", 
-                                          "SNP Count", 
-                                          "SNP Density", 
-                                          "Avg Expr", 
-                                          "Human Chr", 
-                                          "Mb Start (hg19)", 
-                                          "Gene Description", 
-                                          "PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(), 
+                                          "Index",
+                                          "Symbol",
+                                          "Mb Start",
+                                          "Length (Kb)",
+                                          "SNP Count",
+                                          "SNP Density",
+                                          "Avg Expr",
+                                          "Human Chr",
+                                          "Mb Start (hg19)",
+                                          "Gene Description",
+                                          "PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(),
                                           "Gene Weaver Info Content" + HT.Href(url='http://geneweaver.org/', text='>>', target="_blank").__str__()]
 
                 # gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
@@ -2723,17 +2723,17 @@ class MarkerRegression(object):
         elif self.dataset.group.species == "rat":
 
             gene_table_header_list = ["",
-                                      "Index", 
-                                      "Symbol", 
-                                      "Mb Start", 
-                                      "Length (Kb)", 
-                                      "Avg Expr", 
-                                      "Mouse Chr", 
-                                      "Mb Start (mm9)", 
-                                      "Human Chr", 
-                                      "Mb Start (hg19)", 
+                                      "Index",
+                                      "Symbol",
+                                      "Mb Start",
+                                      "Length (Kb)",
+                                      "Avg Expr",
+                                      "Mouse Chr",
+                                      "Mb Start (mm9)",
+                                      "Human Chr",
+                                      "Mb Start (hg19)",
                                       "Gene Description"]
-        
+
             # gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
                     # THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
                     # THCell(HT.TD('Mb Start',HT.BR(),'(rn3)', align='left', width=100, Class=col_class), text="mb_start_rn3", idx=2),
@@ -2755,7 +2755,7 @@ class MarkerRegression(object):
 
         tblobj_body = [] #contains table rows
         className = "fs13 b1 c222"
-        
+
         gene_table_body = []
 
         tableIterationsCnt = 0
@@ -2877,7 +2877,7 @@ class MarkerRegression(object):
                                     geneDescription,
                                     polymiRTS,
                                     ""]
-                                    
+
                         # this_row.append(TDCell(HT.TD(tableIterationsCnt, selectCheck, width=30, align='right', Class=className), tableIterationsCnt, tableIterationsCnt))
                         # this_row.append(TDCell(HT.TD(HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank"), "&nbsp;", probeSetSearch, align='right', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
                         # this_row.append(TDCell(HT.TD(HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank"), align='right', Class=className), str(mouseStartValue), mouseStartValue))
@@ -2893,7 +2893,7 @@ class MarkerRegression(object):
                         # this_row.append(TDCell(HT.TD("", align='right', Class=className), "", ""))
 
                     else:
-                    
+
                         this_row = [selectCheck.__str__(),
                                     str(tableIterationsCnt),
                                     HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__() +  "&nbsp;" + probeSetSearch.__str__(),
@@ -2907,8 +2907,8 @@ class MarkerRegression(object):
                                     geneDescription,
                                     polymiRTS,
                                     ""]
-                    
-                    
+
+
                         # this_row.append(TDCell(HT.TD(tableIterationsCnt, selectCheck, width=30, align='right', Class=className), tableIterationsCnt, tableIterationsCnt))
                         # this_row.append(TDCell(HT.TD(HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank"), "&nbsp;", probeSetSearch, align='right', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
                         # this_row.append(TDCell(HT.TD(HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank"), align='right', Class=className), str(mouseStartValue), mouseStartValue))
@@ -2922,7 +2922,7 @@ class MarkerRegression(object):
                         # this_row.append(TDCell(HT.TD(polymiRTS, align='right', Class=className), "", ""))
                         # this_row.append(TDCell(HT.TD("", align='right', Class=className), "", ""))
 
-                gene_table_body.append(this_row)        
+                gene_table_body.append(this_row)
                 #tblobj_body.append(this_row)
 
         elif self.dataset.group.species == 'rat':
@@ -2984,8 +2984,8 @@ class MarkerRegression(object):
                             humanChr,
                             humanTxStart,
                             geneDesc]
-                    
-                    
+
+
                 #this_row.append(TDCell(HT.TD(gIndex + 1, selectCheck, align='left', Class=className), str(gIndex+1), gIndex+1))
                 #this_row.append(TDCell(HT.TD(webqtlSearch, geneSymbolNCBI, align='left', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
                 #this_row.append(TDCell(HT.TD(theGO["TxStart"], align='left', Class=className), theGO["TxStart"], theGO["TxStart"]))
@@ -3004,8 +3004,8 @@ class MarkerRegression(object):
             pass
 
         return gene_table_body
-        #return tblobj_body        
-        
+        #return tblobj_body
+
     def getLiteratureCorrelation(cursor,geneId1=None,geneId2=None):
         if not geneId1 or not geneId2:
             return None

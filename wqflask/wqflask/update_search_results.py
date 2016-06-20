@@ -72,17 +72,17 @@ class GSearch(object):
                 WHERE PublishXRef.`InbredSetId`=InbredSet.`Id`
                 AND PublishFreeze.`InbredSetId`=InbredSet.`Id`
                 AND InbredSet.`SpeciesId`=Species.`Id`
-                AND PublishXRef.`PhenotypeId`=Phenotype.`Id` 
+                AND PublishXRef.`PhenotypeId`=Phenotype.`Id`
                 AND PublishXRef.`PublicationId`=Publication.`Id`
-                AND	  (Phenotype.Post_publication_description REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Phenotype.Pre_publication_description REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Phenotype.Lab_code REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Publication.PubMed_ID REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Publication.Abstract REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Publication.Title REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Publication.Authors REGEXP "[[:<:]]%s[[:>:]]" 
+                AND	  (Phenotype.Post_publication_description REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Phenotype.Pre_publication_description REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Phenotype.Lab_code REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Publication.PubMed_ID REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Publication.Abstract REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Publication.Title REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Publication.Authors REGEXP "[[:<:]]%s[[:>:]]"
                     OR PublishXRef.Id REGEXP "[[:<:]]%s[[:>:]]")
                 ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
                 LIMIT 6000
@@ -95,35 +95,35 @@ class GSearch(object):
                     trait_id = line[3]
                     this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
                     self.trait_list.append(this_trait)
-                    
+
         self.results = self.convert_to_json()
-                    
+
     def convert_to_json(self):
         json_dict = {}
         #json_dict['draw'] = self.draw,
         json_dict['recordsTotal'] = len(self.trait_list),
         json_dict['data'] = []
-        
+
         for i, trait in enumerate(self.trait_list):
             trait_row = { "checkbox": "<INPUT TYPE=\"checkbox\" NAME=\"searchResult\" class=\"checkbox trait_checkbox\" style=\"transform: scale(1.5);\" VALUE=\"{}:{}\">".format(trait.name, trait.dataset.name),
-                         "index": i+1, 
-                         "species": trait.dataset.group.species, 
-                         "group": trait.dataset.group.name, 
-                         "tissue": trait.dataset.tissue, 
-                         "dataset": trait.dataset.fullname, 
-                         "record": "<a href=\"/show_trait?trait_id=" + trait.name + "&dataset=" + trait.dataset.name + "\" target=\"_blank\">" + trait.name + "</a>", 
-                         "symbol": trait.symbol, 
-                         "description": trait.description_display, 
-                         "location": trait.location_repr, 
-                         "mean": trait.mean, 
-                         "max_lrs": trait.LRS_score_repr, 
-                         "max_lrs_location": trait.LRS_location_repr, 
+                         "index": i+1,
+                         "species": trait.dataset.group.species,
+                         "group": trait.dataset.group.name,
+                         "tissue": trait.dataset.tissue,
+                         "dataset": trait.dataset.fullname,
+                         "record": "<a href=\"/show_trait?trait_id=" + trait.name + "&dataset=" + trait.dataset.name + "\" target=\"_blank\">" + trait.name + "</a>",
+                         "symbol": trait.symbol,
+                         "description": trait.description_display,
+                         "location": trait.location_repr,
+                         "mean": trait.mean,
+                         "max_lrs": trait.LRS_score_repr,
+                         "max_lrs_location": trait.LRS_location_repr,
                          "additive_effect": trait.additive}
             json_dict['data'].append(trait_row)
-            
+
         json_results = json.dumps(json_dict)
         return json_results
-        
-        
-        
-        
+
+
+
+

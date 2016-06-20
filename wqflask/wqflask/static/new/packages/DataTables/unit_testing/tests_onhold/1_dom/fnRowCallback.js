@@ -9,14 +9,14 @@ $(document).ready( function () {
 	var oSettings = oTable.fnSettings();
 	var mPass;
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Default should be null",
 		null,
 		function () { return oSettings.fnRowCallback == null; }
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Four arguments passed",
 		function () {
 			oSession.fnRestore();
@@ -33,7 +33,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"fnRowCallback called once for each drawn row",
 		function () {
 			oSession.fnRestore();
@@ -49,7 +49,7 @@ $(document).ready( function () {
 		function () { return mPass == 10; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"fnRowCallback allows us to alter row information",
 		function () {
 			oSession.fnRestore();
@@ -63,7 +63,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody tr:eq(1)').hasClass('unit_test'); }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Data array has length matching columns",
 		function () {
 			oSession.fnRestore();
@@ -80,7 +80,7 @@ $(document).ready( function () {
 		function () { return mPass; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Data array has length matching columns",
 		function () {
 			oSession.fnRestore();

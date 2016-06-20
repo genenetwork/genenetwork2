@@ -37,7 +37,7 @@ class ShowTrait(object):
 
     def __init__(self, kw):
         print("in ShowTrait, kw are:", kw)
-        
+
         if kw['trait_id'] != None:
             self.temp_trait = False
             self.trait_id = kw['trait_id']
@@ -129,10 +129,10 @@ class ShowTrait(object):
         hddn['maf'] = 0.01
         hddn['compare_traits'] = []
         hddn['export_data'] = ""
-    
+
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
-        
+
         self.temp_uuid = uuid.uuid4()
 
         self.sample_group_types = OrderedDict()
@@ -144,7 +144,7 @@ class ShowTrait(object):
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
         print("sample_lists is:", pf(sample_lists))
-        
+
         self.get_mapping_methods()
 
         self.trait_table_width = get_trait_table_width(self.sample_groups)
@@ -254,7 +254,7 @@ class ShowTrait(object):
                 self.allTraitData[_sample] = webqtlCaseData(
                     _sample, values[i], variances[i], nsamples[i])
         print("allTraitData is:", pf(self.allTraitData))
-        
+
 
     def dispTraitInformation(self, args, title1Body, hddn, this_trait):
 
@@ -512,7 +512,7 @@ class ShowTrait(object):
                             txst = int(txst*1000000)
                             txen = int(txen*1000000)
                         ## NEEDED FOR UCSC GENOME BROWSER LINK
-                        
+
                 #XZ, 7/16/2009: The url for SymAtlas (renamed as BioGPS) has changed. We don't need this any more
                 #tSpan.append(HT.Span(HT.Href(text= 'SymAtlas',target="mainFrame",\
                 #       url="http://symatlas.gnf.org/SymAtlas/bioentry?querytext=%s&query=14&species=%s&type=Expression" \
@@ -1184,7 +1184,7 @@ class ShowTrait(object):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
 
         primary_sample_names = list(all_samples_ordered)
-        
+
         other_sample_names = []
         for sample in this_trait.data.keys():
             if (this_trait.data[sample].name2 in primary_sample_names) and (this_trait.data[sample].name not in primary_sample_names):
@@ -1267,5 +1267,5 @@ def get_trait_table_width(sample_groups):
         table_width += len(sample_groups[0].attributes)*10
 
     return table_width
-    
-    
+
+

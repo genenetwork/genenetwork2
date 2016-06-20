@@ -1,5 +1,5 @@
 /**
- * Add a data array to the table, creating DOM node etc. This is the parallel to 
+ * Add a data array to the table, creating DOM node etc. This is the parallel to
  * _fnGatherData, but for adding rows from a Javascript source, rather than a
  * DOM source.
  *  @param {object} oSettings dataTables settings object
@@ -177,7 +177,7 @@ function _fnGatherData( oSettings )
 						{
 							oCol.sType = sThisType;
 						}
-						else if ( oCol.sType != sThisType && 
+						else if ( oCol.sType != sThisType &&
 						          oCol.sType != "html" )
 						{
 							/* String is always the 'fallback' option */
@@ -396,7 +396,7 @@ function _fnGetObjectDataFn( mSource )
 	}
 	else if ( typeof mSource === 'string' && (mSource.indexOf('.') !== -1 || mSource.indexOf('[') !== -1) )
 	{
-		/* If there is a . in the source string then the data source is in a 
+		/* If there is a . in the source string then the data source is in a
 		 * nested object so we loop over the data for each level to get the next
 		 * level down. On each loop we test for undefined, and if found immediately
 		 * return. This allows entire objects to be missing and sDefaultContent to
@@ -582,7 +582,7 @@ function _fnClearTable( oSettings )
 
 
  /**
- * Take an array of integers (index array) and remove a target integer (value - not 
+ * Take an array of integers (index array) and remove a target integer (value - not
  * the key!)
  *  @param {array} a Index array to target
  *  @param {int} iTarget value to find

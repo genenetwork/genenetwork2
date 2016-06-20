@@ -168,7 +168,7 @@ def gsearchact():
         return render_template("gsearch_gene.html", **result)
     elif type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
-        
+
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
     print("REQUEST ARGS:", request.values)
@@ -294,13 +294,13 @@ def export_trait_csv():
     return Response(csv_data,
                     mimetype='text/csv',
                     headers={"Content-Disposition":"attachment;filename=sample_data.csv"})
-                    
+
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
     """CSV file consisting of the permutation data for the mapping results"""
     num_perm = float(request.form['num_perm'])
     perm_data = json.loads(request.form['perm_results'])
-    
+
     buff = StringIO.StringIO()
     writer = csv.writer(buff)
     writer.writerow(["Suggestive LRS (p=0.63) = " + str(perm_data[int(num_perm*0.37-1)])])
@@ -338,10 +338,10 @@ def show_trait_page():
 @app.route("/heatmap", methods=('POST',))
 def heatmap_page():
     print("In heatmap, request.form is:", pf(request.form))
-    
+
     start_vars = request.form
     temp_uuid = uuid.uuid4()
-    
+
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
     if traits[0] != "":
         version = "v5"
@@ -349,33 +349,33 @@ def heatmap_page():
         print("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
-        
+
         if result:
             print("Cache hit!!!")
             with Bench("Loading results"):
                 result = pickle.loads(result)
-    
+
         else:
             print("Cache miss!!!")
-    
+
             template_vars = heatmap.Heatmap(request.form, temp_uuid)
             template_vars.js_data = json.dumps(template_vars.js_data,
                                                default=json_default_handler,
                                                indent="   ")
-        
+
             result = template_vars.__dict__
 
             for item in template_vars.__dict__.keys():
                 print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-    
+
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             print("pickled result length:", len(pickled_result))
             Redis.set(key, pickled_result)
             Redis.expire(key, 60*60)
-    
+
         with Bench("Rendering template"):
             rendered_template = render_template("heatmap.html", **result)
-     
+
     else:
         rendered_template = render_template("empty_collection.html", **{'tool':'Heatmap'})
 
@@ -468,18 +468,18 @@ def marker_regression_page():
                 imgB64 = imgdata.encode("base64")
                 bytesarray = array.array('B', imgB64)
                 result['pair_scan_array'] = bytesarray
-                rendered_template = render_template("pair_scan_results.html", **result)        
+                rendered_template = render_template("pair_scan_results.html", **result)
         else:
             #for item in template_vars.__dict__.keys():
             #    print("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-            
+
             gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             print("pickled result length:", len(pickled_result))
             Redis.set(key, pickled_result)
             Redis.expire(key, 1*60)
-            
+
             with Bench("Rendering template"):
                 rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
 
@@ -542,7 +542,7 @@ def corr_matrix_page():
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
-    
+
         return render_template("correlation_matrix.html", **template_vars.__dict__)
     else:
         return render_template("empty_collection.html", **{'tool':'Correlation Matrix'})

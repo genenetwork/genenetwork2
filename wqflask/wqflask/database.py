@@ -28,5 +28,5 @@ def init_db():
     Base.metadata.create_all(bind=engine)
     print("database.py: Done creating all model metadata...")
     print("Point your browser at http://localhost:5003/")
-    
+
 init_db()

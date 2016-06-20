@@ -8,13 +8,13 @@ $(document).ready( function () {
 		"aaSorting": []
 	} );
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"No sort",
 		null,
 		function () { return $('#example tbody td:eq(3)').html() == "4"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Next page",
 		function () {
 			$('#example').dataTable().fnPageChange( 'next' );
@@ -22,7 +22,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(1)').html() == "Camino 1.0"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Destroy the table and remake it - checking we are still on the next page",
 		function () {
 			$('#example').dataTable( {

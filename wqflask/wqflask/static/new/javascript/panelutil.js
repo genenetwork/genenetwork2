@@ -81,7 +81,7 @@ reorgLodData = function(data, lodvarname) {
 
         if ('additive' in data){
           addval = data['additive'][j]
-          data.additiveByChr[chr[0]].push(addval);            
+          data.additiveByChr[chr[0]].push(addval);
         }
 
       }

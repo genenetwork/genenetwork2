@@ -9,7 +9,7 @@ $(document).ready( function () {
 	} );
 	$('#example').dataTable().fnDestroy();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Width after destroy",
 		null,
 		function () { return $('#example').width() == "800"; }

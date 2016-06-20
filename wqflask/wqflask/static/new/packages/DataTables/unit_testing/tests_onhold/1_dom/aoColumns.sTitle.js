@@ -6,12 +6,12 @@ $(document).ready( function () {
 	var oTable = $('#example').dataTable();
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Column names are read from the DOM by default",
 		null,
 		function () {
 			var jqNodes = $('#example thead tr:eq(0) th');
-			var bReturn = 
+			var bReturn =
 				jqNodes[0].innerHTML == "Rendering engine" &&
 				jqNodes[1].innerHTML == "Browser" &&
 				jqNodes[2].innerHTML == "Platform(s)" &&
@@ -21,7 +21,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Can set a single column title - and others are read from DOM",
 		function () {
 			oSession.fnRestore();
@@ -37,7 +37,7 @@ $(document).ready( function () {
 		},
 		function () {
 			var jqNodes = $('#example thead tr:eq(0) th');
-			var bReturn = 
+			var bReturn =
 				jqNodes[0].innerHTML == "Rendering engine" &&
 				jqNodes[1].innerHTML == "unit test" &&
 				jqNodes[2].innerHTML == "Platform(s)" &&
@@ -47,7 +47,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Can set multiple column titles",
 		function () {
 			oSession.fnRestore();
@@ -63,7 +63,7 @@ $(document).ready( function () {
 		},
 		function () {
 			var jqNodes = $('#example thead tr:eq(0) th');
-			var bReturn = 
+			var bReturn =
 				jqNodes[0].innerHTML == "Rendering engine" &&
 				jqNodes[1].innerHTML == "unit test 1" &&
 				jqNodes[2].innerHTML == "Platform(s)" &&

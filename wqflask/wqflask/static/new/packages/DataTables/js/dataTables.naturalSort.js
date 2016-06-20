@@ -1,5 +1,5 @@
 (function() {
- 
+
 /*
  * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
  * Author: Jim Palmer (based on chunking idea from Dave Koelle)
@@ -45,7 +45,7 @@ function naturalSort (a, b) {
 
     return 0;
 }
- 
+
 jQuery.extend( jQuery.fn.dataTableExt.oSort, {
     "natural-asc": function ( a, b ) {
         // first check if null or n/a
@@ -55,7 +55,7 @@ jQuery.extend( jQuery.fn.dataTableExt.oSort, {
             return naturalSort(a,b);
         }
     },
- 
+
     "natural-desc": function ( a, b ) {
         if (a == "N/A" || a == "NA" || a == "" || a == "--") return 1;
         else if (b == "N/A" || b == "NA" || b == "" || b == "--") return -1;
@@ -64,5 +64,5 @@ jQuery.extend( jQuery.fn.dataTableExt.oSort, {
         }
     }
 } );
- 
+
 }());

@@ -31,13 +31,13 @@ $(document).ready( function () {
 		]
 	} );
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Basic initialisation of objects works",
 		null,
 		function () { return $('#example tbody td:eq(0)').html() === "a"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Error when property missing (no default content)",
 		function () {
 			oSession.fnRestore();
@@ -68,7 +68,7 @@ $(document).ready( function () {
 		function () { return test; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Default content used for missing prop and no error",
 		function () {
 			oSession.fnRestore();
@@ -100,7 +100,7 @@ $(document).ready( function () {
 	 * Deep properties with a single object
 	 */
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Basic test with deep properties",
 		function () {
 			oSession.fnRestore();
@@ -129,7 +129,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(0)').html() === "a"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Error when property missing on deep get (no default content)",
 		function () {
 			oSession.fnRestore();
@@ -162,7 +162,7 @@ $(document).ready( function () {
 		function () { return test; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Default content used for missing prop on deep get and no error",
 		function () {
 			oSession.fnRestore();
@@ -196,7 +196,7 @@ $(document).ready( function () {
 	 * Deep properties with individual objects
 	 */
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Basic test with deep individual properties",
 		function () {
 			oSession.fnRestore();
@@ -223,7 +223,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(0)').html() === "a"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Error when property missing on deep individual get (no default content)",
 		function () {
 			oSession.fnRestore();
@@ -254,7 +254,7 @@ $(document).ready( function () {
 		function () { return test; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Default content used for missing prop on deep individual get and no error",
 		function () {
 			oSession.fnRestore();

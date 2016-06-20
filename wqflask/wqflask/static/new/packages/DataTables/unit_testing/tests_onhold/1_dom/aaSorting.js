@@ -6,7 +6,7 @@ $(document).ready( function () {
 	var oTable = $('#example').dataTable();
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Default sorting is single column",
 		null,
 		function () {
@@ -14,7 +14,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Default sorting is first column asc",
 		null,
 		function () {
@@ -23,14 +23,14 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Sorting is applied",
 		null,
 		function () { return $('#example tbody td:eq(0)').html() == "Gecko"; }
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Custom sorting on single string column asc",
 		function () {
 			oSession.fnRestore();
@@ -42,7 +42,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Custom sorting on single string column desc",
 		function () {
 			oSession.fnRestore();
@@ -54,7 +54,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Custom sorting on single int column asc",
 		function () {
 			oSession.fnRestore();
@@ -66,7 +66,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Custom sorting on single int column desc",
 		function () {
 			oSession.fnRestore();
@@ -78,7 +78,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Multi-column sorting (2 column) - string asc / string asc",
 		function () {
 			oSession.fnRestore();
@@ -89,7 +89,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(1)').html() == "Camino 1.0"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Multi-column sorting (2 column) - string asc / string desc",
 		function () {
 			oSession.fnRestore();
@@ -100,7 +100,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(1)').html() == "Seamonkey 1.1"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Multi-column sorting (2 column) - string desc / string asc",
 		function () {
 			oSession.fnRestore();
@@ -111,7 +111,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(1)').html() == "iPod Touch / iPhone"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Multi-column sorting (2 column) - string desc / string desc",
 		function () {
 			oSession.fnRestore();
@@ -123,7 +123,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Multi-column sorting (2 column) - string asc / int asc",
 		function () {
 			oSession.fnRestore();
@@ -134,7 +134,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(3)').html() == "1"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Multi-column sorting (2 column) - string asc / int desc",
 		function () {
 			oSession.fnRestore();
@@ -145,7 +145,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(3)').html() == "1.9"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Multi-column sorting (2 column) - string desc / int asc",
 		function () {
 			oSession.fnRestore();
@@ -156,7 +156,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(3)').html() == "125.5"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Multi-column sorting (2 column) - string desc / int desc",
 		function () {
 			oSession.fnRestore();
@@ -167,7 +167,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(3)').html() == "522.1"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Multi-column sorting (3 column) - string asc / int asc / string asc",
 		function () {
 			oSession.fnRestore();

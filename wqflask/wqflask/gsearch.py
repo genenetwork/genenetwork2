@@ -69,17 +69,17 @@ class GSearch(object):
                 WHERE PublishXRef.`InbredSetId`=InbredSet.`Id`
                 AND PublishFreeze.`InbredSetId`=InbredSet.`Id`
                 AND InbredSet.`SpeciesId`=Species.`Id`
-                AND PublishXRef.`PhenotypeId`=Phenotype.`Id` 
+                AND PublishXRef.`PhenotypeId`=Phenotype.`Id`
                 AND PublishXRef.`PublicationId`=Publication.`Id`
-                AND	  (Phenotype.Post_publication_description REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Phenotype.Pre_publication_description REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Phenotype.Lab_code REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Publication.PubMed_ID REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Publication.Abstract REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Publication.Title REGEXP "[[:<:]]%s[[:>:]]" 
-                    OR Publication.Authors REGEXP "[[:<:]]%s[[:>:]]" 
+                AND	  (Phenotype.Post_publication_description REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Phenotype.Pre_publication_description REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Phenotype.Lab_code REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Publication.PubMed_ID REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Publication.Abstract REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Publication.Title REGEXP "[[:<:]]%s[[:>:]]"
+                    OR Publication.Authors REGEXP "[[:<:]]%s[[:>:]]"
                     OR PublishXRef.Id REGEXP "[[:<:]]%s[[:>:]]")
                 ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
                 LIMIT 6000

@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function, division
-import sys  
-reload(sys)  
+import sys
+reload(sys)
 sys.setdefaultencoding('utf8')
 from flask import g
 

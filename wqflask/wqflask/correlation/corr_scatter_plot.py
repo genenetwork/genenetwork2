@@ -14,45 +14,45 @@ class CorrScatterPlot(object):
         self.data_set_2 = data_set.create_dataset(params['dataset_2'])
         self.trait_1 = GeneralTrait(name=params['trait_1'], dataset=self.data_set_1)
         self.trait_2 = GeneralTrait(name=params['trait_2'], dataset=self.data_set_2)
-        
+
         try:
             width = int(params['width'])
         except:
             width = 800
         self.width = width
-        
+
         try:
             height = int(params['height'])
         except:
             height = 600
         self.height = height
-        
+
         try:
             circle_color = params['circle_color']
         except:
             circle_color = '#3D85C6'
         self.circle_color = circle_color
-        
+
         try:
             circle_radius = int(params['circle_radius'])
         except:
             circle_radius = 5
         self.circle_radius = circle_radius
-        
+
         try:
             line_color = params['line_color']
         except:
             line_color = '#FF0000'
         self.line_color = line_color
-        
+
         try:
             line_width = int(params['line_width'])
         except:
             line_width = 1
         self.line_width = line_width
-        
+
         samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(self.trait_1.data, self.trait_2.data)
-        
+
         self.data = []
         self.indIDs = samples_1.keys()
         vals_1 = []
@@ -67,7 +67,7 @@ class CorrScatterPlot(object):
         x = np.array(vals_1)
         y = np.array(vals_2)
         slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-        
+
         self.js_data = dict(
             data = self.data,
             indIDs = self.indIDs,
