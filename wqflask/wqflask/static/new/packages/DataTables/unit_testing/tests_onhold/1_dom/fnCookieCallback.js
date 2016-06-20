@@ -8,7 +8,7 @@ $(document).ready( function () {
 	 * stringify function to serialise the data array
 	 */
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"null by default",
 		function () {
 			$('#example').dataTable();
@@ -16,7 +16,7 @@ $(document).ready( function () {
 		function () { return $('#example').dataTable().fnSettings().fnCookieCallback == null; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Number of arguments",
 		function () {
 			$('#example').dataTable( {
@@ -31,7 +31,7 @@ $(document).ready( function () {
 		function () { return mPass == 4; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Name",
 		function () {
 			$('#example').dataTable( {
@@ -46,7 +46,7 @@ $(document).ready( function () {
 		function () { return mPass; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Data",
 		function () {
 			$('#example').dataTable( {
@@ -61,7 +61,7 @@ $(document).ready( function () {
 		function () { return mPass; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Expires",
 		function () {
 			$('#example').dataTable( {
@@ -76,7 +76,7 @@ $(document).ready( function () {
 		function () { return mPass; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Path",
 		function () {
 			$('#example').dataTable( {

@@ -129,7 +129,7 @@ def inverseCumul(p):
         return None
 
     if p>0 and p < 1:
-        e = 0.5 * erfcc(-x/sqrt(2)) - p 
+        e = 0.5 * erfcc(-x/sqrt(2)) - p
         u = e * sqrt(2*pi) * exp(x*x/2)
         x = x - u/(1 + x*u/2)
         return x
@@ -318,10 +318,10 @@ def FloatList2String(lst):
 
 def ListNotNull(lst):
     '''Obsolete - Use built in function any (or all or whatever)
-    
-    
+
+
     Determine if the elements in a list are all null
-    
+
     '''
     for item in lst:
         if item is not None:

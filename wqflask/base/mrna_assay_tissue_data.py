@@ -12,30 +12,30 @@ from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
 class MrnaAssayTissueData(object):
-    
+
     def __init__(self, gene_symbols=None):
         self.gene_symbols = gene_symbols
         self.have_data = False
         if self.gene_symbols == None:
             self.gene_symbols = []
-        
+
         #print("self.gene_symbols:", self.gene_symbols)
-        
+
         self.data = collections.defaultdict(Bunch)
-            
+
         #self.gene_id_dict ={}
         #self.data_id_dict = {}
         #self.chr_dict = {}
         #self.mb_dict = {}
         #self.desc_dict = {}
         #self.probe_target_desc_dict = {}
-        
+
         query =  '''select t.Symbol, t.GeneId, t.DataId, t.Chr, t.Mb, t.description, t.Probe_Target_Description
                         from (
                         select Symbol, max(Mean) as maxmean
                         from TissueProbeSetXRef
                         where TissueProbeSetFreezeId=1 and '''
-        
+
         # Note that inner join is necessary in this query to get distinct record in one symbol group
         # with highest mean value
         # Due to the limit size of TissueProbeSetFreezeId table in DB,
@@ -43,11 +43,11 @@ class MrnaAssayTissueData(object):
         if len(gene_symbols) == 0:
             query +=  '''Symbol!='' and Symbol Is Not Null group by Symbol)
                 as x inner join TissueProbeSetXRef as t on t.Symbol = x.Symbol
-                and t.Mean = x.maxmean;  
+                and t.Mean = x.maxmean;
                     '''
         else:
             in_clause = db_tools.create_in_clause(gene_symbols)
-            
+
             #ZS: This was in the query, not sure why: http://docs.python.org/2/library/string.html?highlight=lower#string.lower
 
             query += ''' Symbol in {} group by Symbol)
@@ -56,7 +56,7 @@ class MrnaAssayTissueData(object):
                     '''.format(in_clause)
 
         results = g.db.execute(query).fetchall()
-        
+
         lower_symbols = []
         for gene_symbol in gene_symbols:
             if gene_symbol != None:
@@ -68,7 +68,7 @@ class MrnaAssayTissueData(object):
             if symbol.lower() in lower_symbols:
                 #gene_symbols.append(symbol)
                 symbol = symbol.lower()
-                
+
                 self.data[symbol].gene_id = result.GeneId
                 self.data[symbol].data_id = result.DataId
                 self.data[symbol].chr = result.Chr
@@ -85,21 +85,21 @@ class MrnaAssayTissueData(object):
     #function: get one dictionary whose key is gene symbol and value is tissue expression data (list type).
     #Attention! All keys are lower case!
     ###########################################################################
-    
+
     def get_symbol_values_pairs(self):
         id_list = [self.data[symbol].data_id for symbol in self.data]
 
         print("id_list:", id_list)
 
         symbol_values_dict = {}
-        
+
         query = """SELECT TissueProbeSetXRef.Symbol, TissueProbeSetData.value
                    FROM TissueProbeSetXRef, TissueProbeSetData
                    WHERE TissueProbeSetData.Id IN {} and
                          TissueProbeSetXRef.DataId = TissueProbeSetData.Id""".format(db_tools.create_in_clause(id_list))
-        
+
         print("TISSUE QUERY:", query)
-        
+
         results = g.db.execute(query).fetchall()
         for result in results:
             if result.Symbol.lower() not in symbol_values_dict:
@@ -110,11 +110,11 @@ class MrnaAssayTissueData(object):
         #for symbol in self.data:
         #    data_id = self.data[symbol].data_id
         #    symbol_values_dict[symbol] = self.get_tissue_values(data_id)
-        
-    
+
+
         return symbol_values_dict
-    
-    
+
+
     #def get_tissue_values(self, data_id):
     #    """Gets the tissue values for a particular gene"""
     #
@@ -133,7 +133,7 @@ class MrnaAssayTissueData(object):
     #    #    symbol_values_pairs[symbol] = None
     #
     #    return tissue_values
-    
+
 ########################################################################################################
 #input: cursor, symbolList (list), dataIdDict(Dict): key is symbol
 #output: SymbolValuePairDict(dictionary):one dictionary of Symbol and Value Pair.
@@ -154,7 +154,7 @@ class MrnaAssayTissueData(object):
 #    #descDict,
 #    #pTargetDescDict = getTissueProbeSetXRefInfo(
 #    #                    GeneNameLst=GeneNameLst,TissueProbeSetFreezeId=TissueProbeSetFreezeId)
-#    
+#
 #    if len(tissue_data.gene_symbols):
 #        return get_symbol_values_pairs(tissue_data)
-            
+

@@ -104,7 +104,7 @@ Chr_Lod_Chart = (function() {
         this.y_coords.push(result.lod_score);
       }
       else {
-        console.log("LRS VALUE:", result['lrs_value']) 
+        console.log("LRS VALUE:", result['lrs_value'])
         this.y_coords.push(result['lrs_value']);
       }
       results.push(this.marker_names.push(result.name));

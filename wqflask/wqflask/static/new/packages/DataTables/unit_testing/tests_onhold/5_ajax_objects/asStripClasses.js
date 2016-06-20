@@ -14,7 +14,7 @@ $(document).ready( function () {
 		]
 	} );
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Default row striping is applied",
 		null,
 		function () {
@@ -25,7 +25,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Row striping on the second page",
 		function () { $('#example_next').click(); },
 		function () {
@@ -37,7 +37,7 @@ $(document).ready( function () {
 	);
 	
 	/* No striping */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"No row striping",
 		function () {
 			oSession.fnRestore();
@@ -67,7 +67,7 @@ $(document).ready( function () {
 	);
 	
 	/* Custom striping */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Custom striping [2]",
 		function () {
 			oSession.fnRestore();
@@ -93,7 +93,7 @@ $(document).ready( function () {
 	
 	
 	/* long array of striping */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Custom striping [4]",
 		function () {
 			oSession.fnRestore();
@@ -117,7 +117,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Custom striping is restarted on second page [2]",
 		function () { $('#example_next').click(); },
 		function () {

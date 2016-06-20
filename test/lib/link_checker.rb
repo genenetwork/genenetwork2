@@ -24,7 +24,7 @@ describe LinkChecker do
   describe LinkChecker do
     it "Get to trait page" do
       page = @agent.get($host+'/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P')
-      p page
+      # p page
 
       # Get to trait page for 1435395_s_at
       # form2 = show_trait_page.forms_with("trait_page")[0]

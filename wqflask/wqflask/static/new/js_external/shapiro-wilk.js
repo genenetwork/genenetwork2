@@ -168,7 +168,7 @@ function ShapiroWilkW(x)
 /*	Calculate significance level for W */
 
     if (n == 3) {/* exact P value : */
-	    var pi6 = 1.90985931710274; /* = 6/pi */ 
+	    var pi6 = 1.90985931710274; /* = 6/pi */
 	    var stqr = 1.04719755119660; /* = asin(sqrt(3/4)) */
 	    pw = pi6 * (Math.asin(Math.sqrt(w)) - stqr);
         if (pw < 0.)

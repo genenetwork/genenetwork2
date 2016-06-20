@@ -14,27 +14,27 @@ $(document).ready( function () {
 		]
 	} );
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting classes are applied by default",
 		null,
 		function () { return $('#example tbody tr:eq(0) td:eq(0)').hasClass('sorting_1'); }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting classes are applied to all required cells",
 		null,
 		function () { return $('#example tbody tr:eq(7) td:eq(0)').hasClass('sorting_1'); }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting classes are not applied to non-sorting columns",
 		null,
 		function () { return $('#example tbody tr:eq(0) td:eq(1)').hasClass('sorting_1') == false; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting multi-column - add column 1",
-		function () { 
+		function () {
 			oDispacher.click( $('#example thead th:eq(1)')[0], { 'shift': true } ); },
 		function () {
 			return $('#example tbody tr:eq(0) td:eq(0)').hasClass('sorting_1') &&
@@ -42,9 +42,9 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting multi-column - add column 2",
-		function () { 
+		function () {
 			oDispacher.click( $('#example thead th:eq(2)')[0], { 'shift': true } ); },
 		function () {
 			return $('#example tbody tr:eq(0) td:eq(0)').hasClass('sorting_1') &&
@@ -53,9 +53,9 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting multi-column - add column 3",
-		function () { 
+		function () {
 			oDispacher.click( $('#example thead th:eq(3)')[0], { 'shift': true } );
 		},
 		function () {
@@ -66,9 +66,9 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Remove sorting classes on single column sort",
-		function () { 
+		function () {
 			$('#example thead th:eq(4)').click();
 		},
 		function () {
@@ -79,7 +79,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting class 1 was added",
 		null,
 		function () { return $('#example tbody tr:eq(1) td:eq(4)').hasClass('sorting_1'); }
@@ -87,7 +87,7 @@ $(document).ready( function () {
 	
 	
 	/* Check can disable */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting classes can be disabled",
 		function () {
 			oSession.fnRestore();
@@ -106,9 +106,9 @@ $(document).ready( function () {
 		function () { return $('#example tbody tr:eq(0) td:eq(0)').hasClass('sorting_1') == false; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting classes disabled - add column 1 - no effect",
-		function () { 
+		function () {
 			oDispacher.click( $('#example thead th:eq(1)')[0], { 'shift': true } ); },
 		function () {
 			return $('#example tbody tr:eq(0) td:eq(0)').hasClass('sorting_1') == false &&
@@ -116,9 +116,9 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting classes disabled - add column 2 - no effect",
-		function () { 
+		function () {
 			oDispacher.click( $('#example thead th:eq(2)')[0], { 'shift': true } ); },
 		function () {
 			return $('#example tbody tr:eq(0) td:eq(0)').hasClass('sorting_1') == false &&
@@ -129,7 +129,7 @@ $(document).ready( function () {
 	
 	
 	/* Enable makes no difference */
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Sorting classes enabled override",
 		function () {
 			oSession.fnRestore();

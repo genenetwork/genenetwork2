@@ -25,17 +25,17 @@ $.extend( DataTable.ext.aTypes, [
 		var bDecimal = false;
 		
 		/* Check for a valid first char (no period and allow negatives) */
-		Char = sData.charAt(0); 
-		if (sValidFirstChars.indexOf(Char) == -1) 
+		Char = sData.charAt(0);
+		if (sValidFirstChars.indexOf(Char) == -1)
 		{
 			return null;
 		}
 		
 		/* Check all the other characters are valid */
-		for ( var i=1 ; i<sData.length ; i++ ) 
+		for ( var i=1 ; i<sData.length ; i++ )
 		{
-			Char = sData.charAt(i); 
-			if (sValidChars.indexOf(Char) == -1) 
+			Char = sData.charAt(i);
+			if (sValidChars.indexOf(Char) == -1)
 			{
 				return null;
 			}

@@ -10,14 +10,14 @@
  * License:     GPL v2 or BSD 3 point style
  * Project:     DataTables
  * Contact:     allan.jardine@sprymedia.co.uk
- * 
+ *
  * Copyright 2009 Allan Jardine, all rights reserved.
  *
  * Description:
  * This is a javascript library suitable for use as a unit testing framework. Employing a queuing
  * mechanisim to take account of async events in javascript, this library will communicates with
  * a controller frame (to report individual test status).
- * 
+ *
  */
 
 
@@ -258,8 +258,8 @@ var oDispacher = {
 			{
 				case 'mouse':
 					evt = document.createEvent( "MouseEvents" );
-					evt.initMouseEvent( sType, true, true, window, 0, oTargetPos[0], oTargetPos[1], 
-						oTargetPos[0], oTargetPos[1], ctrlKey, altKey, shiftKey, 
+					evt.initMouseEvent( sType, true, true, window, 0, oTargetPos[0], oTargetPos[1],
+						oTargetPos[0], oTargetPos[1], ctrlKey, altKey, shiftKey,
 						metaKey, button, null );
 					break;
 				
@@ -310,22 +310,22 @@ var oDispacher = {
 		return evt;
 	},
 	
-	/* 
+	/*
 	 * Function: DesignCore.fnGetPos
 	 * Purpose:  Get the position of an element on the page
 	 * Returns:  array[ 0-int:left, 1-int:top ]
 	 * Inputs:   node:obj - node to analyse
 	 */
-	_fnGetPos: function ( obj ) 
+	_fnGetPos: function ( obj )
 	{
 		var curleft = 0;
 		var curtop = 0;
 		
-		if (obj.offsetParent) 
+		if (obj.offsetParent)
 		{
 			curleft = obj.offsetLeft;
 			curtop = obj.offsetTop;
-			while (obj = obj.offsetParent ) 
+			while (obj = obj.offsetParent )
 			{
 				curleft += obj.offsetLeft;
 				curtop += obj.offsetTop;

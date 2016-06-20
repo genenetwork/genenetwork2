@@ -7,13 +7,13 @@ $(document).ready( function () {
 	$('#example').dataTable();
 	
 	/* Basic checks */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"null by default",
 		null,
 		function () { return $('#example').dataTable().fnSettings().oLanguage.fnInfoCallback == null; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Agrument length",
 		function () {
 			$('#example').dataTable( {
@@ -27,7 +27,7 @@ $(document).ready( function () {
 		function () { return mPass == 6; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Settings first",
 		function () {
 			$('#example').dataTable( {
@@ -41,7 +41,7 @@ $(document).ready( function () {
 		function () { return mPass; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Start arg",
 		function () {
 			$('#example').dataTable( {
@@ -54,7 +54,7 @@ $(document).ready( function () {
 		function () { return $('#example_info').html() == "1"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"End arg",
 		function () {
 			$('#example').dataTable( {
@@ -67,7 +67,7 @@ $(document).ready( function () {
 		function () { return $('#example_info').html() == "10"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Max arg",
 		function () {
 			$('#example').dataTable( {
@@ -80,7 +80,7 @@ $(document).ready( function () {
 		function () { return $('#example_info').html() == "57"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Max arg - filter",
 		function () {
 			$('#example').dataTable().fnFilter("1.0");
@@ -88,7 +88,7 @@ $(document).ready( function () {
 		function () { return $('#example_info').html() == "57"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Total arg",
 		function () {
 			$('#example').dataTable( {
@@ -101,7 +101,7 @@ $(document).ready( function () {
 		function () { return $('#example_info').html() == "57"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Total arg - filter",
 		function () {
 			$('#example').dataTable().fnFilter("1.0");

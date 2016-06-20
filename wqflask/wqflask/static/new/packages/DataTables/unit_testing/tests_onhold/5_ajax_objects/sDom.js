@@ -17,13 +17,13 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Default DOM varaible",
 		null,
 		function () { return oSettings.sDom == "lfrtip"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Default DOM in document",
 		null,
 		function () {
@@ -35,7 +35,7 @@ $(document).ready( function () {
 			var nPaging = document.getElementById('example_paginate');
 			var nTable = document.getElementById('example');
 			
-			var bReturn = 
+			var bReturn =
 				nNodes[0] == nWrapper &&
 				nNodes[1] == nLength &&
 				nNodes[2] == nFilter &&
@@ -46,7 +46,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check example 1 in code propagates",
 		function () {
 			oSession.fnRestore();
@@ -66,7 +66,7 @@ $(document).ready( function () {
 		function () { return oSettings.sDom == '<"wrapper"flipt>'; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check example 1 in DOM",
 		null,
 		function () {
@@ -91,7 +91,7 @@ $(document).ready( function () {
 			var nTable = document.getElementById('example');
 			var nCustomWrapper = $('div.wrapper')[0];
 			
-			var bReturn = 
+			var bReturn =
 				nNodes[0] == nWrapper &&
 				nNodes[1] == nCustomWrapper &&
 				nNodes[2] == nFilter &&
@@ -103,7 +103,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check example 2 in DOM",
 		function () {
 			oSession.fnRestore();
@@ -147,7 +147,7 @@ $(document).ready( function () {
 			var nPaging = document.getElementById('example_paginate');
 			var nTable = document.getElementById('example');
 			
-			var bReturn = 
+			var bReturn =
 				nNodes[0] == nWrapper &&
 				nNodes[1] == nCustomWrappers[0] &&
 				nNodes[2] == nLength &&
@@ -160,7 +160,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check no length element",
 		function () {
 			oSession.fnRestore();
@@ -185,7 +185,7 @@ $(document).ready( function () {
 			var nPaging = document.getElementById('example_paginate');
 			var nTable = document.getElementById('example');
 			
-			var bReturn = 
+			var bReturn =
 				nNodes[0] == nWrapper &&
 				null == nLength &&
 				nNodes[1] == nFilter &&
@@ -196,7 +196,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check no filter element",
 		function () {
 			oSession.fnRestore();
@@ -221,7 +221,7 @@ $(document).ready( function () {
 			var nPaging = document.getElementById('example_paginate');
 			var nTable = document.getElementById('example');
 			
-			var bReturn = 
+			var bReturn =
 				nNodes[0] == nWrapper &&
 				nNodes[1] == nLength &&
 				null == nFilter &&
@@ -234,7 +234,7 @@ $(document).ready( function () {
 	
 	/* Note we don't test for no table as this is not supported (and it would be fairly daft! */
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check no info element",
 		function () {
 			oSession.fnRestore();
@@ -259,7 +259,7 @@ $(document).ready( function () {
 			var nPaging = document.getElementById('example_paginate');
 			var nTable = document.getElementById('example');
 			
-			var bReturn = 
+			var bReturn =
 				nNodes[0] == nWrapper &&
 				nNodes[1] == nLength &&
 				nNodes[2] == nFilter &&
@@ -270,7 +270,7 @@ $(document).ready( function () {
 		}
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Check no paging element",
 		function () {
 			oSession.fnRestore();
@@ -295,7 +295,7 @@ $(document).ready( function () {
 			var nPaging = document.getElementById('example_paginate');
 			var nTable = document.getElementById('example');
 			
-			var bReturn = 
+			var bReturn =
 				nNodes[0] == nWrapper &&
 				nNodes[1] == nLength &&
 				nNodes[2] == nFilter &&

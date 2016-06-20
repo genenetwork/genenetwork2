@@ -9,20 +9,20 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Info post fix language is '' (blank) by default",
 		null,
 		function () { return oSettings.oLanguage.sInfoPostFix == ""; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Width no post fix, the basic info shows",
 		null,
 		function () { return document.getElementById('example_info').innerHTML = "Showing 1 to 10 of 57 entries"; }
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Info post fix language can be defined",
 		function () {
 			oSession.fnRestore();
@@ -38,14 +38,14 @@ $(document).ready( function () {
 		function () { return oSettings.oLanguage.sInfoPostFix == "unit test"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Info empty language default is in the DOM",
 		null,
 		function () { return document.getElementById('example_info').innerHTML = "Showing 1 to 10 of 57 entries unit test"; }
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Macros have no effect in the post fix",
 		function () {
 			oSession.fnRestore();
@@ -61,7 +61,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Post fix is applied after fintering info",
 		function () {
 			oSession.fnRestore();

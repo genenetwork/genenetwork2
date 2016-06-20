@@ -7,14 +7,14 @@ $(document).ready( function () {
 		"aaData": gaaData
 	} );
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Info div exists by default",
 		null,
 		function () { return document.getElementById('example_info') != null; }
 	);
 	
 	/* Check can disable */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Info can be disabled",
 		function () {
 			oSession.fnRestore();
@@ -27,7 +27,7 @@ $(document).ready( function () {
 	);
 	
 	/* Enable makes no difference */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Info enabled override",
 		function () {
 			oSession.fnRestore();

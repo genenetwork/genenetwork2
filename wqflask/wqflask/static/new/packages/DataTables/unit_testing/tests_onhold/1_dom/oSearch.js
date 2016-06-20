@@ -6,11 +6,11 @@ $(document).ready( function () {
 	var oTable = $('#example').dataTable();
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Default values should be blank",
 		null,
 		function () {
-			var bReturn = oSettings.oPreviousSearch.sSearch == "" && 
+			var bReturn = oSettings.oPreviousSearch.sSearch == "" &&
 			              !oSettings.oPreviousSearch.bRegex;
 			return bReturn;
 		}
@@ -19,7 +19,7 @@ $(document).ready( function () {
 	/* This test might be considered iffy since the full object isn't given, but it's reasonable to
 	 * expect DataTables to cope with this. It should just assumine regex false
 	 */
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Search term only in object",
 		function () {
 			oSession.fnRestore();
@@ -32,7 +32,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody tr:eq(0) td:eq(0)').html() == "Gecko"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"New search will kill old one",
 		function () {
 			oTable.fnFilter("Opera");
@@ -40,7 +40,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody tr:eq(0) td:eq(0)').html() == "Presto"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Search plain text term and escape regex true",
 		function () {
 			oSession.fnRestore();
@@ -54,7 +54,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody tr:eq(0) td:eq(1)').html() == "Nintendo DS browser"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Search plain text term and escape regex false",
 		function () {
 			oSession.fnRestore();
@@ -68,7 +68,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody tr:eq(0) td:eq(0)').html() == "Presto"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Search regex text term and escape regex true",
 		function () {
 			oSession.fnRestore();
@@ -82,7 +82,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody tr:eq(0) td:eq(0)').html() == "No matching records found"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Search regex text term and escape regex false",
 		function () {
 			oSession.fnRestore();

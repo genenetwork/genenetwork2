@@ -8,7 +8,7 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"No fixed sorting by default",
 		null,
 		function () {
@@ -17,7 +17,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Fixed sorting on first column (string/asc) with user sorting on second column (string/asc)",
 		function () {
 			oSession.fnRestore();
@@ -30,7 +30,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(1)').html() == "Camino 1.0"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Fixed sorting on first column (string/asc) with user sorting on second column (string/desc)",
 		function () {
 			$('#example thead th:eq(1)').click();
@@ -38,7 +38,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(1)').html() == "Seamonkey 1.1"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Fixed sorting on fourth column (int/asc) with user sorting on second column (string/asc)",
 		function () {
 			oSession.fnRestore();
@@ -51,7 +51,7 @@ $(document).ready( function () {
 		function () { return $('#example tbody td:eq(1)').html() == "All others"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Fixed sorting on fourth column (int/asc) with user sorting on second column (string/desc)",
 		function () {
 			$('#example thead th:eq(1)').click();

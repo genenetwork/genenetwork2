@@ -11,10 +11,10 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Server side is off by default",
 		null,
-		function () { 
+		function () {
 			return oSettings.sAjaxSource == "../../../examples/server_side/scripts/server_processing.php";
 		}
 	);

@@ -860,7 +860,7 @@
 		var i, ien, j, jen, k, ken;
 		var col, cell, detectedType, cache;
 	
-		// For each column, spin over the 
+		// For each column, spin over the
 		for ( i=0, ien=columns.length ; i<ien ; i++ ) {
 			col = columns[i];
 			cache = [];
@@ -3017,7 +3017,7 @@
 			 * word order. We also want double quoted text to be preserved, so word
 			 * order is important - a la google. So this is what we want to
 			 * generate:
-			 * 
+			 *
 			 * ^(?=.*?\bone\b)(?=.*?\btwo three\b)(?=.*?\bfour\b).*$
 			 */
 			var a = $.map( search.match( /"[^"]+"|[^ ]+/g ) || [''], function ( word ) {
@@ -4183,7 +4183,7 @@
 			// Table has been built, attach to the document so we can work with it
 			tmpTable.appendTo( tableContainer );
 	
-			// When scrolling (X or Y) we want to set the width of the table as 
+			// When scrolling (X or Y) we want to set the width of the table as
 			// appropriate. However, when not scrolling leave the table width as it
 			// is. This results in slightly different, but I think correct behaviour
 			if ( scrollX && scrollXInner ) {
@@ -8888,7 +8888,7 @@
 	
 	/**
 	 * DataTables utility methods
-	 * 
+	 *
 	 * This namespace provides helper methods that DataTables uses internally to
 	 * create a DataTable, but which are not exclusively used only for DataTables.
 	 * These methods can be used by extension authors to save the duplication of
@@ -11234,7 +11234,7 @@
 			 * However, multiple different tables on the page can use different
 			 * decimal place characters.
 			 *  @type string
-			 *  @default 
+			 *  @default
 			 *
 			 *  @dtopt Language
 			 *  @name DataTable.defaults.language.decimal
@@ -11399,7 +11399,7 @@
 			/**
 			 * Assign a `placeholder` attribute to the search `input` element
 			 *  @type string
-			 *  @default 
+			 *  @default
 			 *
 			 *  @dtopt Language
 			 *  @name DataTable.defaults.language.searchPlaceholder
@@ -11602,7 +11602,7 @@
 		 * * `full` - 'First', 'Previous', 'Next' and 'Last' buttons
 		 * * `full_numbers` - 'First', 'Previous', 'Next' and 'Last' buttons, plus
 		 *   page numbers
-		 *  
+		 *
 		 * Further methods can be added using {@link DataTable.ext.oPagination}.
 		 *  @type string
 		 *  @default simple_numbers
@@ -13495,7 +13495,7 @@
 	
 	/**
 	 * DataTables extensions
-	 * 
+	 *
 	 * This namespace acts as a collection area for plug-ins that can be used to
 	 * extend DataTables capabilities. Indeed many of the build in methods
 	 * use this method to provide their own capabilities (sorting methods for
@@ -13529,7 +13529,7 @@
 	
 		/**
 		 * Error reporting.
-		 * 
+		 *
 		 * How should DataTables report an error. Can take the value 'alert',
 		 * 'throw', 'none' or a function.
 		 *
@@ -13541,14 +13541,14 @@
 	
 		/**
 		 * Feature plug-ins.
-		 * 
+		 *
 		 * This is an array of objects which describe the feature plug-ins that are
 		 * available to DataTables. These feature plug-ins are then available for
 		 * use through the `dom` initialisation option.
-		 * 
+		 *
 		 * Each feature plug-in is described by an object which must have the
 		 * following properties:
-		 * 
+		 *
 		 * * `fnInit` - function that is used to initialise the plug-in,
 		 * * `cFeature` - a character so the feature can be enabled by the `dom`
 		 *   instillation option. This is case sensitive.
@@ -13559,7 +13559,7 @@
 		 *    {@link DataTable.models.oSettings}
 		 *
 		 * And the following return is expected:
-		 * 
+		 *
 		 * * {node|null} The element which contains your feature. Note that the
 		 *   return may also be void if your plug-in does not require to inject any
 		 *   DOM elements into DataTables control (`dom`) - for example this might
@@ -13581,7 +13581,7 @@
 	
 		/**
 		 * Row searching.
-		 * 
+		 *
 		 * This method of searching is complimentary to the default type based
 		 * searching, and a lot more comprehensive as it allows you complete control
 		 * over the searching logic. Each element in this array is a function
@@ -13673,7 +13673,7 @@
 	
 		/**
 		 * Internal functions, exposed for used in plug-ins.
-		 * 
+		 *
 		 * Please note that you should not need to use the internal methods for
 		 * anything other than a plug-in (and even then, try to avoid if possible).
 		 * The internal function may change between releases.
@@ -13704,7 +13704,7 @@
 	
 		/**
 		 * Pagination plug-in methods.
-		 * 
+		 *
 		 * Each entry in this object is a function and defines which buttons should
 		 * be shown by the pagination rendering method that is used for the table:
 		 * {@link DataTable.ext.renderer.pageButton}. The renderer addresses how the
@@ -13758,16 +13758,16 @@
 	
 		/**
 		 * Ordering plug-ins - custom data source
-		 * 
+		 *
 		 * The extension options for ordering of data available here is complimentary
 		 * to the default type based ordering that DataTables typically uses. It
 		 * allows much greater control over the the data that is being used to
 		 * order a column, but is necessarily therefore more complex.
-		 * 
+		 *
 		 * This type of ordering is useful if you want to do ordering based on data
 		 * live from the DOM (for example the contents of an 'input' element) rather
 		 * than just the static string that DataTables knows of.
-		 * 
+		 *
 		 * The way these plug-ins work is that you create an array of the values you
 		 * wish to be ordering for the column in question and then return that
 		 * array. The data in the array much be in the index order of the rows in
@@ -13862,7 +13862,7 @@
 			 *
 			 * Note that is a search is not defined for a column of a given type,
 			 * no search formatting will be performed.
-			 * 
+			 *
 			 * Pre-processing of searching data plug-ins - When you assign the sType
 			 * for a column (or have it automatically detected for you by DataTables
 			 * or a type detection plug-in), you will typically be using this for
@@ -13932,7 +13932,7 @@
 			 *   than the second parameter, ===0 if the two parameters are equal and
 			 *   >0 if the first parameter should be sorted height than the second
 			 *   parameter.
-			 * 
+			 *
 			 *  @type object
 			 *  @default {}
 			 *
@@ -14367,7 +14367,7 @@
 	
 	// Filter formatting functions. See model.ext.ofnSearch for information about
 	// what is required from these methods.
-	// 
+	//
 	// Note that additional search methods are added for the html numbers and
 	// html formatted numbers by `_addNumericSort()` when we know what the decimal
 	// place is

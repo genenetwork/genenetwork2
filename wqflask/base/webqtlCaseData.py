@@ -48,7 +48,7 @@ class webqtlCaseData(object):
         if self.num_cases != None:
             str += " ndata=%d" % self.num_cases
         return str
-    
+
     @property
     def class_outlier(self):
         """Template helper"""
@@ -56,14 +56,14 @@ class webqtlCaseData(object):
             return "outlier"
         else:
             return ""
-    
+
     @property
     def display_value(self):
         if self.value:
             return "%2.3f" % self.value
         else:
             return "x"
-        
+
     @property
     def display_variance(self):
         if self.variance:

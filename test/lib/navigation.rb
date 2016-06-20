@@ -1,5 +1,6 @@
 # In these tests we navigate from the main page to a specific trait then hit the different mapping tool buttons (In this case pylMM and r/qtl) followed by computing the results (marker regressions).
 
+
 class NavigationTest
 end
 
@@ -11,6 +12,7 @@ describe NavigationTest do
 
   describe NavigationTest do
     it "pyLMM mapping tool selection" do
+      break if $options[:skip_broken]
       page = @agent.get($host+'/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P')
 #Navigates to http://localhost:5003/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P and clicks respective buttons.
       link = page.link_with(text: 'pyLMM')
@@ -20,15 +22,14 @@ describe NavigationTest do
       page = link.click
       puts page.uri
       probe_link.uri.to_s.must_equal "/marker_regression"
-      
-       
-        end
-      end
+    end
+  end
 
 end
 
 describe NavigationTest do
     it "R/qtl mapping tool selection" do
+      break if $options[:skip_broken]
       page = @agent.get($host+'/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P')
       link = page.link_with(text: 'R/qtl')
       page = link.click
@@ -37,10 +38,8 @@ describe NavigationTest do
       link = page.link_with(text: 'Compute')
       page = link.click
       puts page.uri
-      probe_link.uri.to_s.must_equal "/marker_regression"
-      
-       
-        end
-      end
+      probe_link.uri.to_s.must_equal "/marker_regression" 
+    end
+end
 
 

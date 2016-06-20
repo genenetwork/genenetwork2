@@ -1,7 +1,7 @@
 // DATA_TEMPLATE: empty_table
 oTest.fnStart( "aoColumns.sWidth" );
 
-/* NOTE - we need to disable the auto width for the majority of these test in order to preform 
+/* NOTE - we need to disable the auto width for the majority of these test in order to preform
  * these tests as the auto width will convert the width to a px value. We can do 'non-exact' tests
  * with auto width enabled however to ensure it scales columns as required
  */
@@ -21,13 +21,13 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"With auto width disabled the width for one column is appled",
 		null,
 		function () { return $('#example thead th:eq(1)')[0].style.width == "40%"; }
 	);
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"With auto width disabled the width for one column is appled",
 		function () {
 			oSession.fnRestore();
@@ -52,7 +52,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"With auto width, it will make the smallest column the largest with percentage width given",
 		function () {
 			oSession.fnRestore();

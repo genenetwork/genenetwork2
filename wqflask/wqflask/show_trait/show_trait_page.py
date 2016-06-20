@@ -55,10 +55,10 @@ class ShowTraitPage(DataEditingPage):
             ProbeSetID = fd['ProbeSetID']
 
             CellID = fd.get('CellID')
-      
+
 
         thisTrait = webqtlTrait(db=database, name=ProbeSetID, cellid=CellID, cursor=self.cursor)
-        
+
         if thisTrait.db.type == "ProbeSet":
 
             self.cursor.execute('''SELECT Id, Name, FullName, confidentiality, AuthorisedUsers
@@ -105,7 +105,7 @@ class ShowTraitPage(DataEditingPage):
                 try it again tomorrow.' % webqtlConfig.DAILYMAXIMUM]
                 self.error(heading=heading,detail=detail)
                 return
-            
+
 
         if thisTrait.db.type != 'ProbeSet' and thisTrait.cellid:
             heading = "Retrieve Data"

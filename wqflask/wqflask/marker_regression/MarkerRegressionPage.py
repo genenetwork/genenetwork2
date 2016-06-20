@@ -460,7 +460,7 @@ class MarkerRegressionPage(templatePage):
         filename= webqtlUtil.genRandStr("Reg_")
         myCanvas.save(webqtlConfig.GENERATED_IMAGE_DIR+filename, format='gif')
         img=HT.Image('/image/'+filename+'.gif',border=0,alt='Histogram of Permutation Test')
-            
+
         if fd.suggestive == None:
             fd.suggestive = LRSArray[int(fd.nperm*0.37-1)]
         else:

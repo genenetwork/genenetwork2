@@ -25,7 +25,7 @@ from pprint import pformat as pf
 
 def parse(pstring):
     """
-    
+
     returned item search_term is always a list, even if only one element
     """
     pstring = re.split(r"""(?:(\w+\s*=\s*[\('"\[][^)'"]*[\)\]'"])  |  # LRS=(1 2 3), cisLRS=[4 5 6], etc
@@ -39,11 +39,11 @@ def parse(pstring):
 
     separators = [re.escape(x) for x in ("<=", ">=", ":", "=", "<", ">")]
     separators = '(%s)' % ("|".join(separators))
-    
+
     print("separators:", separators)
 
-    
- 
+
+
     for item in pstring:
         splat = re.split(separators, item)
         print("splat is:", splat)
@@ -59,10 +59,10 @@ def parse(pstring):
                 value = [value.strip() for value in values if value.strip()]
             else:
                 value = [value]
-            # : is a synonym for = 
+            # : is a synonym for =
             if separator == ":":
                 separator = "="
-                
+
             term = dict(key=key,
                         separator=separator,
                         search_term=value)

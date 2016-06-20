@@ -15,7 +15,7 @@ $(document).ready( function () {
 	} );
 	var oSettings = oTable.fnSettings();
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Menu language is 'Show _MENU_ entries' by default",
 		null,
 		function () { return oSettings.oLanguage.sLengthMenu == "Show _MENU_ entries"; }
@@ -46,7 +46,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Menu length language can be defined - no _MENU_ macro",
 		function () {
 			oSession.fnRestore();
@@ -68,7 +68,7 @@ $(document).ready( function () {
 		function () { return oSettings.oLanguage.sLengthMenu == "unit test"; }
 	);
 	
-	oTest.fnTest( 
+	oTest.fnTest(
 		"Menu length language definition is in the DOM",
 		null,
 		function () {
@@ -77,7 +77,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Menu length language can be defined - with _MENU_ macro",
 		function () {
 			oSession.fnRestore();
@@ -106,7 +106,7 @@ $(document).ready( function () {
 	);
 	
 	
-	oTest.fnWaitTest( 
+	oTest.fnWaitTest(
 		"Only the _MENU_ macro",
 		function () {
 			oSession.fnRestore();
