@@ -29,7 +29,7 @@
 import logging
 import string
 from inspect import isfunction
-from utility.tools import LOG_LEVEL
+from utility.tools import LOG_LEVEL, LOG_SQL
 
 class GNLogger:
     """A logger class with some additional functionality, such as
@@ -76,10 +76,12 @@ class GNLogger:
 
     def sql(self, description, sqlcommand, fun = None):
         """Log SQL command, optionally invoking a timed fun"""
-        self.info(description,sqlcommand)
+        if LOG_SQL:
+            self.info(description,sqlcommand)
         if fun:
             result = fun(sqlcommand)
-            self.info("result:",result)
+            if LOG_SQL:
+                self.debug(result)
             return result
 
     def collect(self,fun,*args):

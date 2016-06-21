@@ -47,7 +47,7 @@ def getCursor():
     except:
         return None
 
-def fetchone(callername,query):
+def fetchone(query):
     """Return tuple containing one row by calling SQL directly
 
     """
@@ -55,6 +55,7 @@ def fetchone(callername,query):
         def helper(query):
             res = g.db.execute(query)
             return res.fetchone()
+        callername = stack()[1][3]
         return logger.sql(callername, query, helper)
 
 def gn_server(path):
@@ -73,10 +74,10 @@ def retrieve_species(group):
 
     """
     if USE_GN_SERVER:
-        result = gn_server("/cross/"+group)
+        result = gn_server("/cross/"+group+".json")
         return result["species"]
     else:
-        result = fetchone(stack()[0][3],"select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (group))
+        result = fetchone("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (group))
         return result[0]
 
 ###########################################################################
