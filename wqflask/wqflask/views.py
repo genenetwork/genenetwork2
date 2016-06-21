@@ -75,9 +75,11 @@ def connect_db():
 def index_page():
     logger.info("Sending index_page")
     if USE_GN_SERVER:
-      return render_template("index_page.html")
+        # The menu is generated using GN_SERVER
+        return render_template("index_page.html")
     else:
-      return render_template("index_page_orig.html")
+        # Old style static menu (OBSOLETE)
+        return render_template("index_page_orig.html")
 
 
 @app.route("/tmp/<img_path>")
