@@ -29,7 +29,7 @@
 import logging
 import string
 from inspect import isfunction
-from utility.tools import LOG_LEVEL, LOG_SQL
+from utility.tools import LOG_LEVEL, LOG_SQL, LOG_FORMAT
 
 class GNLogger:
     """A logger class with some additional functionality, such as

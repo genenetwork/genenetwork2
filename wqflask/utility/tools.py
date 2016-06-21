@@ -173,6 +173,7 @@ LOG_LEVEL_DEBUG    = get_setting_int('LOG_LEVEL_DEBUG')
 LOG_SQL            = get_setting_bool('LOG_SQL')
 LOG_SQLALCHEMY     = get_setting_bool('LOG_SQLALCHEMY')
 LOG_BENCH          = get_setting_bool('LOG_BENCH')
+LOG_FORMAT         = "%(message)s"    # not yet in use
 USE_REDIS          = get_setting_bool('USE_REDIS')
 USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
 
