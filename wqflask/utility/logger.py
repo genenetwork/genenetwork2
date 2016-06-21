@@ -81,7 +81,7 @@ class GNLogger:
         if fun:
             result = fun(sqlcommand)
             if LOG_SQL:
-                self.debug(result)
+                self.info(result)
             return result
 
     def collect(self,fun,*args):

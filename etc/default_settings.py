@@ -39,6 +39,7 @@ WEBSERVER_DEPLOY = None     # Deployment specifics (nyi)
 LOG_LEVEL       = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
 LOG_LEVEL_DEBUG = 1         # Debug log level (0-5) (nyi)
 LOG_SQL         = 'False'   # Log SQL/backend calls
+LOG_BENCH       = True      # Log bench marks
 
 USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
 USE_GN_SERVER   = True      # Use GN_SERVER SQL calls

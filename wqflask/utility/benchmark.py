@@ -3,33 +3,36 @@ from __future__ import print_function, division, absolute_import
 import collections
 import inspect
 import time
+from utility.tools import LOG_BENCH
 
 
 class Bench(object):
     entries = collections.OrderedDict()
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, write_output=True):
         self.name = name
+        self.write_output = write_output
 
     def __enter__(self):
-        if self.name:
-            print("Starting benchmark: %s" % (self.name))
-        else:
-            print("Starting benchmark at: %s [%i]" % (inspect.stack()[1][3], inspect.stack()[1][2]))
+        if self.write_output:
+            if self.name:
+                print("Starting benchmark: %s" % (self.name))
+            else:
+                print("Starting benchmark at: %s [%i]" % (inspect.stack()[1][3], inspect.stack()[1][2]))
         self.start_time = time.time()
 
     def __exit__(self, type, value, traceback):
-        if self.name:
-            name = self.name
-        else:
-            name = "That"
-
         time_taken = time.time() - self.start_time
-        print("  %s took: %f seconds" % (name, (time_taken)))
+        if self.write_output:
+            if self.name:
+                name = self.name
+            else:
+                name = "That"
+
+            print("  %s took: %f seconds" % (name, (time_taken)))
 
         if self.name:
             Bench.entries[self.name] = Bench.entries.get(self.name, 0) + time_taken
-
 
     @classmethod
     def report(cls):

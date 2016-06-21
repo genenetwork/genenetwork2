@@ -28,7 +28,7 @@ import string
 import urllib2
 import json
 from base import webqtlConfig
-from utility.tools import USE_GN_SERVER
+from utility.tools import USE_GN_SERVER, LOG_SQL
 from utility.benchmark import Bench
 
 from utility.logger import getLogger
@@ -51,7 +51,7 @@ def fetchone(query):
     """Return tuple containing one row by calling SQL directly
 
     """
-    with Bench("SQL took"):
+    with Bench("SQL took",LOG_SQL):
         def helper(query):
             res = g.db.execute(query)
             return res.fetchone()
@@ -62,7 +62,7 @@ def gn_server(path):
     """Return JSON record by calling GN_SERVER
 
     """
-    with Bench("GN_SERVER took"):
+    with Bench("GN_SERVER took",LOG_SQL):
         res = urllib2.urlopen("http://localhost:8880/"+path)
         rest = res.read()
         res2 = json.loads(rest)
