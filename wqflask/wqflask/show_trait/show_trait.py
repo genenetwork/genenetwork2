@@ -26,6 +26,9 @@ from pprint import pformat as pf
 from utility.tools import flat_files
 MAPPING_PATH = flat_files("mapping")
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
+
 ###############################################
 #
 # Todo: Put in security to ensure that user has permission to access confidential data sets
@@ -36,7 +39,7 @@ MAPPING_PATH = flat_files("mapping")
 class ShowTrait(object):
 
     def __init__(self, kw):
-        print("in ShowTrait, kw are:", kw)
+        logger.debug("in ShowTrait, kw are:", kw)
 
         if kw['trait_id'] != None:
             self.temp_trait = False
@@ -97,7 +100,7 @@ class ShowTrait(object):
 
         #Get nearest marker for composite mapping
 
-        print("self.dataset.type:", self.dataset.type)
+        logger.debug("self.dataset.type:", self.dataset.type)
         if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
             self.nearest_marker = get_nearest_marker(self.this_trait, self.dataset)
             #self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
@@ -143,7 +146,7 @@ class ShowTrait(object):
         else:
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
-        print("sample_lists is:", pf(sample_lists))
+        logger.debug("sample_lists is:", pf(sample_lists))
 
         self.get_mapping_methods()
 
@@ -204,7 +207,7 @@ class ShowTrait(object):
             except ValueError:
                 return None
 
-        print("bottle samplelist is:", samplelist)
+        logger.debug("bottle samplelist is:", samplelist)
         if traitfiledata:
             tt = traitfiledata.split()
             values = map(webqtlUtil.StringAsFloat, tt)
@@ -212,17 +215,17 @@ class ShowTrait(object):
             tt = traitpastedata.split()
             values = map(webqtlUtil.StringAsFloat, tt)
         else:
-            print("mapping formdataasfloat")
+            logger.debug("mapping formdataasfloat")
             #values = map(self.FormDataAsFloat, samplelist)
             values = [to_float(getattr(self, key)) for key in samplelist]
-        print("rocket values is:", values)
+        logger.debug("rocket values is:", values)
 
 
         if len(values) < len(samplelist):
             values += [None] * (len(samplelist) - len(values))
         elif len(values) > len(samplelist):
             values = values[:len(samplelist)]
-        print("now values is:", values)
+        logger.debug("now values is:", values)
 
 
         if variancefiledata:
@@ -253,7 +256,7 @@ class ShowTrait(object):
             if values[i] != None:
                 self.allTraitData[_sample] = webqtlCaseData(
                     _sample, values[i], variances[i], nsamples[i])
-        print("allTraitData is:", pf(self.allTraitData))
+        logger.debug("allTraitData is:", pf(self.allTraitData))
 
 
     def dispTraitInformation(self, args, title1Body, hddn, this_trait):
@@ -504,7 +507,7 @@ class ShowTrait(object):
                             txst = int(txst*1000000)
                             txen = int(txen*1000000)
                 if self.species_name == "mouse":
-                    print("this_trait.symbol:", this_trait.symbol)
+                    logger.debug("this_trait.symbol:", this_trait.symbol)
                     result = g.db.execute("SELECT chromosome,txStart,txEnd FROM GeneList WHERE geneSymbol = %s", (this_trait.symbol)).fetchone()
                     if result != None:
                         this_chr, txst, txen = result[0], result[1], result[2]
@@ -752,14 +755,14 @@ class ShowTrait(object):
             primary_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + primary_samples #XZ: note that fd.f1list and fd.parlist are added.
             all_samples = primary_samples + other_samples
             other_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + other_samples #XZ: note that fd.f1list and fd.parlist are added.
-            print("ac1")   # This is the one used for first sall3
+            logger.debug("ac1")   # This is the one used for first sall3
             self.MDP_menu.append(('All Cases','0'))
             self.MDP_menu.append(('%s Only' % fd.group, '1'))
             self.MDP_menu.append(('Non-%s Only' % fd.group, '2'))
 
         else:
             if (len(other_samples) > 0) and (len(primary_samples) + len(other_samples) > 3):
-                print("ac2")
+                logger.debug("ac2")
                 self.MDP_menu.append(('All Cases','0'))
                 self.MDP_menu.append(('%s Only' % fd.group,'1'))
                 self.MDP_menu.append(('Non-%s Only' % fd.group,'2'))
@@ -768,7 +771,7 @@ class ShowTrait(object):
                 all_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + all_samples
                 primary_samples = map(lambda X:"_2nd_"+X, fd.f1list + fd.parlist) + primary_samples
             else:
-                print("ac3")
+                logger.debug("ac3")
                 all_samples = samplelist
 
             other_samples.sort(key=webqtlUtil.natsort_key)
@@ -785,18 +788,18 @@ class ShowTrait(object):
             for sampleNameOrig in all_samples:
                 sampleName = sampleNameOrig.replace("_2nd_", "")
 
-                print("* type of this_trait:", type(this_trait))
-                print("  name:", this_trait.__class__.__name__)
-                print("  this_trait:", this_trait)
-                print("  type of this_trait.data[sampleName]:", type(this_trait.data[sampleName]))
-                print("  name:", this_trait.data[sampleName].__class__.__name__)
-                print("  this_trait.data[sampleName]:", this_trait.data[sampleName])
+                logger.debug("* type of this_trait:", type(this_trait))
+                logger.debug("  name:", this_trait.__class__.__name__)
+                logger.debug("  this_trait:", this_trait)
+                logger.debug("  type of this_trait.data[sampleName]:", type(this_trait.data[sampleName]))
+                logger.debug("  name:", this_trait.data[sampleName].__class__.__name__)
+                logger.debug("  this_trait.data[sampleName]:", this_trait.data[sampleName])
                 thisval = this_trait.data[sampleName].value
-                print("  thisval:", thisval)
+                logger.debug("  thisval:", thisval)
                 thisvar = this_trait.data[sampleName].variance
-                print("  thisvar:", thisvar)
+                logger.debug("  thisvar:", thisvar)
                 thisValFull = [sampleName, thisval, thisvar]
-                print("  thisValFull:", thisValFull)
+                logger.debug("  thisValFull:", thisValFull)
 
                 vals1.append(thisValFull)
 
@@ -1202,9 +1205,9 @@ class ShowTrait(object):
                                         this_trait=this_trait,
                                         sample_group_type='primary',
                                         header="%s Only" % (self.dataset.group.name))
-        print("primary_samples is: ", pf(primary_samples))
+        logger.debug("primary_samples is: ", pf(primary_samples))
 
-        print("other_sample_names2:", other_sample_names)
+        logger.debug("other_sample_names2:", other_sample_names)
         if other_sample_names and self.dataset.group.species != "human":
             parent_f1_samples = None
             if self.dataset.group.parlist and self.dataset.group.f1list:
@@ -1214,7 +1217,7 @@ class ShowTrait(object):
             if parent_f1_samples:
                 other_sample_names = parent_f1_samples + other_sample_names
 
-            print("other_sample_names:", other_sample_names)
+            logger.debug("other_sample_names:", other_sample_names)
 
             other_samples = SampleList(dataset=self.dataset,
                                         sample_names=other_sample_names,
@@ -1229,14 +1232,14 @@ class ShowTrait(object):
         #TODO: Figure out why this if statement is written this way - Zach
         #if (other_sample_names or (fd.f1list and this_trait.data.has_key(fd.f1list[0]))
         #        or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
-        #    print("hjs")
+        #    logger.debug("hjs")
         self.dataset.group.allsamples = all_samples_ordered
 
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr
-    print("this_chr:", this_chr)
+    logger.debug("this_chr:", this_chr)
     this_mb = this_trait.locus_mb
-    print("this_mb:", this_mb)
+    logger.debug("this_mb:", this_mb)
     #One option is to take flanking markers, another is to take the two (or one) closest
     query = """SELECT Geno.Name
                FROM Geno, GenoXRef, GenoFreeze
@@ -1245,10 +1248,10 @@ def get_nearest_marker(this_trait, this_db):
                      GenoFreeze.Id = GenoXRef.GenoFreezeId AND
                      GenoFreeze.Name = '{}'
                ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name+"Geno", this_mb)
-    print("query:", query)
+    logger.debug("query:", query)
 
     result = g.db.execute(query).fetchall()
-    print("result:", result)
+    logger.debug("result:", result)
 
     if result == []:
         return ""
@@ -1267,5 +1270,3 @@ def get_trait_table_width(sample_groups):
         table_width += len(sample_groups[0].attributes)*10
 
     return table_width
-
-

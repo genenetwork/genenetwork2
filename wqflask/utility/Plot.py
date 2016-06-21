@@ -43,6 +43,8 @@ import svg
 import webqtlUtil
 from base import webqtlConfig
 
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
 
 def cformat(d, rank=0):
     'custom string format'
@@ -294,10 +296,10 @@ def find_outliers(vals):
 
     """
 
-    print("xerxes vals is:", pf(vals))
+    logger.debug("xerxes vals is:", pf(vals))
 
     if vals:
-        #print("vals is:", pf(vals))
+        #logger.debug("vals is:", pf(vals))
         stats = corestats.Stats(vals)
         low_hinge = stats.percentile(25)
         up_hinge = stats.percentile(75)
@@ -310,7 +312,7 @@ def find_outliers(vals):
         upper_bound = None
         lower_bound = None
 
-    print(pf(locals()))
+    logger.debug(pf(locals()))
     return upper_bound, lower_bound
 
 
@@ -433,7 +435,7 @@ def plotBoxPlot(canvas, data, offset= (40, 40, 40, 40), XLabel="Category", YLabe
 
             canvas.drawCross(XCoord, plotHeight + yTopOffset - (catMean-Yll)*plotHeight/(Yur - Yll), \
                     color=pid.blue,size=3)
-            #print (catMean, catMedian, cat25per, cat75per)
+            #print(catMean, catMedian, cat25per, cat75per)
             pass
 
         XCoord += stepX

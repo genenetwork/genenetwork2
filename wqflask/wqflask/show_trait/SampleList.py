@@ -12,6 +12,9 @@ from pprint import pformat as pf
 
 import itertools
 
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
+
 class SampleList(object):
     def __init__(self,
                  dataset,
@@ -29,7 +32,7 @@ class SampleList(object):
         self.sample_attribute_values = {}
 
         self.get_attributes()
-        print("camera: attributes are:", pf(self.attributes))
+        logger.debug("camera: attributes are:", pf(self.attributes))
 
         if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
             self.get_extra_attribute_values()
@@ -41,7 +44,7 @@ class SampleList(object):
             try:
                 sample = self.this_trait.data[sample_name]
             except KeyError:
-                print("No sample %s, let's create it now" % sample_name)
+                logger.debug("No sample %s, let's create it now" % sample_name)
                 sample = webqtlCaseData.webqtlCaseData(sample_name)
 
             #sampleNameAdd = ''
@@ -52,7 +55,7 @@ class SampleList(object):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 
-            print("  type of sample:", type(sample))
+            logger.debug("  type of sample:", type(sample))
 
             if sample_group_type == 'primary':
                 sample.this_id = "Primary_" + str(counter)
@@ -62,17 +65,17 @@ class SampleList(object):
             #### For extra attribute columns; currently only used by several datasets - Zach
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
-                print("sample.extra_attributes is", pf(sample.extra_attributes))
+                logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
 
             self.sample_list.append(sample)
 
-        print("self.attributes is", pf(self.attributes))
+        logger.debug("self.attributes is", pf(self.attributes))
 
         self.do_outliers()
         #do_outliers(the_samples)
-        print("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
+        logger.debug("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
         for sample in self.sample_list:
-            print("apple:", type(sample), sample)
+            logger.debug("apple:", type(sample), sample)
         #return the_samples
 
     def __repr__(self):
@@ -105,7 +108,7 @@ class SampleList(object):
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
             key, name = attr
-            print("radish: %s - %s" % (key, name))
+            logger.debug("radish: %s - %s" % (key, name))
             self.attributes[key] = Bunch()
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [item.Value for item in values]
