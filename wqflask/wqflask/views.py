@@ -48,7 +48,7 @@ from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
 
 from utility import temp_data
-from utility.tools import TEMPDIR,USE_REDIS
+from utility.tools import TEMPDIR,USE_REDIS,USE_GN_SERVER
 
 from base import webqtlFormData
 from base.webqtlConfig import GENERATED_IMAGE_DIR
@@ -74,7 +74,10 @@ def connect_db():
 @app.route("/")
 def index_page():
     logger.info("Sending index_page")
-    return render_template("index_page.html")
+    if USE_GN_SERVER:
+      return render_template("index_page.html")
+    else:
+      return render_template("index_page_orig.html")
 
 
 @app.route("/tmp/<img_path>")
