@@ -93,19 +93,20 @@ class MrnaAssayTissueData(object):
 
         symbol_values_dict = {}
 
-        query = """SELECT TissueProbeSetXRef.Symbol, TissueProbeSetData.value
-                   FROM TissueProbeSetXRef, TissueProbeSetData
-                   WHERE TissueProbeSetData.Id IN {} and
-                         TissueProbeSetXRef.DataId = TissueProbeSetData.Id""".format(db_tools.create_in_clause(id_list))
+        if len(id_list) > 0:
+            query = """SELECT TissueProbeSetXRef.Symbol, TissueProbeSetData.value
+                       FROM TissueProbeSetXRef, TissueProbeSetData
+                       WHERE TissueProbeSetData.Id IN {} and
+                             TissueProbeSetXRef.DataId = TissueProbeSetData.Id""".format(db_tools.create_in_clause(id_list))
 
-        print("TISSUE QUERY:", query)
+            print("TISSUE QUERY:", query)
 
-        results = g.db.execute(query).fetchall()
-        for result in results:
-            if result.Symbol.lower() not in symbol_values_dict:
-                symbol_values_dict[result.Symbol.lower()] = [result.value]
-            else:
-                symbol_values_dict[result.Symbol.lower()].append(result.value)
+            results = g.db.execute(query).fetchall()
+            for result in results:
+                if result.Symbol.lower() not in symbol_values_dict:
+                    symbol_values_dict[result.Symbol.lower()] = [result.value]
+                else:
+                    symbol_values_dict[result.Symbol.lower()].append(result.value)
 
         #for symbol in self.data:
         #    data_id = self.data[symbol].data_id
