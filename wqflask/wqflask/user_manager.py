@@ -46,7 +46,7 @@ from wqflask.database import db_session
 from wqflask import model
 
 from utility import Bunch, Struct, after
-from utility.tools import LOG_SQL
+from utility.tools import LOG_SQL, LOG_SQLALCHEMY
 
 import logging
 from utility.logger import getLogger
@@ -145,7 +145,7 @@ class UserSession(object):
         """Actual sqlalchemy record"""
         # Only look it up once if needed, then store it
         try:
-            if LOG_SQL:
+            if LOG_SQLALCHEMY:
                 logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
 
             # Already did this before

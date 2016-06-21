@@ -80,16 +80,11 @@ def retrieve_species(group):
         result = fetchone("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (group))
         return result[0]
 
-###########################################################################
-#input: cursor, groupName (string)
-#output: mappingMethodId (int) info, value will be Null or else
-#function: retrieve mappingMethodId info from InbredSet table
-###########################################################################
-
 def getMappingMethod(cursor=None, groupName=None):
-    cursor.execute("select MappingMethodId from InbredSet where Name= '%s'" % groupName)
-    mappingMethodId = cursor.fetchone()[0]
-    return mappingMethodId
+    if USE_GN_SERVER:
+        return gn_server("/cross/"+group+".json")["mapping_method_id"]
+    else:
+        return fetchone("select MappingMethodId from InbredSet where Name= '%s'" % groupName)
 
 ###########################################################################
 #input: cursor, inbredSetId (int), strainId (int)
