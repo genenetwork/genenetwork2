@@ -5,6 +5,8 @@ import inspect
 import time
 from utility.tools import LOG_BENCH
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
 
 class Bench(object):
     entries = collections.OrderedDict()
@@ -16,9 +18,9 @@ class Bench(object):
     def __enter__(self):
         if self.write_output:
             if self.name:
-                print("Starting benchmark: %s" % (self.name))
+                logger.debug("Starting benchmark: %s" % (self.name))
             else:
-                print("Starting benchmark at: %s [%i]" % (inspect.stack()[1][3], inspect.stack()[1][2]))
+                logger.debug("Starting benchmark at: %s [%i]" % (inspect.stack()[1][3], inspect.stack()[1][2]))
         self.start_time = time.time()
 
     def __exit__(self, type, value, traceback):
@@ -29,7 +31,7 @@ class Bench(object):
             else:
                 name = "That"
 
-            print("  %s took: %f seconds" % (name, (time_taken)))
+            logger.info("  %s took: %f seconds" % (name, (time_taken)))
 
         if self.name:
             Bench.entries[self.name] = Bench.entries.get(self.name, 0) + time_taken
