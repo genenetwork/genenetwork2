@@ -47,8 +47,11 @@ logger = getLogger(__name__ )
 class SearchResultPage(object):
     #maxReturn = 3000
 
-
     def __init__(self, kw):
+        """This class gets invoked after hitting submit on the main menu (in
+views.py).
+
+        """
 
         ###########################################
         #   Names and IDs of group / F2 set
@@ -67,9 +70,9 @@ class SearchResultPage(object):
         #else:
 
         self.uc_id = uuid.uuid4()
-        logger.debug("uc_id:", self.uc_id)
+        logger.debug("uc_id:", self.uc_id) # contains a unique id
 
-        logger.debug("kw is:", kw)
+        logger.debug("kw is:", kw)         # dict containing search terms
         if kw['search_terms_or']:
             self.and_or = "or"
             self.search_terms = kw['search_terms_or']
@@ -78,14 +81,14 @@ class SearchResultPage(object):
             self.search_terms = kw['search_terms_and']
         self.search_term_exists = True
         self.results = []
-        if kw['type'] == "Phenotypes":
+        if kw['type'] == "Phenotypes":     # split datatype on type field
             dataset_type = "Publish"
         elif kw['type'] == "Genotypes":
             dataset_type = "Geno"
         else:
-            dataset_type = "ProbeSet"
+            dataset_type = "ProbeSet"      # ProbeSet is default
         self.dataset = create_dataset(kw['dataset'], dataset_type)
-        logger.debug("KEYWORD:", self.search_terms)
+        logger.debug("search_terms:", self.search_terms)
         self.search()
         if self.search_term_exists:
             self.gen_search_result()
@@ -123,12 +126,16 @@ class SearchResultPage(object):
     #            self.species_groups[item['result_fields']['species']].append(
     #                                        item['result_fields']['group_name'])
 
-
     def search(self):
+        """This function sets up the actual search query in the form of a SQL
+statement and executes
+
+        """
         self.search_terms = parser.parse(self.search_terms)
         logger.debug("After parsing:", self.search_terms)
 
         if len(self.search_terms) > 1:
+            logger.debug("len(search_terms)>1")
             combined_from_clause = ""
             combined_where_clause = ""
             previous_from_clauses = [] #The same table can't be referenced twice in the from clause
@@ -155,9 +162,11 @@ class SearchResultPage(object):
             if self.search_term_exists:
                 combined_where_clause = "(" + combined_where_clause + ")"
                 final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
+                logger.debug(final_query)
                 results = the_search.execute(final_query)
                 self.results.extend(results)
         else:
+            logger.debug("len(search_terms)<=1")
             if self.search_terms == []:
                 self.search_term_exists = False
             else:

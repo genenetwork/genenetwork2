@@ -29,8 +29,8 @@ When you hit a search with, for example,
 'http://localhost:5003/search?species=mouse&group=BXD&type=Hippocampus+mRNA&dataset=HC_M2_0606_P&search_terms_or=&search_terms_and=MEAN%3D%2815+16%29+LRS%3D%2823+46%29+&FormID=searchResult'
 it has the menu items as parameters. According to the routing table,
 the search is executed and Redis caching is used (we'll probably
-change that to gn_server). The logic is in search_result.py which
-invokes database functions in
+change that to the level of the gn_server). The logic is in
+search_result.py which invokes database functions in
 wqflask/dbFunction/webqtlDatabaseFunction.py, for example. The
 receiving template lives at [[https://github.com/genenetwork/genenetwork2/blob/master/wqflask/wqflask/templates/search_result_page.html][search_result_page.html]].
 
@@ -43,5 +43,3 @@ from the database. To get the menu data in YAML you can do something like
 : curl localhost:8880/int/menu/main.json|ruby extra/json2yaml.rb
 
 (json2yaml.rb is in the gn_server repo).
-
-
