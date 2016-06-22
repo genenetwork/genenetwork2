@@ -167,9 +167,13 @@ class CorrelationResults(object):
                 self.trait_symbol_dict = self.dataset.retrieve_genes("Symbol")
 
                 tissue_corr_data = self.do_tissue_correlation_for_all_traits()
-                for trait in tissue_corr_data.keys()[:self.return_number]:
-                    self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
-
+                if tissue_corr_data != None:
+                    for trait in tissue_corr_data.keys()[:self.return_number]:
+                        self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
+                else:
+                    for trait, values in self.target_dataset.trait_data.iteritems():
+                        self.get_sample_r_and_p_values(trait, values)
+                        
             elif self.corr_type == "lit":
                 self.trait_geneid_dict = self.dataset.retrieve_genes("GeneId")
                 lit_corr_data = self.do_lit_correlation_for_all_traits()
@@ -244,7 +248,7 @@ class CorrelationResults(object):
                         trait_object.tissue_corr = 0
                         trait_object.tissue_pvalue = 0
                         trait_object.lit_corr = 0
-                        if self.corr_type == "tissue":
+                        if self.corr_type == "tissue" and tissue_corr_data != None:
                             trait_object.tissue_corr = tissue_corr_data[trait][1]
                             trait_object.tissue_pvalue = tissue_corr_data[trait][2]
                         elif self.corr_type == "lit":
