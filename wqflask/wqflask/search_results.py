@@ -162,7 +162,7 @@ statement and executes
             if self.search_term_exists:
                 combined_where_clause = "(" + combined_where_clause + ")"
                 final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
-                logger.debug(final_query)
+                logger.debug("final_query",final_query)
                 results = the_search.execute(final_query)
                 self.results.extend(results)
         else:
