@@ -36,7 +36,6 @@ from wqflask import update_search_results
 from wqflask import docs
 from wqflask import news
 from base.data_set import DataSet    # Used by YAML in marker_regression
-from base.data_set import create_datasets_list
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.heatmap import heatmap

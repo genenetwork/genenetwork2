@@ -40,6 +40,18 @@ original fetchone, but with logging)
         callername = stack()[2][3]
         return logger.sql(callername, query, helper)
 
+def fetchall(query):
+    """Return row iterator by calling SQL directly (the
+original fetchall, but with logging)
+
+    """
+    with Bench("SQL",LOG_SQL):
+        def helper(query):
+            res = g.db.execute(query)
+            return res.fetchall()
+        callername = stack()[2][3]
+        return logger.sql(callername, query, helper)
+
 def gn_server(path):
     """Return JSON record by calling GN_SERVER
 

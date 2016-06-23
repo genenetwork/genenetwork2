@@ -51,8 +51,9 @@ from maintenance import get_group_samplelists
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 from db.gn_server import menu_main
+from db.call import fetchall
 
-from utility.tools import USE_GN_SERVER
+from utility.tools import USE_GN_SERVER, USE_REDIS
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
@@ -115,14 +116,15 @@ Publish or ProbeSet. E.g.
 Dataset_Getter = Dataset_Types()
 
 def create_datasets_list():
-    key = "all_datasets"
-    result = Redis.get(key)
+    if USE_REDIS:
+        key = "all_datasets"
+        result = Redis.get(key)
 
-    if result:
-        logger.debug("Cache hit!!!")
-        datasets = pickle.loads(result)
+        if result:
+            logger.debug("Redis cache hit")
+            datasets = pickle.loads(result)
 
-    else:
+    if result is None:
         datasets = list()
         with Bench("Creating DataSets object"):
             type_dict = {'Publish': 'PublishFreeze',
@@ -131,7 +133,8 @@ def create_datasets_list():
 
             for dataset_type in type_dict:
                 query = "SELECT Name FROM {}".format(type_dict[dataset_type])
-                for result in g.db.execute(query).fetchall():
+                raise Exception("HELL")
+                for result in fetchall(query):
                     #The query at the beginning of this function isn't
                     #necessary here, but still would rather just reuse
                     #it logger.debug("type: {}\tname:
@@ -139,8 +142,9 @@ def create_datasets_list():
                     dataset = create_dataset(result.Name, dataset_type)
                     datasets.append(dataset)
 
-        Redis.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))
-        Redis.expire(key, 60*60)
+        if USE_REDIS:
+            Redis.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))
+            Redis.expire(key, 60*60)
 
     return datasets
 
@@ -345,8 +349,9 @@ class DatasetGroup(object):
                     dataset_menu.append(dict(tissue=tissue_name,
                                         datasets=[(dataset, dataset_short)]))
 
-        Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
-        Redis.expire(key, 60*5)
+        if USE_REDIS:
+            Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
+            Redis.expire(key, 60*5)
         self._datasets = dataset_menu
 
         return self._datasets
@@ -364,12 +369,12 @@ class DatasetGroup(object):
             self.parlist = [maternal, paternal]
 
     def get_samplelist(self):
+        result = None
         key = "samplelist:v2:" + self.name
-        #logger.debug("key is:", key)
-        #with Bench("Loading cache"):
-        result = Redis.get(key)
+        if USE_REDIS:
+            result = Redis.get(key)
 
-        if result:
+        if result is not None:
             #logger.debug("Sample List Cache hit!!!")
             #logger.debug("Before unjsonifying {}: {}".format(type(result), result))
             self.samplelist = json.loads(result)
@@ -387,8 +392,9 @@ class DatasetGroup(object):
             else:
                 self.samplelist = None
             logger.debug("Sample list: ",self.samplelist)
-            Redis.set(key, json.dumps(self.samplelist))
-            Redis.expire(key, 60*5)
+            if USE_REDIS:
+                Redis.set(key, json.dumps(self.samplelist))
+                Redis.expire(key, 60*5)
 
     def all_samples_ordered(self):
         result = []
