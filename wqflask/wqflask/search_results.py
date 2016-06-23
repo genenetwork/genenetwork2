@@ -10,8 +10,6 @@ import re
 import uuid
 from math import *
 import time
-#import pyXLWriter as xl
-#import pp - Note from Sam: is this used?
 import math
 import datetime
 import collections
@@ -20,13 +18,9 @@ from pprint import pformat as pf
 
 import json
 
-from flask import Flask, g
-from MySQLdb import escape_string as escape
+# from flask import Flask, g
 
-# Instead of importing HT we're going to build a class below until we can eliminate it
-# from htmlgen import HTMLgen2 as HT
-
-from utility.benchmark import Bench
+# from utility.benchmark import Bench
 from base.data_set import create_dataset
 from base.trait import GeneralTrait
 from wqflask import parser
@@ -38,11 +32,6 @@ from utility import formatting
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
-
-#class QuickSearchResult(object):
-    #def __init__(self, key, result_fields):
-    #    self.key = key
-    #    self.result_fields = result_fields
 
 class SearchResultPage(object):
     #maxReturn = 3000

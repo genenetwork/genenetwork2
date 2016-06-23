@@ -29,7 +29,8 @@ when set.
         return fetchone(query)
 
 def fetchone(query):
-    """Return tuple containing one row by calling SQL directly
+    """Return tuple containing one row by calling SQL directly (the
+original fetchone, but with logging)
 
     """
     with Bench("SQL",LOG_SQL):
@@ -47,5 +48,5 @@ def gn_server(path):
         res = urllib2.urlopen(GN_SERVER_URL+path)
         rest = res.read()
         res2 = json.loads(rest)
-        logger.info(res2)
+        logger.debug(res2)
         return res2
