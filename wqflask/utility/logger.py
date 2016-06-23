@@ -77,10 +77,10 @@ class GNLogger:
         if self.logger.getEffectiveLevel() < 20:
             self.collectf(self.logger.debug,*args)
 
-    def sql(self, description, sqlcommand, fun = None):
+    def sql(self, sqlcommand, fun = None):
         """Log SQL command, optionally invoking a timed fun"""
         if LOG_SQL:
-            self.info(description,sqlcommand)
+            self.info(stack()[1][3],sqlcommand)
         if fun:
             result = fun(sqlcommand)
             if LOG_SQL:

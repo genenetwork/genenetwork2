@@ -51,7 +51,7 @@ from maintenance import get_group_samplelists
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 from db.gn_server import menu_main
-from db.call import fetchall
+from db.call import fetchall,fetchone,fetch1
 
 from utility.tools import USE_GN_SERVER, USE_REDIS
 from utility.logger import getLogger
@@ -133,7 +133,6 @@ def create_datasets_list():
 
             for dataset_type in type_dict:
                 query = "SELECT Name FROM {}".format(type_dict[dataset_type])
-                raise Exception("HELL")
                 for result in fetchall(query):
                     #The query at the beginning of this function isn't
                     #necessary here, but still would rather just reuse
@@ -264,7 +263,7 @@ class DatasetGroup(object):
     def __init__(self, dataset):
         """This sets self.group and self.group_id"""
         #logger.debug("DATASET NAME2:", dataset.name)
-        self.name, self.id = g.db.execute(dataset.query_for_group).fetchone()
+        self.name, self.id = fetchone(dataset.query_for_group)
         if self.name == 'BXD300':
             self.name = "BXD"
 
@@ -297,17 +296,17 @@ class DatasetGroup(object):
         dataset_menu = []
         logger.debug("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
         logger.debug("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
-        results = g.db.execute('''
+        the_results = fetchall('''
              (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
               FROM PublishFreeze,InbredSet
               WHERE PublishFreeze.InbredSetId = InbredSet.Id
-                and InbredSet.Name = %s
+                and InbredSet.Name = '%s'
                 and PublishFreeze.public > %s)
              UNION
              (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
               FROM GenoFreeze, InbredSet
               WHERE GenoFreeze.InbredSetId = InbredSet.Id
-                and InbredSet.Name = %s
+                and InbredSet.Name = '%s'
                 and GenoFreeze.public > %s)
              UNION
              (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
@@ -318,11 +317,9 @@ class DatasetGroup(object):
                 and InbredSet.Name like %s
                 and ProbeSetFreeze.public > %s
               ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
-            ''', (self.name, webqtlConfig.PUBLICTHRESH,
+            ''' % (self.name, webqtlConfig.PUBLICTHRESH,
                   self.name, webqtlConfig.PUBLICTHRESH,
-                  "%" + self.name + "%", webqtlConfig.PUBLICTHRESH))
-
-        the_results = results.fetchall()
+                  "'" + self.name + "'", webqtlConfig.PUBLICTHRESH))
 
         #for tissue_name, dataset in itertools.groupby(the_results, itemgetter(0)):
         for dataset_item in the_results:
@@ -485,14 +482,14 @@ class DataSet(object):
                     self.name,
                     self.name))
 
-                self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue = g.db.execute("""
+                self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue = fetchone("""
                         SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
                         FROM ProbeSetFreeze, ProbeFreeze, Tissue
                         WHERE ProbeSetFreeze.public > %s AND
                               ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
                               ProbeFreeze.TissueId = Tissue.Id AND
                              (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
-                  """ % (query_args)).fetchone()
+                  """ % (query_args))
             else:
                 query_args = tuple(escape(x) for x in (
                     (self.type + "Freeze"),
@@ -502,12 +499,12 @@ class DataSet(object):
                     self.name))
 
                 self.tissue = "N/A"
-                self.id, self.name, self.fullname, self.shortname = g.db.execute("""
+                self.id, self.name, self.fullname, self.shortname = fetchone("""
                         SELECT Id, Name, FullName, ShortName
                         FROM %s
                         WHERE public > %s AND
                              (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-                  """ % (query_args)).fetchone()
+                  """ % (query_args))
 
         except TypeError:
             logger.debug("Dataset {} is not yet available in GeneNetwork.".format(self.name))
@@ -529,6 +526,7 @@ class DataSet(object):
             and Strain.SpeciesId=Species.Id
             and Species.name = '{}'
             """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
+        logger.sql(query)
         results = dict(g.db.execute(query).fetchall())
         sample_ids = [results[item] for item in self.samplelist]
 
@@ -579,6 +577,7 @@ class DataSet(object):
 
             #logger.debug("trait data query: ", query)
 
+            logger.sql(query)
             results = g.db.execute(query).fetchall()
             #logger.debug("query results:", results)
             trait_sample_data.append(results)
@@ -663,6 +662,7 @@ class PhenotypeDataSet(DataSet):
             where PublishFreeze.InbredSetId=PublishXRef.InbredSetId
             and PublishFreeze.Id = {}
             """.format(escape(str(self.id)))
+        logger.sql(query)
         results = g.db.execute(query).fetchall()
         trait_data = {}
         for trait in results:
@@ -754,6 +754,7 @@ class PhenotypeDataSet(DataSet):
                     Order BY
                             Strain.Name
                     """
+        logger.sql(query)
         results = g.db.execute(query, (trait, self.id)).fetchall()
         return results
 
@@ -801,6 +802,7 @@ class GenotypeDataSet(DataSet):
             where GenoXRef.GenoId = Geno.Id
             and GenoFreezeId = {}
             """.format(escape(str(self.id)))
+        logger.sql(query)
         results = g.db.execute(query).fetchall()
         trait_data = {}
         for trait in results:
@@ -845,6 +847,7 @@ class GenotypeDataSet(DataSet):
                     Order BY
                             Strain.Name
                     """
+        logger.sql(query)
         results = g.db.execute(query,
                                (webqtlDatabaseFunction.retrieve_species_id(self.group.name),
                                 trait, self.name)).fetchall()
@@ -927,6 +930,7 @@ class MrnaAssayDataSet(DataSet):
             where ProbeSetXRef.ProbeSetId = ProbeSet.Id
             and ProbeSetFreezeId = {}
             """.format(escape(str(self.id)))
+        logger.sql(query)
         results = g.db.execute(query).fetchall()
         trait_data = {}
         for trait in results:
@@ -996,7 +1000,7 @@ class MrnaAssayDataSet(DataSet):
                    escape(this_trait.name)))
 
             #logger.debug("query is:", pf(query))
-
+            logger.sql(query)
             result = g.db.execute(query).fetchone()
 
             mean = result[0] if result else 0
@@ -1018,6 +1022,7 @@ class MrnaAssayDataSet(DataSet):
                         Geno.Name = '{}' and
                         Geno.SpeciesId = Species.Id
                 """.format(species, this_trait.locus)
+                logger.sql(query)
                 result = g.db.execute(query).fetchone()
 
                 if result:
@@ -1053,6 +1058,7 @@ class MrnaAssayDataSet(DataSet):
                             ProbeSet.Name = %s
                             ProbeSetFreeze.Name = %s
                 """ % (escape(self.name), escape(self.dataset.name))
+        logger.sql(query)
         results = g.db.execute(query).fetchone()
         return results[0]
 
@@ -1073,6 +1079,7 @@ class MrnaAssayDataSet(DataSet):
                     Order BY
                             Strain.Name
                     """ % (escape(trait), escape(self.name))
+        logger.sql(query)
         results = g.db.execute(query).fetchall()
         #logger.debug("RETRIEVED RESULTS HERE:", results)
         return results
@@ -1085,6 +1092,7 @@ class MrnaAssayDataSet(DataSet):
                     where ProbeSetXRef.ProbeSetFreezeId = %s and
                     ProbeSetXRef.ProbeSetId=ProbeSet.Id;
                 """ % (column_name, escape(str(self.id)))
+        logger.sql(query)
         results = g.db.execute(query).fetchall()
 
         return dict(results)
@@ -1121,7 +1129,9 @@ class TempDataSet(DataSet):
         return desc
 
     def get_desc(self):
-        g.db.execute('SELECT description FROM Temp WHERE Name=%s', self.name)
+        query = 'SELECT description FROM Temp WHERE Name=%s' % self.name
+        logger.sql(query)
+        g.db.execute(query)
         desc = g.db.fetchone()[0]
         desc = self.handle_pca(desc)
         return desc
@@ -1153,6 +1163,7 @@ class TempDataSet(DataSet):
                         Strain.Name
                 """ % escape(trait.name)
 
+        logger.sql(query)
         results = g.db.execute(query).fetchall()
 
 
@@ -1162,7 +1173,7 @@ def geno_mrna_confidentiality(ob):
 
     query = '''SELECT Id, Name, FullName, confidentiality,
                         AuthorisedUsers FROM %s WHERE Name = %%s''' % (dataset_table)
-
+    logger.sql(query)
     result = g.db.execute(query, ob.name)
 
     (dataset_id,

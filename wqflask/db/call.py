@@ -11,7 +11,7 @@ from utility.benchmark import Bench
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
-from inspect import stack
+# from inspect import stack
 
 def fetch1(query, path=None, func=None):
     """Fetch one result using either a SQL query or the URI path to
@@ -37,8 +37,7 @@ original fetchone, but with logging)
         def helper(query):
             res = g.db.execute(query)
             return res.fetchone()
-        callername = stack()[2][3]
-        return logger.sql(callername, query, helper)
+        return logger.sql(query, helper)
 
 def fetchall(query):
     """Return row iterator by calling SQL directly (the
@@ -49,8 +48,7 @@ original fetchall, but with logging)
         def helper(query):
             res = g.db.execute(query)
             return res.fetchall()
-        callername = stack()[2][3]
-        return logger.sql(callername, query, helper)
+        return logger.sql(query, helper)
 
 def gn_server(path):
     """Return JSON record by calling GN_SERVER
