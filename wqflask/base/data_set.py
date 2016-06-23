@@ -50,7 +50,9 @@ from maintenance import get_group_samplelists
 
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
+from db.gn_server import menu_main
 
+from utility.tools import USE_GN_SERVER
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
@@ -61,8 +63,7 @@ DS_NAME_MAP = {}
 def create_dataset(dataset_name, dataset_type = None, get_samplelist = True):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
-
-        logger.debug("dataset_type is:", dataset_type)
+        logger.debug("dataset_type", dataset_type)
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     dataset_class = globals()[dataset_ob]
@@ -71,12 +72,28 @@ def create_dataset(dataset_name, dataset_type = None, get_samplelist = True):
 class Dataset_Types(object):
 
     def __init__(self):
-        self.datasets = {}
-        file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
-        with open(file_name, 'r') as fh:
-            data = json.load(fh)
+        """Create a dictionary of samples where the value is set to Geno,
+Publish or ProbeSet. E.g.
 
-        logger.debug("*" * 70)
+        {'AD-cases-controls-MyersGeno': 'Geno',
+         'AD-cases-controls-MyersPublish': 'Publish',
+         'AKXDGeno': 'Geno',
+         'AXBXAGeno': 'Geno',
+         'AXBXAPublish': 'Publish',
+         'Aging-Brain-UCIPublish': 'Publish',
+         'All Phenotypes': 'Publish',
+         'B139_K_1206_M': 'ProbeSet',
+         'B139_K_1206_R': 'ProbeSet' ...
+
+        """
+        self.datasets = {}
+        if USE_GN_SERVER:
+            data = menu_main()
+        else:
+            file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
+            with open(file_name, 'r') as fh:
+                data = json.load(fh)
+
         for species in data['datasets']:
             for group in data['datasets'][species]:
                 for dataset_type in data['datasets'][species][group]:
@@ -88,7 +105,8 @@ class Dataset_Types(object):
                             new_type = "Geno"
                         else:
                             new_type = "ProbeSet"
-                        self.datasets[short_dataset_name] = new_type
+                            self.datasets[short_dataset_name] = new_type
+        logger.info("datasets",self.datasets)
 
     def __call__(self, name):
         return self.datasets[name]

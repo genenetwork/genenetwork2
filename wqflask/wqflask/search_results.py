@@ -1,8 +1,5 @@
-from __future__ import absolute_import, print_function, division
+# from __future__ import absolute_import, print_function, division
 
-from wqflask import app
-
-from flask import render_template
 
 import os
 import cPickle
@@ -18,15 +15,14 @@ from pprint import pformat as pf
 
 import json
 
-# from flask import Flask, g
-
-# from utility.benchmark import Bench
 from base.data_set import create_dataset
 from base.trait import GeneralTrait
 from wqflask import parser
 from wqflask import do_search
 from utility import webqtlUtil,tools
 from db import webqtlDatabaseFunction
+
+from flask import render_template
 
 from utility import formatting
 
