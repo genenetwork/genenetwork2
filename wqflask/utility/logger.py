@@ -29,7 +29,10 @@
 import logging
 import string
 from inspect import isfunction
+from pprint import pformat as pf
+
 from utility.tools import LOG_LEVEL, LOG_SQL, LOG_FORMAT
+
 
 class GNLogger:
     """A logger class with some additional functionality, such as
@@ -85,17 +88,31 @@ class GNLogger:
             return result
 
     def collect(self,fun,*args):
-        """Collect arguments and use fun to output one by one"""
+        """Collect arguments and use fun to output"""
+        out = ""
         for a in args:
-            fun(a)
+            if len(out)>0:
+                out += ": "
+            if isinstance(a, str):
+                out = out + a
+            else:
+                out = out + pf(a,width=160)
+        fun(out)
 
     def collectf(self,fun,*args):
         """Collect arguments and use fun to output one by one"""
+        out = ""
         for a in args:
-            if isfunction(a):
-                fun(a())
-            else:
-                fun(a)
+            if len(out)>0:
+                out += ": "
+                if isfunction(a):
+                    out += a()
+                else:
+                    if isinstance(a, str):
+                        out = out + a
+                    else:
+                        out = out + pf(a,width=160)
+        fun(out)
 
 # Get the module logger. You can override log levels at the
 # module level

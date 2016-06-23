@@ -140,7 +140,7 @@ def search_page():
         the_search = search_results.SearchResultPage(request.args)
         result = the_search.__dict__
 
-        logger.debugf("result: ", lambda: pf(result))
+        logger.debugf("result", result)
 
         if USE_REDIS:
             Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
