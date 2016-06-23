@@ -2,11 +2,9 @@
 
 from flask import g
 
-# import MySQLdb
 import string
 import urllib2
 import json
-# from base import webqtlConfig
 from utility.tools import USE_GN_SERVER, LOG_SQL
 from utility.benchmark import Bench
 

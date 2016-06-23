@@ -20,16 +20,6 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from flask import Flask, g
-
-import MySQLdb
-import string
-import urllib2
-import json
-from base import webqtlConfig
-from utility.tools import USE_GN_SERVER, LOG_SQL
-from utility.benchmark import Bench
-
 from db.call import fetch1
 
 from utility.logger import getLogger
