@@ -17,6 +17,7 @@ import sys
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQLALCHEMY_DATABASE_URI = 'mysql://gn2:mysql_password@localhost/db_webqtl_s'
 SQLALCHEMY_POOL_RECYCLE = 3600
+GN_SERVER_URL = "http://localhost:8880/"
 
 # Flask configuration (see website)
 TRAP_BAD_REQUEST_ERRORS = True

@@ -44,7 +44,7 @@ def gn_server(path):
 
     """
     with Bench("GN_SERVER",LOG_SQL):
-        res = urllib2.urlopen("http://localhost:8880/"+path)
+        res = urllib2.urlopen(GN_SERVER_URL+path)
         rest = res.read()
         res2 = json.loads(rest)
         logger.info(res2)
