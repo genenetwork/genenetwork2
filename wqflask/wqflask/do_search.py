@@ -38,8 +38,7 @@ class DoSearch(object):
     def execute(self, query):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
-        logger.debug("in do_search query is:", pf(query))
-        @@
+        logger.debug("execute:", pf(query))
         results = g.db.execute(query, no_parameters=True).fetchall()
         return results
 
