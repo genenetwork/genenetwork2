@@ -30,7 +30,7 @@ from base import webqtlConfig
 from utility.tools import USE_GN_SERVER, LOG_SQL
 from utility.benchmark import Bench
 
-from db.call import fetchone, gn_server
+from db.call import fetch1
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -52,18 +52,13 @@ def retrieve_species(group):
     """Get the species of a group (e.g. returns string "mouse" on "BXD"
 
     """
-    if USE_GN_SERVER:
-        result = gn_server("/cross/"+group+".json")
-        return result["species"]
-    else:
-        result = fetchone("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (group))
-        return result[0]
+    result = fetch1("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (group),"/cross/"+group+".json",lambda r: r["species"])[0]
+    logger.debug("retrieve_species result:",result)
+    return result
+
 
 def getMappingMethod(cursor=None, groupName=None):
-    if USE_GN_SERVER:
-        return gn_server("/cross/"+group+".json")["mapping_method_id"]
-    else:
-        return fetchone("select MappingMethodId from InbredSet where Name= '%s'" % groupName)
+    return fetch1("select MappingMethodId from InbredSet where Name= '%s'" % groupName, "/cross/"+group+".json", lambda r: r["mapping_method_id"])[0]
 
 ###########################################################################
 #input: cursor, inbredSetId (int), strainId (int)

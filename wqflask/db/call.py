@@ -15,6 +15,21 @@ logger = getLogger(__name__ )
 
 from inspect import stack
 
+def fetch1(query, path=None, func=None):
+    """Fetch one result using either a SQL query or the URI path to
+GN_SERVER (when USE_GN_SERVER is True). Apply func to GN_SERVER result
+when set.
+
+    """
+    if USE_GN_SERVER and path:
+        result = gn_server(path)
+        if func != None:
+            return [func(result)]
+        else:
+            return [result]
+    else:
+        return fetchone(query)
+
 def fetchone(query):
     """Return tuple containing one row by calling SQL directly
 
@@ -23,7 +38,7 @@ def fetchone(query):
         def helper(query):
             res = g.db.execute(query)
             return res.fetchone()
-        callername = stack()[1][3]
+        callername = stack()[2][3]
         return logger.sql(callername, query, helper)
 
 def gn_server(path):
