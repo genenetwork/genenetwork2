@@ -4,7 +4,7 @@ $(function() {
         populate_species();
         return apply_default();
     };
-  $.getJSON("http://localhost:8880/int/menu/main.json",
+  $.getJSON(gn_server_url+"/int/menu/main.json",
   function(data) {
     gndata = data;
     console.log("***** GOT DATA from GN_SERVER ****");
