@@ -26,9 +26,10 @@ import base64
 import array
 import sqlalchemy
 from wqflask import app
-from flask import (render_template, request, make_response, Response,
-                   Flask, g, config, jsonify, redirect, url_for,
-                   send_from_directory)
+from flask import g, request, render_template
+# from flask import (render_template, request, make_response, Response,
+#                    Flask, g, config, jsonify, redirect, url_for,
+#                    send_from_directory)
 from wqflask import search_results
 from wqflask import gsearch
 from wqflask import update_search_results
@@ -73,8 +74,11 @@ def connect_db():
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    logger.debug("remove db_session")
-    db_session.remove()
+    db = getattr(g, '_database', None)
+    if db is not None:
+        logger.debug("remove db_session")
+        db_session.remove()
+        g.db = None
 
 #@app.before_request
 #def trace_it():
