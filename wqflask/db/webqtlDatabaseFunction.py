@@ -58,4 +58,7 @@ def retrieve_species(group):
 
 
 def retrieve_species_id(group):
-    return g.db.execute("select SpeciesId from InbredSet where Name = %s", (group)).fetchone()[0]
+
+    result = fetch1("select SpeciesId from InbredSet where Name = '%s'" % (group),"/cross/"+group+".json",lambda r: r["species_id"])[0]
+    logger.debug("retrieve_species_id result:",result)
+    return result
