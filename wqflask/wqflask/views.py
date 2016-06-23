@@ -48,7 +48,7 @@ from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
 
 from utility import temp_data
-from utility.tools import TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL
+from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL
 
 from base import webqtlFormData
 from base.webqtlConfig import GENERATED_IMAGE_DIR
@@ -58,13 +58,23 @@ from pprint import pformat as pf
 
 from wqflask import user_manager
 from wqflask import collect
+from wqflask.database import db_session
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 @app.before_request
 def connect_db():
-    g.db = sqlalchemy.create_engine(app.config['SQL_URI'])
+    db = getattr(g, '_database', None)
+    if db is None:
+        logger.debug("Get new database connector")
+        g.db = g._database = sqlalchemy.create_engine(SQL_URI)
+        logger.debug(g.db)
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    logger.debug("remove db_session")
+    db_session.remove()
 
 #@app.before_request
 #def trace_it():
