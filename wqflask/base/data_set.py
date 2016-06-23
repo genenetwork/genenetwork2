@@ -114,9 +114,10 @@ def create_datasets_list():
             for dataset_type in type_dict:
                 query = "SELECT Name FROM {}".format(type_dict[dataset_type])
                 for result in g.db.execute(query).fetchall():
-                    #The query at the beginning of this function isn't necessary here, but still would
-                    #rather just reuse it
-                    #logger.debug("type: {}\tname: {}".format(dataset_type, result.Name))
+                    #The query at the beginning of this function isn't
+                    #necessary here, but still would rather just reuse
+                    #it logger.debug("type: {}\tname:
+                    #{}".format(dataset_type, result.Name))
                     dataset = create_dataset(result.Name, dataset_type)
                     datasets.append(dataset)
 

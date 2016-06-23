@@ -20,7 +20,6 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from inspect import stack
 from flask import Flask, g
 
 import MySQLdb
@@ -31,6 +30,8 @@ from base import webqtlConfig
 from utility.tools import USE_GN_SERVER, LOG_SQL
 from utility.benchmark import Bench
 
+from db.call import fetchone, gn_server
+
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
@@ -40,34 +41,12 @@ logger = getLogger(__name__ )
 ###########################################################################
 def getCursor():
     try:
-        logger.warning("Creating new MySQLdb cursor")
+        logger.warning("Creating new MySQLdb cursor (this method is OBSOLETE!)")
         con = MySQLdb.Connect(db=webqtlConfig.DB_NAME, host=webqtlConfig.MYSQL_SERVER, user=webqtlConfig.DB_USER, passwd=webqtlConfig.DB_PASSWD)
         cursor = con.cursor()
         return cursor
     except:
         return None
-
-def fetchone(query):
-    """Return tuple containing one row by calling SQL directly
-
-    """
-    with Bench("SQL",LOG_SQL):
-        def helper(query):
-            res = g.db.execute(query)
-            return res.fetchone()
-        callername = stack()[1][3]
-        return logger.sql(callername, query, helper)
-
-def gn_server(path):
-    """Return JSON record by calling GN_SERVER
-
-    """
-    with Bench("GN_SERVER",LOG_SQL):
-        res = urllib2.urlopen("http://localhost:8880/"+path)
-        rest = res.read()
-        res2 = json.loads(rest)
-        logger.info(res2)
-        return res2
 
 def retrieve_species(group):
     """Get the species of a group (e.g. returns string "mouse" on "BXD"
