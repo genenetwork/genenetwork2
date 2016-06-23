@@ -20,6 +20,9 @@ from pprint import pformat as pf
 
 from flask import Flask, g, request
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
+
 def print_mem(stage=""):
     mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     print("{}: {}".format(stage, mem/1024))
@@ -259,6 +262,7 @@ class GeneralTrait(object):
                             PublishFreeze.Id = %s
                     """ % (self.name, self.dataset.id)
 
+            logger.sql(query)
             trait_info = g.db.execute(query).fetchone()
 
 
@@ -278,6 +282,7 @@ class GeneralTrait(object):
                     """ % (escape(display_fields_string),
                            escape(self.dataset.name),
                            escape(str(self.name)))
+            logger.sql(query)
             trait_info = g.db.execute(query).fetchone()
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
@@ -295,9 +300,11 @@ class GeneralTrait(object):
                     """ % (escape(display_fields_string),
                            escape(self.dataset.name),
                            escape(self.name))
+            logger.sql(query)
             trait_info = g.db.execute(query).fetchone()
         else: #Temp type
             query = """SELECT %s FROM %s WHERE Name = %s"""
+            logger.sql(query)
             trait_info = g.db.execute(query,
                                       (string.join(self.dataset.display_fields,','),
                                                    self.dataset.type, self.name)).fetchone()
@@ -368,6 +375,7 @@ class GeneralTrait(object):
                                     InbredSet.SpeciesId = Species.Id AND
                                     Species.TaxonomyId = Homologene.TaxonomyId
                             """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
+                    logger.sql(query)
                     result = g.db.execute(query).fetchone()
                     #else:
                     #    result = None
@@ -429,6 +437,7 @@ class GeneralTrait(object):
                                     ProbeSet.Name = "{}" AND
                                     ProbeSetXRef.ProbeSetFreezeId ={}
                             """.format(self.name, self.dataset.id)
+                    logger.sql(query)
                     trait_qtl = g.db.execute(query).fetchone()
                     if trait_qtl:
                         self.locus, self.lrs, self.pvalue, self.mean, self.additive= trait_qtl
@@ -439,6 +448,7 @@ class GeneralTrait(object):
                                 Geno.Name = '{}' and
                                 Geno.SpeciesId = Species.Id
                                 """.format(self.dataset.group.species, self.locus)
+                            logger.sql(query)
                             result = g.db.execute(query).fetchone()
                             if result:
                                 self.locus_chr = result[0]
@@ -452,7 +462,7 @@ class GeneralTrait(object):
 
 
                 if self.dataset.type == 'Publish':
-                    trait_qtl = g.db.execute("""
+                    query = """
                             SELECT
                                     PublishXRef.Locus, PublishXRef.LRS, PublishXRef.additive
                             FROM
@@ -461,7 +471,9 @@ class GeneralTrait(object):
                                     PublishXRef.Id = %s AND
                                     PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
                                     PublishFreeze.Id =%s
-                            """, (self.name, self.dataset.id)).fetchone()
+                    """ % (self.name, self.dataset.id)
+                    logger.sql(query)
+                    trait_qtl = g.db.execute(query).fetchone()
                     if trait_qtl:
                         self.locus, self.lrs, self.additive = trait_qtl
                         if self.locus:
@@ -471,6 +483,7 @@ class GeneralTrait(object):
                                 Geno.Name = '{}' and
                                 Geno.SpeciesId = Species.Id
                                 """.format(self.dataset.group.species, self.locus)
+                            logger.sql(query)
                             result = g.db.execute(query).fetchone()
                             if result:
                                 self.locus_chr = result[0]
@@ -730,4 +743,3 @@ def get_sample_data():
     #    jsonable_sample_data[sample] = trait_ob.data[sample].value
     #
     #return jsonable_sample_data
-

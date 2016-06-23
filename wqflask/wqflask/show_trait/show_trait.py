@@ -406,6 +406,7 @@ class ShowTrait(object):
                                              ProbeSet.Name = '{}' AND
                                              Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""".format(this_trait.dataset.name, this_trait.name)
 
+                logger.sql(query)
                 seqs = g.db.execute(query).fetchall()
 
                 for seqt in seqs:
@@ -450,6 +451,7 @@ class ShowTrait(object):
                            FROM Probe, ProbeSet
                            WHERE ProbeSet.Name = '%s' AND Probe.ProbeSetId = ProbeSet.Id""" % (this_trait.name)
                 #query database for number of probes associated with trait; if count > 0, set probe tool button and text
+                logger.sql(query)
                 probeResult = g.db.execute(query).fetchone()
                 if probeResult[0] > 0:
                     self.show_probes = "True"
@@ -1250,6 +1252,7 @@ def get_nearest_marker(this_trait, this_db):
                ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name+"Geno", this_mb)
     logger.debug("query:", query)
 
+    logger.sql(query)
     result = g.db.execute(query).fetchall()
     logger.debug("result:", result)
 

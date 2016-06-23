@@ -10,6 +10,9 @@ from utility import Bunch
 
 from pprint import pformat as pf
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
+
 class TheSpecies(object):
     def __init__(self, dataset):
         self.dataset = dataset
@@ -48,16 +51,17 @@ class Chromosomes(object):
         self.dataset = dataset
         self.chromosomes = collections.OrderedDict()
 
-        results = g.db.execute("""
+
+        query = """
                 Select
                         Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, InbredSet
                 where
                         Chr_Length.SpeciesId = InbredSet.SpeciesId AND
-                        InbredSet.Name = %s
+                        InbredSet.Name = '%s'
                 Order by OrderId
-                """, self.dataset.group.name).fetchall()
-        #print("group: ", self.dataset.group.name)
-        #print("bike:", results)
+                """ % self.dataset.group.name
+        logger.sql(query)
+        results = g.db.execute(query).fetchall()
 
         for item in results:
             self.chromosomes[item.OrderId] = IndChromosome(item.Name, item.Length)

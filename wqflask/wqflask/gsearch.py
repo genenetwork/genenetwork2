@@ -7,6 +7,9 @@ from db import webqtlDatabaseFunction
 
 from utility.benchmark import Bench
 
+from utility.logger import getLogger
+logger = getLogger(__name__)
+
 class GSearch(object):
 
     def __init__(self, kw):
@@ -42,6 +45,7 @@ class GSearch(object):
                 LIMIT 6000
                 """ % (self.terms)
             with Bench("Running query"):
+                logger.sql(sql)
                 re = g.db.execute(sql).fetchall()
             self.trait_list = []
             with Bench("Creating trait objects"):
@@ -84,6 +88,7 @@ class GSearch(object):
                 ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
                 LIMIT 6000
                 """ % (self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms)
+            logger.sql(sql)
             re = g.db.execute(sql).fetchall()
             self.trait_list = []
             with Bench("Creating trait objects"):

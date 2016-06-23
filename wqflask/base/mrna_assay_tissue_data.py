@@ -11,6 +11,9 @@ from MySQLdb import escape_string as escape
 
 from pprint import pformat as pf
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
+
 class MrnaAssayTissueData(object):
 
     def __init__(self, gene_symbols=None):
@@ -54,7 +57,7 @@ class MrnaAssayTissueData(object):
                 as x inner join TissueProbeSetXRef as t on t.Symbol = x.Symbol
                 and t.Mean = x.maxmean;
                     '''.format(in_clause)
-
+        logger.sql(query)
         results = g.db.execute(query).fetchall()
 
         lower_symbols = []
@@ -99,6 +102,7 @@ class MrnaAssayTissueData(object):
                          TissueProbeSetXRef.DataId = TissueProbeSetData.Id""".format(db_tools.create_in_clause(id_list))
 
         print("TISSUE QUERY:", query)
+        logger.sql(query)
 
         results = g.db.execute(query).fetchall()
         for result in results:
@@ -157,4 +161,3 @@ class MrnaAssayTissueData(object):
 #
 #    if len(tissue_data.gene_symbols):
 #        return get_symbol_values_pairs(tissue_data)
-

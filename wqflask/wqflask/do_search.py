@@ -38,7 +38,7 @@ class DoSearch(object):
     def execute(self, query):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
-        logger.debug("execute:", pf(query))
+        logger.sql(query)
         results = g.db.execute(query, no_parameters=True).fetchall()
         return results
 
@@ -108,8 +108,6 @@ class QuickMrnaAssaySearch(DoSearch):
                     AGAINST ('%s' IN BOOLEAN MODE))
                             """ % (escape(self.search_term[0]))
 
-        logger.debug("final query is:", pf(query))
-
         return self.execute(query)
 
 
@@ -175,9 +173,6 @@ class MrnaAssaySearch(DoSearch):
                             """ % (escape(from_clause),
                                     where_clause,
                                     escape(str(self.dataset.id))))
-
-        #logger.debug("query is:", pf(query))
-
         return query
 
     def run_combined(self, from_clause = '', where_clause = ''):
@@ -198,8 +193,6 @@ class MrnaAssaySearch(DoSearch):
                                     where_clause,
                                     escape(str(self.dataset.id))))
 
-        logger.debug("final query is:", pf(query))
-
         return self.execute(query)
 
     def run(self):
@@ -208,8 +201,6 @@ class MrnaAssaySearch(DoSearch):
         logger.debug("Running ProbeSetSearch")
         where_clause = self.get_where_clause()
         query = self.base_query + "WHERE " + where_clause + "ORDER BY ProbeSet.symbol ASC"
-
-        #logger.debug("final query is:", pf(query))
 
         return self.execute(query)
 
@@ -290,8 +281,6 @@ class PhenotypeSearch(DoSearch):
                             escape(str(self.dataset.group.id)),
                             escape(str(self.dataset.id))))
 
-        logger.debug("query is:", pf(query))
-
         return query
 
     def run_combined(self, from_clause, where_clause):
@@ -312,9 +301,6 @@ class PhenotypeSearch(DoSearch):
                         where_clause,
                         escape(str(self.dataset.group.id)),
                         escape(str(self.dataset.id))))
-
-        logger.debug("final query is:", pf(query))
-
 
         return self.execute(query)
 
@@ -363,8 +349,6 @@ class QuickPhenotypeSearch(PhenotypeSearch):
                     PublishXRef.PublicationId = Publication.Id and
                     PublishXRef.InbredSetId = InbredSet.Id and
                     InbredSet.SpeciesId = Species.Id""" % where_clause)
-
-        logger.debug("query is:", pf(query))
 
         return query
 
@@ -431,8 +415,6 @@ class GenotypeSearch(DoSearch):
                         and GenoXRef.GenoFreezeId = GenoFreeze.Id
                         and GenoFreeze.Id = %s"""% (where_clause,
                                                 escape(str(self.dataset.id))))
-
-        logger.debug("query is:", pf(query))
 
         return query
 
@@ -931,6 +913,7 @@ class PvalueSearch(MrnaAssaySearch):
 
         self.query = self.compile_final_query(where_clause = self.where_clause)
 
+        logger.sql(self.query)
         return self.execute(self.query)
 
 class AuthorSearch(PhenotypeSearch):
