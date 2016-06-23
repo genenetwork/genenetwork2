@@ -68,6 +68,8 @@ class AJAX_table:
                 workbook = xl.Writer('%s.xls' % (webqtlConfig.TMPDIR+file))
                 worksheet = workbook.add_worksheet()
 
+                logger.warning("Creating new MySQLdb cursor (this method is OBSOLETE!)")
+
                 con = MySQLdb.Connect(db=webqtlConfig.DB_NAME,host=webqtlConfig.MYSQL_SERVER, user=webqtlConfig.DB_USER,passwd=webqtlConfig.DB_PASSWD)
                 cursor = con.cursor()
 
