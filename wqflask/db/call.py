@@ -5,7 +5,7 @@ from flask import g
 import string
 import urllib2
 import json
-from utility.tools import USE_GN_SERVER, LOG_SQL
+from utility.tools import USE_GN_SERVER, LOG_SQL, GN_SERVER_URL
 from utility.benchmark import Bench
 
 from utility.logger import getLogger
