@@ -1250,8 +1250,6 @@ def get_nearest_marker(this_trait, this_db):
                      GenoFreeze.Id = GenoXRef.GenoFreezeId AND
                      GenoFreeze.Name = '{}'
                ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name+"Geno", this_mb)
-    logger.debug("query:", query)
-
     logger.sql(query)
     result = g.db.execute(query).fetchall()
     logger.debug("result:", result)

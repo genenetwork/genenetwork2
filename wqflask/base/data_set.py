@@ -1137,7 +1137,7 @@ class TempDataSet(DataSet):
         return desc
 
     def get_group(self):
-        self.cursor.execute("""
+        query = """
                     SELECT
                             InbredSet.Name, InbredSet.Id
                     FROM
@@ -1145,9 +1145,9 @@ class TempDataSet(DataSet):
                     WHERE
                             Temp.InbredSetId = InbredSet.Id AND
                             Temp.Name = "%s"
-            """, self.name)
-        self.group, self.group_id = self.cursor.fetchone()
-        #return self.group
+            """ % self.name
+        logger.sql(query)
+        self.group, self.group_id = g.db.execute(query).fetchone()
 
     def retrieve_sample_data(self, trait):
         query = """

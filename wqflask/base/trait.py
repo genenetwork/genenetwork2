@@ -670,12 +670,12 @@ class GeneralTrait(object):
 
         """
         if self.cellid:
-            self.cursor.execute("""
-                            select ProbeFreeze.Name from ProbeFreeze, ProbeSetFreeze
-                                    where
-                            ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
-                            ProbeSetFreeze.Id = %d""" % thisTrait.dataset.id)
-            probeDBName = self.cursor.fetchone()[0]
+            query = """ select ProbeFreeze.Name from ProbeFreeze, ProbeSetFreeze where
+                            ProbeFreeze.Id =
+                            ProbeSetFreeze.ProbeFreezeId AND
+                            ProbeSetFreeze.Id = %d""" % thisTrait.dataset.id
+            logger.sql(query)
+            probeDBName = g.db.execute(query).fetchone()[0]
             return dict(name = probeDBName,
                         url = None)
         else:
