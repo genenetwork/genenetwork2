@@ -30,9 +30,9 @@ import logging
 import string
 from inspect import isfunction
 from pprint import pformat as pf
+from inspect import stack
 
 from utility.tools import LOG_LEVEL, LOG_SQL, LOG_FORMAT
-
 
 class GNLogger:
     """A logger class with some additional functionality, such as
@@ -89,9 +89,9 @@ class GNLogger:
 
     def collect(self,fun,*args):
         """Collect arguments and use fun to output"""
-        out = ""
+        out = "."+stack()[2][3]
         for a in args:
-            if len(out)>0:
+            if len(out)>1:
                 out += ": "
             if isinstance(a, str):
                 out = out + a
@@ -101,9 +101,9 @@ class GNLogger:
 
     def collectf(self,fun,*args):
         """Collect arguments and use fun to output one by one"""
-        out = ""
+        out = "."+stack()[2][3]
         for a in args:
-            if len(out)>0:
+            if len(out)>1:
                 out += ": "
                 if isfunction(a):
                     out += a()
