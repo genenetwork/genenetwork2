@@ -74,8 +74,8 @@ class SampleList(object):
         self.do_outliers()
         #do_outliers(the_samples)
         logger.debug("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
-        for sample in self.sample_list:
-            logger.debug("apple:", type(sample), sample)
+        #for sample in self.sample_list:
+        #     logger.debug("apple:", type(sample), sample)
         #return the_samples
 
     def __repr__(self):
