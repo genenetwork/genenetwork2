@@ -34,7 +34,7 @@ import string
 from utility import webqtlUtil
 from base.mrna_assay_tissue_data import MrnaAssayTissueData
 from base.trait import GeneralTrait
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 
 from flask import Flask, g
 

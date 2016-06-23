@@ -10,7 +10,7 @@ from pprint import pformat as pf
 import sys
 # sys.path.append("..") Never in a running webserver
 
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 
 import logging
 from utility.logger import getLogger
@@ -966,7 +966,7 @@ if __name__ == "__main__":
     from base.data_set import create_dataset
     from base.templatePage import templatePage
     from utility import webqtlUtil
-    from dbFunction import webqtlDatabaseFunction
+    from db import webqtlDatabaseFunction
 
     db_conn = MySQLdb.Connect(db=webqtlConfig.DB_NAME,
                               host=webqtlConfig.MYSQL_SERVER,

@@ -40,7 +40,7 @@ import reaper
 
 from base import webqtlConfig
 from base import species
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
 from utility import chunks

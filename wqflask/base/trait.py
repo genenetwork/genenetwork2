@@ -9,7 +9,7 @@ from htmlgen import HTMLgen2 as HT
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 
 from wqflask import app

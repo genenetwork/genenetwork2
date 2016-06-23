@@ -5,7 +5,7 @@ import json
 from flask import Flask, g
 from base.data_set import create_dataset
 from base.trait import GeneralTrait
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 
 from utility.benchmark import Bench
 

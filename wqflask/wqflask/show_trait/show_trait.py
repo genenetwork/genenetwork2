@@ -18,7 +18,7 @@ from wqflask.show_trait.SampleList import SampleList
 from utility import webqtlUtil, Plot, Bunch, helper_functions
 from base.trait import GeneralTrait
 from base import data_set
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf

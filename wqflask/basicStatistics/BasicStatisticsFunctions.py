@@ -16,7 +16,7 @@ from htmlgen import HTMLgen2 as HT
 #from utility import Plot
 from utility import webqtlUtil
 from base import webqtlConfig
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 
 def basicStatsTable(vals, trait_type=None, cellid=None, heritability=None):
     print("basicStatsTable called - len of vals", len(vals))

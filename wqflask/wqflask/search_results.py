@@ -32,7 +32,7 @@ from base.trait import GeneralTrait
 from wqflask import parser
 from wqflask import do_search
 from utility import webqtlUtil,tools
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 
 from utility import formatting
 

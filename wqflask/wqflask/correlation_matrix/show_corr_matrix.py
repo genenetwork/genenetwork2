@@ -48,7 +48,7 @@ from utility.TDCell import TDCell
 from base.trait import GeneralTrait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench

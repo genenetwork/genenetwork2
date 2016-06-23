@@ -37,7 +37,7 @@ from base.webqtlTrait import webqtlTrait
 from base.templatePage import templatePage
 from utility import webqtlUtil
 from base import webqtlConfig
-from dbFunction import webqtlDatabaseFunction
+from db import webqtlDatabaseFunction
 from base.GeneralObject import GeneralObject
 
 import reaper
