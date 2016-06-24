@@ -7,7 +7,7 @@ number of the BSD's and the Human liver dataset (GSE9588).
 
 * GeneNetwork database
 
-** Estimated table sizes 
+** Estimated table sizes
 
 
 select table_name,round(((data_length + index_length) / 1024 / 1024), 2) `Size in MB` from information_schema.TABLES where table_schema = "db_webqtl" order by data_length;
@@ -172,24 +172,24 @@ This table is being used by both GN1 and GN2 from the trait pages!
 gn1/web/webqtl/showTrait/ShowTraitPage.py:              query = "SELECT count(id) FROM AccessLog WHERE ip_address = %s and \
 gn1/web/webqtl/showTrait/ShowTraitPage.py:                      self.cursor.execute("insert into AccessLog(accesstime,ip_address) values(Now(),%s)" ,user_ip)
 gn1/web/webqtl/textUI/cmdClass.py:                      query = """SELECT count(id) FROM AccessLog WHERE ip_address = %s AND UNIX_TIMESTAMP()-UNIX_TIMESTAMP(accesstime)<86400"""
-gn1/web/webqtl/textUI/cmdClass.py:                      query = """INSERT INTO AccessLog(accesstime,ip_address) values(Now(),%s)""" 
+gn1/web/webqtl/textUI/cmdClass.py:                      query = """INSERT INTO AccessLog(accesstime,ip_address) values(Now(),%s)"""
 gn2/wqflask/wqflask/show_trait/show_trait_page.py:        query = "SELECT count(id) FROM AccessLog WHERE ip_address = %s and \
 gn2/wqflask/wqflask/show_trait/show_trait_page.py:        self.cursor.execute("insert into AccessLog(accesstime,ip_address) values(Now(),%s)", user_ip)
 
 When looking at the code in GN1 and GN2 it restricts the daily use of
 the trait data page (set to 1,000 - whoever reaches that?). Unlike
 mentioned in the schema description, this table does *not* keep track
-of cookies. 
+of cookies.
 
 From the code it looks like GN2 uses a mixture of Redis and sqlalchemy
 to keep track of logged in sessions (see
-gn2/wqflask/wqflask/user_manager.py) and cookies through a user_uuid in 
+gn2/wqflask/wqflask/user_manager.py) and cookies through a user_uuid in
 model.py.
 
 In gn2/wqflask/wqflask/templates/collections/view_anonymous.html it
 show_trait_page appears to be loaded (need to check).
 
-** AvgMethod 
+** AvgMethod
 
 Probesetfreeze refers to AvgMethod
 
@@ -235,7 +235,7 @@ Hooked in API (URL encoding)
 
 GN2 only (see menu bar)
 
-** Ensembl* 
+** Ensembl*
 
 Probe information
 
@@ -321,15 +321,15 @@ Indel Snp browser (variant browser Gn1)
 
 ** Info*
 
-Infra system PhP 
+Infra system PhP
 
-Data Info button 
+Data Info button
 
 Infosystem users has separate entries
 
-Also Investigators, User, Organizations, 
+Also Investigators, User, Organizations,
 
-** LCorrRamin3 
+** LCorrRamin3
 
 Lit. Correlations Prof. Ramin
 
@@ -376,7 +376,7 @@ This table contains names, full descriptions, and short symbols for
 traits and phenotype used primarily in the Published Phenotypes
 databases.
 
-Contains 10k rows, March 2016, of which 5000 are for the BXDs). 
+Contains 10k rows, March 2016, of which 5000 are for the BXDs).
 
 | Id | Pre_publication_description | Post_publication_description                                                                                         | Original_description                                                                                                                                        | Units                | Pre_publication_abbreviation | Post_publication_abbreviation | Lab_code | Submitter   | Owner | Authorized_Users |
 +----+-----------------------------+----------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------+------------------------------+-------------------------------+----------+-------------+-------+------------------+
@@ -493,7 +493,7 @@ select count(*) from ProbeSet limit 5;
 
 ** ProbeSetData
 
-Probedata - main molecular data. Probesets, metabolome, 
+Probedata - main molecular data. Probesets, metabolome,
 
 Almost all important molecular assay data is in this table including
 probe set data, RNA-seq data, proteomic data, and metabolomic
@@ -599,7 +599,7 @@ select * from ProbeSetFreeze limit 5;
 
 Note that the following unlimited search is very slow:
 
-select max(value) from ProbeSetData; 
+select max(value) from ProbeSetData;
 
 +------------+
 | max(value) |
@@ -617,12 +617,12 @@ Suggestions on the schema page:
 
 "StrainId" should be "CaseId" or "SampleId".
 
-"ProbeSetData" should probably be "AssayData" or something more neutral. 
+"ProbeSetData" should probably be "AssayData" or something more neutral.
 
 *** Comments
 
 I think the ProbeSetData table should be generalized to a 'phenotypes'
-table with an 'sample_id' column and a 'value' column. 
+table with an 'sample_id' column and a 'value' column.
 
 A new table 'samples' will link each sample against an 'experiment',
 an 'individual' and which in turn can link to a 'strain'.
@@ -697,7 +697,7 @@ select * from Species;
 +----+-----------+----------------------+----------------+----------------------+-------------------------+------------+---------+
 
 
-** InbredSet 
+** InbredSet
 
 Menu
 
@@ -723,9 +723,127 @@ User selection - retained
 
 ** UserPrivilege
 
-** Vlookup 
+** Vlookup
 
 * Fetching Data
+
+** Menu
+
+What happens at the main search menu can be emulated with curl.
+
+*** Search Mouse mRNA from HC_M2_0606_P dataset
+
+: curl "http://localhost:5003/search?species=mouse&group=BXD&ppocampus+mRNA&dataset=HC_M2_0606_P&search_terms_or=&search_terms_and=MEAN%3D%2815+16%29+LRS%3D%2823+46%29+&FormID=searchResult"
+
+the first SQL query checks whether a dataset is confidential or not:
+
+INFO:base.data_set:.sql: geno_mrna_confidentiality: u'SELECT Id, Name,
+FullName, confidentiality,AuthorisedUsers FROM ProbeSetFreeze WHERE
+Name = "HC_M2_0606_P"'
+
+The following is executed once per search:
+
+INFO:db.call:.sql: retrieve_other_names:
+                        SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
+                        FROM ProbeSetFreeze, ProbeFreeze, Tissue
+                        WHERE ProbeSetFreeze.public > 0 AND
+                              ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
+                              ProbeFreeze.TissueId = Tissue.Id AND
+                             (ProbeSetFreeze.Name = 'HC_M2_0606_P' OR ProbeSetFreeze.FullName = 'HC_M2_0606_P' OR ProbeSetFreeze.ShortName = 'HC_M2_0606_P')
+
+INFO:db.call:.sql: (112, 'HC_M2_0606_P', 'Hippocampus Consortium M430v2 (Jun06) PDNN', 'Hippocampus M430v2 BXD 06/06 PDNN', 'log2', 'Hippocampus mRNA')
+
+INFO:db.call:.sql: __init__:
+                        SELECT
+                                InbredSet.Name, InbredSet.Id
+                        FROM
+                                InbredSet, ProbeSetFreeze, ProbeFreeze
+                        WHERE
+                                ProbeFreeze.InbredSetId = InbredSet.Id AND
+                                ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
+                                ProbeSetFreeze.Name = "HC_M2_0606_P"
+
+INFO:db.call:.sql: ('BXD', 1)
+
+INFO:base.species:.sql: __init__:
+                Select
+                        Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, InbredSet
+                where
+                        Chr_Length.SpeciesId = InbredSet.SpeciesId AND
+                        InbredSet.Name = 'BXD'
+                Order by OrderId
+
+And the following are executed for every trait:
+
+INFO:wqflask.do_search:.sql: execute: SELECT distinct ProbeSet.Name as TNAME, 0 as thistable, ProbeSetXRef.Mean as TMEAN, ProbeSetXRef.LRS as TLRS, ProbeSetXRef.PVALUE as TPVALUE, ProbeSet.Chr_num as TCHR_NUM, ProbeSet.Mb as TMB, ProbeSet.Symbol as TSYMBOL, ProbeSet.name_num as TNAME_NUM FROM ProbeSetXRef, ProbeSet WHERE (( ProbeSetXRef.mean > 15.0 and ProbeSetXRef.mean < 16.0 )AND( ProbeSetXRef.LRS > 23.0 and ProbeSetXRef.LRS < 46.0 )) and ProbeSet.Id = ProbeSetXRef.ProbeSetId and ProbeSetXRef.ProbeSetFreezeId = 112 ORDER BY ProbeSet.symbol ASC
+
+INFO:base.trait:.sql: retrieve_info: SELECT ProbeSet.name,
+                    ProbeSet.symbol, ProbeSet.description,
+                    ProbeSet.probe_target_description, ProbeSet.chr,
+                    ProbeSet.mb, ProbeSet.alias, ProbeSet.geneid,
+                    ProbeSet.genbankid, ProbeSet.unigeneid,
+                    ProbeSet.omim, ProbeSet.refseq_transcriptid,
+                    ProbeSet.blatseq, ProbeSet.targetseq,
+                    ProbeSet.chipid, ProbeSet.comments,
+                    ProbeSet.strand_probe, ProbeSet.strand_gene,
+                    ProbeSet.probe_set_target_region,
+                    ProbeSet.probe_set_specificity,
+                    ProbeSet.probe_set_blat_score,
+                    ProbeSet.probe_set_blat_mb_start,
+                    ProbeSet.probe_set_blat_mb_end,
+                    ProbeSet.probe_set_strand,
+                    ProbeSet.probe_set_note_by_rw, ProbeSet.flag
+
+                    FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                    WHERE
+                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                            ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                            ProbeSetFreeze.Name = 'HC_M2_0606_P' AND
+                            ProbeSet.Name = '1443823_s_at'
+
+INFO:base.trait:.sql: retrieve_info:
+                            SELECT
+                                    HomologeneId
+                            FROM
+                                    Homologene, Species, InbredSet
+                            WHERE
+                                    Homologene.GeneId =98660 AND
+                                    InbredSet.Name = 'BXD' AND
+                                    InbredSet.SpeciesId = Species.Id AND
+                                    Species.TaxonomyId = Homologene.TaxonomyId
+
+INFO:base.trait:.sql: retrieve_info:
+                            SELECT
+                                    ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean, ProbeSetXRef.additive
+                            FROM
+                                    ProbeSetXRef, ProbeSet
+                            WHERE
+                                    ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                                    ProbeSet.Name = "1443823_s_at" AND
+                                    ProbeSetXRef.ProbeSetFreezeId =112
+
+INFO:base.trait:.sql: retrieve_info:
+                                select Geno.Chr, Geno.Mb from Geno, Species
+                                where Species.Name = 'mouse' and
+                                Geno.Name = 'NES13033186' and
+                                Geno.SpeciesId = Species.Id
+
+
+and finally mean and chromosome positions are fetched a second time
+for every trait with
+
+INFO:base.data_set:.sql: get_trait_info: select ProbeSetXRef.mean from ProbeSetXRef, ProbeSet
+                where ProbeSetXRef.ProbeSetFreezeId = 112 and
+                ProbeSet.Id = ProbeSetXRef.ProbeSetId and
+                ProbeSet.Name = '1443823_s_at'
+
+INFO:base.data_set:.sql: get_trait_info:
+                    select Geno.Chr, Geno.Mb from Geno, Species
+                    where Species.Name = 'mouse' and
+                        Geno.Name = 'NES13033186' and
+                        Geno.SpeciesId = Species.Id
+
+(that is a bug!).
 
 ** Fetch phenotypes
 

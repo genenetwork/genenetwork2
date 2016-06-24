@@ -711,12 +711,14 @@ class PhenotypeDataSet(DataSet):
             this_trait.LRS_location_value = 1000000
 
             if this_trait.lrs:
-                result = g.db.execute("""
+                query = """
                     select Geno.Chr, Geno.Mb from Geno, Species
                     where Species.Name = %s and
                         Geno.Name = %s and
                         Geno.SpeciesId = Species.Id
-                """, (species, this_trait.locus)).fetchone()
+                """ % (species, this_trait.locus)
+                logger.sql(query)
+                result = g.db.execute(query).fetchone()
 
                 if result:
                     if result[0] and result[1]:
@@ -1172,9 +1174,9 @@ def geno_mrna_confidentiality(ob):
     #logger.debug("dataset_table [%s]: %s" % (type(dataset_table), dataset_table))
 
     query = '''SELECT Id, Name, FullName, confidentiality,
-                        AuthorisedUsers FROM %s WHERE Name = %%s''' % (dataset_table)
+                        AuthorisedUsers FROM %s WHERE Name = "%s"''' % (dataset_table,ob.name)
     logger.sql(query)
-    result = g.db.execute(query, ob.name)
+    result = g.db.execute(query)
 
     (dataset_id,
      name,

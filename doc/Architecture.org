@@ -34,6 +34,8 @@ search_result.py which invokes database functions in
 wqflask/dbFunction/webqtlDatabaseFunction.py, for example. The
 receiving template lives at [[https://github.com/genenetwork/genenetwork2/blob/master/wqflask/wqflask/templates/search_result_page.html][search_result_page.html]].
 
+For what happens at the database level see [[database.org]].
+
 ** GnServer (REST)
 
 The [[https://github.com/genenetwork/gn_server][GnServer REST API]] is built on high performance [[http://elixir-lang.org/][Elixir]] with [[https://github.com/falood/maru][Maru]].

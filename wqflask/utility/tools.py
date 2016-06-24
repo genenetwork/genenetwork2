@@ -43,12 +43,13 @@ def get_setting(command_id,guess=None):
     # ---- Check whether environment exists
     logger.debug("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
-    if command == None or command == "":
+    if command is None or command == "":
         # ---- Check whether setting exists in app
         command = value(app.config.get(command_id))
-        if command == None:
+        if command is None:
             command = value(guess)
-            if command == None or command == "":
+            if command is None or command == "":
+                print command
                 raise Exception(command_id+' setting unknown or faulty (update default_settings.py?).')
     logger.debug("Set "+command_id+"="+str(command))
     return command
@@ -61,7 +62,11 @@ def get_setting_bool(id):
 
 def get_setting_int(id):
     v = get_setting(id)
-    return int(v)
+    if isinstance(v, str):
+        return int(v)
+    if v is None:
+        return 0
+    return v
 
 def valid_bin(bin):
     if os.path.islink(bin) or valid_file(bin):

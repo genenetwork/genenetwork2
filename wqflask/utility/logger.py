@@ -32,7 +32,7 @@ from inspect import isfunction
 from pprint import pformat as pf
 from inspect import stack
 
-from utility.tools import LOG_LEVEL, LOG_SQL, LOG_FORMAT
+from utility.tools import LOG_LEVEL, LOG_LEVEL_DEBUG, LOG_SQL, LOG_FORMAT
 
 class GNLogger:
     """A logger class with some additional functionality, such as
@@ -48,9 +48,13 @@ class GNLogger:
         """Set the undelying log level"""
         self.logger.setLevel(value)
 
-    def debug(self,*args):
-        """Call logging.debug for multiple args"""
-        self.collect(self.logger.debug,*args)
+    def debug(self,level=0,*args):
+        """Call logging.debug for multiple args. Use level=num to filter on
+LOG_LEVEL_DEBUG.
+
+        """
+        if level <= LOG_LEVEL_DEBUG:
+            self.collect(self.logger.debug,*args)
 
     def info(self,*args):
         """Call logging.info for multiple args"""
@@ -71,16 +75,20 @@ class GNLogger:
         if self.logger.getEffectiveLevel() < 30:
             self.collectf(self.logger.debug,*args)
 
-    def debugf(self,*args):
+    def debugf(self,level=0,*args):
         """Call logging.debug for multiple args lazily"""
         # only evaluate function when logging
-        if self.logger.getEffectiveLevel() < 20:
-            self.collectf(self.logger.debug,*args)
+        if level <= LOG_LEVEL_DEBUG:
+            if self.logger.getEffectiveLevel() < 20:
+                self.collectf(self.logger.debug,*args)
 
     def sql(self, sqlcommand, fun = None):
         """Log SQL command, optionally invoking a timed fun"""
         if LOG_SQL:
-            self.info(stack()[1][3],sqlcommand)
+            caller = stack()[1][3]
+            if caller in ['fetchone','fetch1','fetchall']:
+                caller = stack()[2][3]
+            self.info(caller,sqlcommand)
         if fun:
             result = fun(sqlcommand)
             if LOG_SQL:

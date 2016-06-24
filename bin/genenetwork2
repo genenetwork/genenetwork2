@@ -33,7 +33,7 @@ if [ -z $TEMPDIR ]; then
     TEMPDIR="/tmp"
 fi
                          
-# Start the redis server
+echo "Starting the redis server:"
 echo -n "dir $TEMPDIR
 dbfilename gn2.rdb
 " | redis-server - &

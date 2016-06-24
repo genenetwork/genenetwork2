@@ -10,6 +10,9 @@
 #
 # Note also that in the near future we will additionally fetch
 # settings from a JSON file
+#
+# Note that values for False and 0 have to be strings here - otherwise
+# Flask won't pick them up
 
 import os
 import sys
@@ -38,7 +41,7 @@ WEBSERVER_BRANDING = None   # Set the branding (nyi)
 WEBSERVER_DEPLOY = None     # Deployment specifics (nyi)
 
 LOG_LEVEL       = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
-LOG_LEVEL_DEBUG = 1         # Debug log level (0-5) (nyi)
+LOG_LEVEL_DEBUG = '0'       # Debug log level (0-5, 0 = show all)
 LOG_SQL         = 'False'   # Log SQL/backend and GN_SERVER calls
 LOG_SQLALCHEMY  = 'False'
 LOG_BENCH       = True      # Log bench marks
