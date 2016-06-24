@@ -297,13 +297,13 @@ def view_collection():
     params = request.args
     print("PARAMS in view collection:", params)
 
-    if "uc_id" in params:
-        uc_id = params['uc_id']
-        uc = model.UserCollection.query.get(uc_id)
-        traits = json.loads(uc.members)
-        print("traits are:", traits)
-    else:
-        traits = AnonCollection().get_traits()
+    #if "uc_id" in params:
+    uc_id = params['uc_id']
+    uc = model.UserCollection.query.get(uc_id)
+    traits = json.loads(uc.members)
+    print("traits are:", traits)
+    #else:
+    #    traits = AnonCollection().get_traits()
 
     print("in view_collection traits are:", traits)
 
@@ -316,7 +316,6 @@ def view_collection():
 
         trait_ob = trait.GeneralTrait(name=name, dataset_name=dataset_name)
         trait_ob.retrieve_info(get_qtl_info=True)
-        trait_ob.get_info()
         trait_obs.append(trait_ob)
 
         json_version.append(trait_ob.jsonable())

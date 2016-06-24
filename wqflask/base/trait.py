@@ -79,13 +79,7 @@ class GeneralTrait(object):
                     dataset=self.dataset.name,
                     description=self.description_display,
                     mean=self.mean)
-
-
-    def get_info(self):
-        """For lots of traits just use get_trait_info in dataset instead...that will be way
-        more efficient"""
-        self.dataset.get_trait_info([self],
-            webqtlDatabaseFunction.retrieve_species(self.dataset.group.name))
+                    
 
     def get_name(self):
         stringy = ""
