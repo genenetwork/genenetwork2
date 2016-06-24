@@ -47,7 +47,7 @@ LOG_SQLALCHEMY  = 'False'
 LOG_BENCH       = True      # Log bench marks
 
 USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
-USE_GN_SERVER   = True      # Use GN_SERVER SQL calls
+USE_GN_SERVER   = 'False'   # Use GN_SERVER SQL calls
 
 # Path overrides for Genenetwork
 HOME=os.environ['HOME']
