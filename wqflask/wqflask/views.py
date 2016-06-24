@@ -145,7 +145,7 @@ def search_page():
                 result = Redis.get(key)
                 if result:
                     logger.info("Redis cache hit on search results!")
-                result = pickle.loads(result)
+                    result = pickle.loads(result)
         else:
             logger.info("Skipping Redis cache (USE_REDIS=False)")
 
