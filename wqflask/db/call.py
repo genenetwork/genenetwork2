@@ -25,7 +25,9 @@ GN_SERVER result when set (which should return a Tuple)
             res2 = func(result)
         else:
             res2 = result,
-        logger.debug(path,query,res2)
+        if LOG_SQL:
+            logger.debug("Replaced SQL call",query)
+        logger.debug(path,res2)
         return res2
     else:
         return fetchone(query)

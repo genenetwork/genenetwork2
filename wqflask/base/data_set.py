@@ -488,18 +488,14 @@ class DataSet(object):
                     self.name,
                     self.name))
 
-                # self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue =
-                result = fetch1("""
+                self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue = fetch1("""
 SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
 FROM ProbeSetFreeze, ProbeFreeze, Tissue
 WHERE ProbeSetFreeze.public > %s
 AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
 AND ProbeFreeze.TissueId = Tissue.Id
 AND (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
-                """ % (query_args),
-                                                                                                         "/dataset/"+self.name+".json",helper)
-                self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue = result
-                logger.debug("retrieve_other_names result:",result)
+                """ % (query_args),"/dataset/"+self.name+".json",helper)
             else:
                 query_args = tuple(escape(x) for x in (
                     (self.type + "Freeze"),
