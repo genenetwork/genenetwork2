@@ -14,17 +14,19 @@ logger = getLogger(__name__ )
 # from inspect import stack
 
 def fetch1(query, path=None, func=None):
-    """Fetch one result using either a SQL query or the URI path to
-GN_SERVER (when USE_GN_SERVER is True). Apply func to GN_SERVER result
-when set.
+    """Fetch one result as a Tuple using either a SQL query or the URI
+path to GN_SERVER (when USE_GN_SERVER is True). Apply func to
+GN_SERVER result when set (which should return a Tuple)
 
     """
     if USE_GN_SERVER and path:
         result = gn_server(path)
         if func != None:
-            return [func(result)]
+            res2 = func(result)
         else:
-            return [result]
+            res2 = result,
+        logger.debug(path,query,res2)
+        return res2
     else:
         return fetchone(query)
 

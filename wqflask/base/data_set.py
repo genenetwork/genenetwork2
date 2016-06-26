@@ -466,13 +466,19 @@ class DataSet(object):
         Weve_Renamed_This_As_Group
 
     def retrieve_other_names(self):
-        """
-        If the data set name parameter is not found in the 'Name' field of the data set table,
-        check if it is actually the FullName or ShortName instead.
+        """This method fetches the the dataset names in search_result.
 
-        This is not meant to retrieve the data set info if no name at all is passed.
+        If the data set name parameter is not found in the 'Name' field of
+        the data set table, check if it is actually the FullName or
+        ShortName instead.
+
+        This is not meant to retrieve the data set info if no name at
+        all is passed.
 
         """
+
+        def helper(r):
+            return r["id"],r["name"],r["full_name"],r["short_name"],r["data_scale"],r["tissue"]
 
         try:
             if self.type == "ProbeSet":
@@ -482,14 +488,18 @@ class DataSet(object):
                     self.name,
                     self.name))
 
-                self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue = fetchone("""
-                        SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
-                        FROM ProbeSetFreeze, ProbeFreeze, Tissue
-                        WHERE ProbeSetFreeze.public > %s AND
-                              ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
-                              ProbeFreeze.TissueId = Tissue.Id AND
-                             (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
-                  """ % (query_args))
+                # self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue =
+                result = fetch1("""
+SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
+FROM ProbeSetFreeze, ProbeFreeze, Tissue
+WHERE ProbeSetFreeze.public > %s
+AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+AND ProbeFreeze.TissueId = Tissue.Id
+AND (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
+                """ % (query_args),
+                                                                                                         "/dataset/"+self.name+".json",helper)
+                self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue = result
+                logger.debug("retrieve_other_names result:",result)
             else:
                 query_args = tuple(escape(x) for x in (
                     (self.type + "Freeze"),

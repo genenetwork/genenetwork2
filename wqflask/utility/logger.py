@@ -48,13 +48,12 @@ class GNLogger:
         """Set the undelying log level"""
         self.logger.setLevel(value)
 
-    def debug(self,level=0,*args):
+    def debug(self,*args):
         """Call logging.debug for multiple args. Use level=num to filter on
-LOG_LEVEL_DEBUG.
+LOG_LEVEL_DEBUG (NYI).
 
         """
-        if level <= LOG_LEVEL_DEBUG:
-            self.collect(self.logger.debug,*args)
+        self.collect(self.logger.debug,*args)
 
     def info(self,*args):
         """Call logging.info for multiple args"""
