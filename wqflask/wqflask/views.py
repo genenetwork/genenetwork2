@@ -26,10 +26,7 @@ import base64
 import array
 import sqlalchemy
 from wqflask import app
-from flask import g, request, render_template
-# from flask import (render_template, request, make_response, Response,
-#                    Flask, g, config, jsonify, redirect, url_for,
-#                    send_from_directory)
+from flask import g, Response, request, render_template, send_from_directory, jsonify, redirect
 from wqflask import search_results
 from wqflask import gsearch
 from wqflask import update_search_results
