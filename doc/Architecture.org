@@ -36,6 +36,14 @@ receiving template lives at [[https://github.com/genenetwork/genenetwork2/blob/m
 
 For what happens at the database level see [[database.org]].
 
+A view consists of an HTML template with JS libraries for managing
+menus, tables etc. For example, for the search results see the
+[[https://github.com/genenetwork/genenetwork2/blob/master/wqflask/wqflask/templates/search_result_page.html][search_result_page.html]] which is a Flask template. The first section
+puts the search in plain English, e.g. 'We searched Hippocampus
+Consortium M430v2 (Jun06) PDNN to find all records with MEAN between
+15 and 16 and with LRS between 23 and 46.'. Then the results are added
+to a table which is displayed using a JS [[https://datatables.net/][DataTable container]].
+
 ** GnServer (REST)
 
 The [[https://github.com/genenetwork/gn_server][GnServer REST API]] is built on high performance [[http://elixir-lang.org/][Elixir]] with [[https://github.com/falood/maru][Maru]].
