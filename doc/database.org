@@ -490,7 +490,6 @@ select count(*) from ProbeSet limit 5;
 2 rows in set (0.00 sec)
 
 
-
 ** ProbeSetData
 
 Probedata - main molecular data. Probesets, metabolome,
@@ -661,7 +660,36 @@ move into NoSQL. There is plenty redundancy in that table now.
 I know it is going to be a pain to reorganize the database, but if we
 want to use it in the long run we are going to have to simplify it.
 
+** ProbeSetFreeze and ProbeFreeze (/dataset/name.json)
 
+GN_SERVER: /dataset/HC_M2_0606_P.json
+
+ProbesetFreeze contains DataSet information, such as name, fullname of
+datasets, as well as whether they are public and how the data is
+scaled:
+
+select * from ProbeSetFreeze;
+| Id  | ProbeFreezeId | AvgID | Name         | Name2                              | FullName                                      | ShortName                                     | CreateTime | OrderList | public | confidentiality | AuthorisedUsers | DataScale |
+| 112 |            30 |     2 | HC_M2_0606_P | Hippocampus_M430_V2_BXD_PDNN_Jun06 | Hippocampus Consortium M430v2 (Jun06) PDNN    | Hippocampus M430v2 BXD 06/06 PDNN             | 2006-06-23 |      NULL |      2 |               0 | NULL            | log2      |
+
+Another table contains a tissue reference and a back reference to the cross
+type:
+
+select * from ProbeFreeze;
+| Id  | ProbeFreezeId | ChipId | TissueId | Name                                        | FullName | ShortName | CreateTime | InbredSetId |
+|  30 |            30 |      4 |        9 | Hippocampus Consortium M430v2 Probe (Jun06) |          |           | 2006-07-07 |           1 |
+
+NOTE: these tables can probably be merged into one.
+
+show indexes from ProbeSetFreeze;
++----------------+------------+-----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table          | Non_unique | Key_name  | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++----------------+------------+-----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| ProbeSetFreeze |          0 | PRIMARY   |            1 | Id          | A         |           2 |     NULL | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          0 | FullName  |            1 | FullName    | A         |           2 |     NULL | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          0 | Name      |            1 | Name        | A         |           2 |     NULL | NULL   | YES  | BTREE      |         |               |
+| ProbeSetFreeze |          1 | NameIndex |            1 | Name2       | A         |           2 |     NULL | NULL   |      | BTREE      |         |               |
++----------------+------------+-----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
 
 ** Publication and publishdata (all pheno)
 
@@ -735,7 +763,8 @@ What happens at the main search menu can be emulated with curl.
 
 : curl "http://localhost:5003/search?species=mouse&group=BXD&ppocampus+mRNA&dataset=HC_M2_0606_P&search_terms_or=&search_terms_and=MEAN%3D%2815+16%29+LRS%3D%2823+46%29+&FormID=searchResult"
 
-the first SQL query checks whether a dataset is confidential or not:
+the first SQL query checks whether a dataset is confidential or not ayd
+fetches full name info
 
 INFO:base.data_set:.sql: geno_mrna_confidentiality: u'SELECT Id, Name,
 FullName, confidentiality,AuthorisedUsers FROM ProbeSetFreeze WHERE
