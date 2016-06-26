@@ -727,7 +727,7 @@ User selection - retained
 
 * Fetching Data
 
-** Menu
+** Search
 
 What happens at the main search menu can be emulated with curl.
 
