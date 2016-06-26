@@ -477,8 +477,6 @@ class DataSet(object):
 
         """
 
-        def helper(r):
-            return r["id"],r["name"],r["full_name"],r["short_name"],r["data_scale"],r["tissue"]
 
         try:
             if self.type == "ProbeSet":
@@ -495,7 +493,9 @@ WHERE ProbeSetFreeze.public > %s
 AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
 AND ProbeFreeze.TissueId = Tissue.Id
 AND (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
-                """ % (query_args),"/dataset/"+self.name+".json",helper)
+                """ % (query_args),"/dataset/"+self.name+".json",
+            lambda r: (r["id"],r["name"],r["full_name"],r["short_name"],r["data_scale"],r["tissue"])
+                )
             else:
                 query_args = tuple(escape(x) for x in (
                     (self.type + "Freeze"),
