@@ -207,9 +207,17 @@ Metadata
 
 ?
 
-** Chr_Length
+** Chr_Length (/cross/BXD.json)
 
 Default mm9, column for mm8
+
+select * from Chr_Length;
+
+| Name | SpeciesId | OrderId | Length    | Length_mm8 |
+| 1    |         1 |       1 | 197195432 |  197069962 |
+| 2    |         1 |       2 | 181748087 |  181976762 |
+
+Table should be merged with
 
 ** Dataset_mbat
 
@@ -275,9 +283,18 @@ Wiki info (nightly updated from NCBI)
 
 XRef should be foreign keys
 
-** Geno
+** Geno (genotype/marker/'marker'.json)
 
 SNP or marker info
+
+INFO:base.trait:.sql: retrieve_info:
+                                select Geno.Chr, Geno.Mb from Geno, Species
+                                where Species.Name = 'mouse' and
+                                Geno.Name = 'rs3693478' and
+                                Geno.SpeciesId = Species.Id
+
+| Id | SpeciesId | Name       | Marker_Name | Chr  | Mb        | Sequence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Source  | chr_num | Source2 | Comments | used_by_geno_file | Mb_mm8    | Chr_mm8 |
+|  1 |         1 | 01.001.695 | 01.001.695  | 1    |  4.678288 | GCCCTGCCCACCTCAGAGCAAGCTGCCACCCAGGAGTCCGTGTTTCAGGAGATGTGTGAGGAGGGCCTGCTGGAGGAGTGTGATGGTGAGGATGAGGCAGGCCGTGCCGCG[T/C]AGCCAGAGGCTGGTGATGGGACCACCGAGATCTCACCCACTGGTGCTGCTGATCCTGAGAAGAGGATGGAGAAGAAGACGGAGCAGCAGCACACCGGCGGCGGGAGAAAGCTGCTCGTAAGCTGCTCGTAAGCTACGGGTGCAGCAGGCTGCACTTAGGGCAGCCCGGCTTCAGCACCAAGAACTCTTCAGGCTGCATGGGATCAAGGCCCAGGTGGCCCGAAGGCTGGCAGAACTCGCACACGGGAGGGAGCAGCAGCGCATACAGCGACTGGCAGAGGCTGACAAGCCCCGAAGGCTGGGACGACTCAAGTACCAGGCTCCTGACATTGATGTGCAGCTCAGCTCTGAGCTGTCTGGCCCACTCAGGACACTGAAACCAGAAGGTCACATTCTCCAAGACAGGTTCAAGAGCTTCCAGAAGAGAAATATGATTGAGCCCCGAGAACGAGCCAAGTTCAAGCGCAAATAAAAAATGAAGTTGGTGGAGAAGCGGGCCTACCATGAGATTCAGTTGTAGCTGTGCAGATGTCGGAGCCCCGCCCCTCAATAAAGTTCTGTGACAAAAAAAAAAAAAAAAAAAGAAGAAGAAGAAGAAAAGGAAAAAAAAGAAGAAAAAGAAAAAAAAAGAAAAAAGAAAAAGAAAACACATCACTTGGCAAAACTCCATAGACTCTATGTGATTCATGTTTCAAACATGCACCTA | GNF_SNP |       1 | GNF     | NULL     | NULL              |  4.678288 | 1       |
 
 ** GenoCode
 
@@ -311,7 +328,7 @@ Heritability for probeset(?)
 
 Homology, not used much
 
-** InbredSet
+** InbredSet (/cross/BXD.info)
 
 Group in menu
 
@@ -489,6 +506,36 @@ select count(*) from ProbeSet limit 5;
 +------+--------+----------+----------+--------+----------------------------------------------+------+-----------+----------+--------+-----------+------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------------+-------------+--------+----------+-------------------------+-----------------------+----------------------+-------------------------+-----------------------+------------------+----------------------+------+----------+---------------+--------------+------+---------+----------+---------+----------+--------------------------+---------------------+---------+-----------+-----------------------------+---------------------------+--------------+-------------+-----------+-------------+------------+---------+------------+----------+-----------+------------+------------+---------------+---------+-----------+---------+------------------+-------------+------+--------+-------------+----------------+-----------------+
 2 rows in set (0.00 sec)
 
+
+** ProbeSetXRef (phenotypes/dataset_name.json)
+
+For every probe set (read dataset measuring point):
+
+select * from ProbeSetXRef;
+
+| ProbeSetFreezeId | ProbeSetId | DataId   | Locus_old | LRS_old | pValue_old | mean             | se   | Locus      | LRS               | pValue | additive              | h2   |
+|              112 |     123528 | 23439389 | NULL      |    NULL |       NULL |  6.7460707070707 | NULL | rs6239372  |  10.9675593568894 |  0.567 |    0.0448545966228878 | NULL |
+|              112 |     123527 | 23439388 | NULL      |    NULL |       NULL | 6.19416161616162 | NULL | rs13476936 |  10.9075670392762 |  0.567 |   -0.0358456732993988 | NULL |
+
+where ProbeSetFreezeId is the dataset (experiment). ProbesetId refers
+to the probe set information (measuring point). DataId points to the
+data point. The othe values are used for search.
+
+It is used in search thus:
+
+SELECT distinct ProbeSet.Name as TNAME,
+  ProbeSetXRef.Mean as TMEAN, ProbeSetXRef.LRS as TLRS,
+  ProbeSetXRef.PVALUE as TPVALUE, ProbeSet.Chr_num as TCHR_NUM,
+  ProbeSet.Mb as TMB, ProbeSet.Symbol as TSYMBOL,
+  ProbeSet.name_num as TNAME_NUM
+FROM ProbeSetXRef, ProbeSet
+WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
+  and ProbeSetXRef.ProbeSetFreezeId = 112
+  ORDER BY ProbeSet.symbol ASC limit 5;
+
+| TNAME      | TMEAN            | TLRS               | TPVALUE               | TCHR_NUM | TMB        | TSYMBOL       | TNAME_NUM |
+| 1445618_at | 7.05679797979798 |   13.5417452764616 |                  0.17 |        8 |  75.077895 | NULL          |   1445618 |
+| 1452452_at |            7.232 |   30.4944361132252 | 0.0000609756097560421 |       12 |    12.6694 | NULL          |   1452452 |
 
 ** ProbeSetData
 
@@ -691,6 +738,19 @@ show indexes from ProbeSetFreeze;
 | ProbeSetFreeze |          1 | NameIndex |            1 | Name2       | A         |           2 |     NULL | NULL   |      | BTREE      |         |               |
 +----------------+------------+-----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
 
+** ProbeSetSE
+
+ select * from ProbeSetSE limit 5;
++--------+----------+----------+
+| DataId | StrainId | error    |
++--------+----------+----------+
+|      1 |        1 | 0.681091 |
+|      1 |        2 | 0.361151 |
+|      1 |        3 | 0.364342 |
+|      1 |        4 | 0.827588 |
+|      1 |        5 | 0.303492 |
++--------+----------+----------+
+
 ** Publication and publishdata (all pheno)
 
 Phenotype pubs
@@ -794,6 +854,18 @@ INFO:db.call:.sql: __init__:
 
 INFO:db.call:.sql: ('BXD', 1)
 
+The actual search is
+
+SELECT distinct ProbeSet.Name as TNAME, 0 as thistable,
+  ProbeSetXRef.Mean as TMEAN, ProbeSetXRef.LRS as TLRS,
+  ProbeSetXRef.PVALUE as TPVALUE, ProbeSet.Chr_num as TCHR_NUM,
+  ProbeSet.Mb as TMB, ProbeSet.Symbol as TSYMBOL,
+  ProbeSet.name_num as TNAME_NUM
+FROM ProbeSetXRef, ProbeSet
+WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
+  and ProbeSetXRef.ProbeSetFreezeId = 112
+  ORDER BY ProbeSet.symbol ASC limit 5;
+
 INFO:base.species:.sql: __init__:
                 Select
                         Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, InbredSet
@@ -875,6 +947,87 @@ INFO:base.data_set:.sql: get_trait_info:
 (that is a bug!).
 
 ** Fetch phenotypes
+
+*** Through the trait page
+
+When hitting the trait page, e.g.
+
+curl "http://localhost:5003/show_trait?trait_id=1443823_s_aet=HC_M2_0606_P"
+
+First the BXD's are queried with
+
+DEBUG:base.data_set:.get_samplelist: Sample list: : ['BXD1',
+ 'BXD2',
+ 'BXD5',
+ ...
+
+main probeset info (trait) is retrieved with
+
+SELECT ProbeSet.name, ProbeSet.symbol, ProbeSet.description, ProbeSet.probe_target_description, ProbeSet.chr, ProbeSet.mb, ProbeSet.alias, ProbeSet.geneid, ProbeSet.genbankid, ProbeSet.unigeneid, ProbeSet.omim, ProbeSet.refseq_transcriptid, ProbeSet.blatseq, ProbeSet.targetseq, ProbeSet.chipid, ProbeSet.comments, ProbeSet.strand_probe, ProbeSet.strand_gene, ProbeSet.probe_set_target_region, ProbeSet.probe_set_specificity, ProbeSet.probe_set_blat_score, ProbeSet.probe_set_blat_mb_start, ProbeSet.probe_set_blat_mb_end, ProbeSet.probe_set_strand, ProbeSet.probe_set_note_by_rw, ProbeSet.flag
+                    FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                    WHERE
+                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                            ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                            ProbeSetFreeze.Name = 'HC_M2_0606_P' AND
+                            ProbeSet.Name = '1443823_s_at'
+
+Followed by
+
+INFO:base.trait:.sql: retrieve_info:
+   SELECT
+                                    ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean, ProbeSetXRef.additive
+                            FROM
+                                    ProbeSetXRef, ProbeSet
+                            WHERE
+                                    ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                                    ProbeSet.Name = "1443823_s_at" AND
+                                    ProbeSetXRef.ProbeSetFreezeId =112
+
+| Locus       | LRS             | pValue                 | mean             | additive             |
+| NES13033186 | 35.466324074542 | 0.00000900000000003676 | 15.0551313131313 | -0.16750405405405402 |
+
+Then the interesting bit, the sample data is fetched with
+
+INFO:base.data_set:.sql: retrieve_sample_data:
+                   SELECT
+                            Strain.Name, ProbeSetData.value, ProbeSetSE.error, ProbeSetData.Id, Strain.Name2
+                    FROM
+                            (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
+                    left join ProbeSetSE on
+                            (ProbeSetSE.DataId = ProbeSetData.Id AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
+                    WHERE
+                            ProbeSet.Name = '1443823_s_at' AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                            ProbeSetFreeze.Name = 'HC_M2_0606_P' AND
+                            ProbeSetXRef.DataId = ProbeSetData.Id AND
+                            ProbeSetData.StrainId = Strain.Id
+                    Order BY
+                            Strain.Name
+
+| Name        | value  | error | Id       | Name2       |
+| 129S1/SvImJ | 14.552 |  NULL | 23422417 | 129S1/SvImJ |
+| A/J         |  14.34 |  NULL | 23422417 | A/J         |
+| AKR/J       | 14.338 |  NULL | 23422417 | AKR/J       |
+| B6D2F1      | 15.251 |  NULL | 23422417 | B6D2F1      |
+| BALB/cByJ   | 14.164 |  NULL | 23422417 | BALB/cByJ   |
+| BALB/cJ     | 14.563 |  NULL | 23422417 | BALB/cJ     |
+| BXD1        | 15.198 |  NULL | 23422417 | BXD1        |
+| BXD11       | 15.084 |  NULL | 23422417 | BXD11       |
+| BXD12       | 15.192 |  NULL | 23422417 | BXD12       |
+ etc.
+
+Then some repeated queries and this fetchest the nearest SNP
+
+INFO:wqflask.show_trait.show_trait:.sql: get_nearest_marker:
+ SELECT Geno.Name FROM Geno, GenoXRef, GenoFreeze WHERE Geno.Chr = '1'
+ AND GenoXRef.GenoId = Geno.Id AND GenoFreeze.Id =
+ GenoXRef.GenoFreezeId AND GenoFreeze.Name = 'BXDGeno' ORDER BY ABS(
+ Geno.Mb - 173.149434) limit 1;
+
+| Name        |
+| NES13033186 |
+
+*** Digging deeper
 
 To get at phenotype data ProbeSetData is the main table (almost all
 important molecular assay data is in this table including probe set
