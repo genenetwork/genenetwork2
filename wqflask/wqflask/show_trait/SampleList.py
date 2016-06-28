@@ -32,7 +32,7 @@ class SampleList(object):
         self.sample_attribute_values = {}
 
         self.get_attributes()
-        logger.debug("camera: attributes are:", pf(self.attributes))
+        # logger.debug("camera: attributes are:", pf(self.attributes))
 
         if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
             self.get_extra_attribute_values()
@@ -55,7 +55,7 @@ class SampleList(object):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 
-            logger.debug("  type of sample:", type(sample))
+            # logger.debug("  type of sample:", type(sample))
 
             if sample_group_type == 'primary':
                 sample.this_id = "Primary_" + str(counter)
