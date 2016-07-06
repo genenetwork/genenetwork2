@@ -18,6 +18,7 @@ import uuid
 import hashlib
 import hmac
 import base64
+import datetime
 
 import urlparse
 
@@ -69,13 +70,33 @@ class AnonUser(object):
         if self.cookie:
             logger.debug("already is cookie")
             self.anon_id = verify_cookie(self.cookie)
+            
         else:
             logger.debug("creating new cookie")
             self.anon_id, self.cookie = create_signed_cookie()
+        self.key = "anon_collection:v5:{}".format(self.anon_id)
 
         @after.after_this_request
         def set_cookie(response):
             response.set_cookie(self.cookie_name, self.cookie)
+            
+    def add_collection(self, new_collection):
+        collection_dict = dict(id = uuid.uuid4(),
+                               name = new_collection.name,
+                               created_timestamp = datetime.datetime.utcnow(),
+                               last_changed_timestamp = datetime.datetime.utcnow(),
+                               num_members = new_collection.num_members,
+                               members = new_collection.get_traits())
+                               
+        Redis.sadd(self.key, json.dumps(collection_dict))
+        Redis.expire(self.key, 60 * 60 * 24 * 5)
+        len_now = len(Redis.smembers(self.key))
+        print("LENGTH NOW:", len_now)
+            
+    def get_collections(self):
+        collections = Redis.smembers(self.key)
+        print("COLLECTIONS:", collections)
+        return collections
 
 
 def verify_cookie(cookie):
