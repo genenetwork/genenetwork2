@@ -81,20 +81,19 @@ class AnonUser(object):
             response.set_cookie(self.cookie_name, self.cookie)
             
     def add_collection(self, new_collection):
-        collection_dict = dict(id = uuid.uuid4(),
-                               name = new_collection.name,
-                               created_timestamp = datetime.datetime.utcnow(),
-                               last_changed_timestamp = datetime.datetime.utcnow(),
+        collection_dict = dict(name = new_collection.name,
+                               created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                               last_changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                                num_members = new_collection.num_members,
-                               members = new_collection.get_traits())
+                               members = new_collection.get_members())
                                
-        Redis.sadd(self.key, json.dumps(collection_dict))
+        Redis.set(self.key, json.dumps(collection_dict))
         Redis.expire(self.key, 60 * 60 * 24 * 5)
         len_now = len(Redis.smembers(self.key))
         print("LENGTH NOW:", len_now)
             
     def get_collections(self):
-        collections = Redis.smembers(self.key)
+        collections = Redis.get(self.key)
         print("COLLECTIONS:", collections)
         return collections
 

@@ -54,31 +54,66 @@ def get_collection():
 
 class AnonCollection(object):
     """User is not logged in"""
-    def __init__(self):
-        self.anon_user = user_manager.AnonUser()
-        self.key = "anon_collection:v5:{}".format(self.anon_user.anon_id)
-        self.name = None
+    def __init__(self, collection_name):
+        anon_user = user_manager.AnonUser()
+        self.key = "anon_collection:v1:{}".format(anon_user.anon_id)
+        self.name = collection_name
+        self.id = uuid.uuid4()
+        self.created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        self.last_changed_timestamp = self.created_timestamp #ZS: will be updated when changes are made
 
+        Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this
+        
+    def get_members(self):
+        collections_dict = json.loads(Redis.get(self.key))
+        traits = collections_dict[str(self.id)].members
+        #print("traits:", traits)
+        return traits
+        
     @property
     def num_members(self):
         try:
-            return len(Redis.smembers(self.key))
+            collections_dict = json.loads(Redis.get(self.key))
+            traits = collections_dict[str(self.id)]["num_members"]
         except:
             return 0
         
-    def add_traits(self, params, collection_name):
+    def add_traits(self, params):
         #assert collection_name == "Default", "Unexpected collection name for anonymous user"
-        self.name = collection_name
-        print("params[traits]:", params['traits'])
-        traits = process_traits(params['traits'])
-        print("traits is:", traits)
+        #print("params[traits]:", params['traits'])
+        self.traits = list(process_traits(params['traits']))
+        print("traits is:", self.traits)
         print("self.key is:", self.key)
-        len_before = len(Redis.smembers(self.key))
-        Redis.sadd(self.key, *list(traits))
-        Redis.expire(self.key, 60 * 60 * 24 * 5)
-        print("currently in redis:", Redis.smembers(self.key))
-        len_now = len(Redis.smembers(self.key))
-        report_change(len_before, len_now)
+        #len_before = len(Redis.smembers(self.key))
+        existing_collections = Redis.get(self.key)
+        print("EXISTING COLLECTIONS:", existing_collections)
+        if existing_collections != "None":
+            collections_dict = json.loads(existing_collections)
+            #print("EXISTING COLLECTIONS:", collections_dict)
+            if self.id in collections_dict.keys():
+                collections_dict[str(self.id)]['members'].append(self.traits)
+                collections_dict[str(self.id)]['last_changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+            else:
+                collections_dict[str(self.id)] = {"name" : self.name,
+                                             "created_timestamp" : datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                                             "last_changed_timestamp" : datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                                             "num_members" : self.num_members,
+                                             "members" : self.traits}
+        else:
+            new_collection_dict = {"name" : self.name,
+                                   "created_timestamp" : datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                                   "last_changed_timestamp" : datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                                   "num_members" : self.num_members,
+                                   "members" : self.traits}
+            collections_dict = {str(self.id) : new_collection_dict}
+            
+        Redis.set(self.key, json.dumps(collections_dict))
+        print("COLLECTIONS_DICT:", Redis.get(self.key))
+        #Redis.sadd(self.key, *list(traits))
+        #Redis.expire(self.key, 60 * 60 * 24 * 5)
+        #print("currently in redis:", Redis.smembers(self.key))
+        #len_now = len(Redis.smembers(self.key))
+        #report_change(len_before, len_now)
 
     def remove_traits(self, params):
         traits_to_remove = params.getlist('traits[]')
@@ -92,10 +127,6 @@ class AnonCollection(object):
         # we can use it to check the results
         return str(len_now)
 
-    def get_traits(self):
-        traits = Redis.smembers(self.key)
-        print("traits:", traits)
-        return traits
 
 class UserCollection(object):
     """User is logged in"""
@@ -173,13 +204,13 @@ def collections_add():
         user_collections = g.user_session.user_ob.user_collections
         print("user_collections are:", user_collections)
         return render_template("collections/add.html",
-                               traits=traits,
+                               traits = traits,
                                collections = user_collections,
                                )
     else:
         anon_collections = user_manager.AnonUser().get_collections()
         return render_template("collections/add.html",
-                                   traits=traits,
+                                   traits = traits,
                                    collections = anon_collections,
                                    )
         # return render_template("collections/add_anonymous.html",
@@ -205,23 +236,26 @@ def collections_new():
         return create_new(collection_name)
     elif "add_to_existing" in params:
         print("in add to existing")
-        return UserCollection().add_traits(params, collection_name)
+        if g.user_session.logged_in:
+            return UserCollection().add_traits(params, collection_name)
+        else:
+            return AnonCollection().add_traits(params, collection_name)
     else:
         print("ELSE")
         CauseAnError
 
 
 def process_traits(unprocessed_traits):
-    print("unprocessed_traits are:", unprocessed_traits)
+    #print("unprocessed_traits are:", unprocessed_traits)
     if isinstance(unprocessed_traits, basestring):
         unprocessed_traits = unprocessed_traits.split(",")
     traits = set()
     for trait in unprocessed_traits:
-        print("trait is:", trait)
+        #print("trait is:", trait)
         data, _separator, hmac = trait.rpartition(':')
         data = data.strip()
-        print("data is:", data)
-        print("hmac is:", hmac)
+        #print("data is:", data)
+        #print("hmac is:", hmac)
         assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
         traits.add(str(data))
     return traits
@@ -240,12 +274,17 @@ def create_new(collection_name):
         uc.members = json.dumps(list(traits))
         db_session.add(uc)
         db_session.commit()
+        return redirect(url_for('view_collection', uc_id=uc.id))
     else:
-        ac = AnonCollection().add_traits(params, collection_name)
-        print("traits are:", ac.get_traits())
-        user_manager.AnonUser().add_collection(ac)
-
-    return redirect(url_for('view_collection', uc_id=uc.id))
+        current_collections = user_manager.AnonUser().get_collections()
+        ac = AnonCollection(collection_name)
+        if ac.created_timestamp == None:
+            datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        ac.last_changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')            
+        ac.add_traits(params)
+        #print("traits are:", ac.members)
+        #user_manager.AnonUser().add_collection(ac)
+        return redirect(url_for('view_collection', collection_key=ac.key, collection_id=ac.id))
 
 @app.route("/collections/list")
 def list_collections():
@@ -319,7 +358,9 @@ def view_collection():
         traits = json.loads(uc.members)
         print("traits are:", traits)
     else:
-        traits = AnonCollection().get_traits()
+        user_collections = json.loads(Redis.get(params['collection_key']))
+        this_collection = user_collections[params['collection_id']]
+        traits = this_collection['members']
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
     print("in view_collection traits are:", traits)
 
