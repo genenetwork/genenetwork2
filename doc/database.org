@@ -946,7 +946,6 @@ INFO:base.data_set:.sql: get_trait_info:
 (that is a bug!).
 
 ** Fetch phenotypes
-
 *** Through the trait page
 
 When hitting the trait page, e.g.

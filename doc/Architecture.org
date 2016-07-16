@@ -4,7 +4,7 @@
  - [[#introduction][Introduction]]
  - [[#webserver][Webserver]]
  - [[#gnserver-rest][GnServer (REST)]]
- - [[#database-][Database ]]
+ - [[#database][Database]]
    - [[#phenotypes][Phenotypes]]
    - [[#genotypes][Genotypes]]
 
@@ -55,7 +55,7 @@ from the database. To get the menu data in YAML you can do something like
 (json2yaml.rb is in the gn_server repo). For the current API definition
 see [[https://github.com/genenetwork/gn_server/doc/API.md][GnServer REST API]] documentation.
 
-* Database 
+* Database
 ** Phenotypes
 
 Phenotypes are stored in the SQL database.  For what happens at the
@@ -66,8 +66,8 @@ see the installation [[./README.org][instructions]].
 
 Genotypes are stored in genotype files. These are part of the GNU Guix
 distribution, see the installation [[./README.org][instructions]]. Genotype files are
-currently in GN1 format, and will be aligned with the [[http://kbroman.org/qtl2/pages/sampledata.html][R/qtl2 formats]]. Now it is
-for BXD.geno:
+currently in GN1 format, and will be aligned with the [[http://kbroman.org/qtl2/pages/sampledata.html][R/qtl2
+formats]]. Currently it is for the stored file BXD.geno:
 
 #+begin_src js
 @name:BXD
@@ -90,7 +90,28 @@ D D D D D H B D D B D B B D D B D D B B B B B B B D
 1 rs6365999 0.0 4.811062  B B D D D B B D B B D D B D D D D B B B D B D D B B B
 B B B B B B D B D B B D B B H H B D B B H H B B D D D D D B B H B B B B D B D B
 D D D D D H B D D B D B B D D B D D B B B B B B U D
-etc
+...
 #+end_src
 
-and, for example, in the method run_rqtl_geno this file gets loaded.
+and, for example, in the method run_rqtl_geno this file gets
+loaded. For GnServer, however, we only want to deal with standardized
+R/qtl formatted data, so with gn_extra we convert the original format
+into R/qtl format with geno2rqtl with one adaptation: the geno table
+is transposed so now becomes
+
+#+begin_src js
+id,BXD1,BXD2,BXD5,BXD6,BXD8,BXD9,BXD11,BXD12,BXD13,BXD14,BXD15,BXD16,BXD18,BXD19,BXD20,BXD21,BXD22,BXD23,BXD24a,BXD24,BXD25,BXD27,BXD28,BXD29,BXD30,BXD31,BXD32,BXD33,BXD34,BXD35,BXD36,BXD37,BXD38,BXD39,BXD40,BXD41,BXD42,BXD43,BXD44,BXD45,BXD48,BXD49,BXD50,BXD51,BXD52,BXD53,BXD54,BXD55,BXD56,BXD59,BXD60,BXD61,BXD62,BXD63,BXD64,BXD65,BXD66,BXD67,BXD68,BXD69,BXD70,BXD71,BXD72,BXD73,BXD74,BXD75,BXD76,BXD77,BXD78,BXD79,BXD80,BXD81,BXD83,BXD84,BXD85,BXD86,BXD87,BXD88,BXD89,BXD90,BXD91,BXD92,BXD93,BXD94,BXD95,BXD96,BXD97,BXD98,BXD99,BXD100,BXD101,BXD102,BXD103
+1,B,B,D,D,D,B,B,D,B,B,D,D,B,D,D,D,D,B,B,B,D,B,D,D,B,B,B,B,B,B,B,B,B,D,B,D,B,B,D,B,B,H,H,B,D,B,B,H,H,B,B,D,D,D,D,D,B,B,H,B,B,B,B,D,B,D,B,D,D,D,D,D,H,B,D,D,B,D,B,B,D,D,B,D,D,B,B,B,B,B,B,B,D
+2,B,B,D,D,D,B,B,D,B,B,D,D,B,D,D,D,D,B,B,B,D,B,D,D,B,B,B,B,B,B,B,B,B,D,B,D,B,B,D,B,B,H,H,B,D,B,B,H,H,B,B,D,D,D,D,D,B,B,H,B,B,B,B,D,B,D,B,D,D,D,D,D,H,B,D,D,B,D,B,B,D,D,B,D,D,B,B,B,B,B,B,U,D
+3,B,B,D,D,D,B,B,D,B,B,D,D,B,D,D,D,D,B,B,B,D,B,D,D,B,B,B,B,B,B,B,B,B,D,B,D,B,D,D,B,B,H,H,B,B,B,B,H,H,B,B,D,D,D,D,B,B,B,H,B,B,B,B,D,B,D,B,D,D,D,D,D,H,B,D,D,B,D,B,B,D,D,B,D,D,B,B,B,B,B,B,U,D
+...
+#+end_src js
+
+i.e. individuals are columns and markers are rows. Alternatively it could look like
+
+#+begin_src js
+id,BXD1,BXD2,BXD5,BXD6,BXD8,BXD9,BXD11,BXD12,BXD13,BXD14,BXD15,BXD16,BXD18,BXD19,BXD20,BXD21,BXD22,BXD23,BXD24a,BXD24,BXD25,BXD27,BXD28,BXD29,BXD30,BXD31,BXD32,BXD33,BXD34,BXD35,BXD36,BXD37,BXD38,BXD39,BXD40,BXD41,BXD42,BXD43,BXD44,BXD45,BXD48,BXD49,BXD50,BXD51,BXD52,BXD53,BXD54,BXD55,BXD56,BXD59,BXD60,BXD61,BXD62,BXD63,BXD64,BXD65,BXD66,BXD67,BXD68,BXD69,BXD70,BXD71,BXD72,BXD73,BXD74,BXD75,BXD76,BXD77,BXD78,BXD79,BXD80,BXD81,BXD83,BXD84,BXD85,BXD86,BXD87,BXD88,BXD89,BXD90,BXD91,BXD92,BXD93,BXD94,BXD95,BXD96,BXD97,BXD98,BXD99,BXD100,BXD101,BXD102,BXD103
+rs6269442,B,B,D,D,D,B,B,D,B,B,D,D,B,D,D,D,D,B,B,B,D,B,D,D,B,B,B,B,B,B,B,B,B,D,B,D,B,B,D,B,B,H,H,B,D,B,B,H,H,B,B,D,D,D,D,D,B,B,H,B,B,B,B,D,B,D,B,D,D,D,D,D,H,B,D,D,B,D,B,B,D,D,B,D,D,B,B,B,B,B,B,B,D
+rs6365999,B,B,D,D,D,B,B,D,B,B,D,D,B,D,D,D,D,B,B,B,D,B,D,D,B,B,B,B,B,B,B,B,B,D,B,D,B,B,D,B,B,H,H,B,D,B,B,H,H,B,B,D,D,D,D,D,B,B,H,B,B,B,B,D,B,D,B,D,D,D,D,D,H,B,D,D,B,D,B,B,D,D,B,D,D,B,B,B,B,B,B,U,D
+rs6376963,B,B,D,D,D,B,B,D,B,B,D,D,B,D,D,D,D,B,B,B,D,B,D,D,B,B,B,B,B,B,B,B,B,D,B,D,B,D,D,B,B,H,H,B,B,B,B,H,H,B,B,D,D,D,D,B,B,B,H,B,B,B,B,D,B,D,B,D,D,D,D,D,H,B,D,D,B,D,B,B,D,D,B,D,D,B,B,B,B,B,B,U,D
+#+end_src js
