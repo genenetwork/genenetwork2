@@ -56,7 +56,6 @@ from the database. To get the menu data in YAML you can do something like
 see [[https://github.com/genenetwork/gn_server/doc/API.md][GnServer REST API]] documentation.
 
 * Database 
-
 ** Phenotypes
 
 Phenotypes are stored in the SQL database.  For what happens at the
@@ -67,7 +66,7 @@ see the installation [[./README.org][instructions]].
 
 Genotypes are stored in genotype files. These are part of the GNU Guix
 distribution, see the installation [[./README.org][instructions]]. Genotype files are
-currently in GN1 format, and will be aligned with the R/qtl2 format. Now it is
+currently in GN1 format, and will be aligned with the [[http://kbroman.org/qtl2/pages/sampledata.html][R/qtl2 formats]]. Now it is
 for BXD.geno:
 
 #+begin_src js
@@ -93,3 +92,5 @@ B B B B B B D B D B B D B B H H B D B B H H B B D D D D D B B H B B B B D B D B
 D D D D D H B D D B D B B D D B D D B B B B B B U D
 etc
 #+end_src
+
+and, for example, in the method run_rqtl_geno this file gets loaded.
