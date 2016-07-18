@@ -99,9 +99,6 @@ class AnonUser(object):
             return {}
         else:
             return json.loads(collections)
-        #print("COLLECTIONS:", collections)
-        #return collections
-
 
 def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')

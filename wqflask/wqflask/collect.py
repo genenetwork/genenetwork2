@@ -62,12 +62,12 @@ class AnonCollection(object):
         self.created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
         self.last_changed_timestamp = self.created_timestamp #ZS: will be updated when changes are made
 
-        Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this
+        if Redis.get(self.key) == "None":
+            Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this
         
     def get_members(self):
         collections_dict = json.loads(Redis.get(self.key))
         traits = collections_dict[str(self.id)].members
-        #print("traits:", traits)
         return traits
         
     @property
@@ -86,9 +86,7 @@ class AnonCollection(object):
         #print("self.key is:", self.key)
         #len_before = len(Redis.smembers(self.key))
         existing_collections = Redis.get(self.key)
-        print("EXISTING COLLECTIONS:", existing_collections)
         if existing_collections != "None":
-            print("EXISTING COLLECTION NOT NONE")
             collections_dict = json.loads(existing_collections)
             #print("EXISTING COLLECTIONS:", collections_dict)
             if self.id in collections_dict.keys():
@@ -209,10 +207,14 @@ def collections_add():
                                collections = user_collections,
                                )
     else:
-        anon_collections = list(user_manager.AnonUser().get_collections().keys())
+        anon_collections = user_manager.AnonUser().get_collections()
+        collection_names = []
+        for key in anon_collections.keys():
+            this_collection = {'id':key, 'name':anon_collections[key]['name']}
+            collection_names.append(this_collection)
         return render_template("collections/add.html",
                                    traits = traits,
-                                   collections = anon_collections,
+                                   collections = collection_names,
                                    )
         # return render_template("collections/add_anonymous.html",
                                    # traits=traits
