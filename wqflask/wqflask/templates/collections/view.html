@@ -14,7 +14,7 @@
         <h2>{{ uc.name }}</h2>
         <h3>{{ 'This collection has {}.'.format(numify(trait_obs|count, "record", "records")) }}</h3>
     {% else %}
-        <h2>Your Collection</h2>
+        <h2> {{ collection_name }}</h2>
         <h3>{{ 'This collection has {}.'.format(numify(trait_obs|count, "record", "records")) }}</h3>
     {% endif %}
     </div>

@@ -75,6 +75,7 @@ class AnonUser(object):
             logger.debug("creating new cookie")
             self.anon_id, self.cookie = create_signed_cookie()
         self.key = "anon_collection:v5:{}".format(self.anon_id)
+        print("THE KEY IS:", self.key)
 
         @after.after_this_request
         def set_cookie(response):
@@ -94,8 +95,12 @@ class AnonUser(object):
             
     def get_collections(self):
         collections = Redis.get(self.key)
-        print("COLLECTIONS:", collections)
-        return collections
+        if collections == "None":
+            return {}
+        else:
+            return json.loads(collections)
+        #print("COLLECTIONS:", collections)
+        #return collections
 
 
 def verify_cookie(cookie):

@@ -56,7 +56,7 @@ class AnonCollection(object):
     """User is not logged in"""
     def __init__(self, collection_name):
         anon_user = user_manager.AnonUser()
-        self.key = "anon_collection:v1:{}".format(anon_user.anon_id)
+        self.key = anon_user.key
         self.name = collection_name
         self.id = uuid.uuid4()
         self.created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
@@ -82,12 +82,13 @@ class AnonCollection(object):
         #assert collection_name == "Default", "Unexpected collection name for anonymous user"
         #print("params[traits]:", params['traits'])
         self.traits = list(process_traits(params['traits']))
-        print("traits is:", self.traits)
-        print("self.key is:", self.key)
+        #print("traits is:", self.traits)
+        #print("self.key is:", self.key)
         #len_before = len(Redis.smembers(self.key))
         existing_collections = Redis.get(self.key)
         print("EXISTING COLLECTIONS:", existing_collections)
         if existing_collections != "None":
+            print("EXISTING COLLECTION NOT NONE")
             collections_dict = json.loads(existing_collections)
             #print("EXISTING COLLECTIONS:", collections_dict)
             if self.id in collections_dict.keys():
@@ -108,7 +109,7 @@ class AnonCollection(object):
             collections_dict = {str(self.id) : new_collection_dict}
             
         Redis.set(self.key, json.dumps(collections_dict))
-        print("COLLECTIONS_DICT:", Redis.get(self.key))
+        #print("COLLECTIONS_DICT:", Redis.get(self.key))
         #Redis.sadd(self.key, *list(traits))
         #Redis.expire(self.key, 60 * 60 * 24 * 5)
         #print("currently in redis:", Redis.smembers(self.key))
@@ -208,7 +209,7 @@ def collections_add():
                                collections = user_collections,
                                )
     else:
-        anon_collections = user_manager.AnonUser().get_collections()
+        anon_collections = list(user_manager.AnonUser().get_collections().keys())
         return render_template("collections/add.html",
                                    traits = traits,
                                    collections = anon_collections,
@@ -221,7 +222,7 @@ def collections_add():
 @app.route("/collections/new")
 def collections_new():
     params = request.args
-    print("request.args in collections_new are:", params)
+    #print("request.args in collections_new are:", params)
 
     collection_name = params['new_collection']
     
@@ -239,7 +240,8 @@ def collections_new():
         if g.user_session.logged_in:
             return UserCollection().add_traits(params, collection_name)
         else:
-            return AnonCollection().add_traits(params, collection_name)
+            #print("PARAMS ADD TO COLLECTION:", params)
+            return AnonCollection().add_traits(params)
     else:
         print("ELSE")
         CauseAnError
@@ -257,7 +259,7 @@ def process_traits(unprocessed_traits):
         #print("data is:", data)
         #print("hmac is:", hmac)
         assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
-        traits.add(str(data))
+        traits.add                                                                                               (str(data))
     return traits
 
 def create_new(collection_name):
@@ -389,9 +391,10 @@ def view_collection():
 
     if "uc_id" in params:
         collection_info = dict(trait_obs=trait_obs,
-                           uc = uc)
+                               uc = uc)
     else:
-        collection_info = dict(trait_obs=trait_obs)
+        collection_info = dict(trait_obs=trait_obs,
+                               collection_name=this_collection['name'])
     if "json" in params:
         print("json_version:", json_version)
         return json.dumps(json_version)
