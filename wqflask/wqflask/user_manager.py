@@ -99,6 +99,25 @@ class AnonUser(object):
             return {}
         else:
             return json.loads(collections)
+            
+    def display_num_collections(self):
+        """
+        Returns the number of collections or a blank string if there are zero.
+
+        Because this is so unimportant...we wrap the whole thing in a try/expect...last thing we
+        want is a webpage not to be displayed because of an error here
+
+        Importand TODO: use redis to cache this, don't want to be constantly computing it
+        """
+        try:
+            num = len(self.get_collections().keys())
+            if num > 0:
+                return num
+            else:
+                return ""
+        except Exception as why:
+            print("Couldn't display_num_collections:", why)
+            return ""
 
 def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
@@ -186,7 +205,8 @@ class UserSession(object):
 @app.before_request
 def before_request():
     g.user_session = UserSession()
-
+    g.cookie_session = AnonUser()
+    
 class UsersManager(object):
     def __init__(self):
         self.users = model.User.query.all()
