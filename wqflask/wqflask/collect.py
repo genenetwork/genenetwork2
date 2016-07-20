@@ -58,65 +58,75 @@ class AnonCollection(object):
         anon_user = user_manager.AnonUser()
         self.key = anon_user.key
         self.name = collection_name
-        self.id = uuid.uuid4()
+        self.id = str(uuid.uuid4())
         self.created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
-        self.last_changed_timestamp = self.created_timestamp #ZS: will be updated when changes are made
+        self.changed_timestamp = self.created_timestamp #ZS: will be updated when changes are made
 
         if Redis.get(self.key) == "None":
-            Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this
-        
+            Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this   
+    
     def get_members(self):
-        collections_dict = json.loads(Redis.get(self.key))
-        traits = collections_dict[str(self.id)].members
+        traits = []
+        collections_list = json.loads(Redis.get(self.key))
+        for collection in collections_list:
+            if collection['id'] == self.id:
+                traits = collection['members']
         return traits
         
     @property
     def num_members(self):
-        try:
-            collections_dict = json.loads(Redis.get(self.key))
-            traits = collections_dict[str(self.id)]["num_members"]
-        except:
-            return 0
+        num_members = 0   
+        collections_list = json.loads(Redis.get(self.key))
+        for collection in collections_list:
+            if collection['id'] == self.id:
+                num_members = collection['num_members']
+        return num_members
         
     def add_traits(self, params):
         #assert collection_name == "Default", "Unexpected collection name for anonymous user"
-        #print("params[traits]:", params['traits'])
         self.traits = list(process_traits(params['traits']))
-        #print("traits is:", self.traits)
-        #print("self.key is:", self.key)
         #len_before = len(Redis.smembers(self.key))
         existing_collections = Redis.get(self.key)
-        if existing_collections != "None":
-            collections_dict = json.loads(existing_collections)
-            #print("EXISTING COLLECTIONS:", collections_dict)
-            if self.id in collections_dict.keys():
-                collections_dict[str(self.id)]['members'].append(self.traits)
-                collections_dict[str(self.id)]['last_changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        if existing_collections != None:
+            collections_list = json.loads(existing_collections)
+            collection_position = 0 #ZS: Position of collection in collection_list, if it exists
+            collection_exists = False
+            for i, collection in enumerate(collections_list):
+                if collection['id'] == self.id:
+                    collection_position = i
+                    collection_exists = True
+                    break
+            if collection_exists:
+                collections_list[collection_position]['members'].extend(self.traits)
+                collections_list[collection_position]['num_members'] = len(collections_list[collection_position]['members'])
+                collections_list[collection_position]['changed_timestamp'] = self.last_changed_timestamp
             else:
-                collections_dict[str(self.id)] = {"name" : self.name,
-                                             "created_timestamp" : datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                                             "last_changed_timestamp" : datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                                             "num_members" : self.num_members,
-                                             "members" : self.traits}
-        else:
-            new_collection_dict = {"name" : self.name,
-                                   "created_timestamp" : datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                                   "last_changed_timestamp" : datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                                   "num_members" : self.num_members,
+                collection_dict = {"id" : self.id,
+                                   "name" : self.name,
+                                   "created_timestamp" : self.created_timestamp,
+                                   "changed_timestamp" : self.changed_timestamp,
+                                   "num_members" : len(self.traits),
                                    "members" : self.traits}
-            collections_dict = {str(self.id) : new_collection_dict}
+                collections_list.append(collection_dict)
+        else:
+            collections_list = []
+            collection_dict = {"id" : self.id,
+                               "name" : self.name,
+                               "created_timestamp" : self.created_timestamp,
+                               "changed_timestamp" : self.changed_timestamp,
+                               "num_members" : len(self.traits),
+                               "members" : self.traits}
+            collections_list.append(collection_dict)
             
-        Redis.set(self.key, json.dumps(collections_dict))
-        #print("COLLECTIONS_DICT:", Redis.get(self.key))
+        Redis.set(self.key, json.dumps(collections_list))
         #Redis.sadd(self.key, *list(traits))
         #Redis.expire(self.key, 60 * 60 * 24 * 5)
-        #print("currently in redis:", Redis.smembers(self.key))
         #len_now = len(Redis.smembers(self.key))
         #report_change(len_before, len_now)
 
     def remove_traits(self, params):
         traits_to_remove = params.getlist('traits[]')
-        print("traits_to_remove:", process_traits(traits_to_remove))
+        print("traits_to_remove:", process_txraits(traits_to_remove))
         len_before = len(Redis.smembers(self.key))
         Redis.srem(self.key, traits_to_remove)
         print("currently in redis:", Redis.smembers(self.key))
@@ -209,16 +219,13 @@ def collections_add():
     else:
         anon_collections = user_manager.AnonUser().get_collections()
         collection_names = []
-        for key in anon_collections.keys():
-            this_collection = {'id':key, 'name':anon_collections[key]['name']}
-            collection_names.append(this_collection)
+        for collection in anon_collections:
+            print("COLLECTION:", collection)
+            collection_names.append({'id':collection['id'], 'name':collection['name']})
         return render_template("collections/add.html",
-                                   traits = traits,
-                                   collections = collection_names,
-                                   )
-        # return render_template("collections/add_anonymous.html",
-                                   # traits=traits
-                                   # )
+                                traits = traits,
+                                collections = collection_names,
+                              )
 
 
 @app.route("/collections/new")
@@ -258,8 +265,6 @@ def process_traits(unprocessed_traits):
         #print("trait is:", trait)
         data, _separator, hmac = trait.rpartition(':')
         data = data.strip()
-        #print("data is:", data)
-        #print("hmac is:", hmac)
         assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
         traits.add                                                                                               (str(data))
     return traits
@@ -282,27 +287,27 @@ def create_new(collection_name):
     else:
         current_collections = user_manager.AnonUser().get_collections()
         ac = AnonCollection(collection_name)
-        if ac.created_timestamp == None:
-            datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
-        ac.last_changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')            
+        ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')       
         ac.add_traits(params)
-        #print("traits are:", ac.members)
-        #user_manager.AnonUser().add_collection(ac)
-        return redirect(url_for('view_collection', collection_key=ac.key, collection_id=ac.id))
+        return redirect(url_for('view_collection', collection_id=ac.id))
 
 @app.route("/collections/list")
 def list_collections():
     params = request.args
     print("PARAMS:", params)
-    try:
+    if 'uc_id' in params:
         user_collections = list(g.user_session.user_ob.user_collections)
         print("user_collections are:", user_collections)
         return render_template("collections/list.html",
                                params = params,
-                               user_collections = user_collections,
+                               collections = user_collections,
                                )
-    except:
-        return redirect(url_for('view_collection'))
+    else:
+        anon_collections = user_manager.AnonUser().get_collections()
+        print("anon_collections are:", anon_collections)
+        return render_template("collections/list.html",
+                               params = params,
+                               collections = anon_collections)
 
 
 @app.route("/collections/remove", methods=('POST',))
@@ -362,8 +367,13 @@ def view_collection():
         traits = json.loads(uc.members)
         print("traits are:", traits)
     else:
-        user_collections = json.loads(Redis.get(params['collection_key']))
-        this_collection = user_collections[params['collection_id']]
+        user_collections = json.loads(Redis.get(user_manager.AnonUser().key))
+        this_collection = {}
+        for collection in user_collections:
+            if collection['id'] == params['collection_id']:
+                this_collection = collection
+                break
+        #this_collection = user_collections[params['collection_id']]
         traits = this_collection['members']
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
     print("in view_collection traits are:", traits)
@@ -380,14 +390,6 @@ def view_collection():
         trait_obs.append(trait_ob)
 
         json_version.append(trait_ob.jsonable())
-        #json_version.append(dict(name=trait_ob.name,
-        #                         description=trait_ob.description_display,
-        #                         location=trait_ob.location_repr,
-        #                         mean=trait_ob.mean,
-        #                         lrs_score=trait_ob.LRS_score_repr,
-        #                         lrs_location=trait_ob.LRS_location_repr))
-        #                         dis=trait_ob.description))
-        #json_version.append(trait_ob.__dict__th)
 
     print("trait_obs:", trait_obs)
 

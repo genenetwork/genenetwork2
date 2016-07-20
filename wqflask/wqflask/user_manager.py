@@ -18,7 +18,6 @@ import uuid
 import hashlib
 import hmac
 import base64
-import datetime
 
 import urlparse
 
@@ -63,7 +62,7 @@ def timestamp():
 
 
 class AnonUser(object):
-    cookie_name = 'anon_user_v1'
+    cookie_name = 'anon_user_v3'
 
     def __init__(self):
         self.cookie = request.cookies.get(self.cookie_name)
@@ -74,7 +73,7 @@ class AnonUser(object):
         else:
             logger.debug("creating new cookie")
             self.anon_id, self.cookie = create_signed_cookie()
-        self.key = "anon_collection:v5:{}".format(self.anon_id)
+        self.key = "anon_collection:v1:{}".format(self.anon_id)
         print("THE KEY IS:", self.key)
 
         @after.after_this_request
@@ -84,7 +83,7 @@ class AnonUser(object):
     def add_collection(self, new_collection):
         collection_dict = dict(name = new_collection.name,
                                created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                               last_changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                               changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                                num_members = new_collection.num_members,
                                members = new_collection.get_members())
                                
@@ -94,11 +93,15 @@ class AnonUser(object):
         print("LENGTH NOW:", len_now)
             
     def get_collections(self):
-        collections = Redis.get(self.key)
-        if collections == "None":
-            return {}
+        json_collections = Redis.get(self.key)
+        if json_collections == None:
+            return []
         else:
-            return json.loads(collections)
+            collections = json.loads(json_collections)
+            for collection in collections:
+                collection['created_timestamp'] = datetime.datetime.strptime(collection['created_timestamp'], '%b %d %Y %I:%M%p')
+                collection['changed_timestamp'] = datetime.datetime.strptime(collection['changed_timestamp'], '%b %d %Y %I:%M%p')
+            return collections
             
     def display_num_collections(self):
         """
@@ -110,7 +113,7 @@ class AnonUser(object):
         Importand TODO: use redis to cache this, don't want to be constantly computing it
         """
         try:
-            num = len(self.get_collections().keys())
+            num = len(self.get_collections())
             if num > 0:
                 return num
             else:
