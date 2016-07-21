@@ -945,7 +945,7 @@ INFO:base.data_set:.sql: get_trait_info:
 
 (that is a bug!).
 
-** Fetch phenotypes
+** Fetch phenotype information
 *** Through the trait page
 
 When hitting the trait page, e.g.
@@ -1165,3 +1165,51 @@ select * from ProbeSetData limit 5;
 5 rows in set (0.00 sec)
 
 linked by ProbeSetXRef.dataid.
+** Fetch genotype information
+
+*** SNPs
+
+The SNP count info for the BXD is calculated like this
+
+#+begin_src python
+        while startMb<endMb:
+            snp_count = g.db.execute("""
+                    select
+                            count(*) from BXDSnpPosition
+                    where
+                            Chr = '%s' AND Mb >= %2.6f AND Mb < %2.6f AND
+                            StrainId1 = %d AND StrainId2 = %d
+                    """ % (chrName, startMb, startMb+stepMb, strainId1, strainId2)).fetchone()[0]
+            SNPCounts.append(snp_count)
+            startMb += stepMb
+#+end_src
+
+select * from BXDSnpPosition limit 5;
++------+-----------+-----------+----------+
+| Chr  | StrainId1 | StrainId2 | Mb       |
++------+-----------+-----------+----------+
+| 1    |         2 |         3 | 0.002477 |
+| 1    |         2 |         3 | 0.002592 |
+| 1    |         2 |         3 |  0.00283 |
+| 1    |         2 |         3 | 0.002994 |
+| 1    |         2 |         3 | 0.003299 |
++------+-----------+-----------+----------+
+
+Other SNP tables containing
+
+select * from SnpSource limit 5;
+Empty set (0.00 sec)
+
+select * from SnpAll limit 5;
+Empty set (0.00 sec)
+
+mysql> select * from SnpAll limit 5;
+Empty set (0.00 sec)
+
+mysql> select * from SnpPattern limit 5;
+Empty set (0.00 sec)
+
+mysql> select * from SnpSource limit 5;
+Empty set (0.00 sec)
+
+Hmmm. This is the test database. Then there are the plink files and VCF files.
