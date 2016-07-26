@@ -66,8 +66,9 @@ see the installation [[./README.org][instructions]].
 
 Genotypes are stored in genotype files. These are part of the GNU Guix
 distribution, see the installation [[./README.org][instructions]]. Genotype files are
-currently in GN1 format, and will be aligned with the [[http://kbroman.org/qtl2/pages/sampledata.html][R/qtl2
-formats]]. Currently it is for the stored file BXD.geno:
+currently in GN1 format, and will be aligned with the [[http://kbroman.org/qtl2/pages/sampledata.html][R/qtl2 formats]].
+
+GN1-style (still default GN2) for the stored file BXD.geno:
 
 #+begin_src js
 @name:BXD
@@ -130,21 +131,21 @@ genotype data is tagged as transposed:
 "founder_geno": "recla_foundergeno.csv",
 "founder_geno_transposed": true,
 "genotypes": {
-"1": "1",
-"2": "2",
-"3": "3"
+  "1": "1",
+  "2": "2",
+  "3": "3"
 },
 "pheno": "recla_pheno.csv",
 "pheno_transposed": false,
 "covar": "recla_covar.csv",
 "sex": {
-"covar": "Sex",
-"female": "female",
-"male": "male"
+  "covar": "Sex",
+  "female": "female",
+  "male": "male"
 },
 "x_chr": "X",
 "cross_info": {
-"covar": "ngen"
+  "covar": "ngen"
 },
 "gmap": "recla_gmap.csv",
 "pmap": "recla_pmap.csv",

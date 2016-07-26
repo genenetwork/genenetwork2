@@ -382,7 +382,7 @@ class MarkerRegression(object):
             self.GraphInterval = self.MbGraphInterval #Mb
         else:
             self.GraphInterval = self.cMGraphInterval #cM
-			
+
         ################################################################
         # Get Trait Values and Infomation
         ################################################################
