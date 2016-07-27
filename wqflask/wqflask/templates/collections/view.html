@@ -21,16 +21,16 @@
 
     <div class="container">
         <div>
-            {% if uc %}
             <form action="/collections/delete" method="post">
                 {% if uc %}
                 <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
+                {% else %}
+                <input type="hidden" name="collection_name" id="collection_name" value="{{ collection_name }}" />
                 {% endif %}
                 <div class="col-xs-3 controls">
                     <input type="submit" class="btn btn-danger" value="Delete this collection" />
                 </div>
             </form>
-            {% endif %}
             <form action="/corr_matrix" method="post">
                 {% if uc %}
                 <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />

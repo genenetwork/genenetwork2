@@ -58,12 +58,26 @@ class AnonCollection(object):
         anon_user = user_manager.AnonUser()
         self.key = anon_user.key
         self.name = collection_name
-        self.id = str(uuid.uuid4())
+        self.id = None
         self.created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
         self.changed_timestamp = self.created_timestamp #ZS: will be updated when changes are made
 
-        if Redis.get(self.key) == "None":
+        #ZS: Find id and set it if the collection doesn't already exist
+        if Redis.get(self.key) == "None" or Redis.get(self.key) == None:
             Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this   
+        else:
+            collections_list = json.loads(Redis.get(self.key))
+            collection_position = 0 #ZS: Position of collection in collection_list, if it exists
+            collection_exists = False
+            for i, collection in enumerate(collections_list):
+                if collection['name'] == self.name:
+                    collection_position = i
+                    collection_exists = True
+                    self.id = collection['id']
+                    break
+        if self.id == None:
+            self.id = str(uuid.uuid4())
+        
     
     def get_members(self):
         traits = []
@@ -87,7 +101,8 @@ class AnonCollection(object):
         self.traits = list(process_traits(params['traits']))
         #len_before = len(Redis.smembers(self.key))
         existing_collections = Redis.get(self.key)
-        if existing_collections != None:
+        print("existing_collections:", existing_collections)
+        if existing_collections != None and existing_collections != "None":
             collections_list = json.loads(existing_collections)
             collection_position = 0 #ZS: Position of collection in collection_list, if it exists
             collection_exists = False
@@ -99,7 +114,7 @@ class AnonCollection(object):
             if collection_exists:
                 collections_list[collection_position]['members'].extend(self.traits)
                 collections_list[collection_position]['num_members'] = len(collections_list[collection_position]['members'])
-                collections_list[collection_position]['changed_timestamp'] = self.last_changed_timestamp
+                collections_list[collection_position]['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
             else:
                 collection_dict = {"id" : self.id,
                                    "name" : self.name,
@@ -125,12 +140,22 @@ class AnonCollection(object):
         #report_change(len_before, len_now)
 
     def remove_traits(self, params):
-        traits_to_remove = params.getlist('traits[]')
-        print("traits_to_remove:", process_txraits(traits_to_remove))
-        len_before = len(Redis.smembers(self.key))
-        Redis.srem(self.key, traits_to_remove)
-        print("currently in redis:", Redis.smembers(self.key))
-        len_now = len(Redis.smembers(self.key))
+        traits_to_remove = [(":").join(trait.split(":")[:2]) for trait in params.getlist('traits[]')]
+        existing_collections = Redis.get(self.key)
+        collection_position = 0
+        collections_list = json.loads(existing_collections)
+        for i, collection in enumerate(collections_list):
+            if collection['id'] == self.id:
+                collection_position = i
+                collection_exists = True
+                break
+        collections_list[collection_position]['members'] = [trait for trait in collections_list[collection_position]['members'] if trait not in traits_to_remove]
+        collections_list[collection_position]['num_members'] = len(collections_list[collection_position]['members'])
+        collections_list[collection_position]['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        len_now = collections_list[collection_position]['num_members']
+        #print("before in redis:", json.loads(Redis.get(self.key)))
+        Redis.set(self.key, json.dumps(collections_list))
+        #print("currently in redis:", json.loads(Redis.get(self.key)))
 
         # We need to return something so we'll return this...maybe in the future
         # we can use it to check the results
@@ -249,8 +274,9 @@ def collections_new():
         if g.user_session.logged_in:
             return UserCollection().add_traits(params, collection_name)
         else:
-            #print("PARAMS ADD TO COLLECTION:", params)
-            return AnonCollection().add_traits(params)
+            ac = AnonCollection(collection_name)
+            ac.add_traits(params)
+            return redirect(url_for('view_collection', collection_id=ac.id))
     else:
         print("ELSE")
         CauseAnError
@@ -289,6 +315,7 @@ def create_new(collection_name):
         ac = AnonCollection(collection_name)
         ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')       
         ac.add_traits(params)
+        print("Collection ID:", ac.id)
         return redirect(url_for('view_collection', collection_id=ac.id))
 
 @app.route("/collections/list")
@@ -332,7 +359,8 @@ def remove_traits():
         uc.changed_timestamp = datetime.datetime.utcnow()
         db_session.commit()
     else:
-        members_now = AnonCollection().remove_traits(params)
+        collection_name = params['collection_name']
+        members_now = AnonCollection(collection_name).remove_traits(params)
 
 
     # We need to return something so we'll return this...maybe in the future
@@ -344,12 +372,17 @@ def remove_traits():
 def delete_collection():
     params = request.form
     print("params:", params)
-    uc_id = params['uc_id']
-    uc = model.UserCollection.query.get(uc_id)
-    # Todo: For now having the id is good enough since it's so unique
-    # But might want to check ownership in the future
-    collection_name = uc.name
-    db_session.delete(uc)
+    if "uc_id" in params:
+        uc_id = params['uc_id']
+        uc = model.UserCollection.query.get(uc_id)
+        # Todo: For now having the id is good enough since it's so unique
+        # But might want to check ownership in the future
+        collection_name = uc.name
+        db_session.delete(uc)
+    else:
+        collection_name = params['collection_name']
+        user_manager.AnonUser().delete_collection(collection_name)
+        
     flash("We've deletet the collection: {}.".format(collection_name), "alert-info")
 
     return redirect(url_for('list_collections'))
