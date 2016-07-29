@@ -15,34 +15,25 @@ import urlparse
 
 import simplejson as json
 
-#from sqlalchemy import orm
-
-#from redis import StrictRedis
 import redis
 Redis = redis.StrictRedis()
-
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, jsonify)
 
 from wqflask import app
 
-
 from pprint import pformat as pf
-
 
 from wqflask.database import db_session
 
 from wqflask import model
+from wqflask import user_manager
 
 from utility import Bunch, Struct
 from utility.formatting import numify
 
-from wqflask import user_manager
-
-
 from base import trait
-
 
 def get_collection():
     if g.user_session.logged_in:
@@ -78,7 +69,6 @@ class AnonCollection(object):
         if self.id == None:
             self.id = str(uuid.uuid4())
         
-    
     def get_members(self):
         traits = []
         collections_list = json.loads(Redis.get(self.key))
@@ -301,7 +291,7 @@ def create_new(collection_name):
     unprocessed_traits = params['traits']
     traits = process_traits(unprocessed_traits)
     
-    if 'uc_id' in params:
+    if g.user_session.logged_in:
         uc = model.UserCollection()
         uc.name = collection_name
         print("user_session:", g.user_session.__dict__)
@@ -322,7 +312,7 @@ def create_new(collection_name):
 def list_collections():
     params = request.args
     print("PARAMS:", params)
-    if 'uc_id' in params:
+    if g.user_session.logged_in:
         user_collections = list(g.user_session.user_ob.user_collections)
         print("user_collections are:", user_collections)
         return render_template("collections/list.html",
@@ -372,7 +362,7 @@ def remove_traits():
 def delete_collection():
     params = request.form
     print("params:", params)
-    if "uc_id" in params:
+    if g.user_session.logged_in:
         uc_id = params['uc_id']
         uc = model.UserCollection.query.get(uc_id)
         # Todo: For now having the id is good enough since it's so unique
@@ -383,7 +373,7 @@ def delete_collection():
         collection_name = params['collection_name']
         user_manager.AnonUser().delete_collection(collection_name)
         
-    flash("We've deletet the collection: {}.".format(collection_name), "alert-info")
+    flash("We've deleted the collection: {}.".format(collection_name), "alert-info")
 
     return redirect(url_for('list_collections'))
 

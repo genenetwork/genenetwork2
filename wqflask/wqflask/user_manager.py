@@ -62,7 +62,7 @@ def timestamp():
 
 
 class AnonUser(object):
-    cookie_name = 'anon_user_v7'
+    cookie_name = 'anon_user_v8'
 
     def __init__(self):
         self.cookie = request.cookies.get(self.cookie_name)
@@ -74,7 +74,6 @@ class AnonUser(object):
             logger.debug("creating new cookie")
             self.anon_id, self.cookie = create_signed_cookie()
         self.key = "anon_collection:v1:{}".format(self.anon_id)
-        print("THE KEY IS:", self.key)
 
         @after.after_this_request
         def set_cookie(response):
@@ -89,21 +88,27 @@ class AnonUser(object):
                                
         Redis.set(self.key, json.dumps(collection_dict))
         Redis.expire(self.key, 60 * 60 * 24 * 5)
-        len_now = len(Redis.smembers(self.key))
-        print("LENGTH NOW:", len_now)
             
     def delete_collection(self, collection_name):
         existing_collections = self.get_collections()
+        updated_collections = []
         for i, collection in enumerate(existing_collections):
-            collection['created_timestamp'] = collection['created_timestamp'].strftime('%b %d %Y %I:%M%p')
-            collection['changed_timestamp'] = collection['changed_timestamp'].strftime('%b %d %Y %I:%M%p')
             if collection['name'] == collection_name:
-                existing_collections.pop(i)
-        Redis.set(self.key, json.dumps(existing_collections))
+                continue
+            else:
+                this_collection = {}
+                this_collection['id'] = collection['id']
+                this_collection['name'] = collection['name']
+                this_collection['created_timestamp'] = collection['created_timestamp'].strftime('%b %d %Y %I:%M%p')
+                this_collection['changed_timestamp'] = collection['changed_timestamp'].strftime('%b %d %Y %I:%M%p')
+                this_collection['num_members'] = collection['num_members']
+                this_collection['members'] = collection['members']
+                updated_collections.append(this_collection)
+
+        Redis.set(self.key, json.dumps(updated_collections))
             
     def get_collections(self):
         json_collections = Redis.get(self.key)
-        print("json_collections:", json_collections)
         if json_collections == None or json_collections == "None":
             return []
         else:
