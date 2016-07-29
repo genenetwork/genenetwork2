@@ -43,6 +43,8 @@
                             <a href="/collections/list">Collections
                                 {% if g.user_session.user_ob %}
                                 <span class="badge badge-info">{{ g.user_session.user_ob.display_num_collections() }}</span>
+                                {% else %}
+                                <span class="badge badge-info">{{ g.cookie_session.display_num_collections() }}</span>
                                 {% endif %}
                             </a>
                         </li>
