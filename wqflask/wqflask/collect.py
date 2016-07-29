@@ -369,6 +369,7 @@ def delete_collection():
         # But might want to check ownership in the future
         collection_name = uc.name
         db_session.delete(uc)
+        db_session.commit()
     else:
         collection_name = params['collection_name']
         user_manager.AnonUser().delete_collection(collection_name)
@@ -376,7 +377,6 @@ def delete_collection():
     flash("We've deleted the collection: {}.".format(collection_name), "alert-info")
 
     return redirect(url_for('list_collections'))
-
 
 
 @app.route("/collections/view")
