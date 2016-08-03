@@ -173,7 +173,7 @@
     };
     make_table = function() {
       var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
-      header = "<thead><tr><th>&nbsp;</th>";
+      header = "<thead><tr><th>Statistic</th>";
       _ref = js_data.sample_group_types;
       for (key in _ref) {
         if (!__hasProp.call(_ref, key)) continue;

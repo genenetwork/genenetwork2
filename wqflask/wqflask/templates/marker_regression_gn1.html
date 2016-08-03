@@ -15,7 +15,7 @@
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
-        {% for sample in dataset.group.samplelist %}
+        {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
         <input type="hidden" name="maf">

@@ -57,7 +57,9 @@ class MarkerRegression(object):
         self.samples = [] # Want only ones with values
         self.vals = []
 
-        #for sample in self.this_trait.data.keys():
+        all_samples_ordered = self.dataset.group.all_samples_ordered()
+        primary_sample_names = list(all_samples_ordered)
+
         for sample in self.dataset.group.samplelist:
             in_trait_data = False
             for item in self.this_trait.data:

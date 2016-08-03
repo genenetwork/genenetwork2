@@ -169,6 +169,7 @@ class MarkerRegression(object):
         self.species = start_vars['species']
 
         #Needing for form submission when doing single chr mapping or remapping after changing options
+        self.samples = start_vars['samples']
         self.vals = start_vars['vals']
         self.mapping_method = start_vars['mapping_method']
         if self.mapping_method == "rqtl_geno":
@@ -801,8 +802,8 @@ class MarkerRegression(object):
         plotXScale = self.drawGraphBackground(canvas, gifmap, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         #draw bootstap
-        if self.bootChecked and not self.multipleInterval:
-            self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset)
+        #if self.bootChecked and not self.multipleInterval:
+        #    self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset)
 
         # Draw clickable region and gene band if selected
         if self.plotScale == 'physic' and self.selectedChr > -1:
