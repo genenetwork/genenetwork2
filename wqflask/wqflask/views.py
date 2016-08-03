@@ -106,6 +106,12 @@ def tmp_page(img_path):
                             img_base64 = bytesarray )
 
 
+@app.route("/dalliance/<file_path>")
+def bd_files(file_path):
+    bd_path = app.config['BIODALLIANCE_PATH']
+    return send_from_directory(bd_path, file_path)
+
+
 #@app.route("/data_sharing")
 #def data_sharing_page():
 #    logger.info("In data_sharing")
