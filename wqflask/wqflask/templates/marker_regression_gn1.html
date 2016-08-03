@@ -160,8 +160,19 @@
             </div>
             {% if mapping_method != "gemma" %}
             <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
-              <div id="chart_container">
-                <div class="qtlcharts" id="topchart"></div>
+                <div id="chart_container">
+                    <div id="return_to_full_view">
+                        Return to full view
+                    </div>
+
+                    <div id="open_bd">
+                        Open BioDalliance view
+                    </div>
+
+                    <div class="qtlcharts" id="topchart"></div>
+
+                    <div id="bd_container" class="qtlcharts">
+                    </div>
               </div>
             </div>
             {% endif %}
@@ -318,6 +329,10 @@
             $('#gn1_map_tab').click(function(){
                 $('div#gn1_map_options').show();
             });
+
+            $('#open_bd').click(function() {
+                console.log($('#topchart').contents());
+            })
 
         });
 
