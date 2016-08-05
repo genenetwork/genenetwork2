@@ -47,8 +47,6 @@ class MarkerRegression(object):
 
         helper_functions.get_species_dataset_trait(self, start_vars)
 
-        #tempdata = temp_data.TempData(temp_uuid)
-
         self.temp_uuid = temp_uuid #needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
 
         self.json_data = {}
@@ -59,11 +57,11 @@ class MarkerRegression(object):
 
         all_samples_ordered = self.dataset.group.all_samples_ordered()
         primary_sample_names = list(all_samples_ordered)
-
+        
         for sample in self.dataset.group.samplelist:
             in_trait_data = False
             for item in self.this_trait.data:
-                if self.this_trait.data[item].name2 == sample:
+                if self.this_trait.data[item].name == sample:
                     value = start_vars['value:' + self.this_trait.data[item].name]
                     self.samples.append(self.this_trait.data[item].name)
                     self.vals.append(value)
@@ -279,7 +277,6 @@ class MarkerRegression(object):
                 chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
 
             # print("json_data:", self.json_data)
-
 
             self.js_data = dict(
                 result_score_type = self.score_type,
@@ -657,15 +654,14 @@ class MarkerRegression(object):
             genotype = genotype.addinterval()
 
         samples, values, variances, sample_aliases = self.this_trait.export_informative()
-
+        
         trimmed_samples = []
         trimmed_values = []
         for i in range(0, len(samples)):
-            if self.this_trait.data[samples[i]].name2 in self.dataset.group.samplelist:
-                trimmed_samples.append(sample_aliases[i])
+            #if self.this_trait.data[samples[i]].name2 in self.dataset.group.samplelist:
+            if self.this_trait.data[samples[i]].name in self.samples:
+                trimmed_samples.append(samples[i])
                 trimmed_values.append(values[i])
-
-        #print("THE SAMPLES:", trimmed_samples)
 
         if self.num_perm < 100:
             self.suggestive = 0
@@ -706,6 +702,8 @@ class MarkerRegression(object):
                                                             control = control_geno,
                                                             nboot = self.num_bootstrap)
         else:
+            # reaper_results = genotype.regression(strains = self.samples,
+                                                 # trait = self.vals)
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                  trait = trimmed_values)
 

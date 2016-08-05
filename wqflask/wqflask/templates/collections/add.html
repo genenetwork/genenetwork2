@@ -23,6 +23,9 @@
                 <input type="text" name="new_collection" placeholder="Name of new collection..."
                     data-trigger="change" data-minlength="5" data-maxlength="50">
                 <span class="help-block">Type the name of the new collection.</span>
+                {% if uc is not defined %}
+                <span class="help-block" style="color:red;">This collection will be saved to this computer for 5 days.</span>
+                {% endif %}
                 <button type="submit" name="create_new" class="btn">Create and add traits</button>
             </fieldset>
 
