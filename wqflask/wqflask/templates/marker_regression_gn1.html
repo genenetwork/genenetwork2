@@ -161,12 +161,16 @@
             {% if mapping_method != "gemma" %}
             <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
                 <div id="chart_container">
-                    <div id="return_to_full_view">
+                    <div id="return_to_full_view" style="display:none">
                         Return to full view
                     </div>
 
-                    <div id="open_bd">
+                    <div id="open_bd" style="display:none">
                         Open BioDalliance view
+                    </div>
+
+                    <div id="close_bd" style="display:none">
+                        Return to vector map
                     </div>
 
                     <div class="qtlcharts" id="topchart"></div>
@@ -287,7 +291,7 @@
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
-            var bd_browser = null;
+            setBDSpecies("{{ dataset.group.species }}");
 
             console.time("Creating table");
             $('#qtl_results').dataTable( {
@@ -329,34 +333,30 @@
 
             $('#vector_map_tab').click(function(){
                 $('div#gn1_map_options').hide();
-                /* $('#bd_container').hide();*/
             });
-            /* */
+
             $('#gn1_map_tab').click(function(){
                 $('#gn1_map_options').show();
-                /* $('div#bd_container').hide();*/
+                $('div#bd_container').hide();
+            });
+
+            $('#close_bd').click(function() {
+                $('#open_bd').show();
+                $('#close_bd').hide();
+
+                $('#bd_container').hide();
+                $('#topchart').show();
             });
 
             $('#open_bd').click(function() {
-                if (!bd_browser) {
-                    bd_browser = createBDBrowser('11', 0, 40000000,
-[{name: 'Genome',
-                             twoBitURI:  'http://www.biodalliance.org/datasets/GRCm38/mm10.2bit',
-                             desc: 'Mouse reference genome build GRCm38',
-                             tier_type: 'sequence',
-                             provides_entrypoints: true},
-                                                 {name: 'QTL',
-                                                   tier_type: 'qtl',
-                                                   uri: 'http://gsocbox:8880/static/qtl/lod_bak.csv',
-                                                   stylesheet_uri: "http://gsocbox:8880/stylesheets/qtl-stylesheet.xml",
-                                                 }]
-                    );
-                }
+                $('#close_bd').show();
+                $('#open_bd').hide()
+
                 $('#topchart').hide();
                 $('#bd_container').show();
-                console.log("clicked #open_bd");
-                console.log($('#topchart').contents());
-            });
+
+                openBDBrowser();
+            })
         });
 
         chrView = function(this_chr, chr_mb_list) {
