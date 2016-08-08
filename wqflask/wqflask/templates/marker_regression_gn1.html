@@ -161,17 +161,17 @@
             {% if mapping_method != "gemma" %}
             <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
                 <div id="chart_container">
-                    <div id="return_to_full_view" style="display:none">
-                        Return to full view
-                    </div>
-
-                    <div id="open_bd" style="display:none">
-                        Open BioDalliance view
-                    </div>
-
-                    <div id="close_bd" style="display:none">
-                        Return to vector map
-                    </div>
+                    <ul class="nav nav-tabs">
+                        <li id="return_to_full_view" class="btn btn-default buttons-html5" style="display:none">
+                            Return to full view
+                        </li>
+                        <li id="open_bd" class="btn btn-default buttons-html5" style="display:none">
+                            Open BioDalliance view
+                        </li>
+                        <li id="close_bd" class="btn btn-default buttons-html5" style="display:none">
+                            Return to vector map
+                        </li>
+                    </ul>
 
                     <div class="qtlcharts" id="topchart"></div>
 
