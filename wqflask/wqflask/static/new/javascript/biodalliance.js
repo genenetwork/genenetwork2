@@ -1,13 +1,15 @@
 "use strict";
 
-var bd_browser = null;
-var bd_data = {};
+
+var BD = {};
+BD.browser = null;
+BD.data = {};
 
 var getChrLen = function(chr) {
     return js_data[chr * 1];
 };
 
-var createBDBrowser = function(chr, start, end, speciesName, sources) {
+BD.createBrowser = function(chr, start, end, speciesName, sources) {
     console.log("creating BD browser");
     var b = new Browser({
         chr: chr,
@@ -30,32 +32,27 @@ var createBDBrowser = function(chr, start, end, speciesName, sources) {
     return b;
 };
 
-var showBDButton = function() {
+BD.showButton = function() {
     $('#open_bd').show();
     $('#close_bd').hide();
 };
 
-var hideBDButton = function() {
+BD.hideButton = function() {
     $('#close_bd').show();
     $('#open_bd').hide();
 };
 
 
-var setBDData = function(chr, length) {
-    // bd_data = { chr: chr, length: length };
-    bd_data.chr = chr;
-    bd_data.length = length;
+BD.putData = function(data) {
+    for (var key in data) {
+        BD.data[key] = data[key];
+    }
 };
 
-var setBDSpecies = function(species) {
-    bd_data.species = species;
-};
-
-
-var openBDBrowser = function() {
+BD.openBrowser = function() {
     console.log("opening browser");
-    if (!bd_browser) {
-        bd_browser = createBDBrowser(bd_data.chr, 0, bd_data.length * 1000000, bd_data.species,
+    if (!BD.browser) {
+        BD.browser = BD.createBrowser(BD.data.chr, 0, BD.data.length * 1000000, BD.data.species,
                                      [{name: 'Genome',
                                        twoBitURI:  'http://www.biodalliance.org/datasets/GRCm38/mm10.2bit',
                                        desc: 'Mouse reference genome build GRCm38',
@@ -68,8 +65,8 @@ var openBDBrowser = function() {
                                       }]
                                     );
     } else {
-        bd_browser.setLocation(bd_data.chr, 0, bd_data.length * 1000000);
+        BD.browser.setLocation(BD.data.chr, 0, BD.data.length * 1000000);
     }
 
-    bd_browser.maxViewWidth = bd_data.length * 1000000;
+    BD.browser.maxViewWidth = BD.data.length * 1000000;
 };

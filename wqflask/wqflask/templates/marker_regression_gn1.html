@@ -291,7 +291,7 @@
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
-            setBDSpecies("{{ dataset.group.species }}");
+            BD.putData({species: "{{ dataset.group.species }}" });
 
             console.time("Creating table");
             $('#qtl_results').dataTable( {
@@ -355,7 +355,7 @@
                 $('#topchart').hide();
                 $('#bd_container').show();
 
-                openBDBrowser();
+                BD.openBrowser();
             })
         });
 
