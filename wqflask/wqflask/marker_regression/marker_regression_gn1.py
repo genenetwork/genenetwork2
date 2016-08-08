@@ -506,14 +506,21 @@ class MarkerRegression(object):
 
         self.geneCol = None
         if self.plotScale == 'physic' and self.selectedChr > -1 and (self.intervalAnalystChecked  or self.geneChecked):
-            chrName = self.selectedChr
             # Draw the genes for this chromosome / region of this chromosome
             webqtldatabase = self.dataset.name
 
             if self.dataset.group.species == "mouse":
+                if self.selectedChr == 20:
+                    chrName = "X" 
+                else:
+                    chrName = self.selectedChr
                 self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "mouse")
             elif self.dataset.group.species == "rat":
-               self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "rat")
+                if self.selectedChr == 21:
+                    chrName = "X" 
+                else:
+                    chrName = self.selectedChr
+                self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "rat")
 
             if self.geneCol and self.intervalAnalystChecked:
                #######################################################################
@@ -2856,6 +2863,10 @@ class MarkerRegression(object):
                         polymiRTS = dic[theGO["GeneID"]]
 
                     # If we have a referenceGene then we will show the Literature Correlation
+                    if theGO["Chromosome"] == "X":
+                        chr_as_int = 19
+                    else:
+                        chr_as_int = int(theGO["Chromosome"]) - 1
                     if refGene:
                         try:
                             literatureCorrelation = self.getLiteratureCorrelation(self.cursor,refGene,theGO['GeneID'])
@@ -2868,7 +2879,7 @@ class MarkerRegression(object):
                                     str(tableIterationsCnt),
                                     HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__() +  "&nbsp;" + probeSetSearch.__str__(),
                                     HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
-                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(int(theGO["Chromosome"])-1), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
@@ -2899,7 +2910,7 @@ class MarkerRegression(object):
                                     str(tableIterationsCnt),
                                     HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__() +  "&nbsp;" + probeSetSearch.__str__(),
                                     HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
-                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(int(theGO["Chromosome"])-1), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
@@ -2931,15 +2942,20 @@ class MarkerRegression(object):
             for gIndex, theGO in enumerate(geneCol):
 
                 this_row = [] #container for the cells of each row
-                selectCheck = HT.Input(type="checkbox", name="searchResult", Class="checkbox", onClick="highlight(this)") #checkbox for each row
+                selectCheck = HT.Input(type="checkbox", name="searchResult", Class="checkbox", onClick="highlight(this)").__str__() #checkbox for each row
 
-                webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], HT.Image("/images/webqtl_search.gif", border=0), target="_blank")
+                webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], ">>", target="_blank").__str__()
 
                 if theGO["GeneID"] != "":
-                    geneSymbolNCBI = HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % theGO["GeneID"], theGO["GeneSymbol"], Class="normalsize", target="_blanK")
+                    geneSymbolNCBI = HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % theGO["GeneID"], theGO["GeneSymbol"], Class="normalsize", target="_blank").__str__()
                 else:
                     geneSymbolNCBI = theGO["GeneSymbol"]
 
+                if theGO["Chromosome"] == "X":
+                    chr_as_int = 20
+                else:
+                    chr_as_int = int(theGO["Chromosome"]) - 1
+                    
                 geneLength = (float(theGO["TxEnd"]) - float(theGO["TxStart"]))
                 #geneLengthURL = "javascript:centerIntervalMapOnRange2('%s', %f, %f, document.changeViewForm)" % (theGO["Chromosome"], float(theGO["TxStart"])-(geneLength*0.1), float(theGO["TxEnd"])+(geneLength*0.1))
                 geneLengthURL = "javascript:rangeView('%s', %f, %f)" % (theGO["Chromosome"], float(theGO["TxStart"])-(geneLength*0.1), float(theGO["TxEnd"])+(geneLength*0.1))
