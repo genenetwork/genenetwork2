@@ -16,7 +16,6 @@
             <hr />
 -->
 
-
             <input type="hidden" name="traits" value="{{ traits }}" />
             <fieldset>
                 <legend>Create a new named collection</legend>
@@ -33,7 +32,7 @@
                 <label>Existing collection name</label>
 
                 <select name="existing_collection" class="form-control">
-                {% for col in user_collections %}
+                {% for col in collections %}
                     <option value="{{ col.id }}">{{ col.name }}</option>
                 {% endfor %}
                 </select>

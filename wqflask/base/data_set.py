@@ -106,7 +106,7 @@ Publish or ProbeSet. E.g.
                             new_type = "Geno"
                         else:
                             new_type = "ProbeSet"
-                            self.datasets[short_dataset_name] = new_type
+                        self.datasets[short_dataset_name] = new_type
         logger.info("datasets",self.datasets)
 
     def __call__(self, name):
