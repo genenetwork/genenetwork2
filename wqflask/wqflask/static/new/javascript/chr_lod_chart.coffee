@@ -273,6 +273,7 @@ class Chr_Lod_Chart
         $("#return_to_full_view").hide()
         $('#topchart').remove()
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
+        hideBDButton()
         create_lod_chart()
 
     show_marker_in_table: (marker_info) ->

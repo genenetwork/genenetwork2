@@ -160,8 +160,23 @@
             </div>
             {% if mapping_method != "gemma" %}
             <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
-              <div id="chart_container">
-                <div class="qtlcharts" id="topchart"></div>
+                <div id="chart_container">
+                    <div id="return_to_full_view" style="display:none">
+                        Return to full view
+                    </div>
+
+                    <div id="open_bd" style="display:none">
+                        Open BioDalliance view
+                    </div>
+
+                    <div id="close_bd" style="display:none">
+                        Return to vector map
+                    </div>
+
+                    <div class="qtlcharts" id="topchart"></div>
+
+                    <div id="bd_container" class="qtlcharts">
+                    </div>
               </div>
             </div>
             {% endif %}
@@ -269,10 +284,15 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
+
+    <script language="javascript" type="text/javascript" src="/dalliance/dalliance-all.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/biodalliance.js"></script>
     {% endif %}
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
+            setBDSpecies("{{ dataset.group.species }}");
+
             console.time("Creating table");
             $('#qtl_results').dataTable( {
                 "columns": [
@@ -316,9 +336,27 @@
             });
 
             $('#gn1_map_tab').click(function(){
-                $('div#gn1_map_options').show();
+                $('#gn1_map_options').show();
+                $('div#bd_container').hide();
             });
 
+            $('#close_bd').click(function() {
+                $('#open_bd').show();
+                $('#close_bd').hide();
+
+                $('#bd_container').hide();
+                $('#topchart').show();
+            });
+
+            $('#open_bd').click(function() {
+                $('#close_bd').show();
+                $('#open_bd').hide()
+
+                $('#topchart').hide();
+                $('#bd_container').show();
+
+                openBDBrowser();
+            })
         });
 
         chrView = function(this_chr, chr_mb_list) {
@@ -355,4 +393,3 @@
     </script>
 
 {% endblock %}
-
