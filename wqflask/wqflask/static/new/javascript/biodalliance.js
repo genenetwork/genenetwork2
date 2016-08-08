@@ -63,8 +63,8 @@ var openBDBrowser = function() {
                                        provides_entrypoints: true},
                                       {name: 'QTL',
                                        tier_type: 'qtl',
-                                       uri: 'http://gsocbox:8880/static/qtl/lod2.csv',
-                                       stylesheet_uri: "http://gsocbox:8880/stylesheets/qtl-stylesheet.xml"
+                                       uri: 'http://localhost:8880/static/qtl/lod2.csv',
+                                       stylesheet_uri: "http://localhost:8880/stylesheets/qtl-stylesheet.xml"
                                       }]
                                     );
     } else {

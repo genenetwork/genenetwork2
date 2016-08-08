@@ -58,4 +58,4 @@ PLINK_COMMAND = str.strip(os.popen("which plink2").read())
 GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
 
 
-BIODALLIANCE_PATH = os.environ['HOME']+"/dalliance"
+BIODALLIANCE_PATH = os.environ['HOME']+"/dalliance/build"
