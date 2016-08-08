@@ -29,7 +29,7 @@
         <input type="hidden" name="mapmethod_rqtl_geno" value="{{ mapmethod_rqtl_geno }}">
         <input type="hidden" name="mapmodel_rqtl_geno" value="{{ mapmodel_rqtl_geno }}">
         <input type="hidden" name="pair_scan" value="{{ pair_scan }}">
-        
+
         <div class="container">
           <div class="col-xs-5">
               <h2>Map Viewer: Whole Genome</h2><br>
@@ -78,7 +78,7 @@
                 <tr>
                   <td></td>
                   <td style="padding: 5px;">
-                    <input type="text" name="lrsMax" value="{{ '%0.1f' | format(lrsMax|float) }}" size="3"> <span style="font-size: 12px;">units on the y-axis (0 for default)</span>   
+                    <input type="text" name="lrsMax" value="{{ '%0.1f' | format(lrsMax|float) }}" size="3"> <span style="font-size: 12px;">units on the y-axis (0 for default)</span>
                   </td>
                 </tr>
                 <tr>
@@ -91,14 +91,14 @@
             </div>
             <div class="col-xs-4" style="padding: 0px;">
                   {% if (mapping_method == "reaper" or mapping_method == "rqtl_geno") and nperm > 0 %}
-                  <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test 
+                  <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test
                     <a href="http://genenetwork.org/glossary.html#Permutation" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
                   <br>
                   {% endif %}
                   {% if mapping_method == "reaper" and nboot > 0 %}
-                  <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test 
+                  <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test
                     <a href="http://genenetwork.org/glossary.html#bootstrap" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
@@ -128,7 +128,7 @@
             </div>
           </div>
         </div>
- 
+
         <div class="tabbable" style="margin: 10px;">
           <ul class="nav nav-tabs">
             <li id="gn1_map_tab">
@@ -259,7 +259,32 @@
 
 {% endblock %}
 
-{% block js %}  
+{% block js %}
+
+    <script>
+      <!-- This section checks for paths to JS libraries by
+           checking the headers -->
+      list = [
+      "/static/new/javascript/biodalliance.js",
+      "http://d3js.org/d3.v3.min.js",
+      "/static/new/js_external/underscore-min.js",
+      "https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"
+      ];
+      for (var i = 0; i < list.length; i++) {
+        url = list[i];
+        $.ajax({
+          type: 'HEAD',
+          url: url,
+          success: function() {
+            // page exists
+          },
+          error: function() {
+            // page does not exist
+            console.log("Failed to load "+url);
+            alert("Failed to load Javascript for "+url);
+          }
+      })};
+    </script>
 
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
@@ -281,7 +306,7 @@
 
     {% if mapping_method != "gemma" %}
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
 
@@ -375,9 +400,9 @@
             return $('#marker_regression_form').submit();
         };
 
-        remap = function() { 
+        remap = function() {
             $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
-            return $('#marker_regression_form').submit(); 
+            return $('#marker_regression_form').submit();
         };
 
         export_perm_data = function() {
