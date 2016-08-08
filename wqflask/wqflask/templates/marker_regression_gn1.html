@@ -161,17 +161,17 @@
             {% if mapping_method != "gemma" %}
             <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
                 <div id="chart_container">
-                    <div id="return_to_full_view" style="display:none">
-                        Return to full view
-                    </div>
-
-                    <div id="open_bd" style="display:none">
-                        Open BioDalliance view
-                    </div>
-
-                    <div id="close_bd" style="display:none">
-                        Return to vector map
-                    </div>
+                    <ul class="nav nav-tabs">
+                        <li id="return_to_full_view" class="btn btn-default buttons-html5" style="display:none">
+                            Return to full view
+                        </li>
+                        <li id="open_bd" class="btn btn-default buttons-html5" style="display:none">
+                            Open BioDalliance view
+                        </li>
+                        <li id="close_bd" class="btn btn-default buttons-html5" style="display:none">
+                            Return to vector map
+                        </li>
+                    </ul>
 
                     <div class="qtlcharts" id="topchart"></div>
 
@@ -285,13 +285,13 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
 
-    <script language="javascript" type="text/javascript" src="/dalliance/dalliance-all.js"></script>
+    <script language="javascript" type="text/javascript" src="/dalliance/build/dalliance-all.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/biodalliance.js"></script>
     {% endif %}
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
-            setBDSpecies("{{ dataset.group.species }}");
+            BD.putData({species: "{{ dataset.group.species }}" });
 
             console.time("Creating table");
             $('#qtl_results').dataTable( {
@@ -355,7 +355,7 @@
                 $('#topchart').hide();
                 $('#bd_container').show();
 
-                openBDBrowser();
+                BD.openBrowser();
             })
         });
 

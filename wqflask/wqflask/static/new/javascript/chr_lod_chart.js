@@ -260,7 +260,8 @@ Chr_Lod_Chart = (function() {
     $("#return_to_full_view").hide();
     $('#topchart').remove();
     $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>');
-    hideBDButton();
+    BD.hideButton();
+    $('#bd_container').hide();
     return create_lod_chart();
   };
 
