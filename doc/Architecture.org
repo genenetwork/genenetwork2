@@ -4,6 +4,7 @@
  - [[#introduction][Introduction]]
  - [[#webserver][Webserver]]
  - [[#gnserver-rest][GnServer (REST)]]
+ - [[#gnexec][GnExec]]
  - [[#database][Database]]
    - [[#phenotypes][Phenotypes]]
    - [[#genotypes][Genotypes]]
@@ -54,6 +55,11 @@ from the database. To get the menu data in YAML you can do something like
 
 (json2yaml.rb is in the gn_server repo). For the current API definition
 see [[https://github.com/genenetwork/gn_server/doc/API.md][GnServer REST API]] documentation.
+
+* GnExec
+
+GnExec, also written in Elixir, executes commands using a separate
+daemon.
 
 * Database
 ** Phenotypes
