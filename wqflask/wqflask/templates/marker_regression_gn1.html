@@ -262,8 +262,8 @@
 {% block js %}
 
     <script>
-      <!-- This section checks for paths to JS libraries by
-           checking the headers -->
+      /* This section checks for paths to JS libraries by
+         checking the headers */
       list = [
       "/static/new/javascript/biodalliance.js",
       "http://d3js.org/d3.v3.min.js",
@@ -300,9 +300,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
 
-    <script>
-        js_data = {{ js_data | safe }}
-    </script>
 
     {% if mapping_method != "gemma" %}
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
@@ -314,10 +311,8 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/biodalliance.js"></script>
     {% endif %}
 
-    <script type="text/javascript" charset="utf-8">
-        $(document).ready( function () {
-            BD.putData({species: "{{ dataset.group.species }}" });
-
+    <script>
+     createTable = function() {
             console.time("Creating table");
             $('#qtl_results').dataTable( {
                 "columns": [
@@ -355,6 +350,25 @@
                 "bSortClasses": false,
                 "paging": false
             } );
+     };
+
+     filename = "{{json_filename}}";
+     js_data = null;
+     $.ajax("/generated_text/{{json_filename}}",
+            {success:
+                     function(data) {
+                         js_data = data;
+                         create_lod_chart();
+                         createTable();
+                     }
+            });
+    </script>
+
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function () {
+            BD.putData({species: "{{ dataset.group.species }}" });
+
 
             $('#vector_map_tab').click(function(){
                 $('div#gn1_map_options').hide();

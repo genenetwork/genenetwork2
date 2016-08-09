@@ -9,9 +9,9 @@ create_lod_chart = ->
         additive = js_data.additive
     else
         additive = false
-    
+
     console.log("js_data:", js_data)
-    
+
     # simplest use
     #d3.json "data.json", (data) ->
     mychart = lodchart().lodvarname("lod.hk")
@@ -21,13 +21,13 @@ create_lod_chart = ->
                         .ylab(js_data.result_score_type + " score")
                         .manhattanPlot(js_data.manhattan_plot)
                         #.additive(additive)
-                        
+
     data = js_data.json_data
-    
+
     d3.select("div#topchart")
       .datum(data)
       .call(mychart)
-    
+
     # grab chromosome rectangles; color pink on hover
     chrrect = mychart.chrSelect()
     chrrect.on "mouseover", ->
@@ -36,7 +36,7 @@ create_lod_chart = ->
                 d3.select(this).attr("fill", ->
                       return "#F1F1F9"  if i % 2
                       "#FBFBFF")
-    
+
     # animate points at markers on click
     mychart.markerSelect()
               .on "click", (d) ->
@@ -44,7 +44,3 @@ create_lod_chart = ->
                     d3.select(this)
                       .transition().duration(500).attr("r", r*3)
                       .transition().duration(500).attr("r", r)
-
-$ ->
-    root.create_lod_chart = create_lod_chart
-
