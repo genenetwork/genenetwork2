@@ -24,6 +24,7 @@ BD.createBrowser = function(chr, start, end, speciesName, sources) {
 
         setDocumentTitle: false,
         prefix: '/dalliance/',
+        workerPrefix: 'build/',
         noPersist: true,
         pageName: 'bd_container'
     });
