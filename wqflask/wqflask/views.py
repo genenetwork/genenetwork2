@@ -44,11 +44,12 @@ from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
 
+from utility import webqtlUtil
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL
 
 from base import webqtlFormData
-from base.webqtlConfig import GENERATED_IMAGE_DIR
+from base.webqtlConfig import GENERATED_IMAGE_DIR, GENERATED_TEXT_DIR
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
@@ -195,6 +196,10 @@ def docedit():
 @app.route('/generated/<filename>')
 def generated_file(filename):
     return send_from_directory(GENERATED_IMAGE_DIR,filename)
+
+@app.route('/generated_text/<filename>')
+def generated_text(filename):
+    return send_from_directory(GENERATED_TEXT_DIR, filename)
 
 @app.route("/help")
 def help():
@@ -462,6 +467,13 @@ def marker_regression_page():
                                            default=json_default_handler,
                                            indent="   ")
 
+        json_filename = webqtlUtil.genRandStr("") + ".json"
+
+        json_file = open(GENERATED_TEXT_DIR + "/" + json_filename, "w")
+        json_file.write(template_vars.js_data)
+        json_file.close()
+
+
         result = template_vars.__dict__
 
         if result['pair_scan']:
@@ -481,6 +493,7 @@ def marker_regression_page():
             #    logger.info("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
             gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+            gn1_template_vars['json_filename'] = json_filename;
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             logger.info("pickled result length:", len(pickled_result))
