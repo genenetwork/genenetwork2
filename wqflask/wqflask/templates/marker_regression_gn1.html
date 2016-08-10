@@ -362,6 +362,28 @@
                          createTable();
                      }
             });
+
+     BD.putSource({name: 'Genome',
+                   twoBitURI:  'http://www.biodalliance.org/datasets/GRCm38/mm10.2bit',
+                   desc: 'Mouse reference genome build GRCm38',
+                   tier_type: 'sequence',
+                   provides_entrypoints: true
+     });
+     BD.putSource({name: 'QTL',
+                   tier_type: 'qtl',
+                   uri: 'http://localhost:5003/generated_text/{{csv_filename}}',
+                   style: [{
+                       type: 'default',
+                       style: {
+                           glyph: "LINEPLOT",
+                           MIN: 0,
+                           MAX: 2.5,
+                           HEIGHT: 120,
+                           STEPS: 500,
+                           COLOR1: "blue",
+                       }
+                   }]
+     });
     </script>
 
 

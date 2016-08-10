@@ -4,6 +4,7 @@
 var BD = {};
 BD.browser = null;
 BD.data = {};
+BD.sources = [];
 
 var getChrLen = function(chr) {
     return js_data[chr * 1];
@@ -50,21 +51,18 @@ BD.putData = function(data) {
     }
 };
 
+BD.putSource = function(source) {
+    BD.sources.push(source);
+};
+
 BD.openBrowser = function() {
     console.log("opening browser");
     if (!BD.browser) {
-        BD.browser = BD.createBrowser(BD.data.chr, 0, BD.data.length * 1000000, BD.data.species,
-                                     [{name: 'Genome',
-                                       twoBitURI:  'http://www.biodalliance.org/datasets/GRCm38/mm10.2bit',
-                                       desc: 'Mouse reference genome build GRCm38',
-                                       tier_type: 'sequence',
-                                       provides_entrypoints: true},
-                                      {name: 'QTL',
-                                       tier_type: 'qtl',
-                                       uri: 'http://localhost:8880/static/qtl/lod2.csv',
-                                       stylesheet_uri: "http://localhost:8880/stylesheets/qtl-stylesheet.xml"
-                                      }]
-                                    );
+        BD.browser = BD.createBrowser(BD.data.chr,
+                                      0,
+                                      BD.data.length * 1000000,
+                                      BD.data.species,
+                                      BD.sources);
     } else {
         BD.browser.setLocation(BD.data.chr, 0, BD.data.length * 1000000);
     }
