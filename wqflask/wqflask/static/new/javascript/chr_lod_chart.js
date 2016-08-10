@@ -65,8 +65,6 @@ Chr_Lod_Chart = (function() {
       } else {
         this_chr = result.chr;
       }
-      console.log("this_chr is:", this_chr);
-      console.log("@chr[0] is:", parseInt(this.chr[0]));
       if (this_chr > parseInt(this.chr[0])) {
         break;
       }

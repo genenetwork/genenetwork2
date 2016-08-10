@@ -16,6 +16,7 @@ import uuid
 
 import simplejson as json
 import yaml
+import csv
 
 #Switching from Redis to StrictRedis; might cause some issues
 import redis
@@ -463,15 +464,24 @@ def marker_regression_page():
         with Bench("Total time in MarkerRegression"):
             template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
 
+
+        qtl_results = template_vars.js_data['qtl_results']
+
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
 
-        json_filename = webqtlUtil.genRandStr("") + ".json"
 
-        json_file = open(GENERATED_TEXT_DIR + "/" + json_filename, "w")
-        json_file.write(template_vars.js_data)
-        json_file.close()
+        json_filename = webqtlUtil.genRandStr("") + ".json"
+        with open(GENERATED_TEXT_DIR + "/" + json_filename, "wb") as json_file:
+            json_file.write(template_vars.js_data)
+
+        csv_filename = webqtlUtil.genRandStr("") + ".csv"
+        with open(GENERATED_TEXT_DIR + "/" + csv_filename, "wb") as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(("Locus", "Chr", "Mb", "LOD"))
+            for (row) in qtl_results:
+                writer.writerow((row["name"], row["chr"], row["Mb"], row["lod_score"]))
 
 
         result = template_vars.__dict__
@@ -494,6 +504,7 @@ def marker_regression_page():
 
             gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
             gn1_template_vars['json_filename'] = json_filename;
+            gn1_template_vars['csv_filename'] = csv_filename;
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             logger.info("pickled result length:", len(pickled_result))
