@@ -84,6 +84,11 @@ def shutdown_session(exception=None):
 @app.route("/")
 def index_page():
     logger.info("Sending index_page")
+    params = request.args
+    if 'import_collections' in params:
+        import_collections = params['import_collections']
+        if import_collections == "true":
+            g.cookie_session.import_traits_to_user()
     if USE_GN_SERVER:
         # The menu is generated using GN_SERVER
         return render_template("index_page.html", gn_server_url = GN_SERVER_URL)

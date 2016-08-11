@@ -83,7 +83,7 @@ class User(Base):
 
     def get_collection_by_name(self, collection_name):
         try:
-            collect = self.user_collections.filter_by(name=collection_name).one()
+            collect = self.user_collections.filter_by(name=collection_name).first()
         except  sqlalchemy.orm.exc.NoResultFound:
             collect = None
         return collect

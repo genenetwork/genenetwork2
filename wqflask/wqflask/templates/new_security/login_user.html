@@ -54,6 +54,7 @@
                         <label class="col-xs-1 control-label" for="submit"></label>
                         <div style="margin-left:20px;" class="col-xs-4 controls">
                             <input id="next" name="next" type="hidden" value="">
+                            <input id="import_collections" name="import_collections" type="hidden" value="false">
                             <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
                         </div>
                     </div>
@@ -99,6 +100,18 @@ label.error,div.error{
             }
         });
     });
+
+    $("input[name=submit]").on("click", function() {
+        import_collections = confirm("Would you like to import existing collections?")
+        if (import_collections == true) {
+            $("input[name=import_collections]").val("true");
+        }
+        else {
+            $("input[name=import_collections]").val("false");
+        }
+        $("#loginUserForm").submit();
+    });
+
     </script>
 
     {% include "new_security/_scripts.html" %}
