@@ -538,7 +538,11 @@ class LoginUser(object):
                 logger.debug("I will remember you")
                 self.remember_me = True
 
-            import_col = params['import_collections']
+            if 'import_collections' in params:
+                import_col = "true"
+            else:
+                import_col = "false"
+            
             #g.cookie_session.import_traits_to_user()           
                 
             return self.actual_login(user, import_collections=import_col)
