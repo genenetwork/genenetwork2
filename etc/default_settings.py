@@ -2,17 +2,19 @@
 # webserver running in developer mode with limited console
 # output. Copy this file and run it from ./bin/genenetwork2 configfile
 #
-# Note that these settings are fetched in ./wqflask/utilities/tools.py
+# Note: these settings are fetched in ./wqflask/utilities/tools.py
 # which has support for overriding them through environment variables,
 # e.g.
 #
 #   env LOG_SQL=True USE_REDIS=False ./bin/genenetwork2
 #
-# Note also that in the near future we will additionally fetch
+# Note: in the near future we will additionally fetch
 # settings from a JSON file
 #
-# Note that values for False and 0 have to be strings here - otherwise
+# Note: values for False and 0 have to be strings here - otherwise
 # Flask won't pick them up
+#
+# Final note: see below information to pick up the GNU Guix paths
 
 import os
 import sys
@@ -49,13 +51,23 @@ LOG_BENCH       = True      # Log bench marks
 USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
 USE_GN_SERVER   = 'False'   # Use GN_SERVER SQL calls
 
-# Path overrides for Genenetwork
+# For GNU Guix deployment also check the paths in
+#
+#  ~/.guix-profile/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
+
+# General paths for Genenetwork
+
 HOME=os.environ['HOME']
 LOGFILE = HOME+"/genenetwork2.log"
 GENENETWORK_FILES = HOME+"/gn2_data"
+
+# Paths to JS libraries
+
+BIODALLIANCE_JS = os.environ['HOME']+"/genenetwork/biodalliance"
+
+# Paths to invoked binaries
+
 PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())
 PLINK_COMMAND = str.strip(os.popen("which plink2").read())
 GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
 
-
-BIODALLIANCE_PATH = os.environ['HOME']+"/dalliance"
