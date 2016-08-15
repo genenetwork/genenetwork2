@@ -481,7 +481,8 @@ def marker_regression_page():
             writer = csv.writer(csv_file)
             writer.writerow(("Locus", "Chr", "Mb", "LOD"))
             for (row) in qtl_results:
-                writer.writerow((row["name"], row["chr"], row["Mb"], row["lod_score"]))
+                score = row["lod_score"] if "lod_score" in row else row["lrs_value"]
+                writer.writerow((row["name"], row["chr"], row["Mb"], score))
 
 
         result = template_vars.__dict__
