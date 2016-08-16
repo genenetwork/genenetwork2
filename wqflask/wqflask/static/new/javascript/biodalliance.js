@@ -23,7 +23,7 @@ BD.createBrowser = function(chr, start, end, speciesName, sources) {
 
         sources: sources,
 
-        maxHeight: 900,
+        maxHeight: 1000,
         setDocumentTitle: false,
         prefix: '/dalliance/',
         workerPrefix: 'build/',

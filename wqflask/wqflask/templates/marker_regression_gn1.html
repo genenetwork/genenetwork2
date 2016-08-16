@@ -431,10 +431,14 @@
                            STEPS: 500,
                            COLOR1: "blue",
                        }
-                   }]
+                   }],
+     });
+     BD.putSource({name: 'SNP density',
+                   jbURI: "http://test-gn2.genenetwork.org/api_pre1/snp",
+                   jbQuery: "",
+                   stylesheet_uri: "http://test-gn2.genenetwork.org/api_pre1/stylesheets/snp-stylesheet.xml",
      });
     </script>
-
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
