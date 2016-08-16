@@ -177,11 +177,9 @@ class UserCollection(Base):
         except:
             return 0
 
-
     #@property
     #def display_num_members(self):
     #    return display_collapsible(self.num_members)
-
 
     def members_as_set(self):
         return set(json.loads(self.members))

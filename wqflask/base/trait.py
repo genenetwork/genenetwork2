@@ -116,7 +116,6 @@ class GeneralTrait(object):
         return stringy
 
 
-
     def display_name(self):
         stringy = ""
         if self.dataset and self.name:

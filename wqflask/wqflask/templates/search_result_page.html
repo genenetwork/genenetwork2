@@ -122,7 +122,7 @@
                                     {{ this_trait.pubmed_text }}
                                 </a>
                             </TD>
-                            <TD>{{ this_trait.LRS_score_repr }}</TD>
+                            <TD>{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
                             <TD>{{ this_trait.LRS_location_repr }}</TD>
                             <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
                         {% elif dataset.type == 'Geno' %}

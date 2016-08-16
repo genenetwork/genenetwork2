@@ -165,12 +165,19 @@ class UserCollection(object):
                 return create_new("Default")
         else:
             uc = model.UserCollection.query.get(params['existing_collection'])
-        members =  uc.members_as_set() #set(json.loads(uc.members))
+        members =  list(uc.members_as_set()) #set(json.loads(uc.members))
         len_before = len(members)
 
         traits = process_traits(params['traits'])
-
-        members_now = list(members | traits)
+        
+        members_now = members
+        for trait in traits:
+            if trait in members:
+                continue
+            else:
+                members_now.append(trait)
+              
+        #members_now = list(members | traits)
         len_now = len(members_now)
         uc.members = json.dumps(members_now)
 
@@ -184,28 +191,6 @@ class UserCollection(object):
         # Probably have to change that
         return redirect(url_for('view_collection', uc_id=uc.id))
 
-    def remove_traits(self, params):
-
-        #params = request.form
-        print("params are:", params)
-        uc_id = params['uc_id']
-        uc = model.UserCollection.query.get(uc_id)
-        traits_to_remove = params.getlist('traits[]')
-        print("traits_to_remove are:", traits_to_remove)
-        traits_to_remove = process_traits(traits_to_remove)
-        print("\n\n  after processing, traits_to_remove:", traits_to_remove)
-        all_traits = uc.members_as_set()
-        print("  all_traits:", all_traits)
-        members_now = all_traits - traits_to_remove
-        print("  members_now:", members_now)
-        print("Went from {} to {} members in set.".format(len(all_traits), len(members_now)))
-        uc.members = json.dumps(list(members_now))
-        uc.changed_timestamp = datetime.datetime.utcnow()
-        db_session.commit()
-
-        # We need to return something so we'll return this...maybe in the future
-        # we can use it to check the results
-        return str(len(members_now))
 
 def report_change(len_before, len_now):
     new_length = len_now - len_before
@@ -216,8 +201,6 @@ def report_change(len_before, len_now):
             numify(new_length, 'new trait', 'new traits')))
     else:
         print("No new traits were added.")
-
-
 
 
 @app.route("/collections/add")
@@ -329,7 +312,6 @@ def list_collections():
 
 @app.route("/collections/remove", methods=('POST',))
 def remove_traits():
-
     params = request.form
     print("params are:", params)
 
@@ -337,14 +319,11 @@ def remove_traits():
         uc_id = params['uc_id']
         uc = model.UserCollection.query.get(uc_id)
         traits_to_remove = params.getlist('traits[]')
-        print("traits_to_remove are:", traits_to_remove)
         traits_to_remove = process_traits(traits_to_remove)
         print("\n\n  after processing, traits_to_remove:", traits_to_remove)
         all_traits = uc.members_as_set()
-        print("  all_traits:", all_traits)
         members_now = all_traits - traits_to_remove
         print("  members_now:", members_now)
-        print("Went from {} to {} members in set.".format(len(all_traits), len(members_now)))
         uc.members = json.dumps(list(members_now))
         uc.changed_timestamp = datetime.datetime.utcnow()
         db_session.commit()
