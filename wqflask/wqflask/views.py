@@ -110,7 +110,7 @@ def tmp_page(img_path):
 
 @app.route("/dalliance/<path:filename>")
 def bd_files(filename):
-    bd_path = app.config['BIODALLIANCE_PATH']
+    bd_path = app.config['BIODALLIANCE_JS']
     return send_from_directory(bd_path, filename)
 
 
