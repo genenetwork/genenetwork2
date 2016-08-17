@@ -266,8 +266,9 @@
          checking the headers */
       list = [
       "/static/new/javascript/biodalliance.js",
-      "http://d3js.org/d3.v3.min.js",
+      "/dalliance/build/dalliance-all.js",
       "/static/new/js_external/underscore-min.js",
+      "http://d3js.org/d3.v3.min.js",
       "https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"
       ];
       for (var i = 0; i < list.length; i++) {
@@ -280,8 +281,8 @@
           },
           error: function() {
             // page does not exist
-            console.log("Failed to load "+url);
-            alert("Failed to load Javascript for "+url);
+            console.log("Failed to load "+this.url);
+            alert("Failed to load Javascript for "+this.url);
           }
       })};
     </script>
