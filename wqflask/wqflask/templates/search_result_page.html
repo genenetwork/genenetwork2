@@ -117,7 +117,7 @@
                         {% elif dataset.type == 'Publish' %}
                             <TD>{{ this_trait.description_display }}</TD>
                             <TD>{{ this_trait.authors }}</TD>
-                            <TD>
+                            <TD data-order="{{ this_trait.pubmed_text }}">
                                 <a href="{{ this_trait.pubmed_link }}">
                                     {{ this_trait.pubmed_text }}
                                 </a>
