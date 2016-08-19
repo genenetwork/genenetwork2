@@ -259,6 +259,7 @@ Chr_Lod_Chart = (function() {
     $('#topchart').remove();
     $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>');
     BD.hideButton();
+    $('#close_bd').hide();
     $('#bd_container').hide();
     return create_lod_chart();
   };

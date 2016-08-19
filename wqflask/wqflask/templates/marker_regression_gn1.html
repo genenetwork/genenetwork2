@@ -441,7 +441,20 @@
      BD.putSource({name: 'SNP density',
                    jbURI: "http://test-gn2.genenetwork.org/api_pre1/snp",
                    jbQuery: "",
-                   stylesheet_uri: "http://test-gn2.genenetwork.org/api_pre1/stylesheets/snp-stylesheet.xml",
+                   style: [{
+                       type: 'default',
+                       style: {
+                           glyph: "HISTOGRAM",
+                           MIN: 0,
+                           MAX: 5000,
+                           HEIGHT: 60,
+                           STEPS: 100,
+                           COLOR1: "red",
+                           COLOR2: "red",
+                           COLOR3: "red",
+                           AXISCENTER: "true",
+                       }
+                   }]
      });
     </script>
 

@@ -274,6 +274,7 @@ class Chr_Lod_Chart
         $('#topchart').remove()
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
         BD.hideButton()
+        $('#close_bd').hide();
         $('#bd_container').hide()
         create_lod_chart()
 
