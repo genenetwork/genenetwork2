@@ -810,7 +810,7 @@ class MarkerRegression(object):
 
         #draw bootstap
         #if self.bootChecked and not self.multipleInterval:
-        #    self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset)
+        #   self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         # Draw clickable region and gene band if selected
         if self.plotScale == 'physic' and self.selectedChr > -1:
@@ -857,7 +857,7 @@ class MarkerRegression(object):
         BootCoord = []
         i = 0
         startX = xLeftOffset
-
+     
         if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
             for j, _chr in enumerate(self.genotype):
                 BootCoord.append( [])
@@ -876,7 +876,7 @@ class MarkerRegression(object):
                 for _locus in _chr:
                     if _chr.name == self.ChrList[self.selectedChr][0]:
                         if self.plotScale == 'physic':
-                            Xc = startX + (_locus.Mb-self.startMb)*plotXScale
+                            Xc = startX + (_locus.Mb-startMb)*plotXScale
                         else:
                             Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
                         BootCoord[-1].append([Xc, self.bootResult[i]])
@@ -1017,7 +1017,7 @@ class MarkerRegression(object):
                     else:
                         locPixel += (Mb*(_chr[-1].cM-_chr[0].cM)/self.ChrLengthCMList[i])*plotXScale
                         break
-        if locPixel >= 0:
+        if locPixel >= 0 and self.plotScale == 'physic':
             traitPixel = ((locPixel, yZero), (locPixel-6, yZero+12), (locPixel+6, yZero+12))
             canvas.drawPolygon(traitPixel, edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
 
@@ -1762,6 +1762,7 @@ class MarkerRegression(object):
                     strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=megabaseLabelFont, color=pid.black)
             pass
         else:
+            strYLoc = yZero + spacingFromLabelToAxis + canvas.fontHeight(MBLabelFont) + 8
             ChrAInfo = []
             preLpos = -1
             distinctCount = 0.0
@@ -1847,6 +1848,10 @@ class MarkerRegression(object):
                 if j == 0:
                     canvas.drawLine(startPosX,yZero,startPosX,yZero+40, color=lineColor)
                 startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
+                
+            centimorganLabelFont = pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
+            canvas.drawString("Centimorgans", xLeftOffset + (plotWidth - canvas.stringWidth("Megabases", font=centimorganLabelFont))/2,
+                    strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=centimorganLabelFont, color=pid.black)
 
         canvas.drawLine(xLeftOffset, yZero, xLeftOffset+plotWidth, yZero, color=pid.black, width=X_AXIS_THICKNESS) # Draw the X axis itself
 

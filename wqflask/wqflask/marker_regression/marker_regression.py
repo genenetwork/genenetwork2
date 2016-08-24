@@ -702,8 +702,6 @@ class MarkerRegression(object):
                                                             control = control_geno,
                                                             nboot = self.num_bootstrap)
         else:
-            # reaper_results = genotype.regression(strains = self.samples,
-                                                 # trait = self.vals)
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                  trait = trimmed_values)
 
