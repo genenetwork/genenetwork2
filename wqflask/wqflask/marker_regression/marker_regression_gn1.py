@@ -211,6 +211,8 @@ class MarkerRegression(object):
             self.plotScale = start_vars['mapping_scale']
         else:
             self.plotScale = "physic"
+            
+        self.manhattan_plot = start_vars['manhattan_plot']
 
         if 'permCheck' in start_vars.keys():
             self.permChecked = start_vars['permCheck']
@@ -261,6 +263,8 @@ class MarkerRegression(object):
 
         self.strainlist = self.dataset.group.samplelist
         self.genotype = self.dataset.group.read_genotype_file()
+        if self.mapping_method == "reaper" and self.manhattan_plot != True:
+            self.genotype = self.genotype.addinterval()
 
         #Darwing Options
         try:
@@ -283,7 +287,6 @@ class MarkerRegression(object):
 ## END HaplotypeAnalyst
 
         self.graphHeight = self.GRAPH_DEFAULT_HEIGHT
-        self.manhattan_plot = start_vars['manhattan_plot']
         self.dominanceChecked = False
         self.LRS_LOD = start_vars['LRSCheck']
         self.cutoff = start_vars['cutoff']
@@ -809,8 +812,8 @@ class MarkerRegression(object):
         plotXScale = self.drawGraphBackground(canvas, gifmap, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         #draw bootstap
-        #if self.bootChecked and not self.multipleInterval:
-        #   self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
+        if self.bootChecked and not self.multipleInterval and not self.manhattan_plot:
+            self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         # Draw clickable region and gene band if selected
         if self.plotScale == 'physic' and self.selectedChr > -1:
@@ -880,8 +883,8 @@ class MarkerRegression(object):
                         else:
                             Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
                         BootCoord[-1].append([Xc, self.bootResult[i]])
-                    i += 1
-
+                    i += 1   
+                    
         #reduce bootResult
         if self.selectedChr > -1:
             maxBootBar = 80.0
@@ -2023,7 +2026,7 @@ class MarkerRegression(object):
                 if self.manhattan_plot != True:
                     canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
-                if not self.multipleInterval and self.additiveChecked:
+                if not self.multipleInterval and not self.manhattan_plot and self.additiveChecked:
                     plusColor = self.ADDITIVE_COLOR_POSITIVE
                     minusColor = self.ADDITIVE_COLOR_NEGATIVE
                     for k, aPoint in enumerate(AdditiveCoordXY):
