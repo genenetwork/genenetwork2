@@ -41,6 +41,11 @@
                 </button>
             </div>
             <div class="col-xs-2 controls">
+                <button id="network_graph" class="btn btn-primary submit_special" data-url="/network_graph" title="Network Graph" >
+                    Network Graph
+                </button>
+            </div>
+            <div class="col-xs-2 controls">
                 <button id="wgcna_setup" class="btn btn-primary submit_special" data-url="/wgcna_setup" title="WGCNA Analysis" >
                     WGCNA Analysis
                 </button>
@@ -50,7 +55,7 @@
                     CTL Analysis
                 </button>
             </div>
-            <div class="col-xs-2 controls">
+            <div class="col-xs-1 controls">
                 <button id="heatmap" class="btn btn-primary submit_special" data-url="/heatmap" title="Heatmap" >
                     Heatmap
                 </button>
@@ -198,6 +203,14 @@
             });
 
             $("#corr_matrix").on("click", function() {
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+                url = $(this).data("url")
+                return submit_special(url)
+            });
+            $("#network_graph").on("click", function() {
                 traits = $("#trait_table input:checked").map(function() {
                     return $(this).val();
                 }).get();

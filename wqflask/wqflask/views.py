@@ -38,6 +38,7 @@ from wqflask.show_trait import export_trait_data
 from wqflask.heatmap import heatmap
 from wqflask.marker_regression import marker_regression
 from wqflask.marker_regression import marker_regression_gn1
+from wqflask.network_graph import network_graph
 from wqflask.correlation import show_corr_results
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
@@ -530,6 +531,22 @@ def export_pdf():
     response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
     return response
 
+@app.route("/network_graph", methods=('POST',))
+def network_graph_page():
+    logger.info("In network_graph, request.form is:", pf(request.form))
+
+    start_vars = request.form
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        template_vars = network_graph.NetworkGraph(start_vars)
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
+
+        return render_template("network_graph.html", **template_vars.__dict__)
+    else:
+        return render_template("empty_collection.html", **{'tool':'Network Graph'})
+    
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
     logger.info("In corr_compute, request.form is:", pf(request.form))
