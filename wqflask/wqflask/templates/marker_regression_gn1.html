@@ -372,7 +372,8 @@
      BD.putSource({name: 'Genotype',
                    controlURI: "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/BXD.json",
                    URIBase: "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/",
-                   tier_type:            'rqtl-genotype',
+                   tier_type: 'rqtl-genotype',
+                   vOffset: 8,
                    pinned: true,
                    transposed: true,
                    style: [
@@ -425,6 +426,7 @@
                        type: 'default',
                        style: {
                            glyph: "LINEPLOT",
+                           AUTOMAX: "true",
                            MIN: 0,
                            MAX: 3,
                            HEIGHT: 200,
