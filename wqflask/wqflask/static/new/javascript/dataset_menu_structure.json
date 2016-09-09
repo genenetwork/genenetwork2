@@ -1492,6 +1492,22 @@
                   "Human Ventrolateral Prefrontal Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
                ]
             ]
+         },
+         "TIGEM-Retina-RNA-Seq": {
+            "Phenotypes": [
+               [
+                  "None",
+                  "TIGEM-Retina-RNA-SeqPublish",
+                  "TIGEM-Retina-RNA-Seq Published Phenotypes"
+               ]
+            ],
+            "Retina mRNA": [
+               [
+                  "802",
+                  "TIGEM_hg38_ret_rna-seq_0916",
+                  "TIGEM Human Retina RNA-Seq (Sep16) RPKM log2"
+               ]
+            ]
          }
       },
       "mouse": {
@@ -1596,6 +1612,11 @@
          "B6D2F2": {
             "Brain mRNA": [
                [
+                  "77",
+                  "BRF2_M_0805_R",
+                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
+               ],
+               [
                   "76",
                   "BRF2_M_0805_M",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) MAS5"
@@ -1604,11 +1625,6 @@
                   "78",
                   "BRF2_M_0805_P",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
-               ],
-               [
-                  "77",
-                  "BRF2_M_0805_R",
-                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
                ],
                [
                   "33",
@@ -1933,14 +1949,14 @@
             ],
             "Brain mRNA": [
                [
-                  "590",
-                  "UTHSC_BXD_WB_RNASeqtrim1_1112",
-                  "UTHSC Mouse BXD Whole Brain RNA Sequence (Nov12) RPKM Trimmed 1.0"
-               ],
-               [
                   "164",
                   "UTHSC_BXD_WB_RNASeq1112",
                   "UTHSC Mouse BXD Whole Brain RNA Sequence (Nov12) RPKM Untrimmed"
+               ],
+               [
+                  "590",
+                  "UTHSC_BXD_WB_RNASeqtrim1_1112",
+                  "UTHSC Mouse BXD Whole Brain RNA Sequence (Nov12) RPKM Trimmed 1.0"
                ],
                [
                   "394",
@@ -1958,11 +1974,6 @@
                   "UTHSC Brain mRNA U74Av2 (Nov05) PDNN"
                ],
                [
-                  "82",
-                  "BR_U_0805_R",
-                  "UTHSC Brain mRNA U74Av2 (Aug05) RMA"
-               ],
-               [
                   "81",
                   "BR_U_0805_P",
                   "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
@@ -1971,6 +1982,11 @@
                   "80",
                   "BR_U_0805_M",
                   "UTHSC Brain mRNA U74Av2 (Aug05) MAS5"
+               ],
+               [
+                  "82",
+                  "BR_U_0805_R",
+                  "UTHSC Brain mRNA U74Av2 (Aug05) RMA"
                ],
                [
                   "42",
@@ -2039,11 +2055,6 @@
                   "Eye M430v2 WT Gpnmb (Sep08) RMA"
                ],
                [
-                  "278",
-                  "Eye_M2_0908_R_MT",
-                  "Eye M430v2 Mutant Tyrp1 (Sep08) RMA"
-               ],
-               [
                   "382",
                   "Eye_M2_0908_WTWT",
                   "Eye M430v2 WT WT (Sep08) RMA"
@@ -2052,6 +2063,11 @@
                   "279",
                   "Eye_M2_0908_R_WT",
                   "Eye M430v2 WT Tyrp1 (Sep08) RMA"
+               ],
+               [
+                  "278",
+                  "Eye_M2_0908_R_MT",
+                  "Eye M430v2 Mutant Tyrp1 (Sep08) RMA"
                ],
                [
                   "400",
@@ -2290,14 +2306,14 @@
             ],
             "Kidney mRNA": [
                [
-                  "240",
-                  "MA_M2M_0706_R",
-                  "Mouse kidney M430v2 Male (Aug06) RMA"
-               ],
-               [
                   "239",
                   "MA_M2F_0706_R",
                   "Mouse kidney M430v2 Female (Aug06) RMA"
+               ],
+               [
+                  "240",
+                  "MA_M2M_0706_R",
+                  "Mouse kidney M430v2 Male (Aug06) RMA"
                ],
                [
                   "118",
@@ -2479,14 +2495,14 @@
             ],
             "Neocortex mRNA": [
                [
-                  "374",
-                  "DevNeocortex_ILM6.2P3RInv_1111",
-                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv"
-               ],
-               [
                   "375",
                   "DevNeocortex_ILM6.2P14RInv_1111",
                   "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv"
+               ],
+               [
+                  "374",
+                  "DevNeocortex_ILM6.2P3RInv_1111",
+                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv"
                ],
                [
                   "284",
@@ -3001,16 +3017,6 @@
             ],
             "Hippocampus mRNA": [
                [
-                  "212",
-                  "Illum_LXS_Hipp_RSE_1008",
-                  "Hippocampus Illumina RSE (Oct08) RankInv beta"
-               ],
-               [
-                  "214",
-                  "Illum_LXS_Hipp_NOE_1008",
-                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
-               ],
-               [
                   "211",
                   "Illum_LXS_Hipp_RSS_1008",
                   "Hippocampus Illumina RSS (Oct08) RankInv beta"
@@ -3024,6 +3030,16 @@
                   "219",
                   "Illum_LXS_Hipp_NON_1008",
                   "Hippocampus Illumina NON (Oct08) RankInv beta"
+               ],
+               [
+                  "212",
+                  "Illum_LXS_Hipp_RSE_1008",
+                  "Hippocampus Illumina RSE (Oct08) RankInv beta"
+               ],
+               [
+                  "214",
+                  "Illum_LXS_Hipp_NOE_1008",
+                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
                ],
                [
                   "143",
@@ -3158,6 +3174,13 @@
                   "605",
                   "MDPPublish",
                   "Mouse Phenome Database"
+               ]
+            ],
+            "Spleen mRNA": [
+               [
+                  "801",
+                  "HMS_mm8_MDP_Spl_CD4_1116",
+                  "HMS Spleen CD4+ T cells MDP Affy Mouse Gene 1.0 ST (Jul16) Gene Level"
                ]
             ]
          },
@@ -3404,11 +3427,11 @@
          ],
          [
             "GTEx",
-            "GTEx v3 All Tissues, RNA-Seq"
+            "GTEx v3 All Tissues, RNA-Seq with Genotypes"
          ],
          [
             "GTEx_v5",
-            "GTEx v5 All Tissues, RNA-Seq"
+            "GTEx v5 All Tissues, RNA-Seq with Genotypes"
          ],
          [
             "HB",
@@ -3429,6 +3452,10 @@
          [
             "HSB",
             "Brain, Development: Normal Gene Expression (Yale/Sestan)"
+         ],
+         [
+            "TIGEM-Retina-RNA-Seq",
+            "Retina: Normal Adult Gene Expression, RNA-Seq (TIGEM)"
          ]
       ],
       "mouse": [
@@ -4273,6 +4300,16 @@
                "Ventrolateral Prefrontal Cortex mRNA",
                "Ventrolateral Prefrontal Cortex mRNA"
             ]
+         ],
+         "TIGEM-Retina-RNA-Seq": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ],
+            [
+               "Retina mRNA",
+               "Retina mRNA"
+            ]
          ]
       },
       "mouse": {
@@ -4722,6 +4759,10 @@
             [
                "Liver mRNA",
                "Liver mRNA"
+            ],
+            [
+               "Spleen mRNA",
+               "Spleen mRNA"
             ]
          ],
          "NZBXFVB-N2": [
