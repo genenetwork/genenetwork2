@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/packages/cytoscape/css/cytoscape.js-panzoom.css" />
+    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.css">
+    <style>
+        /* The Cytoscape Web container must have its dimensions set. */
+        html, body { height: 100%; width: 100%; padding: 0; margin: 0; }
+        #cytoscapeweb { width: 70%; height: 80%; }
+    </style>
+{% endblock %}
+{% block content %}
+    
+    {{ header("Network Graph") }}
+
+    <div id="cytoscapeweb">
+
+    </div>
+
+{% endblock %}
+
+{% block js %}
+
+    <script>
+        elements_list = {{ elements | safe }}
+    </script>
+
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/min/cytoscape.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/min/AC_OETags.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/min/json2.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/src/cytoscape-panzoom.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/src/cytoscape-qtip.js"></script>
+
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/network_graph.js"></script>
+{% endblock %}

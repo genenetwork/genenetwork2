@@ -130,17 +130,30 @@ $(function() {
     }).get();
     console.log("checked length is:", traits.length);
     console.log("checked is:", traits);
-    uc_id = $("#uc_id").val();
-    console.log("uc.id is:", uc_id);
-    return $.ajax({
-      type: "POST",
-      url: "/collections/remove",
-      data: {
-        uc_id: uc_id,
-        traits: traits
-      },
-      success: removed_traits
-    });
+    if ( $("#uc_id").length ) {
+        uc_id = $("#uc_id").val();
+        return $.ajax({
+          type: "POST",
+          url: "/collections/remove",
+          data: {
+            uc_id: uc_id,
+            traits: traits
+          },
+          success: removed_traits
+        });
+    }
+    else {
+        collection_name = $("#collection_name").val();
+        return $.ajax({
+          type: "POST",
+          url: "/collections/remove",
+          data: {
+            collection_name: collection_name,
+            traits: traits
+          },
+          success: removed_traits
+        });
+    }
   };
   $("#select_all").click(select_all);
   $("#deselect_all").click(deselect_all);

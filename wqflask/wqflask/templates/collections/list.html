@@ -8,16 +8,25 @@
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
+    {% if g.user_session.user_ob %}
     {{ header("Your Collections",
-        'You have {}.'.format(numify(user_collections|count, "collection", "collections"))) }}
+        'You have {}.'.format(numify(collections|count, "collection", "collections"))) }}
+    {% else %}
+    {{ header("Your Collections",
+        'You have {}.'.format(numify(collections|count, "collection", "collections"))) }}
+    {% endif %}
 
 
     <div class="container">
         <div class="page-header">
+            {% if g.user_session.user_ob %}
             <h1>Collections owned by {{ g.user_session.user_ob.full_name }}</h1>
+            {% else %}
+            <h1>Your Collections</h1>
+            {% endif %}
         </div>
 
-        <div id="collections_list">
+        <div id="collections_list" style="width:75%;">
         <table class="table table-hover table-striped" id='trait_table'>
             <thead>
                 <tr>
@@ -30,10 +39,14 @@
             </thead>
 
             <tbody>
-            {% for uc in user_collections %}
+            {% for uc in collections %}
                 <tr class="collection_line">
                     <td>{{ loop.index }}
+                    {% if g.user_session.user_ob %}
                     <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
+                    {% else %}
+                    <td><a class="collection_name" href="{{ url_for('view_collection', collection_id=uc.id) }}">{{ uc.name }}</a></td>
+                    {% endif %}
                     <td>{{ timeago(uc.created_timestamp.isoformat() + "Z") }}</td>
                     <td>{{ timeago(uc.changed_timestamp.isoformat() + "Z") }}</td>
                     <td>{{ uc.num_members }}</td>

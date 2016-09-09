@@ -173,13 +173,13 @@
     };
     make_table = function() {
       var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
-      header = "<thead><tr><th>&nbsp;</th>";
+      header = "<thead><tr><th style=\"padding-left: 5px;\">Statistic</th>";
       _ref = js_data.sample_group_types;
       for (key in _ref) {
         if (!__hasProp.call(_ref, key)) continue;
         value = _ref[key];
         the_id = process_id("column", key);
-        header += "<th id=\"" + the_id + "\">" + value + "</th>";
+        header += "<th id=\"" + the_id + "\" style=\"padding-left: 5px;\">" + value + "</th>";
       }
       header += "</thead>";
       the_rows = "<tbody>";

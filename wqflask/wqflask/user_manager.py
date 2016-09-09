@@ -62,21 +62,94 @@ def timestamp():
 
 
 class AnonUser(object):
-    cookie_name = 'anon_user_v1'
+    cookie_name = 'anon_user_v8'
 
     def __init__(self):
         self.cookie = request.cookies.get(self.cookie_name)
         if self.cookie:
             logger.debug("already is cookie")
             self.anon_id = verify_cookie(self.cookie)
+            
         else:
             logger.debug("creating new cookie")
             self.anon_id, self.cookie = create_signed_cookie()
+        self.key = "anon_collection:v1:{}".format(self.anon_id)
 
         @after.after_this_request
         def set_cookie(response):
             response.set_cookie(self.cookie_name, self.cookie)
+            
+    def add_collection(self, new_collection):
+        collection_dict = dict(name = new_collection.name,
+                               created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                               changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                               num_members = new_collection.num_members,
+                               members = new_collection.get_members())
+                               
+        Redis.set(self.key, json.dumps(collection_dict))
+        Redis.expire(self.key, 60 * 60 * 24 * 5)
+            
+    def delete_collection(self, collection_name):
+        existing_collections = self.get_collections()
+        updated_collections = []
+        for i, collection in enumerate(existing_collections):
+            if collection['name'] == collection_name:
+                continue
+            else:
+                this_collection = {}
+                this_collection['id'] = collection['id']
+                this_collection['name'] = collection['name']
+                this_collection['created_timestamp'] = collection['created_timestamp'].strftime('%b %d %Y %I:%M%p')
+                this_collection['changed_timestamp'] = collection['changed_timestamp'].strftime('%b %d %Y %I:%M%p')
+                this_collection['num_members'] = collection['num_members']
+                this_collection['members'] = collection['members']
+                updated_collections.append(this_collection)
 
+        Redis.set(self.key, json.dumps(updated_collections))
+            
+    def get_collections(self):
+        json_collections = Redis.get(self.key)
+        if json_collections == None or json_collections == "None":
+            return []
+        else:
+            collections = json.loads(json_collections)
+            for collection in collections:
+                collection['created_timestamp'] = datetime.datetime.strptime(collection['created_timestamp'], '%b %d %Y %I:%M%p')
+                collection['changed_timestamp'] = datetime.datetime.strptime(collection['changed_timestamp'], '%b %d %Y %I:%M%p')
+            return collections
+            
+    def import_traits_to_user(self):
+        collections_list = json.loads(Redis.get(self.key))
+        for collection in collections_list:
+            uc = model.UserCollection()
+            uc.name = collection['name']
+            collection_exists = g.user_session.user_ob.get_collection_by_name(uc.name)
+            if collection_exists:
+                continue
+            else:
+                uc.user = g.user_session.user_id
+                uc.members = json.dumps(collection['members'])
+                db_session.add(uc)
+                db_session.commit()
+            
+    def display_num_collections(self):
+        """
+        Returns the number of collections or a blank string if there are zero.
+
+        Because this is so unimportant...we wrap the whole thing in a try/expect...last thing we
+        want is a webpage not to be displayed because of an error here
+
+        Importand TODO: use redis to cache this, don't want to be constantly computing it
+        """
+        try:
+            num = len(self.get_collections())
+            if num > 0:
+                return num
+            else:
+                return ""
+        except Exception as why:
+            print("Couldn't display_num_collections:", why)
+            return ""
 
 def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
@@ -164,7 +237,8 @@ class UserSession(object):
 @app.before_request
 def before_request():
     g.user_session = UserSession()
-
+    g.cookie_session = AnonUser()
+    
 class UsersManager(object):
     def __init__(self):
         self.users = model.User.query.all()
@@ -464,7 +538,14 @@ class LoginUser(object):
                 logger.debug("I will remember you")
                 self.remember_me = True
 
-            return self.actual_login(user)
+            if 'import_collections' in params:
+                import_col = "true"
+            else:
+                import_col = "false"
+            
+            #g.cookie_session.import_traits_to_user()           
+                
+            return self.actual_login(user, import_collections=import_col)
 
         else:
             if user:
@@ -474,16 +555,16 @@ class LoginUser(object):
 
             return response
 
-    def actual_login(self, user, assumed_by=None):
+    def actual_login(self, user, assumed_by=None, import_collections=None):
         """The meat of the logging in process"""
         session_id_signed = self.successful_login(user, assumed_by)
         flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
-        response = make_response(redirect(url_for('index_page')))
+        print("IMPORT1:", import_collections)
+        response = make_response(redirect(url_for('index_page', import_collections=import_collections)))
         if self.remember_me:
             max_age = self.remember_time
         else:
             max_age = None
-
         response.set_cookie(UserSession.cookie_name, session_id_signed, max_age=max_age)
         return response
 
