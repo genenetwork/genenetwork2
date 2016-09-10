@@ -6,7 +6,7 @@
    - [[#step-1-install-gnu-guix][Step 1: Install GNU Guix]]
    - [[#step-2-checkout-the-gn2-git-repositories][Step 2: Checkout the GN2 git repositories]]
    - [[#step-3-authorize-the-gn-guix-server][Step 3: Authorize the GN Guix server]]
-   - [[#step-4-install-and-run-gn2-][Step 4: Install and run GN2 ]]
+   - [[#step-4-install-and-run-gn2][Step 4: Install and run GN2]]
  - [[#run-mysql-server][Run MySQL server]]
  - [[#gn2-dependency-graph][GN2 Dependency Graph]]
  - [[#source-deployment][Source deployment]]
@@ -20,6 +20,7 @@
    - [[#importerror-no-module-named-jinja2][ImportError: No module named jinja2]]
    - [[#error-can-not-find-directory-homegn2_data][ERROR: can not find directory $HOME/gn2_data]]
    - [[#cant-run-a-module][Can't run a module]]
+   - [[#rpy2-error-show-now-found][Rpy2 error 'show' now found]]
  - [[#irc-session][IRC session]]
 
 * Introduction
@@ -453,6 +454,21 @@ In rare cases, development modules are not brought in with Guix
 because no source code is available. This can lead to missing modules
 on a running server. Please check with the authors when a module
 is missing.
+** Rpy2 error 'show' now found
+
+This error
+
+: __show = rpy2.rinterface.baseenv.get("show")
+: LookupError: 'show' not found
+
+means that R was updated in your path, and that Rpy2 needs to be
+recompiled against this R - don't you love informative messages?
+
+In our case it means that GN's PYTHONPATH is not in sync with
+R_LIBS_SITE. Please check your GNU Guix GN2 installation paths,
+you man need to reinstall. Note that this may be the point you
+may want to start using profiles (see profile section).
+
 * IRC session
 
 Here an IRC session where we installed GN2 from scratch using GNU Guix
