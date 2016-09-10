@@ -3,7 +3,7 @@
 Writes out data as /static/new/javascript/dataset_menu_structure.json
 It needs to be run manually when database has been changed. Run it as
 
-    python gen_select_dataset.py
+  ./bin/genenetwork2 ~/my_settings.py -c ./wqflask/maintenance/gen_select_dataset.py
 
 """
 

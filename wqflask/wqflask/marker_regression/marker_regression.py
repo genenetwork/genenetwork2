@@ -57,7 +57,7 @@ class MarkerRegression(object):
 
         all_samples_ordered = self.dataset.group.all_samples_ordered()
         primary_sample_names = list(all_samples_ordered)
-        
+
         for sample in self.dataset.group.samplelist:
             in_trait_data = False
             for item in self.this_trait.data:
@@ -241,9 +241,9 @@ class MarkerRegression(object):
                         highest_chr = marker['chr']
                     if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                         self.qtl_results.append(marker)
-       
+
             self.trimmed_markers = trim_markers_for_table(results)
-			
+
             self.json_data['chr'] = []
             self.json_data['pos'] = []
             self.json_data['lod.hk'] = []
@@ -560,7 +560,7 @@ class MarkerRegression(object):
 
 
     def gen_pheno_txt_file_plink(self, pheno_filename = ''):
-        ped_sample_list = self.get_samples_from_ped_file()	
+        ped_sample_list = self.get_samples_from_ped_file()
         output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
         header = 'FID\tIID\t%s\n' % self.this_trait.name
         output_file.write(header)
@@ -595,7 +595,7 @@ class MarkerRegression(object):
         output_file.close()
 
     def gen_pheno_txt_file_rqtl(self, pheno_filename = ''):
-        ped_sample_list = self.get_samples_from_ped_file()	
+        ped_sample_list = self.get_samples_from_ped_file()
         output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
         header = 'FID\tIID\t%s\n' % self.this_trait.name
         output_file.write(header)
@@ -653,7 +653,7 @@ class MarkerRegression(object):
             genotype = genotype.addinterval()
 
         samples, values, variances, sample_aliases = self.this_trait.export_informative()
-        
+
         trimmed_samples = []
         trimmed_values = []
         for i in range(0, len(samples)):
@@ -818,7 +818,7 @@ class MarkerRegression(object):
         """Runs permutations and gets significant and suggestive LOD scores"""
 
         top_lod_scores = []
-	
+
         #print("self.num_perm:", self.num_perm)
 
         for permutation in range(self.num_perm):
@@ -1084,7 +1084,7 @@ def create_snp_iterator_file(group):
 
 def trim_markers_for_table(markers):
     num_markers = len(markers)
-	
+
     if 'lod_score' in markers[0].keys():
         sorted_markers = sorted(markers, key=lambda k: k['lod_score'], reverse=True)
     else:
