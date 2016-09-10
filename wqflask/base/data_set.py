@@ -91,7 +91,7 @@ Publish or ProbeSet. E.g.
         if USE_GN_SERVER:
             data = menu_main()
         else:
-            file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
+            file_name = "wqflask/wqflask/static/new/javascript/dataset_menu_structure.json"
             with open(file_name, 'r') as fh:
                 data = json.load(fh)
 
