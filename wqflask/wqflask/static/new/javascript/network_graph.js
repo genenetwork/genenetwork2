@@ -13,7 +13,7 @@ window.onload=function() {
             style: {
               'background-color': '#666',
               'label': 'data(id)',
-              'font-size': 8
+              'font-size': 10
             }
           },
 
@@ -30,10 +30,10 @@ window.onload=function() {
       ],
       
       zoom: 12,
-      layout: { name: 'cose',
+      layout: { name: 'circle',
                 fit: true, // whether to fit the viewport to the graph
-                padding: 100, // the padding on fit
-                idealEdgeLength: function( edge ){ return edge.data['correlation']*10; },                
+                padding: 30 // the padding on fit
+                //idealEdgeLength: function( edge ){ return edge.data['correlation']*10; },                
               }, 
 
       
@@ -48,6 +48,8 @@ window.onload=function() {
       styleEnabled: true
     });
 
+    var eles = cy.$() // var containing all elements, so elements can be restored after being removed
+    
     var defaults = {
       zoomFactor: 0.05, // zoom factor per zoom tick
       zoomDelay: 45, // how many ms between zoom ticks
@@ -76,71 +78,113 @@ window.onload=function() {
 
     cy.panzoom( defaults );
     
-    cy.nodes().qtip({
-                        content: function(){
-                            gn_link = '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'</a>'+'</b><br>'
-                            ncbi_link = '<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=' + this.data().geneid + '" >NCBI<a>'+'<br>' 
-                            omim_link = '<a href="http://www.ncbi.nlm.nih.gov/omim/' + this.data().omim + '" >OMIM<a>'+'<br>' 
-                            qtip_content = gn_link + ncbi_link + omim_link
-                            return qtip_content
-                            //return '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'<a>'+'</b>' 
-                        },
-                        // content: {
-                            // title: '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.target() + '&dataset=' + this.dataset() + '" >'+this.target() +'<a>'+'</b>',
-                            // text: this.target,
-                            // button: true
-                        // },
-                        position: {
-                            my: 'top center',
-                            at: 'bottom center'
-                        },
-                        style: {
-                            classes: 'qtip-bootstrap',
-                            tip: {
-                                width: 16,
-                                height: 8
+    function create_qtips(cy){
+        cy.nodes().qtip({
+                            content: function(){
+                                gn_link = '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'</a>'+'</b><br>'
+                                ncbi_link = '<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=' + this.data().geneid + '" >NCBI<a>'+'<br>' 
+                                omim_link = '<a href="http://www.ncbi.nlm.nih.gov/omim/' + this.data().omim + '" >OMIM<a>'+'<br>' 
+                                qtip_content = gn_link + ncbi_link + omim_link
+                                return qtip_content
+                                //return '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'<a>'+'</b>' 
+                            },
+                            // content: {
+                                // title: '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.target() + '&dataset=' + this.dataset() + '" >'+this.target() +'<a>'+'</b>',
+                                // text: this.target,
+                                // button: true
+                            // },
+                            position: {
+                                my: 'top center',
+                                at: 'bottom center'
+                            },
+                            style: {
+                                classes: 'qtip-bootstrap',
+                                tip: {
+                                    width: 16,
+                                    height: 8
+                                }
                             }
-                        }
-                    });
-                    
-    cy.edges().qtip({
-                        content: function(){
-                            scatter_plot = '<b>'+'<a href="http://gn2-zach.genenetwork.org/corr_scatter_plot?dataset_1=' + this.data().source_dataset + '&dataset_2=' + this.data().target_dataset + '&trait_1=' + this.data().source + '&trait_2=' + this.data().target + '" >View Scatterplot</a>'+'</b>'
-                            return scatter_plot
-                        },
-                        position: {
-                            my: 'top center',
-                            at: 'bottom center'
-                        },
-                        style: {
-                            classes: 'qtip-bootstrap',
-                            tip: {
-                                width: 16,
-                                height: 8
+                        });
+                        
+        cy.edges().qtip({
+                            content: function(){
+                                correlation_line = '<b>Sample r: ' + this.data().correlation + '</b><br>'
+                                p_value_line = 'Sample p(r): ' + this.data().p_value + '<br>'
+                                overlap_line = 'Overlap: ' + this.data().overlap + '<br>'
+                                scatter_plot = '<a href="http://gn2-zach.genenetwork.org/corr_scatter_plot?dataset_1=' + this.data().source_dataset + '&dataset_2=' + this.data().target_dataset + '&trait_1=' + this.data().source + '&trait_2=' + this.data().target + '" >View Scatterplot</a>'
+                                return correlation_line + p_value_line + overlap_line + scatter_plot
+                            },
+                            position: {
+                                my: 'top center',
+                                at: 'bottom center'
+                            },
+                            style: {
+                                classes: 'qtip-bootstrap',
+                                tip: {
+                                    width: 16,
+                                    height: 8
+                                }
                             }
-                        }
-                    });
+                        });    
+    }
     
-    // var options = {
-      // name: 'breadthfirst',
+    create_qtips(cy)
+    
+    $('#slide').change(function() {
+        eles.restore()
+        
+        console.log(eles)
+        
+        // nodes_to_restore = eles.filter("node[max_corr >= " + $(this).val() + "], edge[correlation >= " + $(this).val() + "][correlation <= -" + $(this).val() + "]")
+        // nodes_to_restore.restore()
+        
+        // edges_to_restore = eles.filter("edge[correlation >= " + $(this).val() + "][correlation <= -" + $(this).val() + "]")
+        // edges_to_restore.restore()
+        
+        //cy.$("node[max_corr >= " + $(this).val() + "]").restore();
+        //cy.$("edge[correlation >= " + $(this).val() + "][correlation <= -" + $(this).val() + "]").restore();
+        
+        cy.$("node[max_corr < " + $(this).val() + "]").remove(); 
+        cy.$("edge[correlation < " + $(this).val() + "][correlation > -" + $(this).val() + "]").remove();
 
-      // fit: true, // whether to fit the viewport to the graph
-      // directed: false, // whether the tree is directed downwards (or edges can point in any direction if false)
-      // padding: 30, // padding on fit
-      // circle: false, // put depths in concentric circles if true, put depths top down if false
-      // spacingFactor: 1.75, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
-      // boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-      // avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
-      // roots: undefined, // the roots of the trees
-      // maximalAdjustments: 0, // how many times to try to position the nodes in a maximal way (i.e. no backtracking)
-      // animate: false, // whether to transition the node positions
-      // animationDuration: 500, // duration of animation in ms if enabled
-      // animationEasing: undefined, // easing of animation if enabled
-      // ready: undefined, // callback on layoutready
-      // stop: undefined // callback on layoutstop
-    // };
+        cy.layout({ name: $('select[name=layout_select]').val(),
+                    fit: true, // whether to fit the viewport to the graph
+                    padding: 25 // the padding on fit              
+                  });
+        
+    });
+    
+    $('select[name=focus_select]').change(function() {
+        focus_trait = $(this).val()
 
-    // cy.layout( options );
+        eles.restore()
+        cy.$('edge[source != "' + focus_trait + '"][target != "' + focus_trait + '"]').remove()
+
+        cy.layout({ name: $('select[name=layout_select]').val(),
+                    fit: true, // whether to fit the viewport to the graph
+                    padding: 25 // the padding on fit              
+                  });
+    });
+    
+    $('select[name=layout_select]').change(function() {
+        layout_type = $(this).val()
+        console.log("LAYOUT:", layout_type)
+        cy.layout({ name: layout_type,
+                    fit: true, // whether to fit the viewport to the graph
+                    padding: 25 // the padding on fit              
+                  });
+    });
+    
+    $("a#image_link").click(function(e) {
+      var pngData = cy.png();
+
+      image_link.href = 'data:image/png;base64,' + pngData;
+      image_link.download = 'network_graph.png';
+      
+      console.log("TESTING:", image_link)
+      
+    });
+
     
 };
 

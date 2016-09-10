@@ -108,11 +108,7 @@ class NetworkGraph(object):
             corr_result_row = []
             is_spearman = False #ZS: To determine if it's above or below the diagonal
             
-            node_dict = { 'data' : {'id' : this_trait.name, 
-                                    'dataset' : this_trait.dataset.name,
-                                    'geneid' : this_trait.geneid,
-                                    'omim' : this_trait.omim } }
-            self.nodes_list.append(node_dict)
+            max_corr = 0 #ZS: Used to determine whether node should be hidden when correlation coefficient slider is used
             
             for target in self.trait_list:
                 target_trait = target[0]
@@ -142,7 +138,7 @@ class NetworkGraph(object):
                     if is_spearman == False:
                         sample_r, sample_p = pearson_r, pearson_p
                         if sample_r == 1:
-                            break
+                            continue
                     else:
                         sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
  
@@ -166,21 +162,31 @@ class NetworkGraph(object):
                         width = 3 
                     else:
                         color = "#000000"
-                        width = 0                        
+                        width = 0                      
+ 
+                    if abs(sample_r) > max_corr:
+                        max_corr = abs(sample_r)
  
                     edge_data = {'id' : this_trait.name + '_to_' + target_trait.name,
-                                 'source' : this_trait.name,
-                                 'source_dataset' : this_trait.dataset.name,
-                                 'target' : target_trait.name,
-                                 'target_dataset' : target_trait.dataset.name,
+                                 'source' : this_trait.name + ":" + this_trait.dataset.name,
+                                 'target' : target_trait.name + ":" + target_trait.dataset.name,
                                  'correlation' : round(sample_r, 3),
+                                 'abs_corr' : abs(round(sample_r, 3)),
                                  'p_value' : round(sample_p, 3),
+                                 'overlap' : num_overlap,
                                  'color' : color,
                                  'width' : width }
                                  
                     edge_dict = { 'data' : edge_data }
                                  
                     self.edges_list.append(edge_dict)
+      
+            node_dict = { 'data' : {'id' : this_trait.name + ":" + this_trait.dataset.name, 
+                                    'label' : this_trait.name,
+                                    'geneid' : this_trait.geneid,
+                                    'omim' : this_trait.omim,
+                                    'max_corr' : max_corr } }
+            self.nodes_list.append(node_dict)
       
         #self.network_data['dataSchema'] = {'nodes' : [{'name' : "label" , 'type' : "string"}],
         #                                   'edges' : [{'name' : "label" , 'type' : "string"}] }
