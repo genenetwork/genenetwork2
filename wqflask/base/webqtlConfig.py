@@ -80,4 +80,3 @@ PORTADDR = "http://50.16.251.170"
 INFOPAGEHREF = '/dbdoc/%s.html'
 CGIDIR = '/webqtl/' #XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
 SCRIPTFILE = 'main.py'
-

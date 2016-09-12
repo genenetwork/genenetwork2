@@ -146,7 +146,7 @@ class ShowTrait(object):
         else:
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
-        logger.debug("sample_lists is:", pf(sample_lists))
+        # logger.debug("sample_lists is:", pf(sample_lists))
 
         self.get_mapping_methods()
 

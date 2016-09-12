@@ -1,6 +1,14 @@
 #! /bin/bash
 #
-# This will run the GN2 server (with default settings if none supplied).
+# This will run the GN2 server (with default settings if none supplied). Pass in
+# your own settings file, e.g.
+#
+#   ./bin/genenetwork2 ~/my_settings.py
+#
+# To run a maintenance script with settings (instead of the webserver) add that with
+# a -c switch, e.g.
+#
+#   ./bin/genenetwork2 ~/my_settings.py -c ./wqflask/maintenance/gen_select_dataset.py
 #
 # Environment settings can be used to preconfigure as well as a
 # settings.py file.
@@ -18,7 +26,12 @@ echo $GN2_BASE_PATH
 
 # Handle settings parameter
 settings=$1
-if [ -z $settings ]; then settings=$GN2_BASE_PATH/etc/default_settings.py ; fi
+if [ -z $settings ]; then
+    # get default
+    settings=$GN2_BASE_PATH/etc/default_settings.py
+else
+    shift
+fi
 if [ ! -e $settings ]; then
     echo "ERROR: can not locate settings file - pass it in the command line"
     exit 1
@@ -32,7 +45,15 @@ export PYTHONPATH=$GN2_BASE_PATH/wqflask:$PYTHONPATH
 if [ -z $TEMPDIR ]; then
     TEMPDIR="/tmp"
 fi
-                         
+
+# Now handle command parameter -c
+if [ $1 = '-c' ] ; then
+    echo PYTHONPATH=$PYTHONPATH
+    echo RUNNING COMMAND $2
+    /usr/bin/env python $2
+    exit 0
+fi
+
 echo "Starting the redis server:"
 echo -n "dir $TEMPDIR
 dbfilename gn2.rdb

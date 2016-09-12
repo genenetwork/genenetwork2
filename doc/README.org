@@ -6,7 +6,7 @@
    - [[#step-1-install-gnu-guix][Step 1: Install GNU Guix]]
    - [[#step-2-checkout-the-gn2-git-repositories][Step 2: Checkout the GN2 git repositories]]
    - [[#step-3-authorize-the-gn-guix-server][Step 3: Authorize the GN Guix server]]
-   - [[#step-4-install-and-run-gn2-][Step 4: Install and run GN2 ]]
+   - [[#step-4-install-and-run-gn2][Step 4: Install and run GN2]]
  - [[#run-mysql-server][Run MySQL server]]
  - [[#gn2-dependency-graph][GN2 Dependency Graph]]
  - [[#source-deployment][Source deployment]]
@@ -20,6 +20,7 @@
    - [[#importerror-no-module-named-jinja2][ImportError: No module named jinja2]]
    - [[#error-can-not-find-directory-homegn2_data][ERROR: can not find directory $HOME/gn2_data]]
    - [[#cant-run-a-module][Can't run a module]]
+   - [[#rpy2-error-show-now-found][Rpy2 error 'show' now found]]
  - [[#irc-session][IRC session]]
 
 * Introduction
@@ -117,7 +118,7 @@ cd guix-gn-latest
 ** Step 3: Authorize the GN Guix server
 
 GN2 has its own GNU Guix binary distribution server. To trust it you have
-to add the following key 
+to add the following key
 
 #+begin_src scheme
 (public-key
@@ -136,9 +137,9 @@ guix archive --authorize
 
 and hit Ctrl-D.
 
-Now you can use the substitute server to install GN2 binaries. 
+Now you can use the substitute server to install GN2 binaries.
 
-** Step 4: Install and run GN2 
+** Step 4: Install and run GN2
 
 Since this is a quick and dirty install we are going to override the
 GNU Guix package path by pointing the package path to our repository:
@@ -208,7 +209,7 @@ https://s3.amazonaws.com/genenetwork2/db_webqtl_s.zip
 Check the md5sum.
 
 After installation inflate the database binary in the MySQL directory
-(this installation path is subject to change soon) 
+(this installation path is subject to change soon)
 
 : chown -R mysql:mysql db_webqtl_s/
 : chmod 700 db_webqtl_s/
@@ -271,10 +272,10 @@ R_LIBS_SITE are set) from the information given by guix:
 Inside the repository:
 
 : cd genenetwork2
-: ./bin/genenetwork2 
+: ./bin/genenetwork2
 
-Will fire up your local repo http://localhost:5003/ using the  
-settings in ./etc/default_settings.py. These settings may 
+Will fire up your local repo http://localhost:5003/ using the
+settings in ./etc/default_settings.py. These settings may
 not reflect your system. To override settings create your own from a copy of
 default_settings.py and pass it into GN2 with
 
@@ -348,7 +349,7 @@ Make dirs
 
 Add users
 
-: adduser nobody ; addgroup nobody 
+: adduser nobody ; addgroup nobody
 
 Run nginx
 
@@ -392,6 +393,12 @@ Make a note of the paths with
 ./pre-inst-env guix package --search-paths
 #+end_src bash
 
+or this should also work if guix is installed
+
+#+begin_src bash
+guix package --search-paths
+#+end_src bash
+
 After setting the paths for the server
 
 #+begin_src bash
@@ -413,7 +420,7 @@ genenetwork2
 will start the default server which listens on port 5003, i.e.,
 http://localhost:5003/.
 
-OK, we are where we were before with step 4. Only difference is that we 
+OK, we are where we were before with step 4. Only difference is that we
 used our own compiled guix server.
 
 * Trouble shooting
@@ -433,7 +440,7 @@ On one system:
 : export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
 : export GEM_PATH="$HOME/.guix-profile/lib/ruby/gems/2.2.0"
 
-and perhaps a few more. 
+and perhaps a few more.
 ** ERROR: can not find directory $HOME/gn2_data
 
 The default settings file looks in your $HOME/gn2_data. Since these
@@ -447,6 +454,21 @@ In rare cases, development modules are not brought in with Guix
 because no source code is available. This can lead to missing modules
 on a running server. Please check with the authors when a module
 is missing.
+** Rpy2 error 'show' now found
+
+This error
+
+: __show = rpy2.rinterface.baseenv.get("show")
+: LookupError: 'show' not found
+
+means that R was updated in your path, and that Rpy2 needs to be
+recompiled against this R - don't you love informative messages?
+
+In our case it means that GN's PYTHONPATH is not in sync with
+R_LIBS_SITE. Please check your GNU Guix GN2 installation paths,
+you man need to reinstall. Note that this may be the point you
+may want to start using profiles (see profile section).
+
 * IRC session
 
 Here an IRC session where we installed GN2 from scratch using GNU Guix
@@ -466,7 +488,7 @@ and a download of the test database.
 <user01> set to the ones in ~/.guix-profile/
 <pjotrp> good, and you are in gn-latest-guix repo  [07:06]
 <user01> yep  [07:07]
-<pjotrp> git log shows 
+<pjotrp> git log shows
 
 Author: David Thompson <dthompson2@worcester.edu>
 Date:   Sun Mar 27 21:20:19 2016 -0400
@@ -488,7 +510,7 @@ genenetwork2-files-small        1.0     out ../guix-bioinformatics/gn/packages/g
 <user01> hah, I don't have screen installed yet  [07:11]
 <pjotrp> comes with guix ;)  [07:12]
 <pjotrp> no worries, you can run it any way you want
-<pjotrp> $HOME/.guix-profile/bin/guix-daemon --build-users-group=guixbuild 
+<pjotrp> $HOME/.guix-profile/bin/guix-daemon --build-users-group=guixbuild
 <user01> then something's weird, because it says I don't have it
 <pjotrp> oh, you need to install it first  [07:13]
 <pjotrp> guix package -A screen
@@ -546,11 +568,11 @@ The following derivations would be built:
 <pjotrp> https://github.com/pjotrp/guix-notes/blob/master/REPRODUCIBLE.org
 <pjotrp> this is exactly what we are doing now
 <user01> alrighty  [07:35]
-<pjotrp> To see if a remote server has a guix server running it should respond 
+<pjotrp> To see if a remote server has a guix server running it should respond
                                                                         [07:36]
 <pjotrp> lynx http://guix.genenetwork.org:8080 --dump
 <pjotrp> Resource not found: /
-<pjotrp> 
+<pjotrp>
 <pjotrp> you see that?
 <user01> yes  [07:37]
 <pjotrp> good. The main hydra server is too slow. So on my laptop I forced
@@ -558,7 +580,7 @@ The following derivations would be built:
 <pjotrp> env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env guix
          package -i genenetwork2 --dry-run
          --substitute-urls="http://mirror.hydra.gnu.org"
-<pjotrp> 
+<pjotrp>
 <pjotrp> the list looks the same to me  [07:40]
 <user01> me too
 <pjotrp> note that some packages will be built and some downloaded, right?
@@ -688,7 +710,7 @@ The following derivations would be built:
 <pjotrp> everything should be pre-built from guix.genenetwork.org
 <pjotrp> you are downloading?
 <user02> yes  [09:15]
-<pjotrp> cool. Maybe an idea to set up a server 
+<pjotrp> cool. Maybe an idea to set up a server
 <pjotrp> for your own use
 <user02> Stuck at downloading preprocesscore
 <pjotrp> should not  [09:24]
@@ -735,7 +757,7 @@ The following derivations would be built:
 <pjotrp> should be at
          /gnu/store/y1f3r2xs3fhyadd46nd2aqbr2p9qv2ra-r-biocpreprocesscore-1.32.0
                                                                         [09:33]
-<pjotrp> 
+<pjotrp>
 <user03> pjotrp: Possibly we should use the archive utility of Guix to do
         deployment to avoid such out-of-sync differences :)  [09:34]
 <pjotrp> maybe. I did not get archive to update profiles properly  [09:37]
@@ -802,7 +824,7 @@ The following derivations would be built:
 <pjotrp> but do not checkout that genetwork2_diet
 <pjotrp> we reverted to the main tree
 <pjotrp> clone git@github.com:genenetwork/genenetwork2.git  [09:53]
-<pjotrp> instead and checkout the staging branch 
+<pjotrp> instead and checkout the staging branch
 <pjotrp> that is effectively my branch  [09:54]
 <pjotrp> when that is done you should be able to fire up the webserver from
          there  [09:55]
@@ -825,7 +847,7 @@ The following derivations would be built:
 <user01> yep
 <pjotrp> that can also run on remote files over ssh
 <pjotrp> that's an alternative
-<pjotrp> kudos for using emacs :), wdyt user03 
+<pjotrp> kudos for using emacs :), wdyt user03
 <user02> 79 minutes to go downloading the db
 <pjotrp> user02: sorry about that  [09:59]
 <pjotrp> it is 2GB
@@ -850,7 +872,7 @@ The following derivations would be built:
          --substitute-urls="http://guix.genenetwork.org:8080"   [10:08]
 <pjotrp> elixir  1.2.3   out
          ../guix-bioinformatics/gn/packages/elixir.scm:31:2
-<pjotrp> 
+<pjotrp>
 <pjotrp> I am building it on guix.genenetwork.org right now  [10:09]
 <user01> nice  [10:10]
 #+end_src

@@ -3,6 +3,7 @@
 
 import os
 import sys
+
 from wqflask import app
 
 # Use the standard logger here to avoid a circular dependency

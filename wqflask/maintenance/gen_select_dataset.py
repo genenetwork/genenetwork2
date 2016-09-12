@@ -1,7 +1,9 @@
 """Script that generates the data for the main dropdown menus on the home page
 
 Writes out data as /static/new/javascript/dataset_menu_structure.json
-It needs to be run manually when database has been changed.
+It needs to be run manually when database has been changed. Run it as
+
+  ./bin/genenetwork2 ~/my_settings.py -c ./wqflask/maintenance/gen_select_dataset.py
 
 """
 
@@ -37,9 +39,15 @@ from __future__ import print_function, division
 #print("cdict is:", cdict)
 
 import sys
-# import zach_settings # no hard code paths!
 
-# import MySQLdb
+# NEW: Note we prepend the current path - otherwise a guix instance of GN2 is used instead
+sys.path.insert(0,'./wqflask')
+# NEW: import app to avoid a circular dependency on utility.tools
+from wqflask import app
+
+from utility.tools import locate, locate_ignore_error, TEMPDIR, SQL_URI
+
+import MySQLdb
 
 # import simplejson as json
 import urlparse
@@ -55,14 +63,13 @@ from pprint import pformat as pf
 
 #conn = Engine.connect()
 
-print('ERROR: This conversion is now OBSOLETE as the menu gets built from the database in Javascript using GN_SERVER instead!')
-sys.exit()
+print('WARNING: This conversion is now OBSOLETE as the menu gets built from the database in Javascript using GN_SERVER instead!')
 
 
 def parse_db_uri(db_uri):
     """Converts a database URI to the db name, host name, user name, and password"""
 
-    parsed_uri = urlparse.urlparse(zach_settings.DB_URI)
+    parsed_uri = urlparse.urlparse(SQL_URI)
 
     db_conn_info = dict(
                         db = parsed_uri.path[1:],
@@ -70,6 +77,7 @@ def parse_db_uri(db_uri):
                         user = parsed_uri.username,
                         passwd = parsed_uri.password)
 
+    print(db_conn_info)
     return db_conn_info
 
 
@@ -258,7 +266,7 @@ def build_datasets(species, group, type_name):
 def main():
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
 
-    parse_db_uri(zach_settings.SQL_URI)
+    parse_db_uri(SQL_URI)
 
     species = get_species()
     groups = get_groups(species)
@@ -281,7 +289,7 @@ def main():
 
     #print("data:", data)
 
-    output_file = """../wqflask/static/new/javascript/dataset_menu_structure.json"""
+    output_file = """./wqflask/wqflask/static/new/javascript/dataset_menu_structure.json"""
 
     with open(output_file, 'w') as fh:
         json.dump(data, fh, indent="   ", sort_keys=True)
@@ -297,6 +305,6 @@ def _test_it():
     #print("build_datasets:", pf(datasets))
 
 if __name__ == '__main__':
-    Conn = MySQLdb.Connect(**parse_db_uri(zach_settings.SQL_URI))
+    Conn = MySQLdb.Connect(**parse_db_uri(SQL_URI))
     Cursor = Conn.cursor()
     main()
