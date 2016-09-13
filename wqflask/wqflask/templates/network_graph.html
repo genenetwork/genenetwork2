@@ -22,6 +22,11 @@
                   <tbody>
                     <tr>
                       <td>
+                        <button id="reset_graph">Reset Graph</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
                         Focus Trait
                       </td>
                     </tr>
@@ -29,7 +34,7 @@
                       <td>
                         <select name="focus_select">
                           {% for trait in traits %}
-                          <option value="{{ trait.name }}:{{ trait.dataset.name }}">{{ trait.name }}</option>
+                          <option value="{{ trait.name }}:{{ trait.dataset.name }}">{{ trait.symbol }} ({{ trait.name }})</option>
                           {% endfor %}
                         </select>
                       </td>

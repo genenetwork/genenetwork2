@@ -167,9 +167,9 @@ class NetworkGraph(object):
                     if abs(sample_r) > max_corr:
                         max_corr = abs(sample_r)
  
-                    edge_data = {'id' : this_trait.name + '_to_' + target_trait.name,
-                                 'source' : this_trait.name + ":" + this_trait.dataset.name,
-                                 'target' : target_trait.name + ":" + target_trait.dataset.name,
+                    edge_data = {'id' : str(this_trait.name) + '_to_' + str(target_trait.name),
+                                 'source' : str(this_trait.name) + ":" + str(this_trait.dataset.name),
+                                 'target' : str(target_trait.name) + ":" + str(target_trait.dataset.name),
                                  'correlation' : round(sample_r, 3),
                                  'abs_corr' : abs(round(sample_r, 3)),
                                  'p_value' : round(sample_p, 3),
@@ -181,8 +181,9 @@ class NetworkGraph(object):
                                  
                     self.edges_list.append(edge_dict)
       
-            node_dict = { 'data' : {'id' : this_trait.name + ":" + this_trait.dataset.name, 
+            node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name), 
                                     'label' : this_trait.name,
+                                    'symbol' : this_trait.symbol,
                                     'geneid' : this_trait.geneid,
                                     'omim' : this_trait.omim,
                                     'max_corr' : max_corr } }

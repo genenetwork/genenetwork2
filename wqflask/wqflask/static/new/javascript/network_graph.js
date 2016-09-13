@@ -12,7 +12,7 @@ window.onload=function() {
             selector: 'node',
             style: {
               'background-color': '#666',
-              'label': 'data(id)',
+              'label': 'data(symbol)',
               'font-size': 10
             }
           },
@@ -152,6 +152,15 @@ window.onload=function() {
                     padding: 25 // the padding on fit              
                   });
         
+    });
+    
+    $('#reset_graph').click(function() {
+        eles.restore() 
+        $('#slide').val(0)
+        cy.layout({ name: $('select[name=layout_select]').val(),
+                    fit: true, // whether to fit the viewport to the graph
+                    padding: 25 // the padding on fit              
+                  });
     });
     
     $('select[name=focus_select]').change(function() {

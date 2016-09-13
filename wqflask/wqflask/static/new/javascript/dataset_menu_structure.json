@@ -317,6 +317,30 @@
             ]
          },
          "GTEx": {
+            "Adipose tissue, subcutaneous mRNA": [
+               [
+                  "580",
+                  "GTEx_log2_Subcu_0314",
+                  "GTEx Human Subcutaneous (Mar14) RPKM Log2"
+               ],
+               [
+                  "530",
+                  "GTEx_Subcu_0414",
+                  "GTEx Human Subcutaneous (Apr14) RPKM"
+               ]
+            ],
+            "Adipose tissue, visceral mRNA": [
+               [
+                  "587",
+                  "GTEx_log2_Visce_0314",
+                  "GTEx Human Visceral (Mar14) RPKM Log2"
+               ],
+               [
+                  "537",
+                  "GTEx_Visce_0414",
+                  "GTEx Human Visceral (Apr14) RPKM"
+               ]
+            ],
             "Adrenal Gland mRNA": [
                [
                   "545",
@@ -773,18 +797,6 @@
                   "GTEx Human Stomach (Apr14) RPKM"
                ]
             ],
-            "Subcutaneous mRNA": [
-               [
-                  "580",
-                  "GTEx_log2_Subcu_0314",
-                  "GTEx Human Subcutaneous (Mar14) RPKM Log2"
-               ],
-               [
-                  "530",
-                  "GTEx_Subcu_0414",
-                  "GTEx Human Subcutaneous (Apr14) RPKM"
-               ]
-            ],
             "Substantia Nigra mRNA": [
                [
                   "581",
@@ -857,18 +869,6 @@
                   "GTEx Human Vagina (Apr14) RPKM"
                ]
             ],
-            "Visceral mRNA": [
-               [
-                  "587",
-                  "GTEx_log2_Visce_0314",
-                  "GTEx Human Visceral (Mar14) RPKM Log2"
-               ],
-               [
-                  "537",
-                  "GTEx_Visce_0414",
-                  "GTEx Human Visceral (Apr14) RPKM"
-               ]
-            ],
             "Whole Blood mRNA": [
                [
                   "588",
@@ -883,6 +883,20 @@
             ]
          },
          "GTEx_v5": {
+            "Adipose tissue, subcutaneous mRNA": [
+               [
+                  "718",
+                  "GTEXv5_AdipSub_0915",
+                  "GTEXv5 Human Adipose Subcutaneous RefSeq (Sep15) RPKM log2"
+               ]
+            ],
+            "Adipose tissue, visceral mRNA": [
+               [
+                  "719",
+                  "GTEXv5_AdiVis_0915",
+                  "GTEXv5 Human Adipose Visceral Omentum RefSeq (Sep15) RPKM log2"
+               ]
+            ],
             "Adrenal Gland mRNA": [
                [
                   "720",
@@ -1191,13 +1205,6 @@
                   "GTEXv5 Human Stomach RefSeq (Sep15) RPKM log2"
                ]
             ],
-            "Subcutaneous mRNA": [
-               [
-                  "718",
-                  "GTEXv5_AdipSub_0915",
-                  "GTEXv5 Human Adipose Subcutaneous RefSeq (Sep15) RPKM log2"
-               ]
-            ],
             "Substantia Nigra mRNA": [
                [
                   "737",
@@ -1238,13 +1245,6 @@
                   "769",
                   "GTEXv5_Vag_0915",
                   "GTEXv5 Human Vagina RefSeq (Sep15) RPKM log2"
-               ]
-            ],
-            "Visceral mRNA": [
-               [
-                  "719",
-                  "GTEXv5_AdiVis_0915",
-                  "GTEXv5 Human Adipose Visceral Omentum RefSeq (Sep15) RPKM log2"
                ]
             ],
             "Whole Blood mRNA": [
@@ -1609,8 +1609,29 @@
                ]
             ]
          },
+         "B6D2": {
+            "Phenotypes": [
+               [
+                  "None",
+                  "B6D2Publish",
+                  "B6D2 Published Phenotypes"
+               ]
+            ],
+            "Retina mRNA": [
+               [
+                  "803",
+                  "UTHSC_mm9_B6D2_Ret_0916",
+                  "UTHSC B6D2 Retina Affy MoGene 1.0ST (Sep16) Gene Level RMA"
+               ]
+            ]
+         },
          "B6D2F2": {
             "Brain mRNA": [
+               [
+                  "78",
+                  "BRF2_M_0805_P",
+                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
+               ],
                [
                   "77",
                   "BRF2_M_0805_R",
@@ -1620,11 +1641,6 @@
                   "76",
                   "BRF2_M_0805_M",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) MAS5"
-               ],
-               [
-                  "78",
-                  "BRF2_M_0805_P",
-                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
                ],
                [
                   "33",
@@ -2306,14 +2322,14 @@
             ],
             "Kidney mRNA": [
                [
-                  "239",
-                  "MA_M2F_0706_R",
-                  "Mouse kidney M430v2 Female (Aug06) RMA"
-               ],
-               [
                   "240",
                   "MA_M2M_0706_R",
                   "Mouse kidney M430v2 Male (Aug06) RMA"
+               ],
+               [
+                  "239",
+                  "MA_M2F_0706_R",
+                  "Mouse kidney M430v2 Female (Aug06) RMA"
                ],
                [
                   "118",
@@ -2495,14 +2511,14 @@
             ],
             "Neocortex mRNA": [
                [
-                  "375",
-                  "DevNeocortex_ILM6.2P14RInv_1111",
-                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv"
-               ],
-               [
                   "374",
                   "DevNeocortex_ILM6.2P3RInv_1111",
                   "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv"
+               ],
+               [
+                  "375",
+                  "DevNeocortex_ILM6.2P14RInv_1111",
+                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv"
                ],
                [
                   "284",
@@ -3017,6 +3033,11 @@
             ],
             "Hippocampus mRNA": [
                [
+                  "214",
+                  "Illum_LXS_Hipp_NOE_1008",
+                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
+               ],
+               [
                   "211",
                   "Illum_LXS_Hipp_RSS_1008",
                   "Hippocampus Illumina RSS (Oct08) RankInv beta"
@@ -3035,11 +3056,6 @@
                   "212",
                   "Illum_LXS_Hipp_RSE_1008",
                   "Hippocampus Illumina RSE (Oct08) RankInv beta"
-               ],
-               [
-                  "214",
-                  "Illum_LXS_Hipp_NOE_1008",
-                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
                ],
                [
                   "143",
@@ -3472,6 +3488,10 @@
             "B6BTBRF2"
          ],
          [
+            "B6D2",
+            "Glaucoma and Aged Retina, UTHSC"
+         ],
+         [
             "B6D2F2",
             "B6D2F2"
          ],
@@ -3793,6 +3813,14 @@
          ],
          "GTEx": [
             [
+               "Adipose tissue, subcutaneous mRNA",
+               "Adipose tissue, subcutaneous mRNA"
+            ],
+            [
+               "Adipose tissue, visceral mRNA",
+               "Adipose tissue, visceral mRNA"
+            ],
+            [
                "Adrenal Gland mRNA",
                "Adrenal Gland mRNA"
             ],
@@ -3945,10 +3973,6 @@
                "Stomach mRNA"
             ],
             [
-               "Subcutaneous mRNA",
-               "Subcutaneous mRNA"
-            ],
-            [
                "Substantia Nigra mRNA",
                "Substantia Nigra mRNA"
             ],
@@ -3973,15 +3997,19 @@
                "Vagina mRNA"
             ],
             [
-               "Visceral mRNA",
-               "Visceral mRNA"
-            ],
-            [
                "Whole Blood mRNA",
                "Whole Blood mRNA"
             ]
          ],
          "GTEx_v5": [
+            [
+               "Adipose tissue, subcutaneous mRNA",
+               "Adipose tissue, subcutaneous mRNA"
+            ],
+            [
+               "Adipose tissue, visceral mRNA",
+               "Adipose tissue, visceral mRNA"
+            ],
             [
                "Adrenal Gland mRNA",
                "Adrenal Gland mRNA"
@@ -4159,10 +4187,6 @@
                "Stomach mRNA"
             ],
             [
-               "Subcutaneous mRNA",
-               "Subcutaneous mRNA"
-            ],
-            [
                "Substantia Nigra mRNA",
                "Substantia Nigra mRNA"
             ],
@@ -4185,10 +4209,6 @@
             [
                "Vagina mRNA",
                "Vagina mRNA"
-            ],
-            [
-               "Visceral mRNA",
-               "Visceral mRNA"
             ],
             [
                "Whole Blood mRNA",
@@ -4361,6 +4381,16 @@
             [
                "Liver mRNA",
                "Liver mRNA"
+            ]
+         ],
+         "B6D2": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ],
+            [
+               "Retina mRNA",
+               "Retina mRNA"
             ]
          ],
          "B6D2F2": [
