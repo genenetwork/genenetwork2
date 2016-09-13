@@ -40,8 +40,8 @@ from __future__ import print_function, division
 
 import sys
 
-# NEW: Note we prepend the current path - otherwise a guix instance of GN2 is used instead
-sys.path.insert(0,'./wqflask')
+# NEW: Note we prepend the current path - otherwise a guix instance of GN2 may be used instead
+sys.path.insert(0,'./')
 # NEW: import app to avoid a circular dependency on utility.tools
 from wqflask import app
 

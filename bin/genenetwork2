@@ -13,13 +13,12 @@
 # Environment settings can be used to preconfigure as well as a
 # settings.py file.
 
-# Absolute path to this script, e.g. /home/user/bin/foo.sh
 SCRIPT=$(readlink -f "$0")
-# Absolute path this script is in, thus /home/user/bin
 GN2_BASE_PATH=$(dirname $(dirname "$SCRIPT"))
 
 GN2_GUIX_PATH=$GN2_BASE_PATH/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg
 if [ -d $GN2_GUIX_PATH ]; then
+  echo GN2 is running from GUIX
   GN2_BASE_PATH=$GN2_GUIX_PATH
 fi
 echo $GN2_BASE_PATH
@@ -48,9 +47,11 @@ fi
 
 # Now handle command parameter -c
 if [ $1 = '-c' ] ; then
+    cd $GN2_BASE_PATH/wqflask
+    cmd=${2#wqflask/}
     echo PYTHONPATH=$PYTHONPATH
-    echo RUNNING COMMAND $2
-    /usr/bin/env python $2
+    echo RUNNING COMMAND $cmd
+    /usr/bin/env python $cmd
     exit 0
 fi
 
