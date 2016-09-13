@@ -187,8 +187,8 @@ window.onload=function() {
     $("a#image_link").click(function(e) {
       var pngData = cy.png();
 
-      image_link.href = 'data:image/png;base64,' + pngData;
-      image_link.download = 'network_graph.png';
+      $(this).attr('href', pngData);
+      $(this).attr('download', 'network_graph.png');
       
       console.log("TESTING:", image_link)
       
