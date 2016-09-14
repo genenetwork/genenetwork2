@@ -12,6 +12,7 @@ import datetime
 import os
 import collections
 import uuid
+import time
 
 import rpy2.robjects as ro
 import numpy as np
@@ -192,7 +193,9 @@ class MarkerRegression(object):
                 
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
+            self.dataset.group.assigngenofile = get_genofile(start_vars['genofile'])
             results = self.gen_reaper_results()
+
         elif self.mapping_method == "plink":
             results = self.run_plink()
         elif self.mapping_method == "pylmm":
@@ -649,6 +652,7 @@ class MarkerRegression(object):
         return sample_list
     
     def gen_reaper_results(self):
+        print("self.dataset.group.assigngenofile: %s" % self.dataset.group.assigngenofile)
         genotype = self.dataset.group.read_genotype_file()
 
         if self.manhattan_plot != True:
@@ -676,7 +680,7 @@ class MarkerRegression(object):
             
         self.json_data['suggestive'] = self.suggestive
         self.json_data['significant'] = self.significant
-
+        
         if self.control_marker != "" and self.do_control == "true":
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                  trait = trimmed_values,
@@ -706,11 +710,11 @@ class MarkerRegression(object):
         else:
             reaper_results = genotype.regression(strains = trimmed_samples,
                                                  trait = trimmed_values)
-                                                 
             if self.bootCheck:
                 self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
                                                             trait = trimmed_values,
                                                             nboot = self.num_bootstrap)
+
 
         self.json_data['chr'] = []
         self.json_data['pos'] = []
@@ -725,8 +729,10 @@ class MarkerRegression(object):
             reaper_locus = qtl.locus
             #ZS: Convert chr to int
             converted_chr = reaper_locus.chr
+
             if reaper_locus.chr != "X" and reaper_locus.chr != "X/Y":
                 converted_chr = int(reaper_locus.chr)
+
             self.json_data['chr'].append(converted_chr)
             self.json_data['pos'].append(reaper_locus.Mb)
             self.json_data['lod.hk'].append(qtl.lrs)
@@ -737,9 +743,7 @@ class MarkerRegression(object):
             qtl = {"lrs_value": qtl.lrs, "chr":converted_chr, "Mb":reaper_locus.Mb,
                    "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
             qtl_results.append(qtl)
-
         return qtl_results
-
 
     def parse_plink_output(self, output_filename):
         plink_results={}
@@ -1062,6 +1066,16 @@ class MarkerRegression(object):
                 new_genotypes.append(genotype)
             trimmed_genotype_data.append(new_genotypes)
         return trimmed_genotype_data
+    
+    
+def get_genofile(id):
+    query = """
+        SELECT GenoFile.`location`
+        FROM GenoFile
+        WHERE GenoFile.`id`='{}'
+        """.format(id)
+    re = g.db.execute(query).fetchone()
+    return re[0]
     
 def create_snp_iterator_file(group):
     """ 

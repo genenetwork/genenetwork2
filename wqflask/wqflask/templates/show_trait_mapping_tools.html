@@ -102,6 +102,20 @@
                                </label>
                             </div>
                         </div>
+						
+                          {% if genofiles and genofiles|length>0 %}
+                            <div class="mapping_method_fields form-group">
+                                <label for="genofiles" style="text-align:left;" class="col-xs-5 control-label">Geno Files</label>
+                                <div class="col-xs-5 controls">
+                                  <select name="genofile" class="form-control">
+                                  {% for item in genofiles %}
+                                    <option value="{{item[0]}}">{{item[1]}}</option>
+                                  {% endfor %}
+                                  </select>
+                                </div>
+                            </div>
+                          {% endif %}
+						
                         <div class="form-group">
                             <div style="padding-left:15px;" class="controls">
                                 <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Interval Mapping">
