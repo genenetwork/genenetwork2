@@ -248,6 +248,9 @@ class MarkerRegression(object):
             self.controlLocus = start_vars['control_marker']
         else:
             self.controlLocus = ""
+            
+        if 'genofile' in start_vars.keys():
+            self.dataset.group.genofile = start_vars['genofile']
 
         #try:
         self.selectedChr = int(start_vars['selected_chr'])

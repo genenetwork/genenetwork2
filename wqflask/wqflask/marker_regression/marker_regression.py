@@ -193,7 +193,7 @@ class MarkerRegression(object):
 
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            self.dataset.group.assigngenofile = get_genofile(start_vars['genofile'])
+            self.dataset.group.genofile = start_vars['genofile']
             results = self.gen_reaper_results()
 
         elif self.mapping_method == "plink":
@@ -650,7 +650,6 @@ class MarkerRegression(object):
         return sample_list
 
     def gen_reaper_results(self):
-        print("self.dataset.group.assigngenofile: %s" % self.dataset.group.assigngenofile)
         genotype = self.dataset.group.read_genotype_file()
 
         if self.manhattan_plot != True:
@@ -1064,15 +1063,6 @@ class MarkerRegression(object):
                 new_genotypes.append(genotype)
             trimmed_genotype_data.append(new_genotypes)
         return trimmed_genotype_data
-    
-def get_genofile(id):
-    query = """
-        SELECT GenoFile.`location`
-        FROM GenoFile
-        WHERE GenoFile.`id`='{}'
-        """.format(id)
-    re = g.db.execute(query).fetchone()
-    return re[0]
     
 def create_snp_iterator_file(group):
     """

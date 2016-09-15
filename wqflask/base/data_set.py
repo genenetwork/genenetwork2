@@ -277,7 +277,7 @@ class DatasetGroup(object):
         self.incparentsf1 = False
         self.allsamples = None
         self._datasets = None
-        self.assigngenofile = None
+        self.genofile = None
 
     def get_specified_markers(self, markers = []):
         self.markers = HumanMarkers(self.name, markers)
@@ -408,8 +408,8 @@ class DatasetGroup(object):
         genotype_1 = reaper.Dataset()
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
-        if self.assigngenofile:
-            full_filename = str(locate(self.assigngenofile, 'genotype'))
+        if self.genofile:
+            full_filename = str(locate(self.genofile, 'genotype'))
         else:
             full_filename = str(locate(self.name+'.geno', 'genotype'))
         print("before read full_filename: %s" % full_filename)

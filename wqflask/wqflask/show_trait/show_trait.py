@@ -1266,7 +1266,7 @@ def get_nearest_marker(this_trait, this_db):
 def get_genofiles(this_trait):
     servername = get_setting('SERVERNAME')
     query = """
-        SELECT GenoFile.`id`,GenoFile.`title`
+        SELECT GenoFile.`location`,GenoFile.`title`
         FROM GenoFile
         WHERE GenoFile.`server`='{}'
         AND GenoFile.`InbredSetID`='{}'
