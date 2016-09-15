@@ -190,8 +190,6 @@ window.onload=function() {
       $(this).attr('href', pngData);
       $(this).attr('download', 'network_graph.png');
       
-      console.log("TESTING:", image_link)
-      
     });
 
     

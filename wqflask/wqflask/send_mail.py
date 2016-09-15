@@ -43,7 +43,7 @@ def process_message(msg):
     message.Subject = msg['Subject']
     message.Body = msg['Body']
 
-    sender = mailer.Mailer('localhost')
+    sender = mailer.Mailer('127.0.0.1')
     sender.send(message)
     print("Sent message at {}: {}\n".format(timestamp(), msg))
 
