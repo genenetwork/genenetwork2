@@ -202,6 +202,7 @@ class MarkerRegression(object):
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
             self.dataset.group.genofile = start_vars['genofile']
+            self.dataset.group.get_markers()
             if self.num_perm > 0:
                 self.run_permutations(str(temp_uuid))
             results = self.gen_data(str(temp_uuid))
