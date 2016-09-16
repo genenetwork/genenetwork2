@@ -154,6 +154,27 @@
     };
   })(this));
 
+  $("#interval_mapping_compute").on("click", (function(_this) {
+    return function() {
+      var form_data, url;
+      console.log("In interval mapping");
+      //$("#progress_bar_container").modal();
+      url = "/marker_regression";
+      $('input[name=method]').val("reaper");
+      $('input[name=genofile').val($('#genofile_reaper').val());
+      $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
+      $('input[name=control_marker]').val($('input[name=control_reaper]').val());
+      $('input[name=do_control]').val($('input[name=do_control_reaper]:checked').val());
+      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
+      $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'));
+      $('input[name=suggestive]').val($('input[name=suggestive_reaper]'));
+      form_data = $('#trait_data_form').serialize();
+      console.log("form_data is:", form_data);
+      return submit_special(url);
+      //return do_ajax_post(url, form_data);
+    };
+  })(this));
+  
   $("#pylmm_mapping_compute").on("mouseover", (function(_this) {
     return function() {
       if ($(".outlier").length && $(".outlier-alert").length < 1) {
@@ -168,6 +189,7 @@
       //$("#progress_bar_container").modal();
       url = "/marker_regression";
       $('input[name=method]').val("pylmm");
+      $('input[name=genofile').val($('#genofile_pylmm').val());
       $('input[name=num_perm]').val($('input[name=num_perm_pylmm]').val());
       $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_pylmm]:checked').val());
       form_data = $('#trait_data_form').serialize();
@@ -183,6 +205,7 @@
       //$("#progress_bar_container").modal();
       url = "/marker_regression";
       $('input[name=method]').val("rqtl_geno");
+      $('input[name=genofile').val($('#genofile_rqtl_geno').val());
       $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
       $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val());
       $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
@@ -228,26 +251,6 @@
       url = "/marker_regression";
       $('input[name=method]').val("gemma");
       $('input[name=maf]').val($('input[name=maf_gemma]').val());
-      form_data = $('#trait_data_form').serialize();
-      console.log("form_data is:", form_data);
-      return submit_special(url);
-      //return do_ajax_post(url, form_data);
-    };
-  })(this));
-
-  $("#interval_mapping_compute").on("click", (function(_this) {
-    return function() {
-      var form_data, url;
-      console.log("In interval mapping");
-      //$("#progress_bar_container").modal();
-      url = "/marker_regression";
-      $('input[name=method]').val("reaper");
-      $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
-      $('input[name=control_marker]').val($('input[name=control_reaper]').val());
-      $('input[name=do_control]').val($('input[name=do_control_reaper]:checked').val());
-      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
-      $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'));
-      $('input[name=suggestive]').val($('input[name=suggestive_reaper]'));
       form_data = $('#trait_data_form').serialize();
       console.log("form_data is:", form_data);
       return submit_special(url);

@@ -159,6 +159,7 @@ class MarkerRegression(object):
         elif self.mapping_method == "rqtl_geno":
             self.score_type = "LOD"
             self.mapping_scale = "morgan"
+            self.dataset.group.genofile = start_vars['genofile']
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             self.method = start_vars['mapmethod_rqtl_geno']
@@ -200,6 +201,7 @@ class MarkerRegression(object):
             results = self.run_plink()
         elif self.mapping_method == "pylmm":
             print("RUNNING PYLMM")
+            self.dataset.group.genofile = start_vars['genofile']
             if self.num_perm > 0:
                 self.run_permutations(str(temp_uuid))
             results = self.gen_data(str(temp_uuid))
@@ -404,7 +406,8 @@ class MarkerRegression(object):
         GENOtoCSVR      = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
 
         crossname = self.dataset.group.name
-        genofilelocation  = locate(crossname + ".geno", "genotype")
+        genofile = self.dataset.group.genofile
+        genofilelocation  = locate(genofile, "genotype")
         crossfilelocation = TMPDIR + crossname + ".cross"
 
         #print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
