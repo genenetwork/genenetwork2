@@ -1268,6 +1268,8 @@ def get_genofiles(this_trait):
     genofiles = get_setting('GENOFILES')
     if genofiles and this_trait.dataset.group.id in genofiles:
         return genofiles[this_trait.dataset.group.id]
+    else:
+        return None
 
 def get_trait_table_width(sample_groups):
     table_width = 35
