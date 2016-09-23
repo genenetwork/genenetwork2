@@ -39,6 +39,7 @@ from utility.benchmark import Bench
 from wqflask.marker_regression import gemma_mapping
 
 from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
+from utility.tools import get_setting
 from utility.external import shell
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
@@ -193,7 +194,8 @@ class MarkerRegression(object):
 
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            self.dataset.group.assigngenofile = get_genofile(start_vars['genofile'])
+            if 'genofile' in start_vars:
+                self.dataset.group.assigngenofile = get_genofile(self.this_trait.dataset.group.id, start_vars['genofile'])
             results = self.gen_reaper_results()
 
         elif self.mapping_method == "plink":
@@ -650,7 +652,7 @@ class MarkerRegression(object):
         return sample_list
 
     def gen_reaper_results(self):
-        print("self.dataset.group.assigngenofile: %s" % self.dataset.group.assigngenofile)
+        print("self.dataset.group.assigngenofile: %s" % type(self.dataset.group.assigngenofile))
         genotype = self.dataset.group.read_genotype_file()
 
         if self.manhattan_plot != True:
@@ -1065,14 +1067,9 @@ class MarkerRegression(object):
             trimmed_genotype_data.append(new_genotypes)
         return trimmed_genotype_data
     
-def get_genofile(id):
-    query = """
-        SELECT GenoFile.`location`
-        FROM GenoFile
-        WHERE GenoFile.`id`='{}'
-        """.format(id)
-    re = g.db.execute(query).fetchone()
-    return re[0]
+def get_genofile(inbredsetid, index):
+    index = int(index)
+    return get_setting('GENOFILES')[inbredsetid][index][1];
     
 def create_snp_iterator_file(group):
     """

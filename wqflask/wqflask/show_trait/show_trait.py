@@ -1264,16 +1264,9 @@ def get_nearest_marker(this_trait, this_db):
         #return result[0][0], result[1][0]
 
 def get_genofiles(this_trait):
-    servername = get_setting('SERVERNAME')
-    query = """
-        SELECT GenoFile.`id`,GenoFile.`title`
-        FROM GenoFile
-        WHERE GenoFile.`server`='{}'
-        AND GenoFile.`InbredSetID`='{}'
-        ORDER BY GenoFile.`sort`
-        """.format(servername, this_trait.dataset.group.id)
-    re = g.db.execute(query).fetchall()
-    return re
+    genofiles = get_setting('GENOFILES')
+    if genofiles and this_trait.dataset.group.id in genofiles:
+        return genofiles[this_trait.dataset.group.id]
 
 def get_trait_table_width(sample_groups):
     table_width = 35

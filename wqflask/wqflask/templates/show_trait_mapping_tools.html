@@ -38,7 +38,7 @@
                             <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 <select name="genofile" class="form-control">
                                     {% for item in genofiles %}
-                                    <option value="{{item[0]}}">{{item[1]}}</option>
+                                    <option value="{{loop.index0}}">{{item[0]}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
