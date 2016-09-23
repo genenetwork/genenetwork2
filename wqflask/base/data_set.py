@@ -164,8 +164,9 @@ def mescape(*items):
 
 class Markers(object):
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
-    def __init__(self, name):
-        json_data_fh = open(locate(name + '.json','genotype/json'))
+    def __init__(self, genofile):
+        json_filename = ".".join(genofile.split(".")[:-1]) + ".json"
+        json_data_fh = open(locate(json_filename,'genotype/json'))
         try:
             markers = json.load(json_data_fh)
         except:
@@ -224,8 +225,9 @@ class Markers(object):
 
 class HumanMarkers(Markers):
 
-    def __init__(self, name, specified_markers = []):
-        marker_data_fh = open(locate('genotype') + '/' + name + '.bim')
+    def __init__(self, genofile, specified_markers = []):
+        group_name = ".".join(genofile.split(".")[:-1])
+        marker_data_fh = open(locate('genotype') + '/' + group_name + '.bim')
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
@@ -277,7 +279,7 @@ class DatasetGroup(object):
         self.incparentsf1 = False
         self.allsamples = None
         self._datasets = None
-        self.assigngenofile = None
+        self.genofile = self.name + ".geno"
 
     def get_specified_markers(self, markers = []):
         self.markers = HumanMarkers(self.name, markers)
@@ -289,7 +291,7 @@ class DatasetGroup(object):
         else:
             marker_class = Markers
 
-        self.markers = marker_class(self.name)
+        self.markers = marker_class(self.genofile)
 
     def datasets(self):
         key = "group_dataset_menu:v2:" + self.name
@@ -408,8 +410,8 @@ class DatasetGroup(object):
         genotype_1 = reaper.Dataset()
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
-        if self.assigngenofile:
-            full_filename = str(locate(self.assigngenofile, 'genotype'))
+        if self.genofile:
+            full_filename = str(locate(self.genofile, 'genotype'))
         else:
             full_filename = str(locate(self.name+'.geno', 'genotype'))
         print("before read full_filename: %s" % full_filename)

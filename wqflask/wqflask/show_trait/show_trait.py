@@ -122,6 +122,7 @@ class ShowTrait(object):
         hddn['method'] = "pylmm"
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
+        hddn['genofile'] = ""
         hddn['num_perm'] = 0
         hddn['manhattan_plot'] = ""
         if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
