@@ -60,9 +60,10 @@ ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Lucene/Details?sp
 #   HTMLPATH is replaced by GENODIR
 #   IMGDIR is replaced by GENERATED_IMAGE_DIR
 
-# Temporary storage:
+# Temporary storage (note that this TMPDIR is not the same directory
+# as the UNIX TMPDIR)
 TMPDIR               = mk_dir(TEMPDIR+'/gn2/')
-CACHEDIR             = mk_dir(TEMPDIR+'/cache/')
+CACHEDIR             = mk_dir(TMPDIR+'/cache/')
 # We can no longer write into the git tree:
 GENERATED_IMAGE_DIR  = mk_dir(TMPDIR+'/generated/')
 GENERATED_TEXT_DIR   = mk_dir(TMPDIR+'/generated_text/')

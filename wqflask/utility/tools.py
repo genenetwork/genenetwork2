@@ -147,7 +147,10 @@ def locate_ignore_error(name, subdir=None):
     return None
 
 def tempdir():
-    return valid_path(get_setting("TEMPDIR","/tmp"))
+    """
+    Get UNIX TMPDIR by default
+    """
+    return valid_path(get_setting("TMPDIR","/tmp"))
 
 BLUE  = '\033[94m'
 GREEN = '\033[92m'
@@ -184,9 +187,9 @@ LOG_BENCH          = get_setting_bool('LOG_BENCH')
 LOG_FORMAT         = "%(message)s"    # not yet in use
 USE_REDIS          = get_setting_bool('USE_REDIS')
 USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
+GENENETWORK_FILES  = get_setting_bool('GENENETWORK_FILES')
 
 PYLMM_COMMAND      = pylmm_command()
 GEMMA_COMMAND      = gemma_command()
 PLINK_COMMAND      = plink_command()
-FLAT_FILES         = flat_files()
 TEMPDIR            = tempdir()
