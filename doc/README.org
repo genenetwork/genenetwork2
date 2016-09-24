@@ -29,7 +29,7 @@ If you want to understand the architecture of GN2 read
 [[Architecture.org]].  The rest of this document is mostly on deployment
 of GN2.
 
-Large system deployments can get very [[http://biobeat.org/gn2.svg][complex]]. In this document we
+Large system deployments can get very [[http://biogems.info/contrib/genenetwork/gn2.svg ][complex]]. In this document we
 explain the GeneNetwork version 2 (GN2) reproducible deployment system
 which is based on GNU Guix (see also Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]). The Guix
 system can be used to install GN with all its files and dependencies.
@@ -243,7 +243,7 @@ change the settings in etc/default_settings.py to match your path.
 Graph of all runtime dependencies as installed by GNU Guix.
 
 #+ATTR_HTML: :title GN2_graph
-[[http://biobeat.org/gn2.svg]]
+http://biogems.info/contrib/genenetwork/gn2.svg
 
 * Source deployment
 
