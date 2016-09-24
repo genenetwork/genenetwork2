@@ -59,6 +59,7 @@ class MarkerRegression(object):
         primary_sample_names = list(all_samples_ordered)
 
         for sample in self.dataset.group.samplelist:
+            # sample is actually the name of an individual
             in_trait_data = False
             for item in self.this_trait.data:
                 if self.this_trait.data[item].name == sample:
@@ -68,9 +69,10 @@ class MarkerRegression(object):
                     in_trait_data = True
                     break
             if not in_trait_data:
-                value = start_vars['value:' + sample]
-                self.samples.append(sample)
-                self.vals.append(value)
+                value = start_vars.get('value:' + sample)
+                if value:
+                    self.samples.append(sample)
+                    self.vals.append(value)
 
         self.mapping_method = start_vars['method']
         if start_vars['manhattan_plot'] == "True":
