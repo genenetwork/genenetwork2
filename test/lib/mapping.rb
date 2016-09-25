@@ -11,10 +11,11 @@ describe MappingTest do
 
   describe MappingTest do
     it "pyLMM mapping tool selection" do
-      url = $host+'/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P'
-      page = @agent.get(url)
+      url = $host+'/marker_regression?trait_id=1435395_s_at&dataset=HC_M2_0606_P'
+      page = @agent.post(url)
       json = JSON::load(File.read('test/data/input/mapping/1435395_s_at_HC_M2_0606_P.json'))
       p json
+      p page
       # get the form
       # form = @agent.page.form_with(:name => "my-form")
       # get the button you want from the form

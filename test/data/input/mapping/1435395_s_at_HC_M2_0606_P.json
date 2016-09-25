@@ -1,6 +1,6 @@
 { "maf" : "0.01",
   "control_marker" : "mCV24506226",
- "dataset" : "HC_M2_0606_P",
+  "dataset" : "HC_M2_0606_P",
  "do_control" : "false",
  "maf" : "0.01",
  "manhattan_plot" : "False",
