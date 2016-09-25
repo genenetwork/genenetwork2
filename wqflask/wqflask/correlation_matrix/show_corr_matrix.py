@@ -83,15 +83,12 @@ class CorrelationMatrix(object):
             this_trait = trait_db[0]
             this_sample_data = this_trait.data
 
-            #self.sample_data[this_trait.name] = []
             this_trait_vals = []
             for sample in self.all_sample_list:
                 if sample in this_sample_data:
                     this_trait_vals.append(this_sample_data[sample].value)
-                    #self.sample_data[this_trait.name].append(this_sample_data[sample].value)
                 else:
                     this_trait_vals.append('')
-                    #self.sample_data[this_trait.name].append('')
             self.sample_data.append(this_trait_vals)
 
         self.lowest_overlap = 8 #ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
@@ -114,7 +111,6 @@ class CorrelationMatrix(object):
                 target_samples = target_db.group.samplelist
 
                 target_sample_data = target_trait.data
-                print("target_samples", len(target_samples))
 
                 this_trait_vals = []
                 target_vals = []
@@ -166,17 +162,7 @@ class CorrelationMatrix(object):
                             sample_data = self.sample_data,)
         #                    corr_results = [result[1] for result in result_row for result_row in self.corr_results])
 
-
-        #self.js_data = dict(traits = self.traits,
-        #                    groups = groups,
-        #                    cols = range(len(self.traits)),
-        #                    rows = range(len(self.traits)),
-        #                    samples = self.all_sample_list,
-        #                    sample_data = self.sample_data,
-        #                    corr_results = self.corr_results,)
-
-
-
+        
     def get_trait_db_obs(self, trait_db_list):
 
         self.trait_list = []

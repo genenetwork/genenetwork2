@@ -108,7 +108,6 @@ mysql> select * from Strain order by Id desc limit 5;
 try:
 	#import getpass
 	#passwd = getpass.getpass('Please enter mysql password here : ')
-    logger.warning("Creating new MySQLdb cursor (this method is OBSOLETE!)")
 	con = MySQLdb.Connect(db='db_webqtl',user='webqtlupd',passwd='webqtl', host="opteron")
 	cursor = con.cursor()
 	print "You have successfully connected to mysql.\n"

@@ -117,12 +117,12 @@
                         {% elif dataset.type == 'Publish' %}
                             <TD>{{ this_trait.description_display }}</TD>
                             <TD>{{ this_trait.authors }}</TD>
-                            <TD>
+                            <TD data-sort="{{ this_trait.pubmed_text }}">
                                 <a href="{{ this_trait.pubmed_link }}">
                                     {{ this_trait.pubmed_text }}
                                 </a>
                             </TD>
-                            <TD>{{ this_trait.LRS_score_repr }}</TD>
+                            <TD>{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
                             <TD>{{ this_trait.LRS_location_repr }}</TD>
                             <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
                         {% elif dataset.type == 'Geno' %}
@@ -161,9 +161,8 @@
 {% block js %}
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>   
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/scroller/1.4.1/js/dataTables.scroller.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
@@ -171,7 +170,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.min.js"></script>
-    <script language="javascript" type="text/javascript" src="//cdn.datatables.net/fixedcolumns/3.0.4/js/dataTables.fixedColumns.min.js"></script>
 	
     <script type="text/javascript" charset="utf-8">
         function getValue(x) {

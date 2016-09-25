@@ -83,7 +83,7 @@ class User(Base):
 
     def get_collection_by_name(self, collection_name):
         try:
-            collect = self.user_collections.filter_by(name=collection_name).one()
+            collect = self.user_collections.filter_by(name=collection_name).first()
         except  sqlalchemy.orm.exc.NoResultFound:
             collect = None
         return collect
@@ -177,11 +177,9 @@ class UserCollection(Base):
         except:
             return 0
 
-
     #@property
     #def display_num_members(self):
     #    return display_collapsible(self.num_members)
-
 
     def members_as_set(self):
         return set(json.loads(self.members))

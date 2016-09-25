@@ -47,8 +47,6 @@ class MarkerRegression(object):
 
         helper_functions.get_species_dataset_trait(self, start_vars)
 
-        #tempdata = temp_data.TempData(temp_uuid)
-
         self.temp_uuid = temp_uuid #needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
 
         self.json_data = {}
@@ -57,20 +55,24 @@ class MarkerRegression(object):
         self.samples = [] # Want only ones with values
         self.vals = []
 
-        #for sample in self.this_trait.data.keys():
+        all_samples_ordered = self.dataset.group.all_samples_ordered()
+        primary_sample_names = list(all_samples_ordered)
+
         for sample in self.dataset.group.samplelist:
+            # sample is actually the name of an individual
             in_trait_data = False
             for item in self.this_trait.data:
-                if self.this_trait.data[item].name2 == sample:
+                if self.this_trait.data[item].name == sample:
                     value = start_vars['value:' + self.this_trait.data[item].name]
                     self.samples.append(self.this_trait.data[item].name)
                     self.vals.append(value)
                     in_trait_data = True
                     break
             if not in_trait_data:
-                value = start_vars['value:' + sample]
-                self.samples.append(sample)
-                self.vals.append(value)
+                value = start_vars.get('value:' + sample)
+                if value:
+                    self.samples.append(sample)
+                    self.vals.append(value)
 
         self.mapping_method = start_vars['method']
         if start_vars['manhattan_plot'] == "True":
@@ -213,7 +215,6 @@ class MarkerRegression(object):
                     if 'lod_score' in marker.keys():
                         self.qtl_results.append(marker)
 
-
             self.trimmed_markers = results
 
             for qtl in enumerate(self.qtl_results):
@@ -244,7 +245,7 @@ class MarkerRegression(object):
                         self.qtl_results.append(marker)
 
             self.trimmed_markers = trim_markers_for_table(results)
-			
+
             self.json_data['chr'] = []
             self.json_data['pos'] = []
             self.json_data['lod.hk'] = []
@@ -277,7 +278,6 @@ class MarkerRegression(object):
                 chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
 
             # print("json_data:", self.json_data)
-
 
             self.js_data = dict(
                 result_score_type = self.score_type,
@@ -562,7 +562,7 @@ class MarkerRegression(object):
 
 
     def gen_pheno_txt_file_plink(self, pheno_filename = ''):
-        ped_sample_list = self.get_samples_from_ped_file()	
+        ped_sample_list = self.get_samples_from_ped_file()
         output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
         header = 'FID\tIID\t%s\n' % self.this_trait.name
         output_file.write(header)
@@ -597,7 +597,7 @@ class MarkerRegression(object):
         output_file.close()
 
     def gen_pheno_txt_file_rqtl(self, pheno_filename = ''):
-        ped_sample_list = self.get_samples_from_ped_file()	
+        ped_sample_list = self.get_samples_from_ped_file()
         output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
         header = 'FID\tIID\t%s\n' % self.this_trait.name
         output_file.write(header)
@@ -659,11 +659,10 @@ class MarkerRegression(object):
         trimmed_samples = []
         trimmed_values = []
         for i in range(0, len(samples)):
-            if self.this_trait.data[samples[i]].name2 in self.dataset.group.samplelist:
-                trimmed_samples.append(sample_aliases[i])
+            #if self.this_trait.data[samples[i]].name2 in self.dataset.group.samplelist:
+            if self.this_trait.data[samples[i]].name in self.samples:
+                trimmed_samples.append(samples[i])
                 trimmed_values.append(values[i])
-
-        #print("THE SAMPLES:", trimmed_samples)
 
         if self.num_perm < 100:
             self.suggestive = 0
@@ -821,7 +820,7 @@ class MarkerRegression(object):
         """Runs permutations and gets significant and suggestive LOD scores"""
 
         top_lod_scores = []
-	
+
         #print("self.num_perm:", self.num_perm)
 
         for permutation in range(self.num_perm):
@@ -1087,7 +1086,7 @@ def create_snp_iterator_file(group):
 
 def trim_markers_for_table(markers):
     num_markers = len(markers)
-	
+
     if 'lod_score' in markers[0].keys():
         sorted_markers = sorted(markers, key=lambda k: k['lod_score'], reverse=True)
     else:

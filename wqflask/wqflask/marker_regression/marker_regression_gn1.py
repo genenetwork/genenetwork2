@@ -169,6 +169,7 @@ class MarkerRegression(object):
         self.species = start_vars['species']
 
         #Needing for form submission when doing single chr mapping or remapping after changing options
+        self.samples = start_vars['samples']
         self.vals = start_vars['vals']
         self.mapping_method = start_vars['mapping_method']
         if self.mapping_method == "rqtl_geno":
@@ -210,6 +211,8 @@ class MarkerRegression(object):
             self.plotScale = start_vars['mapping_scale']
         else:
             self.plotScale = "physic"
+            
+        self.manhattan_plot = start_vars['manhattan_plot']
 
         if 'permCheck' in start_vars.keys():
             self.permChecked = start_vars['permCheck']
@@ -260,6 +263,8 @@ class MarkerRegression(object):
 
         self.strainlist = self.dataset.group.samplelist
         self.genotype = self.dataset.group.read_genotype_file()
+        if self.mapping_method == "reaper" and self.manhattan_plot != True:
+            self.genotype = self.genotype.addinterval()
 
         #Darwing Options
         try:
@@ -282,7 +287,6 @@ class MarkerRegression(object):
 ## END HaplotypeAnalyst
 
         self.graphHeight = self.GRAPH_DEFAULT_HEIGHT
-        self.manhattan_plot = start_vars['manhattan_plot']
         self.dominanceChecked = False
         self.LRS_LOD = start_vars['LRSCheck']
         self.cutoff = start_vars['cutoff']
@@ -505,14 +509,21 @@ class MarkerRegression(object):
 
         self.geneCol = None
         if self.plotScale == 'physic' and self.selectedChr > -1 and (self.intervalAnalystChecked  or self.geneChecked):
-            chrName = self.selectedChr
             # Draw the genes for this chromosome / region of this chromosome
             webqtldatabase = self.dataset.name
 
             if self.dataset.group.species == "mouse":
+                if self.selectedChr == 20:
+                    chrName = "X" 
+                else:
+                    chrName = self.selectedChr
                 self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "mouse")
             elif self.dataset.group.species == "rat":
-               self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "rat")
+                if self.selectedChr == 21:
+                    chrName = "X" 
+                else:
+                    chrName = self.selectedChr
+                self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "rat")
 
             if self.geneCol and self.intervalAnalystChecked:
                #######################################################################
@@ -801,8 +812,8 @@ class MarkerRegression(object):
         plotXScale = self.drawGraphBackground(canvas, gifmap, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         #draw bootstap
-        if self.bootChecked and not self.multipleInterval:
-            self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset)
+        if self.bootChecked and not self.multipleInterval and not self.manhattan_plot:
+            self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         # Draw clickable region and gene band if selected
         if self.plotScale == 'physic' and self.selectedChr > -1:
@@ -849,7 +860,7 @@ class MarkerRegression(object):
         BootCoord = []
         i = 0
         startX = xLeftOffset
-
+     
         if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
             for j, _chr in enumerate(self.genotype):
                 BootCoord.append( [])
@@ -868,12 +879,12 @@ class MarkerRegression(object):
                 for _locus in _chr:
                     if _chr.name == self.ChrList[self.selectedChr][0]:
                         if self.plotScale == 'physic':
-                            Xc = startX + (_locus.Mb-self.startMb)*plotXScale
+                            Xc = startX + (_locus.Mb-startMb)*plotXScale
                         else:
                             Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
                         BootCoord[-1].append([Xc, self.bootResult[i]])
-                    i += 1
-
+                    i += 1   
+                    
         #reduce bootResult
         if self.selectedChr > -1:
             maxBootBar = 80.0
@@ -1009,7 +1020,7 @@ class MarkerRegression(object):
                     else:
                         locPixel += (Mb*(_chr[-1].cM-_chr[0].cM)/self.ChrLengthCMList[i])*plotXScale
                         break
-        if locPixel >= 0:
+        if locPixel >= 0 and self.plotScale == 'physic':
             traitPixel = ((locPixel, yZero), (locPixel-6, yZero+12), (locPixel+6, yZero+12))
             canvas.drawPolygon(traitPixel, edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
 
@@ -1754,6 +1765,7 @@ class MarkerRegression(object):
                     strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=megabaseLabelFont, color=pid.black)
             pass
         else:
+            strYLoc = yZero + spacingFromLabelToAxis + canvas.fontHeight(MBLabelFont) + 8
             ChrAInfo = []
             preLpos = -1
             distinctCount = 0.0
@@ -1839,6 +1851,10 @@ class MarkerRegression(object):
                 if j == 0:
                     canvas.drawLine(startPosX,yZero,startPosX,yZero+40, color=lineColor)
                 startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
+                
+            centimorganLabelFont = pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
+            canvas.drawString("Centimorgans", xLeftOffset + (plotWidth - canvas.stringWidth("Megabases", font=centimorganLabelFont))/2,
+                    strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=centimorganLabelFont, color=pid.black)
 
         canvas.drawLine(xLeftOffset, yZero, xLeftOffset+plotWidth, yZero, color=pid.black, width=X_AXIS_THICKNESS) # Draw the X axis itself
 
@@ -2010,7 +2026,7 @@ class MarkerRegression(object):
                 if self.manhattan_plot != True:
                     canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
-                if not self.multipleInterval and self.additiveChecked:
+                if not self.multipleInterval and not self.manhattan_plot and self.additiveChecked:
                     plusColor = self.ADDITIVE_COLOR_POSITIVE
                     minusColor = self.ADDITIVE_COLOR_NEGATIVE
                     for k, aPoint in enumerate(AdditiveCoordXY):
@@ -2855,6 +2871,10 @@ class MarkerRegression(object):
                         polymiRTS = dic[theGO["GeneID"]]
 
                     # If we have a referenceGene then we will show the Literature Correlation
+                    if theGO["Chromosome"] == "X":
+                        chr_as_int = 19
+                    else:
+                        chr_as_int = int(theGO["Chromosome"]) - 1
                     if refGene:
                         try:
                             literatureCorrelation = self.getLiteratureCorrelation(self.cursor,refGene,theGO['GeneID'])
@@ -2867,7 +2887,7 @@ class MarkerRegression(object):
                                     str(tableIterationsCnt),
                                     HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__() +  "&nbsp;" + probeSetSearch.__str__(),
                                     HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
-                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(int(theGO["Chromosome"])-1), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
@@ -2898,7 +2918,7 @@ class MarkerRegression(object):
                                     str(tableIterationsCnt),
                                     HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__() +  "&nbsp;" + probeSetSearch.__str__(),
                                     HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
-                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(int(theGO["Chromosome"])-1), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
@@ -2930,15 +2950,20 @@ class MarkerRegression(object):
             for gIndex, theGO in enumerate(geneCol):
 
                 this_row = [] #container for the cells of each row
-                selectCheck = HT.Input(type="checkbox", name="searchResult", Class="checkbox", onClick="highlight(this)") #checkbox for each row
+                selectCheck = HT.Input(type="checkbox", name="searchResult", Class="checkbox", onClick="highlight(this)").__str__() #checkbox for each row
 
-                webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], HT.Image("/images/webqtl_search.gif", border=0), target="_blank")
+                webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], ">>", target="_blank").__str__()
 
                 if theGO["GeneID"] != "":
-                    geneSymbolNCBI = HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % theGO["GeneID"], theGO["GeneSymbol"], Class="normalsize", target="_blanK")
+                    geneSymbolNCBI = HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % theGO["GeneID"], theGO["GeneSymbol"], Class="normalsize", target="_blank").__str__()
                 else:
                     geneSymbolNCBI = theGO["GeneSymbol"]
 
+                if theGO["Chromosome"] == "X":
+                    chr_as_int = 20
+                else:
+                    chr_as_int = int(theGO["Chromosome"]) - 1
+                    
                 geneLength = (float(theGO["TxEnd"]) - float(theGO["TxStart"]))
                 #geneLengthURL = "javascript:centerIntervalMapOnRange2('%s', %f, %f, document.changeViewForm)" % (theGO["Chromosome"], float(theGO["TxStart"])-(geneLength*0.1), float(theGO["TxEnd"])+(geneLength*0.1))
                 geneLengthURL = "javascript:rangeView('%s', %f, %f)" % (theGO["Chromosome"], float(theGO["TxStart"])-(geneLength*0.1), float(theGO["TxEnd"])+(geneLength*0.1))

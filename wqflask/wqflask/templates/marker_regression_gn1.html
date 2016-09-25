@@ -15,7 +15,7 @@
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
-        {% for sample in dataset.group.samplelist %}
+        {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
         <input type="hidden" name="maf">
@@ -184,14 +184,16 @@
         </div>
 
         </form>
-        <div style="width:48%;">
-          {% if selectedChr == -1 %}
+        {% if selectedChr == -1 %}
+        <div style="width:{% if 'additive' in trimmed_markers[0] %}50%{% else %}35%{% endif %};">
           <h2>Results</h2>
+          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black;">
           <table id="qtl_results" class="table table-hover table-striped">
             <thead>
               <tr>
                 <th></th>
-                <th>Index</th>
+                <th>Row</th>
+                <th>Locus</th>
                 <th>{{ LRS_LOD }}</th>
                 <th>Chr</th>
                 {% if plotScale == "centimorgan" %}
@@ -199,7 +201,12 @@
                 {% else %}
                 <th>Mb</th>
                 {% endif %}
-                <th>Locus</th>
+                {% if 'additive' in trimmed_markers[0] %}
+                <th>Add Eff</th>
+                {% endif %}
+                {% if 'dominance' in trimmed_markers[0] %}
+                <th>Dom Eff</th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
@@ -211,6 +218,7 @@
                          value="{{ marker.name }}" checked="checked">
                 </td>
                 <td align="right">{{ loop.index }}</td>
+                <td>{{ marker.name }}</td>
                 {% if LRS_LOD == "LOD" %}
                 {% if 'lod_score' in marker %}
                 <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
@@ -226,13 +234,22 @@
                 {% endif %}
                 <td>{{marker.chr}}</td>
                 <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
-                <td>{{ marker.name }}</td>
+                {% if 'additive' in marker %}
+                <td>{{ '%0.3f' | format(marker.additive|float) }}</td>
+                {% endif %}
+                {% if 'dominance' in marker %}
+                <td>{{ '%0.2f' | format(marker.dominance|float) }}</td>
+                {% endif %}
               </tr>
               {% endfor %}
             </tbody>
           </table>
-          {% elif selectedChr > -1 %}
+          </div>
+        </div>
+        {% else %}
+        <div>
           <h2>Interval Analyst</h2>
+          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black;">
           <table id="interval_analyst" class="table table-hover table-striped">
             <thead>
               <tr>
@@ -251,8 +268,9 @@
               {% endfor %}
             </tbody>
           </table>
-          {% endif %}
+          </div>
         </div>
+        {% endif %}
     </div>
 
     <!-- End of body -->
@@ -296,7 +314,7 @@
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
 
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
@@ -319,26 +337,35 @@
     <script>
      createTable = function() {
             console.time("Creating table");
-            $('#qtl_results').dataTable( {
+            $('#qtl_results').DataTable( {
                 "columns": [
-                    { "type": "natural", "sWidth": "10%", "bSortable": false },
+                    { "type": "natural", "width": "5%", "bSortable": false },
+                    { "type": "natural", "width": "6%" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural", "sWidth": "30%"}
+                    { "type": "natural" },
+                    { "type": "natural" }
                     ],
-                "order": [[1, "asc"]],
+                "order": [[1, "asc" ]],
                 "buttons": [
-                    'csv'
+                    {
+                       extend: 'csvHtml5',
+                       text: 'Download CSV',
+                       title: 'search_results',
+                       fieldBoundary: '"',
+                       exportOptions: {
+                           columns: [1, 2, 3, 4, 5, 6, 7, 8]
+                       }
+                    }
                 ],
                 "sDom": "RZBtir",
                 "iDisplayLength": -1,
-                "autoWidth": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
-                "scrollY": "700px",
-                "scrollCollapse": true,
+                "scrollY": true,
+                "scrollCollapse": false,
                 "paging": false
             } );
 
@@ -347,12 +374,24 @@
                     "targets": 0,
                     "sortable": false
                 }],
-                "order": [[3, "asc"]],
-                "sDom": "RZtir",
+                "order": [[3, "asc" ]],
+                "buttons": [
+                    {
+                       extend: 'csvHtml5',
+                       text: 'Download CSV',
+                       title: 'search_results',
+                       fieldBoundary: '"',
+                       exportOptions: {
+                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                       }
+                    }
+                ],
+                "sDom": "RZBtir",
                 "iDisplayLength": -1,
-                "autoWidth": true,
                 "bDeferRender": true,
                 "bSortClasses": false,
+                "scrollY": true,
+                "scrollCollapse": false,
                 "paging": false
             } );
      };

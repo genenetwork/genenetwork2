@@ -116,7 +116,6 @@ class GeneralTrait(object):
         return stringy
 
 
-
     def display_name(self):
         stringy = ""
         if self.dataset and self.name:
@@ -323,7 +322,7 @@ class GeneralTrait(object):
                 #phenotype traits, then display the pre-publication description instead
                 #of the post-publication description
                 if self.confidential:
-                    self.description_display = ""
+                    self.description_display = self.pre_publication_description
 
                     #if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
                     #        privilege=self.dataset.privilege,
@@ -331,11 +330,11 @@ class GeneralTrait(object):
                     #        authorized_users=self.authorized_users):
                     #
                     #    description = self.pre_publication_description
-
-                if description:
-                    self.description_display = description.strip()
                 else:
-                    self.description_display = ""
+                    if description:
+                        self.description_display = description.strip()
+                    else:
+                        self.description_display = ""
 
                 if not self.year.isdigit():
                     self.pubmed_text = "N/A"
@@ -613,7 +612,10 @@ class GeneralTrait(object):
                 if self.probe_target_description:
                     formatted += "; " + self.probe_target_description
         elif self.dataset.type == 'Publish':
-            formatted = self.post_publication_description
+            if self.confidential:
+                formatted = self.pre_publication_description
+            else:
+                formatted = self.post_publication_description
         else:
             formatted = "Not available"
         return formatted.capitalize()
