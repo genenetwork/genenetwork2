@@ -24,7 +24,6 @@ from basicStatistics import BasicStatisticsFunctions
 from pprint import pformat as pf
 
 from utility.tools import flat_files
-MAPPING_PATH = flat_files("mapping")
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -163,6 +162,7 @@ class ShowTrait(object):
     def get_mapping_methods(self):
         '''Only display mapping methods when the dataset group's genotype file exists'''
         def check_plink_gemma():
+            MAPPING_PATH = flat_files("mapping")
             if (os.path.isfile(MAPPING_PATH+"/"+self.dataset.group.name+".bed") and
                 os.path.isfile(MAPPING_PATH+"/"+self.dataset.group.name+".map")):
                 return True
