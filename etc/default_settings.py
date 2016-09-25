@@ -7,6 +7,7 @@
 # e.g.
 #
 #   env LOG_SQL=True USE_REDIS=False ./bin/genenetwork2
+#   env LOG_LEVEL=DEBUG ./bin/genenetwork2 ~/gn2_settings.py
 #
 # Note also that in the near future we will additionally fetch
 # settings from a JSON file

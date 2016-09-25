@@ -432,11 +432,12 @@ def marker_regression_page():
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )
-    logger.info("Marker regression called with initial_start_vars:", initial_start_vars)
+    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars)
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
+    logger.debug("Marker regression called with start_vars:", start_vars)
 
     version = "v3"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
@@ -546,7 +547,7 @@ def network_graph_page():
         return render_template("network_graph.html", **template_vars.__dict__)
     else:
         return render_template("empty_collection.html", **{'tool':'Network Graph'})
-    
+
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
     logger.info("In corr_compute, request.form is:", pf(request.form))
