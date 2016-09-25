@@ -1,6 +1,5 @@
 # In these tests we navigate from the main page to a specific trait then hit the different mapping tool buttons (In this case pylMM and r/qtl) followed by computing the results (marker regressions).
 
-
 class MappingTest
 end
 
@@ -14,6 +13,8 @@ describe MappingTest do
     it "pyLMM mapping tool selection" do
       url = $host+'/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P'
       page = @agent.get(url)
+      json = JSON::load(File.read('test/data/input/mapping/1435395_s_at_HC_M2_0606_P.json'))
+      p json
       # get the form
       # form = @agent.page.form_with(:name => "my-form")
       # get the button you want from the form
