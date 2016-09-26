@@ -12,6 +12,21 @@ describe MappingTest do
   end
 
   describe MappingTest do
+    it "pylmm mapping tool selection" do
+      url = $host+'/marker_regression'
+
+      json = JSON::load(File.read('test/data/input/mapping/1435395_s_at_HC_M2_0606_P.json'))
+      json["method"] = "pylmm"
+      # p json
+      page = @agent.post(URI.encode(url), json)
+      # Unpacking the page is slow - but the run is enough as a test
+      # form = page.forms[1]
+      # form = page.forms_with("marker_regression")[0]
+      # form.fields.select { |fld| fld.name == 'corr_dataset' }.first.value.must_equal 'HC_M2_0606_P'
+    end
+  end
+
+  describe MappingTest do
     it "R/qtl mapping tool selection" do
       url = $host+'/marker_regression' # ?trait_id=1435395_s_at&dataset=HC_M2_0606_P'
 

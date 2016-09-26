@@ -12,7 +12,7 @@
  "num_bootstrap" : "2000",
  "num_perm" : "",
  "pair_scan" : "false",
- "suggestive" : "[object Object]",
+ "suggestive" : "0",
  "trait_id" : "1433387_at",
  "value:129S1/SvImJ" : "6.920",
  "value:A/J" : "7.437",
