@@ -38,7 +38,7 @@
                             <div style="margin-left: 20px;" class="col-xs-8 controls">
                                 <select id="genofile_reaper" class="form-control">
                                     {% for item in genofiles %}
-                                    <option value="{{loop.index0}}">{{item[0]}}</option>
+                                    <option value="{{item[1]}}">{{item[0]}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -133,7 +133,7 @@
                             <div style="margin-left: 20px;" class="col-xs-8 controls">
                                 <select id="genofile_pylmm" class="form-control">
                                     {% for item in genofiles %}
-                                    <option value="{{loop.index0}}">{{item[0]}}</option>
+                                    <option value="{{item[1]}}">{{item[0]}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -199,7 +199,7 @@
                             <div style="margin-left: 20px;" class="col-xs-8 controls">
                                 <select id="genofile_rqtl_geno" class="form-control">
                                     {% for item in genofiles %}
-                                    <option value="{{loop.index0}}">{{item[0]}}</option>
+                                    <option value="{{item[1]}}">{{item[0]}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
