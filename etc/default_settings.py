@@ -55,6 +55,7 @@ USE_GN_SERVER   = 'False'   # Use GN_SERVER SQL calls
 HOME=os.environ['HOME']
 LOGFILE = HOME+"/genenetwork2.log"
 GENENETWORK_FILES = HOME+"/gn2_data"  # base dir for all static data files
+LOCAL_PRIVATE_FILES = HOME+"/gn2_private_data" # private static data files
 
 # ---- GN2 Executables
 PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())
