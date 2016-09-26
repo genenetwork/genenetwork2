@@ -40,6 +40,10 @@ opts = OptionParser.new do |o|
       end
   end
 
+  o.on('--all', 'Run all tests') do
+    options[:all] = true
+  end
+
   o.on('-l','--link-checker', 'Check for dead links') do
     options[:link_checker] = true
   end
@@ -88,16 +92,16 @@ require 'minitest/autorun'
 libpath = File.dirname(File.dirname(__FILE__))
 $: << File.join(libpath,'test/lib')
 
-if options[:link_checker]
-  require 'link_checker'
-else
-  require 'main_web_functionality'
-end
+require 'main_web_functionality'
 
-if options[:navigation_test]
-  require 'navigation'
-end
-
-if options[:mapping_test]
+if options[:all] or options[:mapping_test]
   require 'mapping'
+end
+
+if options[:all] or options[:link_checker]
+  require 'link_checker'
+end
+
+if options[:all] or options[:navigation_test]
+  require 'navigation'
 end
