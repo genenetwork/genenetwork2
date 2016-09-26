@@ -395,6 +395,7 @@ def mapping_results_container_page():
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
     initial_start_vars = request.form
+    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
         'trait_id',
@@ -432,7 +433,6 @@ def marker_regression_page():
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )
-    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars)
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):

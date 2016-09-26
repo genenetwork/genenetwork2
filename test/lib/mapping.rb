@@ -5,16 +5,20 @@ end
 
 describe MappingTest do
   before do
-    @agent = Mechanize.new
-    @agent.agent.http.ca_file = '/etc/ssl/certs/ca-certificates.crt'
   end
 
   describe MappingTest do
     it "pyLMM mapping tool selection" do
-      url = $host+'/marker_regression?trait_id=1435395_s_at&dataset=HC_M2_0606_P'
-      page = @agent.post(url)
+      url = $host+'/marker_regression' # ?trait_id=1435395_s_at&dataset=HC_M2_0606_P'
+      @agent = Mechanize.new
+      @agent.agent.http.ca_file = '/etc/ssl/certs/ca-certificates.crt'
+      # @agent.idle_timeout = 0.01
+
       json = JSON::load(File.read('test/data/input/mapping/1435395_s_at_HC_M2_0606_P.json'))
-      p json
+      # p json
+      page = @agent.post(URI.encode(url),
+                         json,
+                         ({'Content-Type' => 'application/x-www-form-urlencoded'}))
       p page
       # get the form
       # form = @agent.page.form_with(:name => "my-form")
