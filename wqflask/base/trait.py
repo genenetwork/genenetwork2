@@ -363,7 +363,7 @@ class GeneralTrait(object):
                             FROM
                                     Homologene, Species, InbredSet
                             WHERE
-                                    Homologene.GeneId =%s AND
+                                    Homologene.GeneId ='%s' AND
                                     InbredSet.Name = '%s' AND
                                     InbredSet.SpeciesId = Species.Id AND
                                     Species.TaxonomyId = Homologene.TaxonomyId
