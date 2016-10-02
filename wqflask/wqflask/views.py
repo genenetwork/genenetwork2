@@ -29,7 +29,7 @@ import base64
 import array
 import sqlalchemy
 from wqflask import app
-from flask import g, Response, request, render_template, send_from_directory, jsonify, redirect
+from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect
 from wqflask import search_results
 from wqflask import gsearch
 from wqflask import update_search_results
@@ -89,23 +89,25 @@ def shutdown_session(exception=None):
 
 @app.errorhandler(Exception)
 def handle_bad_request(e):
-    logger.error(str(e))
+    err_msg = str(e)
+    logger.error(err_msg)
+    # get the stack trace and send it to the logger
     exc_type, exc_value, exc_traceback = sys.exc_info()
-    # print "*** format_exc, first and last line:"
-    # logger.error(formatted_lines[0])
-    # logger.error(formatted_lines[-3])
-    # logger.error(formatted_lines[-2])
-    # logger.error(formatted_lines[-1])
     logger.error(traceback.format_exc())
     formatted_lines = traceback.format_exc().splitlines()
 
-    # for file in os.listdir("./wqflask/static/gif/error"):
-    #     if file.endswith(".gif"):
-    #         print(file)
+    # Handle random animations
+    # Use a cookie to have one animation on refresh
+    animation = request.cookies.get(err_msg)
+    if not animation:
+        list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
+        animation = random.choice(list)
 
-    list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
-    # print(list)
-    return render_template("error.html",message=str(e),stack=formatted_lines,error_image=random.choice(list))
+    resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation))
+
+    # logger.error("Set cookie %s with %s" % (err_msg, animation))
+    resp.set_cookie(err_msg,animation)
+    return resp
 
 @app.route("/")
 def index_page():
