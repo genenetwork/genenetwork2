@@ -103,7 +103,7 @@ def handle_bad_request(e):
 
     # Handle random animations
     # Use a cookie to have one animation on refresh
-    animation = request.cookies.get(err_msg)
+    animation = request.cookies.get(err_msg[:64])
     if not animation:
         list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
         animation = random.choice(list)
@@ -111,7 +111,7 @@ def handle_bad_request(e):
     resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
-    resp.set_cookie(err_msg,animation)
+    resp.set_cookie(err_msg[:64],animation)
     return resp
 
 @app.route("/")

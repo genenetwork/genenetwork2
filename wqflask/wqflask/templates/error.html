@@ -25,10 +25,14 @@
       to reproduce this ERROR. Next to those steps, copy-paste below
       stack trace, either as
       a <a href="https://github.com/genenetwork/genenetwork2/issues/new">new
-      issue</a> (GeneNetwork error: {{message}}) or E-mail this full page to one of the developers
+      issue</a> or E-mail this full page to one of the developers
       directly.
     </p>
   </div>
+
+  <p>
+  (GeneNetwork error: {{message[:128]}})
+  </p>
 
   <pre>
     {{ stack[0] }}
