@@ -4,6 +4,9 @@
 
 from __future__ import absolute_import, division, print_function
 
+import traceback # for error page
+import os        # for error gifs
+import random    # for random error gif
 import sys
 import csv
 import xlsxwriter
@@ -58,6 +61,8 @@ from wqflask import user_manager
 from wqflask import collect
 from wqflask.database import db_session
 
+import werkzeug
+
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
@@ -81,6 +86,26 @@ def shutdown_session(exception=None):
 #def trace_it():
 #    from wqflask import tracer
 #    tracer.turn_on()
+
+@app.errorhandler(Exception)
+def handle_bad_request(e):
+    logger.error(str(e))
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    # print "*** format_exc, first and last line:"
+    # logger.error(formatted_lines[0])
+    # logger.error(formatted_lines[-3])
+    # logger.error(formatted_lines[-2])
+    # logger.error(formatted_lines[-1])
+    logger.error(traceback.format_exc())
+    formatted_lines = traceback.format_exc().splitlines()
+
+    # for file in os.listdir("./wqflask/static/gif/error"):
+    #     if file.endswith(".gif"):
+    #         print(file)
+
+    list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
+    # print(list)
+    return render_template("error.html",message=str(e),stack=formatted_lines,error_image=random.choice(list))
 
 @app.route("/")
 def index_page():
@@ -394,6 +419,7 @@ def mapping_results_container_page():
 
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
+    raise Exception("Just an error")
     initial_start_vars = request.form
     logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
     temp_uuid = initial_start_vars['temp_uuid']
