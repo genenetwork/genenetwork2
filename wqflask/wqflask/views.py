@@ -419,7 +419,6 @@ def mapping_results_container_page():
 
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
-    raise Exception("Just an error")
     initial_start_vars = request.form
     logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
     temp_uuid = initial_start_vars['temp_uuid']
