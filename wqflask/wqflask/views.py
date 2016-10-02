@@ -91,10 +91,11 @@ def shutdown_session(exception=None):
 def handle_bad_request(e):
     err_msg = str(e)
     logger.error(err_msg)
+    logger.error(request.url)
     # get the stack trace and send it to the logger
     exc_type, exc_value, exc_traceback = sys.exc_info()
     logger.error(traceback.format_exc())
-    formatted_lines = traceback.format_exc().splitlines()
+    formatted_lines = [request.url]+traceback.format_exc().splitlines()
 
     # Handle random animations
     # Use a cookie to have one animation on refresh

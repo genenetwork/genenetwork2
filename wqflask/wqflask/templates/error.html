@@ -17,12 +17,12 @@
       together.
     </p>
     <p>
-      <b>It is important to report this error so we can fix it for everyone</b>.
+      <b>It is important to report this ERROR so we can fix it for everyone</b>.
     </p>
 
     <p>
       Report to the GeneNetwork team by recording the steps you take
-      to reproduce this error. Next to those steps, copy-paste below
+      to reproduce this ERROR. Next to those steps, copy-paste below
       stack trace, either as
       a <a href="https://github.com/genenetwork/genenetwork2/issues/new">new
       issue</a> (GeneNetwork error: {{message}}) or E-mail this full page to one of the developers
@@ -31,6 +31,7 @@
   </div>
 
   <pre>
+    {{ stack[0] }}
     {{ message }} (error)
     {{ stack[-3] }}
     {{ stack[-2] }}
@@ -45,8 +46,7 @@
   <a href="#Stack" class="btn btn-default" data-toggle="collapse">Toggle full stack trace</a>
   <div id="Stack" class="collapse">
     <pre>
-      {% for line in stack %}
-        {{ line }}
+      {% for line in stack %} {{ line }}
       {% endfor %}
     </pre>
   </div>
