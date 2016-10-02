@@ -7,6 +7,8 @@ from __future__ import absolute_import, division, print_function
 import traceback # for error page
 import os        # for error gifs
 import random    # for random error gif
+import datetime  # for errors
+import time      # for errors
 import sys
 import csv
 import xlsxwriter
@@ -95,7 +97,9 @@ def handle_bad_request(e):
     # get the stack trace and send it to the logger
     exc_type, exc_value, exc_traceback = sys.exc_info()
     logger.error(traceback.format_exc())
-    formatted_lines = [request.url]+traceback.format_exc().splitlines()
+    now = datetime.datetime.utcnow()
+    time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
+    formatted_lines = [request.url + " ("+time_str+")"]+traceback.format_exc().splitlines()
 
     # Handle random animations
     # Use a cookie to have one animation on refresh
