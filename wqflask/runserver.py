@@ -16,34 +16,38 @@ GREEN = '\033[92m'
 BOLD  = '\033[1m'
 ENDC  = '\033[0m'
 
-logger.info("GN2 is running. Visit %shttp://localhost:5003/%s" % (BLUE,ENDC))
 
 import os
 app.config['SECRET_KEY'] = os.urandom(24)
 
-from utility.tools import WEBSERVER_MODE
+from utility.tools import WEBSERVER_MODE,get_setting_int
+
+port = get_setting_int("SERVER_PORT")
+
+logger.info("GN2 is running. Visit %shttp://localhost:%s/%s" % (BLUE,port,ENDC))
 
 werkzeug_logger = logging.getLogger('werkzeug')
 
 if WEBSERVER_MODE == 'DEBUG':
     app.run(host='0.0.0.0',
-            port=app.config['SERVER_PORT'],
+            port=port,
             debug=True,
-            use_debugger=True,
+            use_debugger=False,
             threaded=False,
+            processes=0,
             use_reloader=True)
 elif WEBSERVER_MODE == 'DEV':
     werkzeug_logger.setLevel(logging.WARNING)
     app.run(host='0.0.0.0',
-            port=app.config['SERVER_PORT'],
+            port=port,
             debug=False,
             use_debugger=False,
             threaded=False,
             processes=0,
             use_reloader=True)
-else: #production mode
+else: # staging/production modes
     app.run(host='0.0.0.0',
-            port=app.config['SERVER_PORT'],
+            port=port,
             debug=False,
             use_debugger=False,
             threaded=True,
