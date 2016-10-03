@@ -50,7 +50,7 @@ def get_setting(command_id,guess=None):
         if command is None:
             command = value(guess)
             if command is None or command == "":
-                print command
+                # print command
                 raise Exception(command_id+' setting unknown or faulty (update default_settings.py?).')
     logger.debug("Set "+command_id+"="+str(command))
     return command
@@ -170,15 +170,14 @@ def show_settings():
     logging.basicConfig(level=log_level)
 
     logger.info(BLUE+"Mr. Mojo Risin 2"+ENDC)
-    print "runserver.py: ****** The webserver has the following configuration ******"
+    print "runserver.py: ****** Webserver configuration ******"
     keylist = app.config.keys()
     keylist.sort()
     for k in keylist:
         try:
-            print("%s %s%s%s%s" % (k,BLUE,BOLD,get_setting(k),ENDC))
+            print("%s: %s%s%s%s" % (k,BLUE,BOLD,get_setting(k),ENDC))
         except:
-            print("%s %s%s%s%s" % (k,GREEN,BOLD,app.config[k],ENDC))
-
+            print("%s: %s%s%s%s" % (k,GREEN,BOLD,app.config[k],ENDC))
 
 # Cached values
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')

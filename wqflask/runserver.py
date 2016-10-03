@@ -16,7 +16,6 @@ GREEN = '\033[92m'
 BOLD  = '\033[1m'
 ENDC  = '\033[0m'
 
-
 import os
 app.config['SECRET_KEY'] = os.urandom(24)
 
