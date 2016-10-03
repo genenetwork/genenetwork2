@@ -41,6 +41,9 @@ from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMM
 from utility.external import shell
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
+
 class MarkerRegression(object):
 
     def __init__(self, start_vars, temp_uuid):
@@ -197,6 +200,7 @@ class MarkerRegression(object):
 
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
+            logger.info("Running qtlreaper")
             results = self.gen_reaper_results()
         elif self.mapping_method == "plink":
             results = self.run_plink()

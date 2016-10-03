@@ -44,6 +44,9 @@ from utility import Plot
 from wqflask.interval_analyst import GeneUtil
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
 
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
+
 #########################################
 #      Inteval Mapping Plot Page
 #########################################
@@ -159,6 +162,7 @@ class MarkerRegression(object):
 
         #if not self.openMysql():
         #    return
+        logger.info("Running qtlreaper")
 
         #helper_functions.get_species_dataset_trait(self, start_vars)
 
@@ -211,7 +215,7 @@ class MarkerRegression(object):
             self.plotScale = start_vars['mapping_scale']
         else:
             self.plotScale = "physic"
-            
+
         self.manhattan_plot = start_vars['manhattan_plot']
 
         if 'permCheck' in start_vars.keys():
@@ -514,13 +518,13 @@ class MarkerRegression(object):
 
             if self.dataset.group.species == "mouse":
                 if self.selectedChr == 20:
-                    chrName = "X" 
+                    chrName = "X"
                 else:
                     chrName = self.selectedChr
                 self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "mouse")
             elif self.dataset.group.species == "rat":
                 if self.selectedChr == 21:
-                    chrName = "X" 
+                    chrName = "X"
                 else:
                     chrName = self.selectedChr
                 self.geneCol = GeneUtil.loadGenes(chrName, self.diffCol, self.startMb, self.endMb, webqtldatabase, "rat")
@@ -860,7 +864,7 @@ class MarkerRegression(object):
         BootCoord = []
         i = 0
         startX = xLeftOffset
-     
+
         if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
             for j, _chr in enumerate(self.genotype):
                 BootCoord.append( [])
@@ -883,8 +887,8 @@ class MarkerRegression(object):
                         else:
                             Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
                         BootCoord[-1].append([Xc, self.bootResult[i]])
-                    i += 1   
-                    
+                    i += 1
+
         #reduce bootResult
         if self.selectedChr > -1:
             maxBootBar = 80.0
@@ -1851,7 +1855,7 @@ class MarkerRegression(object):
                 if j == 0:
                     canvas.drawLine(startPosX,yZero,startPosX,yZero+40, color=lineColor)
                 startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
-                
+
             centimorganLabelFont = pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
             canvas.drawString("Centimorgans", xLeftOffset + (plotWidth - canvas.stringWidth("Megabases", font=centimorganLabelFont))/2,
                     strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=centimorganLabelFont, color=pid.black)
@@ -2963,7 +2967,7 @@ class MarkerRegression(object):
                     chr_as_int = 20
                 else:
                     chr_as_int = int(theGO["Chromosome"]) - 1
-                    
+
                 geneLength = (float(theGO["TxEnd"]) - float(theGO["TxStart"]))
                 #geneLengthURL = "javascript:centerIntervalMapOnRange2('%s', %f, %f, document.changeViewForm)" % (theGO["Chromosome"], float(theGO["TxStart"])-(geneLength*0.1), float(theGO["TxEnd"])+(geneLength*0.1))
                 geneLengthURL = "javascript:rangeView('%s', %f, %f)" % (theGO["Chromosome"], float(theGO["TxStart"])-(geneLength*0.1), float(theGO["TxEnd"])+(geneLength*0.1))

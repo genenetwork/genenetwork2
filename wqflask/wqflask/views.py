@@ -4,6 +4,11 @@
 
 from __future__ import absolute_import, division, print_function
 
+import traceback # for error page
+import os        # for error gifs
+import random    # for random error gif
+import datetime  # for errors
+import time      # for errors
 import sys
 import csv
 import xlsxwriter
@@ -26,7 +31,7 @@ import base64
 import array
 import sqlalchemy
 from wqflask import app
-from flask import g, Response, request, render_template, send_from_directory, jsonify, redirect
+from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect
 from wqflask import search_results
 from wqflask import gsearch
 from wqflask import update_search_results
@@ -58,6 +63,8 @@ from wqflask import user_manager
 from wqflask import collect
 from wqflask.database import db_session
 
+import werkzeug
+
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
@@ -81,6 +88,31 @@ def shutdown_session(exception=None):
 #def trace_it():
 #    from wqflask import tracer
 #    tracer.turn_on()
+
+@app.errorhandler(Exception)
+def handle_bad_request(e):
+    err_msg = str(e)
+    logger.error(err_msg)
+    logger.error(request.url)
+    # get the stack trace and send it to the logger
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    logger.error(traceback.format_exc())
+    now = datetime.datetime.utcnow()
+    time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
+    formatted_lines = [request.url + " ("+time_str+")"]+traceback.format_exc().splitlines()
+
+    # Handle random animations
+    # Use a cookie to have one animation on refresh
+    animation = request.cookies.get(err_msg[:64])
+    if not animation:
+        list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
+        animation = random.choice(list)
+
+    resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation))
+
+    # logger.error("Set cookie %s with %s" % (err_msg, animation))
+    resp.set_cookie(err_msg[:64],animation)
+    return resp
 
 @app.route("/")
 def index_page():
@@ -395,6 +427,7 @@ def mapping_results_container_page():
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
     initial_start_vars = request.form
+    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
         'trait_id',
@@ -432,11 +465,11 @@ def marker_regression_page():
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno'
     )
-    logger.info("Marker regression called with initial_start_vars:", initial_start_vars)
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
+    logger.debug("Marker regression called with start_vars:", start_vars)
 
     version = "v3"
     key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
@@ -546,7 +579,7 @@ def network_graph_page():
         return render_template("network_graph.html", **template_vars.__dict__)
     else:
         return render_template("empty_collection.html", **{'tool':'Network Graph'})
-    
+
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
     logger.info("In corr_compute, request.form is:", pf(request.form))

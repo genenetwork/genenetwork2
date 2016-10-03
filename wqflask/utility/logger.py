@@ -31,6 +31,7 @@ import string
 from inspect import isfunction
 from pprint import pformat as pf
 from inspect import stack
+import datetime
 
 from utility.tools import LOG_LEVEL, LOG_LEVEL_DEBUG, LOG_SQL, LOG_FORMAT
 
@@ -66,7 +67,10 @@ LOG_LEVEL_DEBUG (NYI).
 
     def error(self,*args):
         """Call logging.error for multiple args"""
-        self.collect(self.logger.error,*args)
+        now = datetime.datetime.utcnow()
+        time_str = now.strftime('%H:%M:%S UTC %Y%m%d')
+        l = [time_str]+list(args)
+        self.collect(self.logger.error,*l)
 
     def infof(self,*args):
         """Call logging.info for multiple args lazily"""
