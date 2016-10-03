@@ -8,7 +8,7 @@ from utility import formatting
 
 import logging
 logger = logging.getLogger(__name__ )
-logging.basicConfig(level=logging.WARN)
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 

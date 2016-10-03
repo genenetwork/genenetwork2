@@ -56,7 +56,7 @@ if [ -z $TEMPDIR ]; then
 fi
 
 # Now handle command parameter -c
-if [ $1 = '-c' ] ; then
+if [ "$1" = '-c' ] ; then
     cd $GN2_BASE_PATH/wqflask
     cmd=${2#wqflask/}
     echo PYTHONPATH=$PYTHONPATH

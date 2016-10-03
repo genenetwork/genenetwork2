@@ -3,12 +3,15 @@
 
 import os
 import sys
+import json
 
 from wqflask import app
 
 # Use the standard logger here to avoid a circular dependency
 import logging
 logger = logging.getLogger(__name__ )
+
+OVERRIDES = {}
 
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
@@ -45,13 +48,15 @@ def get_setting(command_id,guess=None):
     logger.debug("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if command is None or command == "":
-        # ---- Check whether setting exists in app
-        command = value(app.config.get(command_id))
+        command = OVERRIDES.get(command_id)
         if command is None:
-            command = value(guess)
-            if command is None or command == "":
-                # print command
-                raise Exception(command_id+' setting unknown or faulty (update default_settings.py?).')
+            # ---- Check whether setting exists in app
+            command = value(app.config.get(command_id))
+            if command is None:
+                command = value(guess)
+                if command is None or command == "":
+                    # print command
+                    raise Exception(command_id+' setting unknown or faulty (update default_settings.py?).')
     logger.debug("Set "+command_id+"="+str(command))
     return command
 
@@ -169,6 +174,7 @@ def show_settings():
     log_level = getattr(logging, LOG_LEVEL.upper())
     logging.basicConfig(level=log_level)
 
+    logger.info(OVERRIDES)
     logger.info(BLUE+"Mr. Mojo Risin 2"+ENDC)
     print "runserver.py: ****** Webserver configuration ******"
     keylist = app.config.keys()
@@ -179,7 +185,9 @@ def show_settings():
         except:
             print("%s: %s%s%s%s" % (k,GREEN,BOLD,app.config[k],ENDC))
 
+
 # Cached values
+HOME               = get_setting('HOME')
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')
 GN_SERVER_URL      = get_setting('GN_SERVER_URL')
 SQL_URI            = get_setting('SQL_URI')
@@ -198,3 +206,18 @@ PYLMM_COMMAND      = pylmm_command()
 GEMMA_COMMAND      = gemma_command()
 PLINK_COMMAND      = plink_command()
 TEMPDIR            = tempdir()
+
+from six import string_types
+
+if os.environ.get('WQFLASK_OVERRIDES'):
+    jsonfn = get_setting('WQFLASK_OVERRIDES')
+    logger.error("WQFLASK_OVERRIDES: %s" % jsonfn)
+    with open(jsonfn) as data_file:
+        overrides = json.load(data_file)
+        for k in overrides:
+            cmd = overrides[k]
+            if isinstance(cmd, string_types):
+                OVERRIDES[k] = eval(cmd)
+            else:
+                OVERRIDES[k] = cmd
+            logger.debug(OVERRIDES)
