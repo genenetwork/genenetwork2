@@ -166,7 +166,10 @@ class MarkerRegression(object):
             self.model = start_vars['mapmodel_rqtl_geno']
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
-            results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
+            if self.permCheck and self.num_perm > 0:
+                perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
+            else:
+                results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:

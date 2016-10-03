@@ -1,4 +1,5 @@
 import rpy2.robjects as ro
+import numpy as np
 
 from base.webqtlConfig import TMPDIR
 from utility import webqtlUtil
@@ -72,9 +73,10 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
             else:
                 perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = num_perm, model=model, method=method)
 
-            process_rqtl_perm_results(num_perm, perm_data_frame)                                          # Functions that sets the thresholds for the webinterface
-
-        return process_rqtl_results(result_data_frame)
+            perm_output, suggestive, significant = process_rqtl_perm_results(num_perm, perm_data_frame)          # Functions that sets the thresholds for the webinterface
+            return perm_output, suggestive, significant, process_rqtl_results(result_data_frame)
+        else:
+            return process_rqtl_results(result_data_frame)
 
 def geno_to_rqtl_function(dataset):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
 
@@ -161,6 +163,19 @@ def process_pair_scan_results(result):
 
     return pair_scan_results
 
+def process_rqtl_perm_results(num_perm, results):
+    perm_vals = []
+    for line in str(results).split("\n")[1:(num_perm+1)]:
+        #print("R/qtl permutation line:", line.split())
+        perm_vals.append(float(line.split()[1]))
+
+    perm_output = perm_vals
+    suggestive = np.percentile(np.array(perm_vals), 67)
+    significant = np.percentile(np.array(perm_vals), 95)
+    print("SIGNIFICANT:", significant)
+
+    return perm_output, suggestive, significant
+    
 def process_rqtl_results(result):        # TODO: how to make this a one liner and not copy the stuff in a loop
     qtl_results = []
 
@@ -175,16 +190,4 @@ def process_rqtl_results(result):        # TODO: how to make this a one liner an
         marker['lod_score'] = output[i][2]
         qtl_results.append(marker)
 
-    return qtl_results
-
-def process_rqtl_perm_results(num_perm, results):
-    perm_vals = []
-    for line in str(results).split("\n")[1:(num_perm+1)]:
-        #print("R/qtl permutation line:", line.split())
-        perm_vals.append(float(line.split()[1]))
-
-    perm_output = perm_vals
-    suggestive = np.percentile(np.array(perm_vals), 67)
-    significant = np.percentile(np.array(perm_vals), 95)
-
-    return perm_output, suggestive, significant 
+    return qtl_results 
