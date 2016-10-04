@@ -25,7 +25,7 @@
 
                 <select name="existing_collection" class="form-control">
                 {% for col in collections %}
-                    <option value="{{ col.id }}">{{ col.name }}</option>
+                    <option value="{{ col.id }}:{{ col.name }}">{{ col.name }}</option>
                 {% endfor %}
                 </select>
                 <br />
