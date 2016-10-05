@@ -205,12 +205,12 @@ class MarkerRegression(object):
         elif self.mapping_method == "plink":
             results = self.run_plink()
         elif self.mapping_method == "pylmm":
-            print("RUNNING PYLMM")
+            logger.debug("RUNNING PYLMM")
             if self.num_perm > 0:
                 self.run_permutations(str(temp_uuid))
             results = self.gen_data(str(temp_uuid))
         else:
-            print("RUNNING NOTHING")
+            logger.debug("RUNNING NOTHING")
 
         if self.pair_scan == True:
             self.qtl_results = []
@@ -264,9 +264,9 @@ class MarkerRegression(object):
             #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
             for index, qtl in enumerate(self.qtl_results):
                 #if index<40:
-                #    print("lod score is:", qtl['lod_score'])
+                #    logger.debug("lod score is:", qtl['lod_score'])
                 if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
-                    #print("changing to X")
+                    #logger.debug("changing to X")
                     self.json_data['chr'].append("X")
                 else:
                     self.json_data['chr'].append(str(qtl['chr']))
@@ -284,7 +284,7 @@ class MarkerRegression(object):
                 self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
                 chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
 
-            # print("json_data:", self.json_data)
+            # logger.debug("json_data:", self.json_data)
 
             self.js_data = dict(
                 result_score_type = self.score_type,
@@ -312,7 +312,7 @@ class MarkerRegression(object):
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name,
                                                                                                  self.dataset.group.name)
-        #print("gemma_command:" + gemma_command)
+        #logger.debug("gemma_command:" + gemma_command)
 
         os.system(gemma_command)
 
@@ -334,7 +334,7 @@ class MarkerRegression(object):
                     included_markers.append(line.split("\t")[1])
                     p_values.append(float(line.split("\t")[10]))
                     #p_values[line.split("\t")[1]] = float(line.split("\t")[10])
-        #print("p_values: ", p_values)
+        #logger.debug("p_values: ", p_values)
         return included_markers, p_values
 
     def gen_pheno_txt_file(self):
@@ -362,7 +362,7 @@ class MarkerRegression(object):
         self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
 
         plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
-        print("plink_command:", plink_command)
+        logger.debug("plink_command:", plink_command)
 
         os.system(plink_command)
 
@@ -370,11 +370,11 @@ class MarkerRegression(object):
 
         #for marker in self.dataset.group.markers.markers:
         #    if marker['name'] not in included_markers:
-        #        print("marker:", marker)
+        #        logger.debug("marker:", marker)
         #        self.dataset.group.markers.markers.remove(marker)
         #        #del self.dataset.group.markers.markers[marker]
 
-        print("p_values:", pf(p_values))
+        logger.debug("p_values:", pf(p_values))
 
         self.dataset.group.markers.add_pvalues(p_values)
 
@@ -641,7 +641,7 @@ class MarkerRegression(object):
 
         top_lod_scores = []
 
-        #print("self.num_perm:", self.num_perm)
+        #logger.debug("self.num_perm:", self.num_perm)
 
         for permutation in range(self.num_perm):
 
@@ -686,10 +686,10 @@ class MarkerRegression(object):
                     if p_value < lowest_p_value:
                         lowest_p_value = p_value
 
-                #print("lowest_p_value:", lowest_p_value)
+                #logger.debug("lowest_p_value:", lowest_p_value)
                 top_lod_scores.append(-math.log10(lowest_p_value))
 
-        #print("top_lod_scores:", top_lod_scores)
+        #logger.debug("top_lod_scores:", top_lod_scores)
 
         self.suggestive = np.percentile(top_lod_scores, 67)
         self.significant = np.percentile(top_lod_scores, 95)
@@ -698,13 +698,13 @@ class MarkerRegression(object):
         """Generates p-values for each marker"""
 
 
-        print("self.vals is:", self.vals)
+        logger.debug("self.vals is:", self.vals)
         pheno_vector = np.array([(val == "x" or val == "") and np.nan or float(val) for val in self.vals])
 
         #lmm_uuid = str(uuid.uuid4())
 
         key = "pylmm:input:" + temp_uuid
-        print("key is:", pf(key))
+        logger.debug("key is:", pf(key))
         #with Bench("Loading cache"):
         #    result = Redis.get(key)
 
@@ -713,7 +713,7 @@ class MarkerRegression(object):
             #p_values = self.trim_results(p_values)
 
         else:
-            print("NOW CWD IS:", os.getcwd())
+            logger.debug("NOW CWD IS:", os.getcwd())
             genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
 
             no_val_samples = self.identify_empty_samples()
@@ -721,9 +721,9 @@ class MarkerRegression(object):
 
             genotype_matrix = np.array(genotype_data).T
 
-            #print("pheno_vector: ", pf(pheno_vector))
-            #print("genotype_matrix: ", pf(genotype_matrix))
-            #print("genotype_matrix.shape: ", pf(genotype_matrix.shape))
+            #logger.debug("pheno_vector: ", pf(pheno_vector))
+            #logger.debug("genotype_matrix: ", pf(genotype_matrix))
+            #logger.debug("genotype_matrix.shape: ", pf(genotype_matrix.shape))
 
             #params = {"pheno_vector": pheno_vector,
             #            "genotype_matrix": genotype_matrix,
@@ -731,8 +731,8 @@ class MarkerRegression(object):
             #            "refit": False,
             #            "temp_data": tempdata}
 
-            # print("genotype_matrix:", str(genotype_matrix.tolist()))
-            # print("pheno_vector:", str(pheno_vector.tolist()))
+            # logger.debug("genotype_matrix:", str(genotype_matrix.tolist()))
+            # logger.debug("pheno_vector:", str(pheno_vector.tolist()))
 
             params = dict(pheno_vector = pheno_vector.tolist(),
                         genotype_matrix = genotype_matrix.tolist(),
@@ -745,14 +745,14 @@ class MarkerRegression(object):
                         )
 
             json_params = json.dumps(params)
-            #print("json_params:", json_params)
+            #logger.debug("json_params:", json_params)
             Redis.set(key, json_params)
             Redis.expire(key, 60*60)
-            print("before printing command")
+            logger.debug("before printing command")
 
             command = PYLMM_COMMAND + ' --key {} --species {}'.format(key, "other")
-            print("command is:", command)
-            print("after printing command")
+            logger.debug("command is:", command)
+            logger.debug("after printing command")
 
             shell(command)
 
@@ -762,7 +762,7 @@ class MarkerRegression(object):
             json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
             results = json.loads(json_results[1])
             p_values = [float(result) for result in results['p_values']]
-            #print("p_values:", p_values[:10])
+            #logger.debug("p_values:", p_values[:10])
             #p_values = self.trim_results(p_values)
             t_stats = results['t_stats']
 
@@ -773,7 +773,7 @@ class MarkerRegression(object):
             #    refit=False,
             #    temp_data=tempdata
             #)
-            #print("p_values:", p_values)
+            #logger.debug("p_values:", p_values)
 
         self.dataset.group.markers.add_pvalues(p_values)
 
@@ -782,7 +782,7 @@ class MarkerRegression(object):
         return self.dataset.group.markers.markers
 
     def trim_results(self, p_values):
-        print("len_p_values:", len(p_values))
+        logger.debug("len_p_values:", len(p_values))
         if len(p_values) > 500:
             p_values.sort(reverse=True)
             trimmed_values = p_values[:500]
@@ -801,7 +801,7 @@ class MarkerRegression(object):
         kinship_matrix = np.fromfile(open(file_base + '.kin','r'),sep=" ")
         kinship_matrix.resize((len(plink_input.indivs),len(plink_input.indivs)))
 
-        print("Before creating params")
+        logger.debug("Before creating params")
 
         params = dict(pheno_vector = pheno_vector.tolist(),
                     covariate_matrix = covariate_matrix.tolist(),
@@ -820,12 +820,12 @@ class MarkerRegression(object):
         Redis.set(key, json_params)
         Redis.expire(key, 60*60)
 
-        print("Before creating the command")
+        logger.debug("Before creating the command")
 
         command = PYLMM_COMMAND+' --key {} --species {}'.format(key,
                                                                                                                 "human")
 
-        print("command is:", command)
+        logger.debug("command is:", command)
 
         os.system(command)
 
@@ -848,7 +848,7 @@ class MarkerRegression(object):
         return p_values, t_stats
 
     def get_lod_score_cutoff(self):
-        print("INSIDE GET LOD CUTOFF")
+        logger.debug("INSIDE GET LOD CUTOFF")
         high_qtl_count = 0
         for marker in self.dataset.group.markers.markers:
             if marker['lod_score'] > 1:
