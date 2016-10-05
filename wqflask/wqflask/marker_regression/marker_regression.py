@@ -697,7 +697,6 @@ class MarkerRegression(object):
     def gen_data(self, temp_uuid):
         """Generates p-values for each marker"""
 
-
         logger.debug("self.vals is:", self.vals)
         pheno_vector = np.array([(val == "x" or val == "") and np.nan or float(val) for val in self.vals])
 
