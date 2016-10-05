@@ -15,6 +15,10 @@ If you are using the small deployment database you can use
 
   ./bin/test-website --skip -n
 
+To run all tests
+
+  ./bin/test-website --all
+
 To run individual tests on localhost you can do
 
   ruby -Itest -Itest/lib test/lib/mapping.rb --name="/Mapping/"
