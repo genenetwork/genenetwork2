@@ -814,7 +814,7 @@ class MarkerRegression(object):
                     timestamp = datetime.datetime.now().isoformat(),
                     )
 
-        print("After creating params")
+        logger.debug("After creating params")
 
         json_params = json.dumps(params)
         Redis.set(key, json_params)
