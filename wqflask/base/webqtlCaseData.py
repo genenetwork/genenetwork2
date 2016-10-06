@@ -16,8 +16,6 @@
 # Contact Drs. Robert W. Williams and Xiaodong Zhou (2010)
 # at rwilliams@uthsc.edu and xzhou15@uthsc.edu
 #
-#
-#
 # This module is used by GeneNetwork project (www.genenetwork.org)
 #
 # Created by GeneNetwork Core Team 2010/08/10

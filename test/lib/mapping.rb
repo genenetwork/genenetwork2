@@ -19,7 +19,7 @@ describe MappingTest do
       json["method"] = "pylmm"
       # p json
       page = @agent.post(URI.encode(url), json)
-      # Unpacking the page is slow - but the run is enough as a test
+      # Unpacking the page is slow - somehow - but the run is enough as a test
       # form = page.forms_with("marker_regression")[0]
       # form.fields.select { |fld| fld.name == 'dataset' }.first.value.must_equal 'HC_M2_0606_P'
       # form.fields.select { |fld| fld.name == 'value:BXD1' }.first.value.must_equal '6.749'
@@ -37,7 +37,7 @@ describe MappingTest do
                          ({'Content-Type' => 'application/x-www-form-urlencoded'}))
       form = page.forms_with("marker_regression")[0]
       form.fields.select { |fld| fld.name == 'dataset' }.first.value.must_equal 'HC_M2_0606_P'
-      form.fields.select { |fld| fld.name == 'value:BXD1' }.first.value.must_equal '6.749'
+      form.fields.select { |fld| fld.name == 'value:BXD1' }.first.value.must_equal "15.034"
     end
   end
 
@@ -50,7 +50,7 @@ describe MappingTest do
       page = @agent.post(URI.encode(url), json)
       form = page.forms_with("marker_regression")[0]
       form.fields.select { |fld| fld.name == 'dataset' }.first.value.must_equal 'HC_M2_0606_P'
-      form.fields.select { |fld| fld.name == 'value:BXD1' }.first.value.must_equal '6.749'
+      form.fields.select { |fld| fld.name == 'value:BXD1' }.first.value.must_equal "15.034"
     end
   end
 
