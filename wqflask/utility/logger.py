@@ -50,11 +50,20 @@ class GNLogger:
         self.logger.setLevel(value)
 
     def debug(self,*args):
+        """Call logging.debug for multiple args. Use (lazy) debugf and
+level=num to filter on LOG_LEVEL_DEBUG.
+
+        """
+        self.collect(self.logger.debug,*args)
+
+    def debug20(self,*args):
         """Call logging.debug for multiple args. Use level=num to filter on
 LOG_LEVEL_DEBUG (NYI).
 
         """
-        self.collect(self.logger.debug,*args)
+        if level <= LOG_LEVEL_DEBUG:
+            if self.logger.getEffectiveLevel() < 20:
+                self.collect(self.logger.debug,*args)
 
     def info(self,*args):
         """Call logging.info for multiple args"""
@@ -79,7 +88,10 @@ LOG_LEVEL_DEBUG (NYI).
             self.collectf(self.logger.debug,*args)
 
     def debugf(self,level=0,*args):
-        """Call logging.debug for multiple args lazily"""
+        """Call logging.debug for multiple args lazily and handle
+        LOG_LEVEL_DEBUG correctly
+
+        """
         # only evaluate function when logging
         if level <= LOG_LEVEL_DEBUG:
             if self.logger.getEffectiveLevel() < 20:

@@ -42,7 +42,7 @@ WEBSERVER_BRANDING = None   # Set the branding (nyi)
 WEBSERVER_DEPLOY = None     # Deployment specifics (nyi)
 
 LOG_LEVEL       = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
-LOG_LEVEL_DEBUG = '0'       # Debug log level (0-5, 0 = show all)
+LOG_LEVEL_DEBUG = '0'       # logger.debugf log level (0-5, 5 = show all)
 LOG_SQL         = 'False'   # Log SQL/backend and GN_SERVER calls
 LOG_SQLALCHEMY  = 'False'
 LOG_BENCH       = True      # Log bench marks
