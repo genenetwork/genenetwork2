@@ -3,16 +3,16 @@
 
 {% block content %} <!-- Start of body -->
 <div class="container">
-  {% if request.form['trait_list'].split(",")|length < 4 %}
+  {% if request.form['trait_list'].split(",")|length < 2 %}
   <div class="alert alert-danger" role="alert">
     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
     <span class="sr-only">Error:</span>
-    <h2>Too few phenotypes as input</h2>
-    Please make sure you select enough phenotypes / genes to perform CTL. Your collection needs to contain at least 4 different traits. You provided {{request.form['trait_list'].split(',')|length}} traits as input.
+    <h2>Too few traits as input</h2>
+    Please make sure you select enough traits to perform CTL. Your collection needs to contain at least 2 different traits. You provided {{request.form['trait_list'].split(',')|length}} traits as input.
   </div>
   {% else %}
   <h1>CTL analysis parameters</h1>
-  {{(request.form['trait_list'].split(',')|length -1)}} phenotypes as input
+  {{(request.form['trait_list'].split(',')|length -1)}} traits as input
 
   <form action="/ctl_results" method="post" class="form-horizontal">
     <input type="hidden" name="trait_list" id="trait_list" value= "{{request.form['trait_list']}}">
