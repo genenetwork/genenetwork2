@@ -7,15 +7,15 @@
     <header class="jumbotron subhead" id="overview">
         <div class="container">
             <h1>GeneNetwork</h1>
-            <p class="lead">Open source bioinformatics for systems genetics</p>   
+            <p class="lead">Open source bioinformatics for systems genetics</p>
         </div>
     </header>
 -->
 
     <div class="container-fluid">
-        
+
         {{ flash_me() }}
-        
+
         <div class="row" style="width: 1400px !important;">
 
             <div class="col-xs-5">
@@ -90,7 +90,7 @@
                                 <!--  GET ANY HELP   -->
                                 <div class="form-group">
                                     <label for="btsearch" class="col-xs-1 control-label" style="width: 65px !important;"></label>
-                                    <div class="col-xs-10 controls">                                  
+                                    <div class="col-xs-10 controls">
                                         <div class="col-xs-12 controls">
                                             Enter terms, genes, ID numbers in the <b>Search</b> field.<br>
                                             Use <b>*</b> or <b>?</b> wildcards (Cyp*a?, synap*).<br>
@@ -113,7 +113,7 @@
                                     <div class="col-xs-10 controls">
                                         <div class="col-xs-2 controls" style="width: 100px !important;">
                                             <input id="btsearch" type="submit" class="btn btn-primary form-control" value="Search">
-                                        </div>                                    
+                                        </div>
                                     </div>
                                 </div>
 
@@ -151,7 +151,7 @@
                         with the word <i>nicotine</i>.</li>
 
                         <li><b>GO:0045202</b> searches for synapse-associated genes listed in the
-                        <a href="http://www.godatabase.org/cgi-bin/amigo/go.cgi" target="_blank">
+                        <a href="http://amigo.geneontology.org/amigo/medial_search?q=GO%3A0045202">
                             Gene Ontology</a>.</li>
 
                         <li><b>GO:0045202 LRS=(9 99 Chr4 122 155) cisLRS=(9 999 10)</b>
@@ -272,10 +272,10 @@
     <script>
         function pressed(e) {
             // Has the enter key been pressed?
-            if ( (window.event ? event.keyCode : e.which) == 13) { 
+            if ( (window.event ? event.keyCode : e.which) == 13) {
                 // If enter key has been pressed and the search fields are non-empty
-								// manually submit the <form>			 
-								if( event.target.value.trim() != "" ) {										
+								// manually submit the <form>
+								if( event.target.value.trim() != "" ) {
 									document.forms[1].submit();
 								}
             }
