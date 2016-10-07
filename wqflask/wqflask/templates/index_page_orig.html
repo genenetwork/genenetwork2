@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}GeneNetwork{% endblock %}
+{% block css %}
+<style TYPE="text/css">
+  p.interact { display: none; }
+</style>
+{% endblock %}
 {% block content %}
 <!-- Start of body -->
 
@@ -166,8 +171,17 @@
                       </ul>
                 </section>
             </div>
+
             <div style="padding-left:120px" class="col-xs-4" style="width: 600px !important;">
-                <!--
+                <section id="news-section">
+                    <div class="page-header">
+                        <h1>News</h1>
+                    </div>
+                    <div id="tweets"></div>
+                    <div align="right">
+                      <a href="https://twitter.com/GeneNetwork2">more news items...</a>
+                    </div>
+              <!--
                 <section id="tour-info">
                     <div class="page-header">
                         <h1>Tour and more info</h1>
@@ -194,6 +208,7 @@
 
                 </section>
                 -->
+                </section>
 
                 <section id="websites">
                     <div class="page-header">
@@ -222,7 +237,6 @@
                         <li><a href="http://gn2.genenetwork.org/">Memphis at the U of M</a></li>
                     </ul>
 
-                 <div id="tweets"></div>
 
 
                </section>
@@ -294,9 +308,9 @@
       "domId": 'tweets',
       "maxTweets": 5,
       "enableLinks": true,
-      "showUser": true,
+      "showUser": false,
       "showTime": true,
-      "showImages": true,
+      "showImages": false,
       "lang": 'en'
       };
       twitterFetcher.fetch(configProfile);
