@@ -54,22 +54,24 @@ echo WQFLASK_OVERRIDES=$overrides
 # ---- Checks and balances
 if [ -z $GUIX_ETC ]; then
     if [ -z $GN2_PROFILE ] ; then
-        echo "WARNING: GN2_PROFILE has not been set - I hope you know what you are doing"
+        echo "WARNING: GN2_PROFILE has not been set - I hope you know what you are doing!"
     else
+        export PATH=$GN2_PROFILE/bin:$PATH
         export PYTHONPATH=$GN2_PROFILE/lib/python2.7/site-packages
         export R_LIBS_SITE=$GN2_PROFILE/site-library
         export GUIX_GTK3_PATH="$GN2_PROFILE/lib/gtk-3.0"
         export GI_TYPELIB_PATH="$GN2_PROFILE/lib/girepository-1.0"
         export XDG_DATA_DIRS="$GN2_PROFILE/share"
         export GIO_EXTRA_MODULES="$GN2_PROFILE/lib/gio/modules"
+        export LC_ALL=C
     fi
     if [ -z $PYTHONPATH ] ; then
-        echo "WARNING PYTHONPATH has not been set"
+        echo "WARNING PYTHONPATH has not been set - use GN2_PROFILE!"
     fi
     if [ ! -d $R_LIBS_SITE ] ; then
-        echo "ERROR: R_LIBS_SITE has not been set correctly (we only allow one path)"
-        echo "Paste in the output of, for example,"
-        echo "guix package -p /usr/local/guix-profiles/gn2-staging --search-paths"
+        echo "ERROR: R_LIBS_SITE has not been set correctly (we only allow one path) - use GN2_PROFILE!"
+        echo "Paste into your shell the output of (for example)"
+        echo "guix package -p \$GN2_PROFILE --search-paths"
         exit 1
     fi
 fi
