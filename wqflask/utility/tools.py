@@ -231,3 +231,5 @@ if os.environ.get('WQFLASK_OVERRIDES'):
             else:
                 OVERRIDES[k] = cmd
             logger.debug(OVERRIDES)
+
+assert_dir(get_setting("TWITTER_POST_FETCHER_JS_PATH"))
