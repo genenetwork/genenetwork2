@@ -12,7 +12,7 @@
   </div>
   {% else %}
   <h1>CTL analysis parameters</h1>
-  {{(request.form['trait_list'].split(',')|length -1)}} traits as input
+  {{(request.form['trait_list'].split(',')|length)}} traits as input
 
   <form action="/ctl_results" method="post" class="form-horizontal">
     <input type="hidden" name="trait_list" id="trait_list" value= "{{request.form['trait_list']}}">
