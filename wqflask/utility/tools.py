@@ -121,7 +121,7 @@ def assert_writable_dir(dir):
         fh.close()
         os.remove(fn)
     except IOError:
-        raise Exception('Unable to write to directory ' + dir )
+        raise Exception('Unable to write test.txt to directory ' + dir )
     return dir
 
 def mk_dir(dir):
