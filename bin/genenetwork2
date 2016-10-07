@@ -79,13 +79,13 @@ fi
 # We may change this one:
 export PYTHONPATH=$GN2_BASE_DIR/wqflask:$PYTHONPATH
 
-# TEMPDIR defaults to /tmp if nothing else
-if [ -z $TEMPDIR ]; then
-    TEMPDIR="/tmp"
+# Our UNIX TMPDIR defaults to /tmp - change this on a shared server
+if [ -z $TMPDIR ]; then
+    TMPDIR="/tmp"
 fi
 
 set|grep $GN2_PROFILE
-set|grep TEMPDIR
+set|grep TMPDIR
 
 # Now handle command parameter -c
 if [ "$1" = '-c' ] ; then
@@ -98,7 +98,7 @@ if [ "$1" = '-c' ] ; then
 fi
 
 echo "Starting the redis server:"
-echo -n "dir $TEMPDIR
+echo -n "dir $TMPDIR
 dbfilename gn2.rdb
 " | redis-server - &
 
