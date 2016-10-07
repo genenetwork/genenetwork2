@@ -221,7 +221,11 @@
                         <li><a href="http://genenetwork.helmholtz-hzi.de/">Germany at the HZI</a></li>
                         <li><a href="http://gn2.genenetwork.org/">Memphis at the U of M</a></li>
                     </ul>
-                </section>
+
+                 <div id="tweets"></div>
+
+
+               </section>
 
                 <!--<section id="getting-started">
                     <div class="page-header">
@@ -281,5 +285,22 @@
             }
         }
     </script>
+
+    <script type="text/javascript" src="/twitter/js/twitterFetcher_min.js"></script>
+
+    <script type="text/javascript">
+      var configProfile = {
+      "profile": {"screenName": 'GeneNetwork2'},
+      "domId": 'tweets',
+      "maxTweets": 5,
+      "enableLinks": true,
+      "showUser": true,
+      "showTime": true,
+      "showImages": true,
+      "lang": 'en'
+      };
+      twitterFetcher.fetch(configProfile);
+    </script>
+
 
 {% endblock %}
