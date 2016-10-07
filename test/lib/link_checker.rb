@@ -1,4 +1,6 @@
 
+SKIP = "mailto:"
+
 class LinkChecker
 end
 
@@ -12,7 +14,7 @@ describe LinkChecker do
       page = @agent.get($host)
       page.links.each do |link|
         puts link.href
-        if link.href !~ /static\/dbdoc\/Hippocampus/ and link.href !~ /glossary.html|sample_r|grits.eecs.utk.edu|correlationAnnotation.html/
+        if link.href !~ /#{SKIP}/ # /static\/dbdoc\/Hippocampus/ and link.href !~ /mailto:|glossary.html|sample_r|grits.eecs.utk.edu|correlationAnnotation.html/
            # Fetch link, program will crash with exception if link is broken
            linkpage = @agent.get(link.href)
           puts "Link to #{link.href} is valid, response code #{linkpage.code}"
@@ -34,7 +36,7 @@ describe LinkChecker do
       # Test every link on the page to check if it's broken or not
       page.links.each do |link|
         puts link.href
-        if link.href !~ /static\/dbdoc\/Hippocampus/ and link.href !~ /glossary.html|sample_r|grits.eecs.utk.edu|correlationAnnotation.html/
+        if link.href !~ /#{SKIP}/ # /static\/dbdoc\/Hippocampus/ and link.href !~ /mailto:|glossary.html|sample_r|grits.eecs.utk.edu|correlationAnnotation.html/
            # Fetch link, program will crash with exception if link is broken
            linkpage = @agent.get(link.href)
           puts "Link to #{link.href} is valid, response code #{linkpage.code}"

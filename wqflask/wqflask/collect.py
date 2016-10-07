@@ -164,7 +164,7 @@ class UserCollection(object):
             if not uc:
                 return create_new("Default")
         else:
-            uc = model.UserCollection.query.get(params['existing_collection'])
+            uc = model.UserCollection.query.get(params['existing_collection'].split(":")[0])
         members =  list(uc.members_as_set()) #set(json.loads(uc.members))
         len_before = len(members)
 
@@ -218,7 +218,6 @@ def collections_add():
         anon_collections = user_manager.AnonUser().get_collections()
         collection_names = []
         for collection in anon_collections:
-            print("COLLECTION:", collection)
             collection_names.append({'id':collection['id'], 'name':collection['name']})
         return render_template("collections/add.html",
                                 traits = traits,
@@ -229,21 +228,17 @@ def collections_add():
 @app.route("/collections/new")
 def collections_new():
     params = request.args
-    #print("request.args in collections_new are:", params)
-
-    collection_name = params['new_collection']
     
-    if "anonymous_add" in params:
-        AnonCollection(name=collection_name).add_traits(params, "Default")
-        return redirect(url_for('view_collection'))
     if "sign_in" in params:
         return redirect(url_for('login'))
 
     if "create_new" in params:
         print("in create_new")
+        collection_name = params['new_collection']
         return create_new(collection_name)
     elif "add_to_existing" in params:
         print("in add to existing")
+        collection_name = params['existing_collection'].split(":")[1]
         if g.user_session.logged_in:
             return UserCollection().add_traits(params, collection_name)
         else:
@@ -251,7 +246,6 @@ def collections_new():
             ac.add_traits(params)
             return redirect(url_for('view_collection', collection_id=ac.id))
     else:
-        print("ELSE")
         CauseAnError
 
 
@@ -288,7 +282,6 @@ def create_new(collection_name):
         ac = AnonCollection(collection_name)
         ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')       
         ac.add_traits(params)
-        print("Collection ID:", ac.id)
         return redirect(url_for('view_collection', collection_id=ac.id))
 
 @app.route("/collections/list")
@@ -367,7 +360,6 @@ def view_collection():
         uc_id = params['uc_id']
         uc = model.UserCollection.query.get(uc_id)
         traits = json.loads(uc.members)
-        print("traits are:", traits)
     else:
         user_collections = json.loads(Redis.get(user_manager.AnonUser().key))
         this_collection = {}
@@ -384,7 +376,6 @@ def view_collection():
     json_version = []
 
     for atrait in traits:
-        print("atrait is:", atrait)
         name, dataset_name = atrait.split(':')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
         trait_ob = trait.GeneralTrait(name=name, dataset_name=dataset_name)
@@ -392,8 +383,6 @@ def view_collection():
         trait_obs.append(trait_ob)
 
         json_version.append(trait_ob.jsonable())
-
-    print("trait_obs:", trait_obs)
 
     if "uc_id" in params:
         collection_info = dict(trait_obs=trait_obs,

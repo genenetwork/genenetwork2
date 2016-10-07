@@ -1,0 +1,43 @@
+#+TITLE: Testing GN2
+
+* Table of Contents                                                     :TOC:
+ - [[#introduction][Introduction]]
+ - [[#run-tests][Run tests]]
+   - [[#setup][Setup]]
+   - [[#running][Running]]
+
+* Introduction
+
+For integration testing we currently use the brilliant Ruby Mechanize
+gem against the small database; a setup we call mechanical Rob because
+it emulates someone clicking through the website and checking results.
+
+These scripts invoke calls to a running webserver and test the
+response.  If a page changes or is broken tests will break and we are
+informed.  In principle, Mechanical Rob is run before code merges are
+committed to the main server.
+
+In the future we may move to Python mechanize - it'll be easy to mix
+the Ruby and Python versions.
+
+* Run tests
+
+** Setup
+
+Mechanize is not yet included in Guix deployment.
+
+
+** Running
+
+Run the tests from the root of the genenetwork2 source tree as, for
+example,
+
+:  ./bin/test-website http://localhost:5003/ (default)
+
+If you are using the small deployment database you can use
+
+:  ./bin/test-website --skip -n
+
+To run individual tests on localhost you can do
+
+:  ruby -Itest -Itest/lib test/lib/mapping.rb --name="/Mapping/"

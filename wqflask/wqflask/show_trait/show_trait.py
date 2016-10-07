@@ -23,8 +23,7 @@ from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf
 
-from utility.tools import flat_files
-MAPPING_PATH = flat_files("mapping")
+from utility.tools import flat_files, flat_file_exists
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -163,11 +162,12 @@ class ShowTrait(object):
     def get_mapping_methods(self):
         '''Only display mapping methods when the dataset group's genotype file exists'''
         def check_plink_gemma():
-            if (os.path.isfile(MAPPING_PATH+"/"+self.dataset.group.name+".bed") and
-                os.path.isfile(MAPPING_PATH+"/"+self.dataset.group.name+".map")):
-                return True
-            else:
-                return False
+            if flat_file_exists("mapping"):
+                MAPPING_PATH = flat_files("mapping")+"/"
+                if (os.path.isfile(MAPPING_PATH+self.dataset.group.name+".bed") and
+                    os.path.isfile(MAPPING_PATH+self.dataset.group.name+".map")):
+                    return True
+            return False
 
         def check_pylmm_rqtl():
             if os.path.isfile(webqtlConfig.GENODIR+self.dataset.group.name+".geno") and (os.path.getsize(webqtlConfig.JSON_GENODIR+self.dataset.group.name+".json") > 0):

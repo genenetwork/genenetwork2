@@ -4,7 +4,7 @@
 USAGE = <<EOT
 This is Mechanical-Rob - an automated web server tester for
                          Genenetwork.org that uses the brilliant
-                         mechanize gem.
+                         mechanize gem with minitest.
 
 To use this software you need to install mechanize. Run it from
 the root of the genenetwork2 source tree as, for example,
@@ -14,6 +14,14 @@ the root of the genenetwork2 source tree as, for example,
 If you are using the small deployment database you can use
 
   ./bin/test-website --skip -n
+
+To run all tests
+
+  ./bin/test-website --all
+
+To run individual tests on localhost you can do
+
+  ruby -Itest -Itest/lib test/lib/mapping.rb --name="/Mapping/"
 
 For more information see http://genenetwork.org/
 
@@ -34,6 +42,10 @@ opts = OptionParser.new do |o|
       else
         :small
       end
+  end
+
+  o.on('--all', 'Run all tests') do
+    options[:all] = true
   end
 
   o.on('-l','--link-checker', 'Check for dead links') do
@@ -84,16 +96,16 @@ require 'minitest/autorun'
 libpath = File.dirname(File.dirname(__FILE__))
 $: << File.join(libpath,'test/lib')
 
-if options[:link_checker]
-  require 'link_checker'
-else
-  require 'main_web_functionality'
-end
+require 'main_web_functionality'
 
-if options[:navigation_test]
-  require 'navigation'
-end
-
-if options[:mapping_test]
+if options[:all] or options[:mapping_test]
   require 'mapping'
+end
+
+if options[:all] or options[:link_checker]
+  require 'link_checker'
+end
+
+if options[:all] or options[:navigation_test]
+  require 'navigation'
 end

@@ -7,6 +7,7 @@
 # e.g.
 #
 #   env LOG_SQL=True USE_REDIS=False ./bin/genenetwork2
+#   env LOG_LEVEL=DEBUG ./bin/genenetwork2 ~/gn2_settings.py
 #
 # Note: in the near future we will additionally fetch
 # settings from a JSON file
@@ -45,7 +46,7 @@ WEBSERVER_BRANDING = None   # Set the branding (nyi)
 WEBSERVER_DEPLOY = None     # Deployment specifics (nyi)
 
 LOG_LEVEL       = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
-LOG_LEVEL_DEBUG = '0'       # Debug log level (0-5, 0 = show all)
+LOG_LEVEL_DEBUG = '0'       # logger.debugf log level (0-5, 5 = show all)
 LOG_SQL         = 'False'   # Log SQL/backend and GN_SERVER calls
 LOG_SQLALCHEMY  = 'False'
 LOG_BENCH       = True      # Log bench marks
@@ -62,6 +63,7 @@ BIODALLIANCE_JS = os.environ['HOME']+"/genenetwork/biodalliance"
 HOME=os.environ['HOME']
 LOGFILE = HOME+"/genenetwork2.log"
 GENENETWORK_FILES = HOME+"/gn2_data"  # base dir for all static data files
+LOCAL_PRIVATE_FILES = HOME+"/gn2_private_data" # private static data files
 
 # ---- GN2 Executables
 # Paths to invoked binaries
