@@ -50,6 +50,10 @@ LOG_BENCH       = True      # Log bench marks
 USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
 USE_GN_SERVER   = 'False'   # Use GN_SERVER SQL calls
 
+# Paths to JS libraries
+
+TWITTER_POST_FETCHER_JS_PATH = os.environ['HOME']+"/genenetwork/Twitter-Post-Fetcher"
+
 # ---- Path overrides for Genenetwork
 # TMPDIR is normally picked up from the environment
 HOME=os.environ['HOME']
