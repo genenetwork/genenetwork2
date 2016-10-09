@@ -36,6 +36,7 @@ describe MappingTest do
                          json,
                          ({'Content-Type' => 'application/x-www-form-urlencoded'}))
       form = page.forms_with("marker_regression")[0]
+      p form
       form.fields.select { |fld| fld.name == 'dataset' }.first.value.must_equal 'HC_M2_0606_P'
       form.fields.select { |fld| fld.name == 'value:BXD1' }.first.value.must_equal "15.034"
     end
