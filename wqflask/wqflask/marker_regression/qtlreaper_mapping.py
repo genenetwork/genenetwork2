@@ -1,6 +1,6 @@
 def gen_reaper_results(this_trait, dataset, samples_before, json_data, num_perm, bootCheck, num_bootstrap, do_control, control_marker, manhattan_plot):
     genotype = dataset.group.read_genotype_file()
-    
+
     if manhattan_plot != True:
         genotype = genotype.addinterval()
 
@@ -14,8 +14,8 @@ def gen_reaper_results(this_trait, dataset, samples_before, json_data, num_perm,
             trimmed_values.append(values[i])
 
     perm_output = []
-    bootstrap_results = []    
-            
+    bootstrap_results = []
+
     if num_perm < 100:
         suggestive = 0
         significant = 0
