@@ -26,6 +26,10 @@ GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
 
 echo GN2_BASE_DIR=$GN2_BASE_DIR
 
+GIT_HASH=$(git rev-parse HEAD)
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+export GN_VERSION=$(cat $GN2_BASE_DIR/VERSION)-$GIT_BRANCH-${GIT_HASH:0:9}
+echo GN_VERSION=$GN_VERSION
 
 # Handle settings parameter (can be .py or .json)
 settings=$1

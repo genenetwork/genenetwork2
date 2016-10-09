@@ -51,7 +51,7 @@ from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
 
 from utility import temp_data
-from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL
+from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION
 
 from base import webqtlFormData
 from base.webqtlConfig import GENERATED_IMAGE_DIR
@@ -124,10 +124,10 @@ def index_page():
             g.cookie_session.import_traits_to_user()
     if USE_GN_SERVER:
         # The menu is generated using GN_SERVER
-        return render_template("index_page.html", gn_server_url = GN_SERVER_URL)
+        return render_template("index_page.html", gn_server_url = GN_SERVER_URL, version=GN_VERSION)
     else:
         # Old style static menu (OBSOLETE)
-        return render_template("index_page_orig.html")
+        return render_template("index_page_orig.html", version=GN_VERSION)
 
 
 @app.route("/tmp/<img_path>")

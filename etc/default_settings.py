@@ -18,6 +18,7 @@
 import os
 import sys
 
+GN_VERSION = open("../VERSION","r").read()
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQLALCHEMY_DATABASE_URI = 'mysql://gn2:mysql_password@localhost/db_webqtl_s'
 SQLALCHEMY_POOL_RECYCLE = 3600
