@@ -52,12 +52,12 @@ opts = OptionParser.new do |o|
     options[:link_checker] = true
   end
 
-  o.on('--navigation-test', 'Check for navigation') do
-    options[:navigation_test] = true
+  o.on('--navigation', 'Check for navigation') do
+    options[:navigation] = true
   end
 
-  o.on('--mapping-test', 'Check for mapping') do
-    options[:mapping_test] = true
+  o.on('--mapping', 'Check for mapping') do
+    options[:mapping] = true
   end
 
   o.on('--skip-broken', 'Skip tests that are known to be broken') do
@@ -98,7 +98,7 @@ $: << File.join(libpath,'test/lib')
 
 require 'main_web_functionality'
 
-if options[:all] or options[:mapping_test]
+if options[:all] or options[:mapping]
   require 'mapping'
 end
 
@@ -106,6 +106,6 @@ if options[:all] or options[:link_checker]
   require 'link_checker'
 end
 
-if options[:all] or options[:navigation_test]
+if options[:all] or options[:navigation]
   require 'navigation'
 end
