@@ -35,7 +35,7 @@
   </p>
 
   <pre>
-    {{ stack[0] }}
+    GeneNetwork v{{ version }} {{ stack[0] }}
     {{ message }} (error)
     {{ stack[-3] }}
     {{ stack[-2] }}
@@ -50,7 +50,7 @@
   <a href="#Stack" class="btn btn-default" data-toggle="collapse">Toggle full stack trace</a>
   <div id="Stack" class="collapse">
     <pre>
-      {% for line in stack %} {{ line }}
+      GeneNetwork v{{ version }} {% for line in stack %} {{ line }}
       {% endfor %}
     </pre>
   </div>

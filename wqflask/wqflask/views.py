@@ -108,7 +108,7 @@ def handle_bad_request(e):
         list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
         animation = random.choice(list)
 
-    resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation))
+    resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation,version=GN_VERSION))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
     resp.set_cookie(err_msg[:32],animation)
