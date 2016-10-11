@@ -35,7 +35,7 @@ from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
-from wqflask.marker_regression import gemma_mapping, rqtl_mapping
+from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping
 
 from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
 from utility.external import shell
@@ -170,7 +170,7 @@ class MarkerRegression(object):
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
-                perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
+                self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
             else:
                 results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
         elif self.mapping_method == "reaper":
@@ -201,7 +201,16 @@ class MarkerRegression(object):
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             logger.info("Running qtlreaper")
-            results = self.gen_reaper_results()
+            results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.gen_reaper_results(self.this_trait,
+                                                                                                                                                        self.dataset,
+                                                                                                                                                        self.samples,
+                                                                                                                                                        self.json_data,
+                                                                                                                                                        self.num_perm,
+                                                                                                                                                        self.bootCheck,
+                                                                                                                                                        self.num_bootstrap,
+                                                                                                                                                        self.do_control,
+                                                                                                                                                        self.control_marker,
+                                                                                                                                                        self.manhattan_plot)
         elif self.mapping_method == "plink":
             results = self.run_plink()
         elif self.mapping_method == "pylmm":
@@ -467,98 +476,6 @@ class MarkerRegression(object):
             line = ped_file.readline()
 
         return sample_list
-
-    def gen_reaper_results(self):
-        genotype = self.dataset.group.read_genotype_file()
-
-        if self.manhattan_plot != True:
-            genotype = genotype.addinterval()
-
-        samples, values, variances, sample_aliases = self.this_trait.export_informative()
-
-        trimmed_samples = []
-        trimmed_values = []
-        for i in range(0, len(samples)):
-            #if self.this_trait.data[samples[i]].name2 in self.dataset.group.samplelist:
-            if self.this_trait.data[samples[i]].name in self.samples:
-                trimmed_samples.append(samples[i])
-                trimmed_values.append(values[i])
-
-        if self.num_perm < 100:
-            self.suggestive = 0
-            self.significant = 0
-        else:
-            self.perm_output = genotype.permutation(strains = trimmed_samples, trait = trimmed_values, nperm=self.num_perm)
-            self.suggestive = self.perm_output[int(self.num_perm*0.37-1)]
-            self.significant = self.perm_output[int(self.num_perm*0.95-1)]
-            self.highly_significant = self.perm_output[int(self.num_perm*0.99-1)]
-
-        self.json_data['suggestive'] = self.suggestive
-        self.json_data['significant'] = self.significant
-
-        if self.control_marker != "" and self.do_control == "true":
-            reaper_results = genotype.regression(strains = trimmed_samples,
-                                                 trait = trimmed_values,
-                                                 control = str(self.control_marker))
-            if self.bootCheck:
-                control_geno = []
-                control_geno2 = []
-                _FIND = 0
-                for _chr in genotype:
-                    for _locus in _chr:
-                        if _locus.name == self.control_marker:
-                            control_geno2 = _locus.genotype
-                            _FIND = 1
-                            break
-                    if _FIND:
-                        break
-                if control_geno2:
-                    _prgy = list(genotype.prgy)
-                    for _strain in trimmed_samples:
-                        _idx = _prgy.index(_strain)
-                        control_geno.append(control_geno2[_idx])
-
-                self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
-                                                            trait = trimmed_values,
-                                                            control = control_geno,
-                                                            nboot = self.num_bootstrap)
-        else:
-            reaper_results = genotype.regression(strains = trimmed_samples,
-                                                 trait = trimmed_values)
-
-            if self.bootCheck:
-                self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
-                                                            trait = trimmed_values,
-                                                            nboot = self.num_bootstrap)
-
-        self.json_data['chr'] = []
-        self.json_data['pos'] = []
-        self.json_data['lod.hk'] = []
-        self.json_data['markernames'] = []
-        #if self.additive:
-        #    self.json_data['additive'] = []
-
-        #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
-        qtl_results = []
-        for qtl in reaper_results:
-            reaper_locus = qtl.locus
-            #ZS: Convert chr to int
-            converted_chr = reaper_locus.chr
-            if reaper_locus.chr != "X" and reaper_locus.chr != "X/Y":
-                converted_chr = int(reaper_locus.chr)
-            self.json_data['chr'].append(converted_chr)
-            self.json_data['pos'].append(reaper_locus.Mb)
-            self.json_data['lod.hk'].append(qtl.lrs)
-            self.json_data['markernames'].append(reaper_locus.name)
-            #if self.additive:
-            #    self.json_data['additive'].append(qtl.additive)
-            locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
-            qtl = {"lrs_value": qtl.lrs, "chr":converted_chr, "Mb":reaper_locus.Mb,
-                   "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
-            qtl_results.append(qtl)
-
-        return qtl_results
-
 
     def parse_plink_output(self, output_filename):
         plink_results={}
