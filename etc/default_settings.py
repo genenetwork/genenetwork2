@@ -57,7 +57,8 @@ USE_GN_SERVER   = 'False'   # Use GN_SERVER SQL calls
 
 # Paths to JS libraries
 
-BIODALLIANCE_JS = os.environ['HOME']+"/genenetwork/biodalliance"
+JS_BIODALLIANCE = os.environ['HOME']+"/genenetwork/biodalliance"
+JS_TWITTER_POST_FETCHER = os.environ['HOME']+"/genenetwork/Twitter-Post-Fetcher"
 
 # ---- Path overrides for Genenetwork
 # TMPDIR is normally picked up from the environment
