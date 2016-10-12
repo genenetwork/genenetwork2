@@ -240,5 +240,6 @@ if os.environ.get('WQFLASK_OVERRIDES'):
 
 assert_dir(get_setting("JS_BIODALLIANCE"))
 assert_file(get_setting("JS_BIODALLIANCE")+"/build/dalliance-all.js")
+assert_file(get_setting("JS_BIODALLIANCE")+"/build/worker-all.js")
 assert_dir(get_setting("JS_TWITTER_POST_FETCHER"))
 assert_file(get_setting("JS_TWITTER_POST_FETCHER")+"/js/twitterFetcher_min.js")
