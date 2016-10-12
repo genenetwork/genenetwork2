@@ -72,7 +72,7 @@ LOG_LEVEL_DEBUG (NYI).
     def warning(self,*args):
         """Call logging.warning for multiple args"""
         self.collect(self.logger.warning,*args)
-        self.logger.warning(self.collect(*args))
+        # self.logger.warning(self.collect(*args))
 
     def error(self,*args):
         """Call logging.error for multiple args"""

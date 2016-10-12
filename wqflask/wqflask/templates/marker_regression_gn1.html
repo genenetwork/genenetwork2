@@ -414,9 +414,9 @@
                    provides_entrypoints: true
      });
      BD.putSource({name: 'Genotype',
-                   controlURI: "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/BXD.json",
-                   URIBase: "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/",
-                   tier_type: 'rqtl-genotype',
+                   controlURI: gn_server_url+"/api_pre1/genotype/mouse/BXD.json",
+                   URIBase:    gn_server_url+"/api_pre1/genotype/mouse/",
+                   tier_type:  'rqtl-genotype',
                    vOffset: 8,
                    pinned: true,
                    transposed: true,
@@ -465,7 +465,7 @@
      });
      BD.putSource({name: 'QTL',
                    tier_type: 'qtl',
-                   uri: 'http://localhost:5003/generated_text/{{csv_filename}}',
+                   uri: '/generated_text/{{csv_filename}}',
                    style: [{
                        type: 'default',
                        style: {
@@ -480,7 +480,7 @@
                    }],
      });
      BD.putSource({name: 'SNP density',
-                   jbURI: "http://test-gn2.genenetwork.org/api_pre1/snp",
+                   jbURI: gn_server_url+"/api_pre1/snp",
                    jbQuery: "",
                    refetchOnZoom: true,
                    style: [{

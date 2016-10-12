@@ -549,6 +549,7 @@ def marker_regression_page():
             gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
             gn1_template_vars['json_filename'] = json_filename;
             gn1_template_vars['csv_filename'] = csv_filename;
+            gn1_template_vars['gn_server_url'] = GN_SERVER_URL;
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             logger.info("pickled result length:", len(pickled_result))
