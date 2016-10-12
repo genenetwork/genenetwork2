@@ -414,8 +414,8 @@
                    provides_entrypoints: true
      });
      BD.putSource({name: 'Genotype',
-                   controlURI: gn_server_url+"/api_pre1/genotype/mouse/BXD.json",
-                   URIBase:    gn_server_url+"/api_pre1/genotype/mouse/",
+                   controlURI: "{{gn_server_url}}/api_pre1/genotype/mouse/BXD.json",
+                   URIBase:    "{{gn_server_url}}/api_pre1/genotype/mouse/",
                    tier_type:  'rqtl-genotype',
                    vOffset: 8,
                    pinned: true,
@@ -480,7 +480,7 @@
                    }],
      });
      BD.putSource({name: 'SNP density',
-                   jbURI: gn_server_url+"/api_pre1/snp",
+                   jbURI: "{{gn_server_url}}/api_pre1/snp",
                    jbQuery: "",
                    refetchOnZoom: true,
                    style: [{

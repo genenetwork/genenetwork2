@@ -559,22 +559,6 @@ def marker_regression_page():
             with Bench("Rendering template"):
                 rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
 
-    # with Bench("Rendering template"):
-        # if result['pair_scan'] == True:
-            # img_path = result['pair_scan_filename']
-            # logger.info("img_path:", img_path)
-            # initial_start_vars = request.form
-            # logger.info("initial_start_vars:", initial_start_vars)
-            # imgfile = open(TEMPDIR + '/' + img_path, 'rb')
-            # imgdata = imgfile.read()
-            # imgB64 = imgdata.encode("base64")
-            # bytesarray = array.array('B', imgB64)
-            # result['pair_scan_array'] = bytesarray
-            # rendered_template = render_template("pair_scan_results.html", **result)
-        # else:
-            # rendered_template = render_template("marker_regression.html", **result)
-            # rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
-
     return rendered_template
 
 
