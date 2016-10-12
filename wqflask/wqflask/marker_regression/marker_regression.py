@@ -309,49 +309,6 @@ class MarkerRegression(object):
                 perm_results = self.perm_output,
             )
 
-
-    def run_gemma(self):
-        """Generates p-values for each marker using GEMMA"""
-
-        self.gen_pheno_txt_file()
-
-        #os.chdir("/home/zas1024/gene/web/gemma")
-
-        gemma_command = GEMMA_COMMAND + ' -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
-                                                                                                 self.dataset.group.name,
-                                                                                                 self.dataset.group.name,
-                                                                                                 self.dataset.group.name)
-        #logger.debug("gemma_command:" + gemma_command)
-
-        os.system(gemma_command)
-
-        included_markers, p_values = self.parse_gemma_output()
-
-        self.dataset.group.get_specified_markers(markers = included_markers)
-        self.dataset.group.markers.add_pvalues(p_values)
-        return self.dataset.group.markers.markers
-
-    def parse_gemma_output(self):
-        included_markers = []
-        p_values = []
-        # Use a temporary file name here!
-        with open(webqtlConfig.GENERATED_TEXT_DIR+"/{}_output.assoc.txt".format(self.dataset.group.name)) as output_file:
-            for line in output_file:
-                if line.startswith("chr"):
-                    continue
-                else:
-                    included_markers.append(line.split("\t")[1])
-                    p_values.append(float(line.split("\t")[10]))
-                    #p_values[line.split("\t")[1]] = float(line.split("\t")[10])
-        #logger.debug("p_values: ", p_values)
-        return included_markers, p_values
-
-    def gen_pheno_txt_file(self):
-        """Generates phenotype file for GEMMA"""
-        with open(webqtlConfig.GENERATED_TEXT_DIR+"{}.fam".format(self.dataset.group.name), "w") as outfile:
-            for i, sample in enumerate(self.samples):
-                outfile.write(str(sample) + " " + str(sample) + " 0 0 0 " + str(self.vals[i]) + "\n")
-
     def run_rqtl_plink(self):
         # os.chdir("") never do this inside a webserver!!
 
@@ -391,41 +348,6 @@ class MarkerRegression(object):
 
 
     def gen_pheno_txt_file_plink(self, pheno_filename = ''):
-        ped_sample_list = self.get_samples_from_ped_file()
-        output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
-        header = 'FID\tIID\t%s\n' % self.this_trait.name
-        output_file.write(header)
-
-        new_value_list = []
-
-        #if valueDict does not include some strain, value will be set to -9999 as missing value
-        for i, sample in enumerate(ped_sample_list):
-            try:
-                value = self.vals[i]
-                value = str(value).replace('value=','')
-                value = value.strip()
-            except:
-                value = -9999
-
-            new_value_list.append(value)
-
-
-        new_line = ''
-        for i, sample in enumerate(ped_sample_list):
-            j = i+1
-            value = new_value_list[i]
-            new_line += '%s\t%s\t%s\n'%(sample, sample, value)
-
-            if j%1000 == 0:
-                output_file.write(newLine)
-                new_line = ''
-
-        if new_line:
-            output_file.write(new_line)
-
-        output_file.close()
-
-    def gen_pheno_txt_file_rqtl(self, pheno_filename = ''):
         ped_sample_list = self.get_samples_from_ped_file()
         output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
         header = 'FID\tIID\t%s\n' % self.this_trait.name

@@ -52,7 +52,7 @@ class AnonCollection(object):
         self.id = None
         self.created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
         self.changed_timestamp = self.created_timestamp #ZS: will be updated when changes are made
-
+        
         #ZS: Find id and set it if the collection doesn't already exist
         if Redis.get(self.key) == "None" or Redis.get(self.key) == None:
             Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this   
@@ -66,6 +66,7 @@ class AnonCollection(object):
                     collection_exists = True
                     self.id = collection['id']
                     break
+        
         if self.id == None:
             self.id = str(uuid.uuid4())
         
@@ -191,7 +192,19 @@ class UserCollection(object):
         # Probably have to change that
         return redirect(url_for('view_collection', uc_id=uc.id))
 
-
+def process_traits(unprocessed_traits):
+    #print("unprocessed_traits are:", unprocessed_traits)
+    if isinstance(unprocessed_traits, basestring):
+        unprocessed_traits = unprocessed_traits.split(",")
+    traits = set()
+    for trait in unprocessed_traits:
+        #print("trait is:", trait)
+        data, _separator, hmac = trait.rpartition(':')
+        data = data.strip()
+        assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
+        traits.add                                                                                               (str(data))
+    return traits
+        
 def report_change(len_before, len_now):
     new_length = len_now - len_before
     if new_length:
@@ -224,7 +237,6 @@ def collections_add():
                                 collections = collection_names,
                               )
 
-
 @app.route("/collections/new")
 def collections_new():
     params = request.args
@@ -247,20 +259,6 @@ def collections_new():
             return redirect(url_for('view_collection', collection_id=ac.id))
     else:
         CauseAnError
-
-
-def process_traits(unprocessed_traits):
-    #print("unprocessed_traits are:", unprocessed_traits)
-    if isinstance(unprocessed_traits, basestring):
-        unprocessed_traits = unprocessed_traits.split(",")
-    traits = set()
-    for trait in unprocessed_traits:
-        #print("trait is:", trait)
-        data, _separator, hmac = trait.rpartition(':')
-        data = data.strip()
-        assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
-        traits.add                                                                                               (str(data))
-    return traits
 
 def create_new(collection_name):
     params = request.args

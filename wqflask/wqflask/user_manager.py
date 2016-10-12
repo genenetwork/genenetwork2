@@ -158,7 +158,6 @@ def verify_cookie(cookie):
     assert the_signature == actual_hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
     return the_uuid
 
-
 def create_signed_cookie():
     the_uuid = str(uuid.uuid4())
     signature = actual_hmac_creation(the_uuid)
