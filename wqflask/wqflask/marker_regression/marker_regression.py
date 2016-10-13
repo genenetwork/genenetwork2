@@ -35,7 +35,7 @@ from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
-from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping
+from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 
 from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
 from utility.external import shell
@@ -212,7 +212,8 @@ class MarkerRegression(object):
                                                                                                                                                         self.control_marker,
                                                                                                                                                         self.manhattan_plot)
         elif self.mapping_method == "plink":
-            results = self.run_plink()
+            results = plink_mapping.run_plink(self.this_trait, self.dataset, self.species, self.vals, self.maf)
+            #results = self.run_plink()
         elif self.mapping_method == "pylmm":
             logger.debug("RUNNING PYLMM")
             if self.num_perm > 0:
@@ -309,249 +310,18 @@ class MarkerRegression(object):
                 perm_results = self.perm_output,
             )
 
-
-    def run_gemma(self):
-        """Generates p-values for each marker using GEMMA"""
-
-        self.gen_pheno_txt_file()
-
-        #os.chdir("/home/zas1024/gene/web/gemma")
-
-        gemma_command = GEMMA_COMMAND + ' -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
-                                                                                                 self.dataset.group.name,
-                                                                                                 self.dataset.group.name,
-                                                                                                 self.dataset.group.name)
-        #logger.debug("gemma_command:" + gemma_command)
-
-        os.system(gemma_command)
-
-        included_markers, p_values = self.parse_gemma_output()
-
-        self.dataset.group.get_specified_markers(markers = included_markers)
-        self.dataset.group.markers.add_pvalues(p_values)
-        return self.dataset.group.markers.markers
-
-    def parse_gemma_output(self):
-        included_markers = []
-        p_values = []
-        # Use a temporary file name here!
-        with open(webqtlConfig.GENERATED_TEXT_DIR+"/{}_output.assoc.txt".format(self.dataset.group.name)) as output_file:
-            for line in output_file:
-                if line.startswith("chr"):
-                    continue
-                else:
-                    included_markers.append(line.split("\t")[1])
-                    p_values.append(float(line.split("\t")[10]))
-                    #p_values[line.split("\t")[1]] = float(line.split("\t")[10])
-        #logger.debug("p_values: ", p_values)
-        return included_markers, p_values
-
-    def gen_pheno_txt_file(self):
-        """Generates phenotype file for GEMMA"""
-        with open(webqtlConfig.GENERATED_TEXT_DIR+"{}.fam".format(self.dataset.group.name), "w") as outfile:
-            for i, sample in enumerate(self.samples):
-                outfile.write(str(sample) + " " + str(sample) + " 0 0 0 " + str(self.vals[i]) + "\n")
-
     def run_rqtl_plink(self):
         # os.chdir("") never do this inside a webserver!!
 
         output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
 
-        self.gen_pheno_txt_file_plink(pheno_filename = output_filename)
+        plink_mapping.gen_pheno_txt_file_plink(self.this_trait, self.dataset, self.vals, pheno_filename = output_filename)
 
         rqtl_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
 
         os.system(rqtl_command)
 
         count, p_values = self.parse_rqtl_output(plink_output_filename)
-
-    def run_plink(self):
-        plink_output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
-
-        self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
-
-        plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
-        logger.debug("plink_command:", plink_command)
-
-        os.system(plink_command)
-
-        count, p_values = self.parse_plink_output(plink_output_filename)
-
-        #for marker in self.dataset.group.markers.markers:
-        #    if marker['name'] not in included_markers:
-        #        logger.debug("marker:", marker)
-        #        self.dataset.group.markers.markers.remove(marker)
-        #        #del self.dataset.group.markers.markers[marker]
-
-        logger.debug("p_values:", pf(p_values))
-
-        self.dataset.group.markers.add_pvalues(p_values)
-
-        return self.dataset.group.markers.markers
-
-
-    def gen_pheno_txt_file_plink(self, pheno_filename = ''):
-        ped_sample_list = self.get_samples_from_ped_file()
-        output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
-        header = 'FID\tIID\t%s\n' % self.this_trait.name
-        output_file.write(header)
-
-        new_value_list = []
-
-        #if valueDict does not include some strain, value will be set to -9999 as missing value
-        for i, sample in enumerate(ped_sample_list):
-            try:
-                value = self.vals[i]
-                value = str(value).replace('value=','')
-                value = value.strip()
-            except:
-                value = -9999
-
-            new_value_list.append(value)
-
-
-        new_line = ''
-        for i, sample in enumerate(ped_sample_list):
-            j = i+1
-            value = new_value_list[i]
-            new_line += '%s\t%s\t%s\n'%(sample, sample, value)
-
-            if j%1000 == 0:
-                output_file.write(newLine)
-                new_line = ''
-
-        if new_line:
-            output_file.write(new_line)
-
-        output_file.close()
-
-    def gen_pheno_txt_file_rqtl(self, pheno_filename = ''):
-        ped_sample_list = self.get_samples_from_ped_file()
-        output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
-        header = 'FID\tIID\t%s\n' % self.this_trait.name
-        output_file.write(header)
-
-        new_value_list = []
-
-        #if valueDict does not include some strain, value will be set to -9999 as missing value
-        for i, sample in enumerate(ped_sample_list):
-            try:
-                value = self.vals[i]
-                value = str(value).replace('value=','')
-                value = value.strip()
-            except:
-                value = -9999
-
-            new_value_list.append(value)
-
-
-        new_line = ''
-        for i, sample in enumerate(ped_sample_list):
-            j = i+1
-            value = new_value_list[i]
-            new_line += '%s\t%s\t%s\n'%(sample, sample, value)
-
-            if j%1000 == 0:
-                output_file.write(newLine)
-                new_line = ''
-
-        if new_line:
-            output_file.write(new_line)
-
-        output_file.close()
-
-    # get strain name from ped file in order
-    def get_samples_from_ped_file(self):
-        ped_file= open("{}/{}.ped".format(PLINK_PATH, self.dataset.group.name),"r")
-        line = ped_file.readline()
-        sample_list=[]
-
-        while line:
-            lineList = string.split(string.strip(line), '\t')
-            lineList = map(string.strip, lineList)
-
-            sample_name = lineList[0]
-            sample_list.append(sample_name)
-
-            line = ped_file.readline()
-
-        return sample_list
-
-    def parse_plink_output(self, output_filename):
-        plink_results={}
-
-        threshold_p_value = 0.01
-
-        result_fp = open("%s%s.qassoc"% (TMPDIR, output_filename), "rb")
-
-        header_line = result_fp.readline()# read header line
-        line = result_fp.readline()
-
-        value_list = [] # initialize value list, this list will include snp, bp and pvalue info
-        p_value_dict = {}
-        count = 0
-
-        while line:
-            #convert line from str to list
-            line_list = self.build_line_list(line=line)
-
-            # only keep the records whose chromosome name is in db
-            if self.species.chromosomes.chromosomes.has_key(int(line_list[0])) and line_list[-1] and line_list[-1].strip()!='NA':
-
-                chr_name = self.species.chromosomes.chromosomes[int(line_list[0])]
-                snp = line_list[1]
-                BP = line_list[2]
-                p_value = float(line_list[-1])
-                if threshold_p_value >= 0 and threshold_p_value <= 1:
-                    if p_value < threshold_p_value:
-                        p_value_dict[snp] = float(p_value)
-
-                if plink_results.has_key(chr_name):
-                    value_list = plink_results[chr_name]
-
-                    # pvalue range is [0,1]
-                    if threshold_p_value >=0 and threshold_p_value <= 1:
-                        if p_value < threshold_p_value:
-                            value_list.append((snp, BP, p_value))
-                            count += 1
-
-                    plink_results[chr_name] = value_list
-                    value_list = []
-                else:
-                    if threshold_p_value >= 0 and threshold_p_value <= 1:
-                        if p_value < threshold_p_value:
-                            value_list.append((snp, BP, p_value))
-                            count += 1
-
-                    if value_list:
-                        plink_results[chr_name] = value_list
-
-                    value_list=[]
-
-                line = result_fp.readline()
-            else:
-                line = result_fp.readline()
-
-        #if p_value_list:
-        #    min_p_value = min(p_value_list)
-        #else:
-        #    min_p_value = 0
-
-        return count, p_value_dict
-
-    ######################################################
-    # input: line: str,one line read from file
-    # function: convert line from str to list;
-    # output: lineList list
-    #######################################################
-    def build_line_list(self, line=None):
-
-        line_list = string.split(string.strip(line),' ')# irregular number of whitespaces between columns
-        line_list = [item for item in line_list if item <>'']
-        line_list = map(string.strip, line_list)
-
-        return line_list
-
 
     def run_permutations(self, temp_uuid):
         """Runs permutations and gets significant and suggestive LOD scores"""

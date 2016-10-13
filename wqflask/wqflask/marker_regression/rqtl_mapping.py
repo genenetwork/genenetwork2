@@ -159,8 +159,6 @@ def process_pair_scan_results(result):
         marker['chr2'] = int(output[i][2])
         pair_scan_results.append(marker)
 
-    #print("pair_scan_results:", pair_scan_results)
-
     return pair_scan_results
 
 def process_rqtl_perm_results(num_perm, results):
@@ -172,7 +170,6 @@ def process_rqtl_perm_results(num_perm, results):
     perm_output = perm_vals
     suggestive = np.percentile(np.array(perm_vals), 67)
     significant = np.percentile(np.array(perm_vals), 95)
-    print("SIGNIFICANT:", significant)
 
     return perm_output, suggestive, significant
     
@@ -191,3 +188,4 @@ def process_rqtl_results(result):        # TODO: how to make this a one liner an
         qtl_results.append(marker)
 
     return qtl_results 
+    
