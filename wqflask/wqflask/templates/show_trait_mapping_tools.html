@@ -2,7 +2,7 @@
     {% if (use_pylmm_rqtl and dataset.group.species != "human") or use_plink_gemma %}
     <div class="col-xs-4">
         <div class="tabbable"> <!-- Only required for left/right tabs -->
-        
+
             <ul class="nav nav-pills">
                 {% if use_pylmm_rqtl and not use_plink_gemma and dataset.group.species != "human" %}
                 <li class="active">
@@ -61,7 +61,7 @@
                                     No
                                 </label>
                             </div>
-                        </div> 
+                        </div>
 
 <!--
                         <div class="mapping_method_fields form-group">
@@ -75,7 +75,7 @@
 
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:left;" class="col-xs-12 control-label">Display Additive Effect</label>
-                            <div class="col-xs-12 controls" id="display_additive_effect">                      
+                            <div class="col-xs-12 controls" id="display_additive_effect">
                                 <label class="radio-inline">
                                     <input type="radio" name="display_additive" id="display_additive" value="yes" checked="">
                                     Yes
@@ -90,8 +90,8 @@
 
 
                         <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-12 control-label">Marker Regr.</label>
-                            <div class="col-xs-12 controls">                      
+                            <label style="text-align:left;" class="col-xs-3 control-label">Marker<br>Regression</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_reaper" value="True">
                                     Yes
@@ -146,7 +146,7 @@
 
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
-                            <div class="col-xs-12 controls">                      
+                            <div class="col-xs-12 controls">
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_pylmm" value="True">
                                     Yes
@@ -167,7 +167,7 @@
                     </div>
                 </div>
                 <div class="tab-pane" id="rqtl_geno">
-                    
+
                     <div style="margin-top: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
                             <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
@@ -226,7 +226,7 @@
 
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:left;" class="col-xs-12 control-label">Pair Scan</label>
-                            <div class="col-xs-12 controls">                      
+                            <div class="col-xs-12 controls">
                                 <label class="radio-inline">
                                     <input type="radio" name="pair_scan" value="true">
                                     Yes
@@ -240,7 +240,7 @@
 
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
-                            <div class="col-xs-12 controls">                      
+                            <div class="col-xs-12 controls">
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_rqtl" value="True">
                                     Yes
@@ -272,7 +272,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="plink_compute" class="col-xs-1 control-label"></label>
                         <div style="margin-left:20px;" class="col-xs-4 controls">
@@ -282,7 +282,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="tab-pane" id="gemma">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
@@ -292,7 +292,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="gemma_compute" class="col-xs-1 control-label"></label>
                         <div style="margin-left:20px;" class="col-xs-4 controls">
@@ -301,12 +301,12 @@
                             </button>
                         </div>
                     </div>
-                </div>                
+                </div>
                 {% endif %}
             </div>
         </div>
     </div>
-    <div class="col-xs-6"> 
+    <div class="col-xs-6">
         <dl>
              <dt>Interval Mapping</dt>
              <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.</dd>

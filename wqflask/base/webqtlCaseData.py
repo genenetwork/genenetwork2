@@ -16,8 +16,6 @@
 # Contact Drs. Robert W. Williams and Xiaodong Zhou (2010)
 # at rwilliams@uthsc.edu and xzhou15@uthsc.edu
 #
-#
-#
 # This module is used by GeneNetwork project (www.genenetwork.org)
 #
 # Created by GeneNetwork Core Team 2010/08/10
@@ -52,6 +50,10 @@ class webqtlCaseData(object):
             str += " variance=%2.3f" % self.variance
         if self.num_cases != None:
             str += " ndata=%d" % self.num_cases
+        if self.name != None:
+            str += " name=%s" % self.name
+        if self.name2 != None:
+            str += " name2=%s" % self.name2
         return str
 
     @property

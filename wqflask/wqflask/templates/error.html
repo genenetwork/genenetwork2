@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Error: {{message}}{% endblock %}
+{% block content %}
+<!-- Start of body -->
+
+<div class="col-md-8">
+<div class="form-group has-error">
+  <div class="control-label" for="inputError1">
+
+    <img src="/static/gif/error/{{ error_image }}">
+
+    <h1>ERROR</h1>
+
+    <p>
+      This error is not what we wanted to see. Unfortunately errors
+      are part of all software systems and we need to resolve this
+      together.
+    </p>
+    <p>
+      <b>It is important to report this ERROR so we can fix it for everyone</b>.
+    </p>
+
+    <p>
+      Report to the GeneNetwork team by recording the steps you take
+      to reproduce this ERROR. Next to those steps, copy-paste below
+      stack trace, either as
+      a <a href="https://github.com/genenetwork/genenetwork2/issues/new">new
+      issue</a> or E-mail this full page to one of the developers
+      directly.
+    </p>
+  </div>
+
+  <p>
+  (GeneNetwork error: {{message[:128]}})
+  </p>
+
+  <pre>
+    GeneNetwork v{{ version }} {{ stack[0] }}
+    {{ message }} (error)
+    {{ stack[-3] }}
+    {{ stack[-2] }}
+  </pre>
+
+  <p>
+    To check if this already a known issue, search the
+    <a href="https://github.com/genenetwork/genenetwork2/issues">issue
+      tracker</a>.
+  </p>
+
+  <a href="#Stack" class="btn btn-default" data-toggle="collapse">Toggle full stack trace</a>
+  <div id="Stack" class="collapse">
+    <pre>
+      GeneNetwork v{{ version }} {% for line in stack %} {{ line }}
+      {% endfor %}
+    </pre>
+  </div>
+</div>
+</div>
+
+
+{% endblock %}

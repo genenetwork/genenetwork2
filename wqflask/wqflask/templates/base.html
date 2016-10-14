@@ -80,9 +80,9 @@
                 </div>
             </div>
     </div>
-	
+
     <div class="container-fluid" style="background-color: #d5d5d5; height: 95px;">
-	
+
         <form method="get" action="/gsearch">
             <div class="row">
                 <select class="form-control col-xs-2" style="width: 170px; margin-top: 15px; margin-left: 10px;" name="type">
@@ -95,68 +95,58 @@
         </form>
     </div>
 
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
 
-            <!-- Footer
-    ================================================== -->
     <footer class="footer">
       <div class="container">
-        <p class="pull-right"><a href="#">Back to top</a></p>
-
-        <p>Launched in 1994 as
-        <A HREF="http://www.ncbi.nlm.nih.gov/pubmed?term=8043953">
-            The Portable Dictionary of the Mouse Genome</A> and in 2001 as WebQTL.
-        </p>
-        <p>Operated by
-            <A HREF="mailto:rwilliams@uthsc.edu">Rob Williams</A>,
-            <A HREF="mailto:lyan6@uthsc.edu">Lei Yan</A>,
-            <A HREF="mailto:zachary.a.sloan@gmail.com">Zachary Sloan</A>, and
-            <A HREF="mailto:acenteno@uthsc.edu" target="_blank">Arthur Centeno</A>.
+        <p>GeneNetwork is a framework for web based genetics
+          launched in 1994 as
+        <a href="http://www.ncbi.nlm.nih.gov/pubmed?term=8043953">
+            The Portable Dictionary of the Mouse Genome</a> (previously <a href="https://www.ncbi.nlm.nih.gov/pubmed/15043217">WebQTL</a>).
         </p>
         <p>
-            Designed and coded by <a href="http://penguinpython.com">Sam Ockman</a>, Xiaodong Zhou,
-            Christian Fernandez,
-            Ning Liu, Rudi Alberts, Elissa Chesler, Jintao Wang, Kenneth Manly, Robert W. Williams,
-            and <A HREF="/credit.html">colleagues</A>.
+          Operated by
+            <a href="mailto:rwilliams@uthsc.edu">Rob Williams</a>,
+            <a href="mailto:lyan6@uthsc.edu">Lei Yan</a>,
+            <a href="mailto:zachary.a.sloan@gmail.com">Zachary Sloan</a>,
+            <a href="mailto:acenteno@uthsc.edu">Arthur Centeno</a> and
+            <a href="http://thebird.nl/">Pjotr Prins</a>.
         </p>
-
-        <p>Built with <a href="http://twitter.github.com/bootstrap/">bootstrap</a>,
-            <a href="http://coffeescript.org/">coffeescript</a>,
-            <a href="http://flask.pocoo.org/">flask</a>,
-            <a href="http://en.wikipedia.org/wiki/Linux">linux</a>,
-            <a href="http://www.python.org/">python</a> and good intentions.
+        <p>Published in
+          <a href="http://joss.theoj.org/papers/10.21105/joss.00025"><img src="https://camo.githubusercontent.com/846b750f582ae8f1d0b4f7e8fee78bed705c88ba/687474703a2f2f6a6f73732e7468656f6a2e6f72672f7061706572732f31302e32313130352f6a6f73732e30303032352f7374617475732e737667" alt="JOSS" data-canonical-src="http://joss.theoj.org/papers/10.21105/joss.00025/status.svg" style="max-width:100%;"></a>
         </p>
-        <br />
+          <br />
         <p>GeneNetwork is supported by:</p>
         <UL>
             <LI>
-                <a target="_blank" href="http://citg.uthsc.edu">
+                <a  href="http://citg.uthsc.edu">
                     The UT Center for Integrative and Translational Genomics
                 </A>
             </li>
-            <LI><a target="_blank" href="http://www.iniastress.org">NIAAA</A>
+            <LI><a  href="http://www.iniastress.org">NIAAA</A>
                 Integrative Neuroscience Initiative on Alcoholism
                 (U01 AA016662, U01 AA013499, U24 AA013513, U01 AA014425)
             </li>
             <LI>
-                <a target="_blank"
-                   href="http://www.drugabuse.gov/about/organization/Genetics/geneexpression/index.html">NIDA</A>, <a class="smallsize" target="_blank" href="http://www.nimh.nih.gov/">NIMH</A>
-                   , and <a class="smallsize" target="_blank" href="http://www.niaaa.nih.gov/">
+                <a
+                   href="https://www.drugabuse.gov/">NIDA</A>, <a class="smallsize"  href="http://www.nimh.nih.gov/">NIMH</A>
+                   , and <a class="smallsize"  href="http://www.niaaa.nih.gov/">
                    NIAAA</A> (P20-DA 21131)
             </li>
-            <LI>NCI <a target="_blank" href="http://emice.nci.nih.gov/">MMHCC</A> (U01CA105417) and
-                <a target="_blank" href="http://www.ncrr.nih.gov/">NCRR</A>
-                <a target="_blank" href="http://www.nbirn.net/TestBeds/Mouse/index.htm">BIRN</A>
+            <LI>NCI <a  href="http://emice.nci.nih.gov/">MMHCC</A> (U01CA105417) and
+                <a  href="https://en.wikipedia.org/wiki/National_Center_for_Research_Resources">NCRR</a>
+                <a  href="https://en.wikipedia.org/wiki/Biomedical_Informatics_Research_Network">BIRN</a>
                 (U24 RR021760)
             </li>
         </UL>
         <!--</p>-->
+        <p>
+          Development and source code on <a href="https://github.com/genenetwork/">github</a> with <a href="https://github.com/genenetwork/genenetwork2/issues">issue tracker</a> and <a href="https://github.com/genenetwork/genenetwork2/blob/master/README.md">documentation</a>. Join the <a href="http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev">mailing list</a> and find us on <a href="https://webchat.freenode.net/">IRC</a> (#genenetwork channel).
+        {% if version: %}
+        <p><small>GeneNetwork v{{ version }}</small></p>
+        {% endif %}
 
-        <ul class="footer-links">
-          <li><a href="http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev">Join the mailing list</a></li>
-          <!--<li><a href="#">Friend us on facebook</a></li>-->
-          <!--<li><a href="#">Follow us on twitter</a></li>-->
-        </ul>
       </div>
     </footer>
 

@@ -118,6 +118,20 @@ class AnonUser(object):
                 collection['changed_timestamp'] = datetime.datetime.strptime(collection['changed_timestamp'], '%b %d %Y %I:%M%p')
             return collections
             
+    def import_traits_to_user(self):
+        collections_list = json.loads(Redis.get(self.key))
+        for collection in collections_list:
+            uc = model.UserCollection()
+            uc.name = collection['name']
+            collection_exists = g.user_session.user_ob.get_collection_by_name(uc.name)
+            if collection_exists:
+                continue
+            else:
+                uc.user = g.user_session.user_id
+                uc.members = json.dumps(collection['members'])
+                db_session.add(uc)
+                db_session.commit()
+            
     def display_num_collections(self):
         """
         Returns the number of collections or a blank string if there are zero.
@@ -524,7 +538,14 @@ class LoginUser(object):
                 logger.debug("I will remember you")
                 self.remember_me = True
 
-            return self.actual_login(user)
+            if 'import_collections' in params:
+                import_col = "true"
+            else:
+                import_col = "false"
+            
+            #g.cookie_session.import_traits_to_user()           
+                
+            return self.actual_login(user, import_collections=import_col)
 
         else:
             if user:
@@ -534,16 +555,16 @@ class LoginUser(object):
 
             return response
 
-    def actual_login(self, user, assumed_by=None):
+    def actual_login(self, user, assumed_by=None, import_collections=None):
         """The meat of the logging in process"""
         session_id_signed = self.successful_login(user, assumed_by)
         flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
-        response = make_response(redirect(url_for('index_page')))
+        print("IMPORT1:", import_collections)
+        response = make_response(redirect(url_for('index_page', import_collections=import_collections)))
         if self.remember_me:
             max_age = self.remember_time
         else:
             max_age = None
-
         response.set_cookie(UserSession.cookie_name, session_id_signed, max_age=max_age)
         return response
 

@@ -4,7 +4,7 @@
 {% block content %} <!-- Start of body -->
 <div class="container">
   <h1>CTL Results</h1>
-  {{(request.form['trait_list'].split(',')|length -1)}} phenotypes as input<br>
+  {{(request.form['trait_list'].split(',')|length)}} phenotypes as input<br>
   <h3>Network Figure</h3>
   <a href="/tmp/{{ results['imgurl1'] }}">
       <img alt="Embedded Image" src="data:image/png;base64,

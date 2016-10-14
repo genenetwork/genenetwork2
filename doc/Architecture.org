@@ -2,6 +2,7 @@
 
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
+ - [[#reproducibility-and-interoperability][Reproducibility and interoperability]]
  - [[#webserver][Webserver]]
  - [[#gnserver-rest][GnServer (REST)]]
  - [[#gnexec][GnExec]]
@@ -13,6 +14,64 @@
 
 This document describes the architecture of GN2. Because GN2 is
 evolving, only a high-level overview is given here.
+
+* Reproducibility and interoperability
+
+Reproducible data analysis and software interoperability should be key
+goals for any system that aims to bring research groups
+together. These goals are increasingly relevant with growing data
+sizes and increasingly complex analysis pipelines. Rigor,
+reproducibility, and robustness starts with data that should abide by
+Findable, Accessible, Interoperable, and Re-usable (FAIR) principles
+(see the Wilkinson Nature paper on [[http://www.nature.com/articles/sdata201618][FAIR Guiding Principles for
+scientific data management and stewardship]]).
+
+GeneNetwork (GN2) solves this by assigning unique identifiers
+(cryptographic HASH values calculated over immutable data content),
+including these values in file or directory names, and making them
+available through web interfaces (e.g., through a through a REST
+API). This means that at any point in the future the exact same data
+can be retrieved using a known non-changeable identifier (see also
+https://github.com/pjotrp/genenetwork2/blob/staging/doc/submit-data.org).
+
+Synchronisation, integrity checking and backups become trivial using
+these HASH values, even for very large datasets. Since everything is
+managed at the file system level we can also use Unix authorisation
+systems. HIPAA compliancy is achieved by using HASH references and
+bringing the software into the controlled HIPAA environment.
+
+In the context of GeneNetwork we are using git for version control of
+software source code (https://github.com/genenetwork/). Software can
+be treated just like data, i.e., git uses HASH identifiers to retrieve
+specific versions of source. I.e., versions of source code are
+identifiable and retrievable and can be matched with data into an
+analysis pipeline. The combination of software and data, again, makes
+a unique HASH value which identifies the analysis pipeline.
+
+For combining runnable software and data into an analysis pipeline we
+use GNU Guix which, yet again, turns everything into a unique HASH
+value which allows for exact retrieval and reproducibility. Not only
+that, GNU Guix gives control of the software and all its dependencies,
+use GNU Guix which, yet again, turns everything into a unique HASH
+value which allows for exact retrieval and reproducibility. Not only
+that, GNU Guix gives control of the software and all its dependencies,
+calculating a HASH value for all dependencies, all the way down to
+versions of R, BLAS and glibc. This way of packaging software
+ascertains that identical software pipelines are easily setup on
+different system or in the Cloud. Meaning that everyone ends up using
+the exact same combination of software versions in a pipeline.
+
+For software development we use GNU Guix for integration testing and
+deployment (described in JOSS paper). We also use automated test tools
+(Ruby mechanize) for integration testing of the web services and we
+use unit testing of all backend services. All our software source code
+is published as `free and open source software' (FOSS) which means
+that anyone can view code on github, comment on, or even contribute
+to. GeneNetwork is becoming increasingly modular and has a growing
+number of contributers who subscribe to the principles of THE SMALL
+TOOLS MANIFESTO FOR BIOINFORMATICS
+(https://github.com/pjotrp/bioinformatics) which we drew up and was
+signed by over fifty bioinformaticians.
 
 * Webserver
 

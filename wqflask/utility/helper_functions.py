@@ -4,18 +4,22 @@ from base.trait import GeneralTrait
 from base import data_set
 from base.species import TheSpecies
 
+from wqflask import user_manager
+import logging
+logger = logging.getLogger(__name__ )
+
 
 def get_species_dataset_trait(self, start_vars):
     #assert type(read_genotype) == type(bool()), "Expecting boolean value for read_genotype"
     self.dataset = data_set.create_dataset(start_vars['dataset'])
-    print("After creating dataset")
+    logger.debug("After creating dataset")
     self.species = TheSpecies(dataset=self.dataset)
-    print("After creating species")
+    logger.debug("After creating species")
     self.this_trait = GeneralTrait(dataset=self.dataset,
                                    name=start_vars['trait_id'],
                                    cellid=None,
                                    get_qtl_info=True)
-    print("After creating trait")
+    logger.debug("After creating trait")
 
     #if read_genotype:
     #self.dataset.group.read_genotype_file()
@@ -23,13 +27,15 @@ def get_species_dataset_trait(self, start_vars):
 
 
 def get_trait_db_obs(self, trait_db_list):
+    if isinstance(trait_db_list, basestring):
+        trait_db_list = trait_db_list.split(",")
 
     self.trait_list = []
-    for i, trait_db in enumerate(trait_db_list):
-        if i == (len(trait_db_list) - 1):
-            break
-        trait_name, dataset_name = trait_db.split(":")
-        #print("dataset_name:", dataset_name)
+    for trait in trait_db_list:
+        data, _separator, hmac = trait.rpartition(':')
+        data = data.strip()
+        assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
+        trait_name, dataset_name = data.split(":")
         dataset_ob = data_set.create_dataset(dataset_name)
         trait_ob = GeneralTrait(dataset=dataset_ob,
                                name=trait_name,

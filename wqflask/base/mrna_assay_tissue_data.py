@@ -57,7 +57,7 @@ class MrnaAssayTissueData(object):
                 as x inner join TissueProbeSetXRef as t on t.Symbol = x.Symbol
                 and t.Mean = x.maxmean;
                     '''.format(in_clause)
-        logger.sql(query)
+
         results = g.db.execute(query).fetchall()
 
         lower_symbols = []
@@ -91,7 +91,7 @@ class MrnaAssayTissueData(object):
 
     def get_symbol_values_pairs(self):
         id_list = [self.data[symbol].data_id for symbol in self.data]
-
+        
         symbol_values_dict = {}
 
         if len(id_list) > 0:
@@ -99,8 +99,6 @@ class MrnaAssayTissueData(object):
                        FROM TissueProbeSetXRef, TissueProbeSetData
                        WHERE TissueProbeSetData.Id IN {} and
                              TissueProbeSetXRef.DataId = TissueProbeSetData.Id""".format(db_tools.create_in_clause(id_list))
-
-            logger.sql('tissue query',query)
 
             results = g.db.execute(query).fetchall()
             for result in results:
