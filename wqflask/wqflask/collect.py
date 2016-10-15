@@ -55,7 +55,7 @@ class AnonCollection(object):
 
         #ZS: Find id and set it if the collection doesn't already exist
         if Redis.get(self.key) == "None" or Redis.get(self.key) == None:
-            Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this   
+            Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this
         else:
             collections_list = json.loads(Redis.get(self.key))
             collection_position = 0 #ZS: Position of collection in collection_list, if it exists
@@ -66,9 +66,10 @@ class AnonCollection(object):
                     collection_exists = True
                     self.id = collection['id']
                     break
+
         if self.id == None:
             self.id = str(uuid.uuid4())
-        
+
     def get_members(self):
         traits = []
         collections_list = json.loads(Redis.get(self.key))
@@ -76,16 +77,16 @@ class AnonCollection(object):
             if collection['id'] == self.id:
                 traits = collection['members']
         return traits
-        
+
     @property
     def num_members(self):
-        num_members = 0   
+        num_members = 0
         collections_list = json.loads(Redis.get(self.key))
         for collection in collections_list:
             if collection['id'] == self.id:
                 num_members = collection['num_members']
         return num_members
-        
+
     def add_traits(self, params):
         #assert collection_name == "Default", "Unexpected collection name for anonymous user"
         self.traits = list(process_traits(params['traits']))
@@ -122,7 +123,7 @@ class AnonCollection(object):
                                "num_members" : len(self.traits),
                                "members" : self.traits}
             collections_list.append(collection_dict)
-            
+
         Redis.set(self.key, json.dumps(collections_list))
         #Redis.sadd(self.key, *list(traits))
         #Redis.expire(self.key, 60 * 60 * 24 * 5)
@@ -169,14 +170,14 @@ class UserCollection(object):
         len_before = len(members)
 
         traits = process_traits(params['traits'])
-        
+
         members_now = members
         for trait in traits:
             if trait in members:
                 continue
             else:
                 members_now.append(trait)
-              
+
         #members_now = list(members | traits)
         len_now = len(members_now)
         uc.members = json.dumps(members_now)
@@ -191,6 +192,18 @@ class UserCollection(object):
         # Probably have to change that
         return redirect(url_for('view_collection', uc_id=uc.id))
 
+def process_traits(unprocessed_traits):
+    #print("unprocessed_traits are:", unprocessed_traits)
+    if isinstance(unprocessed_traits, basestring):
+        unprocessed_traits = unprocessed_traits.split(",")
+    traits = set()
+    for trait in unprocessed_traits:
+        #print("trait is:", trait)
+        data, _separator, hmac = trait.rpartition(':')
+        data = data.strip()
+        assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
+        traits.add                                                                                               (str(data))
+    return traits
 
 def report_change(len_before, len_now):
     new_length = len_now - len_before
@@ -224,11 +237,10 @@ def collections_add():
                                 collections = collection_names,
                               )
 
-
 @app.route("/collections/new")
 def collections_new():
     params = request.args
-    
+
     if "sign_in" in params:
         return redirect(url_for('login'))
 
@@ -248,26 +260,12 @@ def collections_new():
     else:
         CauseAnError
 
-
-def process_traits(unprocessed_traits):
-    #print("unprocessed_traits are:", unprocessed_traits)
-    if isinstance(unprocessed_traits, basestring):
-        unprocessed_traits = unprocessed_traits.split(",")
-    traits = set()
-    for trait in unprocessed_traits:
-        #print("trait is:", trait)
-        data, _separator, hmac = trait.rpartition(':')
-        data = data.strip()
-        assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
-        traits.add                                                                                               (str(data))
-    return traits
-
 def create_new(collection_name):
     params = request.args
-    
+
     unprocessed_traits = params['traits']
     traits = process_traits(unprocessed_traits)
-    
+
     if g.user_session.logged_in:
         uc = model.UserCollection()
         uc.name = collection_name
@@ -280,7 +278,7 @@ def create_new(collection_name):
     else:
         current_collections = user_manager.AnonUser().get_collections()
         ac = AnonCollection(collection_name)
-        ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')       
+        ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
         ac.add_traits(params)
         return redirect(url_for('view_collection', collection_id=ac.id))
 
@@ -345,7 +343,7 @@ def delete_collection():
     else:
         collection_name = params['collection_name']
         user_manager.AnonUser().delete_collection(collection_name)
-        
+
     flash("We've deleted the collection: {}.".format(collection_name), "alert-info")
 
     return redirect(url_for('list_collections'))
@@ -369,15 +367,15 @@ def view_collection():
                 break
         #this_collection = user_collections[params['collection_id']]
         traits = this_collection['members']
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+
     print("in view_collection traits are:", traits)
 
     trait_obs = []
     json_version = []
 
     for atrait in traits:
-        name, dataset_name = atrait.split(':')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+        name, dataset_name = atrait.split(':')
+
         trait_ob = trait.GeneralTrait(name=name, dataset_name=dataset_name)
         trait_ob.retrieve_info(get_qtl_info=True)
         trait_obs.append(trait_ob)

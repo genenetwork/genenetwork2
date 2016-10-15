@@ -108,7 +108,7 @@ def geno_to_rqtl_function(dataset):        # TODO: Need to figure out why some g
          return(cross)
       }
     """ % (dataset.group.name + ".geno"))
-        
+
 def add_phenotype(cross, pheno_as_string):
     ro.globalenv["the_cross"] = cross
     ro.r('the_cross$pheno <- cbind(pull.pheno(the_cross), the_pheno = '+ pheno_as_string +')')
@@ -159,8 +159,6 @@ def process_pair_scan_results(result):
         marker['chr2'] = int(output[i][2])
         pair_scan_results.append(marker)
 
-    #print("pair_scan_results:", pair_scan_results)
-
     return pair_scan_results
 
 def process_rqtl_perm_results(num_perm, results):
@@ -172,10 +170,9 @@ def process_rqtl_perm_results(num_perm, results):
     perm_output = perm_vals
     suggestive = np.percentile(np.array(perm_vals), 67)
     significant = np.percentile(np.array(perm_vals), 95)
-    print("SIGNIFICANT:", significant)
 
     return perm_output, suggestive, significant
-    
+
 def process_rqtl_results(result):        # TODO: how to make this a one liner and not copy the stuff in a loop
     qtl_results = []
 
@@ -190,4 +187,5 @@ def process_rqtl_results(result):        # TODO: how to make this a one liner an
         marker['lod_score'] = output[i][2]
         qtl_results.append(marker)
 
-    return qtl_results 
+    return qtl_results
+
