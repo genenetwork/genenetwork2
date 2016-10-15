@@ -13,16 +13,10 @@ def run_plink(this_trait, dataset, species, vals, maf):
 
     gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = plink_output_filename)
 
-    plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, 
-                                                                                                                                                                                                                    dataset.group.name, 
-                                                                                                                                                                                                                    PLINK_PATH, 
-                                                                                                                                                                                                                    dataset.group.name, 
-                                                                                                                                                                                                                    TMPDIR, 
-                                                                                                                                                                                                                    plink_output_filename, 
-                                                                                                                                                                                                                    this_trait.name, 
-                                                                                                                                                                                                                    maf, 
-                                                                                                                                                                                                                    TMPDIR, 
-                                                                                                                                                                                                                    plink_output_filename)
+    plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (
+        PLINK_PATH, dataset.group.name, PLINK_PATH, dataset.group.name,
+        TMPDIR, plink_output_filename, this_trait.name, maf, TMPDIR,
+        plink_output_filename)
     logger.debug("plink_command:", plink_command)
 
     os.system(plink_command)
@@ -36,7 +30,6 @@ def run_plink(this_trait, dataset, species, vals, maf):
     #        #del self.dataset.group.markers.markers[marker]
 
     logger.debug("p_values:", pf(p_values))
-
     dataset.group.markers.add_pvalues(p_values)
 
     return dataset.group.markers.markers
@@ -74,8 +67,8 @@ def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = ''):
     if new_line:
         output_file.write(new_line)
 
-    output_file.close() 
-    
+    output_file.close()
+
 # get strain name from ped file in order
 def get_samples_from_ped_file(dataset):
     ped_file= open("{}/{}.ped".format(PLINK_PATH, dataset.group.name),"r")
@@ -92,7 +85,7 @@ def get_samples_from_ped_file(dataset):
         line = ped_file.readline()
 
     return sample_list
-    
+
 def parse_plink_output(output_filename, species):
     plink_results={}
 
@@ -154,7 +147,7 @@ def parse_plink_output(output_filename, species):
     #    min_p_value = 0
 
     return count, p_value_dict
-    
+
 ######################################################
 # input: line: str,one line read from file
 # function: convert line from str to list;
