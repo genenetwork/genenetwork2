@@ -549,6 +549,7 @@ def marker_regression_page():
             gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
             gn1_template_vars['json_filename'] = json_filename;
             gn1_template_vars['csv_filename'] = csv_filename;
+            gn1_template_vars['gn_server_url'] = GN_SERVER_URL;
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             logger.info("pickled result length:", len(pickled_result))
@@ -557,22 +558,6 @@ def marker_regression_page():
 
             with Bench("Rendering template"):
                 rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
-
-    # with Bench("Rendering template"):
-        # if result['pair_scan'] == True:
-            # img_path = result['pair_scan_filename']
-            # logger.info("img_path:", img_path)
-            # initial_start_vars = request.form
-            # logger.info("initial_start_vars:", initial_start_vars)
-            # imgfile = open(TEMPDIR + '/' + img_path, 'rb')
-            # imgdata = imgfile.read()
-            # imgB64 = imgdata.encode("base64")
-            # bytesarray = array.array('B', imgB64)
-            # result['pair_scan_array'] = bytesarray
-            # rendered_template = render_template("pair_scan_results.html", **result)
-        # else:
-            # rendered_template = render_template("marker_regression.html", **result)
-            # rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
 
     return rendered_template
 
