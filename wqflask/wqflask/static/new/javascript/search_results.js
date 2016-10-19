@@ -155,10 +155,48 @@ $(function() {
         });
     }
   };
+
+  export_traits = function() {
+    trait_data = get_traits_from_table("trait_table")
+  };
+
+  get_traits_from_table = function(table_name) {
+    trait_table = $('#'+table_name);
+    table_dict = {};
+
+    headers = [];
+    trait_table.find('th').each(function () {
+      if ($(this).data('export')){
+        headers.push($(this).data('export'))
+      }
+    });
+    table_dict['headers'] = headers;
+
+    rows = [];
+    trait_table.find('tbody tr').each(function (i, tr) {
+      this_row = [];
+      $(tr).find('td').each(function(j, td){
+        if ($(td).data('export')){
+          this_row.push($(td).data('export'));
+        }
+      });
+      rows.push(this_row);
+    });
+    table_dict['rows'] = rows;
+    console.log("TABLEDICT:", table_dict);
+
+    json_table_dict = JSON.stringify(table_dict);
+    $('input[name=export_data]').val(json_table_dict);
+
+    $('#export_form').attr('action', '/export_traits_csv');
+    $('#export_form').submit();
+  };
+
   $("#select_all").click(select_all);
   $("#deselect_all").click(deselect_all);
   $("#invert").click(invert);
   $("#add").click(add);
   $("#remove").click(remove);
+  $("#export_traits").click(export_traits);
   $('.trait_checkbox, .btn').click(change_buttons);
 });
