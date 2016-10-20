@@ -88,6 +88,4 @@ def gen_reaper_results(this_trait, dataset, samples_before, json_data, num_perm,
         qtl = {"lrs_value": qtl.lrs, "chr":converted_chr, "Mb":reaper_locus.Mb,
                "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
         qtl_results.append(qtl)
-
-
     return qtl_results, json_data, perm_output, suggestive, significant, bootstrap_results

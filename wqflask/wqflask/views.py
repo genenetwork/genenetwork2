@@ -145,6 +145,10 @@ def tmp_page(img_path):
     return render_template("show_image.html",
                             img_base64 = bytesarray )
 
+@app.route("/twitter/<path:filename>")
+def bd_files(filename):
+    bd_path = app.config['TWITTER_POST_FETCHER_JS_PATH']
+    return send_from_directory(bd_path, filename)
 
 @app.route("/dalliance/<path:filename>")
 def bd_files(filename):
