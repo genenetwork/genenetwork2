@@ -4,6 +4,7 @@ import operator
 import csv
 import xlsxwriter
 import StringIO 
+import datetime
 
 import simplejson as json
 
@@ -18,10 +19,21 @@ def export_search_results_csv(targs):
     buff = StringIO.StringIO()
     writer = csv.writer(buff)
     
+    metadata = []
+
+    metadata.append(["Citations: Please see www.genenetwork.org/reference.html"])
+    metadata.append(["Database: " + targs['database_name']])
+    metadata.append(["Date: " + datetime.datetime.now().strftime("%B %d, %Y")])
+    metadata.append(["Time: " + datetime.datetime.now().strftime("%H:%M GMT")])
+    metadata.append(["Status of data ownership: Possibly unpublished data; please see www.genenetwork.org/statusandContact.html for details on sources, ownership, and usage of these data."])
+
+    for metadata_row in metadata:
+        writer.writerow(metadata_row)
+
     writer.writerow(table_headers)
     for trait_info in table_rows:
         writer.writerow(trait_info)
-        
+
     csv_data = buff.getvalue()
     buff.close()
 

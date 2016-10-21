@@ -59,6 +59,7 @@
           <br />
           <br />
           <form id="export_form" method="POST" action="/export_traits_csv">
+          <input type="hidden" name="database_name" id="database_name" value="{{ dataset.fullname }}">
           <input type="hidden" name="export_data" id="export_data" value="">
           <button class="btn btn-default" id="export_traits">Download CSV</button>
           </form>

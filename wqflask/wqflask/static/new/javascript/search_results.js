@@ -174,13 +174,26 @@ $(function() {
 
     rows = [];
     trait_table.find('tbody tr').each(function (i, tr) {
-      this_row = [];
-      $(tr).find('td').each(function(j, td){
-        if ($(td).data('export')){
-          this_row.push($(td).data('export'));
+      if (trait_table.find('input[name="searchResult"]:checked').length > 0) {
+        if ($(this).find('input[name="searchResult"]').is(':checked')){
+          this_row = [];
+          $(tr).find('td').each(function(j, td){
+            if ($(td).data('export')){
+              this_row.push($(td).data('export'));
+            }
+          });
+          rows.push(this_row);
         }
-      });
-      rows.push(this_row);
+      }
+      else {
+        this_row = [];
+        $(tr).find('td').each(function(j, td){
+          if ($(td).data('export')){
+            this_row.push($(td).data('export'));
+          }
+        });
+        rows.push(this_row);
+      }
     });
     table_dict['rows'] = rows;
     console.log("TABLEDICT:", table_dict);
