@@ -59,9 +59,9 @@
           <br />
           <br />
           <form id="export_form" method="POST" action="/export_traits_csv">
-          <input type="hidden" name="database_name" id="database_name" value="{{ dataset.fullname }}">
-          <input type="hidden" name="export_data" id="export_data" value="">
-          <button class="btn btn-default" id="export_traits">Download CSV</button>
+            <input type="hidden" name="database_name" id="database_name" value="{{ dataset.fullname }}">
+            <input type="hidden" name="export_data" id="export_data" value="">
+            <button class="btn btn-default" id="export_traits">Download CSV</button>
           </form>
           <br />
 <!--
@@ -176,44 +176,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.min.js"></script>
 	
     <script type="text/javascript" charset="utf-8">
-        function getValue(x) {
-            if (x.indexOf('input') >= 0) {
-                if ($(x).val() == 'x') {
-                    return 0;
-                }
-                else {
-                   return parseFloat($(x).val());
-                }
-            }
-            else if (isNaN(x)) {
-                return x;
-            }
-            return parseFloat(x);
-        }
-
-
-        jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b); 
-            
-            if (x == 'N/A' || x == '') {
-                return 1;
-            }
-            else if (y == 'N/A' || y == '') {
-                return -1;
-            }
-            else {
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-            }
-        };
-            
-        jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b);
-            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
-        };
-
-
         $(document).ready( function () {
             
             $('#trait_table tr').click(function(event) {

@@ -22,7 +22,8 @@ def export_search_results_csv(targs):
     metadata = []
 
     metadata.append(["Citations: Please see www.genenetwork.org/reference.html"])
-    metadata.append(["Database: " + targs['database_name']])
+    if targs['database_name'] != "None":
+        metadata.append(["Database: " + targs['database_name']])
     metadata.append(["Date: " + datetime.datetime.now().strftime("%B %d, %Y")])
     metadata.append(["Time: " + datetime.datetime.now().strftime("%H:%M GMT")])
     metadata.append(["Status of data ownership: Possibly unpublished data; please see www.genenetwork.org/statusandContact.html for details on sources, ownership, and usage of these data."])

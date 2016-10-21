@@ -73,7 +73,6 @@ $(function() {
   });
 
   $('.trait_checkbox:checkbox').change(function() {
-      console.log("CHANGED")
       change_buttons()
 
       if ($(this).is(":checked")) {
@@ -108,7 +107,6 @@ $(function() {
     var button, buttons, item, num_checked, text, _i, _j, _k, _l, _len, _len2, _len3, _len4, _results, _results2;
     buttons = ["#add", "#remove"];
     num_checked = $('.trait_checkbox:checked').length;
-    console.log("num_checked is:", num_checked);
     if (num_checked === 0) {
       for (_i = 0, _len = buttons.length; _i < _len; _i++) {
         button = buttons[_i];
