@@ -1257,7 +1257,10 @@ select distinct(publicationid) from PublishXRef where InbredSetId=1 limit 3;
 |           118 |
 +---------------+
 
-select distinct PublishXRef.id,publicationid,phenotypeid,Phenotype.post_publication_description from PublishXRef,Phenotype where InbredSetId=1 and phenotypeid=Phenotype.id limit 3;
+select distinct
+PublishXRef.id,publicationid,phenotypeid,Phenotype.post_publication_description
+from PublishXRef,Phenotype where InbredSetId=1 and
+phenotypeid=Phenotype.id limit 3;
 +-------+---------------+-------------+----------------------------------------------------------------------------------------------------------------------------+
 | id    | publicationid | phenotypeid | post_publication_description                                                                                               |
 +-------+---------------+-------------+----------------------------------------------------------------------------------------------------------------------------+
