@@ -33,6 +33,7 @@ import sqlalchemy
 from wqflask import app
 from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect
 from wqflask import search_results
+from wqflask import export_traits
 from wqflask import gsearch
 from wqflask import update_search_results
 from wqflask import docs
@@ -337,6 +338,17 @@ def export_trait_csv():
     return Response(csv_data,
                     mimetype='text/csv',
                     headers={"Content-Disposition":"attachment;filename=sample_data.csv"})
+
+@app.route('/export_traits_csv', methods=('POST',))
+def export_traits_csv():
+    """CSV file consisting of the traits from the search result page"""
+    logger.info("In export_traits_csv")
+    logger.info("request.form:", request.form)
+    csv_data = export_traits.export_search_results_csv(request.form)
+
+    return Response(csv_data,
+                    mimetype='text/csv',
+                    headers={"Content-Disposition":"attachment;filename=trait_list.csv"})
 
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
