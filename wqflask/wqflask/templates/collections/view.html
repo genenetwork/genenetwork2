@@ -4,7 +4,6 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -74,20 +73,26 @@
             <button class="btn" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Remove Record</button>
             <br />
             <br />
+            <form id="export_form" method="POST" action="/export_traits_csv">
+              <input type="hidden" name="database_name" id="database_name" value="None">
+              <input type="hidden" name="export_data" id="export_data" value="">
+              <button class="btn btn-default" id="export_traits">Download CSV</button>
+            </form>
+            <br />
             <div style="background-color: #eeeeee; border: 1px solid black;">
                 <table id="trait_table" class="table table-hover table-striped">
                     <thead>
                         <tr>
                             <th style="background-color: #eeeeee;"></th>
-                            <th style="background-color: #eeeeee;">Index</th>
-                            <th style="background-color: #eeeeee;">Dataset</th>
-                            <th style="background-color: #eeeeee;">Record</th>
-                            <th style="background-color: #eeeeee;">Description</th>
-                            <th style="background-color: #eeeeee;">Location</th>
-                            <th style="background-color: #eeeeee;">Mean</th>
-                            <th style="background-color: #eeeeee;">Max LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
-                            <th style="background-color: #eeeeee;">Max LRS Location</th>
-                            <th style="background-color: #eeeeee;">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                            <th data-export="Index" style="background-color: #eeeeee;">Index</th>
+                            <th data-export="Dataset" style="background-color: #eeeeee;">Dataset</th>
+                            <th data-export="Record" style="background-color: #eeeeee;">Record</th>
+                            <th data-export="Description" style="background-color: #eeeeee;">Description</th>
+                            <th data-export="Location" style="background-color: #eeeeee;">Location</th>
+                            <th data-export="Mean" style="background-color: #eeeeee;">Mean</th>
+                            <th data-export="Max LRS" style="background-color: #eeeeee;">Max LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                            <th data-export="Max LRS Location" style="background-color: #eeeeee;">Max LRS Location</th>
+                            <th data-export="Additive Effect" style="background-color: #eeeeee;">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
                         </tr>
                     </thead>
 
@@ -98,9 +103,9 @@
                                 <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
                                        VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                             </TD>
-                            <TD>{{ loop.index }}</TD>
-                            <TD>{{ this_trait.dataset.name }}</TD>
-                            <TD>
+                            <TD data-export="{{ loop.index }}">{{ loop.index }}</TD>
+                            <TD data-export="{{ this_trait.dataset.name }}">{{ this_trait.dataset.name }}</TD>
+                            <TD data-export="{{ this_trait.name }}">
                                 <a href="{{ url_for('show_trait_page',
                                         trait_id = this_trait.name,
                                         dataset = this_trait.dataset.name
@@ -108,12 +113,12 @@
                                     {{ this_trait.name }}
                                 </a>
                             </TD>
-                            <TD>{{ this_trait.description_display }}</TD>
-                            <TD>{{ this_trait.location_repr }}</TD>
-                            <TD>{{ '%0.3f' % this_trait.mean|float }}</TD>
-                            <TD>{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
-                            <TD>{{ this_trait.LRS_location_repr }}</TD>
-                            <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
+                            <TD data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
+                            <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
+                            <TD data-export="{{ this_trait.mean }}">{{ '%0.3f' % this_trait.mean|float }}</TD>
+                            <TD data-export="{{ this_trait.LRS_score_repr }}">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
+                            <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
+                            <TD data-export="{{ this_trait.additive }}">{{ '%0.3f' % this_trait.additive|float }}</TD>
 
                         </TR>
                     {% endfor %}
@@ -132,9 +137,6 @@
 {% block js %}
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
@@ -170,18 +172,7 @@
                       "width": "15%"  },
                     { "type": "natural" }
                 ],
-                "buttons": [
-                    {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'collection',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-                       }
-                    }
-                ],
-                "sDom": "ZRBtir",
+                "sDom": "ZRtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bDeferRender": true,
