@@ -78,7 +78,7 @@ class GeneralTrait(object):
         """Return a dict suitable for using as json
 
         Actual turning into json doesn't happen here though"""
-        
+
         if self.dataset.type == "ProbeSet":
             return dict(name=self.name,
                         symbol=self.symbol,
@@ -108,7 +108,7 @@ class GeneralTrait(object):
                         )
         else:
             return dict()
-                    
+
 
     def get_name(self):
         stringy = ""
