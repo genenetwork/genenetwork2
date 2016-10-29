@@ -165,6 +165,7 @@ class MarkerRegression(object):
             self.mapping_scale = "morgan"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
+            self.dataset.group.genofile = start_vars['genofile']
             self.method = start_vars['mapmethod_rqtl_geno']
             self.model = start_vars['mapmodel_rqtl_geno']
             if start_vars['pair_scan'] == "true":
@@ -200,12 +201,14 @@ class MarkerRegression(object):
 
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
+            self.dataset.group.genofile = start_vars['genofile'] 
             logger.info("Running qtlreaper")
             results = self.gen_reaper_results()
         elif self.mapping_method == "plink":
             results = self.run_plink()
         elif self.mapping_method == "pylmm":
             logger.debug("RUNNING PYLMM")
+            self.dataset.group.genofile = start_vars['genofile']
             if self.num_perm > 0:
                 self.run_permutations(str(temp_uuid))
             results = self.gen_data(str(temp_uuid))
