@@ -14,6 +14,9 @@
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
+        {% if mapping_method == "reaper" %}
+        <input type="hidden" name="genofile" value="{{ dataset.group.genofile }}">
+        {% endif %}
         <input type="hidden" name="method" value="{{ mapping_method }}">
         {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
