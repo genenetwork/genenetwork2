@@ -78,11 +78,37 @@ class GeneralTrait(object):
         """Return a dict suitable for using as json
 
         Actual turning into json doesn't happen here though"""
-        return dict(name=self.name,
-                    dataset=self.dataset.name,
-                    description=self.description_display,
-                    mean=self.mean)
-                    
+
+        if self.dataset.type == "ProbeSet":
+            return dict(name=self.name,
+                        symbol=self.symbol,
+                        dataset=self.dataset.name,
+                        description=self.description_display,
+                        mean=self.mean,
+                        location=self.location_repr,
+                        lrs_score=self.LRS_score_repr,
+                        lrs_location=self.LRS_location_repr,
+                        additive=self.additive
+                        )
+        elif self.dataset.type == "Publish":
+            return dict(name=self.name,
+                        dataset=self.dataset.name,
+                        description=self.description_display,
+                        authors=self.authors,
+                        pubmed_text=self.pubmed_text,
+                        pubmed_link=self.pubmed_link,
+                        lrs_score=self.LRS_score_repr,
+                        lrs_location=self.LRS_location_repr,
+                        additive=self.additive
+                        )
+        elif self.dataset.type == "Geno":
+            return dict(name=self.name,
+                        dataset=self.dataset.name,
+                        location=self.location_repr
+                        )
+        else:
+            return dict()
+
 
     def get_name(self):
         stringy = ""
