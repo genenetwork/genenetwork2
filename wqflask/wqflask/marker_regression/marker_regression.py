@@ -201,7 +201,7 @@ class MarkerRegression(object):
 
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            self.dataset.group.genofile = start_vars['genofile'] 
+            self.dataset.group.genofile = start_vars['genofile']
             logger.info("Running qtlreaper")
             results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.gen_reaper_results(self.this_trait,
                                                                                                                                                         self.dataset,

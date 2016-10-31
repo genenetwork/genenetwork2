@@ -1263,7 +1263,7 @@ def get_nearest_marker(this_trait, this_db):
     else:
         return result[0][0]
         #return result[0][0], result[1][0]
-        
+
 def get_genofiles(this_trait):
     jsonfile = "%s/%s.json" % (get_setting('GENOFILE_META'), this_trait.dataset.group.name)
     try:
