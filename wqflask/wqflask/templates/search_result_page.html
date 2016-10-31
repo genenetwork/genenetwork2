@@ -5,7 +5,6 @@
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/scroller/1.4.1/css/scroller.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -13,7 +12,6 @@
         'GeneNetwork found {}.'.format(numify(results|count, "record", "records"))) }}
 
     <div class="container">
-
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <!-- Need to customize text more for other types of searches -->
@@ -41,7 +39,7 @@
                     {% elif word.key|lower == "position" %}
                     with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% else %}
-                    that match the term {{ word.search_term[0] }}.
+                    that match the <u>TERM</u> <b>{{ word.search_term[0] }}</b>{% if loop.last %}.{% else %} and {% endif %}
                     {% endif %}
                 {% endfor %}
         </p>
@@ -54,11 +52,16 @@
           <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
           <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
           <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-          <!--<button class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download Table</button>-->
           <button id="redraw" class="btn btn-default">Reset Columns</button>
           <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
           <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
           <br />
+          <br />
+          <form id="export_form" method="POST" action="/export_traits_csv">
+            <input type="hidden" name="database_name" id="database_name" value="{{ dataset.fullname }}">
+            <input type="hidden" name="export_data" id="export_data" value="">
+            <button class="btn btn-default" id="export_traits">Download CSV</button>
+          </form>
           <br />
 <!--
           Removing this until more options are added and work correctly
@@ -82,11 +85,11 @@
                         <th style="background-color: #eeeeee;"></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th style="background-color: #eeeeee; text-align: right;">Max<br>LRS</th>
+                        <th data-export="Max LRS" style="background-color: #eeeeee; text-align: right;">Max<br>LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th style="background-color: #eeeeee; text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th data-export="Additive Effect" style="background-color: #eeeeee; text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
-                        <th style="background-color: #eeeeee;">{{header}}</th>
+                        <th data-export="{{header}}" style="background-color: #eeeeee;">{{header}}</th>
                         {% endif %}
                     {% endfor %}
                     </tr>
@@ -97,8 +100,8 @@
                     <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
                         <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                         </TD>
-                        <TD align="right">{{ loop.index }}</TD>
-                        <TD>
+                        <TD data-export="{{ loop.index }}" align="right">{{ loop.index }}</TD>
+                        <TD data-export="{{ this_trait.name }}">
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = this_trait.name,
                                     dataset = dataset.name
@@ -107,26 +110,26 @@
                             </a>
                         </TD>
                         {% if dataset.type == 'ProbeSet' %}
-                            <TD>{{ this_trait.symbol }}</TD>
-                            <TD>{{ this_trait.description_display }}</TD>
-                            <TD>{{ this_trait.location_repr }}</TD>
-                            <TD align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
-                            <TD align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
-                            <TD>{{ this_trait.LRS_location_repr }}</TD>
-                            <TD align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
+                            <TD data-export="{{ this_trait.symbol }}">{{ this_trait.symbol }}</TD>
+                            <TD data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
+                            <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
+                            <TD data-export="{{ '%0.3f' % this_trait.mean|float }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
+                            <TD data-export="{{ '%0.3f' % this_trait.LRS_score_repr|float }}" align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
+                            <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
+                            <TD data-export="{{ '%0.3f' % this_trait.additive|float }}" align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
                         {% elif dataset.type == 'Publish' %}
-                            <TD>{{ this_trait.description_display }}</TD>
-                            <TD>{{ this_trait.authors }}</TD>
-                            <TD data-sort="{{ this_trait.pubmed_text }}">
+                            <TD data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
+                            <TD data-export="{{ this_trait.authors }}">{{ this_trait.authors }}</TD>
+                            <TD data-export="{{ this_trait.pubmed_text }}" data-sort="{{ this_trait.pubmed_text }}">
                                 <a href="{{ this_trait.pubmed_link }}">
                                     {{ this_trait.pubmed_text }}
                                 </a>
                             </TD>
-                            <TD>{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
-                            <TD>{{ this_trait.LRS_location_repr }}</TD>
-                            <TD>{{ '%0.3f' % this_trait.additive|float }}</TD>
+                            <TD data-export="{{ '%0.3f' % this_trait.LRS_score_repr|float }}">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
+                            <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
+                            <TD data-export="{{ '%0.3f' % this_trait.additive|float }}">{{ '%0.3f' % this_trait.additive|float }}</TD>
                         {% elif dataset.type == 'Geno' %}
-                            <TD>{{ this_trait.location_repr }}</TD>
+                            <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
                         {% endif %}
                     </TR>
                 {% endfor %}
@@ -162,9 +165,6 @@
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>   
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
@@ -172,44 +172,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.min.js"></script>
 	
     <script type="text/javascript" charset="utf-8">
-        function getValue(x) {
-            if (x.indexOf('input') >= 0) {
-                if ($(x).val() == 'x') {
-                    return 0;
-                }
-                else {
-                   return parseFloat($(x).val());
-                }
-            }
-            else if (isNaN(x)) {
-                return x;
-            }
-            return parseFloat(x);
-        }
-
-
-        jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b); 
-            
-            if (x == 'N/A' || x == '') {
-                return 1;
-            }
-            else if (y == 'N/A' || y == '') {
-                return -1;
-            }
-            else {
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-            }
-        };
-            
-        jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b);
-            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
-        };
-
-
         $(document).ready( function () {
             
             $('#trait_table tr').click(function(event) {
@@ -235,18 +197,7 @@
                     { "type": "natural" }
                 ],
                 "order": [[1, "asc" ]],
-                "buttons": [
-                    {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'search_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-                       }
-                    }
-                ],
-                "sDom": "RZBtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "bDeferRender": true,
                 "bSortClasses": false,
@@ -269,18 +220,7 @@
                     { "type": "natural" }
                 ],
                 "order": [[1, "asc" ]],
-                "buttons": [
-                    {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'search_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7]
-                       }
-                    }
-                ],
-                "sDom": "RZBtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "bDeferRender": true,
@@ -298,18 +238,7 @@
                     { "type": "natural", "width": "40%"}
                 ],
                 "order": [[1, "asc" ]],
-                "buttons": [
-                    {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'search_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3]
-                       }
-                    }
-                ],
-                "sDom": "RZBtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bDeferRender": true,

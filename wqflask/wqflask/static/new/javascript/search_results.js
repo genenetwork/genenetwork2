@@ -73,7 +73,6 @@ $(function() {
   });
 
   $('.trait_checkbox:checkbox').change(function() {
-      console.log("CHANGED")
       change_buttons()
 
       if ($(this).is(":checked")) {
@@ -108,7 +107,6 @@ $(function() {
     var button, buttons, item, num_checked, text, _i, _j, _k, _l, _len, _len2, _len3, _len4, _results, _results2;
     buttons = ["#add", "#remove"];
     num_checked = $('.trait_checkbox:checked').length;
-    console.log("num_checked is:", num_checked);
     if (num_checked === 0) {
       for (_i = 0, _len = buttons.length; _i < _len; _i++) {
         button = buttons[_i];
@@ -155,10 +153,61 @@ $(function() {
         });
     }
   };
+
+  export_traits = function() {
+    trait_data = get_traits_from_table("trait_table")
+  };
+
+  get_traits_from_table = function(table_name) {
+    trait_table = $('#'+table_name);
+    table_dict = {};
+
+    headers = [];
+    trait_table.find('th').each(function () {
+      if ($(this).data('export')){
+        headers.push($(this).data('export'))
+      }
+    });
+    table_dict['headers'] = headers;
+
+    rows = [];
+    trait_table.find('tbody tr').each(function (i, tr) {
+      if (trait_table.find('input[name="searchResult"]:checked').length > 0) {
+        if ($(this).find('input[name="searchResult"]').is(':checked')){
+          this_row = [];
+          $(tr).find('td').each(function(j, td){
+            if ($(td).data('export')){
+              this_row.push($(td).data('export'));
+            }
+          });
+          rows.push(this_row);
+        }
+      }
+      else {
+        this_row = [];
+        $(tr).find('td').each(function(j, td){
+          if ($(td).data('export')){
+            this_row.push($(td).data('export'));
+          }
+        });
+        rows.push(this_row);
+      }
+    });
+    table_dict['rows'] = rows;
+    console.log("TABLEDICT:", table_dict);
+
+    json_table_dict = JSON.stringify(table_dict);
+    $('input[name=export_data]').val(json_table_dict);
+
+    $('#export_form').attr('action', '/export_traits_csv');
+    $('#export_form').submit();
+  };
+
   $("#select_all").click(select_all);
   $("#deselect_all").click(deselect_all);
   $("#invert").click(invert);
   $("#add").click(add);
   $("#remove").click(remove);
+  $("#export_traits").click(export_traits);
   $('.trait_checkbox, .btn').click(change_buttons);
 });

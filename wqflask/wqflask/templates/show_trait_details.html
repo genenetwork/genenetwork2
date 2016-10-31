@@ -51,19 +51,13 @@
         <td>
             {% if this_trait.geneid != None %}
             <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{ this_trait.geneid }}" title="Info from NCBI Entrez Gene">
-                Gene
+                NCBI
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if this_trait.omim != None %}
             <a href="http://www.ncbi.nlm.nih.gov/omim/{{ this_trait.omim }}" title="Summary from On Mendelion Inheritance in Man">
                 OMIM
-            </a>
-            &nbsp;&nbsp;
-            {% endif %}
-            {% if this_trait.genbankid != None %}
-            <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=Nucleotide&cmd=search&doptcmdl=DocSum&term={{ this_trait.genbankid }}" title="Find the original GenBank sequence used to design the probes">
-                GenBank
             </a>
             &nbsp;&nbsp;
             {% endif %}

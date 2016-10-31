@@ -2,7 +2,6 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -20,46 +19,51 @@
             <button class="btn btn-default" id="add" disabled ><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
             <input type="text" id="searchbox" class="form-control" style="width: 180px; display: inline;" placeholder="Search This Table For ...">
             <input type="text" id="select_top" class="form-control" style="width: 120px; display: inline;" placeholder="Select Top ...">
-
             <br />
+            <br />
+            <form id="export_form" method="POST" action="/export_traits_csv">
+              <input type="hidden" name="database_name" id="database_name" value="None">
+              <input type="hidden" name="export_data" id="export_data" value="">
+              <button class="btn btn-default" id="export_traits">Download CSV</button>
+            </form>
             <br />
             <div style="width: 2000px; background-color: #eeeeee; border: 1px solid black;">
               <table width="2000px" id="trait_table" class="table table-hover table-striped" >
                 <thead>
                   <tr>
                     <th style="background-color: #eeeeee;"></th>
-                    <th style="background-color: #eeeeee;">Index</th>
-                    <th style="background-color: #eeeeee;">Species</th> 
-                    <th style="background-color: #eeeeee;">Group</th> 
-                    <th style="background-color: #eeeeee;">Tissue</th> 
-                    <th style="background-color: #eeeeee;">Dataset</th> 
-                    <th style="background-color: #eeeeee;">Record</th> 
-                    <th style="background-color: #eeeeee;">Symbol</th> 
-                    <th style="background-color: #eeeeee;">Description</th> 
-                    <th style="background-color: #eeeeee;">Location</th>
-                    <th style="background-color: #eeeeee;">Mean</th>
-                    <th style="background-color: #eeeeee;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                    <th style="background-color: #eeeeee;">Max LRS Location</th>
-                    <th style="background-color: #eeeeee;">Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th data-export="Index" style="background-color: #eeeeee;">Index</th>
+                    <th data-export="Species" style="background-color: #eeeeee;">Species</th> 
+                    <th data-export="Group" style="background-color: #eeeeee;">Group</th> 
+                    <th data-export="Tissue" style="background-color: #eeeeee;">Tissue</th> 
+                    <th data-export="Dataset" style="background-color: #eeeeee;">Dataset</th> 
+                    <th data-export="Record" style="background-color: #eeeeee;">Record</th> 
+                    <th data-export="Symbol" style="background-color: #eeeeee;">Symbol</th> 
+                    <th data-export="Description" style="background-color: #eeeeee;">Description</th> 
+                    <th data-export="Location" style="background-color: #eeeeee;">Location</th>
+                    <th data-export="Mean" style="background-color: #eeeeee;">Mean</th>
+                    <th data-export="Max LRS" style="background-color: #eeeeee;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th data-export="Max LRS Location" style="background-color: #eeeeee;">Max LRS Location</th>
+                    <th data-export="Additive Effect" style="background-color: #eeeeee;">Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                   </tr>
                 </thead> 
                 <tbody>
                   {% for this_trait in trait_list %}
                   <tr id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
                     <td><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></td>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ this_trait.dataset.group.species }}</td>
-                    <td>{{ this_trait.dataset.group.name }}</td>
-                    <td>{{ this_trait.dataset.tissue }}</td>
-                    <td>{{ this_trait.dataset.name }}</td>
-                    <td><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></td>
-                    <td>{{ this_trait.symbol }}</td>
-                    <td>{{ this_trait.description_display }}</td>
-                    <td align="right">{{ this_trait.location_repr }}</td>
-                    <td align="right">{{ '%0.3f' % this_trait.mean|float }}</td>
-                    <td align="right">{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                    <td align="right">{{ this_trait.LRS_location_repr }}</td>
-                    <td align="right">{% if this_trait.additive != "" %}{{ '%0.3f' % this_trait.additive|float }}{% else %}N/A{% endif %}</td>
+                    <td data-export="{{ loop.index }}">{{ loop.index }}</td>
+                    <td data-export="{{ this_trait.dataset.group.species }}">{{ this_trait.dataset.group.species }}</td>
+                    <td data-export="{{ this_trait.dataset.group.name }}">{{ this_trait.dataset.group.name }}</td>
+                    <td data-export="{{ this_trait.dataset.tissue }}">{{ this_trait.dataset.tissue }}</td>
+                    <td data-export="{{ this_trait.dataset.name }}">{{ this_trait.dataset.name }}</td>
+                    <td data-export="{{ this_trait.name }}"><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></td>
+                    <td data-export="{{ this_trait.symbol }}">{{ this_trait.symbol }}</td>
+                    <td data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</td>
+                    <td data-export="{{ this_trait.location_repr }}" align="right">{{ this_trait.location_repr }}</td>
+                    <td data-export="{{ '%0.3f' % this_trait.mean|float }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</td>
+                    <td data-export="{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}" align="right">{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
+                    <td data-export="{{ this_trait.LRS_location_repr }}" align="right">{{ this_trait.LRS_location_repr }}</td>
+                    <td data-export="{% if this_trait.additive != "" %}{{ '%0.3f' % this_trait.additive|float }}{% else %}N/A{% endif %}" align="right">{% if this_trait.additive != "" %}{{ '%0.3f' % this_trait.additive|float }}{% else %}N/A{% endif %}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -94,9 +98,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
@@ -105,27 +106,12 @@
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
 	
     <script type="text/javascript" charset="utf-8">
-        function getValue(x) {
-            if (x.indexOf('input') >= 0) {
-                if ($(x).val() == 'x') {
-                    return 0;
-                }
-                else {
-                   return parseFloat($(x).val());
-                }
-            }
-            else if (isNaN(x)) {
-                return x;
-            }
-            return parseFloat(x);
-        }
-
         $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
         {
             return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
                 return $('input', td).prop('checked') ? '1' : '0';
             } );
-        }
+        };
 
         $(document).ready( function () {
             
@@ -138,19 +124,8 @@
             console.time("Creating table");
             $('#trait_table').DataTable( {
                 "paging": false,
-                "buttons": [
-                    {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'search_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-                       }
-                    }
-                ],
                 "columns": [
-                    { "type": "natural" },
+                    { "orderDataType": "dom-checkbox" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural", "width": "8%"  },
@@ -165,8 +140,14 @@
                     { "type": "natural", "width": "8%" },
                     { "type": "natural" }
                 ],
+                "columnDefs": [
+                    {
+                        "targets": 0,
+                        "orderDataType": "dom-checkbox"
+                    }
+                ],
                 "order": [[1, "asc" ]],
-                "sDom": "Btir",
+                "sDom": "tir",
                 "autoWidth": false,
                 "bDeferRender": true,
                 "scrollY": "800px",
