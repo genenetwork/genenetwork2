@@ -21,6 +21,7 @@ import uuid
 
 import simplejson as json
 import yaml
+import csv
 
 #Switching from Redis to StrictRedis; might cause some issues
 import redis
@@ -51,11 +52,12 @@ from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
 
+from utility import webqtlUtil
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION
 
 from base import webqtlFormData
-from base.webqtlConfig import GENERATED_IMAGE_DIR
+from base.webqtlConfig import GENERATED_IMAGE_DIR, GENERATED_TEXT_DIR
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
@@ -145,9 +147,15 @@ def tmp_page(img_path):
                             img_base64 = bytesarray )
 
 @app.route("/twitter/<path:filename>")
-def bd_files(filename):
-    bd_path = app.config['TWITTER_POST_FETCHER_JS_PATH']
+def twitter_js(filename):
+    bd_path = app.config['JS_TWITTER_POST_FETCHER']
     return send_from_directory(bd_path, filename)
+
+@app.route("/dalliance/<path:filename>")
+def biodalliance_js(filename):
+    bd_path = app.config['JS_BIODALLIANCE']
+    return send_from_directory(bd_path, filename)
+
 
 #@app.route("/data_sharing")
 #def data_sharing_page():
@@ -232,6 +240,10 @@ def docedit():
 @app.route('/generated/<filename>')
 def generated_file(filename):
     return send_from_directory(GENERATED_IMAGE_DIR,filename)
+
+@app.route('/generated_text/<filename>')
+def generated_text(filename):
+    return send_from_directory(GENERATED_TEXT_DIR, filename)
 
 @app.route("/help")
 def help():
@@ -507,9 +519,26 @@ def marker_regression_page():
         with Bench("Total time in MarkerRegression"):
             template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
 
+
+        qtl_results = template_vars.js_data['qtl_results']
+
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
+
+
+        json_filename = webqtlUtil.genRandStr("") + ".json"
+        with open(GENERATED_TEXT_DIR + "/" + json_filename, "wb") as json_file:
+            json_file.write(template_vars.js_data)
+
+        csv_filename = webqtlUtil.genRandStr("") + ".csv"
+        with open(GENERATED_TEXT_DIR + "/" + csv_filename, "wb") as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(("Locus", "Chr", "Mb", "LOD"))
+            for (row) in qtl_results:
+                score = row["lod_score"] if "lod_score" in row else row["lrs_value"]
+                writer.writerow((row["name"], row["chr"], row["Mb"], score))
+
 
         result = template_vars.__dict__
 
@@ -530,6 +559,9 @@ def marker_regression_page():
             #    logger.info("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
             gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+            gn1_template_vars['json_filename'] = json_filename;
+            gn1_template_vars['csv_filename'] = csv_filename;
+            gn1_template_vars['gn_server_url'] = GN_SERVER_URL;
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             logger.info("pickled result length:", len(pickled_result))
@@ -538,22 +570,6 @@ def marker_regression_page():
 
             with Bench("Rendering template"):
                 rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
-
-    # with Bench("Rendering template"):
-        # if result['pair_scan'] == True:
-            # img_path = result['pair_scan_filename']
-            # logger.info("img_path:", img_path)
-            # initial_start_vars = request.form
-            # logger.info("initial_start_vars:", initial_start_vars)
-            # imgfile = open(TEMPDIR + '/' + img_path, 'rb')
-            # imgdata = imgfile.read()
-            # imgB64 = imgdata.encode("base64")
-            # bytesarray = array.array('B', imgB64)
-            # result['pair_scan_array'] = bytesarray
-            # rendered_template = render_template("pair_scan_results.html", **result)
-        # else:
-            # rendered_template = render_template("marker_regression.html", **result)
-            # rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
 
     return rendered_template
 

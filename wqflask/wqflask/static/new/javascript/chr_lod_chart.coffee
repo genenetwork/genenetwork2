@@ -5,7 +5,7 @@ class Chr_Lod_Chart
         @qtl_results = js_data.qtl_results
         console.log("qtl_results are:", @qtl_results)
         console.log("chr is:", @chr)
-        
+
         @get_max_chr()
 
         @filter_qtl_results()
@@ -21,16 +21,16 @@ class Chr_Lod_Chart
         console.log("@x_coords: ", @x_coords)
         console.log("@y_coords: ", @y_coords)
         console.timeEnd('Create coordinates')
-        
+
         # Buffer to allow for the ticks/labels to be drawn
         @x_buffer = @plot_width/30
         @y_buffer = @plot_height/20
-        
+
         @x_max = d3.max(@x_coords)
         @y_max = d3.max(@y_coords) * 1.2
-    
+
         @y_threshold = @get_lod_threshold()
-    
+
         @svg = @create_svg()
 
         @plot_coordinates = _.zip(@x_coords, @y_coords, @marker_names)
@@ -43,14 +43,14 @@ class Chr_Lod_Chart
         console.time('Create graph')
         @create_graph()
         console.timeEnd('Create graph')
-       
+
     get_max_chr: () ->
         @max_chr = 0
         for key of js_data.chromosomes
             console.log("key is:", key)
             if parseInt(key) > @max_chr
                 @max_chr = parseInt(key)
-        
+
     filter_qtl_results: () ->
         @these_results = []
         this_chr = 100
@@ -59,8 +59,8 @@ class Chr_Lod_Chart
                 this_chr = @max_chr
             else
                 this_chr = result.chr
-            console.log("this_chr is:", this_chr)
-            console.log("@chr[0] is:", parseInt(@chr[0]))
+            # console.log("this_chr is:", this_chr)
+            # console.log("@chr[0] is:", parseInt(@chr[0]))
             if this_chr > parseInt(@chr[0])
                 break
             if parseInt(this_chr) == parseInt(@chr[0])
@@ -72,7 +72,7 @@ class Chr_Lod_Chart
             if result.lod_score > 1
                 high_qtl_count += 1
         console.log("high_qtl_count:", high_qtl_count)
-        
+
         #if high_qtl_count > 10000
         @y_axis_filter = 2
         #else if high_qtl_count > 1000
@@ -85,7 +85,7 @@ class Chr_Lod_Chart
             @x_coords.push(parseFloat(result.Mb))
             @y_coords.push(result.lod_score)
             @marker_names.push(result.name)
-            
+
     create_svg: () ->
         svg = d3.select("#topchart")
             .append("svg")
@@ -102,7 +102,7 @@ class Chr_Lod_Chart
         @y_scale = d3.scale.linear()
             .domain([0, @y_max])
             .range([@plot_height, @y_buffer])
-            
+
     get_lod_threshold: () ->
         if @y_max/2 > 2
             return @y_max/2
@@ -125,7 +125,7 @@ class Chr_Lod_Chart
                          [@y_buffer, @plot_height, @plot_width, @plot_width],
                          [@y_buffer, @y_buffer, @x_buffer, @plot_width],
                          [@plot_height, @plot_height, @x_buffer, @plot_width]]
-            
+
         @svg.selectAll("line")
             .data(border_coords)
             .enter()
@@ -141,7 +141,7 @@ class Chr_Lod_Chart
             )
             .attr("x2", (d) =>
                 return d[3]
-            )             
+            )
             .style("stroke", "#000")
 
     add_x_axis: () ->
@@ -166,13 +166,13 @@ class Chr_Lod_Chart
                 .attr("transform", (d) =>
                     return "translate(-12,0) rotate(-90)"
                 )
-                
+
     add_y_axis: () ->
         @yAxis = d3.svg.axis()
                 .scale(@y_scale)
                 .orient("left")
                 .ticks(5)
-        
+
         @svg.append("g")
             .attr("class", "y_axis")
             .attr("transform", "translate(" + @x_buffer + ",0)")
@@ -200,7 +200,7 @@ class Chr_Lod_Chart
                             .x( (d) => return @x_scale(d[0]))
                             .y( (d) => return @y_scale(d[1]))
                             .interpolate("linear")
-                            
+
         line_graph = @svg.append("path")
                         .attr("d", line_function(@plot_coordinates))
                         .attr("stroke", "blue")
@@ -273,6 +273,9 @@ class Chr_Lod_Chart
         $("#return_to_full_view").hide()
         $('#topchart').remove()
         $('#chart_container').append('<div class="qtlcharts" id="topchart"></div>')
+        BD.hideButton()
+        $('#close_bd').hide();
+        $('#bd_container').hide()
         create_lod_chart()
 
     show_marker_in_table: (marker_info) ->

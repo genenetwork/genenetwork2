@@ -29,7 +29,7 @@
         <input type="hidden" name="mapmethod_rqtl_geno" value="{{ mapmethod_rqtl_geno }}">
         <input type="hidden" name="mapmodel_rqtl_geno" value="{{ mapmodel_rqtl_geno }}">
         <input type="hidden" name="pair_scan" value="{{ pair_scan }}">
-        
+
         <div class="container">
           <div class="col-xs-5">
               <h2>Map Viewer: Whole Genome</h2><br>
@@ -78,7 +78,7 @@
                 <tr>
                   <td></td>
                   <td style="padding: 5px;">
-                    <input type="text" name="lrsMax" value="{{ '%0.1f' | format(lrsMax|float) }}" size="3"> <span style="font-size: 12px;">units on the y-axis (0 for default)</span>   
+                    <input type="text" name="lrsMax" value="{{ '%0.1f' | format(lrsMax|float) }}" size="3"> <span style="font-size: 12px;">units on the y-axis (0 for default)</span>
                   </td>
                 </tr>
                 <tr>
@@ -91,14 +91,14 @@
             </div>
             <div class="col-xs-4" style="padding: 0px;">
                   {% if (mapping_method == "reaper" or mapping_method == "rqtl_geno") and nperm > 0 %}
-                  <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test 
+                  <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test
                     <a href="http://genenetwork.org/glossary.html#Permutation" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
                   <br>
                   {% endif %}
                   {% if mapping_method == "reaper" and nboot > 0 %}
-                  <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test 
+                  <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test
                     <a href="http://genenetwork.org/glossary.html#bootstrap" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
@@ -128,7 +128,7 @@
             </div>
           </div>
         </div>
- 
+
         <div class="tabbable" style="margin: 10px;">
           <ul class="nav nav-tabs">
             <li id="gn1_map_tab">
@@ -160,8 +160,23 @@
             </div>
             {% if mapping_method != "gemma" %}
             <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
-              <div id="chart_container">
-                <div class="qtlcharts" id="topchart"></div>
+                <div id="chart_container">
+                    <ul class="nav nav-tabs">
+                        <li id="return_to_full_view" class="btn btn-default buttons-html5" style="display:none">
+                            Return to full view
+                        </li>
+                        <li id="open_bd" class="btn btn-default buttons-html5" style="display:none">
+                            Open BioDalliance view
+                        </li>
+                        <li id="close_bd" class="btn btn-default buttons-html5" style="display:none">
+                            Return to vector map
+                        </li>
+                    </ul>
+
+                    <div class="qtlcharts" id="topchart"></div>
+
+                    <div id="bd_container" class="qtlcharts">
+                    </div>
               </div>
             </div>
             {% endif %}
@@ -262,7 +277,37 @@
 
 {% endblock %}
 
-{% block js %}  
+{% block js %}
+
+    <script>
+      /* This section checks for paths to JS libraries by
+         checking the headers */
+      list = [
+      /* check for static path */
+      "/static/new/javascript/biodalliance.js",
+      "/static/new/js_external/underscore-min.js",
+      /* check for dalliance JS (see ./etc/default_settings.py) */
+      "/dalliance/build/dalliance-all.js",
+      /* D3 path (FIXME) */
+      "http://d3js.org/d3.v3.min.js",
+      /* datatables path (FIXME) */
+      "https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"
+      ];
+      for (var i = 0; i < list.length; i++) {
+        url = list[i];
+        $.ajax({
+          type: 'HEAD',
+          url: url,
+          success: function() {
+            // page exists
+          },
+          error: function() {
+            // page does not exist
+            console.log("Failed to load "+this.url);
+            alert("Failed to load Javascript for "+this.url);
+          }
+      })};
+    </script>
 
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
@@ -278,19 +323,19 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
 
-    <script>
-        js_data = {{ js_data | safe }}
-    </script>
 
     {% if mapping_method != "gemma" %}
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
+
+    <script language="javascript" type="text/javascript" src="/dalliance/build/dalliance-all.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/biodalliance.js"></script>
     {% endif %}
 
-    <script type="text/javascript" charset="utf-8">
-        $(document).ready( function () {
+    <script>
+     createTable = function() {
             console.time("Creating table");
             $('#qtl_results').DataTable( {
                 "columns": [
@@ -349,15 +394,145 @@
                 "scrollCollapse": false,
                 "paging": false
             } );
+     };
+
+     filename = "{{json_filename}}";
+     js_data = null;
+     $.ajax("/generated_text/{{json_filename}}",
+            {success:
+                     function(data) {
+                         js_data = data;
+                         create_lod_chart();
+                         createTable();
+                     }
+            });
+
+     BD.putSource({name: 'Genome',
+                   twoBitURI:  'http://www.biodalliance.org/datasets/GRCm38/mm10.2bit',
+                   desc: 'Mouse reference genome build GRCm38',
+                   tier_type: 'sequence',
+                   provides_entrypoints: true
+     });
+     BD.putSource({name: 'Genotype',
+                   controlURI: "{{gn_server_url}}/api_pre1/genotype/mouse/BXD.json",
+                   URIBase:    "{{gn_server_url}}/api_pre1/genotype/mouse/",
+                   tier_type:  'rqtl-genotype',
+                   vOffset: 8,
+                   pinned: true,
+                   transposed: true,
+                   hideSubpixelGlyphs: true,
+                   style: [
+                       { type: "default",
+                         method: "U",
+                         style: { glyph: "BOX",
+                                  LINE: "0.5",
+                                  FGCOLOR: "black",
+                                  BGCOLOR: "white",
+                                  BGITEM: "true",
+                                  HEIGHT: "2",
+                                  BUMP: "true",
+                         }},
+                       { type: "default",
+                         method: "B",
+                         style: { glyph: "BOX",
+                                  LINE: "0.5",
+                                  FGCOLOR: "blue",
+                                  BGCOLOR: "blue",
+                                  BGITEM: "true",
+                                  HEIGHT: "2",
+                                  BUMP: "true",
+                         }},
+                       { type: "default",
+                         method: "H",
+                         style: { glyph: "BOX",
+                                  LINE: "0.5",
+                                  FGCOLOR: "green",
+                                  BGCOLOR: "green",
+                                  BGITEM: "true",
+                                  HEIGHT: "2",
+                                  BUMP: "true",
+                         }},
+                       { type: "default",
+                         method: "D",
+                         style: { glyph: "BOX",
+                                  LINE: "0.5",
+                                  FGCOLOR: "red",
+                                  BGCOLOR: "red",
+                                  BGITEM: "true",
+                                  HEIGHT: "2",
+                                  BUMP: "true",
+                         }},
+                   ]
+     });
+     BD.putSource({name: 'QTL',
+                   tier_type: 'qtl',
+                   uri: '/generated_text/{{csv_filename}}',
+                   style: [{
+                       type: 'default',
+                       style: {
+                           glyph: "LINEPLOT",
+                           AUTOMAX: "true",
+                           MIN: 0,
+                           MAX: 3,
+                           HEIGHT: 200,
+                           STEPS: 500,
+                           COLOR1: "blue",
+                       }
+                   }],
+     });
+     BD.putSource({name: 'SNP density',
+                   jbURI: "{{gn_server_url}}/api_pre1/snp",
+                   jbQuery: "",
+                   refetchOnZoom: true,
+                   style: [{
+                       type: 'default',
+                       style: {
+                           glyph: "HISTOGRAM",
+                           MIN: 0,
+                           MAX: 5000,
+                           AUTOMAX: "true",
+                           HEIGHT: 60,
+                           STEPS: 100,
+                           COLOR1: "red",
+                           COLOR2: "red",
+                           COLOR3: "red",
+                           AXISCENTER: "true",
+                       }
+                   }]
+     });
+    </script>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function () {
+            BD.putData({species: "{{ dataset.group.species }}" });
+
 
             $('#vector_map_tab').click(function(){
                 $('div#gn1_map_options').hide();
             });
 
             $('#gn1_map_tab').click(function(){
-                $('div#gn1_map_options').show();
+                $('#gn1_map_options').show();
+                $('div#bd_container').hide();
             });
 
+            $('#close_bd').click(function() {
+                $('#open_bd').show();
+                $('#close_bd').hide();
+
+                $('#bd_container').hide();
+                $('#topchart').show();
+            });
+
+            $('#open_bd').click(function() {
+                $('#close_bd').show();
+                $('#open_bd').hide()
+
+                $('#topchart').hide();
+                $('#bd_container').show();
+
+                BD.openBrowser();
+            })
         });
 
         chrView = function(this_chr, chr_mb_list) {
@@ -376,9 +551,9 @@
             return $('#marker_regression_form').submit();
         };
 
-        remap = function() { 
+        remap = function() {
             $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
-            return $('#marker_regression_form').submit(); 
+            return $('#marker_regression_form').submit();
         };
 
         export_perm_data = function() {
@@ -394,4 +569,3 @@
     </script>
 
 {% endblock %}
-

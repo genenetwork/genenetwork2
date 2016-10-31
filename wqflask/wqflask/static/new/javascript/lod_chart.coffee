@@ -123,6 +123,8 @@ lodchart = () ->
                    .on("click", (d) ->
                       console.log("d is:", d)
                       redraw_plot(d)
+                      BD.putData({chr: d[0], length: d[1]});
+                      BD.showButton()
                     )   
   
         # x-axis labels

@@ -121,8 +121,13 @@ def assert_writable_dir(dir):
         fh.close()
         os.remove(fn)
     except IOError:
-        raise Exception('Unable to write test.txt to directory ' + dir )
+        raise Exception('Unable to write test.txt to directory ' + dir)
     return dir
+
+def assert_file(fn):
+    if not valid_file(fn):
+        raise Exception('Unable to find file '+fn)
+    return fn
 
 def mk_dir(dir):
     if not valid_path(dir):
@@ -233,4 +238,8 @@ if os.environ.get('WQFLASK_OVERRIDES'):
                 OVERRIDES[k] = cmd
             logger.debug(OVERRIDES)
 
-assert_dir(get_setting("TWITTER_POST_FETCHER_JS_PATH"))
+assert_dir(get_setting("JS_BIODALLIANCE"))
+assert_file(get_setting("JS_BIODALLIANCE")+"/build/dalliance-all.js")
+assert_file(get_setting("JS_BIODALLIANCE")+"/build/worker-all.js")
+assert_dir(get_setting("JS_TWITTER_POST_FETCHER"))
+assert_file(get_setting("JS_TWITTER_POST_FETCHER")+"/js/twitterFetcher_min.js")
