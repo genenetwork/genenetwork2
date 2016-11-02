@@ -271,13 +271,28 @@ class DatasetGroup(object):
         self.f1list = None
         self.parlist = None
         self.get_f1_parent_strains()
-        #logger.debug("parents/f1s: {}:{}".format(self.parlist, self.f1list))
+
+        self.accession_id = self.get_accession_id()
 
         self.species = webqtlDatabaseFunction.retrieve_species(self.name)
 
         self.incparentsf1 = False
         self.allsamples = None
         self._datasets = None
+
+    def get_accession_id(self):
+        results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
+                    InbredSet.Name = %s and
+                    PublishFreeze.InbredSetId = InbredSet.Id and
+                    InfoFiles.InfoPageName = PublishFreeze.Name and
+                    PublishFreeze.public > 0 and
+                    PublishFreeze.confidentiality < 1 order by
+                    PublishFreeze.CreateTime desc""", (self.name)).fetchone()
+
+        if results != None:
+            return str(results[0])
+        else:
+            return "None"
 
     def get_specified_markers(self, markers = []):
         self.markers = HumanMarkers(self.name, markers)

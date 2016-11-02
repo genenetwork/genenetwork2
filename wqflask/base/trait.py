@@ -91,16 +91,27 @@ class GeneralTrait(object):
                         additive=self.additive
                         )
         elif self.dataset.type == "Publish":
-            return dict(name=self.name,
-                        dataset=self.dataset.name,
-                        description=self.description_display,
-                        authors=self.authors,
-                        pubmed_text=self.pubmed_text,
-                        pubmed_link=self.pubmed_link,
-                        lrs_score=self.LRS_score_repr,
-                        lrs_location=self.LRS_location_repr,
-                        additive=self.additive
-                        )
+            if self.pubmed_id:
+                return dict(name=self.name,
+                            dataset=self.dataset.name,
+                            description=self.description_display,
+                            authors=self.authors,
+                            pubmed_text=self.pubmed_text,
+                            pubmed_link=self.pubmed_link,
+                            lrs_score=self.LRS_score_repr,
+                            lrs_location=self.LRS_location_repr,
+                            additive=self.additive
+                            )
+            else:
+                return dict(name=self.name,
+                            dataset=self.dataset.name,
+                            description=self.description_display,
+                            authors=self.authors,
+                            pubmed_text=self.pubmed_text,
+                            lrs_score=self.LRS_score_repr,
+                            lrs_location=self.LRS_location_repr,
+                            additive=self.additive
+                            )
         elif self.dataset.type == "Geno":
             return dict(name=self.name,
                         dataset=self.dataset.name,
@@ -109,6 +120,62 @@ class GeneralTrait(object):
         else:
             return dict()
 
+    def jsonable_table_row(self, index, search_type):
+        """Return a list suitable for json and intended to be displayed in a table
+
+        Actual turning into json doesn't happen here though"""
+
+        if self.dataset.type == "ProbeSet":
+            if self.mean == "":
+                mean = "N/A"
+            else:
+                mean = "%.3f" % round(float(self.additive), 2)
+            if self.additive == "":
+                additive = "N/A"
+            else:
+                additive = "%.3f" % round(float(self.additive), 2)
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac(\'{}:{}\'.format(' + str(self.name) + ',' + self.dataset.name + ')) }}">',
+                    index,
+                    '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
+                    self.symbol,
+                    self.description_display,
+                    self.location_repr,
+                    mean, 
+                    self.LRS_score_repr,
+                    self.LRS_location_repr,
+                    additive]
+        elif self.dataset.type == "Publish":
+            if self.additive == "":
+                additive = "N/A"
+            else:
+                additive = "%.2f" % round(float(self.additive), 2)
+            if self.pubmed_id:
+                return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac(\'{}:{}\'.format(' + str(self.name) + ',' + self.dataset.name + ')) }}">',
+                        index,
+                        '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
+                        self.description_display,
+                        self.authors,
+                        '<a href="' + self.pubmed_link + '">' + self.pubmed_text + '</href>',
+                        self.LRS_score_repr,
+                        self.LRS_location_repr,
+                        additive]
+            else:
+                return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac(\'{}:{}\'.format(' + str(self.name) + ',' + self.dataset.name + ')) }}">',
+                        index,
+                        '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
+                        self.description_display,
+                        self.authors,
+                        self.pubmed_text,
+                        self.LRS_score_repr,
+                        self.LRS_location_repr,
+                        additive]
+        elif self.dataset.type == "Geno":
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac(\'{}:{}\'.format(' + str(self.name) + ',' + self.dataset.name + ')) }}">',
+                    index,
+                    '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
+                    self.location_repr]
+        else:
+            return dict()
 
     def get_name(self):
         stringy = ""
@@ -418,7 +485,7 @@ class GeneralTrait(object):
                 self.description_display = description_display
 
                 #XZ: trait_location_value is used for sorting
-                trait_location_repr = 'N/A'
+                self.location_repr = 'N/A'
                 trait_location_value = 1000000
 
                 if self.chr and self.mb:
@@ -438,6 +505,18 @@ class GeneralTrait(object):
                     self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
                     self.location_value = trait_location_value
 
+            elif self.dataset.type == "Geno":
+                self.location_repr = 'N/A'
+                trait_location_value = 1000000
+
+                if self.chr and self.mb:
+                    #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
+                    #This is so we can convert the location to a number used for sorting
+                    trait_location_value = convert_location_to_value(self.chr, self.mb)
+
+                    #ZS: Put this in function currently called "convert_location_to_value"
+                    self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
+                    self.location_value = trait_location_value
 
             if get_qtl_info:
                 #LRS and its location
@@ -459,7 +538,7 @@ class GeneralTrait(object):
                     logger.sql(query)
                     trait_qtl = g.db.execute(query).fetchone()
                     if trait_qtl:
-                        self.locus, self.lrs, self.pvalue, self.mean, self.additive= trait_qtl
+                        self.locus, self.lrs, self.pvalue, self.mean, self.additive = trait_qtl
                         if self.locus:
                             query = """
                                 select Geno.Chr, Geno.Mb from Geno, Species
