@@ -36,7 +36,7 @@
       {% if result[0].name == trait.name %}
       <td nowrap="ON" align="center" bgcolor="#cccccc"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 11px; color: #000000;" ><em>n</em><br>{{ result[2] }}</font></a></td>
       {% else %}
-      <td nowrap="ON" align="middle" class="corr_cell"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 11px; color: #000000;" ><span class="corr_value">{{ '%0.3f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
+      <td nowrap="ON" align="middle" class="corr_cell"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 12px; color: #000000;" ><span class="corr_value">{{ '%0.3f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
       {% endif %}
       {% endfor %}
     </tr>
@@ -85,6 +85,7 @@
 {% block js %}
 
     <script>
+        js_data = {{ js_data | safe }}
         loadings = {{ loadings_array | safe }}
     </script>
 
@@ -98,5 +99,6 @@
     <script type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/chroma.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/loadings_plot.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/create_corr_matrix.js"></script>
 
 {% endblock %}
