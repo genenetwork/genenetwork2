@@ -54,6 +54,9 @@ BD.putData = function(data) {
 
 BD.putSource = function(source) {
     BD.sources.push(source);
+    if (BD.browser) {
+        BD.browser.addTier(source);
+    }
 };
 
 BD.openBrowser = function() {

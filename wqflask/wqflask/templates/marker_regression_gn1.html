@@ -173,6 +173,15 @@
                         </li>
                     </ul>
 
+                    <ul class="nav nav-tabs" id="track_buttons" style="display:none">
+                        <li id="repeats_button" class="btn btn-default buttons-html5" >
+                            Add Repeats track
+                        </li>
+                        <li id="hg_button" class="btn btn-default buttons-html5" >
+                            Add HG track
+                        </li>
+                    </ul>
+
                     <div class="qtlcharts" id="topchart"></div>
 
                     <div id="bd_container" class="qtlcharts">
@@ -523,6 +532,7 @@
                 $('#close_bd').hide();
 
                 $('#bd_container').hide();
+                $('#track_buttons').hide();
                 $('#topchart').show();
             });
 
@@ -532,9 +542,27 @@
 
                 $('#topchart').hide();
                 $('#bd_container').show();
+                $('#track_buttons').show();
 
                 BD.openBrowser();
-            })
+            });
+
+            $('#repeats_button').click(function() {
+                var source = {name: 'Repeats',
+                              desc: 'Repeat annotation from UCSC',
+                              bwgURI: '//www.biodalliance.org/datasets/GRCm38/repeats.bb',
+                              stylesheet_uri: '//www.biodalliance.org/stylesheets/bb-repeats2.xml'};
+
+                BD.putSource(source);
+            });
+
+            $('#hg_button').click(function() {
+                var source = {name: 'hg19ToMm10',
+                                    desc: '',
+                                    bwgURI: 'http://www.biodalliance.org/datasets/hg19ToMm10.bb'};
+
+                BD.putSource(source);
+            });
         });
 
         chrView = function(this_chr, chr_mb_list) {
