@@ -120,7 +120,7 @@ class GeneralTrait(object):
         else:
             return dict()
 
-    def jsonable_table_row(self, index, search_type):
+    def jsonable_table_row(self, index):
         """Return a list suitable for json and intended to be displayed in a table
 
         Actual turning into json doesn't happen here though"""

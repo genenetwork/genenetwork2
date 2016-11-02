@@ -57,3 +57,25 @@ $('.corr_cell').each( function () {
     $(this).css('background-color', 'white')
   }
 });
+
+$('#short_labels').click( function (){
+  $('.shortName').each( function() {
+    if ($(this).css("display") == "none"){
+      $(this).css("display", "block");
+    }
+    else {
+      $(this).css("display", "none");
+    }
+  });
+});
+
+$('#long_labels').click( function (){
+  $('.verboseName').each( function() {
+    if ($(this).css("display") == "none"){
+      $(this).css("display", "block");
+    }
+    else {
+      $(this).css("display", "none");
+    }
+  });
+});
