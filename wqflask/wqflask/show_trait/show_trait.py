@@ -4,6 +4,7 @@ import string
 import os
 import cPickle
 import uuid
+import json as json
 #import pyXLWriter as xl
 
 from collections import OrderedDict
@@ -24,6 +25,7 @@ from basicStatistics import BasicStatisticsFunctions
 from pprint import pformat as pf
 
 from utility.tools import flat_files, flat_file_exists
+from utility.tools import get_setting
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -175,6 +177,7 @@ class ShowTrait(object):
             else:
                 return False
 
+        self.genofiles = get_genofiles(self.this_trait)
         self.use_plink_gemma = check_plink_gemma()
         self.use_pylmm_rqtl = check_pylmm_rqtl()
 
@@ -1260,6 +1263,15 @@ def get_nearest_marker(this_trait, this_db):
     else:
         return result[0][0]
         #return result[0][0], result[1][0]
+
+def get_genofiles(this_trait):
+    jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, this_trait.dataset.group.name)
+    try:
+        f = open(jsonfile)
+    except:
+        return None
+    jsondata = json.load(f)
+    return jsondata['genofile']
 
 def get_trait_table_width(sample_groups):
     table_width = 35

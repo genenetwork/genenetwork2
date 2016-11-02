@@ -468,6 +468,7 @@ def marker_regression_page():
         'control_marker',
         'control_marker_db',
         'do_control',
+        'genofile',
         'pair_scan',
         'startMb',
         'endMb',

@@ -32,6 +32,18 @@
                 {% if use_pylmm_rqtl and not use_plink_gemma and dataset.group.species != "human" %}
                 <div class="tab-pane active" id="interval_mapping">
                     <div style="margin-top: 20px" class="form-horizontal">
+                        {% if genofiles and genofiles|length>0 %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                                <select id="genofile_reaper" class="form-control">
+                                    {% for item in genofiles %}
+                                    <option value="{{item['location']}}">{{item['title']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="mapping_method_fields form-group">
                             <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
                             <div style="margin-left: 20px;" class="col-xs-4 controls">
@@ -114,6 +126,18 @@
                 </div>
                 <div class="tab-pane" id="pylmm">
                     <div style="margin-top: 20px" class="form-horizontal">
+                        {% if genofiles and genofiles|length>0 %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                                <select id="genofile_pylmm" class="form-control">
+                                    {% for item in genofiles %}
+                                    <option value="{{item['location']}}">{{item['title']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="mapping_method_fields form-group">
                             <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
                             <div style="margin-left: 20px;" class="col-xs-4 controls">
@@ -169,6 +193,18 @@
                 <div class="tab-pane" id="rqtl_geno">
 
                     <div style="margin-top: 20px" class="form-horizontal">
+                        {% if genofiles and genofiles|length>0 %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                                <select id="genofile_rqtl_geno" class="form-control">
+                                    {% for item in genofiles %}
+                                    <option value="{{item['location']}}">{{item['title']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="mapping_method_fields form-group">
                             <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
                             <div style="margin-left: 20px;" class="col-xs-4 controls">
