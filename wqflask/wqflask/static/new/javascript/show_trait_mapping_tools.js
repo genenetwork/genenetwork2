@@ -168,7 +168,7 @@
       //$("#progress_bar_container").modal();
       url = "/marker_regression";
       $('input[name=method]').val("pylmm");
-      $('input[name=genofile').val($('#genofile_pylmm').val());
+      $('input[name=genofile]').val($('#genofile_pylmm').val());
       $('input[name=num_perm]').val($('input[name=num_perm_pylmm]').val());
       $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_pylmm]:checked').val());
       form_data = $('#trait_data_form').serialize();
@@ -184,7 +184,7 @@
       //$("#progress_bar_container").modal();
       url = "/marker_regression";
       $('input[name=method]').val("rqtl_geno");
-      $('input[name=genofile').val($('#genofile_rqtl_geno').val());
+      $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
       $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
       $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val());
       $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
@@ -244,7 +244,7 @@
       //$("#progress_bar_container").modal();
       url = "/marker_regression";
       $('input[name=method]').val("reaper");
-      $('input[name=genofile').val($('#genofile_reaper').val());
+      $('input[name=genofile]').val($('#genofile_reaper').val());
       $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
       $('input[name=control_marker]').val($('input[name=control_reaper]').val());
       $('input[name=do_control]').val($('input[name=do_control_reaper]:checked').val());
