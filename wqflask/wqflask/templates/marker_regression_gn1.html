@@ -411,6 +411,22 @@
                      }
             });
 
+     BD.putSource({name: 'QTL',
+                   tier_type: 'qtl',
+                   uri: 'http://localhost:5003/generated_text/{{csv_filename}}',
+                   style: [{
+                       type: 'default',
+                       style: {
+                           glyph: "LINEPLOT",
+                           AUTOMAX: "true",
+                           MIN: 0,
+                           MAX: 3,
+                           HEIGHT: 200,
+                           STEPS: 500,
+                           COLOR1: "blue",
+                       }
+                   }],
+     });
      BD.putSource({name: 'Genome',
                    twoBitURI:  'http://www.biodalliance.org/datasets/GRCm38/mm10.2bit',
                    desc: 'Mouse reference genome build GRCm38',
@@ -422,7 +438,6 @@
                    URIBase: "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/",
                    tier_type: 'rqtl-genotype',
                    vOffset: 8,
-                   pinned: true,
                    transposed: true,
                    hideSubpixelGlyphs: true,
                    style: [
@@ -467,22 +482,6 @@
                                   BUMP: "true",
                          }},
                    ]
-     });
-     BD.putSource({name: 'QTL',
-                   tier_type: 'qtl',
-                   uri: 'http://localhost:5003/generated_text/{{csv_filename}}',
-                   style: [{
-                       type: 'default',
-                       style: {
-                           glyph: "LINEPLOT",
-                           AUTOMAX: "true",
-                           MIN: 0,
-                           MAX: 3,
-                           HEIGHT: 200,
-                           STEPS: 500,
-                           COLOR1: "blue",
-                       }
-                   }],
      });
      BD.putSource({name: 'SNP density',
                    jbURI: "http://test-gn2.genenetwork.org/api_pre1/snp",
