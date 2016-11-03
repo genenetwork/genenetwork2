@@ -105,15 +105,15 @@ guix package -i git
 export GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt
 #+end_src
 
-check out the git repositories (gn-stable branch)
+check out the git repositories (gn-deploy branch)
 
 #+begin_src bash
 cd ~
 mkdir genenetwork
 cd genenetwork
-git clone --branch gn-stable https://github.com/genenetwork/guix-bioinformatics
-git clone --branch gn-stable --recursive https://github.com/genenetwork/guix guix-gn-stable
-cd guix-gn-stable
+git clone --branch gn-deploy https://github.com/genenetwork/guix-bioinformatics
+git clone --branch gn-deploy --recursive https://github.com/genenetwork/guix guix-gn-deploy
+cd guix-gn-deploy
 #+end_src bash
 
 ** Step 3: Authorize the GN Guix server
@@ -147,7 +147,7 @@ GNU Guix package path by pointing the package path to our repository:
 
 #+begin_src bash
 rm /root/.config/guix/latest
-ln -s ~/genenetwork/guix-gn-stable/ /root/.config/guix/latest
+ln -s ~/genenetwork/guix-gn-deploy/ /root/.config/guix/latest
 #+end_src
 
 Now check whether you can find the GN2 package with
@@ -368,7 +368,7 @@ Create, install and run a recent version of the guix-daemon by
 compiling the guix repository you have installed with git in
 step 2. Follow [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully after
 
-: cd ~/genenetwork/guix-gn-stable
+: cd ~/genenetwork/guix-gn-deploy
 
 Make sure to restart the guix daemon and run guix client from this
 directory.
@@ -487,7 +487,7 @@ and a download of the test database.
 <pjotrp> right?
 <user01> yep
 <user01> set to the ones in ~/.guix-profile/
-<pjotrp> good, and you are in gn-stable-guix repo  [07:06]
+<pjotrp> good, and you are in gn-deploy-guix repo  [07:06]
 <user01> yep  [07:07]
 <pjotrp> git log shows
 
