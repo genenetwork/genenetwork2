@@ -276,6 +276,7 @@ class Chr_Lod_Chart
         BD.hideButton()
         $('#close_bd').hide();
         $('#bd_container').hide()
+        $('#track_buttons').hide()
         create_lod_chart()
 
     show_marker_in_table: (marker_info) ->

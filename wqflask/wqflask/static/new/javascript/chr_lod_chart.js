@@ -261,6 +261,7 @@ Chr_Lod_Chart = (function() {
     BD.hideButton();
     $('#close_bd').hide();
     $('#bd_container').hide();
+    $('#track_buttons').hide();
     return create_lod_chart();
   };
 
