@@ -79,6 +79,26 @@ class CTL(object):
         self.edges_list = []
         print("Obtained pointers to CTL functions")
 
+    def addNode(self, gt):
+        node_dict = { 'data' : {'id' : str(gt.name) + ":" + str(gt.dataset.name),
+                                'sid' : str(gt.name), 
+                                'dataset' : str(gt.dataset.name),
+                                'label' : gt.name,
+                                'symbol' : gt.symbol,
+                                'geneid' : gt.geneid,
+                                'omim' : gt.omim } }
+        self.nodes_list.append(node_dict)
+
+    def addEdge(self, gtS, gtT, significant, x):
+        edge_data = {'id' : str(gtS.symbol) + '_' + significant[1][x] + '_' + str(gtT.symbol),
+                     'source' : str(gtS.name) + ":" + str(gtS.dataset.name),
+                     'target' : str(gtT.name) + ":" + str(gtT.dataset.name),
+                     'lod' : significant[3][x],
+                     'color' : "#ff0000",
+                     'width' : significant[3][x] }
+        edge_dict = { 'data' : edge_data }
+        self.edges_list.append(edge_dict)
+
     def run_analysis(self, requestform):
         print("Starting CTL analysis on dataset")
         self.trait_db_list = [trait.strip() for trait in requestform['trait_list'].split(',')]
@@ -162,7 +182,7 @@ class CTL(object):
         self.r_lineplot(res, significance = significance)
         r_dev_off()
 
-        n = 2
+        n = 2                                                 # We start from 2, since R starts from 1 :)
         for trait in self.trait_db_list:
           # Create the QTL like CTL plots
           self.results['imgurl' + str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
@@ -175,23 +195,7 @@ class CTL(object):
         # Flush any output from R
         sys.stdout.flush()
 
-        # Create the interactive graph for cytoscape visualization (Nodes)
-        # TODO DA : make this a function
-        for trait in self.trait_db_list:
-          if trait != "":
-            ts = trait.split(':')
-            gt = TRAIT.GeneralTrait(name = ts[0], dataset_name = ts[1])
-            node_dict = { 'data' : {'id' : str(gt.name) + ":" + str(gt.dataset.name),
-                                    'sid' : str(gt.name), 
-                                    'dataset' : str(gt.dataset.name),
-                                    'label' : gt.name,
-                                    'symbol' : gt.symbol,
-                                    'geneid' : gt.geneid,
-                                    'omim' : gt.omim } }
-            self.nodes_list.append(node_dict)
-
-        # Create the interactive graph for cytoscape visualization (Edges)
-        # TODO DA : make this a function
+        # Create the interactive graph for cytoscape visualization (Nodes and Edges)
         print(type(significant))
         if not type(significant) == ri.RNULLType:
           for x in range(len(significant[0])):
@@ -200,16 +204,12 @@ class CTL(object):
             tsT = significant[2][x].split(':')                                        # Target
             gtS = TRAIT.GeneralTrait(name = tsS[0], dataset_name = tsS[1])            # Retrieve Source info from the DB
             gtT = TRAIT.GeneralTrait(name = tsT[0], dataset_name = tsT[1])            # Retrieve Target info from the DB
-            edge_data = {'id' : str(gtS.symbol) + '_' + significant[1][x] + '_' + str(gtT.symbol),
-                         'source' : str(gtS.name) + ":" + str(gtS.dataset.name),
-                         'target' : str(gtT.name) + ":" + str(gtT.dataset.name),
-                         'lod' : significant[3][x],
-                         'color' : "#ff0000",
-                         'width' : significant[3][x] }
-            edge_dict = { 'data' : edge_data }
-            self.edges_list.append(edge_dict)
-            significant[0][x] = gtS.symbol + " (" + gtS.name + ")"
-            significant[2][x] = gtT.symbol + " (" + gtT.name + ")"
+            self.addNode(gtS)
+            self.addNode(gtT)
+            self.addEdge(gtS, gtT, significant, x)
+
+            significant[0][x] = gtS.symbol + " (" + gtS.name + ")"                    # Update the trait name for the displayed table
+            significant[2][x] = gtT.symbol + " (" + gtT.name + ")"                    # Update the trait name for the displayed table
 
         self.elements = json.dumps(self.nodes_list + self.edges_list)
 
