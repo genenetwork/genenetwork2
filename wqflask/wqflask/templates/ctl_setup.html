@@ -11,7 +11,13 @@
     Please make sure you select enough traits to perform CTL. Your collection needs to contain at least 2 different traits. You provided {{request.form['trait_list'].split(',')|length}} traits as input.
   </div>
   {% else %}
-  <h1>CTL analysis parameters</h1>
+  <h1>CTL analysis</h1>
+  CTL analysis is published as open source software, if you are using this method in your publications, please cite:<br><br>
+  Arends D, Li Y, Brockmann GA, Jansen RC, Williams RW, Prins P<br>
+  Correlation trait locus (CTL) mapping: Phenotype network inference subject to genotype.<br>
+  The Journal of Open Source Software (2016)<br>
+  <a href="http://joss.theoj.org/papers/10.21105/joss.00087">http://joss.theoj.org/papers/10.21105/joss.00087</a>
+  <br><br>
   {{(request.form['trait_list'].split(',')|length)}} traits as input
 
   <form action="/ctl_results" method="post" class="form-horizontal">
