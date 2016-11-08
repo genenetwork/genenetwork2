@@ -116,6 +116,12 @@ git clone --branch gn-deploy --recursive https://github.com/genenetwork/guix gui
 cd guix-gn-deploy
 #+end_src bash
 
+To test whether this is working try:
+
+#+begin_src bash
+#+end_src bash
+
+
 ** Step 3: Authorize the GN Guix server
 
 GN2 has its own GNU Guix binary distribution server. To trust it you have
@@ -165,12 +171,15 @@ And install with
 #+begin_src bash
 env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ \
   guix package -i genenetwork2 \
-  --substitute-urls="http://guix.genenetwork.org https://mirror.guixsd.org" \
-  --fallback
+  --substitute-urls="http://guix.genenetwork.org"
 #+end_src
 
 Note: the order of the substitute url's may make a difference in speed
 (put the one first that is fastest for your location and time of day).
+
+Note: if your system starts building or gives an error it may well be
+Step 3 did not succeed. The installation should actually be smooth at
+this point and only do binary installs (no compiling).
 
 After installation you should be able to run genenetwork2 after updating
 the Guix suggested environment vars. Check the output of
