@@ -6,6 +6,8 @@ import scipy as sp                            # SciPy
 import rpy2.robjects as ro                    # R Objects
 import rpy2.rinterface as ri
 
+import simplejson as json
+
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility import webqtlUtil                # Random number for the image
 from utility import genofile_parser           # genofile_parser
@@ -73,7 +75,29 @@ class CTL(object):
         self.r_CTLnetwork         = ro.r["CTLnetwork"]                     # Map the CTLnetwork function
         self.r_CTLprofiles        = ro.r["CTLprofiles"]                    # Map the CTLprofiles function
         self.r_plotCTLobject      = ro.r["plot.CTLobject"]                 # Map the CTLsignificant function
+        self.nodes_list = []
+        self.edges_list = []
         print("Obtained pointers to CTL functions")
+
+    def addNode(self, gt):
+        node_dict = { 'data' : {'id' : str(gt.name) + ":" + str(gt.dataset.name),
+                                'sid' : str(gt.name), 
+                                'dataset' : str(gt.dataset.name),
+                                'label' : gt.name,
+                                'symbol' : gt.symbol,
+                                'geneid' : gt.geneid,
+                                'omim' : gt.omim } }
+        self.nodes_list.append(node_dict)
+
+    def addEdge(self, gtS, gtT, significant, x):
+        edge_data = {'id' : str(gtS.symbol) + '_' + significant[1][x] + '_' + str(gtT.symbol),
+                     'source' : str(gtS.name) + ":" + str(gtS.dataset.name),
+                     'target' : str(gtT.name) + ":" + str(gtT.dataset.name),
+                     'lod' : significant[3][x],
+                     'color' : "#ff0000",
+                     'width' : significant[3][x] }
+        edge_dict = { 'data' : edge_data }
+        self.edges_list.append(edge_dict)
 
     def run_analysis(self, requestform):
         print("Starting CTL analysis on dataset")
@@ -99,7 +123,7 @@ class CTL(object):
         genofilelocation = locate(dataset.group.name + ".geno", "genotype")
         parser = genofile_parser.ConvertGenoFile(genofilelocation)
         parser.process_csv()
-
+        print(dataset.group)
         # Create a genotype matrix
         individuals = parser.individuals
         markers = []
@@ -129,9 +153,11 @@ class CTL(object):
 
         rPheno = r_t(ro.r.matrix(r_as_numeric(r_unlist(traits)), nrow=len(self.trait_db_list), ncol=len(individuals), dimnames = r_list(self.trait_db_list, individuals), byrow=True))
 
+        print(rPheno)
+
         # Use a data frame to store the objects
-        rPheno = r_data_frame(rPheno)
-        rGeno = r_data_frame(rGeno)
+        rPheno = r_data_frame(rPheno, check_names = False)
+        rGeno = r_data_frame(rGeno, check_names = False)
 
         # Debug: Print the genotype and phenotype files to disk
         #r_write_table(rGeno, "~/outputGN/geno.csv")
@@ -156,7 +182,7 @@ class CTL(object):
         self.r_lineplot(res, significance = significance)
         r_dev_off()
 
-        n = 2
+        n = 2                                                 # We start from 2, since R starts from 1 :)
         for trait in self.trait_db_list:
           # Create the QTL like CTL plots
           self.results['imgurl' + str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
@@ -168,6 +194,24 @@ class CTL(object):
 
         # Flush any output from R
         sys.stdout.flush()
+
+        # Create the interactive graph for cytoscape visualization (Nodes and Edges)
+        print(type(significant))
+        if not type(significant) == ri.RNULLType:
+          for x in range(len(significant[0])):
+            print(significant[0][x], significant[1][x], significant[2][x])            # Debug to console
+            tsS = significant[0][x].split(':')                                        # Source
+            tsT = significant[2][x].split(':')                                        # Target
+            gtS = TRAIT.GeneralTrait(name = tsS[0], dataset_name = tsS[1])            # Retrieve Source info from the DB
+            gtT = TRAIT.GeneralTrait(name = tsT[0], dataset_name = tsT[1])            # Retrieve Target info from the DB
+            self.addNode(gtS)
+            self.addNode(gtT)
+            self.addEdge(gtS, gtT, significant, x)
+
+            significant[0][x] = gtS.symbol + " (" + gtS.name + ")"                    # Update the trait name for the displayed table
+            significant[2][x] = gtT.symbol + " (" + gtT.name + ")"                    # Update the trait name for the displayed table
+
+        self.elements = json.dumps(self.nodes_list + self.edges_list)
 
     def loadImage(self, path, name):
         print("pre-loading imgage results:", self.results[path])
@@ -188,6 +232,7 @@ class CTL(object):
         print("Processing CTL output")
         template_vars = {}
         template_vars["results"] = self.results
+        template_vars["elements"] = self.elements
         self.render_image(self.results)
         sys.stdout.flush()
         return(dict(template_vars))
