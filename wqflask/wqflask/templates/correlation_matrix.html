@@ -71,7 +71,7 @@
       <th></th>
       <th align="right" >Factor 1</th>
       <th align="right" >Factor 2</th>
-      <th align="right" >Factor 2</th>
+      {% if trait_list|length > 2 %}<th align="right" >Factor 3</th>{% endif %}
 <!--
       {% for row in loadings_array %}
       <th>Factor {{ loop.index }}</th>
