@@ -2,7 +2,7 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/jquery.dataTables.min.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/Datatables/extensions/scroller.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/scroller.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
 {% endblock %}
@@ -11,7 +11,7 @@
     {{ header("Search Results",
         'GeneNetwork found {}.'.format(numify(results|count, "record", "records"))) }}
 
-    <div class="container" {% if dataset.type == 'Geno' %}style="width: 500px !important;"{% endif %}>
+    <div>
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <!-- Need to customize text more for other types of searches -->
@@ -78,8 +78,8 @@
           {% endif %}
 -->
 
-          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black;">
-            <table class="table table-hover table-striped nowrap" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
+          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black; width: {% if dataset.type == 'ProbeSet' %}1300{% elif dataset.type == 'Publish' %}1200{% elif dataset.type == 'Geno' %}500{% endif %}px;">
+            <table class="table table-hover table-striped nowrap" id='trait_table' style="float: left;">
                 <thead>
                     <tr>
                         <th style="background-color: #eeeeee;"></th>
@@ -122,7 +122,7 @@
 {% endblock %}
 
 {% block js %}
-    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>   
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
@@ -144,10 +144,45 @@
                 }
             });
 
+            function change_buttons() {
+                buttons = ["#add", "#remove"];
+                num_checked = $('.trait_checkbox:checked').length;
+                if (num_checked === 0) {
+                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
+                        button = buttons[_i];
+                        $(button).prop("disabled", true);
+                    }
+                } else {
+                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
+                        button = buttons[_j];
+                        $(button).prop("disabled", false);
+                    }
+                }
+                         //});
+                if ($(this).is(":checked")) {
+                    if (!$(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').addClass('selected')
+                    }
+                }
+                else {
+                    if ($(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').removeClass('selected')
+                    }
+                }
+            }
+
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
             //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(1).attr('align', 'right');
                     $('td', row).eq(1).attr('data-export', index+1);
@@ -187,7 +222,7 @@
                 "iDisplayLength": -1,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": "700px",
+                "scrollY": true,
                 "scrollCollapse": false,
                 "scroller": true,
                 "paging": false
@@ -195,6 +230,14 @@
 
             {% elif dataset.type == 'Publish' %}
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(1).attr('align', 'right');
                     $('td', row).eq(1).attr('data-export', index+1);
@@ -234,13 +277,21 @@
                 "autoWidth": false,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": "700px",
+                "scrollY": true,
                 "scrollCollapse": true,
                 "scroller": true,
                 "paging": false
             } );
             {% elif dataset.type == 'Geno' %}
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(1).attr('align', 'right');
                     $('td', row).eq(1).attr('data-export', index+1);
@@ -260,7 +311,7 @@
                 "autoWidth": false,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": "700px",
+                "scrollY": true,
                 "scrollCollapse": true,
                 "scroller": true,
                 "paging": false

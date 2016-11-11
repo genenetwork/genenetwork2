@@ -23,6 +23,8 @@ from flask import Flask, g, request
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
+from wqflask import user_manager
+
 def print_mem(stage=""):
     mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     print("{}: {}".format(stage, mem/1024))
@@ -134,7 +136,7 @@ class GeneralTrait(object):
                 additive = "N/A"
             else:
                 additive = "%.3f" % round(float(self.additive), 2)
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac(\'{}:{}\'.format(' + str(self.name) + ',' + self.dataset.name + ')) }}">',
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(self.name), self.dataset.name)) + '">',
                     index,
                     '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
                     self.symbol,
@@ -150,7 +152,7 @@ class GeneralTrait(object):
             else:
                 additive = "%.2f" % round(float(self.additive), 2)
             if self.pubmed_id:
-                return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac(\'{}:{}\'.format(' + str(self.name) + ',' + self.dataset.name + ')) }}">',
+                return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(self.name), self.dataset.name)) + '">',
                         index,
                         '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
                         self.description_display,
@@ -160,7 +162,7 @@ class GeneralTrait(object):
                         self.LRS_location_repr,
                         additive]
             else:
-                return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac(\'{}:{}\'.format(' + str(self.name) + ',' + self.dataset.name + ')) }}">',
+                return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(self.name), self.dataset.name)) + '">',
                         index,
                         '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
                         self.description_display,
@@ -170,7 +172,7 @@ class GeneralTrait(object):
                         self.LRS_location_repr,
                         additive]
         elif self.dataset.type == "Geno":
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac(\'{}:{}\'.format(' + str(self.name) + ',' + self.dataset.name + ')) }}">',
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(self.name), self.dataset.name)) + '">',
                     index,
                     '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
                     self.location_repr]
@@ -486,7 +488,7 @@ class GeneralTrait(object):
 
                 #XZ: trait_location_value is used for sorting
                 self.location_repr = 'N/A'
-                trait_location_value = 1000000
+                self.location_value = 1000000
 
                 if self.chr and self.mb:
                     #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
@@ -507,7 +509,7 @@ class GeneralTrait(object):
 
             elif self.dataset.type == "Geno":
                 self.location_repr = 'N/A'
-                trait_location_value = 1000000
+                self.location_value = 1000000
 
                 if self.chr and self.mb:
                     #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
