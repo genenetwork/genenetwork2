@@ -66,7 +66,7 @@ class webqtlCaseData(object):
 
     @property
     def display_value(self):
-        if self.value:
+        if self.value != None:
             return "%2.3f" % self.value
         else:
             return "x"

@@ -131,7 +131,7 @@ class GeneralTrait(object):
             if self.mean == "":
                 mean = "N/A"
             else:
-                mean = "%.3f" % round(float(self.additive), 2)
+                mean = "%.3f" % round(float(self.mean), 2)
             if self.additive == "":
                 additive = "N/A"
             else:
