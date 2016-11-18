@@ -724,8 +724,8 @@ class PhenotypeDataSet(DataSet):
             if this_trait.lrs:
                 query = """
                     select Geno.Chr, Geno.Mb from Geno, Species
-                    where Species.Name = %s and
-                        Geno.Name = %s and
+                    where Species.Name = '%s' and
+                        Geno.Name = '%s' and
                         Geno.SpeciesId = Species.Id
                 """ % (species, this_trait.locus)
                 logger.sql(query)
