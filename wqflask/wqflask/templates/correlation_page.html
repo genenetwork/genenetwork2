@@ -220,6 +220,20 @@
         };
 
 
+        jQuery.fn.dataTableExt.oSort['scientific-asc'] = function ( a, b ) {
+                var x = parseFloat(a);
+                var y = parseFloat(b);
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        };
+
+        jQuery.fn.dataTableExt.oSort['scientific-desc'] = function ( a, b ) {
+                var x = parseFloat(a);
+                var y = parseFloat(b);
+                return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+        };
+ 
+
+
         $(document).ready( function () {
             
             $('#trait_table tr').click(function(event) {
@@ -258,13 +272,13 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "numeric-html" },
                     { "type": "natural" },
                     { "type": "natural" },
+                    { "type": "scientific" },
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "order": [[10, "desc" ]],
+                "order": [[12, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,
                 "bDeferRender": true,
@@ -304,9 +318,9 @@
                     { "type": "natural" },
                     { "type": "numeric-html" },
                     { "type": "natural" },
-                    { "type": "natural" }
+                    { "type": "scientific" }
                 ],
-                "order": [[9, "desc" ]],
+                "order": [[11, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,
                 "bDeferRender": true,
@@ -337,9 +351,9 @@
                     { "type": "natural" },
                     { "type": "numeric-html" },
                     { "type": "natural" },
-                    { "type": "natural" }
+                    { "type": "scientific" }
                 ],
-                "order": [[4, "desc" ]],
+                "order": [[6, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,
                 "bDeferRender": true,
