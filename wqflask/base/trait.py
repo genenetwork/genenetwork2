@@ -57,6 +57,7 @@ class GeneralTrait(object):
         self.lrs = None
         self.pvalue = None
         self.mean = None
+        self.additive = None
         self.num_overlap = None
         self.strand_probe = None
         self.symbol = None
@@ -71,113 +72,10 @@ class GeneralTrait(object):
 
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
-        self.retrieve_info(get_qtl_info=get_qtl_info)
+        self = retrieve_trait_info(self, self.dataset, get_qtl_info=get_qtl_info)
         if get_sample_info != False:
-            self.retrieve_sample_data()
+            self = retrieve_sample_data(self, self.dataset)
 
-
-    def jsonable(self):
-        """Return a dict suitable for using as json
-
-        Actual turning into json doesn't happen here though"""
-
-        if self.dataset.type == "ProbeSet":
-            return dict(name=self.name,
-                        symbol=self.symbol,
-                        dataset=self.dataset.name,
-                        description=self.description_display,
-                        mean=self.mean,
-                        location=self.location_repr,
-                        lrs_score=self.LRS_score_repr,
-                        lrs_location=self.LRS_location_repr,
-                        additive=self.additive
-                        )
-        elif self.dataset.type == "Publish":
-            if self.pubmed_id:
-                return dict(name=self.name,
-                            dataset=self.dataset.name,
-                            description=self.description_display,
-                            authors=self.authors,
-                            pubmed_text=self.pubmed_text,
-                            pubmed_link=self.pubmed_link,
-                            lrs_score=self.LRS_score_repr,
-                            lrs_location=self.LRS_location_repr,
-                            additive=self.additive
-                            )
-            else:
-                return dict(name=self.name,
-                            dataset=self.dataset.name,
-                            description=self.description_display,
-                            authors=self.authors,
-                            pubmed_text=self.pubmed_text,
-                            lrs_score=self.LRS_score_repr,
-                            lrs_location=self.LRS_location_repr,
-                            additive=self.additive
-                            )
-        elif self.dataset.type == "Geno":
-            return dict(name=self.name,
-                        dataset=self.dataset.name,
-                        location=self.location_repr
-                        )
-        else:
-            return dict()
-
-    def jsonable_table_row(self, index):
-        """Return a list suitable for json and intended to be displayed in a table
-
-        Actual turning into json doesn't happen here though"""
-
-        if self.dataset.type == "ProbeSet":
-            if self.mean == "":
-                mean = "N/A"
-            else:
-                mean = "%.3f" % round(float(self.mean), 2)
-            if self.additive == "":
-                additive = "N/A"
-            else:
-                additive = "%.3f" % round(float(self.additive), 2)
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(self.name), self.dataset.name)) + '">',
-                    index,
-                    '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
-                    self.symbol,
-                    self.description_display,
-                    self.location_repr,
-                    mean, 
-                    self.LRS_score_repr,
-                    self.LRS_location_repr,
-                    additive]
-        elif self.dataset.type == "Publish":
-            if self.additive == "":
-                additive = "N/A"
-            else:
-                additive = "%.2f" % round(float(self.additive), 2)
-            if self.pubmed_id:
-                return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(self.name), self.dataset.name)) + '">',
-                        index,
-                        '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
-                        self.description_display,
-                        self.authors,
-                        '<a href="' + self.pubmed_link + '">' + self.pubmed_text + '</href>',
-                        self.LRS_score_repr,
-                        self.LRS_location_repr,
-                        additive]
-            else:
-                return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(self.name), self.dataset.name)) + '">',
-                        index,
-                        '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
-                        self.description_display,
-                        self.authors,
-                        self.pubmed_text,
-                        self.LRS_score_repr,
-                        self.LRS_location_repr,
-                        additive]
-        elif self.dataset.type == "Geno":
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(self.name), self.dataset.name)) + '">',
-                    index,
-                    '<a href="/show_trait?trait_id='+str(self.name)+'&dataset='+self.dataset.name+'">'+str(self.name)+'</a>',
-                    self.location_repr]
-        else:
-            return dict()
 
     def get_name(self):
         stringy = ""
@@ -282,422 +180,6 @@ class GeneralTrait(object):
         return  samples, vals, the_vars, sample_aliases
 
 
-    #
-    # In ProbeSet, there are maybe several annotations match one sequence
-    # so we need use sequence(BlatSeq) as the identification, when we update
-    # one annotation, we update the others who match the sequence also.
-    #
-    # Hongqiang Li, 3/3/2008
-    #
-    #def getSequence(self):
-    #    assert self.cursor
-    #    if self.dataset.type == 'ProbeSet':
-    #        self.cursor.execute('''
-    #                        SELECT
-    #                                ProbeSet.BlatSeq
-    #                        FROM
-    #                                ProbeSet, ProbeSetFreeze, ProbeSetXRef
-    #                        WHERE
-    #                                ProbeSet.Id=ProbeSetXRef.ProbeSetId and
-    #                                ProbeSetFreeze.Id = ProbeSetXRef.ProbSetFreezeId and
-    #                                ProbeSet.Name = %s
-    #                                ProbeSetFreeze.Name = %s
-    #                ''', self.name, self.dataset.name)
-    #        #self.cursor.execute(query)
-    #        results = self.fetchone()
-    #
-    #        return results[0]
-
-
-
-    def retrieve_sample_data(self, samplelist=None):
-        if samplelist == None:
-            samplelist = []
-
-        results = self.dataset.retrieve_sample_data(self.name)
-
-        # Todo: is this necessary? If not remove
-        self.data.clear()
-
-        all_samples_ordered = self.dataset.group.all_samples_ordered()
-
-        if results:
-            for item in results:
-                name, value, variance, num_cases, name2 = item
-                if not samplelist or (samplelist and name in samplelist):
-                    self.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
-
-    def retrieve_info(self, get_qtl_info=False):
-        assert self.dataset, "Dataset doesn't exist"
-        if self.dataset.type == 'Publish':
-            query = """
-                    SELECT
-                            PublishXRef.Id, Publication.PubMed_ID,
-                            Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
-                            Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation,
-                            Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
-                            Publication.Authors, Publication.Title, Publication.Abstract,
-                            Publication.Journal, Publication.Volume, Publication.Pages,
-                            Publication.Month, Publication.Year, PublishXRef.Sequence,
-                            Phenotype.Units, PublishXRef.comments
-                    FROM
-                            PublishXRef, Publication, Phenotype, PublishFreeze
-                    WHERE
-                            PublishXRef.Id = %s AND
-                            Phenotype.Id = PublishXRef.PhenotypeId AND
-                            Publication.Id = PublishXRef.PublicationId AND
-                            PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
-                            PublishFreeze.Id = %s
-                    """ % (self.name, self.dataset.id)
-
-            logger.sql(query)
-            trait_info = g.db.execute(query).fetchone()
-
-
-        #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
-        #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
-        elif self.dataset.type == 'ProbeSet':
-            display_fields_string = ', ProbeSet.'.join(self.dataset.display_fields)
-            display_fields_string = 'ProbeSet.' + display_fields_string
-            query = """
-                    SELECT %s
-                    FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
-                    WHERE
-                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                            ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                            ProbeSetFreeze.Name = '%s' AND
-                            ProbeSet.Name = '%s'
-                    """ % (escape(display_fields_string),
-                           escape(self.dataset.name),
-                           escape(str(self.name)))
-            logger.sql(query)
-            trait_info = g.db.execute(query).fetchone()
-        #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
-        # to avoid the problem of same marker name from different species.
-        elif self.dataset.type == 'Geno':
-            display_fields_string = string.join(self.dataset.display_fields,',Geno.')
-            display_fields_string = 'Geno.' + display_fields_string
-            query = """
-                    SELECT %s
-                    FROM Geno, GenoFreeze, GenoXRef
-                    WHERE
-                            GenoXRef.GenoFreezeId = GenoFreeze.Id AND
-                            GenoXRef.GenoId = Geno.Id AND
-                            GenoFreeze.Name = '%s' AND
-                            Geno.Name = '%s'
-                    """ % (escape(display_fields_string),
-                           escape(self.dataset.name),
-                           escape(self.name))
-            logger.sql(query)
-            trait_info = g.db.execute(query).fetchone()
-        else: #Temp type
-            query = """SELECT %s FROM %s WHERE Name = %s"""
-            logger.sql(query)
-            trait_info = g.db.execute(query,
-                                      (string.join(self.dataset.display_fields,','),
-                                                   self.dataset.type, self.name)).fetchone()
-        if trait_info:
-            self.haveinfo = True
-
-            #XZ: assign SQL query result to trait attributes.
-            for i, field in enumerate(self.dataset.display_fields):
-                holder = trait_info[i]
-                if isinstance(trait_info[i], basestring):
-                    holder = unicode(trait_info[i], "utf8", "ignore")
-                setattr(self, field, holder)
-
-            if self.dataset.type == 'Publish':
-                self.confidential = 0
-                if self.pre_publication_description and not self.pubmed_id:
-                    self.confidential = 1
-
-                description = self.post_publication_description
-
-                #If the dataset is confidential and the user has access to confidential
-                #phenotype traits, then display the pre-publication description instead
-                #of the post-publication description
-                if self.confidential:
-                    self.description_display = self.pre_publication_description
-
-                    #if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
-                    #        privilege=self.dataset.privilege,
-                    #        userName=self.dataset.userName,
-                    #        authorized_users=self.authorized_users):
-                    #
-                    #    description = self.pre_publication_description
-                else:
-                    if description:
-                        self.description_display = description.strip()
-                    else:
-                        self.description_display = ""
-
-                if not self.year.isdigit():
-                    self.pubmed_text = "N/A"
-                else:
-                    self.pubmed_text = self.year
-
-                if self.pubmed_id:
-                    self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.pubmed_id
-
-
-            self.homologeneid = None
-            if self.dataset.type == 'ProbeSet' and self.dataset.group:
-                if self.geneid:
-                    #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
-                    #XZ: So I have to test if geneid is number before execute the query.
-                    #XZ: The geneid values in database should be cleaned up.
-                    #try:
-                    #    float(self.geneid)
-                    #    geneidIsNumber = True
-                    #except ValueError:
-                    #    geneidIsNumber = False
-                    #if geneidIsNumber:
-                    query = """
-                            SELECT
-                                    HomologeneId
-                            FROM
-                                    Homologene, Species, InbredSet
-                            WHERE
-                                    Homologene.GeneId ='%s' AND
-                                    InbredSet.Name = '%s' AND
-                                    InbredSet.SpeciesId = Species.Id AND
-                                    Species.TaxonomyId = Homologene.TaxonomyId
-                            """ % (escape(str(self.geneid)), escape(self.dataset.group.name))
-                    logger.sql(query)
-                    result = g.db.execute(query).fetchone()
-                    #else:
-                    #    result = None
-
-                    if result:
-                        self.homologeneid = result[0]
-
-                description_string = unicode(str(self.description).strip(codecs.BOM_UTF8), 'utf-8')
-                target_string = unicode(str(self.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
-
-                if len(description_string) > 1 and description_string != 'None':
-                    description_display = description_string
-                else:
-                    description_display = self.symbol
-
-                if (len(description_display) > 1 and description_display != 'N/A' and
-                        len(target_string) > 1 and target_string != 'None'):
-                    description_display = description_display + '; ' + target_string.strip()
-
-                # Save it for the jinja2 template
-                self.description_display = description_display
-
-                #XZ: trait_location_value is used for sorting
-                self.location_repr = 'N/A'
-                self.location_value = 1000000
-
-                if self.chr and self.mb:
-                    #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
-                    #This is so we can convert the location to a number used for sorting
-                    trait_location_value = convert_location_to_value(self.chr, self.mb)
-                     #try:
-                    #    trait_location_value = int(self.chr)*1000 + self.mb
-                    #except ValueError:
-                    #    if self.chr.upper() == 'X':
-                    #        trait_location_value = 20*1000 + self.mb
-                    #    else:
-                    #        trait_location_value = (ord(str(self.chr).upper()[0])*1000 +
-                    #                               self.mb)
-
-                    #ZS: Put this in function currently called "convert_location_to_value"
-                    self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
-                    self.location_value = trait_location_value
-
-            elif self.dataset.type == "Geno":
-                self.location_repr = 'N/A'
-                self.location_value = 1000000
-
-                if self.chr and self.mb:
-                    #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
-                    #This is so we can convert the location to a number used for sorting
-                    trait_location_value = convert_location_to_value(self.chr, self.mb)
-
-                    #ZS: Put this in function currently called "convert_location_to_value"
-                    self.location_repr = 'Chr%s: %.6f' % (self.chr, float(self.mb))
-                    self.location_value = trait_location_value
-
-            if get_qtl_info:
-                #LRS and its location
-                self.LRS_score_repr = "N/A"
-                self.LRS_score_value = 0
-                self.LRS_location_repr = "N/A"
-                self.LRS_location_value = 1000000
-                if self.dataset.type == 'ProbeSet' and not self.cellid:
-                    query = """
-                            SELECT
-                                    ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean, ProbeSetXRef.additive
-                            FROM
-                                    ProbeSetXRef, ProbeSet
-                            WHERE
-                                    ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                    ProbeSet.Name = "{}" AND
-                                    ProbeSetXRef.ProbeSetFreezeId ={}
-                            """.format(self.name, self.dataset.id)
-                    logger.sql(query)
-                    trait_qtl = g.db.execute(query).fetchone()
-                    if trait_qtl:
-                        self.locus, self.lrs, self.pvalue, self.mean, self.additive = trait_qtl
-                        if self.locus:
-                            query = """
-                                select Geno.Chr, Geno.Mb from Geno, Species
-                                where Species.Name = '{}' and
-                                Geno.Name = '{}' and
-                                Geno.SpeciesId = Species.Id
-                                """.format(self.dataset.group.species, self.locus)
-                            logger.sql(query)
-                            result = g.db.execute(query).fetchone()
-                            if result:
-                                self.locus_chr = result[0]
-                                self.locus_mb = result[1]
-                            else:
-                                self.locus = self.locus_chr = self.locus_mb = self.additive = ""
-                        else:
-                            self.locus = self.locus_chr = self.locus_mb = self.additive = ""
-                    else:
-                        self.locus = self.locus_chr = self.locus_mb = self.lrs = self.pvalue = self.mean = self.additive = ""
-
-
-                if self.dataset.type == 'Publish':
-                    query = """
-                            SELECT
-                                    PublishXRef.Locus, PublishXRef.LRS, PublishXRef.additive
-                            FROM
-                                    PublishXRef, PublishFreeze
-                            WHERE
-                                    PublishXRef.Id = %s AND
-                                    PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
-                                    PublishFreeze.Id =%s
-                    """ % (self.name, self.dataset.id)
-                    logger.sql(query)
-                    trait_qtl = g.db.execute(query).fetchone()
-                    if trait_qtl:
-                        self.locus, self.lrs, self.additive = trait_qtl
-                        if self.locus:
-                            query = """
-                                select Geno.Chr, Geno.Mb from Geno, Species
-                                where Species.Name = '{}' and
-                                Geno.Name = '{}' and
-                                Geno.SpeciesId = Species.Id
-                                """.format(self.dataset.group.species, self.locus)
-                            logger.sql(query)
-                            result = g.db.execute(query).fetchone()
-                            if result:
-                                self.locus_chr = result[0]
-                                self.locus_mb = result[1]
-                            else:
-                                self.locus = self.locus_chr = self.locus_mb = self.additive = ""
-                        else:
-                            self.locus = self.locus_chr = self.locus_mb = self.additive = ""
-                    else:
-                        self.locus = self.lrs = self.additive = ""
-
-                if (self.dataset.type == 'Publish' or self.dataset.type == "ProbeSet") and self.locus_chr != "" and self.locus_mb != "":
-                    #XZ: LRS_location_value is used for sorting
-                    try:
-                        LRS_location_value = int(self.locus_chr)*1000 + float(self.locus_mb)
-                    except:
-                        if self.locus_chr.upper() == 'X':
-                            LRS_location_value = 20*1000 + float(self.locus_mb)
-                        else:
-                            LRS_location_value = ord(str(self.locus_chr).upper()[0])*1000 + float(self.locus_mb)
-
-                    self.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (self.locus_chr, float(self.locus_mb))
-                    if self.lrs != "":
-                        self.LRS_score_repr = LRS_score_repr = '%3.1f' % self.lrs
-                        self.LRS_score_value = LRS_score_value = self.lrs
-        else:
-            raise KeyError, `self.name`+' information is not found in the database.'
-
-    def genHTML(self, formName = "", dispFromDatabase=0, privilege="guest", userName="Guest", authorized_users=""):
-        if not self.haveinfo:
-            self.retrieveInfo()
-
-        if self.dataset.type == 'Publish':
-            PubMedLink = ""
-            if self.pubmed_id:
-                PubMedLink = HT.Href(text="PubMed %d : " % self.pubmed_id,
-                target = "_blank", url = webqtlConfig.PUBMEDLINK_URL % self.pubmed_id)
-            else:
-                PubMedLink = HT.Span("Unpublished : ", Class="fs15")
-
-            if formName:
-                setDescription2 = HT.Href(url="javascript:showDatabase3('%s','%s','%s','')" %
-                (formName, self.dataset.name, self.name), Class = "fs14")
-            else:
-                setDescription2 = HT.Href(url="javascript:showDatabase2('%s','%s','')" %
-                (self.dataset.name,self.name), Class = "fs14")
-
-            if self.confidential and not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(privilege=privilege, userName=userName, authorized_users=authorized_users):
-                setDescription2.append('RecordID/%s - %s' % (self.name, self.pre_publication_description))
-            else:
-                setDescription2.append('RecordID/%s - %s' % (self.name, self.post_publication_description))
-
-            #XZ 03/26/2011: Xiaodong comment out the following two lins as Rob asked. Need to check with Rob why in PublishXRef table, there are few row whose Sequence > 1.
-            #if self.sequence > 1:
-            #       setDescription2.append(' btach %d' % self.sequence)
-            if self.authors:
-                a1 = string.split(self.authors,',')[0]
-                while a1[0] == '"' or a1[0] == "'" :
-                    a1 = a1[1:]
-                setDescription2.append(' by ')
-                setDescription2.append(HT.Italic('%s, and colleagues' % a1))
-            setDescription = HT.Span(PubMedLink, setDescription2)
-
-        elif self.dataset.type == 'Temp':
-            setDescription = HT.Href(text="%s" % (self.description),url="javascript:showDatabase2\
-            ('%s','%s','')" % (self.dataset.name,self.name), Class = "fs14")
-            setDescription = HT.Span(setDescription)
-
-        elif self.dataset.type == 'Geno': # Genome DB only available for single search
-            if formName:
-                setDescription = HT.Href(text="Locus %s [Chr %s @ %s Mb]" % (self.name,self.chr,\
-        '%2.3f' % self.mb),url="javascript:showDatabase3('%s','%s','%s','')" % \
-        (formName, self.dataset.name, self.name), Class = "fs14")
-            else:
-                setDescription = HT.Href(text="Locus %s [Chr %s @ %s Mb]" % (self.name,self.chr,\
-        '%2.3f' % self.mb),url="javascript:showDatabase2('%s','%s','')" % \
-        (self.dataset.name,self.name), Class = "fs14")
-
-            setDescription = HT.Span(setDescription)
-
-        else:
-            if self.cellid:
-                if formName:
-                    setDescription = HT.Href(text="ProbeSet/%s/%s" % (self.name, self.cellid),url=\
-            "javascript:showDatabase3('%s','%s','%s','%s')" % (formName, self.dataset.name,self.name,self.cellid), \
-            Class = "fs14")
-                else:
-                    setDescription = HT.Href(text="ProbeSet/%s/%s" % (self.name,self.cellid),url=\
-            "javascript:showDatabase2('%s','%s','%s')" % (self.dataset.name,self.name,self.cellid), \
-            Class = "fs14")
-            else:
-                if formName:
-                    setDescription = HT.Href(text="ProbeSet/%s" % self.name, url=\
-            "javascript:showDatabase3('%s','%s','%s','')" % (formName, self.dataset.name,self.name), \
-            Class = "fs14")
-                else:
-                    setDescription = HT.Href(text="ProbeSet/%s" % self.name, url=\
-            "javascript:showDatabase2('%s','%s','')" % (self.dataset.name,self.name), \
-            Class = "fs14")
-            if self.symbol and self.chr and self.mb:
-                setDescription.append(' [')
-                setDescription.append(HT.Italic('%s' % self.symbol,Class="cdg fwb"))
-                setDescription.append(' on Chr %s @ %s Mb]' % (self.chr,self.mb))
-            if self.description:
-                setDescription.append(': %s' % self.description)
-            if self.probe_target_description:
-                setDescription.append('; %s' % self.probe_target_description)
-            setDescription = HT.Span(setDescription)
-
-        if self.dataset.type != 'Temp' and dispFromDatabase:
-            setDescription.append( ' --- FROM : ')
-            setDescription.append(self.dataset.genHTML(Class='cori'))
-        return setDescription
-
     @property
     def name_header_fmt(self):
         '''Return a human-readable name for use in page header'''
@@ -763,62 +245,51 @@ class GeneralTrait(object):
 
         return fmt
 
+# In ProbeSet, there are maybe several annotations match one sequence
+# so we need use sequence(BlatSeq) as the identification, when we update
+# one annotation, we update the others who match the sequence also.
+#
+# Hongqiang Li, 3/3/2008
+def getSequence(trait, dataset_name):
+    dataset = create_dataset(dataset_name)
+     
+    if dataset.type == 'ProbeSet':
+        results = g.db.execute('''
+                       SELECT
+                               ProbeSet.BlatSeq
+                       FROM
+                               ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                       WHERE
+                               ProbeSet.Id=ProbeSetXRef.ProbeSetId and
+                               ProbeSetFreeze.Id = ProbeSetXRef.ProbSetFreezeId and
+                               ProbeSet.Name = %s
+                               ProbeSetFreeze.Name = %s
+               ''', trait.name, dataset.name).fetchone()
 
-    def get_database(self):
-        """
-        Returns the database, and the url referring to the database if it exists
+        return results[0]        
+        
+def retrieve_sample_data(trait, dataset_name, samplelist=None):
 
-        We're going to to return two values here, and we don't want to have to call this twice from
-        the template. So it's not a property called from the template, but instead is called from the view
+    dataset = create_dataset(dataset_name)
 
-        """
-        if self.cellid:
-            query = """ select ProbeFreeze.Name from ProbeFreeze, ProbeSetFreeze where
-                            ProbeFreeze.Id =
-                            ProbeSetFreeze.ProbeFreezeId AND
-                            ProbeSetFreeze.Id = %d""" % thisTrait.dataset.id
-            logger.sql(query)
-            probeDBName = g.db.execute(query).fetchone()[0]
-            return dict(name = probeDBName,
-                        url = None)
-        else:
-            return dict(name = self.dataset.fullname,
-                        url = webqtlConfig.INFOPAGEHREF % self.dataset.name)
+    if samplelist == None:
+        samplelist = []
 
-    def calculate_correlation(self, values, method):
-        """Calculate the correlation value and p value according to the method specified"""
+    results = dataset.retrieve_sample_data(trait.name)
 
-        #ZS: This takes the list of values of the trait our selected trait is being correlated against and removes the values of the samples our trait has no value for
-        #There's probably a better way of dealing with this, but I'll have to ask Christian
-        updated_raw_values = []
-        updated_values = []
-        for i in range(len(values)):
-            if values[i] != "None":
-                updated_raw_values.append(self.raw_values[i])
-                updated_values.append(values[i])
+    # Todo: is this necessary? If not remove
+    trait.data.clear()
 
-        self.raw_values = updated_raw_values
-        values = updated_values
+    all_samples_ordered = dataset.group.all_samples_ordered()
 
-        if method == METHOD_SAMPLE_PEARSON or method == METHOD_LIT or method == METHOD_TISSUE_PEARSON:
-            corr, nOverlap = webqtlUtil.calCorrelation(self.raw_values, values, len(values))
-        else:
-            corr, nOverlap = webqtlUtil.calCorrelationRank(self.raw_values, values, len(values))
-
-        self.correlation = corr
-        self.overlap = nOverlap
-
-        if self.overlap < 3:
-            self.p_value = 1.0
-        else:
-            #ZS - This is probably the wrong way to deal with this. Correlation values of 1.0 definitely exist (the trait correlated against itself), so zero division needs to br prevented.
-            if abs(self.correlation) >= 1.0:
-                self.p_value = 0.0
-            else:
-                ZValue = 0.5*log((1.0+self.correlation)/(1.0-self.correlation))
-                ZValue = ZValue*sqrt(self.overlap-3)
-                self.p_value = 2.0*(1.0 - reaper.normp(abs(ZValue)))
-
+    if results:
+        for item in results:
+            name, value, variance, num_cases, name2 = item
+            if not samplelist or (samplelist and name in samplelist):
+                trait.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
+                
+    return trait
+        
 def convert_location_to_value(chromosome, mb):
     try:
         location_value = int(chromosome)*1000 + float(mb)
@@ -846,3 +317,398 @@ def get_sample_data():
     #    jsonable_sample_data[sample] = trait_ob.data[sample].value
     #
     #return jsonable_sample_data
+    
+def jsonable(trait, dataset_name):
+    """Return a dict suitable for using as json
+
+    Actual turning into json doesn't happen here though"""
+
+    dataset = create_dataset(dataset_name)
+    
+    if dataset.type == "ProbeSet":
+        return dict(name=trait.name,
+                    symbol=trait.symbol,
+                    dataset=dataset.name,
+                    description=trait.description_display,
+                    mean=trait.mean,
+                    location=trait.location_repr,
+                    lrs_score=trait.LRS_score_repr,
+                    lrs_location=trait.LRS_location_repr,
+                    additive=trait.additive
+                    )
+    elif dataset.type == "Publish":
+        if trait.pubmed_id:
+            return dict(name=trait.name,
+                        dataset=dataset.name,
+                        description=trait.description_display,
+                        authors=trait.authors,
+                        pubmed_text=trait.pubmed_text,
+                        pubmed_link=trait.pubmed_link,
+                        lrs_score=trait.LRS_score_repr,
+                        lrs_location=trait.LRS_location_repr,
+                        additive=trait.additive
+                        )
+        else:
+            return dict(name=trait.name,
+                        dataset=dataset.name,
+                        description=trait.description_display,
+                        authors=trait.authors,
+                        pubmed_text=trait.pubmed_text,
+                        lrs_score=trait.LRS_score_repr,
+                        lrs_location=trait.LRS_location_repr,
+                        additive=trait.additive
+                        )
+    elif dataset.type == "Geno":
+        return dict(name=trait.name,
+                    dataset=dataset.name,
+                    location=trait.location_repr
+                    )
+    else:
+        return dict()
+
+def jsonable_table_row(trait, dataset_name, index):
+    """Return a list suitable for json and intended to be displayed in a table
+
+    Actual turning into json doesn't happen here though"""
+
+    dataset = create_dataset(dataset_name)
+    
+    if dataset.type == "ProbeSet":
+        if trait.mean == "":
+            mean = "N/A"
+        else:
+            mean = "%.3f" % round(float(trait.mean), 2)
+        if trait.additive == "":
+            additive = "N/A"
+        else:
+            additive = "%.3f" % round(float(trait.additive), 2)
+        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+                index,
+                '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
+                trait.symbol,
+                trait.description_display,
+                trait.location_repr,
+                mean, 
+                trait.LRS_score_repr,
+                trait.LRS_location_repr,
+                additive]
+    elif dataset.type == "Publish":
+        if trait.additive == "":
+            additive = "N/A"
+        else:
+            additive = "%.2f" % round(float(trait.additive), 2)
+        if trait.pubmed_id:
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+                    index,
+                    '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
+                    trait.description_display,
+                    trait.authors,
+                    '<a href="' + trait.pubmed_link + '">' + trait.pubmed_text + '</href>',
+                    trait.LRS_score_repr,
+                    trait.LRS_location_repr,
+                    additive]
+        else:
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+                    index,
+                    '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
+                    trait.description_display,
+                    trait.authors,
+                    trait.pubmed_text,
+                    trait.LRS_score_repr,
+                    trait.LRS_location_repr,
+                    additive]
+    elif dataset.type == "Geno":
+        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+                index,
+                '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
+                trait.location_repr]
+    else:
+        return dict()
+
+def retrieve_trait_info(trait, dataset, get_qtl_info=False):
+    assert dataset, "Dataset doesn't exist"
+    
+    if dataset.type == 'Publish':
+        query = """
+                SELECT
+                        PublishXRef.Id, Publication.PubMed_ID,
+                        Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
+                        Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation,
+                        Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
+                        Publication.Authors, Publication.Title, Publication.Abstract,
+                        Publication.Journal, Publication.Volume, Publication.Pages,
+                        Publication.Month, Publication.Year, PublishXRef.Sequence,
+                        Phenotype.Units, PublishXRef.comments
+                FROM
+                        PublishXRef, Publication, Phenotype, PublishFreeze
+                WHERE
+                        PublishXRef.Id = %s AND
+                        Phenotype.Id = PublishXRef.PhenotypeId AND
+                        Publication.Id = PublishXRef.PublicationId AND
+                        PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                        PublishFreeze.Id = %s
+                """ % (trait.name, dataset.id)
+
+        logger.sql(query)
+        trait_info = g.db.execute(query).fetchone()
+
+
+    #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
+    #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
+    elif dataset.type == 'ProbeSet':
+        display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
+        display_fields_string = 'ProbeSet.' + display_fields_string
+        query = """
+                SELECT %s
+                FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                WHERE
+                        ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                        ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                        ProbeSetFreeze.Name = '%s' AND
+                        ProbeSet.Name = '%s'
+                """ % (escape(display_fields_string),
+                       escape(dataset.name),
+                       escape(str(trait.name)))
+        logger.sql(query)
+        trait_info = g.db.execute(query).fetchone()
+    #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
+    # to avoid the problem of same marker name from different species.
+    elif dataset.type == 'Geno':
+        display_fields_string = string.join(dataset.display_fields,',Geno.')
+        display_fields_string = 'Geno.' + display_fields_string
+        query = """
+                SELECT %s
+                FROM Geno, GenoFreeze, GenoXRef
+                WHERE
+                        GenoXRef.GenoFreezeId = GenoFreeze.Id AND
+                        GenoXRef.GenoId = Geno.Id AND
+                        GenoFreeze.Name = '%s' AND
+                        Geno.Name = '%s'
+                """ % (escape(display_fields_string),
+                       escape(dataset.name),
+                       escape(trait.name))
+        logger.sql(query)
+        trait_info = g.db.execute(query).fetchone()
+    else: #Temp type
+        query = """SELECT %s FROM %s WHERE Name = %s"""
+        logger.sql(query)
+        trait_info = g.db.execute(query,
+                                  (string.join(dataset.display_fields,','),
+                                               dataset.type, trait.name)).fetchone()
+    if trait_info:
+        trait.haveinfo = True
+
+        #XZ: assign SQL query result to trait attributes.
+        for i, field in enumerate(dataset.display_fields):
+            holder = trait_info[i]
+            if isinstance(trait_info[i], basestring):
+                holder = unicode(trait_info[i], "utf8", "ignore")
+            setattr(trait, field, holder)
+
+        if dataset.type == 'Publish':
+            trait.confidential = 0
+            if trait.pre_publication_description and not trait.pubmed_id:
+                trait.confidential = 1
+
+            description = trait.post_publication_description
+
+            #If the dataset is confidential and the user has access to confidential
+            #phenotype traits, then display the pre-publication description instead
+            #of the post-publication description
+            if trait.confidential:
+                trait.description_display = trait.pre_publication_description
+
+                #if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
+                #        privilege=self.dataset.privilege,
+                #        userName=self.dataset.userName,
+                #        authorized_users=self.authorized_users):
+                #
+                #    description = self.pre_publication_description
+            else:
+                if description:
+                    trait.description_display = description.strip()
+                else:
+                    trait.description_display = ""
+
+            if not trait.year.isdigit():
+                trait.pubmed_text = "N/A"
+            else:
+                trait.pubmed_text = trait.year
+
+            if trait.pubmed_id:
+                trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % trait.pubmed_id
+
+
+        trait.homologeneid = None
+        if dataset.type == 'ProbeSet' and dataset.group:
+            if trait.geneid:
+                #XZ, 05/26/2010: From time to time, this query get error message because some geneid values in database are not number.
+                #XZ: So I have to test if geneid is number before execute the query.
+                #XZ: The geneid values in database should be cleaned up.
+                #try:
+                #    float(self.geneid)
+                #    geneidIsNumber = True
+                #except ValueError:
+                #    geneidIsNumber = False
+                #if geneidIsNumber:
+                query = """
+                        SELECT
+                                HomologeneId
+                        FROM
+                                Homologene, Species, InbredSet
+                        WHERE
+                                Homologene.GeneId ='%s' AND
+                                InbredSet.Name = '%s' AND
+                                InbredSet.SpeciesId = Species.Id AND
+                                Species.TaxonomyId = Homologene.TaxonomyId
+                        """ % (escape(str(trait.geneid)), escape(dataset.group.name))
+                logger.sql(query)
+                result = g.db.execute(query).fetchone()
+                #else:
+                #    result = None
+
+                if result:
+                    trait.homologeneid = result[0]
+
+            description_string = unicode(str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')
+            target_string = unicode(str(trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
+
+            if len(description_string) > 1 and description_string != 'None':
+                description_display = description_string
+            else:
+                description_display = trait.symbol
+
+            if (len(description_display) > 1 and description_display != 'N/A' and
+                    len(target_string) > 1 and target_string != 'None'):
+                description_display = description_display + '; ' + target_string.strip()
+
+            # Save it for the jinja2 template
+            trait.description_display = description_display
+
+            #XZ: trait_location_value is used for sorting
+            trait.location_repr = 'N/A'
+            trait.location_value = 1000000
+
+            if trait.chr and trait.mb:
+                #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
+                #This is so we can convert the location to a number used for sorting
+                trait_location_value = convert_location_to_value(trait.chr, trait.mb)
+                 #try:
+                #    trait_location_value = int(self.chr)*1000 + self.mb
+                #except ValueError:
+                #    if self.chr.upper() == 'X':
+                #        trait_location_value = 20*1000 + self.mb
+                #    else:
+                #        trait_location_value = (ord(str(self.chr).upper()[0])*1000 +
+                #                               self.mb)
+
+                #ZS: Put this in function currently called "convert_location_to_value"
+                trait.location_repr = 'Chr%s: %.6f' % (trait.chr, float(trait.mb))
+                trait.location_value = trait_location_value
+
+        elif dataset.type == "Geno":
+            trait.location_repr = 'N/A'
+            trait.location_value = 1000000
+
+            if trait.chr and trait.mb:
+                #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
+                #This is so we can convert the location to a number used for sorting
+                trait_location_value = convert_location_to_value(trait.chr, trait.mb)
+
+                #ZS: Put this in function currently called "convert_location_to_value"
+                trait.location_repr = 'Chr%s: %.6f' % (trait.chr, float(trait.mb))
+                trait.location_value = trait_location_value
+
+        if get_qtl_info:
+            #LRS and its location
+            trait.LRS_score_repr = "N/A"
+            trait.LRS_score_value = 0
+            trait.LRS_location_repr = "N/A"
+            trait.LRS_location_value = 1000000
+            if dataset.type == 'ProbeSet' and not trait.cellid:
+                query = """
+                        SELECT
+                                ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean, ProbeSetXRef.additive
+                        FROM
+                                ProbeSetXRef, ProbeSet
+                        WHERE
+                                ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                                ProbeSet.Name = "{}" AND
+                                ProbeSetXRef.ProbeSetFreezeId ={}
+                        """.format(trait.name, dataset.id)
+                logger.sql(query)
+                trait_qtl = g.db.execute(query).fetchone()
+                if trait_qtl:
+                    trait.locus, trait.lrs, trait.pvalue, trait.mean, trait.additive = trait_qtl
+                    if trait.locus:
+                        query = """
+                            select Geno.Chr, Geno.Mb from Geno, Species
+                            where Species.Name = '{}' and
+                            Geno.Name = '{}' and
+                            Geno.SpeciesId = Species.Id
+                            """.format(dataset.group.species, trait.locus)
+                        logger.sql(query)
+                        result = g.db.execute(query).fetchone()
+                        if result:
+                            trait.locus_chr = result[0]
+                            trait.locus_mb = result[1]
+                        else:
+                            trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
+                    else:
+                        trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
+                else:
+                    trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.mean = trait.additive = ""
+
+
+            if dataset.type == 'Publish':
+                query = """
+                        SELECT
+                                PublishXRef.Locus, PublishXRef.LRS, PublishXRef.additive
+                        FROM
+                                PublishXRef, PublishFreeze
+                        WHERE
+                                PublishXRef.Id = %s AND
+                                PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                                PublishFreeze.Id =%s
+                """ % (trait.name, dataset.id)
+                logger.sql(query)
+                trait_qtl = g.db.execute(query).fetchone()
+                if trait_qtl:
+                    trait.locus, trait.lrs, trait.additive = trait_qtl
+                    if trait.locus:
+                        query = """
+                            select Geno.Chr, Geno.Mb from Geno, Species
+                            where Species.Name = '{}' and
+                            Geno.Name = '{}' and
+                            Geno.SpeciesId = Species.Id
+                            """.format(dataset.group.species, trait.locus)
+                        logger.sql(query)
+                        result = g.db.execute(query).fetchone()
+                        if result:
+                            trait.locus_chr = result[0]
+                            trait.locus_mb = result[1]
+                        else:
+                            trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
+                    else:
+                        trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
+                else:
+                    trait.locus = trait.lrs = trait.additive = ""
+
+            if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and trait.locus_chr != "" and trait.locus_mb != "":
+                #XZ: LRS_location_value is used for sorting
+                try:
+                    LRS_location_value = int(trait.locus_chr)*1000 + float(trait.locus_mb)
+                except:
+                    if trait.locus_chr.upper() == 'X':
+                        LRS_location_value = 20*1000 + float(trait.locus_mb)
+                    else:
+                        LRS_location_value = ord(str(trait.locus_chr).upper()[0])*1000 + float(trait.locus_mb)
+
+                trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (trait.locus_chr, float(trait.locus_mb))
+                if trait.lrs != "":
+                    trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
+                    trait.LRS_score_value = LRS_score_value = trait.lrs
+    else:
+        raise KeyError, `trait.name`+' information is not found in the database.'
+        
+    return trait

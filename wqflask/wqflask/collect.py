@@ -34,6 +34,7 @@ from utility import Bunch, Struct
 from utility.formatting import numify
 
 from base import trait
+from base.data_set import create_dataset
 
 def get_collection():
     if g.user_session.logged_in:
@@ -375,12 +376,13 @@ def view_collection():
 
     for atrait in traits:
         name, dataset_name = atrait.split(':')
-
-        trait_ob = trait.GeneralTrait(name=name, dataset_name=dataset_name)
-        trait_ob.retrieve_info(get_qtl_info=True)
+        dataset = create_dataset(dataset_name)
+        
+        trait_ob = trait.GeneralTrait(name=name, dataset=dataset)
+        trait_ob = trait.retrieve_trait_info(trait_ob, dataset, get_qtl_info=True)
         trait_obs.append(trait_ob)
 
-        json_version.append(trait_ob.jsonable())
+        json_version.append(trait.jsonable(trait_ob, dataset_name))
 
     if "uc_id" in params:
         collection_info = dict(trait_obs=trait_obs,

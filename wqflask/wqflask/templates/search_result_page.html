@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Search Results{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/scroller.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -85,9 +83,9 @@
                         <th style="background-color: #eeeeee;"></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th data-export="Max LRS" style="background-color: #eeeeee; text-align: right;">Max<br>LRS</th>
+                        <th data-export="Max LRS" style="background-color: #eeeeee; text-align: right;">Max LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th data-export="Additive Effect" style="background-color: #eeeeee; text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th data-export="Additive Effect" style="background-color: #eeeeee; text-align: right;">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
                         <th data-export="{{header}}" style="background-color: #eeeeee;">{{header}}</th>
                         {% endif %}
@@ -222,7 +220,7 @@
                 "iDisplayLength": -1,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": true,
+                "scrollY": "600px",
                 "scrollCollapse": false,
                 "scroller": true,
                 "paging": false
@@ -277,7 +275,7 @@
                 "autoWidth": false,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": true,
+                "scrollY": "600px",
                 "scrollCollapse": true,
                 "scroller": true,
                 "paging": false
@@ -311,7 +309,7 @@
                 "autoWidth": false,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": true,
+                "scrollY": "600px",
                 "scrollCollapse": true,
                 "scroller": true,
                 "paging": false

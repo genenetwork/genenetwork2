@@ -1,4 +1,4 @@
-var margin = {top: 20, right: 60, bottom: 60, left: 60}
+var margin = {top: 20, right: 70, bottom: 60, left: 60}
   , width = 960 - margin.left - margin.right
   , height = 500 - margin.top - margin.bottom;
     
@@ -29,7 +29,7 @@ var xAxis = d3.svg.axis()
 
 main.append('g')
     .attr('transform', 'translate(0,' + height + ')')
-    .attr('class', 'main axis date')
+    .attr('class', 'x axis')
     .call(xAxis);
     
 chart.append("text")
@@ -38,6 +38,7 @@ chart.append("text")
     .attr("x", 550)
     .attr("y", 480)
     .style("font-size", 14)
+    .style("fill", "blue")
     .text("Factor (1)");
     
 chart.append("text")
@@ -48,6 +49,7 @@ chart.append("text")
     .attr("dy", ".75em")
     .attr("transform", "rotate(-90)")
     .style("font-size", 14)
+    .style("fill", "blue")
     .text("Factor (2)");
 
 // draw the y axis
@@ -57,9 +59,17 @@ var yAxis = d3.svg.axis()
 
 main.append('g')
     .attr('transform', 'translate(0,0)')
-    .attr('class', 'main axis date')
+    .attr('class', 'y axis')
     .call(yAxis);
 
+chart.select('.x.axis')
+    .selectAll("text")
+        .style("font-size","14px");
+        
+chart.select('.y.axis')
+    .selectAll("text")
+        .style("font-size","14px");
+    
 var g = main.append("svg:g"); 
     
 g.selectAll("scatter-dots")
@@ -84,7 +94,8 @@ g.selectAll("scatter-dots")
             .attr("x", function(d, i) { return x(d[1][0]); })
             .attr("y", function(d) { return y(d[1][1]); })
             .text(function(d) { return d[0]; })
-            .style("fill", "blue");
+                .style("font-size", 12)
+                .style("fill", "blue");
             
 g.selectAll("scatter-lines")
   .data(loadings)

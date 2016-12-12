@@ -16,7 +16,7 @@ from pprint import pformat as pf
 import json
 
 from base.data_set import create_dataset
-from base.trait import GeneralTrait
+from base import trait
 from wqflask import parser
 from wqflask import do_search
 from utility import webqtlUtil,tools
@@ -100,9 +100,9 @@ views.py).
 
             #logger.debug("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+            this_trait = trait.GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
             self.trait_list.append(this_trait)
-            json_trait_list.append(this_trait.jsonable_table_row(index + 1))
+            json_trait_list.append(trait.jsonable_table_row(this_trait, self.dataset.name, index + 1))
 
         self.json_trait_list = json.dumps(json_trait_list)
 

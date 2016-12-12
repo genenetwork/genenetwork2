@@ -95,13 +95,13 @@ def get_groups(species):
     for species_name, _species_full_name in species:
         Cursor.execute("""select InbredSet.Name, InbredSet.FullName from InbredSet,
                        Species,
-                       ProbeFreeze, GenoFreeze, PublishFreeze where Species.Name = %s
+                       ProbeFreeze, GenoFreeze, PublishFreeze where Species.Name = '%s'
                        and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300' and
                        (PublishFreeze.InbredSetId = InbredSet.Id
                         or GenoFreeze.InbredSetId = InbredSet.Id
                         or ProbeFreeze.InbredSetId = InbredSet.Id)
                         group by InbredSet.Name
-                        order by InbredSet.Name""", (species_name))
+                        order by InbredSet.Name""" % species_name)
         groups[species_name] = list(Cursor.fetchall())
     return groups
 
@@ -133,7 +133,7 @@ def get_types(groups):
 def phenotypes_exist(group_name):
     #print("group_name:", group_name)
     Cursor.execute("""select Name from PublishFreeze
-                      where PublishFreeze.Name = %s""", (group_name+"Publish"))
+                      where PublishFreeze.Name = '%s'""" % (group_name+"Publish"))
 
     results = Cursor.fetchone()
     #print("RESULTS:", results)
@@ -146,7 +146,7 @@ def phenotypes_exist(group_name):
 def genotypes_exist(group_name):
     #print("group_name:", group_name)
     Cursor.execute("""select Name from GenoFreeze
-                      where GenoFreeze.Name = %s""", (group_name+"Geno"))
+                      where GenoFreeze.Name = '%s'""" % (group_name+"Geno"))
 
     results = Cursor.fetchone()
     #print("RESULTS:", results)
@@ -166,13 +166,14 @@ def build_types(species, group):
 
     Cursor.execute("""select distinct Tissue.Name
                        from ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
-                       where Species.Name = %s and Species.Id = InbredSet.SpeciesId and
-                       InbredSet.Name = %s and
+                       where Species.Name = '%s' and Species.Id = InbredSet.SpeciesId and
+                       InbredSet.Name = '%s' and
                        ProbeFreeze.TissueId = Tissue.Id and
                        ProbeFreeze.InbredSetId = InbredSet.Id and
                        ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                       ProbeSetFreeze.public > 0
-                       order by Tissue.Name""", (species, group))
+                       ProbeSetFreeze.public > 0 and
+                       ProbeSetFreeze.confidentiality < 1
+                       order by Tissue.Name""" % (species, group))
 
     results = []
     for result in Cursor.fetchall():
@@ -205,12 +206,12 @@ def build_datasets(species, group, type_name):
     if type_name == "Phenotypes":
         print("GROUP:", group)
         Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
-                    InbredSet.Name = %s and
+                    InbredSet.Name = '%s' and
                     PublishFreeze.InbredSetId = InbredSet.Id and
                     InfoFiles.InfoPageName = PublishFreeze.Name and
                     PublishFreeze.public > 0 and
                     PublishFreeze.confidentiality < 1 order by
-                    PublishFreeze.CreateTime desc""", (group))
+                    PublishFreeze.CreateTime desc""" % group)
 
         results = Cursor.fetchone()
         if results != None:
@@ -225,12 +226,12 @@ def build_datasets(species, group, type_name):
 
     elif type_name == "Genotypes":
         Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where
-                    InbredSet.Name = %s and
+                    InbredSet.Name = '%s' and
                     GenoFreeze.InbredSetId = InbredSet.Id and
                     InfoFiles.InfoPageName = GenoFreeze.ShortName and
                     GenoFreeze.public > 0 and
                     GenoFreeze.confidentiality < 1 order by
-                    GenoFreeze.CreateTime desc""", (group))
+                    GenoFreeze.CreateTime desc""" % group)
 
         results = Cursor.fetchone()
         if results != None:
@@ -245,12 +246,12 @@ def build_datasets(species, group, type_name):
     else:
         Cursor.execute("""select ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
-                    Species.Name = %s and Species.Id = InbredSet.SpeciesId and
-                    InbredSet.Name = %s and
-                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = %s and
+                    Species.Name = '%s' and Species.Id = InbredSet.SpeciesId and
+                    InbredSet.Name = '%s' and
+                    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '%s' and
                     ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id and
                     ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0 order by
-                    ProbeSetFreeze.CreateTime desc""", (species, group, type_name))
+                    ProbeSetFreeze.CreateTime desc""" % (species, group, type_name))
 
         dataset_results = Cursor.fetchall()
         datasets = []
