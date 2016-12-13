@@ -120,7 +120,7 @@ class CTL(object):
           if trait != "":
             ts = trait.split(':')
             gt = TRAIT.GeneralTrait(name = ts[0], dataset_name = ts[1])
-            gt = TRAIT.retrieve_sample_data(gt, dataset.name, individuals)
+            gt = TRAIT.retrieve_sample_data(gt, dataset, individuals)
             for ind in individuals:
               if ind in gt.data.keys():
                 traits.append(gt.data[ind].value)

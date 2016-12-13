@@ -268,10 +268,7 @@ def getSequence(trait, dataset_name):
 
         return results[0]        
         
-def retrieve_sample_data(trait, dataset_name, samplelist=None):
-
-    dataset = create_dataset(dataset_name)
-
+def retrieve_sample_data(trait, dataset, samplelist=None):
     if samplelist == None:
         samplelist = []
 
