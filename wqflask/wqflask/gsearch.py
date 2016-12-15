@@ -40,6 +40,7 @@ class GSearch(object):
                 AND ( MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,alias,GenbankId, UniGeneId, Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE) )
                 AND ProbeSet.Id = ProbeSetXRef.ProbeSetId
                 AND ProbeSetXRef.ProbeSetFreezeId=ProbeSetFreeze.Id
+                AND ProbeSetFreeze.confidentiality < 1
                 AND ProbeSetFreeze.public > 0
                 ORDER BY species_name, inbredset_name, tissue_name, probesetfreeze_name, probeset_name
                 LIMIT 6000

@@ -216,7 +216,7 @@ class CorrelationResults(object):
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
 
-                if self.dataset.type == "ProbeSet" or self.dataset.type == "Geno":
+                if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
                     #ZS: Convert trait chromosome to an int for the location range option
                     chr_as_int = 0
                     for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():

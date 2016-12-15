@@ -14,8 +14,8 @@
             <h1>Correlation Table</h1>
         </div>
 
-        <p>Values of record {{ this_trait.name }} in the <a href="/static/dbdoc/{{dataset.fullname}}">{{ dataset.fullname }}</a>
-        dataset were compared to all records in the <a href="/static/dbdoc/{{target_dataset.fullname}}">{{ target_dataset.fullname }}</a>
+        <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{ dataset.group.accession_id }}">{{ dataset.fullname }}</a>
+        dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{ target_dataset.group.accession_id }}">{{ target_dataset.fullname }}</a>
         dataset. The top {{ return_number }} correlations ranked by the {{ formatted_corr_type }} are displayed.
         You can resort this list by clicking the headers. Select the Record ID to open the trait data
         and analysis page.
@@ -220,6 +220,20 @@
         };
 
 
+        jQuery.fn.dataTableExt.oSort['scientific-asc'] = function ( a, b ) {
+                var x = parseFloat(a);
+                var y = parseFloat(b);
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        };
+
+        jQuery.fn.dataTableExt.oSort['scientific-desc'] = function ( a, b ) {
+                var x = parseFloat(a);
+                var y = parseFloat(b);
+                return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+        };
+ 
+
+
         $(document).ready( function () {
             
             $('#trait_table tr').click(function(event) {
@@ -258,13 +272,13 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "numeric-html" },
                     { "type": "natural" },
                     { "type": "natural" },
+                    { "type": "scientific" },
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "order": [[10, "desc" ]],
+                "order": [[12, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,
                 "bDeferRender": true,
@@ -304,9 +318,9 @@
                     { "type": "natural" },
                     { "type": "numeric-html" },
                     { "type": "natural" },
-                    { "type": "natural" }
+                    { "type": "scientific" }
                 ],
-                "order": [[9, "desc" ]],
+                "order": [[11, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,
                 "bDeferRender": true,
@@ -337,9 +351,9 @@
                     { "type": "natural" },
                     { "type": "numeric-html" },
                     { "type": "natural" },
-                    { "type": "natural" }
+                    { "type": "scientific" }
                 ],
-                "order": [[4, "desc" ]],
+                "order": [[6, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,
                 "bDeferRender": true,
