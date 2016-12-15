@@ -26,7 +26,7 @@
             {% endif %}
         </div>
 
-        <div id="collections_list" style="width:75%;">
+        <div id="collections_list" style="width:50%;">
         <table class="table table-hover table-striped" id='trait_table'>
             <thead>
                 <tr>
@@ -49,7 +49,7 @@
                     {% endif %}
                     <td>{{ timeago(uc.created_timestamp.isoformat() + "Z") }}</td>
                     <td>{{ timeago(uc.changed_timestamp.isoformat() + "Z") }}</td>
-                    <td>{{ uc.num_members }}</td>
+                    <td align="right">{{ uc.num_members }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -79,15 +79,18 @@
     {% endif %}
     <script>
             $('#trait_table').dataTable( {
-                "buttons": [
-                    {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'collection_list',
-                       fieldBoundary: '"'
-                    }
+                "columns": [
+                    { "type": "natural",
+                      "width": "10%"  },
+                    { "type": "natural" },
+                    { "type": "natural",
+                      "width": "25%"  },
+                    { "type": "natural",
+                      "width": "25%"  },
+                    { "type": "natural",
+                      "width": "10%"  }
                 ],
-                "sDom": "RZBtir",
+                "sDom": "RZtr",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bDeferRender": true,

@@ -76,18 +76,18 @@
           {% endif %}
 -->
 
-          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black; width: {% if dataset.type == 'ProbeSet' %}1300{% elif dataset.type == 'Publish' %}1200{% elif dataset.type == 'Geno' %}500{% endif %}px;">
+          <div id="table_container" style="width: {% if dataset.type == 'ProbeSet' %}1300{% elif dataset.type == 'Publish' %}1200{% elif dataset.type == 'Geno' %}500{% endif %}px;">
             <table class="table table-hover table-striped nowrap" id='trait_table' style="float: left;">
                 <thead>
                     <tr>
-                        <th style="background-color: #eeeeee;"></th>
+                        <th></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th data-export="Max LRS" style="background-color: #eeeeee; text-align: right;">Max LRS</th>
+                        <th data-export="Max LRS">Max LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th data-export="Additive Effect" style="background-color: #eeeeee; text-align: right;">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th data-export="Additive Effect">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
-                        <th data-export="{{header}}" style="background-color: #eeeeee;">{{header}}</th>
+                        <th data-export="{{header}}">{{header}}</th>
                         {% endif %}
                     {% endfor %}
                     </tr>
@@ -95,14 +95,14 @@
                 {% if trait_list|length > 20 %}
                 <tfoot>
                     <tr>
-                        <th style="width: 30px;"></th>
+                        <th></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th style="text-align: right;">Max<br>LRS</th>
+                        <th data-export="Max LRS">Max LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th data-export="Additive Effect">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
-                        <th>{{header}}</th>
+                        <th data-export="{{header}}">{{header}}</th>
                         {% endif %}
                     {% endfor %}
                     </tr>
@@ -205,16 +205,20 @@
                 "data": json_trait_list,
                 "columns": [
                     { "type": "natural" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "4%" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural", "width": "30%" },
-                    { "type": "natural", "width": "15%" },
+                    { "type": "natural", "width": "10%" },
                     { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "15%" },
+                    { "type": "natural", "width": "6%" },
+                    { "type": "natural", "width": "12%" },
                     { "type": "natural" }
                 ],
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
                 "order": [[1, "asc" ]],
                 "sDom": "RZtir",
                 "iDisplayLength": -1,
@@ -260,17 +264,21 @@
                 "data": json_trait_list,
                 "columns": [
                     { "type": "natural" },
+                    { "type": "natural", "width": "5%" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
+                    { "type": "natural", "width": "6%" },
                     { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" }
+                    { "type": "natural", "width": "9%" }
                 ],
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
                 "order": [[1, "asc" ]],
-                "sDom": "RZtir",
+                "sDom": "RZtr",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "deferRender": true,
@@ -303,6 +311,10 @@
                     { "type": "natural" },
                     { "type": "natural", "width": "40%"}
                 ],
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
                 "order": [[1, "asc" ]],
                 "sDom": "RZtir",
                 "iDisplayLength": -1,

@@ -20,7 +20,7 @@ table.dataTable tfoot th {
 }
 table.dataTable thead th,
 table.dataTable thead td {
-  font: bold 12px/18px Arial, Sans-serif;
+  font: bold 12px/20px Arial, Sans-serif;
   color: #000000;
   background-color: #ffffff;
   border-collapse: collapse;
@@ -35,8 +35,13 @@ table.dataTable thead td:active {
 }
 table.dataTable tfoot th,
 table.dataTable tfoot td {
-  padding: 10px 18px 6px 18px;
-  border-top: 1px solid #111;
+  font: bold 12px/20px Arial, Sans-serif;
+  color: #000000;
+  background-color: #ffffff;
+  border-collapse: collapse;
+  padding: 0;
+  //padding: 10px 18px 6px 18px;
+  //border-top: 1px solid #111;
 }
 table.dataTable thead .sorting,
 table.dataTable thead .sorting_asc,
@@ -75,6 +80,7 @@ table.dataTable tbody tr.selected {
 }
 table.dataTable tbody th,
 table.dataTable tbody td {
+  font: 12px Arial, Sans-serif;
   padding: 4px 5px;
 }
 table.dataTable.row-border tbody th, table.dataTable.row-border tbody td, table.dataTable.display tbody th, table.dataTable.display tbody td {
