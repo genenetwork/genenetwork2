@@ -213,7 +213,12 @@
                         {% for attribute in sample_groups[0].attributes %}
                         { "type": "natural" }{% if loop.index < sample_groups[0].attributes|length %},{% endif %}
                         {% endfor %}
-                        ],
+                    ],
+                    "columnDefs": [ {
+                        "targets": 0,
+                        "orderable": false
+                    } ],
+                    "order": [[1, "asc" ]],
                     "sDom": "RZtr",
                     "iDisplayLength": -1,
                     "autoWidth": false,
@@ -240,6 +245,11 @@
                         { "type": "natural" }{% if loop.index < sample_groups[0].attributes|length %},{% endif %}
                         {% endfor %}
                     ],
+                    "columnDefs": [ {
+                        "targets": 0,
+                        "orderable": false
+                    } ],
+                    "order": [[1, "asc" ]],
                     "sDom": "RZtr",
                     "iDisplayLength": -1,
                     "autoWidth": false,

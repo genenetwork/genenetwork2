@@ -103,7 +103,6 @@
 
     Histogram.prototype.add_bars = function() {
       var bar, rect_width;
-      console.log("bar_width:", this.x_scale(this.histogram_data[0].dx));
       bar = this.svg.selectAll(".bar").data(this.histogram_data).enter().append("g").attr("class", "bar").attr("transform", (function(_this) {
         return function(d) {
           return "translate(" + _this.x_scale(d.x) + "," + _this.y_scale(d.y) + ")";
