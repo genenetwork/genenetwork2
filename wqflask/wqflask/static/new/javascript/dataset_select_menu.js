@@ -1,10 +1,10 @@
 $(function() {
-    var gndata;  // loaded once for all to use
-    process_json = function(data) {
-        populate_species();
-        return apply_default();
-    };
-  $.getJSON(gn_server_url+"/int/menu/main.json",
+  var gndata;  // loaded once for all to use
+  process_json = function(data) {
+      populate_species();
+      return apply_default();
+  };
+  $.getJSON(gn_server_url+"int/menu/main.json",
   function(data) {
     gndata = data;
     console.log("***** GOT DATA from GN_SERVER ****");

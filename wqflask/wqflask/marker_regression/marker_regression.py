@@ -37,7 +37,7 @@ from utility import temp_data
 from utility.benchmark import Bench
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 
-from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
+from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, GEMMA_RESULTS_PATH, PLINK_COMMAND, TEMPDIR
 from utility.external import shell
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
@@ -140,7 +140,6 @@ class MarkerRegression(object):
             except:
                 self.num_perm = 0
 
-            self.LRSCheck = self.score_type
             if self.num_perm > 0:
                 self.permCheck = "ON"
             else:
@@ -151,12 +150,10 @@ class MarkerRegression(object):
 
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
-            self.score_type = "LOD"
+            self.score_type = "-log(p)"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
-                included_markers, p_values = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
-            with Bench("Getting markers from csv"):
-                marker_obs = get_markers_from_csv(included_markers, p_values, self.dataset.group.name)
+                marker_obs = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
@@ -511,8 +508,7 @@ class MarkerRegression(object):
 
         logger.debug("Before creating the command")
 
-        command = PYLMM_COMMAND+' --key {} --species {}'.format(key,
-                                                                                                                "human")
+        command = PYLMM_COMMAND+' --key {} --species {}'.format(key, "human")
 
         logger.debug("command is:", command)
 
@@ -609,31 +605,6 @@ def trim_markers_for_table(markers):
     else:
         return sorted_markers
 
-
-def get_markers_from_csv(included_markers, p_values, group_name):
-    marker_data_fh = open(os.path.join(webqtlConfig.PYLMM_PATH + group_name + '_markers.csv'))
-    markers = []
-    for marker_name, p_value in itertools.izip(included_markers, p_values):
-        if not p_value or len(included_markers) < 1:
-            continue
-        for line in marker_data_fh:
-            splat = line.strip().split()
-            if splat[0] == marker_name:
-                marker = {}
-                marker['name'] = splat[0]
-                marker['chr'] = int(splat[1])
-                marker['Mb'] = float(splat[2])
-                marker['p_value'] = p_value
-                if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
-                    marker['lod_score'] = 0
-                    marker['lrs_value'] = 0
-                else:
-                    marker['lod_score'] = -math.log10(marker['p_value'])
-                    marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
-                markers.append(marker)
-                break
-
-    return markers
 
 if __name__ == '__main__':
     import cPickle as pickle

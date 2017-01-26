@@ -292,7 +292,10 @@ class MarkerRegression(object):
 
         self.graphHeight = self.GRAPH_DEFAULT_HEIGHT
         self.dominanceChecked = False
-        self.LRS_LOD = start_vars['LRSCheck']
+        if 'LRSCheck' in start_vars.keys():
+            self.LRS_LOD = start_vars['LRSCheck']
+        else:
+            self.LRS_LOD = start_vars['score_type']
         self.cutoff = start_vars['cutoff']
         self.intervalAnalystChecked = True
         self.draw2X = False

@@ -3,6 +3,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/scroller.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -125,9 +126,8 @@
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>   
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/buttons.colVis.min.js"></script>
 	
     <script type='text/javascript'>
         var json_trait_list = {{ json_trait_list|safe }};
@@ -204,24 +204,33 @@
                 },
                 "data": json_trait_list,
                 "columns": [
-                    { "type": "natural" },
+                    { "type": "natural", "width": "2%" },
                     { "type": "natural", "width": "4%" },
-                    { "type": "natural" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "12%" },
                     { "type": "natural", "width": "30%" },
                     { "type": "natural", "width": "10%" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "6%" },
                     { "type": "natural", "width": "6%" },
                     { "type": "natural", "width": "12%" },
-                    { "type": "natural" }
+                    { "type": "natural", "width": "10%" }
                 ],
                 "columnDefs": [ {
                     "targets": 0,
                     "orderable": false
                 } ],
                 "order": [[1, "asc" ]],
-                "sDom": "RZtir",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: 'Show or Hide Columns',
+                        columns: ':not(:first-child)',
+                        postfixButtons: [ 'colvisRestore' ]
+                    }
+                ],
+                "sDom": "BRZtir",
                 "iDisplayLength": -1,
+                "autoWidth": false,
                 "deferRender": true,
                 "bSortClasses": false,
                 "scrollY": "600px",
@@ -246,12 +255,16 @@
                     $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
                     $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
                     $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
-                    if ($('td', row).eq(3).text().length > 40) {
-                        $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 40));
+                    if ($('td', row).eq(3).text().length > 50) {
+                        $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 50));
                         $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
                     }
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
                     $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                    if ($('td', row).eq(4).text().length > 50) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
+                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                    }
                     $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 30));
                     $('td', row).eq(5).attr('align', 'right');
                     $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
@@ -263,22 +276,30 @@
                 },
                 "data": json_trait_list,
                 "columns": [
-                    { "type": "natural" },
+                    { "type": "natural", "width": "2%" },
                     { "type": "natural", "width": "5%" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
                     { "type": "natural", "width": "6%" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "9%" }
+                    { "type": "natural", "width": "30%" },
+                    { "type": "natural", "width": "25%" },
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "6%" },
+                    { "type": "natural", "width": "9%" },
+                    { "type": "natural", "width": "7%" }
                 ],
                 "columnDefs": [ {
                     "targets": 0,
                     "orderable": false
                 } ],
                 "order": [[1, "asc" ]],
-                "sDom": "RZtr",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: 'Show or Hide Columns',
+                        columns: ':not(:first-child)',
+                        postfixButtons: [ 'colvisRestore' ]
+                    }
+                ],
+                "sDom": "BRZtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "deferRender": true,
@@ -306,9 +327,9 @@
                 },
                 "data": json_trait_list,
                 "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "40%" },
                     { "type": "natural", "width": "40%"}
                 ],
                 "columnDefs": [ {
@@ -316,7 +337,15 @@
                     "orderable": false
                 } ],
                 "order": [[1, "asc" ]],
-                "sDom": "RZtir",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: 'Show or Hide Columns',
+                        columns: ':not(:first-child)',
+                        postfixButtons: [ 'colvisRestore' ]
+                    }
+                ],
+                "sDom": "BRZtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "deferRender": true,

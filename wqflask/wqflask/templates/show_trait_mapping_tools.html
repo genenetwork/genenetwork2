@@ -16,11 +16,11 @@
                 </li>
                 {% endif %}
                 {% if use_plink_gemma %}
-                <li>
-                    <a href="#plink" data-toggle="tab">PLINK</a>
+                <li class="active">
+                    <a href="#gemma" data-toggle="tab">GEMMA</a>
                 </li>
                 <li>
-                    <a href="#gemma" data-toggle="tab">GEMMA</a>
+                    <a href="#plink" data-toggle="tab">PLINK</a>
                 </li>
                 {% endif %}
                 <!--<li>
@@ -299,6 +299,25 @@
                 </div>
                 {% endif %}
                 {% if use_plink_gemma %}
+                <div class="tab-pane active" id="gemma">
+                    <div style="padding: 20px" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="maf_gemma" class="col-xs-3 control-label">Minor allele threshold</label>
+                            <div style="margin-left: 20px;" class="col-xs-3 controls">
+                                <input name="maf_gemma" value="0.01" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gemma_compute" class="col-xs-1 control-label"></label>
+                        <div style="margin-left:20px;" class="col-xs-4 controls">
+                            <button id="gemma_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
+                                Compute
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="tab-pane" id="plink">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
@@ -313,26 +332,6 @@
                         <label for="plink_compute" class="col-xs-1 control-label"></label>
                         <div style="margin-left:20px;" class="col-xs-4 controls">
                             <button id="plink_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
-                                Compute
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-pane" id="gemma">
-                    <div style="padding: 20px" class="form-horizontal">
-                        <div class="mapping_method_fields form-group">
-                            <label for="maf_gemma" class="col-xs-3 control-label">Minor allele threshold</label>
-                            <div style="margin-left: 20px;" class="col-xs-3 controls">
-                                <input name="maf_gemma" value="0.01" type="text" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="gemma_compute" class="col-xs-1 control-label"></label>
-                        <div style="margin-left:20px;" class="col-xs-4 controls">
-                            <button id="gemma_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
                         </div>

@@ -215,6 +215,7 @@ GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
 
 PYLMM_COMMAND      = pylmm_command()
 GEMMA_COMMAND      = gemma_command()
+GEMMA_RESULTS_PATH = get_setting('GEMMA_RESULTS_PATH')
 PLINK_COMMAND      = plink_command()
 TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
 

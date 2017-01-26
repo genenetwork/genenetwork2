@@ -50,6 +50,7 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
+from wqflask.submit_trait import get_species_groups
 
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION
@@ -294,6 +295,11 @@ def environments():
     doc = docs.Docs("environments")
     return render_template("docs.html", **doc.__dict__)
 
+@app.route("/submit_trait")
+def submit_trait():
+    species_and_groups = get_species_groups()
+    return render_template("submit_trait.html", **{'species_and_groups' : species_and_groups, 'gn_server_url' : GN_SERVER_URL, 'version' : GN_VERSION})
+
 @app.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
@@ -439,6 +445,57 @@ def heatmap_page():
 @app.route("/mapping_results_container")
 def mapping_results_container_page():
     return render_template("mapping_results_container.html")
+
+@app.route("/loading", methods=('POST',))
+def loading_page():
+    initial_start_vars = request.form
+    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
+    temp_uuid = initial_start_vars['temp_uuid']
+    wanted = (
+        'trait_id',
+        'dataset',
+        'method',
+        'trimmed_markers',
+        'selected_chr',
+        'chromosomes',
+        'mapping_scale',
+        'score_type',
+        'suggestive',
+        'significant',
+        'num_perm',
+        'permCheck',
+        'perm_output',
+        'num_bootstrap',
+        'bootCheck',
+        'bootstrap_results',
+        'LRSCheck',
+        'maf',
+        'manhattan_plot',
+        'control_marker',
+        'control_marker_db',
+        'do_control',
+        'genofile',
+        'pair_scan',
+        'startMb',
+        'endMb',
+        'graphWidth',
+        'lrsMax',
+        'additiveCheck',
+        'showSNP',
+        'showGenes',
+        'viewLegend',
+        'haplotypeAnalystCheck',
+        'mapmethod_rqtl_geno',
+        'mapmodel_rqtl_geno'
+    )
+    start_vars = {}
+    for key, value in initial_start_vars.iteritems():
+        if key in wanted or key.startswith(('value:')):
+            start_vars[key] = value
+
+    rendered_template = render_template("loading.html", **start_vars)
+
+    return rendered_template
 
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():

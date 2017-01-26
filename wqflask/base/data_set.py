@@ -44,7 +44,7 @@ from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
 from utility import chunks
-from utility.tools import locate, locate_ignore_error
+from utility.tools import locate, locate_ignore_error, flat_files
 
 from maintenance import get_group_samplelists
 
@@ -53,7 +53,7 @@ from pprint import pformat as pf
 from db.gn_server import menu_main
 from db.call import fetchall,fetchone,fetch1
 
-from utility.tools import USE_GN_SERVER, USE_REDIS
+from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
@@ -226,7 +226,7 @@ class Markers(object):
 class HumanMarkers(Markers):
 
     def __init__(self, name, specified_markers = []):
-        marker_data_fh = open(locate('genotype') + '/' + name + '.bim')
+        marker_data_fh = open(flat_files('mapping') + '/' + name + '.bim')
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
@@ -299,11 +299,21 @@ class DatasetGroup(object):
         self.markers = HumanMarkers(self.name, markers)
 
     def get_markers(self):
-        #logger.debug("self.species is:", self.species)
-        if self.species == "human":
+        logger.debug("self.species is:", self.species)
+
+        def check_plink_gemma():
+            if flat_file_exists("mapping"):
+                MAPPING_PATH = flat_files("mapping")+"/"
+                if (os.path.isfile(MAPPING_PATH+self.name+".bed") and
+                    (os.path.isfile(MAPPING_PATH+self.name+".map") or
+                     os.path.isfile(MAPPING_PATH+self.name+".bim"))):
+                    return True
+            return False
+
+        if check_plink_gemma():
             marker_class = HumanMarkers
         else:
-            marker_class = Markers
+            marker_class = Markers            
 
         self.markers = marker_class(self.name)
 

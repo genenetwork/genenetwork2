@@ -4,7 +4,9 @@ $(function() {
   process_json = function(data) {
     window.jdata = data;
     populate_species();
-    return apply_default();
+    if ($('#type').length > 0) { //This is to determine if it's the index page or the submit_trait page (which only has species and group selection and no make default option)
+      return apply_default();
+    }
   };
   $.ajax('/static/new/javascript/dataset_menu_structure.json', {
     dataType: 'json',
@@ -23,7 +25,9 @@ $(function() {
     species = $('#species').val();
     group_list = this.jdata.groups[species];
     redo_dropdown($('#group'), group_list);
-    return populate_type();
+    if ($('#type').length > 0) { //This is to determine if it's the index page or the submit_trait page (which only has species and group selection and no make default option)
+      return populate_type();
+    }
   };
   window.populate_group = populate_group;
   populate_type = function() {
@@ -70,7 +74,12 @@ $(function() {
   })(this));
   $('#group').change((function(_this) {
     return function() {
-      return populate_type();
+      if ($('#type').length > 0) { //This is to determine if it's the index page or the submit_trait page (which only has species and group selection and no make default option)
+        return populate_type();
+      }
+      else {
+        return false
+      }
     };
   })(this));
   $('#type').change((function(_this) {

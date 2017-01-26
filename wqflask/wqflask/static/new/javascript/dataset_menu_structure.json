@@ -1340,14 +1340,14 @@
                   "GSE9588 Human Liver Normal (Mar11) Both Sexes"
                ],
                [
-                  "384",
-                  "HLCF_0311",
-                  "GSE9588 Human Liver Normal (Mar11) Females"
-               ],
-               [
                   "383",
                   "HLCM_0311",
                   "GSE9588 Human Liver Normal (Mar11) Males"
+               ],
+               [
+                  "384",
+                  "HLCF_0311",
+                  "GSE9588 Human Liver Normal (Mar11) Females"
                ]
             ],
             "Phenotypes": [
@@ -1621,11 +1621,6 @@
          "B6D2F2": {
             "Brain mRNA": [
                [
-                  "77",
-                  "BRF2_M_0805_R",
-                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
-               ],
-               [
                   "76",
                   "BRF2_M_0805_M",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) MAS5"
@@ -1634,6 +1629,11 @@
                   "78",
                   "BRF2_M_0805_P",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
+               ],
+               [
+                  "77",
+                  "BRF2_M_0805_R",
+                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
                ],
                [
                   "33",
@@ -1727,11 +1727,6 @@
             ],
             "Striatum mRNA": [
                [
-                  "85",
-                  "SA_M2_0905_P",
-                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
-               ],
-               [
                   "84",
                   "SA_M2_0905_R",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
@@ -1740,20 +1735,25 @@
                   "83",
                   "SA_M2_0905_M",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
+               ],
+               [
+                  "85",
+                  "SA_M2_0905_P",
+                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
                ]
             ]
          },
          "BHF2": {
             "Adipose mRNA": [
                [
-                  "197",
-                  "UCLA_BHF2_ADIPOSE_FEMALE",
-                  "UCLA BHF2 Adipose Female mlratio"
-               ],
-               [
                   "196",
                   "UCLA_BHF2_ADIPOSE_MALE",
                   "UCLA BHF2 Adipose Male mlratio"
+               ],
+               [
+                  "197",
+                  "UCLA_BHF2_ADIPOSE_FEMALE",
+                  "UCLA BHF2 Adipose Female mlratio"
                ],
                [
                   "165",
@@ -1763,14 +1763,14 @@
             ],
             "Brain mRNA": [
                [
-                  "199",
-                  "UCLA_BHF2_BRAIN_FEMALE",
-                  "UCLA BHF2 Brain Female mlratio"
-               ],
-               [
                   "198",
                   "UCLA_BHF2_BRAIN_MALE",
                   "UCLA BHF2 Brain Male mlratio"
+               ],
+               [
+                  "199",
+                  "UCLA_BHF2_BRAIN_FEMALE",
+                  "UCLA BHF2 Brain Female mlratio"
                ],
                [
                   "166",
@@ -1787,14 +1787,14 @@
             ],
             "Liver mRNA": [
                [
-                  "201",
-                  "UCLA_BHF2_LIVER_FEMALE",
-                  "UCLA BHF2 Liver Female mlratio"
-               ],
-               [
                   "200",
                   "UCLA_BHF2_LIVER_MALE",
                   "UCLA BHF2 Liver Male mlratio"
+               ],
+               [
+                  "201",
+                  "UCLA_BHF2_LIVER_FEMALE",
+                  "UCLA BHF2 Liver Female mlratio"
                ],
                [
                   "167",
@@ -2000,11 +2000,6 @@
                   "UTHSC Brain mRNA U74Av2 (Nov05) PDNN"
                ],
                [
-                  "81",
-                  "BR_U_0805_P",
-                  "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
-               ],
-               [
                   "80",
                   "BR_U_0805_M",
                   "UTHSC Brain mRNA U74Av2 (Aug05) MAS5"
@@ -2013,6 +2008,11 @@
                   "82",
                   "BR_U_0805_R",
                   "UTHSC Brain mRNA U74Av2 (Aug05) RMA"
+               ],
+               [
+                  "81",
+                  "BR_U_0805_P",
+                  "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
                ],
                [
                   "42",
@@ -2081,11 +2081,6 @@
                   "Eye M430v2 WT Gpnmb (Sep08) RMA"
                ],
                [
-                  "279",
-                  "Eye_M2_0908_R_WT",
-                  "Eye M430v2 WT Tyrp1 (Sep08) RMA"
-               ],
-               [
                   "278",
                   "Eye_M2_0908_R_MT",
                   "Eye M430v2 Mutant Tyrp1 (Sep08) RMA"
@@ -2094,6 +2089,11 @@
                   "382",
                   "Eye_M2_0908_WTWT",
                   "Eye M430v2 WT WT (Sep08) RMA"
+               ],
+               [
+                  "279",
+                  "Eye_M2_0908_R_WT",
+                  "Eye M430v2 WT Tyrp1 (Sep08) RMA"
                ],
                [
                   "400",
@@ -2332,14 +2332,14 @@
             ],
             "Kidney mRNA": [
                [
-                  "239",
-                  "MA_M2F_0706_R",
-                  "Mouse kidney M430v2 Female (Aug06) RMA"
-               ],
-               [
                   "240",
                   "MA_M2M_0706_R",
                   "Mouse kidney M430v2 Male (Aug06) RMA"
+               ],
+               [
+                  "239",
+                  "MA_M2F_0706_R",
+                  "Mouse kidney M430v2 Female (Aug06) RMA"
                ],
                [
                   "118",
@@ -2546,14 +2546,14 @@
                   "HQF BXD Neocortex ILM6v1.1 (Feb08) RankInv"
                ],
                [
-                  "275",
-                  "DevNeocortex_ILM6.2P14RInv_1110",
-                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv"
-               ],
-               [
                   "274",
                   "DevNeocortex_ILM6.2P3RInv_1110",
                   "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
+               ],
+               [
+                  "275",
+                  "DevNeocortex_ILM6.2P14RInv_1110",
+                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv"
                ]
             ],
             "Nucleus Accumbens mRNA": [
@@ -2761,11 +2761,6 @@
             ],
             "Ventral Tegmental Area mRNA": [
                [
-                  "230",
-                  "VCUEtvsSal_0609_R",
-                  "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) RMA"
-               ],
-               [
                   "229",
                   "VCUEtOH_0609_R",
                   "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA"
@@ -2774,6 +2769,11 @@
                   "228",
                   "VCUSal_0609_R",
                   "VCU BXD VTA Sal M430 2.0 (Jun09) RMA"
+               ],
+               [
+                  "230",
+                  "VCUEtvsSal_0609_R",
+                  "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) RMA"
                ]
             ]
          },
@@ -2846,6 +2846,36 @@
                   "620",
                   "C57BL-6JxC57BL-6NJF2Publish",
                   "C57BL-6JxC57BL-6NJF2 Published Phenotypes"
+               ]
+            ]
+         },
+         "CFW": {
+            "Hippocampus mRNA": [
+               [
+                  "808",
+                  "UCSD_CFW_HIP_RNA-Seq_0117",
+                  "UCSD CFW Hippocampus (Jan17) RNA-Seq"
+               ]
+            ],
+            "Phenotypes": [
+               [
+                  "None",
+                  "CFWPublish",
+                  "CFW Published Phenotypes"
+               ]
+            ],
+            "Prefrontal Cortex mRNA": [
+               [
+                  "810",
+                  "UCSD_CFW_PFC_RNA-Seq_0117",
+                  "UCSD CFW Prefrontal Cortex (Jan17) RNA-Seq"
+               ]
+            ],
+            "Striatum mRNA": [
+               [
+                  "809",
+                  "UCSD_CFW_SPL_RNA-Seq_0117",
+                  "UCSD CFW Striatum (Jan17) RNA-Seq"
                ]
             ]
          },
@@ -3052,11 +3082,6 @@
             ],
             "Hippocampus mRNA": [
                [
-                  "213",
-                  "Illum_LXS_Hipp_NOS_1008",
-                  "Hippocampus Illumina NOS (Oct08) RankInv beta"
-               ],
-               [
                   "219",
                   "Illum_LXS_Hipp_NON_1008",
                   "Hippocampus Illumina NON (Oct08) RankInv beta"
@@ -3075,6 +3100,11 @@
                   "211",
                   "Illum_LXS_Hipp_RSS_1008",
                   "Hippocampus Illumina RSS (Oct08) RankInv beta"
+               ],
+               [
+                  "213",
+                  "Illum_LXS_Hipp_NOS_1008",
+                  "Hippocampus Illumina NOS (Oct08) RankInv beta"
                ],
                [
                   "143",
@@ -3245,6 +3275,17 @@
             ]
          },
          "Scripps-2013": {}
+      },
+      "poplar": {
+         "Poplar": {
+            "Phenotypes": [
+               [
+                  "649",
+                  "PoplarPublish",
+                  "Poplar Published Phenotypes"
+               ]
+            ]
+         }
       },
       "rat": {
          "HSNIH-Palmer": {
@@ -3555,6 +3596,10 @@
             "Reduced Complexity Cross (B6JxB6N F2)"
          ],
          [
+            "CFW",
+            "CFW Outbred GWAS"
+         ],
+         [
             "CIE-INIA",
             "Chronic Intermittent Ethanol"
          ],
@@ -3603,6 +3648,12 @@
             "SOTNOT-OHSU"
          ]
       ],
+      "poplar": [
+         [
+            "Poplar",
+            "Poplar"
+         ]
+      ],
       "rat": [
          [
             "HSNIH-Palmer",
@@ -3641,15 +3692,15 @@
    "species": [
       [
          "human",
-         "Human"
+         "Human (hg19)"
       ],
       [
          "mouse",
-         "Mouse"
+         "Mouse (mm10)"
       ],
       [
          "rat",
-         "Rat"
+         "Rat (rn3)"
       ],
       [
          "drosophila",
@@ -3662,6 +3713,10 @@
       [
          "barley",
          "Barley"
+      ],
+      [
+         "poplar",
+         "Poplar"
       ],
       [
          "soybean",
@@ -4682,6 +4737,24 @@
                "Genotypes"
             ]
          ],
+         "CFW": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ],
+            [
+               "Hippocampus mRNA",
+               "Hippocampus mRNA"
+            ],
+            [
+               "Prefrontal Cortex mRNA",
+               "Prefrontal Cortex mRNA"
+            ],
+            [
+               "Striatum mRNA",
+               "Striatum mRNA"
+            ]
+         ],
          "CIE-INIA": [
             [
                "Phenotypes",
@@ -4841,6 +4914,14 @@
             ]
          ],
          "Scripps-2013": []
+      },
+      "poplar": {
+         "Poplar": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ]
+         ]
       },
       "rat": {
          "HSNIH-Palmer": [
