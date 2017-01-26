@@ -167,7 +167,8 @@ class ShowTrait(object):
             if flat_file_exists("mapping"):
                 MAPPING_PATH = flat_files("mapping")+"/"
                 if (os.path.isfile(MAPPING_PATH+self.dataset.group.name+".bed") and
-                    os.path.isfile(MAPPING_PATH+self.dataset.group.name+".map")):
+                    (os.path.isfile(MAPPING_PATH+self.dataset.group.name+".map") or
+                     os.path.isfile(MAPPING_PATH+self.dataset.group.name+".bim"))):
                     return True
             return False
 
@@ -729,7 +730,7 @@ class ShowTrait(object):
 
     def make_sample_lists(self, this_trait):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
-
+        
         primary_sample_names = list(all_samples_ordered)
 
         other_sample_names = []
@@ -813,7 +814,7 @@ def get_genofiles(this_trait):
     return jsondata['genofile']
 
 def get_trait_table_width(sample_groups):
-    table_width = 35
+    table_width = 30
     if sample_groups[0].se_exists():
         table_width += 10
     if (table_width + len(sample_groups[0].attributes)*10) > 100:
