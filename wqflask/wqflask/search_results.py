@@ -16,7 +16,7 @@ from pprint import pformat as pf
 import json
 
 from base.data_set import create_dataset
-from base.trait import GeneralTrait
+from base import trait
 from wqflask import parser
 from wqflask import do_search
 from utility import webqtlUtil,tools
@@ -86,12 +86,13 @@ views.py).
 
         """
         self.trait_list = []
+        json_trait_list = []
 
         species = webqtlDatabaseFunction.retrieve_species(self.dataset.group.name)
         # result_set represents the results for each search term; a search of
         # "shh grin2b" would have two sets of results, one for each term
         logger.debug("self.results is:", pf(self.results))
-        for result in self.results:
+        for index, result in enumerate(self.results):
             if not result:
                 continue
 
@@ -99,8 +100,11 @@ views.py).
 
             #logger.debug("foo locals are:", locals())
             trait_id = result[0]
-            this_trait = GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+            this_trait = trait.GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
             self.trait_list.append(this_trait)
+            json_trait_list.append(trait.jsonable_table_row(this_trait, self.dataset.name, index + 1))
+
+        self.json_trait_list = json.dumps(json_trait_list)
 
     #def get_group_species_tree(self):
     #    self.species_groups = collections.default_dict(list)

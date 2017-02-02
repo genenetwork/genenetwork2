@@ -2,16 +2,15 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/scroller/1.4.1/css/scroller.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/scroller.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
     {{ header("Search Results",
         'GeneNetwork found {}.'.format(numify(results|count, "record", "records"))) }}
 
-    <div class="container">
+    <div>
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <!-- Need to customize text more for other types of searches -->
@@ -44,7 +43,7 @@
                 {% endfor %}
         </p>
 
-        <p>To study a record, click on its ID below. Check records below and click Add button to add to selection.</p>
+        <p>To study a record click on its ID below, and to view the whole description {% if dataset.type == "Publish" %}or list of authors {% endif %} hover over the table cell. Check records below and click Add button to add to selection.</p>
 
         <div>
           <br />
@@ -78,73 +77,33 @@
           {% endif %}
 -->
 
-          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black;">
-            <table class="table table-hover table-striped" id='trait_table' {% if dataset.type == 'Geno' %}width="400px"{% endif %} style="float: left;">
+          <div id="table_container" style="width: {% if dataset.type == 'ProbeSet' %}1300{% elif dataset.type == 'Publish' %}1200{% elif dataset.type == 'Geno' %}500{% endif %}px;">
+            <table class="table table-hover table-striped nowrap" id='trait_table' style="float: left;">
                 <thead>
                     <tr>
-                        <th style="background-color: #eeeeee;"></th>
+                        <th></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th data-export="Max LRS" style="background-color: #eeeeee; text-align: right;">Max<br>LRS</th>
+                        <th data-export="Max LRS">Max LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th data-export="Additive Effect" style="background-color: #eeeeee; text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th data-export="Additive Effect">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
-                        <th data-export="{{header}}" style="background-color: #eeeeee;">{{header}}</th>
+                        <th data-export="{{header}}">{{header}}</th>
                         {% endif %}
                     {% endfor %}
                     </tr>
                 </thead>
-
-                <tbody>
-                    {% for this_trait in trait_list %}
-                    <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <TD><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
-                        </TD>
-                        <TD data-export="{{ loop.index }}" align="right">{{ loop.index }}</TD>
-                        <TD data-export="{{ this_trait.name }}">
-                            <a href="{{ url_for('show_trait_page',
-                                    trait_id = this_trait.name,
-                                    dataset = dataset.name
-                                    )}}">
-                                {{ this_trait.name }}
-                            </a>
-                        </TD>
-                        {% if dataset.type == 'ProbeSet' %}
-                            <TD data-export="{{ this_trait.symbol }}">{{ this_trait.symbol }}</TD>
-                            <TD data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
-                            <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
-                            <TD data-export="{{ '%0.3f' % this_trait.mean|float }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
-                            <TD data-export="{{ '%0.3f' % this_trait.LRS_score_repr|float }}" align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
-                            <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
-                            <TD data-export="{{ '%0.3f' % this_trait.additive|float }}" align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
-                        {% elif dataset.type == 'Publish' %}
-                            <TD data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
-                            <TD data-export="{{ this_trait.authors }}">{{ this_trait.authors }}</TD>
-                            <TD data-export="{{ this_trait.pubmed_text }}" data-sort="{{ this_trait.pubmed_text }}">
-                                <a href="{{ this_trait.pubmed_link }}">
-                                    {{ this_trait.pubmed_text }}
-                                </a>
-                            </TD>
-                            <TD data-export="{{ '%0.3f' % this_trait.LRS_score_repr|float }}">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
-                            <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
-                            <TD data-export="{{ '%0.3f' % this_trait.additive|float }}">{{ '%0.3f' % this_trait.additive|float }}</TD>
-                        {% elif dataset.type == 'Geno' %}
-                            <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
-                        {% endif %}
-                    </TR>
-                {% endfor %}
-                </tbody>
                 {% if trait_list|length > 20 %}
                 <tfoot>
                     <tr>
-                        <th style="width: 30px;"></th>
+                        <th></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th style="text-align: right;">Max<br>LRS</th>
+                        <th data-export="Max LRS">Max LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th style="text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th data-export="Additive Effect">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
-                        <th>{{header}}</th>
+                        <th data-export="{{header}}">{{header}}</th>
                         {% endif %}
                     {% endfor %}
                     </tr>
@@ -162,15 +121,18 @@
 {% endblock %}
 
 {% block js %}
-    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>   
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/buttons.colVis.min.js"></script>
 	
+    <script type='text/javascript'>
+        var json_trait_list = {{ json_trait_list|safe }};
+    </script>
+
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             
@@ -180,71 +142,217 @@
                 }
             });
 
+            function change_buttons() {
+                buttons = ["#add", "#remove"];
+                num_checked = $('.trait_checkbox:checked').length;
+                if (num_checked === 0) {
+                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
+                        button = buttons[_i];
+                        $(button).prop("disabled", true);
+                    }
+                } else {
+                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
+                        button = buttons[_j];
+                        $(button).prop("disabled", false);
+                    }
+                }
+                         //});
+                if ($(this).is(":checked")) {
+                    if (!$(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').addClass('selected')
+                    }
+                }
+                else {
+                    if ($(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').removeClass('selected')
+                    }
+                }
+            }
+
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
             //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(1).attr('align', 'right');
+                    $('td', row).eq(1).attr('data-export', index+1);
+                    $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                    $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                    if ($('td', row).eq(4).text().length > 50) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
+                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                    }
+                    $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                    $('td', row).eq(6).attr('align', 'right');
+                    $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                    $('td', row).eq(7).attr('align', 'right');
+                    $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                    $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                    $('td', row).eq(9).attr('align', 'right');
+                    $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
+                },
+                "data": json_trait_list,
                 "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "40%" },
-                    { "type": "natural", "width": "15%" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "15%" },
-                    { "type": "natural" }
+                    { "type": "natural", "width": "2%" },
+                    { "type": "natural", "width": "4%" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "30%" },
+                    { "type": "natural", "width": "10%" },
+                    { "type": "natural", "width": "6%" },
+                    { "type": "natural", "width": "6%" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "10%" }
                 ],
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
                 "order": [[1, "asc" ]],
-                "sDom": "RZtir",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: 'Show or Hide Columns',
+                        columns: ':not(:first-child)',
+                        postfixButtons: [ 'colvisRestore' ]
+                    }
+                ],
+                "sDom": "BRZtir",
                 "iDisplayLength": -1,
-                "bDeferRender": true,
+                "autoWidth": false,
+                "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": true,
+                "scrollY": "600px",
                 "scrollCollapse": false,
+                "scroller": true,
                 "paging": false
             } );
 
             {% elif dataset.type == 'Publish' %}
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(1).attr('align', 'right');
+                    $('td', row).eq(1).attr('data-export', index+1);
+                    $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                    if ($('td', row).eq(3).text().length > 50) {
+                        $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 50));
+                        $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
+                    }
+                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                    $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                    if ($('td', row).eq(4).text().length > 50) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
+                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                    }
+                    $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 30));
+                    $('td', row).eq(5).attr('align', 'right');
+                    $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                    $('td', row).eq(6).attr('align', 'right');
+                    $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                    $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                    $('td', row).eq(8).attr('align', 'right');
+                    $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                },
+                "data": json_trait_list,
                 "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "15%"},
-                    { "type": "natural" }
+                    { "type": "natural", "width": "2%" },
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "6%" },
+                    { "type": "natural", "width": "30%" },
+                    { "type": "natural", "width": "25%" },
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "6%" },
+                    { "type": "natural", "width": "9%" },
+                    { "type": "natural", "width": "7%" }
                 ],
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
                 "order": [[1, "asc" ]],
-                "sDom": "RZtir",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: 'Show or Hide Columns',
+                        columns: ':not(:first-child)',
+                        postfixButtons: [ 'colvisRestore' ]
+                    }
+                ],
+                "sDom": "BRZtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
-                "bDeferRender": true,
+                "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": "700px",
-                "scrollCollapse": false,
+                "scrollY": "600px",
+                "scrollCollapse": true,
+                "scroller": true,
                 "paging": false
             } );
             {% elif dataset.type == 'Geno' %}
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(1).attr('align', 'right');
+                    $('td', row).eq(1).attr('data-export', index+1);
+                    $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                },
+                "data": json_trait_list,
                 "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "40%" },
                     { "type": "natural", "width": "40%"}
                 ],
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
                 "order": [[1, "asc" ]],
-                "sDom": "RZtir",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: 'Show or Hide Columns',
+                        columns: ':not(:first-child)',
+                        postfixButtons: [ 'colvisRestore' ]
+                    }
+                ],
+                "sDom": "BRZtir",
                 "iDisplayLength": -1,
-                "autoWidth": true,
-                "bDeferRender": true,
+                "autoWidth": false,
+                "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": "700px",
-                "scrollCollapse": false,
+                "scrollY": "600px",
+                "scrollCollapse": true,
+                "scroller": true,
                 "paging": false
             } );
             {% endif %}

@@ -9,7 +9,7 @@
     <div class="container">
 
         <p>You searched for {{ terms }}.</p>
-        <p>To study a record, click on its ID below.<br />Check records below and click Add button to add to selection.</p>
+        <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
 
         <div>
             <br />
@@ -27,36 +27,36 @@
               <button class="btn btn-default" id="export_traits">Download CSV</button>
             </form>
             <br />
-            <div style="width: 2000px; background-color: #eeeeee; border: 1px solid black;">
-              <table width="2000px" id="trait_table" class="table table-hover table-striped" >
+            <div style="width: 2000px;">
+              <table width="2000px" id="trait_table" class="table table-hover table-striped nowrap" style="float: left;">
                 <thead>
                   <tr>
-                    <th style="background-color: #eeeeee;"></th>
-                    <th data-export="Index" style="background-color: #eeeeee;">Index</th>
-                    <th data-export="Species" style="background-color: #eeeeee;">Species</th> 
-                    <th data-export="Group" style="background-color: #eeeeee;">Group</th> 
-                    <th data-export="Tissue" style="background-color: #eeeeee;">Tissue</th> 
-                    <th data-export="Dataset" style="background-color: #eeeeee;">Dataset</th> 
-                    <th data-export="Record" style="background-color: #eeeeee;">Record</th> 
-                    <th data-export="Symbol" style="background-color: #eeeeee;">Symbol</th> 
-                    <th data-export="Description" style="background-color: #eeeeee;">Description</th> 
-                    <th data-export="Location" style="background-color: #eeeeee;">Location</th>
-                    <th data-export="Mean" style="background-color: #eeeeee;">Mean</th>
-                    <th data-export="Max LRS" style="background-color: #eeeeee;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                    <th data-export="Max LRS Location" style="background-color: #eeeeee;">Max LRS Location</th>
-                    <th data-export="Additive Effect" style="background-color: #eeeeee;">Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th></th>
+                    <th data-export="Index">Index</th>
+                    <th data-export="Record">Record ID</th>
+                    <th data-export="Species">Species</th> 
+                    <th data-export="Group">Group</th> 
+                    <th data-export="Tissue">Tissue</th> 
+                    <th data-export="Dataset">Dataset</th> 
+                    <th data-export="Symbol">Symbol</th> 
+                    <th data-export="Description">Description</th> 
+                    <th data-export="Location">Location</th>
+                    <th data-export="Mean">Mean</th>
+                    <th data-export="Max LRS">Max LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th data-export="Max LRS Location">Max LRS Location</th>
+                    <th data-export="Additive Effect">Additive Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                   </tr>
                 </thead> 
                 <tbody>
                   {% for this_trait in trait_list %}
                   <tr id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                    <td><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></td>
+                    <td style="padding-left: 5px;"><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></td>
                     <td data-export="{{ loop.index }}">{{ loop.index }}</td>
+                    <td data-export="{{ this_trait.name }}"><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></td>
                     <td data-export="{{ this_trait.dataset.group.species }}">{{ this_trait.dataset.group.species }}</td>
                     <td data-export="{{ this_trait.dataset.group.name }}">{{ this_trait.dataset.group.name }}</td>
                     <td data-export="{{ this_trait.dataset.tissue }}">{{ this_trait.dataset.tissue }}</td>
                     <td data-export="{{ this_trait.dataset.name }}">{{ this_trait.dataset.name }}</td>
-                    <td data-export="{{ this_trait.name }}"><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></td>
                     <td data-export="{{ this_trait.symbol }}">{{ this_trait.symbol }}</td>
                     <td data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</td>
                     <td data-export="{{ this_trait.location_repr }}" align="right">{{ this_trait.location_repr }}</td>
@@ -69,20 +69,20 @@
                 </tbody>
                 <tfoot>
                   <tr>
-                    <th style="background-color: #eeeeee;"></th>
-                    <th style="background-color: #eeeeee;">Index</th>
-                    <th style="background-color: #eeeeee;">Species</th> 
-                    <th style="background-color: #eeeeee;">Group</th> 
-                    <th style="background-color: #eeeeee;">Tissue</th> 
-                    <th style="background-color: #eeeeee;">Dataset</th> 
-                    <th style="background-color: #eeeeee;">Record</th> 
-                    <th style="background-color: #eeeeee;">Symbol</th> 
-                    <th style="background-color: #eeeeee;">Description</th> 
-                    <th style="background-color: #eeeeee;">Location</th>
-                    <th style="background-color: #eeeeee;">Mean</th>
-                    <th style="background-color: #eeeeee;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                    <th style="background-color: #eeeeee;">Max LRS Location</th>
-                    <th style="background-color: #eeeeee;">Additive<br>Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th></th>
+                    <th>Index</th>
+                    <th>Record ID</th>
+                    <th>Species</th> 
+                    <th>Group</th> 
+                    <th>Tissue</th> 
+                    <th>Dataset</th> 
+                    <th>Symbol</th> 
+                    <th>Description</th> 
+                    <th>Location</th>
+                    <th>Mean</th>
+                    <th>Max LRS<a href="http://genenetwork.org/glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                    <th>Max LRS Location</th>
+                    <th>Additive Effect<a href="http://genenetwork.org/glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                   </tr>
                 </tfoot> 
               </table>
@@ -123,26 +123,34 @@
 
             console.time("Creating table");
             $('#trait_table').DataTable( {
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(8).attr('title', $('td', row).eq(8).text());
+                    if ($('td', row).eq(8).text().length > 50) {
+                        $('td', row).eq(8).text($('td', row).eq(8).text().substring(0, 50));
+                        $('td', row).eq(8).text($('td', row).eq(8).text() + '...')
+                    }
+                },
                 "paging": false,
                 "columns": [
                     { "orderDataType": "dom-checkbox" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "8%"  },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "3%" },
+                    { "type": "natural", "width": "6%" },
                     { "type": "natural", "width": "8%" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural" }
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "7%" },
+                    { "type": "natural", "width": "4%" },
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "7%" },
+                    { "type": "natural", "width": "7%" }
                 ],
                 "columnDefs": [
                     {
                         "targets": 0,
+                        "orderable": false,
                         "orderDataType": "dom-checkbox"
                     }
                 ],
