@@ -50,7 +50,7 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
-from wqflask.trait_submission import submit_trait
+#from wqflask.trait_submission import submit_trait
 
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION
@@ -304,7 +304,7 @@ def submit_trait_form():
 @app.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
     print("REQUEST.FORM:", request.form)
-    template_vars = submit_trait.SubmitTrait(request.form)
+    #template_vars = submit_trait.SubmitTrait(request.form)
 
     doc = docs.Docs("links")
     return render_template("links.html", **doc.__dict__)
