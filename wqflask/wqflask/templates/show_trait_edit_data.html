@@ -100,7 +100,7 @@
                 <tbody>
                     {% for sample in sample_type.sample_list %}
                     <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
-                        <td class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" style="transform: scale(1.5);" value="{{ sample.name }}" checked="checked">
+                        <td align="center" style="padding-right: 0px;" class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" value="{{ sample.name }}" checked="checked">
                         </td>
                         <td class="column_name-Index" align="right">{{ loop.index }}</td>
                         <td class="column_name-Sample">
@@ -110,12 +110,12 @@
                         </td>
         
                         {# Todo: Add IDs #}
-                        <td class="column_name-Value">
+                        <td class="column_name-Value" align="right">
                           <input type="text" data-value="{{ sample.display_value }}" name="{{ 'value:' + sample.name }}"
                                  style="text-align:right;"
                                  class="trait_value_input edit_sample_value"
                                  value="{{ sample.display_value }}"
-                                 size=8 maxlength=8
+                                 size=6 maxlength=6
                           >
                         </td>
         

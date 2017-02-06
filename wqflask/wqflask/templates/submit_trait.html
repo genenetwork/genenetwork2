@@ -2,13 +2,12 @@
 {% block title %}Trait Submission{% endblock %}
 {% block content %}
 <!-- Start of body -->
-
+  <form method="post" action="/show_trait">
     <div class="container-fluid">
 
         {{ flash_me() }}
 
         <div class="row" style="width: 1400px !important;">
-
             <div class="col-xs-5">
                 <section id="description">
                     <div>
@@ -36,7 +35,7 @@
                         <div style="padding-bottom: 50px;" class="form-horizontal">
                           <h3>1. Choose cross or RI set:</h3>
                           <br>
-                          <div class="col-xs-2">
+                          <div class="col-xs-2" style="min-height: 15vh; display: flex; align-items: center;">
                             <img src="/static/new/images/step1.gif">
                           </div>
                           <div class="col-xs-10">
@@ -52,44 +51,47 @@
                                 <select name="group" id="group" class="form-control span3" style="width: 280px !important;"></select>
                               </div>
                             </div>
-                            <!--
-                            <select name="corr_dataset">
-                            {% for species in species_and_groups %}
-                              <optgroup label="{{ species.species }} ------">
-                              {% for group in species.groups %}
-                                  <option value="{{ group }}">      
-                                      {{ group }}
-                                  </option>
-                              {% endfor %}
-                              </optgroup>
-                            {% endfor %}
-                            </select>
-                            -->
                           </div>
+                          <div class="form-horizontal"><img src="/static/new/images/arrowdown.gif" style="display:block; margin-left: 50%; margin-right: 50%;"></div>
                         </div>
                         <div style="padding-bottom: 50px;" class="form-horizontal">
                           <h3>2. Enter Trait Data:</h3>
                           <br>
-                          <div class="col-xs-2" style="vertical-align:middle;">
+                          <div class="col-xs-2" style="min-height: 100vh; display: flex; align-items: center;">
                             <img src="/static/new/images/step2.gif">
                           </div>
                           <div class="col-xs-10">
-                            <div class="form-group">
+                            <div class="form-group" style="padding-left: 15px;">
                               <p>
                                  <b>From a File:</b> You can enter data by entering a file name here. The file should contain a series of numbers representing trait values. 
                                  The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each progeny individual 
-	                       or recombinant inbred line. Represent missing values with a non-numeric character such as "x". If you have chosen a recombinant inbred set,  
-                               when you submit your data will be displayed in a form where you can confirm and/or edit them. If you enter a file name here, any data that 
-                               you paste into the next section will be ignored.
+	                         or recombinant inbred line. Represent missing values with a non-numeric character such as "x". If you have chosen a recombinant inbred set,  
+                                 when you submit your data will be displayed in a form where you can confirm and/or edit them. If you enter a file name here, any data that 
+                                 you paste into the next section will be ignored.
                               </p>
                               <input type="file" name="trait_file" style="border-width: 1px; border-style: solid; border-color: #999999;">
                             </div>
+                            <div class="form-group" style="padding-left: 15px;">
+                              <p>
+                                 <b>By Pasting or Typing Multiple Values:</b> You can enter data by pasting a series of numbers representing trait values into this area. 
+                                 The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each progeny individual 
+                                 or recombinant inbredline. Represent missing values with a non-numeric character such as "x". If you have chosen a recombinant inbred set, 
+                                 when you submit your data will be displayed in a form where you can confirm and/or edit them. If you enter a file name in the previous section, 
+                                 any data that you paste here will be ignored. Check sample data for the correct format. 
+                              </p>
+                              <textarea name="trait_paste" rows="6" cols="70"></textarea>
+                            </div>
+                          </div>
+                          <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
+                            <input type="submit" style="width: 110px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2" value="Submit Trait">
+                            <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2" value="Reset">
                           </div>
                         </div>
                 </section>
             </div>
         </div>
     </div>
+  </form>
 
 {%endblock%}
 

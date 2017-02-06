@@ -166,7 +166,7 @@
     return function() {
       var form_data, url;
       //$("#progress_bar_container").modal();
-      url = "/marker_regression";
+      url = "/loading";
       $('input[name=method]').val("pylmm");
       $('input[name=genofile]').val($('#genofile_pylmm').val());
       $('input[name=num_perm]').val($('input[name=num_perm_pylmm]').val());
@@ -182,7 +182,7 @@
     return function() {
       var form_data, url;
       //$("#progress_bar_container").modal();
-      url = "/marker_regression";
+      url = "/loading";
       $('input[name=method]').val("rqtl_geno");
       $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
       $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
@@ -212,7 +212,7 @@
     return function() {
       var form_data, url;
       //$("#static_progress_bar_container").modal();
-      url = "/marker_regression";
+      url = "/loading";
       $('input[name=method]').val("plink");
       $('input[name=maf]').val($('input[name=maf_plink]').val());
       form_data = $('#trait_data_form').serialize();
@@ -227,7 +227,7 @@
       var form_data, url;
       console.log("RUNNING GEMMA");
       //$("#static_progress_bar_container").modal();
-      url = "/marker_regression";
+      url = "/loading";
       $('input[name=method]').val("gemma");
       $('input[name=maf]').val($('input[name=maf_gemma]').val());
       form_data = $('#trait_data_form').serialize();
@@ -242,7 +242,7 @@
       var form_data, url;
       console.log("In interval mapping");
       //$("#progress_bar_container").modal();
-      url = "/marker_regression";
+      url = "/loading";
       $('input[name=method]').val("reaper");
       $('input[name=genofile]').val($('#genofile_reaper').val());
       $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());

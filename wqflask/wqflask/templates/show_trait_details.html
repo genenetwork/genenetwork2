@@ -80,7 +80,7 @@
         </a>
         {% if this_trait.dataset.type == 'ProbeSet' %}
         {% if this_trait.symbol != None %}
-        <a href="http://www.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ species_name }}">
+        <a href="http://www.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}">
         <button type="button" class="btn btn-default" title="Find similar expression data">
             <i class="icon-search"></i> Find
         </button>
