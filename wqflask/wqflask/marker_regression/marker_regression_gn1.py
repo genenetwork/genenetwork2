@@ -1188,7 +1188,10 @@ class MarkerRegression(object):
         if self.controlLocus and self.doControl != "false":
             string2 = 'Using %s as control' % self.controlLocus
         else:
-            string2 = 'Using Haldane mapping function with no control for other QTLs'
+            if self.mapping_method == "gemma":
+                string2 = 'Using GEMMA mapping method with no control for other QTLs.'
+            else:
+                string2 = 'Using Haldane mapping function with no control for other QTLs'
         d = 4+ max(canvas.stringWidth(string1,font=labelFont),canvas.stringWidth(string2,font=labelFont))
         if self.this_trait.name:
             identification = "Trait ID: %s : %s" % (self.dataset.fullname, self.this_trait.name)
