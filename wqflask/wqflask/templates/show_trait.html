@@ -237,10 +237,10 @@
                     
                 $('#samples_primary, #samples_other').DataTable( {
                     "columns": [
-                        { "bSortable": false },
-                        { "type": "natural" },
-                        null,
-                        { "type": "cust-txt" }{% if sample_groups[0].attributes|length > 0 %},{% endif %}
+                        { "bSortable": false, "width": "8%" },
+                        { "type": "natural", "width": "15%" },
+                        { "type": "natural", "width": "25%" },
+                        { "type": "cust-txt", "width": "25%" }{% if sample_groups[0].attributes|length > 0 %},{% endif %}
                         {% for attribute in sample_groups[0].attributes %}
                         { "type": "natural" }{% if loop.index < sample_groups[0].attributes|length %},{% endif %}
                         {% endfor %}

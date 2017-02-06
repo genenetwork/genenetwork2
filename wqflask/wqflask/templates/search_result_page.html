@@ -10,7 +10,7 @@
     {{ header("Search Results",
         'GeneNetwork found {}.'.format(numify(results|count, "record", "records"))) }}
 
-    <div>
+    <div style="padding-left: 10px;">
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <!-- Need to customize text more for other types of searches -->
@@ -86,7 +86,7 @@
                         {% if header == 'Max LRS' %}
                         <th data-export="Max LRS">Max LRS</th>
                         {% elif header == 'Additive Effect' %}
-                        <th data-export="Additive Effect">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th data-export="Additive Effect">Additive <a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% else %}
                         <th data-export="{{header}}">{{header}}</th>
                         {% endif %}
@@ -182,6 +182,8 @@
                      $('.trait_checkbox:checkbox').on("change", change_buttons);
                 },
                 "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(0).attr('style', 'padding-right: 0px;');
+                    $('td', row).eq(0).attr('align', 'center');
                     $('td', row).eq(1).attr('align', 'right');
                     $('td', row).eq(1).attr('data-export', index+1);
                     $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
@@ -189,8 +191,8 @@
                     $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
                     $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
-                    if ($('td', row).eq(4).text().length > 50) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
+                    if ($('td', row).eq(4).text().length > 60) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 60));
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                     $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
@@ -208,12 +210,12 @@
                     { "type": "natural", "width": "4%" },
                     { "type": "natural", "width": "12%" },
                     { "type": "natural", "width": "12%" },
-                    { "type": "natural", "width": "30%" },
-                    { "type": "natural", "width": "10%" },
+                    { "type": "natural", "width": "25%" },
+                    { "type": "natural", "width": "11%" },
+                    { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "6%" },
-                    { "type": "natural", "width": "6%" },
-                    { "type": "natural", "width": "12%" },
-                    { "type": "natural", "width": "10%" }
+                    { "type": "natural", "width": "11%" },
+                    { "type": "natural", "width": "6%" }
                 ],
                 "columnDefs": [ {
                     "targets": 0,
@@ -266,7 +268,7 @@
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                     $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 30));
-                    $('td', row).eq(5).attr('align', 'right');
+                    //$('td', row).eq(5).attr('align', 'right');
                     $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
                     $('td', row).eq(6).attr('align', 'right');
                     $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
@@ -283,8 +285,8 @@
                     { "type": "natural", "width": "25%" },
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "6%" },
-                    { "type": "natural", "width": "9%" },
-                    { "type": "natural", "width": "7%" }
+                    { "type": "natural", "width": "10%" },
+                    { "type": "natural", "width": "9%" }
                 ],
                 "columnDefs": [ {
                     "targets": 0,

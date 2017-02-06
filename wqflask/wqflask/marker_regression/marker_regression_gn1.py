@@ -986,9 +986,25 @@ class MarkerRegression(object):
         except:
             return
 
+        previous_chr = 1
+        previous_chr_as_int = 0
+        if self.plotScale == "physic":
+            this_chr = str(self.ChrList[self.selectedChr][0])
+        else:
+            this_chr = str(self.ChrList[self.selectedChr][1]+1)
+        # for i, qtlresult in enumerate(self.qtlresults):
+            # if Chr == this_chr:
+                # if Mb < self.startMb or Mb > self.endMb:
+                    # return
+                # else:
+                    # locPixel = xLeftOffset + (Mb-self.startMb)*plotXScale
+                    # break
+            # elif self.selectedChr == -1: 
+                # if str(qtlresult['chr']) != Chr:
+
         if self.plotScale == 'physic':
             if self.selectedChr > -1:
-                if self.genotype[0].name != Chr or Mb < self.startMb or Mb > self.endMb:
+                if this_chr != Chr or Mb < self.startMb or Mb > self.endMb:
                     return
                 else:
                     locPixel = xLeftOffset + (Mb-self.startMb)*plotXScale
@@ -2019,6 +2035,8 @@ class MarkerRegression(object):
         AdditiveCoordXY = []
         DominanceCoordXY = []
 
+        symbolFont = pid.Font(ttf="fnt_bs", size=5,bold=0) #ZS: For Manhattan Plot
+
         previous_chr = 1
         previous_chr_as_int = 0
         lineWidth = 1
@@ -2122,7 +2140,7 @@ class MarkerRegression(object):
                 #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
-                    canvas.drawEllipse(Xc-1, Yc-1, Xc+1, Yc+1, fillColor=pid.black)
+                    canvas.drawString("5", Xc-canvas.stringWidth("5",font=symbolFont)/2+1,Yc+2,color=pid.black, font=symbolFont)
                 else:
                     LRSCoordXY.append((Xc, Yc))
 

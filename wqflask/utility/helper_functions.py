@@ -5,6 +5,9 @@ from base import data_set
 from base.species import TheSpecies
 
 from wqflask import user_manager
+
+from flask import Flask, g
+
 import logging
 logger = logging.getLogger(__name__ )
 
@@ -41,3 +44,20 @@ def get_trait_db_obs(self, trait_db_list):
                                name=trait_name,
                                cellid=None)
         self.trait_list.append((trait_ob, dataset_ob))
+
+def get_species_groups():
+
+    species_query = "SELECT SpeciesId, MenuName FROM Species"
+    species_ids_and_names = g.db.execute(species_query).fetchall()
+
+    species_and_groups = []
+    for species_id, species_name in species_ids_and_names:
+        this_species_groups = {}
+        this_species_groups['species'] = species_name
+        groups_query = "SELECT InbredSetName FROM InbredSet WHERE SpeciesId = %s" % (species_id)
+        groups = [group[0] for group in g.db.execute(groups_query).fetchall()]
+
+        this_species_groups['groups'] = groups
+        species_and_groups.append(this_species_groups)
+
+    return species_and_groups

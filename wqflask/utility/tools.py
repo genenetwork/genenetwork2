@@ -212,6 +212,7 @@ USE_REDIS          = get_setting_bool('USE_REDIS')
 USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
 
 GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
+TEMP_TRAITS        = get_setting('TEMP_TRAITS')
 
 PYLMM_COMMAND      = pylmm_command()
 GEMMA_COMMAND      = gemma_command()
