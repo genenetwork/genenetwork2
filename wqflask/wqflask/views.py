@@ -246,6 +246,11 @@ def wcgna_results():
     result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
     return render_template("wgcna_results.html", **result)        # Display them using the template
 
+@app.route("/phewas", methods=('POST',))
+def phewas():
+    logger.info("In phewas, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("phewas_analysis.html", **request.form)          # Display them using the template
+
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
     logger.info("In ctl, request.form is:", request.form)             # We are going to get additional user input for the analysis
