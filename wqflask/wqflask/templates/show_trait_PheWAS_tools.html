@@ -1,3 +1,93 @@
 <div>
-PheWAS !!!!
+  <div class="col-xs-4">
+    <div class="tabbable"> <!-- Only required for left/right tabs -->
+
+      <ul class="nav nav-pills">
+        <li class="active">
+            <a href="#PheWAS" data-toggle="tab">PheWAS</a>
+        </li>
+        <li>
+            <a href="#ePheWAS" data-toggle="tab">ePheWAS</a>
+        </li>
+        <li>
+            <a href="#mediation" data-toggle="tab">Mediation</a>
+        </li>
+
+        <div class="tab-content">
+          <div class="tab-pane active" id="PheWAS">
+            <div style="margin-top: 25px" class="form-horizontal">
+                <br>PheWAS options:
+                <div class="mapping_method_fields form-group">
+                    <label for="strain_limit" style="text-align:left;" class="col-xs-3 control-label">Strain&nbsp;limit</label>
+                    <div style="margin-left: 20px;" class="col-xs-4 controls">
+                        <input name="num_strain_limit" value="15" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="mapping_method_fields form-group">
+                    <label for="strain_limit" style="text-align:left;" class="col-xs-3 control-label">Plot&nbsp;rotation</label>
+                    <div style="margin-left: 20px;" class="col-xs-4 controls">
+                        <input name="num_rotation" value="30" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="mapping_method_fields form-group">
+                  <label for="mtadjust" style="text-align:left;" class="col-xs-3 control-label">P&nbsp;adjustment</label>
+                  <div style="margin-left: 20px;width: 225px;" class="col-xs-4 controls">
+                    <select name="sel_mtadjust" class="form-control">
+                      <option value="qvalue">False Discovery Rate</option>
+                      <option value="BH">Benjamini Hochberg</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div style="padding-left:15px;" class="controls">
+                    <button id="phewas_compute" class="btn submit_special btn-primary" data-url="/phewas" title="Compute PheWAS">
+                      <i class="icon-ok-circle icon-white"></i> Compute
+                    </button>
+                  </div>
+                </div>
+            </div>
+          </div> <!-- end of the PheWAS tab -->
+
+          <div class="tab-pane" id="ePheWAS">
+            <div style="margin-top: 25px" class="form-horizontal">
+                <br>ePheWAS options:
+                <div class="mapping_method_fields form-group">
+                    <label for="strain_limit" style="text-align:left;" class="col-xs-3 control-label">ePheWAS&nbsp;opt&nbsp;1</label>
+                    <div style="margin-left: 20px;" class="col-xs-4 controls">
+                        <input name="num_strain_limit" value="15" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                  <div style="padding-left:15px;" class="controls">
+                    <button id="phewas_compute" class="btn submit_special btn-primary" data-url="/phewas" title="Compute PheWAS">
+                      <i class="icon-ok-circle icon-white"></i> Compute
+                    </button>
+                  </div>
+                </div>
+            </div>
+          </div> <!-- end of the ePheWAS tab -->
+
+          <div class="tab-pane" id="mediation">
+            <div style="margin-top: 25px" class="form-horizontal">
+                <br>Mediation options:
+                <div class="mapping_method_fields form-group">
+                    <label for="strain_limit" style="text-align:left;" class="col-xs-3 control-label">Mediation&nbsp;opt&nbsp;1</label>
+                    <div style="margin-left: 20px;" class="col-xs-4 controls">
+                        <input name="num_strain_limit" value="15" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                  <div style="padding-left:15px;" class="controls">
+                    <button id="phewas_compute" class="btn submit_special btn-primary" data-url="/phewas" title="Compute PheWAS">
+                      <i class="icon-ok-circle icon-white"></i> Compute
+                    </button>
+                  </div>
+                </div>
+            </div>
+          </div> <!-- end of the ePheWAS tab -->
+
+        </div>
+      </ul>
+    </div>
+  </div>
 </div>
