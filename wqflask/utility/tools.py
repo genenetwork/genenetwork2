@@ -113,16 +113,6 @@ def assert_dir(dir):
         raise Exception("ERROR: can not find directory "+dir)
     return dir
 
-def assert_writable_dir(dir):
-    try:
-        fn = dir + "/test.txt"
-        fh = open( fn, 'w' )
-        fh.write("I am writing this text to the file\n")
-        fh.close()
-        os.remove(fn)
-    except IOError:
-        raise Exception('Unable to write test.txt to directory ' + dir )
-    return dir
 
 def mk_dir(dir):
     if not valid_path(dir):
@@ -197,7 +187,6 @@ def show_settings():
 
 
 # Cached values
-GN_VERSION         = get_setting('GN_VERSION')
 HOME               = get_setting('HOME')
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')
 GN_SERVER_URL      = get_setting('GN_SERVER_URL')
@@ -216,7 +205,7 @@ GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
 PYLMM_COMMAND      = pylmm_command()
 GEMMA_COMMAND      = gemma_command()
 PLINK_COMMAND      = plink_command()
-TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
+TEMPDIR            = tempdir()
 
 from six import string_types
 
@@ -232,5 +221,3 @@ if os.environ.get('WQFLASK_OVERRIDES'):
             else:
                 OVERRIDES[k] = cmd
             logger.debug(OVERRIDES)
-
-assert_dir(get_setting("TWITTER_POST_FETCHER_JS_PATH"))

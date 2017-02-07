@@ -53,7 +53,7 @@ from wqflask.ctl import ctl_analysis
 
 from utility import webqtlUtil
 from utility import temp_data
-from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION
+from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL
 
 from base import webqtlFormData
 from base.webqtlConfig import GENERATED_IMAGE_DIR, GENERATED_TEXT_DIR
@@ -110,7 +110,7 @@ def handle_bad_request(e):
         list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
         animation = random.choice(list)
 
-    resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation,version=GN_VERSION))
+    resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
     resp.set_cookie(err_msg[:32],animation)
@@ -126,10 +126,10 @@ def index_page():
             g.cookie_session.import_traits_to_user()
     if USE_GN_SERVER:
         # The menu is generated using GN_SERVER
-        return render_template("index_page.html", gn_server_url = GN_SERVER_URL, version=GN_VERSION)
+        return render_template("index_page.html", gn_server_url = GN_SERVER_URL)
     else:
         # Old style static menu (OBSOLETE)
-        return render_template("index_page_orig.html", version=GN_VERSION)
+        return render_template("index_page_orig.html")
 
 
 @app.route("/tmp/<img_path>")
@@ -145,10 +145,6 @@ def tmp_page(img_path):
     return render_template("show_image.html",
                             img_base64 = bytesarray )
 
-@app.route("/twitter/<path:filename>")
-def twitter(filename):
-    tp_path = app.config['TWITTER_POST_FETCHER_JS_PATH']
-    return send_from_directory(tp_path, filename)
 
 @app.route("/dalliance/<path:filename>")
 def bd_files(filename):

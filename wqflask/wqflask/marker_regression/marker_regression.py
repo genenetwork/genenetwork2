@@ -35,7 +35,7 @@ from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
-from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
+from wqflask.marker_regression import gemma_mapping, rqtl_mapping
 
 from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
 from utility.external import shell
@@ -170,7 +170,7 @@ class MarkerRegression(object):
             if start_vars['pair_scan'] == "true":
                 self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
-                self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
+                perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
             else:
                 results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
         elif self.mapping_method == "reaper":
@@ -201,19 +201,9 @@ class MarkerRegression(object):
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             logger.info("Running qtlreaper")
-            results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.gen_reaper_results(self.this_trait,
-                                                                                                                                                        self.dataset,
-                                                                                                                                                        self.samples,
-                                                                                                                                                        self.json_data,
-                                                                                                                                                        self.num_perm,
-                                                                                                                                                        self.bootCheck,
-                                                                                                                                                        self.num_bootstrap,
-                                                                                                                                                        self.do_control,
-                                                                                                                                                        self.control_marker,
-                                                                                                                                                        self.manhattan_plot)
+            results = self.gen_reaper_results()
         elif self.mapping_method == "plink":
-            results = plink_mapping.run_plink(self.this_trait, self.dataset, self.species, self.vals, self.maf)
-            #results = self.run_plink()
+            results = self.run_plink()
         elif self.mapping_method == "pylmm":
             logger.debug("RUNNING PYLMM")
             if self.num_perm > 0:
@@ -310,18 +300,341 @@ class MarkerRegression(object):
                 perm_results = self.perm_output,
             )
 
+
+    def run_gemma(self):
+        """Generates p-values for each marker using GEMMA"""
+
+        self.gen_pheno_txt_file()
+
+        #os.chdir("/home/zas1024/gene/web/gemma")
+
+        gemma_command = GEMMA_COMMAND + ' -bfile %s -k output_%s.cXX.txt -lmm 1 -o %s_output' % (
+                                                                                                 self.dataset.group.name,
+                                                                                                 self.dataset.group.name,
+                                                                                                 self.dataset.group.name)
+        #logger.debug("gemma_command:" + gemma_command)
+
+        os.system(gemma_command)
+
+        included_markers, p_values = self.parse_gemma_output()
+
+        self.dataset.group.get_specified_markers(markers = included_markers)
+        self.dataset.group.markers.add_pvalues(p_values)
+        return self.dataset.group.markers.markers
+
+    def parse_gemma_output(self):
+        included_markers = []
+        p_values = []
+        # Use a temporary file name here!
+        with open(webqtlConfig.GENERATED_TEXT_DIR+"/{}_output.assoc.txt".format(self.dataset.group.name)) as output_file:
+            for line in output_file:
+                if line.startswith("chr"):
+                    continue
+                else:
+                    included_markers.append(line.split("\t")[1])
+                    p_values.append(float(line.split("\t")[10]))
+                    #p_values[line.split("\t")[1]] = float(line.split("\t")[10])
+        #logger.debug("p_values: ", p_values)
+        return included_markers, p_values
+
+    def gen_pheno_txt_file(self):
+        """Generates phenotype file for GEMMA"""
+        with open(webqtlConfig.GENERATED_TEXT_DIR+"{}.fam".format(self.dataset.group.name), "w") as outfile:
+            for i, sample in enumerate(self.samples):
+                outfile.write(str(sample) + " " + str(sample) + " 0 0 0 " + str(self.vals[i]) + "\n")
+
     def run_rqtl_plink(self):
         # os.chdir("") never do this inside a webserver!!
 
         output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
 
-        plink_mapping.gen_pheno_txt_file_plink(self.this_trait, self.dataset, self.vals, pheno_filename = output_filename)
+        self.gen_pheno_txt_file_plink(pheno_filename = output_filename)
 
         rqtl_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (self.dataset.group.name, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
 
         os.system(rqtl_command)
 
         count, p_values = self.parse_rqtl_output(plink_output_filename)
+
+    def run_plink(self):
+        plink_output_filename = webqtlUtil.genRandStr("%s_%s_"%(self.dataset.group.name, self.this_trait.name))
+
+        self.gen_pheno_txt_file_plink(pheno_filename = plink_output_filename)
+
+        plink_command = PLINK_COMMAND + ' --noweb --ped %s/%s.ped --no-fid --no-parents --no-sex --no-pheno --map %s/%s.map --pheno %s%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (PLINK_PATH, self.dataset.group.name, PLINK_PATH, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
+        logger.debug("plink_command:", plink_command)
+
+        os.system(plink_command)
+
+        count, p_values = self.parse_plink_output(plink_output_filename)
+
+        #for marker in self.dataset.group.markers.markers:
+        #    if marker['name'] not in included_markers:
+        #        logger.debug("marker:", marker)
+        #        self.dataset.group.markers.markers.remove(marker)
+        #        #del self.dataset.group.markers.markers[marker]
+
+        logger.debug("p_values:", pf(p_values))
+
+        self.dataset.group.markers.add_pvalues(p_values)
+
+        return self.dataset.group.markers.markers
+
+
+    def gen_pheno_txt_file_plink(self, pheno_filename = ''):
+        ped_sample_list = self.get_samples_from_ped_file()
+        output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
+        header = 'FID\tIID\t%s\n' % self.this_trait.name
+        output_file.write(header)
+
+        new_value_list = []
+
+        #if valueDict does not include some strain, value will be set to -9999 as missing value
+        for i, sample in enumerate(ped_sample_list):
+            try:
+                value = self.vals[i]
+                value = str(value).replace('value=','')
+                value = value.strip()
+            except:
+                value = -9999
+
+            new_value_list.append(value)
+
+
+        new_line = ''
+        for i, sample in enumerate(ped_sample_list):
+            j = i+1
+            value = new_value_list[i]
+            new_line += '%s\t%s\t%s\n'%(sample, sample, value)
+
+            if j%1000 == 0:
+                output_file.write(newLine)
+                new_line = ''
+
+        if new_line:
+            output_file.write(new_line)
+
+        output_file.close()
+
+    def gen_pheno_txt_file_rqtl(self, pheno_filename = ''):
+        ped_sample_list = self.get_samples_from_ped_file()
+        output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
+        header = 'FID\tIID\t%s\n' % self.this_trait.name
+        output_file.write(header)
+
+        new_value_list = []
+
+        #if valueDict does not include some strain, value will be set to -9999 as missing value
+        for i, sample in enumerate(ped_sample_list):
+            try:
+                value = self.vals[i]
+                value = str(value).replace('value=','')
+                value = value.strip()
+            except:
+                value = -9999
+
+            new_value_list.append(value)
+
+
+        new_line = ''
+        for i, sample in enumerate(ped_sample_list):
+            j = i+1
+            value = new_value_list[i]
+            new_line += '%s\t%s\t%s\n'%(sample, sample, value)
+
+            if j%1000 == 0:
+                output_file.write(newLine)
+                new_line = ''
+
+        if new_line:
+            output_file.write(new_line)
+
+        output_file.close()
+
+    # get strain name from ped file in order
+    def get_samples_from_ped_file(self):
+        ped_file= open("{}/{}.ped".format(PLINK_PATH, self.dataset.group.name),"r")
+        line = ped_file.readline()
+        sample_list=[]
+
+        while line:
+            lineList = string.split(string.strip(line), '\t')
+            lineList = map(string.strip, lineList)
+
+            sample_name = lineList[0]
+            sample_list.append(sample_name)
+
+            line = ped_file.readline()
+
+        return sample_list
+
+    def gen_reaper_results(self):
+        genotype = self.dataset.group.read_genotype_file()
+
+        if self.manhattan_plot != True:
+            genotype = genotype.addinterval()
+
+        samples, values, variances, sample_aliases = self.this_trait.export_informative()
+
+        trimmed_samples = []
+        trimmed_values = []
+        for i in range(0, len(samples)):
+            #if self.this_trait.data[samples[i]].name2 in self.dataset.group.samplelist:
+            if self.this_trait.data[samples[i]].name in self.samples:
+                trimmed_samples.append(samples[i])
+                trimmed_values.append(values[i])
+
+        if self.num_perm < 100:
+            self.suggestive = 0
+            self.significant = 0
+        else:
+            self.perm_output = genotype.permutation(strains = trimmed_samples, trait = trimmed_values, nperm=self.num_perm)
+            self.suggestive = self.perm_output[int(self.num_perm*0.37-1)]
+            self.significant = self.perm_output[int(self.num_perm*0.95-1)]
+            self.highly_significant = self.perm_output[int(self.num_perm*0.99-1)]
+
+        self.json_data['suggestive'] = self.suggestive
+        self.json_data['significant'] = self.significant
+
+        if self.control_marker != "" and self.do_control == "true":
+            reaper_results = genotype.regression(strains = trimmed_samples,
+                                                 trait = trimmed_values,
+                                                 control = str(self.control_marker))
+            if self.bootCheck:
+                control_geno = []
+                control_geno2 = []
+                _FIND = 0
+                for _chr in genotype:
+                    for _locus in _chr:
+                        if _locus.name == self.control_marker:
+                            control_geno2 = _locus.genotype
+                            _FIND = 1
+                            break
+                    if _FIND:
+                        break
+                if control_geno2:
+                    _prgy = list(genotype.prgy)
+                    for _strain in trimmed_samples:
+                        _idx = _prgy.index(_strain)
+                        control_geno.append(control_geno2[_idx])
+
+                self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
+                                                            trait = trimmed_values,
+                                                            control = control_geno,
+                                                            nboot = self.num_bootstrap)
+        else:
+            reaper_results = genotype.regression(strains = trimmed_samples,
+                                                 trait = trimmed_values)
+
+            if self.bootCheck:
+                self.bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
+                                                            trait = trimmed_values,
+                                                            nboot = self.num_bootstrap)
+
+        self.json_data['chr'] = []
+        self.json_data['pos'] = []
+        self.json_data['lod.hk'] = []
+        self.json_data['markernames'] = []
+        #if self.additive:
+        #    self.json_data['additive'] = []
+
+        #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+        qtl_results = []
+        for qtl in reaper_results:
+            reaper_locus = qtl.locus
+            #ZS: Convert chr to int
+            converted_chr = reaper_locus.chr
+            if reaper_locus.chr != "X" and reaper_locus.chr != "X/Y":
+                converted_chr = int(reaper_locus.chr)
+            self.json_data['chr'].append(converted_chr)
+            self.json_data['pos'].append(reaper_locus.Mb)
+            self.json_data['lod.hk'].append(qtl.lrs)
+            self.json_data['markernames'].append(reaper_locus.name)
+            #if self.additive:
+            #    self.json_data['additive'].append(qtl.additive)
+            locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
+            qtl = {"lrs_value": qtl.lrs, "chr":converted_chr, "Mb":reaper_locus.Mb,
+                   "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
+            qtl_results.append(qtl)
+
+        return qtl_results
+
+
+    def parse_plink_output(self, output_filename):
+        plink_results={}
+
+        threshold_p_value = 0.01
+
+        result_fp = open("%s%s.qassoc"% (TMPDIR, output_filename), "rb")
+
+        header_line = result_fp.readline()# read header line
+        line = result_fp.readline()
+
+        value_list = [] # initialize value list, this list will include snp, bp and pvalue info
+        p_value_dict = {}
+        count = 0
+
+        while line:
+            #convert line from str to list
+            line_list = self.build_line_list(line=line)
+
+            # only keep the records whose chromosome name is in db
+            if self.species.chromosomes.chromosomes.has_key(int(line_list[0])) and line_list[-1] and line_list[-1].strip()!='NA':
+
+                chr_name = self.species.chromosomes.chromosomes[int(line_list[0])]
+                snp = line_list[1]
+                BP = line_list[2]
+                p_value = float(line_list[-1])
+                if threshold_p_value >= 0 and threshold_p_value <= 1:
+                    if p_value < threshold_p_value:
+                        p_value_dict[snp] = float(p_value)
+
+                if plink_results.has_key(chr_name):
+                    value_list = plink_results[chr_name]
+
+                    # pvalue range is [0,1]
+                    if threshold_p_value >=0 and threshold_p_value <= 1:
+                        if p_value < threshold_p_value:
+                            value_list.append((snp, BP, p_value))
+                            count += 1
+
+                    plink_results[chr_name] = value_list
+                    value_list = []
+                else:
+                    if threshold_p_value >= 0 and threshold_p_value <= 1:
+                        if p_value < threshold_p_value:
+                            value_list.append((snp, BP, p_value))
+                            count += 1
+
+                    if value_list:
+                        plink_results[chr_name] = value_list
+
+                    value_list=[]
+
+                line = result_fp.readline()
+            else:
+                line = result_fp.readline()
+
+        #if p_value_list:
+        #    min_p_value = min(p_value_list)
+        #else:
+        #    min_p_value = 0
+
+        return count, p_value_dict
+
+    ######################################################
+    # input: line: str,one line read from file
+    # function: convert line from str to list;
+    # output: lineList list
+    #######################################################
+    def build_line_list(self, line=None):
+
+        line_list = string.split(string.strip(line),' ')# irregular number of whitespaces between columns
+        line_list = [item for item in line_list if item <>'']
+        line_list = map(string.strip, line_list)
+
+        return line_list
+
 
     def run_permutations(self, temp_uuid):
         """Runs permutations and gets significant and suggestive LOD scores"""

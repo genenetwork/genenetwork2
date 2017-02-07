@@ -18,7 +18,6 @@
 import os
 import sys
 
-GN_VERSION = open("../VERSION","r").read()
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQLALCHEMY_DATABASE_URI = 'mysql://gn2:mysql_password@localhost/db_webqtl_s'
 SQLALCHEMY_POOL_RECYCLE = 3600
@@ -50,10 +49,6 @@ LOG_BENCH       = True      # Log bench marks
 
 USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
 USE_GN_SERVER   = 'False'   # Use GN_SERVER SQL calls
-
-# Paths to JS libraries
-
-TWITTER_POST_FETCHER_JS_PATH = os.environ['HOME']+"/genenetwork/Twitter-Post-Fetcher"
 
 # ---- Path overrides for Genenetwork
 # TMPDIR is normally picked up from the environment

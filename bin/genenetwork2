@@ -26,10 +26,6 @@ GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
 
 echo GN2_BASE_DIR=$GN2_BASE_DIR
 
-GIT_HASH=$(git rev-parse HEAD)
-GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-export GN_VERSION=$(cat $GN2_BASE_DIR/VERSION)-$GIT_BRANCH-${GIT_HASH:0:9}
-echo GN_VERSION=$GN_VERSION
 
 # Handle settings parameter (can be .py or .json)
 settings=$1
@@ -83,13 +79,13 @@ fi
 # We may change this one:
 export PYTHONPATH=$GN2_BASE_DIR/wqflask:$PYTHONPATH
 
-# Our UNIX TMPDIR defaults to /tmp - change this on a shared server
-if [ -z $TMPDIR ]; then
-    TMPDIR="/tmp"
+# TEMPDIR defaults to /tmp if nothing else
+if [ -z $TEMPDIR ]; then
+    TEMPDIR="/tmp"
 fi
 
 set|grep $GN2_PROFILE
-set|grep TMPDIR
+set|grep TEMPDIR
 
 # Now handle command parameter -c
 if [ "$1" = '-c' ] ; then
@@ -102,7 +98,7 @@ if [ "$1" = '-c' ] ; then
 fi
 
 echo "Starting the redis server:"
-echo -n "dir $TMPDIR
+echo -n "dir $TEMPDIR
 dbfilename gn2.rdb
 " | redis-server - &
 
