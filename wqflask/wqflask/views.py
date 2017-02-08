@@ -251,6 +251,16 @@ def phewas():
     logger.info("In phewas, request.form is:", request.form)             # We are going to get additional user input for the analysis
     return render_template("phewas_analysis.html", **request.form)          # Display them using the template
 
+@app.route("/ephewas", methods=('POST',))
+def ephewas():
+    logger.info("In ephewas, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("ephewas_analysis.html", **request.form)          # Display them using the template
+
+@app.route("/mediation", methods=('POST',))
+def mediation():
+    logger.info("In mediation, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("mediation_analysis.html", **request.form)          # Display them using the template
+
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
     logger.info("In ctl, request.form is:", request.form)             # We are going to get additional user input for the analysis
