@@ -41,7 +41,7 @@ def gen_pheno_txt_file(this_dataset, samples, vals):
                 this_val = -9
             else:
                 this_val = vals[i]
-            outfile.write(line[0] + " " + line[1] + " " + line[2] + " " + line[3] + " " + line[4] + " " + str(this_val) + "\n") 
+            outfile.write("0" + " " + line[1] + " " + line[2] + " " + line[3] + " " + line[4] + " " + str(this_val) + "\n")
 
 def parse_gemma_output(this_dataset):
     included_markers = []
