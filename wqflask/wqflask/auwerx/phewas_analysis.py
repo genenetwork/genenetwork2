@@ -21,16 +21,30 @@ from base import trait as TRAIT
 from utility import helper_functions
 from utility.tools import locate
 
-from rpy2.robjects.packages import importr
-utils = importr("utils")
+r_library       = ro.r["library"]             # Map the library function
+r_options       = ro.r["options"]             # Map the options function
 
 class PheWAS(object):
     def __init__(self):
         print("Initialization of PheWAS")
+        r_library("auwerx")  # Load the auwerx package - Should only be done once, since it is quite expensive
+        r_options(stringsAsFactors = False)
+        # Create the aligners
+        r_download_BXD_geno = ro.r["download.BXD.geno"]                               # Map the create.Pheno_aligner function
+        r_create_Pheno_aligner = ro.r["create.Pheno_aligner"]                         # Map the create.Pheno_aligner function
+        r_create_SNP_aligner = ro.r["create.SNP_aligner"]                             # Map the create.SNP_aligner function
+        r_calculate_all_pvalue_parallel = ro.r["calculate.all.pvalue.parallel"]       # Map the calculate.all.pvalue.parallel function
+        r_PheWASManhattan = ro.r["PheWASManhattan"]                                   # Map the PheWASManhattan function
         print("Initialization of PheWAS done !")
 
     def run_analysis(self, requestform):
         print("Starting PheWAS analysis on dataset")
+        bxdgeno = r_download_BXD_geno()
+        snpaligner = r_create_SNP_aligner(bxdgeno)
+        phenoaligner = r_create_Pheno_aligner()
+        allpvalues = r_calculate_all_pvalue_parallel()                                  # This needs some magic to work I think
+        # trait chromosome and trait positions should come from the user input
+        r_PheWASManhattan(None, allpvalues, phenoaligner, snpaligner, None, trait_chr, trait_pos, trait_pos )
         print("Initialization of PheWAS done !")
 
     def process_results(self, results):
