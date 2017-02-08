@@ -49,6 +49,7 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
+from wqflask.auwerx import phewas_analysis
 
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL
@@ -249,7 +250,10 @@ def wcgna_results():
 @app.route("/phewas", methods=('POST',))
 def phewas():
     logger.info("In phewas, request.form is:", request.form)             # We are going to get additional user input for the analysis
-    return render_template("phewas_analysis.html", **request.form)          # Display them using the template
+    phewasO = phewas_analysis.PheWAS()                                            # Start R, load the package and pointers and create the analysis
+    phewasA = phewasO.run_analysis(request.form)
+    result  = phewasO.process_results(phewasA)                           # After the analysis is finished store the result
+    return render_template("phewas_analysis.html", **result)             # Display them using the template
 
 @app.route("/ephewas", methods=('POST',))
 def ephewas():
