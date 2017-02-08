@@ -118,7 +118,12 @@ lodchart = function() {
         return lightrect;
       }).attr("stroke", "none").on("click", function(d) {
         console.log("d is:", d);
-        return redraw_plot(d);
+        redraw_plot(d);
+        BD.putData({
+          chr: d[0],
+          length: d[1]
+        });
+        return BD.showButton();
       });
       xaxis = g.append("g").attr("class", "x axis");
       xaxis.selectAll("empty").data(data.chrnames).enter().append("text").text(function(d) {

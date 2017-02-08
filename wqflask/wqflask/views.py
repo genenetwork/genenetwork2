@@ -21,6 +21,7 @@ import uuid
 
 import simplejson as json
 import yaml
+import csv
 
 #Switching from Redis to StrictRedis; might cause some issues
 import redis
@@ -50,11 +51,12 @@ from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
 
+from utility import webqtlUtil
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL
 
 from base import webqtlFormData
-from base.webqtlConfig import GENERATED_IMAGE_DIR
+from base.webqtlConfig import GENERATED_IMAGE_DIR, GENERATED_TEXT_DIR
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
@@ -144,6 +146,12 @@ def tmp_page(img_path):
                             img_base64 = bytesarray )
 
 
+@app.route("/dalliance/<path:filename>")
+def bd_files(filename):
+    bd_path = app.config['BIODALLIANCE_PATH']
+    return send_from_directory(bd_path, filename)
+
+
 #@app.route("/data_sharing")
 #def data_sharing_page():
 #    logger.info("In data_sharing")
@@ -227,6 +235,10 @@ def docedit():
 @app.route('/generated/<filename>')
 def generated_file(filename):
     return send_from_directory(GENERATED_IMAGE_DIR,filename)
+
+@app.route('/generated_text/<filename>')
+def generated_text(filename):
+    return send_from_directory(GENERATED_TEXT_DIR, filename)
 
 @app.route("/help")
 def help():
@@ -491,9 +503,26 @@ def marker_regression_page():
         with Bench("Total time in MarkerRegression"):
             template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
 
+
+        qtl_results = template_vars.js_data['qtl_results']
+
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
+
+
+        json_filename = webqtlUtil.genRandStr("") + ".json"
+        with open(GENERATED_TEXT_DIR + "/" + json_filename, "wb") as json_file:
+            json_file.write(template_vars.js_data)
+
+        csv_filename = webqtlUtil.genRandStr("") + ".csv"
+        with open(GENERATED_TEXT_DIR + "/" + csv_filename, "wb") as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(("Locus", "Chr", "Mb", "LOD"))
+            for (row) in qtl_results:
+                score = row["lod_score"] if "lod_score" in row else row["lrs_value"]
+                writer.writerow((row["name"], row["chr"], row["Mb"], score))
+
 
         result = template_vars.__dict__
 
@@ -514,6 +543,8 @@ def marker_regression_page():
             #    logger.info("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
             gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+            gn1_template_vars['json_filename'] = json_filename;
+            gn1_template_vars['csv_filename'] = csv_filename;
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             logger.info("pickled result length:", len(pickled_result))

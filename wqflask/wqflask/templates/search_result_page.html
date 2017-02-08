@@ -41,7 +41,7 @@
                     {% elif word.key|lower == "position" %}
                     with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% else %}
-                    that match the term {{ word.search_term[0] }}.
+                    that match the <u>TERM</u> <b>{{ word.search_term[0] }}</b>{% if loop.last %}.{% else %} and {% endif %}
                     {% endif %}
                 {% endfor %}
         </p>

@@ -160,8 +160,32 @@
             </div>
             {% if mapping_method != "gemma" %}
             <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
-              <div id="chart_container">
-                <div class="qtlcharts" id="topchart"></div>
+                <div id="chart_container">
+                    <ul class="nav nav-tabs">
+                        <li id="return_to_full_view" class="btn btn-default buttons-html5" style="display:none">
+                            Return to full view
+                        </li>
+                        <li id="open_bd" class="btn btn-default buttons-html5" style="display:none">
+                            Open BioDalliance view
+                        </li>
+                        <li id="close_bd" class="btn btn-default buttons-html5" style="display:none">
+                            Return to vector map
+                        </li>
+                    </ul>
+
+                    <ul class="nav nav-tabs" id="track_buttons" style="display:none">
+                        <li id="repeats_button" class="btn btn-default buttons-html5" >
+                            Add Repeats track
+                        </li>
+                        <li id="hg_button" class="btn btn-default buttons-html5" >
+                            Add HG track
+                        </li>
+                    </ul>
+
+                    <div class="qtlcharts" id="topchart"></div>
+
+                    <div id="bd_container" class="qtlcharts">
+                    </div>
               </div>
             </div>
             {% endif %}
@@ -278,19 +302,19 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
 
-    <script>
-        js_data = {{ js_data | safe }}
-    </script>
 
     {% if mapping_method != "gemma" %}
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
+
+    <script language="javascript" type="text/javascript" src="/dalliance/build/dalliance-all.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/biodalliance.js"></script>
     {% endif %}
 
-    <script type="text/javascript" charset="utf-8">
-        $(document).ready( function () {
+    <script>
+     createTable = function() {
             console.time("Creating table");
             $('#qtl_results').DataTable( {
                 "columns": [
@@ -349,15 +373,170 @@
                 "scrollCollapse": false,
                 "paging": false
             } );
+     };
+
+     filename = "{{json_filename}}";
+     js_data = null;
+     $.ajax("/generated_text/{{json_filename}}",
+            {success:
+                     function(data) {
+                         js_data = data;
+                         create_lod_chart();
+                         createTable();
+                     }
+            });
+
+     BD.putSource({name: 'QTL',
+                   tier_type: 'qtl',
+                   uri: 'http://localhost:5003/generated_text/{{csv_filename}}',
+                   style: [{
+                       type: 'default',
+                       style: {
+                           glyph: "LINEPLOT",
+                           AUTOMAX: "true",
+                           MIN: 0,
+                           MAX: 3,
+                           HEIGHT: 200,
+                           STEPS: 500,
+                           COLOR1: "blue",
+                       }
+                   }],
+     });
+     BD.putSource({name: 'Genome',
+                   twoBitURI:  'http://www.biodalliance.org/datasets/GRCm38/mm10.2bit',
+                   desc: 'Mouse reference genome build GRCm38',
+                   tier_type: 'sequence',
+                   provides_entrypoints: true
+     });
+     BD.putSource({name: 'Genotype',
+                   controlURI: "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/BXD.json",
+                   URIBase: "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/",
+                   tier_type: 'rqtl-genotype',
+                   vOffset: 8,
+                   transposed: true,
+                   hideSubpixelGlyphs: true,
+                   style: [
+                       { type: "default",
+                         method: "U",
+                         style: { glyph: "BOX",
+                                  LINE: "0.5",
+                                  FGCOLOR: "black",
+                                  BGCOLOR: "white",
+                                  BGITEM: "true",
+                                  HEIGHT: "2",
+                                  BUMP: "true",
+                         }},
+                       { type: "default",
+                         method: "B",
+                         style: { glyph: "BOX",
+                                  LINE: "0.5",
+                                  FGCOLOR: "blue",
+                                  BGCOLOR: "blue",
+                                  BGITEM: "true",
+                                  HEIGHT: "2",
+                                  BUMP: "true",
+                         }},
+                       { type: "default",
+                         method: "H",
+                         style: { glyph: "BOX",
+                                  LINE: "0.5",
+                                  FGCOLOR: "green",
+                                  BGCOLOR: "green",
+                                  BGITEM: "true",
+                                  HEIGHT: "2",
+                                  BUMP: "true",
+                         }},
+                       { type: "default",
+                         method: "D",
+                         style: { glyph: "BOX",
+                                  LINE: "0.5",
+                                  FGCOLOR: "red",
+                                  BGCOLOR: "red",
+                                  BGITEM: "true",
+                                  HEIGHT: "2",
+                                  BUMP: "true",
+                         }},
+                   ]
+     });
+     BD.putSource({name: 'SNP density',
+                   jbURI: "http://test-gn2.genenetwork.org/api_pre1/snp",
+                   jbQuery: "",
+                   refetchOnZoom: true,
+                   style: [{
+                       type: 'default',
+                       style: {
+                           glyph: "HISTOGRAM",
+                           MIN: 0,
+                           MAX: 5000,
+                           AUTOMAX: "true",
+                           HEIGHT: 60,
+                           STEPS: 100,
+                           COLOR1: "red",
+                           COLOR2: "red",
+                           COLOR3: "red",
+                           AXISCENTER: "true",
+                       }
+                   }]
+     });
+     BD.putSource({name: 'Genes',
+                   desc: 'Gene structures from GENCODE 19',
+                   bwgURI: '//www.biodalliance.org/datasets/gencode.bb',
+                   stylesheet_uri: 'http://test-gn2.genenetwork.org/api_pre1/stylesheets/gencode.xml',
+                   collapseSuperGroups: true,
+                   trixURI: '//www.biodalliance.org/datasets/geneIndex.ix',
+     });
+    </script>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function () {
+            BD.putData({species: "{{ dataset.group.species }}" });
+
 
             $('#vector_map_tab').click(function(){
                 $('div#gn1_map_options').hide();
             });
 
             $('#gn1_map_tab').click(function(){
-                $('div#gn1_map_options').show();
+                $('#gn1_map_options').show();
+                $('div#bd_container').hide();
             });
 
+            $('#close_bd').click(function() {
+                $('#open_bd').show();
+                $('#close_bd').hide();
+
+                $('#bd_container').hide();
+                $('#track_buttons').hide();
+                $('#topchart').show();
+            });
+
+            $('#open_bd').click(function() {
+                $('#close_bd').show();
+                $('#open_bd').hide()
+
+                $('#topchart').hide();
+                $('#bd_container').show();
+                $('#track_buttons').show();
+
+                BD.openBrowser();
+            });
+
+            $('#repeats_button').click(function() {
+                var source = {name: 'Repeats',
+                              desc: 'Repeat annotation from UCSC',
+                              bwgURI: '//www.biodalliance.org/datasets/GRCm38/repeats.bb',
+                              stylesheet_uri: '//www.biodalliance.org/stylesheets/bb-repeats2.xml'};
+
+                BD.putSource(source);
+            });
+
+            $('#hg_button').click(function() {
+                var source = {name: 'hg19ToMm10',
+                                    desc: '',
+                                    bwgURI: 'http://www.biodalliance.org/datasets/hg19ToMm10.bb'};
+
+                BD.putSource(source);
+            });
         });
 
         chrView = function(this_chr, chr_mb_list) {

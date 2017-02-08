@@ -61,3 +61,6 @@ LOCAL_PRIVATE_FILES = HOME+"/gn2_private_data" # private static data files
 PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())
 PLINK_COMMAND = str.strip(os.popen("which plink2").read())
 GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
+
+
+BIODALLIANCE_PATH = os.environ['HOME']+"/dalliance"

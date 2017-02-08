@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}GeneNetwork{% endblock %}
+{% block css %}
+<style TYPE="text/css">
+  p.interact { display: none; }
+</style>
+{% endblock %}
 {% block content %}
 <!-- Start of body -->
 
@@ -166,8 +171,17 @@
                       </ul>
                 </section>
             </div>
+
             <div style="padding-left:120px" class="col-xs-4" style="width: 600px !important;">
-                <!--
+                <section id="news-section">
+                    <div class="page-header">
+                        <h1>News</h1>
+                    </div>
+                    <div id="tweets"></div>
+                    <div align="right">
+                      <a href="https://twitter.com/GeneNetwork2">more news items...</a>
+                    </div>
+              <!--
                 <section id="tour-info">
                     <div class="page-header">
                         <h1>Tour and more info</h1>
@@ -194,34 +208,37 @@
 
                 </section>
                 -->
+                </section>
 
                 <section id="websites">
                     <div class="page-header">
-                        <h1>Affiliates and mirrors</h1>
+                        <h2>Links</h2>
                     </div>
-                    <h3>Websites affiliated with GeneNetwork</h3>
+                    <h3>GeneNetwork v2:</h3>
+                      <ul>
+                        <li><a href="http://gn2.genenetwork.org/">Main website</a> at UTHSC</li>
+                        <li><a href="http://test-gn2.genenetwork.org/">Testing website</a> at UTHSC</li>
+                      </ul>
+                    <h3>GeneNetwork v1:</h3>
                     <ul>
+                        <li><a href="http://www.genenetwork.org/">Main website</a> at UTHSC</li>
+                        <li><a href="http://genenetwork.helmholtz-hzi.de/">Website</a> at the HZI (Germany)</li>
+                        <li><a href="http://ec2.genenetwork.org/">Amazon
+                            Cloud (EC2)</a></li>
+                        </ul>
+                      <h3>Affiliates</h3>
+                      <ul>
                         <li><a href="http://ucscbrowser.genenetwork.org/">Genome
                         browser</a> at UTHSC</li>
 
                         <li><a href="http://galaxy.genenetwork.org/">Galaxy</a> at
                         UTHSC</li>
 
-                        <li>GeneNetwork 1 at <a href="http://ec2.genenetwork.org/">Amazon
-                        Cloud (EC2)</a></li>
-
-                        <li>GeneNetwork 1 Source Code at <a href="http://sourceforge.net/projects/genenetwork/">SourceForge</a></li>
-
-                        <li>GeneNetwork 2 Source Code at <a href="https://github.com/genenetwork/genenetwork2">GitHub</a></li>
                     </ul>
-                    <h3>GN1 Mirror and development sites</h3>
 
-                    <ul>
-                        <li><a href="http://www.genenetwork.org/">Main GN1 site at UTHSC</a> (main site)</li>
-                        <li><a href="http://genenetwork.helmholtz-hzi.de/">Germany at the HZI</a></li>
-                        <li><a href="http://gn2.genenetwork.org/">Memphis at the U of M</a></li>
-                    </ul>
-                </section>
+
+
+               </section>
 
                 <!--<section id="getting-started">
                     <div class="page-header">
@@ -281,5 +298,22 @@
             }
         }
     </script>
+
+    <script type="text/javascript" src="/twitter/js/twitterFetcher_min.js"></script>
+
+    <script type="text/javascript">
+      var configProfile = {
+      "profile": {"screenName": 'GeneNetwork2'},
+      "domId": 'tweets',
+      "maxTweets": 5,
+      "enableLinks": true,
+      "showUser": false,
+      "showTime": true,
+      "showImages": false,
+      "lang": 'en'
+      };
+      twitterFetcher.fetch(configProfile);
+    </script>
+
 
 {% endblock %}
