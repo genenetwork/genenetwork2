@@ -179,8 +179,13 @@
         if (!__hasProp.call(_ref, key)) continue;
         value = _ref[key];
         the_id = process_id("column", key);
-        header += "<th id=\"" + the_id + "\" style=\"padding-left: 5px;\">" + value + "</th>";
+        if (Object.keys(_ref).length > 1) {
+            header += "<th id=\"" + the_id + "\" style=\"padding-left: 5px;\">" + value + "</th>";
+        } else {
+            header += "<th id=\"" + the_id + "\" style=\"padding-left: 5px;\">Value</th>";
+        }
       }
+
       header += "</thead>";
       the_rows = "<tbody>";
       for (_i = 0, _len = Stat_Table_Rows.length; _i < _len; _i++) {
