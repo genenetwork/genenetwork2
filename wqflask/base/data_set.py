@@ -264,7 +264,7 @@ class DatasetGroup(object):
     def __init__(self, dataset):
         """This sets self.group and self.group_id"""
         #logger.debug("DATASET NAME2:", dataset.name)
-        self.name, self.id = fetchone(dataset.query_for_group)
+        self.name, self.id, self.genetic_type = fetchone(dataset.query_for_group)
         if self.name == 'BXD300':
             self.name = "BXD"
 
@@ -965,7 +965,7 @@ class MrnaAssayDataSet(DataSet):
 
         self.query_for_group = '''
                         SELECT
-                                InbredSet.Name, InbredSet.Id
+                                InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                         FROM
                                 InbredSet, ProbeSetFreeze, ProbeFreeze
                         WHERE
