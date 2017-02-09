@@ -826,7 +826,8 @@ class PositionSearch(DoSearch):
 
     def get_where_clause(self):
         self.search_term = [float(value) if is_number(value) else value for value in self.search_term]
-        self.chr, self.mb_min, self.mb_max = self.search_term[:3]
+        chr, self.mb_min, self.mb_max = self.search_term[:3]
+        self.chr = str(chr).lower()
         self.get_chr()
 
         where_clause = """ %s.Chr = %s and
@@ -846,9 +847,9 @@ class PositionSearch(DoSearch):
             self.chr = int(self.chr)
         except:
             if 'chr' in self.chr:
-                self.chr = int(self.chr.replace('chr', ''))
+                self.chr = self.chr.replace('chr', '')
             else:
-                self.chr = int(self.chr.replace('CHR', ''))
+                self.chr = self.chr.replace('CHR', '')
 
     def run(self):
 

@@ -192,7 +192,7 @@
                 {% if 'additive' in trimmed_markers[0] %}
                 <th>Add Eff</th>
                 {% endif %}
-                {% if 'dominance' in trimmed_markers[0] %}
+                {% if 'dominance' in trimmed_markers[0] and dataset.group.genetic_type != "riset" %}
                 <th>Dom Eff</th>
                 {% endif %}
               </tr>
@@ -225,7 +225,7 @@
                 {% if 'additive' in marker %}
                 <td align="right">{{ '%0.3f' | format(marker.additive|float) }}</td>
                 {% endif %}
-                {% if 'dominance' in marker %}
+                {% if 'dominance' in marker and dataset.group.genetic_type != "riset" %}
                 <td align="right">{{ '%0.2f' | format(marker.dominance|float) }}</td>
                 {% endif %}
               </tr>
@@ -292,6 +292,7 @@
         $(document).ready( function () {
             console.time("Creating table");
             $('#qtl_results').DataTable( {
+                {% if mapping_method != "reaper" %}
                 "columns": [
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "8%" },
@@ -299,7 +300,29 @@
                     { "type": "natural", "width": "8%" },
                     { "type": "natural", "width": "8%" },
                     { "type": "natural", "width": "15%" }
-                    ],
+                ],
+                {% elif dataset.group.genetic_type == "riset" %}
+                "columns": [
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "15%" },
+                    { "type": "natural", "width": "8%" }
+                ],
+                {% else %}
+                "columns": [
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "15%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "8%" }
+                ],
+                {% endif %}
                 "columnDefs": [ {
                     "targets": 0,
                     "orderable": false
