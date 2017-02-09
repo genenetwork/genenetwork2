@@ -18,19 +18,19 @@
     }, {
       vn: "mean",
       pretty: "Mean",
-      digits: 2
+      digits: 3
     }, {
       vn: "median",
       pretty: "Median",
-      digits: 2
+      digits: 3
     }, {
       vn: "std_error",
       pretty: "Standard Error (SE)",
-      digits: 2
+      digits: 3
     }, {
       vn: "std_dev",
       pretty: "Standard Deviation (SD)",
-      digits: 2
+      digits: 3
     }, {
       vn: "min",
       pretty: "Minimum",
@@ -42,16 +42,16 @@
     }, {
       vn: "range",
       pretty: "Range (log2)",
-      digits: 2
+      digits: 3
     }, {
       vn: "range_fold",
       pretty: "Range (fold)",
-      digits: 2
+      digits: 3
     }, {
       vn: "interquartile",
       pretty: "Interquartile Range",
       url: "http://www.genenetwork.org/glossary.html#Interquartile",
-      digits: 2
+      digits: 3
     }
   ];
 

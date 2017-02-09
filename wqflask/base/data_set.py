@@ -696,7 +696,7 @@ class PhenotypeDataSet(DataSet):
 
         self.query_for_group = '''
                             SELECT
-                                    InbredSet.Name, InbredSet.Id
+                                    InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                             FROM
                                     InbredSet, PublishFreeze
                             WHERE
@@ -839,7 +839,7 @@ class GenotypeDataSet(DataSet):
 
         self.query_for_group = '''
                 SELECT
-                        InbredSet.Name, InbredSet.Id
+                        InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                 FROM
                         InbredSet, GenoFreeze
                 WHERE
