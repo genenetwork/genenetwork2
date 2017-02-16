@@ -59,13 +59,10 @@ class PheWAS(object):
         rnames = r_seq(1, len(parser.markers))
         # Create the snp aligner object out of the BXD genotypes
         snpaligner = ro.r.matrix(snpinfo, nrow=len(parser.markers), dimnames = r_list(rnames, r_c("SNP", "Chr", "Pos")), ncol = 3, byrow=True)
-        r_write_table(snpaligner, "~/snpaligner_GN2.txt", row_names=False)
+        #r_write_table(snpaligner, "~/snpaligner_GN2.txt", row_names=False)
 
         # Create the phenotype aligner object using R
         phenoaligner = self.r_create_Pheno_aligner()
-
-        #r_load(precompfilelocation)                 # Load the pre-computed EMMA results into R
-        #allpvalues = ro.r['pval_small']               # Get a pointer to the pre-computed results
 
         self.results = {}
         self.results['imgurl1'] = webqtlUtil.genRandStr("phewas_") + ".png"
@@ -74,7 +71,11 @@ class PheWAS(object):
         print("IMAGE AT:", self.results['imgloc1'] )
         # Create the PheWAS plot (The gene/probe name, chromosome and gene/probe positions should come from the user input)
         # TODO: generate the PDF in the temp folder, with a unique name
-        self.r_PheWASManhattan("Test", precompfilelocation, phenoaligner, snpaligner, "None", 1, 25, 25, self.results['imgloc1'] )
+        phewasres = self.r_PheWASManhattan("Test", precompfilelocation, phenoaligner, snpaligner, "None", 1, 25, 25, self.results['imgloc1'] )
+        self.results['phewas1'] = phewasres[0]
+        self.results['phewas2'] = phewasres[1]
+        self.results['phewas3'] = phewasres[2]
+
         #self.r_PheWASManhattan(allpvalues)
         #self.r_Stop()
 
