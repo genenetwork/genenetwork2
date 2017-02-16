@@ -1,9 +1,15 @@
 {% extends "base.html" %}
-{% block title %}ePheWAS analysis{% endblock %}
+{% block title %}PheWAS analysis{% endblock %}
 
 {% block content %} <!-- Start of body -->
 <div class="container">
   <h1>ePheWAS analysis results</h1>
-  YAY ! We have our own route
+  <h2>Top 10 ePheWAS hits</h2>
+  <table width="80%">
+      <tr><th>Phenotype</th><th>Phenosome</th><th>Additional</th><th>LOD</th><th>LOD<sub>BH</sub></th></tr>
+      <tr><td>Phenotype 1</td><td>Phenosome 1</td><td>Additional 1</td><td>LOD 1</td><td>BH 1</td></tr>
+  </table>
+  <h2>Download all ePheWAS results</h2>
+  <a href="" class="btn submit_special btn-primary">Download CSV</a> <a href="" class="btn submit_special btn-primary">Download RData</a>
 </div>
 {% endblock %}
