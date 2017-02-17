@@ -17,24 +17,30 @@
           <div class="tab-pane active" id="PheWAS">
             <div style="margin-top: 25px" class="form-horizontal">
                 <br>PheWAS options:
+<!--
                 <div class="mapping_method_fields form-group">
-                    <label for="strain_limit" style="text-align:left;" class="col-xs-3 control-label">Strain&nbsp;limit</label>
+                    <label for="num_strain_limit" style="text-align:left;" class="col-xs-3 control-label">Strain&nbsp;limit</label>
                     <div style="margin-left: 20px;" class="col-xs-4 controls">
                         <input name="num_strain_limit" value="15" type="text" class="form-control">
                     </div>
-                </div>
+                </div> -->
                 <div class="mapping_method_fields form-group">
-                    <label for="strain_limit" style="text-align:left;" class="col-xs-3 control-label">Plot&nbsp;rotation</label>
+                    <label for="num_region" style="text-align:left;" class="col-xs-3 control-label">Region&nbsp;size</label>
                     <div style="margin-left: 20px;" class="col-xs-4 controls">
-                        <input name="num_rotation" value="30" type="text" class="form-control">
+                        <input name="num_region" value="2" type="text" class="form-control">
                     </div>
                 </div>
                 <div class="mapping_method_fields form-group">
                   <label for="mtadjust" style="text-align:left;" class="col-xs-3 control-label">P&nbsp;adjustment</label>
                   <div style="margin-left: 20px;width: 225px;" class="col-xs-4 controls">
                     <select name="sel_mtadjust" class="form-control">
-                      <option value="qvalue">False Discovery Rate</option>
+                      <option value="fdr">False Discovery Rate</option>
                       <option value="BH">Benjamini Hochberg</option>
+                      <option value="holm">Holm</option>
+                      <option value="hochberg">Hochberg</option>
+                      <option value="hommel">Hommel</option>
+                      <option value="bonferroni">Bonferroni</option>
+
                     </select>
                   </div>
                 </div>

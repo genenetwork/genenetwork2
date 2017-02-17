@@ -10,12 +10,12 @@
     {%- endfor %}
   <h2>Top 5 PheWAS hits</h2>
   <table width="100%">
-  <tr><th>GN ID</th><th>Phenotype</th><th>Phenosome</th><th>LOD</th></tr>
+  <tr><th>GN ID</th><th width="60%">Phenotype</th><th>Phenosome</th><th>LOD</th><th>LOD<sub>( {{ results['mtadjust'] }} )</sub></th></tr>
   {% for r in range(5) %}
     <tr>
     {% for c in range(results['tabulardata']|length) %}
       <td>
-      {% if c == 3 %}
+      {% if c >= 3 %}
       {{results['tabulardata'][c][r]|float|round(2)}}
       {% else %}
       {{results['tabulardata'][c][r]}}
