@@ -55,6 +55,8 @@ class PheWAS(object):
         self.trait_id = requestform["trait_id"]
         self.datasetname = requestform["dataset"]
         self.dataset = data_set.create_dataset(self.datasetname)
+        self.region = int(requestform["num_region"])
+        self.mtadjust = str(requestform["sel_mtadjust"])
 
         # Print some debug
         print "self.trait_id:" + self.trait_id + "\n"
@@ -70,7 +72,7 @@ class PheWAS(object):
         self.mb = int(self.this_trait.mb);
 
         # print some debug
-        print "location:" + self.chr + ":" + str(self.mb) + "\n"
+        print "location:" + self.chr + ":" + str(self.mb) + "+/-" + str(self.region) + "\n"
 
         # Load in the genotypes file *sigh* to make the markermap
         parser = genofile_parser.ConvertGenoFile(genofilelocation)
@@ -92,11 +94,12 @@ class PheWAS(object):
         self.results = {}
         self.results['imgurl1'] = webqtlUtil.genRandStr("phewas_") + ".png"
         self.results['imgloc1'] = GENERATED_IMAGE_DIR + self.results['imgurl1']
+        self.results['mtadjust'] = self.mtadjust
         print("IMAGE AT:", self.results['imgurl1'] )
         print("IMAGE AT:", self.results['imgloc1'] )
         # Create the PheWAS plot (The gene/probe name, chromosome and gene/probe positions should come from the user input)
         # TODO: generate the PDF in the temp folder, with a unique name
-        phewasres = self.r_PheWASManhattan("Test", precompfile, phenoaligner, snpaligner, "None", self.chr, self.mb, self.mb, self.results['imgloc1'] )
+        phewasres = self.r_PheWASManhattan("Test", precompfile, phenoaligner, snpaligner, "None", self.chr, self.mb, self.region, self.results['imgloc1'] , self.mtadjust)
         self.results['phewas1'] = phewasres[0]
         self.results['phewas2'] = phewasres[1]
         self.results['tabulardata'] = phewasres[2]
