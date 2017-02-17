@@ -4,17 +4,21 @@
 {% block content %} <!-- Start of body -->
 <div class="container">
   <h1>PheWAS analysis results</h1>
+  <h3>R debug log</h3>
+    {% for i in range(results['R_debuglog']|length) %}
+      {{ results['R_debuglog'][i]}}<br>
+    {%- endfor %}
   <h2>Top 5 PheWAS hits</h2>
   <table width="100%">
   <tr><th>GN ID</th><th>Phenotype</th><th>Phenosome</th><th>LOD</th></tr>
   {% for r in range(5) %}
     <tr>
-    {% for c in range(results['phewas3']|length) %}
+    {% for c in range(results['tabulardata']|length) %}
       <td>
-      {% if c == 4 %}
-      {{results['phewas3'][c][r]|float|round(2)}}
+      {% if c == 3 %}
+      {{results['tabulardata'][c][r]|float|round(2)}}
       {% else %}
-      {{results['phewas3'][c][r]}}
+      {{results['tabulardata'][c][r]}}
       {% endif %}
       </td>
     {%- endfor %}

@@ -5,6 +5,7 @@ from numpy import *
 import scipy as sp                            # SciPy
 import rpy2.robjects as ro                    # R Objects
 import rpy2.rinterface as ri
+from pprint import pprint
 
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility import webqtlUtil                # Random number for the image
@@ -17,6 +18,7 @@ import itertools
 
 from base import data_set
 from base import trait as TRAIT
+from base.trait import GeneralTrait
 
 from utility import helper_functions
 from utility.tools import locate
@@ -29,6 +31,7 @@ r_load          = ro.r["load"]                # Map the head function
 r_colnames      = ro.r["colnames"]            # Map the colnames function
 r_list          = ro.r["list"]                # Map the list function
 r_c             = ro.r["c"]                   # Map the c (combine) function
+r_print         = ro.r["print"]               # Map the c (combine) function
 r_seq           = ro.r["seq"]                 # Map the rep (repeat) function
 
 class PheWAS(object):
@@ -46,8 +49,30 @@ class PheWAS(object):
     def run_analysis(self, requestform):
         print("Starting PheWAS analysis on dataset")
         genofilelocation = locate("BXD.geno", "genotype")                                  # Get the location of the BXD genotypes
-        precompfilelocation = locate("PheWAS_pval_EMMA_norm.RData", "auwerx")              # Get the location of the pre-computed EMMA results
+        precompfile = locate("PheWAS_pval_EMMA_norm.RData", "auwerx")              # Get the location of the pre-computed EMMA results
 
+        # Get user parameters, trait_id and dataset, and store/update them in self
+        self.trait_id = requestform["trait_id"]
+        self.datasetname = requestform["dataset"]
+        self.dataset = data_set.create_dataset(self.datasetname)
+
+        # Print some debug
+        print "self.trait_id:" + self.trait_id + "\n"
+        print "self.datasetname:" + self.datasetname + "\n"
+        print "self.dataset.type:" + self.dataset.type + "\n"
+
+        # GN Magic ?
+        self.this_trait = GeneralTrait(dataset=self.dataset, name = self.trait_id, get_qtl_info = False, get_sample_info=False) 
+        pprint(vars(self.this_trait))
+
+        # Set the values we need
+        self.chr = str(self.this_trait.chr);
+        self.mb = int(self.this_trait.mb);
+
+        # print some debug
+        print "location:" + self.chr + ":" + str(self.mb) + "\n"
+
+        # Load in the genotypes file *sigh* to make the markermap
         parser = genofile_parser.ConvertGenoFile(genofilelocation)
         parser.process_csv()
         snpinfo = []
@@ -71,10 +96,11 @@ class PheWAS(object):
         print("IMAGE AT:", self.results['imgloc1'] )
         # Create the PheWAS plot (The gene/probe name, chromosome and gene/probe positions should come from the user input)
         # TODO: generate the PDF in the temp folder, with a unique name
-        phewasres = self.r_PheWASManhattan("Test", precompfilelocation, phenoaligner, snpaligner, "None", 1, 25, 25, self.results['imgloc1'] )
+        phewasres = self.r_PheWASManhattan("Test", precompfile, phenoaligner, snpaligner, "None", self.chr, self.mb, self.mb, self.results['imgloc1'] )
         self.results['phewas1'] = phewasres[0]
         self.results['phewas2'] = phewasres[1]
-        self.results['phewas3'] = phewasres[2]
+        self.results['tabulardata'] = phewasres[2]
+        self.results['R_debuglog'] = phewasres[3]
 
         #self.r_PheWASManhattan(allpvalues)
         #self.r_Stop()
@@ -98,5 +124,7 @@ class PheWAS(object):
         template_vars = {}
         template_vars["results"] = self.results
         self.render_image(self.results)
+        template_vars["R_debuglog"] = self.results['R_debuglog']
+
         return(dict(template_vars))
 
