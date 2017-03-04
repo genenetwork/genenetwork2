@@ -31,7 +31,7 @@ r_load          = ro.r["load"]                # Map the head function
 r_colnames      = ro.r["colnames"]            # Map the colnames function
 r_list          = ro.r["list"]                # Map the list function
 r_c             = ro.r["c"]                   # Map the c (combine) function
-r_print         = ro.r["print"]               # Map the c (combine) function
+r_print         = ro.r["print"]               # Map the print function
 r_seq           = ro.r["seq"]                 # Map the rep (repeat) function
 
 class PheWAS(object):
@@ -86,7 +86,6 @@ class PheWAS(object):
         rnames = r_seq(1, len(parser.markers))
         # Create the snp aligner object out of the BXD genotypes
         snpaligner = ro.r.matrix(snpinfo, nrow=len(parser.markers), dimnames = r_list(rnames, r_c("SNP", "Chr", "Pos")), ncol = 3, byrow=True)
-        #r_write_table(snpaligner, "~/snpaligner_GN2.txt", row_names=False)
 
         # Create the phenotype aligner object using R
         phenoaligner = self.r_create_Pheno_aligner()
