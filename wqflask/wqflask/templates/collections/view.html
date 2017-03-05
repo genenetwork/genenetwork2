@@ -79,20 +79,20 @@
               <button class="btn btn-default" id="export_traits">Download CSV</button>
             </form>
             <br />
-            <div style="background-color: #eeeeee; border: 1px solid black;">
-                <table id="trait_table" class="table table-hover table-striped">
+            <div>
+                <table class="table table-hover table-striped nowrap" id='trait_table' style="float: left;">
                     <thead>
                         <tr>
-                            <th style="background-color: #eeeeee;"></th>
-                            <th data-export="Index" style="background-color: #eeeeee;">Index</th>
-                            <th data-export="Dataset" style="background-color: #eeeeee;">Dataset</th>
-                            <th data-export="Record" style="background-color: #eeeeee;">Record</th>
-                            <th data-export="Description" style="background-color: #eeeeee;">Description</th>
-                            <th data-export="Location" style="background-color: #eeeeee;">Location</th>
-                            <th data-export="Mean" style="background-color: #eeeeee;">Mean</th>
-                            <th data-export="Max LRS" style="background-color: #eeeeee;">Max LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
-                            <th data-export="Max LRS Location" style="background-color: #eeeeee;">Max LRS Location</th>
-                            <th data-export="Additive Effect" style="background-color: #eeeeee;">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                            <th></th>
+                            <th data-export="Index">Index</th>
+                            <th data-export="Dataset">Dataset</th>
+                            <th data-export="Record">Record</th>
+                            <th data-export="Description">Description</th>
+                            <th data-export="Location">Location</th>
+                            <th data-export="Mean">Mean</th>
+                            <th data-export="Max LRS">Max LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                            <th data-export="Max LRS Location">Max LRS Location</th>
+                            <th data-export="Additive Effect">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
                         </tr>
                     </thead>
 
@@ -103,7 +103,7 @@
                                 <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
                                        VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                             </TD>
-                            <TD data-export="{{ loop.index }}">{{ loop.index }}</TD>
+                            <TD data-export="{{ loop.index }}" align="right">{{ loop.index }}</TD>
                             <TD data-export="{{ this_trait.dataset.name }}">{{ this_trait.dataset.name }}</TD>
                             <TD data-export="{{ this_trait.name }}">
                                 <a href="{{ url_for('show_trait_page',
@@ -113,12 +113,12 @@
                                     {{ this_trait.name }}
                                 </a>
                             </TD>
-                            <TD data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
+                            <TD title="{{ this_trait.description_display }}" data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
                             <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
-                            <TD data-export="{{ this_trait.mean }}">{{ '%0.3f' % this_trait.mean|float }}</TD>
-                            <TD data-export="{{ this_trait.LRS_score_repr }}">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
+                            <TD data-export="{{ this_trait.mean }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
+                            <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
                             <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
-                            <TD data-export="{{ this_trait.additive }}">{{ '%0.3f' % this_trait.additive|float }}</TD>
+                            <TD data-export="{{ this_trait.additive }}" align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
 
                         </TR>
                     {% endfor %}
@@ -156,23 +156,34 @@
 
             console.time("Creating table");
             $('#trait_table').dataTable( {
+                "createdRow": function ( row, data, index ) {
+                    if ($('td', row).eq(4).text().length > 50) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
+                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                    }
+                },
                 "columns": [
                     { "type": "natural" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "5%" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural",
-                      "width": "35%"  },
+                      "width": "30%"  },
                     { "type": "natural",
-                      "width": "15%"  },
+                      "width": "10%"  },
                     { "type": "cust-txt" },
                     { "type": "natural",
-                      "width": "9%"  },
+                      "width": "6%"  },
                     { "type": "natural",
-                      "width": "15%"  },
-                    { "type": "natural" }
+                      "width": "10%"  },
+                    { "type": "natural",
+                      "width": "8%"  }
                 ],
-                "sDom": "ZRtir",
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
+                "sDom": "ZRtr",
                 "iDisplayLength": -1,
                 "autoWidth": true,
                 "bDeferRender": true,

@@ -31,7 +31,7 @@ of GN2.
 
 Large system deployments can get very [[http://biogems.info/contrib/genenetwork/gn2.svg ][complex]]. In this document we
 explain the GeneNetwork version 2 (GN2) reproducible deployment system
-which is based on GNU Guix (see also Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]). The Guix
+which is based on GNU Guix (see also [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]). The Guix
 system can be used to install GN with all its files and dependencies.
 
 The official installation path is from a checked out version of the
@@ -52,15 +52,16 @@ Linux distribution (including CentOS). For more elaborate installation
 instructions see [[#source-deployment][Source deployment]].
 
 Note that GN2 consists of an approx. 5 GB installation including
-database.
+database. If you use a virtual machine we recommend to use at least
+double.
 
 ** Step 1: Install GNU Guix
 
 Fetch the GNU Guix binary from [[https://www.gnu.org/software/guix/download/][here]] (middle panel) and follow
-[[https://www.gnu.org/software/guix/manual/html_node/Binary-Installation.html][instructions]]. Essentially you have to download and unpack the tar ball
-(which creates directories in /gnu and /var/guix), add build users and
-group (Guix builds software as unpriviliged users) and run the Guix
-daemon after fixing the paths (also known as the 'profile').
+[[https://www.gnu.org/software/guix/manual/html_node/Binary-Installation.html][instructions]]. Essentially, download and unpack the tar ball (which
+creates directories in /gnu and /var/guix), add build users and group
+(Guix builds software as unpriviliged users) and run the Guix daemon
+after fixing the paths (also known as the 'profile').
 
 Once you have succeeded, you have to [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-the-key][set the key]] (getting permission
 to download binaries from the GNU server) and you should be able to
@@ -104,16 +105,22 @@ guix package -i git
 export GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt
 #+end_src
 
-check out the git repsitories (gn-latest branch)
+check out the git repositories (gn-deploy branch)
 
 #+begin_src bash
 cd ~
 mkdir genenetwork
 cd genenetwork
-git clone --branch gn-latest https://github.com/genenetwork/guix-bioinformatics
-git clone --branch gn-latest --recursive https://github.com/genenetwork/guix guix-gn-latest
-cd guix-gn-latest
+git clone --branch gn-deploy https://github.com/genenetwork/guix-bioinformatics
+git clone --branch gn-deploy --recursive https://github.com/genenetwork/guix guix-gn-deploy
+cd guix-gn-deploy
 #+end_src bash
+
+To test whether this is working try:
+
+#+begin_src bash
+#+end_src bash
+
 
 ** Step 3: Authorize the GN Guix server
 
@@ -146,7 +153,7 @@ GNU Guix package path by pointing the package path to our repository:
 
 #+begin_src bash
 rm /root/.config/guix/latest
-ln -s ~/genenetwork/guix-gn-latest/ /root/.config/guix/latest
+ln -s ~/genenetwork/guix-gn-deploy/ /root/.config/guix/latest
 #+end_src
 
 Now check whether you can find the GN2 package with
@@ -164,12 +171,15 @@ And install with
 #+begin_src bash
 env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ \
   guix package -i genenetwork2 \
-  --substitute-urls="http://guix.genenetwork.org:8080 https://mirror.guixsd.org" \
-  --fallback
+  --substitute-urls="http://guix.genenetwork.org"
 #+end_src
 
 Note: the order of the substitute url's may make a difference in speed
 (put the one first that is fastest for your location and time of day).
+
+Note: if your system starts building or gives an error it may well be
+Step 3 did not succeed. The installation should actually be smooth at
+this point and only do binary installs (no compiling).
 
 After installation you should be able to run genenetwork2 after updating
 the Guix suggested environment vars. Check the output of
@@ -367,7 +377,7 @@ Create, install and run a recent version of the guix-daemon by
 compiling the guix repository you have installed with git in
 step 2. Follow [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully after
 
-: cd ~/genenetwork/guix-gn-latest
+: cd ~/genenetwork/guix-gn-deploy
 
 Make sure to restart the guix daemon and run guix client from this
 directory.
@@ -377,7 +387,7 @@ directory.
 Reinstall genenetwork2 using the new tree
 
 #+begin_src bash
-env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ ./pre-inst-env guix package -i genenetwork2 --substitute-urls="http://guix.genenetwork.org:8080 https://mirror.guixsd.org"
+env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ ./pre-inst-env guix package -i genenetwork2 --substitute-urls="http://guix.genenetwork.org https://mirror.guixsd.org"
 #+end_src bash
 
 Note the use of ./pre-inst-env here!
@@ -486,7 +496,7 @@ and a download of the test database.
 <pjotrp> right?
 <user01> yep
 <user01> set to the ones in ~/.guix-profile/
-<pjotrp> good, and you are in gn-latest-guix repo  [07:06]
+<pjotrp> good, and you are in gn-deploy-guix repo  [07:06]
 <user01> yep  [07:07]
 <pjotrp> git log shows
 
@@ -645,7 +655,7 @@ The following derivations would be built:
 <pjotrp> and see what this lists  [08:31]
 <pjotrp> env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix
          package -i genenetwork2
-         --substitute-urls=http://guix.genenetwork.org:8080 --dry-run
+         --substitute-urls=http://guix.genenetwork.org --dry-run
 <pjotrp> should be all binary installs
 <user01> it's not..  [08:32]
 <user01> if I remove --substitute-urls, the list changes, does that mean I
@@ -716,7 +726,7 @@ The following derivations would be built:
 <pjotrp> should not  [09:24]
 <pjotrp> what does env GUIX_PACKAGE_PATH=../guix-bioinformatics/
          ./pre-inst-env guix package -i genenetwork2
-         --substitute-urls="http://guix.genenetwork.org:8080" --dry-run
+         --substitute-urls="http://guix.genenetwork.org" --dry-run
                                                                         [09:25]
 <pjotrp> say for r-prepocesscore
 <pjotrp> download or build?
@@ -869,7 +879,7 @@ The following derivations would be built:
 <pjotrp> I wrote an elixir package for guix :)
 <pjotrp> env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env guix
          package -A elixir
-         --substitute-urls="http://guix.genenetwork.org:8080"   [10:08]
+         --substitute-urls="http://guix.genenetwork.org"   [10:08]
 <pjotrp> elixir  1.2.3   out
          ../guix-bioinformatics/gn/packages/elixir.scm:31:2
 <pjotrp>

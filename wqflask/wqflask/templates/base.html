@@ -81,10 +81,10 @@
             </div>
     </div>
 
-    <div class="container-fluid" style="background-color: #d5d5d5; height: 95px;">
+    <div class="container-fluid" style="position: relative; background-color: #d5d5d5; height: 95px;">
 
         <form method="get" action="/gsearch">
-            <div class="row">
+            <div class="row" style="position: absolute; bottom: 0; top: 30px;">
                 <select class="form-control col-xs-2" style="width: 170px; margin-top: 15px; margin-left: 10px;" name="type">
                     <option value="gene">Genes / Molecules</option>
                     <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>

@@ -207,7 +207,11 @@ class CorrelationMatrix(object):
         print("before loop:", self.loadings[0])
         for i in range(len(self.trait_list)):
             loadings_row = []
-            for j in range(3):
+            if len(self.trait_list) > 2:
+               the_range = 3
+            else:
+               the_range = 2
+            for j in range(the_range):
                 position = i + len(self.trait_list)*j
                 loadings_row.append(self.loadings[0][position])
             loadings_array.append(loadings_row)

@@ -226,10 +226,8 @@ back_to_collections = function() {
   return $('#collections_holder').colorbox.resize();
 };
 
-$(function() {
-  console.log("inside get_traits_from_collection");
-  $(document).on("click", ".collection_line", collection_click);
-  $(document).on("click", "#submit", submit_click);
-  $(document).on("click", ".trait", trait_click);
-  return $(document).on("click", "#back_to_collections", back_to_collections);
-});
+console.log("inside get_traits_from_collection");
+$(".collection_line").on("click", collection_click);
+$("#submit").on("click", submit_click);
+$(".trait").on("click", trait_click);
+$("#back_to_collections").on("click", back_to_collections);

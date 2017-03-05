@@ -51,10 +51,12 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
+#from wqflask.trait_submission import submit_trait
 
 from utility import webqtlUtil
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION
+from utility.helper_functions import get_species_groups
 
 from base import webqtlFormData
 from base.webqtlConfig import GENERATED_IMAGE_DIR, GENERATED_TEXT_DIR
@@ -306,6 +308,20 @@ def environments():
     doc = docs.Docs("environments")
     return render_template("docs.html", **doc.__dict__)
 
+@app.route("/submit_trait")
+def submit_trait_form():
+    species_and_groups = get_species_groups()
+    return render_template("submit_trait.html", **{'species_and_groups' : species_and_groups, 'gn_server_url' : GN_SERVER_URL, 'version' : GN_VERSION})
+
+@app.route("/create_temp_trait", methods=('POST',))
+def create_temp_trait():
+    print("REQUEST.FORM:", request.form)
+    #template_vars = submit_trait.SubmitTrait(request.form)
+
+    doc = docs.Docs("links")
+    return render_template("links.html", **doc.__dict__)
+    #return render_template("show_trait.html", **template_vars.__dict__)
+
 @app.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
@@ -387,9 +403,6 @@ def export_perm_data():
 
 @app.route("/show_trait")
 def show_trait_page():
-    # Here it's currently too complicated not to use an fd that is a webqtlFormData
-    #fd = webqtlFormData.webqtlFormData(request.args)
-    #logger.info("stp y1:", pf(vars(fd)))
     template_vars = show_trait.ShowTrait(request.args)
     #logger.info("js_data before dump:", template_vars.js_data)
     template_vars.js_data = json.dumps(template_vars.js_data,
@@ -452,6 +465,60 @@ def heatmap_page():
 def mapping_results_container_page():
     return render_template("mapping_results_container.html")
 
+@app.route("/loading", methods=('POST',))
+def loading_page():
+    initial_start_vars = request.form
+    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
+    #temp_uuid = initial_start_vars['temp_uuid']
+    wanted = (
+        'temp_uuid',
+        'trait_id',
+        'dataset',
+        'method',
+        'trimmed_markers',
+        'selected_chr',
+        'chromosomes',
+        'mapping_scale',
+        'score_type',
+        'suggestive',
+        'significant',
+        'num_perm',
+        'permCheck',
+        'perm_output',
+        'num_bootstrap',
+        'bootCheck',
+        'bootstrap_results',
+        'LRSCheck',
+        'maf',
+        'manhattan_plot',
+        'control_marker',
+        'control_marker_db',
+        'do_control',
+        'genofile',
+        'pair_scan',
+        'startMb',
+        'endMb',
+        'graphWidth',
+        'lrsMax',
+        'additiveCheck',
+        'showSNP',
+        'showGenes',
+        'viewLegend',
+        'haplotypeAnalystCheck',
+        'mapmethod_rqtl_geno',
+        'mapmodel_rqtl_geno'
+    )
+    start_vars_container = {}
+    start_vars = {}
+    for key, value in initial_start_vars.iteritems():
+        if key in wanted or key.startswith(('value:')):
+            start_vars[key] = value
+
+    start_vars_container['start_vars'] = start_vars
+    rendered_template = render_template("loading.html", **start_vars_container)
+
+    return rendered_template
+
 @app.route("/marker_regression", methods=('POST',))
 def marker_regression_page():
     initial_start_vars = request.form
@@ -480,6 +547,7 @@ def marker_regression_page():
         'control_marker',
         'control_marker_db',
         'do_control',
+        'genofile',
         'pair_scan',
         'startMb',
         'endMb',

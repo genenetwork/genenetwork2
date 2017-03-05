@@ -1,17 +1,19 @@
 <table class="table">
     <tr>
-        <td>Species</td>
-        <td>{{ this_trait.dataset.group.species }}</td>
-    </tr>
-    <tr>
-        <td>Group</td>
-        <td>{{ this_trait.dataset.group.name }}</td>
+        <td>Species and Group</td>
+        <td>{{ this_trait.dataset.group.species }}, {{ this_trait.dataset.group.name }}</td>
     </tr>
     <tr>
         <td>Tissue</td>
         <td>{{ this_trait.dataset.tissue }}</td>
     </tr>
     {% if this_trait.dataset.type == 'ProbeSet' %}
+    {% if this_trait.symbol != None %}
+    <tr>
+        <td>Gene Symbol</td>
+        <td>{{ this_trait.symbol }}</td>
+    </tr>
+    {% endif %}
     <tr>
         <td>Aliases</td>
         <td>{{ this_trait.alias_fmt|replace(",",";") }}</td>
@@ -74,49 +76,35 @@
 <div style="margin-bottom:15px;" class="btn-toolbar">
     <div class="btn-group">
         <a href="#redirect">
-        <button type="button" id="add_to_collection" class="btn btn-primary" title="Add to collection">
-            <i class="icon-plus-sign icon-white"></i> Add
-        </button>
+        <button type="button" id="add_to_collection" class="btn btn-primary" title="Add to collection">Add</button>
         </a>
         {% if this_trait.dataset.type == 'ProbeSet' %}
         {% if this_trait.symbol != None %}
-        <a href="http://www.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ species_name }}">
-        <button type="button" class="btn btn-default" title="Find similar expression data">
-            <i class="icon-search"></i> Find
-        </button>
+        <a href="http://www.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}">
+        <button type="button" class="btn btn-default" title="Find similar expression data">Find</button>
         </a>
         {% endif %}
         {% if UCSC_BLAT_URL != "" %}
         <a href="{{ UCSC_BLAT_URL }}">
-        <button type="button" class="btn btn-default" title="Check probe locations at UCSC">
-            <i class="icon-ok"></i> Verify
-        </button>
+        <button type="button" class="btn btn-default" title="Check probe locations at UCSC">Verify</button>
         </a>
         {% endif %}
         {% if this_trait.symbol != None %}
         <a href="http://genenetwork.org/webqtl/main.py?FormID=geneWiki&symbol={{ this_trait.symbol }}">
-        <button type="button" class="btn btn-default" title="Write or review comments about this gene">
-            <i class="icon-edit"></i> GeneWiki
-        </button>
+        <button type="button" class="btn btn-default" title="Write or review comments about this gene">GeneWiki</button>
         </a>
         <a href="http://genenetwork.org/webqtl/main.py?FormID=SnpBrowserResultPage&submitStatus=1&diffAlleles=True&customStrain=True&geneName={{ this_trait.symbol }}">
-        <button type="button" class="btn btn-default" title="View SNPs and Indels">
-            <i class="icon-road"></i> SNPs
-        </button>
+        <button type="button" class="btn btn-default" title="View SNPs and Indels">SNPs</button>
         </a>
         {% endif %}
         {% if UTHSC_BLAT_URL != "" %}
         <a href="{{ UTHSC_BLAT_URL }}">
-        <button type="button" class="btn btn-default" title="View probes, SNPs, and RNA-seq at UTHSC">
-            <i class="icon-eye-close"></i> RNA-seq
-        </button>
+        <button type="button" class="btn btn-default" title="View probes, SNPs, and RNA-seq at UTHSC">RNA-seq</button>
         </a>
         {% endif %}
         {% if show_probes == "True" %}
         <a href="http://genenetwork.org/webqtl/main.py?FormID=showProbeInfo&database={{ this_trait.dataset.name }}&ProbeSetID={{ this_trait.name }}&CellID={{ this_trait.cellid }}&RISet={{ dataset.group.name }}&incparentsf1=ON">
-        <button type="button" class="btn btn-default" title="Check sequence of probes">
-            <i class="icon-list"></i> Probes
-        </button>
+        <button type="button" class="btn btn-default" title="Check sequence of probes">Probes</button>
         </a>
         {% endif %}
         {% endif %}

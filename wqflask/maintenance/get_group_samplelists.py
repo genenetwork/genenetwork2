@@ -51,6 +51,6 @@ def get_samplelist_from_plink(genofilename):
     samplelist = []
     for line in genofile:
         line = line.split(" ")
-        samplelist.append(line[0])
+        samplelist.append(line[1])
 
     return samplelist

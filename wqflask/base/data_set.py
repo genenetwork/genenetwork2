@@ -44,7 +44,7 @@ from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
 from utility import chunks
-from utility.tools import locate, locate_ignore_error
+from utility.tools import locate, locate_ignore_error, flat_files
 
 from maintenance import get_group_samplelists
 
@@ -53,7 +53,7 @@ from pprint import pformat as pf
 from db.gn_server import menu_main
 from db.call import fetchall,fetchone,fetch1
 
-from utility.tools import USE_GN_SERVER, USE_REDIS
+from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
@@ -226,7 +226,7 @@ class Markers(object):
 class HumanMarkers(Markers):
 
     def __init__(self, name, specified_markers = []):
-        marker_data_fh = open(locate('genotype') + '/' + name + '.bim')
+        marker_data_fh = open(flat_files('mapping') + '/' + name + '.bim')
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
@@ -264,95 +264,73 @@ class DatasetGroup(object):
     def __init__(self, dataset):
         """This sets self.group and self.group_id"""
         #logger.debug("DATASET NAME2:", dataset.name)
-        self.name, self.id = fetchone(dataset.query_for_group)
+        self.name, self.id, self.genetic_type = fetchone(dataset.query_for_group)
         if self.name == 'BXD300':
             self.name = "BXD"
 
         self.f1list = None
         self.parlist = None
         self.get_f1_parent_strains()
-        #logger.debug("parents/f1s: {}:{}".format(self.parlist, self.f1list))
+
+        self.accession_id = self.get_accession_id()
+        self.mapping_id, self.mapping_names = self.get_mapping_methods()
 
         self.species = webqtlDatabaseFunction.retrieve_species(self.name)
 
         self.incparentsf1 = False
         self.allsamples = None
         self._datasets = None
+        self.genofile = None
+
+    def get_accession_id(self):
+        results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
+                    InbredSet.Name = %s and
+                    PublishFreeze.InbredSetId = InbredSet.Id and
+                    InfoFiles.InfoPageName = PublishFreeze.Name and
+                    PublishFreeze.public > 0 and
+                    PublishFreeze.confidentiality < 1 order by
+                    PublishFreeze.CreateTime desc""", (self.name)).fetchone()
+
+        if results != None:
+            return str(results[0])
+        else:
+            return "None"
+
+    def get_mapping_methods(self):
+
+        mapping_id = g.db.execute("select MappingMethodId from InbredSet where Name= '%s'" % self.name).fetchone()[0]
+        if mapping_id == "1":
+            mapping_names = ["QTLReaper", "PYLMM", "R/qtl"]
+        elif mapping_id == "2":
+            mapping_names = ["GEMMA"]
+        elif mapping_id == "4":
+            mapping_names = ["PLINK"]
+        else:
+            mapping_names = []
+
+        return mapping_id, mapping_names
 
     def get_specified_markers(self, markers = []):
         self.markers = HumanMarkers(self.name, markers)
 
     def get_markers(self):
-        #logger.debug("self.species is:", self.species)
-        if self.species == "human":
+        logger.debug("self.species is:", self.species)
+
+        def check_plink_gemma():
+            if flat_file_exists("mapping"):
+                MAPPING_PATH = flat_files("mapping")+"/"
+                if (os.path.isfile(MAPPING_PATH+self.name+".bed") and
+                    (os.path.isfile(MAPPING_PATH+self.name+".map") or
+                     os.path.isfile(MAPPING_PATH+self.name+".bim"))):
+                    return True
+            return False
+
+        if check_plink_gemma():
             marker_class = HumanMarkers
         else:
-            marker_class = Markers
+            marker_class = Markers            
 
         self.markers = marker_class(self.name)
-
-    def datasets(self):
-        key = "group_dataset_menu:v2:" + self.name
-        logger.debug("key is2:", key)
-        dataset_menu = []
-        logger.debug("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
-        logger.debug("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
-        the_results = fetchall('''
-             (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
-              FROM PublishFreeze,InbredSet
-              WHERE PublishFreeze.InbredSetId = InbredSet.Id
-                and InbredSet.Name = '%s'
-                and PublishFreeze.public > %s)
-             UNION
-             (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
-              FROM GenoFreeze, InbredSet
-              WHERE GenoFreeze.InbredSetId = InbredSet.Id
-                and InbredSet.Name = '%s'
-                and GenoFreeze.public > %s)
-             UNION
-             (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
-              FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
-              WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
-                and ProbeFreeze.TissueId = Tissue.Id
-                and ProbeFreeze.InbredSetId = InbredSet.Id
-                and InbredSet.Name like %s
-                and ProbeSetFreeze.public > %s
-              ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
-            ''' % (self.name, webqtlConfig.PUBLICTHRESH,
-                  self.name, webqtlConfig.PUBLICTHRESH,
-                  "'" + self.name + "'", webqtlConfig.PUBLICTHRESH))
-
-        #for tissue_name, dataset in itertools.groupby(the_results, itemgetter(0)):
-        for dataset_item in the_results:
-            tissue_name = dataset_item[0]
-            dataset = dataset_item[1]
-            dataset_short = dataset_item[2]
-            if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
-                dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
-            else:
-                dataset_sub_menu = [item[1:] for item in dataset]
-
-                tissue_already_exists = False
-                tissue_position = None
-                for i, tissue_dict in enumerate(dataset_menu):
-                    if tissue_dict['tissue'] == tissue_name:
-                        tissue_already_exists = True
-                        tissue_position = i
-                        break
-
-                if tissue_already_exists:
-                    #logger.debug("dataset_menu:", dataset_menu[i]['datasets'])
-                    dataset_menu[i]['datasets'].append((dataset, dataset_short))
-                else:
-                    dataset_menu.append(dict(tissue=tissue_name,
-                                        datasets=[(dataset, dataset_short)]))
-
-        if USE_REDIS:
-            Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
-            Redis.expire(key, 60*5)
-        self._datasets = dataset_menu
-
-        return self._datasets
 
     def get_f1_parent_strains(self):
         try:
@@ -408,7 +386,10 @@ class DatasetGroup(object):
         genotype_1 = reaper.Dataset()
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
-        full_filename = str(locate(self.name+'.geno','genotype'))
+        if self.genofile:
+            full_filename = str(locate(self.genofile, 'genotype'))
+        else:
+            full_filename = str(locate(self.name + '.geno', 'genotype'))
         genotype_1.read(full_filename)
 
         if genotype_1.type == "group" and self.parlist:
@@ -427,6 +408,71 @@ class DatasetGroup(object):
 
         return genotype
 
+def datasets(group_name, this_group = None):
+    key = "group_dataset_menu:v2:" + group_name
+    logger.debug("key is2:", key)
+    dataset_menu = []
+    logger.debug("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
+    logger.debug("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
+    the_results = fetchall('''
+         (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
+          FROM PublishFreeze,InbredSet
+          WHERE PublishFreeze.InbredSetId = InbredSet.Id
+            and InbredSet.Name = '%s'
+            and PublishFreeze.public > %s)
+         UNION
+         (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
+          FROM GenoFreeze, InbredSet
+          WHERE GenoFreeze.InbredSetId = InbredSet.Id
+            and InbredSet.Name = '%s'
+            and GenoFreeze.public > %s)
+         UNION
+         (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
+          FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
+          WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+            and ProbeFreeze.TissueId = Tissue.Id
+            and ProbeFreeze.InbredSetId = InbredSet.Id
+            and InbredSet.Name like %s
+            and ProbeSetFreeze.public > %s
+          ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
+        ''' % (group_name, webqtlConfig.PUBLICTHRESH,
+              group_name, webqtlConfig.PUBLICTHRESH,
+              "'" + group_name + "'", webqtlConfig.PUBLICTHRESH))
+
+    #for tissue_name, dataset in itertools.groupby(the_results, itemgetter(0)):
+    for dataset_item in the_results:
+        tissue_name = dataset_item[0]
+        dataset = dataset_item[1]
+        dataset_short = dataset_item[2]
+        if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
+            dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
+        else:
+            dataset_sub_menu = [item[1:] for item in dataset]
+
+            tissue_already_exists = False
+            tissue_position = None
+            for i, tissue_dict in enumerate(dataset_menu):
+                if tissue_dict['tissue'] == tissue_name:
+                    tissue_already_exists = True
+                    tissue_position = i
+                    break
+
+            if tissue_already_exists:
+                #logger.debug("dataset_menu:", dataset_menu[i]['datasets'])
+                dataset_menu[i]['datasets'].append((dataset, dataset_short))
+            else:
+                dataset_menu.append(dict(tissue=tissue_name,
+                                    datasets=[(dataset, dataset_short)]))
+
+    if USE_REDIS:
+        Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
+        Redis.expire(key, 60*5)
+
+    if this_group != None:
+        this_group._datasets = dataset_menu
+        return this_group._datasets
+    else:
+        return dataset_menu
 
 class DataSet(object):
     """
@@ -650,7 +696,7 @@ class PhenotypeDataSet(DataSet):
 
         self.query_for_group = '''
                             SELECT
-                                    InbredSet.Name, InbredSet.Id
+                                    InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                             FROM
                                     InbredSet, PublishFreeze
                             WHERE
@@ -720,8 +766,8 @@ class PhenotypeDataSet(DataSet):
             if this_trait.lrs:
                 query = """
                     select Geno.Chr, Geno.Mb from Geno, Species
-                    where Species.Name = %s and
-                        Geno.Name = %s and
+                    where Species.Name = '%s' and
+                        Geno.Name = '%s' and
                         Geno.SpeciesId = Species.Id
                 """ % (species, this_trait.locus)
                 logger.sql(query)
@@ -793,7 +839,7 @@ class GenotypeDataSet(DataSet):
 
         self.query_for_group = '''
                 SELECT
-                        InbredSet.Name, InbredSet.Id
+                        InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                 FROM
                         InbredSet, GenoFreeze
                 WHERE
@@ -919,7 +965,7 @@ class MrnaAssayDataSet(DataSet):
 
         self.query_for_group = '''
                         SELECT
-                                InbredSet.Name, InbredSet.Id
+                                InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                         FROM
                                 InbredSet, ProbeSetFreeze, ProbeFreeze
                         WHERE
