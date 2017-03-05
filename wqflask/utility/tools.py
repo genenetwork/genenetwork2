@@ -217,13 +217,15 @@ USE_REDIS          = get_setting_bool('USE_REDIS')
 USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
 
 GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
-TEMP_TRAITS        = get_setting('TEMP_TRAITS')
+# TEMP_TRAITS        = get_setting('TEMP_TRAITS')
 
 PYLMM_COMMAND      = pylmm_command()
 GEMMA_COMMAND      = gemma_command()
 GEMMA_RESULTS_PATH = get_setting('GEMMA_RESULTS_PATH')
+assert_dir(GEMMA_RESULTS_PATH)
 PLINK_COMMAND      = plink_command()
 TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
+assert_dir(TEMPDIR)
 
 from six import string_types
 
@@ -240,6 +242,7 @@ if os.environ.get('WQFLASK_OVERRIDES'):
                 OVERRIDES[k] = cmd
             logger.debug(OVERRIDES)
 
+assert_file(get_setting("GENENETWORK_FILES")+"/auwerx/PheWAS_pval_EMMA_norm.RData")
 assert_dir(get_setting("JS_BIODALLIANCE"))
 assert_file(get_setting("JS_BIODALLIANCE")+"/build/dalliance-all.js")
 assert_file(get_setting("JS_BIODALLIANCE")+"/build/worker-all.js")

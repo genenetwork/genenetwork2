@@ -67,6 +67,7 @@ HOME=os.environ['HOME']
 LOGFILE = HOME+"/genenetwork2.log"
 GENENETWORK_FILES = HOME+"/gn2_data"  # base dir for all static data files
 LOCAL_PRIVATE_FILES = HOME+"/gn2_private_data" # private static data files
+GEMMA_RESULTS_PATH = HOME+"/tmp/gemma_results"
 
 # ---- GN2 Executables
 # Paths to invoked binaries
