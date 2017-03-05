@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}PheWAS analysis{% endblock %}
+
+{% block content %} <!-- Start of body -->
+<div class="container">
+  <h1>PheWAS analysis results</h1>
+  <h3>R debug log</h3>
+    {% for i in range(results['R_debuglog']|length) %}
+      {{ results['R_debuglog'][i]}}<br>
+    {%- endfor %}
+  <h2>Top 5 PheWAS hits</h2>
+  <table width="100%">
+  <tr><th>GN ID</th><th width="60%">Phenotype</th><th>Phenosome</th><th>LOD</th><th>LOD<sub>( {{ results['mtadjust'] }} )</sub></th></tr>
+  {% for r in range(5) %}
+    <tr>
+    {% for c in range(results['tabulardata']|length) %}
+      <td>
+      {% if c >= 3 %}
+      {{results['tabulardata'][c][r]|float|round(2)}}
+      {% else %}
+      {{results['tabulardata'][c][r]}}
+      {% endif %}
+      </td>
+    {%- endfor %}
+  {%- endfor %}
+
+  </table>
+<!--  {{ results['phewas1'] }}
+  {{ results['phewas2'] }}
+  {{ results['phewas3'] }} -->
+  <h2>Download PheWAS results</h2>
+  <a href="" class="btn submit_special btn-primary">Download CSV</a> <a href="" class="btn submit_special btn-primary">Download RData</a>
+  <h3>PheWAS manhattan plot</h3>
+  <a href="/tmp/{{ results['imgurl1'] }}">
+      <img alt="Embedded Image" src="data:image/png;base64,
+      {% for elem in results['imgdata1'] -%}
+      {% print("%c"|format(elem)) %}
+      {%- endfor %}
+      " /></a>
+</div>
+{% endblock %}

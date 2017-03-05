@@ -51,7 +51,8 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
-#from wqflask.trait_submission import submit_trait
+from wqflask.auwerx import phewas_analysis
+from wqflask.auwerx import ephewas_analysis
 
 from utility import webqtlUtil
 from utility import temp_data
@@ -264,6 +265,25 @@ def wcgna_results():
     wgcnaA = wgcna.run_analysis(request.form)                     # Start the analysis, a wgcnaA object should be a separate long running thread
     result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
     return render_template("wgcna_results.html", **result)        # Display them using the template
+
+@app.route("/phewas", methods=('POST',))
+def phewas():
+    logger.info("In phewas, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    phewasO = phewas_analysis.PheWAS()                                            # Start R, load the package and pointers and create the analysis
+    phewasA = phewasO.run_analysis(request.form)
+    result  = phewasO.process_results(phewasA)                           # After the analysis is finished store the result
+    return render_template("phewas_analysis.html", **result)             # Display them using the template
+
+@app.route("/ephewas", methods=('POST',))
+def ephewas():
+    logger.info("In ephewas, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    ephewasO = ephewas_analysis.EPheWAS()                                            # Start R, load the package and pointers and create the analysis
+    return render_template("ephewas_analysis.html", **request.form)          # Display them using the template
+
+@app.route("/mediation", methods=('POST',))
+def mediation():
+    logger.info("In mediation, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    return render_template("mediation_analysis.html", **request.form)          # Display them using the template
 
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():

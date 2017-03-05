@@ -222,6 +222,25 @@
     };
   })(this));
 
+
+  $("#phewas_compute").on("click", (function(_this) {
+    return function() {
+      return submit_special("/phewas");
+    };
+  })(this));
+
+  $("#ephewas_compute").on("click", (function(_this) {
+    return function() {
+      return submit_special("/ephewas");
+    };
+  })(this));
+
+  $("#mediation_compute").on("click", (function(_this) {
+    return function() {
+      return submit_special("/mediation");
+    };
+  })(this));
+
   $("#gemma_compute").on("click", (function(_this) {
     return function() {
       var form_data, url;

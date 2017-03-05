@@ -93,12 +93,25 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFive" aria-expanded="true">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFive">
+                        <h3 class="panel-title">
+                             <span class="glyphicon glyphicon-chevron-down"></span> PheWAS
+                        </h3>
+                    </div>
+                    <div id="collapseFive" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            {% include 'show_trait_PheWAS_tools.html' %}
+                        </div>
+                        <div id="alert_placeholder"></div>
+                    </div>
+                </div>                
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseSix" aria-expanded="true">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
                         </h3>
                     </div>
-                    <div id="collapseFive" class="panel-collapse collapse" aria-expanded="true">
+                    <div id="collapseSix" class="panel-collapse collapse" aria-expanded="true">
                         <div class="panel-body">
                             {% include 'show_trait_edit_data.html' %}
                         </div>
