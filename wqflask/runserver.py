@@ -19,16 +19,17 @@ ENDC  = '\033[0m'
 import os
 app.config['SECRET_KEY'] = os.urandom(24)
 
-from utility.tools import WEBSERVER_MODE,get_setting_int,get_setting
+from utility.tools import WEBSERVER_MODE,get_setting_int,get_setting,get_setting_bool
 
 port = get_setting_int("SERVER_PORT")
 
 print("GN2 API server URL is ["+BLUE+get_setting("GN_SERVER_URL")+ENDC+"]")
 
-import requests
-page = requests.get(get_setting("GN_SERVER_URL"))
-if page.status_code != 200:
-    raise Exception("API server not found!")
+if get_setting_bool("USE_GN_SERVER"):
+    import requests
+    page = requests.get(get_setting("GN_SERVER_URL"))
+    if page.status_code != 200:
+        raise Exception("API server not found!")
 
 print("GN2 is running. Visit %s[http://localhost:%s/%s](%s)" % (BLUE,str(port),ENDC,get_setting("WEBSERVER_URL")))
 
