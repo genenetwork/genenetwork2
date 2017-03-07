@@ -21,7 +21,10 @@ from base import trait as TRAIT
 from base.trait import GeneralTrait
 
 from utility import helper_functions
-from utility.tools import locate
+from utility.tools import locate, locate_phewas
+
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
 
 r_library       = ro.r["library"]             # Map the library function
 r_options       = ro.r["options"]             # Map the options function
@@ -36,20 +39,20 @@ r_seq           = ro.r["seq"]                 # Map the rep (repeat) function
 
 class PheWAS(object):
     def __init__(self):
-        print("Initialization of PheWAS")
+        ("Initialization of PheWAS")
         # TODO: Loading the package should only be done once, since it is quite expensive
-        print(r_library("auwerx"))                                                         # Load the auwerx package
+        logger.info(r_library("auwerx"))                                                         # Load the auwerx package
         self.r_create_Pheno_aligner = ro.r["create.Pheno_aligner"]                         # Map the create.Pheno_aligner function
         self.r_calculate_all_pvalue_parallel = ro.r["calculate.all.pvalue.parallel"]       # Map the calculate.all.pvalue.parallel function
         self.r_PheWASManhattan = ro.r["PheWASManhattan"]                                   # Map the PheWASManhattan function
         self.r_Stop = ro.r["throwStopError"]                                   # Map the PheWASManhattan function
         self.r_PyLoadData    = ro.r["PyLoadData"]          # Map the load function
-        print("Initialization of PheWAS done !")
+        logger.info("Initialization of PheWAS done !")
 
     def run_analysis(self, requestform):
-        print("Starting PheWAS analysis on dataset")
+        logger.info("Starting PheWAS analysis on dataset")
         genofilelocation = locate("BXD.geno", "genotype")                                  # Get the location of the BXD genotypes
-        precompfile = locate("PheWAS_pval_EMMA_norm.RData", "auwerx")              # Get the location of the pre-computed EMMA results
+        precompfile = locate_phewas("PheWAS_pval_EMMA_norm.RData", "auwerx")              # Get the location of the pre-computed EMMA results
 
         # Get user parameters, trait_id and dataset, and store/update them in self
         self.trait_id = requestform["trait_id"]
@@ -58,21 +61,21 @@ class PheWAS(object):
         self.region = int(requestform["num_region"])
         self.mtadjust = str(requestform["sel_mtadjust"])
 
-        # Print some debug
-        print "self.trait_id:" + self.trait_id + "\n"
-        print "self.datasetname:" + self.datasetname + "\n"
-        print "self.dataset.type:" + self.dataset.type + "\n"
+        # Logger.Info some debug
+        logger.info("self.trait_id:" + self.trait_id + "\n")
+        logger.info("self.datasetname:" + self.datasetname + "\n")
+        logger.info("self.dataset.type:" + self.dataset.type + "\n")
 
         # GN Magic ?
-        self.this_trait = GeneralTrait(dataset=self.dataset, name = self.trait_id, get_qtl_info = False, get_sample_info=False) 
-        pprint(vars(self.this_trait))
+        self.this_trait = GeneralTrait(dataset=self.dataset, name = self.trait_id, get_qtl_info = False, get_sample_info=False)
+        logger.info(vars(self.this_trait))
 
         # Set the values we need
         self.chr = str(self.this_trait.chr);
         self.mb = int(self.this_trait.mb);
 
-        # print some debug
-        print "location:" + self.chr + ":" + str(self.mb) + "+/-" + str(self.region) + "\n"
+        # logger.info some debug
+        logger.info("location:" + self.chr + ":" + str(self.mb) + "+/-" + str(self.region) + "\n")
 
         # Load in the genotypes file *sigh* to make the markermap
         parser = genofile_parser.ConvertGenoFile(genofilelocation)
@@ -94,10 +97,13 @@ class PheWAS(object):
         self.results['imgurl1'] = webqtlUtil.genRandStr("phewas_") + ".png"
         self.results['imgloc1'] = GENERATED_IMAGE_DIR + self.results['imgurl1']
         self.results['mtadjust'] = self.mtadjust
-        print("IMAGE AT:", self.results['imgurl1'] )
-        print("IMAGE AT:", self.results['imgloc1'] )
+        logger.info("IMAGE AT:", self.results['imgurl1'] )
+        logger.info("IMAGE AT:", self.results['imgloc1'] )
         # Create the PheWAS plot (The gene/probe name, chromosome and gene/probe positions should come from the user input)
         # TODO: generate the PDF in the temp folder, with a unique name
+        assert(precompfile)
+        assert(phenoaligner)
+        assert(snpaligner)
         phewasres = self.r_PheWASManhattan("Test", precompfile, phenoaligner, snpaligner, "None", self.chr, self.mb, self.region, self.results['imgloc1'] , self.mtadjust)
         self.results['phewas1'] = phewasres[0]
         self.results['phewas2'] = phewasres[1]
@@ -107,10 +113,10 @@ class PheWAS(object):
         #self.r_PheWASManhattan(allpvalues)
         #self.r_Stop()
 
-        print("Initialization of PheWAS done !")
+        logger.info("Initialization of PheWAS done !")
 
     def loadImage(self, path, name):
-        print("pre-loading imgage results:", self.results[path])
+        logger.info("pre-loading imgage results:", self.results[path])
         imgfile = open(self.results[path], 'rb')
         imgdata = imgfile.read()
         imgB64 = imgdata.encode("base64")
@@ -121,7 +127,7 @@ class PheWAS(object):
         self.loadImage("imgloc1", "imgdata1")
 
     def process_results(self, results):
-        print("Processing PheWAS output")
+        logger.info("Processing PheWAS output")
         # TODO: get the PDF in the temp folder, and display it to the user
         template_vars = {}
         template_vars["results"] = self.results
@@ -129,4 +135,3 @@ class PheWAS(object):
         template_vars["R_debuglog"] = self.results['R_debuglog']
 
         return(dict(template_vars))
-

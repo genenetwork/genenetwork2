@@ -153,6 +153,9 @@ def locate(name, subdir=None):
     if subdir: sys.stderr.write(subdir)
     raise Exception("Can not locate "+name+" in "+base)
 
+def locate_phewas(name, subdir=None):
+    return locate(name,'/phewas/'+subdir)
+
 def locate_ignore_error(name, subdir=None):
     """
     Locate a static flat file in the GENENETWORK_FILES environment.
@@ -217,6 +220,7 @@ USE_REDIS          = get_setting_bool('USE_REDIS')
 USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
 
 GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
+PHEWAS_FILES       = get_setting('GENENETWORK_FILES')+"/phewas"
 # TEMP_TRAITS        = get_setting('TEMP_TRAITS')
 
 PYLMM_COMMAND      = pylmm_command()
@@ -242,7 +246,7 @@ if os.environ.get('WQFLASK_OVERRIDES'):
                 OVERRIDES[k] = cmd
             logger.debug(OVERRIDES)
 
-assert_file(get_setting("GENENETWORK_FILES")+"/auwerx/PheWAS_pval_EMMA_norm.RData")
+assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
 assert_dir(get_setting("JS_BIODALLIANCE"))
 assert_file(get_setting("JS_BIODALLIANCE")+"/build/dalliance-all.js")
 assert_file(get_setting("JS_BIODALLIANCE")+"/build/worker-all.js")
