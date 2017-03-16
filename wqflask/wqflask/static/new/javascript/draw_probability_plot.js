@@ -45,8 +45,7 @@
         chart = nv.models.scatterChart().width(w).height(h).showLegend(true).color(d3.scale.category10().range());
         chart.pointRange([50, 50]);
         chart.legend.updateState(false);
-        chart.xAxis.axisLabel("Theoretical quantiles").tickFormat(d3.format('.02f'));
-        //chart.yAxis.axisLabel("Sample quantiles").tickFormat(d3.format('.02f'));
+        chart.xAxis.axisLabel("Expected Z score").tickFormat(d3.format('.02f'));
         chart.tooltipContent(function(obj) {
           return '<b style="font-size: 20px">' + obj.point.name + '</b>';
         });
@@ -79,7 +78,7 @@
           }
           return results;
         })();
-        chart.yAxis.axisLabel("Sample quantiles").tickFormat(d3.format('.0'+max_decimals.toString()+'f'));
+        chart.yAxis.axisLabel("Trait value").tickFormat(d3.format('.0'+max_decimals.toString()+'f'));
         sw_result = ShapiroWilkW(sorted_values);
         W = sw_result.w.toFixed(3);
         pvalue = sw_result.p.toFixed(3);
@@ -115,7 +114,12 @@
         data = [make_data('samples_primary'), make_data('samples_other')];
         console.log("THE DATA IS:", data);
         d3.select("#prob_plot_container svg").datum(data).call(chart);
-        $("#prob_plot_title").html("<h3>Normal probability plot</h3>" + test_str);
+        if (js_data.trait_symbol != null) {
+            $("#prob_plot_title").html("<h3>" + js_data.trait_symbol + ": " + js_data.trait_id + "</h3>");
+        } else {
+            $("#prob_plot_title").html("<h3>" + js_data.trait_id + "</h3>");
+        }
+        $("#shapiro_wilk_text").html(test_str)
         $("#prob_plot_container .nv-legendWrap").toggle(sample_group === "samples_all");
         return chart;
       };

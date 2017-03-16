@@ -71,7 +71,7 @@
                       <input type="radio" name="LRSCheck" value="LRS" {% if LRS_LOD == "LRS" %}checked{% endif %}>LRS
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="LRSCheck" value="LOD" {% if LRS_LOD == "LOD" %}checked{% endif %}>LOD
+                      <input type="radio" name="LRSCheck" value="{% if LRS_LOD == "-log(p)" %}-log(p){% else %}LOD{% endif %}" {% if LRS_LOD == "LOD" or LRS_LOD == "-log(p)" %}checked{% endif %}>{% if LRS_LOD == "-log(p)" %}-log(p){% else %}LOD{% endif %}
                     </label>
                     <a href="http://genenetwork.org/glossary.html#LOD" target="_blank">
                       <sup style="color:#f00"> ?</sup>
@@ -121,7 +121,7 @@
                     <span style="color:red;">*</span>
                   <br>
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
-                  {% if plotScale != "morgan" %}
+                  {% if plotScale != "morgan" and mapping_method != "gemma" %}
                   <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Analyst </span> <span style="color:red;">*</span><br>
                   {% endif %}
                   <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span>
@@ -173,10 +173,10 @@
 
         </form>
         {% if selectedChr == -1 %}
-        <div style="width:{% if 'additive' in trimmed_markers[0] %}50%{% else %}35%{% endif %};">
+        <div style="width:{% if 'additive' in trimmed_markers[0] %}40%{% else %}30%{% endif %};">
           <h2>Results</h2>
-          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black;">
-          <table id="qtl_results" class="table table-hover table-striped">
+          <div id="table_container">
+          <table id="qtl_results" class="table table-hover table-striped nowrap">
             <thead>
               <tr>
                 <th></th>
@@ -192,7 +192,7 @@
                 {% if 'additive' in trimmed_markers[0] %}
                 <th>Add Eff</th>
                 {% endif %}
-                {% if 'dominance' in trimmed_markers[0] %}
+                {% if 'dominance' in trimmed_markers[0] and dataset.group.genetic_type != "riset" %}
                 <th>Dom Eff</th>
                 {% endif %}
               </tr>
@@ -200,33 +200,33 @@
             <tbody>
               {% for marker in trimmed_markers %}
               <tr>
-                <td>
+                <td align="center" style="padding-right: 0px;">
                   <input type="checkbox" name="selectCheck"
                          class="checkbox edit_sample_checkbox"
                          value="{{ marker.name }}" checked="checked">
                 </td>
                 <td align="right">{{ loop.index }}</td>
                 <td>{{ marker.name }}</td>
-                {% if LRS_LOD == "LOD" %}
+                {% if LRS_LOD == "LOD" or LRS_LOD == "-log(p)" %}
                 {% if 'lod_score' in marker %}
-                <td>{{ '%0.2f' | format(marker.lod_score|float) }}</td>
+                <td align="right">{{ '%0.2f' | format(marker.lod_score|float) }}</td>
                 {% else %}
-                <td>{{ '%0.2f' | format(marker.lrs_value|float / 4.16) }}</td>
+                <td align="right">{{ '%0.2f' | format(marker.lrs_value|float / 4.16) }}</td>
                 {% endif %}
                 {% else %}
                 {% if 'lod_score' in marker %}
-                <td>{{ '%0.2f' | format(marker.lod_score|float * 4.16) }}</td>
+                <td align="right">{{ '%0.2f' | format(marker.lod_score|float * 4.16) }}</td>
                 {% else %}
-                <td>{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
+                <td align="right">{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
                 {% endif %}
                 {% endif %}
-                <td>{{marker.chr}}</td>
-                <td>{{ '%0.6f' | format(marker.Mb|float) }}</td>
+                <td align="right">{{marker.chr}}</td>
+                <td align="right">{{ '%0.6f' | format(marker.Mb|float) }}</td>
                 {% if 'additive' in marker %}
-                <td>{{ '%0.3f' | format(marker.additive|float) }}</td>
+                <td align="right">{{ '%0.3f' | format(marker.additive|float) }}</td>
                 {% endif %}
-                {% if 'dominance' in marker %}
-                <td>{{ '%0.2f' | format(marker.dominance|float) }}</td>
+                {% if 'dominance' in marker and dataset.group.genetic_type != "riset" %}
+                <td align="right">{{ '%0.2f' | format(marker.dominance|float) }}</td>
                 {% endif %}
               </tr>
               {% endfor %}
@@ -237,8 +237,8 @@
         {% else %}
         <div>
           <h2>Interval Analyst</h2>
-          <div id="table_container" style="background-color: #eeeeee; border: 1px solid black;">
-          <table id="interval_analyst" class="table table-hover table-striped">
+          <div id="table_container">
+          <table id="interval_analyst" class="table table-hover table-striped nowrap">
             <thead>
               <tr>
                 {% for header in gene_table_header %}
@@ -274,12 +274,8 @@
 
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
 
     <script>
         js_data = {{ js_data | safe }}
@@ -296,34 +292,50 @@
         $(document).ready( function () {
             console.time("Creating table");
             $('#qtl_results').DataTable( {
+                {% if mapping_method != "reaper" %}
                 "columns": [
-                    { "type": "natural", "width": "5%", "bSortable": false },
-                    { "type": "natural", "width": "6%" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" }
-                    ],
-                "order": [[1, "asc" ]],
-                "buttons": [
-                    {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'search_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8]
-                       }
-                    }
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "15%" }
                 ],
-                "sDom": "RZBtir",
+                {% elif dataset.group.genetic_type == "riset" %}
+                "columns": [
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "15%" },
+                    { "type": "natural", "width": "8%" }
+                ],
+                {% else %}
+                "columns": [
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "15%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "8%" }
+                ],
+                {% endif %}
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
+                "order": [[1, "asc" ]],
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
-                "bDeferRender": true,
+                "autoWidth": false,
+                "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": true,
+                "scrollY": "600px",
                 "scrollCollapse": false,
+                "scroller": true,
                 "paging": false
             } );
 
@@ -333,18 +345,7 @@
                     "sortable": false
                 }],
                 "order": [[3, "asc" ]],
-                "buttons": [
-                    {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'search_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-                       }
-                    }
-                ],
-                "sDom": "RZBtir",
+                "sDom": "RZtir",
                 "iDisplayLength": -1,
                 "bDeferRender": true,
                 "bSortClasses": false,

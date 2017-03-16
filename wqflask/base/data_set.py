@@ -264,7 +264,7 @@ class DatasetGroup(object):
     def __init__(self, dataset):
         """This sets self.group and self.group_id"""
         #logger.debug("DATASET NAME2:", dataset.name)
-        self.name, self.id = fetchone(dataset.query_for_group)
+        self.name, self.id, self.genetic_type = fetchone(dataset.query_for_group)
         if self.name == 'BXD300':
             self.name = "BXD"
 
@@ -273,6 +273,7 @@ class DatasetGroup(object):
         self.get_f1_parent_strains()
 
         self.accession_id = self.get_accession_id()
+        self.mapping_id, self.mapping_names = self.get_mapping_methods()
 
         self.species = webqtlDatabaseFunction.retrieve_species(self.name)
 
@@ -295,6 +296,20 @@ class DatasetGroup(object):
         else:
             return "None"
 
+    def get_mapping_methods(self):
+
+        mapping_id = g.db.execute("select MappingMethodId from InbredSet where Name= '%s'" % self.name).fetchone()[0]
+        if mapping_id == "1":
+            mapping_names = ["QTLReaper", "PYLMM", "R/qtl"]
+        elif mapping_id == "2":
+            mapping_names = ["GEMMA"]
+        elif mapping_id == "4":
+            mapping_names = ["PLINK"]
+        else:
+            mapping_names = []
+
+        return mapping_id, mapping_names
+
     def get_specified_markers(self, markers = []):
         self.markers = HumanMarkers(self.name, markers)
 
@@ -316,69 +331,6 @@ class DatasetGroup(object):
             marker_class = Markers            
 
         self.markers = marker_class(self.name)
-
-    def datasets(self):
-        key = "group_dataset_menu:v2:" + self.name
-        logger.debug("key is2:", key)
-        dataset_menu = []
-        logger.debug("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
-        logger.debug("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
-        the_results = fetchall('''
-             (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
-              FROM PublishFreeze,InbredSet
-              WHERE PublishFreeze.InbredSetId = InbredSet.Id
-                and InbredSet.Name = '%s'
-                and PublishFreeze.public > %s)
-             UNION
-             (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
-              FROM GenoFreeze, InbredSet
-              WHERE GenoFreeze.InbredSetId = InbredSet.Id
-                and InbredSet.Name = '%s'
-                and GenoFreeze.public > %s)
-             UNION
-             (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
-              FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
-              WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
-                and ProbeFreeze.TissueId = Tissue.Id
-                and ProbeFreeze.InbredSetId = InbredSet.Id
-                and InbredSet.Name like %s
-                and ProbeSetFreeze.public > %s
-              ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
-            ''' % (self.name, webqtlConfig.PUBLICTHRESH,
-                  self.name, webqtlConfig.PUBLICTHRESH,
-                  "'" + self.name + "'", webqtlConfig.PUBLICTHRESH))
-
-        #for tissue_name, dataset in itertools.groupby(the_results, itemgetter(0)):
-        for dataset_item in the_results:
-            tissue_name = dataset_item[0]
-            dataset = dataset_item[1]
-            dataset_short = dataset_item[2]
-            if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
-                dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
-            else:
-                dataset_sub_menu = [item[1:] for item in dataset]
-
-                tissue_already_exists = False
-                tissue_position = None
-                for i, tissue_dict in enumerate(dataset_menu):
-                    if tissue_dict['tissue'] == tissue_name:
-                        tissue_already_exists = True
-                        tissue_position = i
-                        break
-
-                if tissue_already_exists:
-                    #logger.debug("dataset_menu:", dataset_menu[i]['datasets'])
-                    dataset_menu[i]['datasets'].append((dataset, dataset_short))
-                else:
-                    dataset_menu.append(dict(tissue=tissue_name,
-                                        datasets=[(dataset, dataset_short)]))
-
-        if USE_REDIS:
-            Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
-            Redis.expire(key, 60*5)
-        self._datasets = dataset_menu
-
-        return self._datasets
 
     def get_f1_parent_strains(self):
         try:
@@ -456,6 +408,71 @@ class DatasetGroup(object):
 
         return genotype
 
+def datasets(group_name, this_group = None):
+    key = "group_dataset_menu:v2:" + group_name
+    logger.debug("key is2:", key)
+    dataset_menu = []
+    logger.debug("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
+    logger.debug("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
+    the_results = fetchall('''
+         (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
+          FROM PublishFreeze,InbredSet
+          WHERE PublishFreeze.InbredSetId = InbredSet.Id
+            and InbredSet.Name = '%s'
+            and PublishFreeze.public > %s)
+         UNION
+         (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
+          FROM GenoFreeze, InbredSet
+          WHERE GenoFreeze.InbredSetId = InbredSet.Id
+            and InbredSet.Name = '%s'
+            and GenoFreeze.public > %s)
+         UNION
+         (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
+          FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
+          WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+            and ProbeFreeze.TissueId = Tissue.Id
+            and ProbeFreeze.InbredSetId = InbredSet.Id
+            and InbredSet.Name like %s
+            and ProbeSetFreeze.public > %s
+          ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
+        ''' % (group_name, webqtlConfig.PUBLICTHRESH,
+              group_name, webqtlConfig.PUBLICTHRESH,
+              "'" + group_name + "'", webqtlConfig.PUBLICTHRESH))
+
+    #for tissue_name, dataset in itertools.groupby(the_results, itemgetter(0)):
+    for dataset_item in the_results:
+        tissue_name = dataset_item[0]
+        dataset = dataset_item[1]
+        dataset_short = dataset_item[2]
+        if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
+            dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
+        else:
+            dataset_sub_menu = [item[1:] for item in dataset]
+
+            tissue_already_exists = False
+            tissue_position = None
+            for i, tissue_dict in enumerate(dataset_menu):
+                if tissue_dict['tissue'] == tissue_name:
+                    tissue_already_exists = True
+                    tissue_position = i
+                    break
+
+            if tissue_already_exists:
+                #logger.debug("dataset_menu:", dataset_menu[i]['datasets'])
+                dataset_menu[i]['datasets'].append((dataset, dataset_short))
+            else:
+                dataset_menu.append(dict(tissue=tissue_name,
+                                    datasets=[(dataset, dataset_short)]))
+
+    if USE_REDIS:
+        Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
+        Redis.expire(key, 60*5)
+
+    if this_group != None:
+        this_group._datasets = dataset_menu
+        return this_group._datasets
+    else:
+        return dataset_menu
 
 class DataSet(object):
     """
@@ -679,7 +696,7 @@ class PhenotypeDataSet(DataSet):
 
         self.query_for_group = '''
                             SELECT
-                                    InbredSet.Name, InbredSet.Id
+                                    InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                             FROM
                                     InbredSet, PublishFreeze
                             WHERE
@@ -822,7 +839,7 @@ class GenotypeDataSet(DataSet):
 
         self.query_for_group = '''
                 SELECT
-                        InbredSet.Name, InbredSet.Id
+                        InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                 FROM
                         InbredSet, GenoFreeze
                 WHERE
@@ -948,7 +965,7 @@ class MrnaAssayDataSet(DataSet):
 
         self.query_for_group = '''
                         SELECT
-                                InbredSet.Name, InbredSet.Id
+                                InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                         FROM
                                 InbredSet, ProbeSetFreeze, ProbeFreeze
                         WHERE
