@@ -166,7 +166,7 @@ scatterplot = function() {
       maxx = xlim[1];
       yticks = yticks != null ? yticks : ys.ticks(nyticks);
       xticks = xticks != null ? xticks : xs.ticks(nxticks);
-      titlegrp = g.append("g").attr("class", "title").append("text").attr("x", margin.left + width / 2).attr("y", margin.top - titlepos).style("fill", "black").style("font-size", "28px").text(title);
+      titlegrp = g.append("g").attr("class", "title").append("text").attr("x", margin.left + width / 2).attr("y", margin.top - titlepos).style("fill", "black").style("font-size", "24px").text(title);
       xaxis = g.append("g").attr("class", "x axis");
       xaxis.selectAll("empty").data(xticks).enter().append("line").attr("x1", function(d) {
         return xscale(d);
