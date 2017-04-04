@@ -10,7 +10,7 @@ margin = {
   top: 60,
   right: 40,
   bottom: 40,
-  inner: 5
+  inner: 30
 };
 
 halfh = h + margin.top + margin.bottom;
