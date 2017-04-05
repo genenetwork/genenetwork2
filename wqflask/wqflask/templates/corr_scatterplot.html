@@ -47,10 +47,62 @@
     </tr>
 </table>
 </form>-->
-
+<div class="container">
 <div id="chart1" class="qtlcharts"></div>
 
+<div style="margin-left: 80px;">
 
+    {% if trait_1.dataset.type == "ProbeSet" %}
+		<div>
+			X axis:
+			<a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
+				{{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.tissue + " "  + trait_1.dataset.name + ": " + trait_1.name|string}}
+			</a>
+		</div>
+		<div>
+			[{{trait_1.symbol}} on {{trait_1.location_repr}} Mb]
+			{{trait_1.description_display}}
+		</div>
+    {% elif trait_1.dataset.type == "Publish" %}
+		<div>
+			X axis:
+            <a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
+                {{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.name + ": " + trait_1.name|string}}
+            </a>
+		</div>
+		<div>
+			<a href="{{trait_1.pubmed_link}}">PubMed: {{trait_1.pubmed_text}}</a>
+			{{trait_1.description_display}}	
+		</div>
+    {% endif %}
+
+	<br/>
+
+    {% if trait_2.dataset.type == "ProbeSet" %}
+		<div>
+			Y axis:
+            <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
+                {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.tissue + " "  + trait_2.dataset.name + ": " + trait_2.name|string}}
+            </a>
+        </div>
+        <div>
+			[{{trait_2.symbol}} on {{trait_2.location_repr}} Mb]
+			{{trait_2.description_display}}
+		</div>
+    {% elif trait_2.dataset.type == "Publish" %}
+        <div>
+			Y axis:
+            <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
+                {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.name + ": " + trait_2.name|string}}
+            </a>
+        </div>
+        <div>
+			<a href="{{trait_2.pubmed_link}}">PubMed: {{trait_2.pubmed_text}}</a>
+			{{trait_2.description_display}}
+		</div>
+    {% endif %}
+	
+</div>
 {% endblock %}
 
 {% block js %}

@@ -166,7 +166,7 @@ scatterplot = function() {
       maxx = xlim[1];
       yticks = yticks != null ? yticks : ys.ticks(nyticks);
       xticks = xticks != null ? xticks : xs.ticks(nxticks);
-      titlegrp = g.append("g").attr("class", "title").append("text").attr("x", margin.left + width / 2).attr("y", margin.top - titlepos).text(title);
+      titlegrp = g.append("g").attr("class", "title").append("text").attr("x", margin.left + width / 2).attr("y", margin.top - titlepos).style("fill", "black").style("font-size", "28px").text(title);
       xaxis = g.append("g").attr("class", "x axis");
       xaxis.selectAll("empty").data(xticks).enter().append("line").attr("x1", function(d) {
         return xscale(d);
@@ -178,7 +178,7 @@ scatterplot = function() {
       }).attr("y", margin.top + height + axispos.xlabel).text(function(d) {
         return formatAxis(xticks)(d);
       });
-      xaxis.append("text").attr("class", "title").attr("x", margin.left + width / 2).attr("y", margin.top + height + axispos.xtitle).text(xlab);
+      xaxis.append("text").attr("class", "title").attr("x", margin.left + width / 2).attr("y", margin.top + height + axispos.xtitle).style("fill", "black").text(xlab);
       if (xNA.handle) {
         xaxis.append("text").attr("x", margin.left + xNA.width / 2).attr("y", margin.top + height + axispos.xlabel).text("N/A");
       }
@@ -194,7 +194,7 @@ scatterplot = function() {
       }).attr("x", margin.left - axispos.ylabel).text(function(d) {
         return formatAxis(yticks)(d);
       });
-      yaxis.append("text").attr("class", "title").attr("y", margin.top + height / 2).attr("x", margin.left - axispos.ytitle).text(ylab).attr("transform", rotate_ylab ? "rotate(270," + (margin.left - axispos.ytitle) + "," + (margin.top + height / 2) + ")" : "");
+      yaxis.append("text").attr("class", "title").attr("y", margin.top + height / 2).attr("x", margin.left - axispos.ytitle).style("fill", "black").text(ylab).attr("transform", rotate_ylab ? "rotate(270," + (margin.left - axispos.ytitle) + "," + (margin.top + height / 2) + ")" : "");
       if (yNA.handle) {
         yaxis.append("text").attr("x", margin.left - axispos.ylabel).attr("y", margin.top + height - yNA.width / 2).text("N/A");
       }
