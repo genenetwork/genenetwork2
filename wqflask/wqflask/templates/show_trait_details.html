@@ -3,10 +3,12 @@
         <td>Species and Group</td>
         <td>{{ this_trait.dataset.group.species }}, {{ this_trait.dataset.group.name }}</td>
     </tr>
+    {% if this_trait.dataset.type == 'Publish' %}
     <tr>
         <td>Tissue</td>
         <td>{{ this_trait.dataset.tissue }}</td>
     </tr>
+    {% endif %}
     {% if this_trait.dataset.type == 'ProbeSet' %}
     {% if this_trait.symbol != None %}
     <tr>

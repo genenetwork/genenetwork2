@@ -32,7 +32,6 @@ class SampleList(object):
         self.sample_attribute_values = {}
 
         self.get_attributes()
-        # logger.debug("camera: attributes are:", pf(self.attributes))
 
         if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
             self.get_extra_attribute_values()
@@ -40,12 +39,18 @@ class SampleList(object):
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
-            #ZS - If there's no value for the sample/strain, create the sample object (so samples with no value are still displayed in the table)
-            try:
-                sample = self.this_trait.data[sample_name]
-            except KeyError:
-                logger.debug("No sample %s, let's create it now" % sample_name)
-                sample = webqtlCaseData.webqtlCaseData(sample_name)
+            if type(self.this_trait) is list: #ZS: self.this_trait will be a list if it is a Temp trait
+                if counter <= len(self.this_trait) and self.this_trait[counter-1] != 'X':
+                    sample = webqtlCaseData.webqtlCaseData(name=sample_name, value=float(self.this_trait[counter-1]))
+                else:
+                    sample = webqtlCaseData.webqtlCaseData(name=sample_name)
+            else:
+                #ZS - If there's no value for the sample/strain, create the sample object (so samples with no value are still displayed in the table)
+                try:
+                    sample = self.this_trait.data[sample_name]
+                except KeyError:
+                    logger.debug("No sample %s, let's create it now" % sample_name)
+                    sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
             #sampleNameAdd = ''
             #if fd.RISet == 'AXBXA' and sampleName in ('AXB18/19/20','AXB13/14','BXA8/17'):

@@ -211,6 +211,8 @@ class MarkerRegression(object):
                                                                                                                                                         self.control_marker,
                                                                                                                                                         self.manhattan_plot)
         elif self.mapping_method == "plink":
+            self.score_type = "-log(p)"
+            self.manhattan_plot = True
             results = plink_mapping.run_plink(self.this_trait, self.dataset, self.species, self.vals, self.maf)
             #results = self.run_plink()
         elif self.mapping_method == "pylmm":
@@ -263,52 +265,53 @@ class MarkerRegression(object):
 
             self.trimmed_markers = trim_markers_for_table(results)
 
-            self.json_data['chr'] = []
-            self.json_data['pos'] = []
-            self.json_data['lod.hk'] = []
-            self.json_data['markernames'] = []
+            if self.mapping_method != "gemma":
+                self.json_data['chr'] = []
+                self.json_data['pos'] = []
+                self.json_data['lod.hk'] = []
+                self.json_data['markernames'] = []
 
-            self.json_data['suggestive'] = self.suggestive
-            self.json_data['significant'] = self.significant
+                self.json_data['suggestive'] = self.suggestive
+                self.json_data['significant'] = self.significant
 
-            #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
-            for index, qtl in enumerate(self.qtl_results):
-                #if index<40:
-                #    logger.debug("lod score is:", qtl['lod_score'])
-                if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
-                    #logger.debug("changing to X")
-                    self.json_data['chr'].append("X")
-                else:
-                    self.json_data['chr'].append(str(qtl['chr']))
-                self.json_data['pos'].append(qtl['Mb'])
-                if 'lrs_value' in qtl.keys():
-                    self.json_data['lod.hk'].append(str(qtl['lrs_value']))
-                else:
-                    self.json_data['lod.hk'].append(str(qtl['lod_score']))
-                self.json_data['markernames'].append(qtl['name'])
+                #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+                for index, qtl in enumerate(self.qtl_results):
+                    #if index<40:
+                    #    logger.debug("lod score is:", qtl['lod_score'])
+                    if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
+                        #logger.debug("changing to X")
+                        self.json_data['chr'].append("X")
+                    else:
+                        self.json_data['chr'].append(str(qtl['chr']))
+                    self.json_data['pos'].append(qtl['Mb'])
+                    if 'lrs_value' in qtl.keys():
+                        self.json_data['lod.hk'].append(str(qtl['lrs_value']))
+                    else:
+                        self.json_data['lod.hk'].append(str(qtl['lod_score']))
+                    self.json_data['markernames'].append(qtl['name'])
 
-            #Get chromosome lengths for drawing the interval map plot
-            chromosome_mb_lengths = {}
-            self.json_data['chrnames'] = []
-            for key in self.species.chromosomes.chromosomes.keys():
-                self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
-                chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
+                #Get chromosome lengths for drawing the interval map plot
+                chromosome_mb_lengths = {}
+                self.json_data['chrnames'] = []
+                for key in self.species.chromosomes.chromosomes.keys():
+                    self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
+                    chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
 
-            # logger.debug("json_data:", self.json_data)
+                # logger.debug("json_data:", self.json_data)
 
-            self.js_data = dict(
-                result_score_type = self.score_type,
-                json_data = self.json_data,
-                this_trait = self.this_trait.name,
-                data_set = self.dataset.name,
-                maf = self.maf,
-                manhattan_plot = self.manhattan_plot,
-                mapping_scale = self.mapping_scale,
-                chromosomes = chromosome_mb_lengths,
-                qtl_results = self.qtl_results,
-                num_perm = self.num_perm,
-                perm_results = self.perm_output,
-            )
+                self.js_data = dict(
+                    result_score_type = self.score_type,
+                    json_data = self.json_data,
+                    this_trait = self.this_trait.name,
+                    data_set = self.dataset.name,
+                    maf = self.maf,
+                    manhattan_plot = self.manhattan_plot,
+                    mapping_scale = self.mapping_scale,
+                    chromosomes = chromosome_mb_lengths,
+                    qtl_results = self.qtl_results,
+                    num_perm = self.num_perm,
+                    perm_results = self.perm_output,
+                )
 
     def run_rqtl_plink(self):
         # os.chdir("") never do this inside a webserver!!
@@ -599,8 +602,7 @@ def trim_markers_for_table(markers):
 
     #ZS: So we end up with a list of just 200 markers
     if len(sorted_markers) >= 200:
-        trimming_factor = 200 / len(sorted_markers)
-        trimmed_sorted_markers = sorted_markers[:int(len(sorted_markers) * trimming_factor)]
+        trimmed_sorted_markers = sorted_markers[:200]
         return trimmed_sorted_markers
     else:
         return sorted_markers

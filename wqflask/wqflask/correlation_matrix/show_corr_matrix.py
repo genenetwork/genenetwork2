@@ -33,6 +33,9 @@ import math
 import collections
 import resource
 
+import numarray
+import numarray.linear_algebra as la
+import numpy as np
 import scipy
 
 from rpy2.robjects.packages import importr
@@ -91,16 +94,27 @@ class CorrelationMatrix(object):
                     this_trait_vals.append('')
             self.sample_data.append(this_trait_vals)
 
+        if len(this_trait_vals) < len(self.trait_list): #Shouldn't do PCA if there are more traits than observations/samples
+            return False
+
         self.lowest_overlap = 8 #ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
 
         self.corr_results = []
         self.pca_corr_results = []
+        self.trait_data_array = []
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
             this_db = trait_db[1]
 
-            this_db_samples = this_db.group.samplelist
+            this_db_samples = this_db.group.all_samples_ordered()
             this_sample_data = this_trait.data
+
+            this_trait_vals = []
+            for index, sample in enumerate(this_db_samples):
+                if (sample in this_sample_data):
+                    sample_value = this_sample_data[sample].value
+                    this_trait_vals.append(sample_value)
+            self.trait_data_array.append(this_trait_vals)
 
             corr_result_row = []
             pca_corr_result_row = []
@@ -108,14 +122,12 @@ class CorrelationMatrix(object):
             for target in self.trait_list:
                 target_trait = target[0]
                 target_db = target[1]
-                target_samples = target_db.group.samplelist
-
+                target_samples = target_db.group.all_samples_ordered()
                 target_sample_data = target_trait.data
 
                 this_trait_vals = []
                 target_vals = []
                 for index, sample in enumerate(target_samples):
-
                     if (sample in this_sample_data) and (sample in target_sample_data):
                         sample_value = this_sample_data[sample].value
                         target_sample_value = target_sample_data[sample].value
@@ -144,13 +156,14 @@ class CorrelationMatrix(object):
             self.corr_results.append(corr_result_row)
             self.pca_corr_results.append(pca_corr_result_row)
 
-        print("corr_results:", pf(self.corr_results))
+        corr_result_eigen = la.eigenvectors(numarray.array(self.pca_corr_results))
+        corr_eigen_value, corr_eigen_vectors = sortEigenVectors(corr_result_eigen)
 
         groups = []
         for sample in self.all_sample_list:
             groups.append(1)
 
-        pca = self.calculate_pca(self.pca_corr_results, range(len(self.traits)))
+        pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
 
         self.loadings_array = self.process_loadings()
 
@@ -180,31 +193,34 @@ class CorrelationMatrix(object):
         #print("trait_list:", self.trait_list)
 
 
-    def calculate_pca(self, corr_results, cols):
+    def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
         base = importr('base')
         stats = importr('stats')
-        print("checking:", pf(stats.rnorm(100)))
 
-        corr_results_to_list = robjects.FloatVector([item for sublist in corr_results for item in sublist])
-        print("corr_results:",  pf(corr_results_to_list))
+        corr_results_to_list = robjects.FloatVector([item for sublist in self.pca_corr_results for item in sublist])
 
         m = robjects.r.matrix(corr_results_to_list, nrow=len(cols))
         eigen = base.eigen(m)
-        print("eigen:", eigen)
         pca = stats.princomp(m, cor = "TRUE")
-        print("pca:", pca)
         self.loadings = pca.rx('loadings')
         self.scores = pca.rx('scores')
         self.scale = pca.rx('scale')
-        print("scores:", pca.rx('scores'))
-        print("scale:", pca.rx('scale'))
 
+        trait_array = zScore(self.trait_data_array)
+        trait_array = np.array(trait_array)
+        trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
+
+        pca_traits = []
+        for i, vector in enumerate(trait_array_vectors):
+            if corr_eigen_value[i-1] < 100.0/len(self.trait_list):
+                pca_traits.append(vector*-1.0)
+
+        print("pca_traits:", pca_traits)
         return pca
 
     def process_loadings(self):
         loadings_array = []
         loadings_row = []
-        print("before loop:", self.loadings[0])
         for i in range(len(self.trait_list)):
             loadings_row = []
             if len(self.trait_list) > 2:
@@ -215,6 +231,45 @@ class CorrelationMatrix(object):
                 position = i + len(self.trait_list)*j
                 loadings_row.append(self.loadings[0][position])
             loadings_array.append(loadings_row)
-        print("loadings:", loadings_array)
         return loadings_array
 
+def zScore(trait_data_array):
+    NN = len(trait_data_array[0])
+    if NN < 10:
+        return trait_data_array
+    else:
+        i = 0
+        for data in trait_data_array:
+            N = len(data)
+            S = reduce(lambda x,y: x+y, data, 0.)
+            SS = reduce(lambda x,y: x+y*y, data, 0.)
+            mean = S/N
+            var = SS - S*S/N
+            stdev = math.sqrt(var/(N-1))
+            if stdev == 0:
+                stdev = 1e-100
+            data2 = map(lambda x:(x-mean)/stdev,data)
+            trait_data_array[i] = data2
+            i += 1
+        return trait_data_array
+
+def sortEigenVectors(vector):
+    try:
+        eigenValues = vector[0].tolist()
+        eigenVectors = vector[1].tolist()
+        combines = []
+        i = 0
+        for item in eigenValues:
+            combines.append([eigenValues[i],eigenVectors[i]])
+            i += 1
+        combines.sort(webqtlUtil.cmpEigenValue)
+        A = []
+        B = []
+        for item in combines:
+            A.append(item[0])
+            B.append(item[1])
+        sum = reduce(lambda x,y: x+y, A, 0.0)
+        A = map(lambda x:x*100.0/sum, A) 
+        return [A,B]
+    except:
+        return []

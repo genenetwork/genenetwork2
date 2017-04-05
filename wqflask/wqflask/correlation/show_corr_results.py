@@ -96,7 +96,14 @@ class CorrelationResults(object):
         print("TESTING...")
 
         with Bench("Doing correlations"):
-            helper_functions.get_species_dataset_trait(self, start_vars)
+            if start_vars['dataset'] == "Temp":
+                self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
+                self.trait_id = "Temp"
+                self.this_trait = GeneralTrait(dataset=self.dataset,
+                                           name=self.trait_id,
+                                           cellid=None)
+            else:
+                helper_functions.get_species_dataset_trait(self, start_vars)
 
             self.dataset.group.read_genotype_file()
 
