@@ -45,7 +45,7 @@
         chart = nv.models.scatterChart().width(w).height(h).showLegend(true).color(d3.scale.category10().range());
         chart.pointRange([50, 50]);
         chart.legend.updateState(false);
-        chart.xAxis.axisLabel("Expected Z score").tickFormat(d3.format('.02f'));
+        chart.xAxis.axisLabel("Expected Z score").axisLabelDistance(20).tickFormat(d3.format('.02f'));
         chart.tooltipContent(function(obj) {
           return '<b style="font-size: 20px">' + obj.point.name + '</b>';
         });
@@ -78,13 +78,19 @@
           }
           return results;
         })();
-        chart.yAxis.axisLabel("Trait value").tickFormat(d3.format('.0'+max_decimals.toString()+'f'));
+        //ZS: 0.1 indicates buffer, increase to increase buffer
+        y_domain = [sorted_values[0] - (sorted_values.slice(-1)[0] - sorted_values[0])*0.1, sorted_values.slice(-1)[0] + (sorted_values.slice(-1)[0] - sorted_values[0])*0.1]
+        chart.yDomain(y_domain)
+        chart.yAxis.axisLabel("Trait value").axisLabelDistance(10).tickFormat(d3.format('.0'+max_decimals.toString()+'f'));
         sw_result = ShapiroWilkW(sorted_values);
         W = sw_result.w.toFixed(3);
         pvalue = sw_result.p.toFixed(3);
         pvalue_str = pvalue > 0.05 ? pvalue.toString() : "<span style='color:red'>" + pvalue + "</span>";
         test_str = "Shapiro-Wilk test statistic is " + W + " (p = " + pvalue_str + ")";
         z_scores = get_z_scores(sorted_values.length);
+        //ZS: 0.1 indicates buffer, increase to increase buffer
+        x_domain = [z_scores[0] - (z_scores.slice(-1)[0] - z_scores[0])*0.1, z_scores.slice(-1)[0] + (z_scores.slice(-1)[0] - z_scores[0])*0.1]
+        chart.xDomain(x_domain)
         slope = jStat.stdev(sorted_values);
         intercept = jStat.mean(sorted_values);
         make_data = function(group_name) {

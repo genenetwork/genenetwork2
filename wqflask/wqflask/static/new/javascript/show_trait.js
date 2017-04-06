@@ -195,7 +195,7 @@
         }
         row_line = "<tr>";
         if (row.url != null) {
-          row_line += "<td id=\"" + row.vn + "\"><a href=\"" + row.url + "\">" + row.pretty + "</a></td>";
+          row_line += "<td id=\"" + row.vn + "\"><a href=\"" + row.url + "\" style=\"color: #000000;\">" + row.pretty + "</a></td>";
         } else {
           row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
         }

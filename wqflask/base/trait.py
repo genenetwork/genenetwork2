@@ -62,6 +62,11 @@ class GeneralTrait(object):
         self.strand_probe = None
         self.symbol = None
 
+        self.LRS_score_repr = "N/A"
+        self.LRS_score_value = 0
+        self.LRS_location_repr = "N/A"
+        self.LRS_location_value = 1000000
+
         if kw.get('fullname'):
             name2 = value.split("::")
             if len(name2) == 2:
@@ -72,9 +77,10 @@ class GeneralTrait(object):
 
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
-        self = retrieve_trait_info(self, self.dataset, get_qtl_info=get_qtl_info)
-        if get_sample_info != False:
-            self = retrieve_sample_data(self, self.dataset)
+        if self.dataset.type != "Temp":
+            self = retrieve_trait_info(self, self.dataset, get_qtl_info=get_qtl_info)
+            if get_sample_info != False:
+                self = retrieve_sample_data(self, self.dataset)
 
 
     def get_name(self):
@@ -315,12 +321,12 @@ def get_sample_data():
     #
     #return jsonable_sample_data
     
-def jsonable(trait, dataset_name):
+def jsonable(trait):
     """Return a dict suitable for using as json
 
     Actual turning into json doesn't happen here though"""
 
-    dataset = create_dataset(dataset_name)
+    dataset = create_dataset(dataset_name = trait.dataset.name, dataset_type = trait.dataset.type, group_name = trait.dataset.group.name)
     
     if dataset.type == "ProbeSet":
         return dict(name=trait.name,

@@ -50,5 +50,5 @@ else: # staging/production modes
             debug=False,
             use_debugger=False,
             threaded=True,
-            processes=8,
+            processes=0,
             use_reloader=True)

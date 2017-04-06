@@ -17,7 +17,9 @@
 {% block content %} <!-- Start of body -->
 
 <!--
-    {% if this_trait.dataset.type != 'Geno' %}
+    {% if dataset.type == 'Temp' %}
+	{{ header("{}".format("Temporary Trait")) }}
+    {% elif dataset.type != 'Geno' %}
 	{{ header("{}".format(this_trait.name_header_fmt),
 	    '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
     {% else %}

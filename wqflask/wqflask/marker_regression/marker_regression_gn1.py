@@ -181,7 +181,8 @@ class MarkerRegression(object):
             self.mapmodel_rqtl_geno = start_vars['model']
             self.pair_scan = start_vars['pair_scan']
 
-        self.js_data = start_vars['js_data']
+        if self.mapping_method != "gemma" and self.mapping_method != "plink":
+            self.js_data = start_vars['js_data']
         self.trimmed_markers = start_vars['trimmed_markers'] #Top markers to display in table
 
         #ZS: Think I can just get all this from dataset object now
@@ -564,7 +565,6 @@ class MarkerRegression(object):
         gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
 
         self.gifmap = gifmap.__str__()
-        #print("GIFMAP:", gifmap.__str__())
 
         self.filename= webqtlUtil.genRandStr("Itvl_")
         intCanvas.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename), format='jpeg')
@@ -847,8 +847,7 @@ class MarkerRegression(object):
             pass
 
         #draw position, no need to use a separate function
-        if self.genotype.Mbmap:
-            self.drawProbeSetPosition(canvas, plotXScale, offset=newoffset, zoom = zoom)
+        self.drawProbeSetPosition(canvas, plotXScale, offset=newoffset, zoom = zoom)
 
         return gifmap
 
@@ -1010,35 +1009,34 @@ class MarkerRegression(object):
                     locPixel = xLeftOffset + (Mb-self.startMb)*plotXScale
             else:
                 locPixel = xLeftOffset
-                for i, _chr in enumerate(self.genotype):
-                    if _chr.name != Chr:
-                        locPixel += (self.ChrLengthDistList[i] + self.GraphInterval)*plotXScale
+                for i, _chr in enumerate(self.ChrList[1:]):
+                    if _chr[0] != Chr:
+                        locPixel += (self.ChrLengthDistList[i-1] + self.GraphInterval)*plotXScale
                     else:
                         locPixel += Mb*plotXScale
                         break
         else:
             if self.selectedChr > -1:
-                if self.genotype[0].name != Chr:
-                    return
-                else:
-                    for i, _locus in enumerate(self.genotype[0]):
-                        #the trait's position is on the left of the first genotype
-                        if i==0 and _locus.Mb >= Mb:
-                            locPixel=-1
-                            break
+                for i, qtlresult in enumerate(self.qtlresults):
+                    if qtlresult['Chr'] != self.selectedChr:
+                        continue
 
-                        #the trait's position is between two traits
-                        if i > 0 and self.genotype[0][i-1].Mb < Mb and _locus.Mb >= Mb:
-                            locPixel = xLeftOffset + plotXScale*(self.genotype[0][i-1].cM+(_locus.cM-self.genotype[0][i-1].cM)*(Mb -self.genotype[0][i-1].Mb)/(_locus.Mb-self.genotype[0][i-1].Mb))
-                            break
+                    if i==0 and qtlresult['Mb'] >= Mb:
+                        locPixel=-1
+                        break
 
-                        #the trait's position is on the right of the last genotype
-                        if i==len(self.genotype[0]) and Mb>=_locus.Mb:
-                            locPixel = -1
+                    #the trait's position is between two traits
+                    if i > 0 and self.qtlresults[i-1]['Mb'] < Mb and qtlresult['Mb'] >= Mb:
+                        locPixel = xLeftOffset + plotXScale*(self.qtlresults[i-1]['cM']+(qtlresult['cM']-self.qtlresults[i-1]['cM'])*(Mb - self.qtlresults[i-1]['Mb'])/(qtlresult['Mb']-self.qtlresults[i-1]['Mb']))
+                        break
+
+                    #the trait's position is on the right of the last genotype
+                    if i==len(self.qtlresults) and Mb>=qtlresult['Mb']:
+                        locPixel = -1
             else:
                 locPixel = xLeftOffset
-                for i, _chr in enumerate(self.genotype):
-                    if _chr.name != Chr:
+                for i, _chr in enumerate(self.ChrList):
+                    if _chr != Chr:
                         locPixel += (self.ChrLengthDistList[i] + self.GraphInterval)*plotXScale
                     else:
                         locPixel += (Mb*(_chr[-1].cM-_chr[0].cM)/self.ChrLengthCMList[i])*plotXScale
@@ -1190,13 +1188,16 @@ class MarkerRegression(object):
         else:
             if self.mapping_method == "gemma":
                 string2 = 'Using GEMMA mapping method with no control for other QTLs.'
+            elif self.mapping_method == "plink":
+                string2 = 'Using PLINK mapping method with no control for other QTLs.'
             else:
                 string2 = 'Using Haldane mapping function with no control for other QTLs'
-        d = 4+ max(canvas.stringWidth(string1,font=labelFont),canvas.stringWidth(string2,font=labelFont))
         if self.this_trait.name:
             identification = "Trait ID: %s : %s" % (self.dataset.fullname, self.this_trait.name)
+            d = 4+ max(canvas.stringWidth(identification, font=labelFont), canvas.stringWidth(string1, font=labelFont), canvas.stringWidth(string2, font=labelFont))
             canvas.drawString(identification,canvas.size[0] - xRightOffset-d,20*fontZoom,font=labelFont,color=labelColor)
-
+        else:
+            d = 4+ max(canvas.stringWidth(string1, font=labelFont), canvas.stringWidth(string2, font=labelFont))
         canvas.drawString(string1,canvas.size[0] - xRightOffset-d,35*fontZoom,font=labelFont,color=labelColor)
         canvas.drawString(string2,canvas.size[0] - xRightOffset-d,50*fontZoom,font=labelFont,color=labelColor)
 
@@ -1915,7 +1916,7 @@ class MarkerRegression(object):
         if self.lrsMax <= 0:  #sliding scale
             if "lrs_value" in self.qtlresults[0]:
                 LRS_LOD_Max = max([result['lrs_value'] for result in self.qtlresults])
-                if self.LRS_LOD == "LOD":
+                if self.LRS_LOD == "LOD" or self.LRS_LOD == "-log(p)":
                     LRS_LOD_Max = LRS_LOD_Max / self.LODFACTOR
                     if self.permChecked and self.nperm > 0 and not self.multipleInterval:
                         self.significant = min(self.significant / self.LODFACTOR, webqtlConfig.MAXLRS)
@@ -2118,7 +2119,7 @@ class MarkerRegression(object):
                 # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                 # for any lrs is over than 460(LRS max in this system), it will be reset to 460
                 if 'lrs_value' in qtlresult:
-                    if self.LRS_LOD == "LOD":
+                    if self.LRS_LOD == "LOD" or self.LRS_LOD == "-log(p)":
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
                             Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                         else:
@@ -2143,7 +2144,11 @@ class MarkerRegression(object):
                 #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
-                    canvas.drawString("5", Xc-canvas.stringWidth("5",font=symbolFont)/2+1,Yc+2,color=pid.black, font=symbolFont)
+                    if previous_chr_as_int % 2 == 1:
+                        point_color = pid.grey
+                    else:
+                        point_color = pid.black
+                    canvas.drawString("5", Xc-canvas.stringWidth("5",font=symbolFont)/2+1,Yc+2,color=point_color, font=symbolFont)
                 else:
                     LRSCoordXY.append((Xc, Yc))
 
