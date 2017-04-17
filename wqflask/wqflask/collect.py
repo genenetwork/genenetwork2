@@ -335,12 +335,19 @@ def delete_collection():
     print("params:", params)
     if g.user_session.logged_in:
         uc_id = params['uc_id']
-        uc = model.UserCollection.query.get(uc_id)
-        # Todo: For now having the id is good enough since it's so unique
-        # But might want to check ownership in the future
-        collection_name = uc.name
-        db_session.delete(uc)
-        db_session.commit()
+        if len(uc_id.split(":")) > 1:
+            for this_uc_id in uc_id.split(":"):
+                uc = model.UserCollection.query.get(this_uc_id)
+                collection_name = uc.name
+                db_session.delete(uc)
+                db_session.commit()
+        else:
+            uc = model.UserCollection.query.get(uc_id)
+            # Todo: For now having the id is good enough since it's so unique
+            # But might want to check ownership in the future
+            collection_name = uc.name
+            db_session.delete(uc)
+            db_session.commit()
     else:
         collection_name = params['collection_name']
         user_manager.AnonUser().delete_collection(collection_name)
