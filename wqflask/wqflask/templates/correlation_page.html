@@ -104,7 +104,7 @@
                         <td>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
-                                    dataset = dataset.name
+                                    dataset = trait.dataset.name
                                     )}}">
                                 {{ trait.name }}
                             </a>

@@ -51,7 +51,7 @@
             <tbody>
             {% for uc in collections %}
                 <tr class="collection_line">
-                    <td style="padding-right: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
+                    <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
                     <td align="right">{{ loop.index }}
                     {% if g.user_session.user_ob %}
                     <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
@@ -89,6 +89,13 @@
     {% endif %}
     <script>
             $('#trait_table').dataTable( {
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                },
                 "columns": [
                     { "type": "natural", "width": "3%" },
                     { "type": "natural", "width": "8%" },

@@ -181,14 +181,6 @@
                     {
                         extend: 'columnsToggle',
                         columns: ':not(:first-child)',
-                        columnText: function ( dt, idx, title ) {
-                            console.log("TITLE:", title)
-                            if (title == "Additive Effect  ?"){
-                                return "Additive Effect"
-                            } else {
-                                return title;
-                            }
-                        },
                         postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
