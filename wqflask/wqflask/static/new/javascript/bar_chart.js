@@ -253,6 +253,17 @@
             })())
           ]);
           console.log("values: ", values);
+
+          decimal_exists = "False";
+          for(i=0; i < values.length; i++){
+              if (values[i]['y'] % 1 != 0){
+                  decimal_exists = "True";
+                  break;
+              }
+          }
+          if (decimal_exists == "False"){
+              _this.chart.yAxis.tickFormat(d3.format('d'))
+          }
           d3.select("#bar_chart_container svg").datum([
             {
               values: values

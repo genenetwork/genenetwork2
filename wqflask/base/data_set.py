@@ -893,7 +893,7 @@ class GenotypeDataSet(DataSet):
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
-                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id, Sample.Name2
+                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id, Strain.Name2
                     FROM
                             (GenoData, GenoFreeze, Strain, Geno, GenoXRef)
                     left join GenoSE on

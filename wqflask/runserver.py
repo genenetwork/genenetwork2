@@ -11,6 +11,9 @@ import logging
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
+import signal
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
 BLUE  = '\033[94m'
 GREEN = '\033[92m'
 BOLD  = '\033[1m'

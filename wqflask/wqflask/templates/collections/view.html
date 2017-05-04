@@ -2,8 +2,7 @@
 {% block title %}View Collection{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -29,42 +28,40 @@
             {% for this_trait in trait_obs %}
                 {{ this_trait.name }}:{{ this_trait.dataset.name }},
             {% endfor %}" >
-            <div class="col-xs-3 controls">
+
                 <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" >
                 Delete this collection
                 </button>
-            </div>
-            <div class="col-xs-2 controls">
+
+
                 <button id="corr_matrix" class="btn btn-primary submit_special" data-url="/corr_matrix" title="Correlation Matrix" >
                     Correlation Matrix
                 </button>
-            </div>
-            <div class="col-xs-2 controls">
+
+
                 <button id="network_graph" class="btn btn-primary submit_special" data-url="/network_graph" title="Network Graph" >
                     Network Graph
                 </button>
-            </div>
-            <div class="col-xs-2 controls">
+
+
                 <button id="wgcna_setup" class="btn btn-primary submit_special" data-url="/wgcna_setup" title="WGCNA Analysis" >
                     WGCNA Analysis
                 </button>
-            </div>
-            <div class="col-xs-2 controls">
+
+
                 <button id="ctl_setup" class="btn btn-primary submit_special" data-url="/ctl_setup" title="CTL Analysis" >
                     CTL Analysis
                 </button>
-            </div>
-            <div class="col-xs-1 controls">
+
+
                 <button id="heatmap" class="btn btn-primary submit_special" data-url="/heatmap" title="Heatmap" >
                     Heatmap
                 </button>
-            </div>
+
           </form>
         </div>
 
         <div>
-            <br />
-            <br />
             <br />
             <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
@@ -80,7 +77,7 @@
             </form>
             <br />
             <div>
-                <table class="table table-hover table-striped nowrap" id='trait_table' style="float: left;">
+                <table class="display dataTable nowrap" id='trait_table' style="float: left;">
                     <thead>
                         <tr>
                             <th></th>
@@ -90,9 +87,9 @@
                             <th data-export="Description">Description</th>
                             <th data-export="Location">Location</th>
                             <th data-export="Mean">Mean</th>
-                            <th data-export="Max LRS">Max LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                            <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#L" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                             <th data-export="Max LRS Location">Max LRS Location</th>
-                            <th data-export="Additive Effect">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00">  ?</sup></a></th>
+                            <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                         </tr>
                     </thead>
 
@@ -141,8 +138,8 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/buttons.colVis.min.js"></script>
 
 
     <script language="javascript" type="text/javascript">
@@ -157,40 +154,45 @@
             console.time("Creating table");
             $('#trait_table').dataTable( {
                 "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(0).attr('style', 'padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;');
                     if ($('td', row).eq(4).text().length > 50) {
                         $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },
                 "columns": [
-                    { "type": "natural" },
+                    { "type": "natural", "width": "2%" },
                     { "type": "natural", "width": "5%" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural",
-                      "width": "30%"  },
-                    { "type": "natural",
-                      "width": "10%"  },
-                    { "type": "cust-txt" },
-                    { "type": "natural",
-                      "width": "6%"  },
-                    { "type": "natural",
-                      "width": "10%"  },
-                    { "type": "natural",
-                      "width": "8%"  }
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural"  },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "8%" }
                 ],
                 "columnDefs": [ {
                     "targets": 0,
                     "orderable": false
                 } ],
-                "sDom": "ZRtr",
+                "order": [[1, "asc" ]],
+                buttons: [
+                    {
+                        extend: 'columnsToggle',
+                        columns: ':not(:first-child)',
+                        postfixButtons: [ 'colvisRestore' ]
+                    }
+                ],
+                "sDom": "BZRtr",
                 "iDisplayLength": -1,
-                "autoWidth": true,
+                "autoWidth": false,
                 "bDeferRender": true,
                 "bSortClasses": false,
                 "scrollY": "600px",
                 "scrollCollapse": true,
-                "paging": false
+                "paging": false,
+                "orderClasses": true
             } );
             console.timeEnd("Creating table");
 

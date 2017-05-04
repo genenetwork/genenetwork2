@@ -77,16 +77,16 @@
           {% endif %}
 -->
 
-          <div id="table_container" style="width: {% if dataset.type == 'ProbeSet' %}1300{% elif dataset.type == 'Publish' %}1200{% elif dataset.type == 'Geno' %}500{% endif %}px;">
-            <table class="table table-hover table-striped nowrap" id='trait_table' style="float: left;">
+          <div id="table_container" style="width: {% if dataset.type == 'ProbeSet' %}1300{% elif dataset.type == 'Publish' %}1300{% elif dataset.type == 'Geno' %}400{% endif %}px;">
+            <table class="display dataTable nowrap" id='trait_table' style="float: left;">
                 <thead>
                     <tr>
                         <th></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th data-export="Max LRS">Max LRS</th>
+                        <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                         {% elif header == 'Additive Effect' %}
-                        <th data-export="Additive Effect">Additive <a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                         {% else %}
                         <th data-export="{{header}}">{{header}}</th>
                         {% endif %}
@@ -99,9 +99,9 @@
                         <th></th>
                     {% for header in header_fields %}
                         {% if header == 'Max LRS' %}
-                        <th data-export="Max LRS">Max LRS</th>
+                        <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                         {% elif header == 'Additive Effect' %}
-                        <th data-export="Additive Effect">Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                         {% else %}
                         <th data-export="{{header}}">{{header}}</th>
                         {% endif %}
@@ -122,13 +122,13 @@
 
 {% block js %}
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
-    
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>   
+
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/buttons.colVis.min.js"></script>
-	
+
     <script type='text/javascript'>
         var json_trait_list = {{ json_trait_list|safe }};
     </script>
@@ -172,6 +172,7 @@
             console.time("Creating table");
             {% if dataset.type == 'ProbeSet' %}
             //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
+
             $('#trait_table').DataTable( {
                 "drawCallback": function( settings ) {
                      $('#trait_table tr').click(function(event) {
@@ -182,8 +183,7 @@
                      $('.trait_checkbox:checkbox').on("change", change_buttons);
                 },
                 "createdRow": function ( row, data, index ) {
-                    $('td', row).eq(0).attr('style', 'padding-right: 0px;');
-                    $('td', row).eq(0).attr('align', 'center');
+                    $('td', row).eq(0).attr('style', 'padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;');
                     $('td', row).eq(1).attr('align', 'right');
                     $('td', row).eq(1).attr('data-export', index+1);
                     $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
@@ -207,15 +207,15 @@
                 "data": json_trait_list,
                 "columns": [
                     { "type": "natural", "width": "2%" },
-                    { "type": "natural", "width": "4%" },
-                    { "type": "natural", "width": "12%" },
-                    { "type": "natural", "width": "12%" },
-                    { "type": "natural", "width": "25%" },
-                    { "type": "natural", "width": "11%" },
                     { "type": "natural", "width": "5%" },
-                    { "type": "natural", "width": "6%" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": "12%" },
+                    { "type": "natural" },
                     { "type": "natural", "width": "11%" },
-                    { "type": "natural", "width": "6%" }
+                    { "type": "natural", "width": "4%" },
+                    { "type": "natural", "width": "5%" },
+                    { "type": "natural", "width": "11%" },
+                    { "type": "natural", "width": "5%" }
                 ],
                 "columnDefs": [ {
                     "targets": 0,
@@ -224,8 +224,7 @@
                 "order": [[1, "asc" ]],
                 buttons: [
                     {
-                        extend: 'colvis',
-                        text: 'Show or Hide Columns',
+                        extend: 'columnsToggle',
                         columns: ':not(:first-child)',
                         postfixButtons: [ 'colvisRestore' ]
                     }
@@ -238,7 +237,8 @@
                 "scrollY": "600px",
                 "scrollCollapse": false,
                 "scroller": true,
-                "paging": false
+                "paging": false,
+                "orderClasses": true
             } );
 
             {% elif dataset.type == 'Publish' %}
@@ -252,6 +252,7 @@
                      $('.trait_checkbox:checkbox').on("change", change_buttons);
                 },
                 "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(0).attr('style', 'padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;');
                     $('td', row).eq(1).attr('align', 'right');
                     $('td', row).eq(1).attr('data-export', index+1);
                     $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
@@ -281,12 +282,12 @@
                     { "type": "natural", "width": "2%" },
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "6%" },
+                    { "type": "natural" },
                     { "type": "natural", "width": "30%" },
-                    { "type": "natural", "width": "25%" },
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "6%" },
                     { "type": "natural", "width": "10%" },
-                    { "type": "natural", "width": "9%" }
+                    { "type": "natural", "width": "8%" }
                 ],
                 "columnDefs": [ {
                     "targets": 0,
@@ -295,8 +296,7 @@
                 "order": [[1, "asc" ]],
                 buttons: [
                     {
-                        extend: 'colvis',
-                        text: 'Show or Hide Columns',
+                        extend: 'columnsToggle',
                         columns: ':not(:first-child)',
                         postfixButtons: [ 'colvisRestore' ]
                     }
@@ -306,10 +306,10 @@
                 "autoWidth": false,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": "600px",
-                "scrollCollapse": true,
-                "scroller": true,
-                "paging": false
+                "scrollCollapse": false,
+                "scroller": false,
+                "paging": false,
+                "orderClasses": true
             } );
             {% elif dataset.type == 'Geno' %}
             $('#trait_table').DataTable( {
@@ -322,6 +322,7 @@
                      $('.trait_checkbox:checkbox').on("change", change_buttons);
                 },
                 "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(0).attr('style', 'padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;');
                     $('td', row).eq(1).attr('align', 'right');
                     $('td', row).eq(1).attr('data-export', index+1);
                     $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
@@ -329,10 +330,10 @@
                 },
                 "data": json_trait_list,
                 "columns": [
-                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "12%" },
-                    { "type": "natural", "width": "40%" },
-                    { "type": "natural", "width": "40%"}
+                    { "type": "natural" },
+                    { "type": "natural", "width": "30%"}
                 ],
                 "columnDefs": [ {
                     "targets": 0,
@@ -341,8 +342,7 @@
                 "order": [[1, "asc" ]],
                 buttons: [
                     {
-                        extend: 'colvis',
-                        text: 'Show or Hide Columns',
+                        extend: 'columnsToggle',
                         columns: ':not(:first-child)',
                         postfixButtons: [ 'colvisRestore' ]
                     }
@@ -355,9 +355,11 @@
                 "scrollY": "600px",
                 "scrollCollapse": true,
                 "scroller": true,
-                "paging": false
+                "paging": false,
+                "orderClasses": true
             } );
             {% endif %}
+
             console.timeEnd("Creating table");
             
             var table = $('#trait_table').DataTable();
