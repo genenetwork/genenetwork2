@@ -1,0 +1,19 @@
+.nvd3 .nv-axis.nv-x text {
+	font-size: 16px;
+	font-weight: normal;
+	fill: black;
+}
+
+.nvd3 .nv-axis.nv-y text {
+	font-size: 16px;
+	font-weight: normal;
+	fill: black;
+}
+
+.nv-y .tick.zero line {
+	stroke: black;
+}
+
+.nv-y .nv-axis g path.domain {
+	stroke: black;
+}
