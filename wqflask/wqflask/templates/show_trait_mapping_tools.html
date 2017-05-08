@@ -17,16 +17,17 @@
                 </li>
                 {% endif %}
                 {# if use_plink_gemma #}
-                {% if dataset.group.mapping_id == "2" or dataset.group.mapping_id == "4" %}
+                {% for mapping_method in dataset.group.mapping_names %}
+                {% if mapping_method == "GEMMA" %}
                 <li class="active">
                     <a href="#gemma" data-toggle="tab">GEMMA</a>
                 </li>
-                {% if dataset.group.mapping_id == "4" %}
+                {% elif mapping_method == "PLINK" %}
                 <li>
                     <a href="#plink" data-toggle="tab">PLINK</a>
                 </li>
                 {% endif %}
-                {% endif %}
+                {% endfor %}
                 <!--<li>
                     <a href="#pair_scan" data-toggle="tab">Pair Scan</a>
                 </li>-->

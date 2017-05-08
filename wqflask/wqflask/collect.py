@@ -203,7 +203,8 @@ def process_traits(unprocessed_traits):
         data, _separator, hmac = trait.rpartition(':')
         data = data.strip()
         assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
-        traits.add                                                                                               (str(data))
+        traits.add(str(data))
+
     return traits
 
 def report_change(len_before, len_now):
@@ -244,7 +245,6 @@ def collections_new():
 
     if "sign_in" in params:
         return redirect(url_for('login'))
-
     if "create_new" in params:
         print("in create_new")
         collection_name = params['new_collection']
@@ -335,12 +335,19 @@ def delete_collection():
     print("params:", params)
     if g.user_session.logged_in:
         uc_id = params['uc_id']
-        uc = model.UserCollection.query.get(uc_id)
-        # Todo: For now having the id is good enough since it's so unique
-        # But might want to check ownership in the future
-        collection_name = uc.name
-        db_session.delete(uc)
-        db_session.commit()
+        if len(uc_id.split(":")) > 1:
+            for this_uc_id in uc_id.split(":"):
+                uc = model.UserCollection.query.get(this_uc_id)
+                collection_name = uc.name
+                db_session.delete(uc)
+                db_session.commit()
+        else:
+            uc = model.UserCollection.query.get(uc_id)
+            # Todo: For now having the id is good enough since it's so unique
+            # But might want to check ownership in the future
+            collection_name = uc.name
+            db_session.delete(uc)
+            db_session.commit()
     else:
         collection_name = params['collection_name']
         user_manager.AnonUser().delete_collection(collection_name)
@@ -376,13 +383,17 @@ def view_collection():
 
     for atrait in traits:
         name, dataset_name = atrait.split(':')
-        dataset = create_dataset(dataset_name)
-        
-        trait_ob = trait.GeneralTrait(name=name, dataset=dataset)
-        trait_ob = trait.retrieve_trait_info(trait_ob, dataset, get_qtl_info=True)
+        if dataset_name == "Temp":
+            group = name.split("_")[2]
+            dataset = create_dataset(dataset_name, dataset_type = "Temp", group_name = group)
+            trait_ob = trait.GeneralTrait(name=name, dataset=dataset)
+        else:
+            dataset = create_dataset(dataset_name)
+            trait_ob = trait.GeneralTrait(name=name, dataset=dataset)
+            trait_ob = trait.retrieve_trait_info(trait_ob, dataset, get_qtl_info=True)
         trait_obs.append(trait_ob)
 
-        json_version.append(trait.jsonable(trait_ob, dataset_name))
+        json_version.append(trait.jsonable(trait_ob))
 
     if "uc_id" in params:
         collection_info = dict(trait_obs=trait_obs,

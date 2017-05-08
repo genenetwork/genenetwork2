@@ -25,11 +25,21 @@
             <h1>Your Collections</h1>
             {% endif %}
         </div>
-
+        <div>
+          <form id="collections_form" action="/delete" method="post">
+            <input type="hidden" name="uc_id" id="uc_id" value="" />
+          </form>
+            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+            <button class="btn btn-danger" id="remove_collections" data-url="/collections/delete">Remove Collections</button> 
+        </div>
+        <br>
         <div id="collections_list" style="width:50%;">
-        <table class="table table-hover table-striped" id='trait_table'>
+        <table class="display dataTable nowrap" id='trait_table'>
             <thead>
                 <tr>
+                    <th></th>
                     <th>Index</th>
                     <th>Name</th>
                     <th>Created</th>
@@ -41,7 +51,8 @@
             <tbody>
             {% for uc in collections %}
                 <tr class="collection_line">
-                    <td>{{ loop.index }}
+                    <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
+                    <td align="right">{{ loop.index }}
                     {% if g.user_session.user_ob %}
                     <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
                     {% else %}
@@ -64,6 +75,7 @@
 
 {% block js %}
     <script type="text/javascript" src="/static/packages/smart-time-ago/lib/timeago.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
@@ -72,24 +84,31 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     {% if "color_by_trait" in params %}
     <script type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
     {% endif %}
     <script>
             $('#trait_table').dataTable( {
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                },
                 "columns": [
-                    { "type": "natural",
-                      "width": "10%"  },
-                    { "type": "natural" },
-                    { "type": "natural",
-                      "width": "25%"  },
-                    { "type": "natural",
-                      "width": "25%"  },
-                    { "type": "natural",
-                      "width": "10%"  }
+                    { "type": "natural", "width": "3%" },
+                    { "type": "natural", "width": "8%" },
+                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "25%" },
+                    { "type": "natural", "width": "25%" },
+                    { "type": "natural", "width": "15%" }
                 ],
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
+                "order": [[1, "asc" ]],
                 "sDom": "RZtr",
                 "iDisplayLength": -1,
                 "autoWidth": true,
@@ -97,8 +116,26 @@
                 "bSortClasses": false,
                 "scrollY": "600px",
                 "scrollCollapse": true,
-                "paging": false
+                "paging": false,
+                "orderClasses": true
             } );
+
+            submit_special = function(url) {
+                $("#collections_form").attr("action", url);
+                return $("#collections_form").submit();
+            };
+
+            $("#remove_collections").on("click", function() {
+                url = $(this).data("url")
+                collections = []
+                $(".trait_checkbox:checked").each(function() {
+                    collections.push($(this).val());
+                });
+                collections_string = collections.join(":")
+                $("input[name=uc_id]").val(collections_string)
+                return submit_special(url)
+            });
+
 
     </script>
 {% endblock %}

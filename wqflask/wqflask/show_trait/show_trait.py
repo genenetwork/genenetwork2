@@ -2,12 +2,16 @@ from __future__ import absolute_import, print_function, division
 
 import string
 import os
+import datetime
 import cPickle
 import uuid
 import json as json
 #import pyXLWriter as xl
 
 from collections import OrderedDict
+
+import redis
+Redis = redis.StrictRedis()
 
 from flask import Flask, g
 
@@ -42,16 +46,33 @@ class ShowTrait(object):
     def __init__(self, kw):
         logger.debug("in ShowTrait, kw are:", kw)
 
-        if kw['trait_id'] != None:
+        if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
             self.trait_id = kw['trait_id']
             helper_functions.get_species_dataset_trait(self, kw)
+        elif 'group' in kw:
+            self.temp_trait = True
+            self.trait_id = "Temp_"+kw['species']+ "_" + kw['group'] + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
+            self.temp_species = kw['species']
+            self.temp_group = kw['group']
+            self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
+            self.this_trait = GeneralTrait(dataset=self.dataset,
+                                           name=self.trait_id,
+                                           cellid=None)
+            self.trait_vals = kw['trait_paste'].split()
+
+            # Put values in Redis so they can be looked up later if added to a collection
+            Redis.set(self.trait_id, kw['trait_paste'])
         else:
             self.temp_trait = True
-            self.trait_vals = kw['trait_paste'].split()
-            self.temp_group = kw['group']
-            self.temp_species = kw['species']
-            #self.create_temp_trait()
+            self.trait_id = kw['trait_id']
+            self.temp_species = self.trait_id.split("_")[1]
+            self.temp_group = self.trait_id.split("_")[2]
+            self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
+            self.this_trait = GeneralTrait(dataset=self.dataset,
+                                           name=self.trait_id,
+                                           cellid=None)
+            self.trait_vals = Redis.get(self.trait_id).split()
 
         #self.dataset.group.read_genotype_file()
 
@@ -64,17 +85,17 @@ class ShowTrait(object):
         self.build_correlation_tools()
 
         #Get nearest marker for composite mapping
+        if not self.temp_trait:
+            if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
+                self.nearest_marker = get_nearest_marker(self.this_trait, self.dataset)
+                #self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
+                #self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
+            else:
+                self.nearest_marker = ""
+                #self.nearest_marker1 = ""
+                #self.nearest_marker2 = ""
 
-        if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
-            self.nearest_marker = get_nearest_marker(self.this_trait, self.dataset)
-            #self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
-            #self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
-        else:
-            self.nearest_marker = ""
-            #self.nearest_marker1 = ""
-            #self.nearest_marker2 = ""
-
-        self.make_sample_lists(self.this_trait)
+        self.make_sample_lists()
 
         # Todo: Add back in the ones we actually need from below, as we discover we need them
         hddn = OrderedDict()
@@ -84,17 +105,22 @@ class ShowTrait(object):
 
         hddn['trait_id'] = self.trait_id
         hddn['dataset'] = self.dataset.name
+        hddn['temp_trait'] = False
+        if self.temp_trait:
+           hddn['temp_trait'] = True
+           hddn['group'] = self.temp_group
+           hddn['species'] = self.temp_species
         hddn['use_outliers'] = False
         hddn['method'] = "pylmm"
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
         hddn['manhattan_plot'] = ""
-        if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
-            hddn['control_marker'] = self.nearest_marker
-            #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
-        else:
-            hddn['control_marker'] = ""
+        hddn['control_marker'] = ""
+        if not self.temp_trait:
+            if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
+                hddn['control_marker'] = self.nearest_marker
+                #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
         hddn['do_control'] = False
         hddn['maf'] = 0.01
         hddn['compare_traits'] = []
@@ -118,11 +144,12 @@ class ShowTrait(object):
 
         self.trait_table_width = get_trait_table_width(self.sample_groups)
 
-        if self.this_trait.symbol:
-            trait_symbol = self.this_trait.symbol
-        else:
-            trait_symbol = None
-        js_data = dict(trait_id = self.this_trait.name,
+        trait_symbol = None
+        if not self.temp_trait:
+            if self.this_trait.symbol:
+                trait_symbol = self.this_trait.symbol
+
+        js_data = dict(trait_id = self.trait_id,
                        trait_symbol = trait_symbol,
                        dataset_type = self.dataset.type,
                        data_scale = self.dataset.data_scale,
@@ -149,7 +176,7 @@ class ShowTrait(object):
             else:
                 return False
 
-        self.genofiles = get_genofiles(self.this_trait)
+        self.genofiles = get_genofiles(self.dataset)
         self.use_plink_gemma = check_plink_gemma()
         self.use_pylmm_rqtl = check_pylmm_rqtl()
 
@@ -173,8 +200,8 @@ class ShowTrait(object):
                 dataset_menu = data_set.datasets(this_group, self.dataset.group)
             dataset_menu_selected = None
             if len(dataset_menu):
-                if self.this_trait and self.this_trait.dataset:
-                    dataset_menu_selected = self.this_trait.dataset.name
+                if self.dataset:
+                    dataset_menu_selected = self.dataset.name
 
                 return_results_menu = (100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000)
                 return_results_menu_selected = 500
@@ -185,52 +212,57 @@ class ShowTrait(object):
                                           return_results_menu_selected = return_results_menu_selected,)
 
 
-    def make_sample_lists(self, this_trait):
+    def make_sample_lists(self):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
         
         primary_sample_names = list(all_samples_ordered)
 
-        other_sample_names = []
-        for sample in this_trait.data.keys():
-            if (this_trait.data[sample].name2 in primary_sample_names) and (this_trait.data[sample].name not in primary_sample_names):
-                primary_sample_names.append(this_trait.data[sample].name)
-                primary_sample_names.remove(this_trait.data[sample].name2)
-            elif sample not in all_samples_ordered:
-                all_samples_ordered.append(sample)
-                other_sample_names.append(sample)
+        if not self.temp_trait:
+            other_sample_names = []
+            for sample in self.this_trait.data.keys():
+                if (self.this_trait.data[sample].name2 in primary_sample_names) and (self.this_trait.data[sample].name not in primary_sample_names):
+                    primary_sample_names.append(self.this_trait.data[sample].name)
+                    primary_sample_names.remove(self.this_trait.data[sample].name2)
+                elif sample not in all_samples_ordered:
+                    all_samples_ordered.append(sample)
+                    other_sample_names.append(sample)
 
-        if self.dataset.group.species == "human":
-            primary_sample_names += other_sample_names
+            if self.dataset.group.species == "human":
+                primary_sample_names += other_sample_names
 
-        primary_samples = SampleList(dataset = self.dataset,
-                                        sample_names=primary_sample_names,
-                                        this_trait=this_trait,
-                                        sample_group_type='primary',
-                                        header="%s Only" % (self.dataset.group.name))
-        logger.debug("primary_samples is: ", pf(primary_samples))
+            primary_samples = SampleList(dataset = self.dataset,
+                                            sample_names=primary_sample_names,
+                                            this_trait=self.this_trait,
+                                            sample_group_type='primary',
+                                            header="%s Only" % (self.dataset.group.name))
 
-        logger.debug("other_sample_names2:", other_sample_names)
-        if other_sample_names and self.dataset.group.species != "human" and self.dataset.group.name != "CFW":
-            parent_f1_samples = None
-            if self.dataset.group.parlist and self.dataset.group.f1list:
-                parent_f1_samples = self.dataset.group.parlist + self.dataset.group.f1list
+            if other_sample_names and self.dataset.group.species != "human" and self.dataset.group.name != "CFW":
+                parent_f1_samples = None
+                if self.dataset.group.parlist and self.dataset.group.f1list:
+                    parent_f1_samples = self.dataset.group.parlist + self.dataset.group.f1list
 
-            other_sample_names.sort() #Sort other samples
-            if parent_f1_samples:
-                other_sample_names = parent_f1_samples + other_sample_names
+                other_sample_names.sort() #Sort other samples
+                if parent_f1_samples:
+                    other_sample_names = parent_f1_samples + other_sample_names
 
-            logger.debug("other_sample_names:", other_sample_names)
+                logger.debug("other_sample_names:", other_sample_names)
 
-            other_samples = SampleList(dataset=self.dataset,
-                                        sample_names=other_sample_names,
-                                        this_trait=this_trait,
-                                        sample_group_type='other',
-                                        header="Non-%s" % (self.dataset.group.name))
+                other_samples = SampleList(dataset=self.dataset,
+                                            sample_names=other_sample_names,
+                                            this_trait=self.this_trait,
+                                            sample_group_type='other',
+                                            header="Non-%s" % (self.dataset.group.name))
 
-            self.sample_groups = (primary_samples, other_samples)
+                self.sample_groups = (primary_samples, other_samples)
+            else:
+                self.sample_groups = (primary_samples,)
         else:
+            primary_samples = SampleList(dataset = self.dataset,
+                                            sample_names=primary_sample_names,
+                                            this_trait=self.trait_vals,
+                                            sample_group_type='primary',
+                                            header="%s Only" % (self.dataset.group.name))
             self.sample_groups = (primary_samples,)
-
         #TODO: Figure out why this if statement is written this way - Zach
         #if (other_sample_names or (fd.f1list and this_trait.data.has_key(fd.f1list[0]))
         #        or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
@@ -261,8 +293,8 @@ def get_nearest_marker(this_trait, this_db):
         return result[0][0]
         #return result[0][0], result[1][0]
 
-def get_genofiles(this_trait):
-    jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, this_trait.dataset.group.name)
+def get_genofiles(this_dataset):
+    jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, this_dataset.group.name)
     try:
         f = open(jsonfile)
     except:
@@ -271,7 +303,7 @@ def get_genofiles(this_trait):
     return jsondata['genofile']
 
 def get_trait_table_width(sample_groups):
-    table_width = 20
+    table_width = 25
     if sample_groups[0].se_exists():
         table_width += 15
     if (table_width + len(sample_groups[0].attributes)*10) > 100:

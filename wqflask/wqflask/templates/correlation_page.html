@@ -32,65 +32,65 @@
         <br />
         <br />
 
-        <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1200px{% else %}800px{% endif %}; background-color: #eeeeee; border: 1px solid black;">
+        <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1400px{% else %}800px{% endif %};">
             <table width="1600px" id="trait_table" class="table table-hover table-striped">
                 <thead>
                     <tr>
-                        <th style="width: 30px; background-color: #eeeeee;"></th>
+                        <th style="width: 30px;"></th>
                     {% for header in target_dataset.header_fields %}
                         {% if header == 'Year' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
+                        <th>{{header}}</th>
                         {% elif header == 'Max LRS' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th>Max LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% elif header == 'Max LRS Location' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
+                        <th>{{header}}</th>
                         {% elif header == 'Location' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
+                        <th>{{header}}</th>
                         {% elif header == 'Mean' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
+                        <th>{{header}}</th>
                         {% elif header == 'Additive Effect' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Add&nbsp;&nbsp;<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th>Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
                         {% elif header == 'Index' %}
-                        <th style="text-align: right; background-color: #eeeeee; padding-left: 0px; margin-left: 0px;">{{header}}</th>
+                        <th>{{header}}</th>
                         {% elif header == 'N' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
+                        <th>{{header}}</th>
                         {% else %}
-                        <th style="background-color: #eeeeee;">{{header}}</th>
+                        <th>{{header}}</th>
                         {% endif %}
                     {% endfor %}
                     {% if target_dataset.type == "ProbeSet" %}
                         {% if corr_method == 'pearson' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">&nbsp;&nbsp;N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(r)</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Lit r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Tissue r</th>
+                        <th>Sample r</th>
+                        <th>&nbsp;&nbsp;N</th>
+                        <th>Sample p(r)</th>
+                        <th>Lit r</th>
+                        <th>Tissue r</th>
                         {% else %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample rho</th>
-                        <th style="text-align: right; background-color: #eeeeee;">N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(rho)</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Lit r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Tissue rho</th>
+                        <th>Sample rho</th>
+                        <th>N</th>
+                        <th>Sample p(rho)</th>
+                        <th>Lit r</th>
+                        <th>Tissue rho</th>
                         {% endif %}
                     {% elif target_dataset.type == "Publish" %}
                         {% if corr_method == 'pearson' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">&nbsp;&nbsp;N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(r)</th>
+                        <th>Sample r</th>
+                        <th>&nbsp;&nbsp;N</th>
+                        <th>Sample p(r)</th>
                         {% else %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample rho</th>
-                        <th style="text-align: right; background-color: #eeeeee;">&nbsp;&nbsp;N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(rho)</th>
+                        <th>Sample rho</th>
+                        <th>&nbsp;&nbsp;N</th>
+                        <th>Sample p(rho)</th>
                         {% endif %}
                     {% elif target_dataset.type == "Geno" %}
                         {% if corr_method == 'pearson' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(r)</th>
+                        <th>Sample r</th>
+                        <th>N</th>
+                        <th>Sample p(r)</th>
                         {% else %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample rho</th>
-                        <th style="text-align: right; background-color: #eeeeee;">N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(rho)</th>
+                        <th>Sample rho</th>
+                        <th>N</th>
+                        <th>Sample p(rho)</th>
                         {% endif %}
                     {% endif %}
                     </tr>
@@ -99,12 +99,12 @@
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                        <td>&nbsp;<INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
+                        <td align="center" style="padding-right: 0px;">&nbsp;<INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
                         <td align="right">{{ loop.index }}</td>
                         <td>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
-                                    dataset = dataset.name
+                                    dataset = trait.dataset.name
                                     )}}">
                                 {{ trait.name }}
                             </a>
@@ -114,21 +114,21 @@
                         <td>{{ trait.description_display }}</TD>
                         <td align="right"style="white-space: nowrap;">{{ trait.location_repr }}</td>
                         <td align="right">{{ '%0.3f' % trait.mean|float }}</td>
-                        <td align="right" style="padding-right: 15px;">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.LRS_location_repr }}</td>
-                        <td align="right" style="padding-right: 15px;">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
-                        <td align="right" style="padding-right: 15px;"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.num_overlap }}</td>
-                        <td align="right" style="padding-right: 15px;">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td align="right">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
+                        <td align="right">{{ trait.LRS_location_repr }}</td>
+                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
+                        <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
+                        <td align="right">{{ trait.num_overlap }}</td>
+                        <td align="right">{{'%0.3e'|format(trait.sample_p)}}</td>
                         {% if trait.lit_corr == "" or trait.lit_corr == 0.000 %}
-                        <td align="right" style="padding-right: 15px;">--</td>
+                        <td align="right">--</td>
                         {% else %}
-                        <td align="right" style="padding-right: 15px;">{{'%0.3f'|format(trait.lit_corr)}}</td>
+                        <td align="right">{{'%0.3f'|format(trait.lit_corr)}}</td>
                         {% endif %}
                         {% if trait.tissue_corr == "" or trait.tissue_corr == 0.000 %}
-                        <td align="right" style="padding-right: 15px;">--</td>
+                        <td align="right">--</td>
                         {% else %}
-                        <td align="right" style="padding-right: 15px;">{{'%0.3f'|format(trait.tissue_corr)}}</td>
+                        <td align="right">{{'%0.3f'|format(trait.tissue_corr)}}</td>
                         {% endif %}
                       {% elif target_dataset.type == "Publish" %}
                         <td>{{ trait.description_display }}</td>
@@ -138,17 +138,17 @@
                                 {{ trait.pubmed_text }}
                             </a>
                         </td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.LRS_score_repr }}</td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.LRS_location_repr }}</td>
-                        <td align="right" style="padding-right: 15px;">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
-                        <td align="right" style="padding-right: 15px;"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.num_overlap }}</td>
-                        <td align="right" style="padding-right: 15px;">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td align="right">{{ trait.LRS_score_repr }}</td>
+                        <td align="right">{{ trait.LRS_location_repr }}</td>
+                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
+                        <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
+                        <td align="right">{{ trait.num_overlap }}</td>
+                        <td align="right">{{'%0.3e'|format(trait.sample_p)}}</td>
                       {% elif target_dataset.type == "Geno" %}
-                        <td align="right" style="padding-right: 15px;">{{ trait.location_repr }}</TD>
-                        <td align="right" style="padding-right: 15px;"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.num_overlap }}</td>
-                        <td align="right" style="padding-right: 15px;">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td align="right">{{ trait.location_repr }}</TD>
+                        <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
+                        <td align="right">{{ trait.num_overlap }}</td>
+                        <td align="right">{{'%0.3e'|format(trait.sample_p)}}</td>
                       {% endif %}
                     </tr>
                 {% endfor %}
@@ -278,6 +278,13 @@
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                    if ($('td', row).eq(4).text().length > 60) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 60));
+                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                    }
+                },
                 "order": [[12, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,
@@ -287,7 +294,6 @@
             } );
 
             var table = $('#trait_table').DataTable();
-            new $.fn.dataTable.FixedHeader( table );
 
             {% elif target_dataset.type == "Publish" %}
             $('#trait_table').dataTable( {
@@ -311,7 +317,7 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural", "width": "25%" },
-                    { "type": "natural", "width": "10%" },
+                    { "type": "natural", "width": "15%" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
@@ -320,6 +326,13 @@
                     { "type": "natural" },
                     { "type": "scientific" }
                 ],
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                    if ($('td', row).eq(4).text().length > 60) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 60));
+                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                    }
+                },
                 "order": [[11, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,

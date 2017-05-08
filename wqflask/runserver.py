@@ -11,6 +11,9 @@ import logging
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
+import signal
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
 BLUE  = '\033[94m'
 GREEN = '\033[92m'
 BOLD  = '\033[1m'
@@ -50,5 +53,5 @@ else: # staging/production modes
             debug=False,
             use_debugger=False,
             threaded=True,
-            processes=8,
+            processes=0,
             use_reloader=True)

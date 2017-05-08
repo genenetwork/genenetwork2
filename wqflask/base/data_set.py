@@ -61,14 +61,17 @@ logger = getLogger(__name__ )
 # Each subclass will add to this
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name, dataset_type = None, get_samplelist = True):
+def create_dataset(dataset_name, dataset_type = None, get_samplelist = True, group_name = None):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
         logger.debug("dataset_type", dataset_type)
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     dataset_class = globals()[dataset_ob]
-    return dataset_class(dataset_name, get_samplelist)
+    if dataset_type == "Temp":
+        return dataset_class(dataset_name, get_samplelist, group_name)
+    else:
+        return dataset_class(dataset_name, get_samplelist)
 
 class Dataset_Types(object):
 
@@ -261,10 +264,13 @@ class DatasetGroup(object):
     has multiple datasets associated with it.
 
     """
-    def __init__(self, dataset):
+    def __init__(self, dataset, name=None):
         """This sets self.group and self.group_id"""
         #logger.debug("DATASET NAME2:", dataset.name)
-        self.name, self.id, self.genetic_type = fetchone(dataset.query_for_group)
+        if name == None:
+            self.name, self.id, self.genetic_type = fetchone(dataset.query_for_group)
+        else:
+            self.name, self.id, self.genetic_type = fetchone("SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType FROM InbredSet where Name='%s'" % name)
         if self.name == 'BXD300':
             self.name = "BXD"
 
@@ -304,7 +310,7 @@ class DatasetGroup(object):
         elif mapping_id == "2":
             mapping_names = ["GEMMA"]
         elif mapping_id == "4":
-            mapping_names = ["PLINK"]
+            mapping_names = ["GEMMA", "PLINK"]
         else:
             mapping_names = []
 
@@ -319,9 +325,7 @@ class DatasetGroup(object):
         def check_plink_gemma():
             if flat_file_exists("mapping"):
                 MAPPING_PATH = flat_files("mapping")+"/"
-                if (os.path.isfile(MAPPING_PATH+self.name+".bed") and
-                    (os.path.isfile(MAPPING_PATH+self.name+".map") or
-                     os.path.isfile(MAPPING_PATH+self.name+".bim"))):
+                if os.path.isfile(MAPPING_PATH+self.name+".bed"):
                     return True
             return False
 
@@ -481,7 +485,7 @@ class DataSet(object):
 
     """
 
-    def __init__(self, name, get_samplelist = True):
+    def __init__(self, name, get_samplelist = True, group_name = None):
 
         assert name, "Need a name"
         self.name = name
@@ -493,11 +497,12 @@ class DataSet(object):
 
         self.setup()
 
-        self.check_confidentiality()
-
-        self.retrieve_other_names()
-
-        self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
+        if self.type == "Temp": #Need to supply group name as input if temp trait
+            self.group = DatasetGroup(self, group_name)   # sets self.group and self.group_id and gets genotype
+        else:
+            self.check_confidentiality()
+            self.retrieve_other_names()
+            self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
         if get_samplelist == True:
              self.group.get_samplelist()
         self.species = species.TheSpecies(self)
@@ -888,7 +893,7 @@ class GenotypeDataSet(DataSet):
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
-                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id, Sample.Name2
+                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id, Strain.Name2
                     FROM
                             (GenoData, GenoFreeze, Strain, Geno, GenoXRef)
                     left join GenoSE on
@@ -1155,6 +1160,8 @@ class MrnaAssayDataSet(DataSet):
 
 class TempDataSet(DataSet):
     '''Temporary user-generated data set'''
+
+    DS_NAME_MAP['Temp'] = 'TempDataSet'
 
     def setup(self):
         self.search_fields = ['name',

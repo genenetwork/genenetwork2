@@ -65,7 +65,7 @@ ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Lucene/Details?sp
 # want to reach this base dir
 assert_writable_dir(TEMPDIR)
 
-TMPDIR               = mk_dir(TEMPDIR+'/gn2/')
+TMPDIR               = mk_dir(TEMPDIR+'gn2')
 assert_writable_dir(TMPDIR)
 
 CACHEDIR             = mk_dir(TMPDIR+'/cache/')

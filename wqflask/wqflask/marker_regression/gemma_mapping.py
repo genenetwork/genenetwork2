@@ -1,22 +1,22 @@
 import os, math
 
 from base import webqtlConfig
-from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_RESULTS_PATH
+from utility.tools import flat_files, GEMMA_COMMAND
 
 def run_gemma(this_dataset, samples, vals):
     """Generates p-values for each marker using GEMMA"""
 
     print("INSIDE GEMMA_MAPPING")
 
-    gen_pheno_txt_file(this_dataset, samples, vals)
+    gen_pheno_txt_file(this_dataset, vals)
 
     # use GEMMA_RUN in the next one, create a unique temp file
 
-    gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/%s.sXX.txt -lmm 1 -outdir %s/output -o %s_output' % (flat_files('mapping'),
+    gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/%s.sXX.txt -lmm 1 -maf 0.1 -outdir %s -o %s_output' % (flat_files('mapping'),
                                                                                     this_dataset.group.name,
                                                                                     flat_files('mapping'),
                                                                                     this_dataset.group.name,
-                                                                                    GEMMA_RESULTS_PATH,
+                                                                                    webqtlConfig.GENERATED_IMAGE_DIR,
                                                                                     this_dataset.group.name)
     print("gemma_command:" + gemma_command)
 
@@ -26,7 +26,7 @@ def run_gemma(this_dataset, samples, vals):
 
     return marker_obs
 
-def gen_pheno_txt_file(this_dataset, samples, vals):
+def gen_pheno_txt_file(this_dataset, vals):
     """Generates phenotype file for GEMMA"""
 
     current_file_data = []
@@ -47,7 +47,7 @@ def parse_gemma_output(this_dataset):
     included_markers = []
     p_values = []
     marker_obs = []
-    with open("{}/output/{}_output.assoc.txt".format(GEMMA_RESULTS_PATH, this_dataset.group.name)) as output_file:
+    with open("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, this_dataset.group.name)) as output_file:
         for line in output_file:
             if line.startswith("chr"):
                 continue

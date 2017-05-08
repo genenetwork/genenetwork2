@@ -137,9 +137,9 @@
             <li id="gn1_map_tab">
               <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
             </li>
-            {% if mapping_method != "gemma" %}
+            {% if mapping_method != "gemma" and mapping_method != "plink" %}
             <li id="vector_map_tab">
-              <a href="#vector_map" data-toggle="tab" {% if mapping_method != "gemma" %}aria-expanded="false"{% else %}aria-expanded="true"{% endif %}>Vector Map</a>
+              <a href="#vector_map" data-toggle="tab" {% if mapping_method != "gemma" and mapping_method != "plink" %}aria-expanded="false"{% else %}aria-expanded="true"{% endif %}>Vector Map</a>
             </li>
             {% endif %}
           </ul>
@@ -161,7 +161,7 @@
                   {% endif %}
               </div>
             </div>
-            {% if mapping_method != "gemma" %}
+            {% if mapping_method != "gemma" and mapping_method != "plink" %}
             <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
               <div id="chart_container">
                 <div class="qtlcharts" id="topchart"></div>
@@ -277,11 +277,13 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
 
+    {% if mapping_method != "gemma" and mapping_method != "plink" %}
     <script>
         js_data = {{ js_data | safe }}
     </script>
+    {% endif %}
 
-    {% if mapping_method != "gemma" %}
+    {% if mapping_method != "gemma" and mapping_method != "plink" %}
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
@@ -385,6 +387,7 @@
             return $('#marker_regression_form').submit(); 
         };
 
+        {% if mapping_method != "gemma" and mapping_method != "plink" %}
         export_perm_data = function() {
             var num_perm, perm_data;
             num_perm = js_data.num_perm
@@ -393,7 +396,8 @@
             $('input[name=perm_results]').val(json_perm_data);
             $('#marker_regression_form').attr('action', '/export_perm_data');
             return $('#marker_regression_form').submit();
-    };
+        }
+        {% endif %}
 
     </script>
 
