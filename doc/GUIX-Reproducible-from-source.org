@@ -2,19 +2,188 @@
 
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
- - [[#binary-deployment][Binary deployment]]
+ - [[#binary-deployment-through-gnu-guix][Binary deployment through GNU Guix]]
+   - [[#quick-installation-recipe][Quick installation recipe]]
+   - [[#step-1-install-gnu-guix][Step 1: Install GNU Guix]]
+   - [[#step-2-checkout-the-gn2-git-repositories][Step 2: Checkout the GN2 git repositories]]
+   - [[#step-3-authorize-the-gn-guix-server][Step 3: Authorize the GN Guix server]]
+   - [[#step-4-install-and-run-gn2][Step 4: Install and run GN2]]
  - [[#from-source-deployment][From source deployment]]
  - [[#create-archive][Create archive]]
+ - [[#source-deployment][Source deployment]]
+   - [[#run-your-own-copy-of-gn2][Run your own copy of GN2]]
+   - [[#set-up-nginx-port-forwarding][Set up nginx port forwarding]]
+ - [[#source-deployment-and-other-information-on-reproducibility][Source deployment and other information on reproducibility]]
+   - [[#update-to-recent-guix][Update to recent guix]]
+   - [[#install-gn2][Install GN2]]
+   - [[#run-gn2][Run GN2]]
 
 * Introduction
 
 Large system deployments tend to get very complex. In this document we
 explain the GeneNetwork deployment system which is based on GNU Guix
-(see Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]]).
+(see Pjotr's [[https://github.com/pjotrp/guix-notes/blob/master/README.md][Guix-notes]] and the main [[README.org]] doc).
 
-* Binary deployment
+* Binary deployment through GNU Guix
+** Quick installation recipe
 
-NYA (will go to README)
+This is a recipe for quick and dirty installation of GN2. For
+convenience everything is installed as root, though in reality only
+GNU Guix has to be installed as root. I tested this recipe on a fresh
+install of Debian 8.3.0 (in KVM) though it should work on any modern
+Linux distribution (including CentOS).
+
+
+Note that GN2 consists of an approx. 5 GB installation including
+database. If you use a virtual machine we recommend to use at least
+double.
+
+** Step 1: Install GNU Guix
+
+Fetch the GNU Guix binary from [[https://www.gnu.org/software/guix/download/][here]] (middle panel) and follow
+[[https://www.gnu.org/software/guix/manual/html_node/Binary-Installation.html][instructions]]. Essentially, download and unpack the tar ball (which
+creates directories in /gnu and /var/guix), add build users and group
+(Guix builds software as unpriviliged users) and run the Guix daemon
+after fixing the paths (also known as the 'profile').
+
+Once you have succeeded, you have to [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-the-key][set the key]] (getting permission
+to download binaries from the GNU server) and you should be able to
+install the hello package using binary packages (no building)
+
+#+begin_src bash
+export PATH=~/.guix-profile/bin:$PATH
+guix pull
+guix package -i hello --dry-run
+#+end_src
+
+Which should show something like
+
+: The following files would be downloaded:
+:   /gnu/store/zby49aqfbd9w9br4l52mvb3y6f9vfv22-hello-2.10
+:   ...
+#+end_src
+
+means binary installs.  The actual installation command of 'hello' is
+
+#+begin_src bash
+guix package -i hello
+hello
+  Hello, world!
+#+end_src
+
+If you actually see things building it means that Guix is not yet
+properly installed and up-to-date, i.e., the key is missing or you
+need to do a 'guix pull'. Press Ctrl-C to interrupt.
+
+If you need more help we have another writeup in [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#binary-installation][guix-notes]]. To get
+rid of the locale warning see [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-locale][set-locale]].
+
+** Step 2: Checkout the GN2 git repositories
+
+To fixate the software dependency graph GN2 uses git repositories of
+Guix packages. First install git if it is missing
+
+#+begin_src bash
+guix package -i git
+export GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt
+#+end_src
+
+check out the git repositories (gn-deploy branch)
+
+#+begin_src bash
+cd ~
+mkdir genenetwork
+cd genenetwork
+git clone --branch gn-deploy https://github.com/genenetwork/guix-bioinformatics
+git clone --branch gn-deploy --recursive https://github.com/genenetwork/guix guix-gn-deploy
+cd guix-gn-deploy
+#+end_src bash
+
+To test whether this is working try:
+
+#+begin_src bash
+#+end_src bash
+
+** Step 3: Authorize the GN Guix server
+
+GN2 has its own GNU Guix binary distribution server. To trust it you have
+to add the following key
+
+#+begin_src scheme
+(public-key
+ (ecc
+  (curve Ed25519)
+  (q #11217788B41ADC8D5B8E71BD87EF699C65312EC387752899FE9C888856F5C769#)
+ )
+)
+#+end_src
+
+by pasting it into the command
+
+#+begin_src bash
+guix archive --authorize
+#+end_src
+
+and hit Ctrl-D.
+
+Now you can use the substitute server to install GN2 binaries.
+
+** Step 4: Install and run GN2
+
+Since this is a quick and dirty install we are going to override the
+GNU Guix package path by pointing the package path to our repository:
+
+#+begin_src bash
+rm /root/.config/guix/latest
+ln -s ~/genenetwork/guix-gn-deploy/ /root/.config/guix/latest
+#+end_src
+
+Now check whether you can find the GN2 package with
+
+#+begin_src bash
+env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ guix package -A genenetwork2
+  genenetwork2    2.0-a8fcff4     out     gn/packages/genenetwork.scm:144:2
+#+end_src
+
+(ignore the source file newer then ... messages, this is caused by the
+/root/.config/guix/latest override).
+
+And install with
+
+#+begin_src bash
+env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ \
+  guix package -i genenetwork2 \
+  --substitute-urls="http://guix.genenetwork.org"
+#+end_src
+
+Note: the order of the substitute url's may make a difference in speed
+(put the one first that is fastest for your location and time of day).
+
+Note: if your system starts building or gives an error it may well be
+Step 3 did not succeed. The installation should actually be smooth at
+this point and only do binary installs (no compiling).
+
+After installation you should be able to run genenetwork2 after updating
+the Guix suggested environment vars. Check the output of
+
+#+begin_src bash
+guix package --search-paths
+export PYTHONPATH="/root/.guix-profile/lib/python2.7/site-packages"
+export R_LIBS_SITE="/root/.guix-profile/site-library/"
+#+end_src
+
+and copy-paste the listed exports into the terminal before running:
+
+#+begin_src bash
+genenetwork2
+#+end_src
+
+It will complain that the database is missing. See the next section on
+running MySQL server for downloading and installing a MySQL GN2
+database. After installing the database restart genenetwork2 and point
+your browser at [[http://localhost:5003/]].
+
+End of the GN2 installation recipe!
 
 * From source deployment
 
@@ -52,3 +221,182 @@ gn-stable-guix$ env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix
 * Create archive
 
 : env GUIX_PACKAGE_PATH=../../genenetwork/guix-bioinformatics/ ./pre-inst-env guix archive --export -r genenetwork2 > guix_gn2-2.0-9e9475053.nar
+
+
+* Source deployment
+
+This section gives a more elaborate instruction for installing GN2
+from source.
+
+First execute above 4 steps:
+
+   - [[#step-1-install-gnu-guix][Step 1: Install GNU Guix]]
+   - [[#step-2-checkout-the-gn2-git-repositories][Step 2: Checkout the GN2 git repositories]]
+   - [[#step-3-authorize-the-gn-guix-server][Step 3: Authorize the GN Guix server]]
+   - [[#step-4-install-and-run-gn2-][Step 4: Install and run GN2 ]]
+
+
+** Run your own copy of GN2
+
+At some point you may want to fix the source code. Assuming you have
+Guix and Genenetwork2 installed (as described above) clone the GN2
+repository from https://github.com/genenetwork/genenetwork2.
+
+Copy-paste the paths into your terminal (mainly so PYTHON_PATH and
+R_LIBS_SITE are set) from the information given by guix:
+
+: guix package --search-paths
+
+Inside the repository:
+
+: cd genenetwork2
+: ./bin/genenetwork2
+
+Will fire up your local repo http://localhost:5003/ using the
+settings in ./etc/default_settings.py. These settings may
+not reflect your system. To override settings create your own from a copy of
+default_settings.py and pass it into GN2 with
+
+: ./bin/genenetwork2 $HOME/my_settings.py
+
+and everything *should* work (note the full path to the settings
+file). This way we develop against the exact same dependency graph of
+software.
+
+If something is not working, take a hint from the settings file
+that comes in the Guix installation. It sits in something like
+
+: cat ~/.guix-profile/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
+
+** Set up nginx port forwarding
+
+nginx can be used as a reverse proxy for GN2. For example, we want to
+expose GN2 on port 80 while it is running on port 5003. Essentially
+the configuration looks like
+
+#+begin_src js
+    server {
+        listen 80;
+        server_name test-gn2.genenetwork.org;
+        access_log  logs/test-gn2.access.log;
+
+        proxy_connect_timeout       3000;
+        proxy_send_timeout          3000;
+        proxy_read_timeout          3000;
+        send_timeout                3000;
+
+        location / {
+            proxy_set_header   Host      $http_host;
+            proxy_set_header   Connection keep-alive;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Host $server_name;
+            proxy_pass         http://127.0.0.1:5003;
+        }
+}
+#+end_src js
+
+Install the nginx webserver (as root)
+
+: guix package -i nginx
+
+The nginx example configuration examples can be found in the Guix
+store through
+
+: ls -l /root/.guix-profile/sbin/nginx
+: lrwxrwxrwx 3 root guixbuild 66 Dec 31  1969 /root/.guix-profile/sbin/nginx -> /gnu/store/g0wrcl5z27rmk5b52rldzvk1bzzbnz2l-nginx-1.8.1/sbin/nginx
+
+Use that path
+
+: ls /gnu/store/g0wrcl5z27rmk5b52rldzvk1bzzbnz2l-nginx-1.8.1/share/nginx/conf/
+:   fastcgi.conf            koi-win             scgi_params
+:   fastcgi.conf.default    mime.types          scgi_params.default
+:   fastcgi_params          mime.types.default  uwsgi_params
+:   fastcgi_params.default  nginx.conf          uwsgi_params.default
+:   koi-utf                 nginx.conf.default  win-utf
+
+And copy any relevant files to /etc/nginx.  A configuration file for
+GeneNetwork (reverse proxy) port forwarding can be found in the source
+repository under ./etc/nginx-genenetwork.conf. Copy this file to /etc
+(still as root)
+: cp ./etc/nginx-genenetwork.conf /etc/nginx/
+
+Make dirs
+
+: mkdir -p /var/spool/nginx/logs
+
+Add users
+
+: adduser nobody ; addgroup nobody
+
+Run nginx
+
+: /root/.guix-profile/sbin/nginx -c /etc/nginx/nginx-genenetwork.conf -p /var/spool/nginx
+
+* Source deployment and other information on reproducibility
+
+See the document [[GUIX-Reproducible-from-source.org]].
+
+** Update to recent guix
+
+We now compile Guix from scratch.
+
+Create, install and run a recent version of the guix-daemon by
+compiling the guix repository you have installed with git in
+step 2. Follow [[https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#building-gnu-guix-from-source-using-guix][these]] steps carefully after
+
+: cd ~/genenetwork/guix-gn-deploy
+
+Make sure to restart the guix daemon and run guix client from this
+directory.
+
+** Install GN2
+
+Reinstall genenetwork2 using the new tree
+
+#+begin_src bash
+env GUIX_PACKAGE_PATH=~/genenetwork/guix-bioinformatics/ ./pre-inst-env guix package -i genenetwork2 --substitute-urls="http://guix.genenetwork.org https://mirror.guixsd.org"
+#+end_src bash
+
+Note the use of ./pre-inst-env here!
+
+Actually, it should be the same installation as in step 4, so nothing
+gets downloaded.
+
+** Run GN2
+
+Make a note of the paths with
+
+#+begin_src bash
+./pre-inst-env guix package --search-paths
+#+end_src bash
+
+or this should also work if guix is installed
+
+#+begin_src bash
+guix package --search-paths
+#+end_src bash
+
+After setting the paths for the server
+
+#+begin_src bash
+export PATH=~/.guix-profile/bin:$PATH
+export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
+export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
+export GUIX_GTK3_PATH="$HOME/.guix-profile/lib/gtk-3.0"
+export GI_TYPELIB_PATH="$HOME/.guix-profile/lib/girepository-1.0"
+export XDG_DATA_DIRS="$HOME/.guix-profile/share"
+export GIO_EXTRA_MODULES="$HOME/.guix-profile/lib/gio/modules"
+#+end_src bash
+
+run the main script (in ~/.guix-profile/bin)
+
+#+begin_src bash
+genenetwork2
+#+end_src bash
+
+will start the default server which listens on port 5003, i.e.,
+http://localhost:5003/.
+
+OK, we are where we were before with step 4. Only difference is that we
+used our own compiled guix server.
