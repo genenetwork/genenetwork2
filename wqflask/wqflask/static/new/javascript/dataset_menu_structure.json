@@ -1340,14 +1340,14 @@
                   "GSE9588 Human Liver Normal (Mar11) Both Sexes"
                ],
                [
-                  "384",
-                  "HLCF_0311",
-                  "GSE9588 Human Liver Normal (Mar11) Females"
-               ],
-               [
                   "383",
                   "HLCM_0311",
                   "GSE9588 Human Liver Normal (Mar11) Males"
+               ],
+               [
+                  "384",
+                  "HLCF_0311",
+                  "GSE9588 Human Liver Normal (Mar11) Females"
                ]
             ],
             "Phenotypes": [
@@ -1493,6 +1493,15 @@
                ]
             ]
          },
+         "Islets-Gerling": {
+            "Phenotypes": [
+               [
+                  "None",
+                  "Islets-GerlingPublish",
+                  "Islets-Gerling Published Phenotypes"
+               ]
+            ]
+         },
          "TIGEM-Retina-RNA-Seq": {
             "Phenotypes": [
                [
@@ -1561,12 +1570,22 @@
             ],
             "Heart mRNA": [
                [
+                  "820",
+                  "UCLA_AXB_BXA_Aor_Jan16",
+                  "UCLA AXB/BXA Aorta Affy M430 2.0 (Jan16) RMA"
+               ],
+               [
                   "421",
                   "IRCM_AXBXA_HRI0213",
                   "IRCM AXB/BXA Mouse Heart ILM MouseRef-8 v2.0 (Feb13) RankInv"
                ]
             ],
             "Liver mRNA": [
+               [
+                  "822",
+                  "UCLA_AXB_BXA_Liv_Jan16",
+                  "UCLA AXB/BXA Liver Affy M430 2.0 (Jan16) RMA"
+               ],
                [
                   "352",
                   "GSE16780AB_UCLA_ML0911",
@@ -1727,11 +1746,6 @@
             ],
             "Striatum mRNA": [
                [
-                  "85",
-                  "SA_M2_0905_P",
-                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
-               ],
-               [
                   "84",
                   "SA_M2_0905_R",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
@@ -1740,20 +1754,25 @@
                   "83",
                   "SA_M2_0905_M",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
+               ],
+               [
+                  "85",
+                  "SA_M2_0905_P",
+                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
                ]
             ]
          },
          "BHF2": {
             "Adipose mRNA": [
                [
-                  "197",
-                  "UCLA_BHF2_ADIPOSE_FEMALE",
-                  "UCLA BHF2 Adipose Female mlratio"
-               ],
-               [
                   "196",
                   "UCLA_BHF2_ADIPOSE_MALE",
                   "UCLA BHF2 Adipose Male mlratio"
+               ],
+               [
+                  "197",
+                  "UCLA_BHF2_ADIPOSE_FEMALE",
+                  "UCLA BHF2 Adipose Female mlratio"
                ],
                [
                   "165",
@@ -1763,14 +1782,14 @@
             ],
             "Brain mRNA": [
                [
-                  "199",
-                  "UCLA_BHF2_BRAIN_FEMALE",
-                  "UCLA BHF2 Brain Female mlratio"
-               ],
-               [
                   "198",
                   "UCLA_BHF2_BRAIN_MALE",
                   "UCLA BHF2 Brain Male mlratio"
+               ],
+               [
+                  "199",
+                  "UCLA_BHF2_BRAIN_FEMALE",
+                  "UCLA BHF2 Brain Female mlratio"
                ],
                [
                   "166",
@@ -1787,14 +1806,14 @@
             ],
             "Liver mRNA": [
                [
-                  "201",
-                  "UCLA_BHF2_LIVER_FEMALE",
-                  "UCLA BHF2 Liver Female mlratio"
-               ],
-               [
                   "200",
                   "UCLA_BHF2_LIVER_MALE",
                   "UCLA BHF2 Liver Male mlratio"
+               ],
+               [
+                  "201",
+                  "UCLA_BHF2_LIVER_FEMALE",
+                  "UCLA BHF2 Liver Female mlratio"
                ],
                [
                   "167",
@@ -2000,11 +2019,6 @@
                   "UTHSC Brain mRNA U74Av2 (Nov05) PDNN"
                ],
                [
-                  "81",
-                  "BR_U_0805_P",
-                  "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
-               ],
-               [
                   "80",
                   "BR_U_0805_M",
                   "UTHSC Brain mRNA U74Av2 (Aug05) MAS5"
@@ -2013,6 +2027,11 @@
                   "82",
                   "BR_U_0805_R",
                   "UTHSC Brain mRNA U74Av2 (Aug05) RMA"
+               ],
+               [
+                  "81",
+                  "BR_U_0805_P",
+                  "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
                ],
                [
                   "42",
@@ -2142,6 +2161,13 @@
                   "BXD Genotypes"
                ]
             ],
+            "Heart mRNA": [
+               [
+                  "819",
+                  "UCLA_BXD_Aor_Jan16",
+                  "UCLA BXD Aorta Affy M430 2.0 (Jan16) RMA"
+               ]
+            ],
             "Hematopoietic Cells mRNA": [
                [
                   "149",
@@ -2216,6 +2242,26 @@
                   "206",
                   "UMUTAffyExon_0209_RMA",
                   "UMUTAffy Hippocampus Exon (Feb09) RMA"
+               ],
+               [
+                  "814",
+                  "UTHSC_ILM_BXD_hipp_NOSb_0217",
+                  "UTHSC BXD Hippocampus ILM v6.1 NOS Balanced (Feb17) RankInv"
+               ],
+               [
+                  "815",
+                  "UTHSC_ILM_BXD_hipp_NOEb_0217",
+                  "UTHSC BXD Hippocampus ILM v6.1 NOE Balanced (Feb17) RankInv"
+               ],
+               [
+                  "816",
+                  "UTHSC_ILM_BXD_hipp_RSSb_0217",
+                  "UTHSC BXD Hippocampus ILM v6.1 RSS Balanced (Feb17) RankInv"
+               ],
+               [
+                  "817",
+                  "UTHSC_ILM_BXD_hipp_RSEb_0217",
+                  "UTHSC BXD Hippocampus ILM v6.1 RSE Balanced (Feb17) RankInv"
                ],
                [
                   "780",
@@ -2391,14 +2437,24 @@
             ],
             "Liver Proteome": [
                [
+                  "540",
+                  "EPFLETHZBXDprotCD0514",
+                  "EPFL/ETHZ BXD Liver, Chow Diet (Jun16) Top100 SWATH"
+               ],
+               [
+                  "541",
+                  "EPFLETHZBXDprotHFD0514",
+                  "EPFL/ETHZ BXD Liver, High Fat Diet (Jun16) Top100 SWATH"
+               ],
+               [
                   "704",
                   "EPFLETHZBXDprotCD_LS1114",
-                  "EPFL/ETHZ BXD Liver, Chow Diet (Oct14) Light SWATH"
+                  "EPFL/ETHZ BXD Liver, Chow Diet (Oct14) Top10 SWATH"
                ],
                [
                   "705",
                   "EPFLETHZBXDprotHF_LS1114",
-                  "EPFL/ETHZ BXD Liver, High Fat Diet (Oct14) Light SWATH"
+                  "EPFL/ETHZ BXD Liver, High Fat Diet Diet (Oct14) Top10 SWATH"
                ],
                [
                   "703",
@@ -2414,19 +2470,14 @@
                   "489",
                   "EPFLBXDprotHFDRPN0214",
                   "EPFL/LISP BXD Liver, Soluble Proteins HFD (Feb14) SRM"
-               ],
-               [
-                  "540",
-                  "EPFLETHZBXDprotCD0514",
-                  "EPFL/ETHZ BXD Liver, Soluble Proteins CD (Jun14) SWATH"
-               ],
-               [
-                  "541",
-                  "EPFLETHZBXDprotHFD0514",
-                  "EPFL/ETHZ BXD Liver, Soluble Proteins HFD (Jun14) SWATH"
                ]
             ],
             "Liver mRNA": [
+               [
+                  "818",
+                  "UCLA_BXD_Liv_Jan16",
+                  "UCLA BXD Liver Affy M430 2.0 (Jan16) RMA"
+               ],
                [
                   "430",
                   "EPFLMouseLiverRMA0413",
@@ -2441,6 +2492,11 @@
                   "432",
                   "EPFLMouseLiverCDRMA0413",
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
+               ],
+               [
+                  "433",
+                  "EPFLMouseLiverBothExRMA0413",
+                  "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
                   "700",
@@ -2466,6 +2522,51 @@
                   "702",
                   "SUH_Liv_RMAEx_0611",
                   "SUH BXD Liver CCl4-treated Affy Mouse Gene 1.0 ST Exon Level (Jun11) RMA"
+               ],
+               [
+                  "256",
+                  "GenEx_BXD_liverEt_M5_0912",
+                  "GenEx BXD EtOH Liver Affy M430 2.0 (Sep12) MAS5 Both Sexes"
+               ],
+               [
+                  "257",
+                  "GenEx_BXD_liverEt_M5M_0912",
+                  "GenEx BXD EtOH Liver Affy M430 2.0 (Sep12) MAS5 Males"
+               ],
+               [
+                  "258",
+                  "GenEx_BXD_liverEt_M5F_0912",
+                  "GenEx BXD EtOH Liver Affy M430 2.0 (Sep12) MAS5 Females"
+               ],
+               [
+                  "307",
+                  "GenEx_BXD_liverEt_RMA_0211",
+                  "GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Both Sexes"
+               ],
+               [
+                  "308",
+                  "GenEx_BXD_liverEt_RMA_M_0211",
+                  "GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Males"
+               ],
+               [
+                  "309",
+                  "GenEx_BXD_liverEt_RMA_F_0211",
+                  "GenEx BXD EtOH Liver Affy M430 2.0 (Feb11) RMA Females"
+               ],
+               [
+                  "310",
+                  "GenEx_BXD_liverSal_RMA_0211",
+                  "GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Both Sexes"
+               ],
+               [
+                  "311",
+                  "GenEx_BXD_liverSal_RMA_M_0211",
+                  "GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Males"
+               ],
+               [
+                  "312",
+                  "GenEx_BXD_liverSal_RMA_F_0211",
+                  "GenEx BXD Sal Liver Affy M430 2.0 (Feb11) RMA Females"
                ]
             ],
             "Lung mRNA": [
@@ -2546,14 +2647,14 @@
                   "HQF BXD Neocortex ILM6v1.1 (Feb08) RankInv"
                ],
                [
-                  "275",
-                  "DevNeocortex_ILM6.2P14RInv_1110",
-                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv"
-               ],
-               [
                   "274",
                   "DevNeocortex_ILM6.2P3RInv_1110",
                   "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
+               ],
+               [
+                  "275",
+                  "DevNeocortex_ILM6.2P14RInv_1110",
+                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv"
                ]
             ],
             "Nucleus Accumbens mRNA": [
@@ -2761,11 +2862,6 @@
             ],
             "Ventral Tegmental Area mRNA": [
                [
-                  "230",
-                  "VCUEtvsSal_0609_R",
-                  "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) RMA"
-               ],
-               [
                   "229",
                   "VCUEtOH_0609_R",
                   "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA"
@@ -2774,6 +2870,11 @@
                   "228",
                   "VCUSal_0609_R",
                   "VCU BXD VTA Sal M430 2.0 (Jun09) RMA"
+               ],
+               [
+                  "230",
+                  "VCUEtvsSal_0609_R",
+                  "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) RMA"
                ]
             ]
          },
@@ -2920,6 +3021,27 @@
                ]
             ]
          },
+         "CIE-RMA": {
+            "Midbrain mRNA": [
+               [
+                  "830",
+                  "INIA_UTHSC_Mid_AffyMTA1_Apr17",
+                  "INIA-UTHSC Midbrain CIE Affy MTA 1.0 GeneLevel (Apr17) RMA"
+               ],
+               [
+                  "834",
+                  "INIA_UTHSC_Mid_AffyMTA1_Ex_May17",
+                  "INIA-UTHSC Midbrain CIE Affy MTA 1.0 Exon Level (Apr17) RMA"
+               ]
+            ],
+            "Phenotypes": [
+               [
+                  "None",
+                  "CIE-RMAPublish",
+                  "CIE-RMA Published Phenotypes"
+               ]
+            ]
+         },
          "CMS": {
             "Phenotypes": [
                [
@@ -3021,6 +3143,13 @@
                   "CXB Genotypes"
                ]
             ],
+            "Heart mRNA": [
+               [
+                  "821",
+                  "UCLA_CXB_Aor_Jan16",
+                  "UCLA CXB Aorta Affy M430 2.0 (Jan16) RMA"
+               ]
+            ],
             "Hippocampus mRNA": [
                [
                   "100",
@@ -3031,6 +3160,13 @@
                   "99",
                   "HC_M2CB_1205_P",
                   "Hippocampus Consortium M430v2 CXB (Dec05) PDNN"
+               ]
+            ],
+            "Liver mRNA": [
+               [
+                  "823",
+                  "UCLA_CXB_Liv_Jan16",
+                  "UCLA CXB Liver Affy M430 2.0 (Jan16) RMA"
                ]
             ],
             "Phenotypes": [
@@ -3048,6 +3184,7 @@
                ]
             ]
          },
+         "EMSR": {},
          "HS": {
             "Hippocampus mRNA": [
                [
@@ -3545,6 +3682,10 @@
             "Brain, Development: Normal Gene Expression (Yale/Sestan)"
          ],
          [
+            "Islets-Gerling",
+            "Pancreatic: Islets (UTHSC/Gerling)"
+         ],
+         [
             "TIGEM-Retina-RNA-Seq",
             "Retina: Normal Adult Gene Expression, RNA-Seq (TIGEM)"
          ]
@@ -3616,7 +3757,11 @@
          ],
          [
             "CIE-INIA",
-            "Chronic Intermittent Ethanol"
+            "Chronic Intermittent Ethanol Phase 1"
+         ],
+         [
+            "CIE-RMA",
+            "Chronic Intermittent Ethanol Phase 2"
          ],
          [
             "CMS",
@@ -3629,6 +3774,10 @@
          [
             "CXB",
             "CXB"
+         ],
+         [
+            "EMSR",
+            "Ethanol-Medicated Stress Reduction"
          ],
          [
             "HS",
@@ -4414,6 +4563,12 @@
                "Ventrolateral Prefrontal Cortex mRNA"
             ]
          ],
+         "Islets-Gerling": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ]
+         ],
          "TIGEM-Retina-RNA-Seq": [
             [
                "Phenotypes",
@@ -4630,6 +4785,10 @@
                "Gastrointestinal mRNA"
             ],
             [
+               "Heart mRNA",
+               "Heart mRNA"
+            ],
+            [
                "Hematopoietic Cells mRNA",
                "Hematopoietic Cells mRNA"
             ],
@@ -4780,6 +4939,16 @@
                "LCM Brain Regions mRNA"
             ]
          ],
+         "CIE-RMA": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ],
+            [
+               "Midbrain mRNA",
+               "Midbrain mRNA"
+            ]
+         ],
          "CMS": [
             [
                "Phenotypes",
@@ -4822,14 +4991,23 @@
                "Genotypes"
             ],
             [
+               "Heart mRNA",
+               "Heart mRNA"
+            ],
+            [
                "Hippocampus mRNA",
                "Hippocampus mRNA"
+            ],
+            [
+               "Liver mRNA",
+               "Liver mRNA"
             ],
             [
                "Spleen mRNA",
                "Spleen mRNA"
             ]
          ],
+         "EMSR": [],
          "HS": [
             [
                "Phenotypes",
