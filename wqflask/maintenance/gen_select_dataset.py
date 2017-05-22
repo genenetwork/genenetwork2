@@ -57,7 +57,7 @@ import urlparse
 
 from pprint import pformat as pf
 
-#Engine = sa.create_engine(zach_settings.SQLALCHEMY_DATABASE_URI)
+#Engine = sa.create_engine(zach_settings.SQL_URI)
 
 # build MySql database connection
 

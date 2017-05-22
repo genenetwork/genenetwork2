@@ -1,0 +1,23 @@
+* Development
+
+After cloning the git source tree you can run the contained GN2 using
+an existing GN2_PROFILE, i.e., use a profile that was create to run a
+binary installation of GN2. This profile may be found by typing
+
+: which genenetwork2
+:   /home/wrk/opt/gn-latest-guix/bin/genenetwork2
+
+An example of running the development version would be
+
+: env GN2_PROFILE=/home/wrk/opt/gn-latest-guix ./bin/genenetwork2
+
+Profiles are stored in /gnu/store, so you may pick one up there
+
+: readlink -f $(dirname $(dirname `which genenetwork2`))
+:   /gnu/store/dvckpaw770b00l6rv4ijql8wrk11iypv-profile
+
+and use that instead.
+
+Note that the genenetwork2 script sets up the environment for running
+the webserver. This includes path to R modules and python modules. These
+are output on startup. To make sure there is no environment pollution you can
