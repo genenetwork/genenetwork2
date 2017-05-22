@@ -94,12 +94,15 @@
                 <div class="tab-pane" id="probability_plot">
                     <div style="padding: 20px" class="form-horizontal">
                         {% if sample_groups|length != 1 %}
+                        Select Group:
                         <select class="prob_plot_samples_group">
                             {% for group, pretty_group in sample_group_types.items() %}
                                 <option value="{{ group }}">{{ pretty_group }}</option>
                             {% endfor %}
                         </select>
-                        <br><br>
+                        <button type="button" class="btn btn-default" id="down_prob_plot">Export as PNG</button>
+                        <br>
+                        <br>
                         {% endif %}
 
                         <div id="prob_plot_container">
