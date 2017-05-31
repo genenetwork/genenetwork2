@@ -206,6 +206,8 @@ class GeneralTrait(object):
                 formatted = self.description
                 if self.probe_target_description:
                     formatted += "; " + self.probe_target_description
+            else:
+                formatted = "Not available"
         elif self.dataset.type == 'Publish':
             if self.confidential:
                 formatted = self.pre_publication_description
