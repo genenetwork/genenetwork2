@@ -1,5 +1,7 @@
 * Development
 
+** Using GN2_PROFILE
+
 After cloning the git source tree you can run the contained GN2 using
 an existing GN2_PROFILE, i.e., use a profile that was create to run a
 binary installation of GN2. This profile may be found by typing
@@ -21,3 +23,21 @@ and use that instead.
 Note that the genenetwork2 script sets up the environment for running
 the webserver. This includes path to R modules and python modules. These
 are output on startup. To make sure there is no environment pollution you can
+
+** Javascript modules
+
+As of release 2.10-pre4 we Javascript modules are installed in three places:
+
+1. JS_GUIX_PATH: the Guix store - these are Guix pre-packaged modules
+2. The git source tree (./wqflask/wqflask/static/packages/)
+3. JS_GN_PATH: a local directory containing (temporary) development modules
+
+Packages currently in git (2) will move to JS_GUIX_PATH (1) over
+time. This is to keep better track of origin updates. Putting packages
+in git (2) is actively discouraged(!), unless there are GN2 specific
+adaptations to the original Javascript modules.
+
+JS_GN_PATH (3) is for development purposes. By default is is set to
+$HOME/genenetwork/javascript. Say you are working on an updated
+version of a JS module not yet in (1) you can simply check out that
+module in that path and it should show up.

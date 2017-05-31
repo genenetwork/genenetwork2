@@ -61,7 +61,7 @@ HOME            = os.environ['HOME']
 # PRIVATE_FILES = HOME+"/gn2_private_data" # private static data files (unused)
 
 # ---- Local path to JS libraries - for development modules (only)
-# GN2_JS_PATH = os.environ['HOME']+"/genenetwork/javascript" (unused)
+JS_GN_PATH = os.environ['HOME']+"/genenetwork/javascript"
 
 # ---- GN2 Executables (overwrite for testing only)
 # PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())

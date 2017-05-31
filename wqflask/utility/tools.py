@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__ )
 
 OVERRIDES = {}
 
+def app_set(command_id, value):
+    """Set application wide value"""
+    app.config.setdefault(command_id,value)
+    value
+
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
     app.config, with valid_path is a function checking whether the
@@ -40,6 +45,7 @@ def get_setting(command_id,guess=None):
     def value(command):
         if command:
             # sys.stderr.write("Found "+command+"\n")
+            app_set(command_id,command)
             return command
         else:
             return None
@@ -88,6 +94,18 @@ def valid_path(dir):
     if os.path.isdir(dir):
         return dir
     return None
+
+def js_path(module=None):
+    """
+    Find the JS module in the two paths
+    """
+    try_gn   = get_setting("JS_GN_PATH")+"/"+module
+    if valid_path(try_gn):
+        return try_gn
+    try_guix = get_setting("JS_GUIX_PATH")+"/"+module
+    if valid_path(try_guix):
+        return try_guix
+    raise "No JS path found for "+module+" (check JS_GN_PATH)"
 
 def pylmm_command(guess=None):
     return valid_bin(get_setting("PYLMM_COMMAND",guess))
@@ -212,16 +230,19 @@ USE_REDIS          = get_setting_bool('USE_REDIS')
 USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
 
 GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
-GUIX_JS_PATH       = get_setting('GUIX_JS_PATH')
-assert_dir(GUIX_JS_PATH)
+JS_GUIX_PATH       = get_setting('JS_GUIX_PATH')
+# assert_dir(JS_GUIX_PATH) - don't enforce right now
+JS_GN_PATH         = get_setting('JS_GN_PATH')
+assert_dir(JS_GN_PATH)
 
-PYLMM_COMMAND      = pylmm_command()
-GEMMA_COMMAND      = gemma_command()
-PLINK_COMMAND      = plink_command()
+PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
+GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
+PLINK_COMMAND      = app_set("PLINK_COMMAND",plink_command())
 TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
 
-TWITTER_POST_FETCHER_JS_PATH = GUIX_JS_PATH + "/Twitter-Post-Fetcher"
-assert_dir(TWITTER_POST_FETCHER_JS_PATH)
+# ---- Handle specific JS modules
+JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("Twitter-Post-Fetcher"))
+assert_dir(JS_TWITTER_POST_FETCHER_PATH)
 
 from six import string_types
 
