@@ -53,11 +53,13 @@ USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
 USE_GN_SERVER   = 'False'   # Use GN_SERVER SQL calls
 HOME            = os.environ['HOME']
 
+# ---- Default locations
+GENENETWORK_FILES   = HOME+"/gn2_data"  # base dir for all static data files
+
 # ---- Path overrides for Genenetwork - the defaults are normally
 #      picked up from Guix or in the HOME directory
 
 # TMPDIR is normally picked up from the environment
-# GENENETWORK_FILES   = HOME+"/gn2_data"  # base dir for all static data files
 # PRIVATE_FILES = HOME+"/gn2_private_data" # private static data files (unused)
 
 # ---- Local path to JS libraries - for development modules (only)

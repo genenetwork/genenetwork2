@@ -233,7 +233,7 @@ GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
 JS_GUIX_PATH       = get_setting('JS_GUIX_PATH')
 # assert_dir(JS_GUIX_PATH) - don't enforce right now
 JS_GN_PATH         = get_setting('JS_GN_PATH')
-assert_dir(JS_GN_PATH)
+# assert_dir(JS_GN_PATH)
 
 PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
 GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
