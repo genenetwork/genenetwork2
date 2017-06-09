@@ -89,3 +89,4 @@ class CorrScatterPlot(object):
             line_color = line_color,
             line_width = line_width
         )
+        self.jsdata = self.js_data
