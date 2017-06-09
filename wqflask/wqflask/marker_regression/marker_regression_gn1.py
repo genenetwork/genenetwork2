@@ -171,6 +171,8 @@ class MarkerRegression(object):
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
         self.species = start_vars['species']
+        if 'genofile_string' in start_vars:
+            self.genofile_string = start_vars['genofile_string']
 
         #Needing for form submission when doing single chr mapping or remapping after changing options
         self.samples = start_vars['samples']

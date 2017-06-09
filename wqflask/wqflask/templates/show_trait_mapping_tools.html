@@ -44,7 +44,7 @@
                             <div style="margin-left: 20px;" class="col-xs-8 controls">
                                 <select id="genofile_reaper" class="form-control">
                                     {% for item in genofiles %}
-                                    <option value="{{item['location']}}">{{item['title']}}</option>
+                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -138,21 +138,12 @@
                             <div style="margin-left: 20px;" class="col-xs-8 controls">
                                 <select id="genofile_pylmm" class="form-control">
                                     {% for item in genofiles %}
-                                    <option value="{{item['location']}}">{{item['title']}}</option>
+                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                         </div>
                         {% endif %}
-                        <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                <input name="num_perm_pylmm" value="" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div id="permutations_alert" class="alert alert-error alert-warning" style="display:none;">
-                            Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
-                        </div>
 <!--
                         <div class="mapping_method_fields form-group">
                             <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
@@ -172,8 +163,6 @@
                                 </label>
                             </div>
                         </div>
--->
-
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
                             <div class="col-xs-12 controls">
@@ -187,6 +176,7 @@
                                </label>
                             </div>
                         </div>
+-->
                         <div class="form-group">
                             <div style="padding-left:15px;" class="controls">
                                 <button id="pylmm_compute" class="btn submit_special btn-primary" title="Compute Marker Regression">
@@ -205,7 +195,7 @@
                             <div style="margin-left: 20px;" class="col-xs-8 controls">
                                 <select id="genofile_rqtl_geno" class="form-control">
                                     {% for item in genofiles %}
-                                    <option value="{{item['location']}}">{{item['title']}}</option>
+                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -259,13 +249,13 @@
                             <div class="col-xs-4 controls">
                               <select name="mapmodel_rqtl_geno" class="form-control">
                                 <option value="normal">normal</option>
-                                <option value="binary">binary</option>
-                                <option value="2part">2part</option>
+                                <!--<option value="binary">binary</option>
+                                <option value="2part">2part</option>-->
                                 <option value="np">np</option>
                               </select>
                             </div>
                         </div>
-
+                        <!--
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:left;" class="col-xs-12 control-label">Pair Scan</label>
                             <div class="col-xs-12 controls">
@@ -279,7 +269,7 @@
                                </label>
                             </div>
                         </div>
-
+                        -->
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
                             <div class="col-xs-12 controls">

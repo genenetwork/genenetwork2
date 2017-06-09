@@ -383,8 +383,8 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural", "width": "25%" },
-                    { "type": "natural", "width": "15%" },
+                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "12%" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
@@ -394,9 +394,14 @@
                     { "type": "scientific" }
                 ],
                 "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                    if ($('td', row).eq(3).text().length > 50) {
+                        $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 50));
+                        $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
+                    }
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
-                    if ($('td', row).eq(4).text().length > 60) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 60));
+                    if ($('td', row).eq(4).text().length > 40) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 40));
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },

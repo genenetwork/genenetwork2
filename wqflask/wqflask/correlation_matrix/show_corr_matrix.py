@@ -72,7 +72,14 @@ class CorrelationMatrix(object):
 
         self.all_sample_list = []
         self.traits = []
+        self.insufficient_shared_samples = False
+        this_group = self.trait_list[0][1].group.name #ZS: Getting initial group name before verifying all traits are in the same group in the following loop
         for trait_db in self.trait_list:
+            if trait_db[1].group.name != this_group:
+                self.insufficient_shared_samples = True
+                break
+            else:
+                this_group = trait_db[1].group.name
             this_trait = trait_db[0]
             self.traits.append(this_trait)
             this_sample_data = this_trait.data
@@ -81,100 +88,102 @@ class CorrelationMatrix(object):
                 if sample not in self.all_sample_list:
                     self.all_sample_list.append(sample)
 
-        self.sample_data = []
-        for trait_db in self.trait_list:
-            this_trait = trait_db[0]
-            this_sample_data = this_trait.data
-
-            this_trait_vals = []
-            for sample in self.all_sample_list:
-                if sample in this_sample_data:
-                    this_trait_vals.append(this_sample_data[sample].value)
-                else:
-                    this_trait_vals.append('')
-            self.sample_data.append(this_trait_vals)
-
-        if len(this_trait_vals) < len(self.trait_list): #Shouldn't do PCA if there are more traits than observations/samples
-            return False
-
-        self.lowest_overlap = 8 #ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
-
-        self.corr_results = []
-        self.pca_corr_results = []
-        self.trait_data_array = []
-        for trait_db in self.trait_list:
-            this_trait = trait_db[0]
-            this_db = trait_db[1]
-
-            this_db_samples = this_db.group.all_samples_ordered()
-            this_sample_data = this_trait.data
-
-            this_trait_vals = []
-            for index, sample in enumerate(this_db_samples):
-                if (sample in this_sample_data):
-                    sample_value = this_sample_data[sample].value
-                    this_trait_vals.append(sample_value)
-            self.trait_data_array.append(this_trait_vals)
-
-            corr_result_row = []
-            pca_corr_result_row = []
-            is_spearman = False #ZS: To determine if it's above or below the diagonal
-            for target in self.trait_list:
-                target_trait = target[0]
-                target_db = target[1]
-                target_samples = target_db.group.all_samples_ordered()
-                target_sample_data = target_trait.data
+        if self.insufficient_shared_samples:
+            pass
+        else:
+            self.sample_data = []
+            for trait_db in self.trait_list:
+                this_trait = trait_db[0]
+                this_sample_data = this_trait.data
 
                 this_trait_vals = []
-                target_vals = []
-                for index, sample in enumerate(target_samples):
-                    if (sample in this_sample_data) and (sample in target_sample_data):
-                        sample_value = this_sample_data[sample].value
-                        target_sample_value = target_sample_data[sample].value
-                        this_trait_vals.append(sample_value)
-                        target_vals.append(target_sample_value)
-
-                this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(this_trait_vals, target_vals)
-
-                if num_overlap < self.lowest_overlap:
-                    self.lowest_overlap = num_overlap
-                if num_overlap == 0:
-                    corr_result_row.append([target_trait, 0, num_overlap])
-                    pca_corr_result_row.append(0)
-                else:
-                    pearson_r, pearson_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
-                    if is_spearman == False:
-                        sample_r, sample_p = pearson_r, pearson_p
-                        if sample_r == 1:
-                            is_spearman = True
+                for sample in self.all_sample_list:
+                    if sample in this_sample_data:
+                        this_trait_vals.append(this_sample_data[sample].value)
                     else:
-                        sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
+                        this_trait_vals.append('')
+                self.sample_data.append(this_trait_vals)
 
-                    corr_result_row.append([target_trait, sample_r, num_overlap])
-                    pca_corr_result_row.append(pearson_r)
+            if len(this_trait_vals) < len(self.trait_list): #Shouldn't do PCA if there are more traits than observations/samples
+                return False
 
-            self.corr_results.append(corr_result_row)
-            self.pca_corr_results.append(pca_corr_result_row)
+            self.lowest_overlap = 8 #ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
 
-        corr_result_eigen = la.eigenvectors(numarray.array(self.pca_corr_results))
-        corr_eigen_value, corr_eigen_vectors = sortEigenVectors(corr_result_eigen)
+            self.corr_results = []
+            self.pca_corr_results = []
+            self.trait_data_array = []
+            for trait_db in self.trait_list:
+                this_trait = trait_db[0]
+                this_db = trait_db[1]
 
-        groups = []
-        for sample in self.all_sample_list:
-            groups.append(1)
+                this_db_samples = this_db.group.all_samples_ordered()
+                this_sample_data = this_trait.data
 
-        pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
+                this_trait_vals = []
+                for index, sample in enumerate(this_db_samples):
+                    if (sample in this_sample_data):
+                        sample_value = this_sample_data[sample].value
+                        this_trait_vals.append(sample_value)
+                self.trait_data_array.append(this_trait_vals)
 
-        self.loadings_array = self.process_loadings()
+                corr_result_row = []
+                pca_corr_result_row = []
+                is_spearman = False #ZS: To determine if it's above or below the diagonal
+                for target in self.trait_list:
+                    target_trait = target[0]
+                    target_db = target[1]
+                    target_samples = target_db.group.all_samples_ordered()
+                    target_sample_data = target_trait.data
 
-        self.js_data = dict(traits = [trait.name for trait in self.traits],
-                            groups = groups,
-                            cols = range(len(self.traits)),
-                            rows = range(len(self.traits)),
-                            samples = self.all_sample_list,
-                            sample_data = self.sample_data,)
-        #                    corr_results = [result[1] for result in result_row for result_row in self.corr_results])
+                    this_trait_vals = []
+                    target_vals = []
+                    for index, sample in enumerate(target_samples):
+                        if (sample in this_sample_data) and (sample in target_sample_data):
+                            sample_value = this_sample_data[sample].value
+                            target_sample_value = target_sample_data[sample].value
+                            this_trait_vals.append(sample_value)
+                            target_vals.append(target_sample_value)
 
+                    this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(this_trait_vals, target_vals)
+
+                    if num_overlap < self.lowest_overlap:
+                        self.lowest_overlap = num_overlap
+                    if num_overlap == 0:
+                        corr_result_row.append([target_trait, 0, num_overlap])
+                        pca_corr_result_row.append(0)
+                    else:
+                        pearson_r, pearson_p = scipy.stats.pearsonr(this_trait_vals, target_vals)
+                        if is_spearman == False:
+                            sample_r, sample_p = pearson_r, pearson_p
+                            if sample_r == 1:
+                                is_spearman = True
+                        else:
+                            sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
+
+                        corr_result_row.append([target_trait, sample_r, num_overlap])
+                        pca_corr_result_row.append(pearson_r)
+
+                self.corr_results.append(corr_result_row)
+                self.pca_corr_results.append(pca_corr_result_row)
+
+            corr_result_eigen = la.eigenvectors(numarray.array(self.pca_corr_results))
+            corr_eigen_value, corr_eigen_vectors = sortEigenVectors(corr_result_eigen)
+
+            groups = []
+            for sample in self.all_sample_list:
+                groups.append(1)
+
+            pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
+
+            self.loadings_array = self.process_loadings()
+
+            self.js_data = dict(traits = [trait.name for trait in self.traits],
+                                groups = groups,
+                                cols = range(len(self.traits)),
+                                rows = range(len(self.traits)),
+                                samples = self.all_sample_list,
+                                sample_data = self.sample_data,)
+            #                    corr_results = [result[1] for result in result_row for result_row in self.corr_results])
         
     def get_trait_db_obs(self, trait_db_list):
 
