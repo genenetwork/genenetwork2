@@ -292,7 +292,6 @@ def retrieve_sample_data(trait, dataset, samplelist=None):
             name, value, variance, num_cases, name2 = item
             if not samplelist or (samplelist and name in samplelist):
                 trait.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
-                
     return trait
         
 def convert_location_to_value(chromosome, mb):
