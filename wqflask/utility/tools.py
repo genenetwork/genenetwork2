@@ -108,13 +108,13 @@ def js_path(module=None):
     raise "No JS path found for "+module+" (check JS_GN_PATH)"
 
 def pylmm_command(guess=None):
-    return valid_bin(get_setting("PYLMM_COMMAND",guess))
+    return assert_bin(get_setting("PYLMM_COMMAND",guess))
 
 def gemma_command(guess=None):
-    return valid_bin(get_setting("GEMMA_COMMAND",guess))
+    return assert_bin(get_setting("GEMMA_COMMAND",guess))
 
 def plink_command(guess=None):
-    return valid_bin(get_setting("PLINK_COMMAND",guess))
+    return assert_bin(get_setting("PLINK_COMMAND",guess))
 
 def flat_file_exists(subdir):
     base = get_setting("GENENETWORK_FILES")
@@ -125,6 +125,11 @@ def flat_files(subdir=None):
     if subdir:
         return assert_dir(base+"/"+subdir)
     return assert_dir(base)
+
+def assert_bin(fn):
+    if not valid_bin(fn):
+        raise Exception("ERROR: can not find binary "+fn)
+    return fn
 
 def assert_dir(dir):
     if not valid_path(dir):
@@ -235,9 +240,9 @@ JS_GUIX_PATH       = get_setting('JS_GUIX_PATH')
 JS_GN_PATH         = get_setting('JS_GN_PATH')
 # assert_dir(JS_GN_PATH)
 
-PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
-GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
-PLINK_COMMAND      = app_set("PLINK_COMMAND",plink_command())
+PYLMM_COMMAND      = pylmm_command()
+GEMMA_COMMAND      = gemma_command()
+PLINK_COMMAND      = plink_command()
 TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
 
 # ---- Handle specific JS modules
