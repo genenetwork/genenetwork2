@@ -82,7 +82,7 @@ window.onload=function() {
         cy.nodes().qtip({
                             content: function(){
                                 qtip_content = ''
-                                gn_link = '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'</a>'+'</b><br>'
+                                gn_link = '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().name + '&dataset=' + this.data().dataset + '" >'+this.data().id +'</a>'+'</b><br>'
                                 qtip_content += gn_link
                                 if (typeof(this.data().geneid) !== 'undefined'){
                                     ncbi_link = '<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=' + this.data().geneid + '" >NCBI<a>'+'<br>'
