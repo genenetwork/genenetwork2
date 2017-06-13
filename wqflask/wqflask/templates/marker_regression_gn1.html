@@ -174,7 +174,7 @@
 
         </form>
         {% if selectedChr == -1 %}
-        <div style="width:{% if 'additive' in trimmed_markers[0] %}40%{% else %}30%{% endif %};">
+        <div style="width:{% if 'additive' in trimmed_markers[0] %}45%{% else %}35%{% endif %};">
           <h2>Results</h2>
           <div id="table_container">
           <table id="qtl_results" class="table table-hover table-striped nowrap">
@@ -185,7 +185,7 @@
                 <th>Locus</th>
                 <th>{{ LRS_LOD }}</th>
                 <th>Chr</th>
-                {% if plotScale == "centimorgan" %}
+                {% if plotScale != "physic" %}
                 <th>cM</th>
                 {% else %}
                 <th>Mb</th>
@@ -222,7 +222,11 @@
                 {% endif %}
                 {% endif %}
                 <td align="right">{{marker.chr}}</td>
+                {% if plotScale != "physic" %}
+                <td align="right">{{ '%0.3f' | format(marker.Mb|float) }}</td>
+                {% else %}
                 <td align="right">{{ '%0.6f' | format(marker.Mb|float) }}</td>
+                {% endif %}
                 {% if 'additive' in marker %}
                 <td align="right">{{ '%0.3f' | format(marker.additive|float) }}</td>
                 {% endif %}
@@ -235,8 +239,8 @@
           </table>
           </div>
         </div>
-        {% elif selectedChr != -1 and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
-        <div>
+        {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
+        <div style="width: 100%;">
           <h2>Interval Analyst</h2>
           <div id="table_container">
           <table id="interval_analyst" class="table table-hover table-striped nowrap">
@@ -350,9 +354,10 @@
                 "order": [[3, "asc" ]],
                 "sDom": "RZtir",
                 "iDisplayLength": -1,
-                "bDeferRender": true,
+                "autoWidth": false,
+                "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": true,
+                "scrollY": "600px",
                 "scrollCollapse": false,
                 "paging": false
             } );

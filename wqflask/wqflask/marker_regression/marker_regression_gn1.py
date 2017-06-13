@@ -447,7 +447,7 @@ class MarkerRegression(object):
         if self.haplotypeAnalystChecked and self.selectedChr > -1:
            #thisTrait = self.traitList[0]
            thisTrait = self.this_trait
-           _strains, _vals, _vars = thisTrait.export_informative()
+           _strains, _vals, _vars, _aliases = thisTrait.export_informative()
            smd=[]
            for ii, _val in enumerate(_vals):
                temp = GeneralObject(name=_strains[ii], value=_val)
@@ -1440,7 +1440,7 @@ class MarkerRegression(object):
 
         #thisTrait = self.traitList[0]
         thisTrait = self.this_trait
-        _strains, _vals, _vars = thisTrait.export_informative()
+        _strains, _vals, _vars, _aliases = thisTrait.export_informative()
 
         smd=[]
         for ii, _val in enumerate(_vals):
