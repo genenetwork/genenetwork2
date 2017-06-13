@@ -1052,7 +1052,10 @@ class MarkerRegression(object):
             startPosY = 15
             nCol = 2
             smallLabelFont = pid.Font(ttf="trebuc", size=12*fontZoom, bold=1)
-            leftOffset = xLeftOffset+(nCol-1)*200*fontZoom
+            if self.manhattan_plot:
+                leftOffset = xLeftOffset
+            else:
+                leftOffset = xLeftOffset+(nCol-1)*200*fontZoom
             canvas.drawPolygon(((leftOffset+6, startPosY-6), (leftOffset, startPosY+6), (leftOffset+12, startPosY+6)), edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
             canvas.drawString("Sequence Site", (leftOffset+15), (startPosY+5), smallLabelFont, self.TOP_RIGHT_INFO_COLOR)
 
@@ -1143,9 +1146,10 @@ class MarkerRegression(object):
         labelFont=pid.Font(ttf="trebuc",size=12*fontZoom, bold=1)
         startPosY = 15
         stepPosY = 12*fontZoom
-        canvas.drawLine(xLeftOffset,startPosY,xLeftOffset+32,startPosY,color=self.LRS_COLOR, width=2)
-        canvas.drawString(self.LRS_LOD, xLeftOffset+40,startPosY+5,font=labelFont,color=pid.black)
-        startPosY += stepPosY
+        if self.manhattan_plot != True:
+            canvas.drawLine(xLeftOffset,startPosY,xLeftOffset+32,startPosY,color=self.LRS_COLOR, width=2)
+            canvas.drawString(self.LRS_LOD, xLeftOffset+40,startPosY+5,font=labelFont,color=pid.black)
+            startPosY += stepPosY
 
         if self.additiveChecked:
             startPosX = xLeftOffset
