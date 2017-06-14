@@ -13,12 +13,13 @@
                 <li>
                     <a href="#probability_plot" data-toggle="tab">Probability Plot</a>
                 </li>
+                <!--
                 {% if g.user_session.user_ob %}
                 <li>
                     <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
                 </li>
                 {% endif %}
-                <!--<li>
+                <li>
                     <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
                 </li>-->
             </ul>
@@ -100,7 +101,7 @@
                                 <option value="{{ group }}">{{ pretty_group }}</option>
                             {% endfor %}
                         </select>
-                        <button type="button" class="btn btn-default" id="down_prob_plot">Export as PNG</button>
+                        <!--<button type="button" class="btn btn-default" id="down_prob_plot">Export as PNG</button>-->
                         <br>
                         <br>
                         {% endif %}
@@ -130,7 +131,7 @@
                     <div id="box_plot_container">
                         <div id="box_plot"></div>
                     </div>
-                </div>-->
+                </div>
                 {% if g.user_session.user_ob %}
                 <div class="tab-pane" id="scatterplot_matrix">
                     
@@ -146,7 +147,7 @@
                         <div id="comparison_scatterplot" class="qtlcharts"></div>
                     </div>
                 </div>
-                {% endif %}
+                {% endif %}-->
             </div>
         </div>
     <!--</div>-->
