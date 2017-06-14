@@ -341,6 +341,7 @@
         </div>
     </div>
     <div class="col-xs-6">
+        {% if dataset.group.mapping_id == "1" %}
         <dl>
              <dt>Interval Mapping</dt>
              <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.</dd>
@@ -349,6 +350,17 @@
              <dt>R/qtl</dt>
              <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
         </dl>
+        {% else %}
+        <dl>
+            <dt>GEMMA</dt>
+            <dd>
+                GEMMA is software implementing the Genome-wide Efficient Mixed Model Association algorithm for a standard linear mixed model for genome-wide association studies (GWAS).<br>
+                <font style="color: red;">Note: There currently exists an issue where GEMMA can't be run on traits from the same group simultaneously. If you recieve an error, please wait a few minutes and try again.</font>
+            </dd>
+            <dt>PLINK</dt>
+            <dd>PLINK is a free, open-source whole genome association analysis toolset.</dd>
+        </dl>
+        {% endif %}
     </div>
     <div id="mapping_result_holder_wrapper" style="display:none;">
         <div id="mapping_result_holder"></div>
