@@ -1018,7 +1018,7 @@ class MarkerRegression(object):
         else:
             if self.selectedChr > -1:
                 for i, qtlresult in enumerate(self.qtlresults):
-                    if qtlresult['Chr'] != self.selectedChr:
+                    if qtlresult['chr'] != self.selectedChr:
                         continue
 
                     if i==0 and qtlresult['Mb'] >= Mb:
@@ -1027,7 +1027,7 @@ class MarkerRegression(object):
 
                     #the trait's position is between two traits
                     if i > 0 and self.qtlresults[i-1]['Mb'] < Mb and qtlresult['Mb'] >= Mb:
-                        locPixel = xLeftOffset + plotXScale*(self.qtlresults[i-1]['cM']+(qtlresult['cM']-self.qtlresults[i-1]['cM'])*(Mb - self.qtlresults[i-1]['Mb'])/(qtlresult['Mb']-self.qtlresults[i-1]['Mb']))
+                        locPixel = xLeftOffset + plotXScale*(self.qtlresults[i-1]['Mb']+(qtlresult['Mb']-self.qtlresults[i-1]['Mb'])*(Mb - self.qtlresults[i-1]['Mb'])/(qtlresult['Mb']-self.qtlresults[i-1]['Mb']))
                         break
 
                     #the trait's position is on the right of the last genotype
@@ -1036,11 +1036,12 @@ class MarkerRegression(object):
             else:
                 locPixel = xLeftOffset
                 for i, _chr in enumerate(self.ChrList):
-                    if _chr != Chr:
-                        locPixel += (self.ChrLengthDistList[i] + self.GraphInterval)*plotXScale
-                    else:
-                        locPixel += (Mb*(_chr[-1].cM-_chr[0].cM)/self.ChrLengthCMList[i])*plotXScale
-                        break
+                    if i < (len(self.ChrList)-1):
+                        if _chr != Chr:
+                            locPixel += (self.ChrLengthDistList[i] + self.GraphInterval)*plotXScale
+                        else:
+                            locPixel += (Mb*(_chr[-1].cM-_chr[0].cM)/self.ChrLengthCMList[i])*plotXScale
+                            break
         if locPixel >= 0 and self.plotScale == 'physic':
             traitPixel = ((locPixel, yZero), (locPixel-6, yZero+12), (locPixel+6, yZero+12))
             canvas.drawPolygon(traitPixel, edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)

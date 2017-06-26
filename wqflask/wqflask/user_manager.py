@@ -46,7 +46,7 @@ from wqflask.database import db_session
 from wqflask import model
 
 from utility import Bunch, Struct, after
-from utility.tools import LOG_SQL, LOG_SQLALCHEMY
+from utility.tools import LOG_SQL, LOG_SQL_ALCHEMY
 
 import logging
 from utility.logger import getLogger
@@ -69,7 +69,7 @@ class AnonUser(object):
         if self.cookie:
             logger.debug("already is cookie")
             self.anon_id = verify_cookie(self.cookie)
-            
+
         else:
             logger.debug("creating new cookie")
             self.anon_id, self.cookie = create_signed_cookie()
@@ -78,17 +78,17 @@ class AnonUser(object):
         @after.after_this_request
         def set_cookie(response):
             response.set_cookie(self.cookie_name, self.cookie)
-            
+
     def add_collection(self, new_collection):
         collection_dict = dict(name = new_collection.name,
                                created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                                changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                                num_members = new_collection.num_members,
                                members = new_collection.get_members())
-                               
+
         Redis.set(self.key, json.dumps(collection_dict))
         Redis.expire(self.key, 60 * 60 * 24 * 5)
-            
+
     def delete_collection(self, collection_name):
         existing_collections = self.get_collections()
         updated_collections = []
@@ -106,7 +106,7 @@ class AnonUser(object):
                 updated_collections.append(this_collection)
 
         Redis.set(self.key, json.dumps(updated_collections))
-            
+
     def get_collections(self):
         json_collections = Redis.get(self.key)
         if json_collections == None or json_collections == "None":
@@ -117,7 +117,7 @@ class AnonUser(object):
                 collection['created_timestamp'] = datetime.datetime.strptime(collection['created_timestamp'], '%b %d %Y %I:%M%p')
                 collection['changed_timestamp'] = datetime.datetime.strptime(collection['changed_timestamp'], '%b %d %Y %I:%M%p')
             return collections
-            
+
     def import_traits_to_user(self):
         collections_list = json.loads(Redis.get(self.key))
         for collection in collections_list:
@@ -131,7 +131,7 @@ class AnonUser(object):
                 uc.members = json.dumps(collection['members'])
                 db_session.add(uc)
                 db_session.commit()
-            
+
     def display_num_collections(self):
         """
         Returns the number of collections or a blank string if there are zero.
@@ -217,7 +217,7 @@ class UserSession(object):
         """Actual sqlalchemy record"""
         # Only look it up once if needed, then store it
         try:
-            if LOG_SQLALCHEMY:
+            if LOG_SQL_ALCHEMY:
                 logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
 
             # Already did this before
@@ -237,7 +237,7 @@ class UserSession(object):
 def before_request():
     g.user_session = UserSession()
     g.cookie_session = AnonUser()
-    
+
 class UsersManager(object):
     def __init__(self):
         self.users = model.User.query.all()
@@ -541,9 +541,9 @@ class LoginUser(object):
                 import_col = "true"
             else:
                 import_col = "false"
-            
-            #g.cookie_session.import_traits_to_user()           
-                
+
+            #g.cookie_session.import_traits_to_user()
+
             return self.actual_login(user, import_collections=import_col)
 
         else:
