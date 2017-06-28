@@ -9,8 +9,8 @@ nv.addGraph(function() {
     chart.color(d3.scale.category10().range());
     chart.pointRange([200,0]);
     //
-    chart.xAxis.tickFormat(d3.format('.02f'));
-    chart.yAxis.tickFormat(d3.format('.02f'));
+    chart.xAxis.tickFormat(d3.format('r'));
+    chart.yAxis.tickFormat(d3.format('r'));
     chart.xAxis.axisLabel(js_data.trait_1);
     chart.xAxis.axisLabelDistance(11);
     chart.yAxis.axisLabel(js_data.trait_2);
