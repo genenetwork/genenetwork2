@@ -53,16 +53,6 @@
 
 <h2>Correlation Scatterplot</h2>
 
-<table class="table">
-	<tbody>
-		<tr><th class="text-right">number</th>		<td>{{jsdata.num_overlap}}</td></tr>
-		<tr><th class="text-right">slope</th>		<td>{{'%0.3f' % jsdata.slope}}</td></tr>
-		<tr><th class="text-right">intercept</th>	<td>{{'%0.3f' % jsdata.intercept}}</td></tr>
-		<tr><th class="text-right">r value</th>		<td>{{'%0.3f' % jsdata.r_value}}</td></tr>
-		<tr><th class="text-right">p value</th>		<td>{{'%0.3e' % jsdata.p_value}}</td></tr>
-	</tbody>
-</table>
-
 <!--
 <table class="table">
 	<tr>
@@ -90,7 +80,7 @@
 
 <br>
 
-<div style="margin-left: 75px;">
+<div style="margin-left: 80px;">
 
     {% if trait_1.dataset.type == "ProbeSet" %}
 		<div>
@@ -143,6 +133,18 @@
     {% endif %}
 	
 </div>
+
+<br>
+
+<table class="table table-hover table-striped table-bordered" style="width: 250px; margin-left: 80px;">
+	<tbody>
+		<tr><th>Number</th>		<td>{{jsdata.num_overlap}}</td></tr>
+		<tr><th>Slope</th>		<td>{{'%0.3f' % jsdata.slope}}</td></tr>
+		<tr><th>Intercept</th>	<td>{{'%0.3f' % jsdata.intercept}}</td></tr>
+		<tr><th>R value</th>	<td>{{'%0.3f' % jsdata.r_value}}</td></tr>
+		<tr><th>P value</th>	<td>{{'%0.3e' % jsdata.p_value}}</td></tr>
+	</tbody>
+</table>
 
 {% endblock %}
 
