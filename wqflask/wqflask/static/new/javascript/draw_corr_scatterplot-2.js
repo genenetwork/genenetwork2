@@ -9,8 +9,6 @@ nv.addGraph(function() {
     chart.color(d3.scale.category10().range());
     chart.pointRange([200,0]);
     //
-    chart.xAxis.tickFormat(d3.format('r'));
-    chart.yAxis.tickFormat(d3.format('r'));
     chart.xAxis.axisLabel(js_data.trait_1);
     chart.xAxis.axisLabelDistance(11);
     chart.yAxis.axisLabel(js_data.trait_2);
@@ -24,6 +22,8 @@ nv.addGraph(function() {
     yrange = ymax - ymin;
     chart.xDomain([xmin - xrange/10, xmax + xrange/10]);
     chart.yDomain([ymin - yrange/10, ymax + yrange/10]);
+    chart.xAxis.tickFormat(d3.format(checkformat(xrange)));
+    chart.yAxis.tickFormat(d3.format(checkformat(yrange)));
     //
     chart.tooltip.contentGenerator(function (obj) {
         return '<b style="font-size: 18px">(' + obj.point.x + ', ' + obj.point.y + ')</b>';
@@ -52,25 +52,13 @@ function getdata () {
     return data;
 }
     
-function randomData(groups, points) {
-    var data = [],
-        shapes = ['circle'],
-        random = d3.random.normal();
-    for (i = 0; i < groups; i++) {
-        data.push({
-            key: 'Group ' + i,
-            values: [],
-            slope: Math.random() - .01,
-            intercept: Math.random() - .5
-        });
-        for (j = 0; j < points; j++) {
-            data[i].values.push({
-                x: random(),
-                y: random(),
-                size: Math.random(),
-                shape: shapes[j % shapes.length]
-            });
-        }
+function checkformat (range) {
+    cell = range / 10.0;
+    if (cell >= 1) {
+        return ",r";
+    } else {
+        cell = -Math.log(cell);
+        n = cell.toString().split(".")[0].length;
+        return ",.0" + n + "f";
     }
-    return data;
 }
