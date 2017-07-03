@@ -14,7 +14,7 @@
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
-        {% if mapping_method == "reaper" %}
+        {% if mapping_method == "reaper" or mapping_method == "rqtl_geno" %}
         <input type="hidden" name="genofile" value="{{ dataset.group.genofile }}">
         {% endif %}
         <input type="hidden" name="method" value="{{ mapping_method }}">

@@ -1,34 +1,39 @@
 #! /bin/bash
 #
 # This will run the GN2 server (with default settings if none
-# supplied). Pass in your own settings file, e.g.
+# supplied). Typically you need a GNU Guix profile which is set with
+# an environment variable (this profile is dictated by the
+# installation path of genenetwork). Say your profile is in
+# ~/opt/gn-latest-guix
 #
-#   ./bin/genenetwork2 ~/my_settings.py
+#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2
 #
-# But better is to retain the defaults and override them with
-# JSON file (see the deploy docs).
+# You can pass in your own settings file, e.g.
 #
-#   ./bin/genenetwork2 ~/my_overrides.json
+#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ~/my_settings.py
 #
 # To run a maintenance script with settings (instead of the webserver) add that with
 # a -c switch, e.g.
 #
-#   ./bin/genenetwork2 ~/my_overrides.json -c ./wqflask/maintenance/gen_select_dataset.py
-#
-# Environment settings can be used to preconfigure as well as a
-# settings.py file.
-#
-# GN2_BASE_PATH is base directory of wqflask source code
-#
+#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ~/my_overrides.json -c ./wqflask/maintenance/gen_select_dataset.py
 
 SCRIPT=$(readlink -f "$0")
 GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
+GN2_ID=$(cat /etc/hostname):$(basename $GN2_BASE_DIR)
 
 echo GN2_BASE_DIR=$GN2_BASE_DIR
 
-GIT_HASH=$(git rev-parse HEAD)
-GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-export GN_VERSION=$(cat $GN2_BASE_DIR/VERSION)-$GIT_BRANCH-${GIT_HASH:0:9}
+GUIX_SITE=$GN2_BASE_DIR/lib/python2.7/site-packages
+if [ -d $GUIX_SITE ]; then
+    echo INFO: GN2 is running from GNU Guix
+    GN2_BASE_DIR=$GUIX_SITE
+    export GN_VERSION=$GN2_ID:$(cat $GN2_BASE_DIR/etc/VERSION)
+else
+    echo INFO: GN2 is running from a source tree
+    GIT_HASH=$(git rev-parse HEAD)
+    GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    export GN_VERSION=$GN2_ID:$(cat $GN2_BASE_DIR/etc/VERSION)-$GIT_BRANCH-${GIT_HASH:0:9}
+fi
 echo GN_VERSION=$GN_VERSION
 
 # Handle settings parameter (can be .py or .json)
@@ -41,13 +46,8 @@ else
     shift
 fi
 if [ ! -e $settings ]; then
-    GUIX_ETC=$GN2_BASE_DIR/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg
-    if [ -d $GUIX_ETC ]; then
-        echo INFO: GN2 is actually running from GNU Guix
-    else
-        echo "ERROR: can not locate settings file - pass it in the command line"
-        exit 1
-    fi
+    echo "ERROR: can not locate settings file - pass it in the command line"
+    exit 1
 fi
 export WQFLASK_SETTINGS=$settings     # Python
 export WQFLASK_OVERRIDES=$overrides   # JSON
@@ -55,29 +55,39 @@ export WQFLASK_OVERRIDES=$overrides   # JSON
 echo WQFLASK_SETTINGS=$settings
 echo WQFLASK_OVERRIDES=$overrides
 
-# ---- Checks and balances
-if [ -z $GUIX_ETC ]; then
-    if [ -z $GN2_PROFILE ] ; then
-        echo "WARNING: GN2_PROFILE has not been set - I hope you know what you are doing!"
-    else
-        export PATH=$GN2_PROFILE/bin:$PATH
-        export PYTHONPATH=$GN2_PROFILE/lib/python2.7/site-packages
-        export R_LIBS_SITE=$GN2_PROFILE/site-library
-        export GUIX_GTK3_PATH="$GN2_PROFILE/lib/gtk-3.0"
-        export GI_TYPELIB_PATH="$GN2_PROFILE/lib/girepository-1.0"
-        export XDG_DATA_DIRS="$GN2_PROFILE/share"
-        export GIO_EXTRA_MODULES="$GN2_PROFILE/lib/gio/modules"
-        export LC_ALL=C
+if [ -z $GN2_PROFILE ] ; then
+    echo "WARNING: GN2_PROFILE has not been set - you need the environment, so I hope you know what you are doing!"
+    export GN2_PROFILE=$(dirname $(dirname $(which genenetwork2)))
+    if [ -d $GN2_PROFILE ]; then
+        echo "Best guess is $GN2_PROFILE"
     fi
-    if [ -z $PYTHONPATH ] ; then
-        echo "WARNING PYTHONPATH has not been set - use GN2_PROFILE!"
-    fi
-    if [ ! -d $R_LIBS_SITE ] ; then
-        echo "ERROR: R_LIBS_SITE has not been set correctly (we only allow one path) - use GN2_PROFILE!"
-        echo "Paste into your shell the output of (for example)"
-        echo "guix package -p \$GN2_PROFILE --search-paths"
-        exit 1
-    fi
+fi
+if [ -z $GN2_PROFILE ]; then
+    read -p "PRESS [ENTER] TO CONTINUE..."
+else
+    export PATH=$GN2_PROFILE/bin:$PATH
+    export PYTHONPATH=$GN2_PROFILE/lib/python2.7/site-packages
+    export R_LIBS_SITE=$GN2_PROFILE/site-library
+    export JS_GUIX_PATH=$GN2_PROFILE/share/genenetwork2/javascript
+    export GUIX_GTK3_PATH="$GN2_PROFILE/lib/gtk-3.0"
+    export GI_TYPELIB_PATH="$GN2_PROFILE/lib/girepository-1.0"
+    export XDG_DATA_DIRS="$GN2_PROFILE/share"
+    export GIO_EXTRA_MODULES="$GN2_PROFILE/lib/gio/modules"
+    export LC_ALL=C # FIXME
+    export GUIX_GENENETWORK_FILES="$GN2_PROFILE/share/genenetwork2"
+    export PLINK_COMMAND="$GN2_PROFILE/bin/plink2"
+    export PYLMM_COMMAND="$GN2_PROFILE/bin/pylmm_redis"
+    export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
+fi
+if [ -z $PYTHONPATH ] ; then
+    echo "ERROR PYTHONPATH has not been set - use GN2_PROFILE!"
+    exit 1
+fi
+if [ ! -d $R_LIBS_SITE ] ; then
+    echo "ERROR R_LIBS_SITE has not been set correctly (we only allow one path) - use GN2_PROFILE!"
+    echo "Paste into your shell the output of (for example)"
+    echo "guix package -p \$GN2_PROFILE --search-paths"
+    exit 1
 fi
 
 # We may change this one:
@@ -88,6 +98,8 @@ if [ -z $TMPDIR ]; then
     TMPDIR="/tmp"
 fi
 
+# Show environment settings
+set|grep guix
 set|grep $GN2_PROFILE
 set|grep TMPDIR
 
@@ -97,7 +109,7 @@ if [ "$1" = '-c' ] ; then
     cmd=${2#wqflask/}
     echo PYTHONPATH=$PYTHONPATH
     echo RUNNING COMMAND $cmd
-    /usr/bin/env python $cmd
+    python $cmd
     exit 0
 fi
 
@@ -109,4 +121,4 @@ dbfilename gn2.rdb
 # Start the flask server running GN2
 cd $GN2_BASE_DIR/wqflask
 echo "Starting with $settings"
-/usr/bin/env python runserver.py
+python runserver.py

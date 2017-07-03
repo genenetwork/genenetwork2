@@ -37,7 +37,7 @@ from utility import temp_data
 from utility.benchmark import Bench
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 
-from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, GEMMA_RESULTS_PATH, PLINK_COMMAND, TEMPDIR
+from utility.tools import locate, locate_ignore_error, PYLMM_COMMAND, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
 from utility.external import shell
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
