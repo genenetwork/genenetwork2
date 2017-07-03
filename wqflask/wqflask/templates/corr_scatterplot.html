@@ -136,13 +136,16 @@
 
 <br>
 
-<table class="table table-hover table-striped table-bordered" style="width: 250px; margin-left: 80px;">
+<table class="table table-hover table-striped table-bordered" style="width: 200px; margin-left: 80px;">
+    <thead>
+        <tr><th>Statistic</th><th>Value</th></tr>
+    </thead>
 	<tbody>
-		<tr><th>Number</th>		<td>{{jsdata.num_overlap}}</td></tr>
-		<tr><th>Slope</th>		<td>{{'%0.3f' % jsdata.slope}}</td></tr>
-		<tr><th>Intercept</th>	<td>{{'%0.3f' % jsdata.intercept}}</td></tr>
-		<tr><th>R value</th>	<td>{{'%0.3f' % jsdata.r_value}}</td></tr>
-		<tr><th>P value</th>	<td>{{'%0.3e' % jsdata.p_value}}</td></tr>
+		<tr><td>Number</td>		<td>{{jsdata.num_overlap}}</td></tr>
+		<tr><td>Slope</td>		<td>{{'%0.3f' % jsdata.slope}}</td></tr>
+		<tr><td>Intercept</td>	<td>{{'%0.3f' % jsdata.intercept}}</td></tr>
+		<tr><td>R value</td>	<td>{{'%0.3f' % jsdata.r_value}}</td></tr>
+		<tr><td>P value</td>	<td>{{'%0.3e' % jsdata.p_value}}</td></tr>
 	</tbody>
 </table>
 
