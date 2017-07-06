@@ -181,12 +181,27 @@ class NetworkGraph(object):
                                  
                     self.edges_list.append(edge_dict)
       
-            node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name), 
-                                    'label' : this_trait.name,
-                                    'symbol' : this_trait.symbol,
-                                    'geneid' : this_trait.geneid,
-                                    'omim' : this_trait.omim,
-                                    'max_corr' : max_corr } }
+            if trait_db[1].type == "ProbeSet":
+                node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name),
+                                        'name' : str(this_trait.name),
+                                        'dataset' : str(this_trait.dataset.name),
+                                        'label' : this_trait.symbol,
+                                        'symbol' : this_trait.symbol,
+                                        'geneid' : this_trait.geneid,
+                                        'omim' : this_trait.omim,
+                                        'max_corr' : max_corr } }
+            elif trait_db[1].type == "Publish":
+                node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name),
+                                        'name' : str(this_trait.name),
+                                        'dataset' : str(this_trait.dataset.name),
+                                        'label' : this_trait.name,
+                                        'max_corr' : max_corr } }
+            else:
+                node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name),
+                                        'name' : str(this_trait.name),
+                                        'dataset' : str(this_trait.dataset.name),
+                                        'label' : this_trait.name,
+                                        'max_corr' : max_corr } }
             self.nodes_list.append(node_dict)
       
         #self.network_data['dataSchema'] = {'nodes' : [{'name' : "label" , 'type' : "string"}],
@@ -211,7 +226,6 @@ class NetworkGraph(object):
         #                    corr_results = [result[1] for result in result_row for result_row in self.corr_results])
 
     def get_trait_db_obs(self, trait_db_list):
-
         self.trait_list = []
         for i, trait_db in enumerate(trait_db_list):
             if i == (len(trait_db_list) - 1):

@@ -169,7 +169,7 @@ def mescape(*items):
 class Markers(object):
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
     def __init__(self, name):
-        json_data_fh = open(locate(name + '.json','genotype/json'))
+        json_data_fh = open(locate(name + ".json",'genotype/json'))
         try:
             markers = json.load(json_data_fh)
         except:
@@ -334,7 +334,10 @@ class DatasetGroup(object):
         else:
             marker_class = Markers            
 
-        self.markers = marker_class(self.name)
+        if self.genofile:
+            self.markers = marker_class(self.genofile[:-5])
+        else:
+            self.markers = marker_class(self.name)
 
     def get_f1_parent_strains(self):
         try:

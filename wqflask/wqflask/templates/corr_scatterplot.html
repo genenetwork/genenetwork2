@@ -80,7 +80,46 @@
 
 <br>
 
-<div style="margin-left: 80px;">
+<h2>Correlation Scatterplot</h2>
+
+<table class="table">
+	<tbody>
+		<tr><th class="text-right">num overlap</th>	<td>{{jsdata.num_overlap}}</td></tr>
+		<tr><th class="text-right">slope</th>		<td>{{jsdata.slope}}</td></tr>
+		<tr><th class="text-right">intercept</th>	<td>{{jsdata.intercept}}</td></tr>
+		<tr><th class="text-right">r value</th>		<td>{{jsdata.r_value}}</td></tr>
+		<tr><th class="text-right">p value</th>		<td>{{jsdata.p_value}}</td></tr>
+	</tbody>
+</table>
+
+<!--
+<table class="table">
+	<tr>
+		<td>Correlation Line Width</td>
+		<td><input type="text" name="lastname" value="2" style="width: 44px;"> px</td>
+	</tr>
+	<tr>
+		<td>Correlation Line Color</td>
+		<td><input type="color" name="favcolor" value="#000000"></td>
+	</tr>
+	<tr>
+		<td>Dot Stroke</td>
+		<td><input type="text" name="lastname" value="5" style="width: 44px;"> px</td>
+	</tr>
+	<tr>
+		<td>Dot Color</td>
+		<td><input type="color" name="favcolor" value="#ff0000"></td>
+	</tr>
+</table>
+-->
+
+<div id="scatterplot2">
+	<svg style="width: 1000px; height: 800px;"></svg>
+</div>
+
+<br>
+
+<div style="margin-left: 75px;">
 
     {% if trait_1.dataset.type == "ProbeSet" %}
 		<div>

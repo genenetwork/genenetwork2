@@ -60,7 +60,7 @@ ScatterMatrix.prototype.render = function () {
                          .style({'float':'left', 'margin-right':'50px'})
   var svg = container.append('div')
                      .attr('class', 'scatter-matrix-svg')
-                     .style({'float':'right'})
+                     .style({'float':'left'})
                      .html('<em>Loading data...</em>');
 
   this.onData(function() {

@@ -148,6 +148,10 @@ class MarkerRegression(object):
             self.showGenes = "ON"
             self.viewLegend = "ON"
 
+        if 'genofile' in start_vars:
+          if start_vars['genofile'] != "":
+            self.genofile_string = start_vars['genofile']
+            self.dataset.group.genofile = self.genofile_string.split(":")[0]
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             self.score_type = "-log(p)"
@@ -162,11 +166,10 @@ class MarkerRegression(object):
             self.mapping_scale = "morgan"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            self.dataset.group.genofile = start_vars['genofile']
             self.method = start_vars['mapmethod_rqtl_geno']
             self.model = start_vars['mapmodel_rqtl_geno']
-            if start_vars['pair_scan'] == "true":
-                self.pair_scan = True
+            #if start_vars['pair_scan'] == "true":
+            #    self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
                 self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
             else:
@@ -198,7 +201,6 @@ class MarkerRegression(object):
 
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            self.dataset.group.genofile = start_vars['genofile']
             logger.info("Running qtlreaper")
             results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.gen_reaper_results(self.this_trait,
                                                                                                                                                         self.dataset,
@@ -217,7 +219,6 @@ class MarkerRegression(object):
             #results = self.run_plink()
         elif self.mapping_method == "pylmm":
             logger.debug("RUNNING PYLMM")
-            self.dataset.group.genofile = start_vars['genofile']
             if self.num_perm > 0:
                 self.run_permutations(str(temp_uuid))
             results = self.gen_data(str(temp_uuid))

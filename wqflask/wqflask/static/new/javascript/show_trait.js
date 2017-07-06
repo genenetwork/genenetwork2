@@ -74,6 +74,11 @@
         return open_trait_selection();
       };
     })(this));
+    d3.select("#select_covariate").on("click", (function(_this) {
+      return function() {
+        return open_covariate_selection();
+      };
+    })(this));
     d3.select("#clear_compare_trait").on("click", (function(_this) {
       return function() {
         return $('.scatter-matrix-container').remove();
@@ -84,7 +89,28 @@
         return function() {
           $.colorbox({
             inline: true,
-            href: "#collections_holder"
+            href: "#collections_holder",
+            onComplete: function(){
+                console.log("before get script")
+                $.getScript("/static/new/javascript/get_traits_from_collection.js");
+                console.log("after get script")
+            }
+          });
+          return $('a.collection_name').attr('onClick', 'return false');
+        };
+      })(this));
+    };
+    open_covariate_selection = function() {
+      return $('#collections_holder').load('/collections/list?select_covariates #collections_list', (function(_this) {
+        return function() {
+          $.colorbox({
+            inline: true,
+            href: "#collections_holder",
+            onComplete: function(){
+                console.log("before get script")
+                $.getScript("/static/new/javascript/get_covariates_from_collection.js");
+                console.log("after get script")
+            }
           });
           return $('a.collection_name').attr('onClick', 'return false');
         };
