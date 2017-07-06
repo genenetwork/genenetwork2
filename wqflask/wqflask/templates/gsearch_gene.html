@@ -28,7 +28,7 @@
             </form>
             <br />
             <div style="width: 2000px;">
-              <table width="2000px" id="trait_table" class="table table-hover table-striped nowrap" style="float: left;">
+              <table width="2000px" id="trait_table" class="display dataTable nowrap" style="float: left;">
                 <thead>
                   <tr>
                     <th></th>
@@ -155,9 +155,14 @@
                 "order": [[1, "asc" ]],
                 "sDom": "tir",
                 "autoWidth": false,
-                "bDeferRender": true,
-                "scrollY": "800px",
-                "scrollCollapse": false
+                "deferRender": true,
+                "bSortClasses": false,
+                "scrollY": "600px",
+                "scrollCollapse": true,
+                "scroller": true,
+                "scrollX": true,
+                "paging": false,
+                "orderClasses": true
             } );
 
             console.timeEnd("Creating table");

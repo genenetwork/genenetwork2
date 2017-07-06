@@ -13,12 +13,12 @@
                 <li>
                     <a href="#probability_plot" data-toggle="tab">Probability Plot</a>
                 </li>
-                <!--
                 {% if g.user_session.user_ob %}
                 <li>
                     <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
                 </li>
                 {% endif %}
+                <!--
                 <li>
                     <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
                 </li>-->
@@ -119,7 +119,8 @@
                     </div>
 
                 </div>
-<!--                <div class="tab-pane" id="box_plot_tab">
+<!--
+                <div class="tab-pane" id="box_plot_tab">
                     {% if sample_groups|length > 1 %}
                     <select class="box_plot_samples_group">
                         {% for group, pretty_group in sample_group_types.items() %}
@@ -132,6 +133,7 @@
                         <div id="box_plot"></div>
                     </div>
                 </div>
+-->
                 {% if g.user_session.user_ob %}
                 <div class="tab-pane" id="scatterplot_matrix">
                     
@@ -147,7 +149,7 @@
                         <div id="comparison_scatterplot" class="qtlcharts"></div>
                     </div>
                 </div>
-                {% endif %}-->
+                {% endif %}
             </div>
         </div>
     <!--</div>-->

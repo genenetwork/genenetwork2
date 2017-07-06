@@ -116,14 +116,18 @@ trait_click = function() {
   console.log("Clicking on:", $(this));
   trait = $(this).parent().find('.trait').text();
   dataset = $(this).parent().find('.dataset').text();
-  this_trait_url = "/trait/get_sample_data?trait=" + trait + "&dataset=" + dataset;
-  console.log("this_trait_url", this_trait_url);
-  $.ajax({
-    dataType: "json",
-    url: this_trait_url,
-    success: get_trait_data
-  });
+  console.log("BEFORE COVAR:", trait + ":" + dataset)
+  $('input[name=covariates]').val(trait + ":" + dataset)
+  console.log("AFTER COVAR:", $('input[name=covariates]').val())
   return $.colorbox.close();
+  // this_trait_url = "/trait/get_sample_data?trait=" + trait + "&dataset=" + dataset;
+  // console.log("this_trait_url", this_trait_url);
+  // $.ajax({
+    // dataType: "json",
+    // url: this_trait_url,
+    // success: get_trait_data
+  // });
+  // return $.colorbox.close();
 };
 
 add_trait_data = function(trait_data, textStatus, jqXHR) {
@@ -215,7 +219,7 @@ process_traits = function(trait_data, textStatus, jqXHR) {
   }
   the_html += "</tbody>";
   the_html += "</table>";
-  the_html += "<script type='text/javascript' src='/static/new/javascript/get_traits_from_collection.js'></script>"
+  the_html += "<script type='text/javascript' src='/static/new/javascript/get_covariates_from_collection.js'></script>"
   $("#collections_holder").html(the_html);
   return $('#collections_holder').colorbox.resize();
 };
