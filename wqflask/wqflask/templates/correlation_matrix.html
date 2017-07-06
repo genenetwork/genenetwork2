@@ -64,21 +64,15 @@
 <br>
 <br>
 <h2>Factor Loadings Plot</h2>
-<div id="loadings_plot"></div>
-
+<div id="loadings_plot" style="margin-top: 20px; margin-bottom: 20px; width: 980px; border-style: solid; border-width: 1px;"></div>
 <h2>Factor Loadings Table</h2>
-<table class="table table-hover table-striped" border="1" id='trait_table' style="margin: 20px;" width="40%">
+<table class="table table-hover table-striped" border="1" style="margin-top: 20px; margin-bottom: 20px;" width="30%">
   <thead>
     <tr>
       <th></th>
-      <th align="right" >Factor 1</th>
-      <th align="right" >Factor 2</th>
-      {% if trait_list|length > 2 %}<th align="right" >Factor 3</th>{% endif %}
-<!--
-      {% for row in loadings_array %}
-      <th>Factor {{ loop.index }}</th>
-      {% endfor %}
--->
+      <th style="text-align: right;" >Factor 1</th>
+      <th style="text-align: right;" >Factor 2</th>
+      {% if trait_list|length > 2 %}<th style="text-align: right;">Factor 3</th>{% endif %}
     </tr>
   </thead>
   <tbody>

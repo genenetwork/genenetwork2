@@ -558,6 +558,7 @@ def marker_regression_page():
         'selected_chr',
         'chromosomes',
         'mapping_scale',
+        'plotScale',
         'score_type',
         'suggestive',
         'significant',

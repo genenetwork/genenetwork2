@@ -17,7 +17,7 @@
         <div class="row" >
           <div id="content">
             <div id="secondaryContent" class="col-xs-3">
-                <h3> Visualization Options</h3>
+                <h3 style="margin-top:0px; margin-bottom: 5px;"> Visualization Options</h3>
                 <table border="0">
                   <tbody>
                     <tr>
@@ -27,12 +27,13 @@
                     </tr>
                     <tr>
                       <td>
-                        Focus Trait
+                        Focus Trait<sup title="Only show edges connected to the specified node" style="color:#f00"> ?</sup>
                       </td>
                     </tr>
                     <tr>
                       <td>
                         <select name="focus_select">
+                          <option disabled selected value>Select Trait</option>
                           {% for trait in traits %}
                           <option value="{{ trait.name }}:{{ trait.dataset.name }}">{{ trait.symbol }} ({{ trait.name }})</option>
                           {% endfor %}
@@ -40,16 +41,15 @@
                       </td>
                     </tr>    
                     <tr>
-                      <td colspan="1">Correlation Coefficient</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <font size="2"><b>0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +/- 1</b></font>
+                      <td colspan="1">
+                         Correlation Coefficient<sup title="Filter edges to only show correlations less than the negative value specified with the slider and greater than the positive value. For example, moving the slider half way will display correlations less than -0.5 and greater than 0.5" style="color:#f00"> ?</sup>
                       </td>
                     </tr>
                     <tr>
-                      <td>
+                      <td colspan="1">
+                        <font size="2"><b>0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +/- 1</b></font><br>
                         <input type="range" id="slide" min="0" max="1" value="0" step="0.001" list="corr_range">
                       </td>
                     </tr>
@@ -72,7 +72,7 @@
                     </tr>                          
                   </tbody>
                 </table>    
-                <h3> Download</h3>
+                <h3 style="margin-bottom: 5px;"> Download</h3>
                 <table>
                   <tbody>
                     <tr>
@@ -82,24 +82,10 @@
                         </a>
                       </td>
                     </tr>
-                    <tr>
-                      <td>
-                        <a id="image_link" href="javascript:void(0)">
-                          <button style="width:100px;height:25px;">Table View</button>
-                        </a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <a id="image_link" href="javascript:void(0)">
-                          <button style="width:100px;height:25px;">Save Table</button>
-                        </a>
-                      </td>
-                    </tr>
                   </tbody>
                 </table>
             </div>
-            <div id="cytoscapeweb" class="col-xs-9" style="min-height:700px !important;"></div>
+            <div id="cytoscapeweb" class="col-xs-9" style="height:700px !important; border-style: solid; border-width: 1px; border-color: grey;"></div>
           </div>
         </div>
     </div>
