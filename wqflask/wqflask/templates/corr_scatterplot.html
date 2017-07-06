@@ -53,6 +53,35 @@
 
 <h2>Correlation Scatterplot</h2>
 
+<!--
+<table class="table">
+	<tr>
+		<td>Correlation Line Width</td>
+		<td><input type="text" name="lastname" value="2" style="width: 44px;"> px</td>
+	</tr>
+	<tr>
+		<td>Correlation Line Color</td>
+		<td><input type="color" name="favcolor" value="#000000"></td>
+	</tr>
+	<tr>
+		<td>Dot Stroke</td>
+		<td><input type="text" name="lastname" value="5" style="width: 44px;"> px</td>
+	</tr>
+	<tr>
+		<td>Dot Color</td>
+		<td><input type="color" name="favcolor" value="#ff0000"></td>
+	</tr>
+</table>
+-->
+
+<div id="scatterplot2">
+	<svg style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
+</div>
+
+<br>
+
+<h2>Correlation Scatterplot</h2>
+
 <table class="table">
 	<tbody>
 		<tr><th class="text-right">num overlap</th>	<td>{{jsdata.num_overlap}}</td></tr>
@@ -143,6 +172,18 @@
     {% endif %}
 	
 </div>
+
+<br>
+
+<table class="table table-hover table-striped table-bordered" style="width: 250px; margin-left: 80px;">
+	<tbody>
+		<tr><th>Number</th>		<td>{{jsdata.num_overlap}}</td></tr>
+		<tr><th>Slope</th>		<td>{{'%0.3f' % jsdata.slope}}</td></tr>
+		<tr><th>Intercept</th>	<td>{{'%0.3f' % jsdata.intercept}}</td></tr>
+		<tr><th>R value</th>	<td>{{'%0.3f' % jsdata.r_value}}</td></tr>
+		<tr><th>P value</th>	<td>{{'%0.3e' % jsdata.p_value}}</td></tr>
+	</tbody>
+</table>
 
 {% endblock %}
 
