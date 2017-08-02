@@ -12,7 +12,7 @@ window.onload=function() {
             selector: 'node',
             style: {
               'background-color': '#666',
-              'label': 'data(symbol)',
+              'label': 'data(label )',
               'font-size': 10
             }
           },
@@ -81,10 +81,18 @@ window.onload=function() {
     function create_qtips(cy){
         cy.nodes().qtip({
                             content: function(){
-                                gn_link = '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'</a>'+'</b><br>'
-                                ncbi_link = '<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=' + this.data().geneid + '" >NCBI<a>'+'<br>' 
-                                omim_link = '<a href="http://www.ncbi.nlm.nih.gov/omim/' + this.data().omim + '" >OMIM<a>'+'<br>' 
-                                qtip_content = gn_link + ncbi_link + omim_link
+                                qtip_content = ''
+                                gn_link = '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().name + '&dataset=' + this.data().dataset + '" >'+this.data().id +'</a>'+'</b><br>'
+                                qtip_content += gn_link
+                                if (typeof(this.data().geneid) !== 'undefined'){
+                                    ncbi_link = '<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=' + this.data().geneid + '" >NCBI<a>'+'<br>'
+                                    qtip_content += ncbi_link
+                                }
+                                if (typeof(this.data().omim) !== 'undefined'){
+                                    omim_link = '<a href="http://www.ncbi.nlm.nih.gov/omim/' + this.data().omim + '" >OMIM<a>'+'<br>'
+                                    qtip_content += omim_link
+                                }
+                                //qtip_content = gn_link + ncbi_link + omim_link
                                 return qtip_content
                                 //return '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'<a>'+'</b>' 
                             },

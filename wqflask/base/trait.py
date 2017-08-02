@@ -206,6 +206,8 @@ class GeneralTrait(object):
                 formatted = self.description
                 if self.probe_target_description:
                     formatted += "; " + self.probe_target_description
+            else:
+                formatted = "Not available"
         elif self.dataset.type == 'Publish':
             if self.confidential:
                 formatted = self.pre_publication_description
@@ -290,7 +292,6 @@ def retrieve_sample_data(trait, dataset, samplelist=None):
             name, value, variance, num_cases, name2 = item
             if not samplelist or (samplelist and name in samplelist):
                 trait.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
-                
     return trait
         
 def convert_location_to_value(chromosome, mb):

@@ -2,16 +2,13 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/dataTables.fixedHeader.css" >
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.4/css/dataTables.fixedColumns.css">
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
 
     <div class="container">
 
+        <p>You searched for {{ terms }}.</p>
         <p>To study a record, click on its ID below.<br />Check records below and click Add button to add to selection.</p>
 
         <div>
@@ -30,28 +27,28 @@
               <button class="btn btn-default" id="export_traits">Download CSV</button>
             </form>
             <br />
-            <div style="width: 1500px; background-color: #eeeeee; border: 1px solid black;">
-            <table width="1500px" id="trait_table" class="table table-hover table-striped">
+            <div>
+              <table id="trait_table" class="display dataTable nowrap" style="float: left;">
                 <thead>
                     <tr>
-                        <th style="background-color: #eeeeee;"></th>
-                        <th data-export="Index" style="background-color: #eeeeee;">Index</th>
-                        <th data-export="Species" style="background-color: #eeeeee;">Species</th>
-                        <th data-export="Group" style="background-color: #eeeeee;">Group</th>
-                        <th data-export="Record" style="background-color: #eeeeee;">Record</th>
-                        <th data-export="Description" style="background-color: #eeeeee;">Description</th>
-                        <th data-export="Authors" style="background-color: #eeeeee;">Authors</th>
-                        <th data-export="Year" style="background-color: #eeeeee;">Year</th>
-                        <th data-export="LRS" style="background-color: #eeeeee; text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                        <th data-export="LRS Location" style="background-color: #eeeeee;">Max LRS Location</th>
-                        <th data-export="Additive Effect" style="background-color: #eeeeee; text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th></th>
+                        <th data-export="Index">Index</th>
+                        <th data-export="Species">Species</th>
+                        <th data-export="Group">Group</th>
+                        <th data-export="Record">Record</th>
+                        <th data-export="Description">Description</th>
+                        <th data-export="Authors">Authors</th>
+                        <th data-export="Year">Year</th>
+                        <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
+                        <th data-export="LRS Location">Max LRS Location</th>
+                        <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                     </tr>
                 </thead>
                 <tbody>
                  {% for this_trait in trait_list %}
-                    <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></td>
-                        <td data-export="{{ loop.index }}">{{ loop.index }}</td>
+                    <tr id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
+                        <td align="center" style="padding-right: 0px; padding-left: 5px;"><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></td>
+                        <td align="right" data-export="{{ loop.index }}">{{ loop.index }}</td>
                         <td data-export="{{ this_trait.dataset.group.species }}">{{ this_trait.dataset.group.species }}</td>
                         <td data-export="{{ this_trait.dataset.group.name }}">{{ this_trait.dataset.group.name }}</td>
                         <td data-export="{{ this_trait.name }}"><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></td>
@@ -61,22 +58,22 @@
                         <td data-export="{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}" align="right">{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
                         <td data-export="{{ this_trait.LRS_location_repr }}" align="right">{{ this_trait.LRS_location_repr }}</td>
                         <td data-export="{% if this_trait.additive != "" %}{{ this_trait.additive }}{% else %}N/A{% endif %}" align="right">{% if this_trait.additive != "" %}{{ this_trait.additive }}{% else %}N/A{% endif %}</td>
-                    </TR>
+                    </tr>
                 {% endfor %}
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th style="background-color: #eeeeee;"></th>
-                        <th style="background-color: #eeeeee;">Index</th>
-                        <th style="background-color: #eeeeee;">Species</th>
-                        <th style="background-color: #eeeeee;">Group</th>
-                        <th style="background-color: #eeeeee;">Record</th>
-                        <th style="background-color: #eeeeee;">Description</th>
-                        <th style="background-color: #eeeeee;">Authors</th>
-                        <th style="background-color: #eeeeee;">Year</th>
-                        <th style="background-color: #eeeeee; text-align: right;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                        <th style="background-color: #eeeeee;">Max LRS Location</th>
-                        <th style="background-color: #eeeeee; text-align: right;">Additive<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th></th>
+                        <th>Index</th>
+                        <th>Species</th>
+                        <th>Group</th>
+                        <th>Record</th>
+                        <th>Description</th>
+                        <th>Authors</th>
+                        <th>Year</th>
+                        <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
+                        <th data-export="LRS Location">Max LRS Location</th>
+                        <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                     </tr>
                 </tfoot>
             </table>
@@ -96,8 +93,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
 	
     <script type="text/javascript" charset="utf-8">
         $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
@@ -117,6 +112,18 @@
 
             console.time("Creating table");
             $('#trait_table').DataTable( {
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(5).attr('title', $('td', row).eq(5).text());
+                    if ($('td', row).eq(5).text().length > 50) {
+                        $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 50));
+                        $('td', row).eq(5).text($('td', row).eq(5).text() + '...')
+                    }
+                    $('td', row).eq(6).attr('title', $('td', row).eq(6).text());
+                    if ($('td', row).eq(6).text().length > 50) {
+                        $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 50));
+                        $('td', row).eq(6).text($('td', row).eq(6).text() + '...')
+                    }
+                },
                 "paging": false,
                 "columns": [
                     { "orderDataType": "dom-checkbox" },
@@ -134,15 +141,21 @@
                 "columnDefs": [
                     {
                         "targets": 0,
+                        "orderable": false,
                         "orderDataType": "dom-checkbox"
                     }
                 ],
                 "order": [[1, "asc" ]],
                 "sDom": "tir",
                 "autoWidth": false,
-                "bDeferRender": true,
-                "scrollY": "800px",
-                "scrollCollapse": false
+                "deferRender": true,
+                "bSortClasses": false,
+                "scrollY": "600px",
+                "scrollCollapse": true,
+                "scroller": true,
+                "scrollX": true,
+                "paging": false,
+                "orderClasses": true
             } );
             console.timeEnd("Creating table");
         });

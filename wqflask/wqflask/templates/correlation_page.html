@@ -21,6 +21,35 @@
         and analysis page.
         </p>    
 
+        <div>
+          <form id="correlation_form" action="/corr_matrix" method="post">
+            {% if uc %}
+            <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
+            {% endif %}
+            <input type="hidden" name="trait_list" id="trait_list" value= "" >
+
+                <button id="corr_matrix" class="btn btn-primary submit_special" data-url="/corr_matrix" title="Correlation Matrix" >
+                    Correlation Matrix
+                </button>
+
+                <button id="network_graph" class="btn btn-primary submit_special" data-url="/network_graph" title="Network Graph" >
+                    Network Graph
+                </button>
+
+                <button id="wgcna_setup" class="btn btn-primary submit_special" data-url="/wgcna_setup" title="WGCNA Analysis" >
+                    WGCNA Analysis
+                </button>
+
+                <button id="ctl_setup" class="btn btn-primary submit_special" data-url="/ctl_setup" title="CTL Analysis" >
+                    CTL Analysis
+                </button>
+
+                <button id="heatmap" class="btn btn-primary submit_special" data-url="/heatmap" title="Heatmap" >
+                    Heatmap
+                </button>
+          </form>
+        </div>
+        <div>
         <br />
         <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
         <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
@@ -31,9 +60,10 @@
         <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
         <br />
         <br />
+        </div>
 
         <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1400px{% else %}800px{% endif %};">
-            <table width="1600px" id="trait_table" class="table table-hover table-striped">
+            <table id="trait_table" class="display dataTable nowrap" style="float: left;">
                 <thead>
                     <tr>
                         <th style="width: 30px;"></th>
@@ -99,7 +129,7 @@
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                        <td align="center" style="padding-right: 0px;">&nbsp;<INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
+                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
                         <td align="right">{{ loop.index }}</td>
                         <td>
                             <a href="{{ url_for('show_trait_page',
@@ -112,7 +142,7 @@
                       {% if target_dataset.type == 'ProbeSet' %}
                         <td>{{ trait.symbol }}</td>
                         <td>{{ trait.description_display }}</TD>
-                        <td align="right"style="white-space: nowrap;">{{ trait.location_repr }}</td>
+                        <td style="white-space: nowrap;">{{ trait.location_repr }}</td>
                         <td align="right">{{ '%0.3f' % trait.mean|float }}</td>
                         <td align="right">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
                         <td align="right">{{ trait.LRS_location_repr }}</td>
@@ -167,8 +197,6 @@
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
     <script type="text/javascript" charset="utf-8">
         function getValue(x) {
@@ -231,7 +259,6 @@
                 var y = parseFloat(b);
                 return ((x < y) ? 1 : ((x > y) ? -1 : 0));
         };
- 
 
 
         $(document).ready( function () {
@@ -242,11 +269,45 @@
                 }
             });
 
+            function change_buttons() {
+                buttons = ["#add", "#remove"];
+                num_checked = $('.trait_checkbox:checked').length;
+                if (num_checked === 0) {
+                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
+                        button = buttons[_i];
+                        $(button).prop("disabled", true);
+                    }
+                } else {
+                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
+                        button = buttons[_j];
+                        $(button).prop("disabled", false);
+                    }
+                }
+                         //});
+                if ($(this).is(":checked")) {
+                    if (!$(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').addClass('selected')
+                    }
+                }
+                else {
+                    if ($(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').removeClass('selected')
+                    }
+                }
+            }
+
             console.time("Creating table");
 
             {% if target_dataset.type == "ProbeSet" %}
             $('#trait_table').dataTable( {
-                "paging": false,
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
                 "buttons": [
                     {
                        extend: 'csvHtml5',
@@ -254,19 +315,20 @@
                        title: 'correlation_results',
                        fieldBoundary: '"',
                        exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
                        }
                     }
                 ],
-                "columnDefs": [ 
-                    { "targets": 0, "orderable": false }
-                ],  
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
                 "columns": [
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "15%" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
@@ -280,17 +342,22 @@
                 ],
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
-                    if ($('td', row).eq(4).text().length > 60) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 60));
+                    if ($('td', row).eq(4).text().length > 40) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 40));
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },
                 "order": [[12, "asc" ]],
-                "sDom": "Btir",
+                "sDom": "BRZtir",
+                "iDisplayLength": -1,
                 "autoWidth": false,
-                "bDeferRender": true,
+                "deferRender": true,
+                "bSortClasses": false,
                 "scrollY": "800px",
-                "scrollCollapse": false
+                "scrollCollapse": false,
+                "scroller": true,
+                "paging": false,
+                "orderClasses": true
             } );
 
             var table = $('#trait_table').DataTable();
@@ -316,8 +383,8 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural", "width": "25%" },
-                    { "type": "natural", "width": "15%" },
+                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "12%" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
@@ -327,9 +394,14 @@
                     { "type": "scientific" }
                 ],
                 "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                    if ($('td', row).eq(3).text().length > 50) {
+                        $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 50));
+                        $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
+                    }
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
-                    if ($('td', row).eq(4).text().length > 60) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 60));
+                    if ($('td', row).eq(4).text().length > 40) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 40));
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },
@@ -376,6 +448,57 @@
             {% endif %}
             console.timeEnd("Creating table");
 
+            submit_special = function(url) {
+                $("#correlation_form").attr("action", url);
+                return $("#correlation_form").submit();
+            };
+
+            $("#delete").on("click", function() {
+                url = $(this).data("url")
+                return submit_special(url)
+            });
+
+            $("#corr_matrix").on("click", function() {
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+                console.log($("#trait_list").val(traits))
+                url = $(this).data("url")
+                //return submit_special(url)
+            });
+            $("#network_graph").on("click", function() {
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+                url = $(this).data("url")
+                return submit_special(url)
+            });
+            $("#wgcna_setup").on("click", function() {
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+                url = $(this).data("url")
+                return submit_special(url)
+            });
+            $("#ctl_setup").on("click", function() {
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+                url = $(this).data("url")
+                return submit_special(url)
+            });
+            $("#heatmap").on("click", function() {
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+                url = $(this).data("url")
+                return submit_special(url)
+            });
 
         });
     </script>

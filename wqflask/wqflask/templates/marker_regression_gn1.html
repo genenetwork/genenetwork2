@@ -14,9 +14,7 @@
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
-        {% if mapping_method == "reaper" or mapping_method == "rqtl_geno" %}
-        <input type="hidden" name="genofile" value="{{ dataset.group.genofile }}">
-        {% endif %}
+        <input type="hidden" name="genofile" value="{{ genofile_string }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
         {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
@@ -41,7 +39,10 @@
               {% if dataset.type == "ProbeSet" %}<b>Trait ID:</b>{% else %}<b>Record ID:</b>{% endif %} <a href="/show_trait?trait_id={{ this_trait.name }}&dataset={{ dataset.name }}">{{ this_trait.name }}</a><br>
               {% if dataset.type == "ProbeSet" %}
               <b>Gene Symbol:</b> <i>{{ this_trait.symbol }}</i><br>
-              <b>Location:</b> Chr {{ this_trait.chr }} @ {{ this_trait.mb }} Mb
+              <b>Location:</b> Chr {{ this_trait.chr }} @ {{ this_trait.mb }} Mb<br>
+              {% endif %}
+              {% if genofile_string is defined %}
+              <b>Genotypes:</b> {{ genofile_string.split(":")[1] }}
               {% endif %}
           </div>
           <div id="gn1_map_options" class="col-xs-5" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
@@ -121,7 +122,7 @@
                     <span style="color:red;">*</span>
                   <br>
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
-                  {% if plotScale != "morgan" and mapping_method != "gemma" %}
+                  {% if plotScale != "morgan" and mapping_method != "gemma" and mapping_method != "plink" %}
                   <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Analyst </span> <span style="color:red;">*</span><br>
                   {% endif %}
                   <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span>
@@ -173,7 +174,7 @@
 
         </form>
         {% if selectedChr == -1 %}
-        <div style="width:{% if 'additive' in trimmed_markers[0] %}40%{% else %}30%{% endif %};">
+        <div style="width:{% if 'additive' in trimmed_markers[0] %}45%{% else %}35%{% endif %};">
           <h2>Results</h2>
           <div id="table_container">
           <table id="qtl_results" class="table table-hover table-striped nowrap">
@@ -184,7 +185,7 @@
                 <th>Locus</th>
                 <th>{{ LRS_LOD }}</th>
                 <th>Chr</th>
-                {% if plotScale == "centimorgan" %}
+                {% if plotScale != "physic" %}
                 <th>cM</th>
                 {% else %}
                 <th>Mb</th>
@@ -221,7 +222,11 @@
                 {% endif %}
                 {% endif %}
                 <td align="right">{{marker.chr}}</td>
+                {% if plotScale != "physic" %}
+                <td align="right">{{ '%0.3f' | format(marker.Mb|float) }}</td>
+                {% else %}
                 <td align="right">{{ '%0.6f' | format(marker.Mb|float) }}</td>
+                {% endif %}
                 {% if 'additive' in marker %}
                 <td align="right">{{ '%0.3f' | format(marker.additive|float) }}</td>
                 {% endif %}
@@ -234,8 +239,8 @@
           </table>
           </div>
         </div>
-        {% else %}
-        <div>
+        {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
+        <div style="width: 100%;">
           <h2>Interval Analyst</h2>
           <div id="table_container">
           <table id="interval_analyst" class="table table-hover table-striped nowrap">
@@ -349,9 +354,10 @@
                 "order": [[3, "asc" ]],
                 "sDom": "RZtir",
                 "iDisplayLength": -1,
-                "bDeferRender": true,
+                "autoWidth": false,
+                "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": true,
+                "scrollY": "600px",
                 "scrollCollapse": false,
                 "paging": false
             } );

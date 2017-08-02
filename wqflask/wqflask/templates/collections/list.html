@@ -65,7 +65,11 @@
             {% endfor %}
             </tbody>
         </table>
-        
+        {% if "color_by_trait" in params %}
+        <script language="javascript" type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
+        {% else %}
+        <script language="javascript" type="text/javascript" src="/static/new/javascript/get_covariates_from_collection.js"></script>
+        {% endif %}
         </div>
     </div>
 
@@ -84,9 +88,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
-    {% if "color_by_trait" in params %}
-    <script type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
-    {% endif %}
     <script>
             $('#trait_table').dataTable( {
                 "drawCallback": function( settings ) {

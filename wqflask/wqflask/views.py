@@ -71,6 +71,8 @@ import werkzeug
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
+
+
 @app.before_request
 def connect_db():
     db = getattr(g, '_database', None)
@@ -120,6 +122,7 @@ def handle_bad_request(e):
 @app.route("/")
 def index_page():
     logger.info("Sending index_page")
+    logger.error(request.url)
     params = request.args
     if 'import_collections' in params:
         import_collections = params['import_collections']
@@ -137,6 +140,7 @@ def index_page():
 def tmp_page(img_path):
     logger.info("In tmp_page")
     logger.info("img_path:", img_path)
+    logger.error(request.url)
     initial_start_vars = request.form
     logger.info("initial_start_vars:", initial_start_vars)
     imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
@@ -169,6 +173,7 @@ def twitter(filename):
 @app.route("/search", methods=('GET',))
 def search_page():
     logger.info("in search_page")
+    logger.error(request.url)
     if 'info_database' in request.args:
         logger.info("Going to sharing_info_page")
         template_vars = sharing_info_page()
@@ -207,6 +212,7 @@ def search_page():
 
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
+    logger.error(request.url)
     result = gsearch.GSearch(request.args).__dict__
     type = request.args['type']
     if type == "gene":
@@ -217,6 +223,7 @@ def gsearchact():
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
     logger.info("REQUEST ARGS:", request.values)
+    logger.error(request.url)
     result = update_search_results.GSearch(request.args).__dict__
     return result['results']
     # type = request.args['type']
@@ -227,26 +234,31 @@ def gsearch_updating():
 
 @app.route("/docedit")
 def docedit():
+    logger.error(request.url)
     doc = docs.Docs(request.args['entry'])
     return render_template("docedit.html", **doc.__dict__)
 
 @app.route('/generated/<filename>')
 def generated_file(filename):
+    logger.error(request.url)
     return send_from_directory(GENERATED_IMAGE_DIR,filename)
 
 @app.route("/help")
 def help():
+    logger.error(request.url)
     doc = docs.Docs("help")
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/wgcna_setup", methods=('POST',))
 def wcgna_setup():
     logger.info("In wgcna, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    logger.error(request.url)
     return render_template("wgcna_setup.html", **request.form)          # Display them using the template
 
 @app.route("/wgcna_results", methods=('POST',))
 def wcgna_results():
     logger.info("In wgcna, request.form is:", request.form)
+    logger.error(request.url)
     wgcna = wgcna_analysis.WGCNA()                                # Start R, load the package and pointers and create the analysis
     wgcnaA = wgcna.run_analysis(request.form)                     # Start the analysis, a wgcnaA object should be a separate long running thread
     result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
@@ -255,11 +267,13 @@ def wcgna_results():
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
     logger.info("In ctl, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    logger.error(request.url)
     return render_template("ctl_setup.html", **request.form)          # Display them using the template
 
 @app.route("/ctl_results", methods=('POST',))
 def ctl_results():
     logger.info("In ctl, request.form is:", request.form)
+    logger.error(request.url)
     ctl = ctl_analysis.CTL()                                  # Start R, load the package and pointers and create the analysis
     ctlA = ctl.run_analysis(request.form)                     # Start the analysis, a ctlA object should be a separate long running thread
     result = ctl.process_results(ctlA)                        # After the analysis is finished store the result
@@ -297,11 +311,13 @@ def environments():
 
 @app.route("/submit_trait")
 def submit_trait_form():
+    logger.error(request.url)
     species_and_groups = get_species_groups()
     return render_template("submit_trait.html", **{'species_and_groups' : species_and_groups, 'gn_server_url' : GN_SERVER_URL, 'version' : GN_VERSION})
 
 @app.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
+    logger.error(request.url)
     print("REQUEST.FORM:", request.form)
     #template_vars = submit_trait.SubmitTrait(request.form)
 
@@ -314,6 +330,7 @@ def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
     logger.info("In export_trait_excel")
     logger.info("request.form:", request.form)
+    logger.error(request.url)
     sample_data = export_trait_data.export_sample_table(request.form)
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
@@ -339,6 +356,7 @@ def export_trait_csv():
     """CSV file consisting of the sample data from the trait data and analysis page"""
     logger.info("In export_trait_csv")
     logger.info("request.form:", request.form)
+    logger.error(request.url)
     sample_data = export_trait_data.export_sample_table(request.form)
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
@@ -359,6 +377,7 @@ def export_traits_csv():
     """CSV file consisting of the traits from the search result page"""
     logger.info("In export_traits_csv")
     logger.info("request.form:", request.form)
+    logger.error(request.url)
     csv_data = export_traits.export_search_results_csv(request.form)
 
     return Response(csv_data,
@@ -368,6 +387,7 @@ def export_traits_csv():
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
     """CSV file consisting of the permutation data for the mapping results"""
+    logger.error(request.url)
     num_perm = float(request.form['num_perm'])
     perm_data = json.loads(request.form['perm_results'])
 
@@ -390,6 +410,7 @@ def export_perm_data():
 
 @app.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():
+    logger.error(request.url)
     template_vars = show_trait.ShowTrait(request.form)
     #logger.info("js_data before dump:", template_vars.js_data)
     template_vars.js_data = json.dumps(template_vars.js_data,
@@ -404,6 +425,7 @@ def show_temp_trait_page():
 
 @app.route("/show_trait")
 def show_trait_page():
+    logger.error(request.url)
     template_vars = show_trait.ShowTrait(request.args)
     #logger.info("js_data before dump:", template_vars.js_data)
     template_vars.js_data = json.dumps(template_vars.js_data,
@@ -419,6 +441,7 @@ def show_trait_page():
 @app.route("/heatmap", methods=('POST',))
 def heatmap_page():
     logger.info("In heatmap, request.form is:", pf(request.form))
+    logger.error(request.url)
 
     start_vars = request.form
     temp_uuid = uuid.uuid4()
@@ -468,6 +491,7 @@ def mapping_results_container_page():
 
 @app.route("/loading", methods=('POST',))
 def loading_page():
+    logger.error(request.url)
     initial_start_vars = request.form
     logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
     #temp_uuid = initial_start_vars['temp_uuid']
@@ -524,6 +548,7 @@ def loading_page():
 def marker_regression_page():
     initial_start_vars = request.form
     logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
+    logger.error(request.url)
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
         'trait_id',
@@ -533,6 +558,7 @@ def marker_regression_page():
         'selected_chr',
         'chromosomes',
         'mapping_scale',
+        'plotScale',
         'score_type',
         'suggestive',
         'significant',
@@ -645,6 +671,7 @@ def marker_regression_page():
 @app.route("/export", methods = ('POST',))
 def export():
     logger.info("request.form:", request.form)
+    logger.error(request.url)
     svg_xml = request.form.get("data", "Invalid data")
     filename = request.form.get("filename", "manhattan_plot_snp")
     response = Response(svg_xml, mimetype="image/svg+xml")
@@ -655,6 +682,7 @@ def export():
 def export_pdf():
     import cairosvg
     logger.info("request.form:", request.form)
+    logger.error(request.url)
     svg_xml = request.form.get("data", "Invalid data")
     logger.info("svg_xml:", svg_xml)
     filename = request.form.get("filename", "interval_map_pdf")
@@ -667,7 +695,7 @@ def export_pdf():
 @app.route("/network_graph", methods=('POST',))
 def network_graph_page():
     logger.info("In network_graph, request.form is:", pf(request.form))
-
+    logger.error(request.url)
     start_vars = request.form
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
     if traits[0] != "":
@@ -683,6 +711,7 @@ def network_graph_page():
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
     logger.info("In corr_compute, request.form is:", pf(request.form))
+    logger.error(request.url)
     #fd = webqtlFormData.webqtlFormData(request.form)
     template_vars = show_corr_results.CorrelationResults(request.form)
     return render_template("correlation_page.html", **template_vars.__dict__)
@@ -690,6 +719,7 @@ def corr_compute_page():
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
     logger.info("In corr_matrix, request.form is:", pf(request.form))
+    logger.error(request.url)
 
     start_vars = request.form
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
@@ -705,6 +735,7 @@ def corr_matrix_page():
 
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():
+    logger.error(request.url)
     template_vars = corr_scatter_plot.CorrScatterPlot(request.args)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
@@ -716,6 +747,7 @@ def corr_scatter_plot_page():
 def sharing_info_page():
     """Info page displayed when the user clicks the "Info" button next to the dataset selection"""
     logger.info("In sharing_info_page")
+    logger.error(request.url)
     fd = webqtlFormData.webqtlFormData(request.args)
     template_vars = SharingInfoPage.SharingInfoPage(fd)
     return template_vars
@@ -723,6 +755,7 @@ def sharing_info_page():
 # Take this out or secure it before putting into production
 @app.route("/get_temp_data")
 def get_temp_data():
+    logger.error(request.url)
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
 
