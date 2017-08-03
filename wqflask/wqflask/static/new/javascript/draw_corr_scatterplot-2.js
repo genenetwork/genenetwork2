@@ -28,7 +28,7 @@ function drawg () {
     //
     chart.tooltip.contentGenerator(function (obj) {
         // return '<b style="font-size: 18px">(' + obj.point.x + ', ' + obj.point.y + ')</b>';
-        return '<b style="font-size: 18px">(' + obj.point.name + ')</b>';
+        return '<b style="font-size: 18px">' + obj.point.name + '</b>';
     });
 }
 
