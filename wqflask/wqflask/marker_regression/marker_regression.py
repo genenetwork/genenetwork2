@@ -92,6 +92,7 @@ class MarkerRegression(object):
         self.num_perm = 0
         self.perm_output = []
         self.bootstrap_results = []
+        self.covariates = start_vars['covariates']
 
         #ZS: This is passed to GN1 code for single chr mapping
         self.selected_chr = -1
@@ -153,11 +154,11 @@ class MarkerRegression(object):
             self.genofile_string = start_vars['genofile']
             self.dataset.group.genofile = self.genofile_string.split(":")[0]
         self.dataset.group.get_markers()
-        if self.mapping_method == "gemma":
+        if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
             self.score_type = "-log(p)"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
-                marker_obs = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals)
+                marker_obs = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals, self.covariates, self.mapping_method)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()

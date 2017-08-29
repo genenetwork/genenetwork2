@@ -15,6 +15,9 @@
                 <li>
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
                 </li>
+                <li>
+                    <a href="#gemma" data-toggle="tab">GEMMA</a>
+                </li>
                 {% endif %}
                 {# if use_plink_gemma #}
                 {% for mapping_method in dataset.group.mapping_names %}
@@ -122,7 +125,7 @@
                         </div>
                         <div class="form-group">
                             <div style="padding-left:15px;" class="controls">
-                                <button id="interval_mapping_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Interval Mapping">
+                                <button id="interval_mapping_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping">
                                     <i class="icon-ok-circle icon-white"></i> Compute
                                 </button>
                             </div>
@@ -179,7 +182,7 @@
 -->
                         <div class="form-group">
                             <div style="padding-left:15px;" class="controls">
-                                <button id="pylmm_compute" class="btn submit_special btn-primary" title="Compute Marker Regression">
+                                <button id="pylmm_compute" class="btn submit_special btn-success" title="Compute Marker Regression">
                                     <i class="icon-ok-circle icon-white"></i> Compute
                                 </button>
                             </div>
@@ -286,30 +289,69 @@
 
                         <div class="form-group">
                             <div style="padding-left:15px;" class="controls">
-                                <button id="rqtl_geno_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
+                                <button id="rqtl_geno_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
                                     <i class="icon-ok-circle icon-white"></i> Compute
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                {% endif %}
-                {# if use_plink_gemma #}
-                {% if dataset.group.mapping_id == "2" or dataset.group.mapping_id == "4" %}
-                <div class="tab-pane active" id="gemma">
-                    <div style="padding: 20px" class="form-horizontal">
+                <div class="tab-pane" id="gemma">
+                    <div style="padding-top: 10px;" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="maf_gemma" class="col-xs-3 control-label">Minor allele threshold</label>
+                            <label for="maf_gemma" class="col-xs-5 control-label">Minor allele threshold</label>
                             <div style="margin-left: 20px;" class="col-xs-3 controls">
                                 <input name="maf_gemma" value="0.01" type="text" class="form-control">
                             </div>
                         </div>
                     </div>
 
+                    <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 20px;" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <button type="button" id="select_covariates" class="btn btn-default">
+                                Select Covariates
+                            </button>
+                            <button type="button" id="remove_covariates" class="btn btn-default">
+                                Remove Covariates
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="gemma_compute" class="col-xs-1 control-label"></label>
-                        <div style="margin-left:20px;" class="col-xs-4 controls">
-                            <button id="gemma_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
+                        <div class="col-xs-4 controls">
+                            <button id="gemma_bimbam_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
+                                Compute
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {# if use_plink_gemma #}
+                {% if dataset.group.mapping_id == "2" or dataset.group.mapping_id == "4" %}
+                <div class="tab-pane" id="gemma">
+                    <div style="padding-top: 10px;" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="maf_gemma" class="col-xs-5 control-label">Minor allele threshold</label>
+                            <div style="margin-left: 20px;" class="col-xs-3 controls">
+                                <input name="maf_gemma" value="0.01" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 20px;" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <button type="button" id="select_covariates" class="btn btn-default">
+                                Select Covariates
+                            </button>
+                            <button type="button" id="remove_covariates" class="btn btn-default">
+                                Remove Covariates
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-xs-4 controls">
+                            <button id="gemma_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
                         </div>
@@ -329,7 +371,7 @@
                     <div class="form-group">
                         <label for="plink_compute" class="col-xs-1 control-label"></label>
                         <div style="margin-left:20px;" class="col-xs-4 controls">
-                            <button id="plink_compute" class="btn submit_special btn-primary" data-url="/marker_regression" title="Compute Marker Regression">
+                            <button id="plink_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
                         </div>

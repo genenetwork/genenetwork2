@@ -182,24 +182,18 @@ class NetworkGraph(object):
                     self.edges_list.append(edge_dict)
       
             if trait_db[1].type == "ProbeSet":
-                node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name),
-                                        'name' : str(this_trait.name),
-                                        'dataset' : str(this_trait.dataset.name),
+                node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name), 
                                         'label' : this_trait.symbol,
                                         'symbol' : this_trait.symbol,
                                         'geneid' : this_trait.geneid,
                                         'omim' : this_trait.omim,
                                         'max_corr' : max_corr } }
             elif trait_db[1].type == "Publish":
-                node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name),
-                                        'name' : str(this_trait.name),
-                                        'dataset' : str(this_trait.dataset.name),
+                node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name), 
                                         'label' : this_trait.name,
                                         'max_corr' : max_corr } }
             else:
-                node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name),
-                                        'name' : str(this_trait.name),
-                                        'dataset' : str(this_trait.dataset.name),
+                node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name), 
                                         'label' : this_trait.name,
                                         'max_corr' : max_corr } }
             self.nodes_list.append(node_dict)
