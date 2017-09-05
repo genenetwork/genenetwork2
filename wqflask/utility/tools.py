@@ -113,6 +113,9 @@ def pylmm_command(guess=None):
 def gemma_command(guess=None):
     return assert_bin(get_setting("GEMMA_COMMAND",guess))
 
+def gemma_wrapper_command(guess=None):
+    return assert_bin(get_setting("GEMMA_WRAPPER_COMMAND",guess))
+
 def plink_command(guess=None):
     return assert_bin(get_setting("PLINK_COMMAND",guess))
 
@@ -240,10 +243,11 @@ JS_GUIX_PATH       = get_setting('JS_GUIX_PATH')
 JS_GN_PATH         = get_setting('JS_GN_PATH')
 # assert_dir(JS_GN_PATH)
 
-PYLMM_COMMAND      = pylmm_command()
-GEMMA_COMMAND      = gemma_command()
-PLINK_COMMAND      = plink_command()
-TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
+PYLMM_COMMAND         = pylmm_command()
+GEMMA_COMMAND         = gemma_command()
+GEMMA_WRAPPER_COMMAND = gemma_wrapper_command()
+PLINK_COMMAND         = plink_command()
+TEMPDIR               = tempdir() # defaults to UNIX TMPDIR
 
 # ---- Handle specific JS modules
 JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("Twitter-Post-Fetcher"))
