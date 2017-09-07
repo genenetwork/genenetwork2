@@ -3803,7 +3803,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .nav-pills > li.active > a:hover,
 .nav-pills > li.active > a:focus {
   color: #fff;
-  background-color: #428bca;
+  background-color: #3071a9; /* Tab cell background color */
 }
 .nav-stacked > li {
   float: none;
@@ -4485,7 +4485,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
   z-index: 2;
   color: #fff;
   cursor: default;
-  background-color: #428bca;
+  background-color: #3071a9;
   border-color: #428bca;
 }
 .pagination > .disabled > span,
@@ -4667,7 +4667,7 @@ a.badge:focus {
 }
 a.list-group-item.active > .badge,
 .nav-pills > .active > a > .badge {
-  color: #428bca;
+  color: #3071a9;
   background-color: #fff;
 }
 .nav-pills > li > a > .badge {
