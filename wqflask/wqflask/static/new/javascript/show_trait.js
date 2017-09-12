@@ -74,11 +74,14 @@
         return open_trait_selection();
       };
     })(this));
-    d3.select("#select_covariate").on("click", (function(_this) {
+    d3.select("#select_covariates").on("click", (function(_this) {
       return function() {
         return open_covariate_selection();
       };
     })(this));
+    $("#remove_covariates").click(function () {
+        $("input[name=covariates]").val("") 
+    });
     d3.select("#clear_compare_trait").on("click", (function(_this) {
       return function() {
         return $('.scatter-matrix-container').remove();
@@ -101,15 +104,15 @@
       })(this));
     };
     open_covariate_selection = function() {
-      return $('#collections_holder').load('/collections/list?select_covariates #collections_list', (function(_this) {
+      return $('#collections_holder').load('/collections/list #collections_list', (function(_this) {
         return function() {
           $.colorbox({
             inline: true,
             href: "#collections_holder",
             onComplete: function(){
-                console.log("before get script")
+                console.log("before get cov script")
                 $.getScript("/static/new/javascript/get_covariates_from_collection.js");
-                console.log("after get script")
+                console.log("after get cov script")
             }
           });
           return $('a.collection_name').attr('onClick', 'return false');
@@ -199,16 +202,16 @@
     };
     make_table = function() {
       var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
-      header = "<thead><tr><th style=\"padding-left: 5px;\">Statistic</th>";
+      header = "<thead><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
       _ref = js_data.sample_group_types;
       for (key in _ref) {
         if (!__hasProp.call(_ref, key)) continue;
         value = _ref[key];
         the_id = process_id("column", key);
         if (Object.keys(_ref).length > 1) {
-            header += "<th id=\"" + the_id + "\" style=\"padding-left: 5px;\">" + value + "</th>";
+            header += "<th id=\"" + the_id + "\" style=\"text-align: right; padding-left: 5px;\">" + value + "</th>";
         } else {
-            header += "<th id=\"" + the_id + "\" style=\"padding-left: 5px;\">Value</th>";
+            header += "<th id=\"" + the_id + "\" style=\"text-align: right; padding-left: 5px;\">Value</th>";
         }
       }
 
@@ -221,16 +224,16 @@
         }
         row_line = "<tr>";
         if (row.url != null) {
-          row_line += "<td id=\"" + row.vn + "\"><a href=\"" + row.url + "\" style=\"color: #000000;\">" + row.pretty + "</a></td>";
+          row_line += "<td id=\"" + row.vn + "\" align=\"right\"><a href=\"" + row.url + "\" style=\"color: #000000;\">" + row.pretty + "</a></td>";
         } else {
-          row_line += "<td id=\"" + row.vn + "\">" + row.pretty + "</td>";
+          row_line += "<td id=\"" + row.vn + "\" align=\"right\">" + row.pretty + "</td>";
         }
         _ref1 = js_data.sample_group_types;
         for (key in _ref1) {
           if (!__hasProp.call(_ref1, key)) continue;
           value = _ref1[key];
           the_id = process_id(key, row.vn);
-          row_line += "<td id=\"" + the_id + "\">foo</td>";
+          row_line += "<td id=\"" + the_id + "\" align=\"right\">foo</td>";
         }
         row_line += "</tr>";
         the_rows += row_line;

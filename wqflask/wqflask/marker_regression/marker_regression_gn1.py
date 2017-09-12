@@ -255,6 +255,8 @@ class MarkerRegression(object):
             self.controlLocus = start_vars['control_marker']
         else:
             self.controlLocus = ""
+        if 'covariates' in start_vars.keys():
+            self.covariates = start_vars['covariates']
 
         #try:
         self.selectedChr = int(start_vars['selected_chr'])
@@ -1369,7 +1371,10 @@ class MarkerRegression(object):
 
                 #draw gray blocks for 3' and 5' UTR blocks
                 if cdsStart and cdsEnd:
-
+                    logger.debug("txStart:", txStart)
+                    logger.debug("cdsStart:", cdsStart)
+                    logger.debug("txEnd:", txEnd)
+                    logger.debug("cdsEnd:", cdsEnd)
                     utrStartPix = (txStart-startMb)*plotXScale + xLeftOffset
                     utrEndPix = (cdsStart-startMb)*plotXScale + xLeftOffset
                     if (utrStartPix < xLeftOffset):
@@ -1380,9 +1385,10 @@ class MarkerRegression(object):
                         utrEndPix = xLeftOffset + plotWidth
                     if (utrStartPix > xLeftOffset + plotWidth):
                         utrStartPix = xLeftOffset + plotWidth
-                    canvas.drawRect(utrStartPix, geneYLocation, utrEndPix, (geneYLocation+self.EACH_GENE_HEIGHT*zoom), edgeColor=utrColor, fillColor =utrColor)
+                    #canvas.drawRect(utrStartPix, geneYLocation, utrEndPix, (geneYLocation+self.EACH_GENE_HEIGHT*zoom), edgeColor=utrColor, fillColor =utrColor)
 
-                    if self.DRAW_UTR_LABELS and self.endMb - self.startMb <= self.DRAW_UTR_LABELS_MB:
+                    #if self.DRAW_UTR_LABELS and self.endMb - self.startMb <= self.DRAW_UTR_LABELS_MB:
+                    if self.endMb - self.startMb <= self.DRAW_UTR_LABELS_MB:
                         if strand == "-":
                             labelText = "3'"
                         else:
@@ -1401,10 +1407,11 @@ class MarkerRegression(object):
                         utrEndPix = xLeftOffset + plotWidth
                     if (utrStartPix > xLeftOffset + plotWidth):
                         utrStartPix = xLeftOffset + plotWidth
-                    canvas.drawRect(utrStartPix, geneYLocation, utrEndPix, (geneYLocation+self.EACH_GENE_HEIGHT*zoom), edgeColor=utrColor, fillColor =utrColor)
+                    #canvas.drawRect(utrStartPix, geneYLocation, utrEndPix, (geneYLocation+self.EACH_GENE_HEIGHT*zoom), edgeColor=utrColor, fillColor =utrColor)
 
-                    if self.DRAW_UTR_LABELS and self.endMb - self.startMb <= self.DRAW_UTR_LABELS_MB:
-                        if tstrand == "-":
+                    #if self.DRAW_UTR_LABELS and self.endMb - self.startMb <= self.DRAW_UTR_LABELS_MB:
+                    if self.endMb - self.startMb <= self.DRAW_UTR_LABELS_MB:
+                        if strand == "-":
                             labelText = "5'"
                         else:
                             labelText = "3'"

@@ -2,8 +2,6 @@
 var add_trait_data, assemble_into_json, back_to_collections, collection_click, collection_list, color_by_trait, create_trait_data_csv, get_this_trait_vals, get_trait_data, process_traits, selected_traits, submit_click, this_trait_data, trait_click,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-console.log("before get_traits_from_collection");
-
 collection_list = null;
 
 this_trait_data = null;
@@ -25,109 +23,30 @@ collection_click = function() {
 };
 
 submit_click = function() {
-  var all_vals, sample, samples, scatter_matrix, this_trait_vals, trait, trait_names, trait_vals_csv, traits, _i, _j, _len, _len1, _ref;
-  selected_traits = {};
-  traits = [];
+  var covariates_string = "";
   $('#collections_holder').find('input[type=checkbox]:checked').each(function() {
-    var this_dataset, this_trait, this_trait_url;
+    var this_dataset, this_trait;
     this_trait = $(this).parents('tr').find('.trait').text();
     console.log("this_trait is:", this_trait);
     this_dataset = $(this).parents('tr').find('.dataset').text();
     console.log("this_dataset is:", this_dataset);
-    this_trait_url = "/trait/get_sample_data?trait=" + this_trait + "&dataset=" + this_dataset;
-    return $.ajax({
-      dataType: "json",
-      url: this_trait_url,
-      async: false,
-      success: add_trait_data
-    });
+    covariates_string += this_trait + ":" + this_dataset + ","
   });
-  console.log("SELECTED_TRAITS IS:", selected_traits);
-  trait_names = [];
-  samples = $('input[name=allsamples]').val().split(" ");
-  all_vals = [];
-  this_trait_vals = get_this_trait_vals(samples);
-  all_vals.push(this_trait_vals);
-  _ref = Object.keys(selected_traits);
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    trait = _ref[_i];
-    trait_names.push(trait);
-    this_trait_vals = [];
-    for (_j = 0, _len1 = samples.length; _j < _len1; _j++) {
-      sample = samples[_j];
-      if (__indexOf.call(Object.keys(selected_traits[trait]), sample) >= 0) {
-        this_trait_vals.push(parseFloat(selected_traits[trait][sample]));
-      } else {
-        this_trait_vals.push(null);
-      }
-    }
-    all_vals.push(this_trait_vals);
-  }
-  trait_vals_csv = create_trait_data_csv(selected_traits);
-  scatter_matrix = new ScatterMatrix(trait_vals_csv);
-  scatter_matrix.render();
-  return $.colorbox.close();
-};
+  // Trim the last comma
+  covariates_string = covariates_string.substring(0, covariates_string.length - 1)
+  console.log("COVARIATES:", covariates_string)
 
-create_trait_data_csv = function(selected_traits) {
-  var all_vals, index, sample, sample_vals, samples, this_trait_vals, trait, trait_names, trait_vals_csv, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
-  trait_names = [];
-  trait_names.push($('input[name=trait_id]').val());
-  samples = $('input[name=allsamples]').val().split(" ");
-  all_vals = [];
-  this_trait_vals = get_this_trait_vals(samples);
-  all_vals.push(this_trait_vals);
-  _ref = Object.keys(selected_traits);
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    trait = _ref[_i];
-    trait_names.push(trait);
-    this_trait_vals = [];
-    for (_j = 0, _len1 = samples.length; _j < _len1; _j++) {
-      sample = samples[_j];
-      if (__indexOf.call(Object.keys(selected_traits[trait]), sample) >= 0) {
-        this_trait_vals.push(parseFloat(selected_traits[trait][sample]));
-      } else {
-        this_trait_vals.push(null);
-      }
-    }
-    all_vals.push(this_trait_vals);
-  }
-  console.log("all_vals:", all_vals);
-  trait_vals_csv = trait_names.join(",");
-  trait_vals_csv += "\n";
-  for (index = _k = 0, _len2 = samples.length; _k < _len2; index = ++_k) {
-    sample = samples[index];
-    if (all_vals[0][index] === null) {
-      continue;
-    }
-    sample_vals = [];
-    for (_l = 0, _len3 = all_vals.length; _l < _len3; _l++) {
-      trait = all_vals[_l];
-      sample_vals.push(trait[index]);
-    }
-    trait_vals_csv += sample_vals.join(",");
-    trait_vals_csv += "\n";
-  }
-  return trait_vals_csv;
+  $("input[name=covariates]").val(covariates_string)
+
+  return $.colorbox.close();
 };
 
 trait_click = function() {
   var dataset, this_trait_url, trait;
-  console.log("Clicking on:", $(this));
   trait = $(this).parent().find('.trait').text();
   dataset = $(this).parent().find('.dataset').text();
-  console.log("BEFORE COVAR:", trait + ":" + dataset)
-  $('input[name=covariates]').val(trait + ":" + dataset)
-  console.log("AFTER COVAR:", $('input[name=covariates]').val())
+  $("input[name=covariates]").val(trait + ":" + dataset)
   return $.colorbox.close();
-  // this_trait_url = "/trait/get_sample_data?trait=" + trait + "&dataset=" + dataset;
-  // console.log("this_trait_url", this_trait_url);
-  // $.ajax({
-    // dataType: "json",
-    // url: this_trait_url,
-    // success: get_trait_data
-  // });
-  // return $.colorbox.close();
 };
 
 add_trait_data = function(trait_data, textStatus, jqXHR) {
@@ -140,9 +59,7 @@ add_trait_data = function(trait_data, textStatus, jqXHR) {
 
 get_trait_data = function(trait_data, textStatus, jqXHR) {
   var sample, samples, this_trait_vals, trait_sample_data, vals, _i, _len;
-  console.log("trait:", trait_data[0]);
   trait_sample_data = trait_data[1];
-  console.log("trait_sample_data:", trait_sample_data);
   samples = $('input[name=allsamples]').val().split(" ");
   vals = [];
   for (_i = 0, _len = samples.length; _i < _len; _i++) {
@@ -158,7 +75,6 @@ get_trait_data = function(trait_data, textStatus, jqXHR) {
   }
   $('#hidden_inputs').append('<input type="hidden" name="vals" value="[' + vals.toString() + ']" />');
   this_trait_vals = get_this_trait_vals(samples);
-  console.log("THE LENGTH IS:", $('input[name=vals]').length);
   return color_by_trait(trait_sample_data);
 };
 
@@ -174,7 +90,6 @@ get_this_trait_vals = function(samples) {
       this_trait_vals.push(null);
     }
   }
-  console.log("this_trait_vals:", this_trait_vals);
   this_vals_json = '[' + this_trait_vals.toString() + ']';
   return this_trait_vals;
 };
@@ -231,7 +146,6 @@ back_to_collections = function() {
   return $('#collections_holder').colorbox.resize();
 };
 
-console.log("inside get_traits_from_collection");
 $(".collection_line").on("click", collection_click);
 $("#submit").on("click", submit_click);
 $(".trait").on("click", trait_click);

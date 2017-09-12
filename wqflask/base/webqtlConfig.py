@@ -70,8 +70,8 @@ assert_writable_dir(TMPDIR)
 
 CACHEDIR             = mk_dir(TMPDIR+'/cache/')
 # We can no longer write into the git tree:
-GENERATED_IMAGE_DIR  = mk_dir(TMPDIR+'/generated/')
-GENERATED_TEXT_DIR   = mk_dir(TMPDIR+'/generated_text/')
+GENERATED_IMAGE_DIR  = mk_dir(TMPDIR+'generated/')
+GENERATED_TEXT_DIR   = mk_dir(TMPDIR+'generated_text/')
 
 # Make sure we have permissions to access these
 assert_writable_dir(CACHEDIR)
