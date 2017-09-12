@@ -93,6 +93,12 @@ function chartupdate() {
     //
     var clinewidth = $("#clinewidth").val();
     $("line.nv-regLine").css("stroke-width", clinewidth);
+    //
+    var axiscolor = $("#axiscolor").val();
+    $(".tick").css("stroke", axiscolor);
+    //
+    var axiswidth = $("#axiswidth").val();
+    $("line.nv-regLine").css("stroke-width", axiswidth); 
 }
 
 function chartupdatewh() {
