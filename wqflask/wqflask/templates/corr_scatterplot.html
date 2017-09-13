@@ -170,15 +170,23 @@
 	</tr>
 </table>
 
+<div style="width: 1000px; text-align: center;"><h2>Pearson Correlation Scatterplot</h2></div>
+
 <div id="scatterplot2">
 	<svg style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
 </div>
 
 <br>
 
-<table class="table table-hover table-striped table-bordered" style="width: 200px; margin-left: 80px;">
+<div class="alert alert-info" style="width: 200px; margin-left: 80px;">
+    y = {{'%0.3f' % jsdata.slope}} * x + {{'%0.3f' % jsdata.intercept}}
+</div>
+
+<br>
+
+<table class="table table-hover table-striped table-bordered" style="width: 200px; margin-left: 80px; text-align: right;">
     <thead>
-        <tr><th>Statistic</th><th>Value</th></tr>
+        <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
     </thead>
 	<tbody>
 		<tr><td>Number</td>		<td>{{jsdata.num_overlap}}</td></tr>
@@ -235,15 +243,23 @@
 	</tr>
 </table>
 
+<div style="width: 1000px; text-align: center;"><h2>Spearman Rank Correlation Scatterplot</h2></div>
+
 <div id="srscatterplot2">
 	<svg style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
 </div>
 
 <br>
 
-<table class="table table-hover table-striped table-bordered" style="width: 200px; margin-left: 80px;">
+<div class="alert alert-info" style="width: 200px; margin-left: 80px;">
+    y = {{'%0.3f' % jsdata.srslope}} * x + {{'%0.3f' % jsdata.srintercept}}
+</div>
+
+<br>
+
+<table class="table table-hover table-striped table-bordered" style="width: 200px; margin-left: 80px; text-align: right;">
     <thead>
-        <tr><th>Statistic</th><th>Value</th></tr>
+        <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
     </thead>
 	<tbody>
 		<tr><td>Number</td>		<td>{{jsdata.num_overlap}}</td></tr>
