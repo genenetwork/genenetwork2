@@ -68,6 +68,7 @@ else
     export PATH=$GN2_PROFILE/bin:$PATH
     export PYTHONPATH=$GN2_PROFILE/lib/python2.7/site-packages
     export R_LIBS_SITE=$GN2_PROFILE/site-library
+    export GEM_PATH=$GN2_PROFILE/lib/ruby/gems/2.4.0
     export JS_GUIX_PATH=$GN2_PROFILE/share/genenetwork2/javascript
     export GUIX_GTK3_PATH="$GN2_PROFILE/lib/gtk-3.0"
     export GI_TYPELIB_PATH="$GN2_PROFILE/lib/girepository-1.0"
