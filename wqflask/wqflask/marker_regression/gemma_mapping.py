@@ -3,12 +3,12 @@ import os, math
 from base import webqtlConfig
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
-from utility.tools import flat_files, GEMMA_COMMAND
+from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-def run_gemma(this_dataset, samples, vals, covariates, method):
+def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
     """Generates p-values for each marker using GEMMA"""
 
     print("INSIDE GEMMA_MAPPING")
@@ -18,7 +18,13 @@ def run_gemma(this_dataset, samples, vals, covariates, method):
     if not os.path.isfile("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, this_dataset.group.name)):
         open("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, this_dataset.group.name), "w+")
 
-    logger.debug("COVARIATES_GEMMA:", covariates)
+    this_chromosomes = this_dataset.species.chromosomes.chromosomes
+    chr_list_string = ""
+    for i in range(this_chromosomes):
+        if i < (len(this_chromosomes) - 1):
+            chr_list_string += this_chromosomes[i+1].name + ","
+        else:
+            chr_list_string += this_chromosomes[i+1].name
 
     if covariates != "":
         gen_covariates_file(this_dataset, covariates)
@@ -35,19 +41,38 @@ def run_gemma(this_dataset, samples, vals, covariates, method):
             # use GEMMA_RUN in the next one, create a unique temp file
         else:
             logger.debug("FLAT FILES:", flat_files('mapping'))
-            #gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.sXX.txt -lmm 1 -maf 0.1 -c %s/%s_covariates.txt -o %s_output' % (flat_files('genotype/bimbam'),
-            gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 1 -maf 0.1 -c %s/%s_covariates.txt -outdir %s -debug -o %s_output' % (flat_files('genotype/bimbam'),
-                                                                                            this_dataset.group.name,
-                                                                                            flat_files('genotype/bimbam'),
-                                                                                            this_dataset.group.name,
-                                                                                            flat_files('genotype/bimbam'),
-                                                                                            this_dataset.group.name,
-                                                                                            flat_files('genotype/bimbam'),
-                                                                                            this_dataset.group.name,
-                                                                                            flat_files('mapping'),
-                                                                                            this_dataset.group.name,
-                                                                                            webqtlConfig.GENERATED_IMAGE_DIR,
-                                                                                            this_dataset.group.name)
+            if use_loco:
+                generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -gk -debug > /home/zas1024/tmp/gn2/K.json' % (flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name)
+                logger.debug("k_command:" + generate_k_command)
+                os.system(generate_k_command)
+
+                run_loco_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input /home/zas1024/tmp/gn2/K.json -- -g %s/%s_geno.txt -p %s/%s_pheno.txt -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > /home/zas1024/tmp/gn2/GWA.json' % (flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('mapping'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name)
+                os.system(run_loco_command)
+            else:
+                gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 1 -maf 0.1 -c %s/%s_covariates.txt -outdir %s -debug -o %s_output' % (flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('mapping'),
+                                                                                                this_dataset.group.name,
+                                                                                                webqtlConfig.GENERATED_IMAGE_DIR,
+                                                                                                this_dataset.group.name)
     else:
         if method == "gemma":
             #gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/%s.sXX.txt -lmm 1 -maf 0.1 -o %s_output' % (flat_files('mapping'),
@@ -58,8 +83,28 @@ def run_gemma(this_dataset, samples, vals, covariates, method):
                                                                                             webqtlConfig.GENERATED_IMAGE_DIR,
                                                                                             this_dataset.group.name)
         else:
-            #gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.sXX.txt -lmm 1 -maf 0.1 -o %s_output' % (flat_files('genotype/bimbam'),
-            gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 1 -maf 0.1 -outdir %s -debug -o %s_output' % (flat_files('genotype/bimbam'),
+            if use_loco:
+                generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -gk -debug > /home/zas1024/tmp/gn2/K.json' % (flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name)
+                logger.debug("k_command:" + generate_k_command)
+                os.system(generate_k_command)
+
+                run_loco_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input /home/zas1024/tmp/gn2/K.json -- -g %s/%s_geno.txt -p %s/%s_pheno.txt -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > /home/zas1024/tmp/gn2/GWA.json' % (flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('mapping'),
+                                                                                                this_dataset.group.name,
+                                                                                                flat_files('genotype/bimbam'),
+                                                                                                this_dataset.group.name)
+                os.system(run_loco_command)
+            else:
+                #gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.sXX.txt -lmm 1 -maf 0.1 -o %s_output' % (flat_files('genotype/bimbam'),
+                gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 1 -maf 0.1 -outdir %s -debug -o %s_output' % (flat_files('genotype/bimbam'),
                                                                                             this_dataset.group.name,
                                                                                             flat_files('genotype/bimbam'),
                                                                                             this_dataset.group.name,
