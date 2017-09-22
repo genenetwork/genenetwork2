@@ -70,8 +70,9 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
                                                                                                                                          this_dataset.group.name,
                                                                                                                                          gwa_output_filename)
             else:
-                gemma_command += ' -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > /home/zas1024/tmp/gn2/GWA.json' % (flat_files('genotype/bimbam'),
-                                                                                                                 this_dataset.group.name)
+                gemma_command += ' -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > /home/zas1024/tmp/gn2/%s.json' % (flat_files('genotype/bimbam'),
+                                                                                                                 this_dataset.group.name,
+                                                                                                                 gwa_output_filename)
 
         else:
             gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 1 -maf 0.1' % (flat_files('genotype/bimbam'),
