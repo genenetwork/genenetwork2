@@ -84,6 +84,7 @@ class MarkerRegression(object):
             self.manhattan_plot = False
 
         self.maf = start_vars['maf'] # Minor allele frequency
+        self.use_loco = start_vars['use_loco']
         self.suggestive = ""
         self.significant = ""
         self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
@@ -158,7 +159,7 @@ class MarkerRegression(object):
             self.score_type = "-log(p)"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
-                marker_obs = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals, self.covariates, self.mapping_method)
+                marker_obs = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals, self.covariates, self.mapping_method, self.use_loco)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()

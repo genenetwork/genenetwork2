@@ -257,6 +257,10 @@ class MarkerRegression(object):
             self.controlLocus = ""
         if 'covariates' in start_vars.keys():
             self.covariates = start_vars['covariates']
+        if 'maf' in start_vars.keys():
+            self.maf = start_vars['maf']
+        if 'use_loco' in start_vars.keys():
+            self.use_loco = start_vars['use_loco']
 
         #try:
         self.selectedChr = int(start_vars['selected_chr'])

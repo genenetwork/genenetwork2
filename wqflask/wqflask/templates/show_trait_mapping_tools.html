@@ -302,8 +302,20 @@
                                 <input name="maf_gemma" value="0.01" type="text" class="form-control">
                             </div>
                         </div>
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-xs-4 control-label">Use LOCO</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                <label class="radio-inline">
+                                    <input type="radio" name="use_loco" value="True">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="use_loco" value="False" checked="">
+                                    No
+                               </label>
+                            </div>
+                        </div>
                     </div>
-
                     <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 20px;" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
                             <button type="button" id="select_covariates" class="btn btn-default">
@@ -395,7 +407,7 @@
             <dt>GEMMA</dt>
             <dd>
                 GEMMA is software implementing the Genome-wide Efficient Mixed Model Association algorithm for a standard linear mixed model for genome-wide association studies (GWAS).<br>
-                <font style="color: red;">Note: There currently exists an issue where GEMMA can't be run on traits from the same group simultaneously. If you recieve an error, please wait a few minutes and try again.</font>
+                Note: There currently exists an issue where GEMMA can't be run on traits from the same group simultaneously. If you receive an error, please wait a few minutes and try again.
             </dd>
             <dt>PLINK</dt>
             <dd>PLINK is a free, open-source whole genome association analysis toolset.</dd>
