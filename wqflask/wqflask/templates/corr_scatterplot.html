@@ -170,10 +170,12 @@
 	</tr>
 </table>
 
+<div><a id="a_svg_pcs" href="#" onclick="javascript:saveassvg_pcs();" class="btn btn-primary">Save as SVG</a></div>
+
 <div style="width: 1000px; text-align: center;"><h2>Pearson Correlation Scatterplot</h2></div>
 
 <div id="scatterplot2">
-	<svg style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
+	<svg id="svg_pcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
 </div>
 
 <br>
@@ -243,16 +245,12 @@
 	</tr>
 </table>
 
+<div><a id="a_svg_srcs" href="#" onclick="javascript:saveassvg_srcs();" class="btn btn-primary">Save as SVG</a></div>
+
 <div style="width: 1000px; text-align: center;"><h2>Spearman Rank Correlation Scatterplot</h2></div>
 
 <div id="srscatterplot2">
-	<svg style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
-</div>
-
-<br>
-
-<div class="alert alert-info" style="width: 200px; margin-left: 80px;">
-    y = {{'%0.3f' % jsdata.srslope}} * x + {{'%0.3f' % jsdata.srintercept}}
+	<svg id="svg_srcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
 </div>
 
 <br>

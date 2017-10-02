@@ -21,8 +21,8 @@ function srdrawg () {
     ymin = d3.min(js_data.rdata[1]);
     ymax = d3.max(js_data.rdata[1]);
     yrange = ymax - ymin;
-    srchart.xDomain([xmin - xrange/10, xmax + xrange/10]);
-    srchart.yDomain([ymin - yrange/10, ymax + yrange/10]);
+    srchart.xDomain([0, xmax + xrange/10]);
+    srchart.yDomain([0, ymax + yrange/10]);
     srchart.xAxis.tickFormat(d3.format(srcheckformat(xrange)));
     srchart.yAxis.tickFormat(d3.format(srcheckformat(yrange)));
     //
@@ -113,6 +113,10 @@ function srchartupdatedata() {
     //
     d3.select('#srscatterplot2 svg').datum(nv.log(srgetdata(size, shape))).call(srchart);
     nv.utils.windowResize(srchart.update);
+}
+
+function saveassvg_srcs() {
+    savesvg($("#svg_srcs")[0], "Spearman Rank Correlation Scatterplot.svg");
 }
 
 srdrawg();

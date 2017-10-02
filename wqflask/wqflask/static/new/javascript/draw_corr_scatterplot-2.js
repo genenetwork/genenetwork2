@@ -121,6 +121,25 @@ function chartupdatedata() {
     nv.utils.windowResize(chart.update);
 }
 
+function savesvg(svgEl, name) {
+    svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    var svgData = svgEl.outerHTML;
+    var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+    preface += '<?xml-stylesheet type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.5/nv.d3.min.css"?>\r\n';
+    var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+    var svgUrl = URL.createObjectURL(svgBlob);
+    var downloadLink = document.createElement("a");
+    downloadLink.href = svgUrl;
+    downloadLink.download = name;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+
+function saveassvg_pcs() {
+    savesvg($("#svg_pcs")[0], "Pearson Correlation Scatterplot.svg");
+}
+
 drawg();
 chartupdate();
 chartupdatewh();
