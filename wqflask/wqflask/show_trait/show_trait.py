@@ -82,6 +82,59 @@ class ShowTrait(object):
         #                                this_trait.mysqlid)
         #            heritability = self.cursor.fetchone()
 
+        #ZS: Get verify/rna-seq link URLs
+        try:
+            blatsequence = self.this_trait.blatseq
+            if not blatsequence:
+                #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
+                query1 = """SELECT Probe.Sequence, Probe.Name
+                           FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                           WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                                 ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                                 ProbeSetFreeze.Name = '%s' AND
+                                 ProbeSet.Name = '%s' AND
+                                 Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
+                seqs = g.db.execute(query1).fetchall()
+                if not seqs:
+                    raise ValueError
+                else:
+                    blatsequence = ''
+                    for seqt in seqs:
+                        if int(seqt[1][-1]) % 2 == 1:
+                            blatsequence += string.strip(seqt[0])
+
+            #--------Hongqiang add this part in order to not only blat ProbeSet, but also blat Probe
+            blatsequence = '%3E' + self.this_trait.name + '%0A' + blatsequence + '%0A'
+            #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
+            query2 = """SELECT Probe.Sequence, Probe.Name
+                        FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                        WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                              ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                              ProbeSetFreeze.Name = '%s' AND
+                              ProbeSet.Name = '%s' AND
+                              Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
+
+            seqs = g.db.execute(query2).fetchall()
+            for seqt in seqs:
+                if int(seqt[1][-1]) %2 == 1:
+                    blatsequence += '%3EProbe_' + string.strip(seqt[1]) + '%0A' + string.strip(seqt[0]) + '%0A'
+
+            if self.dataset.group.species == "rat":
+                self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', blatsequence)
+                self.UTHSC_BLAT_URL = ""
+            elif self.dataset.group.species == "mouse":
+                self.UCSC_BLAT_URL = webqtlConfig.UTHSC_BLAT2 % ('mouse', 'mm10', blatsequence)
+                self.UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm10', blatsequence)
+            elif self.dataset.group.species == "human":
+                self.UCSC_BLAT_URL = webqtlConfig.UTHSC_BLAT2 % ('human', 'hg19', blatsequence)
+                self.UTHSC_BLAT_URL = ""
+            else:
+                self.UCSC_BLAT_URL = ""
+                self.UTHSC_BLAT_URL = ""
+        except:
+            self.UCSC_BLAT_URL = ""
+            self.UTHSC_BLAT_URL = ""
+
         self.build_correlation_tools()
 
         #Get nearest marker for composite mapping
@@ -142,7 +195,7 @@ class ShowTrait(object):
 
         self.get_mapping_methods()
 
-        self.trait_table_width = get_trait_table_width(self.sample_groups)
+        self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups)
 
         trait_symbol = None
         if not self.temp_trait:
@@ -302,13 +355,17 @@ def get_genofiles(this_dataset):
     jsondata = json.load(f)
     return jsondata['genofile']
 
-def get_trait_table_width(sample_groups):
-    table_width = 25
-    if sample_groups[0].se_exists():
-        table_width += 15
-    if (table_width + len(sample_groups[0].attributes)*10) > 100:
-        table_width = 100
-    else:
-        table_width += len(sample_groups[0].attributes)*10
+def get_table_widths(sample_groups):
+    stats_table_width = 200
+    if len(sample_groups) > 1:
+        stats_table_width = 450
 
-    return table_width
+    trait_table_width = 25
+    if sample_groups[0].se_exists():
+        trait_table_width += 15
+    if (trait_table_width + len(sample_groups[0].attributes)*10) > 100:
+        trait_table_width = 100
+    else:
+        trait_table_width += len(sample_groups[0].attributes)*10
+
+    return stats_table_width, trait_table_width

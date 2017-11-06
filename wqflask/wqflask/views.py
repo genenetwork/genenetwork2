@@ -286,8 +286,9 @@ def news_route():
 
 @app.route("/references")
 def references():
-    doc = docs.Docs("references")
-    return render_template("docs.html", **doc.__dict__)
+    # doc = docs.Docs("references")
+    # return render_template("docs.html", **doc.__dict__)
+    return render_template("reference.html")
 
 @app.route("/intro")
 def intro():

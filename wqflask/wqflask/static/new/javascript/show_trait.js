@@ -52,6 +52,14 @@
       pretty: "Interquartile Range",
       url: "http://www.genenetwork.org/glossary.html#Interquartile",
       digits: 3
+    }, {
+      vn: "skewness",
+      pretty: "Skewness",
+      digits: 3
+    }, {
+      vn: "kurtosis",
+      pretty: "Kurtosis",
+      digits: 3
     }
   ];
 
@@ -181,25 +189,81 @@
       }
       return _results;
     };
+
     redraw_histogram = function() {
       var x;
-      return root.histogram.redraw((function() {
-        var _i, _len, _ref, _results;
-        _ref = _.values(root.selected_samples[root.histogram_group]);
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          x = _ref[_i];
-          _results.push(x.value);
-        }
-        return _results;
-      })());
+      var _i, _len, _ref, data;
+      _ref = _.values(root.selected_samples[root.stats_group]);
+      var trait_vals = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        x = _ref[_i];
+        trait_vals.push(x.value);
+      }
+      Plotly.restyle('histogram', 'x', [trait_vals])
     };
+
     redraw_bar_chart = function() {
-      return root.bar_chart.redraw(root.selected_samples, root.bar_chart_group);
+      var x;
+      var _i, _len, _ref, data;
+      _ref = _.values(root.selected_samples[root.stats_group]);
+      names_and_values = []
+      for (i = 0; i < _ref.length; i++){
+          _ref[i]["name"] = Object.keys(root.selected_samples[root.stats_group])[i]
+      }
+      trait_vals = [];
+      trait_vars = [];
+      trait_samples = [];
+
+      function sortFunction(a, b) {
+        if (a.value === b.value) {
+          return 0;
+        }
+        else {
+          return (a.value < b.value) ? -1 : 1;
+        }
+      }
+
+      if (root.bar_sort == "value") {
+        _ref.sort(sortFunction)
+      }
+
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        x = _ref[_i];
+        trait_samples.push(x.name)
+        trait_vals.push(x.value);
+        if (x["variance"] != undefined) {
+          trait_vars.push(x.variance);
+        } else{
+          trait_vars.push(null)
+        }
+      }
+
+      root.bar_data[0]['y'] = trait_vals
+      root.bar_data[0]['error_y'] = {
+        type: 'data',
+        array: trait_vars,
+        visible: true
+      }
+      root.bar_data[0]['x'] = trait_samples
+      Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout);
     };
+
+    redraw_box_plot = function() {
+      var x;
+      var _i, _len, _ref, data;
+      _ref = _.values(root.selected_samples[root.stats_group]);
+      trait_vals = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        x = _ref[_i];
+        trait_vals.push(x.value);
+      }
+      Plotly.restyle('box_plot', 'y', [trait_vals])
+    }
+
     redraw_prob_plot = function() {
       return root.redraw_prob_plot_impl(root.selected_samples, root.prob_plot_group);
     };
+
     make_table = function() {
       var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
       header = "<thead><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
@@ -312,6 +376,8 @@
       redraw_histogram();
       console.log("redrawing bar chart");
       redraw_bar_chart();
+      console.log("redrawing box plot");
+      redraw_box_plot();
       console.log("redrawing probability plot");
       return redraw_prob_plot();
     };
@@ -526,29 +592,174 @@
     $('#block_outliers').click(block_outliers);
     console.log("after registering block_outliers");
     _.mixin(_.str.exports());
-    root.histogram_group = 'samples_primary';
-    root.histogram = new Histogram(sample_lists[0]);
-    $('.histogram_samples_group').val(root.histogram_group);
+
+    get_sample_vals = function(sample_list) {
+      var sample;
+      return this.sample_vals = (function() {
+        var i, len, results;
+        results = [];
+        for (i = 0, len = sample_list.length; i < len; i++) {
+          sample = sample_list[i];
+          if (sample.value !== null) {
+            results.push(sample.value);
+          }
+        }
+        return results;
+      })();
+    };
+
+    get_sample_errors = function(sample_list) {
+      var sample;
+      return this.sample_vals = (function() {
+        var i, len, results;
+        results = [];
+        for (i = 0, len = sample_list.length; i < len; i++) {
+          sample = sample_list[i];
+          if (sample.variance !== null) {
+            results.push(sample.variance);
+          }
+        }
+        return results;
+      })();
+    };
+
+    get_sample_names = function(sample_list) {
+      var sample;
+      return this.sample_names = (function() {
+        var i, len, results;
+        results = [];
+        for (i = 0, len = sample_list.length; i < len; i++) {
+          sample = sample_list[i];
+          if (sample.value !== null) {
+            results.push(sample.name);
+          }
+        }
+        return results;
+      })();
+    };
+
+    root.stats_group = 'samples_primary';
+    // Histogram
+    var hist_trace = {
+        x: get_sample_vals(sample_lists[0]),
+        type: 'histogram'
+    };
+    var data = [hist_trace];
+    var layout = {
+      bargap: 0.05,
+      title: "Sample Values",
+      xaxis: {title: "Value"},
+      yaxis: {title: "Count"},
+      margin: {
+          l: 50,
+          r: 30,
+          t: 100,
+          b: 60
+      }
+    };
+    Plotly.newPlot('histogram', data, layout)
+
+    // Bar Chart
+    console.log("SAMPLE LISTS:", sample_lists)
+    var bar_trace = {
+        x: get_sample_names(sample_lists[0]),
+        y: get_sample_vals(sample_lists[0]),
+        error_y: {
+            type: 'data',
+            array: get_sample_errors(sample_lists[0]),
+            visible: true
+        },
+        type: 'bar'
+    };
+    root.bar_data = [bar_trace]
+    var layout = {
+        width: 1200,
+        height: 500,
+        margin: {
+            l: 50,
+            r: 30,
+            t: 30,
+            b: 80
+        }
+    };
+    root.bar_layout = layout
+    Plotly.newPlot('bar_chart', root.bar_data, layout)
+
+    if (Object.keys(js_data.sample_group_types).length > 1) {
+        full_sample_lists = [sample_lists[0], sample_lists[1], sample_lists[0].concat(sample_lists[1])]
+        sample_group_list = [js_data.sample_group_types['samples_primary'], js_data.sample_group_types['samples_other'], js_data.sample_group_types['samples_all']]
+    } else {
+        full_sample_lists = [sample_lists[0]]
+        sample_group_list = [js_data.sample_group_types['samples_primary']]
+    }
+
+    data = []
+    for ( var i = 0; i < full_sample_lists.length; i ++ ) {
+        var box_trace = {
+            type: 'box',
+            y: get_sample_vals(full_sample_lists[i]),
+            name: sample_group_list[i],
+            boxpoints: 'all',
+            jitter: 0.5,
+            whiskerwidth: 0.2,
+            fillcolor: 'cls',
+            marker: {
+                size: 2
+            },
+            line: {
+                width: 1
+            }
+        };
+        data.push(box_trace)
+    };
+    layout = {
+        title: 'Box Plot',
+        yaxis: {
+            autorange: true,
+            showgrid: true,
+            zeroline: true
+        },
+        margin: {
+            l: 50,
+            r: 30,
+            t: 80,
+            b: 80
+        }
+    };
+
+    Plotly.newPlot('box_plot', data, layout);
+
+    $('.histogram_samples_group').val(root.stats_group);
     $('.histogram_samples_group').change(function() {
-      root.histogram_group = $(this).val();
+      root.stats_group = $(this).val();
       return redraw_histogram();
     });
-    root.bar_chart_group = 'samples_primary';
-    root.bar_chart = new Bar_Chart(sample_lists);
-    $('.bar_chart_samples_group').val(root.bar_chart_group);
+
     $('.bar_chart_samples_group').change(function() {
-      root.bar_chart_group = $(this).val();
+      root.stats_group = $(this).val();
       return redraw_bar_chart();
     });
+    root.bar_sort = "name"
+    $('.sort_by_name').click(function() {
+      root.bar_sort = "name" 
+      return redraw_bar_chart();
+    });
+    $('.sort_by_value').click(function() {
+      root.bar_sort = "value"
+      return redraw_bar_chart();
+    });
+
     root.prob_plot_group = 'samples_primary';
     $('.prob_plot_samples_group').val(root.prob_plot_group);
     $('.prob_plot_samples_group').change(function() {
       root.prob_plot_group = $(this).val();
       return redraw_prob_plot();
     });
+
     make_table();
     edit_data_change();
     $('#edit_sample_lists').change(edit_data_change);
+    $('.edit_sample_value').change(edit_data_change);
     $('#block_by_index').click(edit_data_change);
     $('#exclude_group').click(edit_data_change);
     $('#block_outliers').click(edit_data_change);

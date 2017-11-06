@@ -58,6 +58,9 @@ from pprint import pformat as pf
 
 from flask import Flask, g
 
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
+
 METHOD_SAMPLE_PEARSON = "1"
 METHOD_SAMPLE_RANK = "2"
 METHOD_LIT = "3"
