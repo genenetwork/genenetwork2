@@ -1800,9 +1800,10 @@ class MarkerRegression(object):
                             distScale = 10
                         else:
                             distScale = 5
-                    for tickdists in range(distScale, int(ceil(distLen)), distScale):
+                    for i, tickdists in enumerate(range(distScale, int(ceil(distLen)), distScale)):
                         canvas.drawLine(startPosX + tickdists*plotXScale, yZero, startPosX + tickdists*plotXScale, yZero + 7, color=pid.black, width=1*zoom)
-                        canvas.drawString(str(tickdists), startPosX+tickdists*plotXScale, yZero + 10*zoom, color=pid.black, font=MBLabelFont, angle=270)
+                        if i % 2 == 0:
+                            canvas.drawString(str(tickdists), startPosX+tickdists*plotXScale, yZero + 10*zoom, color=pid.black, font=MBLabelFont, angle=270)
                     startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
             megabaseLabelFont = pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
@@ -2736,9 +2737,9 @@ class MarkerRegression(object):
                                                "Human Chr",
                                                "Mb Start (hg19)",
                                                "Literature Correlation",
-                                               "Gene Description",
-                                               "PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(),
-                                               "Gene Weaver Info Content" + HT.Href(url='http://geneweaver.org/', text='>>', target="_blank").__str__()]
+                                               "Gene Description"]
+                                               #"PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(),
+                                               #"Gene Weaver Info Content" + HT.Href(url='http://geneweaver.org/', text='>>', target="_blank").__str__()]
 
                 # gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
                         # THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
@@ -2767,9 +2768,9 @@ class MarkerRegression(object):
                                           "Avg Expr",
                                           "Human Chr",
                                           "Mb Start (hg19)",
-                                          "Gene Description",
-                                          "PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(),
-                                          "Gene Weaver Info Content" + HT.Href(url='http://geneweaver.org/', text='>>', target="_blank").__str__()]
+                                          "Gene Description"]
+                                          #"PolymiRTS Database" + HT.Href(url='http://compbio.uthsc.edu/miRSNP/', text='>>', target="_blank").__str__(),
+                                          #"Gene Weaver Info Content" + HT.Href(url='http://geneweaver.org/', text='>>', target="_blank").__str__()]
 
                 # gene_tblobj_header = [[THCell(HT.TD('Index', HT.BR(), HT.BR(), align='left', width=50, Class=col_class), text="index", idx=0),
                         # THCell(HT.TD('Symbol', HT.BR(), HT.BR(), align='left', width=100, Class=col_class), text="symbol", idx=1),
@@ -2945,9 +2946,9 @@ class MarkerRegression(object):
                                     humanChr,
                                     HT.Href(humanStartString, humanStartDisplay, target="_blank").__str__(),
                                     literatureCorrelationString,
-                                    geneDescription,
-                                    polymiRTS,
-                                    ""]
+                                    geneDescription]
+                                    #polymiRTS,
+
 
                         # this_row.append(TDCell(HT.TD(tableIterationsCnt, selectCheck, width=30, align='right', Class=className), tableIterationsCnt, tableIterationsCnt))
                         # this_row.append(TDCell(HT.TD(HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank"), "&nbsp;", probeSetSearch, align='right', Class=className), theGO["GeneSymbol"], theGO["GeneSymbol"]))
@@ -2975,9 +2976,8 @@ class MarkerRegression(object):
                                     avgExpr,
                                     humanChr,
                                     HT.Href(humanStartString, humanStartDisplay, target="_blank").__str__(),
-                                    geneDescription,
-                                    polymiRTS,
-                                    ""]
+                                    geneDescription]
+                                    #polymiRTS,
 
 
                         # this_row.append(TDCell(HT.TD(tableIterationsCnt, selectCheck, width=30, align='right', Class=className), tableIterationsCnt, tableIterationsCnt))

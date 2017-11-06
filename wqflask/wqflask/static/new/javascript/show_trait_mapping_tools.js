@@ -229,6 +229,7 @@
       //$("#static_progress_bar_container").modal();
       url = "/loading";
       $('input[name=method]').val("gemma");
+      $('input[name=genofile]').val($('#genofile_gemma').val());
       $('input[name=maf]').val($('input[name=maf_gemma]').val());
       form_data = $('#trait_data_form').serialize();
       console.log("form_data is:", form_data);
@@ -244,6 +245,7 @@
       //$("#static_progress_bar_container").modal();
       url = "/loading";
       $('input[name=method]').val("gemma_bimbam");
+      $('input[name=genofile]').val($('#genofile_gemma').val());
       $('input[name=maf]').val($('input[name=maf_gemma]').val());
       form_data = $('#trait_data_form').serialize();
       console.log("form_data is:", form_data);

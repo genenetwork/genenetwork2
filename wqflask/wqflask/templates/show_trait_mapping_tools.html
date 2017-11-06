@@ -296,6 +296,18 @@
                 </div>
                 <div class="tab-pane" id="gemma">
                     <div style="padding-top: 10px;" class="form-horizontal">
+                        {% if genofiles and genofiles|length>0 %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                                <select id="genofile_gemma" class="form-control">
+                                    {% for item in genofiles %}
+                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="mapping_method_fields form-group">
                             <label for="maf_gemma" class="col-xs-5 control-label">Minor allele threshold</label>
                             <div style="margin-left: 20px;" class="col-xs-3 controls">
@@ -340,6 +352,18 @@
                 {% if mapping_method == "GEMMA" %}
                 <div class="tab-pane active" id="gemma_plink">
                     <div style="padding-top: 10px;" class="form-horizontal">
+                        {% if genofiles and genofiles|length>0 %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                                <select id="genofile_gemma" class="form-control">
+                                    {% for item in genofiles %}
+                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="mapping_method_fields form-group">
                             <label for="maf_gemma" class="col-xs-5 control-label">Minor allele threshold</label>
                             <div style="margin-left: 20px;" class="col-xs-3 controls">

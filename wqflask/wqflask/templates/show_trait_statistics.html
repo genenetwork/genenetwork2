@@ -18,16 +18,15 @@
                     <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
                 </li>
                 {% endif %}
-                <!--
                 <li>
                     <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
-                </li>-->
+                </li>
             </ul>
 
             <div class="tab-content">
                 <div class="tab-pane active" id="stats_tab">
                     <div style="padding: 20px;" class="form-horizontal">
-                            <table id="stats_table" style="width: 450px; float: left;" class="table table-hover table-striped table-bordered"></table>
+                            <table id="stats_table" style="width: {{ stats_table_width }}px; float: left;" class="table table-hover table-striped table-bordered"></table>
                     </div>
                 </div>   
                 <div class="tab-pane" id="histogram_tab">
@@ -80,7 +79,7 @@
                             </button>
                         </div>
                         {% endif %}
-                    </div>
+                        <!--
                         <div class="row" style="position:relative">
                           <div id="bar_chart_legend" style="margin-left: 150px; margin-top:20px; position: absolute;">
                             <span id="legend-left"></span>
@@ -91,6 +90,11 @@
                         <div style="margin-left: 20px; margin-right: 20px;" class="row" id="bar_chart_container">
                             <svg></svg>
                         </div>
+                        -->
+                        <div id="bar_chart_container">
+                            <div id="bar_chart"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="tab-pane" id="probability_plot">
                     <div style="padding: 20px" class="form-horizontal">
@@ -119,21 +123,11 @@
                     </div>
 
                 </div>
-<!--
                 <div class="tab-pane" id="box_plot_tab">
-                    {% if sample_groups|length > 1 %}
-                    <select class="box_plot_samples_group">
-                        {% for group, pretty_group in sample_group_types.items() %}
-                            <option value="{{ group }}">{{ pretty_group }}</option>
-                        {% endfor %}
-                    </select>
-                    <br><br>
-                    {% endif %}
                     <div id="box_plot_container">
                         <div id="box_plot"></div>
                     </div>
                 </div>
--->
                 {% if g.user_session.user_ob %}
                 <div class="tab-pane" id="scatterplot_matrix">
                     

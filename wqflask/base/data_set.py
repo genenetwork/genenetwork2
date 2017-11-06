@@ -111,7 +111,7 @@ Publish or ProbeSet. E.g.
                             new_type = "ProbeSet"
                         self.datasets[short_dataset_name] = new_type
         # Set LOG_LEVEL_DEBUG=5 to see the following:
-        logger.debugf(5,"datasets",self.datasets)
+        logger.debugf(5, "datasets",self.datasets)
 
     def __call__(self, name):
         return self.datasets[name]
@@ -426,13 +426,15 @@ def datasets(group_name, this_group = None):
           FROM PublishFreeze,InbredSet
           WHERE PublishFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name = '%s'
-            and PublishFreeze.public > %s)
+            and PublishFreeze.public > %s
+            and PublishFreeze.confidentiality < 1)
          UNION
          (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
           FROM GenoFreeze, InbredSet
           WHERE GenoFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name = '%s'
-            and GenoFreeze.public > %s)
+            and GenoFreeze.public > %s
+            and GenoFreeze.confidentiality < 1)
          UNION
          (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
           FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
@@ -441,6 +443,7 @@ def datasets(group_name, this_group = None):
             and ProbeFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name like %s
             and ProbeSetFreeze.public > %s
+            and ProbeSetFreeze.confidentiality < 1
           ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
         ''' % (group_name, webqtlConfig.PUBLICTHRESH,
               group_name, webqtlConfig.PUBLICTHRESH,
