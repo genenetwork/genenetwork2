@@ -49,17 +49,19 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
     else:
         if use_loco == "True":
             k_output_filename = this_dataset.group.name + "_K_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-            generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -gk -debug > /home/zas1024/tmp/gn2/%s.json' % (flat_files('genotype/bimbam'),
+            generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -gk -debug > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
                                                                                             genofile_name,
                                                                                             flat_files('genotype/bimbam'),
                                                                                             genofile_name,
                                                                                             flat_files('genotype/bimbam'),
                                                                                             genofile_name,
+                                                                                            TEMPDIR,
                                                                                             k_output_filename)
             logger.debug("k_command:" + generate_k_command)
             os.system(generate_k_command)
 
-            gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input /home/zas1024/tmp/gn2/%s.json -- -g %s/%s_geno.txt -p %s/%s_pheno.txt' % (k_output_filename,
+            gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input %s/gn2/%s.json -- -g %s/%s_geno.txt -p %s/%s_pheno.txt' % (TEMPDIR,
+                                                                                            k_output_filename,
                                                                                             flat_files('genotype/bimbam'),
                                                                                             genofile_name,
                                                                                             flat_files('genotype/bimbam'),
@@ -67,14 +69,16 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
 
             gwa_output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
             if covariates != "":
-                gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > /home/zas1024/tmp/gn2/%s.json' % (flat_files('mapping'),
+                gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > %s/gn2/%s.json' % (flat_files('mapping'),
                                                                                                                                          this_dataset.group.name,
                                                                                                                                          flat_files('genotype/bimbam'),
                                                                                                                                          genofile_name,
+                                                                                                                                         TEMPDIR,
                                                                                                                                          gwa_output_filename)
             else:
-                gemma_command += ' -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > /home/zas1024/tmp/gn2/%s.json' % (flat_files('genotype/bimbam'),
+                gemma_command += ' -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
                                                                                                                  genofile_name,
+                                                                                                                 TEMPDIR,
                                                                                                                  gwa_output_filename)
 
         else:
