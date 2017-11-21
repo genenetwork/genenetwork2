@@ -7,7 +7,7 @@
 .nvd3 .nv-axis.nv-y text {
   font-size: 16px;
   font-weight: normal;
-  fill:black;
+  fill: black;
 }
 
 .nv-x .nv-axis g path.domain {
@@ -29,7 +29,8 @@
 }
 
 line.nv-regLine {
-    stroke: red !important;
+    stroke: red;
+    stroke-width: 1;
 }
 
 .nv-axisMin-x,
