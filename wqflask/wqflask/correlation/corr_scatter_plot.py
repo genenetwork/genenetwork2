@@ -67,9 +67,17 @@ class CorrScatterPlot(object):
         x = np.array(vals_1)
         y = np.array(vals_2)
         slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+        
+        rx = stats.rankdata(x)
+        ry = stats.rankdata(y)        
+        self.rdata = []
+        self.rdata.append(rx.tolist())
+        self.rdata.append(ry.tolist())        
+        srslope, srintercept, srr_value, srp_value, srstd_err = stats.linregress(rx, ry)
 
         self.js_data = dict(
             data = self.data,
+            rdata = self.rdata,
             indIDs = self.indIDs,
             trait_1 = self.trait_1.dataset.name + ": " + str(self.trait_1.name),
             trait_2 = self.trait_2.dataset.name + ": " + str(self.trait_2.name),
@@ -78,10 +86,17 @@ class CorrScatterPlot(object):
             num_overlap = num_overlap,
             vals_1 = vals_1,
             vals_2 = vals_2,
+            
             slope = slope,
             intercept = intercept,
             r_value = r_value,
             p_value = p_value,
+            
+            srslope = srslope,
+            srintercept = srintercept,
+            srr_value = srr_value,
+            srp_value = srp_value,
+            
             width = width,
             height = height,
             circle_color = circle_color,
