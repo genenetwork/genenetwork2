@@ -15,6 +15,7 @@
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
         <input type="hidden" name="genofile" value="{{ genofile_string }}">
+        <input type="hidden" name="results_path" value="{{ mapping_results_path }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
         {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
@@ -46,6 +47,9 @@
               {% if genofile_string is defined %}
               <b>Genotypes:</b> {{ genofile_string.split(":")[1] }}
               {% endif %}
+              <br>
+              <br>
+              <a href="javascript:export_mapping_results();" target="_blank" >Download Full Results</a>
           </div>
           <div id="gn1_map_options" class="col-xs-5" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
             <div class="col-xs-8" style="padding: 0px;">
@@ -406,6 +410,11 @@
             return $('#marker_regression_form').submit();
         }
         {% endif %}
+
+        export_mapping_results = function() {
+            $('#marker_regression_form').attr('action', '/export_mapping_results');
+            return $('#marker_regression_form').submit();
+        }
 
     </script>
 

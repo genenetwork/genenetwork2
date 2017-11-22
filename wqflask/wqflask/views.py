@@ -557,6 +557,7 @@ def marker_regression_page():
         'trait_id',
         'dataset',
         'method',
+        'mapping_results_path',
         'trimmed_markers',
         'selected_chr',
         'chromosomes',
@@ -671,6 +672,18 @@ def marker_regression_page():
             # rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
 
     return rendered_template
+
+@app.route("/export_mapping_results", methods = ('POST',))
+def export_mapping_results():
+    logger.info("request.form:", request.form)
+    logger.error(request.url)
+    file_path = request.form.get("results_path")
+    results_csv = open(file_path, "r").read()
+    response = Response(results_csv,
+                        mimetype='text/csv',
+                        headers={"Content-Disposition":"attachment;filename=mapping_results.csv"})
+
+    return response
 
 
 @app.route("/export", methods = ('POST',))

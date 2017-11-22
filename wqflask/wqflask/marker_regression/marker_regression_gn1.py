@@ -178,6 +178,7 @@ class MarkerRegression(object):
         self.samples = start_vars['samples']
         self.vals = start_vars['vals']
         self.mapping_method = start_vars['mapping_method']
+        self.mapping_results_path = start_vars['mapping_results_path']
         if self.mapping_method == "rqtl_geno":
             self.mapmethod_rqtl_geno = start_vars['method']
             self.mapmodel_rqtl_geno = start_vars['model']
