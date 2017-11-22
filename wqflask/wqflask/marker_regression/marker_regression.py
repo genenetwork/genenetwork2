@@ -7,6 +7,7 @@ from pprint import pformat as pf
 
 import string
 import math
+import random
 import sys
 import datetime
 import os
@@ -30,6 +31,7 @@ from flask import Flask, g
 from base.trait import GeneralTrait
 from base import data_set
 from base import species
+from base import webqtlConfig
 from utility import webqtlUtil
 from utility import helper_functions
 from utility import Plot, Bunch
@@ -78,6 +80,12 @@ class MarkerRegression(object):
                     self.vals.append(value)
 
         self.mapping_method = start_vars['method']
+        if "results_path" in start_vars:
+            self.mapping_results_path = start_vars['results_path']
+        else:
+            mapping_results_filename = self.dataset.group.name + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            self.mapping_results_path = "{}{}.csv".format(webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
+
         if start_vars['manhattan_plot'] == "True":
             self.manhattan_plot = True
         else:
@@ -268,6 +276,8 @@ class MarkerRegression(object):
                         highest_chr = marker['chr']
                     if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                         self.qtl_results.append(marker)
+
+            export_mapping_results(self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
 
             self.trimmed_markers = trim_markers_for_table(results)
 
@@ -597,6 +607,32 @@ def create_snp_iterator_file(group):
 
     with gzip.open(snp_file_base, "wb") as fh:
         pickle.dump(data, fh, pickle.HIGHEST_PROTOCOL)
+
+def export_mapping_results(markers, results_path, mapping_scale, score_type):
+    with open(results_path, "w+") as output_file:
+        output_file.write("Name\tChr\t")
+        if mapping_scale == "physic":
+            output_file.write("Mb\t" + score_type)
+        else:
+            output_file.write("Cm\t" + score_type)
+        if "additive" in markers[0].keys():
+            output_file.write("\tAdditive")
+        if "dominance" in markers[0].keys():
+            output_file.write("\tDominance")
+        output_file.write("\n")
+        for i, marker in enumerate(markers):
+            logger.debug("THE MARKER:", marker)
+            output_file.write(marker['name'] + "\t" + str(marker['chr']) + "\t" + str(marker['Mb']) + "\t")
+            if "lod_score" in marker.keys():
+                output_file.write(str(marker['lod_score']))
+            else:
+                output_file.write(str(marker['lrs_value']))
+            if "additive" in marker.keys():
+                output_file.write("\t" + str(marker['additive']))
+            if "dominance" in marker.keys():
+                output_file.write("\t" + str(marker['dominance']))
+            if i < (len(markers) - 1):
+                output_file.write("\n")
 
 def trim_markers_for_table(markers):
     num_markers = len(markers)
