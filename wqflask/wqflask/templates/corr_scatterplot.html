@@ -12,114 +12,12 @@
 {% endblock %}
 
 {% block content %}
-<!--<form action="" method="get">
-<input type="hidden" name="dataset_1" value="{{data_set_1.name}}">
-<input type="hidden" name="dataset_2" value="{{data_set_2.name}}">
-<input type="hidden" name="trait_1" value="{{trait_1.name}}">
-<input type="hidden" name="trait_2" value="{{trait_2.name}}">
-<table class="table" style="width: auto;">
-    <tr>
-        <td>Canvas Width</td>
-        <td>Canvas Height</td>
-        <td>Circle Color</td>
-        <td>Circle Radius</td>
-        <td>Line Color</td>
-        <td>Line Width</td>
-        <td rowspan="2" style="vertical-align:middle;"><button type="submit" class="btn btn-primary"><i class="icon-refresh"></i>Redraw</button></td>
-    </tr>
-    <tr>
-        <td><input type="text" name="width" value="{{width}}" style="width: 100px;"></td>
-        <td><input type="text" name="height" value="{{height}}" style="width: 100px;"></td>
-        <td>
-            <select name="circle_color" style="width: 100px;">
-                <option value="red">Red</option>
-                <option value="green">Green</option>
-                <option value="blue">Blue</option>
-            </select>
-        </td>
-        <td><input type="text" name="circle_radius" value="{{circle_radius}}" style="width: 100px;"></td>
-        <td>
-            <select name="line_color" style="width: 100px;">
-                <option value="red">Red</option>
-                <option value="green">Green</option>
-                <option value="blue">Blue</option>
-            </select>
-        </td>
-        <td><input type="text" name="line_width" value="{{line_width}}" style="width: 100px;"></td>
-    </tr>
-</table>
-</form>-->
+
 <div class="container-fluid">
 
 <h2>Correlation Scatterplot</h2>
 
-<!--
-<table class="table">
-	<tr>
-		<td>Correlation Line Width</td>
-		<td><input type="text" name="lastname" value="2" style="width: 44px;"> px</td>
-	</tr>
-	<tr>
-		<td>Correlation Line Color</td>
-		<td><input type="color" name="favcolor" value="#000000"></td>
-	</tr>
-	<tr>
-		<td>Dot Stroke</td>
-		<td><input type="text" name="lastname" value="5" style="width: 44px;"> px</td>
-	</tr>
-	<tr>
-		<td>Dot Color</td>
-		<td><input type="color" name="favcolor" value="#ff0000"></td>
-	</tr>
-</table>
--->
-
-<div id="scatterplot2">
-	<svg style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
-</div>
-
-<br>
-
-<h2>Correlation Scatterplot</h2>
-
-<table class="table">
-	<tbody>
-		<tr><th class="text-right">num overlap</th>	<td>{{jsdata.num_overlap}}</td></tr>
-		<tr><th class="text-right">slope</th>		<td>{{jsdata.slope}}</td></tr>
-		<tr><th class="text-right">intercept</th>	<td>{{jsdata.intercept}}</td></tr>
-		<tr><th class="text-right">r value</th>		<td>{{jsdata.r_value}}</td></tr>
-		<tr><th class="text-right">p value</th>		<td>{{jsdata.p_value}}</td></tr>
-	</tbody>
-</table>
-
-<!--
-<table class="table">
-	<tr>
-		<td>Correlation Line Width</td>
-		<td><input type="text" name="lastname" value="2" style="width: 44px;"> px</td>
-	</tr>
-	<tr>
-		<td>Correlation Line Color</td>
-		<td><input type="color" name="favcolor" value="#000000"></td>
-	</tr>
-	<tr>
-		<td>Dot Stroke</td>
-		<td><input type="text" name="lastname" value="5" style="width: 44px;"> px</td>
-	</tr>
-	<tr>
-		<td>Dot Color</td>
-		<td><input type="color" name="favcolor" value="#ff0000"></td>
-	</tr>
-</table>
--->
-
-<div id="scatterplot2">
-	<svg style="width: 1000px; height: 800px;"></svg>
-</div>
-
-<br>
-
-<div style="margin-left: 75px;">
+<div style="margin-left: 0px;">
 
     {% if trait_1.dataset.type == "ProbeSet" %}
 		<div>
@@ -175,15 +73,206 @@
 
 <br>
 
-<table class="table table-hover table-striped table-bordered" style="width: 250px; margin-left: 80px;">
+<table class="table">
+	<tr>
+    
+        <td>Axis X Color</td>
+		<td><input class="chartupdate" id="axisxcolor" type="color" value="#000000"></td>
+        
+        <td>Axis X Font</td>
+		<td><input class="chartupdate" id="axisxfont" type="text" value="16" style="width: 44px;"> px</td>
+        
+        <td>Domain X Color</td>
+		<td><input class="chartupdate" id="domainxcolor" type="color" value="#000000"></td>
+        
+        <td>Domain X Width</td>
+		<td><input class="chartupdate" id="domainxwidth" type="text" value="2" style="width: 44px;"> px</td>
+        
+        <td>Correlation Line Color</td>
+		<td><input class="chartupdate" id="clinecolor" type="color" value="#000000"></td>
+        
+        <td>Axis Line Color</td>
+		<td><input class="chartupdate" id="axiscolor" type="color" value="#000000"></td>
+        
+	</tr>
+	<tr>
+    
+        <td>Axis Y Color</td>
+		<td><input class="chartupdate" id="axisycolor" type="color" value="#000000"></td>
+        
+        <td>Axis Y Font</td>
+		<td><input class="chartupdate" id="axisyfont" type="text" value="16" style="width: 44px;"> px</td>
+        
+        <td>Domain Y Color</td>
+		<td><input class="chartupdate" id="domainycolor" type="color" value="#000000"></td>
+        
+        <td>Domain Y Width</td>
+		<td><input class="chartupdate" id="domainywidth" type="text" value="2" style="width: 44px;"> px</td>
+        
+        <td>Correlation Line Width</td>
+		<td><input class="chartupdate" id="clinewidth" type="text" value="1" style="width: 44px;"> px</td>
+        
+        <td>Axis Line Width</td>
+		<td><input class="chartupdate" id="axiswidth" type="text" value="1" style="width: 44px;"> px</td>
+        
+	</tr>
+</table>
+
+<br>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#tp1" data-toggle="tab">Pearson</a></li>
+    <li>               <a href="#tp2" data-toggle="tab">Spearman Rank</a></li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane active" id="tp1">
+
+<br>
+<table class="table">
+	<tr>
+    
+        <td>Width</td>
+		<td><input class="chartupdatewh" id="width" type="text" value="1000" style="width: 44px;"> px</td>
+    
+        <td>Height</td>
+		<td><input class="chartupdatewh" id="height" type="text" value="800" style="width: 44px;"> px</td>
+        
+		<td>Size</td>
+		<td>
+            <select class="chartupdatedata" id="marksize" style="width: 100px;">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </td>
+	
+		<td>Shape</td>
+		<td>
+            <select class="chartupdatedata" id="markshape" style="width: 100px;">
+                <option value="circle" selected>Circle</option>
+                <option value="cross">Cross</option>
+                <option value="triangle-up">Triangle-up</option>
+                <option value="triangle-down">Triangle-down</option>
+                <option value="diamond">Diamond</option>
+                <option value="square">Square</option>
+            </select>
+        </td>
+        
+	</tr>
+</table>
+
+<div><a id="a_svg_pcs" href="#" onclick="javascript:saveassvg_pcs();" class="btn btn-primary">Save as SVG</a></div>
+
+<div style="width: 1000px; text-align: center;"><h2>Pearson Correlation Scatterplot</h2></div>
+
+<div id="scatterplot2">
+	<svg id="svg_pcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
+</div>
+
+<br>
+
+<div class="alert alert-info" style="width: 200px; margin-left: 80px;">
+    y = {{'%0.3f' % jsdata.slope}} * x + {{'%0.3f' % jsdata.intercept}}
+</div>
+
+<br>
+
+<table class="table table-hover table-striped table-bordered" style="width: 200px; margin-left: 80px; text-align: right;">
+    <thead>
+        <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
+    </thead>
 	<tbody>
-		<tr><th>Number</th>		<td>{{jsdata.num_overlap}}</td></tr>
-		<tr><th>Slope</th>		<td>{{'%0.3f' % jsdata.slope}}</td></tr>
-		<tr><th>Intercept</th>	<td>{{'%0.3f' % jsdata.intercept}}</td></tr>
-		<tr><th>R value</th>	<td>{{'%0.3f' % jsdata.r_value}}</td></tr>
-		<tr><th>P value</th>	<td>{{'%0.3e' % jsdata.p_value}}</td></tr>
+		<tr><td>Number</td>		<td>{{jsdata.num_overlap}}</td></tr>
+		<tr><td>Slope</td>		<td>{{'%0.3f' % jsdata.slope}}</td></tr>
+		<tr><td>Intercept</td>	<td>{{'%0.3f' % jsdata.intercept}}</td></tr>
+		<tr><td>r value</td>	<td>{{'%0.3f' % jsdata.r_value}}</td></tr>
+   		<tr><td>P value</td>	<td>{% if jsdata.p_value < 0.001 %}{{'%0.3e' % jsdata.p_value}}{% else %}{{'%0.3f' % jsdata.p_value}}{% endif %}</td></tr>
 	</tbody>
 </table>
+
+    </div>
+    
+    <div class="tab-pane" id="tp2">
+    
+<br>
+<table class="table">
+	<tr>
+    
+        <td>Width</td>
+		<td><input class="srchartupdatewh" id="srwidth" type="text" value="1000" style="width: 44px;"> px</td>
+    
+        <td>Height</td>
+		<td><input class="srchartupdatewh" id="srheight" type="text" value="800" style="width: 44px;"> px</td>
+        
+		<td>Size</td>
+		<td>
+            <select class="srchartupdatedata" id="srmarksize" style="width: 100px;">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </td>
+    
+		<td>Shape</td>
+		<td>
+            <select class="srchartupdatedata" id="srmarkshape" style="width: 100px;">
+                <option value="circle" selected>Circle</option>
+                <option value="cross">Cross</option>
+                <option value="triangle-up">Triangle-up</option>
+                <option value="triangle-down">Triangle-down</option>
+                <option value="diamond">Diamond</option>
+                <option value="square">Square</option>
+            </select>
+        </td>
+        
+	</tr>
+</table>
+
+<div><a id="a_svg_srcs" href="#" onclick="javascript:saveassvg_srcs();" class="btn btn-primary">Save as SVG</a></div>
+
+<div style="width: 1000px; text-align: center;"><h2>Spearman Rank Correlation Scatterplot</h2></div>
+
+<div id="srscatterplot2">
+	<svg id="svg_srcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
+</div>
+
+<br>
+
+<table class="table table-hover table-striped table-bordered" style="width: 200px; margin-left: 80px; text-align: right;">
+    <thead>
+        <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
+    </thead>
+	<tbody>
+		<tr><td>Number</td>		<td>{{jsdata.num_overlap}}</td></tr>
+		<tr><td>Slope</td>		<td>{{'%0.3f' % jsdata.srslope}}</td></tr>
+		<tr><td>Intercept</td>	<td>{{'%0.3f' % jsdata.srintercept}}</td></tr>
+		<tr><td>r value</td>	<td>{{'%0.3f' % jsdata.srr_value}}</td></tr>
+		<tr><td>P value</td>	<td>{% if jsdata.srp_value < 0.001 %}{{'%0.3e' % jsdata.srp_value}}{% else %}{{'%0.3f' % jsdata.srp_value}}{% endif %}</td></tr>
+	</tbody>
+</table>
+
+    </div>
+    
+</div>
+
+</div>
 
 {% endblock %}
 
@@ -198,4 +287,5 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/colorbrewer.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot-2.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot-2_sr.js"></script>
 {% endblock %}
