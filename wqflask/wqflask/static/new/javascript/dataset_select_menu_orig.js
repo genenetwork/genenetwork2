@@ -24,6 +24,11 @@ $(function() {
     console.log("in populate group");
     species = $('#species').val();
     group_list = this.jdata.groups[species];
+    for (_i = 0, _len = group_list.length; _i < (_len - 1); _i++) {
+       if (group_list[_i][0] == "BXD300"){
+           group_list.splice(_i, 1)
+       }
+    }
     redo_dropdown($('#group'), group_list);
     if ($('#type').length > 0) { //This is to determine if it's the index page or the submit_trait page (which only has species and group selection and no make default option)
       return populate_type();

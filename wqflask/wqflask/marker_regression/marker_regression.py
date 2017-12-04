@@ -277,7 +277,7 @@ class MarkerRegression(object):
                     if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                         self.qtl_results.append(marker)
 
-            export_mapping_results(self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
+            export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
 
             self.trimmed_markers = trim_markers_for_table(results)
 
@@ -608,29 +608,35 @@ def create_snp_iterator_file(group):
     with gzip.open(snp_file_base, "wb") as fh:
         pickle.dump(data, fh, pickle.HIGHEST_PROTOCOL)
 
-def export_mapping_results(markers, results_path, mapping_scale, score_type):
+def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type):
     with open(results_path, "w+") as output_file:
-        output_file.write("Name\tChr\t")
+        output_file.write("Population: " + dataset.group.species.title() + " " + dataset.group.name + "\n")
+        output_file.write("Data Set: " + dataset.fullname + "\n")
+        if dataset.type == "ProbeSet":
+            output_file.write("Gene Symbol: " + trait.symbol + "\n")
+            output_file.write("Location: " + str(trait.chr) + " @ " + str(trait.mb) + " Mb\n")
+        output_file.write("\n")
+        output_file.write("Name,Chr,")
         if mapping_scale == "physic":
-            output_file.write("Mb\t" + score_type)
+            output_file.write("Mb," + score_type)
         else:
-            output_file.write("Cm\t" + score_type)
+            output_file.write("Cm," + score_type)
         if "additive" in markers[0].keys():
-            output_file.write("\tAdditive")
+            output_file.write(",Additive")
         if "dominance" in markers[0].keys():
-            output_file.write("\tDominance")
+            output_file.write(",Dominance")
         output_file.write("\n")
         for i, marker in enumerate(markers):
             logger.debug("THE MARKER:", marker)
-            output_file.write(marker['name'] + "\t" + str(marker['chr']) + "\t" + str(marker['Mb']) + "\t")
+            output_file.write(marker['name'] + "," + str(marker['chr']) + "," + str(marker['Mb']) + ",")
             if "lod_score" in marker.keys():
                 output_file.write(str(marker['lod_score']))
             else:
                 output_file.write(str(marker['lrs_value']))
             if "additive" in marker.keys():
-                output_file.write("\t" + str(marker['additive']))
+                output_file.write("," + str(marker['additive']))
             if "dominance" in marker.keys():
-                output_file.write("\t" + str(marker['dominance']))
+                output_file.write("," + str(marker['dominance']))
             if i < (len(markers) - 1):
                 output_file.write("\n")
 

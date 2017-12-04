@@ -96,13 +96,14 @@ def get_groups(species):
         Cursor.execute("""select InbredSet.Name, InbredSet.FullName from InbredSet,
                        Species,
                        ProbeFreeze, GenoFreeze, PublishFreeze where Species.Name = '%s'
-                       and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300' and
+                       and InbredSet.SpeciesId = Species.Id and
                        (PublishFreeze.InbredSetId = InbredSet.Id
                         or GenoFreeze.InbredSetId = InbredSet.Id
                         or ProbeFreeze.InbredSetId = InbredSet.Id)
                         group by InbredSet.Name
                         order by InbredSet.Name""" % species_name)
-        groups[species_name] = list(Cursor.fetchall())
+        results = Cursor.fetchall()
+        groups[species_name] = list(results)
     return groups
 
 

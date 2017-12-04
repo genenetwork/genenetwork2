@@ -2021,6 +2021,21 @@
                   "UCHSC BXD Whole Brain M430 2.0 (Nov06) RMA"
                ],
                [
+                  "113",
+                  "IBR_M_0606_R",
+                  "INIA Brain mRNA M430 (Jun06) RMA"
+               ],
+               [
+                  "101",
+                  "IBR_M_0106_P",
+                  "INIA Brain mRNA M430 (Jan06) PDNN"
+               ],
+               [
+                  "102",
+                  "IBR_M_0106_R",
+                  "INIA Brain mRNA M430 (Jan06) RMA"
+               ],
+               [
                   "95",
                   "BR_U_1105_P",
                   "UTHSC Brain mRNA U74Av2 (Nov05) PDNN"
@@ -2064,6 +2079,36 @@
                ]
             ],
             "Cerebellum mRNA": [
+               [
+                  "72",
+                  "GCB_M2_0505_R",
+                  "GE-NIAAA Cerebellum mRNA M430v2 (May05) RMA"
+               ],
+               [
+                  "73",
+                  "GCB_M2_0505_P",
+                  "GE-NIAAA Cerebellum mRNA M430v2 (May05) PDNN"
+               ],
+               [
+                  "71",
+                  "GCB_M2_0505_M",
+                  "GE-NIAAA Cerebellum mRNA M430v2 (May05) MAS5"
+               ],
+               [
+                  "56",
+                  "CB_M_0305_R",
+                  "SJUT Cerebellum mRNA M430 (Mar05) RMA"
+               ],
+               [
+                  "55",
+                  "CB_M_0305_P",
+                  "SJUT Cerebellum mRNA M430 (Mar05) PDNN"
+               ],
+               [
+                  "54",
+                  "CB_M_0305_M",
+                  "SJUT Cerebellum mRNA M430 (Mar05) MAS5"
+               ],
                [
                   "46",
                   "CB_M_1004_R",
@@ -2906,6 +2951,39 @@
                   "None",
                   "BXD-BonePublish",
                   "BXD-Bone Published Phenotypes"
+               ]
+            ]
+         },
+         "BXD300": {
+            "Genotypes": [
+               [
+                  "None",
+                  "BXD300Geno",
+                  "BXD300 Genotypes"
+               ]
+            ],
+            "Liver mRNA": [
+               [
+                  "105",
+                  "LV_G_0106_B",
+                  "UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Both Sexes"
+               ],
+               [
+                  "103",
+                  "LV_G_0106_M",
+                  "UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Males"
+               ],
+               [
+                  "104",
+                  "LV_G_0106_F",
+                  "UNC Agilent G4121A Liver LOWESS Stanford (Jan06) Females"
+               ]
+            ],
+            "Phenotypes": [
+               [
+                  "None",
+                  "BXD300Publish",
+                  "BXD300 Published Phenotypes"
                ]
             ]
          },
@@ -3764,6 +3842,10 @@
          [
             "BXD-Bone",
             "BXD Bone"
+         ],
+         [
+            "BXD300",
+            "BXD300"
          ],
          [
             "BXH",
@@ -4903,6 +4985,20 @@
             [
                "Phenotypes",
                "Phenotypes"
+            ]
+         ],
+         "BXD300": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ],
+            [
+               "Genotypes",
+               "Genotypes"
+            ],
+            [
+               "Liver mRNA",
+               "Liver mRNA"
             ]
          ],
          "BXH": [

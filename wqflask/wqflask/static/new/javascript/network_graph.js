@@ -82,7 +82,7 @@ window.onload=function() {
         cy.nodes().qtip({
                             content: function(){
                                 qtip_content = ''
-                                gn_link = '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'</a>'+'</b><br>'
+                                gn_link = '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id.split(":")[0] + '&dataset=' + this.data().id.split(":")[1] + '" >'+this.data().id +'</a>'+'</b><br>'
                                 qtip_content += gn_link
                                 if (typeof(this.data().geneid) !== 'undefined'){
                                     ncbi_link = '<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=' + this.data().geneid + '" >NCBI<a>'+'<br>'
@@ -92,15 +92,8 @@ window.onload=function() {
                                     omim_link = '<a href="http://www.ncbi.nlm.nih.gov/omim/' + this.data().omim + '" >OMIM<a>'+'<br>'
                                     qtip_content += omim_link
                                 }
-                                //qtip_content = gn_link + ncbi_link + omim_link
                                 return qtip_content
-                                //return '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'<a>'+'</b>' 
                             },
-                            // content: {
-                                // title: '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.target() + '&dataset=' + this.dataset() + '" >'+this.target() +'<a>'+'</b>',
-                                // text: this.target,
-                                // button: true
-                            // },
                             position: {
                                 my: 'top center',
                                 at: 'bottom center'
@@ -119,7 +112,7 @@ window.onload=function() {
                                 correlation_line = '<b>Sample r: ' + this.data().correlation + '</b><br>'
                                 p_value_line = 'Sample p(r): ' + this.data().p_value + '<br>'
                                 overlap_line = 'Overlap: ' + this.data().overlap + '<br>'
-                                scatter_plot = '<a href="http://gn2-zach.genenetwork.org/corr_scatter_plot?dataset_1=' + this.data().source_dataset + '&dataset_2=' + this.data().target_dataset + '&trait_1=' + this.data().source + '&trait_2=' + this.data().target + '" >View Scatterplot</a>'
+                                scatter_plot = '<a href="http://gn2-zach.genenetwork.org/corr_scatter_plot?dataset_1=' + this.data().source.split(":")[1] + '&dataset_2=' + this.data().target.split(":")[1] + '&trait_1=' + this.data().source.split(":")[0] + '&trait_2=' + this.data().target.split(":")[0] + '" >View Scatterplot</a>'
                                 return correlation_line + p_value_line + overlap_line + scatter_plot
                             },
                             position: {
