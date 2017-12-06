@@ -101,7 +101,7 @@ def get_groups(species):
                         or GenoFreeze.InbredSetId = InbredSet.Id
                         or ProbeFreeze.InbredSetId = InbredSet.Id)
                         group by InbredSet.Name
-                        order by InbredSet.Name""" % species_name)
+                        order by InbredSet.FullName""" % species_name)
         results = Cursor.fetchall()
         groups[species_name] = list(results)
     return groups

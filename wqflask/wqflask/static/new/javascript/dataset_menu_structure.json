@@ -2218,6 +2218,26 @@
                   "819",
                   "UCLA_BXD_Aor_Jan16",
                   "UCLA BXD Aorta Affy M430 2.0 (Jan16) RMA"
+               ],
+               [
+                  "485",
+                  "EPFL-LISPBXDHeCD0114",
+                  "EPFL/LISP BXD CD Heart Affy Mouse Gene 2.0 ST Gene Level (Jan14) RMA"
+               ],
+               [
+                  "486",
+                  "EPFL-LISPBXDHeHFD0114",
+                  "EPFL/LISP BXD HFD Heart Affy Mouse Gene 2.0 ST Gene Level (Jan14) RMA"
+               ],
+               [
+                  "487",
+                  "EPFL-LISPBXDHeCDEx0114",
+                  "EPFL/LISP BXD CD Heart Affy Mouse Gene 2.0 ST Exon Level (Jan14) RMA"
+               ],
+               [
+                  "488",
+                  "EPFL-LISPBXDHeHFDEx0114",
+                  "EPFL/LISP BXD HFD Heart Affy Mouse Gene 2.0 ST Exon Level (Jan14) RMA"
                ]
             ],
             "Hematopoietic Cells mRNA": [
@@ -3730,6 +3750,10 @@
       ],
       "human": [
          [
+            "HB",
+            "Brain, Aging: AD, HD, Normal Gene Expression (Harvard/Merck)"
+         ],
+         [
             "AD-cases-controls",
             "Brain, Aging: AD, Normal Gene Expression (Liang)"
          ],
@@ -3742,16 +3766,20 @@
             "Brain, Aging: Normal Gene Expression (UCI/Cotman)"
          ],
          [
+            "HCP",
+            "Brain, Cognition, Human Connectome Project"
+         ],
+         [
+            "HSB",
+            "Brain, Development: Normal Gene Expression (Yale/Sestan)"
+         ],
+         [
             "Brain-Normal-NIH-Gibbs",
             "Brain: Normal Gene Expression (NIH/Gibbs)"
          ],
          [
             "CANDLE",
             "Child Development: CANDLE Cohort with Genotypes (TUCI/UTHSC)"
-         ],
-         [
-            "CEPH-2004",
-            "Lymphoblastoid Cells: Gene Expression (CEPH, Williams)"
          ],
          [
             "GTEx",
@@ -3762,14 +3790,6 @@
             "GTEx v5 All Tissues, RNA-Seq with Genotypes"
          ],
          [
-            "HB",
-            "Brain, Aging: AD, HD, Normal Gene Expression (Harvard/Merck)"
-         ],
-         [
-            "HCP",
-            "Brain, Cognition, Human Connectome Project"
-         ],
-         [
             "HLC",
             "Liver: Normal Gene Expression with Genotypes (Merck)"
          ],
@@ -3778,8 +3798,8 @@
             "Lung: Normal Gene Expression (Merck)"
          ],
          [
-            "HSB",
-            "Brain, Development: Normal Gene Expression (Yale/Sestan)"
+            "CEPH-2004",
+            "Lymphoblastoid Cells: Gene Expression (CEPH, Williams)"
          ],
          [
             "Islets-Gerling",
@@ -3804,8 +3824,8 @@
             "B6BTBRF2"
          ],
          [
-            "B6D2",
-            "Glaucoma and Aged Retina, UTHSC"
+            "Linsenbardt-Boehm",
+            "B6D2 EtOH Selected Advanced Intercross"
          ],
          [
             "B6D2F2",
@@ -3816,10 +3836,6 @@
             "B6D2F2 PSU"
          ],
          [
-            "B6D2RI",
-            "BXD Aged"
-         ],
-         [
             "BDF2-1999",
             "BDF2 UCLA"
          ],
@@ -3828,16 +3844,20 @@
             "BDF2-2005"
          ],
          [
-            "BHF2",
-            "BHF2 (Apoe Null) UCLA"
-         ],
-         [
             "BHHBF2",
             "BH/HB F2 UCLA"
          ],
          [
+            "BHF2",
+            "BHF2 (Apoe Null) UCLA"
+         ],
+         [
             "BXD",
             "BXD"
+         ],
+         [
+            "B6D2RI",
+            "BXD Aged"
          ],
          [
             "BXD-Bone",
@@ -3852,8 +3872,8 @@
             "BXH"
          ],
          [
-            "C57BL-6JxC57BL-6NJF2",
-            "Reduced Complexity Cross (B6JxB6N F2)"
+            "CTB6F2",
+            "CastB6/B6Cast F2 UCLA"
          ],
          [
             "CFW",
@@ -3872,10 +3892,6 @@
             "Chronic Mild Stress"
          ],
          [
-            "CTB6F2",
-            "CastB6/B6Cast F2 UCLA"
-         ],
-         [
             "CXB",
             "CXB"
          ],
@@ -3884,16 +3900,16 @@
             "Ethanol-Medicated Stress Reduction"
          ],
          [
+            "B6D2",
+            "Glaucoma and Aged Retina, UTHSC"
+         ],
+         [
             "HS",
             "Heterogeneous Stock"
          ],
          [
             "HS-CC",
             "Heterogeneous Stock Collaborative Cross"
-         ],
-         [
-            "Linsenbardt-Boehm",
-            "B6D2 EtOH Selected Advanced Intercross"
          ],
          [
             "LXS",
@@ -3906,6 +3922,10 @@
          [
             "NZBXFVB-N2",
             "NZB/FVB N2 NCI"
+         ],
+         [
+            "C57BL-6JxC57BL-6NJF2",
+            "Reduced Complexity Cross (B6JxB6N F2)"
          ],
          [
             "Scripps-2013",
@@ -3924,16 +3944,16 @@
       ],
       "rat": [
          [
+            "HXBBXH",
+            "HXB/BXH"
+         ],
+         [
             "HSNIH-Palmer",
             "NIH Heterogeneous Stock (Palmer)"
          ],
          [
             "HSNIH-RGSMC",
             "NIH Heterogeneous Stock (RGSMC 2013)"
-         ],
-         [
-            "HXBBXH",
-            "HXB/BXH"
          ],
          [
             "SRxSHRSPF2",
@@ -3968,7 +3988,7 @@
       ],
       [
          "rat",
-         "Rat (rn3)"
+         "Rat (rn6)"
       ],
       [
          "drosophila",
