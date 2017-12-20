@@ -1,5 +1,11 @@
 #! /bin/bash
 #
+# Typical usage
+#
+#   env GN2_PROFILE=~/opt/genenetwork2-phewas ./bin/genenetwork2
+#
+# Where GN2_PROFILE points to the GNU Guix profile used for deployment.
+#
 # This will run the GN2 server (with default settings if none
 # supplied). Typically you need a GNU Guix profile which is set with
 # an environment variable (this profile is dictated by the
@@ -119,6 +125,9 @@ echo "Starting the redis server:"
 echo -n "dir $TMPDIR
 dbfilename gn2.rdb
 " | redis-server - &
+
+# Overrides for packages that are not yet public (currently r-auwerx)
+export R_LIBS_SITE=$R_LIBS_SITE:$HOME/.Rlibs/das1i1pm54dj6lbdcsw5w0sdwhccyj1a-r-3.3.2/lib/R/lib
 
 # Start the flask server running GN2
 cd $GN2_BASE_DIR/wqflask

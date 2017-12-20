@@ -332,7 +332,7 @@ class DatasetGroup(object):
         if check_plink_gemma():
             marker_class = HumanMarkers
         else:
-            marker_class = Markers            
+            marker_class = Markers
 
         if self.genofile:
             self.markers = marker_class(self.genofile[:-5])

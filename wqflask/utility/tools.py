@@ -147,8 +147,13 @@ def assert_writable_dir(dir):
         fh.close()
         os.remove(fn)
     except IOError:
-        raise Exception('Unable to write test.txt to directory ' + dir )
+        raise Exception('Unable to write test.txt to directory ' + dir)
     return dir
+
+def assert_file(fn):
+    if not valid_file(fn):
+        raise Exception('Unable to find file '+fn)
+    return fn
 
 def mk_dir(dir):
     if not valid_path(dir):
@@ -173,6 +178,9 @@ def locate(name, subdir=None):
             raise Exception("Can not locate "+lookfor)
     if subdir: sys.stderr.write(subdir)
     raise Exception("Can not locate "+name+" in "+base)
+
+def locate_phewas(name, subdir=None):
+    return locate(name,'/phewas/'+subdir)
 
 def locate_ignore_error(name, subdir=None):
     """
@@ -243,11 +251,11 @@ JS_GUIX_PATH       = get_setting('JS_GUIX_PATH')
 JS_GN_PATH         = get_setting('JS_GN_PATH')
 # assert_dir(JS_GN_PATH)
 
-PYLMM_COMMAND         = pylmm_command()
-GEMMA_COMMAND         = gemma_command()
-GEMMA_WRAPPER_COMMAND = gemma_wrapper_command()
-PLINK_COMMAND         = plink_command()
-TEMPDIR               = tempdir() # defaults to UNIX TMPDIR
+PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
+GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
+PLINK_COMMAND      = app_set("PLINK_COMMAND",plink_command())
+TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
+assert_dir(TEMPDIR)
 
 # ---- Handle specific JS modules
 JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("Twitter-Post-Fetcher"))
@@ -267,3 +275,10 @@ if os.environ.get('WQFLASK_OVERRIDES'):
             else:
                 OVERRIDES[k] = cmd
             logger.debug(OVERRIDES)
+
+assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
+assert_dir(get_setting("JS_BIODALLIANCE"))
+assert_file(get_setting("JS_BIODALLIANCE")+"/build/dalliance-all.js")
+assert_file(get_setting("JS_BIODALLIANCE")+"/build/worker-all.js")
+assert_dir(get_setting("JS_TWITTER_POST_FETCHER"))
+assert_file(get_setting("JS_TWITTER_POST_FETCHER")+"/js/twitterFetcher_min.js")
