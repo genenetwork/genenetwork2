@@ -38,6 +38,7 @@ from wqflask import gsearch
 from wqflask import update_search_results
 from wqflask import docs
 from wqflask import news
+from wqflask.submit_bnw import get_bnw_input
 from base.data_set import DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
@@ -760,6 +761,11 @@ def corr_scatter_plot_page():
                                        indent="   ")
     return render_template("corr_scatterplot.html", **template_vars.__dict__)
 
+@app.route("/submit_bnw", methods=('POST',))
+def submit_bnw():
+    logger.error(request.url)
+    template_vars = get_bnw_input(request.form)
+    return render_template("empty_collection.html", **{'tool':'Correlation Matrix'}) 
 
 # Todo: Can we simplify this? -Sam
 def sharing_info_page():

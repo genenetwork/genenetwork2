@@ -14,7 +14,7 @@ def run_plink(this_trait, dataset, species, vals, maf):
     gen_pheno_txt_file(dataset, vals)
     #gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = plink_output_filename)
 
-    plink_command = PLINK_COMMAND + ' --noweb --bfile %s/%s --no-fid --no-parents --no-sex --maf %s --missing-phenotype -9 --out %s/%s --assoc ' % (
+    plink_command = PLINK_COMMAND + ' --noweb --bfile %s/%s --no-pheno --no-fid --no-parents --no-sex --maf %s --out %s%s --assoc ' % (
         flat_files('mapping'), dataset.group.name, maf, TMPDIR, plink_output_filename)
     logger.debug("plink_command:", plink_command)
 
@@ -48,7 +48,7 @@ def gen_pheno_txt_file(this_dataset, vals):
                 this_val = -9
             else:
                 this_val = vals[i]
-            outfile.write(line[1] + " " + line[1] + " " + line[2] + " " + line[3] + " " + line[4] + " " + str(this_val) + "\n")
+            outfile.write("0 " + line[1] + " " + line[2] + " " + line[3] + " " + line[4] + " " + str(this_val) + "\n")
 
 def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = ''):
     ped_sample_list = get_samples_from_ped_file(dataset)
@@ -106,7 +106,7 @@ def parse_plink_output(output_filename, species):
 
     threshold_p_value = 1
 
-    result_fp = open("%s/%s.qassoc"% (TMPDIR, output_filename), "rb")
+    result_fp = open("%s%s.qassoc"% (TMPDIR, output_filename), "rb")
 
     header_line = result_fp.readline()# read header line
     line = result_fp.readline()

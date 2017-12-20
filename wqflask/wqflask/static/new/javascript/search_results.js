@@ -154,11 +154,15 @@ $(function() {
     }
   };
 
+  submit_bnw = function() {
+    trait_data = get_traits_from_table("trait_table", "submit_bnw")
+  }
+
   export_traits = function() {
-    trait_data = get_traits_from_table("trait_table")
+    trait_data = get_traits_from_table("trait_table", "export_csv")
   };
 
-  get_traits_from_table = function(table_name) {
+  get_traits_from_table = function(table_name, destination) {
     trait_table = $('#'+table_name);
     table_dict = {};
 
@@ -199,7 +203,11 @@ $(function() {
     json_table_dict = JSON.stringify(table_dict);
     $('input[name=export_data]').val(json_table_dict);
 
-    $('#export_form').attr('action', '/export_traits_csv');
+    if (destination == "export_csv"){
+        $('#export_form').attr('action', '/export_traits_csv');
+    } else{
+        $('#export_form').attr('action', '/submit_bnw');
+    }
     $('#export_form').submit();
   };
 
@@ -208,6 +216,7 @@ $(function() {
   $("#invert").click(invert);
   $("#add").click(add);
   $("#remove").click(remove);
+  $("#submit_bnw").click(submit_bnw);
   $("#export_traits").click(export_traits);
   $('.trait_checkbox, .btn').click(change_buttons);
 });

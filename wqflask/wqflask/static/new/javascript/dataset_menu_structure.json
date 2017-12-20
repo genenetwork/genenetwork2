@@ -1918,12 +1918,12 @@
                [
                   "797",
                   "EPFL_AdiPro0416",
-                  "EPFL/ETHZ BXD Brown Adipose, Total Tissue Proteome, Chow Diet (Apr16) Light SWATH **"
+                  "EPFL/ETHZ BXD Brown Adipose, Total Tissue Proteome, Chow Diet (Apr16) Light SWATH"
                ],
                [
                   "798",
                   "EPFL_AdiMitPro0416",
-                  "EPFL/ETHZ BXD Brown Adipose, Isolated Mitochondria Proteome, Chow Diet (Apr16) Light SWATH **"
+                  "EPFL/ETHZ BXD Brown Adipose, Isolated Mitochondria Proteome, Chow Diet (Apr16) Light SWATH"
                ]
             ],
             "Adipose mRNA": [
@@ -3583,7 +3583,7 @@
                [
                   "799",
                   "FGUCAS_BAdip0516",
-                  "FGUCAS BXH/HXB Brown Adipose Affy Rat Gene 2.0 ST (May16) log2 **"
+                  "FGUCAS BXH/HXB Brown Adipose Affy Rat Gene 2.0 ST (May16) log2"
                ]
             ],
             "Adrenal Gland mRNA": [
