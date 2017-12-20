@@ -1801,9 +1801,9 @@ class MarkerRegression(object):
                             distScale = 10
                         else:
                             distScale = 5
-                    for i, tickdists in enumerate(range(distScale, int(ceil(distLen)), distScale)):
+                    for j, tickdists in enumerate(range(distScale, int(ceil(distLen)), distScale)):
                         canvas.drawLine(startPosX + tickdists*plotXScale, yZero, startPosX + tickdists*plotXScale, yZero + 7, color=pid.black, width=1*zoom)
-                        if i % 2 == 0:
+                        if j % 2 == 0:
                             canvas.drawString(str(tickdists), startPosX+tickdists*plotXScale, yZero + 10*zoom, color=pid.black, font=MBLabelFont, angle=270)
                     startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
