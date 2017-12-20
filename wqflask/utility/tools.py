@@ -105,7 +105,7 @@ def js_path(module=None):
     try_guix = get_setting("JS_GUIX_PATH")+"/"+module
     if valid_path(try_guix):
         return try_guix
-    raise "No JS path found for "+module+" (check JS_GN_PATH)"
+    raise "No JS path found for "+module+" (if not in Guix check JS_GN_PATH)"
 
 def pylmm_command(guess=None):
     return assert_bin(get_setting("PYLMM_COMMAND",guess))
@@ -247,13 +247,14 @@ USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
 
 GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
 JS_GUIX_PATH       = get_setting('JS_GUIX_PATH')
-# assert_dir(JS_GUIX_PATH) - don't enforce right now
+assert_dir(JS_GUIX_PATH)
 JS_GN_PATH         = get_setting('JS_GN_PATH')
 # assert_dir(JS_GN_PATH)
 
 PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
 GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
 PLINK_COMMAND      = app_set("PLINK_COMMAND",plink_command())
+GEMMA_WRAPPER_COMMAND = gemma_wrapper_command()
 TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
 assert_dir(TEMPDIR)
 
@@ -276,9 +277,9 @@ if os.environ.get('WQFLASK_OVERRIDES'):
                 OVERRIDES[k] = cmd
             logger.debug(OVERRIDES)
 
-assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
-assert_dir(get_setting("JS_BIODALLIANCE"))
-assert_file(get_setting("JS_BIODALLIANCE")+"/build/dalliance-all.js")
-assert_file(get_setting("JS_BIODALLIANCE")+"/build/worker-all.js")
-assert_dir(get_setting("JS_TWITTER_POST_FETCHER"))
-assert_file(get_setting("JS_TWITTER_POST_FETCHER")+"/js/twitterFetcher_min.js")
+# assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
+# assert_dir(get_setting("JS_BIODALLIANCE"))
+# assert_file(get_setting("JS_BIODALLIANCE")+"/build/dalliance-all.js")
+# assert_file(get_setting("JS_BIODALLIANCE")+"/build/worker-all.js")
+# assert_dir(get_setting("JS_TWITTER_POST_FETCHER"))
+assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")
