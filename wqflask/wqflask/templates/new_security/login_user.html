@@ -18,8 +18,22 @@
 
             <a href="/n/register" class="btn btn-primary modalize">Create a new account</a>
 
+	    <hr />
+	    <h4>Login with external services</h4>
 
-            <hr />
+	    {% if external_login: %}
+	    <div>
+	      {% if external_login["github"]: %}
+	      <a href="{{external_login['github']}}" title="Login with GitHub" class="btn btn-info btn-group">Login with Github</a>
+	      {% endif %}
+
+	      {% if external_login["orcid"]: %}
+	      <a href="{{external_login['orcid']}}" title="Login with ORCID" class="btn btn-info btn-group">Login with ORCID</a>
+	      {% endif %}
+	    </div>
+
+	    <hr />
+	    {% endif %}
 
             <h4>Already have an account? Sign in here.</h4>
 
