@@ -251,6 +251,10 @@ assert_dir(JS_GUIX_PATH)
 JS_GN_PATH         = get_setting('JS_GN_PATH')
 # assert_dir(JS_GN_PATH)
 
+GITHUB_AUTH_URL = get_setting('GITHUB_AUTH_URL')
+ORCID_AUTH_URL = get_setting('ORCID_AUTH_URL')
+ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
+
 PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
 GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
 assert(GEMMA_COMMAND is not None)
