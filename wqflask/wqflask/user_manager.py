@@ -506,7 +506,14 @@ class LoginUser(object):
         params = request.form if request.form else request.args
         logger.debug("in login params are:", params)
         if not params:
-            return render_template("new_security/login_user.html")
+            from utility.tools import GITHUB_AUTH_URL, ORCID_AUTH_URL
+            external_login = None
+            if GITHUB_AUTH_URL or ORCID_AUTH_URL:
+                external_login={
+                    "github": GITHUB_AUTH_URL,
+                    "orcid": ORCID_AUTH_URL
+                }
+            return render_template("new_security/login_user.html", external_login=external_login)
         else:
             try:
                 user = model.User.query.filter_by(email_address=params['email_address']).one()
