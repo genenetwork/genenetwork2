@@ -251,7 +251,11 @@ assert_dir(JS_GUIX_PATH)
 JS_GN_PATH         = get_setting('JS_GN_PATH')
 # assert_dir(JS_GN_PATH)
 
+GITHUB_CLIENT_ID = get_setting('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = get_setting('GITHUB_CLIENT_SECRET')
 GITHUB_AUTH_URL = get_setting('GITHUB_AUTH_URL')
+ORCID_CLIENT_ID = get_setting('ORCID_CLIENT_ID')
+ORCID_CLIENT_SECRET = get_setting('ORCID_CLIENT_SECRET')
 ORCID_AUTH_URL = get_setting('ORCID_AUTH_URL')
 ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
 
