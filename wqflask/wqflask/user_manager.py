@@ -494,6 +494,37 @@ def login():
     lu = LoginUser()
     return lu.standard_login()
 
+@app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
+def github_oauth2():
+    from utility.tools import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+    from utility.elasticsearch_tools import get_user_by_unique_column
+    import requests
+    code = request.args.get("code")
+    data = {
+        "client_id": GITHUB_CLIENT_ID,
+        "client_secret": GITHUB_CLIENT_SECRET,
+        "code": code
+    }
+    result = requests.post("https://github.com/login/oauth/access_token", json=data)
+    result_dict = {arr[0]:arr[1] for arr in [tok.split("=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
+
+    github_user = get_github_user_details(result_dict["access_token"])
+    user_details = get_user_by_unique_column("github_id", github_user["id"])
+    if user_details == None:
+        user_details = {
+            "user_id": str(uuid4())
+            , "name": github_user["name"]
+            , "github_id": github_user["id"]
+            , "user_url": github_user["html_url"]
+            , "login_type": "github"
+        }
+    url = "/n/login?type=github"
+    return redirect(url)
+
+def get_github_user_details(access_token):
+    from utility.tools import GITHUB_API_URL
+    result = requests.get(GITHUB_API_URL, params={"access_token":access_token})
+    return result.json()
 
 class LoginUser(object):
     remember_time = 60 * 60 * 24 * 30 # One month in seconds
