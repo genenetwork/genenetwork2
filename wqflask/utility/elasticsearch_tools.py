@@ -20,3 +20,10 @@ def get_user_by_unique_column(column_name, column_value):
     except TransportError as te: 
         pass
     return user_details
+
+def save_user(user, user_id, index="users", doc_type="local"):
+    es = Elasticsearch([{
+        "host": ELASTICSEARCH_HOST
+        , "port": ELASTICSEARCH_PORT
+    }])
+    es.create(index, doc_type, body=user, id=user_id)
