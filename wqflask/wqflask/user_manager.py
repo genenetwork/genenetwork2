@@ -272,15 +272,19 @@ class RegisterUser(object):
         self.errors = []
         self.user = Bunch()
 
-        self.user.email_address = kw.get('email_address', '').strip()
+        self.user.email_address = kw.get('email_address', '').encode("utf-8").strip()
         if not (5 <= len(self.user.email_address) <= 50):
             self.errors.append('Email Address needs to be between 5 and 50 characters.')
 
-        self.user.full_name = kw.get('full_name', '').strip()
+        email_exists = get_user_by_unique_column("email_address", self.user.email_address)
+        if email_exists:
+            self.errors.append('User already exists with that email')
+
+        self.user.full_name = kw.get('full_name', '').encode("utf-8").strip()
         if not (5 <= len(self.user.full_name) <= 50):
             self.errors.append('Full Name needs to be between 5 and 50 characters.')
 
-        self.user.organization = kw.get('organization', '').strip()
+        self.user.organization = kw.get('organization', '').encode("utf-8").strip()
         if self.user.organization and not (5 <= len(self.user.organization) <= 50):
             self.errors.append('Organization needs to be empty or between 5 and 50 characters.')
 
@@ -297,28 +301,11 @@ class RegisterUser(object):
         logger.debug("No errors!")
 
         set_password(password, self.user)
+        self.user.user_id = str(uuid.uuid4())
+        self.user.confirmed = 1
 
         self.user.registration_info = json.dumps(basic_info(), sort_keys=True)
-
-        self.new_user = model.User(**self.user.__dict__)
-        db_session.add(self.new_user)
-
-        try:
-            db_session.commit()
-        except sqlalchemy.exc.IntegrityError:
-            # This exception is thrown if the email address is already in the database
-            # To do: Perhaps put a link to sign in using an existing account here
-            self.errors.append("An account with this email address already exists. "
-                               "Click the button above to sign in using an existing account.")
-            return
-
-        logger.debug("Adding verification email to queue")
-        #self.send_email_verification()
-        VerificationEmail(self.new_user)
-        logger.debug("Added verification email to queue")
-
-        self.thank_you_mode = True
-
+        save_user(self.user.__dict__, self.user.user_id)
 
 def set_password(password, user):
     pwfields = Bunch()
@@ -364,7 +351,7 @@ class VerificationEmail(object):
         verification_code = str(uuid.uuid4())
         key = self.key_prefix + ":" + verification_code
 
-        data = json.dumps(dict(id=user.id,
+        data = json.dumps(dict(id=user.user_id,
                                timestamp=timestamp())
                           )
 
@@ -519,13 +506,15 @@ def github_oauth2():
     if user_details == None:
         user_details = {
             "user_id": str(uuid.uuid4())
-            , "name": github_user["name"]
+            , "name": github_user["name"].encode("utf-8")
             , "github_id": github_user["id"]
-            , "user_url": github_user["html_url"]
+            , "user_url": github_user["html_url"].encode("utf-8")
             , "login_type": "github"
             , "organization": ""
+            , "active": 1
+            , "confirmed": 1
         }
-        save_user(user_details, user_details.get("user_id"))
+        save_user(user_details, user_details["user_id"])
     url = "/n/login?type=github&uid="+user_details["user_id"]
     return redirect(url)
 
@@ -545,7 +534,7 @@ def orcid_oauth2():
         }
         result = requests.post(ORCID_TOKEN_URL, data=data)
         result_dict = json.loads(result.text.encode("utf-8"))
-        print("The dict: ", result_dict);
+
         user_details = get_user_by_unique_column("orcid", result_dict["orcid"])
         if user_details == None:
             user_details = {
@@ -556,6 +545,9 @@ def orcid_oauth2():
                     "/".join(ORCID_AUTH_URL.split("/")[:-2]),
                     result_dict["orcid"])
                 , "login_type": "orcid"
+                , "organization": ""
+                , "active": 1
+                , "confirmed": 1
             }
             save_user(user_details, user_details["user_id"])
         url = "/n/login?type=orcid&uid="+user_details["user_id"]
@@ -582,37 +574,10 @@ class LoginUser(object):
             user.id = user_details["user_id"]
             user.full_name = user_details["name"]
             user.login_type = user_details["login_type"]
-            return self.actual_login_oauth2(user)
+            return self.actual_login(user)
         else:
             flash("Error logging in via OAuth2")
             return make_response(redirect(url_for('login')))
-
-    def actual_login_oauth2(self, user, assumed_by=None, import_collections=None):
-        """The meat of the logging in process"""
-        session_id_signed = self.successful_login_oauth2(user)
-        flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
-        print("IMPORT1:", import_collections)
-        response = make_response(redirect(url_for('index_page', import_collections=import_collections)))
-        if self.remember_me:
-            max_age = self.remember_time
-        else:
-            max_age = None
-        response.set_cookie(UserSession.cookie_name, session_id_signed, max_age=max_age)
-        return response
-
-    def successful_login_oauth2(self, user, assumed_by=None):
-        login_rec = model.Login(user)
-        login_rec.successful = True
-        login_rec.session_id = str(uuid.uuid4())
-        login_rec.assumed_by = assumed_by
-        session_id_signature = actual_hmac_creation(login_rec.session_id)
-        session_id_signed = login_rec.session_id + ":" + session_id_signature
-        logger.debug("session_id_signed:", session_id_signed)
-
-        session = dict(login_time = time.time(),
-                       user_id = user.id,
-                       user_login_type = user.login_type)
-        return session_id_signed
 
     def standard_login(self):
         """Login through the normal form"""
@@ -628,20 +593,23 @@ class LoginUser(object):
                 }
             return render_template("new_security/login_user.html", external_login=external_login)
         else:
-            try:
-                user = model.User.query.filter_by(email_address=params['email_address']).one()
-            except sqlalchemy.orm.exc.NoResultFound:
-                logger.debug("No account exists for that email address")
-                valid = False
-                user = None
-            else:
+            user_details = get_user_by_unique_column("email_address", params["email_address"])
+            user = None
+            if user_details:
+                user = model.User();
+                for key in user_details:
+                    user.__dict__[key] = user_details[key]
+                print("RETRIEVED USER: ", user)
+                valid = False;
+
                 submitted_password = params['password']
                 pwfields = Struct(json.loads(user.password))
-                encrypted = Password(submitted_password,
-                                              pwfields.salt,
-                                              pwfields.iterations,
-                                              pwfields.keylength,
-                                              pwfields.hashfunc)
+                encrypted = Password(
+                    submitted_password,
+                    pwfields.salt,
+                    pwfields.iterations,
+                    pwfields.keylength,
+                    pwfields.hashfunc)
                 logger.debug("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
                 valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
                 logger.debug("valid is:", valid)
@@ -709,8 +677,6 @@ class LoginUser(object):
         else:
             expire_time = THREE_DAYS
         Redis.expire(key, expire_time)
-        db_session.add(login_rec)
-        db_session.commit()
         return session_id_signed
 
     def unsuccessful_login(self, user):
