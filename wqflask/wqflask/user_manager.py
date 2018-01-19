@@ -529,6 +529,40 @@ def github_oauth2():
     url = "/n/login?type=github&uid="+user_details["user_id"]
     return redirect(url)
 
+@app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
+def orcid_oauth2():
+    from uuid import uuid4
+    from utility.tools import ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_TOKEN_URL, ORCID_AUTH_URL
+    code = request.args.get("code")
+    error = request.args.get("error")
+    url = "/n/login"
+    if code:
+        data = {
+            "client_id": ORCID_CLIENT_ID
+            , "client_secret": ORCID_CLIENT_SECRET
+            , "grant_type": "authorization_code"
+            , "code": code
+        }
+        result = requests.post(ORCID_TOKEN_URL, data=data)
+        result_dict = json.loads(result.text.encode("utf-8"))
+        print("The dict: ", result_dict);
+        user_details = get_user_by_unique_column("orcid", result_dict["orcid"])
+        if user_details == None:
+            user_details = {
+                "user_id": str(uuid4())
+                , "name": result_dict["name"]
+                , "orcid": result_dict["orcid"]
+                , "user_url": "%s/%s" % (
+                    "/".join(ORCID_AUTH_URL.split("/")[:-2]),
+                    result_dict["orcid"])
+                , "login_type": "orcid"
+            }
+            save_user(user_details, user_details["user_id"])
+        url = "/n/login?type=orcid&uid="+user_details["user_id"]
+    else:
+        flash("There was an error getting code from ORCID")
+    return redirect(url)
+
 def get_github_user_details(access_token):
     from utility.tools import GITHUB_API_URL
     result = requests.get(GITHUB_API_URL, params={"access_token":access_token})
