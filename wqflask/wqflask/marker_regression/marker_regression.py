@@ -79,6 +79,16 @@ class MarkerRegression(object):
                     self.samples.append(sample)
                     self.vals.append(value)
 
+        #ZS: Check if genotypes exist in the DB in order to create links for markers
+        if "geno_db_exists" in start_vars:
+            self.geno_db_exists = start_vars['geno_db_exists']
+        else:
+          try:
+            geno_dataset = data_set.create_dataset(self.dataset.group.name + "Geno")
+            self.geno_db_exists = "True"
+          except:
+            self.geno_db_exists = "False"
+
         self.mapping_method = start_vars['method']
         if "results_path" in start_vars:
             self.mapping_results_path = start_vars['results_path']

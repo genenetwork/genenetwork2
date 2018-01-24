@@ -174,6 +174,8 @@ class MarkerRegression(object):
         if 'genofile_string' in start_vars:
             self.genofile_string = start_vars['genofile_string']
 
+        self.geno_db_exists = start_vars['geno_db_exists']
+
         #Needing for form submission when doing single chr mapping or remapping after changing options
         self.samples = start_vars['samples']
         self.vals = start_vars['vals']
@@ -576,7 +578,7 @@ class MarkerRegression(object):
         self.gifmap = gifmap.__str__()
 
         self.filename= webqtlUtil.genRandStr("Itvl_")
-        intCanvas.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename), format='jpeg')
+        intCanvas.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename), format='png')
         intImg=HT.Image('/image/'+self.filename+'.png', border=0, usemap='#WebQTLImageMap')
 
         #Scales plot differently for high resolution
@@ -616,7 +618,7 @@ class MarkerRegression(object):
         else:
             showLocusForm = intImg
 
-        if self.permChecked and self.nperm > 0 and not self.multipleInterval and 0 < self.nperm:
+        if (self.permChecked and self.nperm > 0) and not (self.multipleInterval and 0 < self.nperm):
             self.perm_filename = self.drawPermutationHistogram()
             #perm_text_file = self.permutationTextFile()
 
@@ -1200,8 +1202,10 @@ class MarkerRegression(object):
         if self.controlLocus and self.doControl != "false":
             string2 = 'Using %s as control' % self.controlLocus
         else:
-            if self.mapping_method == "gemma":
+            if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
                 string2 = 'Using GEMMA mapping method with no control for other QTLs.'
+            elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
+                string2 = 'Using R/qtl mapping method with no control for other QTLs.'
             elif self.mapping_method == "plink":
                 string2 = 'Using PLINK mapping method with no control for other QTLs.'
             else:
@@ -1963,6 +1967,8 @@ class MarkerRegression(object):
 
             if self.permChecked and self.nperm > 0 and not self.multipleInterval:
                 LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
+            else:
+                LRS_LOD_Max = 1.15*LRS_LOD_Max
 
             #genotype trait will give infinite LRS
             LRS_LOD_Max = min(LRS_LOD_Max, webqtlConfig.MAXLRS)
@@ -2164,10 +2170,7 @@ class MarkerRegression(object):
                 #    Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
-                    if previous_chr_as_int % 2 == 1:
-                        point_color = pid.grey
-                    else:
-                        point_color = pid.black
+                    point_color = pid.black
                     canvas.drawString("5", Xc-canvas.stringWidth("5",font=symbolFont)/2+1,Yc+2,color=point_color, font=symbolFont)
                 else:
                     LRSCoordXY.append((Xc, Yc))

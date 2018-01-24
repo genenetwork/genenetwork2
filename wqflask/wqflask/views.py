@@ -557,6 +557,7 @@ def marker_regression_page():
     wanted = (
         'trait_id',
         'dataset',
+        'geno_db_exists',
         'method',
         'mapping_results_path',
         'trimmed_markers',
