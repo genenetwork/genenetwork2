@@ -27,9 +27,9 @@
 #
 #   env GN2_PROFILE=~/opt/gn-latest-guix WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG ./bin/genenetwork2
 #
-# For production we use gunicorn. Run with
+# For production we use gunicorn. Run with something like
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -gunicorn "--bind 0.0.0.0:8000 --workers=2 --chdir wqflask/gunicorn/ wsgi"
+#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -gunicorn "--bind 0.0.0.0:8000 --workers=1 wsgi"
 
 SCRIPT=$(realpath "$0")
 GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
