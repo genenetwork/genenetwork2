@@ -22,6 +22,14 @@
 # a -c switch, e.g.
 #
 #   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ~/my_overrides.json -c ./wqflask/maintenance/gen_select_dataset.py
+#
+# For development you may want to run
+#
+#   env GN2_PROFILE=~/opt/gn-latest-guix WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG ./bin/genenetwork2
+#
+# For production we use gunicorn. Run with
+#
+#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -gunicorn "--bind 0.0.0.0:8000 --workers=2 --chdir wqflask/gunicorn/ wsgi"
 
 SCRIPT=$(readlink -f "$0")
 GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
@@ -121,6 +129,14 @@ if [ "$1" = '-c' ] ; then
     echo PYTHONPATH=$PYTHONPATH
     echo RUNNING COMMAND $cmd
     python $cmd
+    exit 0
+fi
+if [ "$1" = '-gunicorn' ] ; then
+    cd $GN2_BASE_DIR
+    cmd=${2}
+    echo PYTHONPATH=$PYTHONPATH
+    echo RUNNING COMMAND gunicorn $cmd
+    gunicorn $cmd
     exit 0
 fi
 

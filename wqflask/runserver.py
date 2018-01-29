@@ -1,5 +1,7 @@
 # Starts the webserver with the ./bin/genenetwork2 command
 #
+# This uses Werkzeug WSGI, see gunicorn.py for the alternative
+#
 # Please note, running with host set externally below combined with
 # debug mode is a security risk unless you have a firewall setup, e.g.
 #
