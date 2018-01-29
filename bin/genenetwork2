@@ -86,6 +86,9 @@ else
     export PYLMM_COMMAND="$GN2_PROFILE/bin/pylmm_redis"
     export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
     export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
+    if [ ! -d $PYTHONPATH ] ; then echo "PYTHONPATH not valid "$PYTHONPATH ; exit 1 ; fi
+    if [ ! -d $R_LIBS_SITE ] ; then echo "R_LIBS_SITE not valid "$R_LIBS_SITE ; exit 1 ; fi
+    if [ ! -d $GEM_PATH ] ; then echo "GEM_PATH not valid "$GEM_PATH ; exit 1 ; fi
 fi
 if [ -z $PYTHONPATH ] ; then
     echo "ERROR PYTHONPATH has not been set - use GN2_PROFILE!"
@@ -127,7 +130,7 @@ dbfilename gn2.rdb
 " | redis-server - &
 
 # Overrides for packages that are not yet public (currently r-auwerx)
-export R_LIBS_SITE=$R_LIBS_SITE:$HOME/.Rlibs/das1i1pm54dj6lbdcsw5w0sdwhccyj1a-r-3.3.2/lib/R/lib
+# export R_LIBS_SITE=$R_LIBS_SITE:$HOME/.Rlibs/das1i1pm54dj6lbdcsw5w0sdwhccyj1a-r-3.3.2/lib/R/lib
 
 # Start the flask server running GN2
 cd $GN2_BASE_DIR/wqflask
