@@ -585,13 +585,17 @@ class LoginUser(object):
         logger.debug("in login params are:", params)
         if not params:
             from utility.tools import GITHUB_AUTH_URL, ORCID_AUTH_URL
+            from utility.elasticsearch_tools import es
             external_login = None
             if GITHUB_AUTH_URL or ORCID_AUTH_URL:
                 external_login={
                     "github": GITHUB_AUTH_URL,
                     "orcid": ORCID_AUTH_URL
                 }
-            return render_template("new_security/login_user.html", external_login=external_login)
+            return render_template(
+                "new_security/login_user.html"
+                , external_login=external_login
+                , es_server=es)
         else:
             user_details = get_user_by_unique_column("email_address", params["email_address"])
             user = None

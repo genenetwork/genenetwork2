@@ -1,10 +1,14 @@
-from elasticsearch import Elasticsearch, TransportError
-from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
+es = None
+try:
+    from elasticsearch import Elasticsearch, TransportError
+    from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
 
-es = Elasticsearch([{
-    "host": ELASTICSEARCH_HOST
-    , "port": ELASTICSEARCH_PORT
-}]) 
+    es = Elasticsearch([{
+        "host": ELASTICSEARCH_HOST
+        , "port": ELASTICSEARCH_PORT
+    }]) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
+except:
+    es = None
 
 def get_user_by_unique_column(column_name, column_value):
     user_details = None
