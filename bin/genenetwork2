@@ -22,8 +22,25 @@
 # a -c switch, e.g.
 #
 #   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ~/my_overrides.json -c ./wqflask/maintenance/gen_select_dataset.py
+#
+# For development you may want to run
+#
+#   env GN2_PROFILE=~/opt/gn-latest-guix WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG ./bin/genenetwork2
+#
+# For staging and production we use gunicorn. Run with something like
+# (note you have to provide the server port). Provide a settings file!
+#
+#   env GN2_PROFILE=~/opt/gn-latest-guix SERVER_PORT=5003 ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-prod
+#
+# For development use
+#
+#   env GN2_PROFILE=~/opt/gn-latest-guix SERVER_PORT=5003 ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-dev
+#
+# For extra flexibility you can also provide gunicorn parameters yourself with something like
+#
+#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -gunicorn "--bind 0.0.0.0:5003 --workers=1 wsgi"
 
-SCRIPT=$(readlink -f "$0")
+SCRIPT=$(realpath "$0")
 GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
 GN2_ID=$(cat /etc/hostname):$(basename $GN2_BASE_DIR)
 
@@ -42,15 +59,27 @@ else
 fi
 echo GN_VERSION=$GN_VERSION
 
-# Handle settings parameter (can be .py or .json)
-settings=$1
-ext="${settings##*.}"
-if [ -z "$settings" -o "$ext" = "json" -o "$ext" = "JSON" ]; then
-    overrides=$settings
-    settings=$GN2_BASE_DIR/etc/default_settings.py
-else
-    shift
+if [ "$1" = "-c" -o "$1" = "-gunicorn" ]; then
+    echo "Can not use $1 switch without default settings file"
+    exit 1
 fi
+# Handle settings parameter (can be .py or .json)
+if [ ! -z $1 ]; then
+    settings=$(realpath "$1")
+    if [ ! -e $settings ]; then
+        settings=$GN2_BASE_DIR/etc/default_settings.py
+    else
+        shift
+    fi
+fi
+
+ext="${settings##*.}"
+if [ "$ext" = "json" -o "$ext" = "JSON" ]; then
+    overrides=$settings
+else
+    echo $settings
+fi
+
 if [ ! -e $settings ]; then
     echo "ERROR: can not locate settings file - pass it in the command line"
     exit 1
@@ -86,6 +115,9 @@ else
     export PYLMM_COMMAND="$GN2_PROFILE/bin/pylmm_redis"
     export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
     export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
+    if [ ! -d $PYTHONPATH ] ; then echo "PYTHONPATH not valid "$PYTHONPATH ; exit 1 ; fi
+    if [ ! -d $R_LIBS_SITE ] ; then echo "R_LIBS_SITE not valid "$R_LIBS_SITE ; exit 1 ; fi
+    if [ ! -d $GEM_PATH ] ; then echo "GEM_PATH not valid "$GEM_PATH ; exit 1 ; fi
 fi
 if [ -z $PYTHONPATH ] ; then
     echo "ERROR PYTHONPATH has not been set - use GN2_PROFILE!"
@@ -118,7 +150,33 @@ if [ "$1" = '-c' ] ; then
     echo PYTHONPATH=$PYTHONPATH
     echo RUNNING COMMAND $cmd
     python $cmd
-    exit 0
+    exit $?
+fi
+if [ "$1" = '-gunicorn' ] ; then
+    cd $GN2_BASE_DIR/wqflask
+    cmd=$2
+    echo PYTHONPATH=$PYTHONPATH
+    echo RUNNING gunicorn $cmd
+    gunicorn $cmd
+    exit $?
+fi
+if [ "$1" = '-gunicorn-dev' ] ; then
+    cd $GN2_BASE_DIR/wqflask
+    echo PYTHONPATH=$PYTHONPATH
+    if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
+    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --reload wsgi"
+    echo RUNNING gunicorn $cmd
+    gunicorn $cmd
+    exit $?
+fi
+if [ "$1" = '-gunicorn-prod' ] ; then
+    cd $GN2_BASE_DIR/wqflask
+    echo PYTHONPATH=$PYTHONPATH
+    if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
+    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=32 --max-requests 1000 --timeout 1200 wsgi"
+    echo RUNNING gunicorn $cmd
+    gunicorn $cmd
+    exit $?
 fi
 
 echo "Starting the redis server:"
@@ -127,7 +185,7 @@ dbfilename gn2.rdb
 " | redis-server - &
 
 # Overrides for packages that are not yet public (currently r-auwerx)
-export R_LIBS_SITE=$R_LIBS_SITE:$HOME/.Rlibs/das1i1pm54dj6lbdcsw5w0sdwhccyj1a-r-3.3.2/lib/R/lib
+# export R_LIBS_SITE=$R_LIBS_SITE:$HOME/.Rlibs/das1i1pm54dj6lbdcsw5w0sdwhccyj1a-r-3.3.2/lib/R/lib
 
 # Start the flask server running GN2
 cd $GN2_BASE_DIR/wqflask

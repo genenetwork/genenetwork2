@@ -1,1 +1,0 @@
-from wqflask import app
