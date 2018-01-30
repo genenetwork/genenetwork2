@@ -27,9 +27,18 @@
 #
 #   env GN2_PROFILE=~/opt/gn-latest-guix WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG ./bin/genenetwork2
 #
-# For production we use gunicorn. Run with something like
+# For staging and production we use gunicorn. Run with something like
+# (note you have to provide the server port). Provide a settings file!
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -gunicorn "--bind 0.0.0.0:8000 --workers=1 wsgi"
+#   env GN2_PROFILE=~/opt/gn-latest-guix SERVER_PORT=5003 ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-prod
+#
+# For development use
+#
+#   env GN2_PROFILE=~/opt/gn-latest-guix SERVER_PORT=5003 ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-dev
+#
+# For extra flexibility you can also provide gunicorn parameters yourself with something like
+#
+#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -gunicorn "--bind 0.0.0.0:5003 --workers=1 wsgi"
 
 SCRIPT=$(realpath "$0")
 GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
@@ -55,11 +64,13 @@ if [ "$1" = "-c" -o "$1" = "-gunicorn" ]; then
     exit 1
 fi
 # Handle settings parameter (can be .py or .json)
-settings=$(realpath "$1")
-if [ ! -e $settings ]; then
-    settings=$GN2_BASE_DIR/etc/default_settings.py
-else
-    shift
+if [ ! -z $1 ]; then
+    settings=$(realpath "$1")
+    if [ ! -e $settings ]; then
+        settings=$GN2_BASE_DIR/etc/default_settings.py
+    else
+        shift
+    fi
 fi
 
 ext="${settings##*.}"
@@ -139,12 +150,30 @@ if [ "$1" = '-c' ] ; then
     echo PYTHONPATH=$PYTHONPATH
     echo RUNNING COMMAND $cmd
     python $cmd
-    exit 0
+    exit $?
 fi
 if [ "$1" = '-gunicorn' ] ; then
     cd $GN2_BASE_DIR/wqflask
     cmd=$2
     echo PYTHONPATH=$PYTHONPATH
+    echo RUNNING gunicorn $cmd
+    gunicorn $cmd
+    exit $?
+fi
+if [ "$1" = '-gunicorn-dev' ] ; then
+    cd $GN2_BASE_DIR/wqflask
+    echo PYTHONPATH=$PYTHONPATH
+    if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
+    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --reload wsgi"
+    echo RUNNING gunicorn $cmd
+    gunicorn $cmd
+    exit $?
+fi
+if [ "$1" = '-gunicorn-prod' ] ; then
+    cd $GN2_BASE_DIR/wqflask
+    echo PYTHONPATH=$PYTHONPATH
+    if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
+    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=32 --max-requests 1000 --timeout 1200 wsgi"
     echo RUNNING gunicorn $cmd
     gunicorn $cmd
     exit $?
