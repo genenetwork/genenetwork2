@@ -180,7 +180,7 @@ if [ "$1" = '-gunicorn-dev' ] ; then
     cd $GN2_BASE_DIR/wqflask
     echo PYTHONPATH=$PYTHONPATH
     if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
-    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --reload wsgi"
+    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --timeout 180 --reload wsgi"
     echo RUNNING gunicorn $cmd
     gunicorn $cmd
     exit $?
