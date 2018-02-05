@@ -368,23 +368,33 @@ class ForgotPasswordEmail(VerificationEmail):
     template_name = "email/forgot_password.txt"
     key_prefix = "forgot_password_code"
     subject = "GeneNetwork password reset"
+    fromaddr = "no-reply@genenetwork.org"
 
-    def __init__(self, user):
+    def __init__(self, toaddr):
+        from email.MIMEMultipart import MIMEMultipart
+        from email.MIMEText import MIMEText
         verification_code = str(uuid.uuid4())
         key = self.key_prefix + ":" + verification_code
 
-        data = json.dumps(dict(id=user.id,
-                               timestamp=timestamp())
-                          )
+        # data = json.dumps(dict(id=user.id,
+        #                        timestamp=timestamp())
+        #                   )
 
-        Redis.set(key, data)
-        #two_days = 60 * 60 * 24 * 2
-        Redis.expire(key, THREE_DAYS)
-        to = user.email_address
+        # Redis.set(key, data)
+        # Redis.expire(key, THREE_DAYS)
+
         subject = self.subject
-        body = render_template(self.template_name,
-                               verification_code = verification_code)
-        send_email(to, subject, body)
+        body = render_template(
+            self.template_name,
+            verification_code = verification_code)
+
+        msg = MIMEMultipart()
+        msg["To"] = toaddr
+        msg["Subject"] = self.subject
+        msg["From"] = self.fromaddr
+        msg.attach(MIMEText(body, "plain"))
+
+        send_email(toaddr, msg.as_string())
 
 
 class Password(object):
@@ -708,13 +718,16 @@ def forgot_password():
 def forgot_password_submit():
     params = request.form
     email_address = params['email_address']
-    try:
-        user = model.User.query.filter_by(email_address=email_address).one()
-    except orm.exc.NoResultFound:
-        flash("Couldn't find a user associated with the email address {}. Sorry.".format(
-            email_address))
-        return redirect(url_for("login"))
-    ForgotPasswordEmail(user)
+    user_details = get_user_by_unique_column("email_address", email_address)
+    if user_details:
+        ForgotPasswordEmail(user_details["email_address"])
+    # try:
+    #     user = model.User.query.filter_by(email_address=email_address).one()
+    # except orm.exc.NoResultFound:
+    #     flash("Couldn't find a user associated with the email address {}. Sorry.".format(
+    #         email_address))
+    #     return redirect(url_for("login"))
+    # ForgotPasswordEmail(user)
     return render_template("new_security/forgot_password_step2.html",
                             subject=ForgotPasswordEmail.subject)
 
@@ -861,13 +874,21 @@ app.jinja_env.globals.update(url_for_hmac=url_for_hmac,
 
 #######################################################################################
 
-def send_email(to, subject, body):
-    msg = json.dumps(dict(From="no-reply@genenetwork.org",
-                     To=to,
-                     Subject=subject,
-                     Body=body))
-    Redis.rpush("mail_queue", msg)
+# def send_email(to, subject, body):
+#     msg = json.dumps(dict(From="no-reply@genenetwork.org",
+#                      To=to,
+#                      Subject=subject,
+#                      Body=body))
+#     Redis.rpush("mail_queue", msg)
 
+def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
+    from smtplib import SMTP
+    from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD
+    server = SMTP(SMTP_CONNECT)
+    server.starttls()
+    server.login(SMTP_USERNAME, SMTP_PASSWORD)
+    server.sendmail(fromaddr, toaddr, msg)
+    server.quit()
 
 
 
