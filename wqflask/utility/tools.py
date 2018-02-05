@@ -274,6 +274,10 @@ ORCID_TOKEN_URL = get_setting_safe('ORCID_TOKEN_URL')
 ELASTICSEARCH_HOST = get_setting_safe('ELASTICSEARCH_HOST')
 ELASTICSEARCH_PORT = get_setting_safe('ELASTICSEARCH_PORT')
 
+SMTP_CONNECT = get_setting_safe('SMTP_CONNECT')
+SMTP_USERNAME = get_setting_safe('SMTP_USERNAME')
+SMTP_PASSWORD = get_setting_safe('SMTP_PASSWORD')
+
 PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
 GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
 assert(GEMMA_COMMAND is not None)
