@@ -55,7 +55,7 @@ logger = getLogger(__name__)
 from base.data_set import create_datasets_list
 
 import requests
-from utility.elasticsearch_tools import get_user_by_unique_column, save_user
+from utility.elasticsearch_tools import get_user_by_unique_column, save_user, es_save_data
 
 THREE_DAYS = 60 * 60 * 24 * 3
 #THREE_DAYS = 45
@@ -376,12 +376,12 @@ class ForgotPasswordEmail(VerificationEmail):
         verification_code = str(uuid.uuid4())
         key = self.key_prefix + ":" + verification_code
 
-        # data = json.dumps(dict(id=user.id,
-        #                        timestamp=timestamp())
-        #                   )
-
-        # Redis.set(key, data)
-        # Redis.expire(key, THREE_DAYS)
+        data = {
+            "verification_code": verification_code,
+            "email_address": toaddr,
+            "timestamp": timestamp()
+        }
+        es_save_data(self.key_prefix, "local", data, verification_code)
 
         subject = self.subject
         body = render_template(
@@ -429,38 +429,59 @@ def verify_email():
     response.set_cookie(UserSession.cookie_name, session_id_signed)
     return response
 
-@app.route("/n/password_reset")
+@app.route("/n/password_reset", methods=['GET'])
 def password_reset():
+    from utility.elasticsearch_tools import get_item_by_unique_column
     logger.debug("in password_reset request.url is:", request.url)
 
     # We do this mainly just to assert that it's in proper form for displaying next page
     # Really not necessary but doesn't hurt
-    user_encode = DecodeUser(ForgotPasswordEmail.key_prefix).reencode_standalone()
-
-    return render_template("new_security/password_reset.html", user_encode=user_encode)
+    # user_encode = DecodeUser(ForgotPasswordEmail.key_prefix).reencode_standalone()
+    verification_code = request.args.get('code')
+    hmac = request.args.get('hm')
+    if verification_code:
+        code_details = get_item_by_unique_column(
+            "verification_code",
+            verification_code,
+            ForgotPasswordEmail.key_prefix,
+            "local")
+        if code_details:
+            user_details = get_user_by_unique_column(
+                "email_address",
+                code_details["email_address"])
+            if user_details:
+                return render_template(
+                    "new_security/password_reset.html", user_encode=user_details["user_id"])
+            else:
+                flash("Invalid code: User no longer exists!", "error")
+        else:
+            flash("Invalid code: Password reset code does not exist or might have expired!", "error")
+        return redirect(url_for("login"))#render_template("new_security/login_user.html", error=error)
 
 @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
+    from utility.elasticsearch_tools import es
     logger.debug("in password_reset request.url is:", request.url)
 
     errors = []
+    user_id = request.form['user_encode']
 
-    user_encode = request.form['user_encode']
-    verification_code, separator, hmac = user_encode.partition(':')
-
-    hmac_verified = actual_hmac_creation(verification_code)
     logger.debug("locals are:", locals())
 
 
-    assert hmac == hmac_verified, "Someone has been naughty"
-
-    user = DecodeUser.actual_get_user(ForgotPasswordEmail.key_prefix, verification_code)
-    logger.debug("user is:", user)
-
+    user = Bunch()
     password = request.form['password']
-
     set_password(password, user)
-    db_session.commit()
+
+    es.update(
+        index = "users"
+        , doc_type = "local"
+        , id = user_id
+        , body = {
+            "doc": {
+                "password": user.__dict__.get("password")
+            }
+        })
 
     flash("Password changed successfully. You can now sign in.", "alert-info")
     response = make_response(redirect(url_for('login')))
