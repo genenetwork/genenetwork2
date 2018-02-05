@@ -28,7 +28,9 @@
 -->
     <div class="container">
         <h2>Trait Data and Analysis for <b>{{ this_trait.name }}</b></h2>
+        {% if this_trait.dataset.type != 'Publish' %}
         <h3>{{ this_trait.description_fmt }}</h3>
+        {% endif %}
     </div>
 
     <form method="post" action="/corr_compute" target="_blank" name="trait_page" id="trait_data_form"

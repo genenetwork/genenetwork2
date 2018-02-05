@@ -8,6 +8,22 @@
         <td>Tissue</td>
         <td>{{ this_trait.dataset.tissue }}</td>
     </tr>
+    <tr>
+        <td>Phenotype</td>
+        <td><div style="width:40%;">{{ this_trait.description_fmt }}</div></td>
+    </tr>
+    <tr>
+        <td>Authors</td>
+        <td><div style="width:40%;">{{ this_trait.authors }}</div></td>
+    </tr>
+    <tr>
+        <td>Title</td>
+        <td><div style="width:40%;">{{ this_trait.title }}</div></td>
+    </tr>
+    <tr>
+        <td>Journal</td>
+        <td>{{ this_trait.journal }} (<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ this_trait.pubmed_id }}&dop=Abstract" title="PubMed">{{ this_trait.year }}</a>)</td>
+    </tr>
     {% endif %}
     {% if this_trait.dataset.type == 'ProbeSet' %}
     {% if this_trait.symbol != None %}
@@ -50,22 +66,29 @@
         </td>
     </tr>
     {% endif %}
+    {% if this_trait.pubmed_id or this_trait.geneid or this_trait.omim or this_trait.symbol %}
+    {% if this_trait.dataset.type != 'Publish' %}
     <tr>
         <td>Resource Links</td>
         <td>
-            {% if this_trait.geneid != None %}
+            {% if this_trait.pubmed_id %}
+            <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ this_trait.pubmed_id }}&dop=Abstract" title="PubMed">
+                PubMed
+            </a>
+            {% endif %}
+            {% if this_trait.geneid %}
             <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={{ this_trait.geneid }}" title="Info from NCBI Entrez Gene">
                 NCBI
             </a>
             &nbsp;&nbsp;
             {% endif %}
-            {% if this_trait.omim != None %}
+            {% if this_trait.omim %}
             <a href="http://www.ncbi.nlm.nih.gov/omim/{{ this_trait.omim }}" title="Summary from On Mendelion Inheritance in Man">
                 OMIM
             </a>
             &nbsp;&nbsp;
             {% endif %}
-            {% if this_trait.symbol != None %}
+            {% if this_trait.symbol %}
             <a href="http://www.genotation.org/Getd2g.pl?gene_list={{ this_trait.symbol }}" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
                 Genotation
             </a>
@@ -77,6 +100,8 @@
         {% endif %}
         </td>
     </tr>
+    {% endif %}
+    {% endif %}
 </table>
 
 <div style="margin-bottom:15px;" class="btn-toolbar">

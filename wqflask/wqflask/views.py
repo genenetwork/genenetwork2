@@ -557,6 +557,7 @@ def marker_regression_page():
     wanted = (
         'trait_id',
         'dataset',
+        'geno_db_exists',
         'method',
         'mapping_results_path',
         'trimmed_markers',
@@ -765,7 +766,7 @@ def corr_scatter_plot_page():
 def submit_bnw():
     logger.error(request.url)
     template_vars = get_bnw_input(request.form)
-    return render_template("empty_collection.html", **{'tool':'Correlation Matrix'}) 
+    return render_template("empty_collection.html", **{'tool':'Correlation Matrix'})
 
 # Todo: Can we simplify this? -Sam
 def sharing_info_page():
