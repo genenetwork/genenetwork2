@@ -11,25 +11,27 @@ except:
     es = None
 
 def get_user_by_unique_column(column_name, column_value):
-    user_details = None
+    return get_item_by_unique_column(column_name, column_value, index="users", doc_type="local")
+
+def save_user(user, user_id):
+    es_save_data("users", "local", user, user_id)
+
+def get_item_by_unique_column(column_name, column_value, index, doc_type):
+    item_details = None
     try:
         response = es.search(
-            index = "users"
-            , doc_type = "local"
+            index = index
+            , doc_type = doc_type
             , body = { 
                 "query": { "match": { column_name: column_value } } 
             })
         if len(response["hits"]["hits"]) > 0:
-            user_details = response["hits"]["hits"][0]["_source"]
+            item_details = response["hits"]["hits"][0]["_source"]
     except TransportError as te: 
         pass
-    return user_details
+    return item_details
 
-def save_user(user, user_id, index="users", doc_type="local"):
+def es_save_data(index, doc_type, data_item, data_id,):
     from time import sleep
-    es = Elasticsearch([{
-        "host": ELASTICSEARCH_HOST
-        , "port": ELASTICSEARCH_PORT
-    }])
-    es.create(index, doc_type, body=user, id=user_id)
+    es.create(index, doc_type, body=data_item, id=data_id)
     sleep(1) # Delay 1 second to allow indexing
