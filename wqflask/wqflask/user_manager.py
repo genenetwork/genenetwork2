@@ -626,7 +626,7 @@ class LoginUser(object):
             return render_template(
                 "new_security/login_user.html"
                 , external_login=external_login
-                , es_server=es)
+                , es_server=es.ping())
         else:
             user_details = get_user_by_unique_column("email_address", params["email_address"])
             user = None
