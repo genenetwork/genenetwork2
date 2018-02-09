@@ -7,6 +7,10 @@ try:
         "host": ELASTICSEARCH_HOST
         , "port": ELASTICSEARCH_PORT
     }]) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
+
+    # Check if elasticsearch is running
+    if not es.ping():
+        es = None
 except:
     es = None
 
