@@ -3,7 +3,7 @@ import os, math, string, random, json
 from base import webqtlConfig
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
-from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR, assert_bin
+from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR, assert_bin, assert_file
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
@@ -210,8 +210,13 @@ def parse_gemma_output(genofile_name):
 def parse_loco_output(this_dataset, gwa_output_filename):
 
     output_filelist = []
-    with open("{}/gn2/".format(TEMPDIR) + gwa_output_filename + ".json") as data_file:
-       data = json.load(data_file)
+    jsonfn = "{}/gn2/".format(TEMPDIR) + gwa_output_filename + ".json"
+    assert_file(jsonfn)
+    try:
+        with open(jsonfn) as data_file:
+            data = json.load(data_file)
+    except:
+        logger.error("Can not parse "+jsonfn)
 
     files = data['files']
     for file in files:
