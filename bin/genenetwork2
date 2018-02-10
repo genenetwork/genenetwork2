@@ -121,7 +121,7 @@ else
     export PLINK_COMMAND="$GN2_PROFILE/bin/plink2"
     export PYLMM_COMMAND="$GN2_PROFILE/bin/pylmm_redis"
     export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
-    if [ -z GEMMA_WRAPPER_COMMAND ]; then
+    if [ -z $GEMMA_WRAPPER_COMMAND ]; then
         export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
     fi
     if [ ! -d $PYTHONPATH ] ; then echo "PYTHONPATH not valid "$PYTHONPATH ; exit 1 ; fi
