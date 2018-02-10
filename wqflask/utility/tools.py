@@ -278,8 +278,4 @@ if os.environ.get('WQFLASK_OVERRIDES'):
             logger.debug(OVERRIDES)
 
 # assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
-# assert_dir(get_setting("JS_BIODALLIANCE"))
-# assert_file(get_setting("JS_BIODALLIANCE")+"/build/dalliance-all.js")
-# assert_file(get_setting("JS_BIODALLIANCE")+"/build/worker-all.js")
-# assert_dir(get_setting("JS_TWITTER_POST_FETCHER"))
 assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")

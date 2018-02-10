@@ -45,6 +45,7 @@
 
 SCRIPT=$(realpath "$0")
 echo SCRIPT=$SCRIPT
+echo GN2_PROFILE=$GN2_PROFILE
 GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
 GN2_ID=$(cat /etc/hostname):$(basename $GN2_BASE_DIR)
 
