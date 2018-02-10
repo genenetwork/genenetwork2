@@ -3,7 +3,7 @@ import os, math, string, random, json
 from base import webqtlConfig
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
-from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR
+from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR, assert_bin
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
@@ -11,6 +11,7 @@ logger = utility.logger.getLogger(__name__ )
 def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
     """Generates p-values for each marker using GEMMA"""
 
+    assert_bin(GEMMA_COMMAND);
     if this_dataset.group.genofile != None:
         genofile_name = this_dataset.group.genofile[:-5]
     else:
@@ -27,7 +28,7 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
         if i < (len(this_chromosomes) - 1):
             chr_list_string += this_chromosomes[i+1].name + ","
         else:
-            chr_list_string += this_chromosomes[i+1].name  
+            chr_list_string += this_chromosomes[i+1].name
 
     if covariates != "":
         gen_covariates_file(this_dataset, covariates)
