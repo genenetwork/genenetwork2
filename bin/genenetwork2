@@ -192,7 +192,8 @@ if [ "$1" = '-gunicorn-prod' ] ; then
     cd $GN2_BASE_DIR/wqflask
     echo PYTHONPATH=$PYTHONPATH
     if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
-    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=32 --max-requests 1000 --timeout 1200 wsgi"
+    cmd="--bind 0.0.0.0:$SERVER_PORT -k eventlet --workers 20 --keep-alive 1200 --max-requests 1000 --timeout 1200 wsgi"
+    # cmd="--bind 0.0.0.0:$SERVER_PORT --workers 20 --keep-alive 75 --max-requests 1000 --timeout 1200 wsgi"
     echo RUNNING gunicorn $cmd
     gunicorn $cmd
     exit $?
