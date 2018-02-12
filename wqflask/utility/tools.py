@@ -16,7 +16,7 @@ OVERRIDES = {}
 def app_set(command_id, value):
     """Set application wide value"""
     app.config.setdefault(command_id,value)
-    value
+    return value
 
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
@@ -51,7 +51,7 @@ def get_setting(command_id,guess=None):
             return None
 
     # ---- Check whether environment exists
-    logger.debug("Looking for "+command_id+"\n")
+    # print("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if command is None or command == "":
         command = OVERRIDES.get(command_id)
@@ -63,7 +63,7 @@ def get_setting(command_id,guess=None):
                 if command is None or command == "":
                     # print command
                     raise Exception(command_id+' setting unknown or faulty (update default_settings.py?).')
-    logger.debug("Set "+command_id+"="+str(command))
+    # print("Set "+command_id+"="+str(command))
     return command
 
 def get_setting_bool(id):
@@ -253,6 +253,7 @@ JS_GN_PATH         = get_setting('JS_GN_PATH')
 
 PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
 GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
+assert(GEMMA_COMMAND is not None)
 PLINK_COMMAND      = app_set("PLINK_COMMAND",plink_command())
 GEMMA_WRAPPER_COMMAND = gemma_wrapper_command()
 TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
@@ -266,7 +267,7 @@ from six import string_types
 
 if os.environ.get('WQFLASK_OVERRIDES'):
     jsonfn = get_setting('WQFLASK_OVERRIDES')
-    logger.error("WQFLASK_OVERRIDES: %s" % jsonfn)
+    logger.info("WQFLASK_OVERRIDES: %s" % jsonfn)
     with open(jsonfn) as data_file:
         overrides = json.load(data_file)
         for k in overrides:
@@ -278,8 +279,4 @@ if os.environ.get('WQFLASK_OVERRIDES'):
             logger.debug(OVERRIDES)
 
 # assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
-# assert_dir(get_setting("JS_BIODALLIANCE"))
-# assert_file(get_setting("JS_BIODALLIANCE")+"/build/dalliance-all.js")
-# assert_file(get_setting("JS_BIODALLIANCE")+"/build/worker-all.js")
-# assert_dir(get_setting("JS_TWITTER_POST_FETCHER"))
 assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")

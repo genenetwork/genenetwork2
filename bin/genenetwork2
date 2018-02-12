@@ -1,8 +1,11 @@
 #! /bin/bash
 #
+# This is the startup script for GN2. It sets the environment variables to pick
+# up a Guix profile and allows for overriding parameters.
+#
 # Typical usage
 #
-#   env GN2_PROFILE=~/opt/genenetwork2-phewas ./bin/genenetwork2
+#   env GN2_PROFILE=~/opt/genenetwork2-phewas ./bin/genenetwork2 ~/my_settings.py
 #
 # Where GN2_PROFILE points to the GNU Guix profile used for deployment.
 #
@@ -41,6 +44,8 @@
 #   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -gunicorn "--bind 0.0.0.0:5003 --workers=1 wsgi"
 
 SCRIPT=$(realpath "$0")
+echo SCRIPT=$SCRIPT
+echo GN2_PROFILE=$GN2_PROFILE
 GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
 GN2_ID=$(cat /etc/hostname):$(basename $GN2_BASE_DIR)
 
@@ -96,6 +101,8 @@ if [ -z $GN2_PROFILE ] ; then
     if [ -d $GN2_PROFILE ]; then
         echo "Best guess is $GN2_PROFILE"
     fi
+    echo "ERROR: always set GN2_PROFILE"
+    exit 1
 fi
 if [ -z $GN2_PROFILE ]; then
     read -p "PRESS [ENTER] TO CONTINUE..."
@@ -114,7 +121,9 @@ else
     export PLINK_COMMAND="$GN2_PROFILE/bin/plink2"
     export PYLMM_COMMAND="$GN2_PROFILE/bin/pylmm_redis"
     export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
-    export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
+    if [ -z $GEMMA_WRAPPER_COMMAND ]; then
+        export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
+    fi
     if [ ! -d $PYTHONPATH ] ; then echo "PYTHONPATH not valid "$PYTHONPATH ; exit 1 ; fi
     if [ ! -d $R_LIBS_SITE ] ; then echo "R_LIBS_SITE not valid "$R_LIBS_SITE ; exit 1 ; fi
     if [ ! -d $GEM_PATH ] ; then echo "GEM_PATH not valid "$GEM_PATH ; exit 1 ; fi
@@ -143,13 +152,23 @@ set|grep guix
 set|grep $GN2_PROFILE
 set|grep TMPDIR
 
-# Now handle command parameter -c
+# Now handle command parameter -c which runs python
 if [ "$1" = '-c' ] ; then
     cd $GN2_BASE_DIR/wqflask
     cmd=${2#wqflask/}
     echo PYTHONPATH=$PYTHONPATH
     echo RUNNING COMMAND $cmd
     python $cmd
+    exit $?
+fi
+# Now handle command parameter -cli which runs in bash
+if [ "$1" = "-cli" ] ; then
+    echo "HERE"
+    cd $GN2_BASE_DIR/wqflask
+    cmd=$2
+    echo PYTHONPATH=$PYTHONPATH
+    echo RUNNING COMMAND $cmd
+    $cmd
     exit $?
 fi
 if [ "$1" = '-gunicorn' ] ; then
@@ -164,7 +183,7 @@ if [ "$1" = '-gunicorn-dev' ] ; then
     cd $GN2_BASE_DIR/wqflask
     echo PYTHONPATH=$PYTHONPATH
     if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
-    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --reload wsgi"
+    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --timeout 180 --reload wsgi"
     echo RUNNING gunicorn $cmd
     gunicorn $cmd
     exit $?
@@ -173,7 +192,8 @@ if [ "$1" = '-gunicorn-prod' ] ; then
     cd $GN2_BASE_DIR/wqflask
     echo PYTHONPATH=$PYTHONPATH
     if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
-    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=32 --max-requests 1000 --timeout 1200 wsgi"
+    PID=$TMPDIR/gunicorn.$USER.pid
+    cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID -k eventlet --workers 20 --keep-alive 1200 --max-requests 1000 --timeout 1200 wsgi"
     echo RUNNING gunicorn $cmd
     gunicorn $cmd
     exit $?

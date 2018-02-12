@@ -3,7 +3,7 @@ import os, math, string, random, json
 from base import webqtlConfig
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
-from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR
+from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR, assert_bin, assert_file
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
@@ -11,6 +11,7 @@ logger = utility.logger.getLogger(__name__ )
 def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
     """Generates p-values for each marker using GEMMA"""
 
+    assert_bin(GEMMA_COMMAND);
     if this_dataset.group.genofile != None:
         genofile_name = this_dataset.group.genofile[:-5]
     else:
@@ -27,7 +28,7 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
         if i < (len(this_chromosomes) - 1):
             chr_list_string += this_chromosomes[i+1].name + ","
         else:
-            chr_list_string += this_chromosomes[i+1].name  
+            chr_list_string += this_chromosomes[i+1].name
 
     if covariates != "":
         gen_covariates_file(this_dataset, covariates)
@@ -209,8 +210,13 @@ def parse_gemma_output(genofile_name):
 def parse_loco_output(this_dataset, gwa_output_filename):
 
     output_filelist = []
-    with open("{}/gn2/".format(TEMPDIR) + gwa_output_filename + ".json") as data_file:
-       data = json.load(data_file)
+    jsonfn = "{}/gn2/".format(TEMPDIR) + gwa_output_filename + ".json"
+    assert_file(jsonfn)
+    try:
+        with open(jsonfn) as data_file:
+            data = json.load(data_file)
+    except:
+        logger.error("Can not parse "+jsonfn)
 
     files = data['files']
     for file in files:
