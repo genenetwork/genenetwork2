@@ -45,6 +45,7 @@
 
 SCRIPT=$(realpath "$0")
 echo SCRIPT=$SCRIPT
+echo GN2_PROFILE=$GN2_PROFILE
 GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
 GN2_ID=$(cat /etc/hostname):$(basename $GN2_BASE_DIR)
 
@@ -120,7 +121,9 @@ else
     export PLINK_COMMAND="$GN2_PROFILE/bin/plink2"
     export PYLMM_COMMAND="$GN2_PROFILE/bin/pylmm_redis"
     export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
-    export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
+    if [ -z $GEMMA_WRAPPER_COMMAND ]; then
+        export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
+    fi
     if [ ! -d $PYTHONPATH ] ; then echo "PYTHONPATH not valid "$PYTHONPATH ; exit 1 ; fi
     if [ ! -d $R_LIBS_SITE ] ; then echo "R_LIBS_SITE not valid "$R_LIBS_SITE ; exit 1 ; fi
     if [ ! -d $GEM_PATH ] ; then echo "GEM_PATH not valid "$GEM_PATH ; exit 1 ; fi
@@ -189,7 +192,8 @@ if [ "$1" = '-gunicorn-prod' ] ; then
     cd $GN2_BASE_DIR/wqflask
     echo PYTHONPATH=$PYTHONPATH
     if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
-    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=32 --max-requests 1000 --timeout 1200 wsgi"
+    PID=$TMPDIR/gunicorn.$USER.pid
+    cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID -k eventlet --workers 20 --keep-alive 1200 --max-requests 1000 --timeout 1200 wsgi"
     echo RUNNING gunicorn $cmd
     gunicorn $cmd
     exit $?
