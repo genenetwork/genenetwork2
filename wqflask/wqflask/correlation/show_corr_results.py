@@ -120,8 +120,15 @@ class CorrelationResults(object):
                     self.min_expr = float(start_vars['min_expr'])
                 else:
                     self.min_expr = None
-            self.p_range_lower = float(start_vars['p_range_lower'])
-            self.p_range_upper = float(start_vars['p_range_upper'])
+            logger.debug("P RANGE:", start_vars['p_range_lower'])
+            try:
+                self.p_range_lower = float(start_vars['p_range_lower'])
+            except:
+                self.p_range_lower = -1.00
+            try:
+                self.p_range_upper = float(start_vars['p_range_upper'])
+            except:
+                self.p_range_upper = 1.00
 
             if ('loc_chr' in start_vars and
                 'min_loc_mb' in start_vars and
@@ -1152,6 +1159,17 @@ class CorrelationResults(object):
 
             import math
             import reaper
+
+            def cmpOrder2(A,B):
+                try:
+                    if A[-1] < B[-1]:
+                        return -1
+                    elif A[-1] == B[-1]:
+                        return 0
+                    else:
+                        return 1
+                except:
+                    return 0
 
             def calCorrelation(dbdata,userdata,N):
                 X = []
