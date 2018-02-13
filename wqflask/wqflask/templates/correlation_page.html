@@ -129,7 +129,7 @@
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><span style="white-space: nowrap;">{{ loop.index }}<INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></span></td>
+                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center; display: inline;">{{ loop.index }}<INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
                         <td>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
