@@ -167,26 +167,9 @@ class CorrelationResults(object):
             self.sample_data = {}
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
-<<<<<<< HEAD
-            if 'min_expr' in start_vars:
-                if start_vars['min_expr'] != "":
-                    self.min_expr = float(start_vars['min_expr'])
-                else:
-                    self.min_expr = None
-            logger.debug("P RANGE:", start_vars['p_range_lower'])
-            try:
-                self.p_range_lower = float(start_vars['p_range_lower'])
-            except:
-                self.p_range_lower = -1.00
-            try:
-                self.p_range_upper = float(start_vars['p_range_upper'])
-            except:
-                self.p_range_upper = 1.00
-=======
             self.min_expr = get_float(start_vars,'min_expr')
             self.p_range_lower = get_float(start_vars,'p_range_lower',-1.0)
             self.p_range_upper = get_float(start_vars,'p_range_upper',1.0)
->>>>>>> f44a18ccd4c45ab7fd2179c9000d1bf836e3f654
 
             if ('loc_chr' in start_vars and
                 'min_loc_mb' in start_vars and
