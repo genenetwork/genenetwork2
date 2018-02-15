@@ -16,14 +16,39 @@
             <h4>Don't have an account?</h4>
 
 
-            <a href="/n/register" class="btn btn-primary modalize">Create a new account</a>
+            {% if es_server: %}
+	    <a href="/n/register" class="btn btn-primary modalize">Create a new account</a>
+	    {% else: %}
+	    <div class="alert alert-warning">
+	      <p>You cannot create an account at this moment.<br />
+		Please try again later.</p>
+	    </div>
+	    {% endif %}
 
+	    <hr />
+	    <h4>Login with external services</h4>
 
-            <hr />
+	    {% if external_login: %}
+	    <div>
+	      {% if external_login["github"]: %}
+	      <a href="{{external_login['github']}}" title="Login with GitHub" class="btn btn-info btn-group">Login with Github</a>
+	      {% endif %}
+
+	      {% if external_login["orcid"]: %}
+	      <a href="{{external_login['orcid']}}" title="Login with ORCID" class="btn btn-info btn-group">Login with ORCID</a>
+	      {% endif %}
+	    </div>
+	    {% else: %}
+	    <div class="alert alert-warning">
+	      <p>You cannot login with external services at this time.<br />
+		Please try again later.</p>
+	    </div>
+	    {% endif %}
+	    <hr />
 
             <h4>Already have an account? Sign in here.</h4>
 
-
+	    {% if es_server: %}
             <form class="form-horizontal" action="/n/login" method="POST" name="login_user_form" id="loginUserForm">
                  <fieldset>
                     <div class="form-group">
@@ -61,6 +86,12 @@
               </fieldset>
 
             </form>
+	    {% else: %}
+	    <div class="alert alert-warning">
+	      <p>You cannot login at this moment using your GeneNetwork account.<br />
+		Please try again later.</p>
+	    </div>
+	    {% endif %}
         </div>
     </div>
 
