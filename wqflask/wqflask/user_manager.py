@@ -55,9 +55,8 @@ logger = getLogger(__name__)
 from base.data_set import create_datasets_list
 
 import requests
-from utility.elasticsearch_tools import *
+from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, save_user
 
-es = get_elasticsearch_connection()
 THREE_DAYS = 60 * 60 * 24 * 3
 #THREE_DAYS = 45
 
@@ -479,6 +478,7 @@ def password_reset_step2():
     password = request.form['password']
     set_password(password, user)
 
+    es = get_elasticsearch_connection()
     es.update(
         index = "users"
         , doc_type = "local"
@@ -620,6 +620,7 @@ class LoginUser(object):
         """Login through the normal form"""
         params = request.form if request.form else request.args
         logger.debug("in login params are:", params)
+        es = get_elasticsearch_connection()
         if not params:
             from utility.tools import GITHUB_AUTH_URL, ORCID_AUTH_URL
             external_login = None
@@ -628,6 +629,7 @@ class LoginUser(object):
                     "github": GITHUB_AUTH_URL,
                     "orcid": ORCID_AUTH_URL
                 }
+            assert(es is not None)
             return render_template(
                 "new_security/login_user.html"
                 , external_login=external_login
@@ -822,6 +824,7 @@ def register():
 
     params = request.form if request.form else request.args
     params = params.to_dict(flat=True)
+    es = get_elasticsearch_connection()
     params["es_connection"] = es
 
     if params:

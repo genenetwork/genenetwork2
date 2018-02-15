@@ -1,10 +1,18 @@
 from elasticsearch import Elasticsearch, TransportError
 import logging
 
+from utility.logger import getLogger
+logger = getLogger(__name__)
+
+from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
+
 def get_elasticsearch_connection():
+    logger.info("get_elasticsearch_connection")
     es = None
     try:
-        from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
+        assert(ELASTICSEARCH_HOST)
+        assert(ELASTICSEARCH_PORT)
+        logger.info("ES HOST",ELASTICSEARCH_HOST)
 
         es = Elasticsearch([{
             "host": ELASTICSEARCH_HOST
@@ -31,12 +39,12 @@ def get_item_by_unique_column(es, column_name, column_value, index, doc_type):
         response = es.search(
             index = index
             , doc_type = doc_type
-            , body = { 
-                "query": { "match": { column_name: column_value } } 
+            , body = {
+                "query": { "match": { column_name: column_value } }
             })
         if len(response["hits"]["hits"]) > 0:
             item_details = response["hits"]["hits"][0]["_source"]
-    except TransportError as te: 
+    except TransportError as te:
         pass
     return item_details
 

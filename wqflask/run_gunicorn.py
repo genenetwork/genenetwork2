@@ -11,6 +11,9 @@ print "Starting up Gunicorn process"
 
 from wqflask import app
 
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SECRET_KEY'] = 'super secret key'
+
 @app.route("/gunicorn")
 def hello():
     return "<h1 style='color:blue'>Hello There!</h1>"

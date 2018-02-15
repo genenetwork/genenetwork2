@@ -95,11 +95,13 @@ export WQFLASK_OVERRIDES=$overrides   # JSON
 echo WQFLASK_SETTINGS=$settings
 echo WQFLASK_OVERRIDES=$overrides
 
-if [ -z $ELASTICSEARCH_PROFILE ]; then
-    echo -e "\033[1;33mWARNING: Elastic Search profile has not been set - use ELASTICSEARCH_PROFILE\033[0m";
-else
-    PYTHONPATH="$PYTHONPATH${PYTHONPATH:+:}$ELASTICSEARCH_PROFILE/lib/python2.7/site-packages"
-fi
+# This is a temporary hack to inject ES - should have added python2-elasticsearch package to guix instead
+# if [ -z $ELASTICSEARCH_PROFILE ]; then
+#     echo -e "WARNING: Elastic Search profile has not been set - use ELASTICSEARCH_PROFILE";
+# else
+#     PYTHONPATH="$PYTHONPATH${PYTHONPATH:+:}$ELASTICSEARCH_PROFILE/lib/python2.7/site-packages"
+# fi
+
 if [ -z $GN2_PROFILE ] ; then
     echo "WARNING: GN2_PROFILE has not been set - you need the environment, so I hope you know what you are doing!"
     export GN2_PROFILE=$(dirname $(dirname $(which genenetwork2)))
