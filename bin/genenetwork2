@@ -168,8 +168,9 @@ if [ "$1" = '-c' ] ; then
     cd $GN2_BASE_DIR/wqflask
     cmd=${2#wqflask/}
     echo PYTHONPATH=$PYTHONPATH
-    echo RUNNING COMMAND $cmd
-    python $cmd
+    shift ; shift
+    echo RUNNING COMMAND $cmd $*
+    python $cmd $*
     exit $?
 fi
 # Now handle command parameter -cli which runs in bash
@@ -178,8 +179,9 @@ if [ "$1" = "-cli" ] ; then
     cd $GN2_BASE_DIR/wqflask
     cmd=$2
     echo PYTHONPATH=$PYTHONPATH
-    echo RUNNING COMMAND $cmd
-    $cmd
+    shift ; shift
+    echo RUNNING COMMAND $cmd $*
+    $cmd $*
     exit $?
 fi
 if [ "$1" = '-gunicorn' ] ; then
