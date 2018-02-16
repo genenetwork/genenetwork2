@@ -45,6 +45,7 @@
 
 SCRIPT=$(realpath "$0")
 echo SCRIPT=$SCRIPT
+echo GN2_PROFILE=$GN2_PROFILE
 GN2_BASE_DIR=$(dirname $(dirname "$SCRIPT"))
 GN2_ID=$(cat /etc/hostname):$(basename $GN2_BASE_DIR)
 
@@ -94,11 +95,13 @@ export WQFLASK_OVERRIDES=$overrides   # JSON
 echo WQFLASK_SETTINGS=$settings
 echo WQFLASK_OVERRIDES=$overrides
 
-if [ -z $ELASTICSEARCH_PROFILE ]; then
-    echo -e "\033[1;33mWARNING: Elastic Search profile has not been set - use ELASTICSEARCH_PROFILE\033[0m";
-else
-    PYTHONPATH="$PYTHONPATH${PYTHONPATH:+:}$ELASTICSEARCH_PROFILE/lib/python2.7/site-packages"
-fi
+# This is a temporary hack to inject ES - should have added python2-elasticsearch package to guix instead
+# if [ -z $ELASTICSEARCH_PROFILE ]; then
+#     echo -e "WARNING: Elastic Search profile has not been set - use ELASTICSEARCH_PROFILE";
+# else
+#     PYTHONPATH="$PYTHONPATH${PYTHONPATH:+:}$ELASTICSEARCH_PROFILE/lib/python2.7/site-packages"
+# fi
+
 if [ -z $GN2_PROFILE ] ; then
     echo "WARNING: GN2_PROFILE has not been set - you need the environment, so I hope you know what you are doing!"
     export GN2_PROFILE=$(dirname $(dirname $(which genenetwork2)))
@@ -125,7 +128,9 @@ else
     export PLINK_COMMAND="$GN2_PROFILE/bin/plink2"
     export PYLMM_COMMAND="$GN2_PROFILE/bin/pylmm_redis"
     export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
-    export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
+    if [ -z $GEMMA_WRAPPER_COMMAND ]; then
+        export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
+    fi
     while IFS=":" read -ra PPATH; do
 	for PPart in "${PPATH[@]}"; do
 	    if [ ! -d $PPart ] ; then echo "PYTHONPATH not valid "$PYTHONPATH ; exit 1 ; fi
@@ -163,8 +168,9 @@ if [ "$1" = '-c' ] ; then
     cd $GN2_BASE_DIR/wqflask
     cmd=${2#wqflask/}
     echo PYTHONPATH=$PYTHONPATH
-    echo RUNNING COMMAND $cmd
-    python $cmd
+    shift ; shift
+    echo RUNNING COMMAND $cmd $*
+    python $cmd $*
     exit $?
 fi
 # Now handle command parameter -cli which runs in bash
@@ -173,8 +179,9 @@ if [ "$1" = "-cli" ] ; then
     cd $GN2_BASE_DIR/wqflask
     cmd=$2
     echo PYTHONPATH=$PYTHONPATH
-    echo RUNNING COMMAND $cmd
-    $cmd
+    shift ; shift
+    echo RUNNING COMMAND $cmd $*
+    $cmd $*
     exit $?
 fi
 if [ "$1" = '-gunicorn' ] ; then
@@ -198,7 +205,8 @@ if [ "$1" = '-gunicorn-prod' ] ; then
     cd $GN2_BASE_DIR/wqflask
     echo PYTHONPATH=$PYTHONPATH
     if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
-    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=32 --max-requests 1000 --timeout 1200 wsgi"
+    PID=$TMPDIR/gunicorn.$USER.pid
+    cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID -k eventlet --workers 20 --keep-alive 1200 --max-requests 1000 --timeout 1200 wsgi"
     echo RUNNING gunicorn $cmd
     gunicorn $cmd
     exit $?

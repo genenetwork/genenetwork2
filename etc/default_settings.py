@@ -41,6 +41,24 @@ SECURITY_POST_LOGIN_VIEW = "/thank_you"
 SERVER_PORT = 5003          # running on localhost
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
 
+GITHUB_CLIENT_ID = "UNKNOWN"
+GITHUB_CLIENT_SECRET = "UNKNOWN"
+GITHUB_AUTH_URL = "UNKNOWN"
+GITHUB_API_URL = "UNKNOWN"
+
+ORCID_CLIENT_ID = "UNKNOWN"
+ORCID_CLIENT_SECRET = "UNKNOWN"
+ORCID_AUTH_URL = "UNKNOWN"
+ORCID_TOKEN_URL = "UNKNOWN"
+
+ELASTICSEARCH_HOST = "localhost"
+ELASTICSEARCH_PORT = '9200'
+
+SMTP_CONNECT = "UNKNOWN"
+SMTP_USERNAME = "UNKNOWN"
+SMTP_PASSWORD = "UNKNOWN"
+
+
 # ---- Behavioural settings (defaults) note that logger and log levels can
 #      be overridden at the module level and with enviroment settings
 WEBSERVER_MODE  = 'DEV'     # Python webserver mode (DEBUG|DEV|PROD)
