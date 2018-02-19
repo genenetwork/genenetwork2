@@ -1,27 +1,8 @@
 import sys
-import unittest
 import requests
-import logging
-from elasticsearch import Elasticsearch, TransportError
-#from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
+from parametrized_test import ParametrizedTest
 
-GN2_SERVER = None
-ES_SERVER = None
-
-class TestRegistration(unittest.TestCase):
-    
-
-    def setUp(self):
-        self.url = GN2_SERVER+"/n/register"
-        self.es = Elasticsearch([ES_SERVER])
-        self.es_cleanup = []
-
-        es_logger = logging.getLogger("elasticsearch")
-        es_logger.addHandler(
-            logging.FileHandler("/tmp/es_TestRegistrationInfo.log"))
-        es_trace_logger = logging.getLogger("elasticsearch.trace")
-        es_trace_logger.addHandler(
-            logging.FileHandler("/tmp/es_TestRegistrationTrace.log"))
+class TestRegistration(ParametrizedTest):
 
     def tearDown(self):
         for item in self.es_cleanup:
@@ -36,24 +17,25 @@ class TestRegistration(unittest.TestCase):
                 "password": "test_password",
                 "password_confirm": "test_password"
             }
-            requests.post(self.url, data)
+            requests.post(self.gn2_url+"/n/register", data)
             response = self.es.search(
                 index="users"
                 , doc_type="local"
                 , body={
                     "query": {"match": {"email_address": "test@user.com"}}})
             self.assertEqual(len(response["hits"]["hits"]), 1)
-            self.es_cleanup.append(response["hits"]["hits"][0])
         else:
             self.skipTest("The elasticsearch server is down")
 
-def main():
+def main(gn2, es):
+    import unittest
     suite = unittest.TestSuite()
-    suite.addTest(TestRegistration("testRegistrationPage"))
+    suite.addTest(TestRegistration(methodName="testRegistrationPage", gn2_url=gn2, es_url=es))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
 if __name__ == "__main__":
-    GN2_SERVER = sys.argv[1]
-    ES_SERVER = sys.argv[2]
-    main()
+    if len(sys.argv) < 3:
+        raise Exception("Required arguments missing")
+    else:
+        main(sys.argv[1], sys.argv[2])
