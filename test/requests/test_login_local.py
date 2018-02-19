@@ -32,12 +32,47 @@ class TestLoginLocal(ParametrizedTest):
             "password": "test_password"
         }
         result = requests.post(self.login_url, data=data)
-        print("THE COOKIES? ", result.cookies)
         self.assertEqual(
             result.url
             , self.gn2_url+"/?import_collections=false"
             , "Login should have been successful")
-        
+
+    def testLoginWithRegisteredUserImportCollectionsTrueAndRememberMeFalse(self):
+        data = {
+            "email_address": "test@user.com",
+            "password": "test_password",
+            "import_collections": "y"
+        }
+        result = requests.post(self.login_url, data=data)
+        self.assertEqual(
+            result.url
+            , self.gn2_url+"/?import_collections=true"
+            , "Login should have been successful")
+
+    def testLoginWithRegisteredUserImportCollectionsFalseAndRememberMeTrue(self):
+        data = {
+            "email_address": "test@user.com",
+            "password": "test_password",
+            "remember_me": "y"
+        }
+        result = requests.post(self.login_url, data=data)
+        self.assertEqual(
+            result.url
+            , self.gn2_url+"/?import_collections=false"
+            , "Login should have been successful")
+
+    def testLoginWithRegisteredUserBothImportCollectionsAndRememberMeTrue(self):
+        data = {
+            "email_address": "test@user.com",
+            "password": "test_password",
+            "remember_me": "y",
+            "import_collections": "y"
+        }
+        result = requests.post(self.login_url, data=data)
+        self.assertEqual(
+            result.url
+            , self.gn2_url+"/?import_collections=true"
+            , "Login should have been successful")
 
 
 def main(gn2, es):
