@@ -642,7 +642,6 @@ class LoginUser(object):
                 user = model.User();
                 for key in user_details:
                     user.__dict__[key] = user_details[key]
-                print("RETRIEVED USER: ", user)
                 valid = False;
 
                 submitted_password = params['password']
@@ -689,7 +688,6 @@ class LoginUser(object):
         """The meat of the logging in process"""
         session_id_signed = self.successful_login(user, assumed_by)
         flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
-        print("IMPORT1:", import_collections)
         response = make_response(redirect(url_for('index_page', import_collections=import_collections)))
         if self.remember_me:
             max_age = self.remember_time
