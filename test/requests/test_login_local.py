@@ -1,6 +1,10 @@
 import requests
 from wqflask import user_manager
+from parameterized import parameterized
 from parametrized_test import ParametrizedTest
+
+login_link_text = '<a id="login_in" href="/n/login">Sign in</a>'
+logout_link_text = '<a id="login_out" title="Signed in as ." href="/n/logout">Sign out</a>'
 
 class TestLoginLocal(ParametrizedTest):
 
@@ -18,61 +22,42 @@ class TestLoginLocal(ParametrizedTest):
         user_manager.basic_info = lambda : { "basic_info": "basic" }
         user_manager.RegisterUser(data)
 
-    def testLoginNonRegisteredUser(self):
-        data = {
-            "email_address": "non@existent.email",
-            "password": "doesitmatter?"
-        }
+    
+    @parameterized.expand([
+        (
+            {
+                "email_address": "non@existent.email",
+                "password": "doesitmatter?"
+            }, login_link_text, "Login should have failed with the wrong user details."),
+        (
+            {
+                "email_address": "test@user.com",
+                "password": "test_password"
+            }, logout_link_text, "Login should have been successful with correct user details and neither import_collections nor remember_me set"),
+        (
+            {
+                "email_address": "test@user.com",
+                "password": "test_password",
+                "import_collections": "y"
+            }, logout_link_text, "Login should have been successful with correct user details and only import_collections set"),
+        (
+            {
+                "email_address": "test@user.com",
+                "password": "test_password",
+                "remember_me": "y"
+            }, logout_link_text, "Login should have been successful with correct user details and only remember_me set"),
+        (
+            {
+                "email_address": "test@user.com",
+                "password": "test_password",
+                "remember_me": "y",
+                "import_collections": "y"
+            }, logout_link_text, "Login should have been successful with correct user details, and both remember_me, and import_collections set")
+    ])
+    def testLogin(self, data, expected, message):
         result = requests.post(self.login_url, data=data)
-        self.assertEqual(result.url, self.login_url, "")
-
-    def testLoginWithRegisteredUserBothRememberMeAndImportCollectionsFalse(self):
-        data = {
-            "email_address": "test@user.com",
-            "password": "test_password"
-        }
-        result = requests.post(self.login_url, data=data)
-        self.assertEqual(
-            result.url
-            , self.gn2_url+"/?import_collections=false"
-            , "Login should have been successful")
-
-    def testLoginWithRegisteredUserImportCollectionsTrueAndRememberMeFalse(self):
-        data = {
-            "email_address": "test@user.com",
-            "password": "test_password",
-            "import_collections": "y"
-        }
-        result = requests.post(self.login_url, data=data)
-        self.assertEqual(
-            result.url
-            , self.gn2_url+"/?import_collections=true"
-            , "Login should have been successful")
-
-    def testLoginWithRegisteredUserImportCollectionsFalseAndRememberMeTrue(self):
-        data = {
-            "email_address": "test@user.com",
-            "password": "test_password",
-            "remember_me": "y"
-        }
-        result = requests.post(self.login_url, data=data)
-        self.assertEqual(
-            result.url
-            , self.gn2_url+"/?import_collections=false"
-            , "Login should have been successful")
-
-    def testLoginWithRegisteredUserBothImportCollectionsAndRememberMeTrue(self):
-        data = {
-            "email_address": "test@user.com",
-            "password": "test_password",
-            "remember_me": "y",
-            "import_collections": "y"
-        }
-        result = requests.post(self.login_url, data=data)
-        self.assertEqual(
-            result.url
-            , self.gn2_url+"/?import_collections=true"
-            , "Login should have been successful")
+        index = result.content.find(expected)
+        self.assertTrue(index >= 0, message)
 
 
 def main(gn2, es):
