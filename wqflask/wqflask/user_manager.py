@@ -122,7 +122,8 @@ class AnonUser(object):
             return collections
 
     def import_traits_to_user(self):
-        collections_list = json.loads(Redis.get(self.key))
+        result = Redis.get(self.key)
+        collections_list = json.loads(result if result else "[]")
         for collection in collections_list:
             uc = model.UserCollection()
             uc.name = collection['name']
