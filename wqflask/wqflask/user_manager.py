@@ -540,6 +540,7 @@ def github_oauth2():
     result_dict = {arr[0]:arr[1] for arr in [tok.split("=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
 
     github_user = get_github_user_details(result_dict["access_token"])
+    es = get_elasticsearch_connection()
     user_details = get_user_by_unique_column(es, "github_id", github_user["id"])
     if user_details == None:
         user_details = {
@@ -573,6 +574,7 @@ def orcid_oauth2():
         result = requests.post(ORCID_TOKEN_URL, data=data)
         result_dict = json.loads(result.text.encode("utf-8"))
 
+        es = get_elasticsearch_connection()
         user_details = get_user_by_unique_column(es, "orcid", result_dict["orcid"])
         if user_details == None:
             user_details = {
@@ -606,6 +608,7 @@ class LoginUser(object):
 
     def oauth2_login(self, login_type, user_id):
         """Login via an OAuth2 provider"""
+        es = get_elasticsearch_connection()
         user_details = get_user_by_unique_column(es, "user_id", user_id)
         if user_details:
             user = model.User()
