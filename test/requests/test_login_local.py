@@ -58,19 +58,3 @@ class TestLoginLocal(ParametrizedTest):
         result = requests.post(self.login_url, data=data)
         index = result.content.find(expected)
         self.assertTrue(index >= 0, message)
-
-
-def main(gn2, es):
-    import unittest
-    suite = unittest.TestSuite()
-    suite.addTest(TestLoginLocal(methodName="testLoginNonRegisteredUser", gn2_url=gn2, es_url=es))
-    suite.addTest(TestLoginLocal(methodName="testLoginWithRegisteredUserBothRememberMeAndImportCollectionsFalse", gn2_url=gn2, es_url=es))
-    runner = unittest.TextTestRunner()
-    runner.run(suite)
-
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 3:
-        raise Exception("Required arguments missing")
-    else:
-        main(sys.argv[1], sys.argv[2])
