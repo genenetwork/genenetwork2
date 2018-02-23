@@ -1,11 +1,13 @@
 import sys
 from test_login_local import TestLoginLocal
+from test_login_github import TestLoginGithub
 from test_registration import TestRegistration
 from unittest import TestSuite, TextTestRunner, TestLoader
 
 test_cases = [
-    TestLoginLocal,
     TestRegistration
+    , TestLoginLocal
+    , TestLoginGithub
 ]
 
 def suite(gn2_url, es_url):
