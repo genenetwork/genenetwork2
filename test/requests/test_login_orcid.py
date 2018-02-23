@@ -1,6 +1,7 @@
 import uuid
 import requests
 from time import sleep
+from wqflask import app
 from parameterized import parameterized
 from parametrized_test import ParametrizedTest
 
@@ -28,6 +29,12 @@ class TestLoginOrcid(ParametrizedTest):
     def tearDown(self):
         super(TestLoginOrcid, self).tearDown()
         self.es.delete(index="users", doc_type="local", id=uid)
+
+    def testLoginUrl(self):
+        login_button_text = 'a href="https://sandbox.orcid.org/oauth/authorize?response_type=code&amp;scope=/authenticate&amp;show_login=true&amp;client_id=' + app.config.get("ORCID_CLIENT_ID") + '&amp;client_secret=' + app.config.get("ORCID_CLIENT_SECRET") + '" title="Login with ORCID" class="btn btn-info btn-group">Login with ORCID</a>'
+        result = requests.get(self.gn2_url+"/n/login")
+        index = result.content.find(login_button_text)
+        self.assertTrue(index >= 0, "Should have found `Login with ORCID` button")
 
     @parameterized.expand([
         ("1234", login_link_text, "Login should have failed with non-existing user")
