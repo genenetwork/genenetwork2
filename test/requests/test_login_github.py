@@ -1,6 +1,7 @@
 import uuid
 import requests
 from time import sleep
+from wqflask import app
 from parameterized import parameterized
 from parametrized_test import ParametrizedTest
 
@@ -28,6 +29,12 @@ class TestLoginGithub(ParametrizedTest):
     def tearDown(self):
         super(TestLoginGithub, self).tearDown()
         self.es.delete(index="users", doc_type="local", id=uid)
+
+    def testLoginUrl(self):
+        login_button_text = '<a href="https://github.com/login/oauth/authorize?client_id=' + app.config.get("GITHUB_CLIENT_ID") + '&amp;client_secret=' + app.config.get("GITHUB_CLIENT_SECRET") + '" title="Login with GitHub" class="btn btn-info btn-group">Login with Github</a>'
+        result = requests.get(self.gn2_url+"/n/login")
+        index = result.content.find(login_button_text)
+        self.assertTrue(index >= 0, "Should have found `Login with Github` button")
 
     @parameterized.expand([
         ("1234", login_link_text, "Login should have failed with non-existing user")
