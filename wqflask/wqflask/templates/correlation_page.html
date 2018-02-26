@@ -65,8 +65,10 @@
 
         <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1400px{% else %}800px{% endif %};">
             <table id="trait_table" class="display dataTable nowrap" style="font-size: 12px; float: left;">
+<!--
                 <thead>
                     <tr>
+                        <th></th>
                     {% for header in target_dataset.header_fields %}
                         {% if header == 'Year' %}
                         <th>{{header}}</th>
@@ -129,7 +131,8 @@
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center; display: inline;">{{ loop.index }}<INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
+                        <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
+                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center; display: inline;">{{ loop.index }}</td>
                         <td>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
@@ -182,6 +185,7 @@
                     </tr>
                 {% endfor %}
                 </tbody>
+-->
             </table>
         </div>
     </div>
@@ -267,24 +271,55 @@
 
         $(document).ready( function () {
             
+            var table_json = {{ json_results | safe }}
+
+
+            {% if target_dataset.type == "ProbeSet" %}
+            var json_array = new Array();
+
+            for (i=0; i < table_json.length; i++){
+                json_array.push({
+                      checkbox: table_json[i]["checkbox"],
+                      index: table_json[i]["index"],
+                      trait_id: table_json[i]["trait_id"],
+                      symbol: table_json[i]["symbol"],
+                      description: table_json[i]["description"],
+                      location: table_json[i]["location"],
+                      mean: table_json[i]["mean"],
+                      lrs_score: table_json[i]["lrs_score"],
+                      lrs_location: table_json[i]["lrs_location"],
+                      additive: table_json[i]["additive"],
+                      sample_r: table_json[i]["sample_r"],
+                      num_overlap: table_json[i]["num_overlap"],
+                      sample_p: table_json[i]["sample_p"],
+                      lit_corr: table_json[i]["lit_corr"],
+                      tissue_corr: table_json[i]["tissue_corr"]
+                });
+                console.log("JSON_DATA:", json_array);
+            }
+            //console.log("JSON_DATA:", json_array)
+
             $("#trait_table").tabulator({
+                data: json_array,
                 columns:[
-                    {title:"Index", formatter:"html"},
-                    {title:"Record", formatter:"html"},
-                    {title:"Symbol", formatter:"plaintext"},
-                    {title:"Description", formatter:"textarea", width:"25%"},
-                    {title:"Location", formatter:"plaintext"},
-                    {title:"Mean", formatter:"plaintext"},
-                    {title:"Max LRS", formatter:"plaintext"},
-                    {title:"Max LRS Location", formatter:"plaintext"},
-                    {title:"Additive Effect", formatter:"plaintext"},
-                    {title:"Sample r", formatter:"html"},
-                    {title:"N", formatter:"plaintext"},
-                    {title:"Sample p(r)", formatter:"plaintext"},
-                    {title:"Lit r", formatter:"plaintext"},
-                    {title:"Tissue r", formatter:"plaintext"}
+                    {title:"", field:"checkbox", formatter:"html"},
+                    {title:"Index", field:"index", formatter:"plaintext"},
+                    {title:"Record", field:"trait_id", formatter:"html"},
+                    {title:"Symbol", field:"symbol", formatter:"plaintext"},
+                    {title:"Description", field:"description", formatter:"textarea", width:"25%"},
+                    {title:"Location", field:"location", formatter:"plaintext"},
+                    {title:"Mean", field:"mean", formatter:"plaintext"},
+                    {title:"Max LRS", field:"lrs_score", formatter:"plaintext"},
+                    {title:"Max LRS Location", field:"lrs_location", formatter:"plaintext"},
+                    {title:"Additive Effect", field:"additive", formatter:"plaintext"},
+                    {title:"Sample r", field:"sample_r", formatter:"html"},
+                    {title:"N", field:"num_overlap", formatter:"plaintext"},
+                    {title:"Sample p(r)", field:"sample_p", formatter:"plaintext"},
+                    {title:"Lit r", field:"lit_corr", formatter:"plaintext"},
+                    {title:"Tissue r", field:"tissue_corr", formatter:"plaintext"}
                 ]
             });
+            {% endif %}
 
             $('#trait_table tr').click(function(event) {
                 if (event.target.type !== 'checkbox') {

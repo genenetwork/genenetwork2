@@ -743,7 +743,7 @@ def corr_matrix_page():
 
     start_vars = request.form
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
-    if traits[0] != "":
+    if len(traits) > 1:
         template_vars = show_corr_matrix.CorrelationMatrix(start_vars)
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
