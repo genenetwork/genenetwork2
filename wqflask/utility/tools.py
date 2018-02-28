@@ -16,7 +16,7 @@ OVERRIDES = {}
 def app_set(command_id, value):
     """Set application wide value"""
     app.config.setdefault(command_id,value)
-    value
+    return value
 
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
@@ -51,7 +51,7 @@ def get_setting(command_id,guess=None):
             return None
 
     # ---- Check whether environment exists
-    logger.debug("Looking for "+command_id+"\n")
+    # print("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if command is None or command == "":
         command = OVERRIDES.get(command_id)
@@ -63,7 +63,7 @@ def get_setting(command_id,guess=None):
                 if command is None or command == "":
                     # print command
                     raise Exception(command_id+' setting unknown or faulty (update default_settings.py?).')
-    logger.debug("Set "+command_id+"="+str(command))
+    # print("Set "+command_id+"="+str(command))
     return command
 
 def get_setting_bool(id):
@@ -105,7 +105,7 @@ def js_path(module=None):
     try_guix = get_setting("JS_GUIX_PATH")+"/"+module
     if valid_path(try_guix):
         return try_guix
-    raise "No JS path found for "+module+" (check JS_GN_PATH)"
+    raise "No JS path found for "+module+" (if not in Guix check JS_GN_PATH)"
 
 def pylmm_command(guess=None):
     return assert_bin(get_setting("PYLMM_COMMAND",guess))
@@ -147,8 +147,13 @@ def assert_writable_dir(dir):
         fh.close()
         os.remove(fn)
     except IOError:
-        raise Exception('Unable to write test.txt to directory ' + dir )
+        raise Exception('Unable to write test.txt to directory ' + dir)
     return dir
+
+def assert_file(fn):
+    if not valid_file(fn):
+        raise Exception('Unable to find file '+fn)
+    return fn
 
 def mk_dir(dir):
     if not valid_path(dir):
@@ -173,6 +178,9 @@ def locate(name, subdir=None):
             raise Exception("Can not locate "+lookfor)
     if subdir: sys.stderr.write(subdir)
     raise Exception("Can not locate "+name+" in "+base)
+
+def locate_phewas(name, subdir=None):
+    return locate(name,'/phewas/'+subdir)
 
 def locate_ignore_error(name, subdir=None):
     """
@@ -239,15 +247,17 @@ USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
 
 GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
 JS_GUIX_PATH       = get_setting('JS_GUIX_PATH')
-# assert_dir(JS_GUIX_PATH) - don't enforce right now
+assert_dir(JS_GUIX_PATH)
 JS_GN_PATH         = get_setting('JS_GN_PATH')
 # assert_dir(JS_GN_PATH)
 
-PYLMM_COMMAND         = pylmm_command()
-GEMMA_COMMAND         = gemma_command()
+PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
+GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
+assert(GEMMA_COMMAND is not None)
+PLINK_COMMAND      = app_set("PLINK_COMMAND",plink_command())
 GEMMA_WRAPPER_COMMAND = gemma_wrapper_command()
-PLINK_COMMAND         = plink_command()
-TEMPDIR               = tempdir() # defaults to UNIX TMPDIR
+TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
+assert_dir(TEMPDIR)
 
 # ---- Handle specific JS modules
 JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("Twitter-Post-Fetcher"))
@@ -257,7 +267,7 @@ from six import string_types
 
 if os.environ.get('WQFLASK_OVERRIDES'):
     jsonfn = get_setting('WQFLASK_OVERRIDES')
-    logger.error("WQFLASK_OVERRIDES: %s" % jsonfn)
+    logger.info("WQFLASK_OVERRIDES: %s" % jsonfn)
     with open(jsonfn) as data_file:
         overrides = json.load(data_file)
         for k in overrides:
@@ -267,3 +277,6 @@ if os.environ.get('WQFLASK_OVERRIDES'):
             else:
                 OVERRIDES[k] = cmd
             logger.debug(OVERRIDES)
+
+# assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
+assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")

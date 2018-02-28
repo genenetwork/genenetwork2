@@ -6,16 +6,16 @@
             <ul class="nav nav-pills">
                 {% if dataset.group.mapping_id == "1" %}
                 <li class="active">
-                    <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
+                    <a href="#gemma" data-toggle="tab">GEMMA</a>
                 </li>
                 <li>
-                    <a href="#pylmm" data-toggle="tab">pyLMM</a>
+                    <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
                 </li>
                 <li>
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
                 </li>
                 <li>
-                    <a href="#gemma" data-toggle="tab">GEMMA</a>
+                    <a href="#pylmm" data-toggle="tab">pyLMM</a>
                 </li>
                 {% endif %}
                 {% for mapping_method in dataset.group.mapping_names %}
@@ -37,7 +37,60 @@
             <div class="tab-content">
                 {# if use_pylmm_rqtl and not use_plink_gemma and dataset.group.species != "human" #}
                 {% if dataset.group.mapping_id == "1" %}
-                <div class="tab-pane active" id="interval_mapping">
+                <div class="tab-pane active" id="gemma">
+                    <div style="padding-top: 10px;" class="form-horizontal">
+                        {% if genofiles and genofiles|length>0 %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                                <select id="genofile_gemma" class="form-control">
+                                    {% for item in genofiles %}
+                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="maf_gemma" class="col-xs-5 control-label">Minor allele threshold</label>
+                            <div style="margin-left: 20px;" class="col-xs-3 controls">
+                                <input name="maf_gemma" value="0.01" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-xs-4 control-label">Use LOCO</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                <label class="radio-inline">
+                                    <input type="radio" name="use_loco" value="True">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="use_loco" value="False" checked="">
+                                    No
+                               </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 20px;" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <button type="button" id="select_covariates" class="btn btn-default">
+                                Select Covariates
+                            </button>
+                            <button type="button" id="remove_covariates" class="btn btn-default">
+                                Remove Covariates
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-xs-4 controls">
+                            <button id="gemma_bimbam_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
+                                Compute
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="interval_mapping">
                     <div style="margin-top: 20px" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
@@ -129,62 +182,6 @@
                             </div>
                         </div>
                         <!--<div id="alert_placeholder"></div>-->
-                    </div>
-                </div>
-                <div class="tab-pane" id="pylmm">
-                    <div style="margin-top: 20px" class="form-horizontal">
-                        {% if genofiles and genofiles|length>0 %}
-                        <div class="mapping_method_fields form-group">
-                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div style="margin-left: 20px;" class="col-xs-8 controls">
-                                <select id="genofile_pylmm" class="form-control">
-                                    {% for item in genofiles %}
-                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        {% endif %}
-<!--
-                        <div class="mapping_method_fields form-group">
-                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
-                                <input name="control_pylmm" value="{{ nearest_marker }}" type="text" />
-                                {% else %}
-                                <input name="control_pylmm" value="" type="text" />
-                                {% endif %}
-                                <label class="radio-inline">
-                                    <input type="radio" name="do_control_pylmm" value="true">
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="do_control_pylmm" value="false" checked="">
-                                    No
-                                </label>
-                            </div>
-                        </div>
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
-                            <div class="col-xs-12 controls">
-                                <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_pylmm" value="True">
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_pylmm" value="False" checked="">
-                                    No
-                               </label>
-                            </div>
-                        </div>
--->
-                        <div class="form-group">
-                            <div style="padding-left:15px;" class="controls">
-                                <button id="pylmm_compute" class="btn submit_special btn-success" title="Compute Marker Regression">
-                                    <i class="icon-ok-circle icon-white"></i> Compute
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="tab-pane" id="rqtl_geno">
@@ -294,13 +291,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane" id="gemma">
-                    <div style="padding-top: 10px;" class="form-horizontal">
+                <div class="tab-pane" id="pylmm">
+                    <div style="margin-top: 20px" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
                             <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
                             <div style="margin-left: 20px;" class="col-xs-8 controls">
-                                <select id="genofile_gemma" class="form-control">
+                                <select id="genofile_pylmm" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
                                     {% endfor %}
@@ -308,42 +305,45 @@
                             </div>
                         </div>
                         {% endif %}
+<!--
                         <div class="mapping_method_fields form-group">
-                            <label for="maf_gemma" class="col-xs-5 control-label">Minor allele threshold</label>
-                            <div style="margin-left: 20px;" class="col-xs-3 controls">
-                                <input name="maf_gemma" value="0.01" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="mapping_method_fields form-group">
-                            <label class="col-xs-4 control-label">Use LOCO</label>
+                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
                             <div style="margin-left: 20px;" class="col-xs-4 controls">
+                                {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
+                                <input name="control_pylmm" value="{{ nearest_marker }}" type="text" />
+                                {% else %}
+                                <input name="control_pylmm" value="" type="text" />
+                                {% endif %}
                                 <label class="radio-inline">
-                                    <input type="radio" name="use_loco" value="True">
+                                    <input type="radio" name="do_control_pylmm" value="true">
                                     Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="use_loco" value="False" checked="">
+                                    <input type="radio" name="do_control_pylmm" value="false" checked="">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                            <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
+                            <div class="col-xs-12 controls">
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_pylmm" value="True">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="manhattan_plot_pylmm" value="False" checked="">
                                     No
                                </label>
                             </div>
                         </div>
-                    </div>
-                    <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 20px;" class="form-horizontal">
-                        <div class="mapping_method_fields form-group">
-                            <button type="button" id="select_covariates" class="btn btn-default">
-                                Select Covariates
-                            </button>
-                            <button type="button" id="remove_covariates" class="btn btn-default">
-                                Remove Covariates
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-xs-4 controls">
-                            <button id="gemma_bimbam_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
-                                Compute
-                            </button>
+-->
+                        <div class="form-group">
+                            <div style="padding-left:15px;" class="controls">
+                                <button id="pylmm_compute" class="btn submit_special btn-success" title="Compute Marker Regression">
+                                    <i class="icon-ok-circle icon-white"></i> Compute
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

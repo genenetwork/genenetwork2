@@ -15,6 +15,7 @@
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
         <input type="hidden" name="genofile" value="{{ genofile_string }}">
+        <input type="hidden" name="geno_db_exists" value="{{ geno_db_exists }}">
         <input type="hidden" name="results_path" value="{{ mapping_results_path }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
         {% for sample in samples %}
@@ -154,7 +155,7 @@
             <div class="tab-pane active" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
-                  <img src="/generated/{{ filename }}.jpeg" usemap="#WebQTLImageMap">
+                  <img src="/generated/{{ filename }}.png" usemap="#WebQTLImageMap">
                   {% if additiveChecked|upper == "ON" %}
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
@@ -180,10 +181,10 @@
 
         </form>
         {% if selectedChr == -1 %}
-        <div style="width:{% if 'additive' in trimmed_markers[0] %}45%{% else %}35%{% endif %};">
-          <h2>Results</h2>
-          <div id="table_container">
-          <table id="qtl_results" class="table table-hover table-striped nowrap">
+        <div class="container" style="padding-left: 30px; width:{% if 'additive' in trimmed_markers[0] %}45%{% else %}35%{% endif %};">
+          <h2>Mapping Statistics</h2>
+          <div id="table_container" style="border-style: solid; border-width: 1px; border-color: black;">
+          <table id="trait_table" class="table table-hover table-striped nowrap">
             <thead>
               <tr>
                 <th></th>
@@ -194,7 +195,7 @@
                 {% if plotScale != "physic" %}
                 <th>cM</th>
                 {% else %}
-                <th>Mb</th>
+                <th align="right">Mb</th>
                 {% endif %}
                 {% if 'additive' in trimmed_markers[0] %}
                 <th>Add Eff</th>
@@ -209,11 +210,11 @@
               <tr>
                 <td align="center" style="padding-right: 0px;">
                   <input type="checkbox" name="selectCheck"
-                         class="checkbox edit_sample_checkbox"
-                         value="{{ marker.name }}" checked="checked">
+                         class="checkbox trait_checkbox"
+                         value="{{ marker.name }}">
                 </td>
                 <td align="right">{{ loop.index }}</td>
-                <td>{{ marker.name }}</td>
+                <td>{% if geno_db_exists == "True" %}<a href="/show_trait?trait_id={{ marker.name }}&dataset={{ dataset.group.name }}Geno">{{ marker.name }}</a>{% else %}{{ marker.name }}{% endif %}</td>
                 {% if LRS_LOD == "LOD" or LRS_LOD == "-log(p)" %}
                 {% if 'lod_score' in marker %}
                 <td align="right">{{ '%0.2f' | format(marker.lod_score|float) }}</td>
@@ -294,6 +295,7 @@
     </script>
     {% endif %}
 
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     {% if mapping_method != "gemma" and mapping_method != "plink" %}
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
@@ -304,7 +306,7 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");
-            $('#qtl_results').DataTable( {
+            $('#trait_table').DataTable( {
                 {% if mapping_method != "reaper" %}
                 "columns": [
                     { "type": "natural", "width": "5%" },

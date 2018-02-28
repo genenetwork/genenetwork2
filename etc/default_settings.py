@@ -2,7 +2,7 @@
 # webserver running in developer mode with limited console
 # output. Copy this file and run it from ./bin/genenetwork2 configfile
 #
-# Note that these settings are fetched in ./wqflask/utilities/tools.py
+# Note: these settings are fetched in ./wqflask/utilities/tools.py
 # which has support for overriding them through environment variables,
 # e.g.
 #
@@ -14,8 +14,12 @@
 # Note also that in the near future we will additionally fetch
 # settings from a JSON file
 #
-# Note that values for False and 0 have to be strings here - otherwise
+# Note: values for False and 0 have to be strings here - otherwise
 # Flask won't pick them up
+#
+# For GNU Guix deployment also check the paths in
+#
+#  ~/.guix-profile/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
 
 import os
 import sys
@@ -23,7 +27,7 @@ import sys
 GN_VERSION = open("../etc/VERSION","r").read()
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQL_ALCHEMY_POOL_RECYCLE = 3600
-GN_SERVER_URL = "http://localhost:8880/"
+GN_SERVER_URL = "http://localhost:8880/" # REST API server
 
 # ---- Flask configuration (see website)
 TRAP_BAD_REQUEST_ERRORS = True
@@ -34,7 +38,7 @@ SECURITY_RECOVERABLE = True
 SECURITY_EMAIL_SENDER = "no-reply@genenetwork.org"
 SECURITY_POST_LOGIN_VIEW = "/thank_you"
 
-SERVER_PORT = 5003
+SERVER_PORT = 5003          # running on localhost
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
 
 # ---- Behavioural settings (defaults) note that logger and log levels can
@@ -42,6 +46,7 @@ SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a
 WEBSERVER_MODE  = 'DEV'     # Python webserver mode (DEBUG|DEV|PROD)
 WEBSERVER_BRANDING = None   # Set the branding (nyi)
 WEBSERVER_DEPLOY = None     # Deployment specifics (nyi)
+WEBSERVER_URL    = "http://localhost:"+str(SERVER_PORT)+"/" # external URL
 
 LOG_LEVEL       = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
 LOG_LEVEL_DEBUG = '0'       # logger.debugf log level (0-5, 5 = show all)

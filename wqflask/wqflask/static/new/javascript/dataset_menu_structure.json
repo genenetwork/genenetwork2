@@ -2974,6 +2974,20 @@
                ]
             ]
          },
+         "BXD-Harvested": {
+            "Liver mRNA": [
+               [
+                  "843",
+                  "UTHSC-BXD-Harv_Liv-0118",
+                  "UTHSC BXD Harvested Liver RNA-Seq (Jan18) Log2 **"
+               ],
+               [
+                  "842",
+                  "UTHSC-BXD-Liv-0917",
+                  "UTHSC BXD Liver Affy Clariom S GeneLevel Main (Sep17) RMA **"
+               ]
+            ]
+         },
          "BXD300": {
             "Genotypes": [
                [
@@ -3862,6 +3876,10 @@
          [
             "BXD-Bone",
             "BXD Bone"
+         ],
+         [
+            "BXD-Harvested",
+            "BXD NIA Longevity Study"
          ],
          [
             "BXD300",
@@ -5005,6 +5023,12 @@
             [
                "Phenotypes",
                "Phenotypes"
+            ]
+         ],
+         "BXD-Harvested": [
+            [
+               "Liver mRNA",
+               "Liver mRNA"
             ]
          ],
          "BXD300": [

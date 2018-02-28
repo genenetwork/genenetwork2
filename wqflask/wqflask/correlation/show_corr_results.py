@@ -75,6 +75,46 @@ def print_mem(stage=""):
     mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     #print("{}: {}".format(stage, mem/1024))
 
+def is_float(value):
+    try:
+        float(value)
+        return True
+    except:
+        return False
+
+def is_int(value):
+    try:
+        int(value)
+        return True
+    except:
+        return False
+
+def is_str(value):
+    if value is None:
+        return False
+    try:
+        str(value)
+        return True
+    except:
+        return False
+
+def get_float(vars,name,default=None):
+    if name in vars:
+        if is_float(vars[name]):
+            return float(vars[name])
+    return None
+
+def get_int(vars,name,default=None):
+    if name in vars:
+        if is_int(vars[name]):
+            return float(vars[name])
+    return default
+
+def get_string(vars,name,default=None):
+    if name in vars:
+        if not vars[name] is None:
+            return str(vars[name])
+    return default
 
 class AuthException(Exception):
     pass
@@ -96,7 +136,19 @@ class CorrelationResults(object):
         # get trait list from db (database name)
         # calculate correlation with Base vector and targets
 
-        print("TESTING...")
+        # Check parameters
+        assert('corr_type' in start_vars)
+        assert(is_str(start_vars['corr_type']))
+        assert('dataset' in start_vars)
+        # assert('group' in start_vars) permitted to be empty?
+        assert('corr_sample_method' in start_vars)
+        assert('corr_samples_group' in start_vars)
+        assert('corr_dataset' in start_vars)
+        assert('min_expr' in start_vars)
+        assert('corr_return_results' in start_vars)
+        if 'loc_chr' in start_vars:
+            assert('min_loc_mb' in start_vars)
+            assert('max_loc_mb' in start_vars)
 
         with Bench("Doing correlations"):
             if start_vars['dataset'] == "Temp":
@@ -115,27 +167,17 @@ class CorrelationResults(object):
             self.sample_data = {}
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
-            if 'min_expr' in start_vars:
-                if start_vars['min_expr'] != "":
-                    self.min_expr = float(start_vars['min_expr'])
-                else:
-                    self.min_expr = None
-            self.p_range_lower = float(start_vars['p_range_lower'])
-            self.p_range_upper = float(start_vars['p_range_upper'])
+            self.min_expr = get_float(start_vars,'min_expr')
+            self.p_range_lower = get_float(start_vars,'p_range_lower',-1.0)
+            self.p_range_upper = get_float(start_vars,'p_range_upper',1.0)
 
             if ('loc_chr' in start_vars and
                 'min_loc_mb' in start_vars and
                 'max_loc_mb' in start_vars):
 
-                self.location_chr = start_vars['loc_chr']
-                if start_vars['min_loc_mb'].isdigit():
-                    self.min_location_mb = start_vars['min_loc_mb']
-                else:
-                    self.min_location_mb = None
-                if start_vars['max_loc_mb'].isdigit():
-                    self.max_location_mb = start_vars['max_loc_mb']
-                else:
-                    self.max_location_mb = None
+                self.location_chr = get_string(start_vars,'loc_chr')
+                self.min_location_mb = get_int(start_vars,'min_loc_mb')
+                self.max_location_mb = get_int(start_vars,'max_loc_mb')
 
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
@@ -183,7 +225,7 @@ class CorrelationResults(object):
                 else:
                     for trait, values in self.target_dataset.trait_data.iteritems():
                         self.get_sample_r_and_p_values(trait, values)
-                        
+
             elif self.corr_type == "lit":
                 self.trait_geneid_dict = self.dataset.retrieve_genes("GeneId")
                 lit_corr_data = self.do_lit_correlation_for_all_traits()
@@ -564,7 +606,7 @@ class CorrelationResults(object):
                 self.this_trait_vals.append(sample_value)
                 target_vals.append(target_sample_value)
 
-        self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(self.this_trait_vals, target_vals)	
+        self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(self.this_trait_vals, target_vals)
 
         #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
         if self.corr_method == 'pearson':
@@ -574,8 +616,8 @@ class CorrelationResults(object):
 
         if num_overlap > 5:
             self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
-		
-		
+
+
         """
         correlations = []
 
@@ -673,8 +715,8 @@ class CorrelationResults(object):
                         method=self.method)
 
         return trait_list
-        """		
-		
+        """
+
 
     def do_tissue_corr_for_all_traits_2(self):
         """Comments Possibly Out of Date!!!!!
@@ -1089,7 +1131,7 @@ class CorrelationResults(object):
             totalTraits = len(traits) #XZ, 09/18/2008: total trait number
 
         return traits
-			
+
     def calculate_corr_for_all_tissues(self, tissue_dataset_id=None):
 
         symbol_corr_dict = {}
@@ -1129,7 +1171,7 @@ class CorrelationResults(object):
                     values_2.append(target_value)
             correlation = calCorrelation(values_1, values_2)
             self.correlation_data[trait] = correlation
-			
+
     def getFileName(self, target_db_name):  ### dcrowell  August 2008
         """Returns the name of the reference database file with which correlations are calculated.
         Takes argument cursor which is a cursor object of any instance of a subclass of templatePage
@@ -1144,7 +1186,7 @@ class CorrelationResults(object):
         return FileName
 
     def do_parallel_correlation(self, db_filename, num_overlap):
-	
+
         #XZ, 01/14/2009: This method is for parallel computing only.
         #XZ: It is supposed to be called when "Genetic Correlation, Pearson's r" (method 1)
         #XZ: or "Genetic Correlation, Spearman's rho" (method 2) is selected
@@ -1313,7 +1355,7 @@ class CorrelationResults(object):
                         z_value = z_value*math.sqrt(nOverlap-3)
                         sample_p = 2.0*(1.0 - reaper.normp(abs(z_value)))
 
-                correlation_data[traitdataName] = [sample_r, sample_p, nOverlap]	
+                correlation_data[traitdataName] = [sample_r, sample_p, nOverlap]
 
                 # traitinfo = [traitdataName, sample_r, nOverlap]
                 # allcorrelations.append(traitinfo)
@@ -1321,7 +1363,7 @@ class CorrelationResults(object):
             return correlation_data
             # return allcorrelations
 
-	
+
         datasetFile = open(webqtlConfig.GENERATED_TEXT_DIR+db_filename,'r')
 
         print("Invoking parallel computing")
@@ -1378,5 +1420,3 @@ class CorrelationResults(object):
         # for one_result in results:
             # for one_traitinfo in one_result:
                 # allcorrelations.append( one_traitinfo )
-
-

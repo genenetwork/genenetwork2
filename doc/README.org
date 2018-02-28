@@ -104,11 +104,29 @@ As root configure and run
 :  mysqld --datadir=/var/mysql --initialize-insecure
 :  mkdir -p /var/run/mysqld
 :  chown mysql.mysql ~/mysql /var/run/mysqld
-:  su mysql -c mysqld --datadir=/var/mysql --explicit_defaults_for_timestamp -P 12048
+:  mysqld -u mysql --datadir=/var/mysql --explicit_defaults_for_timestamp -P 12048"
 
-/etc/my.cnf
-[mysqld]
-user=root
+If you want to run as root you may have to set
+
+: /etc/my.cnf
+: [mysqld]
+: user=root
+
+To check error output in a file on start-up run with something like
+
+: mysqld -u mysql --console  --explicit_defaults_for_timestamp  --datadir=/gnu/mysql --log-error=~/test.log
+
+Other tips are that Guix installs mysqld in your profile, so this may work
+
+: /home/user/.guix-profile/bin/mysqld -u mysql --explicit_defaults_for_timestamp  --datadir=/gnu/mysql
+
+When you get errors like:
+
+: qlalchemy.exc.IntegrityError: (_mysql_exceptions.IntegrityError) (1215, 'Cannot add foreign key constraint')
+
+you may need to set
+
+: set foreign_key_checks=0
 
 ** Load the small database in MySQL
 
