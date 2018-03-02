@@ -88,7 +88,8 @@
       };
     })(this));
     $("#remove_covariates").click(function () {
-        $("input[name=covariates]").val("") 
+        $("input[name=covariates]").val("")
+        $(".selected_covariates").val("")
     });
     d3.select("#clear_compare_trait").on("click", (function(_this) {
       return function() {

@@ -24,6 +24,7 @@ collection_click = function() {
 
 submit_click = function() {
   var covariates_string = "";
+  var covariates_display_string = "";
   $('#collections_holder').find('input[type=checkbox]:checked').each(function() {
     var this_dataset, this_trait;
     this_trait = $(this).parents('tr').find('.trait').text();
@@ -31,12 +32,15 @@ submit_click = function() {
     this_dataset = $(this).parents('tr').find('.dataset').text();
     console.log("this_dataset is:", this_dataset);
     covariates_string += this_trait + ":" + this_dataset + ","
+    covariates_display_string += this_trait + "\n"
   });
   // Trim the last comma
   covariates_string = covariates_string.substring(0, covariates_string.length - 1)
+  //covariates_display_string = covariates_display_string.substring(0, covariates_display_string.length - 2)
   console.log("COVARIATES:", covariates_string)
 
   $("input[name=covariates]").val(covariates_string)
+  $(".selected_covariates").val(covariates_display_string)
 
   return $.colorbox.close();
 };
@@ -46,6 +50,7 @@ trait_click = function() {
   trait = $(this).parent().find('.trait').text();
   dataset = $(this).parent().find('.dataset').text();
   $("input[name=covariates]").val(trait + ":" + dataset)
+  $(".selected_covariates").text(trait)
   return $.colorbox.close();
 };
 

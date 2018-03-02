@@ -349,8 +349,11 @@ def delete_collection():
             db_session.delete(uc)
             db_session.commit()
     else:
-        collection_name = params['collection_name']
-        user_manager.AnonUser().delete_collection(collection_name)
+        if "collection_name" in params:
+            collection_name = params['collection_name']
+        else:
+            for this_collection in params['uc_id'].split(":"):
+                user_manager.AnonUser().delete_collection(this_collection)
 
     flash("We've deleted the collection: {}.".format(collection_name), "alert-info")
 
