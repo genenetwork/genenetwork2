@@ -200,23 +200,21 @@ function saveassvg_srcs() {
 drawg();
 srdrawg();
 
-
-
 $(".chartupdate").change(function () {
     chartupdate();
 });
 
 $(".chartupdatewh").change(function () {
     chartupdatewh();
+    chartupdate();
 });
 
 $(".chartupdatedata").change(function () {
     chartupdatedata();
+    chartupdate();
 });
 
 $(document).ready(function(){
-    //chartupdate();
-//chartupdatewh();
-chartupdatedata();
-//chartupdate();
+    chartupdatedata();
+    chartupdate();
 });
