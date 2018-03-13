@@ -4,6 +4,7 @@
 #
 # Mostly to pick up the Guix GN2_PROFILE and python modules
 from __future__ import print_function
+from main_web_functionality import check_main_web_functionality
 from link_checker import check_links
 import argparse
 
@@ -12,6 +13,7 @@ print("Mechanical Rob firing up...")
 def run_all(args_obj, parser):
     print("")
     print("Running all tests.")
+    check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
     # TODO: Add other functions as they are created.
 
@@ -43,6 +45,11 @@ parser.add_argument("-a", "--all", dest="accumulate", action="store_const"
 parser.add_argument("-l", "--link-checker", dest="accumulate"
                     , action='store_const', const=check_links, default=print_help
                     , help="Checks for dead links.")
+
+parser.add_argument("-f", "--main-functionality", dest="accumulate"
+                    , action='store_const', const=check_main_web_functionality
+                    , default=print_help
+                    , help="Checks for main web functionality.")
 
 # parser.add_argument("-n", "--navigation", dest="accumulate"
 #                     , action="store_const", const=check_navigation, default=print_help
