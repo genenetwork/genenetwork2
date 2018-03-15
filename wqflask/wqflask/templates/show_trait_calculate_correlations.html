@@ -1,9 +1,10 @@
 <div>
+  <div class="col-xs-7">
     <div style="padding: 20px" class="form-horizontal">
         
         <div class="form-group">
-            <label for="corr_type" class="col-xs-1 control-label">Method</label>
-            <div class="col-xs-2 controls">
+            <label for="corr_type" class="col-xs-2 control-label">Method</label>
+            <div class="col-xs-3 controls">
                 <select name="corr_type" class="form-control">
                     <option value="sample">Sample r</option>
                     <option value="lit">Literature r</option>
@@ -13,8 +14,8 @@
         </div>
         
         <div class="form-group">
-            <label for="corr_dataset" class="col-xs-1 control-label">Database</label>
-            <div class="col-xs-6 controls">
+            <label for="corr_dataset" class="col-xs-2 control-label">Database</label>
+            <div class="col-xs-10 controls">
                 <select name="corr_dataset" class="form-control">
                     {% for tissue in corr_tools.dataset_menu %}
                         {% if tissue.tissue %}
@@ -37,8 +38,8 @@
         </div>
         
         <div class="form-group">
-            <label for="corr_return_results" class="col-xs-1 control-label">Return</label>
-            <div class="col-xs-2 controls">
+            <label for="corr_return_results" class="col-xs-2 control-label">Return</label>
+            <div class="col-xs-3 controls">
                 <select name="corr_return_results" class="form-control">
                     {% for return_result in corr_tools.return_results_menu %}
                         <option value="{{ return_result }}" 
@@ -53,8 +54,8 @@
         </div>
         
         <div class="form-group">
-            <label for="corr_samples_group" class="col-xs-1 control-label">Samples</label>
-            <div class="col-xs-2 controls">
+            <label for="corr_samples_group" class="col-xs-2 control-label">Samples</label>
+            <div class="col-xs-3 controls">
                 <select name="corr_samples_group" class="form-control">
                     {% for group, pretty_group in sample_group_types.items() %}
                         <option value="{{ group }}">{{ pretty_group }}</option>
@@ -64,8 +65,8 @@
         </div>
             
         <div id="corr_sample_method" class="form-group">
-            <label for="corr_sample_method" class="col-xs-1 control-label">Type</label>
-            <div class="col-xs-2 controls">
+            <label for="corr_sample_method" class="col-xs-2 control-label">Type</label>
+            <div class="col-xs-3 controls">
                 <select name="corr_sample_method" class="form-control">
                     <option value="pearson">Pearson</option>
                     <option value="spearman">Spearman Rank</option>
@@ -73,14 +74,14 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-xs-1 control-label">Min Expr</label>
-            <div class="col-xs-2 controls">
+            <label class="col-xs-2 control-label">Min Expr</label>
+            <div class="col-xs-3 controls">
                 <input name="min_expr" value="" type="text" class="form-control" style="width: 50px;">
             </div>
         </div>
         <div class="form-group">
-            <label class="col-xs-1 control-label">Location</label>
-            <div class="col-xs-4 controls">
+            <label class="col-xs-2 control-label">Location</label>
+            <div class="col-xs-5 controls">
                 <span>
                 Chr: <input name="loc_chr" value="" type="text" class="form-control" style="width: 50px; display: inline;">&nbsp;&nbsp;&nbsp;
                 Mb: <input name="min_loc_mb" value="" type="text" class="form-control" style="width: 50px; display: inline;"> &nbsp;to&nbsp; <input name="max_loc_mb" value="" type="text" class="form-control" style="width: 50px; display: inline;">
@@ -89,8 +90,8 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-xs-1 control-label">Range</label>
-            <div class="col-xs-4 controls">
+            <label class="col-xs-2 control-label">Range</label>
+            <div class="col-xs-5 controls">
                 <input name="p_range_lower" value="" type="hidden">
                 <input name="p_range_upper" value="" type="hidden">
                 <span style="display: inline;">
@@ -103,48 +104,45 @@
         </div>
         
         <div class="form-group">
-            <label for="corr_sample_method" class="col-xs-1 control-label"></label>
-            <div class="col-xs-4 controls">
+            <label for="corr_sample_method" class="col-xs-2 control-label"></label>
+            <div class="col-xs-3 controls">
                 <button class="btn corr_compute submit_special btn-success" data-url="/corr_compute" title="Compute Correlation">
                     <i class="icon-ok-circle icon-white"></i> Compute
                 </button>
             </div>
         </div>
-
-        <div class="form-group">
-            <label for="descriptions" class="col-xs-1 control-label"></label>
-            <div class="col-xs-6 controls">
-            <span id="sample_r_desc" class="correlation_desc fs12">
-                The <a href="http://genenetwork.org/correlationAnnotation.html#genetic_r">Sample Correlation</a>
-                is computed
-                between trait data and any
-                other traits in the sample database selected above. Use
-                <a href="http://www.genenetwork.org/glossary.html#Correlations">Spearman
-                Rank</a>
-                when the sample size is small (&lt;20) or when there are influential outliers.
-            </span>
-            <span id="lit_r_desc" style="display: none;" class="correlation_desc fs12">
-                The <a href="http://genenetwork.org/correlationAnnotation.html#literatureCorr">Literature Correlation</a>
-                (Lit r) between
-                this gene and all other genes is computed<br>
-                using the <a href="https://grits.eecs.utk.edu/sgo/sgo.html">
-                Semantic Gene Organizer</a>
-                and human, rat, and mouse data from PubMed.
-                Values are ranked by Lit r, but Sample r and Tissue r are also displayed.<br>
-                <a href="http://genenetwork.org/glossary.html#Literature">More on using Lit r</a>
-            </span>
-            <span id="tissue_r_desc" style="display: none;" class="correlation_desc fs12">
-                The <a href="http://genenetwork.org/webqtl/main.py?FormID=tissueCorrelation">Tissue Correlation</a>
-                (Tissue r)
-                estimates the similarity of expression of two genes
-                or transcripts across different cells, tissues, or organs
-                (<a href="http://genenetwork.org/correlationAnnotation.html#tissueCorr">glossary</a>).
-                Tissue correlations
-                are generated by analyzing expression in multiple samples usually taken from single cases.<br>
-                <strong>Pearson</strong> and <strong>Spearman Rank</strong> correlations have been
-                computed for all pairs of genes using data from mouse samples.<br>
-            </span>
-            </div>
-        </div>
     </div>
+  </div>
+  <div class="col-xs-5">
+    <span id="sample_r_desc" class="correlation_desc fs12">
+        The <a href="http://genenetwork.org/correlationAnnotation.html#genetic_r">Sample Correlation</a>
+        is computed
+        between trait data and any
+        other traits in the sample database selected above. Use
+        <a href="http://www.genenetwork.org/glossary.html#Correlations">Spearman
+        Rank</a>
+        when the sample size is small (&lt;20) or when there are influential outliers.
+    </span>
+    <span id="lit_r_desc" style="display: none;" class="correlation_desc fs12">
+        The <a href="http://genenetwork.org/correlationAnnotation.html#literatureCorr">Literature Correlation</a>
+        (Lit r) between
+        this gene and all other genes is computed<br>
+        using the <a href="https://grits.eecs.utk.edu/sgo/sgo.html">
+        Semantic Gene Organizer</a>
+        and human, rat, and mouse data from PubMed.
+        Values are ranked by Lit r, but Sample r and Tissue r are also displayed.<br>
+        <a href="http://genenetwork.org/glossary.html#Literature">More on using Lit r</a>
+    </span>
+    <span id="tissue_r_desc" style="display: none;" class="correlation_desc fs12">
+        The <a href="http://genenetwork.org/webqtl/main.py?FormID=tissueCorrelation">Tissue Correlation</a>
+        (Tissue r)
+        estimates the similarity of expression of two genes
+        or transcripts across different cells, tissues, or organs
+        (<a href="http://genenetwork.org/correlationAnnotation.html#tissueCorr">glossary</a>).
+        Tissue correlations
+        are generated by analyzing expression in multiple samples usually taken from single cases.<br>
+        <strong>Pearson</strong> and <strong>Spearman Rank</strong> correlations have been
+        computed for all pairs of genes using data from mouse samples.<br>
+    </span>
+  </div>
 </div>

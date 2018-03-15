@@ -61,6 +61,7 @@
 <br>
 <button class="btn btn-default" id="short_labels">Short Labels</button>
 <button class="btn btn-default" id="long_labels">Long Labels</button>
+{% if pca_works == "True" %}
 <br>
 <br>
 <h2>Factor Loadings Plot</h2>
@@ -93,7 +94,7 @@
   </tbody>
 </table>
 </div>
-
+{% endif %}
 {% endblock %}
 
 {% block js %}

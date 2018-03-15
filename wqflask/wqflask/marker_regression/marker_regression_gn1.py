@@ -1204,6 +1204,8 @@ class MarkerRegression(object):
         else:
             if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
                 string2 = 'Using GEMMA mapping method with no control for other QTLs.'
+                if self.covariates != "":
+                    string3 = 'Using following traits as covariates: ' + self.covariates
             elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
                 string2 = 'Using R/qtl mapping method with no control for other QTLs.'
             elif self.mapping_method == "plink":
