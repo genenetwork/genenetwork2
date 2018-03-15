@@ -173,9 +173,12 @@ class CorrelationMatrix(object):
             for sample in self.all_sample_list:
                 groups.append(1)
 
-            pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
-
-            self.loadings_array = self.process_loadings()
+            try:
+                self.pca_works = "True"
+                pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
+                self.loadings_array = self.process_loadings()
+            except:
+                self.pca_works = "False"
 
             self.js_data = dict(traits = [trait.name for trait in self.traits],
                                 groups = groups,

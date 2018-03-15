@@ -228,6 +228,7 @@ class MarkerRegression(object):
             results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.gen_reaper_results(self.this_trait,
                                                                                                                                                         self.dataset,
                                                                                                                                                         self.samples,
+                                                                                                                                                        self.vals,
                                                                                                                                                         self.json_data,
                                                                                                                                                         self.num_perm,
                                                                                                                                                         self.bootCheck,
