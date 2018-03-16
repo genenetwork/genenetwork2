@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/tabulator/css/tabulator.css" />
-    <!--
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
-    -->
 {% endblock %}
 {% block content %}
     
@@ -65,7 +63,6 @@
 
         <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1400px{% else %}800px{% endif %};">
             <table id="trait_table" class="display dataTable nowrap" style="font-size: 12px; float: left;">
-<!--
                 <thead>
                     <tr>
                         <th></th>
@@ -132,7 +129,7 @@
                 {% for trait in correlation_results %}
                     <tr>
                         <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
-                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center; display: inline;">{{ loop.index }}</td>
+                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;">{{ loop.index }}</td>
                         <td>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
@@ -185,7 +182,6 @@
                     </tr>
                 {% endfor %}
                 </tbody>
--->
             </table>
         </div>
     </div>
@@ -196,14 +192,12 @@
 
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/tabulator/js/tabulator.js"></script>
-    <!--
+
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    -->
 
     <script type="text/javascript" charset="utf-8">
         function getValue(x) {
@@ -221,7 +215,7 @@
             return parseFloat(x);
         }
 
-/*
+
         jQuery.fn.dataTableExt.oSort['numeric-html-asc']  = function(a,b) {
             a = Math.abs(parseFloat($(a).text()));
             b = Math.abs(parseFloat($(b).text()));
@@ -267,62 +261,11 @@
                 var y = parseFloat(b);
                 return ((x < y) ? 1 : ((x > y) ? -1 : 0));
         };
-*/
+
 
         $(document).ready( function () {
             
             var table_json = {{ json_results | safe }}
-
-
-            {% if target_dataset.type == "ProbeSet" %}
-            var json_array = [];
-
-            for (i=0; i < table_json.length; i++){
-                this_array = json_array
-
-                var row_dict = {};
-                row_dict.checkbox = table_json[i]["checkbox"]
-                row_dict.index = table_json[i]["index"]
-                row_dict.trait_id = table_json[i]["trait_id"]
-                row_dict.symbol = table_json[i]["symbol"]
-                row_dict.description = table_json[i]["description"]
-                row_dict.location = table_json[i]["location"]
-                row_dict.mean = table_json[i]["mean"]
-                row_dict.lrs_score = table_json[i]["lrs_score"]
-                row_dict.lrs_location = table_json[i]["lrs_location"]
-                row_dict.additive = table_json[i]["additive"]
-                row_dict.sample_r = table_json[i]["sample_r"]
-                row_dict.num_overlap = table_json[i]["num_overlap"]
-                row_dict.sample_p = table_json[i]["sample_p"]
-                row_dict.lit_corr = table_json[i]["lit_corr"]
-                row_dict.tissue_corr = table_json[i]["tissue_corr"]
-                this_array.push(row_dict);
-                json_array.concat(this_array);
-                //console.log("JSON_ARRAY:", json_array);
-            }
-            console.log("JSON_DATA:", json_array)
-
-            $("#trait_table").tabulator({
-                data: json_array,
-                columns:[
-                    {title:"", field:"checkbox", formatter:"html"},
-                    {title:"Index", field:"index", formatter:"plaintext"},
-                    {title:"Record", field:"trait_id", formatter:"html"},
-                    {title:"Symbol", field:"symbol", formatter:"plaintext"},
-                    {title:"Description", field:"description", formatter:"textarea", width:"25%"},
-                    {title:"Location", field:"location", formatter:"plaintext"},
-                    {title:"Mean", field:"mean", formatter:"plaintext"},
-                    {title:"Max LRS", field:"lrs_score", formatter:"plaintext"},
-                    {title:"Max LRS Location", field:"lrs_location", formatter:"plaintext"},
-                    {title:"Additive Effect", field:"additive", formatter:"plaintext"},
-                    {title:"Sample r", field:"sample_r", formatter:"html"},
-                    {title:"N", field:"num_overlap", formatter:"plaintext"},
-                    {title:"Sample p(r)", field:"sample_p", formatter:"plaintext"},
-                    {title:"Lit r", field:"lit_corr", formatter:"plaintext"},
-                    {title:"Tissue r", field:"tissue_corr", formatter:"plaintext"}
-                ]
-            });
-            {% endif %}
 
             $('#trait_table tr').click(function(event) {
                 if (event.target.type !== 'checkbox') {
@@ -357,7 +300,6 @@
                 }
             }
 
-            /*
             console.time("Creating table");
 
             {% if target_dataset.type == "ProbeSet" %}
@@ -509,7 +451,6 @@
             } );
             {% endif %}
             console.timeEnd("Creating table");
-            */
 
             submit_special = function(url) {
                 $("#correlation_form").attr("action", url);
