@@ -2,6 +2,7 @@ from __future__ import print_function
 import re
 import requests
 from lxml.html import parse
+from link_checker import check_page
 from requests.exceptions import ConnectionError
 
 def check_home(url):
@@ -25,7 +26,6 @@ def check_search_page(host):
     check_traits_page(host, "/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P")
 
 def check_traits_page(host, traits_url):
-    from link_checker import check_page
     doc = parse(host+traits_url).getroot()
     traits_form = doc.forms[1]
     assert(traits_form.fields["corr_dataset"] == "HC_M2_0606_P")
