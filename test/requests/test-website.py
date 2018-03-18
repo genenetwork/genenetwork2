@@ -4,9 +4,10 @@
 #
 # Mostly to pick up the Guix GN2_PROFILE and python modules
 from __future__ import print_function
-from main_web_functionality import check_main_web_functionality
-from link_checker import check_links
 import argparse
+from link_checker import check_links
+from mapping_tests import check_mapping
+from main_web_functionality import check_main_web_functionality
 
 print("Mechanical Rob firing up...")
 
@@ -15,6 +16,7 @@ def run_all(args_obj, parser):
     print("Running all tests.")
     check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
+    check_mapping(args_obj, parser)
     # TODO: Add other functions as they are created.
 
 def print_help(args_obj, parser):
@@ -51,13 +53,13 @@ parser.add_argument("-f", "--main-functionality", dest="accumulate"
                     , default=print_help
                     , help="Checks for main web functionality.")
 
+parser.add_argument("-m", "--mapping", dest="accumulate"
+                    , action="store_const", const=check_mapping, default=print_help
+                    , help="Checks for mapping.")
+
 # parser.add_argument("-n", "--navigation", dest="accumulate"
 #                     , action="store_const", const=check_navigation, default=print_help
 #                     , help="Checks for navigation.")
-
-# parser.add_argument("-m", "--mapping", dest="accumulate"
-#                     , action="store_const", const=check_mapping, default=print_help
-#                     , help="Checks for mapping.")
 
 # parser.add_argument("-s", "--skip-broken", dest="accumulate"
 #                     , action="store_const", const=dummy, default=print_help
