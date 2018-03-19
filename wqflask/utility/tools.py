@@ -54,7 +54,7 @@ def get_setting(command_id,guess=None):
     # print("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if command is None or command == "":
-        command = OVERRIDES.get(command_id)
+        command = OVERRIDES.get(command_id) # currently not in use
         if command is None:
             # ---- Check whether setting exists in app
             command = value(app.config.get(command_id))
@@ -284,19 +284,6 @@ JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_pat
 assert_dir(JS_TWITTER_POST_FETCHER_PATH)
 
 from six import string_types
-
-if os.environ.get('WQFLASK_OVERRIDES'):
-    jsonfn = get_setting('WQFLASK_OVERRIDES')
-    logger.info("WQFLASK_OVERRIDES: %s" % jsonfn)
-    with open(jsonfn) as data_file:
-        overrides = json.load(data_file)
-        for k in overrides:
-            cmd = overrides[k]
-            if isinstance(cmd, string_types):
-                OVERRIDES[k] = eval(cmd)
-            else:
-                OVERRIDES[k] = cmd
-            logger.debug(OVERRIDES)
 
 # assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
 assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")
