@@ -251,6 +251,26 @@ assert_dir(JS_GUIX_PATH)
 JS_GN_PATH         = get_setting('JS_GN_PATH')
 # assert_dir(JS_GN_PATH)
 
+GITHUB_CLIENT_ID = get_setting('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = get_setting('GITHUB_CLIENT_SECRET')
+GITHUB_AUTH_URL = None
+if GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET:
+    GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize?client_id="+GITHUB_CLIENT_ID+"&client_secret="+GITHUB_CLIENT_SECRET
+GITHUB_API_URL = get_setting('GITHUB_API_URL')
+ORCID_CLIENT_ID = get_setting('ORCID_CLIENT_ID')
+ORCID_CLIENT_SECRET = get_setting('ORCID_CLIENT_SECRET')
+ORCID_AUTH_URL = None
+if ORCID_CLIENT_ID and ORCID_CLIENT_SECRET:
+    ORCID_AUTH_URL = "https://sandbox.orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id="+ORCID_CLIENT_ID+"&client_secret="+ORCID_CLIENT_SECRET
+ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
+
+ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
+ELASTICSEARCH_PORT = get_setting('ELASTICSEARCH_PORT')
+
+SMTP_CONNECT = get_setting('SMTP_CONNECT')
+SMTP_USERNAME = get_setting('SMTP_USERNAME')
+SMTP_PASSWORD = get_setting('SMTP_PASSWORD')
+
 PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
 GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
 assert(GEMMA_COMMAND is not None)

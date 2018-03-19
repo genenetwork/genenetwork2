@@ -114,7 +114,7 @@ class MarkerRegression(object):
         self.num_perm = 0
         self.perm_output = []
         self.bootstrap_results = []
-        self.covariates = start_vars['covariates']
+        self.covariates = start_vars['covariates'] if "covariates" in start_vars else None
 
         #ZS: This is passed to GN1 code for single chr mapping
         self.selected_chr = -1
