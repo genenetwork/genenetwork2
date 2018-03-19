@@ -16,6 +16,10 @@ def is_internal_link(link):
     pattern = re.compile("^/.*")
     return pattern.match(link)
 
+def is_in_page_link(link):
+    pattern = re.compile("^#.*")
+    return pattern.match(link)
+
 def get_links(doc):
     return filter(
         lambda x: not (
@@ -32,17 +36,21 @@ def verify_link(link):
         else:
             print("ERROR: link `"+link+"` failed with status "
                   , result.status_code)
-    except ConnectionError as ex:
-        print("ERROR: ", link, ex)
+    except Exception as ex:
+        print("ERROR: ("+link+")", ex)
 
 def check_page(host, start_url):
     print("")
     print("Checking links in page `"+start_url+"`")
     doc = parse(start_url).getroot()
     links = get_links(doc)
+    in_page_links = filter(is_in_page_link, links)
     internal_links = filter(is_internal_link, links)
-    external_links = filter(lambda x: not is_internal_link(x), links)
-    external_links.append("http://somenon-existentsite.brr")
+    external_links = filter(lambda x: not (is_internal_link(x) or is_in_page_link(x)), links)
+
+    for link in in_page_links:
+        verify_link(start_url+link)
+
     for link in internal_links:
         verify_link(host+link)
 
