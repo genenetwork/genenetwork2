@@ -220,7 +220,7 @@ def show_settings():
 
     logger.info(OVERRIDES)
     logger.info(BLUE+"Mr. Mojo Risin 2"+ENDC)
-    print "runserver.py: ****** Webserver configuration ******"
+    print "runserver.py: ****** Webserver configuration - k,v pairs from app.config ******"
     keylist = app.config.keys()
     keylist.sort()
     for k in keylist:
@@ -269,6 +269,8 @@ if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
 
 ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
 ELASTICSEARCH_PORT = get_setting('ELASTICSEARCH_PORT')
+import utility.elasticsearch_tools as es
+es.test_elasticsearch_connection()
 
 SMTP_CONNECT = get_setting('SMTP_CONNECT')
 SMTP_USERNAME = get_setting('SMTP_USERNAME')
