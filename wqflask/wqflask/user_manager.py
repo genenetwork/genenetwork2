@@ -626,13 +626,12 @@ class LoginUser(object):
         logger.debug("in login params are:", params)
         es = get_elasticsearch_connection()
         if not params:
-            from utility.tools import GITHUB_AUTH_URL, ORCID_AUTH_URL
-            external_login = None
-            if GITHUB_AUTH_URL or ORCID_AUTH_URL:
-                external_login={
-                    "github": GITHUB_AUTH_URL,
-                    "orcid": ORCID_AUTH_URL
-                }
+            from utility.tools import GITHUB_AUTH_URL, GITHUB_CLIENT_ID, ORCID_AUTH_URL, ORCID_CLIENT_ID
+            external_login = {}
+            if GITHUB_AUTH_URL and GITHUB_CLIENT_ID != 'UNKNOWN':
+                external_login["github"] = GITHUB_AUTH_URL
+            if ORCID_AUTH_URL and ORCID_CLIENT_ID != 'UNKNOWN':
+                external_login["orcid"] = ORCID_AUTH_URL
             assert(es is not None)
             return render_template(
                 "new_security/login_user.html"
