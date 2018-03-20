@@ -263,7 +263,7 @@ ORCID_CLIENT_ID = get_setting('ORCID_CLIENT_ID')
 ORCID_CLIENT_SECRET = get_setting('ORCID_CLIENT_SECRET')
 ORCID_AUTH_URL = None
 if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
-    ORCID_AUTH_URL = "https://sandbox.orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id=" +
+    ORCID_AUTH_URL = "https://sandbox.orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id=" + \
                       ORCID_CLIENT_ID+"&client_secret="+ORCID_CLIENT_SECRET
     ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
 
