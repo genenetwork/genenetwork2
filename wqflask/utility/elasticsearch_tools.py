@@ -6,6 +6,11 @@ logger = getLogger(__name__)
 
 from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
 
+def test_elasticsearch_connection():
+    es = Elasticsearch(['http://'+ELASTICSEARCH_HOST+":"+ELASTICSEARCH_PORT+'/'], verify_certs=True)
+    if not es.ping():
+        logger.warning("Elasticsearch is DOWN")
+
 def get_elasticsearch_connection():
     logger.info("get_elasticsearch_connection")
     es = None
