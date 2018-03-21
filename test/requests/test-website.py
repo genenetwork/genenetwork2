@@ -58,9 +58,10 @@ parser.add_argument("-m", "--mapping", dest="accumulate"
                     , action="store_const", const=check_mapping, default=print_help
                     , help="Checks for mapping.")
 
-parser.add_argument("-n", "--navigation", dest="accumulate"
-                    , action="store_const", const=check_navigation, default=print_help
-                    , help="Checks for navigation.")
+# Navigation tests deactivated since system relies on Javascript
+# parser.add_argument("-n", "--navigation", dest="accumulate"
+#                     , action="store_const", const=check_navigation, default=print_help
+#                     , help="Checks for navigation.")
 
 # parser.add_argument("-s", "--skip-broken", dest="accumulate"
 #                     , action="store_const", const=dummy, default=print_help
