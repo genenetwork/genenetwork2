@@ -19,8 +19,8 @@ def app_config():
     mode = WEBSERVER_MODE
     if mode == "DEV" or mode == "DEBUG":
         app.config['TEMPLATES_AUTO_RELOAD'] = True
-        if mode == "DEBUG":
-            app.config['EXPLAIN_TEMPLATE_LOADING'] = True
+        # if mode == "DEBUG":
+        #     app.config['EXPLAIN_TEMPLATE_LOADING'] = True <--- use overriding app param instead
     print("==========================================")
     show_settings()
 
