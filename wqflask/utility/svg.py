@@ -1029,7 +1029,7 @@ class drawing:
         try:
             xv.feed(svg)
         except:
-            raise "SVG is not well formed, see messages above"
+            raise Exception("SVG is not well formed, see messages above")
         else:
             print "SVG well formed"
 if __name__=='__main__':
