@@ -129,7 +129,11 @@ else
     if [ -z $GEMMA_WRAPPER_COMMAND ]; then
         export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
     fi
-    if [ ! -d $PYTHONPATH ] ; then echo "PYTHONPATH not valid "$PYTHONPATH ; exit 1 ; fi
+    while IFS=":" read -ra PPATH; do
+	for PPART in "${PPATH[@]}"; do
+	    if [ ! -d $PPART ] ; then echo "$PPART in PYTHONPATH not valid $PYTHONPATH" ; exit 1 ; fi
+	done
+    done <<< "$PYTHONPATH"
     if [ ! -d $R_LIBS_SITE ] ; then echo "R_LIBS_SITE not valid "$R_LIBS_SITE ; exit 1 ; fi
     if [ ! -d $GEM_PATH ] ; then echo "GEM_PATH not valid "$GEM_PATH ; exit 1 ; fi
 fi
