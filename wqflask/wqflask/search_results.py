@@ -64,14 +64,23 @@ views.py).
         else:
             self.and_or = "and"
             self.search_terms = kw['search_terms_and']
-        self.search_term_exists = True
-        self.results = []
-        if kw['type'] == "Phenotypes":     # split datatype on type field
-            dataset_type = "Publish"
-        elif kw['type'] == "Genotypes":
-            dataset_type = "Geno"
+        if "http:" in self.search_terms:
+            self.search_term_exists = False
+            return
         else:
+            self.search_term_exists = True
+
+        self.results = []
+        type = kw.get('type')
+        if type == "Phenotypes":     # split datatype on type field
+            dataset_type = "Publish"
+        elif type == "Genotypes":
+            dataset_type = "Geno"
+        elif type == "ProbeSet":
             dataset_type = "ProbeSet"      # ProbeSet is default
+        else:
+            self.search_term_exists = False
+            return
         self.dataset = create_dataset(kw['dataset'], dataset_type)
         logger.debug("search_terms:", self.search_terms)
         self.search()
