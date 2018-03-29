@@ -10,6 +10,7 @@ import time
 import math
 import datetime
 import collections
+import re
 
 from pprint import pformat as pf
 
@@ -64,7 +65,10 @@ views.py).
         else:
             self.and_or = "and"
             self.search_terms = kw['search_terms_and']
-        if "http:" in self.search_terms:
+        search = self.search_terms
+        # check for dodgy search terms
+        regex = re.compile("http:|href|sql|select",re.IGNORECASE)
+        if regex.match(search):
             self.search_term_exists = False
             return
         else:
