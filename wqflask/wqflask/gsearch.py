@@ -5,6 +5,7 @@ from base.data_set import create_dataset
 from base.trait import GeneralTrait
 from db import webqtlDatabaseFunction
 
+from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
 from utility.benchmark import Bench
 
 from utility.logger import getLogger
@@ -13,8 +14,13 @@ logger = getLogger(__name__)
 class GSearch(object):
 
     def __init__(self, kw):
+        assert('type' in kw)
+        assert('terms' in kw)
+
         self.type = kw['type']
         self.terms = kw['terms']
+        assert(is_str(self.type))
+
         if self.type == "gene":
             sql = """
                 SELECT
