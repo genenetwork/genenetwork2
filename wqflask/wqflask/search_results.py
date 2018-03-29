@@ -26,6 +26,7 @@ from db import webqtlDatabaseFunction
 from flask import render_template
 
 from utility import formatting
+from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -67,8 +68,9 @@ views.py).
             self.search_terms = kw['search_terms_and']
         search = self.search_terms
         # check for dodgy search terms
-        regex = re.compile("http:|href|sql|select|update",re.IGNORECASE)
-        if regex.match(search):
+        rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*',re.IGNORECASE)
+        if rx.match(search):
+            logger.info("Regex failed search")
             self.search_term_exists = False
             return
         else:
@@ -80,11 +82,10 @@ views.py).
             dataset_type = "Publish"
         elif type == "Genotypes":
             dataset_type = "Geno"
-        elif type == "ProbeSet":
-            dataset_type = "ProbeSet"      # ProbeSet is default
         else:
-            self.search_term_exists = False
-            return
+            dataset_type = "ProbeSet"      # ProbeSet is default
+
+        assert(is_str(kw.get('dataset')))
         self.dataset = create_dataset(kw['dataset'], dataset_type)
         logger.debug("search_terms:", self.search_terms)
         self.search()
@@ -158,6 +159,7 @@ statement and executes
                         else:
                             combined_where_clause += "OR"
                 else:
+                    logger.debug("Search failed 1")
                     self.search_term_exists = False
             if self.search_term_exists:
                 combined_where_clause = "(" + combined_where_clause + ")"
@@ -168,6 +170,7 @@ statement and executes
         else:
             logger.debug("len(search_terms)<=1")
             if self.search_terms == []:
+                logger.debug("Search failed 2")
                 self.search_term_exists = False
             else:
                 for a_search in self.search_terms:
@@ -175,6 +178,7 @@ statement and executes
                     if the_search != None:
                         self.results.extend(the_search.run())
                     else:
+                        logger.debug("Search failed 3")
                         self.search_term_exists = False
 
         if self.search_term_exists:
