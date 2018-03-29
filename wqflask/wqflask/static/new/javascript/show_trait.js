@@ -250,15 +250,29 @@
     };
 
     redraw_box_plot = function() {
-      var x;
-      var _i, _len, _ref, data;
-      _ref = _.values(root.selected_samples[root.stats_group]);
-      trait_vals = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        x = _ref[_i];
-        trait_vals.push(x.value);
+      var y_value_list = []
+      for (var sample_group in root.selected_samples){
+        var trait_sample_data = _.values(root.selected_samples[sample_group])
+        var trait_vals = [];
+        for (i = 0, len = trait_sample_data.length; i < len; i++) {
+          this_sample_data = trait_sample_data[i];
+          trait_vals.push(this_sample_data.value);
+        }
+        y_value_list.push(trait_vals)
       }
-      Plotly.restyle('box_plot', 'y', [trait_vals])
+
+      if (Object.keys(js_data.sample_group_types).length > 1) {
+          var update = {
+            y: y_value_list
+          }
+          console.log("REDRAW UPDATE:", update)
+          Plotly.restyle('box_plot', update, [0, 1, 2])
+      } else {
+          var update = {
+            y: y_value_list
+          }
+          Plotly.restyle('box_plot', update)
+      }
     }
 
     redraw_prob_plot = function() {
@@ -640,6 +654,108 @@
     };
 
     root.stats_group = 'samples_primary';
+
+    if (Object.keys(js_data.sample_group_types).length > 1) {
+        full_sample_lists = [sample_lists[0], sample_lists[1], sample_lists[0].concat(sample_lists[1])]
+        sample_group_list = [js_data.sample_group_types['samples_primary'], js_data.sample_group_types['samples_other'], js_data.sample_group_types['samples_all']]
+    } else {
+        full_sample_lists = [sample_lists[0]]
+        sample_group_list = [js_data.sample_group_types['samples_primary']]
+    }
+
+    if (full_sample_lists.length > 1) {
+        var box_layout = {
+            width: 1200,
+            height: 500,
+            margin: {
+                l: 50,
+                r: 30,
+                t: 30,
+                b: 80
+            }
+        };
+        var trace1 = {
+            y: get_sample_vals(full_sample_lists[0]),
+            type: 'box',
+            name: sample_group_list[0],
+            boxpoints: 'all',
+            jitter: 0.5,
+            whiskerwidth: 0.2,
+            fillcolor: 'cls',
+            marker: {
+                size: 2
+            },
+            line: {
+                width: 1
+            }
+        }
+        var trace2 = {
+            y: get_sample_vals(full_sample_lists[1]),
+            type: 'box',
+            name: sample_group_list[1],
+            boxpoints: 'all',
+            jitter: 0.5,
+            whiskerwidth: 0.2,
+            fillcolor: 'cls',
+            marker: {
+                size: 2
+            },
+            line: {
+                width: 1
+            }
+        }
+        var trace3 = {
+            y: get_sample_vals(full_sample_lists[2]),
+            type: 'box',
+            name: sample_group_list[2],
+            boxpoints: 'all',
+            jitter: 0.5,
+            whiskerwidth: 0.2,
+            fillcolor: 'cls',
+            marker: {
+                size: 2
+            },
+            line: {
+                width: 1
+            }
+        }
+        box_data = [trace1, trace2, trace3]
+    } else {
+        var box_layout = {
+            width: 500,
+            height: 500,
+            margin: {
+                l: 50,
+                r: 30,
+                t: 30,
+                b: 80
+            }
+        };
+        box_data = [
+          {
+            type: 'box',
+            y: get_sample_vals(full_sample_lists[0]),
+            name: sample_group_list[0],
+            boxpoints: 'all',
+            jitter: 0.5,
+            whiskerwidth: 0.2,
+            fillcolor: 'cls',
+            marker: {
+                size: 2
+            },
+            line: {
+                width: 1
+            }
+          }
+        ]
+    }
+
+    obj = {
+      data: box_data,
+      layout: box_layout
+    }
+    Plotly.newPlot('box_plot', obj);
+
     // Histogram
     var hist_trace = {
         x: get_sample_vals(sample_lists[0]),
@@ -685,50 +801,6 @@
     };
     root.bar_layout = layout
     Plotly.newPlot('bar_chart', root.bar_data, layout)
-
-    if (Object.keys(js_data.sample_group_types).length > 1) {
-        full_sample_lists = [sample_lists[0], sample_lists[1], sample_lists[0].concat(sample_lists[1])]
-        sample_group_list = [js_data.sample_group_types['samples_primary'], js_data.sample_group_types['samples_other'], js_data.sample_group_types['samples_all']]
-    } else {
-        full_sample_lists = [sample_lists[0]]
-        sample_group_list = [js_data.sample_group_types['samples_primary']]
-    }
-
-    data = []
-    for ( var i = 0; i < full_sample_lists.length; i ++ ) {
-        var box_trace = {
-            type: 'box',
-            y: get_sample_vals(full_sample_lists[i]),
-            name: sample_group_list[i],
-            boxpoints: 'all',
-            jitter: 0.5,
-            whiskerwidth: 0.2,
-            fillcolor: 'cls',
-            marker: {
-                size: 2
-            },
-            line: {
-                width: 1
-            }
-        };
-        data.push(box_trace)
-    };
-    layout = {
-        title: 'Box Plot',
-        yaxis: {
-            autorange: true,
-            showgrid: true,
-            zeroline: true
-        },
-        margin: {
-            l: 50,
-            r: 30,
-            t: 80,
-            b: 80
-        }
-    };
-
-    Plotly.newPlot('box_plot', data, layout);
 
     $('.histogram_samples_group').val(root.stats_group);
     $('.histogram_samples_group').change(function() {

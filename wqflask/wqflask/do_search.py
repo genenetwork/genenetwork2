@@ -989,3 +989,4 @@ if __name__ == "__main__":
     #results = GoSearch("0045202", dataset, cursor, db_conn).run()
 
     logger.debug("results are:", pf(results))
+    db_conn.close()
