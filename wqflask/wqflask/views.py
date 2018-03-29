@@ -199,14 +199,15 @@ def search_page():
         logger.info("request.args is", request.args)
         the_search = search_results.SearchResultPage(request.args)
         result = the_search.__dict__
+        valid_search = result['search_term_exists']
 
         logger.debugf("result", result)
 
-        if USE_REDIS:
+        if USE_REDIS and valid_search:
             Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
             Redis.expire(key, 60*60)
 
-        if result['search_term_exists']:
+        if valid_search:
             return render_template("search_result_page.html", **result)
         else:
             return render_template("search_error.html")

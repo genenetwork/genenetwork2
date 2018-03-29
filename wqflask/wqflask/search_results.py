@@ -67,7 +67,7 @@ views.py).
             self.search_terms = kw['search_terms_and']
         search = self.search_terms
         # check for dodgy search terms
-        regex = re.compile("http:|href|sql|select",re.IGNORECASE)
+        regex = re.compile("http:|href|sql|select|update",re.IGNORECASE)
         if regex.match(search):
             self.search_term_exists = False
             return
