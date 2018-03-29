@@ -7,9 +7,12 @@
 # from flask import Flask
 # application = Flask(__name__)
 
-print "Starting up Gunicorn process"
+print "===> Starting up Gunicorn process"
 
 from wqflask import app
+from utility.startup_config import app_config
+
+app_config()
 
 @app.route("/gunicorn")
 def hello():
