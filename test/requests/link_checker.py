@@ -4,6 +4,8 @@ import requests
 from lxml.html import parse
 from requests.exceptions import ConnectionError
 
+DO_FAIL=False  # fail on error
+
 def is_root_link(link):
     pattern = re.compile("^/$")
     return pattern.match(link)
@@ -25,6 +27,7 @@ def get_links(doc):
               , doc.cssselect("a")))
 
 def verify_link(link):
+    assert(DO_FAIL)
     if link[0] == "#":
         # local link on page
         return
@@ -38,8 +41,12 @@ def verify_link(link):
         else:
             print("ERROR: link `"+link+"` failed with status "
                   , result.status_code)
+            if DO_FAIL:
+                raise Exception("Failed verify")
     except ConnectionError as ex:
         print("ERROR: ", link, ex)
+        if DO_FAIL:
+            raise ex
 
 def check_page(host, start_url):
     print("")
@@ -48,7 +55,7 @@ def check_page(host, start_url):
     links = get_links(doc)
     internal_links = filter(is_internal_link, links)
     external_links = filter(lambda x: not is_internal_link(x), links)
-    external_links.append("http://somenon-existentsite.brr")
+    # external_links.append("http://somenon-existentsite.brr")
     for link in internal_links:
         verify_link(host+link)
 
