@@ -55,7 +55,7 @@ logger = getLogger(__name__)
 from base.data_set import create_datasets_list
 
 import requests
-from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, save_user, es_save_data
+from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, get_item_by_unique_column, save_user, es_save_data
 
 from smtplib import SMTP
 from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD
@@ -446,6 +446,7 @@ def password_reset():
     # user_encode = DecodeUser(ForgotPasswordEmail.key_prefix).reencode_standalone()
     verification_code = request.args.get('code')
     hmac = request.args.get('hm')
+    es = get_elasticsearch_connection()
     if verification_code:
         code_details = get_item_by_unique_column(
             es
