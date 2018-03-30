@@ -25,10 +25,16 @@ def get_links(doc):
               , doc.cssselect("a")))
 
 def verify_link(link):
+    if link[0] == "#":
+        # local link on page
+        return
+    print("verifying "+link)
     try:
-        result = requests.get(link, timeout=20)
+        result = requests.get(link, timeout=20, verify=False)
         if result.status_code == 200:
             print(link+" ==> OK")
+        elif result.status_code == 307:
+            print(link+" ==> REDIRECT")
         else:
             print("ERROR: link `"+link+"` failed with status "
                   , result.status_code)
@@ -37,7 +43,7 @@ def verify_link(link):
 
 def check_page(host, start_url):
     print("")
-    print("Checking links in page `"+start_url+"`")
+    print("Checking links host "+host+" in page `"+start_url+"`")
     doc = parse(start_url).getroot()
     links = get_links(doc)
     internal_links = filter(is_internal_link, links)
