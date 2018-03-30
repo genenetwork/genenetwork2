@@ -55,7 +55,7 @@ logger = getLogger(__name__)
 from base.data_set import create_datasets_list
 
 import requests
-from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, save_user
+from utility.elasticsearch_tools import es, get_elasticsearch_connection, get_user_by_unique_column, save_user
 
 THREE_DAYS = 60 * 60 * 24 * 3
 #THREE_DAYS = 45
@@ -466,7 +466,6 @@ def password_reset():
 
 @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
-    from utility.elasticsearch_tools import es
     logger.debug("in password_reset request.url is:", request.url)
 
     errors = []
