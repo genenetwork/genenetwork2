@@ -27,7 +27,6 @@ def get_links(doc):
               , doc.cssselect("a")))
 
 def verify_link(link):
-    assert(DO_FAIL)
     if link[0] == "#":
         # local link on page
         return
