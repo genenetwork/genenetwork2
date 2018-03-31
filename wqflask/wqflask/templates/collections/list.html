@@ -26,13 +26,13 @@
             {% endif %}
         </div>
         <div>
-          <form id="collections_form" action="/delete" method="post">
-            <input type="hidden" name="uc_id" id="uc_id" value="" />
-          </form>
+            <form id="collections_form" action="/delete" method="post">
+              <input type="hidden" name="uc_id" id="uc_id" value="" />
+            </form>
             <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn btn-danger" id="remove_collections" data-url="/collections/delete">Remove Collections</button> 
+            <button class="btn btn-danger" id="remove_collections" data-url="/collections/delete">Remove Collections</button>
         </div>
         <br>
         <div id="collections_list" style="width:50%;">
@@ -51,7 +51,11 @@
             <tbody>
             {% for uc in collections %}
                 <tr class="collection_line">
+                    {% if g.user_session.user_ob %}
                     <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
+                    {% else %}
+                    <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.name }}"></td>
+                    {% endif %}
                     <td align="right">{{ loop.index }}
                     {% if g.user_session.user_ob %}
                     <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>

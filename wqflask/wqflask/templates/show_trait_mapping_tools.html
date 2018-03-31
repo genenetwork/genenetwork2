@@ -1,6 +1,6 @@
 <div>
-    {% if (use_pylmm_rqtl and dataset.group.species != "human") or use_plink_gemma %}
-    <div class="col-xs-4">
+    {% if dataset.group.mapping_names|length > 0 %}
+    <div class="col-xs-5">
         <div class="tabbable"> <!-- Only required for left/right tabs -->
 
             <ul class="nav nav-pills">
@@ -38,11 +38,11 @@
                 {# if use_pylmm_rqtl and not use_plink_gemma and dataset.group.species != "human" #}
                 {% if dataset.group.mapping_id == "1" %}
                 <div class="tab-pane active" id="gemma">
-                    <div style="padding-top: 10px;" class="form-horizontal">
+                    <div style="padding-top: 20px;" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
-                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                            <label for="genofiles" style="text-align: right;" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">
                                 <select id="genofile_gemma" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
@@ -52,50 +52,72 @@
                         </div>
                         {% endif %}
                         <div class="mapping_method_fields form-group">
-                            <label for="maf_gemma" class="col-xs-5 control-label">Minor allele threshold</label>
-                            <div style="margin-left: 20px;" class="col-xs-3 controls">
+                            <label for="maf_gemma" style="text-align: right;" class="col-xs-3 control-label">MAF</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">
                                 <input name="maf_gemma" value="0.01" type="text" class="form-control">
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label class="col-xs-4 control-label">Use LOCO</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                            <label style="text-align: right;" class="col-xs-3 control-label">Use LOCO</label>
+                            <div style="margin-left:20px;" class="col-xs-6 controls">
                                 <label class="radio-inline">
-                                    <input type="radio" name="use_loco" value="True">
+                                    <input type="radio" name="use_loco" value="True" checked="">
                                     Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="use_loco" value="False" checked="">
+                                    <input type="radio" name="use_loco" value="False">
                                     No
                                </label>
                             </div>
                         </div>
+                    <!--
                     </div>
                     <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 20px;" class="form-horizontal">
+                    -->
                         <div class="mapping_method_fields form-group">
-                            <button type="button" id="select_covariates" class="btn btn-default">
-                                Select Covariates
-                            </button>
-                            <button type="button" id="remove_covariates" class="btn btn-default">
-                                Remove Covariates
-                            </button>
+                            <label style="text-align: right;" class="col-xs-3 control-label">Covariates</label>
+                            <div style="margin-left:20px;" class="col-xs-7">
+                              {% if g.user_session.user_ob and (g.user_session.user_ob.display_num_collections() == "") %}
+                              No collections available. Please add traits to a collection to use them as covariates.
+                              {% elif g.cookie_session.display_num_collections() == "" %}
+                              No collections available. Please add traits to a collection to use them as covariates.
+                              {% else %}
+                              <div style="margin-bottom: 10px;" class="btn-group" role="group">
+                                <button type="button" id="select_covariates" class="btn btn-default">Select</button>
+                                <button type="button" id="remove_covariates" class="btn btn-default">Remove</button>
+                              </div>
+                              <textarea rows="3" cols="20" readonly placeholder="No covariates selected" style="overflow-y: scroll; resize: none;" class="selected_covariates"></textarea>
+                              {% endif %}
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-xs-4 controls">
+                        <div class="mapping_method_fields form-group">
+                          <label class="col-xs-3 control-label"></label>
+                          <div style="margin-left:20px;" class="col-xs-6">
                             <button id="gemma_bimbam_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
+                          </div>
                         </div>
                     </div>
+<!--
+                    <div class="form-group">
+                        <div class="col-xs-4 controls">
+                            <label class="col-xs-2 control-label"></label>
+                            <div class="col-xs-4">
+                            <button id="gemma_bimbam_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
+                                Compute
+                            </button>
+                            </div>
+                        </div>
+                    </div>
+-->
                 </div>
                 <div class="tab-pane" id="interval_mapping">
                     <div style="margin-top: 20px" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
-                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                            <label style="text-align: right;" for="genofiles" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">
                                 <select id="genofile_reaper" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
@@ -105,20 +127,20 @@
                         </div>
                         {% endif %}
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                            <label style="text-align: right;" for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">
                                 <input name="num_perm_reaper" value="2000" type="text" class="form-control">
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_bootstraps" class="col-xs-3 control-label">Bootstraps</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                            <label style="text-align: right;" for="mapping_bootstraps" class="col-xs-3 control-label">Bootstraps</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">
                                 <input name="num_bootstrap" value="2000" type="text" class="form-control">
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                            <label style="text-align: right;" for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
+                            <div style="margin-left:20px;" class="col-xs-6 controls">
                                 {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
                                 <input name="control_reaper" value="{{ nearest_marker }}" type="text" style="width: 160px;" class="form-control" />
                                 {% else %}
@@ -162,8 +184,8 @@
 
 
                         <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-3 control-label">Marker<br>Regression</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                            <label style="text-align: right;" class="col-xs-3 control-label">Marker<br>Regression</label>
+                            <div style="margin-left:20px;" class="col-xs-6 controls">
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_reaper" value="True">
                                     Yes
@@ -174,11 +196,12 @@
                                </label>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div style="padding-left:15px;" class="controls">
-                                <button id="interval_mapping_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping">
-                                    <i class="icon-ok-circle icon-white"></i> Compute
-                                </button>
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-xs-3 control-label"></label>
+                            <div style="margin-left:20px;" class="col-xs-6">
+                              <button id="interval_mapping_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping">
+                                  Compute
+                              </button>
                             </div>
                         </div>
                         <!--<div id="alert_placeholder"></div>-->
@@ -189,8 +212,8 @@
                     <div style="margin-top: 20px" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
-                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                            <label style="text-align:right;" for="genofiles" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">
                                 <select id="genofile_rqtl_geno" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
@@ -200,17 +223,14 @@
                         </div>
                         {% endif %}
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                <input name="num_perm_rqtl_geno" value="" type="text" class="form-control">
+                            <label style="text-align:right;" for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">
+                                <input name="num_perm_rqtl_geno" value="2000" type="text" class="form-control">
                             </div>
                         </div>
-                        <div id="permutations_alert" class="alert alert-error alert-warning" style="display:none;">
-                            Please be aware that permutations can take a very long time (~20 minutes for 500 permutations)
-                        </div>
                         <div class="mapping_method_fields form-group">
-                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
+                            <label style="text-align:right;" for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
+                            <div style="margin-left:20px;" class="col-xs-6 controls">
                                 {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
                                 <input name="control_rqtl_geno" value="{{ nearest_marker }}" type="text" style="width: 160px;" class="form-control" />
                                 {% else %}
@@ -228,8 +248,8 @@
                         </div>
 
                         <div class="mapping_method_fields form-group">
-                            <label for="mapmethod_rqtl_geno" style="text-align:left;" class="col-xs-3 control-label">Method</label>
-                            <div class="col-xs-4 controls">
+                            <label style="text-align:right;" for="mapmethod_rqtl_geno" class="col-xs-3 control-label">Method</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">
                               <select name="mapmethod_rqtl_geno" class="form-control">
                                 <option value="em">em</option>
                                 <option value="imp">imp</option>
@@ -243,8 +263,8 @@
                         </div>
 
                         <div class="mapping_method_fields form-group">
-                            <label for="mapmodel_rqtl_geno" style="text-align:left;" class="col-xs-3 control-label">Model</label>
-                            <div class="col-xs-4 controls">
+                            <label style="text-align:right;" for="mapmodel_rqtl_geno" class="col-xs-3 control-label">Model</label>
+                            <div style="margin-left:20px;" class="col-xs-4 controls">
                               <select name="mapmodel_rqtl_geno" class="form-control">
                                 <option value="normal">normal</option>
                                 <!--<option value="binary">binary</option>
@@ -269,8 +289,8 @@
                         </div>
                         -->
                         <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
-                            <div class="col-xs-12 controls">
+                            <label style="text-align:right;" class="col-xs-3 control-label">Marker<br>Regression</label>
+                            <div style="margin-left:20px;" class="col-xs-6 controls">
                                 <label class="radio-inline">
                                     <input type="radio" name="manhattan_plot_rqtl" value="True">
                                     Yes
@@ -282,11 +302,12 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div style="padding-left:15px;" class="controls">
-                                <button id="rqtl_geno_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
-                                    <i class="icon-ok-circle icon-white"></i> Compute
-                                </button>
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-xs-3 control-label"></label>
+                            <div style="margin-left:20px;" class="col-xs-6">
+                              <button id="rqtl_geno_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping">
+                                  Compute
+                              </button>
                             </div>
                         </div>
                     </div>
@@ -295,8 +316,8 @@
                     <div style="margin-top: 20px" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
-                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                            <label style="text-align:right;" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 <select id="genofile_pylmm" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
@@ -305,44 +326,12 @@
                             </div>
                         </div>
                         {% endif %}
-<!--
                         <div class="mapping_method_fields form-group">
-                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
-                                <input name="control_pylmm" value="{{ nearest_marker }}" type="text" />
-                                {% else %}
-                                <input name="control_pylmm" value="" type="text" />
-                                {% endif %}
-                                <label class="radio-inline">
-                                    <input type="radio" name="do_control_pylmm" value="true">
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="do_control_pylmm" value="false" checked="">
-                                    No
-                                </label>
-                            </div>
-                        </div>
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:left;" class="col-xs-12 control-label">Manhattan Plot</label>
-                            <div class="col-xs-12 controls">
-                                <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_pylmm" value="True">
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_pylmm" value="False" checked="">
-                                    No
-                               </label>
-                            </div>
-                        </div>
--->
-                        <div class="form-group">
-                            <div style="padding-left:15px;" class="controls">
-                                <button id="pylmm_compute" class="btn submit_special btn-success" title="Compute Marker Regression">
-                                    <i class="icon-ok-circle icon-white"></i> Compute
-                                </button>
+                            <label class="col-xs-3 control-label"></label>
+                            <div style="margin-left:20px;" class="col-xs-6">
+                              <button id="pylmm_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping">
+                                  Compute
+                              </button>
                             </div>
                         </div>
                     </div>
@@ -354,8 +343,8 @@
                     <div style="padding-top: 10px;" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
-                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div style="margin-left: 20px;" class="col-xs-8 controls">
+                            <label style="text-align:right;" class="col-xs-3 control-label">Genotypes</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 <select id="genofile_gemma" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
@@ -365,29 +354,34 @@
                         </div>
                         {% endif %}
                         <div class="mapping_method_fields form-group">
-                            <label for="maf_gemma" class="col-xs-5 control-label">Minor allele threshold</label>
-                            <div style="margin-left: 20px;" class="col-xs-3 controls">
+                            <label style="text-align:right;" class="col-xs-3 control-label">MAF</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 <input name="maf_gemma" value="0.01" type="text" class="form-control">
                             </div>
                         </div>
-                    </div>
-
-                    <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 20px;" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <button type="button" id="select_covariates" class="btn btn-default">
-                                Select Covariates
-                            </button>
-                            <button type="button" id="remove_covariates" class="btn btn-default">
-                                Remove Covariates
-                            </button>
+                            <label style="text-align: right;" class="col-xs-3 control-label">Covariates</label>
+                            <div style="margin-left:20px;" class="col-xs-7">
+                              {% if g.user_session.user_ob and (g.user_session.user_ob.display_num_collections() == "") %}
+                              No collections available. Please add traits to a collection to use them as covariates.
+                              {% elif g.cookie_session.display_num_collections() == "" %}
+                              No collections available. Please add traits to a collection to use them as covariates.
+                              {% else %}
+                              <div style="margin-bottom: 10px;" class="btn-group" role="group">
+                                <button type="button" id="select_covariates" class="btn btn-default">Select</button>
+                                <button type="button" id="remove_covariates" class="btn btn-default">Remove</button>
+                              </div>
+                              <textarea rows="3" cols="20" readonly placeholder="No covariates selected" style="overflow-y: scroll; resize: none;" class="selected_covariates"></textarea>
+                              {% endif %}
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-xs-4 controls">
+                        <div class="mapping_method_fields form-group">
+                          <label class="col-xs-3 control-label"></label>
+                          <div style="margin-left:20px;" class="col-xs-6">
                             <button id="gemma_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
+                          </div>
                         </div>
                     </div>
                 </div>
@@ -395,16 +389,16 @@
                 <div class="tab-pane" id="plink">
                     <div style="padding: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="maf_plink" class="col-xs-3 control-label">Minor allele threshold</label>
-                            <div style="margin-left: 20px;" class="col-xs-3 controls">
+                            <label style="text-align: right;" class="col-xs-3 control-label">MAF</label>
+                            <div style="margin-left: 20px;" class="col-xs-4 controls">
                                 <input name="maf_plink" value="0.01" type="text" class="form-control">
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="plink_compute" class="col-xs-1 control-label"></label>
-                        <div style="margin-left:20px;" class="col-xs-4 controls">
+                        <label style="text-align: right;" class="col-xs-3 control-label"></label>
+                        <div style="margin-left:20px;" class="col-xs-6 controls">
                             <button id="plink_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
@@ -416,25 +410,29 @@
             </div>
         </div>
     </div>
-    <div class="col-xs-6">
+    <div class="col-xs-5">
         {% if dataset.group.mapping_id == "1" %}
         <dl>
+             <dt>GEMMA</dt>
+             <dd>GEMMA is software implementing the Genome-wide Efficient Mixed Model Association algorithm for a standard linear mixed model for genome-wide association studies (GWAS).</dd>
              <dt>Interval Mapping</dt>
              <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.</dd>
-             <dt>pyLMM</dt>
-             <dd>pyLMM is a fast and lightweight linear mixed-model (LMM) solver for use in genome-wide association studies (GWAS).</dd>
              <dt>R/qtl</dt>
              <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
+             <dt>pyLMM</dt>
+             <dd>pyLMM is a fast and lightweight linear mixed-model (LMM) solver for use in genome-wide association studies (GWAS).</dd>
         </dl>
         {% else %}
         <dl>
+            {% if mapping_method == "GEMMA" %}
             <dt>GEMMA</dt>
             <dd>
                 GEMMA is software implementing the Genome-wide Efficient Mixed Model Association algorithm for a standard linear mixed model for genome-wide association studies (GWAS).<br>
-                Note: There currently exists an issue where GEMMA can't be run on traits from the same group simultaneously. If you receive an error, please wait a few minutes and try again.
             </dd>
+            {% elif mapping_method == "PLINK" %}
             <dt>PLINK</dt>
             <dd>PLINK is a free, open-source whole genome association analysis toolset.</dd>
+            {% endif %}
         </dl>
         {% endif %}
     </div>

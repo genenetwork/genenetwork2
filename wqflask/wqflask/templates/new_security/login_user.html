@@ -15,7 +15,6 @@
 
             <h4>Don't have an account?</h4>
 
-
             {% if es_server: %}
 	    <a href="/n/register" class="btn btn-primary modalize">Create a new account</a>
 	    {% else: %}
@@ -88,10 +87,17 @@
             </form>
 	    {% else: %}
 	    <div class="alert alert-warning">
-	      <p>You cannot login at this moment using your GeneNetwork account.<br />
+	      <p>You cannot login at this moment using your GeneNetwork account (the authentication service is down).<br />
 		Please try again later.</p>
 	    </div>
 	    {% endif %}
+            {% if not es_server and not external_login: %}
+            <hr>
+	    <div class="alert alert-warning">
+               Note: it is safe to use GeneNetwork without a login. Login is only required for keeping track of
+            collections and getting access to some types of restricted data.
+            </div>
+            {% endif %}
         </div>
     </div>
 

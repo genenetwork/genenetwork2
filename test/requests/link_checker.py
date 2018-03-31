@@ -4,6 +4,8 @@ import requests
 from lxml.html import parse
 from requests.exceptions import ConnectionError
 
+DO_FAIL=False  # fail on error
+
 def is_root_link(link):
     pattern = re.compile("^/$")
     return pattern.match(link)
@@ -29,27 +31,35 @@ def get_links(doc):
               , doc.cssselect("a")))
 
 def verify_link(link):
+    if link[0] == "#":
+        # local link on page
+        return
+    print("verifying "+link)
     try:
-        result = requests.get(link, timeout=20)
+        result = requests.get(link, timeout=20, verify=False)
         if result.status_code == 200:
             print(link+" ==> OK")
+        elif result.status_code == 307:
+            print(link+" ==> REDIRECT")
         else:
             print("ERROR: link `"+link+"` failed with status "
                   , result.status_code)
-    except Exception as ex:
-        print("ERROR: ("+link+")", ex)
+
+            if DO_FAIL:
+                raise Exception("Failed verify")
+    except ConnectionError as ex:
+        print("ERROR: ", link, ex)
+        if DO_FAIL:
+            raise ex
 
 def check_page(host, start_url):
     print("")
-    print("Checking links in page `"+start_url+"`")
+    print("Checking links host "+host+" in page `"+start_url+"`")
     doc = parse(start_url).getroot()
     links = get_links(doc)
     in_page_links = filter(is_in_page_link, links)
     internal_links = filter(is_internal_link, links)
     external_links = filter(lambda x: not (is_internal_link(x) or is_in_page_link(x)), links)
-
-    for link in in_page_links:
-        verify_link(start_url+link)
 
     for link in internal_links:
         verify_link(host+link)

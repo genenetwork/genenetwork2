@@ -75,47 +75,63 @@
 
 <table class="table">
 	<tr>
-    
-        <td>Axis X Color</td>
-		<td><input class="chartupdate" id="axisxcolor" type="color" value="#000000"></td>
-        
-        <td>Axis X Font</td>
-		<td><input class="chartupdate" id="axisxfont" type="text" value="16" style="width: 44px;"> px</td>
-        
-        <td>Domain X Color</td>
-		<td><input class="chartupdate" id="domainxcolor" type="color" value="#000000"></td>
-        
-        <td>Domain X Width</td>
-		<td><input class="chartupdate" id="domainxwidth" type="text" value="2" style="width: 44px;"> px</td>
-        
-        <td>Correlation Line Color</td>
-		<td><input class="chartupdate" id="clinecolor" type="color" value="#000000"></td>
-        
-        <td>Axis Line Color</td>
-		<td><input class="chartupdate" id="axiscolor" type="color" value="#000000"></td>
-        
-	</tr>
-	<tr>
-    
-        <td>Axis Y Color</td>
-		<td><input class="chartupdate" id="axisycolor" type="color" value="#000000"></td>
-        
-        <td>Axis Y Font</td>
-		<td><input class="chartupdate" id="axisyfont" type="text" value="16" style="width: 44px;"> px</td>
-        
-        <td>Domain Y Color</td>
-		<td><input class="chartupdate" id="domainycolor" type="color" value="#000000"></td>
-        
-        <td>Domain Y Width</td>
-		<td><input class="chartupdate" id="domainywidth" type="text" value="2" style="width: 44px;"> px</td>
-        
-        <td>Correlation Line Width</td>
-		<td><input class="chartupdate" id="clinewidth" type="text" value="1" style="width: 44px;"> px</td>
-        
-        <td>Axis Line Width</td>
-		<td><input class="chartupdate" id="axiswidth" type="text" value="1" style="width: 44px;"> px</td>
-        
-	</tr>
+        <td style="vertical-align: middle;">Width <input class="chartupdatewh" id="width" type="text" value="1000" style="width: 44px; height: 22px;"> px</td>
+        <td style="vertical-align: middle;">Height <input class="chartupdatewh" id="height" type="text" value="800" style="width: 44px; height: 22px;"> px</td>
+    </tr>
+</table>
+
+<table class="table">
+    <tr>
+		<td style="vertical-align: middle;">Mark
+            <input class="chartupdate" id="markcolor" type="color" value="#8fbbda">
+            <select class="chartupdatedata" id="marksize" style="width: 44px; height: 22px;">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="25">25</option>
+                <option value="30">30</option>
+            </select>
+            <select class="chartupdatedata" id="markshape" style="width: 100px; height: 22px;">
+                <option value="circle" selected>Circle</option>
+                <option value="cross">Cross</option>
+                <option value="triangle-up">Triangle-up</option>
+                <option value="triangle-down">Triangle-down</option>
+                <option value="diamond">Diamond</option>
+                <option value="square">Square</option>
+            </select>
+        </td>
+    </tr>
+</table>
+
+<table class="table">    
+    <tr>
+        <td style="vertical-align: middle;">Label
+            <input class="chartupdate" id="labelcolor" type="color" value="#000000">
+            <input class="chartupdate" id="labelfont" type="text" value="16" style="width: 44px; height: 22px;"> px
+        </td>
+        <td style="vertical-align: middle;">Number
+            <input class="chartupdate" id="numbercolor" type="color" value="#000000">
+            <input class="chartupdate" id="numberfont" type="text" value="16" style="width: 44px; height: 22px;"> px
+        </td>
+        <td style="vertical-align: middle;">Axis
+            <input class="chartupdate" id="axiscolor" type="color" value="#000000">
+            <input class="chartupdate" id="axiswidth" type="text" value="2" style="width: 44px; height: 22px;"> px
+        </td>
+        <td style="vertical-align: middle;">Line
+            <input class="chartupdate" id="linecolor" type="color" value="#8fbbda">
+            <input class="chartupdate" id="linewidth" type="text" value="1" style="width: 44px; height: 22px;"> px
+        </td>
+    </tr>
 </table>
 
 <br>
@@ -129,60 +145,12 @@
     <div class="tab-pane active" id="tp1">
 
 <br>
-<table class="table">
-	<tr>
-    
-        <td>Width</td>
-		<td><input class="chartupdatewh" id="width" type="text" value="1000" style="width: 44px;"> px</td>
-    
-        <td>Height</td>
-		<td><input class="chartupdatewh" id="height" type="text" value="800" style="width: 44px;"> px</td>
-        
-		<td>Size</td>
-		<td>
-            <select class="chartupdatedata" id="marksize" style="width: 100px;">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5" selected>5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-            </select>
-        </td>
-	
-		<td>Shape</td>
-		<td>
-            <select class="chartupdatedata" id="markshape" style="width: 100px;">
-                <option value="circle" selected>Circle</option>
-                <option value="cross">Cross</option>
-                <option value="triangle-up">Triangle-up</option>
-                <option value="triangle-down">Triangle-down</option>
-                <option value="diamond">Diamond</option>
-                <option value="square">Square</option>
-            </select>
-        </td>
-        
-	</tr>
-</table>
 
 <div><a id="a_svg_pcs" href="#" onclick="javascript:saveassvg_pcs();" class="btn btn-primary">Save as SVG</a></div>
 
 <div style="width: 1000px; text-align: center;"><h2>Pearson Correlation Scatterplot</h2></div>
 
-<div id="scatterplot2">
-	<svg id="svg_pcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
-</div>
-
-<br>
-
-<div class="alert alert-info" style="width: 200px; margin-left: 80px;">
-    y = {{'%0.3f' % jsdata.slope}} * x + {{'%0.3f' % jsdata.intercept}}
-</div>
+<div id="scatterplot2"><svg id="svg_pcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg></div>
 
 <br>
 
@@ -196,6 +164,13 @@
 		<tr><td>Intercept</td>	<td>{{'%0.3f' % jsdata.intercept}}</td></tr>
 		<tr><td>r value</td>	<td>{{'%0.3f' % jsdata.r_value}}</td></tr>
    		<tr><td>P value</td>	<td>{% if jsdata.p_value < 0.001 %}{{'%0.3e' % jsdata.p_value}}{% else %}{{'%0.3f' % jsdata.p_value}}{% endif %}</td></tr>
+        <tr>
+            <td style="text-align: left;" colspan="2">
+                Regression Line
+                <br>
+                y = {{'%0.3f' % jsdata.slope}} * x + {{'%0.3f' % jsdata.intercept}}
+            </td>
+        </tr>
 	</tbody>
 </table>
 
@@ -204,54 +179,12 @@
     <div class="tab-pane" id="tp2">
     
 <br>
-<table class="table">
-	<tr>
-    
-        <td>Width</td>
-		<td><input class="srchartupdatewh" id="srwidth" type="text" value="1000" style="width: 44px;"> px</td>
-    
-        <td>Height</td>
-		<td><input class="srchartupdatewh" id="srheight" type="text" value="800" style="width: 44px;"> px</td>
-        
-		<td>Size</td>
-		<td>
-            <select class="srchartupdatedata" id="srmarksize" style="width: 100px;">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5" selected>5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-            </select>
-        </td>
-    
-		<td>Shape</td>
-		<td>
-            <select class="srchartupdatedata" id="srmarkshape" style="width: 100px;">
-                <option value="circle" selected>Circle</option>
-                <option value="cross">Cross</option>
-                <option value="triangle-up">Triangle-up</option>
-                <option value="triangle-down">Triangle-down</option>
-                <option value="diamond">Diamond</option>
-                <option value="square">Square</option>
-            </select>
-        </td>
-        
-	</tr>
-</table>
 
 <div><a id="a_svg_srcs" href="#" onclick="javascript:saveassvg_srcs();" class="btn btn-primary">Save as SVG</a></div>
 
 <div style="width: 1000px; text-align: center;"><h2>Spearman Rank Correlation Scatterplot</h2></div>
 
-<div id="srscatterplot2">
-	<svg id="svg_srcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg>
-</div>
+<div id="srscatterplot2"><svg id="svg_srcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg></div>
 
 <br>
 
@@ -287,5 +220,4 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/colorbrewer.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot-2.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot-2_sr.js"></script>
 {% endblock %}

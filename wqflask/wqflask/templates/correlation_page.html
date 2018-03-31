@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/tabulator/css/tabulator.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
 {% endblock %}
 {% block content %}
@@ -63,15 +62,15 @@
         </div>
 
         <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1400px{% else %}800px{% endif %};">
-            <table id="trait_table" class="display dataTable nowrap" style="float: left;">
+            <table id="trait_table" class="display dataTable nowrap" style="font-size: 12px; float: left;">
                 <thead>
                     <tr>
-                        <th style="width: 30px;"></th>
+                        <th></th>
                     {% for header in target_dataset.header_fields %}
                         {% if header == 'Year' %}
                         <th>{{header}}</th>
                         {% elif header == 'Max LRS' %}
-                        <th>Max LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th>Max LRS</th>
                         {% elif header == 'Max LRS Location' %}
                         <th>{{header}}</th>
                         {% elif header == 'Location' %}
@@ -79,7 +78,7 @@
                         {% elif header == 'Mean' %}
                         <th>{{header}}</th>
                         {% elif header == 'Additive Effect' %}
-                        <th>Additive Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
+                        <th>Additive Effect</th>
                         {% elif header == 'Index' %}
                         <th>{{header}}</th>
                         {% elif header == 'N' %}
@@ -91,7 +90,7 @@
                     {% if target_dataset.type == "ProbeSet" %}
                         {% if corr_method == 'pearson' %}
                         <th>Sample r</th>
-                        <th>&nbsp;&nbsp;N</th>
+                        <th>N</th>
                         <th>Sample p(r)</th>
                         <th>Lit r</th>
                         <th>Tissue r</th>
@@ -129,8 +128,8 @@
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
-                        <td align="right">{{ loop.index }}</td>
+                        <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
+                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;">{{ loop.index }}</td>
                         <td>
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
@@ -191,13 +190,15 @@
 {% block js %}  
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+
     <script type="text/javascript" charset="utf-8">
         function getValue(x) {
             if (x.indexOf('input') >= 0) {
@@ -213,7 +214,8 @@
             }
             return parseFloat(x);
         }
-            
+
+
         jQuery.fn.dataTableExt.oSort['numeric-html-asc']  = function(a,b) {
             a = Math.abs(parseFloat($(a).text()));
             b = Math.abs(parseFloat($(b).text()));
@@ -263,6 +265,8 @@
 
         $(document).ready( function () {
             
+            var table_json = {{ json_results | safe }}
+
             $('#trait_table tr').click(function(event) {
                 if (event.target.type !== 'checkbox') {
                     $(':checkbox', this).trigger('click');

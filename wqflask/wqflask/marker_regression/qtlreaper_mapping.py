@@ -1,17 +1,20 @@
-def gen_reaper_results(this_trait, dataset, samples_before, json_data, num_perm, bootCheck, num_bootstrap, do_control, control_marker, manhattan_plot):
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
+
+def gen_reaper_results(this_trait, dataset, samples_before, trait_vals, json_data, num_perm, bootCheck, num_bootstrap, do_control, control_marker, manhattan_plot):
     genotype = dataset.group.read_genotype_file()
 
     if manhattan_plot != True:
         genotype = genotype.addinterval()
 
-    samples, values, variances, sample_aliases = this_trait.export_informative()
-
     trimmed_samples = []
     trimmed_values = []
-    for i in range(0, len(samples)):
-        if this_trait.data[samples[i]].name in samples_before:
-            trimmed_samples.append(samples[i])
-            trimmed_values.append(values[i])
+    for i in range(0, len(samples_before)):
+        try:
+            trimmed_values.append(float(trait_vals[i]))
+            trimmed_samples.append(samples_before[i])
+        except:
+            pass
 
     perm_output = []
     bootstrap_results = []

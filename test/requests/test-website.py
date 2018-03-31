@@ -9,12 +9,16 @@ from link_checker import check_links
 from mapping_tests import check_mapping
 from navigation_tests import check_navigation
 from main_web_functionality import check_main_web_functionality
+import link_checker
+import sys
 
 print("Mechanical Rob firing up...")
 
 def run_all(args_obj, parser):
     print("")
     print("Running all tests.")
+    print(args_obj)
+    link_checker.DO_FAIL = args_obj.fail
     check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
     check_mapping(args_obj, parser)
@@ -32,6 +36,8 @@ This is Mechanical-Rob - an automated web server tester for
                          Genenetwork.org
 """
 parser = argparse.ArgumentParser(description=desc)
+
+parser.add_argument("--fail", help="Fail and stop on any error", action="store_true")
 
 parser.add_argument("-d", "--database", metavar="DB", type=str
                     , default="db_webqtl_s"

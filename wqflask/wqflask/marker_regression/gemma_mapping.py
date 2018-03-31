@@ -3,7 +3,7 @@ import os, math, string, random, json
 from base import webqtlConfig
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
-from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR, assert_bin, assert_file
+from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
@@ -11,7 +11,6 @@ logger = utility.logger.getLogger(__name__ )
 def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
     """Generates p-values for each marker using GEMMA"""
 
-    assert_bin(GEMMA_COMMAND);
     if this_dataset.group.genofile != None:
         genofile_name = this_dataset.group.genofile[:-5]
     else:
@@ -193,7 +192,7 @@ def parse_gemma_output(genofile_name):
                 # if marker['chr'] != previous_chr:
                     # previous_chr = marker['chr']
                 marker['Mb'] = float(line.split("\t")[2]) / 1000000
-                marker['p_value'] = float(line.split("\t")[10])
+                marker['p_value'] = float(line.split("\t")[11])
                 if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                     marker['lod_score'] = 0
                     #marker['lrs_value'] = 0
@@ -203,20 +202,15 @@ def parse_gemma_output(genofile_name):
                 marker_obs.append(marker)
 
                 included_markers.append(line.split("\t")[1])
-                p_values.append(float(line.split("\t")[10]))
+                p_values.append(float(line.split("\t")[11]))
 
     return marker_obs
 
 def parse_loco_output(this_dataset, gwa_output_filename):
 
     output_filelist = []
-    jsonfn = "{}/gn2/".format(TEMPDIR) + gwa_output_filename + ".json"
-    assert_file(jsonfn)
-    try:
-        with open(jsonfn) as data_file:
-            data = json.load(data_file)
-    except:
-        logger.error("Can not parse "+jsonfn)
+    with open("{}/gn2/".format(TEMPDIR) + gwa_output_filename + ".json") as data_file:
+       data = json.load(data_file)
 
     files = data['files']
     for file in files:
@@ -241,7 +235,7 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                     else:
                         marker['chr'] = line.split("\t")[0]
                     marker['Mb'] = float(line.split("\t")[2]) / 1000000
-                    marker['p_value'] = float(line.split("\t")[10])
+                    marker['p_value'] = float(line.split("\t")[11])
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
                         #marker['lrs_value'] = 0
@@ -251,6 +245,6 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                     marker_obs.append(marker)
 
                     included_markers.append(line.split("\t")[1])
-                    p_values.append(float(line.split("\t")[10]))
+                    p_values.append(float(line.split("\t")[11]))
 
     return marker_obs
