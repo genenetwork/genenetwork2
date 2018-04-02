@@ -23,9 +23,6 @@ import urlparse
 
 import simplejson as json
 
-import sqlalchemy
-from sqlalchemy import orm
-
 #from redis import StrictRedis
 import redis
 Redis = redis.StrictRedis()
@@ -46,7 +43,6 @@ from wqflask.database import db_session
 from wqflask import model
 
 from utility import Bunch, Struct, after
-from utility.tools import LOG_SQL, LOG_SQL_ALCHEMY
 
 import logging
 from utility.logger import getLogger
@@ -223,6 +219,7 @@ class UserSession(object):
     def user_ob(self):
         """Actual sqlalchemy record"""
         # Only look it up once if needed, then store it
+        raise "OBSOLETE: use ElasticSearch instead"
         try:
             if LOG_SQL_ALCHEMY:
                 logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
@@ -842,19 +839,6 @@ def register():
             return redirect(url_for("login"))
 
     return render_template("new_security/register_user.html", values=params, errors=errors)
-
-
-
-
-#@app.route("/n/login", methods=('GET', 'POST'))
-#def login():
-#    return user_manager.login()
-#
-#@app.route("/manage/verify")
-#def verify():
-#    user_manager.verify_email()
-#    return render_template("new_security/verified.html")
-
 
 
 ################################# Sign and unsign #####################################
