@@ -54,7 +54,7 @@ import requests
 from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, get_item_by_unique_column, save_user, es_save_data
 
 from smtplib import SMTP
-from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD
+from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY
 
 THREE_DAYS = 60 * 60 * 24 * 3
 #THREE_DAYS = 45
@@ -219,7 +219,7 @@ class UserSession(object):
     def user_ob(self):
         """Actual sqlalchemy record"""
         # Only look it up once if needed, then store it
-        raise "OBSOLETE: use ElasticSearch instead"
+        # raise "OBSOLETE: use ElasticSearch instead"
         try:
             if LOG_SQL_ALCHEMY:
                 logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
