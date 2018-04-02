@@ -23,9 +23,6 @@ import urlparse
 
 import simplejson as json
 
-import sqlalchemy
-from sqlalchemy import orm
-
 #from redis import StrictRedis
 import redis
 Redis = redis.StrictRedis()
@@ -46,7 +43,6 @@ from wqflask.database import db_session
 from wqflask import model
 
 from utility import Bunch, Struct, after
-from utility.tools import LOG_SQL, LOG_SQL_ALCHEMY
 
 import logging
 from utility.logger import getLogger
@@ -55,7 +51,10 @@ logger = getLogger(__name__)
 from base.data_set import create_datasets_list
 
 import requests
-from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, save_user
+from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, get_item_by_unique_column, save_user, es_save_data
+
+from smtplib import SMTP
+from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD
 
 THREE_DAYS = 60 * 60 * 24 * 3
 #THREE_DAYS = 45
@@ -220,6 +219,7 @@ class UserSession(object):
     def user_ob(self):
         """Actual sqlalchemy record"""
         # Only look it up once if needed, then store it
+        raise "OBSOLETE: use ElasticSearch instead"
         try:
             if LOG_SQL_ALCHEMY:
                 logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
@@ -386,6 +386,7 @@ class ForgotPasswordEmail(VerificationEmail):
             "email_address": toaddr,
             "timestamp": timestamp()
         }
+        es = get_elasticsearch_connection()
         es_save_data(es, self.key_prefix, "local", data, verification_code)
 
         subject = self.subject
@@ -437,12 +438,12 @@ def verify_email():
 @app.route("/n/password_reset", methods=['GET'])
 def password_reset():
     logger.debug("in password_reset request.url is:", request.url)
-
     # We do this mainly just to assert that it's in proper form for displaying next page
     # Really not necessary but doesn't hurt
     # user_encode = DecodeUser(ForgotPasswordEmail.key_prefix).reencode_standalone()
     verification_code = request.args.get('code')
     hmac = request.args.get('hm')
+    es = get_elasticsearch_connection()
     if verification_code:
         code_details = get_item_by_unique_column(
             es
@@ -466,7 +467,6 @@ def password_reset():
 
 @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
-    from utility.elasticsearch_tools import es
     logger.debug("in password_reset request.url is:", request.url)
 
     errors = []
@@ -748,6 +748,7 @@ def forgot_password():
 def forgot_password_submit():
     params = request.form
     email_address = params['email_address']
+    es = get_elasticsearch_connection()
     user_details = get_user_by_unique_column(es, "email_address", email_address)
     if user_details:
         ForgotPasswordEmail(user_details["email_address"])
@@ -840,19 +841,6 @@ def register():
     return render_template("new_security/register_user.html", values=params, errors=errors)
 
 
-
-
-#@app.route("/n/login", methods=('GET', 'POST'))
-#def login():
-#    return user_manager.login()
-#
-#@app.route("/manage/verify")
-#def verify():
-#    user_manager.verify_email()
-#    return render_template("new_security/verified.html")
-
-
-
 ################################# Sign and unsign #####################################
 
 def url_for_hmac(endpoint, **values):
@@ -914,15 +902,26 @@ app.jinja_env.globals.update(url_for_hmac=url_for_hmac,
 #     Redis.rpush("mail_queue", msg)
 
 def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
-    from smtplib import SMTP
-    from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD
-    server = SMTP(SMTP_CONNECT)
-    server.starttls()
-    server.login(SMTP_USERNAME, SMTP_PASSWORD)
-    server.sendmail(fromaddr, toaddr, msg)
-    server.quit()
+    """Send an E-mail through SMTP_CONNECT host. If SMTP_USERNAME is not
+    'UNKNOWN' TLS is used
 
-
+    """
+    if SMTP_USERNAME == 'UNKNOWN':
+        logger.debug("SMTP: connecting with host "+SMTP_CONNECT)
+        server = SMTP(SMTP_CONNECT)
+        server.sendmail(fromaddr, toaddr, msg)
+    else:
+        logger.debug("SMTP: connecting TLS with host "+SMTP_CONNECT)
+        server = SMTP(SMTP_CONNECT)
+        server.starttls()
+        logger.debug("SMTP: login with user "+SMTP_USERNAME)
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        logger.debug("SMTP: "+fromaddr)
+        logger.debug("SMTP: "+toaddr)
+        logger.debug("SMTP: "+msg)
+        server.sendmail(fromaddr, toaddr, msg)
+        server.quit()
+    logger.info("Successfully sent email to "+toaddr)
 
 class GroupsManager(object):
     def __init__(self, kw):

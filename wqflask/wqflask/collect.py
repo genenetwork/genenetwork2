@@ -36,6 +36,10 @@ from utility.formatting import numify
 from base import trait
 from base.data_set import create_dataset
 
+import logging
+from utility.logger import getLogger
+logger = getLogger(__name__)
+
 def get_collection():
     if g.user_session.logged_in:
         return UserCollection()
@@ -93,7 +97,7 @@ class AnonCollection(object):
         self.traits = list(process_traits(params['traits']))
         #len_before = len(Redis.smembers(self.key))
         existing_collections = Redis.get(self.key)
-        print("existing_collections:", existing_collections)
+        logger.debug("existing_collections:", existing_collections)
         if existing_collections != None and existing_collections != "None":
             collections_list = json.loads(existing_collections)
             collection_position = 0 #ZS: Position of collection in collection_list, if it exists
@@ -158,8 +162,8 @@ class UserCollection(object):
     """User is logged in"""
 
     def add_traits(self, params, collection_name):
-        print("---> params are:", params.keys())
-        print("     type(params):", type(params))
+        logger.debug("---> params are:", params.keys())
+        logger.debug("     type(params):", type(params))
         if collection_name=="Default":
             uc = g.user_session.user_ob.get_collection_by_name("Default")
             # Doesn't exist so we'll create it
@@ -187,7 +191,7 @@ class UserCollection(object):
 
         db_session.commit()
 
-        print("added to existing, now set is:" + str(uc.members))
+        logger.debug("added to existing, now set is:" + str(uc.members))
         report_change(len_before, len_now)
 
         # Probably have to change that
@@ -210,12 +214,12 @@ def process_traits(unprocessed_traits):
 def report_change(len_before, len_now):
     new_length = len_now - len_before
     if new_length:
-        print("We've added {} to your collection.".format(
+        logger.debug("We've added {} to your collection.".format(
             numify(new_length, 'new trait', 'new traits')))
         flash("We've added {} to your collection.".format(
             numify(new_length, 'new trait', 'new traits')))
     else:
-        print("No new traits were added.")
+        logger.debug("No new traits were added.")
 
 
 @app.route("/collections/add")
@@ -223,8 +227,9 @@ def collections_add():
     traits=request.args['traits']
 
     if g.user_session.logged_in:
+        logger.debug("user_session",g.user_session)
         user_collections = g.user_session.user_ob.user_collections
-        print("user_collections are:", user_collections)
+        logger.debug("user_collections are:", user_collections)
         return render_template("collections/add.html",
                                traits = traits,
                                collections = user_collections,
@@ -246,11 +251,11 @@ def collections_new():
     if "sign_in" in params:
         return redirect(url_for('login'))
     if "create_new" in params:
-        print("in create_new")
+        logger.debug("in create_new")
         collection_name = params['new_collection']
         return create_new(collection_name)
     elif "add_to_existing" in params:
-        print("in add to existing")
+        logger.debug("in add to existing")
         collection_name = params['existing_collection'].split(":")[1]
         if g.user_session.logged_in:
             return UserCollection().add_traits(params, collection_name)
@@ -270,7 +275,7 @@ def create_new(collection_name):
     if g.user_session.logged_in:
         uc = model.UserCollection()
         uc.name = collection_name
-        print("user_session:", g.user_session.__dict__)
+        logger.debug("user_session:", g.user_session.__dict__)
         uc.user = g.user_session.user_id
         uc.members = json.dumps(list(traits))
         db_session.add(uc)
@@ -286,17 +291,17 @@ def create_new(collection_name):
 @app.route("/collections/list")
 def list_collections():
     params = request.args
-    print("PARAMS:", params)
+    logger.debug("PARAMS:", params)
     if g.user_session.logged_in:
         user_collections = list(g.user_session.user_ob.user_collections)
-        print("user_collections are:", user_collections)
+        logger.debug("user_collections are:", user_collections)
         return render_template("collections/list.html",
                                params = params,
                                collections = user_collections,
                                )
     else:
         anon_collections = user_manager.AnonUser().get_collections()
-        print("anon_collections are:", anon_collections)
+        logger.debug("anon_collections are:", anon_collections)
         return render_template("collections/list.html",
                                params = params,
                                collections = anon_collections)
@@ -305,17 +310,17 @@ def list_collections():
 @app.route("/collections/remove", methods=('POST',))
 def remove_traits():
     params = request.form
-    print("params are:", params)
+    logger.debug("params are:", params)
 
     if "uc_id" in params:
         uc_id = params['uc_id']
         uc = model.UserCollection.query.get(uc_id)
         traits_to_remove = params.getlist('traits[]')
         traits_to_remove = process_traits(traits_to_remove)
-        print("\n\n  after processing, traits_to_remove:", traits_to_remove)
+        logger.debug("\n\n  after processing, traits_to_remove:", traits_to_remove)
         all_traits = uc.members_as_set()
         members_now = all_traits - traits_to_remove
-        print("  members_now:", members_now)
+        logger.debug("  members_now:", members_now)
         uc.members = json.dumps(list(members_now))
         uc.changed_timestamp = datetime.datetime.utcnow()
         db_session.commit()
@@ -332,7 +337,7 @@ def remove_traits():
 @app.route("/collections/delete", methods=('POST',))
 def delete_collection():
     params = request.form
-    print("params:", params)
+    logger.debug("params:", params)
     if g.user_session.logged_in:
         uc_id = params['uc_id']
         if len(uc_id.split(":")) > 1:
@@ -363,7 +368,7 @@ def delete_collection():
 @app.route("/collections/view")
 def view_collection():
     params = request.args
-    print("PARAMS in view collection:", params)
+    logger.debug("PARAMS in view collection:", params)
 
     if "uc_id" in params:
         uc_id = params['uc_id']
@@ -379,7 +384,7 @@ def view_collection():
         #this_collection = user_collections[params['collection_id']]
         traits = this_collection['members']
 
-    print("in view_collection traits are:", traits)
+    logger.debug("in view_collection traits are:", traits)
 
     trait_obs = []
     json_version = []
@@ -405,7 +410,7 @@ def view_collection():
         collection_info = dict(trait_obs=trait_obs,
                                collection_name=this_collection['name'])
     if "json" in params:
-        print("json_version:", json_version)
+        logger.debug("json_version:", json_version)
         return json.dumps(json_version)
     else:
         return render_template("collections/view.html",
