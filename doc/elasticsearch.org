@@ -1,0 +1,41 @@
+* Elasticsearch
+
+To get the right environment, first you can get a python REPL with something like
+
+: env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ../etc/default_settings.py -cli python
+
+(make sure to use the correct GN2_PROFILE!)
+
+Next try
+
+#+BEGIN_SRC python
+
+from elasticsearch import Elasticsearch, TransportError
+
+es = Elasticsearch([{ "host": 'localhost', "port": '9200' }])
+
+# Dump all data
+
+es.search("*")
+
+# To fetch an E-mail record from the users index
+
+record = es.search(
+            index = 'users', doc_type = 'local', body = {
+                "query": { "match": { "email_address": "myname@email.com" } }
+            })
+
+# It is also possible to do wild card matching
+
+q = { "query": { "wildcard" : { "full_name" : "pjot*" } }}
+es.search(index = 'users', doc_type = 'local', body = q)
+
+# To get elements from that record:
+
+record['hits']['hits'][0][u'_source']['full_name']
+u'Pjotr'
+
+record['hits']['hits'][0][u'_source']['email_address']
+u"myname@email.com"
+
+#+END_SRC
