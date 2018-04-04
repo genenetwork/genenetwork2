@@ -424,6 +424,7 @@ def verify_email():
 
 @app.route("/n/password_reset", methods=['GET'])
 def password_reset():
+    """Entry point after user clicks link in E-mail"""
     logger.debug("in password_reset request.url is:", request.url)
     # We do this mainly just to assert that it's in proper form for displaying next page
     # Really not necessary but doesn't hurt
@@ -454,6 +455,7 @@ def password_reset():
 
 @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
+    """Handle confirmation E-mail for password reset"""
     logger.debug("in password_reset request.url is:", request.url)
 
     errors = []
@@ -650,8 +652,6 @@ class LoginUser(object):
             VerificationEmail(user)
             return render_template("new_security/verification_still_needed.html",
                                    subject=VerificationEmail.subject)
-
-
         if valid:
             if params.get('remember'):
                 logger.debug("I will remember you")
@@ -729,12 +729,15 @@ def logout():
 
 @app.route("/n/forgot_password")
 def forgot_password():
+    """Entry point for forgotten password"""
     return render_template("new_security/forgot_password.html")
 
 @app.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
+    """When a forgotten password form is submitted we get here"""
     params = request.form
     email_address = params['email_address']
+    logger.debug("Wants to send password E-mail to ",email_address)
     es = get_elasticsearch_connection()
     user_details = get_user_by_unique_column(es, "email_address", email_address)
     if user_details:
