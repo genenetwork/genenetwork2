@@ -227,6 +227,7 @@ def collections_add():
     traits=request.args['traits']
 
     if g.user_session.logged_in:
+        logger.debug("user_session",g.user_session)
         user_collections = g.user_session.user_ob.user_collections
         logger.debug("user_collections are:", user_collections)
         return render_template("collections/add.html",

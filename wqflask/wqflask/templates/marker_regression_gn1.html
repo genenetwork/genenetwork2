@@ -183,6 +183,13 @@
         {% if selectedChr == -1 %}
         <div class="container" style="padding-left: 30px; width:{% if 'additive' in trimmed_markers[0] %}45%{% else %}35%{% endif %};">
           <h2>Mapping Statistics</h2>
+        <br />
+        <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+        <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+        <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+        <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+        <br />
+        <br />
           <div id="table_container" style="border-style: solid; border-width: 1px; border-color: black;">
           <table id="trait_table" class="table table-hover table-striped nowrap">
             <thead>
@@ -211,7 +218,7 @@
                 <td align="center" style="padding-right: 0px;">
                   <input type="checkbox" name="selectCheck"
                          class="checkbox trait_checkbox"
-                         value="{{ marker.name }}">
+                         value="{{ data_hmac('{}:{}Geno'.format(marker.name, dataset.group.name)) }}">
                 </td>
                 <td align="right">{{ loop.index }}</td>
                 <td>{% if geno_db_exists == "True" %}<a href="/show_trait?trait_id={{ marker.name }}&dataset={{ dataset.group.name }}Geno">{{ marker.name }}</a>{% else %}{{ marker.name }}{% endif %}</td>

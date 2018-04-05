@@ -1,52 +1,33 @@
 from __future__ import print_function, division, absolute_import
 
-"""Used to Access things in template like this:
-(BUT NOW OUT OF DATE)
-
-    x: {{ g.identity.name }}
-    security: {{ security.__dict__ }}
-
-"""
-
 import os
 import hashlib
 import datetime
 import time
 import logging
-
 import uuid
 import hashlib
 import hmac
 import base64
-
 import urlparse
 
 import simplejson as json
 
-import sqlalchemy
-from sqlalchemy import orm
-
 #from redis import StrictRedis
-import redis
+import redis # used for collections
 Redis = redis.StrictRedis()
-
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, abort)
 
 from wqflask import app
-
-
 from pprint import pformat as pf
 
-from wqflask import pbkdf2
-
+from wqflask import pbkdf2 # password hashing
 from wqflask.database import db_session
-
 from wqflask import model
 
 from utility import Bunch, Struct, after
-from utility.tools import LOG_SQL, LOG_SQL_ALCHEMY
 
 import logging
 from utility.logger import getLogger
@@ -58,7 +39,7 @@ import requests
 from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, get_item_by_unique_column, save_user, es_save_data
 
 from smtplib import SMTP
-from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD
+from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY
 
 THREE_DAYS = 60 * 60 * 24 * 3
 #THREE_DAYS = 45
@@ -66,8 +47,8 @@ THREE_DAYS = 60 * 60 * 24 * 3
 def timestamp():
     return datetime.datetime.utcnow().isoformat()
 
-
 class AnonUser(object):
+    """Anonymous user handling"""
     cookie_name = 'anon_user_v8'
 
     def __init__(self):
@@ -173,6 +154,8 @@ def create_signed_cookie():
     return the_uuid, uuid_signed
 
 class UserSession(object):
+    """Logged in user handling"""
+
     cookie_name = 'session_id_v2'
 
     def __init__(self):
@@ -223,6 +206,7 @@ class UserSession(object):
     def user_ob(self):
         """Actual sqlalchemy record"""
         # Only look it up once if needed, then store it
+        # raise "OBSOLETE: use ElasticSearch instead"
         try:
             if LOG_SQL_ALCHEMY:
                 logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
@@ -440,6 +424,7 @@ def verify_email():
 
 @app.route("/n/password_reset", methods=['GET'])
 def password_reset():
+    """Entry point after user clicks link in E-mail"""
     logger.debug("in password_reset request.url is:", request.url)
     # We do this mainly just to assert that it's in proper form for displaying next page
     # Really not necessary but doesn't hurt
@@ -470,6 +455,7 @@ def password_reset():
 
 @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
+    """Handle confirmation E-mail for password reset"""
     logger.debug("in password_reset request.url is:", request.url)
 
     errors = []
@@ -666,8 +652,6 @@ class LoginUser(object):
             VerificationEmail(user)
             return render_template("new_security/verification_still_needed.html",
                                    subject=VerificationEmail.subject)
-
-
         if valid:
             if params.get('remember'):
                 logger.debug("I will remember you")
@@ -745,12 +729,15 @@ def logout():
 
 @app.route("/n/forgot_password")
 def forgot_password():
+    """Entry point for forgotten password"""
     return render_template("new_security/forgot_password.html")
 
 @app.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
+    """When a forgotten password form is submitted we get here"""
     params = request.form
     email_address = params['email_address']
+    logger.debug("Wants to send password E-mail to ",email_address)
     es = get_elasticsearch_connection()
     user_details = get_user_by_unique_column(es, "email_address", email_address)
     if user_details:
@@ -842,19 +829,6 @@ def register():
             return redirect(url_for("login"))
 
     return render_template("new_security/register_user.html", values=params, errors=errors)
-
-
-
-
-#@app.route("/n/login", methods=('GET', 'POST'))
-#def login():
-#    return user_manager.login()
-#
-#@app.route("/manage/verify")
-#def verify():
-#    user_manager.verify_email()
-#    return render_template("new_security/verified.html")
-
 
 
 ################################# Sign and unsign #####################################

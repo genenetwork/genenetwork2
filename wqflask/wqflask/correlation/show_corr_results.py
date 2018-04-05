@@ -196,28 +196,29 @@ class CorrelationResults(object):
                     self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
 
             elif self.corr_type == "sample":
-                if self.dataset.type == "ProbeSet" and cache_available:
-                    dataset_file = open(webqtlConfig.GENERATED_TEXT_DIR+db_filename,'r')
+              #ZS: Commented out since parallel correlation has issues with gunicorn
+                # if self.dataset.type == "ProbeSet" and cache_available:
+                    # dataset_file = open(webqtlConfig.GENERATED_TEXT_DIR+db_filename,'r')
 
-                    #XZ, 01/08/2009: read the first line
-                    line = dataset_file.readline()
-                    dataset_strains = webqtlUtil.readLineCSV(line)[1:]
+                    ##XZ, 01/08/2009: read the first line
+                    # line = dataset_file.readline()
+                    # dataset_strains = webqtlUtil.readLineCSV(line)[1:]
 
-                    self.this_trait_vals = []
-                    for item in dataset_strains:
-                        if item in self.sample_data:
-                            self.this_trait_vals.append(self.sample_data[item])
-                        else:
-                            self.this_trait_vals.append("None")
-                    num_overlap = len(self.this_trait_vals)
-                    logger.debug("DOING PARALLEL")
-                    self.do_parallel_correlation(db_filename, num_overlap)
-                else:
-                    for trait, values in self.target_dataset.trait_data.iteritems():
-                        self.get_sample_r_and_p_values(trait, values)
+                    # self.this_trait_vals = []
+                    # for item in dataset_strains:
+                        # if item in self.sample_data:
+                            # self.this_trait_vals.append(self.sample_data[item])
+                        # else:
+                            # self.this_trait_vals.append("None")
+                    # num_overlap = len(self.this_trait_vals)
+                    # logger.debug("DOING PARALLEL")
+                    # self.do_parallel_correlation(db_filename, num_overlap)
+                # else:
+                for trait, values in self.target_dataset.trait_data.iteritems():
+                    self.get_sample_r_and_p_values(trait, values)
 
-                self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
-                                                                       key=lambda t: -abs(t[1][0])))
+            self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
+                                                                   key=lambda t: -abs(t[1][0])))
 
 
             if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
