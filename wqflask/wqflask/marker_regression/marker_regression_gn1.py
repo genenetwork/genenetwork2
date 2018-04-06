@@ -1193,25 +1193,40 @@ class MarkerRegression(object):
             canvas.drawString('Significant %s = %2.2f' % (self.LRS_LOD, self.significant),xLeftOffset+42,startPosY +5,font=labelFont,color=pid.black)
             canvas.drawString('Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),xLeftOffset+42,startPosY + 5 +stepPosY,font=labelFont,color=pid.black)
 
-        labelFont=pid.Font(ttf="verdana",size=12*fontZoom)
+        labelFont = pid.Font(ttf="verdana",size=12*fontZoom)
         labelColor = pid.black
         if self.selectedChr == -1:
             string1 = 'Mapping for Dataset: %s, mapping on All Chromosomes' % self.dataset.group.name
         else:
             string1 = 'Mapping for Dataset: %s, mapping on Chromosome %s' % (self.dataset.group.name, self.ChrList[self.selectedChr][0])
-        if self.controlLocus and self.doControl != "false":
-            string2 = 'Using %s as control' % self.controlLocus
-        else:
-            if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
-                string2 = 'Using GEMMA mapping method with no control for other QTLs.'
-                if self.covariates != "":
-                    string3 = 'Using following traits as covariates: ' + self.covariates
-            elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
-                string2 = 'Using R/qtl mapping method with no control for other QTLs.'
-            elif self.mapping_method == "plink":
-                string2 = 'Using PLINK mapping method with no control for other QTLs.'
+
+        if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
+            if self.use_loco == "True":
+                string2 = 'Using GEMMA mapping method with LOCO and '
             else:
-                string2 = 'Using Haldane mapping function with no control for other QTLs'
+                string2 = 'Using GEMMA mapping method with '
+            if self.covariates != "":
+                string2 += 'the cofactors below:'
+                cofactor_names = ", ".join([covar.split(":")[0] for covar in self.covariates.split(",")])
+                string3 = cofactor_names
+            else:
+                string2 += 'no cofactors.'
+                string3 = ''
+        elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
+            string2 = 'Using R/qtl mapping method with '
+            if self.controlLocus and self.doControl != "false":
+                string2 += '%s as control' % self.controlLocus
+            else:
+                string2 += 'no control for other QTLs'
+        elif self.mapping_method == "plink":
+            string2 = 'Using PLINK mapping method with no control for other QTLs.'
+        else:
+            string2 = 'Using Haldane mapping function with '
+            if self.controlLocus and self.doControl != "false":
+                string2 += '%s as control' % self.controlLocus
+            else:
+                string2 += 'no control for other QTLs'
+
         if self.this_trait.name:
             identification = "Trait ID: %s : %s" % (self.dataset.fullname, self.this_trait.name)
             d = 4+ max(canvas.stringWidth(identification, font=labelFont), canvas.stringWidth(string1, font=labelFont), canvas.stringWidth(string2, font=labelFont))
@@ -1220,6 +1235,8 @@ class MarkerRegression(object):
             d = 4+ max(canvas.stringWidth(string1, font=labelFont), canvas.stringWidth(string2, font=labelFont))
         canvas.drawString(string1,canvas.size[0] - xRightOffset-d,35*fontZoom,font=labelFont,color=labelColor)
         canvas.drawString(string2,canvas.size[0] - xRightOffset-d,50*fontZoom,font=labelFont,color=labelColor)
+        if string3 != '':
+            canvas.drawString(string3,canvas.size[0] - xRightOffset-d,65*fontZoom,font=labelFont,color=labelColor)
 
 
     def drawGeneBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):

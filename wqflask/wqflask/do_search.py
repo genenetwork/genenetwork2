@@ -948,7 +948,6 @@ if __name__ == "__main__":
 
     from base import webqtlConfig
     from base.data_set import create_dataset
-    from base.templatePage import templatePage
     from utility import webqtlUtil
     from db import webqtlDatabaseFunction
 

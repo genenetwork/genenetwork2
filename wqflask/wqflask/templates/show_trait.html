@@ -16,16 +16,6 @@
 {% endblock %}
 {% block content %} <!-- Start of body -->
 
-<!--
-    {% if dataset.type == 'Temp' %}
-	{{ header("{}".format("Temporary Trait")) }}
-    {% elif dataset.type != 'Geno' %}
-	{{ header("{}".format(this_trait.name_header_fmt),
-	    '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
-    {% else %}
-	{{ header("{}".format(this_trait.name_header_fmt)) }}
-    {% endif %}
--->
     <div class="container">
         <h2>Trait Data and Analysis for <b>{{ this_trait.name }}</b></h2>
         {% if this_trait.dataset.type != 'Publish' %}

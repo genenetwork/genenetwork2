@@ -18,7 +18,6 @@ class MrnaAssayTissueData(object):
 
     def __init__(self, gene_symbols=None):
         self.gene_symbols = gene_symbols
-        self.have_data = False
         if self.gene_symbols == None:
             self.gene_symbols = []
 
