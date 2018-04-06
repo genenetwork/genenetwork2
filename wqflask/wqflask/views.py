@@ -54,7 +54,7 @@ from wqflask.ctl import ctl_analysis
 #from wqflask.trait_submission import submit_trait
 
 from utility import temp_data
-from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH
+from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH,JS_GUIX_PATH, CSS_PATH
 from utility.helper_functions import get_species_groups
 
 from base import webqtlFormData
@@ -150,6 +150,14 @@ def tmp_page(img_path):
     bytesarray = array.array('B', imgB64)
     return render_template("show_image.html",
                             img_base64 = bytesarray )
+
+@app.route("/js/<path:filename>")
+def js(filename):
+    return send_from_directory(JS_GUIX_PATH, filename)
+
+@app.route("/css/<path:filename>")
+def css(filename):
+    return send_from_directory(CSS_PATH, filename)
 
 @app.route("/twitter/<path:filename>")
 def twitter(filename):
