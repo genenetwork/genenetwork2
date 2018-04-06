@@ -285,10 +285,16 @@ TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
 assert_dir(TEMPDIR)
 
 # ---- Handle specific JS modules
+JS_GUIX_PATH = get_setting("JS_GUIX_PATH")
+assert_dir(JS_GUIX_PATH)
+assert_dir(JS_GUIX_PATH+'/cytoscape-panzoom')
+CSS_PATH = "UNKNOWN"
+# assert_dir(JS_PATH)
 JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("Twitter-Post-Fetcher"))
 assert_dir(JS_TWITTER_POST_FETCHER_PATH)
-
-from six import string_types
+assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")
+JS_CYTOSCAPE_PATH = get_setting("JS_CYTOSCAPE_PATH",js_path("cytoscape"))
+assert_dir(JS_CYTOSCAPE_PATH)
+assert_file(JS_CYTOSCAPE_PATH+'/cytoscape.min.js')
 
 # assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
-assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")
