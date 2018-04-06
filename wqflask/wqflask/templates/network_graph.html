@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/css/network_graph.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/cytoscape/css/cytoscape.js-panzoom.css" />
+    <link rel="stylesheet" type="text/css" href="/js/cytoscape-panzoom/cytoscape.js-panzoom.css" />
     <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.css">
     <style>
         /* The Cytoscape Web container must have its dimensions set. */
@@ -10,7 +10,7 @@
     </style>
 {% endblock %}
 {% block content %}
-    
+
     {{ header("Network Graph") }}
 
     <div class="container-fluid">
@@ -39,7 +39,7 @@
                           {% endfor %}
                         </select>
                       </td>
-                    </tr>    
+                    </tr>
                     <tr>
                       <td colspan="1">
                          Correlation Coefficient<sup title="Filter edges to only show correlations less than the negative value specified with the slider and greater than the positive value. For example, moving the slider half way will display correlations less than -0.5 and greater than 0.5" style="color:#f00"> ?</sup>
@@ -69,9 +69,9 @@
                           <option value="random">Random</option>
                         </select>
                       </td>
-                    </tr>                          
+                    </tr>
                   </tbody>
-                </table>    
+                </table>
                 <h3 style="margin-bottom: 5px;"> Download</h3>
                 <table>
                   <tbody>
@@ -102,11 +102,19 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/min/cytoscape.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/min/AC_OETags.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/min/json2.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/src/cytoscape-panzoom.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/src/cytoscape-qtip.js"></script>
+
+    <script language="javascript" type="text/javascript" src="/js/cytoscape/cytoscape.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/js/cytoscape-panzoom/cytoscape-panzoom.js"></script>
+    <!-- should be using cytoscape-popper for tips, see docs -->
+    <script language="javascript" type="text/javascript" src="/js/cytoscape-qtip/cytoscape-qtip.js"></script>
+
+    <!--
+        Loads flash - who wants that?
+        <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/min/AC_OETags.min.js"></script>
+        Disabled because it is standard JS now:
+        <script language="javascript" type="text/javascript" src="/static/packages/cytoscape/js/min/json2.min.js"></script>
+    -->
 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/network_graph.js"></script>
+
 {% endblock %}
