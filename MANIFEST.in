@@ -52,15 +52,6 @@ include wqflask/wqflask/static/new/packages/DataTables/unit_testing/tests_onhold
 include wqflask/wqflask/static/new/packages/DataTables/unit_testing/tests_onhold/6_delayed_rendering/*
 include wqflask/wqflask/static/new/packages/DataTables/unit_testing/tests_onhold/1_dom/*
 include wqflask/wqflask/static/packages/*
-include wqflask/wqflask/static/packages/TableTools/*
-include wqflask/wqflask/static/packages/TableTools/media/*
-include wqflask/wqflask/static/packages/TableTools/media/images/*
-include wqflask/wqflask/static/packages/TableTools/media/images/psd/*
-include wqflask/wqflask/static/packages/TableTools/media/swf/*
-include wqflask/wqflask/static/packages/TableTools/media/js/*
-include wqflask/wqflask/static/packages/TableTools/media/css/*
-include wqflask/wqflask/static/packages/TableTools/media/as3/*
-include wqflask/wqflask/static/packages/TableTools/media/as3/lib/*
 include wqflask/wqflask/static/packages/underscore/*
 include wqflask/wqflask/static/packages/bootstrap/*
 include wqflask/wqflask/static/packages/bootstrap/fonts/*
