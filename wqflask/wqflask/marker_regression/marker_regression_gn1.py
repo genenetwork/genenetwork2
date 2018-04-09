@@ -406,50 +406,10 @@ class MarkerRegression(object):
         else:
             self.GraphInterval = self.cMGraphInterval #cM
 
-        ################################################################
-        # Get Trait Values and Infomation
-        ################################################################
-        ##input from search page or selection page
-        #self.searchResult = fd.formdata.getvalue('searchResult')
-        ##convert single selection into a list
-        #if type("1") == type(self.searchResult):
-        #    self.searchResult = string.split(self.searchResult,'\t')
-        #
-        #self.traitList = []
-        #if self.searchResult and len(self.searchResult) > webqtlConfig.MULTIPLEMAPPINGLIMIT:
-        #    heading = 'Multiple Interval Mapping'
-        #    detail = ['In order to get clear result, do not select more than %d traits for \
-        #            Multiple Interval Mapping analysis.' % webqtlConfig.MULTIPLEMAPPINGLIMIT]
-        #    self.error(heading=heading,detail=detail)
-        #    return
-        #elif self.searchResult:
-        #    self.dataSource = 'selectionPage'
-        #    for item in self.searchResult:
-        #        thisTrait = webqtlTrait(fullname=item, cursor=self.cursor)
-        #        thisTrait.retrieveInfo()
-        #        thisTrait.retrieveData(fd.strainlist)
-        #        self.traitList.append(thisTrait)
-        #else:
-
-        #input from data editing page
-        #fd.readData()
-        #if not fd.allTraitData:
-        #    heading = "Mapping"
-        #    detail = ['No trait data was selected for %s data set. No mapping attempted.' % fd.RISet]
-        #    self.error(heading=heading,detail=detail)
-        #    return
-
         self.dataSource = 'editingPage'
         self.traitList = []
         thisTrait = start_vars['this_trait']
-        #fullname = fd.formdata.getvalue('fullname', '')
-        #if fullname:
-        #    thisTrait = webqtlTrait(fullname=fullname, data=fd.allTraitData, cursor=self.cursor)
-        #    thisTrait.retrieveInfo()
-        #else:
-        #    thisTrait = webqtlTrait(data=fd.allTraitData)
         self.traitList.append(thisTrait)
-
 
 ## BEGIN HaplotypeAnalyst
 ## count the amount of individuals to be plotted, and increase self.graphHeight
