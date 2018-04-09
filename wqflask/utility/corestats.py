@@ -13,11 +13,9 @@
 #  License as published by the Free Software Foundation; either
 #  version 2.1 of the License, or (at your option) any later version.
 
-
-
 import sys
 
-
+#ZS: Should switch to using some third party library for this; maybe scipy has an equivalent
 class Stats:
 
     def __init__(self, sequence):
@@ -87,8 +85,6 @@ class Stats:
             self.sequence.sort()
             value = self.sequence[element_idx]
         return value
-
-
 
 
 # Sample script using this class:

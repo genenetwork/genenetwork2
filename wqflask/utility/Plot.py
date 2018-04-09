@@ -36,11 +36,10 @@ from numarray import linear_algebra as la
 from numarray import ones, array, dot, swapaxes
 
 import reaper
-# sys.path.append("..") Never in a running webserver
-from basicStatistics import corestats
 
 import svg
 import webqtlUtil
+import corestats
 from base import webqtlConfig
 
 import utility.logger
@@ -314,137 +313,6 @@ def find_outliers(vals):
 
     logger.debug(pf(locals()))
     return upper_bound, lower_bound
-
-
-def plotBoxPlot(canvas, data, offset= (40, 40, 40, 40), XLabel="Category", YLabel="Value"):
-    xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
-    plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
-    plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
-    iValues = []
-    for item in data:
-        for item2 in item[1]:
-            try:
-                iValues.append(item2[1])
-            except:
-                iValues.append(item2)
-
-    #draw frame
-    max_Y = max(iValues)
-    min_Y = min(iValues)
-    scaleY = detScale(min_Y, max_Y)
-    Yll = scaleY[0]
-    Yur = scaleY[1]
-    nStep = scaleY[2]
-    stepY = (Yur - Yll)/nStep
-    stepYPixel = plotHeight/(nStep)
-    canvas.drawRect(plotWidth+xLeftOffset, plotHeight + yTopOffset, xLeftOffset, yTopOffset)
-
-    ##draw Y Scale
-    YYY = Yll
-    YCoord = plotHeight + yTopOffset
-    scaleFont=pid.Font(ttf="cour",size=11,bold=1)
-    for i in range(nStep+1):
-        strY = cformat(d=YYY, rank=0)
-        YCoord = max(YCoord, yTopOffset)
-        canvas.drawLine(xLeftOffset,YCoord,xLeftOffset-5,YCoord)
-        canvas.drawString(strY, xLeftOffset -30,YCoord +5,font=scaleFont)
-        YYY += stepY
-        YCoord -= stepYPixel
-
-    ##draw X Scale
-    stepX = plotWidth/len(data)
-    XCoord = xLeftOffset + 0.5*stepX
-    YCoord = plotHeight + yTopOffset
-    scaleFont = pid.Font(ttf="tahoma",size=12,bold=0)
-    labelFont = pid.Font(ttf="tahoma",size=13,bold=0)
-    for item in data:
-        itemname, itemvalue = item
-        canvas.drawLine(XCoord, YCoord,XCoord, YCoord+5, color=pid.black)
-        canvas.drawString(itemname, XCoord - canvas.stringWidth(itemname,font=labelFont)/2.0,\
-        YCoord +20,font=labelFont)
-
-        nValue = len(itemvalue)
-        catValue = []
-        for item2 in itemvalue:
-            try:
-                tstrain, tvalue = item2
-            except:
-                tvalue = item2
-            if nValue <= 4:
-                canvas.drawCross(XCoord, plotHeight + yTopOffset - (tvalue-Yll)*plotHeight/(Yur - Yll), color=pid.red,size=5)
-            else:
-                catValue.append(tvalue)
-        if catValue != []:
-            catMean = gmean(catValue)
-            catMedian = gmedian(catValue)
-            lowHinge = gpercentile(catValue, 25)
-            upHinge = gpercentile(catValue, 75)
-            Hstep = 1.5*(upHinge - lowHinge)
-
-            outlier = []
-            extrem = []
-
-            upperAdj = None
-            for item in catValue:
-                if item >= upHinge + 2*Hstep:
-                    extrem.append(item)
-                elif item >= upHinge + Hstep:
-                    outlier.append(item)
-                elif item > upHinge and  item < upHinge + Hstep:
-                    if upperAdj == None or item > upperAdj:
-                        upperAdj = item
-                else:
-                    pass
-            lowerAdj = None
-            for item in catValue:
-                if item <= lowHinge - 2*Hstep:
-                    extrem.append(item)
-                elif item <= lowHinge - Hstep:
-                    outlier.append(item)
-                if item < lowHinge and  item > lowHinge - Hstep:
-                    if lowerAdj == None or item < lowerAdj:
-                        lowerAdj = item
-                    else:
-                        pass
-            canvas.drawRect(XCoord-20, plotHeight + yTopOffset - (lowHinge-Yll)*plotHeight/(Yur - Yll), \
-                    XCoord+20, plotHeight + yTopOffset - (upHinge-Yll)*plotHeight/(Yur - Yll))
-            canvas.drawLine(XCoord-20, plotHeight + yTopOffset - (catMedian-Yll)*plotHeight/(Yur - Yll), \
-                    XCoord+20, plotHeight + yTopOffset - (catMedian-Yll)*plotHeight/(Yur - Yll))
-            if upperAdj != None:
-                canvas.drawLine(XCoord, plotHeight + yTopOffset - (upHinge-Yll)*plotHeight/(Yur - Yll), \
-                XCoord, plotHeight + yTopOffset - (upperAdj-Yll)*plotHeight/(Yur - Yll))
-                canvas.drawLine(XCoord-20, plotHeight + yTopOffset - (upperAdj-Yll)*plotHeight/(Yur - Yll), \
-                XCoord+20, plotHeight + yTopOffset - (upperAdj-Yll)*plotHeight/(Yur - Yll))
-            if lowerAdj != None:
-                canvas.drawLine(XCoord, plotHeight + yTopOffset - (lowHinge-Yll)*plotHeight/(Yur - Yll), \
-                XCoord, plotHeight + yTopOffset - (lowerAdj-Yll)*plotHeight/(Yur - Yll))
-                canvas.drawLine(XCoord-20, plotHeight + yTopOffset - (lowerAdj-Yll)*plotHeight/(Yur - Yll), \
-                XCoord+20, plotHeight + yTopOffset - (lowerAdj-Yll)*plotHeight/(Yur - Yll))
-
-            outlierFont = pid.Font(ttf="cour",size=12,bold=0)
-            if outlier != []:
-                for item in outlier:
-                    yc = plotHeight + yTopOffset - (item-Yll)*plotHeight/(Yur - Yll)
-                    #canvas.drawEllipse(XCoord-3, yc-3, XCoord+3, yc+3)
-                    canvas.drawString('o', XCoord-3, yc+5, font=outlierFont, color=pid.orange)
-            if extrem != []:
-                for item in extrem:
-                    yc = plotHeight + yTopOffset - (item-Yll)*plotHeight/(Yur - Yll)
-                    #canvas.drawEllipse(XCoord-3, yc-3, XCoord+3, yc+3)
-                    canvas.drawString('*', XCoord-3, yc+6, font=outlierFont, color=pid.red)
-
-            canvas.drawCross(XCoord, plotHeight + yTopOffset - (catMean-Yll)*plotHeight/(Yur - Yll), \
-                    color=pid.blue,size=3)
-            #print(catMean, catMedian, cat25per, cat75per)
-            pass
-
-        XCoord += stepX
-
-    labelFont=pid.Font(ttf="verdana",size=18,bold=0)
-    canvas.drawString(XLabel, xLeftOffset + (plotWidth -canvas.stringWidth(XLabel,font=labelFont))/2.0, \
-    YCoord +40, font=labelFont)
-    canvas.drawString(YLabel,xLeftOffset-40, YCoord-(plotHeight -canvas.stringWidth(YLabel,font=labelFont))/2.0,\
-     font=labelFont, angle =90)
 
 def plotSecurity(canvas, text="12345"):
     if not text:
