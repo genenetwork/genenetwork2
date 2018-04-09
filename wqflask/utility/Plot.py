@@ -37,7 +37,6 @@ from numarray import ones, array, dot, swapaxes
 
 import reaper
 
-import svg
 import webqtlUtil
 import corestats
 from base import webqtlConfig

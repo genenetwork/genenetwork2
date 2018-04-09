@@ -296,59 +296,7 @@ class CorrelationResults(object):
             if self.corr_type != "tissue" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
                 self.do_tissue_correlation_for_trait_list()
 
-            #print("self.correlation_results: ", pf(self.correlation_results))
-
         self.json_results = generate_corr_json(self.correlation_results, self.this_trait, self.dataset, self.target_dataset)
-
-        #XZ, 09/18/2008: get all information about the user selected database.
-        #target_db_name = fd.corr_dataset
-        #self.target_db_name = start_vars['corr_dataset']
-
-        # Zach said this is ok
-        # Auth if needed
-        #try:
-        #    auth_user_for_db(self.db, self.cursor, self.target_db_name, self.privilege, self.userName)
-        #except AuthException as e:
-        #    detail = [e.message]
-        #    return self.error(detail)
-
-        #XZ, 09/18/2008: filter out the strains that have no value.
-        #self.sample_names, vals, vars, N = fd.informativeStrains(sample_list)
-
-        #print("samplenames is:", pf(self.sample_names))
-        #CF - If less than a minimum number of strains/cases in common, don't calculate anything
-        #if len(self.sample_names) < self.corr_min_informative:
-        #    detail = ['Fewer than %d strain data were entered for %s data set. No calculation of correlation has been attempted.' % (self.corr_min_informative, fd.RISet)]
-        #    self.error(heading=None, detail=detail)
-
-        #correlation_method = self.CORRELATION_METHODS[self.method]
-        #rankOrder = self.RANK_ORDERS[self.method]
-
-        # CF - Number of results returned
-        # Todo: Get rid of self.returnNumber
-
-        #self.record_count = 0
-
-        #myTrait = get_custom_trait(fd, self.cursor)
-
-
-        # We will not get Literature Correlations if there is no GeneId because there is nothing
-        # to look against
-        #self.geneid = self.this_trait.geneid
-
-        # We will not get Tissue Correlations if there is no gene symbol because there is nothing to look against
-        #self.trait_symbol = myTrait.symbol
-
-
-        #XZ, 12/12/2008: if the species is rat or human, translate the geneid to mouse geneid
-        #self.input_trait_mouse_gene_id = self.translateToMouseGeneID(self.dataset.group.species, self.geneid)
-
-        #XZ: As of Nov/13/2010, this dataset is 'UTHSC Illumina V6.2 RankInv B6 D2 average CNS GI average (May 08)'
-        #self.tissue_probeset_freeze_id = 1
-
-        #traitList = self.correlate()
-
-        #print("Done doing correlation calculation")
 
 ############################################################################################################################################
 

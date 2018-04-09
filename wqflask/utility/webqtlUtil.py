@@ -34,9 +34,6 @@ from htmlgen import HTMLgen2 as HT
 
 from base import webqtlConfig
 
-
-
-
 # NL, 07/27/2010. moved from webqtlForm.py
 #Dict of Parents and F1 information, In the order of [F1, Mat, Pat]
 ParInfo ={
@@ -64,42 +61,9 @@ ParInfo ={
 'SXM':['SMF1', 'MSF1', 'Steptoe','Morex']
 }
 
-
-# NL, 07/27/2010. moved from template.py
-IMGSTEP1 = HT.Image('/images/step1.gif', alt='STEP 1',border=0) #XZ, Only be used in inputPage.py
-IMGSTEP2 = HT.Image('/images/step2.gif', alt='STEP 2',border=0) #XZ, Only be used in inputPage.py
-IMGSTEP3 = HT.Image('/images/step3.gif', alt='STEP 3',border=0) #XZ, Only be used in inputPage.py
-IMGNEXT = HT.Image('/images/arrowdown.gif', alt='NEXT',border=0) #XZ, Only be used in inputPage.py
-
-IMGASC = HT.Image("/images/sortup.gif", border=0)
-IMGASCON = HT.Image("/images/sortupon.gif", border=0)
-IMGDESC = HT.Image("/images/sortdown.gif", border=0)
-IMGDESCON = HT.Image("/images/sortdownon.gif", border=0)
-
-"""
-IMGASC = HT.Image("/images/sortup_icon.gif", border=0)
-IMGASCON = HT.Image("/images/sortupon.gif", border=0)
-IMGDESC = HT.Image("/images/sortdown_icon.gif", border=0)
-IMGDESCON = HT.Image("/images/sortdownon.gif", border=0)
-IMG_UNSORTED = HT.Image("/images/unsorted_icon.gif", border=0)
-"""
-
-PROGRESSBAR = HT.Image('/images/waitAnima2.gif', alt='checkblue',align="middle",border=0)
-
 #########################################
 #      Accessory Functions
 #########################################
-
-def decodeEscape(str):
-    a = str
-    pattern = re.compile('(%[0-9A-Fa-f][0-9A-Fa-f])')
-    match = pattern.findall(a)
-    matched = []
-    for item in match:
-        if item not in matched:
-            a = a.replace(item, '%c' % eval("0x"+item[-2:]))
-        matched.append(item)
-    return a
 
 def exportData(hddn, tdata, NP = None):
     for key in tdata.keys():
@@ -136,64 +100,12 @@ def genShortStrainName(RISet='', input_strainName=''):
             pass
     return strainName
 
-def toInt(in_str):
-    "Converts an arbitrary string to an unsigned integer"
-    start = -1
-    end = -1
-    for i, char in enumerate(in_str):
-        if char >= '0' and char <= '9':
-            if start < 0:
-                start = i
-            end = i+1
-        else:
-            if start >= 0:
-                break
-    if start < end:
-        return int(in_str[start:end])
-    else:
-        return  -1
-
-def transpose(m):
-    'transpose a matrix'
-    n = len(m)
-    return [[m[j][i] for i in range(len(m[0])) for j in range(n)][k*n:k*n+n] for k in range(len(m[0]))]
-
-def asymTranspose(m):
-    'transpose a matrix'
-    t = max(map(len, m))
-    n = len(m)
-    m2 = [["-"]]*n
-    for i in range(n):
-        m2[i] = m[i] + [""]*(t- len(m[i]))
-    return [[m2[j][i] for i in range(len(m2[0])) for j in range(n)][k*n:k*n+n] for k in range(len(m2[0]))]
-
 def genRandStr(prefix = "", length=8, chars=string.letters+string.digits):
     from random import choice
     _str = prefix[:]
     for i in range(length):
         _str += choice(chars)
     return _str
-
-def generate_session():
-    import sha
-    return sha.new(str(time.time())).hexdigest()
-
-def cvt2Dict(x):
-    tmp = {}
-    for key in x.keys():
-        tmp[key] = x[key]
-    return tmp
-
-def dump_session(session_obj, filename):
-    "It seems mod python can only cPickle most basic data type"
-    import cPickle
-    session_file = open(filename, 'wb')
-    #try:
-    #       pass
-    #except:
-    #       pass
-    cPickle.dump(session_obj, session_file)
-    session_file.close()
 
 def StringAsFloat(str):
     'Converts string to float but catches any exception and returns None'

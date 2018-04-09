@@ -190,28 +190,12 @@ class MarkerRegression(object):
             self.js_data = start_vars['js_data']
         self.trimmed_markers = start_vars['trimmed_markers'] #Top markers to display in table
 
-        #ZS: Think I can just get all this from dataset object now
-        #RISet and Species
-        #if not fd.genotype:
-        #    fd.readGenotype()
-        #
-        #fd.parentsf14regression = fd.formdata.getvalue('parentsf14regression')
-        #
-        #if ((fd.parentsf14regression == 'on') and fd.genotype_2):
-        #    fd.genotype = fd.genotype_2
-        #else:
-        #    fd.genotype = fd.genotype_1
-        #fd.strainlist = list(fd.genotype.prgy)
-        #
-        #self.species = webqtlDatabaseFunction.retrieveSpecies(cursor=self.cursor, RISet=fd.RISet)
-
         if self.dataset.group.species == "rat":
             self._ucscDb = "rn3"
         elif self.dataset.group.species == "mouse":
             self._ucscDb = "mm9"
         else:
             self._ucscDb = ""
-
 
         #####################################
         # Options
