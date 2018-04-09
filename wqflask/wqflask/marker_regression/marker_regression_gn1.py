@@ -1160,6 +1160,7 @@ class MarkerRegression(object):
         else:
             string1 = 'Mapping for Dataset: %s, mapping on Chromosome %s' % (self.dataset.group.name, self.ChrList[self.selectedChr][0])
 
+        string3 = ''
         if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
             if self.use_loco == "True":
                 string2 = 'Using GEMMA mapping method with LOCO and '
@@ -1170,7 +1171,7 @@ class MarkerRegression(object):
                 cofactor_names = ", ".join([covar.split(":")[0] for covar in self.covariates.split(",")])
                 string3 = cofactor_names
             else:
-                string2 += 'no cofactors.'
+                string2 += 'no cofactors'
                 string3 = ''
         elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
             string2 = 'Using R/qtl mapping method with '
@@ -1179,7 +1180,7 @@ class MarkerRegression(object):
             else:
                 string2 += 'no control for other QTLs'
         elif self.mapping_method == "plink":
-            string2 = 'Using PLINK mapping method with no control for other QTLs.'
+            string2 = 'Using PLINK mapping method with no control for other QTLs'
         else:
             string2 = 'Using Haldane mapping function with '
             if self.controlLocus and self.doControl != "false":
