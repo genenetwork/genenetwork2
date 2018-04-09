@@ -23,17 +23,14 @@ class Stats:
         # convert all items to floats for numerical processing
         self.sequence = [float(item) for item in sequence]
 
-
     def sum(self):
         if len(self.sequence) < 1:
             return None
         else:
             return sum(self.sequence)
 
-
     def count(self):
         return len(self.sequence)
-
 
     def min(self):
         if len(self.sequence) < 1:
@@ -41,28 +38,17 @@ class Stats:
         else:
             return min(self.sequence)
 
-
     def max(self):
         if len(self.sequence) < 1:
             return None
         else:
             return max(self.sequence)
 
-
     def avg(self):
         if len(self.sequence) < 1:
             return None
         else:
             return sum(self.sequence) / len(self.sequence)
-
-
-    def median(self):
-        if len(self.sequence) < 1:
-            return None
-        else:
-            self.sequence.sort()
-            return self.sequence[len(self.sequence) // 2]
-
 
     def stdev(self):
         if len(self.sequence) < 1:
@@ -72,7 +58,6 @@ class Stats:
             sdsq = sum([(i - avg) ** 2 for i in self.sequence])
             stdev = (sdsq / (len(self.sequence) - 1)) ** .5
             return stdev
-
 
     def percentile(self, percentile):
         if len(self.sequence) < 1:
@@ -85,7 +70,6 @@ class Stats:
             self.sequence.sort()
             value = self.sequence[element_idx]
         return value
-
 
 # Sample script using this class:
 # -------------------------------------------
