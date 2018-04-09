@@ -24,8 +24,6 @@
 #
 # Last updated by GeneNetwork Core Team 2010/10/20
 
-#from mod_python import Cookie
-
 from __future__ import print_function
 from pprint import pformat as pf
 
@@ -49,20 +47,13 @@ class webqtlFormData(object):
 
     def __init__(self,
                  start_vars = None,
-                 req = None,
-                 mod_python_session=None,
-                 FieldStorage_formdata=None):
+                 req = None):
         # Todo: rework this whole thing
-        print("in webqtlFormData start_vars are:", pf(start_vars))
         for item in webqtlFormData.attrs:
             self.__dict__[item] = None
 
-        #ZS: This is only used in DataEditingPage.py (as far as I know)
-        self.varianceDispName = None
-
         for item in start_vars:
             self.__dict__[item] = start_vars[item]
-        print("  Now self.dict is:", pf(self.__dict__))
 
         #Todo: This can't be good below...rework
         try:
@@ -70,42 +61,11 @@ class webqtlFormData(object):
         except:
             self.remote_ip = '1.2.3.4'
 
-        if req and req.headers_in.has_key('referer'):
-            self.refURL = req.headers_in['referer']
-        else:
-            self.refURL = None
-
-        # For now let's just comment all this out - Sam
-
-        #self.cookies = cookieData.cookieData(Cookie.get_cookies(req)) #XZ: dictionary type. To hold values transfered from mod_python Cookie.
-        #
-        ##XZ: dictionary type. To hold values transfered from mod_python Session object. We assume that it is always picklable.
-        #self.input_session_data = sessionData.sessionData( mod_python_session )
-        #
-        ##XZ: FieldStorage_formdata may contain item that can't be pickled. Must convert to picklable data.
-        #self.formdata = cgiData( FieldStorage_formdata )
-        #
-        ##get Form ID
-        #self.formID = self.formdata.getfirst('FormID')
-        #
-        ##get rest of the attributes
-        #if self.formID:
-        #       for item in self.attrs:
-        #               value = self.formdata.getfirst(item)
-        #               if value != None:
-        #                       setattr(self,item,string.strip(value))
-
         self.ppolar = None
         self.mpolar = None
 
-        print("[yellow] self.group is:", self.group)
         if self.group:
-            #try:
-            #    # NL, 07/27/2010. ParInfo has been moved from webqtlForm.py to webqtlUtil.py;
             _f1, _f12, self.mpolar, self.ppolar = webqtlUtil.ParInfo[self.group]
-            #except:
-            #    f1 = f12 = self.mpolar = self.ppolar = None
-
 
         def set_number(stringy):
             return int(stringy) if stringy else 2000 # Rob asked to change the default value to 2000
@@ -113,22 +73,13 @@ class webqtlFormData(object):
         self.nperm = set_number(self.nperm)
         self.nboot = set_number(self.nboot)
 
-
-        #if self.allsamplelist:
-        #    self.allsamplelist = map(string.strip, string.split(self.allsamplelist))
-        print("self.allsamplelist is:", self.allsamplelist)
         if self.allsamplelist:
             self.allsamplelist = self.allsamplelist.split()
-        print("now self.allsamplelist is:", self.allsamplelist)
-        #self.readGenotype()
-        #self.readData()
 
         if self.group == 'BXD300':
             self.group = 'BXD'
 
-
     def __getitem__(self, key):
-        print("in __getitem__")
         return self.__dict__[key]
 
     def get(self, key, default=None):
@@ -206,8 +157,6 @@ class webqtlFormData(object):
             else:
                 samplelist = self.samplelist
 
-        #print("before traitfiledata self.traitfile is:", pf(self.traitfile))
-
         traitfiledata = getattr(self, "traitfile", None)
         traitpastedata = getattr(self, "traitpaste", None)
         variancefiledata = getattr(self, "variancefile", None)
@@ -233,15 +182,12 @@ class webqtlFormData(object):
             print("mapping formdataasfloat")
             #values = map(self.FormDataAsFloat, samplelist)
             values = [to_float(getattr(self, key)) for key in samplelist]
-        print("rocket values is:", values)
 
 
         if len(values) < len(samplelist):
             values += [None] * (len(samplelist) - len(values))
         elif len(values) > len(samplelist):
             values = values[:len(samplelist)]
-        print("now values is:", values)
-
 
         if variancefiledata:
             tt = variancefiledata.split()
@@ -271,9 +217,6 @@ class webqtlFormData(object):
             if values[i] != None:
                 self.allTraitData[_sample] = webqtlCaseData(
                     _sample, values[i], variances[i], nsamples[i])
-        print("allTraitData is:", pf(self.allTraitData))
-
-
 
     def informativeStrains(self, samplelist=None, include_variances = None):
         '''if readData was called, use this to output informative samples (sample with values)'''
@@ -284,8 +227,6 @@ class webqtlFormData(object):
         samples = []
         values = []
         variances = []
-
-        #print("self.allTraitData is:", pf(self.allTraitData))
 
         for sample in samplelist:
             if sample in self.allTraitData:
@@ -303,16 +244,6 @@ class webqtlFormData(object):
 
         return samples, values, variances, len(samples)
 
-
-
-    #def FormDataAsFloat(self, key):
-    #
-    #    #try:
-    #    #    return float(self.key)
-    #    #except:
-    #    #    return None
-
-
     def FormVarianceAsFloat(self, key):
         try:
             return float(self.formdata.getfirst('V' + key))
@@ -324,29 +255,3 @@ class webqtlFormData(object):
             return int(self.formdata.getfirst('N' + key))
         except:
             return None
-
-    def Sample(self):
-        'Create some dummy data for testing'
-        self.group = 'BXD'
-        self.incparentsf1 = 'on'
-        #self.display = 9.2
-        #self.significance = 16.1
-        self.readGenotype()
-        self.identification = 'BXD : Coat color example by Lu Lu, et al'
-        #self.readGenotype()
-        #self.genotype.ReadMM('AXBXAforQTL')
-        #self.samplelist = map((lambda x, y='': '%s%s' % (y,x)), self.genotype.prgy)
-        #self.samplelist.sort()
-        self.allTraitData = {'BXD29': webqtlCaseData(3), 'BXD28': webqtlCaseData(2),
-        'BXD25': webqtlCaseData(2), 'BXD24': webqtlCaseData(2), 'BXD27': webqtlCaseData(2),
-        'BXD21': webqtlCaseData(1), 'BXD20': webqtlCaseData(4), 'BXD23': webqtlCaseData(4),
-        'BXD22': webqtlCaseData(3), 'BXD14': webqtlCaseData(4), 'BXD15': webqtlCaseData(2),
-        'BXD16': webqtlCaseData(3), 'BXD11': webqtlCaseData(4), 'BXD12': webqtlCaseData(3),
-        'BXD13': webqtlCaseData(2), 'BXD18': webqtlCaseData(3), 'BXD19': webqtlCaseData(3),
-        'BXD38': webqtlCaseData(3), 'BXD39': webqtlCaseData(3), 'BXD36': webqtlCaseData(2),
-        'BXD34': webqtlCaseData(4), 'BXD35': webqtlCaseData(4), 'BXD32': webqtlCaseData(4),
-        'BXD33': webqtlCaseData(3), 'BXD30': webqtlCaseData(1), 'BXD31': webqtlCaseData(4),
-        'DBA/2J': webqtlCaseData(1), 'BXD8': webqtlCaseData(3), 'BXD9': webqtlCaseData(1),
-        'BXD6': webqtlCaseData(3), 'BXD5': webqtlCaseData(3), 'BXD2': webqtlCaseData(4),
-        'BXD1': webqtlCaseData(1), 'C57BL/6J': webqtlCaseData(4), 'B6D2F1': webqtlCaseData(4),
-        'BXD42': webqtlCaseData(4), 'BXD40': webqtlCaseData(3)}
