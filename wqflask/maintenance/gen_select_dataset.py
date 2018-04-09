@@ -66,7 +66,7 @@ from pprint import pformat as pf
 print('WARNING: This conversion is now OBSOLETE as the menu gets built from the database in Javascript using GN_SERVER instead!')
 
 
-def parse_db_uri(db_uri):
+def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
     parsed_uri = urlparse.urlparse(SQL_URI)
@@ -79,7 +79,6 @@ def parse_db_uri(db_uri):
 
     print(db_conn_info)
     return db_conn_info
-
 
 
 def get_species():
@@ -268,7 +267,7 @@ def build_datasets(species, group, type_name):
 def main():
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
 
-    parse_db_uri(SQL_URI)
+    parse_db_uri()
 
     species = get_species()
     groups = get_groups(species)
@@ -307,6 +306,6 @@ def _test_it():
     #print("build_datasets:", pf(datasets))
 
 if __name__ == '__main__':
-    Conn = MySQLdb.Connect(**parse_db_uri(SQL_URI))
+    Conn = MySQLdb.Connect(**parse_db_uri())
     Cursor = Conn.cursor()
     main()
