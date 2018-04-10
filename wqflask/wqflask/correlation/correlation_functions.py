@@ -491,62 +491,6 @@ pcor.rec <- function(x,y,z,method="p",na.rm=T){
     return allcorrelations
 
 
-
-#XZ, April 30, 2010: The input primaryTrait and targetTrait are instance of webqtlTrait
-#XZ: The primaryTrait and targetTrait should have executed retrieveData function
-def calZeroOrderCorr(primaryTrait, targetTrait, method='pearson'):
-
-    #primaryTrait.retrieveData()
-
-    #there is no None value in primary_val
-    primary_strain, primary_val, primary_var = primaryTrait.exportInformative()
-
-    #targetTrait.retrieveData()
-
-    #there might be None value in target_val
-    target_val = targetTrait.exportData(primary_strain, type="val")
-
-    R_primary = rpy2.robjects.FloatVector(range(len(primary_val)))
-    for i in range(len(primary_val)):
-        R_primary[i] = primary_val[i]
-
-    N = len(target_val)
-
-    if None in target_val:
-        goodIndex = []
-        for i in range(len(target_val)):
-            if target_val[i] != None:
-                goodIndex.append(i)
-
-        N = len(goodIndex)
-
-        R_primary = rpy2.robjects.FloatVector(range(len(goodIndex)))
-        for i in range(len(goodIndex)):
-            R_primary[i] = primary_val[goodIndex[i]]
-
-        R_target = rpy2.robjects.FloatVector(range(len(goodIndex)))
-        for i in range(len(goodIndex)):
-            R_target[i] = target_val[goodIndex[i]]
-
-    else:
-        R_target = rpy2.robjects.FloatVector(range(len(target_val)))
-        for i in range(len(target_val)):
-            R_target[i] = target_val[i]
-
-    R_corr_test = rpy2.robjects.r['cor.test']
-
-    if method == 'spearman':
-        R_result = R_corr_test(R_primary, R_target, method='spearman')
-    else:
-        R_result = R_corr_test(R_primary, R_target)
-
-    corr_result = []
-    corr_result.append( R_result[3][0] )
-    corr_result.append( N )
-    corr_result.append( R_result[2][0] )
-
-    return corr_result
-
 #####################################################################################
 #Input: primaryValue(list): one list of expression values of one probeSet,
 #       targetValue(list): one list of expression values of one probeSet,
