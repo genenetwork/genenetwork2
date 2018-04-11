@@ -40,13 +40,6 @@ import logging
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
-def get_collection():
-    if g.user_session.logged_in:
-        return UserCollection()
-    else:
-        return AnonCollection()
-    #else:
-    #    CauseError
 
 class AnonCollection(object):
     """User is not logged in"""
@@ -282,7 +275,6 @@ def create_new(collection_name):
         db_session.commit()
         return redirect(url_for('view_collection', uc_id=uc.id))
     else:
-        current_collections = user_manager.AnonUser().get_collections()
         ac = AnonCollection(collection_name)
         ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
         ac.add_traits(params)

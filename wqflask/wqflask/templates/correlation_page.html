@@ -94,12 +94,14 @@
                         <th>Sample p(r)</th>
                         <th>Lit r</th>
                         <th>Tissue r</th>
+                        <th>Tissue p(r)</th>
                         {% else %}
                         <th>Sample rho</th>
                         <th>N</th>
                         <th>Sample p(rho)</th>
                         <th>Lit r</th>
                         <th>Tissue rho</th>
+                        <th>Tissue p(rho)</th>
                         {% endif %}
                     {% elif target_dataset.type == "Publish" %}
                         {% if corr_method == 'pearson' %}
@@ -156,8 +158,10 @@
                         {% endif %}
                         {% if trait.tissue_corr == "" or trait.tissue_corr == 0.000 %}
                         <td align="right">--</td>
+                        <td align="right">--</td>
                         {% else %}
                         <td align="right">{{'%0.3f'|format(trait.tissue_corr)}}</td>
+                        <td align="right">{{'%0.3e'|format(trait.tissue_pvalue)}}</td>
                         {% endif %}
                       {% elif target_dataset.type == "Publish" %}
                         <td>{{ trait.description_display }}</td>
@@ -319,7 +323,7 @@
                        title: 'correlation_results',
                        fieldBoundary: '"',
                        exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
                        }
                     }
                 ],
@@ -342,7 +346,8 @@
                     { "type": "natural" },
                     { "type": "scientific" },
                     { "type": "natural" },
-                    { "type": "natural" }
+                    { "type": "natural" },
+                    { "type": "scientific" }
                 ],
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
