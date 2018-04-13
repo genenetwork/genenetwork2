@@ -3,11 +3,8 @@ import os, math, string, random, json
 from base import webqtlConfig
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
-<<<<<<< HEAD
-from utility.tools import assert_file, flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR
-=======
+
 from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR
->>>>>>> 270f86c41f7c90cc4ca51bca0aec789a09a36a0e
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
