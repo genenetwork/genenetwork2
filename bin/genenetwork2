@@ -15,28 +15,29 @@
 # installation path of genenetwork). Say your profile is in
 # ~/opt/gn-latest-guix
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2
+#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2
 #
 # You can pass in your own settings file, e.g.
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ~/my_settings.py
+#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ~/my_settings.py
 #
 # To run a maintenance python script with settings (instead of the
-# webserver) add that with a -c switch, e.g.
+# webserver) run from the base-dir with settings file and add that
+# script with a -c switch, e.g.
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 -c ./wqflask/maintenance/gen_select_dataset.py
+#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ./maintenance/gen_select_dataset.py
 #
 # To run any script in the environment
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -cli echo "HELLO WORLD"
+#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -cli echo "HELLO WORLD"
 #
 # To get a python REPL(!)
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -cli python
+#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -cli python
 #
 # For development you may want to run
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG ./bin/genenetwork2
+#   env GN2_PROFILE=~/opt/gn-latest WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG ./bin/genenetwork2
 #
 # For staging and production we use gunicorn. Run with something like
 # (note you have to provide the server port). Provide a settings file!

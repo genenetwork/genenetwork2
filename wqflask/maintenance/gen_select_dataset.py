@@ -63,9 +63,6 @@ from pprint import pformat as pf
 
 #conn = Engine.connect()
 
-print('WARNING: This conversion is now OBSOLETE as the menu gets built from the database in Javascript using GN_SERVER instead!')
-
-
 def parse_db_uri(db_uri):
     """Converts a database URI to the db name, host name, user name, and password"""
 
