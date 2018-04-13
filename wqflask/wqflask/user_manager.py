@@ -1,52 +1,33 @@
 from __future__ import print_function, division, absolute_import
 
-"""Used to Access things in template like this:
-(BUT NOW OUT OF DATE)
-
-    x: {{ g.identity.name }}
-    security: {{ security.__dict__ }}
-
-"""
-
 import os
 import hashlib
 import datetime
 import time
 import logging
-
 import uuid
 import hashlib
 import hmac
 import base64
-
 import urlparse
 
 import simplejson as json
 
-import sqlalchemy
-from sqlalchemy import orm
-
 #from redis import StrictRedis
-import redis
+import redis # used for collections
 Redis = redis.StrictRedis()
-
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, abort)
 
 from wqflask import app
-
-
 from pprint import pformat as pf
 
-from wqflask import pbkdf2
-
+from wqflask import pbkdf2 # password hashing
 from wqflask.database import db_session
-
 from wqflask import model
 
 from utility import Bunch, Struct, after
-from utility.tools import LOG_SQL, LOG_SQL_ALCHEMY
 
 import logging
 from utility.logger import getLogger
@@ -54,14 +35,20 @@ logger = getLogger(__name__)
 
 from base.data_set import create_datasets_list
 
+import requests
+from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, get_item_by_unique_column, save_user, es_save_data
+
+from smtplib import SMTP
+from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY
+
 THREE_DAYS = 60 * 60 * 24 * 3
 #THREE_DAYS = 45
 
 def timestamp():
     return datetime.datetime.utcnow().isoformat()
 
-
 class AnonUser(object):
+    """Anonymous user handling"""
     cookie_name = 'anon_user_v8'
 
     def __init__(self):
@@ -119,7 +106,8 @@ class AnonUser(object):
             return collections
 
     def import_traits_to_user(self):
-        collections_list = json.loads(Redis.get(self.key))
+        result = Redis.get(self.key)
+        collections_list = json.loads(result if result else "[]")
         for collection in collections_list:
             uc = model.UserCollection()
             uc.name = collection['name']
@@ -166,6 +154,8 @@ def create_signed_cookie():
     return the_uuid, uuid_signed
 
 class UserSession(object):
+    """Logged in user handling"""
+
     cookie_name = 'session_id_v2'
 
     def __init__(self):
@@ -216,6 +206,7 @@ class UserSession(object):
     def user_ob(self):
         """Actual sqlalchemy record"""
         # Only look it up once if needed, then store it
+        # raise "OBSOLETE: use ElasticSearch instead"
         try:
             if LOG_SQL_ALCHEMY:
                 logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
@@ -268,16 +259,24 @@ class RegisterUser(object):
         self.thank_you_mode = False
         self.errors = []
         self.user = Bunch()
+        es = kw.get('es_connection', None)
 
-        self.user.email_address = kw.get('email_address', '').strip()
+        if not es:
+            self.errors.append("Missing connection object")
+
+        self.user.email_address = kw.get('email_address', '').encode("utf-8").strip()
         if not (5 <= len(self.user.email_address) <= 50):
             self.errors.append('Email Address needs to be between 5 and 50 characters.')
+        else:
+            email_exists = get_user_by_unique_column(es, "email_address", self.user.email_address)
+            if email_exists:
+                self.errors.append('User already exists with that email')
 
-        self.user.full_name = kw.get('full_name', '').strip()
+        self.user.full_name = kw.get('full_name', '').encode("utf-8").strip()
         if not (5 <= len(self.user.full_name) <= 50):
             self.errors.append('Full Name needs to be between 5 and 50 characters.')
 
-        self.user.organization = kw.get('organization', '').strip()
+        self.user.organization = kw.get('organization', '').encode("utf-8").strip()
         if self.user.organization and not (5 <= len(self.user.organization) <= 50):
             self.errors.append('Organization needs to be empty or between 5 and 50 characters.')
 
@@ -294,28 +293,11 @@ class RegisterUser(object):
         logger.debug("No errors!")
 
         set_password(password, self.user)
+        self.user.user_id = str(uuid.uuid4())
+        self.user.confirmed = 1
 
         self.user.registration_info = json.dumps(basic_info(), sort_keys=True)
-
-        self.new_user = model.User(**self.user.__dict__)
-        db_session.add(self.new_user)
-
-        try:
-            db_session.commit()
-        except sqlalchemy.exc.IntegrityError:
-            # This exception is thrown if the email address is already in the database
-            # To do: Perhaps put a link to sign in using an existing account here
-            self.errors.append("An account with this email address already exists. "
-                               "Click the button above to sign in using an existing account.")
-            return
-
-        logger.debug("Adding verification email to queue")
-        #self.send_email_verification()
-        VerificationEmail(self.new_user)
-        logger.debug("Added verification email to queue")
-
-        self.thank_you_mode = True
-
+        save_user(es, self.user.__dict__, self.user.user_id)
 
 def set_password(password, user):
     pwfields = Bunch()
@@ -361,7 +343,7 @@ class VerificationEmail(object):
         verification_code = str(uuid.uuid4())
         key = self.key_prefix + ":" + verification_code
 
-        data = json.dumps(dict(id=user.id,
+        data = json.dumps(dict(id=user.user_id,
                                timestamp=timestamp())
                           )
 
@@ -378,23 +360,34 @@ class ForgotPasswordEmail(VerificationEmail):
     template_name = "email/forgot_password.txt"
     key_prefix = "forgot_password_code"
     subject = "GeneNetwork password reset"
+    fromaddr = "no-reply@genenetwork.org"
 
-    def __init__(self, user):
+    def __init__(self, toaddr):
+        from email.MIMEMultipart import MIMEMultipart
+        from email.MIMEText import MIMEText
         verification_code = str(uuid.uuid4())
         key = self.key_prefix + ":" + verification_code
 
-        data = json.dumps(dict(id=user.id,
-                               timestamp=timestamp())
-                          )
+        data = {
+            "verification_code": verification_code,
+            "email_address": toaddr,
+            "timestamp": timestamp()
+        }
+        es = get_elasticsearch_connection()
+        es_save_data(es, self.key_prefix, "local", data, verification_code)
 
-        Redis.set(key, data)
-        #two_days = 60 * 60 * 24 * 2
-        Redis.expire(key, THREE_DAYS)
-        to = user.email_address
         subject = self.subject
-        body = render_template(self.template_name,
-                               verification_code = verification_code)
-        send_email(to, subject, body)
+        body = render_template(
+            self.template_name,
+            verification_code = verification_code)
+
+        msg = MIMEMultipart()
+        msg["To"] = toaddr
+        msg["Subject"] = self.subject
+        msg["From"] = self.fromaddr
+        msg.attach(MIMEText(body, "plain"))
+
+        send_email(toaddr, msg.as_string())
 
 
 class Password(object):
@@ -429,38 +422,62 @@ def verify_email():
     response.set_cookie(UserSession.cookie_name, session_id_signed)
     return response
 
-@app.route("/n/password_reset")
+@app.route("/n/password_reset", methods=['GET'])
 def password_reset():
+    """Entry point after user clicks link in E-mail"""
     logger.debug("in password_reset request.url is:", request.url)
-
     # We do this mainly just to assert that it's in proper form for displaying next page
     # Really not necessary but doesn't hurt
-    user_encode = DecodeUser(ForgotPasswordEmail.key_prefix).reencode_standalone()
-
-    return render_template("new_security/password_reset.html", user_encode=user_encode)
+    # user_encode = DecodeUser(ForgotPasswordEmail.key_prefix).reencode_standalone()
+    verification_code = request.args.get('code')
+    hmac = request.args.get('hm')
+    es = get_elasticsearch_connection()
+    if verification_code:
+        code_details = get_item_by_unique_column(
+            es
+            , "verification_code"
+            , verification_code
+            , ForgotPasswordEmail.key_prefix
+            , "local")
+        if code_details:
+            user_details = get_user_by_unique_column(
+                es
+                , "email_address"
+                , code_details["email_address"])
+            if user_details:
+                return render_template(
+                    "new_security/password_reset.html", user_encode=user_details["user_id"])
+            else:
+                flash("Invalid code: User no longer exists!", "error")
+        else:
+            flash("Invalid code: Password reset code does not exist or might have expired!", "error")
+        return redirect(url_for("login"))#render_template("new_security/login_user.html", error=error)
 
 @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
+    """Handle confirmation E-mail for password reset"""
     logger.debug("in password_reset request.url is:", request.url)
 
     errors = []
+    user_id = request.form['user_encode']
 
-    user_encode = request.form['user_encode']
-    verification_code, separator, hmac = user_encode.partition(':')
-
-    hmac_verified = actual_hmac_creation(verification_code)
     logger.debug("locals are:", locals())
 
 
-    assert hmac == hmac_verified, "Someone has been naughty"
-
-    user = DecodeUser.actual_get_user(ForgotPasswordEmail.key_prefix, verification_code)
-    logger.debug("user is:", user)
-
+    user = Bunch()
     password = request.form['password']
-
     set_password(password, user)
-    db_session.commit()
+
+    es = get_elasticsearch_connection()
+    es.update(
+        index = "users"
+        , doc_type = "local"
+        , id = user_id
+        , body = {
+            "doc": {
+                "password": user.__dict__.get("password")
+            }
+        })
 
     flash("Password changed successfully. You can now sign in.", "alert-info")
     response = make_response(redirect(url_for('login')))
@@ -492,8 +509,85 @@ class DecodeUser(object):
 @app.route("/n/login", methods=('GET', 'POST'))
 def login():
     lu = LoginUser()
-    return lu.standard_login()
+    login_type = request.args.get("type")
+    if login_type:
+        uid = request.args.get("uid")
+        return lu.oauth2_login(login_type, uid)
+    else:
+        return lu.standard_login()
 
+@app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
+def github_oauth2():
+    from utility.tools import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+    code = request.args.get("code")
+    data = {
+        "client_id": GITHUB_CLIENT_ID,
+        "client_secret": GITHUB_CLIENT_SECRET,
+        "code": code
+    }
+    result = requests.post("https://github.com/login/oauth/access_token", json=data)
+    result_dict = {arr[0]:arr[1] for arr in [tok.split("=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
+
+    github_user = get_github_user_details(result_dict["access_token"])
+    es = get_elasticsearch_connection()
+    user_details = get_user_by_unique_column(es, "github_id", github_user["id"])
+    if user_details == None:
+        user_details = {
+            "user_id": str(uuid.uuid4())
+            , "name": github_user["name"].encode("utf-8")
+            , "github_id": github_user["id"]
+            , "user_url": github_user["html_url"].encode("utf-8")
+            , "login_type": "github"
+            , "organization": ""
+            , "active": 1
+            , "confirmed": 1
+        }
+        save_user(es, user_details, user_details["user_id"])
+    url = "/n/login?type=github&uid="+user_details["user_id"]
+    return redirect(url)
+
+@app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
+def orcid_oauth2():
+    from uuid import uuid4
+    from utility.tools import ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_TOKEN_URL, ORCID_AUTH_URL
+    code = request.args.get("code")
+    error = request.args.get("error")
+    url = "/n/login"
+    if code:
+        data = {
+            "client_id": ORCID_CLIENT_ID
+            , "client_secret": ORCID_CLIENT_SECRET
+            , "grant_type": "authorization_code"
+            , "code": code
+        }
+        result = requests.post(ORCID_TOKEN_URL, data=data)
+        result_dict = json.loads(result.text.encode("utf-8"))
+
+        es = get_elasticsearch_connection()
+        user_details = get_user_by_unique_column(es, "orcid", result_dict["orcid"])
+        if user_details == None:
+            user_details = {
+                "user_id": str(uuid4())
+                , "name": result_dict["name"]
+                , "orcid": result_dict["orcid"]
+                , "user_url": "%s/%s" % (
+                    "/".join(ORCID_AUTH_URL.split("/")[:-2]),
+                    result_dict["orcid"])
+                , "login_type": "orcid"
+                , "organization": ""
+                , "active": 1
+                , "confirmed": 1
+            }
+            save_user(es, user_details, user_details["user_id"])
+        url = "/n/login?type=orcid&uid="+user_details["user_id"]
+    else:
+        flash("There was an error getting code from ORCID")
+    return redirect(url)
+
+def get_github_user_details(access_token):
+    from utility.tools import GITHUB_API_URL
+    result = requests.get(GITHUB_API_URL, params={"access_token":access_token})
+    return result.json()
 
 class LoginUser(object):
     remember_time = 60 * 60 * 24 * 30 # One month in seconds
@@ -501,27 +595,55 @@ class LoginUser(object):
     def __init__(self):
         self.remember_me = False
 
+    def oauth2_login(self, login_type, user_id):
+        """Login via an OAuth2 provider"""
+        es = get_elasticsearch_connection()
+        user_details = get_user_by_unique_column(es, "user_id", user_id)
+        if user_details:
+            user = model.User()
+            user.id = user_details["user_id"]
+            user.full_name = user_details["name"]
+            user.login_type = user_details["login_type"]
+            return self.actual_login(user)
+        else:
+            flash("Error logging in via OAuth2")
+            return make_response(redirect(url_for('login')))
+
     def standard_login(self):
         """Login through the normal form"""
         params = request.form if request.form else request.args
         logger.debug("in login params are:", params)
+        es = get_elasticsearch_connection()
         if not params:
-            return render_template("new_security/login_user.html")
+            from utility.tools import GITHUB_AUTH_URL, GITHUB_CLIENT_ID, ORCID_AUTH_URL, ORCID_CLIENT_ID
+            external_login = {}
+            if GITHUB_AUTH_URL and GITHUB_CLIENT_ID != 'UNKNOWN':
+                external_login["github"] = GITHUB_AUTH_URL
+            if ORCID_AUTH_URL and ORCID_CLIENT_ID != 'UNKNOWN':
+                external_login["orcid"] = ORCID_AUTH_URL
+            assert(es is not None)
+            return render_template(
+                "new_security/login_user.html"
+                , external_login=external_login
+                , es_server=es.ping())
         else:
-            try:
-                user = model.User.query.filter_by(email_address=params['email_address']).one()
-            except sqlalchemy.orm.exc.NoResultFound:
-                logger.debug("No account exists for that email address")
-                valid = False
-                user = None
-            else:
+            user_details = get_user_by_unique_column(es, "email_address", params["email_address"])
+            user = None
+            valid = None
+            if user_details:
+                user = model.User();
+                for key in user_details:
+                    user.__dict__[key] = user_details[key]
+                valid = False;
+
                 submitted_password = params['password']
                 pwfields = Struct(json.loads(user.password))
-                encrypted = Password(submitted_password,
-                                              pwfields.salt,
-                                              pwfields.iterations,
-                                              pwfields.keylength,
-                                              pwfields.hashfunc)
+                encrypted = Password(
+                    submitted_password,
+                    pwfields.salt,
+                    pwfields.iterations,
+                    pwfields.keylength,
+                    pwfields.hashfunc)
                 logger.debug("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
                 valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
                 logger.debug("valid is:", valid)
@@ -530,8 +652,6 @@ class LoginUser(object):
             VerificationEmail(user)
             return render_template("new_security/verification_still_needed.html",
                                    subject=VerificationEmail.subject)
-
-
         if valid:
             if params.get('remember'):
                 logger.debug("I will remember you")
@@ -549,7 +669,7 @@ class LoginUser(object):
         else:
             if user:
                 self.unsuccessful_login(user)
-            flash("Invalid email-address or password. Please try again.", "alert-error")
+            flash("Invalid email-address or password. Please try again.", "alert-danger")
             response = make_response(redirect(url_for('login')))
 
             return response
@@ -558,7 +678,6 @@ class LoginUser(object):
         """The meat of the logging in process"""
         session_id_signed = self.successful_login(user, assumed_by)
         flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
-        print("IMPORT1:", import_collections)
         response = make_response(redirect(url_for('index_page', import_collections=import_collections)))
         if self.remember_me:
             max_age = self.remember_time
@@ -589,8 +708,6 @@ class LoginUser(object):
         else:
             expire_time = THREE_DAYS
         Redis.expire(key, expire_time)
-        db_session.add(login_rec)
-        db_session.commit()
         return session_id_signed
 
     def unsuccessful_login(self, user):
@@ -612,19 +729,26 @@ def logout():
 
 @app.route("/n/forgot_password")
 def forgot_password():
+    """Entry point for forgotten password"""
     return render_template("new_security/forgot_password.html")
 
 @app.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
+    """When a forgotten password form is submitted we get here"""
     params = request.form
     email_address = params['email_address']
-    try:
-        user = model.User.query.filter_by(email_address=email_address).one()
-    except orm.exc.NoResultFound:
-        flash("Couldn't find a user associated with the email address {}. Sorry.".format(
-            email_address))
-        return redirect(url_for("login"))
-    ForgotPasswordEmail(user)
+    logger.debug("Wants to send password E-mail to ",email_address)
+    es = get_elasticsearch_connection()
+    user_details = get_user_by_unique_column(es, "email_address", email_address)
+    if user_details:
+        ForgotPasswordEmail(user_details["email_address"])
+    # try:
+    #     user = model.User.query.filter_by(email_address=email_address).one()
+    # except orm.exc.NoResultFound:
+    #     flash("Couldn't find a user associated with the email address {}. Sorry.".format(
+    #         email_address))
+    #     return redirect(url_for("login"))
+    # ForgotPasswordEmail(user)
     return render_template("new_security/forgot_password_step2.html",
                             subject=ForgotPasswordEmail.subject)
 
@@ -691,31 +815,20 @@ def register():
 
 
     params = request.form if request.form else request.args
+    params = params.to_dict(flat=True)
+    es = get_elasticsearch_connection()
+    params["es_connection"] = es
 
     if params:
         logger.debug("Attempting to register the user...")
         result = RegisterUser(params)
         errors = result.errors
 
-        if result.thank_you_mode:
-            assert not errors, "Errors while in thank you mode? That seems wrong..."
-            return render_template("new_security/registered.html",
-                                   subject=VerificationEmail.subject)
+        if len(errors) == 0:
+            flash("Registration successful. You may login with your new account", "alert-info")
+            return redirect(url_for("login"))
 
     return render_template("new_security/register_user.html", values=params, errors=errors)
-
-
-
-
-#@app.route("/n/login", methods=('GET', 'POST'))
-#def login():
-#    return user_manager.login()
-#
-#@app.route("/manage/verify")
-#def verify():
-#    user_manager.verify_email()
-#    return render_template("new_security/verified.html")
-
 
 
 ################################# Sign and unsign #####################################
@@ -771,15 +884,34 @@ app.jinja_env.globals.update(url_for_hmac=url_for_hmac,
 
 #######################################################################################
 
-def send_email(to, subject, body):
-    msg = json.dumps(dict(From="no-reply@genenetwork.org",
-                     To=to,
-                     Subject=subject,
-                     Body=body))
-    Redis.rpush("mail_queue", msg)
+# def send_email(to, subject, body):
+#     msg = json.dumps(dict(From="no-reply@genenetwork.org",
+#                      To=to,
+#                      Subject=subject,
+#                      Body=body))
+#     Redis.rpush("mail_queue", msg)
 
+def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
+    """Send an E-mail through SMTP_CONNECT host. If SMTP_USERNAME is not
+    'UNKNOWN' TLS is used
 
-
+    """
+    if SMTP_USERNAME == 'UNKNOWN':
+        logger.debug("SMTP: connecting with host "+SMTP_CONNECT)
+        server = SMTP(SMTP_CONNECT)
+        server.sendmail(fromaddr, toaddr, msg)
+    else:
+        logger.debug("SMTP: connecting TLS with host "+SMTP_CONNECT)
+        server = SMTP(SMTP_CONNECT)
+        server.starttls()
+        logger.debug("SMTP: login with user "+SMTP_USERNAME)
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        logger.debug("SMTP: "+fromaddr)
+        logger.debug("SMTP: "+toaddr)
+        logger.debug("SMTP: "+msg)
+        server.sendmail(fromaddr, toaddr, msg)
+        server.quit()
+    logger.info("Successfully sent email to "+toaddr)
 
 class GroupsManager(object):
     def __init__(self, kw):

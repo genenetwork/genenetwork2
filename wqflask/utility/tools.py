@@ -54,7 +54,7 @@ def get_setting(command_id,guess=None):
     # print("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if command is None or command == "":
-        command = OVERRIDES.get(command_id)
+        command = OVERRIDES.get(command_id) # currently not in use
         if command is None:
             # ---- Check whether setting exists in app
             command = value(app.config.get(command_id))
@@ -220,7 +220,7 @@ def show_settings():
 
     logger.info(OVERRIDES)
     logger.info(BLUE+"Mr. Mojo Risin 2"+ENDC)
-    print "runserver.py: ****** Webserver configuration ******"
+    print "runserver.py: ****** Webserver configuration - k,v pairs from app.config ******"
     keylist = app.config.keys()
     keylist.sort()
     for k in keylist:
@@ -251,6 +251,31 @@ assert_dir(JS_GUIX_PATH)
 JS_GN_PATH         = get_setting('JS_GN_PATH')
 # assert_dir(JS_GN_PATH)
 
+GITHUB_CLIENT_ID = get_setting('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = get_setting('GITHUB_CLIENT_SECRET')
+GITHUB_AUTH_URL = None
+if GITHUB_CLIENT_ID != 'UNKNOWN' and GITHUB_CLIENT_SECRET:
+    GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize?client_id=" + \
+                      GITHUB_CLIENT_ID+"&client_secret="+GITHUB_CLIENT_SECRET
+    GITHUB_API_URL = get_setting('GITHUB_API_URL')
+
+ORCID_CLIENT_ID = get_setting('ORCID_CLIENT_ID')
+ORCID_CLIENT_SECRET = get_setting('ORCID_CLIENT_SECRET')
+ORCID_AUTH_URL = None
+if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
+    ORCID_AUTH_URL = "https://sandbox.orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id=" + \
+                      ORCID_CLIENT_ID+"&client_secret="+ORCID_CLIENT_SECRET
+    ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
+
+ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
+ELASTICSEARCH_PORT = get_setting('ELASTICSEARCH_PORT')
+import utility.elasticsearch_tools as es
+es.test_elasticsearch_connection()
+
+SMTP_CONNECT = get_setting('SMTP_CONNECT')
+SMTP_USERNAME = get_setting('SMTP_USERNAME')
+SMTP_PASSWORD = get_setting('SMTP_PASSWORD')
+
 PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
 GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
 assert(GEMMA_COMMAND is not None)
@@ -260,23 +285,16 @@ TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
 assert_dir(TEMPDIR)
 
 # ---- Handle specific JS modules
+JS_GUIX_PATH = get_setting("JS_GUIX_PATH")
+assert_dir(JS_GUIX_PATH)
+assert_dir(JS_GUIX_PATH+'/cytoscape-panzoom')
+CSS_PATH = "UNKNOWN"
+# assert_dir(JS_PATH)
 JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("Twitter-Post-Fetcher"))
 assert_dir(JS_TWITTER_POST_FETCHER_PATH)
-
-from six import string_types
-
-if os.environ.get('WQFLASK_OVERRIDES'):
-    jsonfn = get_setting('WQFLASK_OVERRIDES')
-    logger.info("WQFLASK_OVERRIDES: %s" % jsonfn)
-    with open(jsonfn) as data_file:
-        overrides = json.load(data_file)
-        for k in overrides:
-            cmd = overrides[k]
-            if isinstance(cmd, string_types):
-                OVERRIDES[k] = eval(cmd)
-            else:
-                OVERRIDES[k] = cmd
-            logger.debug(OVERRIDES)
+assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")
+JS_CYTOSCAPE_PATH = get_setting("JS_CYTOSCAPE_PATH",js_path("cytoscape"))
+assert_dir(JS_CYTOSCAPE_PATH)
+assert_file(JS_CYTOSCAPE_PATH+'/cytoscape.min.js')
 
 # assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
-assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")

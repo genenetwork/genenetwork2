@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ tool }}{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    {{ header("Error") }}
+
+    <div class="container">
+        <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
+        <p>You must select at least two traits to use the {{ tool }}.</p>
+    </div>
+
+
+<!-- End of body -->
+
+{% endblock %}
