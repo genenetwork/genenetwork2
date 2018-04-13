@@ -1,5 +1,6 @@
 import logging
 import unittest
+from wqflask import app
 from elasticsearch import Elasticsearch, TransportError
 
 class ParametrizedTest(unittest.TestCase):
@@ -14,6 +15,7 @@ class ParametrizedTest(unittest.TestCase):
         self.es_cleanup = []
 
         es_logger = logging.getLogger("elasticsearch")
+        es_logger.setLevel(app.config.get("LOG_LEVEL"))
         es_logger.addHandler(
             logging.FileHandler("/tmp/es_TestRegistrationInfo.log"))
         es_trace_logger = logging.getLogger("elasticsearch.trace")
