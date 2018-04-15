@@ -747,8 +747,9 @@ def forgot_password_submit():
         user_details = get_user_by_unique_column(es, "email_address", email_address)
         if user_details:
             ForgotPasswordEmail(user_details["email_address"])
-            return render_template("new_security/forgot_password_step2.html",
-                            subject=ForgotPasswordEmail.subject)
+
+        return render_template("new_security/forgot_password_step2.html",
+                               subject=ForgotPasswordEmail.subject)
 
     else:
         flash("You MUST provide an email", "alert-danger")
