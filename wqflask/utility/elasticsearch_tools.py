@@ -24,6 +24,8 @@ def get_elasticsearch_connection():
             "host": ELASTICSEARCH_HOST, "port": ELASTICSEARCH_PORT
         }]) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
 
+        setup_users_index(es)
+
         es_logger = logging.getLogger("elasticsearch")
         es_logger.setLevel(logging.INFO)
         es_logger.addHandler(logging.NullHandler())
@@ -32,6 +34,17 @@ def get_elasticsearch_connection():
         es = None
 
     return es
+
+def setup_users_index(es_connection):
+    if es_connection:
+        index_settings = {
+            "properties": {
+                "email_address": {
+                    "type": "string"
+                    , "index": "not_analyzed"}}}
+
+        es_connection.indices.create(index='users', ignore=400)
+        es_connection.indices.put_mapping(body=index_settings, index="users", doc_type="local")
 
 def get_user_by_unique_column(es, column_name, column_value, index="users", doc_type="local"):
     return get_item_by_unique_column(es, column_name, column_value, index=index, doc_type=doc_type)
