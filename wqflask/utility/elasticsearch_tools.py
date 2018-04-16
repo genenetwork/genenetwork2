@@ -29,8 +29,8 @@ def get_elasticsearch_connection():
         es_logger = logging.getLogger("elasticsearch")
         es_logger.setLevel(logging.INFO)
         es_logger.addHandler(logging.NullHandler())
-    except:
-        logger.error("Failed to get elasticsearch connection")
+    except Exception as e:
+        logger.error("Failed to get elasticsearch connection", e)
         es = None
 
     return es
@@ -40,11 +40,12 @@ def setup_users_index(es_connection):
         index_settings = {
             "properties": {
                 "email_address": {
-                    "type": "string"
-                    , "index": "not_analyzed"}}}
+                    "type": "keyword"}}}
 
         es_connection.indices.create(index='users', ignore=400)
+        es_connection.indices.close(index="users")
         es_connection.indices.put_mapping(body=index_settings, index="users", doc_type="local")
+        es_connection.indices.open(index="users")
 
 def get_user_by_unique_column(es, column_name, column_value, index="users", doc_type="local"):
     return get_item_by_unique_column(es, column_name, column_value, index=index, doc_type=doc_type)
