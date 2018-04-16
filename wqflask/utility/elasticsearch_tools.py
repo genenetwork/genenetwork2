@@ -1,3 +1,44 @@
+# Elasticsearch support
+#
+# Some helpful commands to view the database:
+#
+# You can test the server being up with
+#
+#   curl -H 'Content-Type: application/json' http://localhost:9200
+#
+# List all indices
+#
+#   curl -H 'Content-Type: application/json' 'localhost:9200/_cat/indices?v'
+#
+# To see the users index 'table'
+#
+#   curl http://localhost:9200/users
+#
+# To list all user ids
+#
+# curl -H 'Content-Type: application/json' http://localhost:9200/users/local/_search?pretty=true -d '
+# {
+#     "query" : {
+#         "match_all" : {}
+#     },
+#     "stored_fields": []
+# }'
+#
+# To view a record
+#
+#   curl -H 'Content-Type: application/json' http://localhost:9200/users/local/_search?pretty=true -d '
+#   {
+#     "query" : {
+#       "match" : { "email_address": "pjotr2017@thebird.nl"}
+#     }
+#   }'
+#
+#
+# To delete the users index and data (dangerous!)
+#
+#   curl -XDELETE -H 'Content-Type: application/json' 'localhost:9200/users'
+
+
 from elasticsearch import Elasticsearch, TransportError
 import logging
 
