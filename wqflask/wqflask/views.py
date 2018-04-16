@@ -89,11 +89,6 @@ def shutdown_session(exception=None):
         db_session.remove()
         g.db = None
 
-#@app.before_request
-#def trace_it():
-#    from wqflask import tracer
-#    tracer.turn_on()
-
 @app.errorhandler(Exception)
 def handle_bad_request(e):
     err_msg = str(e)

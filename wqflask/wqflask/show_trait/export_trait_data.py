@@ -1,7 +1,5 @@
 from __future__ import print_function, division
 
-import operator
-
 import simplejson as json
 
 from pprint import pformat as pf

@@ -26,7 +26,7 @@ def gen_reaper_results(this_trait, dataset, samples_before, trait_vals, json_dat
         perm_output = genotype.permutation(strains = trimmed_samples, trait = trimmed_values, nperm=num_perm)
         suggestive = perm_output[int(num_perm*0.37-1)]
         significant = perm_output[int(num_perm*0.95-1)]
-        highly_significant = perm_output[int(num_perm*0.99-1)]
+        #highly_significant = perm_output[int(num_perm*0.99-1)] #ZS: Currently not used, but leaving it here just in case
 
     json_data['suggestive'] = suggestive
     json_data['significant'] = significant

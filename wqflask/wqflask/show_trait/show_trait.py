@@ -6,7 +6,6 @@ import datetime
 import cPickle
 import uuid
 import json as json
-#import pyXLWriter as xl
 
 from collections import OrderedDict
 
@@ -72,14 +71,6 @@ class ShowTrait(object):
                                            name=self.trait_id,
                                            cellid=None)
             self.trait_vals = Redis.get(self.trait_id).split()
-
-        #self.dataset.group.read_genotype_file()
-
-        #if this_trait:
-        #    if this_trait.dataset and this_trait.dataset.type and this_trait.dataset.type == 'ProbeSet':
-        #            self.cursor.execute("SELECT h2 from ProbeSetXRef WHERE DataId = %d" %
-        #                                this_trait.mysqlid)
-        #            heritability = self.cursor.fetchone()
 
         #ZS: Get verify/rna-seq link URLs
         try:
@@ -192,7 +183,7 @@ class ShowTrait(object):
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
 
-        self.get_mapping_methods()
+        self.genofiles = get_genofiles(self.dataset)
 
         self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups)
 
@@ -211,28 +202,6 @@ class ShowTrait(object):
                        temp_uuid = self.temp_uuid)
         self.js_data = js_data
 
-    def get_mapping_methods(self):
-        '''Only display mapping methods when the dataset group's genotype file exists'''
-        def check_plink_gemma():
-            if flat_file_exists("mapping"):
-                MAPPING_PATH = flat_files("mapping")+"/"
-                if (os.path.isfile(MAPPING_PATH+self.dataset.group.name+".bed") and
-                    (os.path.isfile(MAPPING_PATH+self.dataset.group.name+".map") or
-                     os.path.isfile(MAPPING_PATH+self.dataset.group.name+".bim"))):
-                    return True
-            return False
-
-        def check_pylmm_rqtl():
-            if os.path.isfile(webqtlConfig.GENODIR+self.dataset.group.name+".geno") and (os.path.getsize(webqtlConfig.JSON_GENODIR+self.dataset.group.name+".json") > 0):
-                return True
-            else:
-                return False
-
-        self.genofiles = get_genofiles(self.dataset)
-        self.use_plink_gemma = check_plink_gemma()
-        self.use_pylmm_rqtl = check_pylmm_rqtl()
-
-
     def build_correlation_tools(self):
         if self.temp_trait == True:
             this_group = self.temp_group
@@ -245,7 +214,6 @@ class ShowTrait(object):
             this_group = 'BXD'
 
         if this_group:
-            #dataset_menu = self.dataset.group.datasets()
             if self.temp_trait == True:
                 dataset_menu = data_set.datasets(this_group)
             else:
@@ -262,7 +230,6 @@ class ShowTrait(object):
                                           dataset_menu_selected = dataset_menu_selected,
                                           return_results_menu = return_results_menu,
                                           return_results_menu_selected = return_results_menu_selected,)
-
 
     def make_sample_lists(self):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
@@ -315,10 +282,6 @@ class ShowTrait(object):
                                             sample_group_type='primary',
                                             header="%s Only" % (self.dataset.group.name))
             self.sample_groups = (primary_samples,)
-        #TODO: Figure out why this if statement is written this way - Zach
-        #if (other_sample_names or (fd.f1list and this_trait.data.has_key(fd.f1list[0]))
-        #        or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
-        #    logger.debug("hjs")
         self.dataset.group.allsamples = all_samples_ordered
 
 def get_nearest_marker(this_trait, this_db):
