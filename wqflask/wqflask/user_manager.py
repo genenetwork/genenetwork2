@@ -13,7 +13,6 @@ import urlparse
 
 import simplejson as json
 
-#from redis import StrictRedis
 import redis # used for collections
 Redis = redis.StrictRedis()
 
@@ -42,7 +41,6 @@ from smtplib import SMTP
 from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY
 
 THREE_DAYS = 60 * 60 * 24 * 3
-#THREE_DAYS = 45
 
 def timestamp():
     return datetime.datetime.utcnow().isoformat()
@@ -65,16 +63,6 @@ class AnonUser(object):
         @after.after_this_request
         def set_cookie(response):
             response.set_cookie(self.cookie_name, self.cookie)
-
-    def add_collection(self, new_collection):
-        collection_dict = dict(name = new_collection.name,
-                               created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                               changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                               num_members = new_collection.num_members,
-                               members = new_collection.get_members())
-
-        Redis.set(self.key, json.dumps(collection_dict))
-        Redis.expire(self.key, 60 * 60 * 24 * 5)
 
     def delete_collection(self, collection_name):
         existing_collections = self.get_collections()
@@ -171,19 +159,11 @@ class UserSession(object):
             self.session_id = session_id
             self.record = Redis.hgetall(self.redis_key)
 
-
             if not self.record:
                 # This will occur, for example, when the browser has been left open over a long
                 # weekend and the site hasn't been visited by the user
                 self.logged_in = False
 
-                ########### Grrr...this won't work because of the way flask handles cookies
-                # Delete the cookie
-                #response = make_response(redirect(url_for('login')))
-                #response.set_cookie(self.cookie_name, '', expires=0)
-                #flash(
-                #   "Due to inactivity your session has expired. If you'd like please login again.")
-                #return response
                 return
 
             if Redis.ttl(self.redis_key) < THREE_DAYS:
@@ -218,7 +198,6 @@ class UserSession(object):
             self.db_object = model.User.query.get(self.user_id)
             return self.db_object
 
-
     def delete_session(self):
         # And more importantly delete the redis record
         Redis.delete(self.cookie_name)
@@ -234,12 +213,10 @@ class UsersManager(object):
         self.users = model.User.query.all()
         logger.debug("Users are:", self.users)
 
-
 class UserManager(object):
     def __init__(self, kw):
         self.user_id = kw['user_id']
         logger.debug("In UserManager locals are:", pf(locals()))
-        #self.user = model.User.get(user_id)
         #logger.debug("user is:", user)
         self.user = model.User.query.get(self.user_id)
         logger.debug("user is:", self.user)
@@ -253,10 +230,8 @@ class UserManager(object):
             logger.debug("  Confidential:", dataset.check_confidentiality())
         #logger.debug("   ---> self.datasets:", self.datasets)
 
-
 class RegisterUser(object):
     def __init__(self, kw):
-        self.thank_you_mode = False
         self.errors = []
         self.user = Bunch()
         es = kw.get('es_connection', None)
@@ -304,7 +279,6 @@ def set_password(password, user):
 
     pwfields.algorithm = "pbkdf2"
     pwfields.hashfunc = "sha256"
-    #hashfunc = getattr(hashlib, pwfields.hashfunc)
 
     # Encoding it to base64 makes storing it in json much easier
     pwfields.salt = base64.b64encode(os.urandom(32))
@@ -333,7 +307,6 @@ def set_password(password, user):
                                     sort_keys=True,
                                    )
 
-
 class VerificationEmail(object):
     template_name =  "email/verification.txt"
     key_prefix = "verification_code"
@@ -348,7 +321,6 @@ class VerificationEmail(object):
                           )
 
         Redis.set(key, data)
-        #two_days = 60 * 60 * 24 * 2
         Redis.expire(key, THREE_DAYS)
         to = user.email_address
         subject = self.subject
@@ -463,7 +435,6 @@ def password_reset_step2():
 
     logger.debug("locals are:", locals())
 
-
     user = Bunch()
     password = request.form['password']
     set_password(password, user)
@@ -488,8 +459,6 @@ class DecodeUser(object):
 
     def __init__(self, code_prefix):
         verify_url_hmac(request.url)
-
-        #params = urlparse.parse_qs(url)
 
         self.verification_code = request.args['code']
         self.user = self.actual_get_user(code_prefix, self.verification_code)
@@ -662,8 +631,6 @@ class LoginUser(object):
             else:
                 import_col = "false"
 
-            #g.cookie_session.import_traits_to_user()
-
             return self.actual_login(user, import_collections=import_col)
 
         else:
@@ -691,7 +658,6 @@ class LoginUser(object):
         login_rec.successful = True
         login_rec.session_id = str(uuid.uuid4())
         login_rec.assumed_by = assumed_by
-        #session_id = "session_id:{}".format(login_rec.session_id)
         session_id_signature = actual_hmac_creation(login_rec.session_id)
         session_id_signed = login_rec.session_id + ":" + session_id_signature
         logger.debug("session_id_signed:", session_id_signed)
@@ -726,7 +692,6 @@ def logout():
     response.set_cookie(UserSession.cookie_name, '', expires=0)
     return response
 
-
 @app.route("/n/forgot_password")
 def forgot_password():
     """Entry point for forgotten password"""
@@ -742,13 +707,7 @@ def forgot_password_submit():
     user_details = get_user_by_unique_column(es, "email_address", email_address)
     if user_details:
         ForgotPasswordEmail(user_details["email_address"])
-    # try:
-    #     user = model.User.query.filter_by(email_address=email_address).one()
-    # except orm.exc.NoResultFound:
-    #     flash("Couldn't find a user associated with the email address {}. Sorry.".format(
-    #         email_address))
-    #     return redirect(url_for("login"))
-    # ForgotPasswordEmail(user)
+
     return render_template("new_security/forgot_password_step2.html",
                             subject=ForgotPasswordEmail.subject)
 
@@ -764,8 +723,6 @@ def super_only():
     if not superuser:
         flash("You must be a superuser to access that page.", "alert-error")
         abort(401)
-
-
 
 @app.route("/manage/users")
 def manage_users():
@@ -807,12 +764,10 @@ def assume_identity():
     assumed_by = g.user_session.user_id
     return LoginUser().actual_login(user, assumed_by=assumed_by)
 
-
 @app.route("/n/register", methods=('GET', 'POST'))
 def register():
     params = None
     errors = None
-
 
     params = request.form if request.form else request.args
     params = params.to_dict(flat=True)
@@ -829,7 +784,6 @@ def register():
             return redirect(url_for("login"))
 
     return render_template("new_security/register_user.html", values=params, errors=errors)
-
 
 ################################# Sign and unsign #####################################
 
@@ -848,7 +802,6 @@ def url_for_hmac(endpoint, **values):
 def data_hmac(stringy):
     """Takes arbitray data string and appends :hmac so we know data hasn't been tampered with"""
     return stringy + ":" + actual_hmac_creation(stringy)
-
 
 def verify_url_hmac(url):
     """Pass in a url that was created with url_hmac and this assures it hasn't been tampered with"""
@@ -884,13 +837,6 @@ app.jinja_env.globals.update(url_for_hmac=url_for_hmac,
 
 #######################################################################################
 
-# def send_email(to, subject, body):
-#     msg = json.dumps(dict(From="no-reply@genenetwork.org",
-#                      To=to,
-#                      Subject=subject,
-#                      Body=body))
-#     Redis.rpush("mail_queue", msg)
-
 def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
     """Send an E-mail through SMTP_CONNECT host. If SMTP_USERNAME is not
     'UNKNOWN' TLS is used
@@ -916,9 +862,3 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
 class GroupsManager(object):
     def __init__(self, kw):
         self.datasets = create_datasets_list()
-
-
-class RolesManager(object):
-    def __init__(self):
-        self.roles = model.Role.query.all()
-        logger.debug("Roles are:", self.roles)

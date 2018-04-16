@@ -123,10 +123,6 @@ class AnonCollection(object):
             collections_list.append(collection_dict)
 
         Redis.set(self.key, json.dumps(collections_list))
-        #Redis.sadd(self.key, *list(traits))
-        #Redis.expire(self.key, 60 * 60 * 24 * 5)
-        #len_now = len(Redis.smembers(self.key))
-        #report_change(len_before, len_now)
 
     def remove_traits(self, params):
         traits_to_remove = [(":").join(trait.split(":")[:2]) for trait in params.getlist('traits[]')]
