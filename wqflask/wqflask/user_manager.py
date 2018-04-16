@@ -692,24 +692,33 @@ def logout():
     response.set_cookie(UserSession.cookie_name, '', expires=0)
     return response
 
-@app.route("/n/forgot_password")
+@app.route("/n/forgot_password", methods=['GET'])
 def forgot_password():
     """Entry point for forgotten password"""
-    return render_template("new_security/forgot_password.html")
+    logger.debug("ARGS: ", request.args)
+    errors = {"no-email": request.args.get("no-email")}
+    logger.debug("ERRORS: ", errors)
+    return render_template("new_security/forgot_password.html", errors=errors)
 
 @app.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
     """When a forgotten password form is submitted we get here"""
     params = request.form
     email_address = params['email_address']
-    logger.debug("Wants to send password E-mail to ",email_address)
-    es = get_elasticsearch_connection()
-    user_details = get_user_by_unique_column(es, "email_address", email_address)
-    if user_details:
-        ForgotPasswordEmail(user_details["email_address"])
+    next_page = None
+    if email_address != "":
+        logger.debug("Wants to send password E-mail to ",email_address)
+        es = get_elasticsearch_connection()
+        user_details = get_user_by_unique_column(es, "email_address", email_address)
+        if user_details:
+            ForgotPasswordEmail(user_details["email_address"])
 
-    return render_template("new_security/forgot_password_step2.html",
-                            subject=ForgotPasswordEmail.subject)
+        return render_template("new_security/forgot_password_step2.html",
+                               subject=ForgotPasswordEmail.subject)
+
+    else:
+        flash("You MUST provide an email", "alert-danger")
+        return redirect(url_for("forgot_password"))
 
 @app.errorhandler(401)
 def unauthorized(error):

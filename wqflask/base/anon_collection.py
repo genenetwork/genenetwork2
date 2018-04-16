@@ -1,6 +1,6 @@
 class AnonCollection(TraitCollection):
     
-    def __init__(self, anon_id)
+    def __init__(self, anon_id):
         self.anon_id = anon_id
         self.collection_members = Redis.smembers(self.anon_id)
         print("self.collection_members is:", self.collection_members)
@@ -12,6 +12,7 @@ class AnonCollection(TraitCollection):
         print("traits_to_remove:", traits_to_remove)
         for trait in traits_to_remove:
             Redis.srem(self.anon_id, trait)
+
         members_now = self.collection_members - traits_to_remove
         print("members_now:", members_now)
         print("Went from {} to {} members in set.".format(len(self.collection_members), len(members_now)))

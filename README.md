@@ -17,20 +17,34 @@ deploy GN2 and dependencies as a self contained unit on any machine.
 The database can be run separately as well as the source tree (for
 developers).  See the [installation docs](doc/README.org).
 
-## Test
+## Run
 
 Once installed GN2 can be run online through a browser interface
 
 ```sh
-./bin/genenetwork2
+genenetwork2
 ```
 
-(default is http://localhost:5003/). We are building up automated
-testing using [mechanize](https://github.com/genenetwork/genenetwork2/tree/master/test/lib) which can be run with
+(default is http://localhost:5003/). For full examples (you'll need to
+set a number of environment variables), including running scripts and
+a Python REPL, see the startup script
+[./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
+
+## Testing
+
+We are building 'Mechanical Rob' automated testing using Python
+[requests](https://github.com/genenetwork/genenetwork2/tree/master/test/lib)
+which can be run with something like
 
 ```sh
-./bin/test-website
+env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py -a http://localhost:5003
 ```
+
+The GN2_PROFILE is the Guix profile that contains all
+dependencies. The ./bin/genenetwork2 script sets up the environment
+and executes test-website.py in a Python interpreter. The -a switch
+says to run all tests and the URL points to the running GN2 http
+server.
 
 ## Documentation
 
@@ -70,16 +84,15 @@ For more information visit http://www.genenetwork.org/
 
 [![JOSS](http://joss.theoj.org/papers/10.21105/joss.00025/status.svg)](http://joss.theoj.org/papers/10.21105/joss.00025)
 
-GeneNetwork was published in the Journal of Open Source Software as 'GeneNetwork: framework for web-based genetics' by Zachary Sloan, Danny Arends, Karl W. Broman, Arthur Centeno, Nicholas Furlotte, Harm Nijveen, Lei Yan, Xiang Zhou, Robert W. WIlliams and Pjotr Prins 
+GeneNetwork was published in the Journal of Open Source Software as 'GeneNetwork: framework for web-based genetics' by Zachary Sloan, Danny Arends, Karl W. Broman, Arthur Centeno, Nicholas Furlotte, Harm Nijveen, Lei Yan, Xiang Zhou, Robert W. WIlliams and Pjotr Prins
 
 You may also cite the software using
 
-[![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2). 
+[![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2).
 
 ## Contact
 
 IRC on #genenetwork on irc.freenode.net.
 
 Code and primary web service managed by Dr. Robert W. Williams and the
-University of Tennessee Health Science Center, Memphis TN, USA. 
-
+University of Tennessee Health Science Center, Memphis TN, USA.
