@@ -1,6 +1,5 @@
 from __future__ import print_function, division
 
-import operator
 import csv
 import xlsxwriter
 import StringIO 

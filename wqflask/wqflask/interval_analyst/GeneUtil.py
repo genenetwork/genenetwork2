@@ -6,7 +6,7 @@ from flask import Flask, g
 
 #Just return a list of dictionaries
 #each dictionary contains sub-dictionary
-def loadGenes(chrName, diffCol, startMb, endMb, webqtlDb =None, species='mouse'):
+def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
 	fetchFields = ['SpeciesId', 'Id', 'GeneSymbol', 'GeneDescription', 'Chromosome', 'TxStart', 'TxEnd',
 	'Strand', 'GeneID', 'NM_ID', 'kgID', 'GenBankID', 'UnigenID', 'ProteinID', 'AlignID',
 	'exonCount', 'exonStarts', 'exonEnds', 'cdsStart', 'cdsEnd']
