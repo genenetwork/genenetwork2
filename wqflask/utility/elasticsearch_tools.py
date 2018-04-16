@@ -84,9 +84,7 @@ def setup_users_index(es_connection):
                     "type": "keyword"}}}
 
         es_connection.indices.create(index='users', ignore=400)
-        es_connection.indices.close(index="users")
         es_connection.indices.put_mapping(body=index_settings, index="users", doc_type="local")
-        es_connection.indices.open(index="users")
 
 def get_user_by_unique_column(es, column_name, column_value, index="users", doc_type="local"):
     return get_item_by_unique_column(es, column_name, column_value, index=index, doc_type=doc_type)
