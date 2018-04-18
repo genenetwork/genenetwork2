@@ -872,32 +872,6 @@ if __name__ == "__main__":
     dataset_name = "HC_M2_0606_P"
     dataset = create_dataset(db_conn, dataset_name)
 
-    #cursor.execute("""
-    #            SELECT ProbeSet.Name as TNAME, 0 as thistable,
-    #            ProbeSetXRef.Mean as TMEAN, ProbeSetXRef.LRS as TLRS,
-    #            ProbeSetXRef.PVALUE as TPVALUE, ProbeSet.Chr_num as TCHR_NUM,
-    #            ProbeSet.Mb as TMB, ProbeSet.Symbol as TSYMBOL,
-    #            ProbeSet.name_num as TNAME_NUM
-    #            FROM ProbeSetXRef, ProbeSet, Geno
-    #            WHERE ProbeSetXRef.LRS > 99.0 and
-    #            ABS(ProbeSet.Mb-Geno.Mb) < 5 and
-    #            ProbeSetXRef.Locus = Geno.name and
-    #            Geno.SpeciesId = 1 and
-    #            ProbeSet.Chr = Geno.Chr and
-    #            ProbeSet.Id = ProbeSetXRef.ProbeSetId and
-    #            ProbeSetXRef.ProbeSetFreezeId = 112""")
-
-    #logger.debug(pf(cursor.fetchall()))
-    #results = ProbeSetSearch("shh", None, dataset, cursor, db_conn).run()
     results = PvalueSearch(['0.005'], '<', dataset, cursor, db_conn).run()
-    #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
-    #results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
-    #results = CisLrsSearch(['99'], '>', dataset, cursor, db_conn).run() # cisLRS > 99
-    #results = LrsSearch('99', '>', dataset, cursor, db_conn).run()
-    #results = TransLrsSearch(['9', '999', '10'], dataset, cursor, db_conn).run()
-    #results = PhenotypeSearch("brain", dataset, cursor, db_conn).run()
-    #results = GenotypeSearch("rs13475699", dataset, cursor, db_conn).run()
-    #results = GoSearch("0045202", dataset, cursor, db_conn).run()
 
-    logger.debug("results are:", pf(results))
     db_conn.close()

@@ -30,14 +30,6 @@ logger = getLogger(__name__ )
 #output: cursor instance
 #function: connect to database and return cursor instance
 ###########################################################################
-def getCursor():
-    try:
-        logger.warning("Creating new MySQLdb cursor (this method is OBSOLETE!)")
-        con = MySQLdb.Connect(db=webqtlConfig.DB_NAME, host=webqtlConfig.MYSQL_SERVER, user=webqtlConfig.DB_USER, passwd=webqtlConfig.DB_PASSWD)
-        cursor = con.cursor()
-        return cursor
-    except:
-        return None
 
 def retrieve_species(group):
     """Get the species of a group (e.g. returns string "mouse" on "BXD"

@@ -72,7 +72,6 @@ import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 
-
 @app.before_request
 def connect_db():
     db = getattr(g, '_database', None)
