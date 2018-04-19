@@ -169,8 +169,27 @@ class Markers(object):
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
     def __init__(self, name):
         json_data_fh = open(locate(name + ".json",'genotype/json'))
+
         try:
-            markers = json.load(json_data_fh)
+            markers = []
+            with open(locate(name + "_snps.txt", 'r')) as bimbam_fh:
+                marker = {}
+                if len(bimbam_fh[0].split(", ")) > 2:
+                    delimiter = ", "
+                elif len(bimbam_fh[0].split(",")) > 2:
+                    delimiter = ","
+                elif len(bimbam_fh[0].split("\t")) > 2:
+                    delimiter = "\t"
+                else:
+                    delimiter = " "
+                for line in bimbam_fh:
+                    marker['name'] = line.split(delimiter)[0]
+                    marker['Mb']
+                    marker['chr'] = line.split(delimiter)[2]
+                    marker['cM']
+                    markers.append(marker)
+        #try:
+        #    markers = json.load(json_data_fh)
         except:
             markers = []
 
@@ -180,8 +199,6 @@ class Markers(object):
             marker['Mb'] = float(marker['Mb'])
 
         self.markers = markers
-        #logger.debug("self.markers:", self.markers)
-
 
     def add_pvalues(self, p_values):
         logger.debug("length of self.markers:", len(self.markers))

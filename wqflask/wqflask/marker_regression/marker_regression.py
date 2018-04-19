@@ -587,7 +587,6 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
             output_file.write(",Dominance")
         output_file.write("\n")
         for i, marker in enumerate(markers):
-            logger.debug("THE MARKER:", marker)
             output_file.write(marker['name'] + "," + str(marker['chr']) + "," + str(marker['Mb']) + ",")
             if "lod_score" in marker.keys():
                 output_file.write(str(marker['lod_score']))
