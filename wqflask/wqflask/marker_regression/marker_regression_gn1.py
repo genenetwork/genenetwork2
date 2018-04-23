@@ -1062,10 +1062,6 @@ class MarkerRegression(object):
 
                 #draw gray blocks for 3' and 5' UTR blocks
                 if cdsStart and cdsEnd:
-                    logger.debug("txStart:", txStart)
-                    logger.debug("cdsStart:", cdsStart)
-                    logger.debug("txEnd:", txEnd)
-                    logger.debug("cdsEnd:", cdsEnd)
                     utrStartPix = (txStart-startMb)*plotXScale + xLeftOffset
                     utrEndPix = (cdsStart-startMb)*plotXScale + xLeftOffset
                     if (utrStartPix < xLeftOffset):
@@ -1721,8 +1717,8 @@ class MarkerRegression(object):
         for i, qtlresult in enumerate(self.qtlresults):
             m = 0
             thisLRSColor = self.colorCollection[0]
-
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
+
                 if self.manhattan_plot != True:
                     canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
@@ -1760,7 +1756,6 @@ class MarkerRegression(object):
                 AdditiveCoordXY = []
                 previous_chr = qtlresult['chr']
                 previous_chr_as_int += 1
-
                 newStartPosX = (self.ChrLengthDistList[previous_chr_as_int - 1]+self.GraphInterval)*plotXScale
                 if newStartPosX != oldStartPosX:
                     startPosX += newStartPosX
@@ -1773,7 +1768,6 @@ class MarkerRegression(object):
                 this_chr = str(self.ChrList[self.selectedChr][1]+1)
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
                 Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
-
                 # updated by NL 06-18-2011:
                 # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                 # for any lrs is over than 460(LRS max in this system), it will be reset to 460

@@ -343,6 +343,19 @@
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
+                            <label style="text-align: right;" class="col-xs-3 control-label">Use LOCO</label>
+                            <div style="margin-left:20px;" class="col-xs-6 controls">
+                                <label class="radio-inline">
+                                    <input type="radio" name="use_loco" value="True" checked="">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="use_loco" value="False">
+                                    No
+                               </label>
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
                             <label style="text-align: right;" class="col-xs-3 control-label">Covariates</label>
                             <div style="margin-left:20px;" class="col-xs-7">
                               {% if g.user_session.user_ob and (g.user_session.user_ob.display_num_collections() == "") %}

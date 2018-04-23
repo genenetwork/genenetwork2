@@ -33,7 +33,7 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
         gen_covariates_file(this_dataset, covariates)
 
     if method == "gemma_plink":
-        gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/%s.cXX.txt -lmm 1 -maf 0.1' % (flat_files('mapping'),
+        gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/%s.cXX.txt -lmm 2 -maf 0.1' % (flat_files('mapping'),
                                                                                         this_dataset.group.name,
                                                                                         flat_files('mapping'),
                                                                                         this_dataset.group.name)
@@ -43,7 +43,7 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
                                                                                    webqtlConfig.GENERATED_IMAGE_DIR,
                                                                                    this_dataset.group.name)
         else:
-            #gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/%s.sXX.txt -lmm 1 -maf 0.1 -o %s_output' % (flat_files('mapping'),
+            #gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/%s.sXX.txt -lmm 2 -maf 0.1 -o %s_output' % (flat_files('mapping'),
             gemma_command += ' -outdir %s -o %s_output' % (webqtlConfig.GENERATED_IMAGE_DIR,
                                                            this_dataset.group.name)
     else:
@@ -69,20 +69,20 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
 
             gwa_output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
             if covariates != "":
-                gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > %s/gn2/%s.json' % (flat_files('mapping'),
+                gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 2 -maf 0.1 -debug > %s/gn2/%s.json' % (flat_files('mapping'),
                                                                                                                                          this_dataset.group.name,
                                                                                                                                          flat_files('genotype/bimbam'),
                                                                                                                                          genofile_name,
                                                                                                                                          TEMPDIR,
                                                                                                                                          gwa_output_filename)
             else:
-                gemma_command += ' -a %s/%s_snps.txt -lmm 1 -maf 0.1 -debug > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
+                gemma_command += ' -a %s/%s_snps.txt -lmm 2 -maf 0.1 -debug > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
                                                                                                                  genofile_name,
                                                                                                                  TEMPDIR,
                                                                                                                  gwa_output_filename)
 
         else:
-            gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 1 -maf 0.1' % (flat_files('genotype/bimbam'),
+            gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 2 -maf 0.1' % (flat_files('genotype/bimbam'),
                                                                                             genofile_name,
                                                                                             flat_files('genotype/bimbam'),
                                                                                             genofile_name,
