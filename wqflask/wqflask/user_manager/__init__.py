@@ -45,12 +45,11 @@ from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD
 from .util_functions import actual_hmac_creation
 from .anon_user import AnonUser
 from .user_session import UserSession
+from .register_user import RegisterUser, Password, set_password
+from .util_functions import timestamp
 
 THREE_DAYS = 60 * 60 * 24 * 3
 #THREE_DAYS = 45
-
-def timestamp():
-    return datetime.datetime.utcnow().isoformat()
 
 @app.before_request
 def before_request():
@@ -80,87 +79,6 @@ class UserManager(object):
             logger.debug("  ID:", dataset.id)
             logger.debug("  Confidential:", dataset.check_confidentiality())
         #logger.debug("   ---> self.datasets:", self.datasets)
-
-
-class RegisterUser(object):
-    def __init__(self, kw):
-        self.thank_you_mode = False
-        self.errors = []
-        self.user = Bunch()
-        es = kw.get('es_connection', None)
-
-        if not es:
-            self.errors.append("Missing connection object")
-
-        self.user.email_address = kw.get('email_address', '').encode("utf-8").strip()
-        if not (5 <= len(self.user.email_address) <= 50):
-            self.errors.append('Email Address needs to be between 5 and 50 characters.')
-        else:
-            email_exists = get_user_by_unique_column(es, "email_address", self.user.email_address)
-            if email_exists:
-                self.errors.append('User already exists with that email')
-
-        self.user.full_name = kw.get('full_name', '').encode("utf-8").strip()
-        if not (5 <= len(self.user.full_name) <= 50):
-            self.errors.append('Full Name needs to be between 5 and 50 characters.')
-
-        self.user.organization = kw.get('organization', '').encode("utf-8").strip()
-        if self.user.organization and not (5 <= len(self.user.organization) <= 50):
-            self.errors.append('Organization needs to be empty or between 5 and 50 characters.')
-
-        password = str(kw.get('password', ''))
-        if not (6 <= len(password)):
-            self.errors.append('Password needs to be at least 6 characters.')
-
-        if kw.get('password_confirm') != password:
-            self.errors.append("Passwords don't match.")
-
-        if self.errors:
-            return
-
-        logger.debug("No errors!")
-
-        set_password(password, self.user)
-        self.user.user_id = str(uuid.uuid4())
-        self.user.confirmed = 1
-
-        self.user.registration_info = json.dumps(basic_info(), sort_keys=True)
-        save_user(es, self.user.__dict__, self.user.user_id)
-
-def set_password(password, user):
-    pwfields = Bunch()
-
-    pwfields.algorithm = "pbkdf2"
-    pwfields.hashfunc = "sha256"
-    #hashfunc = getattr(hashlib, pwfields.hashfunc)
-
-    # Encoding it to base64 makes storing it in json much easier
-    pwfields.salt = base64.b64encode(os.urandom(32))
-
-    # https://forums.lastpass.com/viewtopic.php?t=84104
-    pwfields.iterations = 100000
-    pwfields.keylength = 32
-
-    pwfields.created_ts = timestamp()
-    # One more check on password length
-    assert len(password) >= 6, "Password shouldn't be so short here"
-
-    logger.debug("pwfields:", vars(pwfields))
-    logger.debug("locals:", locals())
-
-    enc_password = Password(password,
-                            pwfields.salt,
-                            pwfields.iterations,
-                            pwfields.keylength,
-                            pwfields.hashfunc)
-
-    pwfields.password = enc_password.password
-    pwfields.encrypt_time = enc_password.encrypt_time
-
-    user.password = json.dumps(pwfields.__dict__,
-                                    sort_keys=True,
-                                   )
-
 
 class VerificationEmail(object):
     template_name =  "email/verification.txt"
@@ -216,20 +134,6 @@ class ForgotPasswordEmail(VerificationEmail):
         msg.attach(MIMEText(body, "plain"))
 
         send_email(toaddr, msg.as_string())
-
-
-class Password(object):
-    def __init__(self, unencrypted_password, salt, iterations, keylength, hashfunc):
-        hashfunc = getattr(hashlib, hashfunc)
-        logger.debug("hashfunc is:", hashfunc)
-        # On our computer it takes around 1.4 seconds in 2013
-        start_time = time.time()
-        salt = base64.b64decode(salt)
-        self.password = pbkdf2.pbkdf2_hex(str(unencrypted_password),
-                                          salt, iterations, keylength, hashfunc)
-        self.encrypt_time = round(time.time() - start_time, 3)
-        logger.debug("Creating password took:", self.encrypt_time)
-
 
 def basic_info():
     return dict(timestamp = timestamp(),

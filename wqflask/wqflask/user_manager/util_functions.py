@@ -1,10 +1,14 @@
 import uuid
 import hashlib
+import datetime
 import hmac
 from wqflask import app
 from utility.logger import getLogger
 
 logger = getLogger(__name__)
+
+def timestamp():
+    return datetime.datetime.utcnow().isoformat()
 
 def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')

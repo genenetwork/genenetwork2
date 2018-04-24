@@ -1,5 +1,5 @@
 import requests
-from wqflask import user_manager
+from wqflask.user_manager import RegisterUser
 from utility.elasticsearch_tools import get_user_by_unique_column
 from parameterized import parameterized
 from parametrized_test import ParametrizedTest
@@ -27,8 +27,7 @@ class TestForgotPassword(ParametrizedTest):
             "password": "test_password",
             "password_confirm": "test_password"
         }
-        user_manager.basic_info = lambda : { "basic_info": "basic" }
-        user_manager.RegisterUser(data)
+        RegisterUser(data)
 
     def testWithoutEmail(self):
         data = {"email_address": ""}
