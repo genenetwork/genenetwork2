@@ -27,7 +27,7 @@ from wqflask import pbkdf2 # password hashing
 from wqflask.database import db_session
 from wqflask import model
 
-from utility import Bunch, Struct, after
+from utility import Bunch, Struct
 
 import logging
 from utility.logger import getLogger
@@ -39,190 +39,18 @@ import requests
 from utility.elasticsearch_tools import get_elasticsearch_connection, get_user_by_unique_column, get_item_by_unique_column, save_user, es_save_data
 
 from smtplib import SMTP
-from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY
+from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD
+
+# local package imports
+from .util_functions import actual_hmac_creation
+from .anon_user import AnonUser
+from .user_session import UserSession
 
 THREE_DAYS = 60 * 60 * 24 * 3
 #THREE_DAYS = 45
 
 def timestamp():
     return datetime.datetime.utcnow().isoformat()
-
-class AnonUser(object):
-    """Anonymous user handling"""
-    cookie_name = 'anon_user_v8'
-
-    def __init__(self):
-        self.cookie = request.cookies.get(self.cookie_name)
-        if self.cookie:
-            logger.debug("already is cookie")
-            self.anon_id = verify_cookie(self.cookie)
-
-        else:
-            logger.debug("creating new cookie")
-            self.anon_id, self.cookie = create_signed_cookie()
-        self.key = "anon_collection:v1:{}".format(self.anon_id)
-
-        @after.after_this_request
-        def set_cookie(response):
-            response.set_cookie(self.cookie_name, self.cookie)
-
-    def add_collection(self, new_collection):
-        collection_dict = dict(name = new_collection.name,
-                               created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                               changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                               num_members = new_collection.num_members,
-                               members = new_collection.get_members())
-
-        Redis.set(self.key, json.dumps(collection_dict))
-        Redis.expire(self.key, 60 * 60 * 24 * 5)
-
-    def delete_collection(self, collection_name):
-        existing_collections = self.get_collections()
-        updated_collections = []
-        for i, collection in enumerate(existing_collections):
-            if collection['name'] == collection_name:
-                continue
-            else:
-                this_collection = {}
-                this_collection['id'] = collection['id']
-                this_collection['name'] = collection['name']
-                this_collection['created_timestamp'] = collection['created_timestamp'].strftime('%b %d %Y %I:%M%p')
-                this_collection['changed_timestamp'] = collection['changed_timestamp'].strftime('%b %d %Y %I:%M%p')
-                this_collection['num_members'] = collection['num_members']
-                this_collection['members'] = collection['members']
-                updated_collections.append(this_collection)
-
-        Redis.set(self.key, json.dumps(updated_collections))
-
-    def get_collections(self):
-        json_collections = Redis.get(self.key)
-        if json_collections == None or json_collections == "None":
-            return []
-        else:
-            collections = json.loads(json_collections)
-            for collection in collections:
-                collection['created_timestamp'] = datetime.datetime.strptime(collection['created_timestamp'], '%b %d %Y %I:%M%p')
-                collection['changed_timestamp'] = datetime.datetime.strptime(collection['changed_timestamp'], '%b %d %Y %I:%M%p')
-            return collections
-
-    def import_traits_to_user(self):
-        result = Redis.get(self.key)
-        collections_list = json.loads(result if result else "[]")
-        for collection in collections_list:
-            uc = model.UserCollection()
-            uc.name = collection['name']
-            collection_exists = g.user_session.user_ob.get_collection_by_name(uc.name)
-            if collection_exists:
-                continue
-            else:
-                uc.user = g.user_session.user_id
-                uc.members = json.dumps(collection['members'])
-                db_session.add(uc)
-                db_session.commit()
-
-    def display_num_collections(self):
-        """
-        Returns the number of collections or a blank string if there are zero.
-
-        Because this is so unimportant...we wrap the whole thing in a try/expect...last thing we
-        want is a webpage not to be displayed because of an error here
-
-        Importand TODO: use redis to cache this, don't want to be constantly computing it
-        """
-        try:
-            num = len(self.get_collections())
-            if num > 0:
-                return num
-            else:
-                return ""
-        except Exception as why:
-            print("Couldn't display_num_collections:", why)
-            return ""
-
-def verify_cookie(cookie):
-    the_uuid, separator, the_signature = cookie.partition(':')
-    assert len(the_uuid) == 36, "Is session_id a uuid?"
-    assert separator == ":", "Expected a : here"
-    assert the_signature == actual_hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
-    return the_uuid
-
-def create_signed_cookie():
-    the_uuid = str(uuid.uuid4())
-    signature = actual_hmac_creation(the_uuid)
-    uuid_signed = the_uuid + ":" + signature
-    logger.debug("uuid_signed:", uuid_signed)
-    return the_uuid, uuid_signed
-
-class UserSession(object):
-    """Logged in user handling"""
-
-    cookie_name = 'session_id_v2'
-
-    def __init__(self):
-        cookie = request.cookies.get(self.cookie_name)
-        if not cookie:
-            self.logged_in = False
-            return
-        else:
-            session_id = verify_cookie(cookie)
-
-            self.redis_key = self.cookie_name + ":" + session_id
-            logger.debug("self.redis_key is:", self.redis_key)
-            self.session_id = session_id
-            self.record = Redis.hgetall(self.redis_key)
-
-
-            if not self.record:
-                # This will occur, for example, when the browser has been left open over a long
-                # weekend and the site hasn't been visited by the user
-                self.logged_in = False
-
-                ########### Grrr...this won't work because of the way flask handles cookies
-                # Delete the cookie
-                #response = make_response(redirect(url_for('login')))
-                #response.set_cookie(self.cookie_name, '', expires=0)
-                #flash(
-                #   "Due to inactivity your session has expired. If you'd like please login again.")
-                #return response
-                return
-
-            if Redis.ttl(self.redis_key) < THREE_DAYS:
-                # (Almost) everytime the user does something we extend the session_id in Redis...
-                logger.debug("Extending ttl...")
-                Redis.expire(self.redis_key, THREE_DAYS)
-
-            logger.debug("record is:", self.record)
-            self.logged_in = True
-
-    @property
-    def user_id(self):
-        """Shortcut to the user_id"""
-        if 'user_id' in self.record:
-            return self.record['user_id']
-        else:
-            return ''
-
-    @property
-    def user_ob(self):
-        """Actual sqlalchemy record"""
-        # Only look it up once if needed, then store it
-        # raise "OBSOLETE: use ElasticSearch instead"
-        try:
-            if LOG_SQL_ALCHEMY:
-                logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
-
-            # Already did this before
-            return self.db_object
-        except AttributeError:
-            # Doesn't exist so we'll create it
-            self.db_object = model.User.query.get(self.user_id)
-            return self.db_object
-
-
-    def delete_session(self):
-        # And more importantly delete the redis record
-        Redis.delete(self.cookie_name)
-        logger.debug("At end of delete_session")
 
 @app.before_request
 def before_request():
@@ -869,18 +697,6 @@ def verify_url_hmac(url):
     hm = actual_hmac_creation(url)
 
     assert hm == hmac, "Unexpected url (stage 3)"
-
-def actual_hmac_creation(stringy):
-    """Helper function to create the actual hmac"""
-
-    secret = app.config['SECRET_HMAC_CODE']
-
-    hmaced = hmac.new(secret, stringy, hashlib.sha1)
-    hm = hmaced.hexdigest()
-    # "Conventional wisdom is that you don't lose much in terms of security if you throw away up to half of the output."
-    # http://www.w3.org/QA/2009/07/hmac_truncation_in_xml_signatu.html
-    hm = hm[:20]
-    return hm
 
 app.jinja_env.globals.update(url_for_hmac=url_for_hmac,
                              data_hmac=data_hmac)
