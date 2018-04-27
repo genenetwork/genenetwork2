@@ -41,6 +41,7 @@
 
 from elasticsearch import Elasticsearch, TransportError
 import logging
+from time import sleep
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -93,19 +94,33 @@ def save_user(es, user, user_id):
     es_save_data(es, "users", "local", user, user_id)
 
 def get_item_by_unique_column(es, column_name, column_value, index, doc_type):
-    item_details = None
+    item_details = get_items_by_column(
+        es = es, column_name=column_name, column_value=column_value,
+        index=index, doc_type=doc_type)
+
+    if len(item_details) > 0:
+        return item_details[0]
+    else:
+        return None
+
+def get_items_by_column(es, column_name, column_value, index, doc_type):
+    items = []
     try:
         response = es.search(
             index = index, doc_type = doc_type, body = {
                 "query": { "match": { column_name: column_value } }
             })
         if len(response["hits"]["hits"]) > 0:
-            item_details = response["hits"]["hits"][0]["_source"]
+            items = map(lambda x: x["_source"], response["hits"]["hits"])
     except TransportError as te:
         pass
-    return item_details
+    return items
 
-def es_save_data(es, index, doc_type, data_item, data_id,):
-    from time import sleep
+def es_save_data(es, index, doc_type, data_item, data_id):
     es.create(index, doc_type, body=data_item, id=data_id)
     sleep(1) # Delay 1 second to allow indexing
+
+
+def es_update_data(es, index, doc_type, data_item, data_id):
+    es.update(index = index, doc_type = doc_type, id=data_id, body = { "doc": data_item})
+    sleep(1)
