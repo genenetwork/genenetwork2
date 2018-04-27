@@ -285,9 +285,15 @@ class MarkerRegression(object):
                     if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                         self.qtl_results.append(marker)
 
-            export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
+            with Bench("Exporting Results"):
+                export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
 
-            self.trimmed_markers = trim_markers_for_table(results)
+            with Bench("Trimming Markers for Figure"):
+                if len(self.qtl_results) > 20000:
+                    self.qtl_results = trim_markers_for_figure(self.qtl_results)
+
+            with Bench("Trimming Markers for Table"):
+                self.trimmed_markers = trim_markers_for_table(results)
 
             if self.mapping_method != "gemma":
                 self.json_data['chr'] = []
@@ -320,8 +326,6 @@ class MarkerRegression(object):
                 for key in self.species.chromosomes.chromosomes.keys():
                     self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
                     chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
-
-                # logger.debug("json_data:", self.json_data)
 
                 self.js_data = dict(
                     result_score_type = self.score_type,
@@ -598,6 +602,49 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
                 output_file.write("," + str(marker['dominance']))
             if i < (len(markers) - 1):
                 output_file.write("\n")
+
+def trim_markers_for_figure(markers):
+    if 'lod_score' in markers[0].keys():
+        score_type = 'lod_score'
+    else:
+        score_type = 'lrs_value'
+
+    filtered_markers = []
+    low_counter = 0
+    med_counter = 0
+    high_counter = 0
+    for marker in markers:
+        if score_type == 'lod_score':
+            if marker[score_type] < 1:
+                if low_counter % 20 == 0:
+                    filtered_markers.append(marker)
+                low_counter += 1
+            elif 1 <= marker[score_type] < 2:
+                if med_counter % 10 == 0:
+                    filtered_markers.append(marker)
+                med_counter += 1
+            elif 2 <= marker[score_type] <= 3:
+                if high_counter % 2 == 0:
+                    filtered_markers.append(marker)
+                high_counter += 1
+            else:
+                filtered_markers.append(marker)
+        else:
+            if marker[score_type] < 4.16:
+                if low_counter % 20 == 0:
+                    filtered_markers.append(marker)
+                low_counter += 1
+            elif 4.16 <= marker[score_type] < (2*4.16):
+                if med_counter % 10 == 0:
+                    filtered_markers.append(marker)
+                med_counter += 1
+            elif (2*4.16) <= marker[score_type] <= (3*4.16):
+                if high_counter % 2 == 0:
+                    filtered_markers.append(marker)
+                high_counter += 1
+            else:
+                filtered_markers.append(marker)
+    return filtered_markers
 
 def trim_markers_for_table(markers):
     if 'lod_score' in markers[0].keys():

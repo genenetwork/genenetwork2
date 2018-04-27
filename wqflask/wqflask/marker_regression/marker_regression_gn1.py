@@ -41,6 +41,7 @@ from base.GeneralObject import GeneralObject
 from utility import webqtlUtil
 from utility import helper_functions
 from utility import Plot
+from utility.benchmark import Bench
 from wqflask.interval_analyst import GeneUtil
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
 
@@ -427,7 +428,8 @@ class MarkerRegression(object):
         ################################################################
         showLocusForm = ""
         intCanvas = pid.PILCanvas(size=(self.graphWidth, self.graphHeight))
-        gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
+        with Bench("Drawing Plot"):
+            gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
 
         self.gifmap = gifmap.__str__()
 

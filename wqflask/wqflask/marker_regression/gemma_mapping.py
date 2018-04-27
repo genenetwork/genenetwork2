@@ -171,9 +171,7 @@ def parse_gemma_output(genofile_name):
     included_markers = []
     p_values = []
     marker_obs = []
-    previous_chr = 0
 
-    #with open("/home/zas1024/gene/wqflask/output/{}_output.assoc.txt".format(this_dataset.group.name)) as output_file:
     with open("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, genofile_name)) as output_file:
         for line in output_file:
             if line.startswith("chr"):
@@ -185,14 +183,8 @@ def parse_gemma_output(genofile_name):
                     marker['chr'] = int(line.split("\t")[0])
                 else:
                     marker['chr'] = line.split("\t")[0]
-                # try:
-                    # marker['chr'] = int(line.split("\t")[0])
-                # except:
-                    # marker['chr'] = previous_chr + 1
-                # if marker['chr'] != previous_chr:
-                    # previous_chr = marker['chr']
                 marker['Mb'] = float(line.split("\t")[2]) / 1000000
-                marker['p_value'] = float(line.split("\t")[11])
+                marker['p_value'] = float(line.split("\t")[9])
                 if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                     marker['lod_score'] = 0
                     #marker['lrs_value'] = 0
@@ -202,7 +194,7 @@ def parse_gemma_output(genofile_name):
                 marker_obs.append(marker)
 
                 included_markers.append(line.split("\t")[1])
-                p_values.append(float(line.split("\t")[11]))
+                p_values.append(float(line.split("\t")[9]))
 
     return marker_obs
 
@@ -222,7 +214,6 @@ def parse_loco_output(this_dataset, gwa_output_filename):
     previous_chr = 0
 
     for this_file in output_filelist:
-        #with open("/home/zas1024/gene/wqflask/output/{}_output.assoc.txt".format(this_dataset.group.name)) as output_file:
         with open(this_file) as output_file:
             for line in output_file:
                 if line.startswith("chr"):
@@ -232,10 +223,14 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                     marker['name'] = line.split("\t")[1]
                     if line.split("\t")[0] != "X" and line.split("\t")[0] != "X/Y":
                         marker['chr'] = int(line.split("\t")[0])
+                        if marker['chr'] > previous_chr:
+                            previous_chr = marker['chr']
+                        elif marker['chr'] < previous_chr:
+                            break
                     else:
                         marker['chr'] = line.split("\t")[0]
                     marker['Mb'] = float(line.split("\t")[2]) / 1000000
-                    marker['p_value'] = float(line.split("\t")[11])
+                    marker['p_value'] = float(line.split("\t")[9])
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
                         #marker['lrs_value'] = 0
@@ -245,6 +240,6 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                     marker_obs.append(marker)
 
                     included_markers.append(line.split("\t")[1])
-                    p_values.append(float(line.split("\t")[11]))
+                    p_values.append(float(line.split("\t")[9]))
 
     return marker_obs
