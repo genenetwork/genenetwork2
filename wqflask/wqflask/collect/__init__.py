@@ -1,6 +1,5 @@
 from __future__ import print_function, division, absolute_import
 
-
 import os
 import hashlib
 import datetime
@@ -40,7 +39,8 @@ import logging
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
-from .util_functions import process_traits
+from .util_functions import (get_collections_by_user_key, process_traits,
+                             save_collection)
 from .anon_collection import AnonCollection
 
 def get_collection():
@@ -141,6 +141,7 @@ def collections_new():
         else:
             ac = AnonCollection(collection_name)
             ac.add_traits(params)
+            save_collection(ac.id, ac)
             return redirect(url_for('view_collection', collection_id=ac.id))
     else:
         CauseAnError
@@ -161,10 +162,10 @@ def create_new(collection_name):
         db_session.commit()
         return redirect(url_for('view_collection', uc_id=uc.id))
     else:
-        current_collections = user_manager.AnonUser().get_collections()
         ac = AnonCollection(collection_name)
         ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
         ac.add_traits(params)
+        save_collection(collection_id=ac.id, collection=ac)
         return redirect(url_for('view_collection', collection_id=ac.id))
 
 @app.route("/collections/list")
@@ -183,7 +184,8 @@ def list_collections():
         logger.debug("anon_collections are:", anon_collections)
         return render_template("collections/list.html",
                                params = params,
-                               collections = anon_collections)
+                               collections = anon_collections,
+                               datetime = datetime.datetime)
 
 
 @app.route("/collections/remove", methods=('POST',))
@@ -254,14 +256,14 @@ def view_collection():
         uc = model.UserCollection.query.get(uc_id)
         traits = json.loads(uc.members)
     else:
-        user_collections = json.loads(Redis.get(user_manager.AnonUser().key))
+        user_collections = get_collections_by_user_key(user_manager.AnonUser().key)
         this_collection = {}
         for collection in user_collections:
             if collection['id'] == params['collection_id']:
                 this_collection = collection
                 break
-        #this_collection = user_collections[params['collection_id']]
-        traits = this_collection['members']
+
+        traits = this_collection.get('members', [])
 
     logger.debug("in view_collection traits are:", traits)
 

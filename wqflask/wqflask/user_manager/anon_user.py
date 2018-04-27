@@ -59,15 +59,8 @@ class AnonUser(object):
         Redis.set(self.key, json.dumps(updated_collections))
 
     def get_collections(self):
-        json_collections = Redis.get(self.key)
-        if json_collections == None or json_collections == "None":
-            return []
-        else:
-            collections = json.loads(json_collections)
-            for collection in collections:
-                collection['created_timestamp'] = datetime.datetime.strptime(collection['created_timestamp'], '%b %d %Y %I:%M%p')
-                collection['changed_timestamp'] = datetime.datetime.strptime(collection['changed_timestamp'], '%b %d %Y %I:%M%p')
-            return collections
+        from wqflask.collect import get_collections_by_user_key
+        return get_collections_by_user_key(self.key)
 
     def import_traits_to_user(self):
         result = Redis.get(self.key)
