@@ -124,3 +124,7 @@ def es_save_data(es, index, doc_type, data_item, data_id):
 def es_update_data(es, index, doc_type, data_item, data_id):
     es.update(index = index, doc_type = doc_type, id=data_id, body = { "doc": data_item})
     sleep(1)
+
+def es_delete_data_by_id(es, index, doc_type, data_id):
+    es.delete(index=index, doc_type=doc_type, id=data_id)
+    sleep(1)
