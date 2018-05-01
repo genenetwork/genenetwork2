@@ -40,7 +40,7 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 from .util_functions import (get_collections_by_user_key, process_traits,
-                             save_collection)
+                             save_collection, delete_collection_by_id)
 from .anon_collection import AnonCollection
 
 def get_collection():
@@ -235,13 +235,16 @@ def delete_collection():
             db_session.delete(uc)
             db_session.commit()
     else:
+        colls = []
         if "collection_name" in params:
             collection_name = params['collection_name']
         else:
             for this_collection in params['uc_id'].split(":"):
                 user_manager.AnonUser().delete_collection(this_collection)
+                colls.append(this_collection)
+            collection_name = ", ".join(colls)
 
-    flash("We've deleted the collection: {}.".format(collection_name), "alert-info")
+    flash("We've deleted the collection(s): {}.".format(collection_name), "alert-info")
 
     return redirect(url_for('list_collections'))
 

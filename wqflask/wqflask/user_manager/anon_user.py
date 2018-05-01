@@ -41,22 +41,11 @@ class AnonUser(object):
         Redis.expire(self.key, 60 * 60 * 24 * 5)
 
     def delete_collection(self, collection_name):
+        from wqflask.collect import delete_collection_by_id
         existing_collections = self.get_collections()
-        updated_collections = []
-        for i, collection in enumerate(existing_collections):
-            if collection['name'] == collection_name:
-                continue
-            else:
-                this_collection = {}
-                this_collection['id'] = collection['id']
-                this_collection['name'] = collection['name']
-                this_collection['created_timestamp'] = collection['created_timestamp'].strftime('%b %d %Y %I:%M%p')
-                this_collection['changed_timestamp'] = collection['changed_timestamp'].strftime('%b %d %Y %I:%M%p')
-                this_collection['num_members'] = collection['num_members']
-                this_collection['members'] = collection['members']
-                updated_collections.append(this_collection)
-
-        Redis.set(self.key, json.dumps(updated_collections))
+        to_delete = [coll for coll in existing_collections if coll["name"] == collection_name]
+        for collection in to_delete:
+            delete_collection_by_id(collection_id = collection["id"])
 
     def get_collections(self):
         from wqflask.collect import get_collections_by_user_key

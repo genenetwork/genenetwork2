@@ -1,7 +1,7 @@
 from wqflask import user_manager
 from utility.elasticsearch_tools import (get_elasticsearch_connection,
                                          get_items_by_column, es_save_data,
-                                         es_update_data)
+                                         es_update_data, es_delete_data_by_id)
 from utility.logger import getLogger
 
 logger = getLogger(__name__)
@@ -52,3 +52,8 @@ def save_collection(collection_id, collection):
             index = index, doc_type = doc_type,
             data_item = collection.get_data(),
             data_id = collection_id)
+
+def delete_collection_by_id(collection_id):
+    return es_delete_data_by_id(
+        es = get_elasticsearch_connection(), index = index, doc_type = doc_type,
+        data_id = collection_id)
