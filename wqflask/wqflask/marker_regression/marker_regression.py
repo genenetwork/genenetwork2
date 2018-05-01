@@ -174,11 +174,11 @@ class MarkerRegression(object):
             self.genofile_string = start_vars['genofile']
             self.dataset.group.genofile = self.genofile_string.split(":")[0]
         self.dataset.group.get_markers()
-        if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
+        if self.mapping_method == "gemma":
             self.score_type = "-log(p)"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
-                marker_obs = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals, self.covariates, self.mapping_method, self.use_loco)
+                marker_obs = gemma_mapping.run_gemma(self.dataset, self.samples, self.vals, self.covariates, self.use_loco)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
@@ -289,7 +289,7 @@ class MarkerRegression(object):
                 export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
 
             with Bench("Trimming Markers for Figure"):
-                if len(self.qtl_results) > 20000:
+                if len(self.qtl_results) > 30000:
                     self.qtl_results = trim_markers_for_figure(self.qtl_results)
 
             with Bench("Trimming Markers for Table"):

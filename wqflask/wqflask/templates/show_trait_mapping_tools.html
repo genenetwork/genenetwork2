@@ -35,7 +35,6 @@
             </ul>
 
             <div class="tab-content">
-                {% if dataset.group.mapping_id == "1" %}
                 <div class="tab-pane active" id="gemma">
                     <div style="padding-top: 20px;" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
@@ -88,13 +87,14 @@
                         <div class="mapping_method_fields form-group">
                           <label class="col-xs-3 control-label"></label>
                           <div style="margin-left:20px;" class="col-xs-6">
-                            <button id="gemma_bimbam_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
+                            <button id="gemma_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
                                 Compute
                             </button>
                           </div>
                         </div>
                     </div>
                 </div>
+                {% if dataset.group.mapping_id == "1" %}
                 <div class="tab-pane" id="interval_mapping">
                     <div style="margin-top: 20px" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
@@ -164,8 +164,6 @@
                             </div>
                         </div>
 -->
-
-
                         <div class="mapping_method_fields form-group">
                             <label style="text-align: right;" class="col-xs-3 control-label">Marker<br>Regression</label>
                             <div style="margin-left:20px;" class="col-xs-6 controls">
@@ -187,11 +185,9 @@
                               </button>
                             </div>
                         </div>
-                        <!--<div id="alert_placeholder"></div>-->
                     </div>
                 </div>
                 <div class="tab-pane" id="rqtl_geno">
-
                     <div style="margin-top: 20px" class="form-horizontal">
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
@@ -320,117 +316,22 @@
                     </div>
                 </div>
                 {% endif %}
-                {% for mapping_method in dataset.group.mapping_names %}
-                {% if mapping_method == "GEMMA" %}
-                <div class="tab-pane active" id="gemma_plink">
-                    <div style="padding-top: 10px;" class="form-horizontal">
-                        {% if genofiles and genofiles|length>0 %}
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:right;" class="col-xs-3 control-label">Genotypes</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                <select id="genofile_gemma" class="form-control">
-                                    {% for item in genofiles %}
-                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        {% endif %}
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:right;" class="col-xs-3 control-label">MAF</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                <input name="maf_gemma" value="0.01" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align: right;" class="col-xs-3 control-label">Use LOCO</label>
-                            <div style="margin-left:20px;" class="col-xs-6 controls">
-                                <label class="radio-inline">
-                                    <input type="radio" name="use_loco" value="True" checked="">
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="use_loco" value="False">
-                                    No
-                               </label>
-                            </div>
-                        </div>
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align: right;" class="col-xs-3 control-label">Covariates</label>
-                            <div style="margin-left:20px;" class="col-xs-7">
-                              {% if g.user_session.user_ob and (g.user_session.user_ob.display_num_collections() == "") %}
-                              No collections available. Please add traits to a collection to use them as covariates.
-                              {% elif g.cookie_session.display_num_collections() == "" %}
-                              No collections available. Please add traits to a collection to use them as covariates.
-                              {% else %}
-                              <div style="margin-bottom: 10px;" class="btn-group" role="group">
-                                <button type="button" id="select_covariates" class="btn btn-default">Select</button>
-                                <button type="button" id="remove_covariates" class="btn btn-default">Remove</button>
-                              </div>
-                              <textarea rows="3" cols="20" readonly placeholder="No covariates selected" style="overflow-y: scroll; resize: none;" class="selected_covariates"></textarea>
-                              {% endif %}
-                            </div>
-                        </div>
-                        <div class="mapping_method_fields form-group">
-                          <label class="col-xs-3 control-label"></label>
-                          <div style="margin-left:20px;" class="col-xs-6">
-                            <button id="gemma_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
-                                Compute
-                            </button>
-                          </div>
-                        </div>
-                    </div>
-                </div>
-                {% elif mapping_method == "PLINK" %}
-                <div class="tab-pane" id="plink">
-                    <div style="padding: 20px" class="form-horizontal">
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align: right;" class="col-xs-3 control-label">MAF</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                <input name="maf_plink" value="0.01" type="text" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label style="text-align: right;" class="col-xs-3 control-label"></label>
-                        <div style="margin-left:20px;" class="col-xs-6 controls">
-                            <button id="plink_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
-                                Compute
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-                {% endfor %}
             </div>
         </div>
     </div>
     <div class="col-xs-5">
-        {% if dataset.group.mapping_id == "1" %}
         <dl>
              <dt>GEMMA</dt>
              <dd>GEMMA is software implementing the Genome-wide Efficient Mixed Model Association algorithm for a standard linear mixed model for genome-wide association studies (GWAS).</dd>
+             {% if dataset.group.mapping_id == "1" %}
              <dt>Interval Mapping</dt>
              <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.</dd>
              <dt>R/qtl</dt>
              <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
              <dt>pyLMM</dt>
              <dd>pyLMM is a fast and lightweight linear mixed-model (LMM) solver for use in genome-wide association studies (GWAS).</dd>
+             {% endif %}
         </dl>
-        {% else %}
-        <dl>
-            {% if mapping_method == "GEMMA" %}
-            <dt>GEMMA</dt>
-            <dd>
-                GEMMA is software implementing the Genome-wide Efficient Mixed Model Association algorithm for a standard linear mixed model for genome-wide association studies (GWAS).<br>
-            </dd>
-            {% elif mapping_method == "PLINK" %}
-            <dt>PLINK</dt>
-            <dd>PLINK is a free, open-source whole genome association analysis toolset.</dd>
-            {% endif %}
-        </dl>
-        {% endif %}
     </div>
     <div id="mapping_result_holder_wrapper" style="display:none;">
         <div id="mapping_result_holder"></div>
