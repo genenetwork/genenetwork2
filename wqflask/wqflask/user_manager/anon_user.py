@@ -30,16 +30,6 @@ class AnonUser(object):
         def set_cookie(response):
             response.set_cookie(self.cookie_name, self.cookie)
 
-    def add_collection(self, new_collection):
-        collection_dict = dict(name = new_collection.name,
-                               created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                               changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                               num_members = new_collection.num_members,
-                               members = new_collection.get_members())
-
-        Redis.set(self.key, json.dumps(collection_dict))
-        Redis.expire(self.key, 60 * 60 * 24 * 5)
-
     def delete_collection(self, collection_name):
         from wqflask.collect import delete_collection_by_id
         existing_collections = self.get_collections()
