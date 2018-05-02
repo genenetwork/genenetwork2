@@ -45,7 +45,9 @@
                         <li class="">
                             <a href="/collections/list">Collections
                                 {% if g.user_session.user_ob %}
-                                <span class="badge badge-info">{{ g.user_session.user_ob.display_num_collections() }}</span>
+                              <span class="badge badge-info">{{ g.user_session.user_ob.display_num_collections() }}</span>
+			      {% elif num_collections %}
+			      <span class="badge badge-info">{{ num_collections }}</span>
                                 {% else %}
                                 <span class="badge badge-info">{{ g.cookie_session.display_num_collections() }}</span>
                                 {% endif %}
@@ -70,7 +72,7 @@
                             <a href="/environments">Environments</a>
                         </li>
                         <li class="">
-                            {% if g.user_session.logged_in %}
+                            {% if session.get("user", None) %}
                             <a id="login_out" title="Signed in as {{ g.user_session.user_ob.name_and_org }}." href="/n/logout">Sign out</a>
                             {% else %}
                             <a id="login_in" href="/n/login">Sign in</a>
