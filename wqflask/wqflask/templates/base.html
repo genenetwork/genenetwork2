@@ -73,7 +73,7 @@
                         </li>
                         <li class="">
                             {% if session.get("user", None) %}
-                            <a id="login_out" title="Signed in as {{ g.user_session.user_ob.name_and_org }}." href="/n/logout">Sign out</a>
+                            <a id="login_out" title="Signed in as {{ session['user']['full_name'] }}." href="/n/logout">Sign out</a>
                             {% else %}
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
