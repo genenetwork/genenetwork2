@@ -40,7 +40,8 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 from .util_functions import (get_collections_by_user_key, process_traits,
-                             save_collection, delete_collection_by_id)
+                             save_collection, delete_collection_by_id,
+                             get_collection_by_id)
 from .anon_collection import AnonCollection
 
 def get_collection():
@@ -182,7 +183,8 @@ def list_collections():
     return render_template("collections/list.html",
                            params = params,
                            collections = collections,
-                           datetime = datetime.datetime)
+                           datetime = datetime.datetime,
+                           num_collections=len(collections))
 
 
 @app.route("/collections/remove", methods=('POST',))
@@ -216,23 +218,20 @@ def remove_traits():
 def delete_collection():
     params = request.form
     logger.debug("params:", params)
-    if g.user_session.logged_in:
+    colls = []
+    if session.get("user", None):
         uc_id = params['uc_id']
         if len(uc_id.split(":")) > 1:
             for this_uc_id in uc_id.split(":"):
-                uc = model.UserCollection.query.get(this_uc_id)
-                collection_name = uc.name
-                db_session.delete(uc)
-                db_session.commit()
+                coll = get_collection_by_id(collection_id = this_uc_id)
+                delete_collection_by_id(collection_id = this_uc_id)
+                colls.append(coll["name"])
+            collection_name = ", ".join(colls)
         else:
-            uc = model.UserCollection.query.get(uc_id)
-            # Todo: For now having the id is good enough since it's so unique
-            # But might want to check ownership in the future
-            collection_name = uc.name
-            db_session.delete(uc)
-            db_session.commit()
+            coll = get_collection_by_id(collection_id = uc_id)
+            delete_collection_by_id(collection_id = uc_id)
+            collection_name = coll["name"]
     else:
-        colls = []
         if "collection_name" in params:
             collection_name = params['collection_name']
         else:

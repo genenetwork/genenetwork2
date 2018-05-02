@@ -51,7 +51,7 @@
             <tbody>
             {% for uc in collections %}
                 <tr class="collection_line">
-                    {% if g.user_session.user_ob %}
+                    {% if session.get("user", None) %}
                     <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
                     {% else %}
                     <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.name }}"></td>

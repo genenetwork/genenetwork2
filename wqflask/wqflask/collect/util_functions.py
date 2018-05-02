@@ -1,7 +1,8 @@
 from wqflask import user_manager
 from utility.elasticsearch_tools import (get_elasticsearch_connection,
                                          get_items_by_column, es_save_data,
-                                         es_update_data, es_delete_data_by_id)
+                                         es_update_data, es_delete_data_by_id,
+                                         get_item_by_unique_column)
 from utility.logger import getLogger
 
 logger = getLogger(__name__)
