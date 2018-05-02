@@ -142,7 +142,7 @@ def collections_new():
         else:
             ac = AnonCollection(collection_name)
             ac.add_traits(params)
-            save_collection(ac.id, ac)
+            save_collection(ac.id, ac.get_data())
             return redirect(url_for('view_collection', collection_id=ac.id))
     else:
         CauseAnError
@@ -153,20 +153,25 @@ def create_new(collection_name):
     unprocessed_traits = params['traits']
     traits = process_traits(unprocessed_traits)
 
-    if g.user_session.logged_in:
-        uc = model.UserCollection()
-        uc.name = collection_name
-        logger.debug("user_session:", g.user_session.__dict__)
-        uc.user = g.user_session.user_id
-        uc.members = json.dumps(list(traits))
-        db_session.add(uc)
-        db_session.commit()
-        return redirect(url_for('view_collection', uc_id=uc.id))
+    if session.get("user", None):
+        collection_id = str(uuid.uuid4())
+        created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        collection = {
+            "id": collection_id,
+            "name": collection_name,
+            "user_key": session["user"]["user_id"],
+            "created_timestamp": created_timestamp,
+            "changed_timestamp": created_timestamp,
+            "members": list(traits),
+            "num_members": len(traits)
+        }
+        save_collection(collection_id=collection_id, collection=collection)
+        return redirect(url_for('view_collection', uc_id=collection_id))
     else:
         ac = AnonCollection(collection_name)
         ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
         ac.add_traits(params)
-        save_collection(collection_id=ac.id, collection=ac)
+        save_collection(collection_id=ac.id, collection=ac.get_data())
         return redirect(url_for('view_collection', collection_id=ac.id))
 
 @app.route("/collections/list")
@@ -252,16 +257,13 @@ def view_collection():
 
     if "uc_id" in params:
         uc_id = params['uc_id']
-        uc = model.UserCollection.query.get(uc_id)
-        traits = json.loads(uc.members)
+        uc = get_collection_by_id(uc_id)
+        logger.debug("=======================> UC", uc)
+        if uc:
+            traits = uc["members"]
+            this_collection = uc
     else:
-        user_collections = get_collections_by_user_key(user_manager.AnonUser().key)
-        this_collection = {}
-        for collection in user_collections:
-            if collection['id'] == params['collection_id']:
-                this_collection = collection
-                break
-
+        this_collection = get_collection_by_id(params['collection_id'])
         traits = this_collection.get('members', [])
 
     logger.debug("in view_collection traits are:", traits)
