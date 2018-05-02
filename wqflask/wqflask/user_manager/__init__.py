@@ -18,7 +18,7 @@ import redis # used for collections
 Redis = redis.StrictRedis()
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash, abort)
+                   redirect, flash, abort, session)
 
 from wqflask import app
 from pprint import pformat as pf
@@ -332,11 +332,7 @@ class LoginUser(object):
         es = get_elasticsearch_connection()
         user_details = get_user_by_unique_column(es, "user_id", user_id)
         if user_details:
-            user = model.User()
-            user.id = user_details["user_id"]
-            user.full_name = user_details["name"]
-            user.login_type = user_details["login_type"]
-            return self.actual_login(user)
+            return self.actual_login(user_details)
         else:
             flash("Error logging in via OAuth2")
             return make_response(redirect(url_for('login')))
@@ -396,7 +392,7 @@ class LoginUser(object):
 
             #g.cookie_session.import_traits_to_user()
 
-            return self.actual_login(user, import_collections=import_col)
+            return self.actual_login(user_details, import_collections=import_col)
 
         else:
             if user:
@@ -409,7 +405,7 @@ class LoginUser(object):
     def actual_login(self, user, assumed_by=None, import_collections=None):
         """The meat of the logging in process"""
         session_id_signed = self.successful_login(user, assumed_by)
-        flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
+        flash("Thank you for logging in {}.".format(user["full_name"]), "alert-success")
         response = make_response(redirect(url_for('index_page', import_collections=import_collections)))
         if self.remember_me:
             max_age = self.remember_time
@@ -419,27 +415,11 @@ class LoginUser(object):
         return response
 
     def successful_login(self, user, assumed_by=None):
-        login_rec = model.Login(user)
-        login_rec.successful = True
-        login_rec.session_id = str(uuid.uuid4())
-        login_rec.assumed_by = assumed_by
-        #session_id = "session_id:{}".format(login_rec.session_id)
-        session_id_signature = actual_hmac_creation(login_rec.session_id)
-        session_id_signed = login_rec.session_id + ":" + session_id_signature
+        session_id = str(uuid.uuid4())
+        session_id_signature = actual_hmac_creation(session_id)
+        session_id_signed = session_id + ":" + session_id_signature
         logger.debug("session_id_signed:", session_id_signed)
-
-        session = dict(login_time = time.time(),
-                       user_id = user.id,
-                       user_email_address = user.email_address)
-
-        key = UserSession.cookie_name + ":" + login_rec.session_id
-        logger.debug("Key when signing:", key)
-        Redis.hmset(key, session)
-        if self.remember_me:
-            expire_time = self.remember_time
-        else:
-            expire_time = THREE_DAYS
-        Redis.expire(key, expire_time)
+        session["user"] = user
         return session_id_signed
 
     def unsuccessful_login(self, user):
