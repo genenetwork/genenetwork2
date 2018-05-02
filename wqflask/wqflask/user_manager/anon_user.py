@@ -1,7 +1,7 @@
 import datetime
 import simplejson as json
 import redis # used for collections
-from flask import Flask, request
+from flask import Flask, request, g, session
 from utility.logger import getLogger
 from utility import after
 from utility.tools import LOG_SQL_ALCHEMY
@@ -42,19 +42,14 @@ class AnonUser(object):
         return get_collections_by_user_key(self.key)
 
     def import_traits_to_user(self):
-        result = Redis.get(self.key)
-        collections_list = json.loads(result if result else "[]")
-        for collection in collections_list:
-            uc = model.UserCollection()
-            uc.name = collection['name']
-            collection_exists = g.user_session.user_ob.get_collection_by_name(uc.name)
-            if collection_exists:
-                continue
-            else:
-                uc.user = g.user_session.user_id
-                uc.members = json.dumps(collection['members'])
-                db_session.add(uc)
-                db_session.commit()
+        from utility.elasticsearch_tools import (get_elasticsearch_connection,
+                                                 es_update_data)
+        result = self.get_collections()
+        for collection in result:
+            collection["user_key"] = session["user"]["user_id"]
+            es_update_data(es = get_elasticsearch_connection(),
+                           index = "collections", doc_type = "all",
+                           data_item = collection, data_id = collection["id"])
 
     def display_num_collections(self):
         """
