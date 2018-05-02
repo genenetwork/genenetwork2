@@ -46,13 +46,18 @@ from .util_functions import actual_hmac_creation
 from .anon_user import AnonUser
 from .user_session import UserSession
 from .register_user import RegisterUser, Password, set_password
-from .util_functions import timestamp
+from .util_functions import (timestamp, save_cookie_details, get_cookie_details,
+                             delete_cookie_details, cookie_name)
 
 THREE_DAYS = 60 * 60 * 24 * 3
-#THREE_DAYS = 45
 
 @app.before_request
 def before_request():
+    cookie_id = request.cookies.get(cookie_name)
+    cookie = get_cookie_details(cookie_id)
+    if cookie:
+        session["user"] = cookie["user"]
+
     g.user_session = UserSession()
     g.cookie_session = AnonUser()
 
@@ -411,6 +416,8 @@ class LoginUser(object):
             max_age = self.remember_time
         else:
             max_age = None
+
+        save_cookie_details(cookie_id=session_id_signed, user=user)
         response.set_cookie(UserSession.cookie_name, session_id_signed, max_age=max_age)
         return response
 
@@ -431,7 +438,8 @@ class LoginUser(object):
 @app.route("/n/logout")
 def logout():
     logger.debug("Logging out...")
-    UserSession().delete_session()
+    delete_cookie_details()
+    session.pop("user")
     flash("You are now logged out. We hope you come back soon!")
     response = make_response(redirect(url_for('index_page')))
     # Delete the cookie
