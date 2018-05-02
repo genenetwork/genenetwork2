@@ -18,7 +18,7 @@ import redis
 Redis = redis.StrictRedis()
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash, jsonify)
+                   redirect, flash, jsonify, session)
 
 from wqflask import app
 
@@ -172,20 +172,17 @@ def create_new(collection_name):
 def list_collections():
     params = request.args
     logger.debug("PARAMS:", params)
-    if g.user_session.logged_in:
-        user_collections = list(g.user_session.user_ob.user_collections)
-        logger.debug("user_collections are:", user_collections)
-        return render_template("collections/list.html",
-                               params = params,
-                               collections = user_collections,
-                               )
+    if session.get("user", None):
+        collections = get_collections_by_user_key(session["user"]["user_id"])
+        logger.debug("user_collections are:", collections)
     else:
-        anon_collections = user_manager.AnonUser().get_collections()
-        logger.debug("anon_collections are:", anon_collections)
-        return render_template("collections/list.html",
-                               params = params,
-                               collections = anon_collections,
-                               datetime = datetime.datetime)
+        collections = user_manager.AnonUser().get_collections()
+        logger.debug("anon_collections are:", collections)
+
+    return render_template("collections/list.html",
+                           params = params,
+                           collections = collections,
+                           datetime = datetime.datetime)
 
 
 @app.route("/collections/remove", methods=('POST',))
