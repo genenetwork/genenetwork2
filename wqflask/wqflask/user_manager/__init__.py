@@ -246,15 +246,10 @@ class DecodeUser(object):
 @app.route("/n/login", methods=('GET', 'POST'))
 def login():
     lu = LoginUser()
-    login_type = request.args.get("type")
-    if login_type:
-        uid = request.args.get("uid")
-        return lu.oauth2_login(login_type, uid)
-    else:
-        return lu.standard_login()
+    return lu.standard_login()
 
-@app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
-def github_oauth2():
+@app.route("/n/login/github_oauth2/<import_collections>/<remember>", methods=('GET', 'POST'))
+def github_oauth2(import_collections, remember):
     from utility.tools import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
     code = request.args.get("code")
     data = {
@@ -271,7 +266,7 @@ def github_oauth2():
     if user_details == None:
         user_details = {
             "user_id": str(uuid.uuid4())
-            , "name": github_user["name"].encode("utf-8")
+            , "full_name": github_user["name"].encode("utf-8")
             , "github_id": github_user["id"]
             , "user_url": github_user["html_url"].encode("utf-8")
             , "login_type": "github"
@@ -280,11 +275,15 @@ def github_oauth2():
             , "confirmed": 1
         }
         save_user(es, user_details, user_details["user_id"])
-    url = "/n/login?type=github&uid="+user_details["user_id"]
-    return redirect(url)
 
-@app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
-def orcid_oauth2():
+    lu = LoginUser()
+    lu.remember_me = (True if remember == "y" else False)
+    return lu.oauth2_login(
+        user_details["user_id"], import_collections=(
+            import_collections if import_collections == "y" else None))
+
+@app.route("/n/login/orcid_oauth2/<import_collections>/<remember>", methods=('GET', 'POST'))
+def orcid_oauth2(import_collections, remember):
     from uuid import uuid4
     from utility.tools import ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_TOKEN_URL, ORCID_AUTH_URL
     code = request.args.get("code")
@@ -305,7 +304,7 @@ def orcid_oauth2():
         if user_details == None:
             user_details = {
                 "user_id": str(uuid4())
-                , "name": result_dict["name"]
+                , "full_name": result_dict["name"]
                 , "orcid": result_dict["orcid"]
                 , "user_url": "%s/%s" % (
                     "/".join(ORCID_AUTH_URL.split("/")[:-2]),
@@ -332,54 +331,39 @@ class LoginUser(object):
     def __init__(self):
         self.remember_me = False
 
-    def oauth2_login(self, login_type, user_id):
+    def oauth2_login(self, user_id, import_collections):
         """Login via an OAuth2 provider"""
+        logger.debug("==============> user_id", user_id, "import_collections", import_collections)
         es = get_elasticsearch_connection()
         user_details = get_user_by_unique_column(es, "user_id", user_id)
         if user_details:
-            return self.actual_login(user_details)
+            return self.actual_login(user=user_details, import_collections=(
+                "true" if import_collections == "y" else "false"))
         else:
             flash("Error logging in via OAuth2")
             return make_response(redirect(url_for('login')))
 
-    def standard_login(self):
-        """Login through the normal form"""
-        params = request.form if request.form else request.args
-        logger.debug("in login params are:", params)
-        es = get_elasticsearch_connection()
-        if not params:
-            from utility.tools import GITHUB_AUTH_URL, GITHUB_CLIENT_ID, ORCID_AUTH_URL, ORCID_CLIENT_ID
-            external_login = {}
-            if GITHUB_AUTH_URL and GITHUB_CLIENT_ID != 'UNKNOWN':
-                external_login["github"] = GITHUB_AUTH_URL
-            if ORCID_AUTH_URL and ORCID_CLIENT_ID != 'UNKNOWN':
-                external_login["orcid"] = ORCID_AUTH_URL
-            assert(es is not None)
-            return render_template(
-                "new_security/login_user.html"
-                , external_login=external_login
-                , es_server=es.ping())
-        else:
-            user_details = get_user_by_unique_column(es, "email_address", params["email_address"])
-            user = None
-            valid = None
-            if user_details:
-                user = model.User();
-                for key in user_details:
-                    user.__dict__[key] = user_details[key]
-                valid = False;
+    def local_sign_in(self, params):
+        user_details = get_user_by_unique_column(es, "email_address", params["email_address"])
+        user = None
+        valid = None
+        if user_details:
+            user = model.User();
+            for key in user_details:
+                user.__dict__[key] = user_details[key]
 
-                submitted_password = params['password']
-                pwfields = Struct(json.loads(user.password))
-                encrypted = Password(
-                    submitted_password,
-                    pwfields.salt,
-                    pwfields.iterations,
-                    pwfields.keylength,
-                    pwfields.hashfunc)
-                logger.debug("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
-                valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
-                logger.debug("valid is:", valid)
+            valid = False;
+            submitted_password = params['password']
+            pwfields = Struct(json.loads(user.password))
+            encrypted = Password(
+                submitted_password,
+                pwfields.salt,
+                pwfields.iterations,
+                pwfields.keylength,
+                pwfields.hashfunc)
+            logger.debug("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
+            valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
+            logger.debug("valid is:", valid)
 
         if valid and not user.confirmed:
             VerificationEmail(user)
@@ -395,21 +379,66 @@ class LoginUser(object):
             else:
                 import_col = "false"
 
-            #g.cookie_session.import_traits_to_user()
-
             return self.actual_login(user_details, import_collections=import_col)
 
         else:
             if user:
                 self.unsuccessful_login(user)
+
             flash("Invalid email-address or password. Please try again.", "alert-danger")
             response = make_response(redirect(url_for('login')))
 
             return response
 
-    def actual_login(self, user, assumed_by=None, import_collections=None):
+    def github_sign_in(self, params):
+        from utility.tools import GITHUB_AUTH_URL, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+        redirect_uri = url_for(
+            "github_oauth2",
+            import_collections=("y" if params.get("import_collections") else "n"),
+            remember=("y" if params.get("remember") else "n"),
+            _external=True)
+        url = GITHUB_AUTH_URL + "&redirect_uri="+redirect_uri
+        logger.debug("================> Redirecting to", url)
+        return redirect(url)
+
+    def orcid_sign_in(self, params):
+        from utility.tools import ORCID_AUTH_URL, ORCID_CLIENT_ID, ORCID_CLIENT_SECRET
+        raise RuntimeError("In orcid_sign_in() with configs", configs)
+
+    def standard_login(self):
+        """Login through the normal form"""
+        from utility.tools import GITHUB_AUTH_URL, GITHUB_CLIENT_ID, ORCID_AUTH_URL, ORCID_CLIENT_ID
+
+        params = request.form if request.form else request.args
+        logger.debug("in login params are:", params)
+        es = get_elasticsearch_connection()
+        if not params:
+            external_login = {}
+            if GITHUB_AUTH_URL and GITHUB_CLIENT_ID != 'UNKNOWN':
+                external_login["github"] = GITHUB_AUTH_URL
+
+            if ORCID_AUTH_URL and ORCID_CLIENT_ID != 'UNKNOWN':
+                external_login["orcid"] = ORCID_AUTH_URL
+
+            assert(es is not None)
+            return render_template(
+                "new_security/login_user.html"
+                , external_login=external_login
+                , es_server=es.ping())
+        else:
+            login_type = params["submit"]
+            login_types = {
+                "Sign in": self.local_sign_in,
+                "Sign in with GitHub": self.github_sign_in,
+                "Sign in with ORCID": self.orcid_sign_in
+            }
+            logger.debug("============> PARAMS", params)
+            return login_types[login_type](params)
+
+    def actual_login(self, user, import_collections=None):
         """The meat of the logging in process"""
-        session_id_signed = self.successful_login(user, assumed_by)
+        logger.debug("==============> import_collections", import_collections)
+        session_id_signed = self.successful_login(user)
         flash("Thank you for logging in {}.".format(user["full_name"]), "alert-success")
         response = make_response(redirect(url_for('index_page', import_collections=import_collections)))
         if self.remember_me:
@@ -421,7 +450,7 @@ class LoginUser(object):
         response.set_cookie(UserSession.cookie_name, session_id_signed, max_age=max_age)
         return response
 
-    def successful_login(self, user, assumed_by=None):
+    def successful_login(self, user):
         session_id = str(uuid.uuid4())
         session_id_signature = actual_hmac_creation(session_id)
         session_id_signed = session_id + ":" + session_id_signature
