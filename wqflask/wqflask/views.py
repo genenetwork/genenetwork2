@@ -128,25 +128,23 @@ def index_page():
     logger.info("Sending index_page")
     logger.info(request.url)
 
-    collections = []
-    num_colls = None
-    if session.get("user", None):
-        collections = get_collections_by_user_key(session["user"]["user_id"])
-        num_colls = len(collections)
-
     params = request.args
     if 'import_collections' in params:
         import_collections = params['import_collections']
         if import_collections == "true":
             g.cookie_session.import_traits_to_user()
+
+    if session.get("user", None):
+        g.num_collections = len(
+            get_collections_by_user_key(session["user"]["user_id"]))
+
     if USE_GN_SERVER:
         # The menu is generated using GN_SERVER
         return render_template("index_page.html", gn_server_url = GN_SERVER_URL,
-                               version=GN_VERSION, num_collections=num_colls)
+                               version=GN_VERSION)
     else:
         # Old style static menu (OBSOLETE)
-        return render_template("index_page_orig.html", version=GN_VERSION,
-                               num_collections=num_colls)
+        return render_template("index_page_orig.html", version=GN_VERSION)
 
 
 @app.route("/tmp/<img_path>")

@@ -53,10 +53,13 @@ THREE_DAYS = 60 * 60 * 24 * 3
 
 @app.before_request
 def before_request():
+    from wqflask.collect import get_collections_by_user_key
     cookie_id = request.cookies.get(cookie_name)
     cookie = get_cookie_details(cookie_id)
     if cookie:
         session["user"] = cookie["user"]
+        g.num_collections = len(
+            get_collections_by_user_key(session["user"]["user_id"]))
 
     g.user_session = UserSession()
     g.cookie_session = AnonUser()
