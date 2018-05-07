@@ -25,28 +25,6 @@
 	    {% endif %}
 
 	    <hr />
-	    <h4>Login with external services</h4>
-
-	    {% if external_login: %}
-	    <div>
-	      {% if external_login["github"]: %}
-	      <a href="{{external_login['github']}}" title="Login with GitHub" class="btn btn-info btn-group">Login with Github</a>
-              {% else %}
-              <p>Github login is not available right now</p>
-	      {% endif %}
-
-	      {% if external_login["orcid"]: %}
-	      <a href="{{external_login['orcid']}}" title="Login with ORCID" class="btn btn-info btn-group">Login with ORCID</a>
-              {% else %}
-              <p>ORCID login is not available right now</p>
-	      {% endif %}
-	    </div>
-	    {% else: %}
-	    <div class="alert alert-warning">
-	      <p>Sorry, you cannot login with Github or ORCID at this time.</p>
-	    </div>
-	    {% endif %}
-	    <hr />
 
             <h4>Already have an account? Sign in here.</h4>
 
@@ -82,7 +60,13 @@
                         <label class="col-xs-1 control-label" for="submit"></label>
                         <div style="margin-left:20px;" class="col-xs-4 controls">
                             <input id="next" name="next" type="hidden" value="">
-                            <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Sign in">
+                            <input class="btn btn-primary" name="submit" type="submit" value="Sign in">
+			    {% if external_login.get("github", None): %}
+			    <input class="btn btn-primary" name="submit" type="submit" value="Sign in with GitHub">
+			    {% endif %}
+			    {% if external_login.get("orcid", None): %}
+			    <input class="btn btn-primary" name="submit" type="submit" value="Sign in with ORCID">
+			    {% endif %}
                         </div>
                     </div>
               </fieldset>
