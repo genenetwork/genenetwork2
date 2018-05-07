@@ -4,7 +4,7 @@ from parameterized import parameterized
 from parametrized_test import ParametrizedTest
 
 login_link_text = '<a id="login_in" href="/n/login">Sign in</a>'
-logout_link_text = '<a id="login_out" title="Signed in as ." href="/n/logout">Sign out</a>'
+logout_link_text = '<a id="login_out" title="Signed in as Test User." href="/n/logout">Sign out</a>'
 
 class TestLoginLocal(ParametrizedTest):
 
@@ -26,31 +26,36 @@ class TestLoginLocal(ParametrizedTest):
         (
             {
                 "email_address": "non@existent.email",
-                "password": "doesitmatter?"
+                "password": "doesitmatter?",
+                "submit": "Sign in"
             }, login_link_text, "Login should have failed with the wrong user details."),
         (
             {
                 "email_address": "test@user.com",
-                "password": "test_password"
+                "password": "test_password",
+                "submit": "Sign in"
             }, logout_link_text, "Login should have been successful with correct user details and neither import_collections nor remember_me set"),
         (
             {
                 "email_address": "test@user.com",
                 "password": "test_password",
-                "import_collections": "y"
+                "import_collections": "y",
+                "submit": "Sign in"
             }, logout_link_text, "Login should have been successful with correct user details and only import_collections set"),
         (
             {
                 "email_address": "test@user.com",
                 "password": "test_password",
-                "remember_me": "y"
+                "remember_me": "y",
+                "submit": "Sign in"
             }, logout_link_text, "Login should have been successful with correct user details and only remember_me set"),
         (
             {
                 "email_address": "test@user.com",
                 "password": "test_password",
                 "remember_me": "y",
-                "import_collections": "y"
+                "import_collections": "y",
+                "submit": "Sign in"
             }, logout_link_text, "Login should have been successful with correct user details, and both remember_me, and import_collections set")
     ])
     def testLogin(self, data, expected, message):
