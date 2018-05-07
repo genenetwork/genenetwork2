@@ -288,7 +288,6 @@ def orcid_oauth2(import_collections, remember):
     from utility.tools import ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_TOKEN_URL, ORCID_AUTH_URL
     code = request.args.get("code")
     error = request.args.get("error")
-    url = "/n/login"
     if code:
         data = {
             "client_id": ORCID_CLIENT_ID
@@ -316,9 +315,14 @@ def orcid_oauth2(import_collections, remember):
             }
             save_user(es, user_details, user_details["user_id"])
         url = "/n/login?type=orcid&uid="+user_details["user_id"]
+        lu = LoginUser()
+        lu.remember_me = (True if remember == "y" else False)
+        return lu.oauth2_login(
+            user_details["user_id"], import_collections=(
+                import_collections if import_collections == "y" else None))
     else:
         flash("There was an error getting code from ORCID")
-    return redirect(url)
+        return redirect("/n/login")
 
 def get_github_user_details(access_token):
     from utility.tools import GITHUB_API_URL
@@ -333,7 +337,6 @@ class LoginUser(object):
 
     def oauth2_login(self, user_id, import_collections):
         """Login via an OAuth2 provider"""
-        logger.debug("==============> user_id", user_id, "import_collections", import_collections)
         es = get_elasticsearch_connection()
         user_details = get_user_by_unique_column(es, "user_id", user_id)
         if user_details:
@@ -391,19 +394,24 @@ class LoginUser(object):
             return response
 
     def github_sign_in(self, params):
-        from utility.tools import GITHUB_AUTH_URL, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+        from utility.tools import GITHUB_AUTH_URL
         redirect_uri = url_for(
             "github_oauth2",
             import_collections=("y" if params.get("import_collections") else "n"),
             remember=("y" if params.get("remember") else "n"),
             _external=True)
         url = GITHUB_AUTH_URL + "&redirect_uri="+redirect_uri
-        logger.debug("================> Redirecting to", url)
         return redirect(url)
 
     def orcid_sign_in(self, params):
-        from utility.tools import ORCID_AUTH_URL, ORCID_CLIENT_ID, ORCID_CLIENT_SECRET
-        raise RuntimeError("In orcid_sign_in() with configs", configs)
+        from utility.tools import ORCID_AUTH_URL
+        redirect_uri = url_for(
+            "orcid_oauth2",
+            import_collections=("y" if params.get("import_collections") else "n"),
+            remember=("y" if params.get("remember") else "n"),
+            _external=True)
+        url = ORCID_AUTH_URL + "&redirect_uri="+redirect_uri
+        return redirect(url)
 
     def standard_login(self):
         """Login through the normal form"""
@@ -432,12 +440,10 @@ class LoginUser(object):
                 "Sign in with GitHub": self.github_sign_in,
                 "Sign in with ORCID": self.orcid_sign_in
             }
-            logger.debug("============> PARAMS", params)
             return login_types[login_type](params)
 
     def actual_login(self, user, import_collections=None):
         """The meat of the logging in process"""
-        logger.debug("==============> import_collections", import_collections)
         session_id_signed = self.successful_login(user)
         flash("Thank you for logging in {}.".format(user["full_name"]), "alert-success")
         response = make_response(redirect(url_for('index_page', import_collections=import_collections)))
