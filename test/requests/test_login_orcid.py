@@ -31,17 +31,19 @@ class TestLoginOrcid(ParametrizedTest):
         self.es.delete(index="users", doc_type="local", id=uid)
 
     def testLoginUrl(self):
-        login_button_text = 'a href="https://sandbox.orcid.org/oauth/authorize?response_type=code&amp;scope=/authenticate&amp;show_login=true&amp;client_id=' + app.config.get("ORCID_CLIENT_ID") + '&amp;client_secret=' + app.config.get("ORCID_CLIENT_SECRET") + '" title="Login with ORCID" class="btn btn-info btn-group">Login with ORCID</a>'
+        login_button_text = '<input class="btn btn-primary" name="submit" type="submit" value="Sign in with ORCID">'
         result = requests.get(self.gn2_url+"/n/login")
         index = result.content.find(login_button_text)
         self.assertTrue(index >= 0, "Should have found `Login with ORCID` button")
 
-    @parameterized.expand([
-        ("1234", login_link_text, "Login should have failed with non-existing user")
-        , (uid, logout_link_text, "Login should have been successful with existing user")
-        ])
-    def testLogin(self, test_uid, expected, message):
-        url = self.gn2_url+"/n/login?type=orcid&uid="+test_uid
-        result = requests.get(url)
-        index = result.content.find(expected)
-        self.assertTrue(index >= 0, message)
+    # It is no longer possible to test this directly with the reorganisation.
+    #
+    # @parameterized.expand([
+    #     ("1234", login_link_text, "Login should have failed with non-existing user")
+    #     , (uid, logout_link_text, "Login should have been successful with existing user")
+    #     ])
+    # def testLogin(self, test_uid, expected, message):
+    #     url = self.gn2_url+"/n/login?type=orcid&uid="+test_uid
+    #     result = requests.get(url)
+    #     index = result.content.find(expected)
+    #     self.assertTrue(index >= 0, message)
