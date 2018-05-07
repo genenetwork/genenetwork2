@@ -347,7 +347,9 @@ class LoginUser(object):
             return make_response(redirect(url_for('login')))
 
     def local_sign_in(self, params):
-        user_details = get_user_by_unique_column(es, "email_address", params["email_address"])
+        user_details = get_user_by_unique_column(
+            es=get_elasticsearch_connection(), column_name="email_address",
+            column_value=params["email_address"])
         user = None
         valid = None
         if user_details:
