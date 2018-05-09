@@ -17,7 +17,7 @@ class AnonCollection(object):
         self.name = collection_name
         self.id = None
         self.traits = []
-        self.created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        self.created_timestamp = get_timestamp_string()
         self.changed_timestamp = self.created_timestamp
 
         collections_list = get_collections_by_user_key(self.key)

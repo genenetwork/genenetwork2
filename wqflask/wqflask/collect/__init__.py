@@ -40,8 +40,8 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 from .util_functions import (get_collections_by_user_key, process_traits,
-                             save_collection, delete_collection_by_id,
-                             get_collection_by_id, add_traits)
+                             save_collection, delete_collection_by_id,add_traits,
+                             get_collection_by_id, get_timestamp_string)
 from .anon_collection import AnonCollection
 
 def report_change(len_before, len_now):
@@ -113,7 +113,7 @@ def create_new(collection_name):
 
     if session.get("user", None):
         collection_id = str(uuid.uuid4())
-        created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        created_timestamp = get_timestamp_string()
         collection = {
             "id": collection_id,
             "name": collection_name,
@@ -127,7 +127,7 @@ def create_new(collection_name):
         return redirect(url_for('view_collection', uc_id=collection_id))
     else:
         ac = AnonCollection(collection_name)
-        ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        ac.changed_timestamp = get_timestamp_string()
         ac.add_traits(params)
         save_collection(collection_id=ac.id, collection=ac.get_data())
         return redirect(url_for('view_collection', collection_id=ac.id))
