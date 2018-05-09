@@ -93,7 +93,9 @@ def collections_new():
         if session.get("user", None):
             collection_id = params["existing_collection"].split(":")[0]
             traits = process_traits(params["traits"])
-            add_traits(collection_id, traits)
+            collection = add_traits(
+                get_collection_by_id(collection_id=collection_id), traits)
+            save_collection(collection_id, collection)
             return redirect(url_for('view_collection', uc_id=collection_id))
         else:
             ac = AnonCollection(collection_name)
