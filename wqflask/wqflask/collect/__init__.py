@@ -41,55 +41,8 @@ logger = getLogger(__name__)
 
 from .util_functions import (get_collections_by_user_key, process_traits,
                              save_collection, delete_collection_by_id,
-                             get_collection_by_id)
+                             get_collection_by_id, add_traits)
 from .anon_collection import AnonCollection
-
-def get_collection():
-    if g.user_session.logged_in:
-        return UserCollection()
-    else:
-        return AnonCollection()
-    #else:
-    #    CauseError
-
-class UserCollection(object):
-    """User is logged in"""
-
-    def add_traits(self, params, collection_name):
-        logger.debug("---> params are:", params.keys())
-        logger.debug("     type(params):", type(params))
-        if collection_name=="Default":
-            uc = g.user_session.user_ob.get_collection_by_name("Default")
-            # Doesn't exist so we'll create it
-            if not uc:
-                return create_new("Default")
-        else:
-            uc = model.UserCollection.query.get(params['existing_collection'].split(":")[0])
-        members =  list(uc.members_as_set()) #set(json.loads(uc.members))
-        len_before = len(members)
-
-        traits = process_traits(params['traits'])
-
-        members_now = members
-        for trait in traits:
-            if trait in members:
-                continue
-            else:
-                members_now.append(trait)
-
-        #members_now = list(members | traits)
-        len_now = len(members_now)
-        uc.members = json.dumps(members_now)
-
-        uc.changed_timestamp = datetime.datetime.utcnow()
-
-        db_session.commit()
-
-        logger.debug("added to existing, now set is:" + str(uc.members))
-        report_change(len_before, len_now)
-
-        # Probably have to change that
-        return redirect(url_for('view_collection', uc_id=uc.id))
 
 def report_change(len_before, len_now):
     new_length = len_now - len_before
@@ -106,9 +59,9 @@ def report_change(len_before, len_now):
 def collections_add():
     traits=request.args['traits']
 
-    if g.user_session.logged_in:
+    if session.get("user", None):
         logger.debug("user_session",g.user_session)
-        user_collections = g.user_session.user_ob.user_collections
+        user_collections = get_collections_by_user_key(session["user"]["user_id"])
         logger.debug("user_collections are:", user_collections)
         return render_template("collections/add.html",
                                traits = traits,
@@ -137,8 +90,11 @@ def collections_new():
     elif "add_to_existing" in params:
         logger.debug("in add to existing")
         collection_name = params['existing_collection'].split(":")[1]
-        if g.user_session.logged_in:
-            return UserCollection().add_traits(params, collection_name)
+        if session.get("user", None):
+            collection_id = params["existing_collection"].split(":")[0]
+            traits = process_traits(params["traits"])
+            add_traits(collection_id, traits)
+            return redirect(url_for('view_collection', uc_id=collection_id))
         else:
             ac = AnonCollection(collection_name)
             ac.add_traits(params)
@@ -258,7 +214,6 @@ def view_collection():
     if "uc_id" in params:
         uc_id = params['uc_id']
         uc = get_collection_by_id(uc_id)
-        logger.debug("=======================> UC", uc)
         if uc:
             traits = uc["members"]
             this_collection = uc

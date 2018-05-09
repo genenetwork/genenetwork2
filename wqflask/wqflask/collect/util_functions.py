@@ -1,3 +1,4 @@
+import datetime
 from elasticsearch import TransportError
 from wqflask import user_manager
 from utility.elasticsearch_tools import (get_elasticsearch_connection,
@@ -62,3 +63,17 @@ def delete_collection_by_id(collection_id):
     return es_delete_data_by_id(
         es = get_elasticsearch_connection(), index = index, doc_type = doc_type,
         data_id = collection_id)
+
+def add_traits(collection_id, traits):
+    collection = get_collection_by_id(collection_id=collection_id)
+    members = collection["members"]
+    new_traits = [trait for trait in traits if trait not in members]
+    logger.debug("Adding the following traits to collection id "+collection_id,
+                 new_traits)
+    if len(new_traits) > 0:
+        for trait in new_traits:
+            members.append(trait)
+
+        collection["members"] = members
+        collection["changed_timestamp"] = datetime.datetime.utcnow()
+        save_collection(collection_id, collection)
