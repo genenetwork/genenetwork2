@@ -28,6 +28,7 @@ from wqflask.database import db_session
 
 from wqflask import model
 from wqflask import user_manager
+from wqflask.user_manager import AnonUser
 
 from utility import Bunch, Struct
 from utility.formatting import numify
@@ -41,8 +42,8 @@ logger = getLogger(__name__)
 
 from .util_functions import (get_collections_by_user_key, process_traits,
                              save_collection, delete_collection_by_id,add_traits,
-                             get_collection_by_id, get_timestamp_string)
-from .anon_collection import AnonCollection
+                             get_collection_by_id, get_timestamp_string,
+                             remove_traits, num_members, get_anon_collection)
 
 def report_change(len_before, len_now):
     new_length = len_now - len_before
@@ -98,10 +99,10 @@ def collections_new():
             save_collection(collection_id, collection)
             return redirect(url_for('view_collection', uc_id=collection_id))
         else:
-            ac = AnonCollection(collection_name)
-            ac.add_traits(params)
-            save_collection(ac.id, ac.get_data())
-            return redirect(url_for('view_collection', collection_id=ac.id))
+            ac = add_traits(get_anon_collection(collection_name, AnonUser()),
+                            process_traits(params["traits"]))
+            save_collection(ac["id"], ac)
+            return redirect(url_for('view_collection', collection_id=ac["id"]))
     else:
         CauseAnError
 
@@ -126,11 +127,10 @@ def create_new(collection_name):
         save_collection(collection_id=collection_id, collection=collection)
         return redirect(url_for('view_collection', uc_id=collection_id))
     else:
-        ac = AnonCollection(collection_name)
-        ac.changed_timestamp = get_timestamp_string()
-        ac.add_traits(params)
-        save_collection(collection_id=ac.id, collection=ac.get_data())
-        return redirect(url_for('view_collection', collection_id=ac.id))
+        ac = add_traits(get_anon_collection(collection_name, AnonUser()),
+                        process_traits(params["traits"]))
+        save_collection(collection_id=ac["id"], collection=ac)
+        return redirect(url_for('view_collection', collection_id=ac["id"]))
 
 @app.route("/collections/list")
 def list_collections():
@@ -151,30 +151,22 @@ def list_collections():
 
 
 @app.route("/collections/remove", methods=('POST',))
-def remove_traits():
+def remove_collection_traits():
     params = request.form
     logger.debug("params are:", params)
+    traits = process_traits(params.getlist('traits[]'))
 
     if "uc_id" in params:
-        uc_id = params['uc_id']
-        uc = model.UserCollection.query.get(uc_id)
-        traits_to_remove = params.getlist('traits[]')
-        traits_to_remove = process_traits(traits_to_remove)
-        logger.debug("\n\n  after processing, traits_to_remove:", traits_to_remove)
-        all_traits = uc.members_as_set()
-        members_now = all_traits - traits_to_remove
-        logger.debug("  members_now:", members_now)
-        uc.members = json.dumps(list(members_now))
-        uc.changed_timestamp = datetime.datetime.utcnow()
-        db_session.commit()
+        collection = remove_traits(get_collection_by_id(params['uc_id']), traits)
     else:
-        collection_name = params['collection_name']
-        members_now = AnonCollection(collection_name).remove_traits(params)
+        collection = remove_traits(
+            get_anon_collection(params['collection_name'], AnonUser()), traits)
 
 
     # We need to return something so we'll return this...maybe in the future
     # we can use it to check the results
-    return str(len(members_now))
+    save_collection(collection["id"], collection)
+    return str(num_members(collection))
 
 
 @app.route("/collections/delete", methods=('POST',))

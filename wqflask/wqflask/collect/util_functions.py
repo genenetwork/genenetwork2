@@ -1,3 +1,4 @@
+import uuid
 import datetime
 from elasticsearch import TransportError
 from wqflask import user_manager
@@ -67,6 +68,10 @@ def delete_collection_by_id(collection_id):
         es = get_elasticsearch_connection(), index = index, doc_type = doc_type,
         data_id = collection_id)
 
+def update_changed_timestamp(collection):
+    collection["changed_timestamp"] = get_timestamp_string()
+    return collection
+
 def add_traits(collection, traits):
     members = collection["members"]
     new_traits = [trait for trait in traits if trait not in members]
@@ -76,6 +81,33 @@ def add_traits(collection, traits):
             members.append(trait)
 
         collection["members"] = members
-        collection["changed_timestamp"] = get_timestamp_string()
+
+    return update_changed_timestamp(collection)
+
+def remove_traits(collection, traits):
+    members = collection["members"]
+    collection["members"] = [trait for trait in members if trait not in traits]
+    return update_changed_timestamp(collection)
+
+def num_members(collection):
+    return len(collection["members"])
+
+def get_members(collection):
+    return collection["members"]
+
+def get_anon_collection(collection_name, anon_user):
+    collections_list = get_collections_by_user_key(anon_user.key)
+    collection = [coll for coll in collections_list if coll["name"] == collection_name]
+    if len(collection) == 1:
+        collection = collection[0]
+    else:
+        created_timestamp = get_timestamp_string()
+        collection = {
+            "id": str(uuid.uuid4()),
+            "name": collection_name,
+            "created_timestamp": created_timestamp,
+            "changed_timestamp": created_timestamp,
+            "members": [],
+            "user_key": anon_user.key}
 
     return collection
