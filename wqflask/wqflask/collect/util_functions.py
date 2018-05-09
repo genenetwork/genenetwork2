@@ -11,6 +11,9 @@ logger = getLogger(__name__)
 index = "collections"
 doc_type = "all"
 
+def get_timestamp_string():
+    return datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+
 def process_traits(unprocessed_traits):
     #print("unprocessed_traits are:", unprocessed_traits)
     if isinstance(unprocessed_traits, basestring):
@@ -64,16 +67,15 @@ def delete_collection_by_id(collection_id):
         es = get_elasticsearch_connection(), index = index, doc_type = doc_type,
         data_id = collection_id)
 
-def add_traits(collection_id, traits):
-    collection = get_collection_by_id(collection_id=collection_id)
+def add_traits(collection, traits):
     members = collection["members"]
     new_traits = [trait for trait in traits if trait not in members]
-    logger.debug("Adding the following traits to collection id "+collection_id,
-                 new_traits)
+    logger.debug("Adding traits to collection", new_traits)
     if len(new_traits) > 0:
         for trait in new_traits:
             members.append(trait)
 
         collection["members"] = members
-        collection["changed_timestamp"] = datetime.datetime.utcnow()
-        save_collection(collection_id, collection)
+        collection["changed_timestamp"] = get_timestamp_string()
+
+    return collection
