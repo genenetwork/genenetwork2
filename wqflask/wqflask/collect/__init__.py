@@ -140,7 +140,7 @@ def list_collections():
         collections = get_collections_by_user_key(session["user"]["user_id"])
         logger.debug("user_collections are:", collections)
     else:
-        collections = user_manager.AnonUser().get_collections()
+        collections = get_collections_by_user_key(user_manager.AnonUser().key)
         logger.debug("anon_collections are:", collections)
 
     return render_template("collections/list.html",
@@ -205,16 +205,8 @@ def view_collection():
     params = request.args
     logger.debug("PARAMS in view collection:", params)
 
-    if "uc_id" in params:
-        uc_id = params['uc_id']
-        uc = get_collection_by_id(uc_id)
-        if uc:
-            traits = uc["members"]
-            this_collection = uc
-    else:
-        this_collection = get_collection_by_id(params['collection_id'])
-        traits = this_collection.get('members', [])
-
+    this_collection = get_collection_by_id(params['collection_id'])
+    traits = this_collection.get('members', [])
     logger.debug("in view_collection traits are:", traits)
 
     trait_obs = []
@@ -230,20 +222,16 @@ def view_collection():
             dataset = create_dataset(dataset_name)
             trait_ob = trait.GeneralTrait(name=name, dataset=dataset)
             trait_ob = trait.retrieve_trait_info(trait_ob, dataset, get_qtl_info=True)
-        trait_obs.append(trait_ob)
+            trait_obs.append(trait_ob)
 
         json_version.append(trait.jsonable(trait_ob))
 
-    if "uc_id" in params:
-        collection_info = dict(trait_obs=trait_obs,
-                               uc = uc)
-    else:
-        collection_info = dict(trait_obs=trait_obs,
-                               collection_name=this_collection['name'])
+    collection_info = dict(trait_obs=trait_obs,
+                           uc = this_collection,
+                           collection_name=this_collection['name'])
+
     if "json" in params:
         logger.debug("json_version:", json_version)
         return json.dumps(json_version)
     else:
-        return render_template("collections/view.html",
-                           **collection_info
-                           )
+        return render_template("collections/view.html", **collection_info)

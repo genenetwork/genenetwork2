@@ -21,7 +21,7 @@
         <div>
           <form id="collection_form" action="/delete" method="post">
             {% if uc %}
-            <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
+            <input type="hidden" name="uc_id" id="uc_id" value="{{ uc['id'] }}" />
             {% endif %}
             <input type="hidden" name="collection_name" id="collection_name" value="{{ collection_name }}" />
             <input type="hidden" name="trait_list" id="trait_list" value= "
