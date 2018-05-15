@@ -25,7 +25,6 @@ from pprint import pformat as pf
 
 from wqflask import pbkdf2 # password hashing
 from wqflask.database import db_session
-from wqflask import model
 
 from utility import Bunch, Struct
 
@@ -47,7 +46,7 @@ from .anon_user import AnonUser
 from .user_session import UserSession
 from .register_user import RegisterUser, Password, set_password
 from .util_functions import (timestamp, save_cookie_details, get_cookie_details,
-                             delete_cookie_details, cookie_name)
+                             delete_cookie_details, cookie_name, get_all_users)
 
 THREE_DAYS = 60 * 60 * 24 * 3
 
@@ -63,30 +62,6 @@ def before_request():
 
     g.user_session = UserSession()
     g.cookie_session = AnonUser()
-
-class UsersManager(object):
-    def __init__(self):
-        self.users = model.User.query.all()
-        logger.debug("Users are:", self.users)
-
-
-class UserManager(object):
-    def __init__(self, kw):
-        self.user_id = kw['user_id']
-        logger.debug("In UserManager locals are:", pf(locals()))
-        #self.user = model.User.get(user_id)
-        #logger.debug("user is:", user)
-        self.user = model.User.query.get(self.user_id)
-        logger.debug("user is:", self.user)
-        datasets = create_datasets_list()
-        for dataset in datasets:
-            if not dataset.check_confidentiality():
-                continue
-            logger.debug("\n  Name:", dataset.name)
-            logger.debug("  Type:", dataset.type)
-            logger.debug("  ID:", dataset.id)
-            logger.debug("  Confidential:", dataset.check_confidentiality())
-        #logger.debug("   ---> self.datasets:", self.datasets)
 
 class VerificationEmail(object):
     template_name =  "email/verification.txt"
@@ -148,27 +123,12 @@ def basic_info():
                 ip_address = request.remote_addr,
                 user_agent = request.headers.get('User-Agent'))
 
-@app.route("/manage/verify_email")
-def verify_email():
-    user = DecodeUser(VerificationEmail.key_prefix).user
-    user.confirmed = json.dumps(basic_info(), sort_keys=True)
-    db_session.commit()
-
-    # As long as they have access to the email account
-    # We might as well log them in
-
-    session_id_signed = LoginUser().successful_login(user)
-    response = make_response(render_template("new_security/thank_you.html"))
-    response.set_cookie(UserSession.cookie_name, session_id_signed)
-    return response
-
 @app.route("/n/password_reset", methods=['GET'])
 def password_reset():
     """Entry point after user clicks link in E-mail"""
     logger.debug("in password_reset request.url is:", request.url)
     # We do this mainly just to assert that it's in proper form for displaying next page
     # Really not necessary but doesn't hurt
-    # user_encode = DecodeUser(ForgotPasswordEmail.key_prefix).reencode_standalone()
     verification_code = request.args.get('code')
     hmac = request.args.get('hm')
     es = get_elasticsearch_connection()
@@ -221,30 +181,7 @@ def password_reset_step2():
 
     flash("Password changed successfully. You can now sign in.", "alert-info")
     response = make_response(redirect(url_for('login')))
-
     return response
-
-class DecodeUser(object):
-
-    def __init__(self, code_prefix):
-        verify_url_hmac(request.url)
-
-        #params = urlparse.parse_qs(url)
-
-        self.verification_code = request.args['code']
-        self.user = self.actual_get_user(code_prefix, self.verification_code)
-
-    def reencode_standalone(self):
-        hmac = actual_hmac_creation(self.verification_code)
-        return self.verification_code + ":" + hmac
-
-    @staticmethod
-    def actual_get_user(code_prefix, verification_code):
-        data = Redis.get(code_prefix + ":" + verification_code)
-        logger.debug("in get_coded_user, data is:", data)
-        data = json.loads(data)
-        logger.debug("data is:", data)
-        return model.User.query.get(data['id'])
 
 @app.route("/n/login", methods=('GET', 'POST'))
 def login():
@@ -356,7 +293,7 @@ class LoginUser(object):
         user = None
         valid = None
         if user_details:
-            user = model.User();
+            user = Bunch()
             for key in user_details:
                 user.__dict__[key] = user_details[key]
 
@@ -510,7 +447,7 @@ def unauthorized(error):
 
 def super_only():
     try:
-        superuser = g.user_session.user_ob.superuser
+        superuser = session["user"].get("superuser", None)
     except AttributeError:
         superuser = False
     if not superuser:
@@ -522,14 +459,22 @@ def super_only():
 @app.route("/manage/users")
 def manage_users():
     super_only()
-    template_vars = UsersManager()
-    return render_template("admin/user_manager.html", **template_vars.__dict__)
+    users = get_all_users()
+    return render_template("admin/user_manager.html", users=users)
 
 @app.route("/manage/user")
 def manage_user():
     super_only()
-    template_vars = UserManager(request.args)
-    return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
+    user = get_user_by_unique_column(
+        es = get_elasticsearch_connection(), column_name="user_id",
+        column_value=request.args["user_id"])
+    crowner = None
+    if user.get("superuser", None):
+        crowner = get_user_by_unique_column(
+            es = get_elasticsearch_connection(), column_name="user_id",
+            column_value=user["superuser_info"]["crowned_by"])
+    return render_template("admin/ind_user_manager.html", user=user,
+                           crowner=crowner)
 
 @app.route("/manage/groups")
 def manage_groups():
@@ -542,12 +487,19 @@ def make_superuser():
     super_only()
     params = request.args
     user_id = params['user_id']
-    user = model.User.query.get(user_id)
-    superuser_info = basic_info()
-    superuser_info['crowned_by'] = g.user_session.user_id
-    user.superuser = json.dumps(superuser_info, sort_keys=True)
-    db_session.commit()
-    flash("We've made {} a superuser!".format(user.name_and_org))
+    user = get_user_by_unique_column(
+        es = get_elasticsearch_connection(), column_name="user_id",
+        column_value=user_id)
+    user["superuser"] = True
+    user["superuser_info"] = {
+        "crowned_by": session["user"].get("user_id"),
+        "timestamp": timestamp()
+    }
+    save_user(
+        es = get_elasticsearch_connection(), user = user,
+        user_id=user.get("user_id"))
+    flash("We've made {} from {} a superuser!".format(
+        user.get("full_name"),  user.get("organisation")))
     return redirect(url_for("manage_users"))
 
 @app.route("/manage/assume_identity")
@@ -555,8 +507,10 @@ def assume_identity():
     super_only()
     params = request.args
     user_id = params['user_id']
-    user = model.User.query.get(user_id)
-    assumed_by = g.user_session.user_id
+    user = get_user_by_unique_column(
+        es = get_elasticsearch_connection(), column_name="user_id",
+        column_value=user_id)
+    assumed_by = session["user"].get("user_id")
     return LoginUser().actual_login(user, assumed_by=assumed_by)
 
 
@@ -656,9 +610,3 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
 class GroupsManager(object):
     def __init__(self, kw):
         self.datasets = create_datasets_list()
-
-
-class RolesManager(object):
-    def __init__(self):
-        self.roles = model.Role.query.all()
-        logger.debug("Roles are:", self.roles)

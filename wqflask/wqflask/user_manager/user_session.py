@@ -1,8 +1,8 @@
 import redis # used for collections
 from flask import request
-from wqflask import model
-from utility.tools import LOG_SQL_ALCHEMY
 from utility.logger import getLogger
+from utility.elasticsearch_tools import (get_elasticsearch_connection,
+                                         get_user_by_unique_column)
 
 from .util_functions import verify_cookie
 
@@ -65,14 +65,13 @@ class UserSession(object):
         # Only look it up once if needed, then store it
         # raise "OBSOLETE: use ElasticSearch instead"
         try:
-            if LOG_SQL_ALCHEMY:
-                logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
-
             # Already did this before
             return self.db_object
         except AttributeError:
             # Doesn't exist so we'll create it
-            self.db_object = model.User.query.get(self.user_id)
+            self.db_object = get_user_by_unique_column(
+                es=get_elasticsearch_connection(),column_name = "user_id",
+                column_value=self.user_id)
             return self.db_object
 
 
