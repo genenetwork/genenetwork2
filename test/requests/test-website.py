@@ -19,6 +19,7 @@ from test_login_orcid import TestLoginOrcid
 from test_login_github import TestLoginGithub
 from test_registration import TestRegistration
 from test_forgot_password import TestForgotPassword
+from test_collection_functions import TestCollectionFunctions
 from unittest import TestSuite, TextTestRunner, TestLoader
 
 print("Mechanical Rob firing up...")
@@ -56,6 +57,7 @@ def integration_suite(gn2_url, es_url):
         , TestLoginGithub
         , TestLoginOrcid
         , TestForgotPassword
+        , TestCollectionFunctions
     ]
     the_suite = TestSuite()
     for case in test_cases:

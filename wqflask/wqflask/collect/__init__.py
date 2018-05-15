@@ -43,7 +43,8 @@ logger = getLogger(__name__)
 from .util_functions import (get_collections_by_user_key, process_traits,
                              save_collection, delete_collection_by_id,add_traits,
                              get_collection_by_id, get_timestamp_string,
-                             remove_traits, num_members, get_anon_collection)
+                             remove_traits, num_members, get_anon_collection,
+                             get_members)
 
 def report_change(len_before, len_now):
     new_length = len_now - len_before
