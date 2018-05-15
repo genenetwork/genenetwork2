@@ -91,7 +91,13 @@ def get_user_by_unique_column(es, column_name, column_value, index="users", doc_
     return get_item_by_unique_column(es, column_name, column_value, index=index, doc_type=doc_type)
 
 def save_user(es, user, user_id):
-    es_save_data(es, "users", "local", user, user_id)
+    try:
+        return es_save_data(es, "users", "local", user, user_id)
+    except TransportError as te:
+        if te.info["error"]["reason"].find('document already exists') >= 0:
+            return es_update_data(es, "users", "local", user, user_id)
+        else:
+            raise te
 
 def get_item_by_unique_column(es, column_name, column_value, index, doc_type):
     item_details = get_items_by_column(
@@ -110,6 +116,17 @@ def get_items_by_column(es, column_name, column_value, index, doc_type):
             index = index, doc_type = doc_type, body = {
                 "query": { "match": { column_name: column_value } }
             })
+        if len(response["hits"]["hits"]) > 0:
+            items = map(lambda x: x["_source"], response["hits"]["hits"])
+    except TransportError as te:
+        pass
+    return items
+
+def es_get_all_items(es, index, doc_type):
+    items = []
+    try:
+        response = es.search(
+            index = index, doc_type = doc_type)
         if len(response["hits"]["hits"]) > 0:
             items = map(lambda x: x["_source"], response["hits"]["hits"])
     except TransportError as te:
