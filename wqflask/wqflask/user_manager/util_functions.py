@@ -6,7 +6,8 @@ from wqflask import app
 from flask import request
 from utility.logger import getLogger
 from utility.elasticsearch_tools import (es_save_data, get_item_by_unique_column,
-                                         get_elasticsearch_connection, es_delete_data_by_id)
+                                         get_elasticsearch_connection,
+                                         es_delete_data_by_id, es_get_all_items)
 
 logger = getLogger(__name__)
 
@@ -62,3 +63,9 @@ def delete_cookie_details():
     return es_delete_data_by_id(
         es = get_elasticsearch_connection(), index = "cookies",
         doc_type = "local", data_id=cookie_id)
+
+def get_all_users():
+    return es_get_all_items(
+        es = get_elasticsearch_connection(),
+        index = "users",
+        doc_type = "local")
