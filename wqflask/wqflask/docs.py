@@ -12,5 +12,8 @@ class Docs(object):
             """
         result = g.db.execute(sql, str(entry)).fetchone()
         self.entry = entry
-        self.title = result[0]
-        self.content = result[1]
+        self.title = ""
+        self.content = ""
+        if result:
+            self.title = result[0]
+            self.content = result[1]
