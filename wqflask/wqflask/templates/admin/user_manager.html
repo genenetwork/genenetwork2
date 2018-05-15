@@ -22,13 +22,13 @@
             </thead>
         {% for user in users %}
             <tr>
-                <td title="{{ user.id }}">
-                    <a href="{{ url_for('manage_user', user_id=user.id) }}">{{ user.email_address }}</a>
+                <td title="{{ user.get('user_id') }}">
+                    <a href="{{ url_for('manage_user', user_id=user.get('user_id')) }}">{{ user.get("email_address") }}</a>
                 </td>
-                <td>{{ user.organization }}</td>
-                <td>{{ 'Yes' if user.active else 'No' }}</td>
-                <td title="{{ user.confirmed }}">{{ 'True' if user.confirmed else 'False' }}</td>
-                <td title="{{ user.superuser }}">{{ 'True' if user.superuser else 'False' }}</td>
+                <td>{{ user.get("organization") }}</td>
+                <td>{{ 'Yes' if user.get("active") == 1 else 'No' }}</td>
+                <td title="{{ user.get('confirmed') }}">{{ 'True' if user.get("confirmed") == 1 else 'False' }}</td>
+                <td title="{{ user.get('superuser') }}">{{ 'True' if user.get("superuser") else 'False' }}</td>
             </tr>
         {% endfor %}
         </table>

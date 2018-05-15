@@ -5,11 +5,11 @@
 
     <div class="container">
         <div class="page-header">
-            <h1 title="{{ user.id }}">{{ user.email_address }}</h1>
+            <h1 title="{{ user.get('user_id') }}">{{ user.get("email_address") }}</h1>
 
-            <span class="badge">{{ numify(user.login_count, "login", "logins").capitalize() }}</span>
+            <span class="badge">{{ numify(user.get("login_count", 0), "login", "logins").capitalize() }}</span>
 
-            {% if user.active %}
+            {% if user.get('active') == 1 %}
             <span class="label label-success">Active</span>
             {% else %}
             <span class="label label-warning">Inactive</span>
@@ -28,20 +28,20 @@
 
             <tr>
                 <td>Name</td>
-                <td>{{ user.full_name }}</td>
+                <td>{{ user.get('full_name') }}</td>
             </tr>
 
             <tr>
                 <td>Organization</td>
-                <td>{{ user.organization }}</td>
+                <td>{{ user.get('organization') }}</td>
             </tr>
 
 
             <tr>
                 <td>Confirmed</td>
 
-                {% if user.confirmed_at %}
-                <td>{{ timeago(user.confirmed_at + "Z") }}</td>
+                {% if user.get('confirmed_at') %}
+                <td>{{ timeago(user.get('confirmed_at') + "Z") }}</td>
                 {% else %}
                 <td><span class="label label-warning">Unconfirmed</span></td>
                 {% endif %}
@@ -50,14 +50,14 @@
             <tr>
                 <td>Superuser</td>
 
-                {% if user.superuser %}
-                <td>Made a superuser {{ timeago(user.superuser_info['timestamp'] + "Z") }} by
-                {{ user.crowner.name_and_org }}.
+                {% if user.get('superuser', None) %}
+                <td>Made a superuser {{ timeago(user["superuser_info"]["timestamp"] + "Z") }} by
+                {{ crowner["full_name"] + " from " + crowner["organization"] }}.
                 </td>
                 {% else %}
                 <td>
                     <span>
-                        <a class="btn btn-danger btn-small" href={{"/manage/make_superuser?user_id={}".format(user.id)}}>
+                        <a class="btn btn-danger btn-small" href={{"/manage/make_superuser?user_id={}".format(user.get("user_id"))}}>
                             Make Superuser
                         </a>
                     </span>
@@ -86,7 +86,7 @@
             </tr>-->
             <tr>
                 <td colspan="2">
-                    <a class="btn btn-danger btn-small" href={{"/manage/assume_identity?user_id={}".format(user.id)}}>
+                    <a class="btn btn-danger btn-small" href={{"/manage/assume_identity?user_id={}".format(user.get("user_id"))}}>
                         Become this user for debugging
                     </a>
                 </td>
