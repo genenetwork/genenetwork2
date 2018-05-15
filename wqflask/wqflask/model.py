@@ -137,23 +137,6 @@ class User(Base):
     #roles = relationship('Role', secondary=roles_users,
     #                        backref=backref('users', lazy='dynamic'))
 
-
-class Login(Base):
-    __tablename__ = "login"
-    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
-    user = Column(Unicode(36), ForeignKey('user.id'))
-    timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
-    ip_address = Column(Unicode(39))
-    successful = Column(Boolean(), nullable=False)  # False if wrong password was entered
-    session_id = Column(Text)  # Set only if successfully logged in, otherwise should be blank
-
-    # Set to user who assumes identity if this was a login for debugging purposes by a superuser
-    assumed_by = Column(Unicode(36), ForeignKey('user.id'))
-
-    def __init__(self, user):
-        self.user = user.id
-        self.ip_address = request.remote_addr
-
 ##################################################################################################
 
 class UserCollection(Base):

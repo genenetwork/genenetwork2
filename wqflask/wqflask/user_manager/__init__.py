@@ -388,14 +388,9 @@ class LoginUser(object):
                 import_col = "false"
 
             return self.actual_login(user_details, import_collections=import_col)
-
         else:
-            if user:
-                self.unsuccessful_login(user)
-
             flash("Invalid email-address or password. Please try again.", "alert-danger")
             response = make_response(redirect(url_for('login')))
-
             return response
 
     def github_sign_in(self, params):
@@ -468,12 +463,6 @@ class LoginUser(object):
         logger.debug("session_id_signed:", session_id_signed)
         session["user"] = user
         return session_id_signed
-
-    def unsuccessful_login(self, user):
-        login_rec = model.Login(user)
-        login_rec.successful = False
-        db_session.add(login_rec)
-        db_session.commit()
 
 @app.route("/n/logout")
 def logout():
