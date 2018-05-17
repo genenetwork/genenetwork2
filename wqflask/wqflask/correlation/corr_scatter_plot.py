@@ -6,44 +6,19 @@ from utility import corr_result_helpers
 from scipy import stats
 import numpy as np
 
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
+
 class CorrScatterPlot(object):
     """Page that displays a correlation scatterplot with a line fitted to it"""
 
     def __init__(self, params):
         self.data_set_1 = data_set.create_dataset(params['dataset_1'])
         self.data_set_2 = data_set.create_dataset(params['dataset_2'])
+        #self.data_set_3 = data_set.create_dataset(params['dataset_3'])
         self.trait_1 = GeneralTrait(name=params['trait_1'], dataset=self.data_set_1)
         self.trait_2 = GeneralTrait(name=params['trait_2'], dataset=self.data_set_2)
-
-        try:
-            width = int(params['width'])
-        except:
-            width = 800
-
-        try:
-            height = int(params['height'])
-        except:
-            height = 600
-
-        try:
-            circle_color = params['circle_color']
-        except:
-            circle_color = '#3D85C6'
-
-        try:
-            circle_radius = int(params['circle_radius'])
-        except:
-            circle_radius = 5
-
-        try:
-            line_color = params['line_color']
-        except:
-            line_color = '#FF0000'
-
-        try:
-            line_width = int(params['line_width'])
-        except:
-            line_width = 1
+        #self.trait_3 = GeneralTrait(name=params['trait_3'], dataset=self.data_set_3)
 
         samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(self.trait_1.data, self.trait_2.data)
 
@@ -60,14 +35,18 @@ class CorrScatterPlot(object):
 
         x = np.array(vals_1)
         y = np.array(vals_2)
-        slope, intercept, r_value, p_value, _std_err = stats.linregress(x, y)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
         
         rx = stats.rankdata(x)
         ry = stats.rankdata(y)        
         self.rdata = []
         self.rdata.append(rx.tolist())
         self.rdata.append(ry.tolist())        
-        srslope, srintercept, srr_value, srp_value, _srstd_err = stats.linregress(rx, ry)
+        srslope, srintercept, srr_value, srp_value, srstd_err = stats.linregress(rx, ry)
+
+        #vals_3 = []
+        #for sample in self.trait_3.data:
+        #    vals_3.append(self.trait_3.data[sample].value)
 
         self.js_data = dict(
             data = self.data,
@@ -89,13 +68,9 @@ class CorrScatterPlot(object):
             srslope = srslope,
             srintercept = srintercept,
             srr_value = srr_value,
-            srp_value = srp_value,
+            srp_value = srp_value
 
-            width = width,
-            height = height,
-            circle_color = circle_color,
-            circle_radius = circle_radius,
-            line_color = line_color,
-            line_width = line_width
+            #trait3 = self.trait_3.data,
+            #vals_3 = vals_3
         )
         self.jsdata = self.js_data

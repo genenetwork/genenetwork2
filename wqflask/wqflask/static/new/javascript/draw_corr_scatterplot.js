@@ -1,3 +1,5 @@
+// http://gn2-lei.genenetwork.org/corr_scatter_plot2?dataset_1=HC_M2_0606_P&dataset_2=HC_M2_0606_P&dataset_3=HC_M2_0606_P&trait_1=1427571_at&trait_2=1457022_at&trait_3=1427571_at
+
 var chart;
 var srchart;
 
@@ -7,7 +9,7 @@ function drawg() {
     //
     chart.showLegend(false);
     chart.duration(300);
-    chart.color(d3.scale.category10().range());
+    //chart.color(d3.scale.category10().range());
     chart.pointRange([0, 400]);
     chart.pointDomain([0, 10]);
     //
@@ -74,16 +76,45 @@ function getdata(size, shape) {
             slope: js_data.slope,
             intercept: js_data.intercept
         });
+
+    sizemin = 1;
+    sizemax = 50;
+    if ('vals_3' in js_data) {
+        datamin = d3.min(js_data.vals_3);
+        datamax = d3.max(js_data.vals_3);
+        colormin = $("#cocolorfrom").val();
+        colormax = $("#cocolorto").val();
+        compute = d3.interpolate(colormin, colormax);
+        linear = d3.scale.linear().domain([datamin, datamax]).range([0,1]);
+    }
+
     for (j = 0; j < js_data.data[0].length; j++) {
+        if ('trait3' in js_data) {
+          if (js_data.indIDs[j] in js_data.trait3) {
+            datav = js_data.trait3[js_data.indIDs[j]].value;
+            // size = (sizemax - sizemin) * (datav - datamin) / (datamax - datamin) + sizemin;
+            sizev = map1to2(datamin, datamax, sizemin, sizemax, datav);
+          }
+        } else {
+            datav = 0;
+            sizev = sizemin;
+        }
         data[0].values.push({
             x: js_data.data[0][j],
             y: js_data.data[1][j],
             name: js_data.indIDs[j],
-            size: size,
-            shape: shape
+            size: sizev,
+            shape: shape,
+            v3: datav
         });
     }
+    console.log(data);
     return data;
+}
+
+function map1to2 (min1, max1, min2, max2, v1) {
+    v2 = (v1 - min1) * (max2 - min2) / (max1 - min1) + min2;
+    return v2;
 }
 
 function srgetdata(size, shape) {
@@ -94,6 +125,12 @@ function srgetdata(size, shape) {
             intercept: js_data.srintercept
         });
     for (j = 0; j < js_data.rdata[0].length; j++) {
+        if (js_data.indIDs[j] in js_data.trait3) {
+            size = js_data.trait3[js_data.indIDs[j]].value;
+            //console.log("yes "+js_data.indIDs[j]+", "+size);
+        } else {
+            //console.log("no "+js_data.indIDs[j]);
+        }
         data[0].values.push({
             x: js_data.rdata[0][j],
             y: js_data.rdata[1][j],
@@ -163,13 +200,39 @@ function chartupdatewh() {
     window.dispatchEvent(new Event('resize'));
 }
 
+ function colorer(d) {
+    datamin = d3.min(js_data.vals_3);
+    datamax = d3.max(js_data.vals_3);
+    //colormin = d3.rgb(255,0,0);
+    //colormax = d3.rgb(0,255,0);
+    colormin = $("#cocolorfrom").val();
+    colormax = $("#cocolorto").val();
+
+    console.log("colormin: "+colormin);
+    console.log("colormax: "+colormax);
+
+    compute = d3.interpolate(colormin, colormax);
+    linear = d3.scale.linear().domain([datamin, datamax]).range([0,1]);
+    //console.log(d[0].x);
+          c= compute(linear(d[0].x));
+          //console.log(c);
+          return c;
+  }
+
 function chartupdatedata() {
     //
     var size = $("#marksize").val();
     var shape = $("#markshape").val();
     //
-    d3.select('#scatterplot2 svg').datum(nv.log(getdata(size, shape))).call(chart);
+    d3.select('#scatterplot2 svg').datum(getdata(size, shape)).call(chart);
     d3.select('#srscatterplot2 svg').datum(nv.log(srgetdata(size, shape))).call(srchart);
+    //
+    d3.selectAll('.nv-point')
+      .attr({
+          'stroke': colorer,
+          'fill':   colorer
+      });
+    //
     nv.utils.windowResize(chart.update);
     nv.utils.windowResize(srchart.update);
 }

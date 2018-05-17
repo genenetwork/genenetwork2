@@ -213,7 +213,7 @@
       var form_data, url;
       console.log("RUNNING GEMMA");
       url = "/loading";
-      $('input[name=method]').val("gemma_bimbam");
+      $('input[name=method]').val("gemma");
       $('input[name=num_perm]').val(0);
       $('input[name=genofile]').val($('#genofile_gemma').val());
       $('input[name=maf]').val($('input[name=maf_gemma]').val());

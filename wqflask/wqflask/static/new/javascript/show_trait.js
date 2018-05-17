@@ -559,6 +559,18 @@
       })(this));
     };
     $('#reset').click(reset_samples_table);
+    switch_qnorm_data = function() {
+      return $('.trait_value_input').each((function(_this) {
+        return function(_index, element) {
+          transform_val = $(element).data('transform')
+          if (transform_val != "") {
+              $(element).val(transform_val.toFixed(3));
+          }
+          return transform_val
+        };
+      })(this));
+    };
+    $('#qnorm').click(switch_qnorm_data);
     get_sample_table_data = function(table_name) {
       var samples;
       samples = [];
@@ -871,6 +883,7 @@
     $('#exclude_group').click(edit_data_change);
     $('#block_outliers').click(edit_data_change);
     $('#reset').click(edit_data_change);
+    $('#qnorm').click(edit_data_change);
     return console.log("end");
   });
 

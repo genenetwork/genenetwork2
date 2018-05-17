@@ -26,9 +26,6 @@ from db import webqtlDatabaseFunction
 
 from pprint import pformat as pf
 
-from utility.tools import flat_files, flat_file_exists
-from utility.tools import get_setting
-
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
@@ -306,7 +303,6 @@ def get_nearest_marker(this_trait, this_db):
         #return "", ""
     else:
         return result[0][0]
-        #return result[0][0], result[1][0]
 
 def get_genofiles(this_dataset):
     jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, this_dataset.group.name)

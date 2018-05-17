@@ -54,6 +54,10 @@
                   <option value="csv">CSV</option>
                 </select>
               </span>
+              <br>
+              {% if sample_groups[0].sample_qnorm is not none %}
+              <input type="button" id="qnorm" class="btn btn-default" value="Quantile Normalize">
+              {% endif %}
             </div>
         </fieldset>
         <br>
@@ -111,7 +115,7 @@
         
                         {# Todo: Add IDs #}
                         <td class="column_name-Value" align="right">
-                          <input type="text" data-value="{{ sample.display_value }}" name="{{ 'value:' + sample.name }}"
+                          <input type="text" data-value="{{ sample.display_value }}" data-transform="{{ sample_type.sample_qnorm[sample.name] }}" name="{{ 'value:' + sample.name }}"
                                  style="text-align:right;"
                                  class="trait_value_input edit_sample_value"
                                  value="{{ sample.display_value }}"
