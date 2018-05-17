@@ -1527,6 +1527,36 @@
          }
       },
       "mouse": {
+         "AIL": {
+            "Hippocampus mRNA": [
+               [
+                  "844",
+                  "UCSD_AIL_HIP_RNA-Seq_0418",
+                  "UCSD AIL Hippocampus (Apr18) RNA-Seq"
+               ]
+            ],
+            "Phenotypes": [
+               [
+                  "None",
+                  "AILPublish",
+                  "AIL Published Phenotypes"
+               ]
+            ],
+            "Prefrontal Cortex mRNA": [
+               [
+                  "846",
+                  "UCSD_AIL_PFC_RNA-Seq_0418",
+                  "UCSD AIL Prefrontal Cortex (Apr18) RNA-Seq"
+               ]
+            ],
+            "Striatum mRNA": [
+               [
+                  "845",
+                  "UCSD_AIL_STR_RNA-Seq_0418",
+                  "UCSD AIL Striatum (Apr18) RNA-Seq"
+               ]
+            ]
+         },
          "AKXD": {
             "Genotypes": [
                [
@@ -2968,7 +2998,7 @@
          "BXD-Bone": {
             "Phenotypes": [
                [
-                  "None",
+                  "650",
                   "BXD-BonePublish",
                   "BXD-Bone Published Phenotypes"
                ]
@@ -3156,6 +3186,13 @@
             ]
          },
          "CIE-RMA": {
+            "Hippocampus mRNA": [
+               [
+                  "831",
+                  "INIA_UTHSC_Hip_AffyMTA1_May17",
+                  "INIA-UTHSC Hippocampus CIE Affy MTA 1.0 GeneLevel (Mar18) RMA"
+               ]
+            ],
             "Midbrain mRNA": [
                [
                   "830",
@@ -3826,6 +3863,10 @@
       ],
       "mouse": [
          [
+            "AIL",
+            "AIL Advanced Intercross Line"
+         ],
+         [
             "AKXD",
             "AKXD"
          ],
@@ -3875,7 +3916,7 @@
          ],
          [
             "BXD-Bone",
-            "BXD Bone"
+            "BXD Bone Individual Data"
          ],
          [
             "BXD-Harvested",
@@ -4727,6 +4768,24 @@
          ]
       },
       "mouse": {
+         "AIL": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ],
+            [
+               "Hippocampus mRNA",
+               "Hippocampus mRNA"
+            ],
+            [
+               "Prefrontal Cortex mRNA",
+               "Prefrontal Cortex mRNA"
+            ],
+            [
+               "Striatum mRNA",
+               "Striatum mRNA"
+            ]
+         ],
          "AKXD": [
             [
                "Genotypes",
@@ -5109,6 +5168,10 @@
             [
                "Phenotypes",
                "Phenotypes"
+            ],
+            [
+               "Hippocampus mRNA",
+               "Hippocampus mRNA"
             ],
             [
                "Midbrain mRNA",

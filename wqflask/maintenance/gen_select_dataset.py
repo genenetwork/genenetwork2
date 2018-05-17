@@ -78,7 +78,6 @@ def parse_db_uri(db_uri):
     return db_conn_info
 
 
-
 def get_species():
     """Build species list"""
     Cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
@@ -265,7 +264,7 @@ def build_datasets(species, group, type_name):
 def main():
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
 
-    parse_db_uri(SQL_URI)
+    parse_db_uri()
 
     species = get_species()
     groups = get_groups(species)
@@ -304,6 +303,6 @@ def _test_it():
     #print("build_datasets:", pf(datasets))
 
 if __name__ == '__main__':
-    Conn = MySQLdb.Connect(**parse_db_uri(SQL_URI))
+    Conn = MySQLdb.Connect(**parse_db_uri())
     Cursor = Conn.cursor()
     main()

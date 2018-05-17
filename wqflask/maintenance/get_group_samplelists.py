@@ -6,16 +6,6 @@ import gzip
 
 from base import webqtlConfig
 
-def process_genofiles(geno_dir=webqtlConfig.GENODIR):
-    print("Yabba")
-    #sys.exit("Dabba")
-    os.chdir(geno_dir)
-    for geno_file in glob.glob("*"):
-        if geno_file.lower().endswith(('.geno', '.geno.gz')):
-            #group_name = genofilename.split('.')[0]
-            sample_list = get_samplelist(geno_file)
-
-
 def get_samplelist(file_type, geno_file):
     if file_type == "geno":
         return get_samplelist_from_geno(geno_file)

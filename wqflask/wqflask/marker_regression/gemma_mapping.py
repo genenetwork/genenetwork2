@@ -32,7 +32,7 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
     if covariates != "":
         gen_covariates_file(this_dataset, covariates)
 
-    if method == "gemma":
+    if method == "gemma_plink":
         gemma_command = GEMMA_COMMAND + ' -bfile %s/%s -k %s/%s.cXX.txt -lmm 1 -maf 0.1' % (flat_files('mapping'),
                                                                                         this_dataset.group.name,
                                                                                         flat_files('mapping'),
@@ -113,7 +113,7 @@ def run_gemma(this_dataset, samples, vals, covariates, method, use_loco):
 def gen_pheno_txt_file(this_dataset, genofile_name, vals, method):
     """Generates phenotype file for GEMMA"""
 
-    if method == "gemma":
+    if method == "gemma_plink":
         current_file_data = []
         with open("{}/{}.fam".format(flat_files('mapping'), this_dataset.group.name), "r") as outfile:
             for i, line in enumerate(outfile):

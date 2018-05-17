@@ -789,7 +789,41 @@
         type: 'bar'
     };
     root.bar_data = [bar_trace]
+
+    positive_error_vals = []
+    negative_error_vals = []
+    for (i = 0;i < get_sample_vals(sample_lists[0]).length; i++){
+        if (get_sample_errors(sample_lists[0])[i] != undefined) {
+            positive_error_vals.push(get_sample_vals(sample_lists[0])[i] + get_sample_errors(sample_lists[0])[i])
+            negative_error_vals.push(get_sample_vals(sample_lists[0])[i] - get_sample_errors(sample_lists[0])[i])
+        } else {
+            positive_error_vals.push(get_sample_vals(sample_lists[0])[i])
+            negative_error_vals.push(get_sample_vals(sample_lists[0])[i])
+        }
+    }
+
+    // Calculate the y axis cutoff to avoid a situation where all bar variation is clustered at the top of the chart
+    min_y_val = Math.min(...negative_error_vals)
+    max_y_val = Math.max(...positive_error_vals)
+
+    if (min_y_val == 0) {
+        range_bottom = 0;
+    } else {
+        range_top = max_y_val + Math.abs(max_y_val)*0.1
+        range_bottom = min_y_val - Math.abs(min_y_val)*0.1
+        if (min_y_val > 0) {
+            range_bottom = min_y_val - 0.1*Math.abs(min_y_val)
+        } else if (min_y_val < 0) {
+            range_bottom = min_y_val + 0.1*min_y_val
+        } else {
+            range_bottom = 0
+        }
+    }
+
     var layout = {
+        yaxis: {
+            range: [range_bottom, range_top]
+        },
         width: 1200,
         height: 500,
         margin: {

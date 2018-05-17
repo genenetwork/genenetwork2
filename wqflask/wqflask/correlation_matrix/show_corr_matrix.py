@@ -23,7 +23,6 @@ from __future__ import absolute_import, print_function, division
 import sys
 # sys.path.append(".")   Never do this in a webserver!
 
-import gc
 import string
 import cPickle
 import os

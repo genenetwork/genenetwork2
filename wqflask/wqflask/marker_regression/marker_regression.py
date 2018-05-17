@@ -16,7 +16,6 @@ import uuid
 
 import rpy2.robjects as ro
 import numpy as np
-from scipy import linalg
 
 import cPickle as pickle
 import itertools
@@ -84,7 +83,6 @@ class MarkerRegression(object):
             self.geno_db_exists = start_vars['geno_db_exists']
         else:
           try:
-            geno_dataset = data_set.create_dataset(self.dataset.group.name + "Geno")
             self.geno_db_exists = "True"
           except:
             self.geno_db_exists = "False"
@@ -278,7 +276,6 @@ class MarkerRegression(object):
             )
 
         else:
-            self.cutoff = 2
             self.qtl_results = []
             highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
             for marker in results:
@@ -426,7 +423,6 @@ class MarkerRegression(object):
 
         if self.dataset.group.species == "human":
             p_values, t_stats = self.gen_human_results(pheno_vector, key, temp_uuid)
-            #p_values = self.trim_results(p_values)
 
         else:
             logger.debug("NOW CWD IS:", os.getcwd())
@@ -478,8 +474,6 @@ class MarkerRegression(object):
             json_results = Redis.blpop("pylmm:results:" + temp_uuid, 45*60)
             results = json.loads(json_results[1])
             p_values = [float(result) for result in results['p_values']]
-            #logger.debug("p_values:", p_values[:10])
-            #p_values = self.trim_results(p_values)
             t_stats = results['t_stats']
 
             #t_stats, p_values = lmm.run(
@@ -493,19 +487,8 @@ class MarkerRegression(object):
 
         self.dataset.group.markers.add_pvalues(p_values)
 
-        #self.get_lod_score_cutoff()
-
         return self.dataset.group.markers.markers
 
-    def trim_results(self, p_values):
-        logger.debug("len_p_values:", len(p_values))
-        if len(p_values) > 500:
-            p_values.sort(reverse=True)
-            trimmed_values = p_values[:500]
-
-        return trimmed_values
-
-    #def gen_human_results(self, pheno_vector, tempdata):
     def gen_human_results(self, pheno_vector, key, temp_uuid):
         file_base = locate(self.dataset.group.name,"mapping")
 
@@ -562,18 +545,6 @@ class MarkerRegression(object):
 
         return p_values, t_stats
 
-    def get_lod_score_cutoff(self):
-        logger.debug("INSIDE GET LOD CUTOFF")
-        high_qtl_count = 0
-        for marker in self.dataset.group.markers.markers:
-            if marker['lod_score'] > 1:
-                high_qtl_count += 1
-
-        if high_qtl_count > 1000:
-            return 1
-        else:
-            return 0
-
     def identify_empty_samples(self):
         no_val_samples = []
         for sample_count, val in enumerate(self.vals):
@@ -597,28 +568,6 @@ class MarkerRegression(object):
             trimmed_genotype_data.append(new_genotypes)
         return trimmed_genotype_data
 
-def create_snp_iterator_file(group):
-    """
-    This function is only called by main below
-    """
-    raise Exception("Paths are undefined here")
-    plink_file_base = os.path.join(TMPDIR, group)
-    plink_input = input.plink(plink_file_base, type='b')
-
-    data = dict(plink_input = list(plink_input),
-                numSNPs = plink_input.numSNPs)
-
-    #input_dict = {}
-    #
-    #input_dict['plink_input'] = list(plink_input)
-    #input_dict['numSNPs'] = plink_input.numSNPs
-    #
-
-    snp_file_base = os.path.join(webqtlConfig.SNP_PATH, group + ".snps.gz")
-
-    with gzip.open(snp_file_base, "wb") as fh:
-        pickle.dump(data, fh, pickle.HIGHEST_PROTOCOL)
-
 def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type):
     with open(results_path, "w+") as output_file:
         output_file.write("Population: " + dataset.group.species.title() + " " + dataset.group.name + "\n")
@@ -638,7 +587,6 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
             output_file.write(",Dominance")
         output_file.write("\n")
         for i, marker in enumerate(markers):
-            logger.debug("THE MARKER:", marker)
             output_file.write(marker['name'] + "," + str(marker['chr']) + "," + str(marker['Mb']) + ",")
             if "lod_score" in marker.keys():
                 output_file.write(str(marker['lod_score']))
@@ -652,8 +600,6 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
                 output_file.write("\n")
 
 def trim_markers_for_table(markers):
-    num_markers = len(markers)
-
     if 'lod_score' in markers[0].keys():
         sorted_markers = sorted(markers, key=lambda k: k['lod_score'], reverse=True)
     else:
@@ -665,7 +611,3 @@ def trim_markers_for_table(markers):
         return trimmed_sorted_markers
     else:
         return sorted_markers
-
-
-if __name__ == '__main__':
-    import cPickle as pickle

@@ -33,7 +33,7 @@ from pprint import pformat as pf
 from inspect import stack
 import datetime
 
-from utility.tools import LOG_LEVEL, LOG_LEVEL_DEBUG, LOG_SQL, LOG_FORMAT
+from utility.tools import LOG_LEVEL, LOG_LEVEL_DEBUG, LOG_SQL
 
 class GNLogger:
     """A logger class with some additional functionality, such as

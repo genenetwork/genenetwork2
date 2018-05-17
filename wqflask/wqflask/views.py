@@ -58,7 +58,6 @@ from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH,JS_GUIX_PATH, CSS_PATH
 from utility.helper_functions import get_species_groups
 
-from base import webqtlFormData
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.benchmark import Bench
 
@@ -76,7 +75,6 @@ import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 
-
 @app.before_request
 def connect_db():
     db = getattr(g, '_database', None)
@@ -92,11 +90,6 @@ def shutdown_session(exception=None):
         logger.debug("remove db_session")
         db_session.remove()
         g.db = None
-
-#@app.before_request
-#def trace_it():
-#    from wqflask import tracer
-#    tracer.turn_on()
 
 @app.errorhandler(Exception)
 def handle_bad_request(e):
@@ -173,62 +166,37 @@ def css(filename):
 def twitter(filename):
     return send_from_directory(JS_TWITTER_POST_FETCHER_PATH, filename)
 
-#@app.route("/data_sharing")
-#def data_sharing_page():
-#    logger.info("In data_sharing")
-#    fd = webqtlFormData.webqtlFormData(request.args)
-#    logger.info("1Have fd")
-#    sharingInfoObject = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
-#    info, htmlfilelist = sharingInfoObject.getBody(infoupdate="")
-#    logger.info("type(htmlfilelist):", type(htmlfilelist))
-#    htmlfilelist = htmlfilelist.encode("utf-8")
-#    #template_vars = SharingInfo.SharingInfo(request.args['GN_AccessionId'], None)
-#    logger.info("1 Made it to rendering")
-#    return render_template("data_sharing.html",
-#                            info=info,
-#                            htmlfilelist=htmlfilelist)
-
-
 @app.route("/search", methods=('GET',))
 def search_page():
     logger.info("in search_page")
     logger.info(request.url)
-    if 'info_database' in request.args:
-        logger.info("Going to sharing_info_page")
-        template_vars = sharing_info_page()
-        if template_vars.redirect_url:
-            logger.info("Going to redirect")
-            return flask.redirect(template_vars.redirect_url)
-        else:
-            return render_template("data_sharing.html", **template_vars.__dict__)
+    result = None
+    if USE_REDIS:
+        with Bench("Trying Redis cache"):
+            key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
+            logger.debug("key is:", pf(key))
+            result = Redis.get(key)
+            if result:
+                logger.info("Redis cache hit on search results!")
+                result = pickle.loads(result)
     else:
-        result = None
-        if USE_REDIS:
-            with Bench("Trying Redis cache"):
-                key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
-                logger.debug("key is:", pf(key))
-                result = Redis.get(key)
-                if result:
-                    logger.info("Redis cache hit on search results!")
-                    result = pickle.loads(result)
-        else:
-            logger.info("Skipping Redis cache (USE_REDIS=False)")
+        logger.info("Skipping Redis cache (USE_REDIS=False)")
 
-        logger.info("request.args is", request.args)
-        the_search = search_results.SearchResultPage(request.args)
-        result = the_search.__dict__
-        valid_search = result['search_term_exists']
+    logger.info("request.args is", request.args)
+    the_search = search_results.SearchResultPage(request.args)
+    result = the_search.__dict__
+    valid_search = result['search_term_exists']
 
-        logger.debugf("result", result)
+    logger.debugf("result", result)
 
-        if USE_REDIS and valid_search:
-            Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
-            Redis.expire(key, 60*60)
+    if USE_REDIS and valid_search:
+        Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
+        Redis.expire(key, 60*60)
 
-        if valid_search:
-            return render_template("search_result_page.html", **result)
-        else:
-            return render_template("search_error.html")
+    if valid_search:
+        return render_template("search_result_page.html", **result)
+    else:
+        return render_template("search_error.html")
 
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
@@ -751,7 +719,6 @@ def network_graph_page():
 def corr_compute_page():
     logger.info("In corr_compute, request.form is:", pf(request.form))
     logger.info(request.url)
-    #fd = webqtlFormData.webqtlFormData(request.form)
     template_vars = show_corr_results.CorrelationResults(request.form)
     return render_template("correlation_page.html", **template_vars.__dict__)
 
@@ -786,15 +753,6 @@ def submit_bnw():
     logger.info(request.url)
     template_vars = get_bnw_input(request.form)
     return render_template("empty_collection.html", **{'tool':'Correlation Matrix'})
-
-# Todo: Can we simplify this? -Sam
-def sharing_info_page():
-    """Info page displayed when the user clicks the "Info" button next to the dataset selection"""
-    logger.info("In sharing_info_page")
-    logger.info(request.url)
-    fd = webqtlFormData.webqtlFormData(request.args)
-    template_vars = SharingInfoPage.SharingInfoPage(fd)
-    return template_vars
 
 # Take this out or secure it before putting into production
 @app.route("/get_temp_data")

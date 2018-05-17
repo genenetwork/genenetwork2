@@ -21,9 +21,7 @@
 from __future__ import absolute_import, print_function, division
 
 import sys
-# sys.path.append(".")   Never do this in a webserver!
 
-import gc
 import string
 import cPickle
 import os
@@ -95,7 +93,6 @@ class NetworkGraph(object):
 
         self.lowest_overlap = 8 #ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
 
-        self.network_data = {}
         self.nodes_list = []
         self.edges_list = []
         for trait_db in self.trait_list:
@@ -107,9 +104,9 @@ class NetworkGraph(object):
 
             corr_result_row = []
             is_spearman = False #ZS: To determine if it's above or below the diagonal
-            
+
             max_corr = 0 #ZS: Used to determine whether node should be hidden when correlation coefficient slider is used
-            
+
             for target in self.trait_list:
                 target_trait = target[0]
                 target_db = target[1]
@@ -141,7 +138,7 @@ class NetworkGraph(object):
                             continue
                     else:
                         sample_r, sample_p = scipy.stats.spearmanr(this_trait_vals, target_vals)
- 
+
                     if -1 <= sample_r < -0.7:
                         color = "#0000ff"
                         width = 3
@@ -163,10 +160,10 @@ class NetworkGraph(object):
                     else:
                         color = "#000000"
                         width = 0                      
- 
+
                     if abs(sample_r) > max_corr:
                         max_corr = abs(sample_r)
- 
+
                     edge_data = {'id' : str(this_trait.name) + '_to_' + str(target_trait.name),
                                  'source' : str(this_trait.name) + ":" + str(this_trait.dataset.name),
                                  'target' : str(target_trait.name) + ":" + str(target_trait.dataset.name),
@@ -176,11 +173,11 @@ class NetworkGraph(object):
                                  'overlap' : num_overlap,
                                  'color' : color,
                                  'width' : width }
-                                 
+
                     edge_dict = { 'data' : edge_data }
-                                 
+
                     self.edges_list.append(edge_dict)
-      
+
             if trait_db[1].type == "ProbeSet":
                 node_dict = { 'data' : {'id' : str(this_trait.name) + ":" + str(this_trait.dataset.name), 
                                         'label' : this_trait.symbol,
@@ -197,19 +194,13 @@ class NetworkGraph(object):
                                         'label' : this_trait.name,
                                         'max_corr' : max_corr } }
             self.nodes_list.append(node_dict)
-      
-        #self.network_data['dataSchema'] = {'nodes' : [{'name' : "label" , 'type' : "string"}],
-        #                                   'edges' : [{'name' : "label" , 'type' : "string"}] }
-        
-        #self.network_data['data'] = {'nodes' : self.nodes_list,
-        #                             'edges' : self.edges_list }
 
         self.elements = json.dumps(self.nodes_list + self.edges_list)
-        
+
         groups = []
         for sample in self.all_sample_list:
             groups.append(1)
-            
+
         self.js_data = dict(traits = [trait.name for trait in self.traits],
                             groups = groups,
                             cols = range(len(self.traits)),
@@ -217,7 +208,6 @@ class NetworkGraph(object):
                             samples = self.all_sample_list,
                             sample_data = self.sample_data,
                             elements = self.elements,)
-        #                    corr_results = [result[1] for result in result_row for result_row in self.corr_results])
 
     def get_trait_db_obs(self, trait_db_list):
         self.trait_list = []
