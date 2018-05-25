@@ -1966,6 +1966,21 @@
                   "470",
                   "EPFLADEL1013",
                   "EPFL/LISP BXD CD Brown Adipose Affy Mouse Gene 2.0 ST Exon Level (Oct13) RMA"
+               ],
+               [
+                  "777",
+                  "EL_BXDCDHFDScWAT_0216",
+                  "EPFL/LISP BXD CD+HFD Subcutaneous WAT Affy MTA 1.0 Gene Level (Feb16) RMA"
+               ],
+               [
+                  "778",
+                  "EL_BXDHFDScWAT_0216",
+                  "EPFL/LISP BXD HFD Subcutaneous WAT Affy MTA 1.0 Gene Level (Feb16) RMA"
+               ],
+               [
+                  "779",
+                  "EL_BXDCDScWAT_0216",
+                  "EPFL/LISP BXD CD Subcutaneous WAT Affy MTA 1.0 Gene Level (Feb16) RMA **"
                ]
             ],
             "Adrenal Gland mRNA": [
@@ -3355,6 +3370,15 @@
                ]
             ]
          },
+         "D2GM": {
+            "Retina mRNA": [
+               [
+                  "847",
+                  "JAX_D2GM_RSeq_log2Z_0418",
+                  "JAX Retina (Apr18) RNA-Seq log2-Z"
+               ]
+            ]
+         },
          "EMSR": {},
          "HS": {
             "Hippocampus mRNA": [
@@ -3953,6 +3977,10 @@
          [
             "CXB",
             "CXB"
+         ],
+         [
+            "D2GM",
+            "D2 Glaucoma Model"
          ],
          [
             "EMSR",
@@ -5234,6 +5262,12 @@
             [
                "Spleen mRNA",
                "Spleen mRNA"
+            ]
+         ],
+         "D2GM": [
+            [
+               "Retina mRNA",
+               "Retina mRNA"
             ]
          ],
          "EMSR": [],

@@ -62,9 +62,17 @@ class AnonUser(object):
             self.anon_id, self.cookie = create_signed_cookie()
         self.key = "anon_collection:v1:{}".format(self.anon_id)
 
-        @after.after_this_request
+        #ZS: This was originally the commented out function below
+        #    For some reason I don't yet understand the commented out code works on production, 
+        #    but wouldn't set cookies for staging and my branch. The new code (using @app.after_request) seems to work.
+        @app.after_request
         def set_cookie(response):
             response.set_cookie(self.cookie_name, self.cookie)
+            return response
+
+        #@after.after_this_request
+        #def set_cookie(response):
+        #    response.set_cookie(self.cookie_name, self.cookie)
 
     def add_collection(self, new_collection):
         collection_dict = dict(name = new_collection.name,

@@ -59,7 +59,7 @@ def set_data(dataset_name):
     orig_file = "/home/zas1024/cfw_data/" + dataset_name + ".txt"
 
     sample_list = []
-    with open(orig_file, 'r') as orig_fh, open('quant_norm.csv', 'r') as quant_fh:
+    with open(orig_file, 'r') as orig_fh, open('/home/zas1024/cfw_data/quant_norm.csv', 'r') as quant_fh:
         for i, (line1, line2) in enumerate(izip(orig_fh, quant_fh)):
             trait_dict = {}
             sample_list = []
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     #out_filename = sys.argv[1][:-4] + '_quantnorm.txt'
 
-    #success, _ = bulk(es, set_data(sys.argv[1]))
+    success, _ = bulk(es, set_data(sys.argv[1]))
 
     response = es.search(
         index = "traits", doc_type = "trait", body = {

@@ -63,7 +63,7 @@ from pprint import pformat as pf
 
 #conn = Engine.connect()
 
-def parse_db_uri(db_uri):
+def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
     parsed_uri = urlparse.urlparse(SQL_URI)
