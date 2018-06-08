@@ -71,7 +71,7 @@
                         <div class="mapping_method_fields form-group">
                             <label style="text-align: right;" class="col-xs-3 control-label">Covariates</label>
                             <div style="margin-left:20px;" class="col-xs-7">
-                              {% if g.user_session.user_ob and (g.user_session.user_ob.display_num_collections() == "") %}
+                              {% if g.user_session.logged_in and (g.user_session.num_collections > 0) %}
                               No collections available. Please add traits to a collection to use them as covariates.
                               {% elif g.cookie_session.display_num_collections() == "" %}
                               No collections available. Please add traits to a collection to use them as covariates.
