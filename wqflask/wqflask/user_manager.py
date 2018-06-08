@@ -320,14 +320,14 @@ class UserSession(object):
             if user_info['collections'] != [] and user_info['collections'] != "[]":
                 current_collections = json.loads(user_info['collections'])
                 current_collections.append(collection_dict)
-                collections_json = json.dumps(current_collections)
+                self.update_collections(current_collections)
+                #collections_json = json.dumps(current_collections)
             else:
-                collections_json = json.dumps([collection_dict])
+                self.update_collections([collection_dict])
+                #collections_json = json.dumps([collection_dict])
         else:
-            collections_json = json.dumps([collection_dict])
-
-        collection_body = {'doc': {'collections': collections_json}}
-        es.update(index='users', doc_type='local', id=user_id, refresh='wait_for', body=collection_body)
+            self.update_collections([collection_dict])
+            #collections_json = json.dumps([collection_dict])
 
         return collection_dict['id']
 
@@ -341,12 +341,30 @@ class UserSession(object):
             else:
                 updated_collections.append(collection)
 
-        es = get_elasticsearch_connection()
-
-        collection_body = {'doc': {'collections': json.dumps(updated_collections)}}
-        es.update(index='users', doc_type='local', id=self.es_user_id, refresh='wait_for', body=collection_body)
+        self.update_collections(updated_collections)
 
         return collection['name']
+
+    def add_traits_to_collection(self, collection_id, traits_to_add):
+        """Add specified traits to a collection"""
+
+        this_collection = self.get_collection_by_id(collection_id)
+
+        updated_collection = this_collection
+        updated_traits = this_collection['members'] + traits_to_add
+
+        updated_collection['members'] = updated_traits
+        updated_collection['num_members'] = len(updated_traits)
+        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+
+        updated_collections = []
+        for collection in self.user_collections:
+            if collection['id'] == collection_id:
+                updated_collections.append(updated_collection)
+            else:
+                updated_collections.append(collection)
+
+        self.update_collections(updated_collections)
 
     def remove_traits_from_collection(self, collection_id, traits_to_remove):
         """Remove specified traits from a collection"""
@@ -372,10 +390,7 @@ class UserSession(object):
             else:
                 updated_collections.append(collection)
 
-        es = get_elasticsearch_connection()
-
-        collection_body = {'doc': {'collections': json.dumps(updated_collections)}}
-        es.update(index='users', doc_type='local', id=self.es_user_id, refresh='wait_for', body=collection_body)
+        self.update_collections(updated_collections)
 
         return updated_traits
 
@@ -390,6 +405,12 @@ class UserSession(object):
                 return collection
 
         return None
+
+    def update_collections(self, updated_collections):
+        es = get_elasticsearch_connection()
+
+        collection_body = {'doc': {'collections': json.dumps(updated_collections)}}
+        es.update(index='users', doc_type='local', id=self.es_user_id, refresh='wait_for', body=collection_body)
 
     def delete_session(self):
         # And more importantly delete the redis record

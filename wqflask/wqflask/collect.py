@@ -201,9 +201,12 @@ def collections_new():
         return create_new(collection_name)
     elif "add_to_existing" in params:
         logger.debug("in add to existing")
+        collection_id = params['existing_collection'].split(":")[0]
         collection_name = params['existing_collection'].split(":")[1]
         if g.user_session.logged_in:
-            return UserCollection().add_traits(params, collection_name)
+            traits = list(process_traits(params['traits']))
+            g.user_session.add_traits_to_collection(collection_id, traits)
+            return redirect(url_for('view_collection', uc_id=collection_id))
         else:
             ac = AnonCollection(collection_name)
             ac.add_traits(params)
