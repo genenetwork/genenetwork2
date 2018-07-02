@@ -144,13 +144,16 @@ def parse_gemma_output(genofile_name):
 
     with open("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, genofile_name)) as output_file:
         for line in output_file:
-            if line.startswith("chr"):
+            if line.startswith("chr\t"):
                 continue
             else:
                 marker = {}
                 marker['name'] = line.split("\t")[1]
                 if line.split("\t")[0] != "X" and line.split("\t")[0] != "X/Y":
-                    marker['chr'] = int(line.split("\t")[0])
+                    if "chr" in line.split("\t")[0]:
+                        marker['chr'] = int(line.split("\t")[0][3:])
+                    else:
+                        marker['chr'] = int(line.split("\t")[0])
                 else:
                     marker['chr'] = line.split("\t")[0]
                 marker['Mb'] = float(line.split("\t")[2]) / 1000000
@@ -186,13 +189,16 @@ def parse_loco_output(this_dataset, gwa_output_filename):
     for this_file in output_filelist:
         with open(this_file) as output_file:
             for line in output_file:
-                if line.startswith("chr"):
+                if line.startswith("chr\t"):
                     continue
                 else:
                     marker = {}
                     marker['name'] = line.split("\t")[1]
                     if line.split("\t")[0] != "X" and line.split("\t")[0] != "X/Y":
-                        marker['chr'] = int(line.split("\t")[0])
+                        if "chr" in line.split("\t")[0]:
+                            marker['chr'] = int(line.split("\t")[0][3:])
+                        else:
+                            marker['chr'] = int(line.split("\t")[0])
                         if marker['chr'] > previous_chr:
                             previous_chr = marker['chr']
                         elif marker['chr'] < previous_chr:

@@ -67,7 +67,10 @@ class AnonUser(object):
         #    but wouldn't set cookies for staging and my branch. The new code (using @app.after_request) seems to work.
         @app.after_request
         def set_cookie(response):
-            response.set_cookie(self.cookie_name, self.cookie)
+            if self.cookie:
+                pass
+            else:
+                response.set_cookie(self.cookie_name, self.cookie)
             return response
 
         #@after.after_this_request
