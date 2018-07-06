@@ -14,9 +14,11 @@
                 <li>
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
                 </li>
+<!--
                 <li>
                     <a href="#pylmm" data-toggle="tab">pyLMM</a>
                 </li>
+-->
                 {% endif %}
                 {% for mapping_method in dataset.group.mapping_names %}
                 {% if mapping_method == "GEMMA" %}
@@ -330,8 +332,10 @@
              <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.</dd>
              <dt>R/qtl</dt>
              <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
+<!--
              <dt>pyLMM</dt>
              <dd>pyLMM is a fast and lightweight linear mixed-model (LMM) solver for use in genome-wide association studies (GWAS).</dd>
+-->
              {% endif %}
         </dl>
     </div>

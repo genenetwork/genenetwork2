@@ -247,6 +247,9 @@
       }
       root.bar_data[0]['x'] = trait_samples
       Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout);
+      Plotly.relayout('bar_chart', {
+          'yaxis.autorange': true
+      });
     };
 
     redraw_box_plot = function() {
@@ -564,12 +567,26 @@
     log_normalize_data = function() {
       return $('.trait_value_input').each((function(_this) {
         return function(_index, element) {
-          current_value = $(element).data("value");
+          current_value = parseFloat($(element).data("value")) + 1;
           if(isNaN(current_value)) {
             return current_value
           } else {
             $(element).val(Math.log2(current_value).toFixed(3));
             return Math.log2(current_value).toFixed(3)
+          }
+        };
+      })(this));
+    };
+
+    sqrt_normalize_data = function() {
+      return $('.trait_value_input').each((function(_this) {
+        return function(_index, element) {
+          current_value = parseFloat($(element).data("value")) + 1;
+          if(isNaN(current_value)) {
+            return current_value
+          } else {
+            $(element).val(Math.sqrt(current_value).toFixed(3));
+            return Math.sqrt(current_value).toFixed(3)
           }
         };
       })(this));
@@ -594,6 +611,12 @@
         if ($('input[name="transform"]').val() != "log2") {
           log_normalize_data()
           $('input[name="transform"]').val("log2")
+        }
+      }
+      else if ($('#norm_method option:selected').val() == 'sqrt'){
+        if ($('input[name="transform"]').val() != "sqrt") {
+          sqrt_normalize_data()
+          $('input[name="transform"]').val("sqrt")
         }
       }
       else if ($('#norm_method option:selected').val() == 'qnorm'){

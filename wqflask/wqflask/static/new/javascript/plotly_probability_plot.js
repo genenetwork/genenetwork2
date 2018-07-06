@@ -25,7 +25,7 @@
 
   redraw_prob_plot = function(samples, sample_group) {
     var container, h, margin, totalh, totalw, w;
-    h = 600;
+    h = 370;
     w = 600;
     margin = {
       left: 60,
