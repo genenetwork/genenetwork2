@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Comparison Bar Chart{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
+{% endblock %}
+{% block content %} <!-- Start of body -->
+
+    {{ header("Comparison Bar Chart") }}
+
+    <div class="container">
+        <div>
+            <h3>
+                The following is a grouped bar chart with the sample values for each selected trait. 
+            </h3>
+        </div>
+        <div id="chart_container">
+            <div id="comp_bar_chart"></div>
+        </div>
+    
+    </div>
+
+    <!-- End of body -->
+
+{% endblock %}
+
+{% block js %}  
+    <script>
+        js_data = {{ js_data | safe }}
+    </script>
+
+    <script language="javascript" type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/comparison_bar_chart.js"></script>
+
+{% endblock %}

@@ -889,6 +889,7 @@
     max_y_val = Math.max(...positive_error_vals)
 
     if (min_y_val == 0) {
+        range_top = max_y_val + Math.abs(max_y_val)*0.1
         range_bottom = 0;
     } else {
         range_top = max_y_val + Math.abs(max_y_val)*0.1

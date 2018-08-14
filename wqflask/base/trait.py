@@ -18,7 +18,7 @@ import simplejson as json
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
-from flask import Flask, g, request
+from flask import Flask, g, request, url_for
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -176,13 +176,23 @@ def get_sample_data():
 
     trait_ob = GeneralTrait(name=trait, dataset_name=dataset)
 
-    return json.dumps([trait, {key: value.value for key, value in trait_ob.data.iteritems() }])
+    trait_dict = {}
+    trait_dict['name'] = trait
+    trait_dict['db'] = dataset
+    trait_dict['type'] = trait_ob.dataset.type
+    trait_dict['group'] = trait_ob.dataset.group.name
+    trait_dict['tissue'] = trait_ob.dataset.tissue
+    trait_dict['species'] = trait_ob.dataset.group.species
+    trait_dict['url'] = url_for('show_trait_page', trait_id = trait, dataset = dataset)
+    trait_dict['description'] = trait_ob.description_display
+    if trait_ob.dataset.type == "ProbeSet":
+        trait_dict['symbol'] = trait_ob.symbol
+        trait_dict['location'] = trait_ob.location_repr
+    elif trait_ob.dataset.type == "Publish":
+        trait_dict['pubmed_link'] = trait_ob.pubmed_link
+        trait_dict['pubmed_text'] = trait_ob.pubmed_text
 
-    #jsonable_sample_data = {}
-    #for sample in trait_ob.data.iteritems():
-    #    jsonable_sample_data[sample] = trait_ob.data[sample].value
-    #
-    #return jsonable_sample_data
+    return json.dumps([trait_dict, {key: value.value for key, value in trait_ob.data.iteritems() }])
     
 def jsonable(trait):
     """Return a dict suitable for using as json

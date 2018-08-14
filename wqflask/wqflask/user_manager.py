@@ -49,7 +49,7 @@ def timestamp():
 
 class AnonUser(object):
     """Anonymous user handling"""
-    cookie_name = 'anon_user_v8'
+    cookie_name = 'anon_user_v1'
 
     def __init__(self):
         self.cookie = request.cookies.get(self.cookie_name)
@@ -60,22 +60,9 @@ class AnonUser(object):
         else:
             logger.debug("CREATING NEW ANON COOKIE")
             self.anon_id, self.cookie = create_signed_cookie()
+            res = flask.make_response()
+            res.set_cookie(self.cookie_name, self.cookie)
         self.key = "anon_collection:v1:{}".format(self.anon_id)
-
-        #ZS: This was originally the commented out function below
-        #    For some reason I don't yet understand the commented out code works on production, 
-        #    but wouldn't set cookies for staging and my branch. The new code (using @app.after_request) seems to work.
-        @app.after_request
-        def set_cookie(response):
-            if self.cookie:
-                pass
-            else:
-                response.set_cookie(self.cookie_name, self.cookie)
-            return response
-
-        #@after.after_this_request
-        #def set_cookie(response):
-        #    response.set_cookie(self.cookie_name, self.cookie)
 
     def add_collection(self, new_collection):
         collection_dict = dict(name = new_collection.name,

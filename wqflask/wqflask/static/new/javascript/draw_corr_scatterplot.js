@@ -1,75 +1,80 @@
-// http://gn2-lei.genenetwork.org/corr_scatter_plot2?dataset_1=HC_M2_0606_P&dataset_2=HC_M2_0606_P&dataset_3=HC_M2_0606_P&trait_1=1427571_at&trait_2=1457022_at&trait_3=1427571_at
-
 var chart;
 var srchart;
 
+var layout = {
+    height: 700,
+    width: 800,
+    margin: {
+        l: 60,
+        r: 30,
+        t: 80,
+        b: 50
+    },
+    xaxis: {
+        title: js_data.trait_1,
+        zeroline: false,
+        visible: true,
+        linecolor: 'black',
+        linewidth: 1,
+    },
+    yaxis: {
+        title: js_data.trait_2,
+        zeroline: false,
+        visible: true,
+        linecolor: 'black',
+        linewidth: 1,
+    }
+}
+
+cofactor1_dict = {}
+ranked_cofactor1_dict = {}
+cofactor1_values = []
+ranked_cofactor1_values = []
+cofactor2_dict = {}
+ranked_cofactor2_dict = {}
+
 function drawg() {
-    //
-    chart = nv.models.scatterChart();
-    //
-    chart.showLegend(false);
-    chart.duration(300);
-    //chart.color(d3.scale.category10().range());
-    chart.pointRange([0, 400]);
-    chart.pointDomain([0, 10]);
-    //
-    chart.xAxis.axisLabel(js_data.trait_1);
-    chart.xAxis.axisLabelDistance(11);
-    chart.yAxis.axisLabel(js_data.trait_2);
-    chart.yAxis.axisLabelDistance(11);
-    //
-    xmin = d3.min(js_data.data[0]);
-    xmax = d3.max(js_data.data[0]);
-    xrange = xmax - xmin;
-    ymin = d3.min(js_data.data[1]);
-    ymax = d3.max(js_data.data[1]);
-    yrange = ymax - ymin;
-    chart.xDomain([xmin - xrange/10, xmax + xrange/10]);
-    chart.yDomain([ymin - yrange/10, ymax + yrange/10]);
-    chart.xAxis.tickFormat(d3.format(checkformat(xrange)));
-    chart.yAxis.tickFormat(d3.format(checkformat(yrange)));
-    //
-    chart.tooltip.contentGenerator(function (obj) {
-        return tiptext(obj);
-    });
+    x_values = []
+    y_values = []
+    sample_names = []
+    for (j = 0; j < js_data.data[0].length; j++) {
+      x_values.push(js_data.data[0][j])
+      y_values.push(js_data.data[1][j])
+      sample_names.push(js_data.indIDs[j])
+    }
+
+    var trace = {
+        x: x_values,
+        y: y_values,
+        mode: 'markers',
+        text: sample_names
+    }
+
+    Plotly.newPlot('scatterplot2', [trace], layout)
+
 }
 
 function srdrawg() {
-    //
-    srchart = nv.models.scatterChart();
-    //
-    srchart.showLegend(false);
-    srchart.duration(300);
-    srchart.color(d3.scale.category10().range());
-    srchart.pointRange([0, 400]);
-    srchart.pointDomain([0, 10]);
-    //
-    srchart.xAxis.axisLabel(js_data.trait_1);
-    srchart.xAxis.axisLabelDistance(11);
-    srchart.yAxis.axisLabel(js_data.trait_2);
-    srchart.yAxis.axisLabelDistance(11);
-    //
-    xmin = d3.min(js_data.rdata[0]);
-    xmax = d3.max(js_data.rdata[0]);
-    xrange = xmax - xmin;
-    ymin = d3.min(js_data.rdata[1]);
-    ymax = d3.max(js_data.rdata[1]);
-    yrange = ymax - ymin;
-    srchart.xDomain([0, xmax + xrange/10]);
-    srchart.yDomain([0, ymax + yrange/10]);
-    srchart.xAxis.tickFormat(d3.format(checkformat(xrange)));
-    srchart.yAxis.tickFormat(d3.format(checkformat(yrange)));
-    //
-    srchart.tooltip.contentGenerator(function (obj) {
-        return tiptext(obj);
-    });
+    x_values = []
+    y_values = []
+    sample_names = []
+    for (j = 0; j < js_data.rdata[0].length; j++) {
+      x_values.push(js_data.rdata[0][j])
+      y_values.push(js_data.rdata[1][j])
+      sample_names.push(js_data.indIDs[j])
+    }
+
+    var trace = {
+        x: x_values,
+        y: y_values,
+        mode: 'markers',
+        text: sample_names
+    }
+
+    Plotly.newPlot('srscatterplot2', [trace], layout)
 }
 
-function tiptext(obj) {
-    return '<b style="font-size: 18px">' + obj.point.name + " (" + obj.point.x + ', ' + obj.point.y + ')</b>';
-}
-
-function getdata(size, shape) {
+function getdata() {
     var data = [];
     data.push({
             values: [],
@@ -79,37 +84,91 @@ function getdata(size, shape) {
 
     sizemin = 1;
     sizemax = 50;
-    if ('vals_3' in js_data) {
-        datamin = d3.min(js_data.vals_3);
-        datamax = d3.max(js_data.vals_3);
-        colormin = $("#cocolorfrom").val();
-        colormax = $("#cocolorto").val();
-        compute = d3.interpolate(colormin, colormax);
-        linear = d3.scale.linear().domain([datamin, datamax]).range([0,1]);
+
+    if ($('input[name=cofactor1_vals]').val()){
+        just_vals = []
+        val_sample_dict = {}
+        val_sample_pairs = $('input[name=cofactor1_vals]').val().split(",")
+        for (i=0; i < val_sample_pairs.length; i++) {
+          just_vals.push(parseFloat(val_sample_pairs[i].split(":")[1]))
+          val_sample_dict[val_sample_pairs[i].split(":")[0]] = parseFloat(val_sample_pairs[i].split(":")[1])
+        }
+
+        cofactor1_dict = val_sample_dict
+        cofactor1_values = just_vals
     }
 
+    if ($('input[name=cofactor2_vals]').val()){
+        vals_3 = [];
+        samples_3 = [];
+        val_sample_dict = {}
+        val_sample_pairs = $('input[name=cofactor2_vals]').val().split(",")
+        for (i=0; i < val_sample_pairs.length; i++) {
+          samples_3.push(val_sample_pairs[i].split(":")[0])
+          vals_3.push(parseFloat(val_sample_pairs[i].split(":")[1]))
+          val_sample_dict[val_sample_pairs[i].split(":")[0]] = val_sample_pairs[i].split(":")[1]
+        }
+        datamin = d3.min(vals_3);
+        datamax = d3.max(vals_3);
+
+        cofactor2_dict = val_sample_dict
+    }
+
+    x_values = []
+    y_values = []
+    sample_names = []
+    sizes = []
+
     for (j = 0; j < js_data.data[0].length; j++) {
-        if ('trait3' in js_data) {
-          if (js_data.indIDs[j] in js_data.trait3) {
-            datav = js_data.trait3[js_data.indIDs[j]].value;
-            // size = (sizemax - sizemin) * (datav - datamin) / (datamax - datamin) + sizemin;
+        if ($('input[name=cofactor2_vals]').val()){
+          if (samples_3.indexOf(js_data.indIDs[j])) {
+            datav = vals_3[j]
             sizev = map1to2(datamin, datamax, sizemin, sizemax, datav);
           }
         } else {
             datav = 0;
-            sizev = sizemin;
+            sizev = 10;
         }
+
+        x_values.push(js_data.data[0][j])
+        y_values.push(js_data.data[1][j])
+        sample_names.push(js_data.indIDs[j])
+        sizes.push(sizev)
+
         data[0].values.push({
+            type: "normal",
             x: js_data.data[0][j],
             y: js_data.data[1][j],
             name: js_data.indIDs[j],
             size: sizev,
-            shape: shape,
             v3: datav
         });
     }
-    console.log(data);
-    return data;
+
+    point_text = []
+    for (j = 0; j < sample_names.length; j++) {
+      this_text = ""
+      this_text += sample_names[j]
+      if (sample_names[j] in cofactor1_dict){
+        this_text += "<br>Cofactor 1: " + cofactor1_dict[sample_names[j]]
+      }
+      if (sample_names[j] in cofactor2_dict){
+        this_text += "<br>Cofactor 2: " + cofactor2_dict[sample_names[j]]
+      }
+      point_text.push(this_text)
+    }
+
+    var trace = {
+        x: x_values,
+        y: y_values,
+        mode: 'markers',
+        text: point_text,
+        marker: {
+          size: sizes
+        }
+    }
+
+    return [trace];
 }
 
 function map1to2 (min1, max1, min2, max2, v1) {
@@ -117,167 +176,223 @@ function map1to2 (min1, max1, min2, max2, v1) {
     return v2;
 }
 
-function srgetdata(size, shape) {
+function srgetdata() {
     var data = [];
     data.push({
             values: [],
             slope: js_data.srslope,
             intercept: js_data.srintercept
         });
-    for (j = 0; j < js_data.rdata[0].length; j++) {
-        if (js_data.indIDs[j] in js_data.trait3) {
-            size = js_data.trait3[js_data.indIDs[j]].value;
-            //console.log("yes "+js_data.indIDs[j]+", "+size);
-        } else {
-            //console.log("no "+js_data.indIDs[j]);
+
+    sizemin = 1;
+    sizemax = 50;
+
+    x_values = []
+    y_values = []
+    sample_names = []
+    sizes = []
+
+    if ($('input[name=ranked_cofactor1_vals]').val()){
+        just_vals = []
+        val_sample_dict = {}
+        val_sample_pairs = $('input[name=ranked_cofactor1_vals]').val().split(",")
+        for (i=0; i < val_sample_pairs.length; i++) {
+          just_vals.push(parseFloat(val_sample_pairs[i].split(":")[1]))
+          val_sample_dict[val_sample_pairs[i].split(":")[0]] = parseFloat(val_sample_pairs[i].split(":")[1])
         }
+
+        ranked_cofactor1_dict = val_sample_dict
+        ranked_cofactor1_values = just_vals
+    }
+
+    if ($('input[name=ranked_cofactor2_vals]').val()){
+        vals_3 = []
+        samples_3 = [];
+        val_sample_dict = {}
+        val_sample_pairs = $('input[name=ranked_cofactor2_vals]').val().split(",")
+        for (i=0; i<val_sample_pairs.length; i++){
+          samples_3.push(val_sample_pairs[i].split(":")[0])
+          vals_3.push(val_sample_pairs[i].split(":")[1])
+          val_sample_dict[val_sample_pairs[i].split(":")[0]] = val_sample_pairs[i].split(":")[1]
+        }
+        datamin = d3.min(vals_3);
+        datamax = d3.max(vals_3);
+
+        ranked_cofactor2_dict = val_sample_dict
+    }
+
+    for (j = 0; j < js_data.rdata[0].length; j++) {
+        if ($('input[name=ranked_cofactor2_vals]').val()){
+          if (samples_3.indexOf(js_data.indIDs[j])) {
+            datav = vals_3[j]
+            sizev = map1to2(datamin, datamax, sizemin, sizemax, datav);
+          }
+        } else {
+            sizev = 10;
+        }
+
+        x_values.push(js_data.rdata[0][j])
+        y_values.push(js_data.rdata[1][j])
+        sample_names.push(js_data.indIDs[j])
+        sizes.push(sizev)
+
         data[0].values.push({
+            type: "ranked",
             x: js_data.rdata[0][j],
             y: js_data.rdata[1][j],
             name: js_data.indIDs[j],
-            size: size,
-            shape: shape
+            size: sizev,
         });
     }
-    return data;
-}
-    
-function checkformat(range) {
-    cell = range / 10.0;
-    if (cell >= 1) {
-        return ",r";
-    } else {
-        cell = -Math.log(cell);
-        n = cell.toString().split(".")[0].length;
-        return ",.0" + n + "f";
-    }
-}
 
-function chartupdate() {
-    //
-    var labelcolor = $("#labelcolor").val();
-    $(".nvd3 .nv-axis.nv-x text").css("fill", labelcolor);
-    $(".nvd3 .nv-axis.nv-y text").css("fill", labelcolor);
-    //
-    var labelfont = $("#labelfont").val();
-    $(".nvd3 .nv-axis.nv-x text").css("font-size", labelfont);
-    $(".nvd3 .nv-axis.nv-y text").css("font-size", labelfont);
-    //
-    var numbercolor = $("#numbercolor").val();
-    $("g.tick text").css("fill", numbercolor);
-    //
-    var numberfont = $("#numberfont").val();
-    $("g.tick text").css("font-size", numberfont);
-    //
-    var axiscolor = $("#axiscolor").val();
-    $(".nv-x .nv-axis g path.domain").css("stroke", axiscolor);
-    $(".nv-y .nv-axis g path.domain").css("stroke", axiscolor);
-    //
-    var axiswidth = $("#axiswidth").val();
-    $(".nv-x .nv-axis g path.domain").css("stroke-width", axiswidth);
-    $(".nv-y .nv-axis g path.domain").css("stroke-width", axiswidth);
-    //
-    var linecolor = $("#linecolor").val();
-    $("line.nv-regLine").css("stroke", linecolor);
-    //
-    var linewidth = $("#linewidth").val();
-    $("line.nv-regLine").css("stroke-width", linewidth);
-    //
-    var markcolor = $("#markcolor").val();
-    $(".nvd3 g path").css("fill", markcolor);
+    point_text = []
+    for (j = 0; j < sample_names.length; j++) {
+      this_text = ""
+      this_text += sample_names[j]
+      if (sample_names[j] in ranked_cofactor1_dict){
+        this_text += "<br>Cofactor 1: " + ranked_cofactor1_dict[sample_names[j]]
+      }
+      if (sample_names[j] in ranked_cofactor2_dict){
+        this_text += "<br>Cofactor 2: " + ranked_cofactor2_dict[sample_names[j]]
+      }
+      point_text.push(this_text)
+    }
+
+    var trace = {
+        x: x_values,
+        y: y_values,
+        mode: 'markers',
+        text: point_text,
+        marker: {
+          size: sizes
+        }
+    }
+
+    return [trace];
 }
 
 function chartupdatewh() {
-    //
     var width = $("#width").val();
-    $("#scatterplot2 svg").css("width", width);
-    $("#srscatterplot2 svg").css("width", width);
-    //
     var height = $("#height").val();
-    $("#scatterplot2 svg").css("height", height);
-    $("#srscatterplot2 svg").css("height", height);
-    //
-    window.dispatchEvent(new Event('resize'));
+
+    width_height_update = {
+      height: height,
+      width: width
+    }
+
+    Plotly.newPlot('scatterplot2', getdata(), layout)
+    Plotly.relayout('scatterplot2', width_height_update)
+    Plotly.newPlot('srscatterplot2', srgetdata(), layout)
+    Plotly.relayout('srscatterplot2', width_height_update)
 }
 
- function colorer(d) {
-    datamin = d3.min(js_data.vals_3);
-    datamax = d3.max(js_data.vals_3);
-    //colormin = d3.rgb(255,0,0);
-    //colormax = d3.rgb(0,255,0);
+function colorer(d) {
+    datamin = d3.min(cofactor1_values);
+    datamax = d3.max(cofactor1_values);
     colormin = $("#cocolorfrom").val();
     colormax = $("#cocolorto").val();
 
-    console.log("colormin: "+colormin);
-    console.log("colormax: "+colormax);
+    compute = d3.interpolate(colormin, colormax);
+    linear = d3.scale.linear().domain([datamin, datamax]).range([0,1]);
+
+    this_sample = d.tx.split("<br>")[0]
+
+    c = compute(linear(cofactor1_dict[this_sample]));
+
+    return c;
+}
+
+function ranked_colorer(d) {
+    datamin = d3.min(ranked_cofactor1_values);
+    datamax = d3.max(ranked_cofactor1_values);
+    colormin = $("#cocolorfrom").val();
+    colormax = $("#cocolorto").val();
 
     compute = d3.interpolate(colormin, colormax);
     linear = d3.scale.linear().domain([datamin, datamax]).range([0,1]);
-    //console.log(d[0].x);
-          c= compute(linear(d[0].x));
-          //console.log(c);
-          return c;
-  }
+
+    this_sample = d.tx.split("<br>")[0]
+
+    c= compute(linear(ranked_cofactor1_dict[this_sample]));
+
+    return c;
+}
 
 function chartupdatedata() {
-    //
     var size = $("#marksize").val();
     var shape = $("#markshape").val();
-    //
-    d3.select('#scatterplot2 svg').datum(getdata(size, shape)).call(chart);
-    d3.select('#srscatterplot2 svg').datum(nv.log(srgetdata(size, shape))).call(srchart);
-    //
-    d3.selectAll('.nv-point')
-      .attr({
-          'stroke': colorer,
-          'fill':   colorer
+
+    var pearson_title_update = {
+      title: "Pearson Correlation Scatterplot"
+    }
+    var spearman_title_update = {
+      title: "Spearman Rank Correlation Scatterplot"
+    }
+
+    Plotly.newPlot('scatterplot2', getdata(), layout)
+    Plotly.relayout('scatterplot2', pearson_title_update)
+    Plotly.newPlot('srscatterplot2', srgetdata(), layout)
+    Plotly.relayout('srscatterplot2', spearman_title_update)
+
+    if ($('input[name=cofactor1_vals]').val()){
+      d3.select('#scatterplot2 svg').selectAll('.point')
+        .style({
+            'stroke': colorer,
+            'fill':   colorer
       });
-    //
-    nv.utils.windowResize(chart.update);
-    nv.utils.windowResize(srchart.update);
-}
-
-function savesvg(svgEl, name) {
-    svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    var svgData = svgEl.outerHTML;
-    var preface = '<?xml version="1.0" standalone="no"?>\r\n';
-    preface += '<?xml-stylesheet type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.5/nv.d3.min.css"?>\r\n';
-    var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
-    var svgUrl = URL.createObjectURL(svgBlob);
-    var downloadLink = document.createElement("a");
-    downloadLink.href = svgUrl;
-    downloadLink.download = name;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-}
-
-function saveassvg_pcs() {
-    savesvg($("#svg_pcs")[0], "Pearson Correlation Scatterplot.svg");
-}
-
-function saveassvg_srcs() {
-    savesvg($("#svg_srcs")[0], "Spearman Rank Correlation Scatterplot.svg");
+      d3.select('#srscatterplot2 svg').selectAll('.point')
+        .style({
+            'stroke': ranked_colorer,
+            'fill':   ranked_colorer
+      });
+    }
 }
 
 drawg();
 srdrawg();
 
-$(".chartupdate").change(function () {
-    chartupdate();
-});
-
 $(".chartupdatewh").change(function () {
     chartupdatewh();
-    chartupdate();
 });
 
 $(".chartupdatedata").change(function () {
     chartupdatedata();
-    chartupdate();
 });
+
+$(".cofactor1_type").change(function () {
+    console.log("cofactor1 type:", $(".cofactor1_type").val())
+    if ($(".cofactor1_type").val() == "color"){
+      $(".cofactor2_type").val("size")
+    } else {
+      $(".cofactor2_type").val("color")
+    }
+});
+
+open_covariate_selection = function() {
+  return $('#collections_holder').load('/collections/list #collections_list', (function(_this) {
+    return function() {
+      $.colorbox({
+        inline: true,
+        href: "#collections_holder",
+        onComplete: function(){
+            $.getScript("/static/new/javascript/get_traits_from_collection.js");
+        }
+      });
+      return $('a.collection_name').attr('onClick', 'return false');
+    };
+  })(this));
+};
 
 $(document).ready(function(){
     chartupdatedata();
-    chartupdate();
+
+    $('#select_cofactor1').click(function () {
+        $('input[name=selecting_which_cofactor]').val("1");
+        open_covariate_selection();
+    });
+
+    $('#select_cofactor2').click(function () {
+        $('input[name=selecting_which_cofactor]').val("2");
+        open_covariate_selection();
+    });
 });

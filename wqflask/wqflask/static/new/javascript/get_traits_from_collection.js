@@ -4,7 +4,7 @@ var add_trait_data, assemble_into_json, back_to_collections, collection_click, c
 
 console.log("before get_traits_from_collection");
 
-collection_list = null;
+//collection_list = null;
 
 this_trait_data = null;
 
@@ -15,7 +15,6 @@ collection_click = function() {
   console.log("Clicking on:", $(this));
   this_collection_url = $(this).find('.collection_name').prop("href");
   this_collection_url += "&json";
-  console.log("this_collection_url", this_collection_url);
   collection_list = $("#collections_holder").html();
   return $.ajax({
     dataType: "json",
@@ -42,7 +41,6 @@ submit_click = function() {
       success: add_trait_data
     });
   });
-  console.log("SELECTED_TRAITS IS:", selected_traits);
   trait_names = [];
   samples = $('input[name=allsamples]').val().split(" ");
   all_vals = [];
@@ -117,7 +115,6 @@ trait_click = function() {
   trait = $(this).parent().find('.trait').text();
   dataset = $(this).parent().find('.dataset').text();
   this_trait_url = "/trait/get_sample_data?trait=" + trait + "&dataset=" + dataset;
-  console.log("this_trait_url", this_trait_url);
   $.ajax({
     dataType: "json",
     url: this_trait_url,
@@ -134,28 +131,84 @@ add_trait_data = function(trait_data, textStatus, jqXHR) {
   return console.log("selected_traits:", selected_traits);
 };
 
+populate_cofactor_info = function(trait_info) {
+  if ($('input[name=selecting_which_cofactor]').val() == "1"){
+    $('#cofactor1_trait_link').attr("href", trait_info['url'])
+    if (trait_info['type'] == "ProbeSet"){
+      $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor1_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
+    } else {
+      $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor1_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
+    }
+    $('#select_cofactor1').text("Change Cofactor 1");
+    $('#cofactor1_info_container').css("display", "inline");
+    $('#cofactor2_button').css("display", "inline");
+  } else {
+    $('#cofactor2_trait_link').attr("href", trait_info['url'])
+    if (trait_info['type'] == "ProbeSet"){
+      $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor2_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
+    } else {
+      $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor2_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
+    }
+    $('#select_cofactor2').text("Change Cofactor 2");
+    $('#cofactor2_info_container').css("display", "inline");
+  }
+}
+
 get_trait_data = function(trait_data, textStatus, jqXHR) {
   var sample, samples, this_trait_vals, trait_sample_data, vals, _i, _len;
-  console.log("trait:", trait_data[0]);
   trait_sample_data = trait_data[1];
-  console.log("trait_sample_data:", trait_sample_data);
-  samples = $('input[name=allsamples]').val().split(" ");
+  if ( $('input[name=allsamples]').length ) {
+    samples = $('input[name=allsamples]').val().split(" ");
+  } else {
+    samples = js_data.indIDs
+  }
+  sample_vals = [];
   vals = [];
   for (_i = 0, _len = samples.length; _i < _len; _i++) {
     sample = samples[_i];
-    if (__indexOf.call(Object.keys(trait_sample_data), sample) >= 0) {
-      vals.push(parseFloat(trait_sample_data[sample]));
+    if (sample in trait_sample_data) {
+      sample_vals.push(sample + ":" + parseFloat(trait_sample_data[sample]))
+      vals.push(parseFloat(trait_sample_data[sample]))
     } else {
-      vals.push(null);
+      sample_vals.push(null)
+      vals.push(null)
     }
   }
-  if ($('input[name=samples]').length < 1) {
-    $('#hidden_inputs').append('<input type="hidden" name="samples" value="[' + samples.toString() + ']" />');
+  if ( $('input[name=allsamples]').length ) {
+    if ($('input[name=samples]').length < 1) {
+      $('#hidden_inputs').append('<input type="hidden" name="samples" value="[' + samples.toString() + ']" />');
+    }
+    $('#hidden_inputs').append('<input type="hidden" name="vals" value="[' + vals.toString() + ']" />');
+    this_trait_vals = get_this_trait_vals(samples);
+    return color_by_trait(trait_sample_data);
+  } else{
+    populate_cofactor_info(trait_data[0])
+    sorted = vals.slice().sort(function(a,b){return a-b})
+    ranks = vals.slice().map(function(v){ return sorted.indexOf(v)+1 });
+    sample_ranks = []
+    for (_i = 0; _i < samples.length; _i++){
+      if (samples[_i] in trait_sample_data){
+        sample_ranks.push(samples[_i] + ":" + ranks[_i])
+      } else {
+        sample_ranks.push(null)
+      }
+    }
+
+    if ($('input[name=selecting_which_cofactor]').val() == "1"){
+      $('input[name=cofactor1_vals]').val(sample_vals)
+      $('input[name=ranked_cofactor1_vals]').val(sample_ranks)
+    } else {
+      $('input[name=cofactor2_vals]').val(sample_vals)
+      $('input[name=ranked_cofactor2_vals]').val(sample_ranks)
+    }
+    chartupdatedata();
+    chartupdate();
+    return false
   }
-  $('#hidden_inputs').append('<input type="hidden" name="vals" value="[' + vals.toString() + ']" />');
-  this_trait_vals = get_this_trait_vals(samples);
-  console.log("THE LENGTH IS:", $('input[name=vals]').length);
-  return color_by_trait(trait_sample_data);
 };
 
 get_this_trait_vals = function(samples) {
@@ -215,14 +268,17 @@ process_traits = function(trait_data, textStatus, jqXHR) {
   }
   the_html += "</tbody>";
   the_html += "</table>";
+  the_html += "<div id=\"collection_list_html\" style=\"display: none;\">"
+  the_html += collection_list
+  the_html += "</div>"
   the_html += "<script type='text/javascript' src='/static/new/javascript/get_traits_from_collection.js'></script>"
   $("#collections_holder").html(the_html);
   return $('#collections_holder').colorbox.resize();
 };
 
 back_to_collections = function() {
-  console.log("collection_list:", collection_list);
-  $("#collections_holder").html(collection_list);
+  collection_list_html = $('#collection_list_html').html()
+  $("#collections_holder").html(collection_list_html);
   $(document).on("click", ".collection_line", collection_click);
   return $('#collections_holder').colorbox.resize();
 };
