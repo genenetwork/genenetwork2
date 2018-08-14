@@ -2,207 +2,277 @@
 
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
-	<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.5/nv.d3.min.css">
-	<link rel="stylesheet" type="text/css" href="/static/new/css/corr_scatter_plot2.css" />
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.5/nv.d3.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/corr_scatter_plot.css" />
 {% endblock %}
 
 {% block content %}
 
 <div class="container-fluid">
 
-<h2>Correlation Scatterplot</h2>
+  <input type="hidden" name="cofactor1_vals"></input>
+  <input type="hidden" name="ranked_cofactor1_vals"></input>
+  <input type="hidden" name="cofactor2_vals"></input>
+  <input type="hidden" name="ranked_cofactor2_vals"></input>
+  <input type="hidden" name="selecting_which_cofactor"></input>
 
-<div style="margin-left: 0px;">
+  <h2>Correlation Scatterplot</h2>
 
-    {% if trait_1.dataset.type == "ProbeSet" %}
-		<div>
-			X axis:
-			<a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
-				{{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.tissue + " "  + trait_1.dataset.name + ": " + trait_1.name|string}}
-			</a>
-		</div>
-		<div>
-			[{{trait_1.symbol}} on {{trait_1.location_repr}} Mb]
-			{{trait_1.description_display}}
-		</div>
-    {% elif trait_1.dataset.type == "Publish" %}
-		<div>
-			X axis:
-            <a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
-                {{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.name + ": " + trait_1.name|string}}
-            </a>
-		</div>
-		<div>
-			<a href="{{trait_1.pubmed_link}}">PubMed: {{trait_1.pubmed_text}}</a>
-			{{trait_1.description_display}}	
-		</div>
-    {% endif %}
-
-	<br/>
-
-    {% if trait_2.dataset.type == "ProbeSet" %}
-		<div>
-			Y axis:
-            <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
-                {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.tissue + " "  + trait_2.dataset.name + ": " + trait_2.name|string}}
-            </a>
-        </div>
-        <div>
-			[{{trait_2.symbol}} on {{trait_2.location_repr}} Mb]
-			{{trait_2.description_display}}
-		</div>
-    {% elif trait_2.dataset.type == "Publish" %}
-        <div>
-			Y axis:
-            <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
-                {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.name + ": " + trait_2.name|string}}
-            </a>
-        </div>
-        <div>
-			<a href="{{trait_2.pubmed_link}}">PubMed: {{trait_2.pubmed_text}}</a>
-			{{trait_2.description_display}}
-		</div>
-    {% endif %}
-	
-</div>
-
-<br>
-
-<table class="table">
-	<tr>
-        <td style="vertical-align: middle;">Width <input class="chartupdatewh" id="width" type="text" value="1000" style="width: 44px; height: 22px;"> px</td>
-        <td style="vertical-align: middle;">Height <input class="chartupdatewh" id="height" type="text" value="800" style="width: 44px; height: 22px;"> px</td>
-    </tr>
-</table>
-
-<table class="table">
+  <table class="table">
     <tr>
-		<td style="vertical-align: middle;">Mark
-            <input class="chartupdate" id="markcolor" type="color" value="#8fbbda">
-            <select class="chartupdatedata" id="marksize" style="width: 44px; height: 22px;">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5" selected>5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="25">25</option>
-                <option value="30">30</option>
-            </select>
-            <select class="chartupdatedata" id="markshape" style="width: 100px; height: 22px;">
-                <option value="circle" selected>Circle</option>
-                <option value="cross">Cross</option>
-                <option value="triangle-up">Triangle-up</option>
-                <option value="triangle-down">Triangle-down</option>
-                <option value="diamond">Diamond</option>
-                <option value="square">Square</option>
-            </select>
-        </td>
+      <td style="vertical-align: middle;">Width <input class="chartupdatewh" id="width" type="text" value="800" style="width: 44px; height: 22px;"> px</td>
+      <td style="vertical-align: middle;">Height <input class="chartupdatewh" id="height" type="text" value="700" style="width: 44px; height: 22px;"> px</td>
     </tr>
-</table>
+  </table>
 
-<table class="table">    
-    <tr>
-        <td style="vertical-align: middle;">Label
-            <input class="chartupdate" id="labelcolor" type="color" value="#000000">
-            <input class="chartupdate" id="labelfont" type="text" value="16" style="width: 44px; height: 22px;"> px
-        </td>
-        <td style="vertical-align: middle;">Number
-            <input class="chartupdate" id="numbercolor" type="color" value="#000000">
-            <input class="chartupdate" id="numberfont" type="text" value="16" style="width: 44px; height: 22px;"> px
-        </td>
-        <td style="vertical-align: middle;">Axis
-            <input class="chartupdate" id="axiscolor" type="color" value="#000000">
-            <input class="chartupdate" id="axiswidth" type="text" value="2" style="width: 44px; height: 22px;"> px
-        </td>
-        <td style="vertical-align: middle;">Line
-            <input class="chartupdate" id="linecolor" type="color" value="#8fbbda">
-            <input class="chartupdate" id="linewidth" type="text" value="1" style="width: 44px; height: 22px;"> px
-        </td>
-    </tr>
-</table>
+  <div>
+    <button type="button" class="btn btn-default" id="select_cofactor1">
+      Select Cofactor 1
+    </button>
+<!--
+    <select class="cofactor1_type">
+      <option value="color">Color</option>
+      <option value="size">Size</option>
+    </select>
+-->
+    <div id="cofactor2_button" style="margin-left: 10px; display: none;">
+      <button type="button" class="btn btn-default" id="select_cofactor2">
+        Add a Second Cofactor?
+      </button>
+<!--
+      <select class="cofactor2_type">
+        <option value="color">Color</option>
+        <option value="size" selected="selected">Size</option>
+      </select>
+-->
+    </div>
+  </div>
+  <div id="collections_holder_wrapper" style="display:none;">
+      <div id="collections_holder"></div>
+  </div>
+  <br/>
 
-<br>
+  <div id="cofactor1_info_container" style="margin-left: 0px; display: none;">
+    <div>
+      <b>Cofactor 1</b>: <a id="cofactor1_trait_link" href="#"></a>
+    </div>
+    <div id="cofactor1_description"></div>
+    <br>
+    <div style="margin-bottom: 10px;">
+    <b>Cofactor 1 Color Range:</b> 
+    <input class="chartupdatedata" id="cocolorfrom" type="color" value="#D9D9D9">
+    <input class="chartupdatedata" id="cocolorto" type="color" value="#000000">
+    </div>
+  </div>
 
-<ul class="nav nav-tabs">
-    <li class="active"><a href="#tp1" data-toggle="tab">Pearson</a></li>
-    <li>               <a href="#tp2" data-toggle="tab">Spearman Rank</a></li>
-</ul>
+  <div id="cofactor2_info_container" style="margin-left: 0px; display: none;">
+    <hr>
+    <div>
+      <b>Cofactor 2</b>: <a id="cofactor2_trait_link" href="#"></a>
+    </div>
+    <div id="cofactor2_description"></div>
+    <br>
+    <div style="margin-bottom: 20px;">
+    <b>Cofactor 2 corresponds to point radius</b> 
+    </div>
+    <br>
+  </div>
 
-<div class="tab-content">
+  <ul class="nav nav-tabs">
+    <li class="active">
+      <a href="#tp1" data-toggle="tab">Pearson</a>
+    </li>
+    <li>
+      <a href="#tp2" data-toggle="tab">Spearman Rank</a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+
     <div class="tab-pane active" id="tp1">
-
-<br>
-
-<div><a id="a_svg_pcs" href="#" onclick="javascript:saveassvg_pcs();" class="btn btn-primary">Save as SVG</a></div>
-
-<div style="width: 1000px; text-align: center;"><h2>Pearson Correlation Scatterplot</h2></div>
-
-<div id="scatterplot2"><svg id="svg_pcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg></div>
-
-<br>
-
-<table class="table table-hover table-striped table-bordered" style="width: 200px; margin-left: 80px; text-align: right;">
-    <thead>
-        <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
-    </thead>
-	<tbody>
-		<tr><td>Number</td>		<td>{{jsdata.num_overlap}}</td></tr>
-		<tr><td>Slope</td>		<td>{{'%0.3f' % jsdata.slope}}</td></tr>
-		<tr><td>Intercept</td>	<td>{{'%0.3f' % jsdata.intercept}}</td></tr>
-		<tr><td>r value</td>	<td>{{'%0.3f' % jsdata.r_value}}</td></tr>
-   		<tr><td>P value</td>	<td>{% if jsdata.p_value < 0.001 %}{{'%0.3e' % jsdata.p_value}}{% else %}{{'%0.3f' % jsdata.p_value}}{% endif %}</td></tr>
-        <tr>
+      <br>
+      <div id="scatterplot2"></div>
+      <br>
+      <div class="row" style="width: 70%;">
+      <div class="col-xs-3">
+      <table class="table table-hover table-striped table-bordered" style="width: 80%; margin-left: 60px; text-align: right;">
+        <thead>
+          <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Number</td>
+            <td>{{jsdata.num_overlap}}</td>
+          </tr>
+          <tr>
+            <td>Slope</td>
+            <td>{{'%0.3f' % jsdata.slope}}</td>
+          </tr>
+          <tr>
+            <td>Intercept</td>
+            <td>{{'%0.3f' % jsdata.intercept}}</td>
+          </tr>
+          <tr>
+            <td>r value</td>
+            <td>{{'%0.3f' % jsdata.r_value}}</td>
+          </tr>
+          <tr>
+            <td>P value</td>
+            <td>{% if jsdata.p_value < 0.001 %}{{'%0.3e' % jsdata.p_value}}{% else %}{{'%0.3f' % jsdata.p_value}}{% endif %}</td>
+          </tr>
+          <tr>
             <td style="text-align: left;" colspan="2">
-                Regression Line
-                <br>
-                y = {{'%0.3f' % jsdata.slope}} * x + {{'%0.3f' % jsdata.intercept}}
+              Regression Line
+              <br>
+              y = {{'%0.3f' % jsdata.slope}} * x + {{'%0.3f' % jsdata.intercept}}
             </td>
-        </tr>
-	</tbody>
-</table>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="col-xs-9">
+        {% if trait_1.dataset.type == "ProbeSet" %}
+        <div>
+          X axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
+            {{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.tissue + " "  + trait_1.dataset.name + ": " + trait_1.name|string}}
+          </a>
+        </div>
+        <div>
+          [{{trait_1.symbol}} on {{trait_1.location_repr}} Mb]
+          {{trait_1.description_display}}
+        </div>
+        {% elif trait_1.dataset.type == "Publish" %}
+        <div>
+          X axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
+            {{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.name + ": " + trait_1.name|string}}
+          </a>
+        </div>
+        <div>
+          <a href="{{trait_1.pubmed_link}}">PubMed: {{trait_1.pubmed_text}}</a>
+            {{trait_1.description_display}}
+        </div>
+        {% endif %}
 
+        <br/>
+
+        {% if trait_2.dataset.type == "ProbeSet" %}
+        <div>
+          Y axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
+            {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.tissue + " "  + trait_2.dataset.name + ": " + trait_2.name|string}}
+          </a>
+        </div>
+        <div>
+          [{{trait_2.symbol}} on {{trait_2.location_repr}} Mb]
+          {{trait_2.description_display}}
+        </div>
+        {% elif trait_2.dataset.type == "Publish" %}
+        <div>
+          Y axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
+            {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.name + ": " + trait_2.name|string}}
+          </a>
+        </div>
+        <div>
+          <a href="{{trait_2.pubmed_link}}">PubMed: {{trait_2.pubmed_text}}</a>
+            {{trait_2.description_display}}
+        </div>
+        {% endif %}
+      </div>
+      </div>
     </div>
-    
+
     <div class="tab-pane" id="tp2">
-    
-<br>
+      <br>
+      <div id="srscatterplot2"></div>
+      <br>
+      <div class="row" style="width: 70%;">
+      <div class="col-xs-3">
+        <table class="table table-hover table-striped table-bordered" style="width: 80%; margin-left: 60px; text-align: right;">
+          <thead>
+            <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Number</td>
+              <td>{{jsdata.num_overlap}}</td>
+            </tr>
+            <tr>
+              <td>Slope</td>
+              <td>{{'%0.3f' % jsdata.srslope}}</td>
+            </tr>
+            <tr>
+              <td>Intercept</td>
+              <td>{{'%0.3f' % jsdata.srintercept}}</td>
+            </tr>
+            <tr>
+              <td>r value</td>
+              <td>{{'%0.3f' % jsdata.srr_value}}</td>
+            </tr>
+	    <tr>
+              <td>P value</td>
+              <td>{% if jsdata.srp_value < 0.001 %}{{'%0.3e' % jsdata.srp_value}}{% else %}{{'%0.3f' % jsdata.srp_value}}{% endif %}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-xs-9">
+        {% if trait_1.dataset.type == "ProbeSet" %}
+        <div>
+          X axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
+            {{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.tissue + " "  + trait_1.dataset.name + ": " + trait_1.name|string}}
+          </a>
+        </div>
+        <div>
+          [{{trait_1.symbol}} on {{trait_1.location_repr}} Mb]
+          {{trait_1.description_display}}
+        </div>
+        {% elif trait_1.dataset.type == "Publish" %}
+        <div>
+          X axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
+            {{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.name + ": " + trait_1.name|string}}
+          </a>
+        </div>
+        <div>
+          <a href="{{trait_1.pubmed_link}}">PubMed: {{trait_1.pubmed_text}}</a>
+            {{trait_1.description_display}}
+        </div>
+        {% endif %}
 
-<div><a id="a_svg_srcs" href="#" onclick="javascript:saveassvg_srcs();" class="btn btn-primary">Save as SVG</a></div>
+        <br/>
 
-<div style="width: 1000px; text-align: center;"><h2>Spearman Rank Correlation Scatterplot</h2></div>
-
-<div id="srscatterplot2"><svg id="svg_srcs" style="width: 1000px; height: 800px; margin-left: 10px;"></svg></div>
-
-<br>
-
-<table class="table table-hover table-striped table-bordered" style="width: 200px; margin-left: 80px; text-align: right;">
-    <thead>
-        <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
-    </thead>
-	<tbody>
-		<tr><td>Number</td>		<td>{{jsdata.num_overlap}}</td></tr>
-		<tr><td>Slope</td>		<td>{{'%0.3f' % jsdata.srslope}}</td></tr>
-		<tr><td>Intercept</td>	<td>{{'%0.3f' % jsdata.srintercept}}</td></tr>
-		<tr><td>r value</td>	<td>{{'%0.3f' % jsdata.srr_value}}</td></tr>
-		<tr><td>P value</td>	<td>{% if jsdata.srp_value < 0.001 %}{{'%0.3e' % jsdata.srp_value}}{% else %}{{'%0.3f' % jsdata.srp_value}}{% endif %}</td></tr>
-	</tbody>
-</table>
-
-    </div>
-    
-</div>
+        {% if trait_2.dataset.type == "ProbeSet" %}
+        <div>
+          Y axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
+            {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.tissue + " "  + trait_2.dataset.name + ": " + trait_2.name|string}}
+          </a>
+        </div>
+        <div>
+          [{{trait_2.symbol}} on {{trait_2.location_repr}} Mb]
+          {{trait_2.description_display}}
+        </div>
+        {% elif trait_2.dataset.type == "Publish" %}
+        <div>
+          Y axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
+            {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.name + ": " + trait_2.name|string}}
+          </a>
+        </div>
+        <div>
+          <a href="{{trait_2.pubmed_link}}">PubMed: {{trait_2.pubmed_text}}</a>
+            {{trait_2.description_display}}
+        </div>
+        {% endif %}
+      </div>
+      </div>
+  </div>
 
 </div>
 
@@ -218,5 +288,7 @@
     <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/colorbrewer.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot-2.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot.js"></script>
 {% endblock %}

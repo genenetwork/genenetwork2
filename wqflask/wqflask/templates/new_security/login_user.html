@@ -31,16 +31,19 @@
 	    <div>
 	      {% if external_login["github"]: %}
 	      <a href="{{external_login['github']}}" title="Login with GitHub" class="btn btn-info btn-group">Login with Github</a>
+              {% else %}
+              <p>Github login is not available right now</p>
 	      {% endif %}
 
 	      {% if external_login["orcid"]: %}
 	      <a href="{{external_login['orcid']}}" title="Login with ORCID" class="btn btn-info btn-group">Login with ORCID</a>
+              {% else %}
+              <p>ORCID login is not available right now</p>
 	      {% endif %}
 	    </div>
 	    {% else: %}
 	    <div class="alert alert-warning">
-	      <p>You cannot login with external services at this time.<br />
-		Please try again later.</p>
+	      <p>Sorry, you cannot login with Github or ORCID at this time.</p>
 	    </div>
 	    {% endif %}
 	    <hr />

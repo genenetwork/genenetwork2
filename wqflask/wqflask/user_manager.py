@@ -49,22 +49,20 @@ def timestamp():
 
 class AnonUser(object):
     """Anonymous user handling"""
-    cookie_name = 'anon_user_v8'
+    cookie_name = 'anon_user_v1'
 
     def __init__(self):
         self.cookie = request.cookies.get(self.cookie_name)
         if self.cookie:
-            logger.debug("already is cookie")
+            logger.debug("ANON COOKIE ALREADY EXISTS")
             self.anon_id = verify_cookie(self.cookie)
 
         else:
-            logger.debug("creating new cookie")
+            logger.debug("CREATING NEW ANON COOKIE")
             self.anon_id, self.cookie = create_signed_cookie()
+            res = flask.make_response()
+            res.set_cookie(self.cookie_name, self.cookie)
         self.key = "anon_collection:v1:{}".format(self.anon_id)
-
-        @after.after_this_request
-        def set_cookie(response):
-            response.set_cookie(self.cookie_name, self.cookie)
 
     def add_collection(self, new_collection):
         collection_dict = dict(name = new_collection.name,
@@ -109,16 +107,11 @@ class AnonUser(object):
         result = Redis.get(self.key)
         collections_list = json.loads(result if result else "[]")
         for collection in collections_list:
-            uc = model.UserCollection()
-            uc.name = collection['name']
-            collection_exists = g.user_session.user_ob.get_collection_by_name(uc.name)
+            collection_exists = g.user_session.get_collection_by_name(collection['name'])
             if collection_exists:
                 continue
             else:
-                uc.user = g.user_session.user_id
-                uc.members = json.dumps(collection['members'])
-                db_session.add(uc)
-                db_session.commit()
+                g.user_session.add_collection(collection['name'], collection['members'])
 
     def display_num_collections(self):
         """
@@ -156,11 +149,12 @@ def create_signed_cookie():
 class UserSession(object):
     """Logged in user handling"""
 
-    cookie_name = 'session_id_v2'
+    cookie_name = 'session_id_v1'
 
     def __init__(self):
         cookie = request.cookies.get(self.cookie_name)
         if not cookie:
+            logger.debug("NO USER COOKIE")
             self.logged_in = False
             return
         else:
@@ -170,7 +164,6 @@ class UserSession(object):
             logger.debug("self.redis_key is:", self.redis_key)
             self.session_id = session_id
             self.record = Redis.hgetall(self.redis_key)
-
 
             if not self.record:
                 # This will occur, for example, when the browser has been left open over a long
@@ -203,21 +196,211 @@ class UserSession(object):
             return ''
 
     @property
-    def user_ob(self):
-        """Actual sqlalchemy record"""
-        # Only look it up once if needed, then store it
-        # raise "OBSOLETE: use ElasticSearch instead"
-        try:
-            if LOG_SQL_ALCHEMY:
-                logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
+    def es_user_id(self):
+        """User id from ElasticSearch (need to check if this is the same as the id stored in self.records)"""
 
-            # Already did this before
-            return self.db_object
-        except AttributeError:
-            # Doesn't exist so we'll create it
-            self.db_object = model.User.query.get(self.user_id)
-            return self.db_object
+        es = get_elasticsearch_connection()
+        user_email = self.record['user_email_address']
 
+        #ZS: Get user's collections if they exist
+        response = es.search(
+                       index = "users", doc_type = "local", body = {
+                       "query": { "match": { "email_address": user_email } }
+                   })
+
+        user_id = response['hits']['hits'][0]['_id']
+        return user_id
+
+    @property
+    def user_name(self):
+        """Shortcut to the user_name"""
+        if 'user_name' in self.record:
+            return self.record['user_name']
+        else:
+            return ''
+
+    @property
+    def user_collections(self):
+        """List of user's collections"""
+
+        es = get_elasticsearch_connection()
+
+        user_email = self.record['user_email_address']
+
+        #ZS: Get user's collections if they exist
+        response = es.search(
+                       index = "users", doc_type = "local", body = {
+                       "query": { "match": { "email_address": user_email } }
+                   })
+        user_info = response['hits']['hits'][0]['_source']
+        if 'collections' in user_info.keys():
+            if len(user_info['collections']) > 0:
+                return json.loads(user_info['collections'])
+            else:
+                return []
+        else:
+            return []
+
+    @property
+    def num_collections(self):
+        """Number of user's collections"""
+
+        es = get_elasticsearch_connection()
+
+        user_email = self.record['user_email_address']
+
+        #ZS: Get user's collections if they exist
+        response = es.search(
+                       index = "users", doc_type = "local", body = {
+                       "query": { "match": { "email_address": user_email } }
+                   })
+
+        user_info = response['hits']['hits'][0]['_source']
+        logger.debug("USER NUM COLL:", user_info)
+        if 'collections' in user_info.keys():
+            if user_info['collections'] != "[]" and len(user_info['collections']) > 0:
+                collections_json = json.loads(user_info['collections'])
+                return len(collections_json)
+            else:
+                return 0
+        else:
+            return 0
+
+###
+# ZS: This is currently not used, but I'm leaving it here commented out because the old "set superuser" code (at the bottom of this file) used it
+###
+#    @property
+#    def user_ob(self):
+#        """Actual sqlalchemy record"""
+#        # Only look it up once if needed, then store it
+#        # raise "OBSOLETE: use ElasticSearch instead"
+#        try:
+#            if LOG_SQL_ALCHEMY:
+#                logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
+#
+#            # Already did this before
+#            return self.db_object
+#        except AttributeError:
+#            # Doesn't exist so we'll create it
+#            self.db_object = model.User.query.get(self.user_id)
+#            return self.db_object
+
+    def add_collection(self, collection_name, traits):
+        """Add collection into ElasticSearch"""
+
+        collection_dict = {'id': unicode(uuid.uuid4()),
+                           'name': collection_name,
+                           'created_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                           'changed_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                           'num_members': len(traits),
+                           'members': list(traits) }
+
+        es = get_elasticsearch_connection()
+
+        user_email = self.record['user_email_address']
+        response = es.search(
+                       index = "users", doc_type = "local", body = {
+                       "query": { "match": { "email_address": user_email } }
+                   })
+
+        user_id = response['hits']['hits'][0]['_id']
+        user_info = response['hits']['hits'][0]['_source']
+
+        if 'collections' in user_info.keys():
+            if user_info['collections'] != [] and user_info['collections'] != "[]":
+                current_collections = json.loads(user_info['collections'])
+                current_collections.append(collection_dict)
+                self.update_collections(current_collections)
+                #collections_json = json.dumps(current_collections)
+            else:
+                self.update_collections([collection_dict])
+                #collections_json = json.dumps([collection_dict])
+        else:
+            self.update_collections([collection_dict])
+            #collections_json = json.dumps([collection_dict])
+
+        return collection_dict['id']
+
+    def delete_collection(self, collection_id):
+        """Remove collection with given ID"""
+
+        updated_collections = []
+        for collection in self.user_collections:
+            if collection['id'] == collection_id:
+                continue
+            else:
+                updated_collections.append(collection)
+
+        self.update_collections(updated_collections)
+
+        return collection['name']
+
+    def add_traits_to_collection(self, collection_id, traits_to_add):
+        """Add specified traits to a collection"""
+
+        this_collection = self.get_collection_by_id(collection_id)
+
+        updated_collection = this_collection
+        updated_traits = this_collection['members'] + traits_to_add
+
+        updated_collection['members'] = updated_traits
+        updated_collection['num_members'] = len(updated_traits)
+        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+
+        updated_collections = []
+        for collection in self.user_collections:
+            if collection['id'] == collection_id:
+                updated_collections.append(updated_collection)
+            else:
+                updated_collections.append(collection)
+
+        self.update_collections(updated_collections)
+
+    def remove_traits_from_collection(self, collection_id, traits_to_remove):
+        """Remove specified traits from a collection"""
+
+        this_collection = self.get_collection_by_id(collection_id)
+
+        updated_collection = this_collection
+        updated_traits = []
+        for trait in this_collection['members']:
+            if trait in traits_to_remove:
+                continue
+            else:
+                updated_traits.append(trait)
+
+        updated_collection['members'] = updated_traits
+        updated_collection['num_members'] = len(updated_traits)
+        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+
+        updated_collections = []
+        for collection in self.user_collections:
+            if collection['id'] == collection_id:
+                updated_collections.append(updated_collection)
+            else:
+                updated_collections.append(collection)
+
+        self.update_collections(updated_collections)
+
+        return updated_traits
+
+    def get_collection_by_id(self, collection_id):
+        for collection in self.user_collections:
+            if collection['id'] == collection_id:
+                return collection
+
+    def get_collection_by_name(self, collection_name):
+        for collection in self.user_collections:
+            if collection['name'] == collection_name:
+                return collection
+
+        return None
+
+    def update_collections(self, updated_collections):
+        es = get_elasticsearch_connection()
+
+        collection_body = {'doc': {'collections': json.dumps(updated_collections)}}
+        es.update(index='users', doc_type='local', id=self.es_user_id, refresh='wait_for', body=collection_body)
 
     def delete_session(self):
         # And more importantly delete the redis record
@@ -594,6 +777,7 @@ class LoginUser(object):
 
     def __init__(self):
         self.remember_me = False
+        self.logged_in = False
 
     def oauth2_login(self, login_type, user_id):
         """Login via an OAuth2 provider"""
@@ -664,6 +848,8 @@ class LoginUser(object):
 
             #g.cookie_session.import_traits_to_user()
 
+            self.logged_in = True
+
             return self.actual_login(user, import_collections=import_col)
 
         else:
@@ -683,6 +869,7 @@ class LoginUser(object):
             max_age = self.remember_time
         else:
             max_age = None
+
         response.set_cookie(UserSession.cookie_name, session_id_signed, max_age=max_age)
         return response
 
@@ -698,6 +885,7 @@ class LoginUser(object):
 
         session = dict(login_time = time.time(),
                        user_id = user.id,
+                       user_name = user.full_name,
                        user_email_address = user.email_address)
 
         key = UserSession.cookie_name + ":" + login_rec.session_id
@@ -708,6 +896,7 @@ class LoginUser(object):
         else:
             expire_time = THREE_DAYS
         Redis.expire(key, expire_time)
+
         return session_id_signed
 
     def unsuccessful_login(self, user):
@@ -727,85 +916,89 @@ def logout():
     return response
 
 
-@app.route("/n/forgot_password")
+@app.route("/n/forgot_password", methods=['GET'])
 def forgot_password():
     """Entry point for forgotten password"""
-    return render_template("new_security/forgot_password.html")
+    print("ARGS: ", request.args)
+    errors = {"no-email": request.args.get("no-email")}
+    print("ERRORS: ", errors)
+    return render_template("new_security/forgot_password.html", errors=errors)
 
 @app.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
     """When a forgotten password form is submitted we get here"""
     params = request.form
     email_address = params['email_address']
-    logger.debug("Wants to send password E-mail to ",email_address)
-    es = get_elasticsearch_connection()
-    user_details = get_user_by_unique_column(es, "email_address", email_address)
-    if user_details:
-        ForgotPasswordEmail(user_details["email_address"])
-    # try:
-    #     user = model.User.query.filter_by(email_address=email_address).one()
-    # except orm.exc.NoResultFound:
-    #     flash("Couldn't find a user associated with the email address {}. Sorry.".format(
-    #         email_address))
-    #     return redirect(url_for("login"))
-    # ForgotPasswordEmail(user)
-    return render_template("new_security/forgot_password_step2.html",
-                            subject=ForgotPasswordEmail.subject)
+    next_page = None
+    if email_address != "":
+        logger.debug("Wants to send password E-mail to ",email_address)
+        es = get_elasticsearch_connection()
+        user_details = get_user_by_unique_column(es, "email_address", email_address)
+        if user_details:
+            ForgotPasswordEmail(user_details["email_address"])
+
+        return render_template("new_security/forgot_password_step2.html",
+                               subject=ForgotPasswordEmail.subject)
+
+    else:
+        flash("You MUST provide an email", "alert-danger")
+        return redirect(url_for("forgot_password"))
 
 @app.errorhandler(401)
 def unauthorized(error):
     return redirect(url_for('login'))
 
-def super_only():
-    try:
-        superuser = g.user_session.user_ob.superuser
-    except AttributeError:
-        superuser = False
-    if not superuser:
-        flash("You must be a superuser to access that page.", "alert-error")
-        abort(401)
+###
+# ZS: The following 6 functions require the old MySQL User accounts; I'm leaving them commented out just in case we decide to reimplement them using ElasticSearch
+###
+#def super_only():
+#    try:
+#        superuser = g.user_session.user_ob.superuser
+#    except AttributeError:
+#        superuser = False
+#    if not superuser:
+#        flash("You must be a superuser to access that page.", "alert-error")
+#        abort(401)
 
+#@app.route("/manage/users")
+#def manage_users():
+#    super_only()
+#    template_vars = UsersManager()
+#    return render_template("admin/user_manager.html", **template_vars.__dict__)
 
+#@app.route("/manage/user")
+#def manage_user():
+#    super_only()
+#    template_vars = UserManager(request.args)
+#    return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
 
-@app.route("/manage/users")
-def manage_users():
-    super_only()
-    template_vars = UsersManager()
-    return render_template("admin/user_manager.html", **template_vars.__dict__)
+#@app.route("/manage/groups")
+#def manage_groups():
+#    super_only()
+#    template_vars = GroupsManager(request.args)
+#    return render_template("admin/group_manager.html", **template_vars.__dict__)
 
-@app.route("/manage/user")
-def manage_user():
-    super_only()
-    template_vars = UserManager(request.args)
-    return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
+#@app.route("/manage/make_superuser")
+#def make_superuser():
+#    super_only()
+#    params = request.args
+#    user_id = params['user_id']
+#    user = model.User.query.get(user_id)
+#    superuser_info = basic_info()
+#    superuser_info['crowned_by'] = g.user_session.user_id
+#    user.superuser = json.dumps(superuser_info, sort_keys=True)
+#    db_session.commit()
+#    flash("We've made {} a superuser!".format(user.name_and_org))
+#    return redirect(url_for("manage_users"))
 
-@app.route("/manage/groups")
-def manage_groups():
-    super_only()
-    template_vars = GroupsManager(request.args)
-    return render_template("admin/group_manager.html", **template_vars.__dict__)
-
-@app.route("/manage/make_superuser")
-def make_superuser():
-    super_only()
-    params = request.args
-    user_id = params['user_id']
-    user = model.User.query.get(user_id)
-    superuser_info = basic_info()
-    superuser_info['crowned_by'] = g.user_session.user_id
-    user.superuser = json.dumps(superuser_info, sort_keys=True)
-    db_session.commit()
-    flash("We've made {} a superuser!".format(user.name_and_org))
-    return redirect(url_for("manage_users"))
-
-@app.route("/manage/assume_identity")
-def assume_identity():
-    super_only()
-    params = request.args
-    user_id = params['user_id']
-    user = model.User.query.get(user_id)
-    assumed_by = g.user_session.user_id
-    return LoginUser().actual_login(user, assumed_by=assumed_by)
+#@app.route("/manage/assume_identity")
+#def assume_identity():
+#    super_only()
+#    params = request.args
+#    user_id = params['user_id']
+#    user = model.User.query.get(user_id)
+#    assumed_by = g.user_session.user_id
+#    return LoginUser().actual_login(user, assumed_by=assumed_by)
 
 
 @app.route("/n/register", methods=('GET', 'POST'))

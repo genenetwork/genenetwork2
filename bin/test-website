@@ -2,6 +2,6 @@
 
 if [ -z $GN2_PROFILE ]; then
   echo "Run request tests with something like"
-  echo env GN2_PROFILE=/home/wrk/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py http://localhost:5003
+  echo env GN2_PROFILE=/home/wrk/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py -a http://localhost:5003
   exit 1
 fi

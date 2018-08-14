@@ -6,12 +6,13 @@ import datetime
 import cPickle
 import uuid
 import json as json
-#import pyXLWriter as xl
 
 from collections import OrderedDict
 
 import redis
 Redis = redis.StrictRedis()
+
+import scipy.stats as ss
 
 from flask import Flask, g
 
@@ -24,12 +25,8 @@ from utility import webqtlUtil, Plot, Bunch, helper_functions
 from base.trait import GeneralTrait
 from base import data_set
 from db import webqtlDatabaseFunction
-from basicStatistics import BasicStatisticsFunctions
 
 from pprint import pformat as pf
-
-from utility.tools import flat_files, flat_file_exists
-from utility.tools import get_setting
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -73,14 +70,6 @@ class ShowTrait(object):
                                            name=self.trait_id,
                                            cellid=None)
             self.trait_vals = Redis.get(self.trait_id).split()
-
-        #self.dataset.group.read_genotype_file()
-
-        #if this_trait:
-        #    if this_trait.dataset and this_trait.dataset.type and this_trait.dataset.type == 'ProbeSet':
-        #            self.cursor.execute("SELECT h2 from ProbeSetXRef WHERE DataId = %d" %
-        #                                this_trait.mysqlid)
-        #            heritability = self.cursor.fetchone()
 
         #ZS: Get verify/rna-seq link URLs
         try:
@@ -150,6 +139,8 @@ class ShowTrait(object):
 
         self.make_sample_lists()
 
+        self.qnorm_vals = quantile_normalize_vals(self.sample_groups)
+
         # Todo: Add back in the ones we actually need from below, as we discover we need them
         hddn = OrderedDict()
 
@@ -193,7 +184,7 @@ class ShowTrait(object):
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
 
-        self.get_mapping_methods()
+        self.genofiles = get_genofiles(self.dataset)
 
         self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups)
 
@@ -212,28 +203,6 @@ class ShowTrait(object):
                        temp_uuid = self.temp_uuid)
         self.js_data = js_data
 
-    def get_mapping_methods(self):
-        '''Only display mapping methods when the dataset group's genotype file exists'''
-        def check_plink_gemma():
-            if flat_file_exists("mapping"):
-                MAPPING_PATH = flat_files("mapping")+"/"
-                if (os.path.isfile(MAPPING_PATH+self.dataset.group.name+".bed") and
-                    (os.path.isfile(MAPPING_PATH+self.dataset.group.name+".map") or
-                     os.path.isfile(MAPPING_PATH+self.dataset.group.name+".bim"))):
-                    return True
-            return False
-
-        def check_pylmm_rqtl():
-            if os.path.isfile(webqtlConfig.GENODIR+self.dataset.group.name+".geno") and (os.path.getsize(webqtlConfig.JSON_GENODIR+self.dataset.group.name+".json") > 0):
-                return True
-            else:
-                return False
-
-        self.genofiles = get_genofiles(self.dataset)
-        self.use_plink_gemma = check_plink_gemma()
-        self.use_pylmm_rqtl = check_pylmm_rqtl()
-
-
     def build_correlation_tools(self):
         if self.temp_trait == True:
             this_group = self.temp_group
@@ -246,7 +215,6 @@ class ShowTrait(object):
             this_group = 'BXD'
 
         if this_group:
-            #dataset_menu = self.dataset.group.datasets()
             if self.temp_trait == True:
                 dataset_menu = data_set.datasets(this_group)
             else:
@@ -263,7 +231,6 @@ class ShowTrait(object):
                                           dataset_menu_selected = dataset_menu_selected,
                                           return_results_menu = return_results_menu,
                                           return_results_menu_selected = return_results_menu_selected,)
-
 
     def make_sample_lists(self):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
@@ -316,11 +283,45 @@ class ShowTrait(object):
                                             sample_group_type='primary',
                                             header="%s Only" % (self.dataset.group.name))
             self.sample_groups = (primary_samples,)
-        #TODO: Figure out why this if statement is written this way - Zach
-        #if (other_sample_names or (fd.f1list and this_trait.data.has_key(fd.f1list[0]))
-        #        or (fd.f1list and this_trait.data.has_key(fd.f1list[1]))):
-        #    logger.debug("hjs")
         self.dataset.group.allsamples = all_samples_ordered
+
+def quantile_normalize_vals(sample_groups):
+    def normf(trait_vals):
+        ranked_vals = ss.rankdata(trait_vals)
+        p_list = []
+        for i, val in enumerate(trait_vals):
+            p_list.append(((i+1) - 0.5)/len(trait_vals))
+
+        z = ss.norm.ppf(p_list)
+        normed_vals = []
+        for rank in ranked_vals:
+            normed_vals.append("%0.3f" % z[int(rank)-1])
+
+        return normed_vals
+
+    qnorm_by_group = []
+    for sample_type in sample_groups:
+        trait_vals = []
+        for sample in sample_type.sample_list:
+            try:
+                trait_vals.append(float(sample.value))
+            except:
+                continue
+
+        qnorm_vals = normf(trait_vals)
+
+        qnorm_vals_with_x = []
+        counter = 0
+        for sample in sample_type.sample_list:
+            if sample.display_value == "x":
+                qnorm_vals_with_x.append("x")
+            else:
+                qnorm_vals_with_x.append(qnorm_vals[counter])
+                counter += 1
+
+        qnorm_by_group.append(qnorm_vals_with_x)
+
+    return qnorm_by_group
 
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr
@@ -344,7 +345,6 @@ def get_nearest_marker(this_trait, this_db):
         #return "", ""
     else:
         return result[0][0]
-        #return result[0][0], result[1][0]
 
 def get_genofiles(this_dataset):
     jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, this_dataset.group.name)

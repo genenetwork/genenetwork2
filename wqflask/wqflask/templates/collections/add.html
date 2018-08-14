@@ -1,36 +1,38 @@
 <div id="myModal">
     <div class="modal-header">
-        <h3>Add to collection</h3>
-        <p>You have two choices: Create and name a collection,
-        or add the traits to an existing collection.</p>
+        <h2>Define or Add to Collection</h2>
+        <p>You have two choices: Name a new collection
+        or add to an existing collection.</p>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="margin-left: 20px;">
         <form action="/collections/new" data-validate="parsley" id="add_form">
             <input type="hidden" name="traits" value="{{ traits }}" />
             <fieldset>
-                <legend>Create a new named collection</legend>
-                <label>New collection name</label>
-                <input type="text" name="new_collection" placeholder="Name of new collection..."
-                    data-trigger="change" data-minlength="5" data-maxlength="50">
-                <span class="help-block">Type the name of the new collection.</span>
+              <legend>1. Create a new collection</legend>
+              <div style="margin-left: 20px;">
+                <!--<label>Collection name:</label>-->
+                <input type="text" name="new_collection" placeholder=" Name of new collection..."
+                    data-trigger="change" data-minlength="5" data-maxlength="50" style="width: 100%">
+                <button type="submit" name="create_new" class="btn btn-primary" style="margin-top: 20px;">Create collection</button>
                 {% if uc is not defined %}
                 <span class="help-block" style="color:red;">This collection will be saved to this computer for 5 days.</span>
                 {% endif %}
-                <button type="submit" name="create_new" class="btn">Create and add traits</button>
+              </div>
             </fieldset>
             <hr />
             <fieldset>
-                <legend>Or add to an existing collection</legend>
-                <label>Existing collection name</label>
-
+              <legend>2. Add to an existing collection</legend>
+              <div style="margin-left: 20px;">  
+                <!--<label>Existing collection name:</label>-->
                 <select name="existing_collection" class="form-control">
+                    <option selected disabled>Select Collection</option>
                 {% for col in collections %}
                     <option value="{{ col.id }}:{{ col.name }}">{{ col.name }}</option>
                 {% endfor %}
                 </select>
                 <br />
-
-                <button type="submit" name="add_to_existing" class="btn">Add to existing collection</button>
+                <button type="submit" name="add_to_existing" class="btn btn-primary">Add to existing collection</button>
+              </div>
             </fieldset>
         </form>
     </div>

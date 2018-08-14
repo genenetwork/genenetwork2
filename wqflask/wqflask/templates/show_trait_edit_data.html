@@ -9,7 +9,7 @@
                 needed.
             </p>
 
-            <div id="blockMenuSpan" class="input-append">
+            <div id="blockMenuSpan" class="input-append" style="margin-bottom: 10px;">
                 <label for="remove_samples_field">Block samples by index:</label>
                 <input type="text" id="remove_samples_field">
                 <select id="block_group" size="1">
@@ -25,11 +25,8 @@
             <div id="remove_samples_invalid" class="alert alert-error" style="display:none;">
                   Please check that your input is formatted correctly, e.g. <strong>3, 5-10, 12</strong>
             </div>
-
-            <br>
-
             {% if sample_groups[0].attributes %}
-            <div class="input-append">
+            <div class="input-append" style="margin-top:10px; margin-bottom:10px;">
                 <label for="exclude_menu">Block samples by group:</label>
                 <select id="exclude_menu" size=1>
                   {% for attribute in sample_groups[0].attributes %}
@@ -42,7 +39,6 @@
                 <input type="button" id="exclude_group" class="btn" value="Block">
             </div>
             {% endif %}
-            <br>
             <div>
               <input type="button" id="hide_no_value" class="btn btn-default" value="Hide No Value">
               <input type="button" id="block_outliers" class="btn btn-default" value="Block Outliers">
@@ -54,6 +50,20 @@
                   <option value="csv">CSV</option>
                 </select>
               </span>
+              <br>
+              <div style="margin-top:10px;">
+              <input type="button" id="normalize" class="btn btn-default" value="Normalize">
+              <select id="norm_method" class="select optional span2">
+                <option value="log2">Log2</option>
+                <option value="qnorm">Quantile</option>
+                <option value="sqrt">Square Root</option>
+              </select>
+              </div>
+              <!--
+              {% if sample_groups[0].sample_qnorm is not none %}
+              <input type="button" id="qnorm" class="btn btn-default" value="Quantile Normalize">
+              {% endif %}
+              -->
             </div>
         </fieldset>
         <br>
@@ -75,6 +85,7 @@
 
     <!--<div id="edit_sample_lists">-->
     {% for sample_type in sample_groups %}
+        {% set outer_loop = loop %}
         <div class="sample_group" style="width:{{ trait_table_width }}%;">
             <h3>{{ sample_type.header }}</h3>
             <hr>
@@ -111,7 +122,7 @@
         
                         {# Todo: Add IDs #}
                         <td class="column_name-Value" align="right">
-                          <input type="text" data-value="{{ sample.display_value }}" name="{{ 'value:' + sample.name }}"
+                          <input type="text" data-value="{{ sample.display_value }}" data-qnorm="{{ qnorm_vals[outer_loop.index - 1][loop.index - 1] }}" name="{{ 'value:' + sample.name }}"
                                  style="text-align:right;"
                                  class="trait_value_input edit_sample_value"
                                  value="{{ sample.display_value }}"

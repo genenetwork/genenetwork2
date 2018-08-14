@@ -79,38 +79,6 @@ class DoSearch(object):
         else:
             return None
 
-class QuickMrnaAssaySearch(DoSearch):
-    """A general search for mRNA assays"""
-
-    DoSearch.search_types['quick_mrna_assay'] = "QuickMrnaAssaySearch"
-
-    base_query = """SELECT ProbeSet.Name as ProbeSet_Name,
-                ProbeSet.Symbol as ProbeSet_Symbol,
-                ProbeSet.description as ProbeSet_Description,
-                ProbeSet.Chr_num as ProbeSet_Chr_Num,
-                ProbeSet.Mb as ProbeSet_Mb,
-                ProbeSet.name_num as ProbeSet_name_num
-                FROM ProbeSet """
-
-    header_fields = ['Index',
-                     'Record',
-                     'Symbol',
-                     'Location']
-
-    def run(self):
-        """Generates and runs a search for assays across all mRNA expression datasets"""
-
-        logger.debug("Running ProbeSetSearch")
-        query = self.base_query + """WHERE (MATCH (ProbeSet.Name,
-                    ProbeSet.description,
-                    ProbeSet.symbol,
-                    ProbeSet.alias)
-                    AGAINST ('%s' IN BOOLEAN MODE))
-                            """ % (escape(self.search_term[0]))
-
-        return self.execute(query)
-
-
 class MrnaAssaySearch(DoSearch):
     """A search within an expression dataset, including mRNA, protein, SNP, but not phenotype or metabolites"""
 
@@ -306,54 +274,6 @@ class PhenotypeSearch(DoSearch):
 
     def run(self):
         """Generates and runs a simple search of a phenotype dataset"""
-
-        query = self.compile_final_query(where_clause = self.get_where_clause())
-
-        return self.execute(query)
-
-class QuickPhenotypeSearch(PhenotypeSearch):
-    """A search across all phenotype datasets"""
-
-    DoSearch.search_types['quick_phenotype'] = "QuickPhenotypeSearch"
-
-    base_query = """SELECT Species.Name as Species_Name,
-                PublishFreeze.FullName as Dataset_Name,
-                PublishFreeze.Name,
-                PublishXRef.Id,
-                PublishFreeze.createtime as thistable,
-                Publication.PubMed_ID as Publication_PubMed_ID,
-                Phenotype.Post_publication_description as Phenotype_Name
-                FROM Phenotype,
-                    PublishFreeze,
-                    Publication,
-                    PublishXRef,
-                    InbredSet,
-                    Species """
-
-    search_fields = ('Phenotype.Post_publication_description',
-                    'Phenotype.Pre_publication_description',
-                    'Phenotype.Pre_publication_abbreviation',
-                    'Phenotype.Post_publication_abbreviation',
-                    'Phenotype.Lab_code',
-                    'Publication.PubMed_ID',
-                    'Publication.Abstract',
-                    'Publication.Title',
-                    'Publication.Authors')
-
-    def compile_final_query(self, where_clause = ''):
-        """Generates the final query string"""
-
-        query = (self.base_query +
-                 """WHERE %s
-                    PublishXRef.PhenotypeId = Phenotype.Id and
-                    PublishXRef.PublicationId = Publication.Id and
-                    PublishXRef.InbredSetId = InbredSet.Id and
-                    InbredSet.SpeciesId = Species.Id""" % where_clause)
-
-        return query
-
-    def run(self):
-        """Generates and runs a search across all phenotype datasets"""
 
         query = self.compile_final_query(where_clause = self.get_where_clause())
 
@@ -767,14 +687,6 @@ class MeanSearch(MrnaAssaySearch):
 
         return where_clause
 
-    def get_final_query(self):
-        self.where_clause = self.get_where_clause()
-        logger.debug("where_clause is:", pf(self.where_clause))
-
-        self.query = self.compile_final_query(where_clause = self.where_clause)
-
-        return self.query
-
     def run(self):
         self.where_clause = self.get_where_clause()
         logger.debug("where_clause is:", pf(self.where_clause))
@@ -948,7 +860,6 @@ if __name__ == "__main__":
 
     from base import webqtlConfig
     from base.data_set import create_dataset
-    from base.templatePage import templatePage
     from utility import webqtlUtil
     from db import webqtlDatabaseFunction
 
@@ -961,32 +872,6 @@ if __name__ == "__main__":
     dataset_name = "HC_M2_0606_P"
     dataset = create_dataset(db_conn, dataset_name)
 
-    #cursor.execute("""
-    #            SELECT ProbeSet.Name as TNAME, 0 as thistable,
-    #            ProbeSetXRef.Mean as TMEAN, ProbeSetXRef.LRS as TLRS,
-    #            ProbeSetXRef.PVALUE as TPVALUE, ProbeSet.Chr_num as TCHR_NUM,
-    #            ProbeSet.Mb as TMB, ProbeSet.Symbol as TSYMBOL,
-    #            ProbeSet.name_num as TNAME_NUM
-    #            FROM ProbeSetXRef, ProbeSet, Geno
-    #            WHERE ProbeSetXRef.LRS > 99.0 and
-    #            ABS(ProbeSet.Mb-Geno.Mb) < 5 and
-    #            ProbeSetXRef.Locus = Geno.name and
-    #            Geno.SpeciesId = 1 and
-    #            ProbeSet.Chr = Geno.Chr and
-    #            ProbeSet.Id = ProbeSetXRef.ProbeSetId and
-    #            ProbeSetXRef.ProbeSetFreezeId = 112""")
-
-    #logger.debug(pf(cursor.fetchall()))
-    #results = ProbeSetSearch("shh", None, dataset, cursor, db_conn).run()
     results = PvalueSearch(['0.005'], '<', dataset, cursor, db_conn).run()
-    #results = RifSearch("diabetes", dataset, cursor, db_conn).run()
-    #results = WikiSearch("nicotine", dataset, cursor, db_conn).run()
-    #results = CisLrsSearch(['99'], '>', dataset, cursor, db_conn).run() # cisLRS > 99
-    #results = LrsSearch('99', '>', dataset, cursor, db_conn).run()
-    #results = TransLrsSearch(['9', '999', '10'], dataset, cursor, db_conn).run()
-    #results = PhenotypeSearch("brain", dataset, cursor, db_conn).run()
-    #results = GenotypeSearch("rs13475699", dataset, cursor, db_conn).run()
-    #results = GoSearch("0045202", dataset, cursor, db_conn).run()
 
-    logger.debug("results are:", pf(results))
     db_conn.close()

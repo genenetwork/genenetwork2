@@ -1527,6 +1527,36 @@
          }
       },
       "mouse": {
+         "AIL": {
+            "Hippocampus mRNA": [
+               [
+                  "844",
+                  "UCSD_AIL_HIP_RNA-Seq_0418",
+                  "UCSD AIL Hippocampus (Apr18) RNA-Seq"
+               ]
+            ],
+            "Phenotypes": [
+               [
+                  "None",
+                  "AILPublish",
+                  "AIL Published Phenotypes"
+               ]
+            ],
+            "Prefrontal Cortex mRNA": [
+               [
+                  "846",
+                  "UCSD_AIL_PFC_RNA-Seq_0418",
+                  "UCSD AIL Prefrontal Cortex (Apr18) RNA-Seq"
+               ]
+            ],
+            "Striatum mRNA": [
+               [
+                  "845",
+                  "UCSD_AIL_STR_RNA-Seq_0418",
+                  "UCSD AIL Striatum (Apr18) RNA-Seq"
+               ]
+            ]
+         },
          "AKXD": {
             "Genotypes": [
                [
@@ -1721,7 +1751,7 @@
             ],
             "Phenotypes": [
                [
-                  "None",
+                  "651",
                   "B6D2RIPublish",
                   "B6D2RI Published Phenotypes"
                ]
@@ -1936,6 +1966,21 @@
                   "470",
                   "EPFLADEL1013",
                   "EPFL/LISP BXD CD Brown Adipose Affy Mouse Gene 2.0 ST Exon Level (Oct13) RMA"
+               ],
+               [
+                  "777",
+                  "EL_BXDCDHFDScWAT_0216",
+                  "EPFL/LISP BXD CD+HFD Subcutaneous WAT Affy MTA 1.0 Gene Level (Feb16) RMA"
+               ],
+               [
+                  "778",
+                  "EL_BXDHFDScWAT_0216",
+                  "EPFL/LISP BXD HFD Subcutaneous WAT Affy MTA 1.0 Gene Level (Feb16) RMA"
+               ],
+               [
+                  "779",
+                  "EL_BXDCDScWAT_0216",
+                  "EPFL/LISP BXD CD Subcutaneous WAT Affy MTA 1.0 Gene Level (Feb16) RMA **"
                ]
             ],
             "Adrenal Gland mRNA": [
@@ -2571,6 +2616,16 @@
                   "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
+                  "849",
+                  "EPFLMouseLiverCDEx0413",
+                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ],
+               [
+                  "848",
+                  "EPFLMouseLiverHFCEx0413",
+                  "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ],
+               [
                   "700",
                   "UTHSC-VGX_MmBXDHepatocytesRMA1014",
                   "UT-VGX Hepatocytes Affy Mouse Gene 1.0 ST Gene Level (Oct14) RMA"
@@ -2738,7 +2793,7 @@
             ],
             "Phenotypes": [
                [
-                  "None",
+                  "602",
                   "BXDPublish",
                   "BXD Published Phenotypes"
                ]
@@ -2968,7 +3023,7 @@
          "BXD-Bone": {
             "Phenotypes": [
                [
-                  "None",
+                  "650",
                   "BXD-BonePublish",
                   "BXD-Bone Published Phenotypes"
                ]
@@ -2985,6 +3040,18 @@
                   "842",
                   "UTHSC-BXD-Liv-0917",
                   "UTHSC BXD Liver Affy Clariom S GeneLevel Main (Sep17) RMA **"
+               ],
+               [
+                  "850",
+                  "UTHSC-BXD-Liv-0818",
+                  "UTHSC BXD Liver Affy Clariom S GeneLevel Main (Aug18) RMA **"
+               ]
+            ],
+            "Phenotypes": [
+               [
+                  "None",
+                  "BXD-HarvestedPublish",
+                  "BXD-Harvested Published Phenotypes"
                ]
             ]
          },
@@ -3156,6 +3223,13 @@
             ]
          },
          "CIE-RMA": {
+            "Hippocampus mRNA": [
+               [
+                  "831",
+                  "INIA_UTHSC_Hip_AffyMTA1_May17",
+                  "INIA-UTHSC Hippocampus CIE Affy MTA 1.0 GeneLevel (Mar18) RMA"
+               ]
+            ],
             "Midbrain mRNA": [
                [
                   "830",
@@ -3315,6 +3389,15 @@
                   "153",
                   "STSPL_1107_R",
                   "Stuart Spleen M430v2 (Nov07) RMA"
+               ]
+            ]
+         },
+         "D2GM": {
+            "Retina mRNA": [
+               [
+                  "847",
+                  "JAX_D2GM_RSeq_log2Z_0418",
+                  "JAX Retina (Apr18) RNA-Seq log2-Z"
                ]
             ]
          },
@@ -3577,7 +3660,7 @@
          "HSNIH-Palmer": {
             "Phenotypes": [
                [
-                  "None",
+                  "652",
                   "HSNIH-PalmerPublish",
                   "HSNIH-Palmer Published Phenotypes"
                ]
@@ -3826,12 +3909,16 @@
       ],
       "mouse": [
          [
+            "AIL",
+            "AIL Advanced Intercross Line"
+         ],
+         [
             "AKXD",
-            "AKXD"
+            "AKXD RI Family"
          ],
          [
             "AXBXA",
-            "AXB/BXA"
+            "AXB/BXA RI Family"
          ],
          [
             "B6BTBRF2",
@@ -3866,20 +3953,20 @@
             "BHF2 (Apoe Null) UCLA"
          ],
          [
-            "BXD",
-            "BXD"
-         ],
-         [
             "B6D2RI",
             "BXD Aged"
          ],
          [
             "BXD-Bone",
-            "BXD Bone"
+            "BXD Bone Individual Data"
          ],
          [
             "BXD-Harvested",
             "BXD NIA Longevity Study"
+         ],
+         [
+            "BXD",
+            "BXD RI Family"
          ],
          [
             "BXD300",
@@ -3887,7 +3974,7 @@
          ],
          [
             "BXH",
-            "BXH"
+            "BXH RI Family"
          ],
          [
             "CTB6F2",
@@ -3911,7 +3998,11 @@
          ],
          [
             "CXB",
-            "CXB"
+            "CXB RI Family (strain means)"
+         ],
+         [
+            "D2GM",
+            "D2 Glaucoma Model"
          ],
          [
             "EMSR",
@@ -3931,11 +4022,11 @@
          ],
          [
             "LXS",
-            "LXS"
+            "ILSXISS (LXS) RI Family (strain means)"
          ],
          [
             "MDP",
-            "Mouse Diversity Panel"
+            "Mouse Diversity Panel (strain means)"
          ],
          [
             "NZBXFVB-N2",
@@ -4727,6 +4818,24 @@
          ]
       },
       "mouse": {
+         "AIL": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ],
+            [
+               "Hippocampus mRNA",
+               "Hippocampus mRNA"
+            ],
+            [
+               "Prefrontal Cortex mRNA",
+               "Prefrontal Cortex mRNA"
+            ],
+            [
+               "Striatum mRNA",
+               "Striatum mRNA"
+            ]
+         ],
          "AKXD": [
             [
                "Genotypes",
@@ -5027,6 +5136,10 @@
          ],
          "BXD-Harvested": [
             [
+               "Phenotypes",
+               "Phenotypes"
+            ],
+            [
                "Liver mRNA",
                "Liver mRNA"
             ]
@@ -5111,6 +5224,10 @@
                "Phenotypes"
             ],
             [
+               "Hippocampus mRNA",
+               "Hippocampus mRNA"
+            ],
+            [
                "Midbrain mRNA",
                "Midbrain mRNA"
             ]
@@ -5171,6 +5288,12 @@
             [
                "Spleen mRNA",
                "Spleen mRNA"
+            ]
+         ],
+         "D2GM": [
+            [
+               "Retina mRNA",
+               "Retina mRNA"
             ]
          ],
          "EMSR": [],

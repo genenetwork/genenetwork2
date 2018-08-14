@@ -72,7 +72,7 @@ class ConvertGenoFile(object):
         yield row
 
   def process_csv(self):
-    for row_count, row in enumerate(self.process_rows()):
+    for row in self.process_rows():
       row_items = row.split("\t")
 
       this_marker = Marker()

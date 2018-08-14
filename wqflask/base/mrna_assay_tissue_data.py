@@ -18,20 +18,10 @@ class MrnaAssayTissueData(object):
 
     def __init__(self, gene_symbols=None):
         self.gene_symbols = gene_symbols
-        self.have_data = False
         if self.gene_symbols == None:
             self.gene_symbols = []
 
-        #print("self.gene_symbols:", self.gene_symbols)
-
         self.data = collections.defaultdict(Bunch)
-
-        #self.gene_id_dict ={}
-        #self.data_id_dict = {}
-        #self.chr_dict = {}
-        #self.mb_dict = {}
-        #self.desc_dict = {}
-        #self.probe_target_desc_dict = {}
 
         query =  '''select t.Symbol, t.GeneId, t.DataId, t.Chr, t.Mb, t.description, t.Probe_Target_Description
                         from (
@@ -52,7 +42,6 @@ class MrnaAssayTissueData(object):
             in_clause = db_tools.create_in_clause(gene_symbols)
 
             #ZS: This was in the query, not sure why: http://docs.python.org/2/library/string.html?highlight=lower#string.lower
-
             query += ''' Symbol in {} group by Symbol)
                 as x inner join TissueProbeSetXRef as t on t.Symbol = x.Symbol
                 and t.Mean = x.maxmean;
@@ -67,9 +56,7 @@ class MrnaAssayTissueData(object):
 
         for result in results:
             symbol = result[0]
-            #if symbol.lower() in [gene_symbol.lower() for gene_symbol in gene_symbols]:
             if symbol.lower() in lower_symbols:
-                #gene_symbols.append(symbol)
                 symbol = symbol.lower()
 
                 self.data[symbol].gene_id = result.GeneId
@@ -78,8 +65,6 @@ class MrnaAssayTissueData(object):
                 self.data[symbol].mb = result.Mb
                 self.data[symbol].description = result.description
                 self.data[symbol].probe_target_description = result.Probe_Target_Description
-
-        print("self.data: ", pf(self.data))
 
     ###########################################################################
     #Input: cursor, symbolList (list), dataIdDict(Dict)
@@ -107,53 +92,4 @@ class MrnaAssayTissueData(object):
                 else:
                     symbol_values_dict[result.Symbol.lower()].append(result.value)
 
-        #for symbol in self.data:
-        #    data_id = self.data[symbol].data_id
-        #    symbol_values_dict[symbol] = self.get_tissue_values(data_id)
-
-
         return symbol_values_dict
-
-
-    #def get_tissue_values(self, data_id):
-    #    """Gets the tissue values for a particular gene"""
-    #
-    #    tissue_values=[]
-    #
-    #    query = """SELECT value, id
-    #               FROM TissueProbeSetData
-    #               WHERE Id IN {}""".format(db_tools.create_in_clause(data_id))
-    #
-    #    #try :
-    #    results = g.db.execute(query).fetchall()
-    #    for result in results:
-    #        tissue_values.append(result.value)
-    #    #symbol_values_dict[symbol] = value_list
-    #    #except:
-    #    #    symbol_values_pairs[symbol] = None
-    #
-    #    return tissue_values
-
-########################################################################################################
-#input: cursor, symbolList (list), dataIdDict(Dict): key is symbol
-#output: SymbolValuePairDict(dictionary):one dictionary of Symbol and Value Pair.
-#        key is symbol, value is one list of expression values of one probeSet.
-#function: wrapper function for getSymbolValuePairDict function
-#          build gene symbol list if necessary, cut it into small lists if necessary,
-#          then call getSymbolValuePairDict function and merge the results.
-########################################################################################################
-
-#def get_trait_symbol_and_tissue_values(symbol_list=None):
-#    tissue_data = MrnaAssayTissueData(gene_symbols=symbol_list)
-#
-#    #symbolList,
-#    #geneIdDict,
-#    #dataIdDict,
-#    #ChrDict,
-#    #MbDict,
-#    #descDict,
-#    #pTargetDescDict = getTissueProbeSetXRefInfo(
-#    #                    GeneNameLst=GeneNameLst,TissueProbeSetFreezeId=TissueProbeSetFreezeId)
-#
-#    if len(tissue_data.gene_symbols):
-#        return get_symbol_values_pairs(tissue_data)

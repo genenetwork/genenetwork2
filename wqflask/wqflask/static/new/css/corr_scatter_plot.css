@@ -1,13 +1,41 @@
-.chart {
-
+.nvd3 .nv-axis.nv-x text {
+  font-size: 16px;
+  font-weight: normal;
+  fill: black;
 }
 
-.main text {
-    font: 10px sans-serif;	
+.nvd3 .nv-axis.nv-y text {
+  font-size: 16px;
+  font-weight: normal;
+  fill: black;
 }
 
-.axis line, .axis path {
-    shape-rendering: crispEdges;
+.nv-x .nv-axis g path.domain {
     stroke: black;
-    fill: none;
+    stroke-width: 2;
+}
+
+.nv-y .nv-axis g path.domain {
+    stroke: black;
+    stroke-width: 2;
+}
+
+.nvd3 .nv-axis.nv-x path.domain {
+    stroke-opacity: 1;
+}
+
+.nvd3 .nv-axis.nv-y path.domain {
+    stroke-opacity: 1;
+}
+
+line.nv-regLine {
+    stroke: red;
+    stroke-width: 1;
+}
+
+.nv-axisMin-x,
+.nv-axisMax-x,
+.nv-axisMin-y,
+.nv-axisMax-y {
+    display: none;
 }

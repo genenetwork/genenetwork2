@@ -10,7 +10,11 @@ import numpy as np
 from scipy import stats
 from pprint import pformat as pf
 
+import simplejson as json
+
 import itertools
+
+from utility.elasticsearch_tools import get_elasticsearch_connection
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
@@ -32,6 +36,8 @@ class SampleList(object):
         self.sample_attribute_values = {}
 
         self.get_attributes()
+
+        #self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
 
         if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
             self.get_extra_attribute_values()
@@ -152,36 +158,47 @@ class SampleList(object):
 
         return any(sample.variance for sample in self.sample_list)
 
-#def z_score(vals):
-#    vals_array = np.array(vals)
-#    mean = np.mean(vals_array)
-#    stdv = np.std(vals_array)
-#
-#    z_scores = []
-#    for val in vals_array:
-#        z_score = (val - mean)/stdv
-#        z_scores.append(z_score)
-#
-#
-#
-#    return z_scores
+def get_transform_vals(dataset, trait):
+    es = get_elasticsearch_connection(for_user=False)
 
+    logger.info("DATASET NAME:", dataset.name)
 
-#def z_score(row):
-#    L = [n for n in row if not np.isnan(n)]
-#    m = np.mean(L)
-#    s = np.std(L)
-#    zL = [1.0 * (n - m) / s for n in L]
-#    if len(L) == len(row):  return zL
-#    # deal with nan
-#    retL = list()
-#    for n in row:
-#        if np.isnan(n):
-#            retL.append(nan)
-#        else:
-#            retL.append(zL.pop(0))
-#    assert len(zL) == 0
-#    return retL
+    query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
+
+    es_body = {
+          "query": {
+            "bool": {
+              "must": [
+                {
+                  "match": {
+                    "name": "%s" % (trait.name)
+                  }
+                },
+                {
+                  "match": {
+                    "dataset": "%s" % (dataset.name)
+                  }
+                }
+              ]
+            }
+          }
+    }
+
+    response = es.search( index = "traits", doc_type = "trait", body = es_body )
+    logger.info("THE RESPONSE:", response)
+    results = response['hits']['hits']
+
+    if len(results) > 0:
+        samples = results[0]['_source']['samples']
+
+        sample_dict = {}
+        for sample in samples:
+            sample_dict[sample['name']] = sample['qnorm']
+
+        logger.info("SAMPLE DICT:", sample_dict)
+        return sample_dict
+    else:
+        return None
 
 def natural_sort_key(x):
     """Get expected results when using as a key for sort - ints or strings are sorted properly"""

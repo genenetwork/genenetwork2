@@ -29,10 +29,6 @@
                 {{ this_trait.name }}:{{ this_trait.dataset.name }},
             {% endfor %}" >
 
-                <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" >
-                Delete this collection
-                </button>
-
 
                 <button id="corr_matrix" class="btn btn-primary submit_special" data-url="/corr_matrix" title="Correlation Matrix" >
                     Correlation Matrix
@@ -58,6 +54,15 @@
                     Heatmap
                 </button>
 
+                <button id="comp_bar_chart" class="btn btn-primary submit_special" data-url="/comparison_bar_chart" title="Comparison Bar Chart" >
+                    Comparison Bar Chart
+                </button>
+
+
+                <button id="delete" class="btn btn-danger submit_special" style="margin-left: 15px;" data-url="/collections/delete" title="Delete this collection" >
+                    Delete Collection
+                </button>
+
           </form>
         </div>
 
@@ -66,8 +71,8 @@
             <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Add Record to Other Collection</button>
-            <button class="btn" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Remove Record</button>
+            <button class="btn btn-danger" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Delete From Collection</button>
+            <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Copy Record to Other Collection</button>
             <br />
             <br />
             <form id="export_form" method="POST" action="/export_traits_csv">
@@ -239,6 +244,14 @@
                 return submit_special(url)
             });
             $("#heatmap").on("click", function() {
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+                url = $(this).data("url")
+                return submit_special(url)
+            });
+            $("#comp_bar_chart").on("click", function() {
                 traits = $("#trait_table input:checked").map(function() {
                     return $(this).val();
                 }).get();

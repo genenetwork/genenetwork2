@@ -22,9 +22,9 @@
 <body style="width: 100% !important;">
     <!-- Navbar ================================================== -->
 
-    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation">
+    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation" style="width: 100%;">
 
-            <div class="container-fluid" style="width: 1500px !important;">
+            <div class="container-fluid" style="width: 100%;">
                 <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="navbar-header">
                 <a class="navbar-brand" href="/">GeneNetwork</a>
@@ -44,8 +44,8 @@
                         </li>
                         <li class="">
                             <a href="/collections/list">Collections
-                                {% if g.user_session.user_ob %}
-                                <span class="badge badge-info">{{ g.user_session.user_ob.display_num_collections() }}</span>
+                                {% if g.user_session.logged_in %}
+                                <span class="badge badge-info">{{ g.user_session.num_collections }}</span>
                                 {% else %}
                                 <span class="badge badge-info">{{ g.cookie_session.display_num_collections() }}</span>
                                 {% endif %}
@@ -71,7 +71,7 @@
                         </li>
                         <li class="">
                             {% if g.user_session.logged_in %}
-                            <a id="login_out" title="Signed in as {{ g.user_session.user_ob.name_and_org }}." href="/n/logout">Sign out</a>
+                            <a id="login_out" title="Signed in as {{ g.user_session.user_name }}" href="/n/logout">Sign out</a>
                             {% else %}
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}

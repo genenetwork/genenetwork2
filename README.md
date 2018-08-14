@@ -17,24 +17,34 @@ deploy GN2 and dependencies as a self contained unit on any machine.
 The database can be run separately as well as the source tree (for
 developers).  See the [installation docs](doc/README.org).
 
-## Test
+## Run
 
 Once installed GN2 can be run online through a browser interface
 
 ```sh
-./bin/genenetwork2
+genenetwork2
 ```
 
-(default is http://localhost:5003/). For more examples, including running scripts and a Python REPL
-see the startup script [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
+(default is http://localhost:5003/). For full examples (you'll need to
+set a number of environment variables), including running scripts and
+a Python REPL, see the startup script
+[./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
 
+## Testing
 
-We are building up automated
-testing using [mechanize](https://github.com/genenetwork/genenetwork2/tree/master/test/lib) which can be run with
+We are building 'Mechanical Rob' automated testing using Python
+[requests](https://github.com/genenetwork/genenetwork2/tree/master/test/lib)
+which can be run with something like
 
 ```sh
-./bin/test-website
+env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py -a http://localhost:5003
 ```
+
+The GN2_PROFILE is the Guix profile that contains all
+dependencies. The ./bin/genenetwork2 script sets up the environment
+and executes test-website.py in a Python interpreter. The -a switch
+says to run all tests and the URL points to the running GN2 http
+server.
 
 ## Documentation
 

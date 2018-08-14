@@ -1,3 +1,44 @@
+# Elasticsearch support
+#
+# Some helpful commands to view the database:
+#
+# You can test the server being up with
+#
+#   curl -H 'Content-Type: application/json' http://localhost:9200
+#
+# List all indices
+#
+#   curl -H 'Content-Type: application/json' 'localhost:9200/_cat/indices?v'
+#
+# To see the users index 'table'
+#
+#   curl http://localhost:9200/users
+#
+# To list all user ids
+#
+# curl -H 'Content-Type: application/json' http://localhost:9200/users/local/_search?pretty=true -d '
+# {
+#     "query" : {
+#         "match_all" : {}
+#     },
+#     "stored_fields": []
+# }'
+#
+# To view a record
+#
+#   curl -H 'Content-Type: application/json' http://localhost:9200/users/local/_search?pretty=true -d '
+#   {
+#     "query" : {
+#       "match" : { "email_address": "pjotr2017@thebird.nl"}
+#     }
+#   }'
+#
+#
+# To delete the users index and data (dangerous!)
+#
+#   curl -XDELETE -H 'Content-Type: application/json' 'localhost:9200/users'
+
+
 from elasticsearch import Elasticsearch, TransportError
 import logging
 
@@ -7,11 +48,11 @@ logger = getLogger(__name__)
 from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
 
 def test_elasticsearch_connection():
-    es = Elasticsearch(['http://'+ELASTICSEARCH_HOST+":"+ELASTICSEARCH_PORT+'/'], verify_certs=True)
+    es = Elasticsearch(['http://'+ELASTICSEARCH_HOST+":"+str(ELASTICSEARCH_PORT)+'/'], verify_certs=True)
     if not es.ping():
         logger.warning("Elasticsearch is DOWN")
 
-def get_elasticsearch_connection():
+def get_elasticsearch_connection(for_user=True):
     """Return a connection to ES. Returns None on failure"""
     logger.info("get_elasticsearch_connection")
     es = None
@@ -22,16 +63,29 @@ def get_elasticsearch_connection():
 
         es = Elasticsearch([{
             "host": ELASTICSEARCH_HOST, "port": ELASTICSEARCH_PORT
-        }]) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
+        }], timeout=30, retry_on_timeout=True) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
+
+        if for_user:
+            setup_users_index(es)
 
         es_logger = logging.getLogger("elasticsearch")
         es_logger.setLevel(logging.INFO)
         es_logger.addHandler(logging.NullHandler())
-    except:
-        logger.error("Failed to get elasticsearch connection")
+    except Exception as e:
+        logger.error("Failed to get elasticsearch connection", e)
         es = None
 
     return es
+
+def setup_users_index(es_connection):
+    if es_connection:
+        index_settings = {
+            "properties": {
+                "email_address": {
+                    "type": "keyword"}}}
+
+        es_connection.indices.create(index='users', ignore=400)
+        es_connection.indices.put_mapping(body=index_settings, index="users", doc_type="local")
 
 def get_user_by_unique_column(es, column_name, column_value, index="users", doc_type="local"):
     return get_item_by_unique_column(es, column_name, column_value, index=index, doc_type=doc_type)

@@ -5,15 +5,16 @@ from base.webqtlConfig import TMPDIR
 from utility import webqtlUtil
 from utility.tools import locate, TEMPDIR
 
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
+
 def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control, control_marker, manhattan_plot, pair_scan):
     geno_to_rqtl_function(dataset)
 
     ## Get pointers to some common R functions
     r_library     = ro.r["library"]                 # Map the library function
     r_c           = ro.r["c"]                       # Map the c function
-    r_sum         = ro.r["sum"]                     # Map the sum function
     plot          = ro.r["plot"]                    # Map the plot function
-    postscript    = ro.r["postscript"]              # Map the postscript function
     png           = ro.r["png"]                     # Map the png function
     dev_off       = ro.r["dev.off"]                 # Map the device off function
 
@@ -23,17 +24,13 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
     scanone         = ro.r["scanone"]               # Map the scanone function
     scantwo         = ro.r["scantwo"]               # Map the scantwo function
     calc_genoprob   = ro.r["calc.genoprob"]         # Map the calc.genoprob function
-    read_cross      = ro.r["read.cross"]            # Map the read.cross function
-    write_cross     = ro.r["write.cross"]           # Map the write.cross function
     GENOtoCSVR      = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
 
     crossname = dataset.group.name
     genofilelocation  = locate(crossname + ".geno", "genotype")
     crossfilelocation = TMPDIR + crossname + ".cross"
 
-    #print("Conversion of geno to cross at location:", genofilelocation, " to ", crossfilelocation)
-
-    cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)                                  # TODO: Add the SEX if that is available
+    cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)                            # TODO: Add the SEX if that is available
 
     if manhattan_plot:
         cross_object = calc_genoprob(cross_object)
@@ -42,18 +39,14 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
 
     cross_object = add_phenotype(cross_object, sanitize_rqtl_phenotype(vals))                 # Add the phenotype
 
-    # for debug: write_cross(cross_object, "csvr", "test.csvr")
-
     # Scan for QTLs
-    covar = create_covariates(control_marker, cross_object)                                                    # Create the additive covariate matrix
+    covar = create_covariates(control_marker, cross_object)                                   # Create the additive covariate matrix
 
     if pair_scan:
-        if do_control == "true":                                                # If sum(covar) > 0 we have a covariate matrix
-            print("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar, model=model, method=method, n_cluster = 16)
+        if do_control == "true":
+            logger.info("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar, model=model, method=method, n_cluster = 16)
         else:
-            print("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=model, method=method, n_cluster = 16)
-
-        #print("Pair scan results:", result_data_frame)
+            logger.info("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=model, method=method, n_cluster = 16)
 
         pair_scan_filename = webqtlUtil.genRandStr("scantwo_") + ".png"
         png(file=TEMPDIR+pair_scan_filename)
@@ -63,9 +56,9 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
         return process_pair_scan_results(result_data_frame)
     else:
         if do_control == "true":
-            print("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=model, method=method)
+            logger.info("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=model, method=method)
         else:
-            print("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=model, method=method)
+            logger.info("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=model, method=method)
 
         if num_perm > 0 and permCheck == "ON":                                                                   # Do permutation (if requested by user)
             if do_control == "true":
@@ -79,7 +72,6 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
             return process_rqtl_results(result_data_frame)
 
 def geno_to_rqtl_function(dataset):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
-
     ro.r("""
        trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
 
@@ -117,15 +109,13 @@ def add_phenotype(cross, pheno_as_string):
 def create_covariates(control_marker, cross):
     ro.globalenv["the_cross"] = cross
     ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
-    userinputS = control_marker.replace(" ", "").split(",")                 # TODO: sanitize user input, Never Ever trust a user
+    userinputS = control_marker.replace(" ", "").split(",")               # TODO: sanitize user input, Never Ever trust a user
     covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
-    #print("Marker names of selected covariates:", covariate_names)
     ro.r('covnames <- c(' + covariate_names + ')')
     ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
     ro.r('covnames <- covnames[covInGeno]')
     ro.r("cat('covnames (purged): ', covnames,'\n')")
     ro.r('covariates <- genotypes[,covnames]')                            # Get the covariate matrix by using the marker name as index to the genotype file
-    #print("R/qtl matrix of covariates:", ro.r["covariates"])
     return ro.r["covariates"]
 
 def sanitize_rqtl_phenotype(vals):
@@ -149,7 +139,6 @@ def process_pair_scan_results(result):
 
     result = result[1]
     output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
-    #print("R/qtl scantwo output:", output)
 
     for i, line in enumerate(result.iter_row()):
         marker = {}
@@ -175,9 +164,7 @@ def process_rqtl_perm_results(num_perm, results):
 
 def process_rqtl_results(result):        # TODO: how to make this a one liner and not copy the stuff in a loop
     qtl_results = []
-
     output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
-    #print("R/qtl scanone output:", output)
 
     for i, line in enumerate(result.iter_row()):
         marker = {}
@@ -188,4 +175,3 @@ def process_rqtl_results(result):        # TODO: how to make this a one liner an
         qtl_results.append(marker)
 
     return qtl_results
-

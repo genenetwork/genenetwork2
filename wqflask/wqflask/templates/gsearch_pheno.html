@@ -40,23 +40,21 @@
                         <th data-export="Authors">Authors</th>
                         <th data-export="Year">Year</th>
                         <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                        <th data-export="LRS Location">Max LRS Location</th>
                         <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                     </tr>
                 </thead>
                 <tbody>
                  {% for this_trait in trait_list %}
-                    <tr id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                        <td align="center" style="padding-right: 0px; padding-left: 5px;"><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></td>
+                    <tr id="trait:{{ this_trait.name }}:{{ this_trait.dataset }}">
+                        <td align="center" style="padding-right: 0px; padding-left: 5px;"><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset)) }}"></td>
                         <td align="right" data-export="{{ loop.index }}">{{ loop.index }}</td>
-                        <td data-export="{{ this_trait.dataset.group.species }}">{{ this_trait.dataset.group.species }}</td>
-                        <td data-export="{{ this_trait.dataset.group.name }}">{{ this_trait.dataset.group.name }}</td>
-                        <td data-export="{{ this_trait.name }}"><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset.name)}}">{{ this_trait.name }}</a></td>
-                        <td data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</td>
+                        <td data-export="{{ this_trait.species }}">{{ this_trait.species }}</td>
+                        <td data-export="{{ this_trait.group }}">{{ this_trait.group }}</td>
+                        <td data-export="{{ this_trait.name }}"><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset)}}">{{ this_trait.name }}</a></td>
+                        <td data-export="{{ this_trait.description }}">{{ this_trait.description }}</td>
                         <td data-export="{{ this_trait.authors }}">{{ this_trait.authors }}</td>
                         <td data-export="{{ this_trait.pubmed_text }}" data-order="{{ this_trait.pubmed_text }}"><a href="{{ this_trait.pubmed_link }}">{{ this_trait.pubmed_text }}</a></td>
                         <td data-export="{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}" align="right">{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                        <td data-export="{{ this_trait.LRS_location_repr }}" align="right">{{ this_trait.LRS_location_repr }}</td>
                         <td data-export="{% if this_trait.additive != "" %}{{ this_trait.additive }}{% else %}N/A{% endif %}" align="right">{% if this_trait.additive != "" %}{{ this_trait.additive }}{% else %}N/A{% endif %}</td>
                     </tr>
                 {% endfor %}
@@ -72,7 +70,6 @@
                         <th>Authors</th>
                         <th>Year</th>
                         <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                        <th data-export="LRS Location">Max LRS Location</th>
                         <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
                     </tr>
                 </tfoot>
@@ -135,7 +132,6 @@
                     { "type": "natural", "width": "25%"},
                     { "type": "natural" },
                     { "type": "natural", "width": "8%"},
-                    { "type": "natural", "width": "12%"},
                     { "type": "natural" }
                 ],
                 "columnDefs": [

@@ -6,30 +6,15 @@ import datetime
 import simplejson as json
 
 from flask import request
-from flask.ext.sqlalchemy import SQLAlchemy
 
 from wqflask import app
 
 import sqlalchemy
-
-from sqlalchemy import (Column, Integer, String, Table, ForeignKey, Unicode, Boolean, DateTime,
+from sqlalchemy import (Column, ForeignKey, Unicode, Boolean, DateTime,
                         Text, Index)
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 from wqflask.database import Base, init_db
-
-
-
-# Define models
-#roles_users = Table('roles_users',
-#        Column('user_id', Integer(), ForeignKey('user.the_id')),
-#        Column('role_id', Integer(), ForeignKey('role.the_id')))
-
-#class Role(Base):
-#    __tablename__ = "role"
-#    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
-#    name = Column(Unicode(80), unique=True, nullable=False)
-#    description = Column(Unicode(255))
 
 class User(Base):
     __tablename__ = "user"
@@ -133,11 +118,6 @@ class User(Base):
         except IndexError:
             return None
 
-
-    #roles = relationship('Role', secondary=roles_users,
-    #                        backref=backref('users', lazy='dynamic'))
-
-
 class Login(Base):
     __tablename__ = "login"
     id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
@@ -177,13 +157,8 @@ class UserCollection(Base):
         except:
             return 0
 
-    #@property
-    #def display_num_members(self):
-    #    return display_collapsible(self.num_members)
-
     def members_as_set(self):
         return set(json.loads(self.members))
-
 
 def display_collapsible(number):
     if number:
@@ -191,8 +166,6 @@ def display_collapsible(number):
     else:
         return ""
 
-
 def user_uuid():
     """Unique cookie for a user"""
     user_uuid = request.cookies.get('user_uuid')
-

@@ -10,9 +10,7 @@ logger = utility.logger.getLogger(__name__ )
 
 def run_plink(this_trait, dataset, species, vals, maf):
     plink_output_filename = webqtlUtil.genRandStr("%s_%s_"%(dataset.group.name, this_trait.name))
-
     gen_pheno_txt_file(dataset, vals)
-    #gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = plink_output_filename)
 
     plink_command = PLINK_COMMAND + ' --noweb --bfile %s/%s --no-pheno --no-fid --no-parents --no-sex --maf %s --out %s%s --assoc ' % (
         flat_files('mapping'), dataset.group.name, maf, TMPDIR, plink_output_filename)
@@ -21,12 +19,6 @@ def run_plink(this_trait, dataset, species, vals, maf):
     os.system(plink_command)
 
     count, p_values = parse_plink_output(plink_output_filename, species)
-
-    #for marker in self.dataset.group.markers.markers:
-    #    if marker['name'] not in included_markers:
-    #        logger.debug("marker:", marker)
-    #        self.dataset.group.markers.markers.remove(marker)
-    #        #del self.dataset.group.markers.markers[marker]
 
     logger.debug("p_values:", p_values)
     dataset.group.markers.add_pvalues(p_values)
@@ -108,7 +100,6 @@ def parse_plink_output(output_filename, species):
 
     result_fp = open("%s%s.qassoc"% (TMPDIR, output_filename), "rb")
 
-    header_line = result_fp.readline()# read header line
     line = result_fp.readline()
 
     value_list = [] # initialize value list, this list will include snp, bp and pvalue info
@@ -155,11 +146,6 @@ def parse_plink_output(output_filename, species):
             line = result_fp.readline()
         else:
             line = result_fp.readline()
-
-    #if p_value_list:
-    #    min_p_value = min(p_value_list)
-    #else:
-    #    min_p_value = 0
 
     return count, p_value_dict
 

@@ -13,7 +13,7 @@
                 <li>
                     <a href="#probability_plot" data-toggle="tab">Probability Plot</a>
                 </li>
-                {% if g.user_session.user_ob %}
+                {% if g.user_session.logged_in %}
                 <li>
                     <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
                 </li>
@@ -72,7 +72,7 @@
                             <i class="icon-signal"></i> Sort By Value
                             </button>
                         </div>
-                        {% if g.user_session.user_ob %}
+                        {% if g.user_session.logged_in %}
                         <div class="btn-group">
                             <button type="button" class="btn btn-default" id="color_by_trait">
                                 <i class="icon-tint"></i> Color by Trait
@@ -126,7 +126,7 @@
                         <div id="box_plot"></div>
                     </div>
                 </div>
-                {% if g.user_session.user_ob %}
+                {% if g.user_session.logged_in %}
                 <div class="tab-pane" id="scatterplot_matrix">
                     
                     <div style="margin-bottom:40px;" class="btn-group">
