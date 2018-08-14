@@ -257,6 +257,12 @@ if that works run genenetwork after setting SQL_URI to something like
 
 : export SQL_URI=mysql://gn2:mysql_password@127.0.0.1/db_webqtl_s
 
+* Running ElasticSearch
+
+In order to start up elasticsearch, use the following command:
+
+: env JAVA_HOME=/opt/jdk-9.0.4 /opt/elasticsearch-6.2.1/bin/elasticsearch
+
 * Read more
 
 If you want to understand the architecture of GN2 read
