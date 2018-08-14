@@ -60,7 +60,7 @@ class AnonUser(object):
         else:
             logger.debug("CREATING NEW ANON COOKIE")
             self.anon_id, self.cookie = create_signed_cookie()
-            res = flask.make_response()
+            res = make_response()
             res.set_cookie(self.cookie_name, self.cookie)
         self.key = "anon_collection:v1:{}".format(self.anon_id)
 
