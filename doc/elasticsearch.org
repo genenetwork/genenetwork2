@@ -1,5 +1,12 @@
 * Elasticsearch
 
+** Introduction
+
+GeneNetwork uses elasticsearch (ES) for all things considered
+'state'. One example is user collections, another is user management.
+
+** Example
+
 To get the right environment, first you can get a python REPL with something like
 
 : env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ../etc/default_settings.py -cli python
@@ -39,3 +46,202 @@ record['hits']['hits'][0][u'_source']['email_address']
 u"myname@email.com"
 
 #+END_SRC
+
+** Health
+
+ES provides support for checking its health:
+
+: curl -XGET http://localhost:9200/_cluster/health?pretty=true
+
+#+BEGIN_SRC json
+
+
+    {
+      "cluster_name" : "asgard",
+      "status" : "yellow",
+      "timed_out" : false,
+      "number_of_nodes" : 1,
+      "number_of_data_nodes" : 1,
+      "active_primary_shards" : 5,
+      "active_shards" : 5,
+      "relocating_shards" : 0,
+      "initializing_shards" : 0,
+      "unassigned_shards" : 5
+    }
+
+#+END_SRC
+
+Yellow means just one instance is running (no worries).
+
+To get full cluster info
+
+: curl -XGET "localhost:9200/_cluster/stats?human&pretty"
+
+#+BEGIN_SRC json
+{
+  "_nodes" : {
+    "total" : 1,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "cluster_name" : "elasticsearch",
+  "timestamp" : 1529050366452,
+  "status" : "yellow",
+  "indices" : {
+    "count" : 3,
+    "shards" : {
+      "total" : 15,
+      "primaries" : 15,
+      "replication" : 0.0,
+      "index" : {
+        "shards" : {
+          "min" : 5,
+          "max" : 5,
+          "avg" : 5.0
+        },
+        "primaries" : {
+          "min" : 5,
+          "max" : 5,
+          "avg" : 5.0
+        },
+        "replication" : {
+          "min" : 0.0,
+          "max" : 0.0,
+          "avg" : 0.0
+        }
+      }
+    },
+    "docs" : {
+      "count" : 14579,
+      "deleted" : 0
+    },
+    "store" : {
+      "size" : "44.7mb",
+      "size_in_bytes" : 46892794
+    },
+    "fielddata" : {
+      "memory_size" : "0b",
+      "memory_size_in_bytes" : 0,
+      "evictions" : 0
+    },
+    "query_cache" : {
+      "memory_size" : "0b",
+      "memory_size_in_bytes" : 0,
+      "total_count" : 0,
+      "hit_count" : 0,
+      "miss_count" : 0,
+      "cache_size" : 0,
+      "cache_count" : 0,
+      "evictions" : 0
+    },
+    "completion" : {
+      "size" : "0b",
+      "size_in_bytes" : 0
+    },
+    "segments" : {
+      "count" : 24,
+      "memory" : "157.3kb",
+      "memory_in_bytes" : 161112,
+      "terms_memory" : "122.6kb",
+      "terms_memory_in_bytes" : 125569,
+      "stored_fields_memory" : "15.3kb",
+      "stored_fields_memory_in_bytes" : 15728,
+      "term_vectors_memory" : "0b",
+      "term_vectors_memory_in_bytes" : 0,
+      "norms_memory" : "10.8kb",
+      "norms_memory_in_bytes" : 11136,
+      "points_memory" : "111b",
+      "points_memory_in_bytes" : 111,
+      "doc_values_memory" : "8.3kb",
+      "doc_values_memory_in_bytes" : 8568,
+      "index_writer_memory" : "0b",
+      "index_writer_memory_in_bytes" : 0,
+      "version_map_memory" : "0b",
+      "version_map_memory_in_bytes" : 0,
+      "fixed_bit_set" : "0b",
+      "fixed_bit_set_memory_in_bytes" : 0,
+      "max_unsafe_auto_id_timestamp" : -1,
+      "file_sizes" : { }
+    }
+  },
+  "nodes" : {
+    "count" : {
+      "total" : 1,
+      "data" : 1,
+      "coordinating_only" : 0,
+      "master" : 1,
+      "ingest" : 1
+    },
+    "versions" : [
+      "6.2.1"
+    ],
+    "os" : {
+      "available_processors" : 16,
+      "allocated_processors" : 16,
+      "names" : [
+        {
+          "name" : "Linux",
+          "count" : 1
+        }
+      ],
+      "mem" : {
+        "total" : "125.9gb",
+        "total_in_bytes" : 135189286912,
+        "free" : "48.3gb",
+        "free_in_bytes" : 51922628608,
+        "used" : "77.5gb",
+        "used_in_bytes" : 83266658304,
+        "free_percent" : 38,
+        "used_percent" : 62
+      }
+    },
+    "process" : {
+      "cpu" : {
+        "percent" : 0
+      },
+      "open_file_descriptors" : {
+        "min" : 415,
+        "max" : 415,
+        "avg" : 415
+      }
+    },
+    "jvm" : {
+      "max_uptime" : "1.9d",
+      "max_uptime_in_millis" : 165800616,
+      "versions" : [
+        {
+          "version" : "9.0.4",
+          "vm_name" : "OpenJDK 64-Bit Server VM",
+          "vm_version" : "9.0.4+11",
+          "vm_vendor" : "Oracle Corporation",
+          "count" : 1
+        }
+      ],
+      "mem" : {
+        "heap_used" : "1.1gb",
+        "heap_used_in_bytes" : 1214872032,
+        "heap_max" : "23.8gb",
+        "heap_max_in_bytes" : 25656426496
+      },
+      "threads" : 110
+    },
+    "fs" : {
+      "total" : "786.4gb",
+      "total_in_bytes" : 844400918528,
+      "free" : "246.5gb",
+      "free_in_bytes" : 264688160768,
+      "available" : "206.5gb",
+      "available_in_bytes" : 221771468800
+    },
+    "plugins" : [ ],
+    "network_types" : {
+      "transport_types" : {
+        "netty4" : 1
+      },
+      "http_types" : {
+        "netty4" : 1
+      }
+    }
+  }
+}
+#+BEGIN_SRC json
