@@ -25,9 +25,17 @@ import os
 import sys
 
 GN_VERSION = open("../etc/VERSION","r").read()
+GN_SERVER_URL = "http://localhost:8880/" # REST API server
+
+# ---- MySQL
+
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQL_ALCHEMY_POOL_RECYCLE = 3600
-GN_SERVER_URL = "http://localhost:8880/" # REST API server
+
+# ---- Elastic search
+
+ELASTICSEARCH_HOST = "localhost"
+ELASTICSEARCH_PORT = 9200
 
 # ---- Flask configuration (see website)
 TRAP_BAD_REQUEST_ERRORS = True
