@@ -12,6 +12,8 @@ from collections import OrderedDict
 import redis
 Redis = redis.StrictRedis()
 
+import scipy.stats as ss
+
 from flask import Flask, g
 
 from htmlgen import HTMLgen2 as HT
@@ -136,6 +138,8 @@ class ShowTrait(object):
                 #self.nearest_marker2 = ""
 
         self.make_sample_lists()
+
+        self.qnorm_vals = quantile_normalize_vals(self.sample_groups)
 
         # Todo: Add back in the ones we actually need from below, as we discover we need them
         hddn = OrderedDict()
@@ -280,6 +284,44 @@ class ShowTrait(object):
                                             header="%s Only" % (self.dataset.group.name))
             self.sample_groups = (primary_samples,)
         self.dataset.group.allsamples = all_samples_ordered
+
+def quantile_normalize_vals(sample_groups):
+    def normf(trait_vals):
+        ranked_vals = ss.rankdata(trait_vals)
+        p_list = []
+        for i, val in enumerate(trait_vals):
+            p_list.append(((i+1) - 0.5)/len(trait_vals))
+
+        z = ss.norm.ppf(p_list)
+        normed_vals = []
+        for rank in ranked_vals:
+            normed_vals.append("%0.3f" % z[int(rank)-1])
+
+        return normed_vals
+
+    qnorm_by_group = []
+    for sample_type in sample_groups:
+        trait_vals = []
+        for sample in sample_type.sample_list:
+            try:
+                trait_vals.append(float(sample.value))
+            except:
+                continue
+
+        qnorm_vals = normf(trait_vals)
+
+        qnorm_vals_with_x = []
+        counter = 0
+        for sample in sample_type.sample_list:
+            if sample.display_value == "x":
+                qnorm_vals_with_x.append("x")
+            else:
+                qnorm_vals_with_x.append(qnorm_vals[counter])
+                counter += 1
+
+        qnorm_by_group.append(qnorm_vals_with_x)
+
+    return qnorm_by_group
 
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr

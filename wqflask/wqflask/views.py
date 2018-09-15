@@ -43,6 +43,7 @@ from base.data_set import DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.heatmap import heatmap
+from wqflask.comparison_bar_chart import comparison_bar_chart
 from wqflask.marker_regression import marker_regression
 from wqflask.marker_regression import marker_regression_gn1
 from wqflask.network_graph import network_graph
@@ -461,6 +462,27 @@ def heatmap_page():
 
     else:
         rendered_template = render_template("empty_collection.html", **{'tool':'Heatmap'})
+
+    return rendered_template
+
+@app.route("/comparison_bar_chart", methods=('POST',))
+def comp_bar_chart_page():
+    logger.info("In comp bar chart, request.form is:", pf(request.form))
+    logger.info(request.url)
+
+    start_vars = request.form
+
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        template_vars = comparison_bar_chart.ComparisonBarChart(request.form)
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                               default=json_default_handler,
+                                               indent="   ")
+
+        result = template_vars.__dict__
+        rendered_template = render_template("comparison_bar_chart.html", **result)
+    else:
+        rendered_template = render_template("empty_collection.html", **{'tool':'Comparison Bar Chart'})
 
     return rendered_template
 

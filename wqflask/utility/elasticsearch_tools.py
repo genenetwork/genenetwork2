@@ -63,7 +63,7 @@ def get_elasticsearch_connection(for_user=True):
 
         es = Elasticsearch([{
             "host": ELASTICSEARCH_HOST, "port": ELASTICSEARCH_PORT
-        }]) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
+        }], timeout=30, retry_on_timeout=True) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
 
         if for_user:
             setup_users_index(es)

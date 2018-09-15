@@ -37,7 +37,7 @@ class SampleList(object):
 
         self.get_attributes()
 
-        self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
+        #self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
 
         if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
             self.get_extra_attribute_values()

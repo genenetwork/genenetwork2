@@ -247,6 +247,9 @@
       }
       root.bar_data[0]['x'] = trait_samples
       Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout);
+      Plotly.relayout('bar_chart', {
+          'yaxis.autorange': true
+      });
     };
 
     redraw_box_plot = function() {
@@ -549,6 +552,7 @@
     };
     $('#block_outliers').click(block_outliers);
     reset_samples_table = function() {
+      $('input[name="transform"]').val("");
       return $('.trait_value_input').each((function(_this) {
         return function(_index, element) {
           console.log("value is:", $(element).val());
@@ -559,6 +563,72 @@
       })(this));
     };
     $('#reset').click(reset_samples_table);
+
+    log_normalize_data = function() {
+      return $('.trait_value_input').each((function(_this) {
+        return function(_index, element) {
+          current_value = parseFloat($(element).data("value")) + 1;
+          if(isNaN(current_value)) {
+            return current_value
+          } else {
+            $(element).val(Math.log2(current_value).toFixed(3));
+            return Math.log2(current_value).toFixed(3)
+          }
+        };
+      })(this));
+    };
+
+    sqrt_normalize_data = function() {
+      return $('.trait_value_input').each((function(_this) {
+        return function(_index, element) {
+          current_value = parseFloat($(element).data("value")) + 1;
+          if(isNaN(current_value)) {
+            return current_value
+          } else {
+            $(element).val(Math.sqrt(current_value).toFixed(3));
+            return Math.sqrt(current_value).toFixed(3)
+          }
+        };
+      })(this));
+    };
+
+    qnorm_data = function() {
+      return $('.trait_value_input').each((function(_this) {
+        return function(_index, element) {
+          current_value = $(element).data("value");
+          if(isNaN(current_value)) {
+            return current_value
+          } else {
+            $(element).val($(element).data("qnorm"));
+            return $(element).data("qnorm");
+          }
+        };
+      })(this));
+    };
+
+    normalize_data = function() {
+      if ($('#norm_method option:selected').val() == 'log2'){
+        if ($('input[name="transform"]').val() != "log2") {
+          log_normalize_data()
+          $('input[name="transform"]').val("log2")
+        }
+      }
+      else if ($('#norm_method option:selected').val() == 'sqrt'){
+        if ($('input[name="transform"]').val() != "sqrt") {
+          sqrt_normalize_data()
+          $('input[name="transform"]').val("sqrt")
+        }
+      }
+      else if ($('#norm_method option:selected').val() == 'qnorm'){
+        if ($('input[name="transform"]').val() != "qnorm") {
+          qnorm_data()
+          $('input[name="transform"]').val("qnorm")
+        }
+      }
+    }
+
+    $('#normalize').click(normalize_data);
+
     switch_qnorm_data = function() {
       return $('.trait_value_input').each((function(_this) {
         return function(_index, element) {
@@ -734,7 +804,7 @@
         box_data = [trace1, trace2, trace3]
     } else {
         var box_layout = {
-            width: 500,
+            width: 300,
             height: 500,
             margin: {
                 l: 50,
@@ -819,6 +889,7 @@
     max_y_val = Math.max(...positive_error_vals)
 
     if (min_y_val == 0) {
+        range_top = max_y_val + Math.abs(max_y_val)*0.1
         range_bottom = 0;
     } else {
         range_top = max_y_val + Math.abs(max_y_val)*0.1
@@ -834,7 +905,7 @@
 
     var layout = {
         yaxis: {
-            range: [range_bottom, range_top]
+            range: [range_bottom, range_top],
         },
         width: 1200,
         height: 500,
@@ -884,6 +955,7 @@
     $('#block_outliers').click(edit_data_change);
     $('#reset').click(edit_data_change);
     $('#qnorm').click(edit_data_change);
+    $('#normalize').click(edit_data_change);
     return console.log("end");
   });
 

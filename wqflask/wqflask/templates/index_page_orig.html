@@ -34,11 +34,11 @@
 
                                 <div class="form-group">
                                     <label for="species" class="col-xs-1 control-label" style="width: 65px !important;">Species:</label>
-                                    <div class="col-xs-10 controls input-append" style="padding-right: 0px;">
-                                        <div class="col-xs-8">
-                                          <select name="species" id="species" class="form-control span3" style="width: 280px !important;"></select>
+                                    <div class="col-xs-10 controls input-append" style="display: flex; padding-left: 20px;">
+                                        <div class="col-8">
+                                          <select name="species" id="species" class="form-control" style="width: 280px !important;"></select>
                                         </div>
-                                        <div class="col-xs-4">
+                                        <div class="col-4" style="margin-left: 10px;">
                                           <button type="button" id="make_default" class="btn btn-primary form-control">Make Default</button>
                                         </div>
                                     </div>
@@ -46,9 +46,9 @@
 
                                 <div class="form-group">
                                     <label for="group" class="col-xs-1 control-label" style="width: 65px !important;">Group:</label>
-                                    <div class="col-xs-10 controls input-append">
-                                        <div class="col-xs-8">
-                                          <select name="group" id="group" class="form-control span3" style="width: 280px !important;"></select>
+                                    <div class="col-xs-10 controls input-append" style="padding-left: 20px;">
+                                        <div class="col-8">
+                                          <select name="group" id="group" class="form-control" style="width: 280px !important;"></select>
                                           <i class="icon-question-sign"></i>
                                         </div>
                                     </div>
@@ -56,21 +56,21 @@
 
                                 <div class="form-group">
                                     <label for="tissue" class="col-xs-1 control-label" style="width: 65px !important;">Type:</label>
-                                    <div class="col-xs-10 controls">
-                                        <div class="col-xs-8">
-                                          <select name="type" id="type" class="form-control span3" style="width: 280px !important;"></select>
+                                    <div class="col-xs-10 controls" style="padding-left: 20px;">
+                                        <div class="col-8">
+                                          <select name="type" id="type" class="form-control" style="width: 280px !important;"></select>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="dataset" class="col-xs-1 control-label" style="width: 65px !important;">Dataset:</label>
-                                    <div class="col-xs-10 controls input-append">
-                                        <div class="col-xs-10">
-                                          <select name="dataset" id="dataset" class="form-control span5" style="width: 340px !important;"></select>
+                                    <div class="col-xs-10 controls input-append" style="display: flex; padding-left: 20px;">
+                                        <div class="col-9">
+                                          <select name="dataset" id="dataset" class="form-control" style="width: 340px !important;"></select>
                                           <i class="icon-question-sign"></i>
                                         </div>
-                                        <div class="col-xs-2">
+                                        <div class="col-3" style="margin-left: 10px;">
                                           <button type="button" id="dataset_info" class="btn btn-primary form-control" style="width: 75px !important;">Info</button>
                                         </div>
                                     </div>
@@ -85,8 +85,8 @@
 
                                 <div class="form-group">
                                     <label for="or_search" class="col-xs-1 control-label" style="padding-left: 0px; padding-right: 0px; width: 65px !important;">Get Any:</label>
-                                    <div class="col-xs-10 controls">
-                                        <div class="col-xs-8">
+                                    <div class="col-xs-10 controls" style="padding-left: 20px;">
+                                        <div class="col-8">
                                           <textarea onkeydown="pressed(event)" name="search_terms_or" rows="1" class="form-control search-query" style="max-width: 550px; width: 450px !important;" id="or_search"></textarea>
                                         </div>
                                     </div>
@@ -95,8 +95,8 @@
                                 <!--  GET ANY HELP   -->
                                 <div class="form-group">
                                     <label for="btsearch" class="col-xs-1 control-label" style="width: 65px !important;"></label>
-                                    <div class="col-xs-10 controls">
-                                        <div class="col-xs-12 controls">
+                                    <div class="col-xs-10 controls" style="padding-left: 20px;">
+                                        <div class="col-12 controls">
                                             Enter terms, genes, ID numbers in the <b>Search</b> field.<br>
                                             Use <b>*</b> or <b>?</b> wildcards (Cyp*a?, synap*).<br>
                                             Use <b>quotes</b> for terms such as <i>"tyrosine kinase"</i>.
@@ -106,8 +106,8 @@
 
                                 <div class="form-group">
                                     <label for="and_search" class="col-xs-1 control-label" style="padding-left: 0px; padding-right: 0px; width: 65px !important;">Combined:</label>
-                                    <div class="col-xs-10 controls">
-                                        <div class="col-xs-8">
+                                    <div class="col-xs-10 controls" style="padding-left: 20px;">
+                                        <div class="col-8">
                                           <textarea onkeydown="pressed(event)" name="search_terms_and" rows="1" class="form-control search-query" style="max-width: 550px; width: 450px !important;" id="and_search"></textarea>
                                         </div>
                                     </div>
@@ -115,8 +115,8 @@
 
                                 <div class="form-group">
                                     <label for="btsearch" class="col-xs-1 control-label" style="width: 65px !important;"></label>
-                                    <div class="col-xs-10 controls">
-                                        <div class="col-xs-2 controls" style="width: 100px !important;">
+                                    <div class="col-xs-10 controls" style="padding-left: 20px;">
+                                        <div class="col-2 controls" style="width: 100px !important;">
                                             <input id="btsearch" type="submit" class="btn btn-primary form-control" value="Search">
                                         </div>
                                     </div>

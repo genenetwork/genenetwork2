@@ -68,12 +68,10 @@ class MarkerRegression(object):
     # ** GENES **********
     BAND_SPACING = 4
 
-    #ENSEMBL_BAND_Y      = UCSC_BAND_Y + UCSC_BAND_HEIGHT + BAND_SPACING
-    UCSC_BAND_HEIGHT = 10
-    ENSEMBL_BAND_HEIGHT = 10
-    WEBQTL_BAND_HEIGHT = 10
+    BAND_HEIGHT = 10
+    BAND_HEIGHT = 10
+    BAND_HEIGHT = 10
 
-    #GENE_START_Y        = ENSEMBL_BAND_Y + ENSEMBL_BAND_HEIGHT + BAND_SPACING
     NUM_GENE_ROWS       = 10
     EACH_GENE_HEIGHT    = 6  # number of pixels tall, for each gene to display
     EACH_GENE_ARROW_WIDTH = 5
@@ -123,6 +121,10 @@ class MarkerRegression(object):
     CLICKABLE_WEBQTL_REGION_COLOR     = pid.HexColor(0xF5D3D3)
     CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR = pid.HexColor(0xFCE9E9)
     CLICKABLE_WEBQTL_TEXT_COLOR       = pid.HexColor(0x912828)
+
+    CLICKABLE_PHENOGEN_REGION_COLOR   = pid.HexColor(0xA2FB94)
+    CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR = pid.HexColor(0xCEFEC7)
+    CLICKABLE_PHENOGEN_TEXT_COLOR     = pid.HexColor(0x1FD504)
 
     CLICKABLE_UCSC_REGION_COLOR     = pid.HexColor(0xDDDDEE)
     CLICKABLE_UCSC_REGION_OUTLINE_COLOR = pid.HexColor(0xEDEDFF)
@@ -498,7 +500,10 @@ class MarkerRegression(object):
         #Drawing Area Height
         drawAreaHeight = plotHeight
         if self.plotScale == 'physic' and self.selectedChr > -1:
-            drawAreaHeight -= self.ENSEMBL_BAND_HEIGHT + self.UCSC_BAND_HEIGHT+ self.WEBQTL_BAND_HEIGHT + 3*self.BAND_SPACING+ 10*zoom
+            if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
+                drawAreaHeight -= 4*self.BAND_HEIGHT + 4*self.BAND_SPACING+ 10*zoom
+            else:
+                drawAreaHeight -= 3*self.BAND_HEIGHT + 3*self.BAND_SPACING+ 10*zoom
             if self.geneChecked:
                 drawAreaHeight -= self.NUM_GENE_ROWS*self.EACH_GENE_HEIGHT + 3*self.BAND_SPACING + 10*zoom
         else:
@@ -1023,7 +1028,10 @@ class MarkerRegression(object):
 
             #Draw Genes
             geneYLocation = yPaddingTop + (gIndex % self.NUM_GENE_ROWS) * self.EACH_GENE_HEIGHT*zoom
-            geneYLocation += self.UCSC_BAND_HEIGHT + self.BAND_SPACING + self.ENSEMBL_BAND_HEIGHT + self.BAND_SPACING + self.WEBQTL_BAND_HEIGHT + self.BAND_SPACING
+            if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
+                geneYLocation += 4*self.BAND_HEIGHT + 4*self.BAND_SPACING
+            else:
+                geneYLocation += 3*self.BAND_HEIGHT + 3*self.BAND_SPACING
 
             #draw the detail view
             if self.endMb - self.startMb <= self.DRAW_DETAIL_MB and geneEndPix - geneStartPix > self.EACH_GENE_ARROW_SPACING * 3:
@@ -1217,7 +1225,10 @@ class MarkerRegression(object):
                 #Draw Genes
 
                 geneYLocation = yPaddingTop + self.NUM_GENE_ROWS * (self.EACH_GENE_HEIGHT)*zoom
-                geneYLocation += self.UCSC_BAND_HEIGHT + self.BAND_SPACING + self.ENSEMBL_BAND_HEIGHT + self.BAND_SPACING + self.WEBQTL_BAND_HEIGHT + self.BAND_SPACING
+                if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
+                    geneYLocation += 4*self.BAND_HEIGHT + 4*self.BAND_SPACING
+                else:
+                    geneYLocation += 3*self.BAND_HEIGHT + 3*self.BAND_SPACING
 
                 if self.genotype[0][i].name != " - " :
 
@@ -1335,49 +1346,70 @@ class MarkerRegression(object):
         i = 0
 
         paddingTop = yTopOffset
-        ucscPaddingTop = paddingTop + self.WEBQTL_BAND_HEIGHT + self.BAND_SPACING
-        ensemblPaddingTop = ucscPaddingTop + self.UCSC_BAND_HEIGHT + self.BAND_SPACING
+        if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
+            phenogenPaddingTop = paddingTop + (self.BAND_HEIGHT + self.BAND_SPACING)
+            ucscPaddingTop = paddingTop + 2*(self.BAND_HEIGHT + self.BAND_SPACING)
+            ensemblPaddingTop = paddingTop + 3*(self.BAND_HEIGHT + self.BAND_SPACING)
+        else:
+            ucscPaddingTop = paddingTop + (self.BAND_HEIGHT + self.BAND_SPACING)
+            ensemblPaddingTop = paddingTop + 2*(self.BAND_HEIGHT + self.BAND_SPACING)
 
         if zoom == 1:
             for pixel in range(xLeftOffset, xLeftOffset + plotWidth, pixelStep):
 
                 calBase = self.kONE_MILLION*(startMb + (endMb-startMb)*(pixel-xLeftOffset-0.0)/plotWidth)
+                if pixel == (xLeftOffset + pixelStep*2):
+                  logger.debug("CALBASE:", calBase)
+                  logger.debug("FLANKING:", flankingWidthInBases)
 
                 xBrowse1 = pixel
                 xBrowse2 = min(xLeftOffset + plotWidth, (pixel + pixelStep - 1))
 
-                WEBQTL_COORDS = "%d, %d, %d, %d" % (xBrowse1, paddingTop, xBrowse2, (paddingTop+self.WEBQTL_BAND_HEIGHT))
+                WEBQTL_COORDS = "%d, %d, %d, %d" % (xBrowse1, paddingTop, xBrowse2, (paddingTop+self.BAND_HEIGHT))
                 WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr - 1, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
 
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
                 gifmap.areas.append(HT.Area(shape='rect',coords=WEBQTL_COORDS,href=WEBQTL_HREF, title=WEBQTL_TITLE))
-                canvas.drawRect(xBrowse1, paddingTop, xBrowse2, (paddingTop + self.WEBQTL_BAND_HEIGHT), edgeColor=self.CLICKABLE_WEBQTL_REGION_COLOR, fillColor=self.CLICKABLE_WEBQTL_REGION_COLOR)
-                canvas.drawLine(xBrowse1, paddingTop, xBrowse1, (paddingTop + self.WEBQTL_BAND_HEIGHT), color=self.CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR)
+                canvas.drawRect(xBrowse1, paddingTop, xBrowse2, (paddingTop + self.BAND_HEIGHT), edgeColor=self.CLICKABLE_WEBQTL_REGION_COLOR, fillColor=self.CLICKABLE_WEBQTL_REGION_COLOR)
+                canvas.drawLine(xBrowse1, paddingTop, xBrowse1, (paddingTop + self.BAND_HEIGHT), color=self.CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR)
 
-                UCSC_COORDS = "%d, %d, %d, %d" %(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.UCSC_BAND_HEIGHT))
+                if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
+                    PHENOGEN_COORDS = "%d, %d, %d, %d" % (xBrowse1, phenogenPaddingTop, xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT))
+                    if self.dataset.group.species == "mouse":
+                        PHENOGEN_HREF = "https://phenogen.ucdenver.edu/PhenoGen/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
+                    else:
+                        PHENOGEN_HREF = "https://phenogen.ucdenver.edu/PhenoGen/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
+                    PHENOGEN_TITLE = "Click to view this section of the genome in PhenoGen"
+                    gifmap.areas.append(HT.Area(shape='rect',coords=PHENOGEN_COORDS,href=PHENOGEN_HREF, title=PHENOGEN_TITLE))
+                    canvas.drawRect(xBrowse1, phenogenPaddingTop, xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_PHENOGEN_REGION_COLOR, fillColor=self.CLICKABLE_PHENOGEN_REGION_COLOR)
+                    canvas.drawLine(xBrowse1, phenogenPaddingTop, xBrowse1, (phenogenPaddingTop+self.BAND_HEIGHT), color=self.CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR)
+
+                UCSC_COORDS = "%d, %d, %d, %d" %(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.BAND_HEIGHT))
                 if self.dataset.group.species == "mouse":
                     UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d&hgt.customText=%s/snp/chr%s" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases, webqtlConfig.PORTADDR, self.selectedChr)
                 else:
                     UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 UCSC_TITLE = "Click to view this section of the genome in the UCSC Genome Browser"
                 gifmap.areas.append(HT.Area(shape='rect',coords=UCSC_COORDS,href=UCSC_HREF, title=UCSC_TITLE))
-                canvas.drawRect(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.UCSC_BAND_HEIGHT), edgeColor=self.CLICKABLE_UCSC_REGION_COLOR, fillColor=self.CLICKABLE_UCSC_REGION_COLOR)
-                canvas.drawLine(xBrowse1, ucscPaddingTop, xBrowse1, (ucscPaddingTop+self.UCSC_BAND_HEIGHT), color=self.CLICKABLE_UCSC_REGION_OUTLINE_COLOR)
+                canvas.drawRect(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_UCSC_REGION_COLOR, fillColor=self.CLICKABLE_UCSC_REGION_COLOR)
+                canvas.drawLine(xBrowse1, ucscPaddingTop, xBrowse1, (ucscPaddingTop+self.BAND_HEIGHT), color=self.CLICKABLE_UCSC_REGION_OUTLINE_COLOR)
 
-                ENSEMBL_COORDS = "%d, %d, %d, %d" %(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.ENSEMBL_BAND_HEIGHT))
+                ENSEMBL_COORDS = "%d, %d, %d, %d" %(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.BAND_HEIGHT))
                 if self.dataset.group.species == "mouse":
                     ENSEMBL_HREF = "http://www.ensembl.org/Mus_musculus/contigview?highlight=&chr=%s&vc_start=%d&vc_end=%d&x=35&y=12" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 else:
                     ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 ENSEMBL_TITLE = "Click to view this section of the genome in the Ensembl Genome Browser"
                 gifmap.areas.append(HT.Area(shape='rect',coords=ENSEMBL_COORDS,href=ENSEMBL_HREF, title=ENSEMBL_TITLE))
-                canvas.drawRect(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.ENSEMBL_BAND_HEIGHT), edgeColor=self.CLICKABLE_ENSEMBL_REGION_COLOR, fillColor=self.CLICKABLE_ENSEMBL_REGION_COLOR)
-                canvas.drawLine(xBrowse1, ensemblPaddingTop, xBrowse1, (ensemblPaddingTop+self.ENSEMBL_BAND_HEIGHT), color=self.CLICKABLE_ENSEMBL_REGION_OUTLINE_COLOR)
+                canvas.drawRect(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_ENSEMBL_REGION_COLOR, fillColor=self.CLICKABLE_ENSEMBL_REGION_COLOR)
+                canvas.drawLine(xBrowse1, ensemblPaddingTop, xBrowse1, (ensemblPaddingTop+self.BAND_HEIGHT), color=self.CLICKABLE_ENSEMBL_REGION_OUTLINE_COLOR)
             # end for
 
-            canvas.drawString("Click to view the corresponding section of the genome in an 8x expanded WebQTL map", (xLeftOffset + 10), paddingTop + self.WEBQTL_BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_WEBQTL_TEXT_COLOR)
-            canvas.drawString("Click to view the corresponding section of the genome in the UCSC Genome Browser", (xLeftOffset + 10), ucscPaddingTop + self.UCSC_BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_UCSC_TEXT_COLOR)
-            canvas.drawString("Click to view the corresponding section of the genome in the Ensembl Genome Browser", (xLeftOffset+10), ensemblPaddingTop + self.ENSEMBL_BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_ENSEMBL_TEXT_COLOR)
+            canvas.drawString("Click to view the corresponding section of the genome in an 8x expanded WebQTL map", (xLeftOffset + 10), paddingTop + self.BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_WEBQTL_TEXT_COLOR)
+            if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
+                canvas.drawString("Click to view the corresponding section of the genome in PhenoGen", (xLeftOffset + 10), phenogenPaddingTop + self.BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_PHENOGEN_TEXT_COLOR)
+            canvas.drawString("Click to view the corresponding section of the genome in the UCSC Genome Browser", (xLeftOffset + 10), ucscPaddingTop + self.BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_UCSC_TEXT_COLOR)
+            canvas.drawString("Click to view the corresponding section of the genome in the Ensembl Genome Browser", (xLeftOffset+10), ensemblPaddingTop + self.BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_ENSEMBL_TEXT_COLOR)
 
             #draw the gray text
             chrFont = pid.Font(ttf="verdana", size=26*zoom, bold=1)

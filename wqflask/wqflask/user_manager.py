@@ -49,30 +49,18 @@ def timestamp():
 
 class AnonUser(object):
     """Anonymous user handling"""
-    cookie_name = 'anon_user_v8'
+    cookie_name = 'anon_user_v1'
 
     def __init__(self):
         self.cookie = request.cookies.get(self.cookie_name)
         if self.cookie:
             logger.debug("ANON COOKIE ALREADY EXISTS")
             self.anon_id = verify_cookie(self.cookie)
-
         else:
             logger.debug("CREATING NEW ANON COOKIE")
             self.anon_id, self.cookie = create_signed_cookie()
+
         self.key = "anon_collection:v1:{}".format(self.anon_id)
-
-        #ZS: This was originally the commented out function below
-        #    For some reason I don't yet understand the commented out code works on production, 
-        #    but wouldn't set cookies for staging and my branch. The new code (using @app.after_request) seems to work.
-        @app.after_request
-        def set_cookie(response):
-            response.set_cookie(self.cookie_name, self.cookie)
-            return response
-
-        #@after.after_this_request
-        #def set_cookie(response):
-        #    response.set_cookie(self.cookie_name, self.cookie)
 
     def add_collection(self, new_collection):
         collection_dict = dict(name = new_collection.name,
@@ -141,6 +129,7 @@ class AnonUser(object):
         except Exception as why:
             print("Couldn't display_num_collections:", why)
             return ""
+
 
 def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
@@ -422,11 +411,16 @@ def before_request():
     g.user_session = UserSession()
     g.cookie_session = AnonUser()
 
+@app.after_request
+def set_cookie(response):
+    if not request.cookies.get(g.cookie_session.cookie_name):
+        response.set_cookie(g.cookie_session.cookie_name, g.cookie_session.cookie)
+    return response
+
 class UsersManager(object):
     def __init__(self):
         self.users = model.User.query.all()
         logger.debug("Users are:", self.users)
-
 
 class UserManager(object):
     def __init__(self, kw):

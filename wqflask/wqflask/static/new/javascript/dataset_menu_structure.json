@@ -1751,7 +1751,7 @@
             ],
             "Phenotypes": [
                [
-                  "None",
+                  "651",
                   "B6D2RIPublish",
                   "B6D2RI Published Phenotypes"
                ]
@@ -2616,6 +2616,16 @@
                   "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
+                  "849",
+                  "EPFLMouseLiverCDEx0413",
+                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ],
+               [
+                  "848",
+                  "EPFLMouseLiverHFCEx0413",
+                  "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ],
+               [
                   "700",
                   "UTHSC-VGX_MmBXDHepatocytesRMA1014",
                   "UT-VGX Hepatocytes Affy Mouse Gene 1.0 ST Gene Level (Oct14) RMA"
@@ -2783,7 +2793,7 @@
             ],
             "Phenotypes": [
                [
-                  "None",
+                  "602",
                   "BXDPublish",
                   "BXD Published Phenotypes"
                ]
@@ -3030,6 +3040,18 @@
                   "842",
                   "UTHSC-BXD-Liv-0917",
                   "UTHSC BXD Liver Affy Clariom S GeneLevel Main (Sep17) RMA **"
+               ],
+               [
+                  "850",
+                  "UTHSC-BXD-Liv-0818",
+                  "UTHSC BXD Liver Affy Clariom S GeneLevel Main (Aug18) RMA **"
+               ]
+            ],
+            "Phenotypes": [
+               [
+                  "None",
+                  "BXD-HarvestedPublish",
+                  "BXD-Harvested Published Phenotypes"
                ]
             ]
          },
@@ -3638,7 +3660,7 @@
          "HSNIH-Palmer": {
             "Phenotypes": [
                [
-                  "None",
+                  "652",
                   "HSNIH-PalmerPublish",
                   "HSNIH-Palmer Published Phenotypes"
                ]
@@ -3892,11 +3914,11 @@
          ],
          [
             "AKXD",
-            "AKXD"
+            "AKXD RI Family"
          ],
          [
             "AXBXA",
-            "AXB/BXA"
+            "AXB/BXA RI Family"
          ],
          [
             "B6BTBRF2",
@@ -3931,10 +3953,6 @@
             "BHF2 (Apoe Null) UCLA"
          ],
          [
-            "BXD",
-            "BXD"
-         ],
-         [
             "B6D2RI",
             "BXD Aged"
          ],
@@ -3947,12 +3965,16 @@
             "BXD NIA Longevity Study"
          ],
          [
+            "BXD",
+            "BXD RI Family"
+         ],
+         [
             "BXD300",
             "BXD300"
          ],
          [
             "BXH",
-            "BXH"
+            "BXH RI Family"
          ],
          [
             "CTB6F2",
@@ -3976,7 +3998,7 @@
          ],
          [
             "CXB",
-            "CXB"
+            "CXB RI Family (strain means)"
          ],
          [
             "D2GM",
@@ -4000,11 +4022,11 @@
          ],
          [
             "LXS",
-            "LXS"
+            "ILSXISS (LXS) RI Family (strain means)"
          ],
          [
             "MDP",
-            "Mouse Diversity Panel"
+            "Mouse Diversity Panel (strain means)"
          ],
          [
             "NZBXFVB-N2",
@@ -5113,6 +5135,10 @@
             ]
          ],
          "BXD-Harvested": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ],
             [
                "Liver mRNA",
                "Liver mRNA"
