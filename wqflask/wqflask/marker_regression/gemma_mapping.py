@@ -3,10 +3,14 @@ import os, math, string, random, json
 from base import webqtlConfig
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
-from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR
+from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR, WEBSERVER_MODE
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
+
+GEMMAOPTS = "-debug"
+if WEBSERVER_MODE == 'PROD':
+  GEMMAOPTS = "-no-check"
 
 def run_gemma(this_dataset, samples, vals, covariates, use_loco, maf=0.01):
     """Generates p-values for each marker using GEMMA"""
@@ -34,7 +38,7 @@ def run_gemma(this_dataset, samples, vals, covariates, use_loco, maf=0.01):
 
     if use_loco == "True":
         k_output_filename = this_dataset.group.name + "_K_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-        generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -gk -debug > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
+        generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -gk > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
                                                                                         genofile_name,
                                                                                         flat_files('genotype/bimbam'),
                                                                                         genofile_name,
@@ -45,7 +49,7 @@ def run_gemma(this_dataset, samples, vals, covariates, use_loco, maf=0.01):
         logger.debug("k_command:" + generate_k_command)
         os.system(generate_k_command)
 
-        gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input %s/gn2/%s.json -- -g %s/%s_geno.txt -p %s/%s_pheno.txt' % (TEMPDIR,
+        gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input %s/gn2/%s.json -- '+GEMMAOPTS+' -g %s/%s_geno.txt -p %s/%s_pheno.txt' % (TEMPDIR,
                                                                                         k_output_filename,
                                                                                         flat_files('genotype/bimbam'),
                                                                                         genofile_name,
@@ -54,20 +58,24 @@ def run_gemma(this_dataset, samples, vals, covariates, use_loco, maf=0.01):
 
         gwa_output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
         if covariates != "":
-            gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 2 -maf 0.1 -debug > %s/gn2/%s.json' % (flat_files('mapping'),
+            gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 2 -maf 0.1 > %s/gn2/%s.json' % (flat_files('mapping'),
                                                                                                                                      this_dataset.group.name,
                                                                                                                                      flat_files('genotype/bimbam'),
                                                                                                                                      genofile_name,
                                                                                                                                      TEMPDIR,
                                                                                                                                      gwa_output_filename)
         else:
-            gemma_command += ' -a %s/%s_snps.txt -lmm 2 -maf 0.1 -debug > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
+            gemma_command += ' -a %s/%s_snps.txt -lmm 2 -maf 0.1 > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
                                                                                                              genofile_name,
                                                                                                              TEMPDIR,
                                                                                                              gwa_output_filename)
 
     else:
+<<<<<<< HEAD
         gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 2 -maf %s' % (flat_files('genotype/bimbam'),
+=======
+        gemma_command = GEMMA_COMMAND + ' ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 2 -maf 0.1' % (flat_files('genotype/bimbam'),
+>>>>>>> b2a7886df64073042a89b466cc103f9bbf06827a
                                                                                         genofile_name,
                                                                                         flat_files('genotype/bimbam'),
                                                                                         genofile_name,
@@ -78,12 +86,12 @@ def run_gemma(this_dataset, samples, vals, covariates, use_loco, maf=0.01):
                                                                                         maf)
 
         if covariates != "":
-            gemma_command += ' -c %s/%s_covariates.txt -outdir %s -debug -o %s_output' % (flat_files('mapping'),
+            gemma_command += ' -c %s/%s_covariates.txt -outdir %s -o %s_output' % (flat_files('mapping'),
                                                                                                          this_dataset.group.name,
                                                                                                          webqtlConfig.GENERATED_IMAGE_DIR,
                                                                                                          genofile_name)
         else:
-            gemma_command += ' -outdir %s -debug -o %s_output' % (webqtlConfig.GENERATED_IMAGE_DIR,
+            gemma_command += ' -outdir %s -o %s_output' % (webqtlConfig.GENERATED_IMAGE_DIR,
                                                                   genofile_name)
 
     logger.debug("gemma_command:" + gemma_command)
