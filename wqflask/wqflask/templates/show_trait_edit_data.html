@@ -90,16 +90,19 @@
             <h3>{{ sample_type.header }}</h3>
             <hr>
             <div id="table_container">
-            <table class="table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left;">
+            <table class="table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left; width:100%;">
                 <thead>
                     <tr>
                         <th></th>
                         <th>Index</th>
                         <th>Sample</th>
-                        <th>Value</th>
+                        <th style="text-align: right;">Value</th>
                         {% if sample_type.se_exists() %}
                         <th>&nbsp;</th>
-                        <th>SE</th>
+                        <th style="text-align: right;">SE</th>
+                        {% endif %}
+                        {% if has_num_cases %}
+                        <th style="text-align: right;">N</th>
                         {% endif %}
                         {% for attribute in sample_type.attributes|sort() %}
                         <th>
@@ -122,7 +125,7 @@
         
                         {# Todo: Add IDs #}
                         <td class="column_name-Value" align="right">
-                          <input type="text" data-value="{{ sample.display_value }}" data-qnorm="{{ qnorm_vals[outer_loop.index - 1][loop.index - 1] }}" name="{{ 'value:' + sample.name }}"
+                          <input type="text" data-value="{{ sample.display_value }}" data-qnorm="{{ qnorm_vals[outer_loop.index - 1][0][loop.index - 1] }}" name="{{ 'value:' + sample.name }}"
                                  style="text-align:right;"
                                  class="trait_value_input edit_sample_value"
                                  value="{{ sample.display_value }}"
@@ -136,12 +139,22 @@
                         </td>
         
                         {# Todo: Add IDs #}
-                        <td class="column_name-SE">
-                          <input type="text" data-value="{{ sample.display_variance }}" name="{{ 'variance:' + sample.name}}"
+                        <td class="column_name-SE" align="right">
+                          <input type="text" data-value="{{ sample.display_variance }}" data-qnorm="{{ qnorm_vals[outer_loop.index - 1][1][loop.index - 1] }}" name="{{ 'variance:' + sample.name}}"
                                  style="text-align:right;"
                                  class="trait_value_input edit_sample_se"
                                  value="{{ sample.display_variance }}"
-                                 size=8 maxlength=8
+                                 size=6 maxlength=6
+                          >
+                        </td>
+                        {% endif %}
+                        {% if has_num_cases %}
+                        <td class="column_name-num_cases" align="right">
+                          <input type="text" data-value="{{ sample.display_num_cases }}" name="{{ 'num_cases:' + sample.name}}"
+                                 style="text-align:right;"
+                                 class="trait_value_input edit_sample_num_cases"
+                                 value="{{ sample.display_num_cases }}"
+                                 size=4 maxlength=4
                           >
                         </td>
                         {% endif %}

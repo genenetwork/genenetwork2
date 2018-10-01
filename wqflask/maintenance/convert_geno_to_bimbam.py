@@ -154,6 +154,8 @@ class ConvertGenoFile(object):
             if not input_file.endswith(('geno', '.geno.gz')):
                 continue
             group_name = ".".join(input_file.split('.')[:-1])
+            if group_name == "HSNIH-Palmer":
+                continue
             geno_output_file = os.path.join(new_directory, group_name + "_geno.txt")
             pheno_output_file = os.path.join(new_directory, group_name + "_pheno.txt")
             snp_output_file = os.path.join(new_directory, group_name + "_snps.txt")

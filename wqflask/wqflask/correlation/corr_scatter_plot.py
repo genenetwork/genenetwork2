@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function, division
 
+from flask import g
+
 from base.trait import GeneralTrait
 from base import data_set
 from utility import corr_result_helpers
@@ -47,6 +49,13 @@ class CorrScatterPlot(object):
         #vals_3 = []
         #for sample in self.trait_3.data:
         #    vals_3.append(self.trait_3.data[sample].value)
+
+        self.collections_exist = "False"
+        if g.user_session.logged_in:
+            if g.user_session.num_collections > 0:
+                self.collections_exist = "True"
+        elif g.cookie_session.display_num_collections() != "":
+            self.collections_exist = "True"
 
         self.js_data = dict(
             data = self.data,

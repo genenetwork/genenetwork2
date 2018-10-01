@@ -186,7 +186,16 @@ class ShowTrait(object):
 
         self.genofiles = get_genofiles(self.dataset)
 
-        self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups)
+        self.has_num_cases = has_num_cases(self.this_trait)
+
+        self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups, self.has_num_cases)
+
+        #ZS: Needed to know whether to display bar chart
+        self.num_values = 0
+        for group in self.sample_groups:
+            for sample in group.sample_list:
+                if sample.display_value != "x":
+                    self.num_values += 1
 
         trait_symbol = None
         if not self.temp_trait:
@@ -355,7 +364,7 @@ def get_genofiles(this_dataset):
     jsondata = json.load(f)
     return jsondata['genofile']
 
-def get_table_widths(sample_groups):
+def get_table_widths(sample_groups, has_num_cases=False):
     stats_table_width = 200
     if len(sample_groups) > 1:
         stats_table_width = 450
@@ -363,9 +372,21 @@ def get_table_widths(sample_groups):
     trait_table_width = 25
     if sample_groups[0].se_exists():
         trait_table_width += 15
+    if has_num_cases:
+        trait_table_width += 5
     if (trait_table_width + len(sample_groups[0].attributes)*10) > 100:
         trait_table_width = 100
     else:
         trait_table_width += len(sample_groups[0].attributes)*10
 
     return stats_table_width, trait_table_width
+
+def has_num_cases(this_trait):
+    has_n = False
+    if this_trait.dataset.type != "ProbeSet":
+        for name, sample in this_trait.data.iteritems():
+            if sample.num_cases:
+                has_n = True
+                break
+
+    return has_n

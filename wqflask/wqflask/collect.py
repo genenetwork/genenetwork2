@@ -201,8 +201,22 @@ def collections_new():
         return create_new(collection_name)
     elif "add_to_existing" in params:
         logger.debug("in add to existing")
-        collection_id = params['existing_collection'].split(":")[0]
-        collection_name = params['existing_collection'].split(":")[1]
+        if 'existing_collection' not in params:
+            default_collection_exists = False
+            if g.user_session.logged_in:
+                collections = g.user_session.user_collections
+            else:
+                collections = user_manager.AnonUser().get_collections()
+            for collection in collections:
+                if collection["name"] == "Default Collection":
+                    collection_id = collection["id"]
+                    collection_name = collection["name"]
+                    default_collection_exists = True
+            if not default_collection_exists:
+                return create_new("Default Collection")
+        else:
+            collection_id = params['existing_collection'].split(":")[0]
+            collection_name = params['existing_collection'].split(":")[1]
         if g.user_session.logged_in:
             traits = list(process_traits(params['traits']))
             g.user_session.add_traits_to_collection(collection_id, traits)
@@ -273,6 +287,7 @@ def remove_traits():
 @app.route("/collections/delete", methods=('POST',))
 def delete_collection():
     params = request.form
+    uc_id = ""
     if g.user_session.logged_in:
         uc_id = params['uc_id']
         if len(uc_id.split(":")) > 1:
@@ -283,12 +298,17 @@ def delete_collection():
     else:
         if "collection_name" in params:
             collection_name = params['collection_name']
+            user_manager.AnonUser().delete_collection(collection_name)
         else:
-            for this_collection in params['uc_id'].split(":"):
+            uc_id = params['uc_id']
+            for this_collection in uc_id.split(":"):
                 user_manager.AnonUser().delete_collection(this_collection)
 
-    if len(uc_id.split(":")) > 1:
-        flash("We've deleted the selected collections.", "alert-info")
+    if uc_id != "":
+        if len(uc_id.split(":")) > 1:
+            flash("We've deleted the selected collections.", "alert-info")
+        else:
+            flash("We've deleted the collection: {}.".format(uc_id), "alert-info")
     else:
         flash("We've deleted the collection: {}.".format(collection_name), "alert-info")
 

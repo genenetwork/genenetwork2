@@ -42,7 +42,7 @@
                     <div class="control-group">
                         <label class="control-label" for="email_address">Email Address</label>
                         <div class="controls">
-                            <input id="email_address" name="email_address" class="focused" type="text" value="{{values.email_address}}"
+                            <input id="email_address" name="email_address" class="focused" type="text" size="50" value="{{values.email_address}}"
                                    data-trigger="change" data-required="true" data-type="email" data-maxlength="50">
                         </div>
                     </div>
@@ -50,7 +50,7 @@
                     <div class="control-group">
                         <label class="control-label" for="full_name">Full Name</label>
                         <div class="controls">
-                            <input id="full_name" name="full_name" type="text" value="{{values.full_name}}"
+                            <input id="full_name" name="full_name" type="text" size="50" value="{{values.full_name}}"
                                    data-trigger="change" data-required="true" data-minlength="5" data-maxlength="50">
                         </div>
                     </div>
@@ -58,14 +58,14 @@
                     <div class="control-group">
                         <label class="control-label" for="organization">Organization</label>
                         <div class="controls">
-                            <input id="organization" name="organization" type="text" value="{{values.organization}}" data-minlength="3" data-maxlength="50">
+                            <input id="organization" name="organization" type="text" size="50" value="{{values.organization}}" data-minlength="3" data-maxlength="50">
                         </div>
                     </div>
 
                     <div class="control-group">
                         <label class="control-label" for="password">Password</label>
                         <div class="controls">
-                            <input id="password" name="password" type="password" value=""
+                            <input id="password" name="password" type="password" size="50" value=""
                                    data-trigger="change" data-required="true" data-minlength="6">
                         </div>
                     </div>
@@ -79,13 +79,13 @@
                     <div class="control-group">
                         <label class="control-label" for="password_confirm">Confirm Password</label>
                         <div class="controls">
-                            <input id="password" name="password_confirm" type="password" value=""
+                            <input id="password" name="password_confirm" type="password" size="50" value=""
                                    data-trigger="change" data-required="true" data-equalto="#password">
                         </div>
                     </div>
 
                     <div class="control-group">
-                        <div class="controls"">
+                        <div class="controls" style="margin-top: 10px;">
                             <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Create account">
                         </div>
                     </div>

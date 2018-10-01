@@ -534,7 +534,10 @@ def loading_page():
         'viewLegend',
         'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
-        'mapmodel_rqtl_geno'
+        'mapmodel_rqtl_geno',
+        'temp_trait',
+        'group',
+        'species'
     )
     start_vars_container = {}
     start_vars = {}
@@ -593,7 +596,10 @@ def marker_regression_page():
         'viewLegend',
         'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
-        'mapmodel_rqtl_geno'
+        'mapmodel_rqtl_geno',
+        'temp_trait',
+        'group',
+        'species'
     )
     start_vars = {}
     for key, value in initial_start_vars.iteritems():

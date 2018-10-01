@@ -58,15 +58,10 @@ class SampleList(object):
                     logger.debug("No sample %s, let's create it now" % sample_name)
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
-            #sampleNameAdd = ''
-            #if fd.RISet == 'AXBXA' and sampleName in ('AXB18/19/20','AXB13/14','BXA8/17'):
-            #    sampleNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
             sample.extra_info = {}
             if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
-
-            # logger.debug("  type of sample:", type(sample))
 
             if sample_group_type == 'primary':
                 sample.this_id = "Primary_" + str(counter)
@@ -85,9 +80,6 @@ class SampleList(object):
         self.do_outliers()
         #do_outliers(the_samples)
         logger.debug("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
-        #for sample in self.sample_list:
-        #     logger.debug("apple:", type(sample), sample)
-        #return the_samples
 
     def __repr__(self):
         return "<SampleList> --> %s" % (pf(self.__dict__))

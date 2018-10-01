@@ -25,7 +25,7 @@
 # webserver) run from the base-dir with settings file and add that
 # script with a -c switch, e.g.
 #
-#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ./maintenance/gen_select_dataset.py
+#   env GN2_PROFILE=/usr/local/guix-profiles/gn2-latest SQL_URI=mysql://webqtlout:webqtlout@lily.uthsc.edu/db_webqtl ./bin/genenetwork2 ./etc/default_settings.py -c ./maintenance/gen_select_dataset.py
 #
 # To run any script in the environment
 #

@@ -12,7 +12,7 @@ selected_traits = {};
 
 collection_click = function() {
   var this_collection_url;
-  console.log("Clicking on:", $(this));
+  //console.log("Clicking on:", $(this));
   this_collection_url = $(this).find('.collection_name').prop("href");
   this_collection_url += "&json";
   collection_list = $("#collections_holder").html();
@@ -123,6 +123,20 @@ trait_click = function() {
   return $.colorbox.close();
 };
 
+trait_row_click = function() {
+  var dataset, this_trait_url, trait;
+  console.log("Clicking on:", $(this));
+  trait = $(this).find('.trait').text();
+  dataset = $(this).find('.dataset').text();
+  this_trait_url = "/trait/get_sample_data?trait=" + trait + "&dataset=" + dataset;
+  $.ajax({
+    dataType: "json",
+    url: this_trait_url,
+    success: get_trait_data
+  });
+  return $.colorbox.close();
+};
+
 add_trait_data = function(trait_data, textStatus, jqXHR) {
   var trait_name, trait_sample_data;
   trait_name = trait_data[0];
@@ -139,22 +153,46 @@ populate_cofactor_info = function(trait_info) {
       $('#cofactor1_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
     } else {
       $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
-      $('#cofactor1_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
+      if ('pubmed_link' in trait_info) {
+        $('#cofactor1_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
+      } else {
+        $('#cofactor1_description').html('PubMed: ' + trait_info['pubmed_text'] + '<br>' + trait_info['description'])
+      }
     }
     $('#select_cofactor1').text("Change Cofactor 1");
     $('#cofactor1_info_container').css("display", "inline");
-    $('#cofactor2_button').css("display", "inline");
-  } else {
+    $('#cofactor2_button').css("display", "inline-block");
+  } else if ($('input[name=selecting_which_cofactor]').val() == "2"){
     $('#cofactor2_trait_link').attr("href", trait_info['url'])
     if (trait_info['type'] == "ProbeSet"){
       $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
       $('#cofactor2_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
     } else {
       $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
-      $('#cofactor2_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
+      if ('pubmed_link' in trait_info) {
+        $('#cofactor2_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
+      } else {
+        $('#cofactor2_description').html('PubMed: ' + trait_info['pubmed_text'] + '<br>' + trait_info['description'])
+      }
     }
     $('#select_cofactor2').text("Change Cofactor 2");
     $('#cofactor2_info_container').css("display", "inline");
+    $('#cofactor3_button').css("display", "inline-block");
+  } else {
+    $('#cofactor3_trait_link').attr("href", trait_info['url'])
+    if (trait_info['type'] == "ProbeSet"){
+      $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor3_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
+    } else {
+      $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      if ('pubmed_link' in trait_info) {
+        $('#cofactor3_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
+      } else {
+        $('#cofactor3_description').html('PubMed: ' + trait_info['pubmed_text'] + '<br>' + trait_info['description'])
+      }
+    }
+    $('#select_cofactor3').text("Change Cofactor 3");
+    $('#cofactor3_info_container').css("display", "inline");
   }
 }
 
@@ -186,7 +224,6 @@ get_trait_data = function(trait_data, textStatus, jqXHR) {
     this_trait_vals = get_this_trait_vals(samples);
     return color_by_trait(trait_sample_data);
   } else{
-    populate_cofactor_info(trait_data[0])
     sorted = vals.slice().sort(function(a,b){return a-b})
     ranks = vals.slice().map(function(v){ return sorted.indexOf(v)+1 });
     sample_ranks = []
@@ -199,14 +236,38 @@ get_trait_data = function(trait_data, textStatus, jqXHR) {
     }
 
     if ($('input[name=selecting_which_cofactor]').val() == "1"){
+      if ($('#cofactor1_type option:selected').val() == "symbol") {
+        unique_vals = [...new Set(vals)]
+        if (unique_vals.length > 45) {
+          alert("If displaying cofactor as symbol, please choose a trait with 45 or fewer distinct sample values.");
+          return false;
+        }
+      }
       $('input[name=cofactor1_vals]').val(sample_vals)
       $('input[name=ranked_cofactor1_vals]').val(sample_ranks)
-    } else {
+    } else if ($('input[name=selecting_which_cofactor]').val() == "2"){
+      if ($('#cofactor2_type option:selected').val() == "symbol") {
+        unique_vals = [...new Set(vals)]
+        if (unique_vals.length > 45) {
+          alert("If displaying cofactor as symbol, please choose a trait with 45 or fewer distinct sample values.");
+          return false;
+        }
+      }
       $('input[name=cofactor2_vals]').val(sample_vals)
       $('input[name=ranked_cofactor2_vals]').val(sample_ranks)
+    } else{
+      if ($('#cofactor3_type option:selected').val() == "symbol") {
+        unique_vals = [...new Set(vals)]
+        if (unique_vals.length > 45) {
+          alert("If displaying cofactor as symbol, please choose a trait with 45 or fewer distinct sample values.");
+          return false;
+        }
+      }
+      $('input[name=cofactor3_vals]').val(sample_vals)
+      $('input[name=ranked_cofactor3_vals]').val(sample_ranks)
     }
+    populate_cofactor_info(trait_data[0])
     chartupdatedata();
-    chartupdate();
     return false
   }
 };
@@ -251,16 +312,27 @@ color_by_trait = function(trait_sample_data, textStatus, jqXHR) {
 process_traits = function(trait_data, textStatus, jqXHR) {
   var the_html, trait, _i, _len;
   console.log('in process_traits with trait_data:', trait_data);
-  the_html = "<button id='back_to_collections' class='btn btn-inverse btn-small'>";
+  the_html = "<button id='back_to_collections' class='btn btn-default'>";
   the_html += "<i class='icon-white icon-arrow-left'></i> Back </button>";
-  the_html += "    <button id='submit' class='btn btn-primary btn-small'> Submit </button>";
+  if ($('.corr_compute').length){
+    the_html += "    <button id='submit' class='btn btn-primary btn-small'> Submit </button>";
+  }
+  if ($('#scatterplot2').length){
+    the_html += "    Please click the row of the trait you wish to select as a cofactor.";
+  }
   the_html += "<table class='table table-hover'>";
-  the_html += "<thead><tr><th></th><th>Record</th><th>Data Set</th><th>Description</th><th>Mean</th></tr></thead>";
+  if ($('.corr_compute').length){
+    the_html += "<thead><tr><th></th><th>Record</th><th>Data Set</th><th>Description</th><th>Mean</th></tr></thead>";
+  } else {
+    the_html += "<thead><tr><th>Record</th><th>Data Set</th><th>Description</th><th>Mean</th></tr></thead>";
+  }
   the_html += "<tbody>";
   for (_i = 0, _len = trait_data.length; _i < _len; _i++) {
     trait = trait_data[_i];
     the_html += "<tr class='trait_line'>";
-    the_html += "<td class='select_trait'><input type='checkbox' name='selectCheck' class='checkbox edit_sample_checkbox'></td>";
+    if ($('.corr_compute').length){
+      the_html += "<td class='select_trait'><input type='checkbox' name='selectCheck' class='checkbox edit_sample_checkbox'></td>";
+    }
     the_html += "<td class='trait'>" + trait.name + "</td>";
     the_html += "<td class='dataset'>" + trait.dataset + "</td>";
     the_html += "<td>" + trait.description + "</td>";
@@ -286,5 +358,9 @@ back_to_collections = function() {
 console.log("inside get_traits_from_collection");
 $(".collection_line").on("click", collection_click);
 $("#submit").on("click", submit_click);
-$(".trait").on("click", trait_click);
+if ($('#scatterplot2').length){
+  $(".trait_line").on("click", trait_row_click);
+} else {
+  $(".trait").on("click", trait_click);
+}
 $("#back_to_collections").on("click", back_to_collections);

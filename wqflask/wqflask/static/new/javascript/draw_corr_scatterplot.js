@@ -28,10 +28,14 @@ var layout = {
 
 cofactor1_dict = {}
 ranked_cofactor1_dict = {}
-cofactor1_values = []
-ranked_cofactor1_values = []
+//cofactor1_values = []
+//ranked_cofactor1_values = []
 cofactor2_dict = {}
 ranked_cofactor2_dict = {}
+//cofactor2_values = []
+//ranked_cofactor2_values = []
+cofactor3_dict = {}
+ranked_cofactor3_dict = {}
 
 function drawg() {
     x_values = []
@@ -82,36 +86,60 @@ function getdata() {
             intercept: js_data.intercept
         });
 
-    sizemin = 1;
-    sizemax = 50;
+    sizemin = 8;
+    sizemax = 30;
+
+    samples1 = [];
+    samples2 = [];
+    samples3 = [];
 
     if ($('input[name=cofactor1_vals]').val()){
-        just_vals = []
+        vals1 = []
         val_sample_dict = {}
         val_sample_pairs = $('input[name=cofactor1_vals]').val().split(",")
         for (i=0; i < val_sample_pairs.length; i++) {
-          just_vals.push(parseFloat(val_sample_pairs[i].split(":")[1]))
+          samples1.push(val_sample_pairs[i].split(":")[0])
+          vals1.push(parseFloat(val_sample_pairs[i].split(":")[1]))
           val_sample_dict[val_sample_pairs[i].split(":")[0]] = parseFloat(val_sample_pairs[i].split(":")[1])
         }
+        datamin1 = d3.min(vals1);
+        datamax1 = d3.max(vals1);
 
         cofactor1_dict = val_sample_dict
-        cofactor1_values = just_vals
+        cofactor1_values = vals1
     }
 
     if ($('input[name=cofactor2_vals]').val()){
-        vals_3 = [];
-        samples_3 = [];
+        vals2 = [];
         val_sample_dict = {}
         val_sample_pairs = $('input[name=cofactor2_vals]').val().split(",")
         for (i=0; i < val_sample_pairs.length; i++) {
-          samples_3.push(val_sample_pairs[i].split(":")[0])
-          vals_3.push(parseFloat(val_sample_pairs[i].split(":")[1]))
+          samples2.push(val_sample_pairs[i].split(":")[0])
+          vals2.push(parseFloat(val_sample_pairs[i].split(":")[1]))
           val_sample_dict[val_sample_pairs[i].split(":")[0]] = val_sample_pairs[i].split(":")[1]
         }
-        datamin = d3.min(vals_3);
-        datamax = d3.max(vals_3);
+        datamin2 = d3.min(vals2);
+        datamax2 = d3.max(vals2);
 
         cofactor2_dict = val_sample_dict
+        cofactor2_values = vals2
+    }
+
+    if ($('input[name=cofactor3_vals]').val()){
+        vals3 = [];
+        val_sample_dict = {}
+        val_sample_pairs = $('input[name=cofactor3_vals]').val().split(",")
+        for (i=0; i < val_sample_pairs.length; i++) {
+          samples3.push(val_sample_pairs[i].split(":")[0])
+          vals3.push(parseFloat(val_sample_pairs[i].split(":")[1]))
+          val_sample_dict[val_sample_pairs[i].split(":")[0]] = val_sample_pairs[i].split(":")[1]
+        }
+
+        datamin3 = d3.min(vals3);
+        datamax3 = d3.max(vals3);
+
+        cofactor3_dict = val_sample_dict
+        cofactor3_values = vals3
     }
 
     x_values = []
@@ -119,10 +147,76 @@ function getdata() {
     sample_names = []
     sizes = []
 
+    size_cofactor_vals = []
+    if ($('#cofactor1_type option:selected').val() == "size" && $('input[name=cofactor1_vals]').val()){
+      size_cofactor_vals = cofactor1_values
+      cofactor_samples = samples1
+      datamin = datamin1
+      datamax = datamax1
+    } else if ($('#cofactor2_type option:selected').val() == "size" && $('input[name=cofactor2_vals]').val()) {
+      size_cofactor_vals = cofactor2_values
+      cofactor_samples = samples2
+      datamin = datamin2
+      datamax = datamax2
+    } else if ($('#cofactor3_type option:selected').val() == "size" && $('input[name=cofactor3_vals]').val()) {
+      size_cofactor_vals = cofactor3_values
+      cofactor_samples = samples3
+      datamin = datamin3
+      datamax = datamax3
+    }
+
+    unique_vals = []
+    symbol_cofactor_vals = []
+    if ($('#cofactor1_type option:selected').val() == "symbol" && $('input[name=cofactor1_vals]').val()){
+      symbol_cofactor_vals = cofactor1_values
+      cofactor_samples = samples1
+    } else if ($('#cofactor2_type option:selected').val() == "symbol" && $('input[name=cofactor2_vals]').val()) {
+      symbol_cofactor_vals = cofactor2_values
+      cofactor_samples = samples2
+    } else if ($('#cofactor3_type option:selected').val() == "symbol" && $('input[name=cofactor3_vals]').val()) {
+      symbol_cofactor_vals = cofactor3_values
+      cofactor_samples = samples3
+    }
+
+    symbol_list = []
+    if (symbol_cofactor_vals.length > 0) {
+      unique_vals = [...new Set(symbol_cofactor_vals)]
+      for (i=0; i<symbol_cofactor_vals.length; i++){
+        val_pos = unique_vals.indexOf(symbol_cofactor_vals[i])
+        if (val_pos != "-1") {
+          symbol_list.push(val_pos)
+        } else {
+          symbol_list.push(0)
+        }
+      }
+    }
+
+    //This is needed to calculate samples shared by cofactors
+    cofactor_samples_array = []
+    if (samples1.length > 0){
+      cofactor_samples_array.push(samples1)
+    }
+    if (samples2.length > 0){
+      cofactor_samples_array.push(samples2)
+    }
+    if (samples3.length > 0){
+      cofactor_samples_array.push(samples3)
+    }
+    if (cofactor_samples_array.length > 0){
+      shared_samples = _.intersection.apply(_, cofactor_samples_array)
+    } else {
+      shared_samples = js_data.indIDs
+    }
+
     for (j = 0; j < js_data.data[0].length; j++) {
-        if ($('input[name=cofactor2_vals]').val()){
-          if (samples_3.indexOf(js_data.indIDs[j])) {
-            datav = vals_3[j]
+
+        if (shared_samples.indexOf(js_data.indIDs[j]) == -1) {
+          continue
+        }
+
+        if (size_cofactor_vals.length > 0){
+          if (cofactor_samples.indexOf(js_data.indIDs[j])) {
+            datav = size_cofactor_vals[j]
             sizev = map1to2(datamin, datamax, sizemin, sizemax, datav);
           }
         } else {
@@ -155,10 +249,27 @@ function getdata() {
       if (sample_names[j] in cofactor2_dict){
         this_text += "<br>Cofactor 2: " + cofactor2_dict[sample_names[j]]
       }
+      if (sample_names[j] in cofactor3_dict){
+        this_text += "<br>Cofactor 3: " + cofactor3_dict[sample_names[j]]
+      }
       point_text.push(this_text)
     }
 
-    var trace = {
+    console.log("symbol list:", symbol_list)
+
+    if (symbol_list.length > 0) {
+      var trace = {
+        x: x_values,
+        y: y_values,
+        mode: 'markers',
+        text: point_text,
+        marker: {
+          symbol: symbol_list,
+          size: sizes
+        }
+      }
+    } else {
+      var trace = {
         x: x_values,
         y: y_values,
         mode: 'markers',
@@ -166,6 +277,7 @@ function getdata() {
         marker: {
           size: sizes
         }
+      }
     }
 
     return [trace];
@@ -184,47 +296,138 @@ function srgetdata() {
             intercept: js_data.srintercept
         });
 
-    sizemin = 1;
-    sizemax = 50;
+    sizemin = 8;
+    sizemax = 30;
+
+    ranked_cofactor_vals = ""
+
+    samples1 = [];
+    samples2 = [];
+    samples3 = [];
+
+    if ($('input[name=ranked_cofactor1_vals]').val()){
+        vals1 = []
+        val_sample_dict = {}
+        val_sample_pairs = $('input[name=ranked_cofactor1_vals]').val().split(",")
+        for (i=0; i < val_sample_pairs.length; i++) {
+          samples1.push(val_sample_pairs[i].split(":")[0])
+          vals1.push(parseFloat(val_sample_pairs[i].split(":")[1]))
+          val_sample_dict[val_sample_pairs[i].split(":")[0]] = parseFloat(val_sample_pairs[i].split(":")[1])
+        }
+        datamin1 = d3.min(vals1);
+        datamax1 = d3.max(vals1);
+
+        ranked_cofactor1_dict = val_sample_dict
+        ranked_cofactor1_values = vals1
+    }
+
+    if ($('input[name=ranked_cofactor2_vals]').val()){
+        vals2 = [];
+        val_sample_dict = {}
+        val_sample_pairs = $('input[name=ranked_cofactor2_vals]').val().split(",")
+        for (i=0; i < val_sample_pairs.length; i++) {
+          samples2.push(val_sample_pairs[i].split(":")[0])
+          vals2.push(parseFloat(val_sample_pairs[i].split(":")[1]))
+          val_sample_dict[val_sample_pairs[i].split(":")[0]] = val_sample_pairs[i].split(":")[1]
+        }
+        datamin2 = d3.min(vals2);
+        datamax2 = d3.max(vals2);
+
+        ranked_cofactor2_dict = val_sample_dict
+        ranked_cofactor2_values = vals2
+    }
+
+    if ($('input[name=ranked_cofactor3_vals]').val()){
+        vals3 = [];
+        val_sample_dict = {}
+        val_sample_pairs = $('input[name=ranked_cofactor3_vals]').val().split(",")
+        for (i=0; i < val_sample_pairs.length; i++) {
+          samples3.push(val_sample_pairs[i].split(":")[0])
+          vals3.push(parseFloat(val_sample_pairs[i].split(":")[1]))
+          val_sample_dict[val_sample_pairs[i].split(":")[0]] = val_sample_pairs[i].split(":")[1]
+        }
+
+        datamin3 = d3.min(vals3);
+        datamax3 = d3.max(vals3);
+
+        ranked_cofactor3_dict = val_sample_dict
+        ranked_cofactor3_values = vals3
+    }
 
     x_values = []
     y_values = []
     sample_names = []
     sizes = []
 
-    if ($('input[name=ranked_cofactor1_vals]').val()){
-        just_vals = []
-        val_sample_dict = {}
-        val_sample_pairs = $('input[name=ranked_cofactor1_vals]').val().split(",")
-        for (i=0; i < val_sample_pairs.length; i++) {
-          just_vals.push(parseFloat(val_sample_pairs[i].split(":")[1]))
-          val_sample_dict[val_sample_pairs[i].split(":")[0]] = parseFloat(val_sample_pairs[i].split(":")[1])
-        }
-
-        ranked_cofactor1_dict = val_sample_dict
-        ranked_cofactor1_values = just_vals
+    if ($('#cofactor1_type option:selected').val() == "size" && $('input[name=ranked_cofactor1_vals]').val()){
+      size_cofactor_vals = ranked_cofactor1_values
+      cofactor_samples = samples1
+      datamin = datamin1
+      datamax = datamax1
+    } else if ($('#cofactor2_type option:selected').val() == "size" && $('input[name=ranked_cofactor2_vals]').val()) {
+      size_cofactor_vals = ranked_cofactor2_values
+      cofactor_samples = samples2
+      datamin = datamin2
+      datamax = datamax2
+    } else if ($('#cofactor3_type option:selected').val() == "size" && $('input[name=ranked_cofactor3_vals]').val()) {
+      size_cofactor_vals = ranked_cofactor3_values
+      cofactor_samples = samples3
+      datamin = datamin3
+      datamax = datamax3
     }
 
-    if ($('input[name=ranked_cofactor2_vals]').val()){
-        vals_3 = []
-        samples_3 = [];
-        val_sample_dict = {}
-        val_sample_pairs = $('input[name=ranked_cofactor2_vals]').val().split(",")
-        for (i=0; i<val_sample_pairs.length; i++){
-          samples_3.push(val_sample_pairs[i].split(":")[0])
-          vals_3.push(val_sample_pairs[i].split(":")[1])
-          val_sample_dict[val_sample_pairs[i].split(":")[0]] = val_sample_pairs[i].split(":")[1]
-        }
-        datamin = d3.min(vals_3);
-        datamax = d3.max(vals_3);
+    unique_vals = []
+    symbol_cofactor_vals = []
+    if ($('#cofactor1_type option:selected').val() == "symbol" && $('input[name=ranked_cofactor1_vals]').val()){
+      symbol_cofactor_vals = cofactor1_values
+      cofactor_samples = samples1
+    } else if ($('#cofactor2_type option:selected').val() == "symbol" && $('input[name=ranked_cofactor2_vals]').val()) {
+      symbol_cofactor_vals = cofactor2_values
+      cofactor_samples = samples2
+    } else if ($('#cofactor3_type option:selected').val() == "symbol" && $('input[name=ranked_cofactor3_vals]').val()) {
+      symbol_cofactor_vals = cofactor3_values
+      cofactor_samples = samples3
+    }
 
-        ranked_cofactor2_dict = val_sample_dict
+    symbol_list = []
+    if (symbol_cofactor_vals.length > 0) {
+      unique_vals = [...new Set(symbol_cofactor_vals)]
+      for (i=0; i<symbol_cofactor_vals.length; i++){
+        val_pos = unique_vals.indexOf(symbol_cofactor_vals[i])
+        if (val_pos != "-1") {
+          symbol_list.push(val_pos)
+        } else {
+          symbol_list.push(0)
+        }
+      }
+    }
+
+    //This is needed to calculate samples shared by cofactors
+    cofactor_samples_array = []
+    if (samples1.length > 0){
+      cofactor_samples_array.push(samples1)
+    }
+    if (samples2.length > 0){
+      cofactor_samples_array.push(samples2)
+    }
+    if (samples3.length > 0){
+      cofactor_samples_array.push(samples3)
+    }
+    if (cofactor_samples_array.length > 0){
+      shared_samples = _.intersection.apply(_, cofactor_samples_array)
+    } else {
+      shared_samples = js_data.indIDs
     }
 
     for (j = 0; j < js_data.rdata[0].length; j++) {
-        if ($('input[name=ranked_cofactor2_vals]').val()){
-          if (samples_3.indexOf(js_data.indIDs[j])) {
-            datav = vals_3[j]
+
+        if (shared_samples.indexOf(js_data.indIDs[j]) == -1) {
+          continue
+        }
+
+        if (size_cofactor_vals.length > 0){
+          if (cofactor_samples.indexOf(js_data.indIDs[j])) {
+            datav = size_cofactor_vals[j]
             sizev = map1to2(datamin, datamax, sizemin, sizemax, datav);
           }
         } else {
@@ -255,6 +458,9 @@ function srgetdata() {
       if (sample_names[j] in ranked_cofactor2_dict){
         this_text += "<br>Cofactor 2: " + ranked_cofactor2_dict[sample_names[j]]
       }
+      if (sample_names[j] in cofactor3_dict){
+        this_text += "<br>Cofactor 3: " + ranked_cofactor3_dict[sample_names[j]]
+      }
       point_text.push(this_text)
     }
 
@@ -264,6 +470,7 @@ function srgetdata() {
         mode: 'markers',
         text: point_text,
         marker: {
+          symbol: symbol_list,
           size: sizes
         }
     }
@@ -287,33 +494,61 @@ function chartupdatewh() {
 }
 
 function colorer(d) {
-    datamin = d3.min(cofactor1_values);
-    datamax = d3.max(cofactor1_values);
+    if ($('#cofactor1_type option:selected').val() == "color"){
+        datamin = d3.min(cofactor1_values);
+        datamax = d3.max(cofactor1_values);
+    } else if ($('#cofactor2_type option:selected').val() == "color"){
+        datamin = d3.min(cofactor2_values);
+        datamax = d3.max(cofactor2_values);
+    } else {
+        datamin = d3.min(cofactor3_values);
+        datamax = d3.max(cofactor3_values);
+    }
     colormin = $("#cocolorfrom").val();
     colormax = $("#cocolorto").val();
 
-    compute = d3.interpolate(colormin, colormax);
+    compute = d3.interpolate("#"+colormin, "#"+colormax);
     linear = d3.scale.linear().domain([datamin, datamax]).range([0,1]);
 
     this_sample = d.tx.split("<br>")[0]
 
-    c = compute(linear(cofactor1_dict[this_sample]));
+    if ($('#cofactor1_type option:selected').val() == "color"){
+      c= compute(linear(cofactor1_dict[this_sample]));
+    } else if ($('#cofactor2_type option:selected').val() == "color"){
+      c= compute(linear(cofactor2_dict[this_sample]));
+    } else {
+      c= compute(linear(cofactor3_dict[this_sample]));
+    }
 
     return c;
 }
 
 function ranked_colorer(d) {
-    datamin = d3.min(ranked_cofactor1_values);
-    datamax = d3.max(ranked_cofactor1_values);
+    if ($('#cofactor1_type option:selected').val() == "color"){
+        datamin = d3.min(ranked_cofactor1_values);
+        datamax = d3.max(ranked_cofactor1_values);
+    } else if ($('#cofactor2_type option:selected').val() == "color"){
+        datamin = d3.min(ranked_cofactor2_values);
+        datamax = d3.max(ranked_cofactor2_values);
+    } else {
+        datamin = d3.min(ranked_cofactor3_values);
+        datamax = d3.max(ranked_cofactor3_values);
+    }
     colormin = $("#cocolorfrom").val();
     colormax = $("#cocolorto").val();
 
-    compute = d3.interpolate(colormin, colormax);
+    compute = d3.interpolate("#"+colormin, "#"+colormax);
     linear = d3.scale.linear().domain([datamin, datamax]).range([0,1]);
 
     this_sample = d.tx.split("<br>")[0]
 
-    c= compute(linear(ranked_cofactor1_dict[this_sample]));
+    if ($('#cofactor1_type option:selected').val() == "color"){
+      c= compute(linear(ranked_cofactor1_dict[this_sample]));
+    } else if ($('#cofactor2_type option:selected').val() == "color"){
+      c= compute(linear(ranked_cofactor2_dict[this_sample]));
+    } else {
+      c= compute(linear(ranked_cofactor3_dict[this_sample]));
+    }
 
     return c;
 }
@@ -334,17 +569,48 @@ function chartupdatedata() {
     Plotly.newPlot('srscatterplot2', srgetdata(), layout)
     Plotly.relayout('srscatterplot2', spearman_title_update)
 
-    if ($('input[name=cofactor1_vals]').val()){
-      d3.select('#scatterplot2 svg').selectAll('.point')
-        .style({
-            'stroke': colorer,
-            'fill':   colorer
-      });
-      d3.select('#srscatterplot2 svg').selectAll('.point')
-        .style({
-            'stroke': ranked_colorer,
-            'fill':   ranked_colorer
-      });
+    if ($('#cofactor1_type option:selected').val() == "color"){
+      $('#cofactor_color_selector').css("display", "inline")
+      if ($('input[name=cofactor1_vals]').val()){
+        d3.select('#scatterplot2 svg').selectAll('.point')
+          .style({
+              'stroke': colorer,
+              'fill':   colorer
+        });
+        d3.select('#srscatterplot2 svg').selectAll('.point')
+          .style({
+              'stroke': ranked_colorer,
+              'fill':   ranked_colorer
+        });
+      }
+    } else if ($('#cofactor2_type option:selected').val() == "color"){
+      $('#cofactor_color_selector').css("display", "inline")
+      if ($('input[name=cofactor2_vals]').val()){
+        d3.select('#scatterplot2 svg').selectAll('.point')
+          .style({
+              'stroke': colorer,
+              'fill':   colorer
+        });
+        d3.select('#srscatterplot2 svg').selectAll('.point')
+          .style({
+              'stroke': ranked_colorer,
+              'fill':   ranked_colorer
+        });
+      }
+    } else {
+      $('#cofactor_color_selector').css("display", "inline")
+      if ($('input[name=cofactor3_vals]').val()){
+        d3.select('#scatterplot2 svg').selectAll('.point')
+          .style({
+              'stroke': colorer,
+              'fill':   colorer
+        });
+        d3.select('#srscatterplot2 svg').selectAll('.point')
+          .style({
+              'stroke': ranked_colorer,
+              'fill':   ranked_colorer
+        });
+      }
     }
 }
 
@@ -359,12 +625,79 @@ $(".chartupdatedata").change(function () {
     chartupdatedata();
 });
 
-$(".cofactor1_type").change(function () {
-    console.log("cofactor1 type:", $(".cofactor1_type").val())
-    if ($(".cofactor1_type").val() == "color"){
-      $(".cofactor2_type").val("size")
-    } else {
-      $(".cofactor2_type").val("color")
+$("#cofactor1_type").change(function () {
+
+    the_types = ["color", "size", "symbol"]
+
+    cofactor1_type = $(this).val()
+    cofactor2_type = $("#cofactor2_type option:selected").val()
+    cofactor3_type = $("#cofactor3_type option:selected").val()
+
+    if (cofactor2_type == cofactor1_type){
+      for (i=0; i<3; i++){
+        if (the_types[i] != cofactor1_type && the_types[i] != cofactor3_type) {
+          $("#cofactor2_type").val(the_types[i]);
+        }
+      }
+    }
+    else if (cofactor3_type == cofactor1_type){
+      for (i=0; i<3; i++){
+        if (the_types[i] != cofactor1_type && the_types[i] != cofactor2_type) {
+          $("#cofactor3_type").val(the_types[i]);
+        }
+      }
+    }
+
+    chartupdatedata();
+});
+
+$("#cofactor2_type").change(function () {
+
+    the_types = ["color", "size", "symbol"]
+
+    cofactor2_type = $(this).val()
+    cofactor1_type = $("#cofactor1_type option:selected").val()
+    cofactor3_type = $("#cofactor3_type option:selected").val()
+
+    if (cofactor1_type == cofactor2_type){
+      for (i=0; i<3; i++){
+        if (the_types[i] != cofactor2_type && the_types[i] != cofactor3_type){
+          $("#cofactor1_type").val(the_types[i]);
+        }
+      }
+    }
+    else if (cofactor3_type == cofactor2_type){
+      for (i=0; i<3; i++){
+        if (the_types[i] != cofactor2_type && the_types[i] != cofactor1_type){
+          $("#cofactor3_type").val(the_types[i]);
+        }
+      }
+    }
+
+    chartupdatedata();
+});
+
+$("#cofactor3_type").change(function () {
+
+    the_types = ["color", "size", "symbol"]
+
+    cofactor3_type = $(this).val()
+    cofactor1_type = $("#cofactor1_type option:selected").val()
+    cofactor2_type = $("#cofactor2_type option:selected").val()
+
+    if (cofactor1_type == cofactor3_type){
+      for (i=0; i<3; i++){
+        if (the_types[i] != cofactor2_type && the_types[i] != cofactor3_type){
+          $("#cofactor1_type").val(the_types[i]);
+        }
+      }
+    }
+    else if (cofactor2_type == cofactor3_type){
+      for (i=0; i<3; i++){
+        if (the_types[i] != cofactor2_type && the_types[i] != cofactor1_type){
+          $("#cofactor3_type").val(the_types[i]);
+        }
+      }
     }
 });
 
@@ -383,6 +716,27 @@ open_covariate_selection = function() {
   })(this));
 };
 
+remove_cofactors = function() {
+  $('input[name=cofactor1_vals]').val("");
+  $('input[name=ranked_cofactor1_vals]').val("");
+  $('input[name=cofactor2_vals]').val("");
+  $('input[name=ranked_cofactor2_vals]').val("");
+  $('input[name=cofactor3_vals]').val("");
+  $('input[name=ranked_cofactor3_vals]').val("");
+
+  $('#select_cofactor1').text("Select Cofactor 1");
+  $('#cofactor2_button').css("display", "none");
+  $('#cofactor3_button').css("display", "none");
+
+  $('#cofactor_color_select').css("display", "none");
+
+  $('#cofactor1_info_container').css("display", "none");
+  $('#cofactor2_info_container').css("display", "none");
+  $('#cofactor3_info_container').css("display", "none");
+
+  chartupdatedata();
+};
+
 $(document).ready(function(){
     chartupdatedata();
 
@@ -395,4 +749,14 @@ $(document).ready(function(){
         $('input[name=selecting_which_cofactor]').val("2");
         open_covariate_selection();
     });
+
+    $('#select_cofactor3').click(function () {
+        $('input[name=selecting_which_cofactor]').val("3");
+        open_covariate_selection();
+    });
+
+    $('#remove_cofactors').click(function () {
+        remove_cofactors();
+    });
+
 });

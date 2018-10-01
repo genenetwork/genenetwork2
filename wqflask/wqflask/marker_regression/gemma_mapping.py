@@ -8,7 +8,7 @@ from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMP
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-def run_gemma(this_dataset, samples, vals, covariates, use_loco):
+def run_gemma(this_dataset, samples, vals, covariates, use_loco, maf=0.01):
     """Generates p-values for each marker using GEMMA"""
 
     if this_dataset.group.genofile != None:
@@ -67,14 +67,15 @@ def run_gemma(this_dataset, samples, vals, covariates, use_loco):
                                                                                                              gwa_output_filename)
 
     else:
-        gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 2 -maf 0.1' % (flat_files('genotype/bimbam'),
+        gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 2 -maf %s' % (flat_files('genotype/bimbam'),
                                                                                         genofile_name,
                                                                                         flat_files('genotype/bimbam'),
                                                                                         genofile_name,
                                                                                         flat_files('genotype/bimbam'),
                                                                                         genofile_name,
                                                                                         flat_files('genotype/bimbam'),
-                                                                                        genofile_name)
+                                                                                        genofile_name,
+                                                                                        maf)
 
         if covariates != "":
             gemma_command += ' -c %s/%s_covariates.txt -outdir %s -debug -o %s_output' % (flat_files('mapping'),

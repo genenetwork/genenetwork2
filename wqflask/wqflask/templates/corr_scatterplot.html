@@ -16,6 +16,8 @@
   <input type="hidden" name="ranked_cofactor1_vals"></input>
   <input type="hidden" name="cofactor2_vals"></input>
   <input type="hidden" name="ranked_cofactor2_vals"></input>
+  <input type="hidden" name="cofactor3_vals"></input>
+  <input type="hidden" name="ranked_cofactor3_vals"></input>
   <input type="hidden" name="selecting_which_cofactor"></input>
 
   <h2>Correlation Scatterplot</h2>
@@ -26,59 +28,93 @@
       <td style="vertical-align: middle;">Height <input class="chartupdatewh" id="height" type="text" value="700" style="width: 44px; height: 22px;"> px</td>
     </tr>
   </table>
-
+  <hr>
+  {% if collections_exist == "True" %}
   <div>
-    <button type="button" class="btn btn-default" id="select_cofactor1">
-      Select Cofactor 1
-    </button>
-<!--
-    <select class="cofactor1_type">
-      <option value="color">Color</option>
-      <option value="size">Size</option>
-    </select>
--->
-    <div id="cofactor2_button" style="margin-left: 10px; display: none;">
-      <button type="button" class="btn btn-default" id="select_cofactor2">
-        Add a Second Cofactor?
-      </button>
-<!--
-      <select class="cofactor2_type">
-        <option value="color">Color</option>
-        <option value="size" selected="selected">Size</option>
-      </select>
--->
+    <div style="margin-bottom: 10px;">
+    You can select up to three traits from a saved trait collection to use as cofactors in the scatterplots, with each trait corresponding to point color, size, or symbol.
+    For symbol, traits must have no more than 4 distinct values.
+    </div>
+    <div style="display: inline-block;">
+      <div id="cofactor1_button" style="display: inline-block;">
+        <button type="button" class="btn btn-default" id="select_cofactor1">
+          Select Cofactor 1
+        </button>
+        <select id="cofactor1_type">
+          <option value="color" selected>Color</option>
+          <option value="size">Size</option>
+          <option value="symbol">Symbol</option>
+        </select>
+      </div>
+      <div id="cofactor2_button" style="margin-left: 10px; display: none;">
+        <button type="button" class="btn btn-default" id="select_cofactor2">
+          Add a Second Cofactor?
+        </button>
+        <select id="cofactor2_type">
+          <option value="color">Color</option>
+          <option value="size" selected>Size</option>
+          <option value="symbol">Symbol</option>
+        </select>
+      </div>
+      <div id="cofactor3_button" style="margin-left: 10px; display: none;">
+        <button type="button" class="btn btn-default" id="select_cofactor3">
+          Add a Third Cofactor?
+        </button>
+        <select id="cofactor3_type">
+          <option value="color">Color</option>
+          <option value="size">Size</option>
+          <option value="symbol" selected>Symbol</option>
+        </select>
+      </div>
+      <div id="remove_cofactors_button" style="margin-left: 20px; display: inline-block;">
+        <button type="button" class="btn btn-danger" id="remove_cofactors">
+          Remove Cofactors
+        </button>
+      </div>
     </div>
   </div>
   <div id="collections_holder_wrapper" style="display:none;">
       <div id="collections_holder"></div>
   </div>
-  <br/>
+
+  <div id="cofactor_color_selector" style="margin-bottom: 10px; display:none;">
+    <hr>
+    <b>Cofactor Color Range:</b>
+    <input class="chartupdatedata" name="color2" type="hidden" id="cocolorfrom" value="#D9D9D9">
+    <button class="chartupdatedata jscolor {valueElement: 'cocolorfrom'}">Low</button>
+    <input class="chartupdatedata" name="color1" type="hidden" id="cocolorto" value="#000000">
+    <button class="chartupdatedata jscolor {valueElement: 'cocolorto'}">High</button>
+    <hr>
+  </div>
 
   <div id="cofactor1_info_container" style="margin-left: 0px; display: none;">
     <div>
       <b>Cofactor 1</b>: <a id="cofactor1_trait_link" href="#"></a>
     </div>
     <div id="cofactor1_description"></div>
-    <br>
-    <div style="margin-bottom: 10px;">
-    <b>Cofactor 1 Color Range:</b> 
-    <input class="chartupdatedata" id="cocolorfrom" type="color" value="#D9D9D9">
-    <input class="chartupdatedata" id="cocolorto" type="color" value="#000000">
-    </div>
+    <hr>
   </div>
 
   <div id="cofactor2_info_container" style="margin-left: 0px; display: none;">
-    <hr>
     <div>
       <b>Cofactor 2</b>: <a id="cofactor2_trait_link" href="#"></a>
     </div>
     <div id="cofactor2_description"></div>
-    <br>
-    <div style="margin-bottom: 20px;">
-    <b>Cofactor 2 corresponds to point radius</b> 
-    </div>
-    <br>
+    <hr>
   </div>
+
+  <div id="cofactor3_info_container" style="margin-left: 0px; display: none;">
+    <div>
+      <b>Cofactor 3</b>: <a id="cofactor3_trait_link" href="#"></a>
+    </div>
+    <div id="cofactor3_description"></div>
+    <hr>
+  </div>
+
+  {% else %}
+  <div style="margin-bottom: 10px;">No collections currently exist. Please create a collection first if you wish to include cofactors in the scatterplots.</div>
+  <hr>
+  {% endif %}
 
   <ul class="nav nav-tabs">
     <li class="active">
@@ -283,10 +319,9 @@
        js_data = {{ js_data | safe }};
     </script>
     <script language="javascript" type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
-	<script language="javascript" type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.5/nv.d3.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/colorbrewer.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/jscolor.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
     <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
