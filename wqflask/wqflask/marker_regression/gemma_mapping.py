@@ -71,11 +71,7 @@ def run_gemma(this_dataset, samples, vals, covariates, use_loco, maf=0.01):
                                                                                                              gwa_output_filename)
 
     else:
-<<<<<<< HEAD
-        gemma_command = GEMMA_COMMAND + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 2 -maf %s' % (flat_files('genotype/bimbam'),
-=======
-        gemma_command = GEMMA_COMMAND + ' ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 2 -maf 0.1' % (flat_files('genotype/bimbam'),
->>>>>>> b2a7886df64073042a89b466cc103f9bbf06827a
+        gemma_command = GEMMA_COMMAND + ' ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt -a %s/%s_snps.txt -k %s/%s.cXX.txt -lmm 2 -maf %s' % (flat_files('genotype/bimbam'),
                                                                                         genofile_name,
                                                                                         flat_files('genotype/bimbam'),
                                                                                         genofile_name,
