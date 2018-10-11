@@ -49,9 +49,7 @@ def run_gemma(this_dataset, samples, vals, covariates, use_loco, maf=0.01):
         logger.debug("k_command:" + generate_k_command)
         os.system(generate_k_command)
 
-        gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input %s/gn2/%s.json -- '+GEMMAOPTS+' -g %s/%s_geno.txt -p %s/%s_pheno.txt' % (TEMPDIR,
-                                                                                        k_output_filename,
-                                                                                        flat_files('genotype/bimbam'),
+        gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt' % (flat_files('genotype/bimbam'),
                                                                                         genofile_name,
                                                                                         flat_files('genotype/bimbam'),
                                                                                         genofile_name)

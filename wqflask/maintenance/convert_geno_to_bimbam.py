@@ -140,6 +140,8 @@ class ConvertGenoFile(object):
                 key, _separater, value = row.partition(':')
                 key = key.strip()
                 value = value.strip()
+                if key == "@filler":
+                    raise EmptyConfigurations
                 if key in self.haplotype_notation:
                     self.configurations[value] = self.haplotype_notation[key]
                 continue

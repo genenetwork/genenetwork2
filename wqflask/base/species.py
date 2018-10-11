@@ -14,10 +14,13 @@ from utility.logger import getLogger
 logger = getLogger(__name__ )
 
 class TheSpecies(object):
-    def __init__(self, dataset):
-        self.dataset = dataset
-        #print("self.dataset is:", pf(self.dataset.__dict__))
-        self.chromosomes = Chromosomes(self.dataset)
+    def __init__(self, dataset=None, species_name=None):
+        if species_name != None:
+            self.name = species_name
+            self.chromosomes = Chromosomes(species=self.name)
+        else:
+            self.dataset = dataset
+            self.chromosomes = Chromosomes(dataset=self.dataset)
 
 class IndChromosome(object):
     def __init__(self, name, length):
@@ -30,11 +33,21 @@ class IndChromosome(object):
         return self.length / 1000000
 
 class Chromosomes(object):
-    def __init__(self, dataset):
-        self.dataset = dataset
+    def __init__(self, dataset=None, species=None):
         self.chromosomes = collections.OrderedDict()
+        if species != None:
+            query = """
+                Select
+                        Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, Species
+                where
+                        Chr_Length.SpeciesId = Species.SpeciesId AND
+                        Species.Name = '%s'
+                Order by OrderId
+                """ % species.capitalize()
+        else:
+            self.dataset = dataset
 
-        query = """
+            query = """
                 Select
                         Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, InbredSet
                 where
