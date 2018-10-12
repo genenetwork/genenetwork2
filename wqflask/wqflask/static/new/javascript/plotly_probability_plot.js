@@ -162,13 +162,15 @@
     }
 
     var layout = {
+        title: 'Quantile-Quantile Plot<a href="https://en.wikipedia.org/wiki/Q-Q_plot"><sup>?</sup></a>',
         margin: {
             l: 50,
             r: 30,
-            t: 30,
+            t: 80,
             b: 80
         },
         xaxis: {
+            title: "Normal Theoretical Quantiles",
             range: [first_x, last_x],
             zeroline: false,
             visible: true,
@@ -176,6 +178,7 @@
             linewidth: 1,
         },
         yaxis: {
+            title: "Data Quantiles",
             zeroline: false,
             visible: true,
             linecolor: 'black',
@@ -188,7 +191,7 @@
         y: y_values['samples_primary'],
         mode: 'markers',
         type: 'scatter',
-        name: js_data.sample_group_types['samples_primary'],
+        name: 'Samples',
         text: point_names['samples_primary']
     }
     if ("samples_other" in js_data.sample_group_types) {
@@ -208,7 +211,7 @@
             y: intercept_line['samples_primary'][1],
             mode: 'lines',
             type: 'scatter',
-            name: 'Intercept',
+            name: 'Normal Function',
         }
     } else if (sample_group == "samples_other"){
         var other_intercept_trace = {
@@ -216,7 +219,7 @@
             y: intercept_line['samples_other'][1],
             mode: 'lines',
             type: 'scatter',
-            name: 'Intercept',
+            name: 'Normal Function',
         }
     } else {
         var all_intercept_trace = {
@@ -224,7 +227,7 @@
             y: intercept_line['samples_all'][1],
             mode: 'lines',
             type: 'scatter',
-            name: 'Intercept',
+            name: 'Normal Function',
         }
     }
 

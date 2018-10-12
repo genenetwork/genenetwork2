@@ -219,7 +219,7 @@ def build_datasets(species, group, type_name):
         if group == 'MDP':
             dataset_text = "Mouse Phenome Database"
         else:
-            dataset_text = "%s Published Phenotypes" % group
+            dataset_text = "%s Phenotypes" % group
 
     elif type_name == "Genotypes":
         Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where

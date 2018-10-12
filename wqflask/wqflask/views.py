@@ -52,6 +52,7 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
+from wqflask.snp_browser import snp_browser
 #from wqflask.trait_submission import submit_trait
 
 from utility import temp_data
@@ -534,7 +535,10 @@ def loading_page():
         'viewLegend',
         'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
-        'mapmodel_rqtl_geno'
+        'mapmodel_rqtl_geno',
+        'temp_trait',
+        'group',
+        'species'
     )
     start_vars_container = {}
     start_vars = {}
@@ -593,7 +597,10 @@ def marker_regression_page():
         'viewLegend',
         'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
-        'mapmodel_rqtl_geno'
+        'mapmodel_rqtl_geno',
+        'temp_trait',
+        'group',
+        'species'
     )
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
@@ -759,6 +766,13 @@ def corr_scatter_plot_page():
                                        default=json_default_handler,
                                        indent="   ")
     return render_template("corr_scatterplot.html", **template_vars.__dict__)
+
+@app.route("/snp_browser", methods=('GET',))
+def snp_browser_page():
+    logger.info(request.url)
+    template_vars = snp_browser.SnpBrowser(request.args)
+
+    return render_template("snp_browser.html", **template_vars.__dict__)
 
 @app.route("/submit_bnw", methods=('POST',))
 def submit_bnw():

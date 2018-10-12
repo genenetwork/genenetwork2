@@ -7,9 +7,11 @@
                 <li>
                     <a href="#histogram_tab" data-toggle="tab">Histogram</a>
                 </li>
+                {% if num_values < 256 %}
                 <li>
                     <a href="#bar_chart_tab" data-toggle="tab">Bar Chart</a>
                 </li>
+                {% endif %}
                 <li>
                     <a href="#probability_plot" data-toggle="tab">Probability Plot</a>
                 </li>
@@ -20,6 +22,9 @@
                 {% endif %}
                 <li>
                     <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
+                </li>
+                <li>
+                    <a href="#violin_plot_tab" data-toggle="tab">Violin Plot</a>
                 </li>
             </ul>
 
@@ -43,7 +48,8 @@
                             <div id="histogram" class="barchart"></div>
                         </div>
                     </div>
-                </div>   
+                </div>
+                {% if num_values < 256 %}
                 <div class="tab-pane" id="bar_chart_tab">
                     <div style="padding: 20px" class="form-horizontal">
                         {% if sample_groups|length != 1 %}
@@ -79,23 +85,12 @@
                             </button>
                         </div>
                         {% endif %}
-                        <!--
-                        <div class="row" style="position:relative">
-                          <div id="bar_chart_legend" style="margin-left: 150px; margin-top:20px; position: absolute;">
-                            <span id="legend-left"></span>
-                            <span id="legend-colors"></span>
-                            <span id="legend-right"></span>
-                          </div>
-                        </div>
-                        <div style="margin-left: 20px; margin-right: 20px;" class="row" id="bar_chart_container">
-                            <svg></svg>
-                        </div>
-                        -->
                         <div id="bar_chart_container">
                             <div id="bar_chart"></div>
                         </div>
                     </div>
                 </div>
+                {% endif %}
                 <div class="tab-pane" id="probability_plot">
                     <div style="padding: 20px" class="form-horizontal">
                         {% if sample_groups|length != 1 %}
@@ -124,6 +119,11 @@
                 <div class="tab-pane" id="box_plot_tab">
                     <div id="box_plot_container">
                         <div id="box_plot"></div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="violin_plot_tab">
+                    <div id="violin_plot_container">
+                        <div id="violin_plot"></div>
                     </div>
                 </div>
                 {% if g.user_session.logged_in %}

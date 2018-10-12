@@ -70,7 +70,7 @@ class AnonUser(object):
                                members = new_collection.get_members())
 
         Redis.set(self.key, json.dumps(collection_dict))
-        Redis.expire(self.key, 60 * 60 * 24 * 5)
+        Redis.expire(self.key, 60 * 60 * 24 * 30)
 
     def delete_collection(self, collection_name):
         existing_collections = self.get_collections()
@@ -940,9 +940,11 @@ def forgot_password_submit():
         user_details = get_user_by_unique_column(es, "email_address", email_address)
         if user_details:
             ForgotPasswordEmail(user_details["email_address"])
-
-        return render_template("new_security/forgot_password_step2.html",
-                               subject=ForgotPasswordEmail.subject)
+            return render_template("new_security/forgot_password_step2.html",
+                                   subject=ForgotPasswordEmail.subject)
+        else:
+            flash("The e-mail entered is not associated with an account.", "alert-danger")
+            return redirect(url_for("forgot_password"))
 
     else:
         flash("You MUST provide an email", "alert-danger")

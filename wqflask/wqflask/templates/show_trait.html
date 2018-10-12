@@ -192,10 +192,11 @@
                     "columns": [
                         { "bSortable": false },
                         { "type": "natural" },
-                        { "type": "natural" },
+                        { "type": "natural", "width": "25%" },
                         { "type": "cust-txt" },
                         { "bSortable": false },
-                        { "type": "cust-txt" }{% if sample_groups[0].attributes|length > 0 %},{% endif %}
+                        { "type": "cust-txt" }{% if has_num_cases %},
+                        { "type": "cust-txt" }{% endif %}{% if sample_groups[0].attributes|length > 0 %},{% endif %}
                         {% for attribute in sample_groups[0].attributes %}
                         { "type": "natural" }{% if loop.index < sample_groups[0].attributes|length %},{% endif %}
                         {% endfor %}
@@ -207,7 +208,7 @@
                     "order": [[1, "asc" ]],
                     "sDom": "RZtr",
                     "iDisplayLength": -1,
-                    "autoWidth": false,
+                    "autoWidth": true,
                     "bLengthChange": true,
                     "bDeferRender": true,
                     "bSortClasses": false,
@@ -226,7 +227,8 @@
                         { "bSortable": false, "width": "8%" },
                         { "type": "natural", "width": "15%" },
                         { "type": "natural", "width": "25%" },
-                        { "type": "cust-txt", "width": "25%" }{% if sample_groups[0].attributes|length > 0 %},{% endif %}
+                        { "type": "cust-txt", "width": "25%" }{% if has_num_cases %},
+                        { "type": "cust-txt" }{% endif %}{% if sample_groups[0].attributes|length > 0 %},{% endif %}
                         {% for attribute in sample_groups[0].attributes %}
                         { "type": "natural" }{% if loop.index < sample_groups[0].attributes|length %},{% endif %}
                         {% endfor %}
@@ -238,7 +240,7 @@
                     "order": [[1, "asc" ]],
                     "sDom": "RZtr",
                     "iDisplayLength": -1,
-                    "autoWidth": false,
+                    "autoWidth": true,
                     "bLengthChange": true,
                     "bDeferRender": true,
                     "bSortClasses": false,

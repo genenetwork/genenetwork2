@@ -12,7 +12,7 @@ def gen_reaper_results(this_trait, dataset, samples_before, trait_vals, json_dat
     for i in range(0, len(samples_before)):
         try:
             trimmed_values.append(float(trait_vals[i]))
-            trimmed_samples.append(samples_before[i])
+            trimmed_samples.append(str(samples_before[i]))
         except:
             pass
 

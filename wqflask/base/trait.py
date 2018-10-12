@@ -189,7 +189,8 @@ def get_sample_data():
         trait_dict['symbol'] = trait_ob.symbol
         trait_dict['location'] = trait_ob.location_repr
     elif trait_ob.dataset.type == "Publish":
-        trait_dict['pubmed_link'] = trait_ob.pubmed_link
+        if trait_ob.pubmed_id:
+            trait_dict['pubmed_link'] = trait_ob.pubmed_link
         trait_dict['pubmed_text'] = trait_ob.pubmed_text
 
     return json.dumps([trait_dict, {key: value.value for key, value in trait_ob.data.iteritems() }])

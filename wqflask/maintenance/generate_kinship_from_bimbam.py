@@ -32,6 +32,8 @@ class GenerateKinshipMatrices(object):
             if not input_file.endswith(('geno', '.geno.gz')):
                 continue
             group_name = ".".join(input_file.split('.')[:-1])
+            if group_name == "HSNIH-Palmer":
+                continue
             geno_input_file = os.path.join(bimbam_dir, group_name + "_geno.txt")
             pheno_input_file = os.path.join(bimbam_dir, group_name + "_pheno.txt")
             convertob = GenerateKinshipMatrices(group_name, geno_input_file, pheno_input_file)

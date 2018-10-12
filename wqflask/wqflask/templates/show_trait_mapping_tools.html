@@ -54,7 +54,7 @@
                         <div class="mapping_method_fields form-group">
                             <label for="maf_gemma" style="text-align: right;" class="col-xs-3 control-label">MAF</label>
                             <div style="margin-left:20px;" class="col-xs-4 controls">
-                                <input name="maf_gemma" value="0.01" type="text" class="form-control">
+                                <input name="maf_gemma" value="0.05" type="text" class="form-control">
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
@@ -71,7 +71,10 @@
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label style="text-align: right;" class="col-xs-3 control-label">Covariates</label>
+                            <div class="col-xs-3" style="text-align: right;">
+                            <label class="control-label">Covariates</label>
+                            <font size="2">Select covariate(s) from a collection</font>
+                            </div>
                             <div style="margin-left:20px;" class="col-xs-7">
                               {% if g.user_session.logged_in %}
                               {% if g.user_session.num_collections < 1 %}

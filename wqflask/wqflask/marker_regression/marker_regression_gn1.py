@@ -711,7 +711,7 @@ class MarkerRegression(object):
                 locPixel = xLeftOffset
                 for i, _chr in enumerate(self.ChrList[1:]):
                     if _chr[0] != Chr:
-                        locPixel += (self.ChrLengthDistList[i-1] + self.GraphInterval)*plotXScale
+                        locPixel += (self.ChrLengthDistList[i] + self.GraphInterval)*plotXScale
                     else:
                         locPixel += Mb*plotXScale
                         break
@@ -911,7 +911,10 @@ class MarkerRegression(object):
                 string2 += 'no control for other QTLs'
 
         if self.this_trait.name:
-            identification = "Trait ID: %s : %s" % (self.dataset.fullname, self.this_trait.name)
+            if self.this_trait.symbol:
+                identification = "Trait ID: %s : %s : %s" % (self.this_trait.symbol, self.dataset.fullname, self.this_trait.name)
+            else:
+                identification = "Trait ID: %s : %s" % (self.dataset.fullname, self.this_trait.name)
             d = 4+ max(canvas.stringWidth(identification, font=labelFont), canvas.stringWidth(string1, font=labelFont), canvas.stringWidth(string2, font=labelFont))
             canvas.drawString(identification,canvas.size[0] - xRightOffset-d,20*fontZoom,font=labelFont,color=labelColor)
         else:
@@ -2089,7 +2092,6 @@ class MarkerRegression(object):
                 if self.ALEX_DEBUG_BOOL_PRINT_GENE_LIST:
                     geneIdString = 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s' % theGO["GeneID"]
 
-                    allProbeString = '%s?cmd=sch&gene=%s&alias=1' % (os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), theGO["GeneSymbol"])
                     if theGO["snpCount"]:
                         snpString = HT.Href(url="http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&chr=%s&start=%s&end=%s&geneName=%s&s1=%d&s2=%d" % (theGO["Chromosome"],
                                 theGO["TxStart"], theGO["TxEnd"], theGO["GeneSymbol"], self.diffCol[0], self.diffCol[1]),
@@ -2116,7 +2118,6 @@ class MarkerRegression(object):
                     geneDescription = theGO["GeneDescription"]
                     if len(geneDescription) > 26:
                         geneDescription = geneDescription[:26]+"..."
-                    probeSetSearch = HT.Href(allProbeString, ">>", target="_blank")
 
                     if theGO["snpDensity"] < 0.000001:
                         snpDensityStr = "0"
@@ -2139,7 +2140,7 @@ class MarkerRegression(object):
 
                         this_row = [selectCheck.__str__(),
                                     str(tableIterationsCnt),
-                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__() +  "&nbsp;" + probeSetSearch.__str__(),
+                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__(),
                                     HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
                                     HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
                                     snpString,
