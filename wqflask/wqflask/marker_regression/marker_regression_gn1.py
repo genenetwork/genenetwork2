@@ -2153,7 +2153,7 @@ class MarkerRegression(object):
                     else:
                         this_row = [selectCheck.__str__(),
                                     str(tableIterationsCnt),
-                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__() +  "&nbsp;" + probeSetSearch.__str__(),
+                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__(),
                                     HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
                                     HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
                                     snpString,
