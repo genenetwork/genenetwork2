@@ -34,6 +34,10 @@ PUBMEDLINK_URL = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=
 UCSC_BLAT = 'http://genome.ucsc.edu/cgi-bin/hgBlat?org=%s&db=%s&type=0&sort=0&output=0&userSeq=%s'
 UTHSC_BLAT = 'http://ucscbrowser.genenetwork.org/cgi-bin/hgBlat?org=%s&db=%s&type=0&sort=0&output=0&userSeq=%s'
 UTHSC_BLAT2 = 'http://ucscbrowserbeta.genenetwork.org/cgi-bin/hgBlat?org=%s&db=%s&type=0&sort=0&output=0&userSeq=%s'
+GENOMEBROWSER_URL="https://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=%s"
+NCBI_LOCUSID = "http://www.ncbi.nlm.nih.gov/gene?cmd=Retrieve&dopt=Graphics&list_uids=%s"
+ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Transcript/Idhistory?t=%s"
+DBSNP = 'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?type=rs&rs=%s'
 
 # Temporary storage (note that this TMPDIR can be set as an
 # environment variable - use utility.tools.TEMPDIR when you

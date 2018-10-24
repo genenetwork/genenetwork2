@@ -51,7 +51,7 @@ logger = utility.logger.getLogger(__name__ )
 #########################################
 #      Inteval Mapping Plot Page
 #########################################
-class MarkerRegression(object):
+class DisplayMappingResults(object):
     cMGraphInterval = 5
     GRAPH_MIN_WIDTH = 900
     GRAPH_MAX_WIDTH = 10000 # Don't set this too high

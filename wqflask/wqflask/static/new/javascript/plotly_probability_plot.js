@@ -183,7 +183,8 @@
             visible: true,
             linecolor: 'black',
             linewidth: 1,
-        }
+        },
+        hovermode: "closest"
     }
 
     var primary_trace = {

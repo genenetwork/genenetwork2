@@ -8,21 +8,27 @@ from utility.logger import getLogger
 logger = getLogger(__name__ )
 
 from base import species
+from base import webqtlConfig
 
 class SnpBrowser(object):
 
     MAXSNPRETURN = 5000
 
     def __init__(self, start_vars):
-        self.strain_list = get_browser_sample_list()
+        self.strain_lists = get_browser_sample_lists()
         self.initialize_parameters(start_vars)
 
         if self.first_run == "false":
             if self.limit_strains == "true":
                 self.header_fields = get_header_list(self.variant_type, self.chosen_strains)
             else:
-                self.header_fields = get_header_list(self.variant_type, self.strain_list)
-            self.filtered_results = self.get_table_results()
+                self.header_fields = get_header_list(self.variant_type, self.strain_lists, self.species_name)
+            self.filtered_results = self.get_browser_results()
+
+            if len(self.filtered_results) <= 5000:
+                self.table_rows = self.get_table_rows()
+            else:
+                self.table_rows = []
 
     def initialize_parameters(self, start_vars):
         self.first_run = "true"
@@ -39,7 +45,7 @@ class SnpBrowser(object):
                 self.species_id = 0 #Using this to indicate "All Species"
  
             #ZS: Currently this is just assuming mouse for determining the chromosomes. 
-            #    This logic may have to change depending upon what other species are added or how we want to deal with an "All Species" option
+            #    This logic may have to change depending upon what other species are added
             self.chr_list = []
             species_ob = species.TheSpecies(species_name="Mouse")
             for key in species_ob.chromosomes.chromosomes:
@@ -61,7 +67,14 @@ class SnpBrowser(object):
                 self.limit_strains = "true"
             else:
                 self.limit_strains = "false"
-            self.chosen_strains = start_vars['chosen_strains'].split(",")
+            self.chosen_strains_mouse = start_vars['chosen_strains_mouse'].split(",")
+            self.chosen_strains_rat = start_vars['chosen_strains_rat'].split(",")
+
+            if self.species_id == 1:
+                self.chosen_strains = self.chosen_strains_mouse
+            elif self.species_id == 2:
+                self.chosen_strains = self.chosen_strains_rat
+
             self.domain = start_vars['domain']
             self.function = start_vars['function']
             self.source = start_vars['source']
@@ -89,15 +102,19 @@ class SnpBrowser(object):
 
             self.limit_strains = "true"
 
-            self.chosen_strains = ["C57BL/6J",
-                                   "DBA/2J",
-                                   "A/J",
-                                   "129S1/SvImJ",
-                                   "NOD/ShiLtJ",
-                                   "NZO/HlLtJ",
-                                   "WSB/EiJ",
-                                   "PWK/PhJ",
-                                   "CAST/EiJ"]
+            self.chosen_strains_mouse = ["C57BL/6J",
+                                         "DBA/2J",
+                                         "A/J",
+                                         "129S1/SvImJ",
+                                         "NOD/ShiLtJ",
+                                         "NZO/HlLtJ",
+                                         "WSB/EiJ",
+                                         "PWK/PhJ",
+                                         "CAST/EiJ"]
+            self.chosen_strains_rat = ["F344"]
+            self.chosen_strains_all = self.chosen_strains_mouse + self.chosen_strains_rat
+
+            self.chosen_strains = self.chosen_strains_mouse
             
             self.domain = "All"
             self.function = "All"
@@ -108,11 +125,14 @@ class SnpBrowser(object):
             self.redundant = "false"
             self.diff_alleles = "true"
 
-    def get_table_results(self):
+    def get_browser_results(self):
         self.snp_list = None
 
         if self.gene_name != "":
-            query = "SELECT geneSymbol, chromosome, txStart, txEnd FROM GeneList WHERE SpeciesId = %s AND geneSymbol = %s" % (self.species_id, self.gene_name)
+            if self.species_id != 0:
+                query = "SELECT geneSymbol, chromosome, txStart, txEnd FROM GeneList WHERE SpeciesId = %s AND geneSymbol = '%s'" % (self.species_id, self.gene_name)
+            else:
+                query = "SELECT geneSymbol, chromosome, txStart, txEnd FROM GeneList WHERE geneSymbol = '%s'" % (self.gene_name)
             result = g.db.execute(query).fetchone()
             if result:
                 self.gene_name, self.chr, self.start_mb, self.end_mb = result
@@ -120,9 +140,12 @@ class SnpBrowser(object):
                 result_snp = None
                 if self.variant_type == "SNP":
                     if self.gene_name[:2] == "rs":
-                        query = "SELECT Id, Chromosome, Position, Position+0.000001 FROM SnpAll WHERE Rs = %s" % self.gene_name
+                        query = "SELECT Id, Chromosome, Position, Position+0.000001 FROM SnpAll WHERE Rs = '%s'" % self.gene_name
                     else:
-                        query = "SELECT Id, Chromosome, Position, Position+0.000001 ForM SnpAll where SpeciesId = %s AND SnpName = %s" % (self.species_id, self.gene_name)
+                        if self.species_id != 0:
+                            query = "SELECT Id, Chromosome, Position, Position+0.000001 ForM SnpAll where SpeciesId = %s AND SnpName = '%s'" % (self.species_id, self.gene_name)
+                        else:
+                            query = "SELECT Id, Chromosome, Position, Position+0.000001 ForM SnpAll where SnpName = '%s'" % (self.gene_name)
                     result_snp = g.db.execute(query).fetchall()
                     if result_snp:
                         self.snp_list = [item[0] for item in result_snp]
@@ -133,7 +156,10 @@ class SnpBrowser(object):
                         return
                 elif self.variant_type == "InDel":
                     if self.gene_name[0] == "I":
-                        query = "SELECT Id, Chromosome, Mb_start, Mb_end FROM IndelAll WHERE SpeciesId = %s AND Name = %s" % (self.species_id, self.gene_name)
+                        if self.species_id != 0:
+                            query = "SELECT Id, Chromosome, Mb_start, Mb_end FROM IndelAll WHERE SpeciesId = %s AND Name = '%s'" % (self.species_id, self.gene_name)
+                        else:
+                            query = "SELECT Id, Chromosome, Mb_start, Mb_end FROM IndelAll WHERE Name = '%s'" % (self.gene_name)
                         result_snp = g.db.execute(query).fetchall()
                     if result_snp:
                         self.snp_list = [item[0] for item in result_snp]
@@ -144,29 +170,59 @@ class SnpBrowser(object):
                         return
 
         if self.variant_type == "SNP":
-            query = """
+            mouse_query = """
                        SELECT
-                               a.*, b.*
+                           a.*, b.*
                        FROM
-                               SnpAll a, SnpPattern b
+                           SnpAll a, SnpPattern b
                        WHERE
-                               a.SpeciesId = %s AND a.Chromosome = '%s' AND
-                               a.Position >= %.6f AND a.Position < %.6f AND
-                               a.Id = b.SnpId
+                           a.SpeciesId = %s AND a.Chromosome = '%s' AND
+                           a.Position >= %.6f AND a.Position < %.6f AND
+                           a.Id = b.SnpId
                        ORDER BY a.Position
                     """ % (self.species_id, self.chr, self.start_mb, self.end_mb)
-        elif self.variant_type == "InDel":
-            query = """
+
+            rat_query = """
                        SELECT
-                               DISTINCT a.Name, a.Chromosome, a.SourceId, a.Mb_start, a.Mb_end, a.Strand, a.Type, a.Size, a.InDelSequence, b.Name
+                           a.*, b.*
                        FROM
-                               IndelAll a, SnpSource b
+                           SnpAll a, RatSnpPattern b
                        WHERE
+                           a.SpeciesId = %s AND a.Chromosome = '%s' AND
+                           a.Position >= %.6f AND a.Position < %.6f AND
+                           a.Id = b.SnpId
+                       ORDER BY a.Position
+                    """ % (self.species_id, self.chr, self.start_mb, self.end_mb)
+            if self.species_id == 1:
+                query = mouse_query
+            elif self.species_id == 2:
+                query = rat_query
+
+        elif self.variant_type == "InDel":
+            if species_id != 0:
+                query = """
+                           SELECT
+                               DISTINCT a.Name, a.Chromosome, a.SourceId, a.Mb_start, a.Mb_end, a.Strand, a.Type, a.Size, a.InDelSequence, b.Name
+                           FROM
+                               IndelAll a, SnpSource b
+                           WHERE
                                a.SpeciesId = '%s' AND a.Chromosome = '%s' AND
                                a.Mb_start >= %2.6f AND a.Mb_start < (%2.6f+.0010) AND
                                b.Id = a.SourceId
-                       ORDER BY a.Mb_start
-                    """ % (self.species_id, self.chr, self.start_mb, self.end_mb)
+                           ORDER BY a.Mb_start
+                        """ % (self.species_id, self.chr, self.start_mb, self.end_mb)
+            else:
+                query = """
+                           SELECT
+                               DISTINCT a.Name, a.Chromosome, a.SourceId, a.Mb_start, a.Mb_end, a.Strand, a.Type, a.Size, a.InDelSequence, b.Name
+                           FROM
+                               IndelAll a, SnpSource b
+                           WHERE
+                               a.Chromosome = '%s' AND
+                               a.Mb_start >= %2.6f AND a.Mb_start < (%2.6f+.0010) AND
+                               b.Id = a.SourceId
+                           ORDER BY a.Mb_start
+                        """ % (self.chr, self.start_mb, self.end_mb)
 
         results_all = g.db.execute(query).fetchall()
 
@@ -179,7 +235,7 @@ class SnpBrowser(object):
 
         if self.limit_strains == "true" and len(self.chosen_strains) > 0:
             for item in self.chosen_strains:
-                index = self.strain_list.index(item)
+                index = self.strain_lists[self.species_name.lower()].index(item)
                 strain_index_list.append(index)
 
         for seq, result in enumerate(results):
@@ -189,11 +245,17 @@ class SnpBrowser(object):
                 display_strains = []
                 snp_id, species_id, snp_name, rs, chr, mb, mb_2016, alleles, snp_source, conservation_score = result[:10]
                 effect_list = result[10:26]
-                self.allele_list = result[27:]
+                if self.species_id == 1:
+                    self.allele_list = result[27:]
+                elif self.species_id == 2:
+                    self.allele_list = result[28:]
 
                 if self.limit_strains == "true" and len(self.chosen_strains) > 0:
                     for index in strain_index_list:
-                        display_strains.append(result[27+index])
+                        if self.species_id == 1:
+                            display_strains.append(result[27+index])
+                        elif self.species_id == 2:
+                            display_strains.append(result[28+index])
                     self.allele_list = display_strains
 
                 effect_info_dict = get_effect_info(effect_list)
@@ -266,6 +328,150 @@ class SnpBrowser(object):
 
         return filtered_results
 
+    def get_table_rows(self):
+        """ Take results and put them into the order and format necessary for the tables rows """
+
+        if self.variant_type == "SNP":
+            gene_name_list = []
+            for item in self.filtered_results:
+                if item[5] and item[5] != "":
+                    gene_name = item[5][1]
+                    # eliminate duplicate gene_name
+                    if gene_name and (gene_name not in gene_name_list):
+                        gene_name_list.append(gene_name)
+            if len(gene_name_list) > 0:
+                gene_id_name_dict = get_gene_id_name_dict(gene_name_list)
+
+        the_rows = []
+        for result in self.filtered_results:
+            this_row = []
+            if self.variant_type == "SNP":
+                snp_name, rs, chr, mb, alleles, gene, transcript, exon, domain, function, function_details, snp_source, conservation_score, snp_id = result[:14]
+                allele_value_list = result[14:]
+                if rs:
+                    snp_url = webqtlConfig.DBSNP % (rs)
+                    snp_name = rs
+                else:
+                    rs = ""
+                    start_bp = int(mb*1000000 - 100)
+                    end_bp = int(mb*1000000 + 100)
+                    position_info = "chr%s:%d-%d" % (chr, start_bp, end_bp)
+                    if self.species_id == 2:
+                        snp_url = webqtlConfig.GENOMEBROWSER_URL % ("rn6", position_info)
+                    else:
+                        snp_url = webqtlConfig.GENOMEBROWSER_URL % ("mm10", position_info)
+
+                mb = float(mb)
+                mb_formatted = "%2.6f" % mb
+
+                if snp_source == "Sanger/UCLA":
+                    source_url_1 = "http://www.sanger.ac.uk/resources/mouse/genomes/"
+                    source_url_2 = "http://mouse.cs.ucla.edu/mousehapmap/beta/wellcome.html"
+                    source_urls = [source_url_1, source_url_2]
+                else:
+                    source_urls = []
+
+                if not conservation_score:
+                    conservation_score = ""
+
+                if gene:
+                    gene_name = gene[1]
+                    # if gene_name has related gene_id, use gene_id for NCBI search
+                    if (gene_name in gene_id_name_dict) and (gene_id_name_dict[gene_name] != None and gene_id_name_dict[gene_name] != ""):
+                        gene_id = gene_id_name_dict[gene[1]]
+                        gene_link = webqtlConfig.NCBI_LOCUSID % gene_id
+                    else:
+                        gene_link = "http://www.ncbi.nln.nih.gov/entrez/query.fcgi?CMD=search&DB=gene&term=%s" % gene_name
+                else:
+                    gene_name = ""
+                    gene_link = ""
+
+                if transcript:
+                    transcript_link = webqtlConfig.ENSEMBLETRANSCRIPT_URL % (transcript)
+                else:
+                    transcript_link = ""
+
+                if exon:
+                    exon = exon[1] # exon[0] is exon_id, exon[1] is exon_rank
+                else:
+                    exon = "1"
+
+                if domain:
+                    domain_1 = domain[0]
+                    domain_2 = domain[1]
+                    if domain_1 == "Exon":
+                        domain_1 = domain_1 + " " + exon
+
+                function_list = []
+                if function_details:
+                    function_list = string.split(string.strip(function_details), ",")
+                    function_list = map(string.strip, function_list)
+                    function_list[0] = function_list[0].title()
+                    function_details = ", ".join(item for item in function_list)
+                    function_details = function_details.replace("_", " ")
+                    function_details = function_details.replace("/", " -> ")
+                    if function_details == "Biotype: Protein Coding":
+                        function_details = function_details + ", Coding Region Unknown"
+                    
+                #[snp_href, chr, mb_formatted, alleles, snp_source_cell, conservation_score, gene_name_cell, transcript_href, exon, domain_1, domain_2, function, function_details]
+
+                base_color_dict = {"A": "#C33232", "C": "#1569C7", "T": "#CFCF32", "G": "#32C332", 
+                                   "t": "#FF6", "c": "#5CB3FF", "a": "#F66", "g": "#CF9", ":": "#FFFFFF", "-": "#FFFFFF", "?": "#FFFFFF"}
+
+
+                the_bases = []
+                for j, item in enumerate(allele_value_list):
+                    if item:
+                        this_base = [item, base_color_dict[item]]
+                    else:
+                        this_base = ""
+
+                    the_bases.append(this_base)
+
+                this_row = {
+                    "rs": rs,
+                    "snp_url": snp_url,
+                    "snp_name": snp_name,
+                    "chr": chr,
+                    "mb_formatted": mb_formatted,
+                    "alleles": alleles,
+                    "snp_source": snp_source,
+                    "source_urls": source_urls,
+                    "conservation_score": conservation_score,
+                    "gene_name": gene_name,
+                    "gene_link": gene_link,
+                    "transcript": transcript,
+                    "transcript_link": transcript_link,
+                    "exon": exon,
+                    "domain_1": domain_1,
+                    "domain_2": domain_2,
+                    "function": function, 
+                    "function_details": function_details,
+                    "allele_value_list": the_bases
+                }
+
+            elif self.variant_type == "InDel":
+                indel_name, indel_chr, indel_mb_s, indel_mb_e, indel_strand, indel_type, indel_size, indel_sequence, source_name = result
+                this_row = {
+                    "indel_name": indel_name,
+                    "indel_chr": indel_chr,
+                    "indel_mb_s": indel_mb_s,
+                    "indel_mb_e": indel_mb_e,
+                    "indel_strand": indel_strand,
+                    "indel_type": indel_type,
+                    "indel_size": indel_size,
+                    "indel_sequence": indel_sequence,
+                    "source_name": source_name
+                }
+                #this_row = [indel_name, indel_chr, indel_mb_s, indel_mb_e, indel_strand, indel_type, indel_size, indel_sequence, source_name]
+            else:
+                this_row = {}
+
+            the_rows.append(this_row)
+
+        return the_rows
+                
+
     def include_record(self, domain, function, snp_source, conservation_score):
         """ Decide whether to add this record """
 
@@ -304,7 +510,10 @@ class SnpBrowser(object):
                     function_satisfied = False
             else:
                 function_satisfied = False
-                if function.startswith(self.function):
+                if self.function != "All":
+                    if function.startswith(self.function):
+                        function_satisfied = True
+                else:
                     function_satisfied = True
         else:
             if self.function != "All":
@@ -358,23 +567,39 @@ class SnpBrowser(object):
 
         return domain_satisfied and function_satisfied and source_satisfied and score_satisfied and different_alleles_satisfied
 
-def get_browser_sample_list(species_id=1):
-    sample_list = []
+def get_browser_sample_lists(species_id=1):
+    strain_lists = {}
+    mouse_strain_list = []
     query = "SHOW COLUMNS FROM SnpPattern;"
     results = g.db.execute(query).fetchall();
     for result in results[1:]:
-        sample_list.append(result[0])
+        mouse_strain_list.append(result[0])
 
-    return sample_list
+    rat_strain_list = []
+    query = "SHOW COLUMNS FROM RatSnpPattern;"
+    results = g.db.execute(query).fetchall();
+    for result in results[2:]:
+        rat_strain_list.append(result[0])
 
-def get_header_list(variant_type, strain_list):
+    strain_lists['mouse'] = mouse_strain_list
+    strain_lists['rat'] = rat_strain_list
+
+    return strain_lists
+
+def get_header_list(variant_type, strains, species = None):
+    if species == "Mouse":
+        strain_list = strains['mouse']
+    elif species == "Rat":
+        strain_list = strains['rat']
+    else:
+        strain_list = strains
+
+    header_fields = []
     if variant_type == "SNP":
-        header_fields = ['Index', 'SNP ID', 'Chr', 'Mb', 'Alleles', 'Source', 'ConScore', 'Gene', 'Transcript', 'Exon', 'Domain 1', 'Domain 2', 'Function', 'Details']
-        header_fields.extend(strain_list)
+        header_fields.append(['Index', 'SNP ID', 'Chr', 'Mb', 'Alleles', 'Source', 'ConScore', 'Gene', 'Transcript', 'Exon', 'Domain 1', 'Domain 2', 'Function', 'Details'])
+        header_fields.append(strain_list)
     elif variant_type == "InDel":
         header_fields = ['Index', 'ID', 'Type', 'InDel Chr', 'Mb Start', 'Mb End', 'Strand', 'Size', 'Sequence', 'Source']
-    else:
-        header_fields = []
 
     return header_fields
 
@@ -454,7 +679,7 @@ def get_effect_info(effect_list):
                 effect_detail_list = get_effect_details_by_category(effect_name='Splice Site', effect_value=splice_site)
                 effect_info_dict[domain] = effect_detail_list
             if nonsplice_site:
-                domain = "Downstream"
+                domain = "Nonsplice Site"
                 effect_detail_list = get_effect_details_by_category(effect_name='Nonsplice Site', effect_value=nonsplice_site)
                 effect_info_dict[domain] = effect_detail_list
         # get gene, transcript_list, and exon info
@@ -498,3 +723,29 @@ def get_effect_info(effect_list):
             effect_info_dict[domain] = effect_detail_list
 
     return effect_info_dict
+
+def get_gene_id_name_dict(gene_name_list):
+    gene_id_name_dict = {}
+    if len(gene_name_list) == 0:
+        return ""
+    gene_name_str_list = ["'" + gene_name + "'" for gene_name in gene_name_list]
+    gene_name_str = string.join(gene_name_str_list, ",")
+
+    query = """
+                SELECT
+                        geneId, geneSymbol
+                FROM
+                        GeneList
+                WHERE
+                        SpeciesId = 1 AND geneSymbol in (%s)
+            """ % gene_name_str
+
+    results = g.db.execute(query).fetchall()
+
+    if len(results) > 0:
+        for item in results:
+            gene_id_name_dict[item[1]] = item[0]
+    else:
+        pass
+
+    return gene_id_name_dict

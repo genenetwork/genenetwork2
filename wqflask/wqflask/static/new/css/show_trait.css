@@ -9,3 +9,7 @@ tr .outlier {
 div.sample_group {
     overflow: auto; # needed because it contains float dataTable wrapper
 }
+
+.js-plotly-plot .plotly .modebar {
+  left: 100px;
+}

@@ -9,9 +9,10 @@
   <div class="container-fluid">
     <h2>Variant Browser <a class="btn btn-primary" href="http://genenetwork.org/snpbrowser.html" role="button">Info</a></h2>
 
-    <div class="container" style="border-style: double; position: relative; width: 60%; padding-top: 10px; padding-right: 40px;">
+    <div class="container" style="border-style: double; position: relative; width: 950px; padding-top: 10px; padding-right: 40px;">
       <form id="snp_browser_form" method="get" action="/snp_browser">
-        <input type="hidden" name="chosen_strains">
+        <input type="hidden" name="chosen_strains_mouse" value="{{ chosen_strains_mouse|join(",") }}">
+        <input type="hidden" name="chosen_strains_rat" value="{{ chosen_strains_rat|join(",") }}">
         <div class="col-xs-4" style="padding-left: 0px;">
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="snp_or_indel" style="text-align: right;" class="col-xs-4 col-form-label"><b>Type:</b></label>
@@ -25,17 +26,16 @@
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="species" style="text-align: right;" class="col-xs-4 col-form-label"><b>Species:</b></label>
             <div class="col-xs-8">
-              <select name="species">
-                <option value="Mouse" selected>Mouse</option>
-                <option value="Rat">Rat</option>
-                <option value="All" selected>All</option>
+              <select id="species_select" name="species">
+                <option value="Mouse" {% if species_name == "Mouse" %}selected{% endif %}>Mouse</option>
+                <option value="Rat" {% if species_name == "Rat" %}selected{% endif %}>Rat</option>
               </select>
             </div>
           </div>
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="gene_or_id" style="text-align: right;" class="col-xs-4 col-form-label"><b>Gene or ID:</b></label>
             <div class="col-xs-8">
-              <input type="text" name="gene_name" size="12">
+              <input type="text" name="gene_name" size="12" value="{{ gene_name }}">
             </div>
           </div>
           <div class="form-group row">
@@ -75,15 +75,16 @@
           <div class="form-group row" style="margin-bottom: 10px;">
             <label for="strains" style="text-align: right;" class="col-xs-4 col-form-label"><b>Strains:</b></label>
             <div class="col-xs-8">
-              <select name="strains" style="width: 70%;">
-                <optgroup label="Mouse">
-                  {% for strain in strain_list[:-1] %}
+              <select id="strain_select" name="strains" style="width: 70%;">
+                  {% if species_name == "Mouse" %}
+                  {% for strain in strain_lists['mouse'] %}
                   <option value="{{ strain }}" {% if loop.index == 1 %}selected{% endif %}>{{ strain }}</option>
                   {% endfor %}
-                </optgroup>
-                <optgroup label="Rat">
-                  <option value="BN">BN</option>
-                </optgroup>
+                  {% elif species_name == "Rat" %}
+                  {% for strain in strain_lists['rat'] %}
+                  <option value="{{ strain }}" {% if loop.index == 1 %}selected{% endif %}>{{ strain }}</option>
+                  {% endfor %}
+                  {% endif %}
               </select>
               <div style="float: right; line-height: 20px;">
                 <input class="btn btn-primary" type="button" name="add_strain" value="Add" style="vertical-align: middle;">
@@ -177,32 +178,57 @@
       </form>
     </div>
 
+    <div style="margin-top: 20px;">
     {% if filtered_results is defined %}
-    <table class="cell-border nowrap" id="results_table" style="float: left;">
+    {% if filtered_results|length > 5000 %}
+    There are more than 5000 results. Consider limiting your search to a smaller range.
+    {% else %}
+    <table class="dataTable cell-border nowrap" id="results_table" style="float: left;">
       <thead>
         <tr>
           <th></th>
+          {% if header_fields|length == 2 %}
+          {% for header in header_fields[0] %}
+          <th data-export="{{ header }}">{{ header }}</th>
+          {% endfor %}
+          {% for strain in header_fields[1] %}
+          <th data-export="{{ strain }}" style="align: center; text-align: center; line-height: 15px;">{% for letter in strain %}<div style="transform: rotate(90deg);">{{ letter }}</div>{% endfor %}</th>
+          {% endfor %}
+          {% else %}
           {% for header in header_fields %}
           <th data-export="{{ header }}">{{ header }}</th>
           {% endfor %}
+          {% endif %}
         </tr>
       </thead>
       <tbody>
-        {% for result in filtered_results %}
+        {% for row in table_rows %}
         <tr>
           <td><input type="checkbox" name="trait_check"></td>
           <td align="right">{{ loop.index }}</td>
-          {% for item in result %}
-          {% if loop.index > 1 %}
-          <td>{{ item }}</td>
-          {% endif %}
+          <td>{% if row.rs != "" %}<b><a href="{{ row.snp_url }}">{{ row.snp_name }}</a></b>{% else %}<a href="{{ row.snp_url }}">{{ row.snp_name }}</a>{% endif %}</td>
+          <td>{{ row.chr }}</td>
+          <td>{{ row.mb_formatted }}</td>
+          <td>{{ row.alleles }}</td>
+          <td>{% if row.snp_source == "Sanger/UCLA" %}<a href="{{ row.source_urls[0] }}">Sanger</a>/<a href="{{ row.source_urls[1] }}">UCLA</a>{% else %}{{ row.snp_source }}{% endif %}</td>
+          <td>{{ row.conservation_score }}</td>
+          <td>{% if row.gene_name != "" %}<i>{{ row.gene_name }}</i><br><a href="{{ row.gene_link }}">NCBI</a>{% else %}{% endif %}</td>
+          <td><a href="{{ row.transcript_link }}">{{ row.transcript }}</a></td>
+          <td>{{ row.exon }}</td>
+          <td>{{ row.domain_1 }}</td>
+          <td>{{ row.domain_2 }}</td>
+          <td>{{ row.function }}</td>
+          <td>{{ row.function_details }}</td>
+          {% for item in row.allele_value_list %}
+          <td style="background-color: {{ item[1] }};">{{ item[0] }}</td>
           {% endfor %}
         </tr>
         {% endfor %}
       </tbody>
     </table>
+    {% endif %}
     {% endif %}     
-
+    </div>
   </div>
 
 {% endblock %}
@@ -213,6 +239,18 @@
 
     {% if filtered_results is defined %}
     $("#results_table").DataTable( {
+      {% if variant_type == "SNP" %}
+      "columnDefs": [ {
+        "targets": [0, {% for n in range(15, 15 + allele_list|length) %}, {{ n }}{% endfor %}],
+        "orderable": false
+       } ],
+      {% else %}
+      "columnDefs": [ {
+        "targets": 0,
+        "orderable": false
+       } ],
+      {% endif %}
+      "order": [[1, "asc" ]],
       "sDom": "tir",
       "iDisplayLength": -1,
       "autoWidth": true,
@@ -220,14 +258,74 @@
     });
     {% endif %}
 
+    $("#species_select").change(function() {
+        this_species = $(this).val();
+        $("#strain_select").empty()
+        $("#chosen_strains_select").empty()
+
+        if (this_species == "Mouse") {
+            {% for strain in strain_lists["mouse"] %}
+            var option = $('<option></option>').attr("value", "{{ strain }}").text("{{ strain }}");
+            $("select[name=strains]").append(option);
+            {% endfor %}
+
+            chosen_strains = $("input[name=chosen_strains_mouse]").val().split(",")
+        } else if (this_species == "Rat") {
+            {% for strain in strain_lists["rat"] %}
+            var option = $('<option></option>').attr("value", "{{ strain }}").text("{{ strain }}");
+            $("select[name=strains]").append(option);
+            {% endfor %}
+
+            chosen_strains = $("input[name=chosen_strains_rat]").val().split(",")
+        }
+
+        for (i=0; i < chosen_strains.length; i++) {
+            var option = $('<option></option>').attr("value", chosen_strains[i]).text(chosen_strains[i]);
+            $("#chosen_strains_select").append(option)
+        }
+    });
+
     $("input[name=add_strain]").click(function() {
       var selected_strain = $("select[name=strains] option:selected").val();
       $("#chosen_strains_select").append("<option value='" + selected_strain + "'>" + selected_strain + "</option>");
+
+      var current_species = $("#species_select").val();
+      if (current_species == "Mouse") {
+          stored_strains = $("input[name=chosen_strains_mouse]").val().split(",")
+          stored_strains.push(selected_strain)
+          $("input[name=chosen_strains_mouse]").val(stored_strains.join(","))
+      } else if (current_species == "Rat") {
+          stored_strains = $("input[name=chosen_strains_rat]").val().split(",")
+          stored_strains.push(selected_strain)
+          $("input[name=chosen_strains_rat]").val(stored_strains.join(","))
+      }
     });
 
     $("input[name=remove_strain]").click(function() {
       var selected_strain = $("#chosen_strains_select option:selected").val();
       $("#chosen_strains_select option[value='" + selected_strain + "']").remove();
+
+      var current_species = $("#species_select").val();
+
+      if (current_species == "Mouse") {
+          stored_strains = $("input[name=chosen_strains_mouse]").val().split(",")
+          for (i=0; i < stored_strains.length; i++) {
+              if (stored_strains[i] == selected_strain) {
+                  stored_strains.splice(i, 1);
+                  break;
+              }
+          }
+          $("input[name=chosen_strains_mouse]").val(stored_strains.join(","))
+      } else if (current_species == "Rat") {
+          stored_strains = $("input[name=chosen_strains_rat]").val().split(",")
+          for (i=0; i < stored_strains.length; i++) {
+              if (stored_strains[i] == selected_strain) {
+                  stored_strains.splice(i, 1);
+                  break;
+              }
+          }
+          $("input[name=chosen_strains_rat]").val(stored_strains.join(","))
+      }
     });
 
     $("#snp_browser_form").submit(function() {

@@ -23,7 +23,8 @@ var layout = {
         visible: true,
         linecolor: 'black',
         linewidth: 1,
-    }
+    },
+    hovermode: "closest"
 }
 
 cofactor1_dict = {}

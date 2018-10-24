@@ -776,6 +776,12 @@
         sample_group_list = [js_data.sample_group_types['samples_primary']]
     }
 
+    // Define Plotly Options (for the options bar at the top of each figure)
+
+    root.modebar_options = {
+      modeBarButtonsToRemove:['hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines']
+    }
+
     // Bar Chart
 
     root.errors_exist = get_sample_errors(sample_lists[0])[1]
@@ -822,7 +828,13 @@
             range_bottom = 0
         }
     }
-    if (get_sample_vals(sample_lists[0]).length < 256) {
+
+    total_sample_count = 0
+    for (i = 0, i < sample_lists.length; i++) {
+      total_sample_count += get_sample_vals(sample_lists[i]).length
+    }
+
+    if (total_sample_count < 256) {
       bar_chart_width = 25 * get_sample_vals(sample_lists[0]).length
 
       var layout = {
@@ -839,7 +851,7 @@
         }
       };
       root.bar_layout = layout
-      Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout)
+      Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout, root.modebar_options)
     }
 
     if (full_sample_lists.length > 1) {
@@ -947,14 +959,14 @@
       data: box_data,
       layout: root.box_layout
     }
-    Plotly.newPlot('box_plot', obj);
+    Plotly.newPlot('box_plot', obj, root.modebar_options);
 
     // Violin Plot
 
     if (full_sample_lists.length > 1) {
         root.violin_layout = {
           title: "Violin Plot",
-          xaxis: {
+          yaxis: {
             range: [range_bottom, range_top],
             zeroline: false
           },
@@ -963,12 +975,12 @@
           margin: {
                 l: 50,
                 r: 30,
-                t: 30,
+                t: 80,
                 b: 80
           }
         };
         var trace1 = {
-            x: get_sample_vals(full_sample_lists[2]),
+            y: get_sample_vals(full_sample_lists[2]),
             type: 'violin',
             points: 'none',
             box: {
@@ -981,10 +993,10 @@
               visible: true
             },
             name: sample_group_list[2],
-            y0: sample_group_list[2]
+            x0: sample_group_list[2]
         }
         var trace2 = {
-            x: get_sample_vals(full_sample_lists[1]),
+            y: get_sample_vals(full_sample_lists[1]),
             type: 'violin',
             points: 'none',
             box: {
@@ -997,10 +1009,10 @@
               visible: true
             },
             name: sample_group_list[1],
-            y0: sample_group_list[1]
+            x0: sample_group_list[1]
         }
         var trace3 = {
-            x: get_sample_vals(full_sample_lists[0]),
+            y: get_sample_vals(full_sample_lists[0]),
             type: 'violin',
             points: 'none',
             box: {
@@ -1013,13 +1025,13 @@
               visible: true
             },
             name: sample_group_list[0],
-            y0: sample_group_list[0]
+            x0: sample_group_list[0]
         }
         violin_data = [trace1, trace2, trace3]
     } else {
         root.violin_layout = {
           title: "Violin Plot",
-          xaxis: {
+          yaxis: {
             range: [range_bottom, range_top],
             zeroline: false
           },
@@ -1028,13 +1040,13 @@
           margin: {
                 l: 50,
                 r: 30,
-                t: 30,
+                t: 80,
                 b: 80
           }
         };
         violin_data = [
           {
-            x: get_sample_vals(full_sample_lists[0]),
+            y: get_sample_vals(full_sample_lists[0]),
             type: 'violin',
             points: 'none',
             box: {
@@ -1047,7 +1059,7 @@
               visible: true
             },
             name: sample_group_list[0],
-            y0: sample_group_list[0]
+            x0: sample_group_list[0]
           }
         ]
     }
@@ -1057,7 +1069,7 @@
       layout: root.violin_layout
     }
 
-    Plotly.plot('violin_plot', obj)
+    Plotly.plot('violin_plot', obj, root.modebar_options)
 
     // Histogram
     var hist_trace = {
@@ -1077,7 +1089,7 @@
           b: 60
       }
     };
-    Plotly.newPlot('histogram', data, layout)
+    Plotly.newPlot('histogram', data, layout, root.modebar_options)
 
     update_histogram_width()
 

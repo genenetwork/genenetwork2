@@ -45,7 +45,7 @@ from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-class MarkerRegression(object):
+class RunMapping(object):
 
     def __init__(self, start_vars, temp_uuid):
 
