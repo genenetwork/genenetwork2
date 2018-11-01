@@ -11,6 +11,7 @@
 
     <div class="container" style="border-style: double; position: relative; width: 950px; padding-top: 10px; padding-right: 40px;">
       <form id="snp_browser_form" method="get" action="/snp_browser">
+        <input type="hidden" name="first_run" value="{{ first_run }}">
         <input type="hidden" name="chosen_strains_mouse" value="{{ chosen_strains_mouse|join(",") }}">
         <input type="hidden" name="chosen_strains_rat" value="{{ chosen_strains_rat|join(",") }}">
         <div class="col-xs-4" style="padding-left: 0px;">
@@ -18,8 +19,8 @@
             <label for="snp_or_indel" style="text-align: right;" class="col-xs-4 col-form-label"><b>Type:</b></label>
             <div class="col-xs-8">
               <select name="variant">
-                <option value="SNP" selected>SNP</option>
-                <option value="InDel">InDel</option>
+                <option value="SNP" {% if variant_type == "SNP" %}selected{% endif %}>SNP</option>
+                <option value="InDel" {% if variant_type == "InDel" %}selected{% endif %}>InDel</option>
               </select>
             </div>
           </div>

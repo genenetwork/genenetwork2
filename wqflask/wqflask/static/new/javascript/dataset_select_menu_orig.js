@@ -94,7 +94,7 @@ $(function() {
   })(this));
   open_window = function(url, name) {
     var options;
-    options = "menubar=1,toolbar=1,location=1,resizable=1,status=1,scrollbars=1,directories=1,width=900";
+    options = "menubar=yes,toolbar=yes,titlebar=yes,location=yes,resizable=yes,status=yes,scrollbars=yes,directories=yes,width=900";
     return open(url, name, options).focus();
   };
   group_info = function() {

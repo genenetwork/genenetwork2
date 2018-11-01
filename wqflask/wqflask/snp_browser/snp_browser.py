@@ -1,8 +1,11 @@
 from __future__ import absolute_import, print_function, division
 
-from flask import Flask, g
+from flask import Flask, g, url_for
+
+from htmlgen import HTMLgen2 as HT
 
 import string
+import piddle as pid
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -31,99 +34,110 @@ class SnpBrowser(object):
                 self.table_rows = []
 
     def initialize_parameters(self, start_vars):
-        self.first_run = "true"
-        self.allele_list = []
-        if 'variant' in start_vars: #ZS: Check if not first time loaded (if it has form input)
+        if 'first_run' in start_vars:
             self.first_run = "false"
+        else:
+            self.first_run = "true"
+        self.allele_list = []
+
+        self.variant_type = "SNP"
+        if 'variant' in start_vars:
             self.variant_type = start_vars['variant']
+
+        self.species_name = "Mouse"
+        self.species_id = 1
+        if 'species' in start_vars:
             self.species_name = start_vars['species']
-            if self.species_name.capitalize() == "Mouse":
-                self.species_id = 1
-            elif self.species_name.capitalize() == "Rat":
+            if self.species_name.capitalize() == "Rat":
                 self.species_id = 2
-            else:
-                self.species_id = 0 #Using this to indicate "All Species"
- 
-            #ZS: Currently this is just assuming mouse for determining the chromosomes. 
-            #    This logic may have to change depending upon what other species are added
-            self.chr_list = []
-            species_ob = species.TheSpecies(species_name="Mouse")
-            for key in species_ob.chromosomes.chromosomes:
-                self.chr_list.append(species_ob.chromosomes.chromosomes[key].name)
 
-            if start_vars['gene_name'] != "":
-                self.gene_name = start_vars['gene_name']
-            else:
-                self.gene_name = ""
-                self.chr = start_vars['chr']
-                try:
-                    self.start_mb = float(start_vars['start_mb'])
-                    self.end_mb = float(start_vars['end_mb'])
-                except:
-                    self.start_mb = 0.0
-                    self.end_mb = 0.0
+        species_ob = species.TheSpecies(species_name=self.species_name)
 
-            if 'limit_strains' in start_vars:
-                self.limit_strains = "true"
-            else:
-                self.limit_strains = "false"
-            self.chosen_strains_mouse = start_vars['chosen_strains_mouse'].split(",")
-            self.chosen_strains_rat = start_vars['chosen_strains_rat'].split(",")
+        self.chr_list = []
+        for key in species_ob.chromosomes.chromosomes:
+            self.chr_list.append(species_ob.chromosomes.chromosomes[key].name)
 
-            if self.species_id == 1:
-                self.chosen_strains = self.chosen_strains_mouse
-            elif self.species_id == 2:
-                self.chosen_strains = self.chosen_strains_rat
-
-            self.domain = start_vars['domain']
-            self.function = start_vars['function']
-            self.source = start_vars['source']
-            self.criteria = start_vars['criteria']
-            self.score = start_vars['score']
-
-            self.redundant = "false"
-            self.diff_alleles = "false"
-            if 'redundant' in start_vars:
-                self.redundant = "true"
-            if 'diff_alleles' in start_vars:
-                self.diff_alleles = "true"
-
-        else: #ZS: Default values
-            self.variant_type = "SNP"
-            self.species_name = "Mouse"
-            species_ob = species.TheSpecies(species_name=self.species_name)
-            self.chr_list = []
-            for key in species_ob.chromosomes.chromosomes:
-                self.chr_list.append(species_ob.chromosomes.chromosomes[key].name)
-
+        if self.first_run == "true":
             self.chr = "19"
             self.start_mb = 30.1
             self.end_mb = 30.12
+        else:
+            if 'gene_name' in start_vars:
+                if start_vars['gene_name'] != "":
+                    self.gene_name = start_vars['gene_name']
+                else:
+                    self.gene_name = ""
+                    self.chr = start_vars['chr']
+                    try:
+                        self.start_mb = float(start_vars['start_mb'])
+                        self.end_mb = float(start_vars['end_mb'])
+                    except:
+                        self.start_mb = 0.0
+                        self.end_mb = 0.0
+            else:
+                try:
+                    self.chr = start_vars['chr']
+                    self.start_mb = float(start_vars['start_mb'])
+                    self.end_mb = float(start_vars['end_mb'])
+                except:
+                    self.chr = "1"
+                    self.start_mb = 0.0
+                    self.end_mb = 0.0
 
-            self.limit_strains = "true"
+        self.limit_strains = "true"
+        if self.first_run == "false":
+            if 'limit_strains' not in start_vars:
+                self.limit_strains = "false"
+            else:
+                if start_vars['limit_strains'] == "false":
+                    self.limit_strains = "false"
 
-            self.chosen_strains_mouse = ["C57BL/6J",
-                                         "DBA/2J",
-                                         "A/J",
-                                         "129S1/SvImJ",
-                                         "NOD/ShiLtJ",
-                                         "NZO/HlLtJ",
-                                         "WSB/EiJ",
-                                         "PWK/PhJ",
-                                         "CAST/EiJ"]
-            self.chosen_strains_rat = ["F344"]
-            self.chosen_strains_all = self.chosen_strains_mouse + self.chosen_strains_rat
+        self.chosen_strains_mouse = ["C57BL/6J",
+                                     "DBA/2J",
+                                     "A/J",
+                                     "129S1/SvImJ",
+                                     "NOD/ShiLtJ",
+                                     "NZO/HlLtJ",
+                                     "WSB/EiJ",
+                                     "PWK/PhJ",
+                                     "CAST/EiJ"]
+        self.chosen_strains_rat = ["BN", "F344"]
+        if 'chosen_strains_mouse' in start_vars:
+            self.chosen_strains_mouse = start_vars['chosen_strains_mouse'].split(",")
+        if 'chosen_strains_rat' in start_vars:
+            self.chosen_strains_rat = start_vars['chosen_strains_rat'].split(",")
 
+        if self.species_id == 1:
             self.chosen_strains = self.chosen_strains_mouse
-            
-            self.domain = "All"
-            self.function = "All"
-            self.source = "All"
-            self.criteria = ">="
-            self.score = 0.0
+        else:
+            self.chosen_strains = self.chosen_strains_rat
 
-            self.redundant = "false"
-            self.diff_alleles = "true"
+        self.domain = "All"
+        if 'domain' in start_vars:
+            self.domain = start_vars['domain']
+        self.function = "All"
+        if 'function' in start_vars:
+            self.function = start_vars['function']
+        self.source = "All"
+        if 'source' in start_vars:
+            self.source = start_vars['source']
+        self.criteria = ">="
+        if 'criteria' in start_vars:
+            self.criteria = start_vars['criteria']
+        self.score = 0.0
+        if 'score' in start_vars:
+            self.score = start_vars['score']
+
+        self.redundant = "false"
+        if self.first_run == "false" and 'redundant' in start_vars:
+            self.redundant = "true"
+        self.diff_alleles = "true"
+        if self.first_run == "false":
+            if 'diff_alleles' not in start_vars:
+                self.diff_alleles = "false"
+            else:
+                if start_vars['diff_alleles'] == "false":
+                    self.diff_alleles = "false"
 
     def get_browser_results(self):
         self.snp_list = None
@@ -566,6 +580,27 @@ class SnpBrowser(object):
             different_alleles_satisfied = True
 
         return domain_satisfied and function_satisfied and source_satisfied and score_satisfied and different_alleles_satisfied
+
+    def snp_density_map(self, query, results):
+
+        canvas_width = 900
+        canvas_height = 200
+        snp_canvas = pid.PILCanvas(size=(canvas_width, canvas_height))
+        left_offset, right_offset, top_offset, bottom_offset = (30, 30, 40, 50)
+        plot_width = canvas_width - left_offset - right_offset
+        plot_height = canvas_height - top_offset - bottom_offset
+        y_zero = top_offset + plot_height/2
+
+        x_scale = plot_width/(self.end_mb - self.start_mb)
+
+        #draw clickable image map
+        #gifmap = HT.Map
+        n_click = 80.0
+        click_step = plot_width/n_click
+        click_mb_step = (self.end_mb - self.start_mb)/n_click
+
+        #for i in range(n_click):
+        #    href = url_for('snp_browser', first_run="false", chosen_strains_mouse=self.chosen_strains_mouse, chosen_strains_rat=self.chosen_strains_rat, variant=self.variant_type, species=self.species_name, gene_name=self.gene_name, chr=self.chr, start_mb=self.start_mb, end_mb=self.end_mb, limit_strains=self.limit_strains, domain=self.domain, function=self.function, criteria=self.criteria, score=self.score, diff_alleles=self.diff_alleles)
 
 def get_browser_sample_lists(species_id=1):
     strain_lists = {}

@@ -829,8 +829,10 @@
         }
     }
 
+    root.chart_range = [range_bottom, range_top]
+
     total_sample_count = 0
-    for (i = 0, i < sample_lists.length; i++) {
+    for (i = 0, i < sample_lists.length; i++;) {
       total_sample_count += get_sample_vals(sample_lists[i]).length
     }
 
@@ -839,7 +841,7 @@
 
       var layout = {
         yaxis: {
-            range: [range_bottom, range_top],
+            range: root.chart_range,
         },
         width: bar_chart_width,
         height: 600,

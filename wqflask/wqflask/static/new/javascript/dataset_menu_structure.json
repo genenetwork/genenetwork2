@@ -2591,21 +2591,6 @@
             ],
             "Liver mRNA": [
                [
-                  "858",
-                  "EPFLMouseLiverHFDRMA0818",
-                  "EPFL/LISP BXD HFD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
-               ],
-               [
-                  "852",
-                  "NIA-AgBXD-Liv_HFD-0818",
-                  "NIA Aging BXD HFD Liver Affy Clariom S Gene Level (Aug18) RMA **"
-               ],
-               [
-                  "857",
-                  "EPFLMouseLiverCDHFDRMA0818",
-                  "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
-               ],
-               [
                   "859",
                   "EPFLMouseLiverCDRMA0818",
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
@@ -2626,6 +2611,21 @@
                   "UCLA BXD Liver Affy M430 2.0 (Jan16) RMA"
                ],
                [
+                  "858",
+                  "EPFLMouseLiverHFDRMA0818",
+                  "EPFL/LISP BXD HFD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
+               ],
+               [
+                  "852",
+                  "NIA-AgBXD-Liv_HFD-0818",
+                  "NIA Aging BXD HFD Liver Affy Clariom S Gene Level (Aug18) RMA **"
+               ],
+               [
+                  "857",
+                  "EPFLMouseLiverCDHFDRMA0818",
+                  "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
+               ],
+               [
                   "430",
                   "EPFLMouseLiverRMA0413",
                   "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
@@ -2641,6 +2641,11 @@
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
                ],
                [
+                  "433",
+                  "EPFLMouseLiverBothExRMA0413",
+                  "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ],
+               [
                   "849",
                   "EPFLMouseLiverCDEx0413",
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
@@ -2649,11 +2654,6 @@
                   "848",
                   "EPFLMouseLiverHFCEx0413",
                   "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
-               ],
-               [
-                  "433",
-                  "EPFLMouseLiverBothExRMA0413",
-                  "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
                   "700",
@@ -3672,6 +3672,11 @@
          "Retina-RGC-Rheaume": {
             "Retina Single-cell RNA-Seq": [
                [
+                  "866",
+                  "UConn-RGC-RSeq_log2-0918",
+                  "UConn-Rheaume Retina RGC (Sep18) scRNA-Seq Log2"
+               ],
+               [
                   "865",
                   "UConn-RGC-RSeq_r-0918",
                   "UConn-Rheaume Retina RGC (Sep18) scRNA-Seq Raw"
@@ -3680,11 +3685,6 @@
                   "867",
                   "UConn-RGC-RSeq_s-0918",
                   "UConn-Rheaume Retina RGC (Sep18) scRNA-Seq Siamak"
-               ],
-               [
-                  "866",
-                  "UConn-RGC-RSeq_log2-0918",
-                  "UConn-Rheaume Retina RGC (Sep18) scRNA-Seq Log2"
                ]
             ]
          },
@@ -3712,16 +3712,18 @@
       },
       "rat": {
          "HSNIH-Palmer": {
+            "Infralimbic Cortex mRNA": [
+               [
+                  "861",
+                  "HSNIH-Rat-IL-RSeq-0818",
+                  "HSNIH-Palmer Infralimbic Cortex RNA-Seq (Aug18) rlog"
+               ]
+            ],
             "Lateral Habenula mRNA": [
                [
                   "862",
                   "HSNIH-Rat-LHB-RSeq-0818",
                   "HSNIH-Palmer Lateral Habenula RNA-Seq (Aug18) rlog"
-               ],
-               [
-                  "870",
-                  "HSNIH-Rat-LHB-RSeqlog2-0818",
-                  "HSNIH-Palmer Lateral Habenula RNA-Seq (Aug18) log2"
                ]
             ],
             "Nucleus Accumbens mRNA": [
@@ -3729,11 +3731,13 @@
                   "860",
                   "HSNIH-Rat-Acbc-RSeq-0818",
                   "HSNIH-Palmer Nucleus Accumbens Core RNA-Seq (Aug18) rlog"
-               ],
+               ]
+            ],
+            "Orbitofrontal Cortex mRNA": [
                [
-                  "868",
-                  "HSNIH-Rat-Acbc-RSeqlog2-0818",
-                  "HSNIH-Palmer Nucleus Accumbens Core RNA-Seq (Aug18) log2"
+                  "864",
+                  "HSNIH-Rat-VoLo-RSeq-0818",
+                  "HSNIH-Palmer Orbitofrontal Cortex RNA-Seq (Aug18) rlog"
                ]
             ],
             "Phenotypes": [
@@ -3743,32 +3747,7 @@
                   "HSNIH-Palmer Phenotypes"
                ]
             ],
-            "Prefrontal Cortex mRNA": [
-               [
-                  "869",
-                  "HSNIH-Rat-IL-RSeqlog2-0818",
-                  "HSNIH-Palmer Infralimbic Cortex RNA-Seq (Aug18) log2"
-               ],
-               [
-                  "872",
-                  "HSNIH-Rat-VoLo-RSeqlog2-0818",
-                  "HSNIH-Palmer Orbitofrontal Cortex RNA-Seq (Aug18) log2"
-               ],
-               [
-                  "861",
-                  "HSNIH-Rat-IL-RSeq-0818",
-                  "HSNIH-Palmer Infralimbic Cortex RNA-Seq (Aug18) rlog"
-               ],
-               [
-                  "864",
-                  "HSNIH-Rat-VoLo-RSeq-0818",
-                  "HSNIH-Palmer Orbitofrontal Cortex RNA-Seq (Aug18) rlog"
-               ],
-               [
-                  "871",
-                  "HSNIH-Rat-PL-RSeqlog2-0818",
-                  "HSNIH-Palmer Prelimbic Cortex RNA-Seq (Aug18) log2"
-               ],
+            "Prelimbic Cortex mRNA": [
                [
                   "863",
                   "HSNIH-Rat-PL-RSeq-0818",
@@ -5532,6 +5511,10 @@
                "Phenotypes"
             ],
             [
+               "Infralimbic Cortex mRNA",
+               "Infralimbic Cortex mRNA"
+            ],
+            [
                "Lateral Habenula mRNA",
                "Lateral Habenula mRNA"
             ],
@@ -5540,8 +5523,12 @@
                "Nucleus Accumbens mRNA"
             ],
             [
-               "Prefrontal Cortex mRNA",
-               "Prefrontal Cortex mRNA"
+               "Orbitofrontal Cortex mRNA",
+               "Orbitofrontal Cortex mRNA"
+            ],
+            [
+               "Prelimbic Cortex mRNA",
+               "Prelimbic Cortex mRNA"
             ]
          ],
          "HSNIH-RGSMC": [
