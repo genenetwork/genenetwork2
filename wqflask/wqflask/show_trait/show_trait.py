@@ -207,6 +207,7 @@ class ShowTrait(object):
                        sample_group_types = self.sample_group_types,
                        sample_lists = sample_lists,
                        attribute_names = self.sample_groups[0].attributes,
+                       num_values = self.num_values,
                        temp_uuid = self.temp_uuid)
         self.js_data = js_data
 

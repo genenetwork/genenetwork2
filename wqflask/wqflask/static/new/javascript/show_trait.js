@@ -836,7 +836,7 @@
       total_sample_count += get_sample_vals(sample_lists[i]).length
     }
 
-    if (total_sample_count < 256) {
+    if (js_data.num_values < 256) {
       bar_chart_width = 25 * get_sample_vals(sample_lists[0]).length
 
       var layout = {
