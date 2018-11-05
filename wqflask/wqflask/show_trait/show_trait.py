@@ -301,6 +301,7 @@ def quantile_normalize_vals(sample_groups):
             p_list.append(((i+1) - 0.5)/len(trait_vals))
 
         z = ss.norm.ppf(p_list)
+
         normed_vals = []
         for rank in ranked_vals:
             normed_vals.append("%0.3f" % z[int(rank)-1])
@@ -317,7 +318,6 @@ def quantile_normalize_vals(sample_groups):
                 continue
 
         qnorm_vals = normf(trait_vals)
-
         qnorm_vals_with_x = []
         counter = 0
         for sample in sample_type.sample_list:
