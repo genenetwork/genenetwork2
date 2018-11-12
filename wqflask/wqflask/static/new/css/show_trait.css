@@ -13,3 +13,20 @@ div.sample_group {
 .js-plotly-plot .plotly .modebar {
   left: 100px;
 }
+
+table.dataTable thead th{
+  border-right: 1px solid white;
+  color: white;
+  background-color: #369;
+}
+
+table.dataTable thead .sorting_asc {
+  background-image: url("../packages/DataTables/images/sort_asc_disabled.png");
+}
+table.dataTable thead .sorting_desc {
+  background-image: url("../packages/DataTables/images/sort_desc_disabled.png");
+}
+
+table.dataTable tbody td {
+  padding: 3px 20px 1px 10px;
+}

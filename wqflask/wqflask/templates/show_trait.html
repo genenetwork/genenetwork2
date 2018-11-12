@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Trait Data and Analysis{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
@@ -12,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.pips.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 
 {% endblock %}
 {% block content %} <!-- Start of body -->
@@ -192,7 +192,7 @@
                     "columns": [
                         { "bSortable": false },
                         { "type": "natural" },
-                        { "type": "natural", "width": "25%" },
+                        { "type": "natural", "width": js_data.sample_column_width},
                         { "type": "cust-txt" },
                         { "bSortable": false },
                         { "type": "cust-txt" }{% if has_num_cases %},

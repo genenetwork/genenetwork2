@@ -86,11 +86,11 @@
     <!--<div id="edit_sample_lists">-->
     {% for sample_type in sample_groups %}
         {% set outer_loop = loop %}
-        <div class="sample_group" style="width:{{ trait_table_width }}%;">
+        <div class="sample_group" style="width:{{ trait_table_width }};">
             <h3>{{ sample_type.header }}</h3>
             <hr>
             <div id="table_container">
-            <table class="table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left; width:100%;">
+            <table class="table-hover table-striped cell-border" id="samples_{{ sample_type.sample_group_type }}" style="float: left; width:100%;">
                 <thead>
                     <tr>
                         <th></th>
@@ -98,7 +98,7 @@
                         <th>Sample</th>
                         <th style="text-align: right;">Value</th>
                         {% if sample_type.se_exists() %}
-                        <th>&nbsp;</th>
+                        <th style="padding-left: 3px; padding-right: 3px;">&nbsp;</th>
                         <th style="text-align: right;">SE</th>
                         {% endif %}
                         {% if has_num_cases %}
@@ -134,7 +134,7 @@
                         </td>
         
                         {% if sample_type.se_exists() %}
-                        <td>
+                        <td align="center" style="padding-left: 2px; padding-right: 2px;">
                           ±
                         </td>
         
