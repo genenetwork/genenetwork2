@@ -114,7 +114,7 @@
                 <tbody>
                     {% for sample in sample_type.sample_list %}
                     <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
-                        <td align="center" style="padding-right: 0px;" class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" value="{{ sample.name }}" checked="checked">
+                        <td align="center" style="padding-left: 0px; padding-right: 0px;" class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" value="{{ sample.name }}" checked="checked">
                         </td>
                         <td class="column_name-Index" align="right">{{ loop.index }}</td>
                         <td class="column_name-Sample">
