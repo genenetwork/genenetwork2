@@ -1,6 +1,7 @@
 <div>
     <!--<h2>Review and Edit Data</h2>-->
 
+<!--
     <div class="well form-horizontal">
         <fieldset id="showHideOptions">
             <legend>Block samples</legend>
@@ -59,11 +60,6 @@
                 <option value="sqrt">Square Root</option>
               </select>
               </div>
-              <!--
-              {% if sample_groups[0].sample_qnorm is not none %}
-              <input type="button" id="qnorm" class="btn btn-default" value="Quantile Normalize">
-              {% endif %}
-              -->
             </div>
         </fieldset>
         <br>
@@ -81,7 +77,7 @@
         </div>
     </div>
     <br>
-
+-->
 
     <!--<div id="edit_sample_lists">-->
     {% for sample_type in sample_groups %}
@@ -94,7 +90,7 @@
                 <thead>
                     <tr>
                         <th></th>
-                        <th>Index</th>
+                        <th>ID</th>
                         <th>Sample</th>
                         <th style="text-align: right;">Value</th>
                         {% if sample_type.se_exists() %}
@@ -113,7 +109,7 @@
                 </thead>
                 <tbody>
                     {% for sample in sample_type.sample_list %}
-                    <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
+                    <tr class="{{ sample.class_outlier }} value_se" id="{% if outer_loop.index == 1 %}Primary_{{ sample.this_id }}{% else %}Other_{{ sample.this_id }}{% endif %}">
                         <td align="center" style="padding-left: 0px; padding-right: 0px;" class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" value="{{ sample.name }}" checked="checked">
                         </td>
                         <td class="column_name-Index" align="right">{{ loop.index }}</td>

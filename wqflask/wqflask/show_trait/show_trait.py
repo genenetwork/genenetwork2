@@ -153,7 +153,8 @@ class ShowTrait(object):
            hddn['group'] = self.temp_group
            hddn['species'] = self.temp_species
         hddn['use_outliers'] = False
-        hddn['method'] = "pylmm"
+        hddn['method'] = "gemma"
+        hddn['selected_chr'] = -1
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
@@ -181,6 +182,11 @@ class ShowTrait(object):
         else:
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
+
+        #ZS: Get list of chromosomes to select for mapping
+        self.chr_list = [["All", -1]]
+        for i, this_chr in enumerate(self.species.chromosomes.chromosomes):
+            self.chr_list.append([self.species.chromosomes.chromosomes[this_chr].name, i])
 
         self.genofiles = get_genofiles(self.dataset)
 

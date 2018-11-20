@@ -5,15 +5,15 @@
                     <a href="#stats_tab" data-toggle="tab">Basic Statistics</a>
                 </li>
                 <li>
-                    <a href="#histogram_tab" data-toggle="tab">Histogram</a>
+                    <a href="#histogram_tab" class="histogram_tab" data-toggle="tab">Histogram</a>
                 </li>
                 {% if num_values < 256 %}
                 <li>
-                    <a href="#bar_chart_tab" data-toggle="tab">Bar Chart</a>
+                    <a href="#bar_chart_tab" class="bar_chart_tab" data-toggle="tab">Bar Chart</a>
                 </li>
                 {% endif %}
                 <li>
-                    <a href="#probability_plot" data-toggle="tab">Probability Plot</a>
+                    <a href="#probability_plot" class="prob_plot_tab" data-toggle="tab">Probability Plot</a>
                 </li>
                 {% if g.user_session.logged_in %}
                 <li>
@@ -21,10 +21,10 @@
                 </li>
                 {% endif %}
                 <li>
-                    <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
+                    <a href="#box_plot_tab" class="box_plot_tab" data-toggle="tab">Box Plot</a>
                 </li>
                 <li>
-                    <a href="#violin_plot_tab" data-toggle="tab">Violin Plot</a>
+                    <a href="#violin_plot_tab" class="violin_plot_tab" data-toggle="tab">Violin Plot</a>
                 </li>
             </ul>
 

@@ -1557,6 +1557,42 @@
                ]
             ]
          },
+         "AIL-LGSM-F34-A": {
+            "Phenotypes": [
+               [
+                  "None",
+                  "AIL-LGSM-F34-APublish",
+                  "AIL-LGSM-F34-A Phenotypes"
+               ]
+            ]
+         },
+         "AIL-LGSM-F34-F39-43-GBS": {
+            "Phenotypes": [
+               [
+                  "None",
+                  "AIL-LGSM-F34-F39-43-GBSPublish",
+                  "AIL-LGSM-F34-F39-43-GBS Phenotypes"
+               ]
+            ]
+         },
+         "AIL-LGSM-F34-GBS": {
+            "Phenotypes": [
+               [
+                  "None",
+                  "AIL-LGSM-F34-GBSPublish",
+                  "AIL-LGSM-F34-GBS Phenotypes"
+               ]
+            ]
+         },
+         "AIL-LGSM-F39-43-GBS": {
+            "Phenotypes": [
+               [
+                  "None",
+                  "AIL-LGSM-F39-43-GBSPublish",
+                  "AIL-LGSM-F39-43-GBS Phenotypes"
+               ]
+            ]
+         },
          "AKXD": {
             "Genotypes": [
                [
@@ -2591,6 +2627,11 @@
             ],
             "Liver mRNA": [
                [
+                  "857",
+                  "EPFLMouseLiverCDHFDRMA0818",
+                  "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
+               ],
+               [
                   "859",
                   "EPFLMouseLiverCDRMA0818",
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
@@ -2621,11 +2662,6 @@
                   "NIA Aging BXD HFD Liver Affy Clariom S Gene Level (Aug18) RMA **"
                ],
                [
-                  "857",
-                  "EPFLMouseLiverCDHFDRMA0818",
-                  "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
-               ],
-               [
                   "430",
                   "EPFLMouseLiverRMA0413",
                   "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
@@ -2641,6 +2677,11 @@
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
                ],
                [
+                  "848",
+                  "EPFLMouseLiverHFCEx0413",
+                  "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ],
+               [
                   "433",
                   "EPFLMouseLiverBothExRMA0413",
                   "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
@@ -2649,11 +2690,6 @@
                   "849",
                   "EPFLMouseLiverCDEx0413",
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
-               ],
-               [
-                  "848",
-                  "EPFLMouseLiverHFCEx0413",
-                  "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
                   "700",
@@ -4002,6 +4038,22 @@
             "AIL Advanced Intercross Line"
          ],
          [
+            "AIL-LGSM-F34-A",
+            "AIL LGSM F34 (Array)"
+         ],
+         [
+            "AIL-LGSM-F34-GBS",
+            "AIL LGSM F34 (GBS)"
+         ],
+         [
+            "AIL-LGSM-F34-F39-43-GBS",
+            "AIL LGSM F34 and F39-43 (GBS)"
+         ],
+         [
+            "AIL-LGSM-F39-43-GBS",
+            "AIL LGSM F39-43 (GBS)"
+         ],
+         [
             "AKXD",
             "AKXD RI Family"
          ],
@@ -4927,6 +4979,30 @@
             [
                "Striatum mRNA",
                "Striatum mRNA"
+            ]
+         ],
+         "AIL-LGSM-F34-A": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ]
+         ],
+         "AIL-LGSM-F34-F39-43-GBS": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ]
+         ],
+         "AIL-LGSM-F34-GBS": [
+            [
+               "Phenotypes",
+               "Phenotypes"
+            ]
+         ],
+         "AIL-LGSM-F39-43-GBS": [
+            [
+               "Phenotypes",
+               "Phenotypes"
             ]
          ],
          "AKXD": [

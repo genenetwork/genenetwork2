@@ -417,16 +417,27 @@
       }
       console.log("towards end:", sample_sets);
       update_stat_values(sample_sets);
-      console.log("redrawing histogram");
-      redraw_histogram();
-      console.log("redrawing bar chart");
-      redraw_bar_chart();
-      console.log("redrawing box plot");
-      redraw_box_plot();
-      console.log("redrawing violin plot");
-      redraw_violin_plot();
-      console.log("redrawing probability plot");
-      return redraw_prob_plot();
+
+      if ($('#histogram').hasClass('js-plotly-plot')){
+        console.log("redrawing histogram");
+        redraw_histogram();
+      }
+      if ($('#bar_chart').hasClass('js-plotly-plot')){
+        console.log("redrawing bar chart");
+        redraw_bar_chart();
+      }
+      if ($('#box_plot').hasClass('js-plotly-plot')){
+        console.log("redrawing box plot");
+        redraw_box_plot();
+      }
+      if ($('#violin_plot').hasClass('js-plotly-plot')){
+        console.log("redrawing violin plot");
+        redraw_violin_plot();
+      }
+      if ($('#prob_plot_div').hasClass('js-plotly-plot')){
+        console.log("redrawing probability plot");
+        return redraw_prob_plot();
+      }
     };
     show_hide_outliers = function() {
       var label;
@@ -853,7 +864,13 @@
         }
       };
       root.bar_layout = layout
-      Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout, root.modebar_options)
+      $('.bar_chart_tab').click(function() {
+        if ($('#bar_chart').hasClass('js-plotly-plot')){
+          redraw_bar_chart();
+        } else {
+          Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout, root.modebar_options)
+        }
+      });
     }
 
     if (full_sample_lists.length > 1) {
@@ -957,11 +974,18 @@
         ]
     }
 
-    obj = {
+    box_obj = {
       data: box_data,
       layout: root.box_layout
     }
-    Plotly.newPlot('box_plot', obj, root.modebar_options);
+
+    $('.box_plot_tab').click(function() {
+      if ($('#box_plot').hasClass('js-plotly-plot')){
+        redraw_box_plot();
+      } else {
+        Plotly.newPlot('box_plot', box_obj, root.modebar_options);
+      }
+    });
 
     // Violin Plot
 
@@ -1066,12 +1090,18 @@
         ]
     }
 
-    obj = {
+    violin_obj = {
       data: violin_data,
       layout: root.violin_layout
     }
 
-    Plotly.plot('violin_plot', obj, root.modebar_options)
+    $('.violin_plot_tab').click(function() {
+      if ($('#violin_plot').hasClass('js-plotly-plot')){
+        redraw_violin_plot();
+      } else {
+        Plotly.plot('violin_plot', violin_obj, root.modebar_options);
+      }
+    });
 
     // Histogram
     var hist_trace = {
@@ -1091,9 +1121,16 @@
           b: 60
       }
     };
-    Plotly.newPlot('histogram', data, layout, root.modebar_options)
 
-    update_histogram_width()
+    $('.histogram_tab').click(function() {
+      if ($('#histogram').hasClass('js-plotly-plot')){
+        redraw_histogram();
+        update_histogram_width();
+      } else {
+        Plotly.newPlot('histogram', data, layout, root.modebar_options)
+        update_histogram_width()
+      }
+    });
 
     $('.histogram_samples_group').val(root.stats_group);
     $('.histogram_samples_group').change(function() {
@@ -1119,13 +1156,18 @@
 
     root.prob_plot_group = 'samples_primary';
     $('.prob_plot_samples_group').val(root.prob_plot_group);
+    $('.prob_plot_tab').click(function() {
+      return redraw_prob_plot();
+    });
     $('.prob_plot_samples_group').change(function() {
       root.prob_plot_group = $(this).val();
       return redraw_prob_plot();
     });
 
-    make_table();
-    edit_data_change();
+    $('.stats_panel').click(function() {
+      make_table();
+      edit_data_change();
+    });
     $('#edit_sample_lists').change(edit_data_change);
     $('.edit_sample_value').change(edit_data_change);
     $('#block_by_index').click(edit_data_change);

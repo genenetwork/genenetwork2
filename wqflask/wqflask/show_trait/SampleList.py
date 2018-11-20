@@ -63,10 +63,7 @@ class SampleList(object):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 
-            if sample_group_type == 'primary':
-                sample.this_id = "Primary_" + str(counter)
-            else:
-                sample.this_id = "Other_" + str(counter)
+            sample.this_id = str(counter)
 
             #### For extra attribute columns; currently only used by several datasets - Zach
             if self.sample_attribute_values:

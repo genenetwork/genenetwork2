@@ -1,0 +1,79 @@
+<div>
+    <div class="form-horizontal">
+            <legend>Block samples</legend>
+            <p>Edit or delete values in the Trait Data boxes, and use the
+                <strong>Reset</strong> option as
+                needed.
+            </p>
+
+            <div id="blockMenuSpan" class="input-append" style="margin-bottom: 10px;">
+                <label for="remove_samples_field">Block samples by index:</label>
+                <input type="text" id="remove_samples_field">
+                <select id="block_group" size="1">
+                  <option value="primary">
+                    {{ sample_group_types['samples_primary'] }}
+                  </option>
+                  <option value="other">
+                    {{ sample_group_types['samples_other'] }}
+                  </option>
+                </select>
+                <input type="button" id="block_by_index" class="btn" value="Block">
+            </div>
+            <div id="remove_samples_invalid" class="alert alert-error" style="display:none;">
+                  Please check that your input is formatted correctly, e.g. <strong>3, 5-10, 12</strong>
+            </div>
+            {% if sample_groups[0].attributes %}
+            <div class="input-append" style="margin-top:10px; margin-bottom:10px;">
+                <label for="exclude_menu">Block samples by group:</label>
+                <select id="exclude_menu" size=1>
+                  {% for attribute in sample_groups[0].attributes %}
+                  <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
+                      {{ sample_groups[0].attributes[attribute].name }}</option>
+                  {% endfor %}
+                </select>
+                <select id="attribute_values" size=1>
+                </select>
+                <input type="button" id="exclude_group" class="btn" value="Block">
+            </div>
+            {% endif %}
+            <div>
+              <input type="button" id="hide_no_value" class="btn btn-default" value="Hide No Value">
+              <input type="button" id="block_outliers" class="btn btn-default" value="Block Outliers">
+              <input type="button" id="reset" class="btn btn-primary" value="Reset">
+              <span class="input-append">
+                <input type="button" id="export" class="btn btn-default" value="Export">
+                <select id="export_format" class="select optional span2">
+                  <option value="excel">Excel</option>
+                  <option value="csv">CSV</option>
+                </select>
+              </span>
+              <br>
+              <div style="margin-top:10px;">
+              <input type="button" id="normalize" class="btn btn-default" value="Normalize">
+              <select id="norm_method" class="select optional span2">
+                <option value="log2">Log2</option>
+                <option value="qnorm">Quantile</option>
+                <option value="sqrt">Square Root</option>
+              </select>
+              </div>
+              <!--
+              {% if sample_groups[0].sample_qnorm is not none %}
+              <input type="button" id="qnorm" class="btn btn-default" value="Quantile Normalize">
+              {% endif %}
+              -->
+            </div>
+        <br>
+
+        <div>
+            <p>Outliers highlighted in
+                    <strong style="background-color:yellow;">yellow</strong>
+                    can be hidden using
+                    the <strong>Hide Outliers</strong> button.
+            </p>
+
+            <p>Samples with no value (x) can be hidden by clicking
+                    <strong>Hide No Value</strong> button.
+            </p>
+        </div>
+    </div>
+</div>
