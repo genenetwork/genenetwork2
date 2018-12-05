@@ -1,18 +1,9 @@
-window.onload=function() {
-    // id of Cytoscape Web container div
-    //var div_id = "cytoscapeweb";
-
-    var cy = cytoscape({
-      container: $('#cytoscapeweb'), // container to render in
-
-      elements: elements_list,
-      
-      style: [ // the stylesheet for the graph
+var default_style = [ // the stylesheet for the graph
           {    
             selector: 'node',
             style: {
               'background-color': '#666',
-              'label': 'data(label )',
+              'label': 'data(label)',
               'font-size': 10
             }
           },
@@ -27,16 +18,28 @@ window.onload=function() {
               'font-size': 8
             }
           }
-      ],
-      
-      zoom: 12,
-      layout: { name: 'circle',
+      ]
+
+var default_layout = { name: 'circle',
                 fit: true, // whether to fit the viewport to the graph
                 padding: 30 // the padding on fit
                 //idealEdgeLength: function( edge ){ return edge.data['correlation']*10; },                
-              }, 
+              }
 
+window.onload=function() {
+    // id of Cytoscape Web container div
+    //var div_id = "cytoscapeweb";
+
+    var cy = cytoscape({
+      container: $('#cytoscapeweb'), // container to render in
+
+      elements: elements_list,
       
+      style: default_style,
+
+      zoom: 12,
+      layout: default_layout,
+
       zoomingEnabled: true,
       userZoomingEnabled: true,
       panningEnabled: true,
@@ -131,22 +134,25 @@ window.onload=function() {
     
     create_qtips(cy)
     
-    $('#slide').change(function() {
+    $('#neg_slide').change(function() {
         eles.restore()
+
+        pos_slide_val = $('#pos_slide').val();
+        cy.$("node[max_corr > " + $(this).val() + "][max_corr < " + pos_slide_val + "]").remove(); 
+        cy.$("edge[correlation > " + $(this).val() + "][correlation < " + pos_slide_val + "]").remove();
+
+        cy.layout({ name: $('select[name=layout_select]').val(),
+                    fit: true, // whether to fit the viewport to the graph
+                    padding: 25 // the padding on fit              
+                  });
         
-        console.log(eles)
-        
-        // nodes_to_restore = eles.filter("node[max_corr >= " + $(this).val() + "], edge[correlation >= " + $(this).val() + "][correlation <= -" + $(this).val() + "]")
-        // nodes_to_restore.restore()
-        
-        // edges_to_restore = eles.filter("edge[correlation >= " + $(this).val() + "][correlation <= -" + $(this).val() + "]")
-        // edges_to_restore.restore()
-        
-        //cy.$("node[max_corr >= " + $(this).val() + "]").restore();
-        //cy.$("edge[correlation >= " + $(this).val() + "][correlation <= -" + $(this).val() + "]").restore();
-        
-        cy.$("node[max_corr < " + $(this).val() + "]").remove(); 
-        cy.$("edge[correlation < " + $(this).val() + "][correlation > -" + $(this).val() + "]").remove();
+    });
+    $('#pos_slide').change(function() {
+        eles.restore()
+
+        neg_slide_val = $('#neg_slide').val();
+        cy.$("node[max_corr > " + neg_slide_val +"][max_corr < " + $(this).val() + "]").remove(); 
+        cy.$("edge[correlation > " + neg_slide_val +"][correlation < " + $(this).val() + "]").remove();
 
         cy.layout({ name: $('select[name=layout_select]').val(),
                     fit: true, // whether to fit the viewport to the graph
@@ -157,7 +163,8 @@ window.onload=function() {
     
     $('#reset_graph').click(function() {
         eles.restore() 
-        $('#slide').val(0)
+        $('#pos_slide').val(0)
+        $('#neg_slide').val(0)
         cy.layout({ name: $('select[name=layout_select]').val(),
                     fit: true, // whether to fit the viewport to the graph
                     padding: 25 // the padding on fit              
@@ -178,13 +185,67 @@ window.onload=function() {
     
     $('select[name=layout_select]').change(function() {
         layout_type = $(this).val()
-        console.log("LAYOUT:", layout_type)
         cy.layout({ name: layout_type,
                     fit: true, // whether to fit the viewport to the graph
                     padding: 25 // the padding on fit              
                   });
     });
     
+    $('select[name=font_size]').change(function() {
+        font_size = $(this).val()
+
+        new_style = default_style
+        new_style[0]['style']['font-size'] = parseInt(font_size)
+        cy.style().fromJson(new_style).update()
+    });
+    $('select[name=edge_width]').change(function() {
+        //eles.restore()
+
+        //ZS: This is needed, or else it alters the original object
+        orig_elements = JSON.parse(JSON.stringify(elements_list));
+
+        width_multiplier = $(this).val()
+        updated_elements = []
+        for (i=0; i < orig_elements.length; i++){
+            this_element = orig_elements[i]
+            if ('source' in this_element['data']) {
+                orig_width = this_element['data']['width']
+                this_element['data']['width'] = orig_width * width_multiplier
+            }
+            updated_elements.push(this_element)
+        }
+        cy.remove(eles)
+        cy.add(updated_elements)
+        cy.layout({ name: $('select[name=layout_select]').val(),
+                    fit: true, // whether to fit the viewport to the graph
+                    padding: 25 // the padding on fit              
+                  });
+    });
+
+    $('select[name=edge_width]').change(function() {
+        //eles.restore()
+
+        //ZS: This is needed, or else it alters the original object
+        orig_elements = JSON.parse(JSON.stringify(elements_list));
+
+        width_multiplier = $(this).val()
+        updated_elements = []
+        for (i=0; i < orig_elements.length; i++){
+            this_element = orig_elements[i]
+            if ('source' in this_element['data']) {
+                orig_width = this_element['data']['width']
+                this_element['data']['width'] = orig_width * width_multiplier
+            }
+            updated_elements.push(this_element)
+        }
+        cy.remove(eles)
+        cy.add(updated_elements)
+        cy.layout({ name: $('select[name=layout_select]').val(),
+                    fit: true, // whether to fit the viewport to the graph
+                    padding: 25 // the padding on fit              
+                  });
+    });
+
     $("a#image_link").click(function(e) {
       var pngData = cy.png();
 

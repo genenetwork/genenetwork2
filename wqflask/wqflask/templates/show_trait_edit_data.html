@@ -110,7 +110,7 @@
                 <tbody>
                     {% for sample in sample_type.sample_list %}
                     <tr class="{{ sample.class_outlier }} value_se" id="{% if outer_loop.index == 1 %}Primary_{{ sample.this_id }}{% else %}Other_{{ sample.this_id }}{% endif %}">
-                        <td align="center" style="padding-left: 0px; padding-right: 0px;" class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" value="{{ sample.name }}" checked="checked">
+                        <td align="center" style="padding-left: 0px; padding-right: 0px; padding-top: 2px; padding-bottom: 0px;" class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" style="min-height: 20px;" value="{{ sample.name }}" checked="checked">
                         </td>
                         <td class="column_name-Index" align="right">{{ loop.index }}</td>
                         <td class="column_name-Sample">
@@ -120,7 +120,7 @@
                         </td>
         
                         {# Todo: Add IDs #}
-                        <td class="column_name-Value" align="right">
+                        <td class="column_name-Value" align="right" style="padding-top: 2px; padding-bottom: 0px;">
                           <input type="text" data-value="{{ sample.display_value }}" data-qnorm="{{ qnorm_vals[outer_loop.index - 1][loop.index - 1] }}" name="{{ 'value:' + sample.name }}"
                                  style="text-align:right;"
                                  class="trait_value_input edit_sample_value"
@@ -135,7 +135,7 @@
                         </td>
         
                         {# Todo: Add IDs #}
-                        <td class="column_name-SE" align="right">
+                        <td class="column_name-SE" align="right" style="padding-top: 2px; padding-bottom: 0px;">
                           <input type="text" data-value="{{ sample.display_variance }}" data-qnorm="x" name="{{ 'variance:' + sample.name}}"
                                  style="text-align:right;"
                                  class="trait_value_input edit_sample_se"

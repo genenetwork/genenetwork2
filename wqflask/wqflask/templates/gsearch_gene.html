@@ -2,6 +2,7 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -28,7 +29,7 @@
             </form>
             <br />
             <div style="width: 100%;">
-              <table width="100%" id="trait_table" class="display dataTable nowrap" style="float: left;">
+              <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <thead>
                   <tr>
                     <th></th>
@@ -42,14 +43,14 @@
                     <th data-export="Description">Description</th> 
                     <th data-export="Location">Location</th>
                     <th data-export="Mean">Mean</th>
-                    <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                    <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
+                    <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank" style="color: white;"><sup>?</sup></a></th>
+                    <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank" style="color: white;"><sup>?</sup></a></th>
                   </tr>
                 </thead> 
                 <tbody>
                   {% for this_trait in trait_list %}
                   <tr id="trait:{{ this_trait.name }}:{{ this_trait.dataset }}">
-                    <td align="center" style="padding-right: 0px; padding-left: 5px;"><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset)) }}"></td>
+                    <td align="center" style="padding: 0px;"><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset)) }}"></td>
                     <td align="right" data-export="{{ loop.index }}">{{ loop.index }}</td>
                     <td data-export="{{ this_trait.name }}"><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset)}}">{{ this_trait.name }}</a></td>
                     <td data-export="{{ this_trait.species }}">{{ this_trait.species }}</td>
@@ -78,8 +79,8 @@
                     <th>Description</th> 
                     <th>Location</th>
                     <th>Mean</th>
-                    <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                    <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
+                    <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank" style="color: white;"><sup>?</sup></a></th>
+                    <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank" style="color: white;"><sup>?</sup></a></th>
                   </tr>
                 </tfoot> 
               </table>

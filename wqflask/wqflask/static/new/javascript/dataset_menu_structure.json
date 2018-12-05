@@ -1347,14 +1347,14 @@
                   "GSE9588 Human Liver Normal (Mar11) Both Sexes"
                ],
                [
-                  "383",
-                  "HLCM_0311",
-                  "GSE9588 Human Liver Normal (Mar11) Males"
-               ],
-               [
                   "384",
                   "HLCF_0311",
                   "GSE9588 Human Liver Normal (Mar11) Females"
+               ],
+               [
+                  "383",
+                  "HLCM_0311",
+                  "GSE9588 Human Liver Normal (Mar11) Males"
                ]
             ],
             "Phenotypes": [
@@ -1718,14 +1718,14 @@
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) MAS5"
                ],
                [
-                  "77",
-                  "BRF2_M_0805_R",
-                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
-               ],
-               [
                   "78",
                   "BRF2_M_0805_P",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
+               ],
+               [
+                  "77",
+                  "BRF2_M_0805_R",
+                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
                ],
                [
                   "33",
@@ -1824,28 +1824,28 @@
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
                ],
                [
-                  "84",
-                  "SA_M2_0905_R",
-                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
-               ],
-               [
                   "85",
                   "SA_M2_0905_P",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
+               ],
+               [
+                  "84",
+                  "SA_M2_0905_R",
+                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
                ]
             ]
          },
          "BHF2": {
             "Adipose mRNA": [
                [
-                  "196",
-                  "UCLA_BHF2_ADIPOSE_MALE",
-                  "UCLA BHF2 Adipose Male mlratio"
-               ],
-               [
                   "197",
                   "UCLA_BHF2_ADIPOSE_FEMALE",
                   "UCLA BHF2 Adipose Female mlratio"
+               ],
+               [
+                  "196",
+                  "UCLA_BHF2_ADIPOSE_MALE",
+                  "UCLA BHF2 Adipose Male mlratio"
                ],
                [
                   "165",
@@ -1855,14 +1855,14 @@
             ],
             "Brain mRNA": [
                [
-                  "198",
-                  "UCLA_BHF2_BRAIN_MALE",
-                  "UCLA BHF2 Brain Male mlratio"
-               ],
-               [
                   "199",
                   "UCLA_BHF2_BRAIN_FEMALE",
                   "UCLA BHF2 Brain Female mlratio"
+               ],
+               [
+                  "198",
+                  "UCLA_BHF2_BRAIN_MALE",
+                  "UCLA BHF2 Brain Male mlratio"
                ],
                [
                   "166",
@@ -1879,14 +1879,14 @@
             ],
             "Liver mRNA": [
                [
-                  "200",
-                  "UCLA_BHF2_LIVER_MALE",
-                  "UCLA BHF2 Liver Male mlratio"
-               ],
-               [
                   "201",
                   "UCLA_BHF2_LIVER_FEMALE",
                   "UCLA BHF2 Liver Female mlratio"
+               ],
+               [
+                  "200",
+                  "UCLA_BHF2_LIVER_MALE",
+                  "UCLA BHF2 Liver Male mlratio"
                ],
                [
                   "167",
@@ -2016,7 +2016,7 @@
                [
                   "779",
                   "EL_BXDCDScWAT_0216",
-                  "EPFL/LISP BXD CD Subcutaneous WAT Affy MTA 1.0 Gene Level (Feb16) RMA **"
+                  "EPFL/LISP BXD CD Subcutaneous WAT Affy MTA 1.0 Gene Level (Feb16) RMA"
                ]
             ],
             "Adrenal Gland mRNA": [
@@ -2122,9 +2122,9 @@
                   "UTHSC Brain mRNA U74Av2 (Nov05) PDNN"
                ],
                [
-                  "80",
-                  "BR_U_0805_M",
-                  "UTHSC Brain mRNA U74Av2 (Aug05) MAS5"
+                  "82",
+                  "BR_U_0805_R",
+                  "UTHSC Brain mRNA U74Av2 (Aug05) RMA"
                ],
                [
                   "81",
@@ -2132,9 +2132,9 @@
                   "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
                ],
                [
-                  "82",
-                  "BR_U_0805_R",
-                  "UTHSC Brain mRNA U74Av2 (Aug05) RMA"
+                  "80",
+                  "BR_U_0805_M",
+                  "UTHSC Brain mRNA U74Av2 (Aug05) MAS5"
                ],
                [
                   "42",
@@ -2238,14 +2238,14 @@
                   "Eye M430v2 Mutant Tyrp1 (Sep08) RMA"
                ],
                [
-                  "279",
-                  "Eye_M2_0908_R_WT",
-                  "Eye M430v2 WT Tyrp1 (Sep08) RMA"
-               ],
-               [
                   "382",
                   "Eye_M2_0908_WTWT",
                   "Eye M430v2 WT WT (Sep08) RMA"
+               ],
+               [
+                  "279",
+                  "Eye_M2_0908_R_WT",
+                  "Eye M430v2 WT Tyrp1 (Sep08) RMA"
                ],
                [
                   "400",
@@ -2531,14 +2531,14 @@
             ],
             "Kidney mRNA": [
                [
-                  "239",
-                  "MA_M2F_0706_R",
-                  "Mouse kidney M430v2 Female (Aug06) RMA"
-               ],
-               [
                   "240",
                   "MA_M2M_0706_R",
                   "Mouse kidney M430v2 Male (Aug06) RMA"
+               ],
+               [
+                  "239",
+                  "MA_M2F_0706_R",
+                  "Mouse kidney M430v2 Female (Aug06) RMA"
                ],
                [
                   "118",
@@ -2562,6 +2562,26 @@
                ]
             ],
             "Liver Metabolome": [
+               [
+                  "838",
+                  "UTHSC-ETHZ-EPFL_LivPMetExtBHFD0817",
+                  "UTHSC/ETHZ/EPFL BXD Liver Polar Metabolites Extraction B, HFD Cohorts (Mar 2017) log2"
+               ],
+               [
+                  "835",
+                  "UTHSC-ETHZ-EPFL_LivPMetExtACD0817",
+                  "UTHSC/ETHZ/EPFL BXD Liver Polar Metabolites Extraction A, Chow Diet Cohorts (Mar 2017) log2"
+               ],
+               [
+                  "837",
+                  "UTHSC-ETHZ-EPFL_LivPMetExtBCD0817",
+                  "UTHSC/ETHZ/EPFL BXD Liver Polar Metabolites Extraction B, Chow Diet Cohorts (Mar 2017) log2"
+               ],
+               [
+                  "836",
+                  "UTHSC-ETHZ-EPFL_LivPMetExtAHFD0817",
+                  "UTHSC/ETHZ/EPFL BXD Liver Polar Metabolites Extraction A, HFD Cohorts (Mar 2017) log2"
+               ],
                [
                   "473",
                   "EPFL-LISP_LivPMetCDHFD1213",
@@ -2632,34 +2652,34 @@
                   "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
                ],
                [
-                  "859",
-                  "EPFLMouseLiverCDRMA0818",
-                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
-               ],
-               [
-                  "851",
-                  "NIA-AgBXD-Liv_CDHFD-0818",
-                  "NIA Aging BXD CD+HFD Liver Affy Clariom S Gene Level (Aug18) RMA **"
-               ],
-               [
-                  "853",
-                  "NIA-AgBXD-Liv_CD-0818",
-                  "NIA Aging BXD CD Liver Affy Clariom S Gene Level (Aug18) RMA **"
-               ],
-               [
-                  "818",
-                  "UCLA_BXD_Liv_Jan16",
-                  "UCLA BXD Liver Affy M430 2.0 (Jan16) RMA"
-               ],
-               [
                   "858",
                   "EPFLMouseLiverHFDRMA0818",
                   "EPFL/LISP BXD HFD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
                ],
                [
-                  "852",
-                  "NIA-AgBXD-Liv_HFD-0818",
-                  "NIA Aging BXD HFD Liver Affy Clariom S Gene Level (Aug18) RMA **"
+                  "859",
+                  "EPFLMouseLiverCDRMA0818",
+                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA"
+               ],
+               [
+                  "854",
+                  "NIA-AgBXD-Liv_CDHFD-rna-seq-0818",
+                  "NIA Aging BXD CD+HFD Liver RNA-Seq (Aug18) Log2"
+               ],
+               [
+                  "855",
+                  "NIA-AgBXD-Liv_HFD-rna-seq-0818",
+                  "NIA Aging BXD HFD Liver RNA-Seq (Aug18) Log2"
+               ],
+               [
+                  "856",
+                  "NIA-AgBXD-Liv_CD-rna-seq-0818",
+                  "NIA Aging BXD CD Liver RNA-Seq (Aug18) Log2"
+               ],
+               [
+                  "818",
+                  "UCLA_BXD_Liv_Jan16",
+                  "UCLA BXD Liver Affy M430 2.0 (Jan16) RMA"
                ],
                [
                   "430",
@@ -2672,9 +2692,9 @@
                   "EPFL/LISP BXD HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
                ],
                [
-                  "432",
-                  "EPFLMouseLiverCDRMA0413",
-                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
+                  "849",
+                  "EPFLMouseLiverCDEx0413",
+                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
                   "848",
@@ -2682,14 +2702,14 @@
                   "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
+                  "432",
+                  "EPFLMouseLiverCDRMA0413",
+                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
+               ],
+               [
                   "433",
                   "EPFLMouseLiverBothExRMA0413",
                   "EPFL/LISP BXD CD+HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
-               ],
-               [
-                  "849",
-                  "EPFLMouseLiverCDEx0413",
-                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
                   "700",
@@ -2840,14 +2860,14 @@
                   "HQF BXD Neocortex ILM6v1.1 (Feb08) RankInv"
                ],
                [
-                  "274",
-                  "DevNeocortex_ILM6.2P3RInv_1110",
-                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
-               ],
-               [
                   "275",
                   "DevNeocortex_ILM6.2P14RInv_1110",
                   "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv"
+               ],
+               [
+                  "274",
+                  "DevNeocortex_ILM6.2P3RInv_1110",
+                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
                ]
             ],
             "Nucleus Accumbens mRNA": [
@@ -3080,14 +3100,14 @@
                   "VCU BXD VTA Sal M430 2.0 (Jun09) RMA"
                ],
                [
-                  "229",
-                  "VCUEtOH_0609_R",
-                  "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA"
-               ],
-               [
                   "230",
                   "VCUEtvsSal_0609_R",
                   "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) RMA"
+               ],
+               [
+                  "229",
+                  "VCUEtOH_0609_R",
+                  "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA"
                ]
             ]
          },
@@ -3105,17 +3125,7 @@
                [
                   "843",
                   "UTHSC-BXD-Harv_Liv-0118",
-                  "UTHSC BXD Harvested Liver RNA-Seq (Aug18) Log2 **"
-               ],
-               [
-                  "842",
-                  "UTHSC-BXD-Liv-0917",
-                  "UTHSC BXD Liver Affy Clariom S GeneLevel Main (Sep17) RMA **"
-               ],
-               [
-                  "850",
-                  "UTHSC-BXD-Liv-0818",
-                  "UTHSC BXD Liver Affy Clariom S GeneLevel Main (Aug18) RMA **"
+                  "UTHSC BXD Harvested Liver RNA-Seq (Aug18) Log2"
                ]
             ],
             "Phenotypes": [
@@ -3522,24 +3532,24 @@
             ],
             "Hippocampus mRNA": [
                [
-                  "211",
-                  "Illum_LXS_Hipp_RSS_1008",
-                  "Hippocampus Illumina RSS (Oct08) RankInv beta"
-               ],
-               [
                   "212",
                   "Illum_LXS_Hipp_RSE_1008",
                   "Hippocampus Illumina RSE (Oct08) RankInv beta"
                ],
                [
-                  "213",
-                  "Illum_LXS_Hipp_NOS_1008",
-                  "Hippocampus Illumina NOS (Oct08) RankInv beta"
-               ],
-               [
                   "214",
                   "Illum_LXS_Hipp_NOE_1008",
                   "Hippocampus Illumina NOE (Oct08) RankInv beta"
+               ],
+               [
+                  "211",
+                  "Illum_LXS_Hipp_RSS_1008",
+                  "Hippocampus Illumina RSS (Oct08) RankInv beta"
+               ],
+               [
+                  "213",
+                  "Illum_LXS_Hipp_NOS_1008",
+                  "Hippocampus Illumina NOS (Oct08) RankInv beta"
                ],
                [
                   "219",
@@ -3708,14 +3718,14 @@
          "Retina-RGC-Rheaume": {
             "Retina Single-cell RNA-Seq": [
                [
-                  "866",
-                  "UConn-RGC-RSeq_log2-0918",
-                  "UConn-Rheaume Retina RGC (Sep18) scRNA-Seq Log2"
-               ],
-               [
                   "865",
                   "UConn-RGC-RSeq_r-0918",
                   "UConn-Rheaume Retina RGC (Sep18) scRNA-Seq Raw"
+               ],
+               [
+                  "866",
+                  "UConn-RGC-RSeq_log2-0918",
+                  "UConn-Rheaume Retina RGC (Sep18) scRNA-Seq Log2"
                ],
                [
                   "867",

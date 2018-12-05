@@ -652,9 +652,9 @@ def trim_markers_for_table(markers):
     else:
         sorted_markers = sorted(markers, key=lambda k: k['lrs_value'], reverse=True)
 
-    #ZS: So we end up with a list of just 200 markers
-    if len(sorted_markers) >= 200:
-        trimmed_sorted_markers = sorted_markers[:200]
+    #ZS: So we end up with a list of just 2000 markers
+    if len(sorted_markers) >= 2000:
+        trimmed_sorted_markers = sorted_markers[:2000]
         return trimmed_sorted_markers
     else:
         return sorted_markers

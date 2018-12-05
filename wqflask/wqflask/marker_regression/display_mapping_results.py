@@ -772,7 +772,8 @@ class DisplayMappingResults(object):
             fontZoom = 1.5
 
         drawSNPLocationY = yTopOffset + plotHeight
-        chrName = self.genotype[0].name
+        #chrName = self.genotype[0].name
+        chrName = self.ChrList[self.selectedChr][0]
 
         stepMb = (endMb-startMb)/plotWidth
         strainId1, strainId2 = self.diffCol

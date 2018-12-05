@@ -2,6 +2,7 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -28,7 +29,7 @@
             </form>
             <br />
             <div>
-              <table id="trait_table" class="display dataTable nowrap" style="float: left;">
+              <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <thead>
                     <tr>
                         <th></th>
@@ -39,8 +40,8 @@
                         <th data-export="Description">Description</th>
                         <th data-export="Authors">Authors</th>
                         <th data-export="Year">Year</th>
-                        <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                        <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
+                        <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><sup>?</sup></a></th>
+                        <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup>?</sup></a></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,7 +56,7 @@
                         <td data-export="{{ this_trait.authors }}">{{ this_trait.authors }}</td>
                         <td data-export="{{ this_trait.pubmed_text }}" data-order="{{ this_trait.pubmed_text }}"><a href="{{ this_trait.pubmed_link }}">{{ this_trait.pubmed_text }}</a></td>
                         <td data-export="{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}" align="right">{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                        <td data-export="{% if this_trait.additive != "" %}{{ this_trait.additive }}{% else %}N/A{% endif %}" align="right">{% if this_trait.additive != "" %}{{ this_trait.additive }}{% else %}N/A{% endif %}</td>
+                        <td data-export="{% if this_trait.additive %}{{ this_trait.additive }}{% else %}N/A{% endif %}" align="right">{% if this_trait.additive %}{{ '%0.6f' % this_trait.additive }}{% else %}N/A{% endif %}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -110,14 +111,16 @@
             console.time("Creating table");
             $('#trait_table').DataTable( {
                 "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(0).attr('style', 'padding: 0px;');
+                    $('td', row).eq(0).attr('align', 'center');
                     $('td', row).eq(5).attr('title', $('td', row).eq(5).text());
                     if ($('td', row).eq(5).text().length > 50) {
                         $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 50));
                         $('td', row).eq(5).text($('td', row).eq(5).text() + '...')
                     }
                     $('td', row).eq(6).attr('title', $('td', row).eq(6).text());
-                    if ($('td', row).eq(6).text().length > 50) {
-                        $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 50));
+                    if ($('td', row).eq(6).text().length > 40) {
+                        $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 40));
                         $('td', row).eq(6).text($('td', row).eq(6).text() + '...')
                     }
                 },
@@ -128,11 +131,11 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural", "width": "30%"},
-                    { "type": "natural", "width": "25%"},
                     { "type": "natural" },
-                    { "type": "natural", "width": "8%"},
-                    { "type": "natural" }
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "5%"},
+                    { "type": "natural", "width": "8%" }
                 ],
                 "columnDefs": [
                     {
