@@ -27,7 +27,8 @@
 import time
 import string
 from math import *
-import piddle as pid
+# import piddle as pid
+from PIL import (ImageColor)
 import sys,os
 import cPickle
 import httplib
@@ -95,47 +96,68 @@ class DisplayMappingResults(object):
 
     LODFACTOR = 4.61
 
-    SNP_COLOR           = pid.orange # Color for the SNP "seismograph"
-    TRANSCRIPT_LOCATION_COLOR = pid.mediumpurple
+    # ---- Define common colours ---- #
+    RED = ImageColor.getrgb("red")
+    BLUE = ImageColor.getrgb("blue")
+    GRAY = ImageColor.getrgb("gray")
+    GOLD = ImageColor.getrgb("gold")
+    BLACK = ImageColor.getrgb("black")
+    GREEN = ImageColor.getrgb("green")
+    PURPLE = ImageColor.getrgb("purple")
+    ORANGE = ImageColor.getrgb("orange")
+    YELLOW = ImageColor.getrgb("yellow")
+    DARKRED = ImageColor.getrgb("darkred")
+    DARKBLUE = ImageColor.getrgb("darkblue")
+    DARKGRAY = ImageColor.getrgb("darkgray")
+    DEEPPINK = ImageColor.getrgb("deeppink")
+    DARKGREEN = ImageColor.getrgb("darkgreen")
+    GAINSBORO = ImageColor.getrgb("gainsboro")
+    DARKORANGE = ImageColor.getrgb("darkorange")
+    DARKVIOLET = ImageColor.getrgb("darkviolet")
+    MEDIUMPURPLE = ImageColor.getrgb("mediumpurple")
+    # ---- END: Define common colours ---- #
 
-    BOOTSTRAP_BOX_COLOR = pid.yellow
-    LRS_COLOR           = pid.HexColor(0x0000FF)
-    SIGNIFICANT_COLOR   = pid.HexColor(0xEBC7C7)
-    SUGGESTIVE_COLOR    = pid.gainsboro
+    SNP_COLOR           = ORANGE # Color for the SNP "seismograph"
+    TRANSCRIPT_LOCATION_COLOR = MEDIUMPURPLE
+
+    BOOTSTRAP_BOX_COLOR = YELLOW
+    LRS_COLOR           = ImageColor.getrgb("#0000FF")
+    SIGNIFICANT_COLOR   = ImageColor.getrgb("#EBC7C7")
+    SUGGESTIVE_COLOR    = GAINSBORO
     SIGNIFICANT_WIDTH = 5
     SUGGESTIVE_WIDTH = 5
-    ADDITIVE_COLOR_POSITIVE = pid.green
-    ADDITIVE_COLOR_NEGATIVE = pid.orange
-    DOMINANCE_COLOR_POSITIVE = pid.darkviolet
-    DOMINANCE_COLOR_NEGATIVE = pid.red
+    ADDITIVE_COLOR_POSITIVE = GREEN
+    ADDITIVE_COLOR_NEGATIVE = ORANGE
+    DOMINANCE_COLOR_POSITIVE = DARKVIOLET
+    DOMINANCE_COLOR_NEGATIVE = RED
 
     ## BEGIN HaplotypeAnalyst
-    HAPLOTYPE_POSITIVE = pid.green
-    HAPLOTYPE_NEGATIVE = pid.red
-    HAPLOTYPE_HETEROZYGOUS = pid.blue
-    HAPLOTYPE_RECOMBINATION = pid.darkgray
+    HAPLOTYPE_POSITIVE = GREEN
+    HAPLOTYPE_NEGATIVE = RED
+    HAPLOTYPE_HETEROZYGOUS = BLUE
+    HAPLOTYPE_RECOMBINATION = DARKGRAY
     ## END HaplotypeAnalyst
 
-    TOP_RIGHT_INFO_COLOR = pid.black
+    TOP_RIGHT_INFO_COLOR = BLACK
 
-    CLICKABLE_WEBQTL_REGION_COLOR     = pid.HexColor(0xF5D3D3)
-    CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR = pid.HexColor(0xFCE9E9)
-    CLICKABLE_WEBQTL_TEXT_COLOR       = pid.HexColor(0x912828)
+    CLICKABLE_WEBQTL_REGION_COLOR     = ImageColor.getrgb("#F5D3D3")
+    CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR = ImageColor.getrgb("#FCE9E9")
+    CLICKABLE_WEBQTL_TEXT_COLOR       = ImageColor.getrgb("#912828")
 
-    CLICKABLE_PHENOGEN_REGION_COLOR   = pid.HexColor(0xA2FB94)
-    CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR = pid.HexColor(0xCEFEC7)
-    CLICKABLE_PHENOGEN_TEXT_COLOR     = pid.HexColor(0x1FD504)
+    CLICKABLE_PHENOGEN_REGION_COLOR   = ImageColor.getrgb("#A2FB94")
+    CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR = ImageColor.getrgb("#CEFEC7")
+    CLICKABLE_PHENOGEN_TEXT_COLOR     = ImageColor.getrgb("#1FD504")
 
-    CLICKABLE_UCSC_REGION_COLOR     = pid.HexColor(0xDDDDEE)
-    CLICKABLE_UCSC_REGION_OUTLINE_COLOR = pid.HexColor(0xEDEDFF)
-    CLICKABLE_UCSC_TEXT_COLOR       = pid.HexColor(0x333366)
+    CLICKABLE_UCSC_REGION_COLOR     = ImageColor.getrgb("#DDDDEE")
+    CLICKABLE_UCSC_REGION_OUTLINE_COLOR = ImageColor.getrgb("#EDEDFF")
+    CLICKABLE_UCSC_TEXT_COLOR       = ImageColor.getrgb("#333366")
 
-    CLICKABLE_ENSEMBL_REGION_COLOR  = pid.HexColor(0xEEEEDD)
-    CLICKABLE_ENSEMBL_REGION_OUTLINE_COLOR = pid.HexColor(0xFEFEEE)
-    CLICKABLE_ENSEMBL_TEXT_COLOR    = pid.HexColor(0x555500)
+    CLICKABLE_ENSEMBL_REGION_COLOR  = ImageColor.getrgb("#EEEEDD")
+    CLICKABLE_ENSEMBL_REGION_OUTLINE_COLOR = ImageColor.getrgb("#FEFEEE")
+    CLICKABLE_ENSEMBL_TEXT_COLOR    = ImageColor.getrgb("#555500")
 
-    GRAPH_BACK_LIGHT_COLOR = pid.HexColor(0xFBFBFF)
-    GRAPH_BACK_DARK_COLOR  = pid.HexColor(0xF1F1F9)
+    GRAPH_BACK_LIGHT_COLOR = ImageColor.getrgb("#FBFBFF")
+    GRAPH_BACK_DARK_COLOR  = ImageColor.getrgb("#F1F1F9")
 
     HELP_PAGE_REF = '/glossary.html'
 
@@ -658,23 +680,23 @@ class DisplayMappingResults(object):
 
         bootOffset = 50*fontZoom
         bootScaleFont=pid.Font(ttf="verdana",size=13*fontZoom,bold=0)
-        canvas.drawRect(canvas.size[0]-bootOffset,yZero-bootHeightThresh,canvas.size[0]-bootOffset-15*zoom,yZero,fillColor = pid.yellow)
-        canvas.drawLine(canvas.size[0]-bootOffset+4, yZero, canvas.size[0]-bootOffset, yZero, color=pid.black)
-        canvas.drawString('0%' ,canvas.size[0]-bootOffset+10,yZero+5,font=bootScaleFont,color=pid.black)
+        canvas.drawRect(canvas.size[0]-bootOffset,yZero-bootHeightThresh,canvas.size[0]-bootOffset-15*zoom,yZero,fillColor = YELLOW)
+        canvas.drawLine(canvas.size[0]-bootOffset+4, yZero, canvas.size[0]-bootOffset, yZero, color=BLACK)
+        canvas.drawString('0%' ,canvas.size[0]-bootOffset+10,yZero+5,font=bootScaleFont,color=BLACK)
         for item in bootScale:
             if item == 0:
                 continue
             bootY = yZero-bootHeightThresh*item/highestPercent
-            canvas.drawLine(canvas.size[0]-bootOffset+4,bootY,canvas.size[0]-bootOffset,bootY,color=pid.black)
-            canvas.drawString('%2.1f'%item ,canvas.size[0]-bootOffset+10,bootY+5,font=bootScaleFont,color=pid.black)
+            canvas.drawLine(canvas.size[0]-bootOffset+4,bootY,canvas.size[0]-bootOffset,bootY,color=BLACK)
+            canvas.drawString('%2.1f'%item ,canvas.size[0]-bootOffset+10,bootY+5,font=bootScaleFont,color=BLACK)
 
         if self.legendChecked:
             startPosY = 30
             nCol = 2
             smallLabelFont = pid.Font(ttf="trebuc", size=12*fontZoom, bold=1)
             leftOffset = xLeftOffset+(nCol-1)*200
-            canvas.drawRect(leftOffset,startPosY-6, leftOffset+12,startPosY+6, fillColor=pid.yellow)
-            canvas.drawString('Frequency of the Peak LRS',leftOffset+ 20, startPosY+5,font=smallLabelFont,color=pid.black)
+            canvas.drawRect(leftOffset,startPosY-6, leftOffset+12,startPosY+6, fillColor=YELLOW)
+            canvas.drawString('Frequency of the Peak LRS',leftOffset+ 20, startPosY+5,font=smallLabelFont,color=BLACK)
 
     def drawProbeSetPosition(self, canvas, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
         if len(self.traitList) != 1:
@@ -744,7 +766,7 @@ class DisplayMappingResults(object):
                             break
         if locPixel >= 0 and self.plotScale == 'physic':
             traitPixel = ((locPixel, yZero), (locPixel-6, yZero+12), (locPixel+6, yZero+12))
-            canvas.drawPolygon(traitPixel, edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
+            canvas.drawPolygon(traitPixel, edgeColor=BLACK, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
 
         if self.legendChecked:
             startPosY = 15
@@ -754,7 +776,7 @@ class DisplayMappingResults(object):
                 leftOffset = xLeftOffset
             else:
                 leftOffset = xLeftOffset+(nCol-1)*200*fontZoom
-            canvas.drawPolygon(((leftOffset+6, startPosY-6), (leftOffset, startPosY+6), (leftOffset+12, startPosY+6)), edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
+            canvas.drawPolygon(((leftOffset+6, startPosY-6), (leftOffset, startPosY+6), (leftOffset+12, startPosY+6)), edgeColor=BLACK, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
             canvas.drawString("Sequence Site", (leftOffset+15), (startPosY+5), smallLabelFont, self.TOP_RIGHT_INFO_COLOR)
 
     def drawSNPTrackNew(self, canvas, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
@@ -823,7 +845,7 @@ class DisplayMappingResults(object):
             nameWidths.append(nameWidth)
 
             canvas.drawRect(rightShift,yPaddingTop+kstep*15, rectWidth+rightShift,yPaddingTop+10+kstep*15, fillColor=thisLRSColor)
-            canvas.drawString(name,rectWidth+2+rightShift,yPaddingTop+10+kstep*15,font=colorFont,color=pid.black)
+            canvas.drawString(name,rectWidth+2+rightShift,yPaddingTop+10+kstep*15,font=colorFont,color=BLACK)
             if thisTrait.db:
                 COORDS = "%d,%d,%d,%d" %(rectWidth+2+rightShift,yPaddingTop+kstep*15,rectWidth+2+rightShift+nameWidth,yPaddingTop+10+kstep*15,)
                 HREF= "javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm, thisTrait.db.name, thisTrait.name)
@@ -844,21 +866,21 @@ class DisplayMappingResults(object):
         stepPosY = 12*fontZoom
         if self.manhattan_plot != True:
             canvas.drawLine(xLeftOffset,startPosY,xLeftOffset+32,startPosY,color=self.LRS_COLOR, width=2)
-            canvas.drawString(self.LRS_LOD, xLeftOffset+40,startPosY+5,font=labelFont,color=pid.black)
+            canvas.drawString(self.LRS_LOD, xLeftOffset+40,startPosY+5,font=labelFont,color=BLACK)
             startPosY += stepPosY
 
         if self.additiveChecked:
             startPosX = xLeftOffset
             canvas.drawLine(startPosX,startPosY,startPosX+17,startPosY,color=self.ADDITIVE_COLOR_POSITIVE, width=2)
             canvas.drawLine(startPosX+18,startPosY,startPosX+32,startPosY,color=self.ADDITIVE_COLOR_NEGATIVE, width=2)
-            canvas.drawString('Additive Effect',startPosX+40,startPosY+5,font=labelFont,color=pid.black)
+            canvas.drawString('Additive Effect',startPosX+40,startPosY+5,font=labelFont,color=BLACK)
 
         if self.genotype.type == 'intercross' and self.dominanceChecked:
             startPosX = xLeftOffset
             startPosY += stepPosY
             canvas.drawLine(startPosX,startPosY,startPosX+17,startPosY,color=self.DOMINANCE_COLOR_POSITIVE, width=4)
             canvas.drawLine(startPosX+18,startPosY,startPosX+35,startPosY,color=self.DOMINANCE_COLOR_NEGATIVE, width=4)
-            canvas.drawString('Dominance Effect',startPosX+42,startPosY+5,font=labelFont,color=pid.black)
+            canvas.drawString('Dominance Effect',startPosX+42,startPosY+5,font=labelFont,color=BLACK)
 
         if self.haplotypeAnalystChecked:
             startPosY += stepPosY
@@ -867,18 +889,18 @@ class DisplayMappingResults(object):
             canvas.drawLine(startPosX+18,startPosY,startPosX+35,startPosY,color=self.HAPLOTYPE_NEGATIVE, width=4)
             canvas.drawLine(startPosX+36,startPosY,startPosX+53,startPosY,color=self.HAPLOTYPE_HETEROZYGOUS, width=4)
             canvas.drawLine(startPosX+54,startPosY,startPosX+67,startPosY,color=self.HAPLOTYPE_RECOMBINATION, width=4)
-            canvas.drawString('Haplotypes (Pat, Mat, Het, Unk)',startPosX+76,startPosY+5,font=labelFont,color=pid.black)
+            canvas.drawString('Haplotypes (Pat, Mat, Het, Unk)',startPosX+76,startPosY+5,font=labelFont,color=BLACK)
 
         if self.permChecked and self.nperm > 0:
             startPosY += stepPosY
             startPosX = xLeftOffset
             canvas.drawLine(startPosX, startPosY, startPosX + 32, startPosY, color=self.SIGNIFICANT_COLOR, width=self.SIGNIFICANT_WIDTH)
             canvas.drawLine(startPosX, startPosY + stepPosY, startPosX + 32, startPosY + stepPosY, color=self.SUGGESTIVE_COLOR, width=self.SUGGESTIVE_WIDTH)
-            canvas.drawString('Significant %s = %2.2f' % (self.LRS_LOD, self.significant),xLeftOffset+42,startPosY +5,font=labelFont,color=pid.black)
-            canvas.drawString('Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),xLeftOffset+42,startPosY + 5 +stepPosY,font=labelFont,color=pid.black)
+            canvas.drawString('Significant %s = %2.2f' % (self.LRS_LOD, self.significant),xLeftOffset+42,startPosY +5,font=labelFont,color=BLACK)
+            canvas.drawString('Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),xLeftOffset+42,startPosY + 5 +stepPosY,font=labelFont,color=BLACK)
 
         labelFont = pid.Font(ttf="verdana",size=12*fontZoom)
-        labelColor = pid.black
+        labelColor = BLACK
         if self.selectedChr == -1:
             string1 = 'Mapping for Dataset: %s, mapping on All Chromosomes' % self.dataset.group.name
         else:
@@ -976,19 +998,19 @@ class DisplayMappingResults(object):
 
                 densities=[1.0000000000000001e-05, 0.094094033555233408, 0.3306166377816987, 0.88246026851027781, 2.6690084029581951, 4.1, 61.0]
                 if SNPdensity < densities[0]:
-                    myColor = pid.black
+                    myColor = BLACK
                 elif SNPdensity < densities[1]:
-                    myColor = pid.purple
+                    myColor = PURPLE
                 elif SNPdensity < densities[2]:
-                    myColor = pid.darkblue
+                    myColor = DARKBLUE
                 elif SNPdensity < densities[3]:
-                    myColor = pid.darkgreen
+                    myColor = DARKGREEN
                 elif SNPdensity < densities[4]:
-                    myColor = pid.gold
+                    myColor = GOLD
                 elif SNPdensity < densities[5]:
-                    myColor = pid.darkorange
+                    myColor = DARKORANGE
                 else:
-                    myColor = pid.darkred
+                    myColor = DARKRED
 
                 outlineColor = myColor
                 fillColor    = myColor
@@ -1020,14 +1042,14 @@ class DisplayMappingResults(object):
                 elif (geneStartPix < xLeftOffset):
                     geneStartPix = xLeftOffset; # clip the first in-range gene
 
-                outlineColor = pid.darkblue
-                fillColor = pid.darkblue
+                outlineColor = DARKBLUE
+                fillColor = DARKBLUE
                 TITLE = "Gene: %s\nFrom %2.3f to %2.3f Mb (%s)" % (geneSymbol, float(txStart), float(txEnd), strand)
                 # NL: 06-02-2011 Rob required to change this link for gene related
                 HREF=geneNCBILink %geneSymbol
             else:
-                outlineColor = pid.orange
-                fillColor = pid.orange
+                outlineColor = ORANGE
+                fillColor = ORANGE
                 TITLE = "Gene: %s" % geneSymbol
 
             #Draw Genes
@@ -1220,7 +1242,7 @@ class DisplayMappingResults(object):
                 drawit = 1
 
             if drawit == 1:
-                myColor = pid.darkblue
+                myColor = DARKBLUE
                 outlineColor = myColor
                 fillColor    = myColor
 
@@ -1269,8 +1291,8 @@ class DisplayMappingResults(object):
 
                             canvas.drawLine(drawStart, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, drawEnd, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, color = mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
 
-                            fillColor=pid.black
-                            outlineColor=pid.black
+                            fillColor=BLACK
+                            outlineColor=BLACK
                             if lastGene == 0:
                                 canvas.drawRect(geneStartPix, geneYLocation+2*ind*self.EACH_GENE_HEIGHT*zoom, geneEndPix, geneYLocation+2*ind*self.EACH_GENE_HEIGHT+ 2*self.EACH_GENE_HEIGHT*zoom, edgeColor = outlineColor, fillColor = fillColor)
 
@@ -1289,7 +1311,7 @@ class DisplayMappingResults(object):
 
 
                     if lastGene == 0:
-                        canvas.drawString("%s" % (self.genotype[0][i].name), geneStartPix , geneYLocation+17+2*maxind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black, angle=-90)
+                        canvas.drawString("%s" % (self.genotype[0][i].name), geneStartPix , geneYLocation+17+2*maxind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=BLACK, angle=-90)
 
                     oldgeneEndPix = geneEndPix;
                     oldgeno = self.genotype[0][i].genotype
@@ -1316,8 +1338,8 @@ class DisplayMappingResults(object):
                         expr = item.value
 
                 # Place where font is hardcoded
-                canvas.drawString("%s" % (samplelist[j]), (xLeftOffset + plotWidth + 10) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black)
-                canvas.drawString("%2.2f" % (expr), (xLeftOffset + plotWidth + 60) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black)
+                canvas.drawString("%s" % (samplelist[j]), (xLeftOffset + plotWidth + 10) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=BLACK)
+                canvas.drawString("%2.2f" % (expr), (xLeftOffset + plotWidth + 60) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=BLACK)
 
 ## END HaplotypeAnalyst
 
@@ -1419,14 +1441,14 @@ class DisplayMappingResults(object):
             chrFont = pid.Font(ttf="verdana", size=26*zoom, bold=1)
             traitFont = pid.Font(ttf="verdana", size=14, bold=0)
             chrX = xLeftOffset + plotWidth - 2 - canvas.stringWidth("Chr %s" % self.ChrList[self.selectedChr][0], font=chrFont)
-            canvas.drawString("Chr %s" % self.ChrList[self.selectedChr][0], chrX, ensemblPaddingTop-5, font=chrFont, color=pid.gray)
+            canvas.drawString("Chr %s" % self.ChrList[self.selectedChr][0], chrX, ensemblPaddingTop-5, font=chrFont, color=GRAY)
             # end of drawBrowserClickableRegions
         else:
             #draw the gray text
             chrFont = pid.Font(ttf="verdana", size=26*zoom, bold=1)
             traitFont = pid.Font(ttf="verdana", size=14, bold=0)
             chrX = xLeftOffset + (plotWidth - canvas.stringWidth("Chr %s" % currentChromosome, font=chrFont))/2
-            canvas.drawString("Chr %s" % currentChromosome, chrX, 32, font=chrFont, color=pid.gray)
+            canvas.drawString("Chr %s" % currentChromosome, chrX, 32, font=chrFont, color=GRAY)
             # end of drawBrowserClickableRegions
         pass
 
@@ -1449,8 +1471,8 @@ class DisplayMappingResults(object):
         MBLabelFont = pid.Font(ttf="verdana", size=15*zoom, bold=0)
         xMajorTickHeight = 10 * zoom # How high the tick extends below the axis
         xMinorTickHeight = 5*zoom
-        xAxisTickMarkColor = pid.black
-        xAxisLabelColor = pid.black
+        xAxisTickMarkColor = BLACK
+        xAxisLabelColor = BLACK
         fontHeight = 12*fontZoom # How tall the font that we're using is
         spacingFromLabelToAxis = 5
 
@@ -1497,14 +1519,14 @@ class DisplayMappingResults(object):
                         else:
                             distScale = 5
                     for j, tickdists in enumerate(range(distScale, int(ceil(distLen)), distScale)):
-                        canvas.drawLine(startPosX + tickdists*plotXScale, yZero, startPosX + tickdists*plotXScale, yZero + 7, color=pid.black, width=1*zoom)
+                        canvas.drawLine(startPosX + tickdists*plotXScale, yZero, startPosX + tickdists*plotXScale, yZero + 7, color=BLACK, width=1*zoom)
                         if j % 2 == 0:
-                            canvas.drawString(str(tickdists), startPosX+tickdists*plotXScale, yZero + 10*zoom, color=pid.black, font=MBLabelFont, angle=270)
+                            canvas.drawString(str(tickdists), startPosX+tickdists*plotXScale, yZero + 10*zoom, color=BLACK, font=MBLabelFont, angle=270)
                     startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
             megabaseLabelFont = pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
             canvas.drawString("Megabases", xLeftOffset + (plotWidth - canvas.stringWidth("Megabases", font=megabaseLabelFont))/2,
-                    strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=megabaseLabelFont, color=pid.black)
+                              strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=megabaseLabelFont, color=BLACK)
             pass
         else:
             strYLoc = yZero + spacingFromLabelToAxis + canvas.fontHeight(MBLabelFont) + 8
@@ -1574,11 +1596,11 @@ class DisplayMappingResults(object):
                         yZero+25, color=lineColor)
                         canvas.drawLine(xLeftOffset+offsetA,yZero+25,xLeftOffset+offsetA,\
                         yZero+40+Zorder*(LRectWidth+3),color=lineColor)
-                        rectColor = pid.orange
+                        rectColor = ORANGE
                     else:
                         canvas.drawLine(xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3)-3,\
                         xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3),color=lineColor)
-                        rectColor = pid.deeppink
+                        rectColor = DEEPPINK
                     canvas.drawRect(xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3),\
                             xLeftOffset+offsetA-LRectHeight,yZero+40+Zorder*(LRectWidth+3)+LRectWidth,\
                             edgeColor=rectColor,fillColor=rectColor,edgeWidth = 0)
@@ -1595,9 +1617,9 @@ class DisplayMappingResults(object):
 
             centimorganLabelFont = pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
             canvas.drawString("Centimorgans", xLeftOffset + (plotWidth - canvas.stringWidth("Megabases", font=centimorganLabelFont))/2,
-                    strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=centimorganLabelFont, color=pid.black)
+                              strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=centimorganLabelFont, color=BLACK)
 
-        canvas.drawLine(xLeftOffset, yZero, xLeftOffset+plotWidth, yZero, color=pid.black, width=X_AXIS_THICKNESS) # Draw the X axis itself
+        canvas.drawLine(xLeftOffset, yZero, xLeftOffset+plotWidth, yZero, color=BLACK, width=X_AXIS_THICKNESS) # Draw the X axis itself
 
 
     def drawQTL(self, canvas, drawAreaHeight, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
@@ -1679,7 +1701,7 @@ class DisplayMappingResults(object):
         yZero = yTopOffset + plotHeight
 
         canvas.drawString(self.LRS_LOD, xLeftOffset - canvas.stringWidth("999.99", font=LRSScaleFont) - 15*(zoom-1), \
-                                          yZero - 150 - 300*(zoom - 1), font=LRSLODFont, color=pid.black, angle=90)
+                                          yZero - 150 - 300*(zoom - 1), font=LRSLODFont, color=BLACK, angle=90)
 
         for item in LRSAxisList:
             if LRS_LOD_Max == 0.0:
@@ -1830,7 +1852,7 @@ class DisplayMappingResults(object):
                             Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
-                    point_color = pid.black
+                    point_color = BLACK
                     canvas.drawString("5", Xc-canvas.stringWidth("5",font=symbolFont)/2+1,Yc+2,color=point_color, font=symbolFont)
                 else:
                     LRSCoordXY.append((Xc, Yc))
@@ -1986,13 +2008,13 @@ class DisplayMappingResults(object):
 
                 #draw the shaded boxes and the sig/sug thick lines
                 canvas.drawRect(startPosX, yTopOffset, startPosX + self.ChrLengthDistList[i]*plotXScale, \
-                                yBottom, edgeColor=pid.gainsboro,fillColor=theBackColor)
+                                yBottom, edgeColor=GAINSBORO,fillColor=theBackColor)
 
                 chrNameWidth = canvas.stringWidth(_chr.name, font=chrLabelFont)
                 chrStartPix = startPosX + (self.ChrLengthDistList[i]*plotXScale -chrNameWidth)/2
                 chrEndPix = startPosX + (self.ChrLengthDistList[i]*plotXScale +chrNameWidth)/2
 
-                canvas.drawString(_chr.name, chrStartPix, yTopOffset + 20 ,font = chrLabelFont,color=pid.black)
+                canvas.drawString(_chr.name, chrStartPix, yTopOffset + 20 ,font = chrLabelFont,color=BLACK)
                 COORDS = "%d,%d,%d,%d" %(chrStartPix, yTopOffset, chrEndPix,yTopOffset +20)
 
                 #add by NL 09-03-2010
