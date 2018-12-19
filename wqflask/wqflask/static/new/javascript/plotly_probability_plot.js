@@ -25,7 +25,7 @@
 
   redraw_prob_plot = function(samples, sample_group) {
     var container, h, margin, totalh, totalw, w;
-    h = 600;
+    h = 370;
     w = 600;
     margin = {
       left: 60,
@@ -71,11 +71,11 @@
     })();
     //ZS: 0.1 indicates buffer, increase to increase buffer
     y_domain = [sorted_values[0] - (sorted_values.slice(-1)[0] - sorted_values[0])*0.1, sorted_values.slice(-1)[0] + (sorted_values.slice(-1)[0] - sorted_values[0])*0.1]
-    sw_result = ShapiroWilkW(sorted_values);
-    W = sw_result.w.toFixed(3);
-    pvalue = sw_result.p.toFixed(3);
-    pvalue_str = pvalue > 0.05 ? pvalue.toString() : "<span style='color:red'>" + pvalue + "</span>";
-    test_str = "Shapiro-Wilk test statistic is " + W + " (p = " + pvalue_str + ")";
+    //sw_result = ShapiroWilkW(sorted_values);
+    //W = sw_result.w.toFixed(3);
+    //pvalue = sw_result.p.toFixed(3);
+    //pvalue_str = pvalue > 0.05 ? pvalue.toString() : "<span style='color:red'>" + pvalue + "</span>";
+    //test_str = "Shapiro-Wilk test statistic is " + W + " (p = " + pvalue_str + ")";
     z_scores = get_z_scores(sorted_values.length);
     //ZS: 0.1 indicates buffer, increase to increase buffer
     x_domain = [z_scores[0] - (z_scores.slice(-1)[0] - z_scores[0])*0.1, z_scores.slice(-1)[0] + (z_scores.slice(-1)[0] - z_scores[0])*0.1]
@@ -106,7 +106,6 @@
       };
     };
     data = [make_data('samples_primary'), make_data('samples_other'), make_data('samples_all')];
-    console.log("THE DATA IS:", data);
     x_values = {}
     y_values = {}
     point_names = {}
@@ -163,13 +162,15 @@
     }
 
     var layout = {
+        title: 'Quantile-Quantile Plot<a href="https://en.wikipedia.org/wiki/Q-Q_plot"><sup>?</sup></a>',
         margin: {
             l: 50,
             r: 30,
-            t: 30,
+            t: 80,
             b: 80
         },
         xaxis: {
+            title: "Normal Theoretical Quantiles",
             range: [first_x, last_x],
             zeroline: false,
             visible: true,
@@ -177,11 +178,13 @@
             linewidth: 1,
         },
         yaxis: {
+            title: "Data Quantiles",
             zeroline: false,
             visible: true,
             linecolor: 'black',
             linewidth: 1,
-        }
+        },
+        hovermode: "closest"
     }
 
     var primary_trace = {
@@ -189,7 +192,7 @@
         y: y_values['samples_primary'],
         mode: 'markers',
         type: 'scatter',
-        name: js_data.sample_group_types['samples_primary'],
+        name: 'Samples',
         text: point_names['samples_primary']
     }
     if ("samples_other" in js_data.sample_group_types) {
@@ -209,7 +212,7 @@
             y: intercept_line['samples_primary'][1],
             mode: 'lines',
             type: 'scatter',
-            name: 'Intercept',
+            name: 'Normal Function',
         }
     } else if (sample_group == "samples_other"){
         var other_intercept_trace = {
@@ -217,7 +220,7 @@
             y: intercept_line['samples_other'][1],
             mode: 'lines',
             type: 'scatter',
-            name: 'Intercept',
+            name: 'Normal Function',
         }
     } else {
         var all_intercept_trace = {
@@ -225,7 +228,7 @@
             y: intercept_line['samples_all'][1],
             mode: 'lines',
             type: 'scatter',
-            name: 'Intercept',
+            name: 'Normal Function',
         }
     }
 

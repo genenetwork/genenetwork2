@@ -10,7 +10,11 @@ import numpy as np
 from scipy import stats
 from pprint import pformat as pf
 
+import simplejson as json
+
 import itertools
+
+from utility.elasticsearch_tools import get_elasticsearch_connection
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
@@ -33,6 +37,8 @@ class SampleList(object):
 
         self.get_attributes()
 
+        #self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
+
         if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
             self.get_extra_attribute_values()
 
@@ -52,20 +58,12 @@ class SampleList(object):
                     logger.debug("No sample %s, let's create it now" % sample_name)
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
-            #sampleNameAdd = ''
-            #if fd.RISet == 'AXBXA' and sampleName in ('AXB18/19/20','AXB13/14','BXA8/17'):
-            #    sampleNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
             sample.extra_info = {}
             if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 
-            # logger.debug("  type of sample:", type(sample))
-
-            if sample_group_type == 'primary':
-                sample.this_id = "Primary_" + str(counter)
-            else:
-                sample.this_id = "Other_" + str(counter)
+            sample.this_id = str(counter)
 
             #### For extra attribute columns; currently only used by several datasets - Zach
             if self.sample_attribute_values:
@@ -79,9 +77,6 @@ class SampleList(object):
         self.do_outliers()
         #do_outliers(the_samples)
         logger.debug("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
-        #for sample in self.sample_list:
-        #     logger.debug("apple:", type(sample), sample)
-        #return the_samples
 
     def __repr__(self):
         return "<SampleList> --> %s" % (pf(self.__dict__))
@@ -152,36 +147,47 @@ class SampleList(object):
 
         return any(sample.variance for sample in self.sample_list)
 
-#def z_score(vals):
-#    vals_array = np.array(vals)
-#    mean = np.mean(vals_array)
-#    stdv = np.std(vals_array)
-#
-#    z_scores = []
-#    for val in vals_array:
-#        z_score = (val - mean)/stdv
-#        z_scores.append(z_score)
-#
-#
-#
-#    return z_scores
+def get_transform_vals(dataset, trait):
+    es = get_elasticsearch_connection(for_user=False)
 
+    logger.info("DATASET NAME:", dataset.name)
 
-#def z_score(row):
-#    L = [n for n in row if not np.isnan(n)]
-#    m = np.mean(L)
-#    s = np.std(L)
-#    zL = [1.0 * (n - m) / s for n in L]
-#    if len(L) == len(row):  return zL
-#    # deal with nan
-#    retL = list()
-#    for n in row:
-#        if np.isnan(n):
-#            retL.append(nan)
-#        else:
-#            retL.append(zL.pop(0))
-#    assert len(zL) == 0
-#    return retL
+    query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
+
+    es_body = {
+          "query": {
+            "bool": {
+              "must": [
+                {
+                  "match": {
+                    "name": "%s" % (trait.name)
+                  }
+                },
+                {
+                  "match": {
+                    "dataset": "%s" % (dataset.name)
+                  }
+                }
+              ]
+            }
+          }
+    }
+
+    response = es.search( index = "traits", doc_type = "trait", body = es_body )
+    logger.info("THE RESPONSE:", response)
+    results = response['hits']['hits']
+
+    if len(results) > 0:
+        samples = results[0]['_source']['samples']
+
+        sample_dict = {}
+        for sample in samples:
+            sample_dict[sample['name']] = sample['qnorm']
+
+        logger.info("SAMPLE DICT:", sample_dict)
+        return sample_dict
+    else:
+        return None
 
 def natural_sort_key(x):
     """Get expected results when using as a key for sort - ints or strings are sorted properly"""

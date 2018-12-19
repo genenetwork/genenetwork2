@@ -1,6 +1,7 @@
 <div>
     <!--<h2>Review and Edit Data</h2>-->
 
+<!--
     <div class="well form-horizontal">
         <fieldset id="showHideOptions">
             <legend>Block samples</legend>
@@ -9,7 +10,7 @@
                 needed.
             </p>
 
-            <div id="blockMenuSpan" class="input-append">
+            <div id="blockMenuSpan" class="input-append" style="margin-bottom: 10px;">
                 <label for="remove_samples_field">Block samples by index:</label>
                 <input type="text" id="remove_samples_field">
                 <select id="block_group" size="1">
@@ -25,11 +26,8 @@
             <div id="remove_samples_invalid" class="alert alert-error" style="display:none;">
                   Please check that your input is formatted correctly, e.g. <strong>3, 5-10, 12</strong>
             </div>
-
-            <br>
-
             {% if sample_groups[0].attributes %}
-            <div class="input-append">
+            <div class="input-append" style="margin-top:10px; margin-bottom:10px;">
                 <label for="exclude_menu">Block samples by group:</label>
                 <select id="exclude_menu" size=1>
                   {% for attribute in sample_groups[0].attributes %}
@@ -42,7 +40,6 @@
                 <input type="button" id="exclude_group" class="btn" value="Block">
             </div>
             {% endif %}
-            <br>
             <div>
               <input type="button" id="hide_no_value" class="btn btn-default" value="Hide No Value">
               <input type="button" id="block_outliers" class="btn btn-default" value="Block Outliers">
@@ -54,6 +51,15 @@
                   <option value="csv">CSV</option>
                 </select>
               </span>
+              <br>
+              <div style="margin-top:10px;">
+              <input type="button" id="normalize" class="btn btn-default" value="Normalize">
+              <select id="norm_method" class="select optional span2">
+                <option value="log2">Log2</option>
+                <option value="qnorm">Quantile</option>
+                <option value="sqrt">Square Root</option>
+              </select>
+              </div>
             </div>
         </fieldset>
         <br>
@@ -71,24 +77,28 @@
         </div>
     </div>
     <br>
-
+-->
 
     <!--<div id="edit_sample_lists">-->
     {% for sample_type in sample_groups %}
-        <div class="sample_group" style="width:{{ trait_table_width }}%;">
+        {% set outer_loop = loop %}
+        <div class="sample_group" style="width:{{ trait_table_width }};">
             <h3>{{ sample_type.header }}</h3>
             <hr>
             <div id="table_container">
-            <table class="table-hover table-striped" id="samples_{{ sample_type.sample_group_type }}" style="float: left;">
+            <table class="table-hover table-striped cell-border" id="samples_{{ sample_type.sample_group_type }}" style="float: left; width:100%;">
                 <thead>
                     <tr>
                         <th></th>
-                        <th>Index</th>
+                        <th>ID</th>
                         <th>Sample</th>
-                        <th>Value</th>
+                        <th style="text-align: right;">Value</th>
                         {% if sample_type.se_exists() %}
-                        <th>&nbsp;</th>
-                        <th>SE</th>
+                        <th style="padding-left: 3px; padding-right: 3px;">&nbsp;</th>
+                        <th style="text-align: right;">SE</th>
+                        {% endif %}
+                        {% if has_num_cases %}
+                        <th style="text-align: right;">N</th>
                         {% endif %}
                         {% for attribute in sample_type.attributes|sort() %}
                         <th>
@@ -99,8 +109,8 @@
                 </thead>
                 <tbody>
                     {% for sample in sample_type.sample_list %}
-                    <tr class="{{ sample.class_outlier }} value_se" id="{{ sample.this_id }}">
-                        <td align="center" style="padding-right: 0px;" class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" value="{{ sample.name }}" checked="checked">
+                    <tr class="{{ sample.class_outlier }} value_se" id="{% if outer_loop.index == 1 %}Primary_{{ sample.this_id }}{% else %}Other_{{ sample.this_id }}{% endif %}">
+                        <td align="center" style="padding-left: 0px; padding-right: 0px; padding-top: 2px; padding-bottom: 0px;" class="column_name-"><input type="checkbox" name="selectCheck" class="checkbox edit_sample_checkbox" style="min-height: 20px;" value="{{ sample.name }}" checked="checked">
                         </td>
                         <td class="column_name-Index" align="right">{{ loop.index }}</td>
                         <td class="column_name-Sample">
@@ -110,8 +120,8 @@
                         </td>
         
                         {# Todo: Add IDs #}
-                        <td class="column_name-Value" align="right">
-                          <input type="text" data-value="{{ sample.display_value }}" name="{{ 'value:' + sample.name }}"
+                        <td class="column_name-Value" align="right" style="padding-top: 2px; padding-bottom: 0px;">
+                          <input type="text" data-value="{{ sample.display_value }}" data-qnorm="{{ qnorm_vals[outer_loop.index - 1][loop.index - 1] }}" name="{{ 'value:' + sample.name }}"
                                  style="text-align:right;"
                                  class="trait_value_input edit_sample_value"
                                  value="{{ sample.display_value }}"
@@ -120,17 +130,27 @@
                         </td>
         
                         {% if sample_type.se_exists() %}
-                        <td>
+                        <td align="center" style="padding-left: 2px; padding-right: 2px;">
                           ±
                         </td>
         
                         {# Todo: Add IDs #}
-                        <td class="column_name-SE">
-                          <input type="text" data-value="{{ sample.display_variance }}" name="{{ 'variance:' + sample.name}}"
+                        <td class="column_name-SE" align="right" style="padding-top: 2px; padding-bottom: 0px;">
+                          <input type="text" data-value="{{ sample.display_variance }}" data-qnorm="x" name="{{ 'variance:' + sample.name}}"
                                  style="text-align:right;"
                                  class="trait_value_input edit_sample_se"
                                  value="{{ sample.display_variance }}"
-                                 size=8 maxlength=8
+                                 size=6 maxlength=6
+                          >
+                        </td>
+                        {% endif %}
+                        {% if has_num_cases %}
+                        <td class="column_name-num_cases" align="right">
+                          <input type="text" data-value="{{ sample.display_num_cases }}" name="{{ 'num_cases:' + sample.name}}"
+                                 style="text-align:right;"
+                                 class="trait_value_input edit_sample_num_cases"
+                                 value="{{ sample.display_num_cases }}"
+                                 size=4 maxlength=4
                           >
                         </td>
                         {% endif %}

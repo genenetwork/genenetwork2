@@ -5,10 +5,6 @@
     </tr>
     {% if this_trait.dataset.type == 'Publish' %}
     <tr>
-        <td>Tissue</td>
-        <td>{{ this_trait.dataset.tissue }}</td>
-    </tr>
-    <tr>
         <td>Phenotype</td>
         <td><div style="width:40%;">{{ this_trait.description_fmt }}</div></td>
     </tr>
@@ -23,6 +19,11 @@
     <tr>
         <td>Journal</td>
         <td>{{ this_trait.journal }} (<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ this_trait.pubmed_id }}&dop=Abstract" title="PubMed">{{ this_trait.year }}</a>)</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td>Tissue</td>
+        <td>{{ this_trait.dataset.tissue }}</td>
     </tr>
     {% endif %}
     {% if this_trait.dataset.type == 'ProbeSet' %}
@@ -46,7 +47,7 @@
     <tr>
         <td>Database</td>
         <td>
-            <a href="http://genenetwork.org/dbdoc/{{ dataset.name }}.html">
+            <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName={{ dataset.name }}">
                 {{ dataset.fullname }}
             </a>
         </td>

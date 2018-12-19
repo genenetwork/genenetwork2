@@ -63,7 +63,7 @@ from pprint import pformat as pf
 
 #conn = Engine.connect()
 
-def parse_db_uri(db_uri):
+def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
     parsed_uri = urlparse.urlparse(SQL_URI)
@@ -219,7 +219,7 @@ def build_datasets(species, group, type_name):
         if group == 'MDP':
             dataset_text = "Mouse Phenome Database"
         else:
-            dataset_text = "%s Published Phenotypes" % group
+            dataset_text = "%s Phenotypes" % group
 
     elif type_name == "Genotypes":
         Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where
@@ -248,7 +248,7 @@ def build_datasets(species, group, type_name):
                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '%s' and
                     ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id and
                     ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0 order by
-                    ProbeSetFreeze.OrderList asc""" % (species, group, type_name))
+                    ProbeSetFreeze.CreateTime desc""" % (species, group, type_name))
 
         dataset_results = Cursor.fetchall()
         datasets = []

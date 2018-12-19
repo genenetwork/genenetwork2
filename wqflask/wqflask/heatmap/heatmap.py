@@ -46,9 +46,7 @@ from flask import Flask, g
 class Heatmap(object):
 
     def __init__(self, start_vars, temp_uuid):
-
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
-
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.temp_uuid = temp_uuid

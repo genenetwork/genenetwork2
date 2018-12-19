@@ -3,12 +3,12 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-    {% if g.user_session.user_ob %}
+    {% if g.user_session.logged_in %}
     {{ header("Your Collections",
         'You have {}.'.format(numify(collections|count, "collection", "collections"))) }}
     {% else %}
@@ -16,11 +16,10 @@
         'You have {}.'.format(numify(collections|count, "collection", "collections"))) }}
     {% endif %}
 
-
     <div class="container">
         <div class="page-header">
-            {% if g.user_session.user_ob %}
-            <h1>Collections owned by {{ g.user_session.user_ob.full_name }}</h1>
+            {% if g.user_session.logged_in %}
+            <h1>Collections owned by {{ g.user_session.user_name }}</h1>
             {% else %}
             <h1>Your Collections</h1>
             {% endif %}
@@ -36,7 +35,7 @@
         </div>
         <br>
         <div id="collections_list" style="width:50%;">
-        <table class="display dataTable nowrap" id='trait_table'>
+        <table class="table-hover table-striped cell-border" id='trait_table'>
             <thead>
                 <tr>
                     <th></th>
@@ -51,19 +50,24 @@
             <tbody>
             {% for uc in collections %}
                 <tr class="collection_line">
-                    {% if session.get("user", None) %}
-                    <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
+                    {% if g.user_session.logged_in %}
+                    <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
                     {% else %}
-                    <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.name }}"></td>
+                    <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.name }}"></td>
                     {% endif %}
                     <td align="right">{{ loop.index }}
-                    {% if g.user_session.user_ob %}
+                    {% if g.user_session.logged_in %}
                     <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
                     {% else %}
                     <td><a class="collection_name" href="{{ url_for('view_collection', collection_id=uc.id) }}">{{ uc.name }}</a></td>
                     {% endif %}
-		    <td>{{ timeago(datetime.strptime(uc.created_timestamp, '%b %d %Y %I:%M%p').isoformat() + "Z") }}</td>
-		    <td>{{ timeago(datetime.strptime(uc.changed_timestamp, '%b %d %Y %I:%M%p').isoformat() + "Z") }}</td>
+                    {% if g.user_session.logged_in %}
+                    <td>{{ uc.created_timestamp }}</td>
+                    <td>{{ uc.changed_timestamp }}</td>
+                    {% else %}
+                    <td>{{ timeago(uc.created_timestamp.isoformat() + "Z") }}</td>
+                    <td>{{ timeago(uc.changed_timestamp.isoformat() + "Z") }}</td>
+                    {% endif %}
                     <td align="right">{{ uc.num_members }}</td>
                 </tr>
             {% endfor %}

@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/snp_browser.css" />
+{% endblock %}
+{% block content %}
+
+  <div class="container-fluid">
+    <h2>Variant Browser <a class="btn btn-primary" href="http://genenetwork.org/snpbrowser.html" role="button">Info</a></h2>
+
+    <div class="container" style="border-style: double; position: relative; width: 950px; padding-top: 10px; padding-right: 40px;">
+      <form id="snp_browser_form" method="get" action="/snp_browser">
+        <input type="hidden" name="first_run" value="{{ first_run }}">
+        <input type="hidden" name="chosen_strains_mouse" value="{{ chosen_strains_mouse|join(",") }}">
+        <input type="hidden" name="chosen_strains_rat" value="{{ chosen_strains_rat|join(",") }}">
+        <div class="col-xs-4" style="padding-left: 0px;">
+          <div class="form-group row" style="margin-bottom: 5px;">
+            <label for="snp_or_indel" style="text-align: right;" class="col-xs-4 col-form-label"><b>Type:</b></label>
+            <div class="col-xs-8">
+              <select name="variant">
+                <option value="SNP" {% if variant_type == "SNP" %}selected{% endif %}>SNP</option>
+                <option value="InDel" {% if variant_type == "InDel" %}selected{% endif %}>InDel</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row" style="margin-bottom: 5px;">
+            <label for="species" style="text-align: right;" class="col-xs-4 col-form-label"><b>Species:</b></label>
+            <div class="col-xs-8">
+              <select id="species_select" name="species">
+                <option value="Mouse" {% if species_name == "Mouse" %}selected{% endif %}>Mouse</option>
+                <option value="Rat" {% if species_name == "Rat" %}selected{% endif %}>Rat</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row" style="margin-bottom: 5px;">
+            <label for="gene_or_id" style="text-align: right;" class="col-xs-4 col-form-label"><b>Gene or ID:</b></label>
+            <div class="col-xs-8">
+              <input type="text" name="gene_name" size="12" value="{{ gene_name }}">
+            </div>
+          </div>
+          <div class="form-group row">
+            <div style="text-align: center;"><b><font color="red">Or select</font></b></div>
+          </div>
+          <div class="form-group row" style="margin-bottom: 5px;">
+            <label for="chr" style="text-align: right;" class="col-xs-4 col-form-label"><b>Chr:</b></label>
+            <div class="col-xs-8">
+              <select name="chr">
+                {% for item in chr_list %}
+                <option value="{{ item }}" {% if item == chr %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group row" style="margin-bottom: 5px;">
+            <label for="start_mb" style="text-align: right;" class="col-xs-4 col-form-label"><b>Mb:</b></label>
+            <div class="col-xs-8">
+              <input type="text" name="start_mb" size="10" value="{{ start_mb }}">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="end_mb" style="text-align: right;" class="col-xs-4 col-form-label">to</label>
+            <div class="col-xs-8">
+              <input type="text" name="end_mb" size="10" value="{{ end_mb }}">
+            </div>
+          </div>
+          <hr>
+          <div class="form-group row">
+            <label class="col-xs-4 col-form-label"></label>
+            <div class="col-xs-8">
+              <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-4" style="padding-left: 0px;">
+          <div class="form-group row" style="margin-bottom: 10px;">
+            <label for="strains" style="text-align: right;" class="col-xs-4 col-form-label"><b>Strains:</b></label>
+            <div class="col-xs-8">
+              <select id="strain_select" name="strains" style="width: 70%;">
+                  {% if species_name == "Mouse" %}
+                  {% for strain in strain_lists['mouse'] %}
+                  <option value="{{ strain }}" {% if loop.index == 1 %}selected{% endif %}>{{ strain }}</option>
+                  {% endfor %}
+                  {% elif species_name == "Rat" %}
+                  {% for strain in strain_lists['rat'] %}
+                  <option value="{{ strain }}" {% if loop.index == 1 %}selected{% endif %}>{{ strain }}</option>
+                  {% endfor %}
+                  {% endif %}
+              </select>
+              <div style="float: right; line-height: 20px;">
+                <input class="btn btn-primary" type="button" name="add_strain" value="Add" style="vertical-align: middle;">
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="chosen_strains_select" style="text-align: right;" class="col-xs-4 col-form-label"><b><font color="red">Limit to:</font></b> <input type="checkbox" name="limit_strains" {% if limit_strains == "true" %}checked{% endif %} size="100"></label>
+            <div class="col-xs-8">
+              <select id="chosen_strains_select" size="11" style="width: 70%;">
+                {% for strain in chosen_strains %}
+                <option value="{{ strain }}">{{ strain }}</option>
+                {% endfor %}
+              </select>
+              <div style="float: right; line-height: 189px;">
+                <input class="btn btn-primary" type="button" name="remove_strain" value="Cut" style="vertical-align: middle;">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-4" style="padding-left: 20px;">
+          <div class="form-group row" style="margin-bottom: 5px;">
+            <label for="domain" style="text-align: right;" class="col-xs-4 col-form-label"><b>Domain:</b></label>
+            <div class="col-xs-8">
+              <select name="domain" size="4">
+                <option value="All" {% if domain == "All" %}selected{% endif %}>All</option>
+                <option value="Exon" {% if domain == "Exon" %}selected{% endif %}>Exon</option>
+                <option value="5' UTR" {% if domain == "5' UTR" %}selected{% endif %}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5' UTR</option>
+                <option value="Coding" {% if domain == "Coding" %}selected{% endif %}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Coding Region</option>
+                <option value="3' UTR" {% if domain == "3' UTR" %}selected{% endif %}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3' UTR</option>
+                <option value="Intron" {% if domain == "Intron" %}selected{% endif %}>Intron</option>
+                <option value="Splice Site" {% if domain == "Splice Site" %}selected{% endif %}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Splice Site</option>
+                <option value="Nonsplice Site" {% if domain == "Nonsplice Site" %}selected{% endif %}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nonsplice Site</option>
+                <option value="Upstream" {% if domain == "Upstream" %}selected{% endif %}>Upstream</option>
+                <option value="Downstream" {% if domain == "Downstream" %}selected{% endif %}>Downstream</option>
+                <option value="Intergenic" {% if domain == "Intergenic" %}selected{% endif %}>Intergenic</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row" style="margin-bottom: 5px;">
+            <label for="function" style="text-align: right;" class="col-xs-4 col-form-label"><b>Function:</b></label>
+            <div class="col-xs-8">
+              <select name="function" size="3">
+                <option value="All" {% if function == "All" %}selected{% endif %}>All</option>
+                <option value="Nonsynonymous" {% if function == "Nonsynonymous" %}selected{% endif %}>Nonsynonymous</option>
+                <option value="Synonymous" {% if function == "Synonymous" %}selected{% endif %}>Synonymous</option>
+                <option value="Start Gained" {% if function == "Start Gained" %}selected{% endif %}>Start Gained</option>
+                <option value="Start Lost" {% if function == "Start Lost" %}selected{% endif %}>Start Lost</option>
+                <option value="Stop Gained" {% if function == "Stop Gained" %}selected{% endif %}>Stop Gained</option>
+                <option value="Stop Lost" {% if function == "Stop Lost" %}selected{% endif %}>Stop Lost</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row" style="margin-bottom: 5px;">
+            <label for="source" style="text-align: right;" class="col-xs-4 col-form-label"><b>Source:</b></label>
+            <div class="col-xs-8">
+              <select name="source">
+                <option value="All" {% if source == "All" %}selected{% endif %}>All</option>
+                <option value="None" {% if source == "None" %}selected{% endif %}>None</option>
+                <option value="dbSNP" {% if source == "dbSNP" %}selected{% endif %}>dbSNP</option>
+                <option value="dbSNP (release 149)" {% if source == "dbSNP (release 149)" %}selected{% endif %}>dbSNP (release 149)</option>
+                <option value="Sanger/UCLA" {% if source == "Sanger/UCLA" %}selected{% endif %}>Sanger/UCLA</option>
+                <option value="UTHSC_CITG" {% if source == "UTHSC_CITG" %}selected{% endif %}>UTHSC_CITG</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="criteria" style="text-align: right;" class="col-xs-4 col-form-label"><b>ConScore:</b></label>
+            <div class="col-xs-8">
+              <select name="criteria" size="1">
+                <option value=">=" {% if criteria == ">=" %}selected{% endif %}>&gt;=</option>
+                <option value="==" {% if criteria == "==" %}selected{% endif %}>=</option>
+                <option value="<=" {% if criteria == "<=" %}selected{% endif %}>&lt;=</option>
+              </select>
+              <input type="text" name="score" value="{{ score }}" size="5">
+            </div>
+          </div>
+          <div class="form-group row" style="margin-bottom: 5px;">
+            <label style="text-align: right;" class="col-xs-4 col-form-label"><input type="checkbox" name="redundant" {% if redundant == "true" %}checked{% endif %}></label>
+            <div class="col-xs-8">
+              Non-redundant SNP Only
+            </div>
+          </div>
+          <div class="form-group row">
+            <label style="text-align: right;" class="col-xs-4 col-form-label"><input type="checkbox" name="diff_alleles" {% if diff_alleles == "true" %}checked{% endif %}></label>
+            <div class="col-xs-8">
+              Different Alleles Only
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div style="margin-top: 20px;">
+    {% if filtered_results is defined %}
+    {% if filtered_results|length > 5000 %}
+    There are more than 5000 results. Consider limiting your search to a smaller range.
+    {% else %}
+    <table class="dataTable cell-border nowrap" id="results_table" style="float: left;">
+      <thead>
+        <tr>
+          <th></th>
+          {% if header_fields|length == 2 %}
+          {% for header in header_fields[0] %}
+          <th data-export="{{ header }}">{{ header }}</th>
+          {% endfor %}
+          {% for strain in header_fields[1] %}
+          <th data-export="{{ strain }}" style="align: center; text-align: center; line-height: 15px;">{% for letter in strain %}<div style="transform: rotate(90deg);">{{ letter }}</div>{% endfor %}</th>
+          {% endfor %}
+          {% else %}
+          {% for header in header_fields %}
+          <th data-export="{{ header }}">{{ header }}</th>
+          {% endfor %}
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in table_rows %}
+        <tr>
+          <td><input type="checkbox" name="trait_check"></td>
+          <td align="right">{{ loop.index }}</td>
+          <td>{% if row.rs != "" %}<b><a href="{{ row.snp_url }}">{{ row.snp_name }}</a></b>{% else %}<a href="{{ row.snp_url }}">{{ row.snp_name }}</a>{% endif %}</td>
+          <td>{{ row.chr }}</td>
+          <td>{{ row.mb_formatted }}</td>
+          <td>{{ row.alleles }}</td>
+          <td>{% if row.snp_source == "Sanger/UCLA" %}<a href="{{ row.source_urls[0] }}">Sanger</a>/<a href="{{ row.source_urls[1] }}">UCLA</a>{% else %}{{ row.snp_source }}{% endif %}</td>
+          <td>{{ row.conservation_score }}</td>
+          <td>{% if row.gene_name != "" %}<i>{{ row.gene_name }}</i><br><a href="{{ row.gene_link }}">NCBI</a>{% else %}{% endif %}</td>
+          <td><a href="{{ row.transcript_link }}">{{ row.transcript }}</a></td>
+          <td>{{ row.exon }}</td>
+          <td>{{ row.domain_1 }}</td>
+          <td>{{ row.domain_2 }}</td>
+          <td>{{ row.function }}</td>
+          <td>{{ row.function_details }}</td>
+          {% for item in row.allele_value_list %}
+          <td style="background-color: {{ item[1] }};">{{ item[0] }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    {% endif %}     
+    </div>
+  </div>
+
+{% endblock %}
+{% block js %}
+  <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
+  <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+  <script language="javascript">
+
+    {% if filtered_results is defined %}
+    $("#results_table").DataTable( {
+      {% if variant_type == "SNP" %}
+      "columnDefs": [ {
+        "targets": [0, {% for n in range(15, 15 + allele_list|length) %}, {{ n }}{% endfor %}],
+        "orderable": false
+       } ],
+      {% else %}
+      "columnDefs": [ {
+        "targets": 0,
+        "orderable": false
+       } ],
+      {% endif %}
+      "order": [[1, "asc" ]],
+      "sDom": "tir",
+      "iDisplayLength": -1,
+      "autoWidth": true,
+      "paging": false
+    });
+    {% endif %}
+
+    $("#species_select").change(function() {
+        this_species = $(this).val();
+        $("#strain_select").empty()
+        $("#chosen_strains_select").empty()
+
+        if (this_species == "Mouse") {
+            {% for strain in strain_lists["mouse"] %}
+            var option = $('<option></option>').attr("value", "{{ strain }}").text("{{ strain }}");
+            $("select[name=strains]").append(option);
+            {% endfor %}
+
+            chosen_strains = $("input[name=chosen_strains_mouse]").val().split(",")
+        } else if (this_species == "Rat") {
+            {% for strain in strain_lists["rat"] %}
+            var option = $('<option></option>').attr("value", "{{ strain }}").text("{{ strain }}");
+            $("select[name=strains]").append(option);
+            {% endfor %}
+
+            chosen_strains = $("input[name=chosen_strains_rat]").val().split(",")
+        }
+
+        for (i=0; i < chosen_strains.length; i++) {
+            var option = $('<option></option>').attr("value", chosen_strains[i]).text(chosen_strains[i]);
+            $("#chosen_strains_select").append(option)
+        }
+    });
+
+    $("input[name=add_strain]").click(function() {
+      var selected_strain = $("select[name=strains] option:selected").val();
+      $("#chosen_strains_select").append("<option value='" + selected_strain + "'>" + selected_strain + "</option>");
+
+      var current_species = $("#species_select").val();
+      if (current_species == "Mouse") {
+          stored_strains = $("input[name=chosen_strains_mouse]").val().split(",")
+          stored_strains.push(selected_strain)
+          $("input[name=chosen_strains_mouse]").val(stored_strains.join(","))
+      } else if (current_species == "Rat") {
+          stored_strains = $("input[name=chosen_strains_rat]").val().split(",")
+          stored_strains.push(selected_strain)
+          $("input[name=chosen_strains_rat]").val(stored_strains.join(","))
+      }
+    });
+
+    $("input[name=remove_strain]").click(function() {
+      var selected_strain = $("#chosen_strains_select option:selected").val();
+      $("#chosen_strains_select option[value='" + selected_strain + "']").remove();
+
+      var current_species = $("#species_select").val();
+
+      if (current_species == "Mouse") {
+          stored_strains = $("input[name=chosen_strains_mouse]").val().split(",")
+          for (i=0; i < stored_strains.length; i++) {
+              if (stored_strains[i] == selected_strain) {
+                  stored_strains.splice(i, 1);
+                  break;
+              }
+          }
+          $("input[name=chosen_strains_mouse]").val(stored_strains.join(","))
+      } else if (current_species == "Rat") {
+          stored_strains = $("input[name=chosen_strains_rat]").val().split(",")
+          for (i=0; i < stored_strains.length; i++) {
+              if (stored_strains[i] == selected_strain) {
+                  stored_strains.splice(i, 1);
+                  break;
+              }
+          }
+          $("input[name=chosen_strains_rat]").val(stored_strains.join(","))
+      }
+    });
+
+    $("#snp_browser_form").submit(function() {
+      var strain_list = [];
+      $("#chosen_strains_select option").each(function() {
+        strain_list.push($(this).val());
+      });
+      $("input[name=chosen_strains]").val(strain_list.join(","));
+    });
+  </script>
+{% endblock %}
+

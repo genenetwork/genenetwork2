@@ -154,16 +154,4 @@ Stats = (function() {
 
 })();
 
-bxd_only = new Stats([3, 5, 7, 8]);
-
-console.log("[xred] bxd_only mean:", bxd_only.mean());
-
-console.log("[xgreen] bxd_only median:", bxd_only.median());
-
-console.log("[xpurple] bxd_only std_dev:", bxd_only.std_dev());
-
-console.log("[xmagenta] bxd_only std_error:", bxd_only.std_error());
-
-console.log("[xyellow] bxd_only min:", bxd_only.min());
-
 window.Stats = Stats;

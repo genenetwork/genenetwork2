@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Trait Data and Analysis{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
@@ -12,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.pips.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 
 {% endblock %}
 {% block content %} <!-- Start of body -->
@@ -35,6 +35,7 @@
         <input type="hidden" name="temp_uuid" id="temp_uuid" value="{{ temp_uuid }}">
         <input type="hidden" name="genofile" value="">
         <input type="hidden" name="covariates" value="">
+        <input type="hidden" name="transform" value="">
 
         <div class="container">
             <div class="panel-group" id="accordion">
@@ -51,7 +52,7 @@
                     </div>
                 </div>    
                 <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <div class="panel-heading stats_panel" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-down"></span> Statistics
                         </h3>
@@ -61,26 +62,38 @@
                             {% include 'show_trait_statistics.html' %}
                         </div>
                     </div>
-                </div>                
+                </div>
                 <div class="panel panel-default">
                     <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
+                        <h3 class="panel-title">
+                             <span class="glyphicon glyphicon-chevron-down"></span> Transform and Filter Data
+                        </h3>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            {% include 'show_trait_transform_and_filter.html' %}
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFour">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
                         </h3>
                     </div>
-                    <div id="collapseThree" class="panel-collapse collapse in">
+                    <div id="collapseFour" class="panel-collapse collapse in">
                         <div class="panel-body">
                             {% include 'show_trait_calculate_correlations.html' %}
                         </div>
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFour">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFive">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
                         </h3>
                     </div>
-                    <div id="collapseFour" class="panel-collapse collapse in">
+                    <div id="collapseFive" class="panel-collapse collapse in">
                         <div class="panel-body">
                             {% include 'show_trait_mapping_tools.html' %}
                         </div>
@@ -88,12 +101,12 @@
                     </div>
                 </div>                
                 <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFive" aria-expanded="true">
+                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseSix" aria-expanded="true">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
                         </h3>
                     </div>
-                    <div id="collapseFive" class="panel-collapse collapse" aria-expanded="true">
+                    <div id="collapseSix" class="panel-collapse collapse" aria-expanded="true">
                         <div class="panel-body">
                             {% include 'show_trait_edit_data.html' %}
                         </div>
@@ -191,10 +204,11 @@
                     "columns": [
                         { "bSortable": false },
                         { "type": "natural" },
-                        { "type": "natural" },
+                        { "type": "natural", "width": js_data.sample_column_width},
                         { "type": "cust-txt" },
                         { "bSortable": false },
-                        { "type": "cust-txt" }{% if sample_groups[0].attributes|length > 0 %},{% endif %}
+                        { "type": "cust-txt" }{% if has_num_cases %},
+                        { "type": "cust-txt" }{% endif %}{% if sample_groups[0].attributes|length > 0 %},{% endif %}
                         {% for attribute in sample_groups[0].attributes %}
                         { "type": "natural" }{% if loop.index < sample_groups[0].attributes|length %},{% endif %}
                         {% endfor %}
@@ -206,9 +220,9 @@
                     "order": [[1, "asc" ]],
                     "sDom": "RZtr",
                     "iDisplayLength": -1,
-                    "autoWidth": false,
+                    "autoWidth": true,
                     "bLengthChange": true,
-                    "bDeferRender": true,
+                    "deferRender": false,
                     "bSortClasses": false,
                     "scrollY": "600px",
                     "scrollCollapse": false,
@@ -219,13 +233,14 @@
                 } );
 
                 {% else %}
-                    
+
                 $('#samples_primary, #samples_other').DataTable( {
                     "columns": [
                         { "bSortable": false, "width": "8%" },
                         { "type": "natural", "width": "15%" },
                         { "type": "natural", "width": "25%" },
-                        { "type": "cust-txt", "width": "25%" }{% if sample_groups[0].attributes|length > 0 %},{% endif %}
+                        { "type": "cust-txt", "width": "25%" }{% if has_num_cases %},
+                        { "type": "cust-txt" }{% endif %}{% if sample_groups[0].attributes|length > 0 %},{% endif %}
                         {% for attribute in sample_groups[0].attributes %}
                         { "type": "natural" }{% if loop.index < sample_groups[0].attributes|length %},{% endif %}
                         {% endfor %}
@@ -237,9 +252,9 @@
                     "order": [[1, "asc" ]],
                     "sDom": "RZtr",
                     "iDisplayLength": -1,
-                    "autoWidth": false,
+                    "autoWidth": true,
                     "bLengthChange": true,
-                    "bDeferRender": true,
+                    "deferRender": false,
                     "bSortClasses": false,
                     "scrollY": "600px",
                     "scrollCollapse": false,
@@ -248,6 +263,7 @@
                     },
                     "paging": false
                 } );
+
                 {% endif %}
 
                 var slider = document.getElementById('p_range_slider');

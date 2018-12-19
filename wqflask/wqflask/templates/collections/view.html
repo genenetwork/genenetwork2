@@ -3,6 +3,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -29,10 +30,6 @@
                 {{ this_trait.name }}:{{ this_trait.dataset.name }},
             {% endfor %}" >
 
-                <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" >
-                Delete this collection
-                </button>
-
 
                 <button id="corr_matrix" class="btn btn-primary submit_special" data-url="/corr_matrix" title="Correlation Matrix" >
                     Correlation Matrix
@@ -58,6 +55,15 @@
                     Heatmap
                 </button>
 
+                <button id="comp_bar_chart" class="btn btn-primary submit_special" data-url="/comparison_bar_chart" title="Comparison Bar Chart" >
+                    Comparison Bar Chart
+                </button>
+
+
+                <button id="delete" class="btn btn-danger submit_special" style="margin-left: 15px;" data-url="/collections/delete" title="Delete this collection" >
+                    Delete Collection
+                </button>
+
           </form>
         </div>
 
@@ -66,8 +72,8 @@
             <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Add Record to Other Collection</button>
-            <button class="btn" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Remove Record</button>
+            <button class="btn btn-danger" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Delete From Collection</button>
+            <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Copy Record to Other Collection</button>
             <br />
             <br />
             <form id="export_form" method="POST" action="/export_traits_csv">
@@ -77,7 +83,7 @@
             </form>
             <br />
             <div>
-                <table class="display dataTable nowrap" id='trait_table' style="float: left;">
+                <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                     <thead>
                         <tr>
                             <th></th>
@@ -87,21 +93,21 @@
                             <th data-export="Description">Description</th>
                             <th data-export="Location">Location</th>
                             <th data-export="Mean">Mean</th>
-                            <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#L" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
+                            <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup>?</sup></a></th>
                             <th data-export="Max LRS Location">Max LRS Location</th>
-                            <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
+                            <th data-export="Add. Eff.">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup>?</sup></a></th>
                         </tr>
                     </thead>
 
                     <tbody>
                     {% for this_trait in trait_obs %}
                         <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                            <TD>
+                            <TD align="center" style="padding: 0px;">
                                 <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
                                        VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
                             </TD>
                             <TD data-export="{{ loop.index }}" align="right">{{ loop.index }}</TD>
-                            <TD data-export="{{ this_trait.dataset.name }}">{{ this_trait.dataset.name }}</TD>
+                            <TD title="{{ this_trait.dataset.fullname }}" data-export="{{ this_trait.dataset.fullname }}">{{ this_trait.dataset.fullname }}</TD>
                             <TD data-export="{{ this_trait.name }}">
                                 <a href="{{ url_for('show_trait_page',
                                         trait_id = this_trait.name,
@@ -154,23 +160,26 @@
             console.time("Creating table");
             $('#trait_table').dataTable( {
                 "createdRow": function ( row, data, index ) {
-                    $('td', row).eq(0).attr('style', 'padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;');
+                    if ($('td', row).eq(2).text().length > 40) {
+                        $('td', row).eq(2).text($('td', row).eq(2).text().substring(0, 40));
+                        $('td', row).eq(2).text($('td', row).eq(2).text() + '...')
+                    }
                     if ($('td', row).eq(4).text().length > 50) {
                         $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },
                 "columns": [
-                    { "type": "natural", "width": "2%" },
-                    { "type": "natural", "width": "5%" },
-                    { "type": "natural", "width": "12%" },
-                    { "type": "natural", "width": "12%" },
+                    { "type": "natural", "width": 10 },
+                    { "type": "natural", "width": 50 },
+                    { "type": "natural" },
+                    { "type": "natural", "width": 120 },
                     { "type": "natural"  },
-                    { "type": "natural", "width": "12%" },
-                    { "type": "natural", "width": "5%" },
-                    { "type": "natural", "width": "5%" },
-                    { "type": "natural", "width": "12%" },
-                    { "type": "natural", "width": "8%" }
+                    { "type": "natural", "width": 130 },
+                    { "type": "natural", "width": 35 },
+                    { "type": "natural", "width": 35 },
+                    { "type": "natural", "width": 130 },
+                    { "type": "natural" }
                 ],
                 "columnDefs": [ {
                     "targets": 0,
@@ -189,8 +198,6 @@
                 "autoWidth": false,
                 "bDeferRender": true,
                 "bSortClasses": false,
-                "scrollY": "600px",
-                "scrollCollapse": true,
                 "paging": false,
                 "orderClasses": true
             } );
@@ -239,6 +246,14 @@
                 return submit_special(url)
             });
             $("#heatmap").on("click", function() {
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+                url = $(this).data("url")
+                return submit_special(url)
+            });
+            $("#comp_bar_chart").on("click", function() {
                 traits = $("#trait_table input:checked").map(function() {
                     return $(this).val();
                 }).get();
