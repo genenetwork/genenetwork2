@@ -44,18 +44,6 @@ views.py).
         #   Names and IDs of group / F2 set
         ###########################################
 
-        # All Phenotypes is a special case we'll deal with later
-        #if kw['dataset'] == "All Phenotypes":
-        #    self.cursor.execute("""
-        #        select PublishFreeze.Name, InbredSet.Name, InbredSet.Id from PublishFreeze,
-        #        InbredSet where PublishFreeze.Name not like 'BXD300%' and InbredSet.Id =
-        #        PublishFreeze.InbredSetId""")
-        #    results = self.cursor.fetchall()
-        #    self.dataset = map(lambda x: DataSet(x[0], self.cursor), results)
-        #    self.dataset_groups = map(lambda x: x[1], results)
-        #    self.dataset_group_ids = map(lambda x: x[2], results)
-        #else:
-
         self.uc_id = uuid.uuid4()
         logger.debug("uc_id:", self.uc_id) # contains a unique id
 

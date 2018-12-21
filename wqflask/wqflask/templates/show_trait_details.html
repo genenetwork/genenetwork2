@@ -129,11 +129,6 @@
         <button type="button" class="btn btn-default" title="View SNPs and Indels">SNPs</button>
         </a>
         {% endif %}
-        {% if UTHSC_BLAT_URL != "" %}
-        <a href="{{ UTHSC_BLAT_URL }}">
-        <button type="button" class="btn btn-default" title="View probes, SNPs, and RNA-seq at UTHSC">RNA-seq</button>
-        </a>
-        {% endif %}
         {% if show_probes == "True" %}
         <a href="http://genenetwork.org/webqtl/main.py?FormID=showProbeInfo&database={{ this_trait.dataset.name }}&ProbeSetID={{ this_trait.name }}&CellID={{ this_trait.cellid }}&RISet={{ dataset.group.name }}&incparentsf1=ON">
         <button type="button" class="btn btn-default" title="Check sequence of probes">Probes</button>

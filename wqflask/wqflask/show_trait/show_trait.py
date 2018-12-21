@@ -185,8 +185,8 @@ class ShowTrait(object):
 
         #ZS: Get list of chromosomes to select for mapping
         self.chr_list = [["All", -1]]
-        for i, this_chr in enumerate(self.species.chromosomes.chromosomes):
-            self.chr_list.append([self.species.chromosomes.chromosomes[this_chr].name, i])
+        for i, this_chr in enumerate(self.dataset.species.chromosomes.chromosomes):
+            self.chr_list.append([self.dataset.species.chromosomes.chromosomes[this_chr].name, i])
 
         self.genofiles = get_genofiles(self.dataset)
 

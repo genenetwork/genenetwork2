@@ -93,12 +93,24 @@ $(function() {
     traits = $("#trait_table input:checked").map(function() {
       return $(this).val();
     }).get();
-    console.log("checked length is:", traits.length);
-    console.log("checked is:", traits);
-    return $.colorbox({
-      href: "/collections/add?traits=" + traits
+
+    var traits_hash = md5(traits.toString());
+
+    $.ajax({
+          type: "POST",
+          url: "/collections/store_trait_list",
+          data: {
+            hash: traits_hash,
+            traits: traits.toString()
+          }
     });
+
+    return $.colorbox({
+      href: "/collections/add?hash=" + traits_hash
+    });
+
   };
+
   removed_traits = function() {
     console.log('in removed_traits with checked_traits:', checked_traits);
     return checked_traits.closest("tr").fadeOut();

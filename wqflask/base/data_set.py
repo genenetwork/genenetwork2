@@ -371,23 +371,16 @@ class DatasetGroup(object):
             result = Redis.get(key)
 
         if result is not None:
-            #logger.debug("Sample List Cache hit!!!")
-            #logger.debug("Before unjsonifying {}: {}".format(type(result), result))
             self.samplelist = json.loads(result)
-            #logger.debug("  type: ", type(self.samplelist))
-            #logger.debug("  self.samplelist: ", self.samplelist)
         else:
             logger.debug("Cache not hit")
 
             genotype_fn = locate_ignore_error(self.name+".geno",'genotype')
-            mapping_fn = locate_ignore_error(self.name+".fam",'mapping')
-            if mapping_fn:
-                self.samplelist = get_group_samplelists.get_samplelist("plink", mapping_fn)
-            elif genotype_fn:
+            if genotype_fn:
                 self.samplelist = get_group_samplelists.get_samplelist("geno", genotype_fn)
             else:
                 self.samplelist = None
-            logger.debug("Sample list: ",self.samplelist)
+
             if USE_REDIS:
                 Redis.set(key, json.dumps(self.samplelist))
                 Redis.expire(key, 60*5)

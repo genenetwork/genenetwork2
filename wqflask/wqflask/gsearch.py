@@ -91,6 +91,7 @@ class GSearch(object):
                 InbredSet.`Name`,
                 PublishFreeze.`Name`,
                 PublishXRef.`Id`,
+                Phenotype.`Pre_publication_description`,
                 Phenotype.`Post_publication_description`,
                 Publication.`Authors`,
                 Publication.`Year`,
@@ -126,23 +127,26 @@ class GSearch(object):
                     this_trait['dataset'] = line[2]
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
-                    this_trait['description'] = line[4]
-                    this_trait['authors'] = line[5]
-                    this_trait['year'] = line[6]
+                    if line[8] != None:
+                        this_trait['description'] = line[5]
+                    else:
+                        this_trait['description'] = line[4]
+                    this_trait['authors'] = line[6]
+                    this_trait['year'] = line[7]
                     if this_trait['year'].isdigit():
                         this_trait['pubmed_text'] = this_trait['year']
                     else:
                         this_trait['pubmed_text'] = "N/A"
-                    if line[7] != "" and line[7] != None:
-                        this_trait['pubmed_link'] = webqtlConfig.PUBMEDLINK_URL % line[7]
+                    if line[8] != "" and line[8] != None:
+                        this_trait['pubmed_link'] = webqtlConfig.PUBMEDLINK_URL % line[8]
                     else:
                         this_trait['pubmed_link'] = "N/A"
                     this_trait['LRS_score_repr'] = "N/A"
-                    if line[8] != "" and line[8] != None:
-                        this_trait['LRS_score_repr'] = '%3.1f' % line[8]
+                    if line[9] != "" and line[9] != None:
+                        this_trait['LRS_score_repr'] = '%3.1f' % line[9]
                     this_trait['additive'] = "N/A"
-                    if line[9] != "":
-                        this_trait['additive'] = line[9]
+                    if line[10] != "":
+                        this_trait['additive'] = line[10]
 
                     #dataset = create_dataset(line[2], "Publish")
                     #trait_id = line[3]

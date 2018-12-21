@@ -46,7 +46,7 @@ class SampleList(object):
             sample_name = sample_name.replace("_2nd_", "")
 
             if type(self.this_trait) is list: #ZS: self.this_trait will be a list if it is a Temp trait
-                if counter <= len(self.this_trait) and self.this_trait[counter-1] != 'X':
+                if counter <= len(self.this_trait) and str(self.this_trait[counter-1]).upper() != 'X':
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name, value=float(self.this_trait[counter-1]))
                 else:
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)

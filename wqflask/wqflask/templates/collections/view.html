@@ -59,6 +59,9 @@
                     Comparison Bar Chart
                 </button>
 
+                <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >
+                    BNW
+                </button>
 
                 <button id="delete" class="btn btn-danger submit_special" style="margin-left: 15px;" data-url="/collections/delete" title="Delete this collection" >
                     Delete Collection
@@ -138,6 +141,7 @@
 {% endblock %}
 
 {% block js %}
+    <script type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
@@ -254,6 +258,15 @@
                 return submit_special(url)
             });
             $("#comp_bar_chart").on("click", function() {
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+                url = $(this).data("url")
+                return submit_special(url)
+            });
+
+            $("#send_to_bnw").on("click", function() {
                 traits = $("#trait_table input:checked").map(function() {
                     return $(this).val();
                 }).get();
