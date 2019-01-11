@@ -215,7 +215,7 @@
             <tbody>
               {% for marker in trimmed_markers %}
               <tr>
-                <td align="center" style="padding-right: 0px; padding-left: 0px;">
+                <td align="center" style="padding: 1px 0px 1px 0px;">
                   <input type="checkbox" name="selectCheck"
                          class="checkbox trait_checkbox"
                          value="{{ data_hmac('{}:{}Geno'.format(marker.name, dataset.group.name)) }}">
@@ -269,7 +269,11 @@
               {% for row in gene_table_body %}
               <tr>
                 {% for n in range(row|length) %}
+                {% if n == 0 %}
+                <td align="center" style="padding: 1px 0px 1px 0px;">{{ row[n]|safe }}</td>
+                {% else %}
                 <td>{{ row[n]|safe }}</td>
+                {% endif %}
                 {% endfor %}
               </tr>
               {% endfor %}
@@ -339,6 +343,19 @@
             } );
 
             $('#interval_analyst').dataTable( {
+                "columns": [
+                    { "bSortable": false},
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
                 "columnDefs": [ {
                     "targets": 0,
                     "sortable": false

@@ -51,11 +51,19 @@ class SnpBrowser(object):
             if self.species_name.capitalize() == "Rat":
                 self.species_id = 2
 
-        species_ob = species.TheSpecies(species_name=self.species_name)
+        self.mouse_chr_list = []
+        self.rat_chr_list = []
+        mouse_species_ob = species.TheSpecies(species_name="Mouse")
+        for key in mouse_species_ob.chromosomes.chromosomes:
+            self.mouse_chr_list.append(mouse_species_ob.chromosomes.chromosomes[key].name)
+        rat_species_ob = species.TheSpecies(species_name="Rat")
+        for key in rat_species_ob.chromosomes.chromosomes:
+            self.rat_chr_list.append(rat_species_ob.chromosomes.chromosomes[key].name)
 
-        self.chr_list = []
-        for key in species_ob.chromosomes.chromosomes:
-            self.chr_list.append(species_ob.chromosomes.chromosomes[key].name)
+        if self.species_id == 1:
+            self.this_chr_list = self.mouse_chr_list
+        else:
+            self.this_chr_list = self.rat_chr_list
 
         if self.first_run == "true":
             self.chr = "19"
@@ -213,7 +221,7 @@ class SnpBrowser(object):
                 query = rat_query
 
         elif self.variant_type == "InDel":
-            if species_id != 0:
+            if self.species_id != 0:
                 query = """
                            SELECT
                                DISTINCT a.Name, a.Chromosome, a.SourceId, a.Mb_start, a.Mb_end, a.Strand, a.Type, a.Size, a.InDelSequence, b.Name
@@ -289,7 +297,12 @@ class SnpBrowser(object):
                         domain = [key, '']
 
                     if 'Intergenic' in domain:
-                        gene = transcript = exon = function = function_details = ''
+                        if self.gene_name != "":
+                            gene_id = get_gene_id(self.species_id, self.gene_name)
+                            gene = [gene_id, self.gene_name]
+                        else:
+                            gene = ""
+                        transcript = exon = function = function_details = ''
                         if self.redundant == "false" or last_mb != mb: # filter redundant
                             if self.include_record(domain, function, snp_source, conservation_score):
                                 info_list = [snp_name, rs, chr, mb, alleles, gene, transcript, exon, domain, function, function_details, snp_source, conservation_score, snp_id]
@@ -325,7 +338,7 @@ class SnpBrowser(object):
                                     filtered_results.append(info_list)
                             last_mb = mb
 
-            elif self.variant == "InDel":
+            elif self.variant_type == "InDel":
                 # The order of variables is important; this applies to anything from the variant table as indel
                 indel_name, indel_chr, source_id, indel_mb_start, indel_mb_end, indel_strand, indel_type, indel_size, indel_sequence, source_name = result
 
@@ -354,7 +367,7 @@ class SnpBrowser(object):
                     if gene_name and (gene_name not in gene_name_list):
                         gene_name_list.append(gene_name)
             if len(gene_name_list) > 0:
-                gene_id_name_dict = get_gene_id_name_dict(gene_name_list)
+                gene_id_name_dict = get_gene_id_name_dict(self.species_id, gene_name_list)
 
         the_rows = []
         for result in self.filtered_results:
@@ -395,7 +408,7 @@ class SnpBrowser(object):
                         gene_id = gene_id_name_dict[gene[1]]
                         gene_link = webqtlConfig.NCBI_LOCUSID % gene_id
                     else:
-                        gene_link = "http://www.ncbi.nln.nih.gov/entrez/query.fcgi?CMD=search&DB=gene&term=%s" % gene_name
+                        gene_link = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=gene&term=%s" % gene_name
                 else:
                     gene_name = ""
                     gene_link = ""
@@ -408,13 +421,16 @@ class SnpBrowser(object):
                 if exon:
                     exon = exon[1] # exon[0] is exon_id, exon[1] is exon_rank
                 else:
-                    exon = "1"
+                    exon = ""
 
                 if domain:
                     domain_1 = domain[0]
                     domain_2 = domain[1]
-                    if domain_1 == "Exon":
-                        domain_1 = domain_1 + " " + exon
+                    if domain_1 == "Intergenic" and self.gene_name != "":
+                        domain_1 = self.gene_name
+                    else:
+                        if domain_1 == "Exon":
+                            domain_1 = domain_1 + " " + exon
 
                 function_list = []
                 if function_details:
@@ -759,7 +775,24 @@ def get_effect_info(effect_list):
 
     return effect_info_dict
 
-def get_gene_id_name_dict(gene_name_list):
+def get_gene_id(species_id, gene_name):
+    query = """
+                SELECT
+                        geneId
+                FROM
+                        GeneList
+                WHERE
+                        SpeciesId = %s AND geneSymbol = '%s'
+            """ % (species_id, gene_name)
+
+    result = g.db.execute(query).fetchone()
+
+    if len(result) > 0:
+        return result
+    else:
+        return ""
+
+def get_gene_id_name_dict(species_id, gene_name_list):
     gene_id_name_dict = {}
     if len(gene_name_list) == 0:
         return ""
@@ -772,8 +805,8 @@ def get_gene_id_name_dict(gene_name_list):
                 FROM
                         GeneList
                 WHERE
-                        SpeciesId = 1 AND geneSymbol in (%s)
-            """ % gene_name_str
+                        SpeciesId = %s AND geneSymbol in (%s)
+            """ % (species_id, gene_name_str)
 
     results = g.db.execute(query).fetchall()
 

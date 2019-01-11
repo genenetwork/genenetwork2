@@ -108,7 +108,12 @@ $(function() {
   dataset_info = function() {
     var dataset, url;
     accession_id = $('#dataset option:selected').data("id");
-    url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + accession_id;
+    if (accession_id != "None") {
+      url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + accession_id;
+    } else {
+      name = $('#dataset option:selected').val();
+      url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + name;
+    }
     return open_window(url, "Dataset Info");
   };
   $('#dataset_info').click(dataset_info);

@@ -131,8 +131,8 @@
       <br>
       <div id="scatterplot2"></div>
       <br>
-      <div class="row" style="width: 70%;">
-      <div class="col-xs-3">
+      <div class="row" style="width: 70%; overflow: hidden;">
+      <div style="float: left;">
       <table class="table table-hover table-striped table-bordered" style="width: 80%; margin-left: 60px; text-align: right;">
         <thead>
           <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
@@ -168,7 +168,7 @@
         </tbody>
       </table>
       </div>
-      <div class="col-xs-9">
+      <div style="padding-left: 40px; overflow: hidden;">
         {% if trait_1.dataset.type == "ProbeSet" %}
         <div>
           X axis:
@@ -227,7 +227,7 @@
       <div id="srscatterplot2"></div>
       <br>
       <div class="row" style="width: 70%;">
-      <div class="col-xs-3">
+      <div style="float: left;">
         <table class="table table-hover table-striped table-bordered" style="width: 80%; margin-left: 60px; text-align: right;">
           <thead>
             <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
@@ -256,7 +256,7 @@
           </tbody>
         </table>
       </div>
-      <div class="col-xs-9">
+      <div style="padding-left: 40px; overflow: hidden;">
         {% if trait_1.dataset.type == "ProbeSet" %}
         <div>
           X axis:

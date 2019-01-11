@@ -109,6 +109,7 @@ Publish or ProbeSet. E.g.
                         else:
                             new_type = "ProbeSet"
                         self.datasets[short_dataset_name] = new_type
+
         # Set LOG_LEVEL_DEBUG=5 to see the following:
         logger.debugf(5, "datasets",self.datasets)
 
@@ -450,12 +451,14 @@ def datasets(group_name, this_group = None):
             and InbredSet.Name like %s
             and ProbeSetFreeze.public > %s
             and ProbeSetFreeze.confidentiality < 1
-          ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
+          ORDER BY Tissue.Name)
         ''' % (group_name, webqtlConfig.PUBLICTHRESH,
               group_name, webqtlConfig.PUBLICTHRESH,
               "'" + group_name + "'", webqtlConfig.PUBLICTHRESH))
 
-    for dataset_item in the_results:
+    sorted_results = sorted(the_results, key=lambda kv: kv[0])
+
+    for dataset_item in sorted_results:
         tissue_name = dataset_item[0]
         dataset = dataset_item[1]
         dataset_short = dataset_item[2]

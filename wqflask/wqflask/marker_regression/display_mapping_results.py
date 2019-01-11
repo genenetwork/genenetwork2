@@ -2083,7 +2083,7 @@ class DisplayMappingResults(object):
                 tableIterationsCnt = tableIterationsCnt + 1
 
                 this_row = [] #container for the cells of each row
-                selectCheck = HT.Input(type="checkbox", name="searchResult", value=theGO["GeneSymbol"], Class="checkbox", onClick="highlight(this)") #checkbox for each row
+                selectCheck = HT.Input(type="checkbox", name="searchResult", value=theGO["GeneSymbol"], Class="checkbox trait_checkbox") #checkbox for each row
 
                 geneLength = (theGO["TxEnd"] - theGO["TxStart"])*1000.0
                 tenPercentLength = geneLength*0.0001

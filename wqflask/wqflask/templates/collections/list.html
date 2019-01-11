@@ -9,7 +9,7 @@
 {% block content %}
 <!-- Start of body -->
     {% if g.user_session.logged_in %}
-    {{ header("Your Collections",
+    {{ header("Collections owned by {{ g.user_session.user_name }}",
         'You have {}.'.format(numify(collections|count, "collection", "collections"))) }}
     {% else %}
     {{ header("Your Collections",
@@ -17,6 +17,7 @@
     {% endif %}
 
     <div class="container">
+        <!--
         <div class="page-header">
             {% if g.user_session.logged_in %}
             <h1>Collections owned by {{ g.user_session.user_name }}</h1>
@@ -24,6 +25,7 @@
             <h1>Your Collections</h1>
             {% endif %}
         </div>
+        -->
         <div>
             <form id="collections_form" action="/delete" method="post">
               <input type="hidden" name="uc_id" id="uc_id" value="" />

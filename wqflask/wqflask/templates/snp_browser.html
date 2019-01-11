@@ -30,6 +30,7 @@
               <select id="species_select" name="species">
                 <option value="Mouse" {% if species_name == "Mouse" %}selected{% endif %}>Mouse</option>
                 <option value="Rat" {% if species_name == "Rat" %}selected{% endif %}>Rat</option>
+                <option value="Human" disabled>Human</option>
               </select>
             </div>
           </div>
@@ -45,8 +46,8 @@
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="chr" style="text-align: right;" class="col-xs-4 col-form-label"><b>Chr:</b></label>
             <div class="col-xs-8">
-              <select name="chr">
-                {% for item in chr_list %}
+              <select id="chr_select" name="chr">
+                {% for item in this_chr_list %}
                 <option value="{{ item }}" {% if item == chr %}selected{% endif %}>{{ item }}</option>
                 {% endfor %}
               </select>
@@ -204,6 +205,7 @@
       </thead>
       <tbody>
         {% for row in table_rows %}
+        {% if variant_type == "SNP" %}
         <tr>
           <td><input type="checkbox" name="trait_check"></td>
           <td align="right">{{ loop.index }}</td>
@@ -224,6 +226,21 @@
           <td style="background-color: {{ item[1] }};">{{ item[0] }}</td>
           {% endfor %}
         </tr>
+        {% else %}
+        <tr>
+          <td><input type="checkbox" name="trait_check"></td>
+          <td align="right">{{ loop.index }}</td>
+          <td>{{ row.indel_name }}</td>
+          <td>{{ row.indel_type }}</td>
+          <td>{{ row.indel_chr }}</td>
+          <td>{{ row.indel_mb_s }}</td>
+          <td>{{ row.indel_mb_e }}</td>
+          <td>{{ row.indel_strand }}</td>
+          <td>{{ row.indel_size }}</td>
+          <td>{{ row.indel_sequence }}</td>
+          <td>{{ row.source_name }}</td>
+        </tr>
+        {% endif %}
         {% endfor %}
       </tbody>
     </table>
@@ -263,6 +280,7 @@
         this_species = $(this).val();
         $("#strain_select").empty()
         $("#chosen_strains_select").empty()
+        $("#chr_select").empty()
 
         if (this_species == "Mouse") {
             {% for strain in strain_lists["mouse"] %}
@@ -270,11 +288,21 @@
             $("select[name=strains]").append(option);
             {% endfor %}
 
+            {% for chr in mouse_chr_list %}
+            var option = $('<option></option>').attr("value", "{{ chr }}").text("{{ chr }}");
+            $("select[name=chr]").append(option);
+            {% endfor %}
+
             chosen_strains = $("input[name=chosen_strains_mouse]").val().split(",")
         } else if (this_species == "Rat") {
             {% for strain in strain_lists["rat"] %}
             var option = $('<option></option>').attr("value", "{{ strain }}").text("{{ strain }}");
             $("select[name=strains]").append(option);
+            {% endfor %}
+
+            {% for chr in rat_chr_list %}
+            var option = $('<option></option>').attr("value", "{{ chr }}").text("{{ chr }}");
+            $("select[name=chr]").append(option);
             {% endfor %}
 
             chosen_strains = $("input[name=chosen_strains_rat]").val().split(",")
