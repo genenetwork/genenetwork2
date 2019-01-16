@@ -182,7 +182,7 @@
 
     <div style="margin-top: 20px;">
     {% if filtered_results is defined %}
-    {% if filtered_results|length > 5000 %}
+    {% if filtered_results|length > limit_number %}
     There are more than 5000 results. Consider limiting your search to a smaller range.
     {% else %}
     <table class="dataTable cell-border nowrap" id="results_table" style="float: left;">
@@ -204,44 +204,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for row in table_rows %}
-        {% if variant_type == "SNP" %}
-        <tr>
-          <td><input type="checkbox" name="trait_check"></td>
-          <td align="right">{{ loop.index }}</td>
-          <td>{% if row.rs != "" %}<b><a href="{{ row.snp_url }}">{{ row.snp_name }}</a></b>{% else %}<a href="{{ row.snp_url }}">{{ row.snp_name }}</a>{% endif %}</td>
-          <td>{{ row.chr }}</td>
-          <td>{{ row.mb_formatted }}</td>
-          <td>{{ row.alleles }}</td>
-          <td>{% if row.snp_source == "Sanger/UCLA" %}<a href="{{ row.source_urls[0] }}">Sanger</a>/<a href="{{ row.source_urls[1] }}">UCLA</a>{% else %}{{ row.snp_source }}{% endif %}</td>
-          <td>{{ row.conservation_score }}</td>
-          <td>{% if row.gene_name != "" %}<i>{{ row.gene_name }}</i><br><a href="{{ row.gene_link }}">NCBI</a>{% else %}{% endif %}</td>
-          <td><a href="{{ row.transcript_link }}">{{ row.transcript }}</a></td>
-          <td>{{ row.exon }}</td>
-          <td>{{ row.domain_1 }}</td>
-          <td>{{ row.domain_2 }}</td>
-          <td>{{ row.function }}</td>
-          <td>{{ row.function_details }}</td>
-          {% for item in row.allele_value_list %}
-          <td style="background-color: {{ item[1] }};">{{ item[0] }}</td>
-          {% endfor %}
-        </tr>
-        {% else %}
-        <tr>
-          <td><input type="checkbox" name="trait_check"></td>
-          <td align="right">{{ loop.index }}</td>
-          <td>{{ row.indel_name }}</td>
-          <td>{{ row.indel_type }}</td>
-          <td>{{ row.indel_chr }}</td>
-          <td>{{ row.indel_mb_s }}</td>
-          <td>{{ row.indel_mb_e }}</td>
-          <td>{{ row.indel_strand }}</td>
-          <td>{{ row.indel_size }}</td>
-          <td>{{ row.indel_sequence }}</td>
-          <td>{{ row.source_name }}</td>
-        </tr>
-        {% endif %}
-        {% endfor %}
+      <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
       </tbody>
     </table>
     {% endif %}
@@ -253,26 +216,165 @@
 {% block js %}
   <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
   <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+
+  <script type='text/javascript'>
+      var json_rows = {{ table_rows|safe }};
+      var empty_columns = {{ empty_columns|safe }};
+  </script>
+
   <script language="javascript">
 
     {% if filtered_results is defined %}
     $("#results_table").DataTable( {
+      'data': json_rows,
       {% if variant_type == "SNP" %}
-      "columnDefs": [ {
-        "targets": [0, {% for n in range(15, 15 + allele_list|length) %}, {{ n }}{% endfor %}],
-        "orderable": false
-       } ],
+      'columns': [
+        {
+          'data': null,
+          'orderable': false,
+          'render': function(data, type, row, meta) {
+            return '<input type="checkbox" name="trait_check">'
+          }
+        }, {
+          'data': 'index'
+        }, {
+          'data': null,
+          'render': function(data, type, row, meta) {
+            if (data.rs != "") {
+              return '<b><a href="' + data.snp_url + '">' + data.snp_name + '</a></b>'
+            } else {
+              return '<a href="' + data.snp_url + '">' + data.snp_name + '</a>'
+            }
+          }
+        }, {
+          'data': 'chr'
+        }, {
+          'data': 'mb_formatted'
+        }, {
+          'data': 'alleles'
+        }, {% if empty_columns['snp_source'] == "true" %}{
+          'data': null,
+          'render': function(data, type, row, meta) {
+            if (data.snp_source == "Sanger/UCLA") {
+              return '<a href="' + data.source_urls[0] + '">Sanger</a><a href="' + data.source_urls[1] + '">UCLA</a>'
+            } else {
+              return data.snp_source
+            }
+          }
+        }, {% endif %} {% if empty_columns['conservation_score'] == "true" %}{
+          'data': 'conservation_score'
+        }, {% endif %} {% if empty_columns['gene_name'] == "true" %}{
+          'data': null,
+          'render': function(data, type, row, meta) {
+            if (data.gene_name != "") {
+              return '<i>' + data.gene_name + '</i><br><a href="' + data.gene_link + '">NCBI</a>'
+            } else {
+              return data.gene_name
+            }
+          }
+        }, {% endif %} {% if empty_columns['transcript'] == "true" %}{
+          'data': null,
+          'render': function(data, type, row, meta) {
+            if (data.transcript != "") {
+              return '<a href="' + data.transcript_link + '">' + data.transcript + '</a>'
+            } else {
+              return data.transcript
+            }
+          }
+        }, {% endif %} {% if empty_columns['exon'] == "true" %}{
+          'data': 'exon'
+        }, {% endif %}{
+          'data': 'domain_1'
+        }, {% if empty_columns['domain_2'] == "true" %}{
+          'data': 'domain_2'
+        }, {% endif %} {% if empty_columns['function'] == "true" %}{
+          'data': 'function'
+        }, {% endif %} {% if empty_columns['function_details'] == "true" %}{
+          'data': 'function_details'
+        }, {% endif %} {% for item in allele_list %} {
+          'data': null,
+          'orderable': false,
+          'render': function(data, type, row, meta) {
+            if (typeof data.allele_value_list[{{ loop.index - 1 }}][0] !== "undefined") {
+              return data.allele_value_list[{{ loop.index - 1 }}][0]
+            } else {
+              return ''
+            }
+          }
+        }{% if loop.index < allele_list|length %},{% endif %}{% endfor %}
+      ],
+      'createdRow': function( row, data, dataIndex) {
+        $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
+        $('td', row).eq(1).attr("align", "right");
+        for (i = {{ 15 - empty_field_count }}; i < ({{ 15 - empty_field_count }} + {{ allele_list|length }}); i++) {
+          var this_allele = $('td', row).eq(i).text();
+          $('td', row).eq(i).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
+          switch (this_allele) {
+            case "A":
+              $('td', row).eq(i).addClass('A_allele_color');
+              break;
+            case "C":
+              $('td', row).eq(i).addClass('C_allele_color');
+              break;
+            case "T":
+              $('td', row).eq(i).addClass('T_allele_color');
+              break;
+            case "G":
+              $('td', row).eq(i).addClass('G_allele_color');
+              break;
+            case "t":
+              $('td', row).eq(i).addClass('t_allele_color');
+              break;
+            case "c":
+              $('td', row).eq(i).addClass('c_allele_color');
+              break;
+            case "a":
+              $('td', row).eq(i).addClass('a_allele_color');
+              break;
+            case "g":
+              $('td', row).eq(i).addClass('g_allele_color');
+              break;
+            default:
+              $('td', row).eq(i).addClass('default_allele_color');
+          }
+        }
+      },
       {% else %}
-      "columnDefs": [ {
-        "targets": 0,
-        "orderable": false
-       } ],
+      'columns': [
+        {
+          'data': null,
+          'render': function(data, type, row, meta) {
+            return '<input type="checkbox" name="trait_check">'
+          }
+        }, {
+          'data': 'indel_name'
+        }, {
+          'data': 'indel_type'
+        }, {
+          'data': 'indel_chr'
+        }, {
+          'data': 'indel_mb_s'
+        }, {
+          'data': 'indel_mb_e'
+        }, {
+          'data': 'strand'
+        }, {
+          'data': 'size'
+        }, {
+          'data': 'sequence'
+        }, {
+          'data': 'source_name'
+        }
+      ],
       {% endif %}
-      "order": [[1, "asc" ]],
-      "sDom": "tir",
-      "iDisplayLength": -1,
-      "autoWidth": true,
-      "paging": false
+      'order': [[1, "asc" ]],
+      'sDom': "rti",
+      'iDisplayLength': -1,
+      'processing': true,
+      'language': {
+        'loadingRecords': '&nbsp;',
+        'processing': 'Loading...'
+      }
     });
     {% endif %}
 
