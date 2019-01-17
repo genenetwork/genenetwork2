@@ -112,25 +112,27 @@
         </a>
         {% if this_trait.dataset.type == 'ProbeSet' %}
         {% if this_trait.symbol != None %}
-        <a href="http://www.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}">
+        <a target="_blank" href="http://www.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}">
         <button type="button" class="btn btn-default" title="Find similar expression data">Find</button>
         </a>
         {% endif %}
         {% if UCSC_BLAT_URL != "" %}
-        <a href="{{ UCSC_BLAT_URL }}">
+        <a target="_blank" href="{{ UCSC_BLAT_URL }}">
         <button type="button" class="btn btn-default" title="Check probe locations at UCSC">Verify</button>
         </a>
         {% endif %}
         {% if this_trait.symbol != None %}
-        <a href="http://genenetwork.org/webqtl/main.py?FormID=geneWiki&symbol={{ this_trait.symbol }}">
+        <a target="_blank" href="http://genenetwork.org/webqtl/main.py?FormID=geneWiki&symbol={{ this_trait.symbol }}">
         <button type="button" class="btn btn-default" title="Write or review comments about this gene">GeneWiki</button>
         </a>
-        <a href="http://genenetwork.org/webqtl/main.py?FormID=SnpBrowserResultPage&submitStatus=1&diffAlleles=True&customStrain=True&geneName={{ this_trait.symbol }}">
+        {% if dataset.group.species == "mouse" or dataset.group.species == "rat" %}
+        <a href="./snp_browser?first_run=true&species={{ dataset.group.species }}&gene_name={{ this_trait.symbol }}&limit_strains=on">
         <button type="button" class="btn btn-default" title="View SNPs and Indels">SNPs</button>
         </a>
         {% endif %}
+        {% endif %}
         {% if show_probes == "True" %}
-        <a href="http://genenetwork.org/webqtl/main.py?FormID=showProbeInfo&database={{ this_trait.dataset.name }}&ProbeSetID={{ this_trait.name }}&CellID={{ this_trait.cellid }}&RISet={{ dataset.group.name }}&incparentsf1=ON">
+        <a target="_blank" href="http://genenetwork.org/webqtl/main.py?FormID=showProbeInfo&database={{ this_trait.dataset.name }}&ProbeSetID={{ this_trait.name }}&CellID={{ this_trait.cellid }}&RISet={{ dataset.group.name }}&incparentsf1=ON">
         <button type="button" class="btn btn-default" title="Check sequence of probes">Probes</button>
         </a>
         {% endif %}

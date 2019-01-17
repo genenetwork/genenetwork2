@@ -14,7 +14,7 @@ div.sample_group {
   left: 100px;
 }
 
-table.dataTable thead th{
+table.dataTable thead th, table.dataTable tfoot th{
   border-right: 1px solid white;
   color: white;
   background-color: #369;
@@ -27,7 +27,7 @@ table.dataTable thead .sorting_desc {
   background-image: url("../packages/DataTables/images/sort_desc_disabled.png");
 }
 
-table.dataTable thead th {
+table.dataTable thead th, table.dataTable tfoot {
   padding: 4px 18px 4px 10px;
 }
 
