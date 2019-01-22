@@ -1158,22 +1158,24 @@ class DisplayMappingResults(object):
         plotRight = xRightOffset
 
 #### find out PlotRight
-        for i, _locus in enumerate(self.genotype[0]):
-            txStart = self.genotype[0][i].Mb
-            txEnd   = self.genotype[0][i].Mb
+        for i, _chr in enumerate(self.genotype):
+            if _chr.name == self.ChrList[self.selectedChr][0]:
+                for j, _locus in enumerate(_chr):
+                    txStart = _chr[j].Mb
+                    txEnd   = _chr[j].Mb
 
-            geneStartPix = xLeftOffset + plotXScale*(float(txStart) - startMb)  - 0
-            geneEndPix = xLeftOffset + plotXScale*(float(txEnd) - startMb) - 0
+                    geneStartPix = xLeftOffset + plotXScale*(float(txStart) - startMb)  - 0
+                    geneEndPix = xLeftOffset + plotXScale*(float(txEnd) - startMb) - 0
 
-            drawit = 1
-            if (geneStartPix < xLeftOffset):
-                drawit = 0;
-            if (geneStartPix > xLeftOffset + plotWidth):
-                drawit = 0;
+                    drawit = 1
+                    if (geneStartPix < xLeftOffset):
+                        drawit = 0;
+                    if (geneStartPix > xLeftOffset + plotWidth):
+                        drawit = 0;
 
-            if drawit == 1:
-                if self.genotype[0][i].name != " - " :
-                    plotRight = geneEndPix + 4
+                    if drawit == 1:
+                        if _chr[j].name != " - " :
+                            plotRight = geneEndPix + 4
 
 #### end find out PlotRight
 
@@ -1185,139 +1187,142 @@ class DisplayMappingResults(object):
         #Now there should always be some value set for "oldgeno" - Zach 12/14/2010
         oldgeno = [None]*len(self.strainlist)
 
-        for i, _locus in enumerate(self.genotype[0]):
-            txStart = self.genotype[0][i].Mb
-            txEnd   = self.genotype[0][i].Mb
+        for i, _chr in enumerate(self.genotype):
+            if _chr.name == self.ChrList[self.selectedChr][0]:
+                for j, _locus in enumerate(_chr):
+                    txStart = _chr[j].Mb
+                    txEnd   = _chr[j].Mb
 
-            geneStartPix = xLeftOffset + plotXScale*(float(txStart) - startMb)  - 0
-            geneEndPix   = xLeftOffset + plotXScale*(float(txEnd)   - startMb)  + 0
+                    geneStartPix = xLeftOffset + plotXScale*(float(txStart) - startMb)  - 0
+                    geneEndPix   = xLeftOffset + plotXScale*(float(txEnd)   - startMb)  + 0
 
-            if oldgeneEndPix >= xLeftOffset:
-                drawStart = oldgeneEndPix + 4
-            else:
-                drawStart = xLeftOffset + 3
+                    if oldgeneEndPix >= xLeftOffset:
+                        drawStart = oldgeneEndPix + 4
+                    else:
+                        drawStart = xLeftOffset + 3
 
-            drawEnd = plotRight - 9
+                    drawEnd = plotRight - 9
 
-            drawit = 1
-
-            if (geneStartPix < xLeftOffset):
-                if firstGene == 1:
                     drawit = 1
-                else:
-                    drawit = 0
 
-            elif (geneStartPix > (xLeftOffset + plotWidth - 3)):
-                if lastGene == 0:
-                    drawit = 1
-                    drawEnd = xLeftOffset + plotWidth - 6
-                    lastGene = 1
-                else:
-                    break
+                    if (geneStartPix < xLeftOffset):
+                        if firstGene == 1:
+                            drawit = 1
+                        else:
+                            drawit = 0
 
-            else:
-                firstGene = 0
-                drawit = 1
+                    elif (geneStartPix > (xLeftOffset + plotWidth - 3)):
+                        if lastGene == 0:
+                            drawit = 1
+                            drawEnd = xLeftOffset + plotWidth - 6
+                            lastGene = 1
+                        else:
+                            break
 
-            if drawit == 1:
-                myColor = pid.darkblue
-                outlineColor = myColor
-                fillColor    = myColor
+                    else:
+                        firstGene = 0
+                        drawit = 1
 
-                maxind=0
+                    if drawit == 1:
+                        myColor = pid.darkblue
+                        outlineColor = myColor
+                        fillColor    = myColor
 
-                #Draw Genes
+                        maxind=0
 
-                geneYLocation = yPaddingTop + self.NUM_GENE_ROWS * (self.EACH_GENE_HEIGHT)*zoom
-                if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
-                    geneYLocation += 4*self.BAND_HEIGHT + 4*self.BAND_SPACING
-                else:
-                    geneYLocation += 3*self.BAND_HEIGHT + 3*self.BAND_SPACING
+                        #Draw Genes
 
-                if self.genotype[0][i].name != " - " :
+                        geneYLocation = yPaddingTop + self.NUM_GENE_ROWS * (self.EACH_GENE_HEIGHT)*zoom
+                        if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
+                            geneYLocation += 4*self.BAND_HEIGHT + 4*self.BAND_SPACING
+                        else:
+                            geneYLocation += 3*self.BAND_HEIGHT + 3*self.BAND_SPACING
 
-                    if (firstGene == 1) and (lastGene != 1):
-                        oldgeneEndPix = drawStart = xLeftOffset
-                        oldgeno = self.genotype[0][i].genotype
-                        continue
+                        if _chr[j].name != " - " :
 
-                    for j,_geno in enumerate (self.genotype[0][i].genotype):
+                            if (firstGene == 1) and (lastGene != 1):
+                                oldgeneEndPix = drawStart = xLeftOffset
+                                oldgeno = _chr[j].genotype
+                                continue
 
-                        plotbxd=0
-                        for item in smd:
-                            if item.name == samplelist[j]:
-                                plotbxd=1
+                            for k, _geno in enumerate (_chr[j].genotype):
+                                plotbxd=0
+                                for item in smd:
+                                    if item.name == samplelist[k]:
+                                        plotbxd=1
 
-                        if (plotbxd == 1):
-                            ind = 0
-                            counter = 0
-                            for item in smd:
-                                counter = counter + 1
-                                if item.name == samplelist[j]:
-                                    ind = counter
-                            maxind=max(ind,maxind)
+                                if (plotbxd == 1):
+                                    ind = 0
+                                    counter = 0
+                                    for item in smd:
+                                        counter = counter + 1
+                                        if item.name == samplelist[k]:
+                                            ind = counter
+                                    maxind=max(ind,maxind)
 
-                            # lines
-                            if (oldgeno[j] == -1 and _geno == -1):
-                                mylineColor = self.HAPLOTYPE_NEGATIVE
-                            elif (oldgeno[j] == 1 and _geno == 1):
-                                mylineColor = self.HAPLOTYPE_POSITIVE
-                            elif (oldgeno[j] == 0 and _geno == 0):
-                                mylineColor = self.HAPLOTYPE_HETEROZYGOUS
-                            else:
-                                mylineColor = self.HAPLOTYPE_RECOMBINATION # XZ: Unknown
+                                    # lines
+                                    if (oldgeno[k] == -1 and _geno == -1):
+                                        mylineColor = self.HAPLOTYPE_NEGATIVE
+                                    elif (oldgeno[k] == 1 and _geno == 1):
+                                        mylineColor = self.HAPLOTYPE_POSITIVE
+                                    elif (oldgeno[k] == 0 and _geno == 0):
+                                        mylineColor = self.HAPLOTYPE_HETEROZYGOUS
+                                    else:
+                                        mylineColor = self.HAPLOTYPE_RECOMBINATION # XZ: Unknown
 
-                            canvas.drawLine(drawStart, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, drawEnd, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, color = mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
+                                    canvas.drawLine(drawStart, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, drawEnd, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, color = mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
 
-                            fillColor=pid.black
-                            outlineColor=pid.black
+                                    fillColor=pid.black
+                                    outlineColor=pid.black
+                                    if lastGene == 0:
+                                        canvas.drawRect(geneStartPix, geneYLocation+2*ind*self.EACH_GENE_HEIGHT*zoom, geneEndPix, geneYLocation+2*ind*self.EACH_GENE_HEIGHT+ 2*self.EACH_GENE_HEIGHT*zoom, edgeColor = outlineColor, fillColor = fillColor)
+
+
+                                    COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation+ind*self.EACH_GENE_HEIGHT, geneEndPix+1, (geneYLocation + ind*self.EACH_GENE_HEIGHT))
+                                    TITLE = "Strain: %s, marker (%s) \n Position  %2.3f Mb." % (samplelist[k], _chr[j].name, float(txStart))
+                                    HREF = ''
+                                    gifmap.areas.append(HT.Area(shape='rect',coords=COORDS,href=HREF, title=TITLE))
+
+                                    # if there are no more markers in a chromosome, the plotRight value calculated above will be before the plotWidth
+                                    # resulting in some empty space on the right side of the plot area. This draws an "unknown" bar from plotRight to the edge.
+                                    if (plotRight < (xLeftOffset + plotWidth - 3)) and (lastGene == 0):
+                                        drawEnd = xLeftOffset + plotWidth - 6
+                                        mylineColor = self.HAPLOTYPE_RECOMBINATION
+                                        canvas.drawLine(plotRight, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, drawEnd, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, color = mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
+
+
                             if lastGene == 0:
-                                canvas.drawRect(geneStartPix, geneYLocation+2*ind*self.EACH_GENE_HEIGHT*zoom, geneEndPix, geneYLocation+2*ind*self.EACH_GENE_HEIGHT+ 2*self.EACH_GENE_HEIGHT*zoom, edgeColor = outlineColor, fillColor = fillColor)
+                                canvas.drawString("%s" % (_chr[j].name), geneStartPix , geneYLocation+17+2*maxind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black, angle=-90)
 
+                            oldgeneEndPix = geneEndPix;
+                            oldgeno = _chr[j].genotype
+                            firstGene = 0
+                        else:
+                            lastGene = 0
 
-                            COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation+ind*self.EACH_GENE_HEIGHT, geneEndPix+1, (geneYLocation + ind*self.EACH_GENE_HEIGHT))
-                            TITLE = "Strain: %s, marker (%s) \n Position  %2.3f Mb." % (samplelist[j], self.genotype[0][i].name, float(txStart))
-                            HREF = ''
-                            gifmap.areas.append(HT.Area(shape='rect',coords=COORDS,href=HREF, title=TITLE))
+        for i, _chr in enumerate(self.genotype):
+            if _chr.name == self.ChrList[self.selectedChr][0]:
+                for j, _geno in enumerate(_chr[1]):
 
-                            # if there are no more markers in a chromosome, the plotRight value calculated above will be before the plotWidth
-                            # resulting in some empty space on the right side of the plot area. This draws an "unknown" bar from plotRight to the edge.
-                            if (plotRight < (xLeftOffset + plotWidth - 3)) and (lastGene == 0):
-                                drawEnd = xLeftOffset + plotWidth - 6
-                                mylineColor = self.HAPLOTYPE_RECOMBINATION
-                                canvas.drawLine(plotRight, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, drawEnd, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, color = mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
+                    plotbxd=0
+                    for item in smd:
+                        if item.name == samplelist[j]:
+                            plotbxd=1
 
+                    if (plotbxd == 1):
 
-                    if lastGene == 0:
-                        canvas.drawString("%s" % (self.genotype[0][i].name), geneStartPix , geneYLocation+17+2*maxind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black, angle=-90)
+                        ind = 0
+                        counter = 0
+                        expr = 0
+                        for item in smd:
+                            counter = counter + 1
+                            if item.name == samplelist[j]:
+                                ind = counter
+                                expr = item.value
 
-                    oldgeneEndPix = geneEndPix;
-                    oldgeno = self.genotype[0][i].genotype
-                    firstGene = 0
-                else:
-                    lastGene = 0
-
-        for j, _geno in enumerate (self.genotype[0][1].genotype):
-
-            plotbxd=0
-            for item in smd:
-                if item.name == samplelist[j]:
-                    plotbxd=1
-
-            if (plotbxd == 1):
-
-                ind = 0
-                counter = 0
-                expr = 0
-                for item in smd:
-                    counter = counter + 1
-                    if item.name == samplelist[j]:
-                        ind = counter
-                        expr = item.value
-
-                # Place where font is hardcoded
-                canvas.drawString("%s" % (samplelist[j]), (xLeftOffset + plotWidth + 10) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black)
-                canvas.drawString("%2.2f" % (expr), (xLeftOffset + plotWidth + 60) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black)
+                        # Place where font is hardcoded
+                        canvas.drawString("%s" % (samplelist[j]), (xLeftOffset + plotWidth + 10) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black)
+                        canvas.drawString("%2.2f" % (expr), (xLeftOffset + plotWidth + 60) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=pid.black)
 
 ## END HaplotypeAnalyst
 
