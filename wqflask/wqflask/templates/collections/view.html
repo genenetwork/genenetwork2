@@ -59,6 +59,10 @@
                     Comparison Bar Chart
                 </button>
 
+                <button id="send_to_webgestalt" class="btn btn-primary submit_special" data-url="/webgestalt_page" title="WebGestalt" >
+                    WebGestalt
+                </button>
+
                 <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >
                     BNW
                 </button>
@@ -266,7 +270,7 @@
                 return submit_special(url)
             });
 
-            $("#send_to_bnw").on("click", function() {
+            $("#send_to_webgestalt, #send_to_bnw").on("click", function() {
                 traits = $("#trait_table input:checked").map(function() {
                     return $(this).val();
                 }).get();

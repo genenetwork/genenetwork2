@@ -2,6 +2,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/typeahead-bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/snp_browser.css" />
 {% endblock %}
 {% block content %}
@@ -216,6 +217,9 @@
 {% block js %}
   <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
   <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+  <script language="javascript" type="text/javascript" src="/static/new/js_external/typeahead.bundle.js"></script>
+
+  <script language="javascript" type="text/javascript" src="/static/new/javascript/typeahead_rn6.json"></script>
 
   <script type='text/javascript'>
       var json_rows = {{ table_rows|safe }};
@@ -223,6 +227,38 @@
   </script>
 
   <script language="javascript">
+
+    var substringMatcher = function(strs) {
+      return function findMatches(q, cb) {
+        var matches, substringRegex;
+
+        // an array that will be populated with substring matches
+        matches = [];
+
+        // regex used to determine if a string contains the substring `q`
+        substrRegex = new RegExp(q, 'i');
+
+        // iterate through the pool of strings and for any string that
+        // contains the substring `q`, add it to the `matches` array
+        $.each(strs, function(i, str) {
+          if (substrRegex.test(str)) {
+            matches.push(str);
+          }
+        });
+
+        cb(matches);
+      };
+    };
+
+    $('input[name=gene_name]').typeahead({
+      minLength: 2,
+      hint: true,
+      highlight: true
+    },
+    {
+      name: 'rn6-genes',
+      source: substringMatcher(rat_genes)
+    });
 
     {% if filtered_results is defined %}
     $("#results_table").DataTable( {

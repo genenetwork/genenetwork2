@@ -112,7 +112,7 @@
                       'data': "index"
                     },
                     { 
-                      'title': "Record ID",
+                      'title': "Record",
                       'type': "natural", 
                       'data': null,
                       'render': function(data, type, row, meta) {
@@ -157,12 +157,14 @@
                     {
                       'title': "Mean",
                       'type': "natural", 
-                      'data': "mean"
+                      'data': "mean",
+                      'orderSequence': [ "desc", "asc"]
                     },
                     { 
                       'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural", 
-                      'data': "LRS_score_repr"
+                      'data': "LRS_score_repr",
+                      'orderSequence': [ "desc", "asc"]
                     },
                     { 
                       'title': "Max LRS Location",
@@ -172,7 +174,8 @@
                     { 
                       'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural", 
-                      'data': "additive"
+                      'data': "additive",
+                      'orderSequence': [ "desc", "asc"]
                     }
                 ],
                 'order': [[1, "asc" ]],

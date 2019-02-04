@@ -23,6 +23,8 @@ from wqflask import do_search
 from utility import webqtlUtil,tools
 from db import webqtlDatabaseFunction
 
+from wqflask import user_manager
+
 from flask import render_template
 
 from utility import formatting
@@ -87,37 +89,63 @@ views.py).
         the "search" function
 
         """
-        self.trait_list = []
+        trait_list = []
         json_trait_list = []
 
         species = webqtlDatabaseFunction.retrieve_species(self.dataset.group.name)
         # result_set represents the results for each search term; a search of
         # "shh grin2b" would have two sets of results, one for each term
         logger.debug("self.results is:", pf(self.results))
+
         for index, result in enumerate(self.results):
             if not result:
                 continue
 
             #### Excel file needs to be generated ####
 
-            #logger.debug("foo locals are:", locals())
+            trait_dict = {}
             trait_id = result[0]
+            trait_dict['index'] = index + 1
             this_trait = trait.GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
-            self.trait_list.append(this_trait)
-            json_trait_list.append(trait.jsonable_table_row(this_trait, self.dataset.name, index + 1))
+            trait_dict['name'] = this_trait.name
+            trait_dict['dataset'] = this_trait.dataset.name
+            trait_dict['hmac'] = user_manager.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
+            if this_trait.dataset.type == "ProbeSet":
+                trait_dict['symbol'] = this_trait.symbol
+                trait_dict['description'] = this_trait.description_display
+                trait_dict['location'] = this_trait.location_repr
+                trait_dict['mean'] = "N/A"
+                trait_dict['additive'] = "N/A"
+                if this_trait.mean != "":
+                    trait_dict['mean'] = '%.3f' % this_trait.mean
+                trait_dict['lrs_score'] = this_trait.LRS_score_repr
+                trait_dict['lrs_location'] = this_trait.LRS_location_repr
+                if this_trait.additive != "":
+                    trait_dict['additive'] = '%.3f' % this_trait.additive
+            elif this_trait.dataset.type == "Geno":
+                trait_dict['location'] = this_trait.location_repr
+            elif this_trait.dataset.type == "Publish":
+                trait_dict['description'] = this_trait.description_display
+                trait_dict['authors'] = this_trait.authors
+                trait_dict['pubmed_id'] = "N/A"
+                if this_trait.pubmed_id:
+                    trait_dict['pubmed_id'] = this_trait.pubmed_id
+                    trait_dict['pubmed_link'] = this_trait.pubmed_link
+                trait_dict['pubmed_text'] = this_trait.pubmed_text
+                trait_dict['lrs_score'] = this_trait.LRS_score_repr
+                trait_dict['lrs_location'] = this_trait.LRS_location_repr
+                trait_dict['additive'] = "N/A"
+                if this_trait.additive != "":
+                    trait_dict['additive'] = '%.3f' % this_trait.additive
+            trait_list.append(trait_dict)
+            #json_trait_list.append(trait.jsonable_table_row(this_trait, self.dataset.name, index + 1))
 
-        self.json_trait_list = json.dumps(json_trait_list)
-
-    #def get_group_species_tree(self):
-    #    self.species_groups = collections.default_dict(list)
-    #    for key in self.results:
-    #        for item in self.results[key]:
-    #            self.species_groups[item['result_fields']['species']].append(
-    #                                        item['result_fields']['group_name'])
+        self.trait_list = json.dumps(trait_list)
+        #self.json_trait_list = json.dumps(json_trait_list)
 
     def search(self):
-        """This function sets up the actual search query in the form of a SQL
-statement and executes
+        """
+        This function sets up the actual search query in the form of a SQL statement and executes
 
         """
         self.search_terms = parser.parse(self.search_terms)

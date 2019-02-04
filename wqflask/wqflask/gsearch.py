@@ -67,7 +67,7 @@ class GSearch(object):
                     this_trait['name'] = line[5]
                     this_trait['dataset'] = line[3]
                     this_trait['dataset_fullname'] = line[4]
-                    this_trait['hmac'] = user_manager.data_hmac('{}:{}'.format(line[4], line[3]))
+                    this_trait['hmac'] = user_manager.data_hmac('{}:{}'.format(line[5], line[3]))
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     this_trait['tissue'] = line[2]
@@ -76,13 +76,13 @@ class GSearch(object):
                     this_trait['location_repr'] = 'N/A'
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
                         this_trait['location_repr'] = 'Chr%s: %.6f' % (line[8], float(line[9]))
-                    this_trait['mean'] = round(line[10], 3)
+                    this_trait['mean'] = '%.3f' % line[10]
                     this_trait['LRS_score_repr'] = "N/A"
                     if line[11] != "" and line[11] != None:
-                        this_trait['LRS_score_repr'] = round(line[10], 1)
+                        this_trait['LRS_score_repr'] = '%3.1f' % line[10]
                     this_trait['additive'] = "N/A"
                     if line[14] != "" and line[14] != None:
-                        this_trait['additive'] = round(line[14], 3)
+                        this_trait['additive'] = '%.3f' % line[14]
 
                     #dataset = create_dataset(line[3], "ProbeSet", get_samplelist=False)
                     #trait_id = line[4]
@@ -101,6 +101,7 @@ class GSearch(object):
                 Species.`Name`,
                 InbredSet.`Name`,
                 PublishFreeze.`Name`,
+                PublishFreeze.`FullName`,
                 PublishXRef.`Id`,
                 Phenotype.`Pre_publication_description`,
                 Phenotype.`Post_publication_description`,
@@ -132,34 +133,43 @@ class GSearch(object):
             re = g.db.execute(sql).fetchall()
             self.trait_list = []
             with Bench("Creating trait objects"):
-                for line in re:
+                for i, line in enumerate(re):
                     this_trait = {}
-                    this_trait['name'] = line[3]
+                    this_trait['index'] = i + 1
+                    this_trait['name'] = str(line[4])
                     this_trait['dataset'] = line[2]
+                    this_trait['dataset_fullname'] = line[3]
+                    this_trait['hmac'] = user_manager.data_hmac('{}:{}'.format(line[5], line[3]))
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     if line[8] != None:
-                        this_trait['description'] = line[5]
+                        this_trait['description'] = line[6]
                     else:
-                        this_trait['description'] = line[4]
-                    this_trait['authors'] = line[6]
-                    this_trait['year'] = line[7]
+                        this_trait['description'] = line[5]
+                    this_trait['authors'] = line[7]
+                    this_trait['year'] = line[8]
                     if this_trait['year'].isdigit():
                         this_trait['pubmed_text'] = this_trait['year']
                     else:
                         this_trait['pubmed_text'] = "N/A"
-                    if line[8] != "" and line[8] != None:
+                    if line[9] != "" and line[9] != None:
                         this_trait['pubmed_link'] = webqtlConfig.PUBMEDLINK_URL % line[8]
                     else:
                         this_trait['pubmed_link'] = "N/A"
                     this_trait['LRS_score_repr'] = "N/A"
-                    if line[9] != "" and line[9] != None:
-                        this_trait['LRS_score_repr'] = '%3.1f' % line[9]
+                    if line[10] != "" and line[10] != None:
+                        this_trait['LRS_score_repr'] = '%3.1f' % line[10]
                     this_trait['additive'] = "N/A"
-                    if line[10] != "":
-                        this_trait['additive'] = line[10]
+                    if line[11] != "" and line[11] != None:
+                        this_trait['additive'] = '%.3f' % line[11]
 
                     #dataset = create_dataset(line[2], "Publish")
                     #trait_id = line[3]
                     #this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+                    this_trait['max_lrs_text'] = "N/A"
+                    if this_trait['dataset'] == this_trait['group'] + "Publish":
+                      trait_ob = GeneralTrait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
+                      if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
+                          this_trait['max_lrs_text'] = "Chr" + str(trait_ob.locus_chr) + ": " + str(trait_ob.locus_mb)
+
                     self.trait_list.append(this_trait)
