@@ -43,6 +43,9 @@ Redis = Redis()
 
 from flask import Flask, g
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
+
 class Heatmap(object):
 
     def __init__(self, start_vars, temp_uuid):
@@ -96,6 +99,7 @@ class Heatmap(object):
         for trait in self.trait_results.keys():
             lodnames.append(trait)
 
+        self.dataset.group.get_markers()
         for marker in self.dataset.group.markers.markers:
             chr_pos.append(marker['chr'])
             pos.append(marker['Mb'])

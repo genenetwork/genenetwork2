@@ -223,6 +223,65 @@ $(function() {
     $('#export_form').submit();
   };
 
+  $("#corr_matrix").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      url = $(this).data("url")
+      return submit_special(url)
+  });
+  $("#network_graph").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+         return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      url = $(this).data("url")
+      return submit_special(url)
+  });
+  $("#wgcna_setup").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      url = $(this).data("url")
+      return submit_special(url)
+  });
+  $("#ctl_setup").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      url = $(this).data("url")
+      return submit_special(url)
+  });
+  $("#heatmap").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      url = $(this).data("url")
+      return submit_special(url)
+  });
+  $("#comp_bar_chart").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      url = $(this).data("url")
+      return submit_special(url)
+  });
+
+  $("#send_to_webgestalt, #send_to_bnw").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      url = $(this).data("url")
+      return submit_special(url)
+  });
+
+
   $("#select_all").click(select_all);
   $("#deselect_all").click(deselect_all);
   $("#invert").click(invert);

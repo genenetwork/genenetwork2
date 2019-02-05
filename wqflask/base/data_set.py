@@ -171,28 +171,22 @@ class Markers(object):
     def __init__(self, name):
         json_data_fh = open(locate(name + ".json",'genotype/json'))
 
-        try:
-            markers = []
-            with open(locate(name + "_snps.txt", 'r')) as bimbam_fh:
+        markers = []
+        with open("%s/%s_snps.txt" % (flat_files('genotype/bimbam'), name), 'r') as bimbam_fh:
+            if len(bimbam_fh.readline().split(", ")) > 2:
+                delimiter = ", "
+            elif len(bimbam_fh.readline().split(",")) > 2:
+                delimiter = ","
+            elif len(bimbam_fh.readline().split("\t")) > 2:
+                delimiter = "\t"
+            else:
+                delimiter = " "
+            for line in bimbam_fh:
                 marker = {}
-                if len(bimbam_fh[0].split(", ")) > 2:
-                    delimiter = ", "
-                elif len(bimbam_fh[0].split(",")) > 2:
-                    delimiter = ","
-                elif len(bimbam_fh[0].split("\t")) > 2:
-                    delimiter = "\t"
-                else:
-                    delimiter = " "
-                for line in bimbam_fh:
-                    marker['name'] = line.split(delimiter)[0]
-                    marker['Mb']
-                    marker['chr'] = line.split(delimiter)[2]
-                    marker['cM']
-                    markers.append(marker)
-        #try:
-        #    markers = json.load(json_data_fh)
-        except:
-            markers = []
+                marker['name'] = line.split(delimiter)[0].rstrip()
+                marker['Mb'] = float(line.split(delimiter)[1].rstrip())/1000000
+                marker['chr'] = line.split(delimiter)[2].rstrip()
+                markers.append(marker)
 
         for marker in markers:
             if (marker['chr'] != "X") and (marker['chr'] != "Y"):
@@ -334,8 +328,6 @@ class DatasetGroup(object):
         return mapping_id, mapping_names
 
     def get_markers(self):
-        logger.debug("self.species is:", self.species)
-
         def check_plink_gemma():
             if flat_file_exists("mapping"):
                 MAPPING_PATH = flat_files("mapping")+"/"

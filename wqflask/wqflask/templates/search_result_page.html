@@ -47,12 +47,62 @@
         <p>To study a record click on its ID below, and to view the whole description {% if dataset.type == "Publish" %}or list of authors {% endif %} hover over the table cell. Check records below and click Add button to add to selection.</p>
 
         <div>
+          <form id="trait_submission_form" target="_blank" action="/corr_matrix" method="post">
+            <input type="hidden" name="trait_list" id="trait_list" value= "
+            {% for this_trait in trait_list %}
+                {{ this_trait.name }}:{{ this_trait.dataset }},
+            {% endfor %}" >
+
+
+                <button id="corr_matrix" class="btn btn-primary submit_special" data-url="/corr_matrix" title="Correlation Matrix" >
+                    Correlation Matrix
+                </button>
+
+
+                <button id="network_graph" class="btn btn-primary submit_special" data-url="/network_graph" title="Network Graph" >
+                    Network Graph
+                </button>
+
+
+                <button id="wgcna_setup" class="btn btn-primary submit_special" data-url="/wgcna_setup" title="WGCNA Analysis" >
+                    WGCNA Analysis
+                </button>
+
+
+                <button id="ctl_setup" class="btn btn-primary submit_special" data-url="/ctl_setup" title="CTL Analysis" >
+                    CTL Analysis
+                </button>
+
+
+                <button id="heatmap" class="btn btn-primary submit_special" data-url="/heatmap" title="Heatmap" >
+                    Heatmap
+                </button>
+
+                <button id="comp_bar_chart" class="btn btn-primary submit_special" data-url="/comparison_bar_chart" title="Comparison Bar Chart" >
+                    Comparison Bar Chart
+                </button>
+
+                <button id="send_to_webgestalt" class="btn btn-primary submit_special" data-url="/webgestalt_page" title="WebGestalt" >
+                    WebGestalt
+                </button>
+
+                <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >
+                    BNW
+                </button>
+
+                <button id="delete" class="btn btn-danger submit_special" style="margin-left: 15px;" data-url="/collections/delete" title="Delete this collection" >
+                    Delete Collection
+                </button>
+
+          </form>
+        </div>
+
+        <div>
           <br />
           <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
           <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
           <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
           <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-          <button id="redraw" class="btn btn-default">Reset Columns</button>
           <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
           <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
           <br />
@@ -354,6 +404,11 @@
                 var table = $('#trait_table').DataTable();
                 table.colReorder.reset()
             });
+
+            submit_special = function(url) {
+                $("#trait_submission_form").attr("action", url);
+                return $("#trait_submission_form").submit();
+            };
 
         });
     </script>
