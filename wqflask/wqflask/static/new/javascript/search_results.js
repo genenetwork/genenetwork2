@@ -272,7 +272,7 @@ $(function() {
       return submit_special(url)
   });
 
-  $("#send_to_webgestalt, #send_to_bnw").on("click", function() {
+  $("#send_to_webgestalt, #send_to_bnw, #send_to_geneweaver").on("click", function() {
       traits = $("#trait_table input:checked").map(function() {
           return $(this).val();
       }).get();

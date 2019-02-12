@@ -8,15 +8,16 @@
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-    {% if g.user_session.logged_in %}
-    {{ header("Collections owned by {{ g.user_session.user_name }}",
-        'You have {}.'.format(numify(collections|count, "collection", "collections"))) }}
-    {% else %}
-    {{ header("Your Collections",
-        'You have {}.'.format(numify(collections|count, "collection", "collections"))) }}
-    {% endif %}
-
     <div class="container">
+        {% if g.user_session.logged_in %}
+        <h1>Collections owned by {{ g.user_session.user_name }}</h1>
+        {% else %}
+        <h1>Your Collections</h1>
+        {% endif %}
+        <h2>You have {{ '{}'.format(numify(collections|count, "collection", "collections")) }}.</h1>
+
+        <hr style="height: 1px; background-color: #A9A9A9;">
+
         <!--
         <div class="page-header">
             {% if g.user_session.logged_in %}

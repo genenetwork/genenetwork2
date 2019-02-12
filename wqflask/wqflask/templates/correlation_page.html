@@ -4,12 +4,12 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
 {% endblock %}
 {% block content %}
-    
-    {{ header("Correlation", 'Trait: {} Dataset: {}'.format(this_trait.name, dataset.name)) }}
-
     <div class="container">
         <div class="page-header">
             <h1>Correlation Table</h1>
+            <h2>Trait: {{ this_trait.name }}
+
+            <hr style="height: 1px; background-color: #A9A9A9;">
         </div>
 
         <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{ dataset.group.accession_id }}">{{ dataset.fullname }}</a>
@@ -57,6 +57,10 @@
 
                 <button id="send_to_webgestalt" class="btn btn-primary submit_special" data-url="/webgestalt_page" title="WebGestalt" >
                     WebGestalt
+                </button>
+
+                <button id="send_to_geneweaver" class="btn btn-primary submit_special" data-url="/geneweaver_page" title="GeneWeaver" >
+                    GeneWeaver
                 </button>
 
                 <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >

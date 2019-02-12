@@ -9,16 +9,15 @@
 <!-- Start of body -->
 
     <div class="container">
-    {% if uc %}
-        <h2>{{ uc.name }}</h2>
-        <h3>{{ 'This collection has {}.'.format(numify(trait_obs|count, "record", "records")) }}</h3>
-    {% else %}
-        <h2> {{ collection_name }}</h2>
-        <h3>{{ 'This collection has {}.'.format(numify(trait_obs|count, "record", "records")) }}</h3>
-    {% endif %}
-    </div>
+        {% if uc %}
+        <h1>{{ uc.name }}</h1>
+        {% else %}
+        <h1>{{ collection_name }}</h1>
+        {% endif %}
+        <h2>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h2>
 
-    <div class="container">
+        <hr style="height: 1px; background-color: #A9A9A9;">
+
         <div>
           <form id="collection_form" action="/delete" method="post">
             {% if uc %}
@@ -61,6 +60,10 @@
 
                 <button id="send_to_webgestalt" class="btn btn-primary submit_special" data-url="/webgestalt_page" title="WebGestalt" >
                     WebGestalt
+                </button>
+
+                <button id="send_to_geneweaver" class="btn btn-primary submit_special" data-url="/geneweaver_page" title="GeneWeaver" >
+                    GeneWeaver
                 </button>
 
                 <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >

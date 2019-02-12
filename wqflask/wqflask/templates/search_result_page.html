@@ -44,6 +44,9 @@
         </p>
 
         <p>To study a record click on its ID below, and to view the whole description {% if dataset.type == "Publish" %}or list of authors {% endif %} hover over the table cell. Check records below and click Add button to add to selection.</p>
+
+        <hr style="height: 1px; background-color: #A9A9A9;">
+
         </div>
 
         <div>
@@ -84,6 +87,10 @@
 
                 <button id="send_to_webgestalt" class="btn btn-primary submit_special" data-url="/webgestalt_page" title="WebGestalt" >
                     WebGestalt
+                </button>
+
+                <button id="send_to_geneweaver" class="btn btn-primary submit_special" data-url="/geneweaver_page" title="GeneWeaver" >
+                    GeneWeaver
                 </button>
 
                 <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >
@@ -148,6 +155,13 @@
                 return $('input', td).prop('checked') ? '1' : '0';
             } );
         };
+
+        $.fn.dataTable.ext.order['dom-inner-text'] = function  ( settings, col )
+        {
+            return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+                return $(td).text();
+            } );
+        }
 
         $(document).ready( function () {
             
@@ -261,6 +275,7 @@
                       'title': "Record",
                       'type': "natural",
                       'data': null,
+                      'orderDataType': "dom-inner-text",
                       'render': function(data, type, row, meta) {
                         return '<a href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
                       }
@@ -316,6 +331,7 @@
                     {
                       'title': "Year",
                       'type': "natural",
+                      'orderDataType': "dom-inner-text",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.pubmed_id != "N/A"){

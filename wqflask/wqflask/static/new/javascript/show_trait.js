@@ -342,7 +342,7 @@
           if (!__hasProp.call(_ref1, key)) continue;
           value = _ref1[key];
           the_id = process_id(key, row.vn);
-          row_line += "<td id=\"" + the_id + "\" align=\"right\">foo</td>";
+          row_line += "<td id=\"" + the_id + "\" align=\"right\">N/A</td>";
         }
         row_line += "</tr>";
         the_rows += row_line;
@@ -619,7 +619,7 @@
     };
 
     sqrt_normalize_data = function() {
-      return $('.trait_value_input').each((function(_this) {
+      return $('.edit_sample_value').each((function(_this) {
         return function(_index, element) {
           current_value = parseFloat($(element).data("value")) + 1;
           if(isNaN(current_value)) {
@@ -633,7 +633,7 @@
     };
 
     qnorm_data = function() {
-      return $('.trait_value_input').each((function(_this) {
+      return $('.edit_sample_value').each((function(_this) {
         return function(_index, element) {
           current_value = parseFloat($(element).data("value")) + 1;
           if(isNaN(current_value)) {
@@ -1164,9 +1164,17 @@
       return redraw_prob_plot();
     });
 
+    function isEmpty( el ){
+      return !$.trim(el.html())
+    }
+
     $('.stats_panel').click(function() {
-      make_table();
-      edit_data_change();
+      if (isEmpty($('#stats_table'))){
+        make_table();
+        edit_data_change();
+      } else {
+        edit_data_change();
+      }
     });
     $('#edit_sample_lists').change(edit_data_change);
     $('.edit_sample_value').change(edit_data_change);

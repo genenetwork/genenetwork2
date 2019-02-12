@@ -62,6 +62,13 @@
             } );
         };
 
+        $.fn.dataTable.ext.order['dom-inner-text'] = function  ( settings, col )
+        {
+            return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+                return $(td).text();
+            } );
+        }
+
         $(document).ready( function () {
             
             $('#trait_table tr').click(function(event) {
@@ -115,6 +122,7 @@
                       'title': "Record",
                       'type': "natural", 
                       'data': null,
+                      'orderDataType': "dom-inner-text",
                       'render': function(data, type, row, meta) {
                         return '<a href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
                       }

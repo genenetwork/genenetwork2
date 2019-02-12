@@ -43,7 +43,7 @@ from base.data_set import DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.heatmap import heatmap
-from wqflask.external_tools import send_to_bnw, send_to_webgestalt
+from wqflask.external_tools import send_to_bnw, send_to_webgestalt, send_to_geneweaver
 from wqflask.comparison_bar_chart import comparison_bar_chart
 from wqflask.marker_regression import run_mapping
 from wqflask.marker_regression import display_mapping_results
@@ -499,7 +499,25 @@ def webgestalt_page():
         result = template_vars.__dict__
         rendered_template = render_template("webgestalt_page.html", **result)
     else:
-        rendered_template = render_template("empty_collection.html", **{'tool':'BNW'})
+        rendered_template = render_template("empty_collection.html", **{'tool':'WebGestalt'})
+
+    return rendered_template
+
+@app.route("/geneweaver_page", methods=('POST',))
+def geneweaver_page():
+    logger.info("In run WebGestalt, request.form is:", pf(request.form))
+    logger.info(request.url)
+
+    start_vars = request.form
+
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        template_vars = send_to_geneweaver.SendToGeneWeaver(request.form)
+
+        result = template_vars.__dict__
+        rendered_template = render_template("geneweaver_page.html", **result)
+    else:
+        rendered_template = render_template("empty_collection.html", **{'tool':'GeneWeaver'})
 
     return rendered_template
 
