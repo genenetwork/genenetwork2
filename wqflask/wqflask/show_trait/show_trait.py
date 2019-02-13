@@ -110,10 +110,10 @@ class ShowTrait(object):
                 self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', blatsequence)
                 self.UTHSC_BLAT_URL = ""
             elif self.dataset.group.species == "mouse":
-                self.UCSC_BLAT_URL = webqtlConfig.UTHSC_BLAT2 % ('mouse', 'mm10', blatsequence)
+                self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm10', blatsequence)
                 self.UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm10', blatsequence)
             elif self.dataset.group.species == "human":
-                self.UCSC_BLAT_URL = webqtlConfig.UTHSC_BLAT2 % ('human', 'hg19', blatsequence)
+                self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
                 self.UTHSC_BLAT_URL = ""
             else:
                 self.UCSC_BLAT_URL = ""
@@ -153,7 +153,8 @@ class ShowTrait(object):
            hddn['group'] = self.temp_group
            hddn['species'] = self.temp_species
         hddn['use_outliers'] = False
-        hddn['method'] = "pylmm"
+        hddn['method'] = "gemma"
+        hddn['selected_chr'] = -1
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
@@ -182,18 +183,33 @@ class ShowTrait(object):
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
 
+        #ZS: Get list of chromosomes to select for mapping
+        self.chr_list = [["All", -1]]
+        for i, this_chr in enumerate(self.dataset.species.chromosomes.chromosomes):
+            self.chr_list.append([self.dataset.species.chromosomes.chromosomes[this_chr].name, i])
+
         self.genofiles = get_genofiles(self.dataset)
 
         self.has_num_cases = has_num_cases(self.this_trait)
 
         self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups, self.has_num_cases)
 
-        #ZS: Needed to know whether to display bar chart
+        #ZS: Needed to know whether to display bar chart + get max sample name length in order to set table column width
         self.num_values = 0
+        max_samplename_width = 1
         for group in self.sample_groups:
             for sample in group.sample_list:
+                if len(sample.name) > max_samplename_width:
+                    max_samplename_width = len(sample.name)
                 if sample.display_value != "x":
                     self.num_values += 1
+
+        sample_column_width = max_samplename_width * 8
+
+        if self.num_values >= 500:
+            self.maf = 0.01
+        else:
+            self.maf = 0.05
 
         trait_symbol = None
         if not self.temp_trait:
@@ -207,6 +223,8 @@ class ShowTrait(object):
                        sample_group_types = self.sample_group_types,
                        sample_lists = sample_lists,
                        attribute_names = self.sample_groups[0].attributes,
+                       num_values = self.num_values,
+                       sample_column_width = sample_column_width,
                        temp_uuid = self.temp_uuid)
         self.js_data = js_data
 
@@ -300,6 +318,7 @@ def quantile_normalize_vals(sample_groups):
             p_list.append(((i+1) - 0.5)/len(trait_vals))
 
         z = ss.norm.ppf(p_list)
+
         normed_vals = []
         for rank in ranked_vals:
             normed_vals.append("%0.3f" % z[int(rank)-1])
@@ -316,7 +335,6 @@ def quantile_normalize_vals(sample_groups):
                 continue
 
         qnorm_vals = normf(trait_vals)
-
         qnorm_vals_with_x = []
         counter = 0
         for sample in sample_type.sample_list:
@@ -367,15 +385,14 @@ def get_table_widths(sample_groups, has_num_cases=False):
     if len(sample_groups) > 1:
         stats_table_width = 450
 
-    trait_table_width = 25
+    trait_table_width = 380
     if sample_groups[0].se_exists():
-        trait_table_width += 15
+        trait_table_width += 70
     if has_num_cases:
-        trait_table_width += 5
-    if (trait_table_width + len(sample_groups[0].attributes)*10) > 100:
-        trait_table_width = 100
-    else:
-        trait_table_width += len(sample_groups[0].attributes)*10
+        trait_table_width += 30
+    trait_table_width += len(sample_groups[0].attributes)*40
+
+    trait_table_width = str(trait_table_width) + "px"
 
     return stats_table_width, trait_table_width
 

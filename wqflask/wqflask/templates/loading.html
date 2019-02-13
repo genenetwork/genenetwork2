@@ -1,6 +1,6 @@
 <title>Loading Mapping Results</title>
 <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
-<form method="post" action="/marker_regression" name="loading_form" id="loading_form" class="form-horizontal">
+<form method="post" action="/run_mapping" name="loading_form" id="loading_form" class="form-horizontal">
   {% for key, value in start_vars.iteritems() %}
   <input type="hidden" name="{{ key }}" value="{{ value }}">
   {% endfor %}

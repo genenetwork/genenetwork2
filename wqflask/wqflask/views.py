@@ -43,9 +43,10 @@ from base.data_set import DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.heatmap import heatmap
+from wqflask.external_tools import send_to_bnw, send_to_webgestalt, send_to_geneweaver
 from wqflask.comparison_bar_chart import comparison_bar_chart
-from wqflask.marker_regression import marker_regression
-from wqflask.marker_regression import marker_regression_gn1
+from wqflask.marker_regression import run_mapping
+from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
 from wqflask.correlation import show_corr_results
 from wqflask.correlation_matrix import show_corr_matrix
@@ -466,6 +467,60 @@ def heatmap_page():
 
     return rendered_template
 
+@app.route("/bnw_page", methods=('POST',))
+def bnw_page():
+    logger.info("In run BNW, request.form is:", pf(request.form))
+    logger.info(request.url)
+
+    start_vars = request.form
+
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        template_vars = send_to_bnw.SendToBNW(request.form)
+
+        result = template_vars.__dict__
+        rendered_template = render_template("bnw_page.html", **result)
+    else:
+        rendered_template = render_template("empty_collection.html", **{'tool':'BNW'})
+
+    return rendered_template
+
+@app.route("/webgestalt_page", methods=('POST',))
+def webgestalt_page():
+    logger.info("In run WebGestalt, request.form is:", pf(request.form))
+    logger.info(request.url)
+
+    start_vars = request.form
+
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        template_vars = send_to_webgestalt.SendToWebGestalt(request.form)
+
+        result = template_vars.__dict__
+        rendered_template = render_template("webgestalt_page.html", **result)
+    else:
+        rendered_template = render_template("empty_collection.html", **{'tool':'WebGestalt'})
+
+    return rendered_template
+
+@app.route("/geneweaver_page", methods=('POST',))
+def geneweaver_page():
+    logger.info("In run WebGestalt, request.form is:", pf(request.form))
+    logger.info(request.url)
+
+    start_vars = request.form
+
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+    if traits[0] != "":
+        template_vars = send_to_geneweaver.SendToGeneWeaver(request.form)
+
+        result = template_vars.__dict__
+        rendered_template = render_template("geneweaver_page.html", **result)
+    else:
+        rendered_template = render_template("empty_collection.html", **{'tool':'GeneWeaver'})
+
+    return rendered_template
+
 @app.route("/comparison_bar_chart", methods=('POST',))
 def comp_bar_chart_page():
     logger.info("In comp bar chart, request.form is:", pf(request.form))
@@ -551,10 +606,10 @@ def loading_page():
 
     return rendered_template
 
-@app.route("/marker_regression", methods=('POST',))
-def marker_regression_page():
+@app.route("/run_mapping", methods=('POST',))
+def mapping_results_page():
     initial_start_vars = request.form
-    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
+    logger.debug("Mapping called with initial_start_vars:", initial_start_vars.items())
     logger.info(request.url)
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
@@ -585,6 +640,7 @@ def marker_regression_page():
         'control_marker',
         'control_marker_db',
         'do_control',
+        'genofile',
         'genofile_string',
         'pair_scan',
         'startMb',
@@ -606,10 +662,10 @@ def marker_regression_page():
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
-    logger.debug("Marker regression called with start_vars:", start_vars)
+    logger.debug("Mapping called with start_vars:", start_vars)
 
     version = "v3"
-    key = "marker_regression:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+    key = "mapping_results:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
     logger.info("key is:", pf(key))
     with Bench("Loading cache"):
         result = None # Just for testing
@@ -625,8 +681,8 @@ def marker_regression_page():
             result = pickle.loads(result)
     else:
         logger.info("Cache miss!!!")
-        with Bench("Total time in MarkerRegression"):
-            template_vars = marker_regression.MarkerRegression(start_vars, temp_uuid)
+        with Bench("Total time in RunMapping"):
+            template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
 
         if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
             template_vars.js_data = json.dumps(template_vars.js_data,
@@ -648,10 +704,7 @@ def marker_regression_page():
                 result['pair_scan_array'] = bytesarray
                 rendered_template = render_template("pair_scan_results.html", **result)
         else:
-            #for item in template_vars.__dict__.keys():
-            #    logger.info("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-
-            gn1_template_vars = marker_regression_gn1.MarkerRegression(result).__dict__
+            gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
             #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             #logger.info("pickled result length:", len(pickled_result))
             #Redis.set(key, pickled_result)
@@ -660,24 +713,7 @@ def marker_regression_page():
             with Bench("Rendering template"):
                 if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
                     gn1_template_vars.pop('qtlresults', None)
-                print("TEMPLATE KEYS:", list(gn1_template_vars.keys()))
-                rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
-
-    # with Bench("Rendering template"):
-        # if result['pair_scan'] == True:
-            # img_path = result['pair_scan_filename']
-            # logger.info("img_path:", img_path)
-            # initial_start_vars = request.form
-            # logger.info("initial_start_vars:", initial_start_vars)
-            # imgfile = open(TEMPDIR + '/' + img_path, 'rb')
-            # imgdata = imgfile.read()
-            # imgB64 = imgdata.encode("base64")
-            # bytesarray = array.array('B', imgB64)
-            # result['pair_scan_array'] = bytesarray
-            # rendered_template = render_template("pair_scan_results.html", **result)
-        # else:
-            # rendered_template = render_template("marker_regression.html", **result)
-            # rendered_template = render_template("marker_regression_gn1.html", **gn1_template_vars)
+                rendered_template = render_template("mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 
@@ -692,7 +728,6 @@ def export_mapping_results():
                         headers={"Content-Disposition":"attachment;filename=mapping_results.csv"})
 
     return response
-
 
 @app.route("/export", methods = ('POST',))
 def export():

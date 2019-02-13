@@ -85,9 +85,9 @@ class AnonCollection(object):
                 num_members = collection['num_members']
         return num_members
 
-    def add_traits(self, params):
+    def add_traits(self, unprocessed_traits):
         #assert collection_name == "Default", "Unexpected collection name for anonymous user"
-        self.traits = list(process_traits(params['traits']))
+        self.traits = list(process_traits(unprocessed_traits))
         existing_collections = Redis.get(self.key)
         logger.debug("existing_collections:", existing_collections)
         if existing_collections != None and existing_collections != "None":
@@ -144,7 +144,6 @@ class AnonCollection(object):
         return str(len_now)
 
 def process_traits(unprocessed_traits):
-    #print("unprocessed_traits are:", unprocessed_traits)
     if isinstance(unprocessed_traits, basestring):
         unprocessed_traits = unprocessed_traits.split(",")
     traits = set()
@@ -167,26 +166,38 @@ def report_change(len_before, len_now):
     else:
         logger.debug("No new traits were added.")
 
+@app.route("/collections/store_trait_list", methods=('POST',))
+def store_traits_list():
+   params = request.form
+
+   traits = params['traits']
+   hash = params['hash']
+
+   Redis.set(hash, traits)
+
+   return hash
 
 @app.route("/collections/add")
 def collections_add():
-    traits=request.args['traits']
-
     if g.user_session.logged_in:
-        user_collections = g.user_session.user_collections
-        #logger.debug("user_collections are:", user_collections)
-        return render_template("collections/add.html",
-                               traits = traits,
-                               collections = user_collections,
-                               )
+        collections = g.user_session.user_collections
     else:
         anon_collections = user_manager.AnonUser().get_collections()
-        collection_names = []
+        collections = []
         for collection in anon_collections:
-            collection_names.append({'id':collection['id'], 'name':collection['name']})
+            collections.append({'id':collection['id'], 'name':collection['name']})
+
+    if 'traits' in request.args:
+        traits=request.args['traits']
         return render_template("collections/add.html",
                                 traits = traits,
-                                collections = collection_names,
+                                collections = collections,
+                              )
+    else:
+        hash = request.args['hash']
+        return render_template("collections/add.html",
+                                hash = hash,
+                                collections = collections,
                               )
 
 @app.route("/collections/new")
@@ -231,7 +242,12 @@ def collections_new():
 def create_new(collection_name):
     params = request.args
 
-    unprocessed_traits = params['traits']
+    if "hash" in params:
+        unprocessed_traits = Redis.get(params['hash'])
+        Redis.delete(hash)
+    else:
+        unprocessed_traits = params['traits']
+
     traits = process_traits(unprocessed_traits)
 
     if g.user_session.logged_in:
@@ -241,7 +257,7 @@ def create_new(collection_name):
     else:
         ac = AnonCollection(collection_name)
         ac.changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
-        ac.add_traits(params)
+        ac.add_traits(unprocessed_traits)
         return redirect(url_for('view_collection', collection_id=ac.id))
 
 @app.route("/collections/list")

@@ -2,11 +2,12 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
 
-    <div class="container">
+    <div class="container" style="width: 2000px;">
 
         <p>You searched for {{ terms }}.</p>
         <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
@@ -28,60 +29,10 @@
             </form>
             <br />
             <div style="width: 100%;">
-              <table width="100%" id="trait_table" class="display dataTable nowrap" style="float: left;">
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th data-export="Index">Index</th>
-                    <th data-export="Record">Record ID</th>
-                    <th data-export="Species">Species</th> 
-                    <th data-export="Group">Group</th> 
-                    <th data-export="Tissue">Tissue</th> 
-                    <th data-export="Dataset">Dataset</th> 
-                    <th data-export="Symbol">Symbol</th> 
-                    <th data-export="Description">Description</th> 
-                    <th data-export="Location">Location</th>
-                    <th data-export="Mean">Mean</th>
-                    <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                    <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                  </tr>
-                </thead> 
+              <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <tbody>
-                  {% for this_trait in trait_list %}
-                  <tr id="trait:{{ this_trait.name }}:{{ this_trait.dataset }}">
-                    <td align="center" style="padding-right: 0px; padding-left: 5px;"><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset)) }}"></td>
-                    <td align="right" data-export="{{ loop.index }}">{{ loop.index }}</td>
-                    <td data-export="{{ this_trait.name }}"><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset)}}">{{ this_trait.name }}</a></td>
-                    <td data-export="{{ this_trait.species }}">{{ this_trait.species }}</td>
-                    <td data-export="{{ this_trait.group }}">{{ this_trait.group }}</td>
-                    <td data-export="{{ this_trait.tissue }}">{{ this_trait.tissue }}</td>
-                    <td data-export="{{ this_trait.dataset }}">{{ this_trait.dataset }}</td>
-                    <td data-export="{{ this_trait.symbol }}">{{ this_trait.symbol }}</td>
-                    <td data-export="{{ this_trait.description }}">{{ this_trait.description }}</td>
-                    <td data-export="{{ this_trait.location_repr }}" align="right">{{ this_trait.location_repr }}</td>
-                    <td data-export="{{ '%0.3f' % this_trait.mean|float }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</td>
-                    <td data-export="{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}" align="right">{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                    <td data-export="{% if this_trait.additive != "" %}{{ '%0.3f' % this_trait.additive|float }}{% else %}N/A{% endif %}" align="right">{% if this_trait.additive != "" %}{{ '%0.3f' % this_trait.additive|float }}{% else %}N/A{% endif %}</td>
-                  </tr>
-                  {% endfor %}
+                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
-                <tfoot>
-                  <tr>
-                    <th></th>
-                    <th>Index</th>
-                    <th>Record ID</th>
-                    <th>Species</th> 
-                    <th>Group</th> 
-                    <th>Tissue</th> 
-                    <th>Dataset</th> 
-                    <th>Symbol</th> 
-                    <th>Description</th> 
-                    <th>Location</th>
-                    <th>Mean</th>
-                    <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                    <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                  </tr>
-                </tfoot> 
               </table>
             </div>
         </div>
@@ -92,14 +43,17 @@
 {% endblock %}
 
 {% block js %}
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
-    
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-	
+
+    <script type='text/javascript'>
+      var the_rows = {{ trait_list|safe }};
+    </script>
+
     <script type="text/javascript" charset="utf-8">
         $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
         {
@@ -107,6 +61,13 @@
                 return $('input', td).prop('checked') ? '1' : '0';
             } );
         };
+
+        $.fn.dataTable.ext.order['dom-inner-text'] = function  ( settings, col )
+        {
+            return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+                return $(td).text();
+            } );
+        }
 
         $(document).ready( function () {
             
@@ -118,52 +79,151 @@
 
             console.time("Creating table");
             $('#trait_table').DataTable( {
-                "createdRow": function ( row, data, index ) {
+                'createdRow': function ( row, data, index ) {
+                    $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
+                    $('td', row).eq(1).attr("align", "right");
+                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                    if ($('td', row).eq(4).text().length > 20) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 20));
+                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                    }
+                    $('td', row).eq(5).attr('title', $('td', row).eq(5).text());
+                    if ($('td', row).eq(5).text().length > 20) {
+                        $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 20));
+                        $('td', row).eq(5).text($('td', row).eq(5).text() + '...')
+                    }
+                    $('td', row).eq(6).attr('title', $('td', row).eq(6).text());
+                    if ($('td', row).eq(6).text().length > 35) {
+                        $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 35));
+                        $('td', row).eq(6).text($('td', row).eq(6).text() + '...')
+                    }
                     $('td', row).eq(8).attr('title', $('td', row).eq(8).text());
-                    if ($('td', row).eq(8).text().length > 50) {
-                        $('td', row).eq(8).text($('td', row).eq(8).text().substring(0, 50));
+                    if ($('td', row).eq(8).text().length > 45) {
+                        $('td', row).eq(8).text($('td', row).eq(8).text().substring(0, 45));
                         $('td', row).eq(8).text($('td', row).eq(8).text() + '...')
                     }
+                    $('td', row).slice(10,14).attr("align", "right");
                 },
-                "paging": false,
-                "columns": [
-                    { "orderDataType": "dom-checkbox" },
-                    { "type": "natural", "width": "3%" },
-                    { "type": "natural", "width": "6%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "7%" },
-                    { "type": "natural", "width": "4%" },
-                    { "type": "natural", "width": "5%" },
-                    { "type": "natural", "width": "5%" }
-                ],
-                "columnDefs": [
+                'data': the_rows,
+                'columns': [
+                    { 
+                      'data': null,
+                      'orderDataType': "dom-checkbox",
+                      'render': function(data, type, row, meta) {
+                        return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
+                      }
+                    },
                     {
-                        "targets": 0,
-                        "orderable": false,
-                        "orderDataType": "dom-checkbox"
+                      'title': "Index",
+                      'type': "natural", 
+                      'data': "index"
+                    },
+                    { 
+                      'title': "Record",
+                      'type': "natural", 
+                      'data': null,
+                      'orderDataType': "dom-inner-text",
+                      'render': function(data, type, row, meta) {
+                        return '<a href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
+                      }
+                    },
+                    { 
+                      'title': "Species",
+                      'type': "natural", 
+                      'data': "species"
+                    },
+                    { 
+                      'title': "Group",
+                      'type': "natural",
+                      'data': "group"
+                    },
+                    { 
+                      'title': "Tissue",
+                      'type': "natural",
+                      'data': "tissue"
+                    },
+                    { 
+                      'title': "Dataset",
+                      'type': "natural",
+                      'data': "dataset_fullname"
+                    },
+                    { 
+                      'title': "Symbol",
+                      'type': "natural",
+                      'data': "symbol"
+                    },
+                    { 
+                      'title': "Description",
+                      'type': "natural",
+                      'data': "description"
+                    },
+                    { 
+                      'title': "Location",
+                      'type': "natural", 
+                      'data': "location_repr"
+                    },
+                    {
+                      'title': "Mean",
+                      'type': "natural", 
+                      'data': "mean",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    { 
+                      'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'type': "natural", 
+                      'data': "LRS_score_repr",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    { 
+                      'title': "Max LRS Location",
+                      'type': "natural", 
+                      'data': "max_lrs_text"
+                    },
+                    { 
+                      'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'type': "natural", 
+                      'data': "additive",
+                      'orderSequence': [ "desc", "asc"]
                     }
                 ],
-                "order": [[1, "asc" ]],
-                "sDom": "tir",
-                "autoWidth": false,
-                "deferRender": true,
-                "bSortClasses": false,
-                "scrollY": "600px",
-                "scrollCollapse": true,
-                "scroller": true,
-                "scrollX": true,
-                "paging": false,
-                "orderClasses": true
+                'order': [[1, "asc" ]],
+                'sDom': "tir",
+                'autoWidth': true,
+                'deferRender': true,
+                'paging': false,
+                'orderClasses': true,
+                'processing': true,
+                'language': {
+                  'loadingRecords': '&nbsp;',
+                  'processing': 'Loading...'
+                }
             } );
+
+            $('#trait_table').append(
+              '<tfoot>' + 
+                '<tr>' +
+                  '<th></th>' +
+                  '<th>Index</th>' +
+                  '<th>Record ID</th>' +
+                  '<th>Species</th> ' +
+                  '<th>Group</th>' +
+                  '<th>Tissue</th>' +
+                  '<th>Dataset</th>' + 
+                  '<th>Symbol</th>' + 
+                  '<th>Description</th>' + 
+                  '<th>Location</th>' +
+                  '<th>Mean</th>' +
+                  '<th>Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
+                  '<th>Max LRS Location</th>' + 
+                  '<th>Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
+                '</tr>' + 
+              '</tfoot>'
+            );
 
             console.timeEnd("Creating table");
 
         });
         
     </script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 {% endblock %}

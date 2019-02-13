@@ -248,7 +248,7 @@ def build_datasets(species, group, type_name):
                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '%s' and
                     ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id and
                     ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0 order by
-                    ProbeSetFreeze.OrderList asc""" % (species, group, type_name))
+                    ProbeSetFreeze.CreateTime desc""" % (species, group, type_name))
 
         dataset_results = Cursor.fetchall()
         datasets = []

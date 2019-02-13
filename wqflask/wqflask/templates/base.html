@@ -22,17 +22,22 @@
 <body style="width: 100% !important;">
     <!-- Navbar ================================================== -->
 
-    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation" style="width: 100%;">
-
+    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation" style="width: 100%; white-space: nowrap;">
+    <!--<div class="navbar navbar-default" style="width: 100%; white-space: nowrap;">-->
             <div class="container-fluid" style="width: 100%;">
                 <!-- Brand and toggle get grouped for better mobile display -->
+                <!---
                 <div class="navbar-header">
-                <a class="navbar-brand" href="/">GeneNetwork</a>
+                  <a class="navbar-brand" href="/">GeneNetwork</a>
                 </div>
+                -->
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div>
                     <ul class="nav navbar-nav">
+                        <li class="" style="margin-right: 20px;">
+                            <a href="/" style="font-weight: bold;">GeneNetwork</a>
+                        </li>
                         <li class="">
                             <a href="/intro">Intro</a>
                         </li>
@@ -52,22 +57,17 @@
                             </a>
                         </li>
                         <li class="">
-                            <a href="/help">Help</a>
+                            <a href="/snp_browser">SNP Browser</a>
                         </li>
                         <li class="">
-                            <a href="/news">News</a>
-                        </li>
-                        <li class="">
-                            <a href="/references">References</a>
-                        </li>
-                        <li class="">
-                            <a href="/policies">Policies</a>
-                        </li>
-                        <li class="">
-                            <a href="/links">Links</a>
-                        </li>
-						<li class="">
-                            <a href="/environments">Environments</a>
+                            <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></a>
+                            <ul class="dropdown-menu">
+                              <li><a href="/news">News</a></li>
+                              <li><a href="/references">References</a></li>
+                              <li><a href="/policies">Policies</a></li>
+                              <li><a href="/links">Links</a></li>
+                              <li><a href="/environments">Environments</a></li>
+                            </ul>
                         </li>
                         <li class="">
                             {% if g.user_session.logged_in %}

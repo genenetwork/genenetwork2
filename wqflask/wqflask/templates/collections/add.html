@@ -6,7 +6,11 @@
     </div>
     <div class="modal-body" style="margin-left: 20px;">
         <form action="/collections/new" data-validate="parsley" id="add_form">
+            {% if traits is defined %}
             <input type="hidden" name="traits" value="{{ traits }}" />
+            {% else %}
+            <input type="hidden" name="hash" value="{{ hash }}" />
+            {% endif %}
             <fieldset>
               <legend>1. Create a new collection</legend>
               <div style="margin-left: 20px;">

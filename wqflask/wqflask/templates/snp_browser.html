@@ -2,6 +2,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/typeahead-bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/snp_browser.css" />
 {% endblock %}
 {% block content %}
@@ -9,33 +10,35 @@
   <div class="container-fluid">
     <h2>Variant Browser <a class="btn btn-primary" href="http://genenetwork.org/snpbrowser.html" role="button">Info</a></h2>
 
-    <div class="container" style="border-style: double; position: relative; width: 60%; padding-top: 10px; padding-right: 40px;">
+    <div class="container" style="border-style: double; position: relative; width: 950px; padding-top: 10px; padding-right: 40px;">
       <form id="snp_browser_form" method="get" action="/snp_browser">
-        <input type="hidden" name="chosen_strains">
+        <input type="hidden" name="first_run" value="{{ first_run }}">
+        <input type="hidden" name="chosen_strains_mouse" value="{{ chosen_strains_mouse|join(",") }}">
+        <input type="hidden" name="chosen_strains_rat" value="{{ chosen_strains_rat|join(",") }}">
         <div class="col-xs-4" style="padding-left: 0px;">
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="snp_or_indel" style="text-align: right;" class="col-xs-4 col-form-label"><b>Type:</b></label>
             <div class="col-xs-8">
               <select name="variant">
-                <option value="SNP" selected>SNP</option>
-                <option value="InDel">InDel</option>
+                <option value="SNP" {% if variant_type == "SNP" %}selected{% endif %}>SNP</option>
+                <option value="InDel" {% if variant_type == "InDel" %}selected{% endif %}>InDel</option>
               </select>
             </div>
           </div>
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="species" style="text-align: right;" class="col-xs-4 col-form-label"><b>Species:</b></label>
             <div class="col-xs-8">
-              <select name="species">
-                <option value="Mouse" selected>Mouse</option>
-                <option value="Rat">Rat</option>
-                <option value="All" selected>All</option>
+              <select id="species_select" name="species">
+                <option value="Mouse" {% if species_name == "Mouse" %}selected{% endif %}>Mouse</option>
+                <option value="Rat" {% if species_name == "Rat" %}selected{% endif %}>Rat</option>
+                <option value="Human" disabled>Human</option>
               </select>
             </div>
           </div>
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="gene_or_id" style="text-align: right;" class="col-xs-4 col-form-label"><b>Gene or ID:</b></label>
             <div class="col-xs-8">
-              <input type="text" name="gene_name" size="12">
+              <input type="text" name="gene_name" size="12" value="{{ gene_name }}">
             </div>
           </div>
           <div class="form-group row">
@@ -44,8 +47,8 @@
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="chr" style="text-align: right;" class="col-xs-4 col-form-label"><b>Chr:</b></label>
             <div class="col-xs-8">
-              <select name="chr">
-                {% for item in chr_list %}
+              <select id="chr_select" name="chr">
+                {% for item in this_chr_list %}
                 <option value="{{ item }}" {% if item == chr %}selected{% endif %}>{{ item }}</option>
                 {% endfor %}
               </select>
@@ -75,15 +78,16 @@
           <div class="form-group row" style="margin-bottom: 10px;">
             <label for="strains" style="text-align: right;" class="col-xs-4 col-form-label"><b>Strains:</b></label>
             <div class="col-xs-8">
-              <select name="strains" style="width: 70%;">
-                <optgroup label="Mouse">
-                  {% for strain in strain_list[:-1] %}
+              <select id="strain_select" name="strains" style="width: 70%;">
+                  {% if species_name == "Mouse" %}
+                  {% for strain in strain_lists['mouse'] %}
                   <option value="{{ strain }}" {% if loop.index == 1 %}selected{% endif %}>{{ strain }}</option>
                   {% endfor %}
-                </optgroup>
-                <optgroup label="Rat">
-                  <option value="BN">BN</option>
-                </optgroup>
+                  {% elif species_name == "Rat" %}
+                  {% for strain in strain_lists['rat'] %}
+                  <option value="{{ strain }}" {% if loop.index == 1 %}selected{% endif %}>{{ strain }}</option>
+                  {% endfor %}
+                  {% endif %}
               </select>
               <div style="float: right; line-height: 20px;">
                 <input class="btn btn-primary" type="button" name="add_strain" value="Add" style="vertical-align: middle;">
@@ -177,57 +181,318 @@
       </form>
     </div>
 
+    <div style="margin-top: 20px;">
     {% if filtered_results is defined %}
-    <table class="cell-border nowrap" id="results_table" style="float: left;">
+    {% if filtered_results|length > limit_number %}
+    There are more than 10000 results. Consider limiting your search to a smaller range.
+    {% else %}
+    <table class="dataTable cell-border nowrap" id="results_table" style="float: left;">
       <thead>
         <tr>
           <th></th>
+          {% if header_fields|length == 2 %}
+          {% for header in header_fields[0] %}
+          <th data-export="{{ header }}">{{ header }}</th>
+          {% endfor %}
+          {% for strain in header_fields[1] %}
+          <th data-export="{{ strain }}" style="align: center; text-align: center; line-height: 15px;">{% for letter in strain %}<div style="transform: rotate(90deg);">{{ letter }}</div>{% endfor %}</th>
+          {% endfor %}
+          {% else %}
           {% for header in header_fields %}
           <th data-export="{{ header }}">{{ header }}</th>
           {% endfor %}
+          {% endif %}
         </tr>
       </thead>
       <tbody>
-        {% for result in filtered_results %}
-        <tr>
-          <td><input type="checkbox" name="trait_check"></td>
-          <td align="right">{{ loop.index }}</td>
-          {% for item in result %}
-          {% if loop.index > 1 %}
-          <td>{{ item }}</td>
-          {% endif %}
-          {% endfor %}
-        </tr>
-        {% endfor %}
+      <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
       </tbody>
     </table>
+    {% endif %}
     {% endif %}     
-
+    </div>
   </div>
 
 {% endblock %}
 {% block js %}
   <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
   <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+  <script language="javascript" type="text/javascript" src="/static/new/js_external/typeahead.bundle.js"></script>
+
+  <script language="javascript" type="text/javascript" src="/static/new/javascript/typeahead_rn6.json"></script>
+
+  <script type='text/javascript'>
+      var json_rows = {{ table_rows|safe }};
+      var empty_columns = {{ empty_columns|safe }};
+  </script>
+
   <script language="javascript">
+
+    var substringMatcher = function(strs) {
+      return function findMatches(q, cb) {
+        var matches, substringRegex;
+
+        // an array that will be populated with substring matches
+        matches = [];
+
+        // regex used to determine if a string contains the substring `q`
+        substrRegex = new RegExp(q, 'i');
+
+        // iterate through the pool of strings and for any string that
+        // contains the substring `q`, add it to the `matches` array
+        $.each(strs, function(i, str) {
+          if (substrRegex.test(str)) {
+            matches.push(str);
+          }
+        });
+
+        cb(matches);
+      };
+    };
+
+    $('input[name=gene_name]').typeahead({
+      minLength: 2,
+      hint: true,
+      highlight: true
+    },
+    {
+      name: 'rn6-genes',
+      source: substringMatcher(rat_genes)
+    });
 
     {% if filtered_results is defined %}
     $("#results_table").DataTable( {
-      "sDom": "tir",
-      "iDisplayLength": -1,
-      "autoWidth": true,
-      "paging": false
+      'data': json_rows,
+      {% if variant_type == "SNP" %}
+      'columns': [
+        {
+          'data': null,
+          'orderable': false,
+          'render': function(data, type, row, meta) {
+            return '<input type="checkbox" name="trait_check">'
+          }
+        }, {
+          'data': 'index'
+        }, {
+          'data': null,
+          'render': function(data, type, row, meta) {
+            if (data.rs != "") {
+              return '<b><a href="' + data.snp_url + '">' + data.snp_name + '</a></b>'
+            } else {
+              return '<a href="' + data.snp_url + '">' + data.snp_name + '</a>'
+            }
+          }
+        }, {
+          'data': 'chr'
+        }, {
+          'data': 'mb_formatted'
+        }, {
+          'data': 'alleles'
+        }, {% if empty_columns['snp_source'] == "true" %}{
+          'data': null,
+          'render': function(data, type, row, meta) {
+            if (data.snp_source == "Sanger/UCLA") {
+              return '<a href="' + data.source_urls[0] + '">Sanger</a><a href="' + data.source_urls[1] + '">UCLA</a>'
+            } else {
+              return data.snp_source
+            }
+          }
+        }, {% endif %} {% if empty_columns['conservation_score'] == "true" %}{
+          'data': 'conservation_score'
+        }, {% endif %} {% if empty_columns['gene_name'] == "true" %}{
+          'data': null,
+          'render': function(data, type, row, meta) {
+            if (data.gene_name != "") {
+              return '<i>' + data.gene_name + '</i><br><a href="' + data.gene_link + '">NCBI</a>'
+            } else {
+              return data.gene_name
+            }
+          }
+        }, {% endif %} {% if empty_columns['transcript'] == "true" %}{
+          'data': null,
+          'render': function(data, type, row, meta) {
+            if (data.transcript != "") {
+              return '<a href="' + data.transcript_link + '">' + data.transcript + '</a>'
+            } else {
+              return data.transcript
+            }
+          }
+        }, {% endif %} {% if empty_columns['exon'] == "true" %}{
+          'data': 'exon'
+        }, {% endif %}{
+          'data': 'domain_1'
+        }, {% if empty_columns['domain_2'] == "true" %}{
+          'data': 'domain_2'
+        }, {% endif %} {% if empty_columns['function'] == "true" %}{
+          'data': 'function'
+        }, {% endif %} {% if empty_columns['function_details'] == "true" %}{
+          'data': 'function_details'
+        }, {% endif %} {% for item in allele_list %} {
+          'data': null,
+          'orderable': false,
+          'render': function(data, type, row, meta) {
+            if (typeof data.allele_value_list[{{ loop.index - 1 }}][0] !== "undefined") {
+              return data.allele_value_list[{{ loop.index - 1 }}][0]
+            } else {
+              return ''
+            }
+          }
+        }{% if loop.index < allele_list|length %},{% endif %}{% endfor %}
+      ],
+      'createdRow': function( row, data, dataIndex) {
+        $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
+        $('td', row).eq(1).attr("align", "right");
+        for (i = {{ 15 - empty_field_count }}; i < ({{ 15 - empty_field_count }} + {{ allele_list|length }}); i++) {
+          var this_allele = $('td', row).eq(i).text();
+          $('td', row).eq(i).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
+          switch (this_allele) {
+            case "A":
+              $('td', row).eq(i).addClass('A_allele_color');
+              break;
+            case "C":
+              $('td', row).eq(i).addClass('C_allele_color');
+              break;
+            case "T":
+              $('td', row).eq(i).addClass('T_allele_color');
+              break;
+            case "G":
+              $('td', row).eq(i).addClass('G_allele_color');
+              break;
+            case "t":
+              $('td', row).eq(i).addClass('t_allele_color');
+              break;
+            case "c":
+              $('td', row).eq(i).addClass('c_allele_color');
+              break;
+            case "a":
+              $('td', row).eq(i).addClass('a_allele_color');
+              break;
+            case "g":
+              $('td', row).eq(i).addClass('g_allele_color');
+              break;
+            default:
+              $('td', row).eq(i).addClass('default_allele_color');
+          }
+        }
+      },
+      {% else %}
+      'columns': [
+        {
+          'data': null,
+          'render': function(data, type, row, meta) {
+            return '<input type="checkbox" name="trait_check">'
+          }
+        }, {
+          'data': 'indel_name'
+        }, {
+          'data': 'indel_type'
+        }, {
+          'data': 'indel_chr'
+        }, {
+          'data': 'indel_mb_s'
+        }, {
+          'data': 'indel_mb_e'
+        }, {
+          'data': 'strand'
+        }, {
+          'data': 'size'
+        }, {
+          'data': 'sequence'
+        }, {
+          'data': 'source_name'
+        }
+      ],
+      {% endif %}
+      'order': [[1, "asc" ]],
+      'sDom': "rti",
+      'iDisplayLength': -1,
+      'processing': true,
+      'language': {
+        'loadingRecords': '&nbsp;',
+        'processing': 'Loading...'
+      }
     });
     {% endif %}
+
+    $("#species_select").change(function() {
+        this_species = $(this).val();
+        $("#strain_select").empty()
+        $("#chosen_strains_select").empty()
+        $("#chr_select").empty()
+
+        if (this_species == "Mouse") {
+            {% for strain in strain_lists["mouse"] %}
+            var option = $('<option></option>').attr("value", "{{ strain }}").text("{{ strain }}");
+            $("select[name=strains]").append(option);
+            {% endfor %}
+
+            {% for chr in mouse_chr_list %}
+            var option = $('<option></option>').attr("value", "{{ chr }}").text("{{ chr }}");
+            $("select[name=chr]").append(option);
+            {% endfor %}
+
+            chosen_strains = $("input[name=chosen_strains_mouse]").val().split(",")
+        } else if (this_species == "Rat") {
+            {% for strain in strain_lists["rat"] %}
+            var option = $('<option></option>').attr("value", "{{ strain }}").text("{{ strain }}");
+            $("select[name=strains]").append(option);
+            {% endfor %}
+
+            {% for chr in rat_chr_list %}
+            var option = $('<option></option>').attr("value", "{{ chr }}").text("{{ chr }}");
+            $("select[name=chr]").append(option);
+            {% endfor %}
+
+            chosen_strains = $("input[name=chosen_strains_rat]").val().split(",")
+        }
+
+        for (i=0; i < chosen_strains.length; i++) {
+            var option = $('<option></option>').attr("value", chosen_strains[i]).text(chosen_strains[i]);
+            $("#chosen_strains_select").append(option)
+        }
+    });
 
     $("input[name=add_strain]").click(function() {
       var selected_strain = $("select[name=strains] option:selected").val();
       $("#chosen_strains_select").append("<option value='" + selected_strain + "'>" + selected_strain + "</option>");
+
+      var current_species = $("#species_select").val();
+      if (current_species == "Mouse") {
+          stored_strains = $("input[name=chosen_strains_mouse]").val().split(",")
+          stored_strains.push(selected_strain)
+          $("input[name=chosen_strains_mouse]").val(stored_strains.join(","))
+      } else if (current_species == "Rat") {
+          stored_strains = $("input[name=chosen_strains_rat]").val().split(",")
+          stored_strains.push(selected_strain)
+          $("input[name=chosen_strains_rat]").val(stored_strains.join(","))
+      }
     });
 
     $("input[name=remove_strain]").click(function() {
       var selected_strain = $("#chosen_strains_select option:selected").val();
       $("#chosen_strains_select option[value='" + selected_strain + "']").remove();
+
+      var current_species = $("#species_select").val();
+
+      if (current_species == "Mouse") {
+          stored_strains = $("input[name=chosen_strains_mouse]").val().split(",")
+          for (i=0; i < stored_strains.length; i++) {
+              if (stored_strains[i] == selected_strain) {
+                  stored_strains.splice(i, 1);
+                  break;
+              }
+          }
+          $("input[name=chosen_strains_mouse]").val(stored_strains.join(","))
+      } else if (current_species == "Rat") {
+          stored_strains = $("input[name=chosen_strains_rat]").val().split(",")
+          for (i=0; i < stored_strains.length; i++) {
+              if (stored_strains[i] == selected_strain) {
+                  stored_strains.splice(i, 1);
+                  break;
+              }
+          }
+          $("input[name=chosen_strains_rat]").val(stored_strains.join(","))
+      }
     });
 
     $("#snp_browser_form").submit(function() {

@@ -10,7 +10,7 @@
 {% from "base_macro.html" import header %}
 {% block content %}
     <div class="container">
-        <form method="post" target="_blank" action="/marker_regression" name="marker_regression" id="marker_regression_form">
+        <form method="post" target="_blank" action="/run_mapping" name="marker_regression" id="marker_regression_form">
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
@@ -181,7 +181,7 @@
 
         </form>
         {% if selectedChr == -1 %}
-        <div class="container" style="padding-left: 30px; width:{% if 'additive' in trimmed_markers[0] %}45%{% else %}35%{% endif %};">
+        <div class="container" style="padding-left: 30px;">
           <h2>Mapping Statistics</h2>
         <br />
         <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
@@ -190,8 +190,8 @@
         <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
         <br />
         <br />
-          <div id="table_container" style="border-style: solid; border-width: 1px; border-color: black;">
-          <table id="trait_table" class="table table-hover table-striped nowrap">
+          <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}480{% else %}450{% endif %}px;">
+          <table id="trait_table" class="table-hover table-striped cell-border dataTable no-footer">
             <thead>
               <tr>
                 <th></th>
@@ -215,7 +215,7 @@
             <tbody>
               {% for marker in trimmed_markers %}
               <tr>
-                <td align="center" style="padding-right: 0px;">
+                <td align="center" style="padding: 1px 0px 1px 0px;">
                   <input type="checkbox" name="selectCheck"
                          class="checkbox trait_checkbox"
                          value="{{ data_hmac('{}:{}Geno'.format(marker.name, dataset.group.name)) }}">
@@ -257,7 +257,7 @@
         <div style="width: 100%;">
           <h2>Interval Analyst</h2>
           <div id="table_container">
-          <table id="interval_analyst" class="table table-hover table-striped nowrap">
+          <table id="interval_analyst" class="table-hover table-striped cell-border dataTable" style="float: left; width:100%;">
             <thead>
               <tr>
                 {% for header in gene_table_header %}
@@ -269,7 +269,11 @@
               {% for row in gene_table_body %}
               <tr>
                 {% for n in range(row|length) %}
+                {% if n == 0 %}
+                <td align="center" style="padding: 1px 0px 1px 0px;">{{ row[n]|safe }}</td>
+                {% else %}
                 <td>{{ row[n]|safe }}</td>
+                {% endif %}
                 {% endfor %}
               </tr>
               {% endfor %}
@@ -314,37 +318,16 @@
         $(document).ready( function () {
             console.time("Creating table");
             $('#trait_table').DataTable( {
-                {% if mapping_method != "reaper" %}
                 "columns": [
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "20%" },
+                    { "type": "natural", "width": "25%" },
+                    { "type": "natural" },
                     { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "15%" }
+                    { "type": "natural" }{% if 'additive' in marker %},
+                    { "type": "natural" }{% endif %}{% if 'dominance' in marker and dataset.group.genetic_type != "riset" %},
+                    { "type": "natural" }{% endif %}
                 ],
-                {% elif dataset.group.genetic_type == "riset" %}
-                "columns": [
-                    { "type": "natural", "width": "5%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "20%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "15%" },
-                    { "type": "natural", "width": "8%" }
-                ],
-                {% else %}
-                "columns": [
-                    { "type": "natural", "width": "5%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "20%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "15%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "8%" }
-                ],
-                {% endif %}
                 "columnDefs": [ {
                     "targets": 0,
                     "orderable": false
@@ -355,13 +338,24 @@
                 "autoWidth": false,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": "600px",
                 "scrollCollapse": false,
-                "scroller": true,
                 "paging": false
             } );
 
             $('#interval_analyst').dataTable( {
+                "columns": [
+                    { "bSortable": false},
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
                 "columnDefs": [ {
                     "targets": 0,
                     "sortable": false
@@ -372,7 +366,6 @@
                 "autoWidth": false,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": "600px",
                 "scrollCollapse": false,
                 "paging": false
             } );

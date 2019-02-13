@@ -94,7 +94,7 @@ $(function() {
   })(this));
   open_window = function(url, name) {
     var options;
-    options = "menubar=1,toolbar=1,location=1,resizable=1,status=1,scrollbars=1,directories=1,width=900";
+    options = "menubar=yes,toolbar=yes,titlebar=yes,location=yes,resizable=yes,status=yes,scrollbars=yes,directories=yes,width=900";
     return open(url, name, options).focus();
   };
   group_info = function() {
@@ -108,7 +108,12 @@ $(function() {
   dataset_info = function() {
     var dataset, url;
     accession_id = $('#dataset option:selected').data("id");
-    url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + accession_id;
+    if (accession_id != "None") {
+      url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + accession_id;
+    } else {
+      name = $('#dataset option:selected').val();
+      url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + name;
+    }
     return open_window(url, "Dataset Info");
   };
   $('#dataset_info').click(dataset_info);

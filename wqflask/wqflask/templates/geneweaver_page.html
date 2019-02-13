@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{% if wrong_input == "True" %}WebGestalt Error{% else %}Opening WebGestalt{% endif %}{% endblock %}
+{% block content %}
+  {% if wrong_input == "True" %}
+  {{ header("Error") }}
+
+  <div class="container">
+    {% if chip_name == "mixed" %}
+    <h3>Sorry, the analysis was interrupted because your selections from GeneNetwork apparently include data from more than one array platform (i.e., Affymetrix U74A and M430 2.0). Most WebGestalt analyses assume that you are using a single array type and compute statistical values on the basis of that particular array. Please reselect traits from a signle platform and submit again.</h3>
+    {% elif chip_name == "not_microarray" %}
+    <h3>You need to select at least one microarray trait to submit.</hr>
+    {% elif '_NA' in chip_name %}
+    <h3>Sorry, the analysis was interrupted because your selections from GeneNetwork apparently include data from platform {{ chip_name }} which is unknown by GeneWeaver. Please reselect traits and submit again.</h3>
+    {% else %}
+    <h3>Sorry, an error occurred while submitting your traits to GeneWeaver.</h3>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="container">
+    <h3>Opening GeneWeaver...</h3>
+  </div>
+  <form method="post" action="http://ontologicaldiscovery.org/index.php?action=manage&cmd=importGeneSet" name="formODE">
+    {% for key in hidden_vars %}
+    <input type="hidden" name="{{ key }}" value="{{ hidden_vars[key] }}">
+    {% endfor %}
+  </form>
+  {% endif %}
+{% endblock %}
+{% block js %}
+{% if wrong_input == "False" %}
+<script  type="text/javascript">
+    setTimeout('document.formODE.submit()', 1000);
+</script>
+{% endif %}
+{% endblock %}

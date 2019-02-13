@@ -109,6 +109,7 @@ Publish or ProbeSet. E.g.
                         else:
                             new_type = "ProbeSet"
                         self.datasets[short_dataset_name] = new_type
+
         # Set LOG_LEVEL_DEBUG=5 to see the following:
         logger.debugf(5, "datasets",self.datasets)
 
@@ -170,28 +171,22 @@ class Markers(object):
     def __init__(self, name):
         json_data_fh = open(locate(name + ".json",'genotype/json'))
 
-        try:
-            markers = []
-            with open(locate(name + "_snps.txt", 'r')) as bimbam_fh:
+        markers = []
+        with open("%s/%s_snps.txt" % (flat_files('genotype/bimbam'), name), 'r') as bimbam_fh:
+            if len(bimbam_fh.readline().split(", ")) > 2:
+                delimiter = ", "
+            elif len(bimbam_fh.readline().split(",")) > 2:
+                delimiter = ","
+            elif len(bimbam_fh.readline().split("\t")) > 2:
+                delimiter = "\t"
+            else:
+                delimiter = " "
+            for line in bimbam_fh:
                 marker = {}
-                if len(bimbam_fh[0].split(", ")) > 2:
-                    delimiter = ", "
-                elif len(bimbam_fh[0].split(",")) > 2:
-                    delimiter = ","
-                elif len(bimbam_fh[0].split("\t")) > 2:
-                    delimiter = "\t"
-                else:
-                    delimiter = " "
-                for line in bimbam_fh:
-                    marker['name'] = line.split(delimiter)[0]
-                    marker['Mb']
-                    marker['chr'] = line.split(delimiter)[2]
-                    marker['cM']
-                    markers.append(marker)
-        #try:
-        #    markers = json.load(json_data_fh)
-        except:
-            markers = []
+                marker['name'] = line.split(delimiter)[0].rstrip()
+                marker['Mb'] = float(line.split(delimiter)[1].rstrip())/1000000
+                marker['chr'] = line.split(delimiter)[2].rstrip()
+                markers.append(marker)
 
         for marker in markers:
             if (marker['chr'] != "X") and (marker['chr'] != "Y"):
@@ -333,8 +328,6 @@ class DatasetGroup(object):
         return mapping_id, mapping_names
 
     def get_markers(self):
-        logger.debug("self.species is:", self.species)
-
         def check_plink_gemma():
             if flat_file_exists("mapping"):
                 MAPPING_PATH = flat_files("mapping")+"/"
@@ -371,23 +364,16 @@ class DatasetGroup(object):
             result = Redis.get(key)
 
         if result is not None:
-            #logger.debug("Sample List Cache hit!!!")
-            #logger.debug("Before unjsonifying {}: {}".format(type(result), result))
             self.samplelist = json.loads(result)
-            #logger.debug("  type: ", type(self.samplelist))
-            #logger.debug("  self.samplelist: ", self.samplelist)
         else:
             logger.debug("Cache not hit")
 
             genotype_fn = locate_ignore_error(self.name+".geno",'genotype')
-            mapping_fn = locate_ignore_error(self.name+".fam",'mapping')
-            if mapping_fn:
-                self.samplelist = get_group_samplelists.get_samplelist("plink", mapping_fn)
-            elif genotype_fn:
+            if genotype_fn:
                 self.samplelist = get_group_samplelists.get_samplelist("geno", genotype_fn)
             else:
                 self.samplelist = None
-            logger.debug("Sample list: ",self.samplelist)
+
             if USE_REDIS:
                 Redis.set(key, json.dumps(self.samplelist))
                 Redis.expire(key, 60*5)
@@ -457,12 +443,14 @@ def datasets(group_name, this_group = None):
             and InbredSet.Name like %s
             and ProbeSetFreeze.public > %s
             and ProbeSetFreeze.confidentiality < 1
-          ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
+          ORDER BY Tissue.Name)
         ''' % (group_name, webqtlConfig.PUBLICTHRESH,
               group_name, webqtlConfig.PUBLICTHRESH,
               "'" + group_name + "'", webqtlConfig.PUBLICTHRESH))
 
-    for dataset_item in the_results:
+    sorted_results = sorted(the_results, key=lambda kv: kv[0])
+
+    for dataset_item in sorted_results:
         tissue_name = dataset_item[0]
         dataset = dataset_item[1]
         dataset_short = dataset_item[2]

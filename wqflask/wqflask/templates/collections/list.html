@@ -4,19 +4,21 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-    {% if g.user_session.logged_in %}
-    {{ header("Your Collections",
-        'You have {}.'.format(numify(collections|count, "collection", "collections"))) }}
-    {% else %}
-    {{ header("Your Collections",
-        'You have {}.'.format(numify(collections|count, "collection", "collections"))) }}
-    {% endif %}
-
-
     <div class="container">
+        {% if g.user_session.logged_in %}
+        <h1>Collections owned by {{ g.user_session.user_name }}</h1>
+        {% else %}
+        <h1>Your Collections</h1>
+        {% endif %}
+        <h2>You have {{ '{}'.format(numify(collections|count, "collection", "collections")) }}.</h1>
+
+        <hr style="height: 1px; background-color: #A9A9A9;">
+
+        <!--
         <div class="page-header">
             {% if g.user_session.logged_in %}
             <h1>Collections owned by {{ g.user_session.user_name }}</h1>
@@ -24,6 +26,7 @@
             <h1>Your Collections</h1>
             {% endif %}
         </div>
+        -->
         <div>
             <form id="collections_form" action="/delete" method="post">
               <input type="hidden" name="uc_id" id="uc_id" value="" />
@@ -35,7 +38,7 @@
         </div>
         <br>
         <div id="collections_list" style="width:50%;">
-        <table class="display dataTable nowrap" id='trait_table'>
+        <table class="table-hover table-striped cell-border" id='trait_table'>
             <thead>
                 <tr>
                     <th></th>
@@ -51,9 +54,9 @@
             {% for uc in collections %}
                 <tr class="collection_line">
                     {% if g.user_session.logged_in %}
-                    <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
+                    <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
                     {% else %}
-                    <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.name }}"></td>
+                    <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.name }}"></td>
                     {% endif %}
                     <td align="right">{{ loop.index }}
                     {% if g.user_session.logged_in %}

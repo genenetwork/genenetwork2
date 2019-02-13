@@ -46,7 +46,7 @@ class SampleList(object):
             sample_name = sample_name.replace("_2nd_", "")
 
             if type(self.this_trait) is list: #ZS: self.this_trait will be a list if it is a Temp trait
-                if counter <= len(self.this_trait) and self.this_trait[counter-1] != 'X':
+                if counter <= len(self.this_trait) and str(self.this_trait[counter-1]).upper() != 'X':
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name, value=float(self.this_trait[counter-1]))
                 else:
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
@@ -63,10 +63,7 @@ class SampleList(object):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 
-            if sample_group_type == 'primary':
-                sample.this_id = "Primary_" + str(counter)
-            else:
-                sample.this_id = "Other_" + str(counter)
+            sample.this_id = str(counter)
 
             #### For extra attribute columns; currently only used by several datasets - Zach
             if self.sample_attribute_values:
@@ -78,7 +75,6 @@ class SampleList(object):
         logger.debug("self.attributes is", pf(self.attributes))
 
         self.do_outliers()
-        #do_outliers(the_samples)
         logger.debug("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
 
     def __repr__(self):

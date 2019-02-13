@@ -99,7 +99,7 @@ class CorrelationResults(object):
             else:
                 helper_functions.get_species_dataset_trait(self, start_vars)
 
-            self.dataset.group.read_genotype_file()
+            #self.dataset.group.read_genotype_file()
 
             corr_samples_group = start_vars['corr_samples_group']
 

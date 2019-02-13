@@ -14,11 +14,6 @@
                 <li>
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
                 </li>
-<!--
-                <li>
-                    <a href="#pylmm" data-toggle="tab">pyLMM</a>
-                </li>
--->
                 {% endif %}
                 {% for mapping_method in dataset.group.mapping_names %}
                 {% if mapping_method == "GEMMA" %}
@@ -39,6 +34,16 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="gemma">
                     <div style="padding-top: 20px;" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="chr_select" style="text-align: right;" class="col-xs-3 control-label">Chromosome</label>
+                            <div style="margin-left:20px;" class="col-xs-2 controls">
+                                <select id="chr_gemma" class="form-control">
+                                    {% for item in chr_list %}
+                                    <option value="{{ item[1] }}">{{ item[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
                             <label for="genofiles" style="text-align: right;" class="col-xs-3 control-label">Genotypes</label>
@@ -54,7 +59,7 @@
                         <div class="mapping_method_fields form-group">
                             <label for="maf_gemma" style="text-align: right;" class="col-xs-3 control-label">MAF</label>
                             <div style="margin-left:20px;" class="col-xs-4 controls">
-                                <input name="maf_gemma" value="0.05" type="text" class="form-control">
+                                <input name="maf_gemma" value="{{ maf }}" type="text" class="form-control">
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
@@ -110,6 +115,16 @@
                 {% if dataset.group.mapping_id == "1" %}
                 <div class="tab-pane" id="interval_mapping">
                     <div style="margin-top: 20px" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="chr_select" style="text-align: right;" class="col-xs-3 control-label">Chromosome</label>
+                            <div style="margin-left:20px;" class="col-xs-2 controls">
+                                <select id="chr_reaper" class="form-control">
+                                    {% for item in chr_list %}
+                                    <option value="{{ item[1] }}">{{ item[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
                             <label style="text-align: right;" for="genofiles" class="col-xs-3 control-label">Genotypes</label>
@@ -202,6 +217,16 @@
                 </div>
                 <div class="tab-pane" id="rqtl_geno">
                     <div style="margin-top: 20px" class="form-horizontal">
+                        <div class="mapping_method_fields form-group">
+                            <label for="chr_select" style="text-align: right;" class="col-xs-3 control-label">Chromosome</label>
+                            <div style="margin-left:20px;" class="col-xs-2 controls">
+                                <select id="chr_rqtl_geno" class="form-control">
+                                    {% for item in chr_list %}
+                                    <option value="{{ item[1] }}">{{ item[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:right;" for="genofiles" class="col-xs-3 control-label">Genotypes</label>
@@ -304,30 +329,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane" id="pylmm">
-                    <div style="margin-top: 20px" class="form-horizontal">
-                        {% if genofiles and genofiles|length>0 %}
-                        <div class="mapping_method_fields form-group">
-                            <label style="text-align:right;" class="col-xs-3 control-label">Genotypes</label>
-                            <div style="margin-left: 20px;" class="col-xs-4 controls">
-                                <select id="genofile_pylmm" class="form-control">
-                                    {% for item in genofiles %}
-                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        {% endif %}
-                        <div class="mapping_method_fields form-group">
-                            <label class="col-xs-3 control-label"></label>
-                            <div style="margin-left:20px;" class="col-xs-6">
-                              <button id="pylmm_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping">
-                                  Compute
-                              </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 {% endif %}
             </div>
         </div>
@@ -341,10 +342,6 @@
              <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.</dd>
              <dt>R/qtl</dt>
              <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
-<!--
-             <dt>pyLMM</dt>
-             <dd>pyLMM is a fast and lightweight linear mixed-model (LMM) solver for use in genome-wide association studies (GWAS).</dd>
--->
              {% endif %}
         </dl>
     </div>

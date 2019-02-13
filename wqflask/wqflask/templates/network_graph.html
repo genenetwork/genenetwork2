@@ -47,19 +47,16 @@
                     </tr>
                     <tr>
                       <td colspan="1">
-                        <font size="2"><b>0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +/- 1</b></font><br>
-                        <input type="range" id="slide" min="0" max="1" value="0" step="0.001" list="corr_range">
+                        <font size="2"><b>-1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</b></font><br>
+                        <input type="range" id="neg_slide" min="-1" max="0" value="0" step="0.001" list="corr_range" style="display: inline; width: 45%">
+                        <input type="range" id="pos_slide" min="0" max="1" value="0" step="0.001" list="corr_range" style="display: inline; width: 45%">
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        Layouts
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
+                        Layouts:
                         <select name="layout_select">
                           <option value="circle">Circle</option>
                           <option value="concentric">Concentric</option>
@@ -69,6 +66,39 @@
                           <option value="random">Random</option>
                         </select>
                       </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        Node Font Size:
+                        <select name="font_size">
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10" selected>10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                          <option value="13">13</option>
+                          <option value="14">14</option>
+                          <option value="15">15</option>
+                          <option value="16">16</option>
+                          <option value="17">17</option>
+                          <option value="18">18</option>
+                        </select>
+                      </td>
+                      <td>
+                    </tr>
+                    <tr>
+                      <td>
+                        Edge Width:
+                        <select name="edge_width">
+                          <option value="1" selected>1x</option>
+                          <option value="2">2x</option>
+                          <option value="3">3x</option>
+                          <option value="4">4x</option>
+                        </select>
+                      </td>
+                      <td>
                     </tr>
                   </tbody>
                 </table>
