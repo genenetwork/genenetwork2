@@ -131,7 +131,6 @@ else
     export LC_ALL=C # FIXME
     export GUIX_GENENETWORK_FILES="$GN2_PROFILE/share/genenetwork2"
     export PLINK_COMMAND="$GN2_PROFILE/bin/plink2"
-    export PYLMM_COMMAND="$GN2_PROFILE/bin/pylmm_redis"
     export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
     if [ -z $GEMMA_WRAPPER_COMMAND ]; then
         export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"

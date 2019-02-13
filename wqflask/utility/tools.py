@@ -107,9 +107,6 @@ def js_path(module=None):
         return try_guix
     raise "No JS path found for "+module+" (if not in Guix check JS_GN_PATH)"
 
-def pylmm_command(guess=None):
-    return assert_bin(get_setting("PYLMM_COMMAND",guess))
-
 def gemma_command(guess=None):
     return assert_bin(get_setting("GEMMA_COMMAND",guess))
 
@@ -276,7 +273,6 @@ SMTP_CONNECT = get_setting('SMTP_CONNECT')
 SMTP_USERNAME = get_setting('SMTP_USERNAME')
 SMTP_PASSWORD = get_setting('SMTP_PASSWORD')
 
-PYLMM_COMMAND      = app_set("PYLMM_COMMAND",pylmm_command())
 GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
 assert(GEMMA_COMMAND is not None)
 PLINK_COMMAND      = app_set("PLINK_COMMAND",plink_command())
