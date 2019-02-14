@@ -168,6 +168,7 @@ class ShowTrait(object):
         hddn['maf'] = 0.01
         hddn['compare_traits'] = []
         hddn['export_data'] = ""
+        hddn['export_format'] = "excel"
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
@@ -224,6 +225,7 @@ class ShowTrait(object):
                        sample_lists = sample_lists,
                        attribute_names = self.sample_groups[0].attributes,
                        num_values = self.num_values,
+                       qnorm_values = self.qnorm_vals,
                        sample_column_width = sample_column_width,
                        temp_uuid = self.temp_uuid)
         self.js_data = js_data
